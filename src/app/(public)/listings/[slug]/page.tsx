@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
+import { getListingQualitySnapshot } from "@/data/quality/seed";
 import { PublicGuideTrustMarkers } from "@/features/guide/components/public/public-guide-trust-markers";
 import { getSeededPublicListing } from "@/data/public-listings/seed";
 import {
@@ -23,6 +24,7 @@ import {
   getPublishedReviewsSummaryForTargetFromSupabase,
   listPublishedReviewsForTargetFromSupabase,
 } from "@/data/reviews/supabase";
+import { MarketplaceQualityCard } from "@/features/quality/components/marketplace-quality-card";
 import { PublicReviewsSection } from "@/features/reviews/components/public/public-reviews-section";
 
 function formatRub(value: number) {
@@ -57,6 +59,7 @@ export default async function PublicListingDetailPage({
 
   const guide = getSeededPublicGuide(listing.guideSlug);
   if (!guide) notFound();
+  const quality = getListingQualitySnapshot(listing.slug);
 
   const totalHours = listing.itinerary.reduce(
     (sum, item) => sum + item.durationHours,
@@ -98,6 +101,9 @@ export default async function PublicListingDetailPage({
           </Badge>
           <Badge variant="outline">Up to {listing.groupSizeMax}</Badge>
           <Badge variant="outline">From {formatRub(listing.priceFromRub)}</Badge>
+          <Badge variant={quality.tier === "strong" ? "secondary" : "outline"}>
+            Response {quality.responseTimeHours.toFixed(1)}h
+          </Badge>
           </div>
           <FavoriteToggle
             targetType="listing"
@@ -201,6 +207,11 @@ export default async function PublicListingDetailPage({
 
           <div className="grid gap-4">
             <PublicGuideTrustMarkers trustMarkers={guide.trustMarkers} />
+            <MarketplaceQualityCard
+              title="Ranking posture"
+              description="These indicators are presentational for MVP, but they show how quality affects visibility."
+              snapshot={quality}
+            />
             <PublicReviewsSection
               title="Guide reviews"
               target={{ type: "guide", slug: guide.slug }}

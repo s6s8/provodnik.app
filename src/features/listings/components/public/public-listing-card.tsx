@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FavoriteToggle } from "@/components/shared/favorite-toggle";
+import { getListingQualitySnapshot } from "@/data/quality/seed";
 import type { PublicListing } from "@/data/public-listings/types";
 
 function formatRub(value: number) {
@@ -15,6 +16,8 @@ function formatRub(value: number) {
 }
 
 export function PublicListingCard({ listing }: { listing: PublicListing }) {
+  const quality = getListingQualitySnapshot(listing.slug);
+
   return (
     <Card className="border-border/70 bg-card/80">
       <CardHeader className="space-y-3">
@@ -25,6 +28,9 @@ export function PublicListingCard({ listing }: { listing: PublicListing }) {
           </Badge>
           <div className="flex items-center gap-2">
             <Badge variant="outline">Up to {listing.groupSizeMax}</Badge>
+            <Badge variant={quality.tier === "strong" ? "secondary" : "outline"}>
+              {quality.completionRate}% complete
+            </Badge>
             <FavoriteToggle
               targetType="listing"
               slug={listing.slug}

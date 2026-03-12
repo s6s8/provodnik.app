@@ -29,6 +29,7 @@ import {
   ensureListingCoverReservation,
   listListingMediaReservationsForGuide,
 } from "@/data/guide-assets/supabase-client";
+import { MarketplaceQualityCard } from "@/features/quality/components/marketplace-quality-card";
 import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
 
 function splitCommaList(value: string): string[] {
@@ -245,6 +246,29 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
     return records.find((record) => record.id === selectedId) ?? null;
   }, [records, selectedId]);
 
+  const rankingSnapshot = React.useMemo(() => {
+    const mediaCount = Object.values(mediaReservationsByListing).reduce(
+      (sum, items) => sum + items.length,
+      0,
+    );
+
+    return {
+      responseTimeHours: backendMode === "supabase" ? 2.4 : 3.5,
+      completionRate: records.length >= 3 ? 97 : records.length > 0 ? 95 : 92,
+      cancellationRate: mediaCount >= Math.max(1, records.length) ? 2 : 4,
+      tier:
+        backendMode === "supabase" && mediaCount >= Math.max(1, records.length)
+          ? ("strong" as const)
+          : ("watch" as const),
+      visibilityLabel:
+        backendMode === "supabase" && mediaCount >= Math.max(1, records.length)
+          ? "Quality signals healthy"
+          : "Improve quality inputs",
+      visibilityNote:
+        "Visibility improves when reply speed stays fast, trips complete reliably, and each listing carries strong media and clear itinerary detail.",
+    };
+  }, [backendMode, mediaReservationsByListing, records.length]);
+
   const form = useForm<GuideListing>({
     resolver: zodResolver(guideListingSchema),
     defaultValues: selectedRecord?.listing ?? createEmptyListing(),
@@ -408,6 +432,12 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
           </div>
         </div>
       </div>
+
+      <MarketplaceQualityCard
+        title="Supply quality indicators"
+        description="Guide-facing view of the seeded ranking signals the marketplace exposes in MVP."
+        snapshot={rankingSnapshot}
+      />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <Card className="border-border/70 bg-card/90">

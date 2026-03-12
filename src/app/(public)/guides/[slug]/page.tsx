@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
+import { getGuideQualitySnapshot } from "@/data/quality/seed";
 import {
   getSeededReviewsSummaryForTarget,
   listSeededReviewsForTarget,
@@ -13,6 +14,7 @@ import {
 import { PublicGuideProfileBasics } from "@/features/guide/components/public/public-guide-profile-basics";
 import { PublicGuideProfileSpecialties } from "@/features/guide/components/public/public-guide-profile-specialties";
 import { PublicGuideTrustMarkers } from "@/features/guide/components/public/public-guide-trust-markers";
+import { MarketplaceQualityCard } from "@/features/quality/components/marketplace-quality-card";
 import { PublicReviewsSection } from "@/features/reviews/components/public/public-reviews-section";
 
 export function generateMetadata({
@@ -37,6 +39,7 @@ export default async function PublicGuideProfilePage({
   const guide = getSeededPublicGuide(params.slug);
   if (!guide) notFound();
 
+  const quality = getGuideQualitySnapshot(guide.slug);
   const seededSummary = getSeededReviewsSummaryForTarget("guide", guide.slug);
   const seededReviews = listSeededReviewsForTarget("guide", guide.slug);
   const persistedSummary = await getPublishedReviewsSummaryForTargetFromSupabase({
@@ -59,9 +62,14 @@ export default async function PublicGuideProfilePage({
 
       <PublicGuideProfileBasics guide={guide} />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="grid gap-4 xl:grid-cols-3">
         <PublicGuideProfileSpecialties guide={guide} />
         <PublicGuideTrustMarkers trustMarkers={guide.trustMarkers} />
+        <MarketplaceQualityCard
+          title="Marketplace quality"
+          description="Presentational ranking signals used to explain how trustworthy supply gets surfaced."
+          snapshot={quality}
+        />
       </div>
 
       <PublicReviewsSection
