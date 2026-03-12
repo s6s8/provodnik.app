@@ -95,14 +95,28 @@
 
 ### Planned slices
 - `#14` shared marketplace quality seed contracts
+  - status: `Done`
 - `#15` open request discovery and group join experience
+  - status: `Done`
 - `#16` guide booking operations beyond the current booking-detail scaffold
+  - status: `Done`
 - `#17` dispute intake and refund operations
+  - status: `Done`
 - `#18` notification center and core marketplace notifications
+  - status: `Done`
 - `#19` favorites and saved supply
+  - status: `Done`
 - `#20` post-booking reviews and trust loop
+  - status: `Done`
 - `#21` public policy and trust pages needed for launch credibility
+  - status: `Done`
 - `#22` ranking and supply quality indicators
+  - status: `Backlog`
+
+### Current state
+- The core non-payment MVP marketplace loop is now present on `main`.
+- Remaining non-payment polish is mostly `#22` ranking and supply quality indicators.
+- Real payments remain intentionally deferred to final closeout.
 
 ## Final MVP Closeout
 - Focus:
