@@ -50,21 +50,29 @@
 
 ### Current ready queue
 1. `#7` public guide profile and trust markers
-   - status: `Workflow = Ready`
-   - why next: unlocks public trust surfaces that listing discovery can reuse
+   - status: `Workflow = Done`
+   - result: public guide profiles, trust markers, and reviews summary placeholders are live
 2. `#10` guide listing manager and supply editor scaffold
-   - status: `Workflow = Ready`
-   - why next: guide onboarding now needs a supply creation destination
-3. `#12` listing discovery and tour detail baseline
-   - status: `Workflow = Ready`
-   - why next: public marketplace discovery should follow trust and supply surfaces
+   - status: `Workflow = Done`
+   - result: guide listing manager and local listing editor are live
+3. `#11` admin listing moderation scaffold
+   - status: `Workflow = Done`
+   - result: admin listing moderation queue is live and reachable from the admin workspace
+4. `#12` listing discovery and tour detail baseline
+   - status: `Workflow = Done`
+   - result: public listing discovery and listing detail are live
+5. `#13` booking detail and deposit-ready confirmation scaffold
+   - status: `Workflow = Done`
+   - result: traveler bookings list and deposit-ready booking detail are live
 
 ### Remaining Release 1 slices
-- public guide profile and trust markers
-- listing discovery and listing detail surfaces
-- guide listing manager
-- booking detail and deposit-ready confirmation flow
-- admin listing moderation
+- current tracked Release 1 queue is complete on `main`
+- next expansion work should move into Release 2 slices:
+  - open group joining
+  - favorites
+  - reviews
+  - notifications
+  - disputes and refunds
 
 ### Validation baseline
 - Repo-level validation currently passes on `main`:
