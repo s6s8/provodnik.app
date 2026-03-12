@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import {
   BadgeCheck,
+  ClipboardList,
   FileText,
   Flag,
   Globe,
@@ -306,16 +308,26 @@ export function GuideReviewQueue() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Admin workspace</Badge>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Guide review queue
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground">
-            Review new guide applications, verify documents, and record moderation
-            decisions. This scaffold is frontend-only and keeps decisions in local
-            state.
-          </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="space-y-2">
+            <Badge variant="outline">Admin workspace</Badge>
+            <div className="space-y-2">
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+                Guide review queue
+              </h1>
+              <p className="max-w-3xl text-base text-muted-foreground">
+                Review new guide applications, verify documents, and record moderation
+                decisions. This scaffold is frontend-only and keeps decisions in local
+                state.
+              </p>
+            </div>
+          </div>
+          <Button asChild variant="outline" type="button">
+            <Link href="/admin/listings">
+              <ClipboardList className="mr-1 size-4" />
+              Listing moderation
+            </Link>
+          </Button>
         </div>
       </div>
 
@@ -422,8 +434,8 @@ export function GuideReviewQueue() {
                         <Badge variant="outline">{app.id}</Badge>
                       </div>
                       <CardDescription>
-                        {app.applicant.homeBase} • {app.applicant.yearsExperience}{" "}
-                        yrs exp • Submitted {formatSubmittedAt(app.submittedAt)}
+                        {app.applicant.homeBase} - {app.applicant.yearsExperience}{" "}
+                        yrs exp - Submitted {formatSubmittedAt(app.submittedAt)}
                       </CardDescription>
                     </div>
 
