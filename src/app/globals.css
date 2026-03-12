@@ -1,0 +1,77 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 0.25rem);
+  --radius-md: calc(var(--radius) - 0.125rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+}
+
+:root {
+  --background: oklch(0.986 0.006 95.19);
+  --foreground: oklch(0.187 0.016 51.32);
+  --card: oklch(0.994 0.004 95.51);
+  --card-foreground: oklch(0.187 0.016 51.32);
+  --popover: oklch(0.994 0.004 95.51);
+  --popover-foreground: oklch(0.187 0.016 51.32);
+  --primary: oklch(0.495 0.134 183.64);
+  --primary-foreground: oklch(0.985 0.005 197.14);
+  --secondary: oklch(0.953 0.01 87.54);
+  --secondary-foreground: oklch(0.242 0.014 57.31);
+  --muted: oklch(0.955 0.009 90.29);
+  --muted-foreground: oklch(0.497 0.014 63.08);
+  --accent: oklch(0.915 0.03 165.38);
+  --accent-foreground: oklch(0.226 0.015 185.11);
+  --destructive: oklch(0.609 0.204 25.41);
+  --border: oklch(0.885 0.01 84.58);
+  --input: oklch(0.924 0.009 84.99);
+  --ring: oklch(0.495 0.134 183.64);
+  --radius: 1rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, color-mix(in srgb, var(--accent) 10%, transparent), transparent 34%),
+    linear-gradient(180deg, color-mix(in srgb, var(--background) 86%, white), var(--background));
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary) 28%, white);
+}
