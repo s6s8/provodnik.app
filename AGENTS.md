@@ -47,6 +47,7 @@
 - Keep imports on repo aliases like `@/components`, `@/features`, `@/lib`.
 - Treat missing Supabase env as a supported local state; do not break the shell without need.
 - Do not invent backend behavior that is not documented in code or product docs.
+- Defer real payment system implementation until the final MVP closeout slice; earlier booking work should remain payment-ready rather than payment-integrated.
 - For Cursor and `cursor-agent`, use `--model auto` unless the user explicitly overrides it.
 - Use GitHub Issues as task records and GitHub Project as the live status board.
 - Use worktrees as isolated coding spaces, not as the task ledger.

@@ -2,6 +2,7 @@
 
 ## Goal
 - Turn the MVP into an execution queue that can be driven issue by issue without re-deriving priorities every session.
+- Sequence real payment implementation last. All booking work before that should stay payment-ready and policy-complete without integrating a live payment system.
 
 ## Active tracking
 - GitHub Project:
@@ -11,6 +12,7 @@
   - `Release 1 Transaction Foundation`
   - `Release 2 Marketplace Quality`
   - `Release 3 Optimization`
+  - `Final MVP Closeout`
 
 ## Release 1 Transaction Foundation
 - Focus:
@@ -89,14 +91,29 @@
   - notifications
   - dispute handling
   - ranking signals
+  - payment integration remains deferred until the final MVP closeout slice
 
 ### Planned slices
-- open request discovery and group join experience
-- favorites and saved supply
-- post-booking reviews and trust loop
-- notification center and core marketplace notifications
-- dispute intake and refund operations
-- ranking and supply quality indicators
+- `#14` shared marketplace quality seed contracts
+- `#15` open request discovery and group join experience
+- `#16` guide booking operations beyond the current booking-detail scaffold
+- `#17` dispute intake and refund operations
+- `#18` notification center and core marketplace notifications
+- `#19` favorites and saved supply
+- `#20` post-booking reviews and trust loop
+- `#21` public policy and trust pages needed for launch credibility
+- `#22` ranking and supply quality indicators
+
+## Final MVP Closeout
+- Focus:
+  - real payment integration
+  - end-to-end booking confirmation
+  - final pre-launch hardening
+
+### Planned slices
+- `#23` replace payment-ready placeholders with the real deposit and remainder flow
+- wire booking confirmation states to payment success and failure
+- finish final launch checks after all non-payment marketplace loops are stable
 
 ## Release 3 Optimization
 - Focus:
