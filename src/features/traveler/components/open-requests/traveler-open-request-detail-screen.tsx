@@ -39,22 +39,25 @@ export function TravelerOpenRequestDetailScreen({
 }: {
   openRequestId: string;
 }) {
-  const [detail, setDetail] = React.useState(() =>
-    getOpenRequestDetailById(openRequestId),
-  );
+  const [detail, setDetail] = React.useState<
+    Awaited<ReturnType<typeof getOpenRequestDetailById>>
+  >(null);
   const [message, setMessage] = React.useState<string | null>(null);
 
   const refresh = React.useCallback(() => {
-    setDetail(getOpenRequestDetailById(openRequestId));
+    void (async () => {
+      const next = await getOpenRequestDetailById(openRequestId);
+      setDetail(next);
+    })();
   }, [openRequestId]);
 
   React.useEffect(() => {
     refresh();
   }, [refresh]);
 
-  function handleJoin() {
+  async function handleJoin() {
     setMessage(null);
-    const result = joinOpenRequest(openRequestId);
+    const result = await joinOpenRequest(openRequestId);
     if (!result.ok) {
       setMessage(
         result.reason === "full"
@@ -67,9 +70,9 @@ export function TravelerOpenRequestDetailScreen({
     refresh();
   }
 
-  function handleLeave() {
+  async function handleLeave() {
     setMessage(null);
-    const result = leaveOpenRequest(openRequestId);
+    const result = await leaveOpenRequest(openRequestId);
     if (!result.ok) {
       setMessage(
         result.reason === "organizer"

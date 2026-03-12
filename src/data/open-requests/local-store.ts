@@ -7,6 +7,12 @@ import type {
   OpenRequestGroupRosterMember,
   OpenRequestRecord,
 } from "@/data/open-requests/types";
+import {
+  getOpenRequestDetailFromSupabase,
+  joinOpenRequestInSupabase,
+  leaveOpenRequestInSupabase,
+  listOpenRequestsFromSupabase,
+} from "@/data/open-requests/supabase-client";
 
 const STORAGE_KEY = "provodnik.traveler.open-requests.membership.v1";
 const CURRENT_USER_ID = "usr_traveler_you";
@@ -140,7 +146,15 @@ function withDerivedFields(
   };
 }
 
-export function listOpenRequests(): OpenRequestDetail[] {
+export async function listOpenRequests(): Promise<OpenRequestDetail[]> {
+  try {
+    const fromSupabase = await listOpenRequestsFromSupabase();
+    if (fromSupabase.length > 0) {
+      return fromSupabase as OpenRequestDetail[];
+    }
+  } catch {
+  }
+
   const membership = getLocalMembership();
 
   return getSeededOpenRequests().map((record) => {
@@ -149,7 +163,17 @@ export function listOpenRequests(): OpenRequestDetail[] {
   });
 }
 
-export function getOpenRequestDetailById(openRequestId: string): OpenRequestDetail | null {
+export async function getOpenRequestDetailById(
+  openRequestId: string,
+): Promise<OpenRequestDetail | null> {
+  try {
+    const fromSupabase = await getOpenRequestDetailFromSupabase(openRequestId);
+    if (fromSupabase) {
+      return fromSupabase as OpenRequestDetail;
+    }
+  } catch {
+  }
+
   const record = getSeededOpenRequestById(openRequestId);
   if (!record) return null;
   const membership = getLocalMembership();
@@ -157,38 +181,49 @@ export function getOpenRequestDetailById(openRequestId: string): OpenRequestDeta
   return withDerivedFields(record, roster, membership[openRequestId]);
 }
 
-export function listJoinedOpenRequests(): OpenRequestDetail[] {
-  return listOpenRequests()
+export async function listJoinedOpenRequests(): Promise<OpenRequestDetail[]> {
+  const all = await listOpenRequests();
+  return all
     .filter((item) => item.isJoined)
     .sort((a, b) => b.record.updatedAt.localeCompare(a.record.updatedAt));
 }
 
-export function joinOpenRequest(openRequestId: string) {
-  const detail = getOpenRequestDetailById(openRequestId);
-  if (!detail) return { ok: false as const, reason: "not_found" as const };
-  if (detail.isJoined) return { ok: true as const };
-  if (!detail.record.group.openToMoreMembers)
-    return { ok: false as const, reason: "closed" as const };
-  if (detail.remainingSpots <= 0)
-    return { ok: false as const, reason: "full" as const };
+export async function joinOpenRequest(openRequestId: string) {
+  try {
+    await joinOpenRequestInSupabase(openRequestId);
+    return { ok: true as const };
+  } catch {
+    const detail = await getOpenRequestDetailById(openRequestId);
+    if (!detail) return { ok: false as const, reason: "not_found" as const };
+    if (detail.isJoined) return { ok: true as const };
+    if (!detail.record.group.openToMoreMembers)
+      return { ok: false as const, reason: "closed" as const };
+    if (detail.remainingSpots <= 0)
+      return { ok: false as const, reason: "full" as const };
 
-  setLocalOpenRequestMembership(openRequestId, "joined");
-  return { ok: true as const };
+    setLocalOpenRequestMembership(openRequestId, "joined");
+    return { ok: true as const };
+  }
 }
 
-export function leaveOpenRequest(openRequestId: string) {
-  const detail = getOpenRequestDetailById(openRequestId);
-  if (!detail) return { ok: false as const, reason: "not_found" as const };
-  if (!detail.isJoined) return { ok: true as const };
+export async function leaveOpenRequest(openRequestId: string) {
+  try {
+    await leaveOpenRequestInSupabase(openRequestId);
+    return { ok: true as const };
+  } catch {
+    const detail = await getOpenRequestDetailById(openRequestId);
+    if (!detail) return { ok: false as const, reason: "not_found" as const };
+    if (!detail.isJoined) return { ok: true as const };
 
-  const currentMember = detail.roster.find(
-    (member) => member.userId === CURRENT_USER_ID,
-  );
-  if (currentMember?.role === "organizer") {
-    return { ok: false as const, reason: "organizer" as const };
+    const currentMember = detail.roster.find(
+      (member) => member.userId === CURRENT_USER_ID,
+    );
+    if (currentMember?.role === "organizer") {
+      return { ok: false as const, reason: "organizer" as const };
+    }
+
+    setLocalOpenRequestMembership(openRequestId, "left");
+    return { ok: true as const };
   }
-
-  setLocalOpenRequestMembership(openRequestId, "left");
-  return { ok: true as const };
 }
 

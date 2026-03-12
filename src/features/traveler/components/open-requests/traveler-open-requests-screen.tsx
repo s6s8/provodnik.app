@@ -8,7 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { listOpenRequests } from "@/data/open-requests/local-store";
+import {
+  listOpenRequests,
+  type OpenRequestDetail,
+} from "@/data/open-requests/local-store";
 import { cn } from "@/lib/utils";
 
 function formatRub(amount: number) {
@@ -21,10 +24,17 @@ function formatRub(amount: number) {
 }
 
 export function TravelerOpenRequestsScreen() {
-  const [items, setItems] = React.useState(() => listOpenRequests());
+  const [items, setItems] = React.useState<OpenRequestDetail[]>([]);
 
   const refresh = React.useCallback(() => {
-    setItems(listOpenRequests());
+    void (async () => {
+      try {
+        const next = await listOpenRequests();
+        setItems(next);
+      } catch {
+        setItems([]);
+      }
+    })();
   }, []);
 
   React.useEffect(() => {
@@ -79,7 +89,7 @@ export function TravelerOpenRequestsScreen() {
   );
 }
 
-function OpenRequestCard({ item }: { item: ReturnType<typeof listOpenRequests>[number] }) {
+function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
 
   const joinedLabel = item.isJoined ? "Joined" : "Not joined";
   const spotsLabel =

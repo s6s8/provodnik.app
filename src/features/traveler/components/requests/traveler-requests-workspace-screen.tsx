@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { listJoinedOpenRequests } from "@/data/open-requests/local-store";
+import { listOpenRequests } from "@/data/open-requests/local-store";
 import {
   listOffersForTravelerRequest,
   listTravelerRequests,
@@ -21,17 +21,35 @@ export function TravelerRequestsWorkspaceScreen() {
   const [joinedOpenRequestsCount, setJoinedOpenRequestsCount] = React.useState(0);
 
   React.useEffect(() => {
-    setRequests(listTravelerRequests());
-    setJoinedOpenRequestsCount(listJoinedOpenRequests().length);
+    let isMounted = true;
+
+    async function load() {
+      try {
+        const nextRequests = await listTravelerRequests();
+        const allOpenRequests = await listOpenRequests();
+        const joined = allOpenRequests.filter((item) => item.isJoined).length;
+
+        if (!isMounted) return;
+
+        setRequests(nextRequests);
+        setJoinedOpenRequestsCount(joined);
+      } catch {
+        if (!isMounted) return;
+        setRequests([]);
+        setJoinedOpenRequestsCount(0);
+      }
+    }
+
+    void load();
 
     function handleStorage(event: StorageEvent) {
       if (event.key?.startsWith("provodnik.traveler.open-requests.") ?? false) {
-        setJoinedOpenRequestsCount(listJoinedOpenRequests().length);
+        void load();
       }
     }
 
     function handleFocus() {
-      setJoinedOpenRequestsCount(listJoinedOpenRequests().length);
+      void load();
     }
 
     window.addEventListener("storage", handleStorage);
@@ -39,6 +57,7 @@ export function TravelerRequestsWorkspaceScreen() {
     return () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener("focus", handleFocus);
+      isMounted = false;
     };
   }, []);
 

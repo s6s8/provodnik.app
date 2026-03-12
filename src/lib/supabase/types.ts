@@ -16,6 +16,10 @@ export type BookingStatus =
   | "disputed"
   | "no_show";
 
+export type RequestStatus = "open" | "booked" | "cancelled" | "expired";
+
+export type MemberStatus = "joined" | "left";
+
 export type NotificationKindDb =
   | "new_offer"
   | "offer_expiring"
@@ -125,5 +129,34 @@ export type MarketplaceEventRow = {
   detail: string | null;
   payload: unknown;
   created_at: string;
+};
+
+export type TravelerRequestRow = {
+  id: Uuid;
+  traveler_id: Uuid;
+  destination: string;
+  region: string | null;
+  category: string;
+  starts_on: string;
+  ends_on: string | null;
+  budget_minor: number | null;
+  currency: string;
+  participants_count: number;
+  format_preference: string | null;
+  notes: string | null;
+  open_to_join: boolean;
+  allow_guide_suggestions: boolean;
+  group_capacity: number | null;
+  status: RequestStatus;
+  created_at: string;
+  updated_at: string;
+};
+
+export type OpenRequestMemberRow = {
+  request_id: Uuid;
+  traveler_id: Uuid;
+  status: MemberStatus;
+  joined_at: string;
+  left_at: string | null;
 };
 

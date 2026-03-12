@@ -10,6 +10,11 @@ import type {
   TravelerRequestTimelineEvent,
   TravelerRequestStatus,
 } from "@/data/traveler-request/types";
+import {
+  createTravelerRequestInSupabase,
+  getTravelerRequestByIdFromSupabase,
+  listTravelerRequestsFromSupabase,
+} from "@/data/traveler-request/supabase-client";
 
 const STORAGE_KEY = "provodnik.traveler.requests.v1";
 
@@ -63,7 +68,13 @@ export function addLocalTravelerRequest(record: TravelerRequestRecord) {
   saveLocalTravelerRequests([record, ...current]);
 }
 
-export function listTravelerRequests(): TravelerRequestRecord[] {
+export async function listTravelerRequests(): Promise<TravelerRequestRecord[]> {
+  try {
+    const records = await listTravelerRequestsFromSupabase();
+    if (records.length > 0) return records;
+  } catch {
+  }
+
   const local = getLocalTravelerRequests();
   const merged = [...local, ...seededTravelerRequests];
 
@@ -77,9 +88,15 @@ export function listTravelerRequests(): TravelerRequestRecord[] {
   });
 }
 
-export function getTravelerRequestById(
+export async function getTravelerRequestById(
   id: string,
-): TravelerRequestRecord | null {
+): Promise<TravelerRequestRecord | null> {
+  try {
+    const fromSupabase = await getTravelerRequestByIdFromSupabase(id);
+    if (fromSupabase) return fromSupabase;
+  } catch {
+  }
+
   const local = getLocalTravelerRequests().find((item) => item.id === id);
   if (local) return local;
   return seededTravelerRequests.find((item) => item.id === id) ?? null;
@@ -100,18 +117,37 @@ export function listTimelineForTravelerRequest(
 
   if (events.length > 0) return events;
 
-  const request = getTravelerRequestById(requestId);
-  if (!request) return [];
+  const localRequest = getLocalTravelerRequests().find(
+    (item) => item.id === requestId,
+  );
+  const seededRequest =
+    localRequest ?? seededTravelerRequests.find((item) => item.id === requestId);
+  if (!seededRequest) return [];
 
   return [
     {
       id: `tl_${requestId}_created`,
       requestId,
-      at: request.createdAt,
+      at: seededRequest.createdAt,
       title: "Request created",
       description:
         "This request is stored locally in MVP baseline. Offers are seeded for demo purposes.",
     },
   ];
 }
+
+export async function createTravelerRequestPersistent(
+  request: TravelerRequest,
+  status: TravelerRequestStatus = "submitted",
+): Promise<TravelerRequestRecord> {
+  try {
+    const record = await createTravelerRequestInSupabase(request);
+    return record;
+  } catch {
+    const record = createTravelerRequestRecord(request, status);
+    addLocalTravelerRequest(record);
+    return record;
+  }
+}
+
 

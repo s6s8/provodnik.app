@@ -44,7 +44,24 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
   const [record, setRecord] = React.useState<TravelerRequestRecord | null>(null);
 
   React.useEffect(() => {
-    setRecord(getTravelerRequestById(requestId));
+    let isMounted = true;
+
+    async function load() {
+      try {
+        const next = await getTravelerRequestById(requestId);
+        if (!isMounted) return;
+        setRecord(next);
+      } catch {
+        if (!isMounted) return;
+        setRecord(null);
+      }
+    }
+
+    void load();
+
+    return () => {
+      isMounted = false;
+    };
   }, [requestId]);
 
   if (!record) {
