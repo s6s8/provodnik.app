@@ -162,6 +162,9 @@ export function GuideListingsManagerScreen() {
             <Button asChild variant="secondary">
               <Link href="/guide/requests">Requests inbox</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link href="/guide/bookings">Bookings</Link>
+            </Button>
             <Button type="button" onClick={handleCreateNew}>
               New listing
               <Plus className="size-4" />

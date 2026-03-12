@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { getSeededTravelerRequests } from "@/data/traveler-request/seed";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
@@ -50,6 +51,14 @@ export function GuideRequestsInboxScreen() {
             Seeded traveler requests for MVP baseline. Open a request to draft an
             offer locally.
           </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button asChild variant="secondary">
+            <Link href="/guide/bookings">Bookings workspace</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/guide/listings">Manage listings</Link>
+          </Button>
         </div>
       </div>
 

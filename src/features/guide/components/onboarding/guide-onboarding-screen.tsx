@@ -25,6 +25,9 @@ export function GuideOnboardingScreen() {
             <Link href="/guide/requests">Open requests inbox</Link>
           </Button>
           <Button asChild variant="outline">
+            <Link href="/guide/bookings">Bookings workspace</Link>
+          </Button>
+          <Button asChild variant="outline">
             <Link href="/guide/listings">Manage listings</Link>
           </Button>
         </div>
