@@ -6,6 +6,10 @@ import {
   getSeededReviewsSummaryForTarget,
   listSeededReviewsForTarget,
 } from "@/data/reviews/seed";
+import {
+  getPublishedReviewsSummaryForTargetFromSupabase,
+  listPublishedReviewsForTargetFromSupabase,
+} from "@/data/reviews/supabase";
 import { PublicGuideProfileBasics } from "@/features/guide/components/public/public-guide-profile-basics";
 import { PublicGuideProfileSpecialties } from "@/features/guide/components/public/public-guide-profile-specialties";
 import { PublicGuideTrustMarkers } from "@/features/guide/components/public/public-guide-trust-markers";
@@ -35,6 +39,14 @@ export default async function PublicGuideProfilePage({
 
   const seededSummary = getSeededReviewsSummaryForTarget("guide", guide.slug);
   const seededReviews = listSeededReviewsForTarget("guide", guide.slug);
+  const persistedSummary = await getPublishedReviewsSummaryForTargetFromSupabase({
+    type: "guide",
+    slug: guide.slug,
+  }).catch(() => null);
+  const persistedReviews = await listPublishedReviewsForTargetFromSupabase({
+    type: "guide",
+    slug: guide.slug,
+  }).catch(() => []);
 
   return (
     <div className="space-y-10">
@@ -55,8 +67,8 @@ export default async function PublicGuideProfilePage({
       <PublicReviewsSection
         title="Guide reviews"
         target={{ type: "guide", slug: guide.slug }}
-        initialSummary={seededSummary}
-        initialReviews={seededReviews}
+        initialSummary={persistedSummary ?? seededSummary}
+        initialReviews={persistedReviews.length > 0 ? persistedReviews : seededReviews}
       />
     </div>
   );

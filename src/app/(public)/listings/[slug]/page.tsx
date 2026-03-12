@@ -19,6 +19,10 @@ import {
   getSeededReviewsSummaryForTarget,
   listSeededReviewsForTarget,
 } from "@/data/reviews/seed";
+import {
+  getPublishedReviewsSummaryForTargetFromSupabase,
+  listPublishedReviewsForTargetFromSupabase,
+} from "@/data/reviews/supabase";
 import { PublicReviewsSection } from "@/features/reviews/components/public/public-reviews-section";
 
 function formatRub(value: number) {
@@ -43,7 +47,7 @@ export function generateMetadata({
   };
 }
 
-export default function PublicListingDetailPage({
+export default async function PublicListingDetailPage({
   params,
 }: {
   params: { slug: string };
@@ -63,6 +67,25 @@ export default function PublicListingDetailPage({
   const seededGuideReviews = listSeededReviewsForTarget("guide", guide.slug);
   const seededListingSummary = getSeededReviewsSummaryForTarget("listing", listing.slug);
   const seededListingReviews = listSeededReviewsForTarget("listing", listing.slug);
+  const [persistedGuideSummary, persistedGuideReviews, persistedListingSummary, persistedListingReviews] =
+    await Promise.all([
+      getPublishedReviewsSummaryForTargetFromSupabase({
+        type: "guide",
+        slug: guide.slug,
+      }).catch(() => null),
+      listPublishedReviewsForTargetFromSupabase({
+        type: "guide",
+        slug: guide.slug,
+      }).catch(() => []),
+      getPublishedReviewsSummaryForTargetFromSupabase({
+        type: "listing",
+        slug: listing.slug,
+      }).catch(() => null),
+      listPublishedReviewsForTargetFromSupabase({
+        type: "listing",
+        slug: listing.slug,
+      }).catch(() => []),
+    ]);
 
   return (
     <div className="space-y-10">
@@ -181,8 +204,10 @@ export default function PublicListingDetailPage({
             <PublicReviewsSection
               title="Guide reviews"
               target={{ type: "guide", slug: guide.slug }}
-              initialSummary={seededGuideSummary}
-              initialReviews={seededGuideReviews}
+              initialSummary={persistedGuideSummary ?? seededGuideSummary}
+              initialReviews={
+                persistedGuideReviews.length > 0 ? persistedGuideReviews : seededGuideReviews
+              }
             />
           </div>
         </div>
@@ -192,22 +217,26 @@ export default function PublicListingDetailPage({
         <PublicReviewsSection
           title="Listing reviews"
           target={{ type: "listing", slug: listing.slug }}
-          initialSummary={seededListingSummary}
-          initialReviews={seededListingReviews}
+          initialSummary={persistedListingSummary ?? seededListingSummary}
+          initialReviews={
+            persistedListingReviews.length > 0
+              ? persistedListingReviews
+              : seededListingReviews
+          }
         />
         <Card className="border-border/70 bg-card/80">
           <CardHeader className="space-y-2">
             <CardTitle className="text-base">Review posture</CardTitle>
-            <CardDescription>Local-first baseline (no backend moderation).</CardDescription>
+            <CardDescription>Published reviews and moderation state hydrate from Supabase when available.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
             <p>
-              Reviews are stored locally on the device where they were created. This keeps
-              the trust loop UI real without inventing backend behavior.
+              Authenticated booking reviews now persist to Supabase when a real booking record
+              exists. Seeded reviews still backfill empty supply while the marketplace fills in.
             </p>
             <p>
-              Flagging, removals, and disputes will be added once the marketplace ships real
-              identities and persistence.
+              Admin moderation still determines final visibility, but the public trust surfaces no
+              longer depend purely on browser-local state.
             </p>
           </CardContent>
         </Card>

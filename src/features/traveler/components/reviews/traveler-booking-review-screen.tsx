@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { addLocalReview } from "@/data/reviews/local-store";
+import { createReviewInSupabase } from "@/data/reviews/supabase";
 import type { ReviewRecord, ReviewTargetType } from "@/data/reviews/types";
 import {
   reviewSubmissionSchema,
@@ -62,6 +63,7 @@ function featuredTargetsForBooking(record: TravelerBookingRecord): Array<{
 export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }) {
   const [record, setRecord] = React.useState<TravelerBookingRecord | null>(null);
   const [submitted, setSubmitted] = React.useState<ReviewRecord | null>(null);
+  const [persistedToBackend, setPersistedToBackend] = React.useState(false);
 
   React.useEffect(() => {
     setRecord(getTravelerBookingById(bookingId));
@@ -112,24 +114,40 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
       if (!record) return;
       const now = new Date().toISOString();
 
-      const review: ReviewRecord = {
-        id: buildReviewId(),
-        createdAt: now,
-        author: {
-          userId: "usr_local_traveler_you",
-          displayName: record.traveler.displayName || "You",
-        },
-        target: {
-          type: values.targetType,
-          slug: values.targetSlug,
-        },
-        rating: values.rating,
-        title: values.title,
-        body: values.body,
-        tags: values.tags?.length ? values.tags : undefined,
-      };
+      let review: ReviewRecord;
+      let usedBackend = false;
+      try {
+        review = await createReviewInSupabase({
+          bookingId: record.id,
+          targetType: values.targetType,
+          targetSlug: values.targetSlug,
+          rating: values.rating,
+          title: values.title,
+          body: values.body,
+        });
+        usedBackend = true;
+      } catch {
+        review = {
+          id: buildReviewId(),
+          createdAt: now,
+          author: {
+            userId: "usr_local_traveler_you",
+            displayName: record.traveler.displayName || "You",
+          },
+          target: {
+            type: values.targetType,
+            slug: values.targetSlug,
+          },
+          rating: values.rating,
+          title: values.title,
+          body: values.body,
+          tags: values.tags?.length ? values.tags : undefined,
+        };
 
-      addLocalReview(review);
+        addLocalReview(review);
+      }
+
+      setPersistedToBackend(usedBackend);
       setSubmitted(review);
 
       void recordMarketplaceEventFromClient({
@@ -213,7 +231,9 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
             <div className="space-y-1">
               <CardTitle>Review saved locally</CardTitle>
               <p className="text-sm text-muted-foreground">
-                This review is stored on this device only (no backend yet).
+                {persistedToBackend
+                  ? "This review was written to Supabase and will survive refresh and device changes."
+                  : "This review is stored on this device only because the booking is not yet persisted in Supabase."}
               </p>
             </div>
           </CardHeader>

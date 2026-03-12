@@ -28,6 +28,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  listModerationListingsForAdminFromSupabase,
+  saveListingModerationActionInSupabase,
+} from "@/data/admin/supabase";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 
 import type {
@@ -259,6 +263,8 @@ function policyBadgeVariant(key: ModerationListing["policyNotes"][number]["key"]
 }
 
 export function ListingModerationQueue() {
+  const [items, setItems] = React.useState(() => DEFAULT_LISTINGS);
+  const [backendMode, setBackendMode] = React.useState<"local" | "supabase">("local");
   const [query, setQuery] = React.useState("");
   const [actionFilter, setActionFilter] = React.useState<ActionFilter>("all");
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
@@ -274,23 +280,52 @@ export function ListingModerationQueue() {
     return initial;
   });
 
+  React.useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      try {
+        const persisted = await listModerationListingsForAdminFromSupabase();
+        if (!persisted.length || ignore) return;
+
+        setItems(persisted);
+        setListingState(() => {
+          const next: ListingState = {};
+          for (const item of persisted) {
+            next[item.id] = item.moderationState;
+          }
+          return next;
+        });
+        setBackendMode("supabase");
+      } catch {
+        if (ignore) return;
+        setBackendMode("local");
+      }
+    }
+
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const visible = React.useMemo(() => {
-    return DEFAULT_LISTINGS.filter((item) => {
+    return items.filter((item) => {
       const state = listingState[item.id]?.action ?? "pending";
       if (actionFilter !== "all" && state !== actionFilter) return false;
       return matchesQuery(item, query);
     });
-  }, [actionFilter, listingState, query]);
+  }, [actionFilter, items, listingState, query]);
 
   const counts = React.useMemo(() => {
-    const all = DEFAULT_LISTINGS.length;
+    const all = items.length;
     let pending = 0;
     let approve = 0;
     let hide = 0;
     let block = 0;
     let requestChanges = 0;
 
-    for (const item of DEFAULT_LISTINGS) {
+    for (const item of items) {
       const action = listingState[item.id]?.action ?? "pending";
       if (action === "pending") pending += 1;
       else if (action === "approve") approve += 1;
@@ -300,10 +335,10 @@ export function ListingModerationQueue() {
     }
 
     return { all, pending, approve, hide, block, requestChanges };
-  }, [listingState]);
+  }, [items, listingState]);
 
   const applyAction = React.useCallback(
-    (id: string, action: ModerationAction, nextVisibility: ListingVisibility) => {
+    async (id: string, action: ModerationAction, nextVisibility: ListingVisibility) => {
       setListingState((prev) => ({
         ...prev,
         [id]: {
@@ -314,7 +349,24 @@ export function ListingModerationQueue() {
         },
       }));
 
-      const listing = DEFAULT_LISTINGS.find((item) => item.id === id);
+      if (backendMode === "supabase") {
+        try {
+          const nextState = await saveListingModerationActionInSupabase({
+            listingId: id,
+            action,
+            note: listingState[id]?.note ?? "",
+          });
+
+          setListingState((prev) => ({
+            ...prev,
+            [id]: nextState,
+          }));
+        } catch (error) {
+          console.error("Failed to persist listing moderation action", error);
+        }
+      }
+
+      const listing = items.find((item) => item.id === id);
       if (listing) {
         void recordMarketplaceEventFromClient({
           scope: "moderation",
@@ -334,7 +386,7 @@ export function ListingModerationQueue() {
         });
       }
     },
-    [],
+    [backendMode, items, listingState],
   );
 
   const setNote = React.useCallback((id: string, note: string) => {
@@ -350,7 +402,7 @@ export function ListingModerationQueue() {
 
     if (!note.trim()) return;
 
-    const listing = DEFAULT_LISTINGS.find((item) => item.id === id);
+    const listing = items.find((item) => item.id === id);
     if (listing) {
       void recordMarketplaceEventFromClient({
         scope: "moderation",
@@ -367,7 +419,7 @@ export function ListingModerationQueue() {
         },
       });
     }
-  }, []);
+  }, [items]);
 
   return (
     <div className="space-y-8">
@@ -381,8 +433,8 @@ export function ListingModerationQueue() {
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground">
                 Review new or risky listings, track risk signals, and apply visibility
-                actions. This scaffold is frontend-only and stores decisions in local
-                state.
+                actions. When an authenticated admin session is available, those
+                actions are written to Supabase listing and moderation records.
               </p>
             </div>
           </div>

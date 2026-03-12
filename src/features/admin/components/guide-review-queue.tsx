@@ -27,6 +27,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  listGuideApplicationsForAdminFromSupabase,
+  saveGuideReviewDecisionInSupabase,
+} from "@/data/admin/supabase";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 
 import type {
@@ -247,6 +251,8 @@ function docCounts(documents: readonly GuideApplicationDocument[]) {
 }
 
 export function GuideReviewQueue() {
+  const [applications, setApplications] = React.useState(() => DEFAULT_APPLICATIONS);
+  const [backendMode, setBackendMode] = React.useState<"local" | "supabase">("local");
   const [query, setQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [expandedId, setExpandedId] = React.useState<string | null>(null);
@@ -258,22 +264,51 @@ export function GuideReviewQueue() {
     return initial;
   });
 
+  React.useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      try {
+        const persisted = await listGuideApplicationsForAdminFromSupabase();
+        if (!persisted.length || ignore) return;
+
+        setApplications(persisted);
+        setReviewState(() => {
+          const next: ReviewState = {};
+          for (const app of persisted) {
+            next[app.id] = app.reviewState;
+          }
+          return next;
+        });
+        setBackendMode("supabase");
+      } catch {
+        if (ignore) return;
+        setBackendMode("local");
+      }
+    }
+
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const visible = React.useMemo(() => {
-    return DEFAULT_APPLICATIONS.filter((app) => {
+    return applications.filter((app) => {
       const state = reviewState[app.id]?.decision ?? "pending";
       if (statusFilter !== "all" && state !== statusFilter) return false;
       return matchesQuery(app, query);
     });
-  }, [query, reviewState, statusFilter]);
+  }, [applications, query, reviewState, statusFilter]);
 
   const counts = React.useMemo(() => {
-    const all = DEFAULT_APPLICATIONS.length;
+    const all = applications.length;
     let pending = 0;
     let approved = 0;
     let needsMoreInfo = 0;
     let rejected = 0;
 
-    for (const app of DEFAULT_APPLICATIONS) {
+    for (const app of applications) {
       const decision = reviewState[app.id]?.decision ?? "pending";
       if (decision === "pending") pending += 1;
       else if (decision === "approved") approved += 1;
@@ -282,10 +317,10 @@ export function GuideReviewQueue() {
     }
 
     return { all, pending, approved, needsMoreInfo, rejected };
-  }, [reviewState]);
+  }, [applications, reviewState]);
 
   const setDecision = React.useCallback(
-    (id: string, decision: GuideApplicationDecision, app: GuideApplication) => {
+    async (id: string, decision: GuideApplicationDecision, app: GuideApplication) => {
       setReviewState((prev) => ({
         ...prev,
         [id]: {
@@ -294,6 +329,23 @@ export function GuideReviewQueue() {
           decidedAt: new Date().toISOString(),
         },
       }));
+
+      if (backendMode === "supabase") {
+        try {
+          const nextState = await saveGuideReviewDecisionInSupabase({
+            guideId: id,
+            decision,
+            note: reviewState[id]?.note ?? "",
+          });
+
+          setReviewState((prev) => ({
+            ...prev,
+            [id]: nextState,
+          }));
+        } catch (error) {
+          console.error("Failed to persist guide review decision", error);
+        }
+      }
 
       void recordMarketplaceEventFromClient({
         scope: "moderation",
@@ -311,7 +363,7 @@ export function GuideReviewQueue() {
         },
       });
     },
-    [],
+    [backendMode, reviewState],
   );
 
   const setNote = React.useCallback((id: string, note: string, app: GuideApplication) => {
@@ -354,8 +406,8 @@ export function GuideReviewQueue() {
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground">
                 Review new guide applications, verify documents, and record moderation
-                decisions. This scaffold is frontend-only and keeps decisions in local
-                state.
+                decisions. When an authenticated admin session is available, those
+                decisions are written to Supabase moderation records.
               </p>
             </div>
           </div>

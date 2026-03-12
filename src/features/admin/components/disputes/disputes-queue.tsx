@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { DEFAULT_DISPUTE_CASES } from "@/features/admin/components/disputes/dispute-seed";
+import { listDisputeCasesForAdminFromSupabase } from "@/data/admin/supabase";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import type {
   DisputeQueueDisposition,
@@ -127,30 +128,53 @@ function matchesQuery(query: string, item: (typeof DEFAULT_DISPUTE_CASES)[number
 }
 
 export function DisputesQueue() {
+  const [cases, setCases] = React.useState(() => DEFAULT_DISPUTE_CASES);
+  const [backendMode, setBackendMode] = React.useState<"local" | "supabase">("local");
   const [query, setQuery] = React.useState("");
   const [dispositionFilter, setDispositionFilter] =
     React.useState<DispositionFilter>("all");
   const [severityFilter, setSeverityFilter] = React.useState<SeverityFilter>("all");
   const [stageFilter, setStageFilter] = React.useState<StageFilter>("all");
 
+  React.useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      try {
+        const persisted = await listDisputeCasesForAdminFromSupabase();
+        if (!persisted.length || ignore) return;
+        setCases(persisted);
+        setBackendMode("supabase");
+      } catch {
+        if (ignore) return;
+        setBackendMode("local");
+      }
+    }
+
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
+
   const visible = React.useMemo(() => {
-    return DEFAULT_DISPUTE_CASES.filter((item) => {
+    return cases.filter((item) => {
       if (dispositionFilter !== "all" && item.disposition !== dispositionFilter)
         return false;
       if (severityFilter !== "all" && item.severity !== severityFilter) return false;
       if (stageFilter !== "all" && item.stage !== stageFilter) return false;
       return matchesQuery(query, item);
     });
-  }, [dispositionFilter, query, severityFilter, stageFilter]);
+  }, [cases, dispositionFilter, query, severityFilter, stageFilter]);
 
   const counts = React.useMemo(() => {
-    const all = DEFAULT_DISPUTE_CASES.length;
+    const all = cases.length;
     let open = 0;
     let needsAction = 0;
     let waiting = 0;
     let resolved = 0;
 
-    for (const item of DEFAULT_DISPUTE_CASES) {
+    for (const item of cases) {
       if (item.disposition === "open") open += 1;
       else if (item.disposition === "needs-action") needsAction += 1;
       else if (item.disposition === "waiting") waiting += 1;
@@ -158,7 +182,7 @@ export function DisputesQueue() {
     }
 
     return { all, open, needsAction, waiting, resolved };
-  }, []);
+  }, [cases]);
 
   React.useEffect(() => {
     if (!visible.length) return;
@@ -192,12 +216,16 @@ export function DisputesQueue() {
           <div className="space-y-2">
             <Badge variant="outline">Admin workspace</Badge>
             <div className="space-y-1">
+              <Badge variant="outline">
+                {backendMode === "supabase" ? "Supabase-backed" : "Seed fallback"}
+              </Badge>
               <h1 className="text-3xl font-semibold tracking-tight text-foreground">
                 Disputes & refunds operations
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground">
                 Triage disputes, track payout-freeze posture, and record an audit-ready
-                case narrative. This is local-first scaffolding and does not execute
+                case narrative. When an authenticated admin session is available, this
+                queue reads real Supabase dispute records. It still does not execute
                 refunds or payment actions.
               </p>
             </div>

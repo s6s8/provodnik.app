@@ -34,11 +34,31 @@ export function PublicReviewsSection({
   );
 
   React.useEffect(() => {
-    const nextSummary = getAllReviewsSummaryForTarget(target.type, target.slug);
-    const nextItems = listAllReviewsForTarget(target.type, target.slug).slice(0, maxItems);
-    setSummary(nextSummary);
-    setItems(nextItems);
-  }, [maxItems, target.slug, target.type]);
+    const localSummary = getAllReviewsSummaryForTarget(target.type, target.slug);
+    const localItems = listAllReviewsForTarget(target.type, target.slug);
+    const merged = new Map<string, ReviewRecord>();
+
+    for (const item of initialReviews) merged.set(item.id, item);
+    for (const item of localItems) merged.set(item.id, item);
+
+    const mergedItems = [...merged.values()].sort((a, b) =>
+      b.createdAt.localeCompare(a.createdAt),
+    );
+    const total = mergedItems.reduce((sum, item) => sum + item.rating, 0);
+    const mergedSummary: ReviewsSummary =
+      mergedItems.length > 0
+        ? {
+            averageRating: Math.round((total / mergedItems.length) * 100) / 100,
+            totalReviews: mergedItems.length,
+            lastReviewAt: mergedItems[0]?.createdAt,
+          }
+        : initialSummary.totalReviews > 0
+          ? initialSummary
+          : localSummary;
+
+    setSummary(mergedSummary);
+    setItems(mergedItems.slice(0, maxItems));
+  }, [initialReviews, initialSummary, maxItems, target.slug, target.type]);
 
   return (
     <Card className="border-border/70 bg-card/80">
@@ -51,7 +71,7 @@ export function PublicReviewsSection({
           </Badge>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Latest: {formatIsoShort(summary.lastReviewAt)} · Local-first, no moderation backend yet.
+          Latest: {formatIsoShort(summary.lastReviewAt)} · Published Supabase reviews appear here when available.
         </p>
       </CardHeader>
       <CardContent className="grid gap-3">

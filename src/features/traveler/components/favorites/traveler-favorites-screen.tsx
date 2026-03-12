@@ -13,15 +13,28 @@ import {
   listFavoritesForUser,
   subscribeToFavoritesChanged,
 } from "@/data/favorites/local-store";
+import { listFavoritesForCurrentUserFromSupabase } from "@/data/favorites/supabase-client";
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
 import { getSeededPublicListing } from "@/data/public-listings/seed";
 
 export function TravelerFavoritesScreen() {
   const userId = React.useMemo(() => getActiveFavoritesUserId(), []);
   const [favorites, setFavorites] = React.useState(() => listFavoritesForUser(userId));
+  const [usesBackend, setUsesBackend] = React.useState(false);
 
   const refresh = React.useCallback(() => {
-    setFavorites(listFavoritesForUser(userId));
+    void (async () => {
+      try {
+        const persisted = await listFavoritesForCurrentUserFromSupabase();
+        setFavorites(persisted);
+        setUsesBackend(true);
+        return;
+      } catch {
+        setUsesBackend(false);
+      }
+
+      setFavorites(listFavoritesForUser(userId));
+    })();
   }, [userId]);
 
   React.useEffect(() => {
@@ -47,8 +60,9 @@ export function TravelerFavoritesScreen() {
               Favorites
             </h1>
             <p className="max-w-3xl text-base text-muted-foreground">
-              Saved guides and listings are stored locally on this device in the MVP
-              baseline. Use the save controls on public pages to build your short list.
+              {usesBackend
+                ? "Saved guides and listings now reload from your Supabase account when you are signed in."
+                : "Saved guides and listings are stored locally on this device in the MVP baseline. Use the save controls on public pages to build your short list."}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">

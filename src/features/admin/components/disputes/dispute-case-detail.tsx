@@ -28,6 +28,10 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import {
+  listDisputeCasesForAdminFromSupabase,
+  saveDisputeAdminUpdateInSupabase,
+} from "@/data/admin/supabase";
+import {
   DEFAULT_DISPUTE_CASES,
   getDisputeCaseById,
 } from "@/features/admin/components/disputes/dispute-seed";
@@ -131,27 +135,54 @@ type LocalCaseState = {
   operatorOutcome: DisputeDecisionOutcome | "unset";
 };
 
-function buildInitialLocal(caseId: string): LocalCaseState {
-  const seed = getDisputeCaseById(caseId);
+function buildInitialLocalFromDispute(dispute?: ReturnType<typeof getDisputeCaseById> | null): LocalCaseState {
   const actionChecks: Record<string, boolean> = {};
-  for (const action of seed?.nextActions ?? []) {
+  for (const action of dispute?.nextActions ?? []) {
     actionChecks[action.key] = false;
   }
   return {
     internalNotes: "",
     actionChecks,
-    posture: seed?.payout.posture ?? "not-frozen",
+    posture: dispute?.payout.posture ?? "not-frozen",
     stageNote: "",
-    operatorOutcome: seed?.recommendedOutcome ?? "unset",
+    operatorOutcome: dispute?.recommendedOutcome ?? "unset",
   };
 }
 
 export function DisputeCaseDetail({ caseId }: { caseId: string }) {
-  const dispute = React.useMemo(() => getDisputeCaseById(caseId), [caseId]);
-  const [local, setLocal] = React.useState<LocalCaseState>(() => buildInitialLocal(caseId));
+  const [dispute, setDispute] = React.useState(() => getDisputeCaseById(caseId));
+  const [backendMode, setBackendMode] = React.useState<"local" | "supabase">("local");
+  const [saving, setSaving] = React.useState(false);
+  const [local, setLocal] = React.useState<LocalCaseState>(() =>
+    buildInitialLocalFromDispute(getDisputeCaseById(caseId)),
+  );
 
   React.useEffect(() => {
-    setLocal(buildInitialLocal(caseId));
+    setDispute(getDisputeCaseById(caseId));
+    setLocal(buildInitialLocalFromDispute(getDisputeCaseById(caseId)));
+  }, [caseId]);
+
+  React.useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      try {
+        const persisted = await listDisputeCasesForAdminFromSupabase();
+        const match = persisted.find((item) => item.id === caseId);
+        if (!match || ignore) return;
+        setDispute(match);
+        setLocal(buildInitialLocalFromDispute(match));
+        setBackendMode("supabase");
+      } catch {
+        if (ignore) return;
+        setBackendMode("local");
+      }
+    }
+
+    void load();
+    return () => {
+      ignore = true;
+    };
   }, [caseId]);
 
   const toggleAction = React.useCallback(
@@ -443,7 +474,9 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                   ))}
                 </div>
                 <div className="text-xs text-muted-foreground">
-                  This only records operator posture locally; it does not freeze funds.
+                  {backendMode === "supabase"
+                    ? "This updates dispute posture in Supabase; it still does not execute any payment action."
+                    : "This only records operator posture locally; it does not freeze funds."}
                 </div>
               </div>
             </div>
@@ -457,7 +490,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                 <div className="text-sm font-medium text-foreground">Internal notes</div>
                 <Badge variant="outline">
                   <MessageSquareText className="mr-1 size-3.5" />
-                  Local-only
+                  {backendMode === "supabase" ? "Persisted" : "Local-only"}
                 </Badge>
               </div>
               <Textarea
@@ -484,7 +517,9 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                 aria-label="Internal operator notes"
               />
               <div className="text-xs text-muted-foreground">
-                Notes are stored in component state and reset on refresh.
+                {backendMode === "supabase"
+                  ? "Save the admin update below to write notes and resolution state to Supabase."
+                  : "Notes are stored in component state and reset on refresh."}
               </div>
             </div>
 
@@ -593,40 +628,68 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
               aria-label="Decision draft rationale"
             />
             <div className="text-xs text-muted-foreground">
-              This is a decision draft only. A real system would create an auditable
-              record and route for approval.
+              {backendMode === "supabase"
+                ? "Use save to write this operator decision into the dispute record and notes log."
+                : "This is a decision draft only. A real system would create an auditable record and route for approval."}
             </div>
           </div>
         </CardContent>
 
         <CardFooter className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
           <div className="text-xs text-muted-foreground">
-            All interactions here are local-first scaffolding.
+            {backendMode === "supabase"
+              ? "This dispute detail is backed by Supabase records."
+              : "All interactions here are local-first scaffolding."}
           </div>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => {
-              setLocal(buildInitialLocal(caseId));
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              onClick={async () => {
+                if (backendMode !== "supabase" || !dispute) return;
+                try {
+                  setSaving(true);
+                  await saveDisputeAdminUpdateInSupabase({
+                    disputeId: dispute.id,
+                    posture: local.posture,
+                    internalNotes: local.internalNotes,
+                    stageNote: local.stageNote,
+                    operatorOutcome: local.operatorOutcome,
+                  });
+                } catch (error) {
+                  console.error("Failed to persist dispute admin update", error);
+                } finally {
+                  setSaving(false);
+                }
+              }}
+              disabled={backendMode !== "supabase" || saving}
+            >
+              {saving ? "Saving..." : "Save admin update"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setLocal(buildInitialLocalFromDispute(dispute));
 
-              if (!dispute) return;
+                if (!dispute) return;
 
-              void recordMarketplaceEventFromClient({
-                scope: "dispute",
-                requestId: null,
-                bookingId: dispute.booking.id,
-                disputeId: dispute.id,
-                actorId: null,
-                eventType: "dispute_annotations_reset",
-                summary: `Local annotations reset for dispute ${dispute.id}`,
-                detail: undefined,
-                payload: undefined,
-              });
-            }}
-            aria-label="Reset local annotations"
-          >
-            Reset local annotations
-          </Button>
+                void recordMarketplaceEventFromClient({
+                  scope: "dispute",
+                  requestId: null,
+                  bookingId: dispute.booking.id,
+                  disputeId: dispute.id,
+                  actorId: null,
+                  eventType: "dispute_annotations_reset",
+                  summary: `Local annotations reset for dispute ${dispute.id}`,
+                  detail: undefined,
+                  payload: undefined,
+                });
+              }}
+              aria-label="Reset local annotations"
+            >
+              Reset local draft
+            </Button>
+          </div>
         </CardFooter>
       </Card>
     </div>

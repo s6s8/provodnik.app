@@ -7,6 +7,10 @@ import { Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getActiveFavoritesUserId } from "@/data/favorites/active-user";
 import {
+  isFavoriteInSupabase,
+  toggleFavoriteInSupabase,
+} from "@/data/favorites/supabase-client";
+import {
   isFavorite,
   subscribeToFavoritesChanged,
   toggleFavorite,
@@ -28,16 +32,31 @@ export function FavoriteToggle({
 }) {
   const userId = React.useMemo(() => getActiveFavoritesUserId(), []);
   const [saved, setSaved] = React.useState(() => isFavorite(userId, targetType, slug));
+  const [usesBackend, setUsesBackend] = React.useState(false);
 
   React.useEffect(() => {
-    function refresh() {
+    let ignore = false;
+
+    async function refresh() {
+      try {
+        const persisted = await isFavoriteInSupabase(targetType, slug);
+        if (ignore) return;
+        setSaved(persisted);
+        setUsesBackend(true);
+        return;
+      } catch {
+        if (ignore) return;
+        setUsesBackend(false);
+      }
+
       setSaved(isFavorite(userId, targetType, slug));
     }
 
-    refresh();
+    void refresh();
     const unsubscribe = subscribeToFavoritesChanged(refresh);
     window.addEventListener("focus", refresh);
     return () => {
+      ignore = true;
       unsubscribe();
       window.removeEventListener("focus", refresh);
     };
@@ -49,8 +68,20 @@ export function FavoriteToggle({
       variant={saved ? "secondary" : "outline"}
       size="sm"
       className={cn("gap-2", className)}
-      onClick={() => {
-        toggleFavorite(userId, targetType, slug);
+      onClick={async () => {
+        if (usesBackend) {
+          try {
+            const nextSaved = await toggleFavoriteInSupabase(targetType, slug);
+            setSaved(nextSaved);
+          } catch {
+            toggleFavorite(userId, targetType, slug);
+            setSaved(isFavorite(userId, targetType, slug));
+            setUsesBackend(false);
+          }
+        } else {
+          toggleFavorite(userId, targetType, slug);
+          setSaved(isFavorite(userId, targetType, slug));
+        }
 
         void recordMarketplaceEventFromClient({
           scope: "moderation",
@@ -64,7 +95,8 @@ export function FavoriteToggle({
           payload: {
             targetType,
             targetSlug: slug,
-            userId,
+            userId: usesBackend ? "supabase-user" : userId,
+            persistence: usesBackend ? "supabase" : "local",
           },
         });
       }}
