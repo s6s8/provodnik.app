@@ -9,6 +9,7 @@
 | --- | --- | --- |
 | `src/app` | Routing, layouts, route composition | App Router with `(public)` and `(protected)` groups |
 | `src/features/home` | Public landing sections | Current homepage implementation |
+| `src/features/listings` | Public listing discovery + detail | Seeded cards, filters, and tour detail baseline |
 | `src/features/traveler` | Traveler flows | Planned; route scaffold exists |
 | `src/features/guide` | Guide flows | Planned; route scaffold exists |
 | `src/features/admin` | Admin flows | Planned; route scaffold exists |

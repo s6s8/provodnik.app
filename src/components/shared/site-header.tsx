@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 const navigation = [
+  { href: "/listings", label: "Discover" },
   { href: "/traveler", label: "Traveler" },
   { href: "/guide", label: "Guide" },
   { href: "/admin", label: "Admin" },
