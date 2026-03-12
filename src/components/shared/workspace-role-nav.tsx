@@ -2,10 +2,17 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+
+import { Bell } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getDemoUserIdForRole } from "@/data/notifications/demo";
+import {
+  countUnreadNotificationsForUser,
+  subscribeToNotificationsChanged,
+} from "@/data/notifications/local-store";
 import type { DemoRole, DemoSession } from "@/lib/demo-session";
 import {
   clearDemoSessionFromDocument,
@@ -58,16 +65,38 @@ export function WorkspaceRoleNav({ className }: { className?: string }) {
   const [demoSession, setDemoSession] = useState<DemoSession | null>(() =>
     readDemoSessionFromDocument()
   );
+  const [unreadNotifications, setUnreadNotifications] = useState(() => {
+    const session = readDemoSessionFromDocument();
+    if (!session) return 0;
+    return countUnreadNotificationsForUser(getDemoUserIdForRole(session.role));
+  });
+
+  const notificationsUserId = useMemo(() => {
+    if (!demoSession) return null;
+    return getDemoUserIdForRole(demoSession.role);
+  }, [demoSession]);
+
+  useEffect(() => {
+    if (!notificationsUserId) return () => {};
+
+    return subscribeToNotificationsChanged(() =>
+      setUnreadNotifications(countUnreadNotificationsForUser(notificationsUserId))
+    );
+  }, [notificationsUserId]);
 
   function signInAs(role: DemoRole) {
     writeDemoSessionToDocument(role);
     setDemoSession(readDemoSessionFromDocument());
+    setUnreadNotifications(
+      countUnreadNotificationsForUser(getDemoUserIdForRole(role))
+    );
     startTransition(() => router.refresh());
   }
 
   function signOut() {
     clearDemoSessionFromDocument();
     setDemoSession(null);
+    setUnreadNotifications(0);
     startTransition(() => router.refresh());
   }
 
@@ -132,6 +161,33 @@ export function WorkspaceRoleNav({ className }: { className?: string }) {
                 </Button>
               );
             })}
+
+            <div className="mx-1 h-6 w-px shrink-0 bg-border/60" aria-hidden="true" />
+
+            <Button
+              variant={pathname === "/notifications" ? "secondary" : "ghost"}
+              size="sm"
+              asChild
+              className={cn(
+                "shrink-0",
+                pathname === "/notifications" && "text-foreground",
+                pathname !== "/notifications" && "text-muted-foreground"
+              )}
+            >
+              <Link
+                href="/notifications"
+                aria-current={pathname === "/notifications" ? "page" : undefined}
+                title="Unified feed for marketplace events"
+              >
+                <Bell className="size-4" />
+                Notifications
+                {demoSession && unreadNotifications > 0 ? (
+                  <Badge variant="secondary" className="ml-2 bg-background">
+                    {unreadNotifications}
+                  </Badge>
+                ) : null}
+              </Link>
+            </Button>
           </div>
         </nav>
 
