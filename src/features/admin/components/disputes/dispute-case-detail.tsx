@@ -38,6 +38,7 @@ import type {
   DisputeTimelineEventType,
   PayoutFreezePosture,
 } from "@/features/admin/types/disputes";
+import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 
 function formatAt(iso: string) {
   const date = new Date(iso);
@@ -153,16 +154,73 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
     setLocal(buildInitialLocal(caseId));
   }, [caseId]);
 
-  const toggleAction = React.useCallback((key: string) => {
-    setLocal((prev) => ({
-      ...prev,
-      actionChecks: { ...prev.actionChecks, [key]: !(prev.actionChecks[key] ?? false) },
-    }));
-  }, []);
+  const toggleAction = React.useCallback(
+    (key: string) => {
+      setLocal((prev) => ({
+        ...prev,
+        actionChecks: { ...prev.actionChecks, [key]: !(prev.actionChecks[key] ?? false) },
+      }));
 
-  const setPosture = React.useCallback((posture: PayoutFreezePosture) => {
-    setLocal((prev) => ({ ...prev, posture }));
-  }, []);
+      if (!dispute) return;
+
+      void recordMarketplaceEventFromClient({
+        scope: "dispute",
+        requestId: null,
+        bookingId: dispute.booking.id,
+        disputeId: dispute.id,
+        actorId: null,
+        eventType: "dispute_next_action_toggled",
+        summary: `Next action ${key} toggled for dispute ${dispute.id}`,
+        detail: undefined,
+        payload: {
+          actionKey: key,
+        },
+      });
+    },
+    [dispute],
+  );
+
+  const setPosture = React.useCallback(
+    (posture: PayoutFreezePosture) => {
+      setLocal((prev) => ({ ...prev, posture }));
+
+      if (!dispute) return;
+
+      void recordMarketplaceEventFromClient({
+        scope: "dispute",
+        requestId: null,
+        bookingId: dispute.booking.id,
+        disputeId: dispute.id,
+        actorId: null,
+        eventType: "dispute_payout_posture_updated",
+        summary: `Payout posture updated for dispute ${dispute.id}`,
+        detail: `Posture: ${posture}`,
+        payload: {
+          posture,
+        },
+      });
+    },
+    [dispute],
+  );
+
+  React.useEffect(() => {
+    if (!dispute) return;
+
+    void recordMarketplaceEventFromClient({
+      scope: "dispute",
+      requestId: null,
+      bookingId: dispute.booking.id,
+      disputeId: dispute.id,
+      actorId: null,
+      eventType: "dispute_case_viewed",
+      summary: `Dispute case ${dispute.id} viewed in admin`,
+      detail: `Stage: ${dispute.stage}, disposition: ${dispute.disposition}`,
+      payload: {
+        payoutPosture: dispute.payout.posture,
+        policyKey: dispute.policyKey,
+      },
+    });
+  }, [dispute]);
 
   if (!dispute) {
     return (
@@ -404,9 +462,24 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
               </div>
               <Textarea
                 value={local.internalNotes}
-                onChange={(event) =>
-                  setLocal((prev) => ({ ...prev, internalNotes: event.target.value }))
-                }
+                onChange={(event) => {
+                  const value = event.target.value;
+                  setLocal((prev) => ({ ...prev, internalNotes: value }));
+
+                  if (!dispute || !value.trim()) return;
+
+                  void recordMarketplaceEventFromClient({
+                    scope: "dispute",
+                    requestId: null,
+                    bookingId: dispute.booking.id,
+                    disputeId: dispute.id,
+                    actorId: null,
+                    eventType: "dispute_internal_note_updated",
+                    summary: `Internal notes updated for dispute ${dispute.id}`,
+                    detail: value,
+                    payload: undefined,
+                  });
+                }}
                 placeholder="Record evidence references, policy rationale, and communication posture. Avoid speculation; cite timestamps and artifacts."
                 aria-label="Internal operator notes"
               />
@@ -496,7 +569,26 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
             </div>
             <Textarea
               value={local.stageNote}
-              onChange={(event) => setLocal((prev) => ({ ...prev, stageNote: event.target.value }))}
+              onChange={(event) => {
+                const value = event.target.value;
+                setLocal((prev) => ({ ...prev, stageNote: value }));
+
+                if (!dispute || !value.trim()) return;
+
+                void recordMarketplaceEventFromClient({
+                  scope: "dispute",
+                  requestId: null,
+                  bookingId: dispute.booking.id,
+                  disputeId: dispute.id,
+                  actorId: null,
+                  eventType: "dispute_decision_draft_updated",
+                  summary: `Decision draft updated for dispute ${dispute.id}`,
+                  detail: value,
+                  payload: {
+                    outcome: local.operatorOutcome,
+                  },
+                });
+              }}
               placeholder="Draft rationale and next communication. Keep it factual and reference timeline evidence."
               aria-label="Decision draft rationale"
             />
@@ -514,7 +606,23 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
           <Button
             type="button"
             variant="outline"
-            onClick={() => setLocal(buildInitialLocal(caseId))}
+            onClick={() => {
+              setLocal(buildInitialLocal(caseId));
+
+              if (!dispute) return;
+
+              void recordMarketplaceEventFromClient({
+                scope: "dispute",
+                requestId: null,
+                bookingId: dispute.booking.id,
+                disputeId: dispute.id,
+                actorId: null,
+                eventType: "dispute_annotations_reset",
+                summary: `Local annotations reset for dispute ${dispute.id}`,
+                detail: undefined,
+                payload: undefined,
+              });
+            }}
             aria-label="Reset local annotations"
           >
             Reset local annotations

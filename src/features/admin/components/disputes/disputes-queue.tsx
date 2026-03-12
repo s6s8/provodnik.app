@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { DEFAULT_DISPUTE_CASES } from "@/features/admin/components/disputes/dispute-seed";
+import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import type {
   DisputeQueueDisposition,
   DisputeSeverity,
@@ -158,6 +159,31 @@ export function DisputesQueue() {
 
     return { all, open, needsAction, waiting, resolved };
   }, []);
+
+  React.useEffect(() => {
+    if (!visible.length) return;
+
+    const now = new Date().toISOString();
+
+    void recordMarketplaceEventFromClient({
+      scope: "dispute",
+      requestId: null,
+      bookingId: null,
+      disputeId: null,
+      actorId: null,
+      eventType: "disputes_queue_viewed",
+      summary: "Admin viewed disputes queue",
+      detail: `Visible cases: ${visible.length} at ${now}`,
+      payload: {
+        filters: {
+          disposition: dispositionFilter,
+          severity: severityFilter,
+          stage: stageFilter,
+        },
+        visibleCaseIds: visible.map((item) => item.id),
+      },
+    });
+  }, [dispositionFilter, severityFilter, stageFilter, visible]);
 
   return (
     <div className="space-y-8">

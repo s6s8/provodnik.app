@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 
 import type {
   GuideApplication,
@@ -283,18 +284,37 @@ export function GuideReviewQueue() {
     return { all, pending, approved, needsMoreInfo, rejected };
   }, [reviewState]);
 
-  const setDecision = React.useCallback((id: string, decision: GuideApplicationDecision) => {
-    setReviewState((prev) => ({
-      ...prev,
-      [id]: {
-        decision,
-        note: prev[id]?.note ?? "",
-        decidedAt: new Date().toISOString(),
-      },
-    }));
-  }, []);
+  const setDecision = React.useCallback(
+    (id: string, decision: GuideApplicationDecision, app: GuideApplication) => {
+      setReviewState((prev) => ({
+        ...prev,
+        [id]: {
+          decision,
+          note: prev[id]?.note ?? "",
+          decidedAt: new Date().toISOString(),
+        },
+      }));
 
-  const setNote = React.useCallback((id: string, note: string) => {
+      void recordMarketplaceEventFromClient({
+        scope: "moderation",
+        requestId: null,
+        bookingId: null,
+        disputeId: null,
+        actorId: null,
+        eventType: "guide_review_decision",
+        summary: `Guide application ${id} decision set to ${decision}`,
+        detail: `${app.applicant.displayName} (${app.applicant.homeBase}) decision: ${decision}`,
+        payload: {
+          applicationId: id,
+          decision,
+          applicant: app.applicant,
+        },
+      });
+    },
+    [],
+  );
+
+  const setNote = React.useCallback((id: string, note: string, app: GuideApplication) => {
     setReviewState((prev) => ({
       ...prev,
       [id]: {
@@ -303,6 +323,23 @@ export function GuideReviewQueue() {
         decidedAt: prev[id]?.decidedAt,
       },
     }));
+
+    if (!note.trim()) return;
+
+    void recordMarketplaceEventFromClient({
+      scope: "moderation",
+      requestId: null,
+      bookingId: null,
+      disputeId: null,
+      actorId: null,
+      eventType: "guide_review_note",
+      summary: `Guide application ${id} note updated`,
+      detail: note,
+      payload: {
+        applicationId: id,
+        applicant: app.applicant,
+      },
+    });
   }, []);
 
   return (
@@ -459,21 +496,21 @@ export function GuideReviewQueue() {
                       <Button
                         type="button"
                         variant="secondary"
-                        onClick={() => setDecision(app.id, "approved")}
+                        onClick={() => setDecision(app.id, "approved", app)}
                       >
                         Approve
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setDecision(app.id, "needs-more-info")}
+                        onClick={() => setDecision(app.id, "needs-more-info", app)}
                       >
                         Request info
                       </Button>
                       <Button
                         type="button"
                         variant="destructive"
-                        onClick={() => setDecision(app.id, "rejected")}
+                        onClick={() => setDecision(app.id, "rejected", app)}
                       >
                         Reject
                       </Button>
@@ -573,7 +610,7 @@ export function GuideReviewQueue() {
                         </div>
                         <Textarea
                           value={state.note}
-                          onChange={(event) => setNote(app.id, event.target.value)}
+                          onChange={(event) => setNote(app.id, event.target.value, app)}
                           placeholder="Add rationale, missing items, or follow-ups..."
                           aria-label="Decision note"
                         />

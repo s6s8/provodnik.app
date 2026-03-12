@@ -28,6 +28,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 
 import type {
   ListingRiskKey,
@@ -312,6 +313,26 @@ export function ListingModerationQueue() {
           decidedAt: new Date().toISOString(),
         },
       }));
+
+      const listing = DEFAULT_LISTINGS.find((item) => item.id === id);
+      if (listing) {
+        void recordMarketplaceEventFromClient({
+          scope: "moderation",
+          requestId: null,
+          bookingId: null,
+          disputeId: null,
+          actorId: null,
+          eventType: "listing_moderation_action",
+          summary: `Listing ${id} moderation action ${action}`,
+          detail: `${listing.listing.title} visibility set to ${nextVisibility}`,
+          payload: {
+            listingId: id,
+            action,
+            visibility: nextVisibility,
+            seller: listing.listing.sellerDisplayName,
+          },
+        });
+      }
     },
     [],
   );
@@ -326,6 +347,26 @@ export function ListingModerationQueue() {
         decidedAt: prev[id]?.decidedAt,
       },
     }));
+
+    if (!note.trim()) return;
+
+    const listing = DEFAULT_LISTINGS.find((item) => item.id === id);
+    if (listing) {
+      void recordMarketplaceEventFromClient({
+        scope: "moderation",
+        requestId: null,
+        bookingId: null,
+        disputeId: null,
+        actorId: null,
+        eventType: "listing_moderation_note",
+        summary: `Listing ${id} moderation note updated`,
+        detail: note,
+        payload: {
+          listingId: id,
+          seller: listing.listing.sellerDisplayName,
+        },
+      });
+    }
   }, []);
 
   return (

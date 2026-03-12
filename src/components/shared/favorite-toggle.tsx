@@ -11,6 +11,7 @@ import {
   subscribeToFavoritesChanged,
   toggleFavorite,
 } from "@/data/favorites/local-store";
+import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import type { FavoriteTargetType } from "@/data/favorites/types";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +49,25 @@ export function FavoriteToggle({
       variant={saved ? "secondary" : "outline"}
       size="sm"
       className={cn("gap-2", className)}
-      onClick={() => toggleFavorite(userId, targetType, slug)}
+      onClick={() => {
+        toggleFavorite(userId, targetType, slug);
+
+        void recordMarketplaceEventFromClient({
+          scope: "moderation",
+          requestId: null,
+          bookingId: null,
+          disputeId: null,
+          actorId: null,
+          eventType: "favorite_toggled",
+          summary: `Favorite toggled for ${targetType}:${slug}`,
+          detail: undefined,
+          payload: {
+            targetType,
+            targetSlug: slug,
+            userId,
+          },
+        });
+      }}
       aria-pressed={saved}
       aria-label={label}
       title={label}

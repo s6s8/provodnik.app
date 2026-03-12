@@ -20,6 +20,7 @@ import {
 } from "@/data/reviews/schema";
 import { getTravelerBookingById } from "@/data/traveler-booking/local-store";
 import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
+import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import { cn } from "@/lib/utils";
 
 type ReviewFormValues = ReviewSubmission;
@@ -130,6 +131,21 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
 
       addLocalReview(review);
       setSubmitted(review);
+
+      void recordMarketplaceEventFromClient({
+        scope: "booking",
+        requestId: record.request.id,
+        bookingId: record.id,
+        disputeId: null,
+        actorId: review.author.userId,
+        eventType: "review_submitted",
+        summary: `Review submitted for ${values.targetType}:${values.targetSlug}`,
+        detail: values.title,
+        payload: {
+          rating: values.rating,
+          tags: values.tags,
+        },
+      });
     },
     [record],
   );
