@@ -36,12 +36,17 @@ export function TravelerRequestsWorkspaceScreen() {
               requests are saved locally on this device in MVP baseline.
             </p>
           </div>
-          <Button asChild className="shrink-0">
-            <Link href="/traveler/requests/new">
-              New
-              <Plus className="size-4" />
-            </Link>
-          </Button>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/traveler/bookings">Bookings</Link>
+            </Button>
+            <Button asChild>
+              <Link href="/traveler/requests/new">
+                New
+                <Plus className="size-4" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
