@@ -205,7 +205,15 @@ export default function PublicListingDetailPage({
               <Link href="/traveler">Start booking request</Link>
             </Button>
             <p className="text-xs text-muted-foreground">
-              This CTA links to the traveler area placeholder for now.
+              By continuing, you acknowledge the{" "}
+              <Link href="/policies/cancellation" className="underline underline-offset-4">
+                cancellation
+              </Link>{" "}
+              and{" "}
+              <Link href="/policies/refunds" className="underline underline-offset-4">
+                refund
+              </Link>{" "}
+              policies. This CTA links to the traveler area placeholder for now.
             </p>
           </CardContent>
         </Card>

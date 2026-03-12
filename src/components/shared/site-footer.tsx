@@ -8,16 +8,32 @@ export function SiteFooter() {
           <p className="font-medium text-foreground">Provodnik</p>
           <p>Marketplace baseline for the Russia tours MVP.</p>
         </div>
-        <div className="flex gap-4">
-          <Link href="/traveler" className="transition-colors hover:text-foreground">
-            Traveler
-          </Link>
-          <Link href="/guide" className="transition-colors hover:text-foreground">
-            Guide
-          </Link>
-          <Link href="/admin" className="transition-colors hover:text-foreground">
-            Admin
-          </Link>
+        <div className="flex flex-wrap gap-x-6 gap-y-2">
+          <div className="flex gap-4">
+            <Link href="/traveler" className="transition-colors hover:text-foreground">
+              Traveler
+            </Link>
+            <Link href="/guide" className="transition-colors hover:text-foreground">
+              Guide
+            </Link>
+            <Link href="/admin" className="transition-colors hover:text-foreground">
+              Admin
+            </Link>
+          </div>
+          <div className="flex gap-4">
+            <Link href="/trust" className="transition-colors hover:text-foreground">
+              Trust
+            </Link>
+            <Link
+              href="/policies/cancellation"
+              className="transition-colors hover:text-foreground"
+            >
+              Cancellation
+            </Link>
+            <Link href="/policies/refunds" className="transition-colors hover:text-foreground">
+              Refunds
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
