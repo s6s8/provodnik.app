@@ -111,11 +111,11 @@
 - `#21` public policy and trust pages needed for launch credibility
   - status: `Done`
 - `#22` ranking and supply quality indicators
-  - status: `Backlog`
+  - status: `Done`
 
 ### Current state
 - The core non-payment MVP marketplace loop is now present on `main`.
-- Remaining non-payment polish is mostly `#22` ranking and supply quality indicators.
+- Ranking and supply quality indicators are now visible on public and guide-facing surfaces.
 - Real payments are no longer part of MVP.
 
 ## Backend MVP Integration
@@ -126,12 +126,23 @@
   - final non-payment launch hardening
 
 ### Planned slices
-- auth and profile bootstrap
-- traveler request and group membership persistence
-- guide offers and bookings persistence
-- favorites, reviews, notifications, and disputes persistence
-- guide verification documents and listing media
+- `#24` auth and profile bootstrap
+  - status: `Done`
+- `#26` traveler request and group membership persistence
+  - status: `Done`
+- `#27` guide offers and bookings persistence
+  - status: `Done`
+- `#28` favorites, reviews, notifications, and disputes persistence
+  - status: `Done`
+- `#25` guide verification documents and listing media
+  - status: `Done`
 - final launch checks after all non-payment loops are stable
+  - status: `Done`
+
+### Current state
+- The tracked non-payment MVP queue is complete on `main`.
+- Supabase-backed auth, persistence, trust, moderation, and public review surfaces are in place.
+- Payment integration remains intentionally excluded from MVP and should stay out of the active queue.
 
 ## Release 3 Optimization
 - Focus:

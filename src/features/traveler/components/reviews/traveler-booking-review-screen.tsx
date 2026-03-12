@@ -13,7 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { addLocalReview } from "@/data/reviews/local-store";
-import { createReviewInSupabase } from "@/data/reviews/supabase";
+import { createReviewInSupabase } from "@/data/reviews/supabase-client";
 import type { ReviewRecord, ReviewTargetType } from "@/data/reviews/types";
 import {
   reviewSubmissionSchema,
