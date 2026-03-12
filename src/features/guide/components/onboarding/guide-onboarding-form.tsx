@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { AuthContext } from "@/lib/auth/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { ensureGuideDocumentReservations } from "@/data/guide-assets/supabase-client";
 import type {
   GuideProfileRow,
   GuideVerificationStatusDb,
@@ -74,6 +75,9 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
   );
   const [persistedToBackend, setPersistedToBackend] = React.useState(false);
   const [backendError, setBackendError] = React.useState<string | null>(null);
+  const [documentReservations, setDocumentReservations] = React.useState<
+    Array<{ documentType: string; objectPath: string; status: GuideVerificationStatusDb }>
+  >([]);
 
   const canPersistToSupabase =
     auth.hasSupabaseEnv && auth.isAuthenticated && auth.source === "supabase";
@@ -191,10 +195,23 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           return;
         }
 
+        const reservations = await ensureGuideDocumentReservations(
+          user.id,
+          verificationStatus
+        );
+
+        setDocumentReservations(
+          reservations.map((item) => ({
+            documentType: item.documentType,
+            objectPath: item.objectPath,
+            status: item.status,
+          }))
+        );
         setPersistedToBackend(true);
       } catch (error) {
         console.error("Failed to persist guide onboarding to Supabase", error);
         setPersistedToBackend(false);
+        setDocumentReservations([]);
         setBackendError(
           "We could not reach the backend; saved locally only in this browser."
         );
@@ -203,6 +220,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       }
     } else {
       setPersistedToBackend(false);
+      setDocumentReservations([]);
     }
 
     setSubmitted(values);
@@ -210,6 +228,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
   const handleStartOver = React.useCallback(() => {
     setSubmitted(null);
+    setDocumentReservations([]);
     reset();
   }, [reset]);
 
@@ -226,7 +245,9 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
               <CheckCircle2 className="size-5" />
             </div>
             <div className="space-y-1">
-              <CardTitle>Onboarding captured locally</CardTitle>
+              <CardTitle>
+                {persistedToBackend ? "Onboarding saved to backend" : "Onboarding captured locally"}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
                 {persistedToBackend
                   ? "Your intake has been written to your guide profile in Supabase. You can review the captured intake below."
@@ -338,6 +359,18 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
                 </p>
               </div>
             </SummarySection>
+
+            {persistedToBackend && documentReservations.length > 0 ? (
+              <SummarySection title="Reserved backend document paths">
+                {documentReservations.map((item) => (
+                  <SummaryRow
+                    key={item.documentType}
+                    label={`${item.documentType} (${item.status})`}
+                    value={item.objectPath}
+                  />
+                ))}
+              </SummarySection>
+            ) : null}
           </CardContent>
         </Card>
 

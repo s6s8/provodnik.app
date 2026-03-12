@@ -25,6 +25,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import type { AuthContext } from "@/lib/auth/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import {
+  ensureListingCoverReservation,
+  listListingMediaReservationsForGuide,
+} from "@/data/guide-assets/supabase-client";
 import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
 
 function splitCommaList(value: string): string[] {
@@ -154,6 +158,9 @@ function mapListingToDbInput(
 export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenProps) {
   const [records, setRecords] = React.useState<GuideListingRecord[]>([]);
   const [backendMode, setBackendMode] = React.useState<BackendMode>("local");
+  const [mediaReservationsByListing, setMediaReservationsByListing] = React.useState<
+    Record<string, Array<{ objectPath: string; isCover: boolean }>>
+  >({});
   const [selectedId, setSelectedId] = React.useState<string | null>(
     null
   );
@@ -168,6 +175,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
         const seeded = getSeededGuideListingRecords();
         setRecords(seeded);
         setSelectedId(seeded[0]?.id ?? null);
+        setMediaReservationsByListing({});
         setBackendMode("local");
         return;
       }
@@ -183,6 +191,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
           const seeded = getSeededGuideListingRecords();
           setRecords(seeded);
           setSelectedId(seeded[0]?.id ?? null);
+          setMediaReservationsByListing({});
           setBackendMode("local");
           return;
         }
@@ -199,14 +208,19 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
           const seeded = getSeededGuideListingRecords();
           setRecords(seeded);
           setSelectedId(seeded[0]?.id ?? null);
+          setMediaReservationsByListing({});
           setBackendMode("local");
           return;
         }
 
         const mapped = (data as ListingRow[]).map(mapListingRowToRecord);
+        const mediaReservations = await listListingMediaReservationsForGuide(
+          user.id,
+        ).catch(() => ({}));
         if (!isMounted) return;
         setRecords(mapped);
         setSelectedId(mapped[0]?.id ?? null);
+        setMediaReservationsByListing(mediaReservations);
         setBackendMode("supabase");
       } catch (error) {
         console.error("Failed to load guide listings from Supabase", error);
@@ -214,6 +228,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
         const seeded = getSeededGuideListingRecords();
         setRecords(seeded);
         setSelectedId(seeded[0]?.id ?? null);
+        setMediaReservationsByListing({});
         setBackendMode("local");
       }
     }
@@ -298,6 +313,11 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
               console.error("Failed to upsert listing to Supabase", error);
             } else if (upserted) {
               const asRow = upserted as ListingRow;
+              const coverReservation = await ensureListingCoverReservation(
+                user.id as string,
+                asRow.id,
+                values.title,
+              );
               const nextRecord = mapListingRowToRecord(asRow);
               setRecords((current) => {
                 const existingIndex = current.findIndex(
@@ -310,6 +330,15 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                 next[existingIndex] = nextRecord;
                 return next.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
               });
+              setMediaReservationsByListing((current) => ({
+                ...current,
+                [asRow.id]: [
+                  {
+                    objectPath: coverReservation.objectPath,
+                    isCover: coverReservation.isCover,
+                  },
+                ],
+              }));
               setSelectedId(nextRecord.id);
               setSavedId(nextRecord.id);
               return;
@@ -430,6 +459,11 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                     <Badge variant="outline">
                       Updated {formatUpdatedAt(record.updatedAt)}
                     </Badge>
+                    {mediaReservationsByListing[record.id]?.length ? (
+                      <Badge variant="outline">
+                        Media paths {mediaReservationsByListing[record.id]?.length}
+                      </Badge>
+                    ) : null}
                   </div>
                 </button>
               );
@@ -449,7 +483,28 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
           <CardContent className="space-y-4">
             {savedId ? (
               <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-                Saved locally for listing <span className="font-medium text-foreground">{savedId}</span>.
+                {backendMode === "supabase"
+                  ? (
+                    <>
+                      Saved to Supabase for listing{" "}
+                      <span className="font-medium text-foreground">{savedId}</span>.
+                    </>
+                  )
+                  : (
+                    <>
+                      Saved locally for listing{" "}
+                      <span className="font-medium text-foreground">{savedId}</span>.
+                    </>
+                  )}
+              </div>
+            ) : null}
+
+            {selectedRecord && mediaReservationsByListing[selectedRecord.id]?.[0] ? (
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
+                Reserved media path:{" "}
+                <span className="font-medium text-foreground">
+                  {mediaReservationsByListing[selectedRecord.id]?.[0]?.objectPath}
+                </span>
               </div>
             ) : null}
 
