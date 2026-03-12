@@ -33,6 +33,12 @@ Copy `.env.example` to `.env.local` and fill in:
 
 - `NEXT_PUBLIC_APP_URL`
 - `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY`
+- `SUPABASE_DB_PASSWORD` when you are ready to run Supabase CLI migrations against the hosted project
+
+Legacy aliases are still accepted:
+
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 

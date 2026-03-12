@@ -2,7 +2,7 @@
 
 ## Goal
 - Turn the MVP into an execution queue that can be driven issue by issue without re-deriving priorities every session.
-- Sequence real payment implementation last. All booking work before that should stay payment-ready and policy-complete without integrating a live payment system.
+- Keep payment integration out of MVP. Booking work should end at reservation and policy-complete confirmation states without a live payment processor.
 
 ## Active tracking
 - GitHub Project:
@@ -91,7 +91,7 @@
   - notifications
   - dispute handling
   - ranking signals
-  - payment integration remains deferred until the final MVP closeout slice
+  - backend persistence rollout for the current marketplace loop
 
 ### Planned slices
 - `#14` shared marketplace quality seed contracts
@@ -116,18 +116,22 @@
 ### Current state
 - The core non-payment MVP marketplace loop is now present on `main`.
 - Remaining non-payment polish is mostly `#22` ranking and supply quality indicators.
-- Real payments remain intentionally deferred to final closeout.
+- Real payments are no longer part of MVP.
 
-## Final MVP Closeout
+## Backend MVP Integration
 - Focus:
-  - real payment integration
-  - end-to-end booking confirmation
-  - final pre-launch hardening
+  - real auth
+  - real persistence
+  - storage and moderation execution
+  - final non-payment launch hardening
 
 ### Planned slices
-- `#23` replace payment-ready placeholders with the real deposit and remainder flow
-- wire booking confirmation states to payment success and failure
-- finish final launch checks after all non-payment marketplace loops are stable
+- auth and profile bootstrap
+- traveler request and group membership persistence
+- guide offers and bookings persistence
+- favorites, reviews, notifications, and disputes persistence
+- guide verification documents and listing media
+- final launch checks after all non-payment loops are stable
 
 ## Release 3 Optimization
 - Focus:

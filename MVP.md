@@ -8,7 +8,7 @@
 - traveler-created requests;
 - group formation for budget-sensitive travelers;
 - guide responses and offers;
-- trusted booking, deposit, and review workflows.
+- trusted booking, reservation, and review workflows.
 
 The MVP is not a generic excursion catalog. It is a transaction system for the fragmented part of the market that still runs through Telegram chats, phone calls, and manual coordination.
 
@@ -126,11 +126,11 @@ Travelers can create a request with:
 - accept, decline, or let an offer expire;
 - see response-time indicators and booking deadlines.
 
-#### Booking and payment
+#### Booking and reservation
 
 - book ready-made listings or accepted custom offers;
-- pay deposit online;
-- see remaining amount, payment timing, and accepted payment methods;
+- confirm a reservation inside the platform without requiring integrated payment in MVP;
+- see payment expectations, timing, and accepted methods even if settlement happens outside the platform during MVP;
 - receive booking confirmation with guide details, itinerary summary, meeting point, and cancellation terms;
 - view booking timeline and status changes;
 - request cancellation or support from the booking page.
@@ -179,7 +179,7 @@ Travelers can create a request with:
 #### Booking operations
 
 - confirm or reject manual bookings within SLA;
-- see deposit paid status;
+- see reservation and payment-status expectations;
 - message travelers in a booking thread;
 - mark booking completed;
 - manage cancellation reasons and no-show outcomes.
@@ -203,7 +203,7 @@ Travelers can create a request with:
 #### Marketplace control
 
 - manage categories, regions, and featured supply;
-- configure commission, deposit rate, and booking policy settings;
+- configure commission and booking policy settings;
 - monitor response times, dispute rate, and refund volume;
 - detect suspected off-platform leakage signals.
 
@@ -228,7 +228,7 @@ Travelers can create a request with:
 | Leads are poorly qualified | Structured request fields with budget, dates, and group size |
 | Refund expectations are unclear | Standardized cancellation and refund policy surfaced pre-booking |
 | Compliance risk | Identity review, attestation fields, moderation workflow |
-| Disintermediation risk | Contact gating until deposit and booking confirmation |
+| Disintermediation risk | Contact gating until reservation confirmation |
 | Fake supply or abuse | Manual approval, flagging, moderation, dispute tooling |
 
 ## 8. Primary user flows
@@ -239,7 +239,7 @@ Travelers can create a request with:
 2. Traveler filters listings.
 3. Traveler opens a listing and reviews guide trust markers.
 4. Traveler selects date and party size.
-5. Traveler books and pays deposit.
+5. Traveler confirms the reservation.
 6. Guide confirms if required.
 7. Traveler receives confirmation and reminders.
 8. Tour completes and review request is sent.
@@ -252,7 +252,7 @@ Travelers can create a request with:
 4. Traveler compares offers and asks follow-up questions.
 5. Traveler accepts one offer.
 6. Booking object is created.
-7. Deposit is paid.
+7. Reservation is confirmed with explicit payment instructions.
 8. Guide fulfills tour and both sides can review.
 
 ### 8.3 Group formation flow
@@ -320,20 +320,20 @@ Travelers can create a request with:
 
 ### 10.1 Booking model
 
-- deposit required to confirm a booking;
-- remaining payment rules shown before checkout;
+- booking confirmation rules must be explicit;
+- remaining payment rules must be shown before reservation is confirmed;
 - booking status must be explicit: `pending`, `awaiting guide confirmation`, `confirmed`, `cancelled`, `completed`, `disputed`.
 
 ### 10.2 Contact exchange policy
 
-- direct personal contact details remain hidden until booking confirmation or deposit success;
+- direct personal contact details remain hidden until booking confirmation;
 - pre-booking chat is allowed inside the platform only.
 
 ### 10.3 Cancellation and refund policy
 
 - traveler cancellation windows must be standardized;
 - guide cancellations incur ranking or moderation consequences;
-- refund logic must be visible before deposit;
+- refund logic must be visible before reservation is confirmed;
 - admin can override in dispute cases with audit notes.
 
 ### 10.4 Review policy
@@ -348,7 +348,7 @@ Travelers can create a request with:
 - new traveler message;
 - new request match for guide;
 - booking created;
-- deposit paid;
+- reservation confirmed;
 - booking confirmed or rejected;
 - upcoming trip reminder;
 - cancellation and refund status update.
@@ -399,7 +399,7 @@ Notify guides based on:
 - audit trail for refunds, moderation, and disputes;
 - basic analytics for funnel tracking;
 - role-based access control for traveler, guide, and admin;
-- secure payment and document handling.
+- secure document handling.
 
 ## 14. Launch slice
 
@@ -448,7 +448,7 @@ Notify guides based on:
 
 - confirmed bookings;
 - GMV;
-- deposit conversion rate;
+- reservation conversion rate;
 - cancellation rate;
 - refund rate.
 
@@ -471,7 +471,7 @@ Notify guides based on:
 - listing discovery;
 - request creation;
 - offer flow;
-- booking and deposit;
+- booking confirmation without integrated payment;
 - basic admin moderation.
 
 ### Release 2: marketplace quality
@@ -493,13 +493,13 @@ Notify guides based on:
 
 ## 18. Bottom line
 
-The full MVP for `Provodnik` is a trust-aware marketplace, not a brochure site. It must launch with the complete transaction loop:
+The full MVP for `Provodnik` is a trust-aware marketplace, not a brochure site. It must launch with the complete non-payment transaction loop:
 
 - discovery;
 - request capture;
 - group formation;
 - guide response;
-- booking and deposit;
+- booking confirmation;
 - reviews;
 - moderation;
 - refunds and support.

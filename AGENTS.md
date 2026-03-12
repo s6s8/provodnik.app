@@ -47,7 +47,7 @@
 - Keep imports on repo aliases like `@/components`, `@/features`, `@/lib`.
 - Treat missing Supabase env as a supported local state; do not break the shell without need.
 - Do not invent backend behavior that is not documented in code or product docs.
-- Defer real payment system implementation until the final MVP closeout slice; earlier booking work should remain payment-ready rather than payment-integrated.
+- Keep payment integration out of MVP; booking work should remain reservation-ready and policy-complete without a live payment processor.
 - For Cursor and `cursor-agent`, use `--model auto` unless the user explicitly overrides it.
 - Use GitHub Issues as task records and GitHub Project as the live status board.
 - Use worktrees as isolated coding spaces, not as the task ledger.
@@ -60,8 +60,10 @@
 
 ## Env
 - Copy `.env.example` to `.env.local`
-- Required for Supabase flows: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY` is server-only
+- Required for Supabase flows: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY` is server-only
+- `SUPABASE_DB_PASSWORD` is required for Supabase CLI schema push against the hosted database
+- Legacy aliases `NEXT_PUBLIC_SUPABASE_ANON_KEY` and `SUPABASE_SERVICE_ROLE_KEY` are still supported
 - The app shell should still run without Supabase credentials
 
 ## Source docs
