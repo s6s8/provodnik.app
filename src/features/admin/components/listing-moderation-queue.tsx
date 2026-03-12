@@ -353,6 +353,12 @@ export function ListingModerationQueue() {
                 Admin home
               </Link>
             </Button>
+            <Button asChild type="button" variant="outline">
+              <Link href="/admin/disputes">
+                <AlertTriangle className="mr-1 size-4" />
+                Disputes
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

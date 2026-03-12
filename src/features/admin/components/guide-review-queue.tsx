@@ -322,12 +322,20 @@ export function GuideReviewQueue() {
               </p>
             </div>
           </div>
-          <Button asChild variant="outline" type="button">
-            <Link href="/admin/listings">
-              <ClipboardList className="mr-1 size-4" />
-              Listing moderation
-            </Link>
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" type="button">
+              <Link href="/admin/listings">
+                <ClipboardList className="mr-1 size-4" />
+                Listing moderation
+              </Link>
+            </Button>
+            <Button asChild variant="outline" type="button">
+              <Link href="/admin/disputes">
+                <Flag className="mr-1 size-4" />
+                Disputes
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
 
