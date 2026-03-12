@@ -1,0 +1,146 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { ArrowRight, Users } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { listOpenRequests } from "@/data/open-requests/local-store";
+import { cn } from "@/lib/utils";
+
+function formatRub(amount: number) {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    currencyDisplay: "code",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+export function TravelerOpenRequestsScreen() {
+  const [items, setItems] = React.useState(() => listOpenRequests());
+
+  const refresh = React.useCallback(() => {
+    setItems(listOpenRequests());
+  }, []);
+
+  React.useEffect(() => {
+    refresh();
+
+    function handleStorage(event: StorageEvent) {
+      if (event.key?.startsWith("provodnik.traveler.open-requests.") ?? false) {
+        refresh();
+      }
+    }
+
+    function handleFocus() {
+      refresh();
+    }
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+    };
+  }, [refresh]);
+
+  return (
+    <div className="space-y-8">
+      <div className="space-y-3">
+        <Badge variant="outline">Traveler workspace</Badge>
+        <div className="flex items-end justify-between gap-3">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              Open requests
+            </h1>
+            <p className="max-w-3xl text-base text-muted-foreground">
+              Discover seeded traveler groups that are forming and join locally.
+              This is local-first in MVP baseline: it updates only on this device.
+            </p>
+          </div>
+          <div className="flex shrink-0 items-center gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/traveler/requests">Your requests</Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-3">
+        {items.map((item) => (
+          <OpenRequestCard key={item.record.id} item={item} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function OpenRequestCard({ item }: { item: ReturnType<typeof listOpenRequests>[number] }) {
+
+  const joinedLabel = item.isJoined ? "Joined" : "Not joined";
+  const spotsLabel =
+    item.record.group.openToMoreMembers && item.remainingSpots > 0
+      ? `${item.remainingSpots} spot${item.remainingSpots === 1 ? "" : "s"} left`
+      : "Not accepting members";
+
+  return (
+    <Card className="border-border/70 bg-card/90">
+      <CardHeader className="space-y-2">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <CardTitle className="text-base">
+              {item.record.destinationLabel}
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {item.record.dateRangeLabel}
+            </p>
+          </div>
+          <Badge
+            variant={item.isJoined ? "default" : "outline"}
+            className={cn(!item.isJoined && "bg-background")}
+          >
+            {joinedLabel}
+          </Badge>
+        </div>
+
+        <Separator />
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge variant="secondary">{item.record.status}</Badge>
+          <Badge variant="outline">
+            <span className="inline-flex items-center gap-1">
+              <Users className="size-3.5" />
+              {item.record.group.sizeCurrent}/{item.record.group.sizeTarget}
+            </span>
+          </Badge>
+          <Badge variant="outline">{spotsLabel}</Badge>
+          {typeof item.record.budgetPerPersonRub === "number" ? (
+            <Badge variant="outline">
+              {formatRub(item.record.budgetPerPersonRub)} / person
+            </Badge>
+          ) : null}
+          <Badge variant="outline">{item.record.visibility}</Badge>
+        </div>
+      </CardHeader>
+      <CardContent className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs font-medium text-muted-foreground">Highlights</p>
+          <p className="mt-1 line-clamp-2 text-sm text-foreground">
+            {item.record.highlights.join(" · ")}
+          </p>
+        </div>
+        <Button asChild variant="secondary" className="shrink-0">
+          <Link href={`/traveler/open-requests/${item.record.id}`}>
+            Details
+            <ArrowRight className="size-4" />
+          </Link>
+        </Button>
+      </CardContent>
+    </Card>
+  );
+}
+

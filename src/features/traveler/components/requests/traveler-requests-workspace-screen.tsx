@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { listJoinedOpenRequests } from "@/data/open-requests/local-store";
 import {
   listOffersForTravelerRequest,
   listTravelerRequests,
@@ -17,9 +18,28 @@ import { TravelerRequestStatusBadge } from "@/features/traveler/components/reque
 
 export function TravelerRequestsWorkspaceScreen() {
   const [requests, setRequests] = React.useState<TravelerRequestRecord[]>([]);
+  const [joinedOpenRequestsCount, setJoinedOpenRequestsCount] = React.useState(0);
 
   React.useEffect(() => {
     setRequests(listTravelerRequests());
+    setJoinedOpenRequestsCount(listJoinedOpenRequests().length);
+
+    function handleStorage(event: StorageEvent) {
+      if (event.key?.startsWith("provodnik.traveler.open-requests.") ?? false) {
+        setJoinedOpenRequestsCount(listJoinedOpenRequests().length);
+      }
+    }
+
+    function handleFocus() {
+      setJoinedOpenRequestsCount(listJoinedOpenRequests().length);
+    }
+
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("focus", handleFocus);
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("focus", handleFocus);
+    };
   }, []);
 
   return (
@@ -40,6 +60,19 @@ export function TravelerRequestsWorkspaceScreen() {
             <Button asChild variant="secondary">
               <Link href="/traveler/bookings">Bookings</Link>
             </Button>
+            <Button asChild variant="outline">
+              <Link href="/traveler/open-requests">
+                Open requests
+                {joinedOpenRequestsCount > 0 ? (
+                  <Badge
+                    variant="secondary"
+                    className="ml-2 bg-background text-foreground"
+                  >
+                    {joinedOpenRequestsCount}
+                  </Badge>
+                ) : null}
+              </Link>
+            </Button>
             <Button asChild>
               <Link href="/traveler/requests/new">
                 New
@@ -51,6 +84,23 @@ export function TravelerRequestsWorkspaceScreen() {
       </div>
 
       <div className="space-y-4">
+        {joinedOpenRequestsCount > 0 ? (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-base">Groups you’ve joined</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                You have joined {joinedOpenRequestsCount} open request
+                {joinedOpenRequestsCount === 1 ? "" : "s"} locally on this device.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Button asChild variant="secondary">
+                <Link href="/traveler/open-requests">View joined groups</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : null}
+
         {requests.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
