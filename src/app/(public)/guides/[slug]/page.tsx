@@ -2,10 +2,14 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
+import {
+  getSeededReviewsSummaryForTarget,
+  listSeededReviewsForTarget,
+} from "@/data/reviews/seed";
 import { PublicGuideProfileBasics } from "@/features/guide/components/public/public-guide-profile-basics";
 import { PublicGuideProfileSpecialties } from "@/features/guide/components/public/public-guide-profile-specialties";
-import { PublicGuideReviewsSummary } from "@/features/guide/components/public/public-guide-reviews-summary";
 import { PublicGuideTrustMarkers } from "@/features/guide/components/public/public-guide-trust-markers";
+import { PublicReviewsSection } from "@/features/reviews/components/public/public-reviews-section";
 
 export function generateMetadata({
   params,
@@ -29,6 +33,9 @@ export default async function PublicGuideProfilePage({
   const guide = getSeededPublicGuide(params.slug);
   if (!guide) notFound();
 
+  const seededSummary = getSeededReviewsSummaryForTarget("guide", guide.slug);
+  const seededReviews = listSeededReviewsForTarget("guide", guide.slug);
+
   return (
     <div className="space-y-10">
       <div className="space-y-2">
@@ -45,7 +52,12 @@ export default async function PublicGuideProfilePage({
         <PublicGuideTrustMarkers trustMarkers={guide.trustMarkers} />
       </div>
 
-      <PublicGuideReviewsSummary summary={guide.reviewsSummary} />
+      <PublicReviewsSection
+        title="Guide reviews"
+        target={{ type: "guide", slug: guide.slug }}
+        initialSummary={seededSummary}
+        initialReviews={seededReviews}
+      />
     </div>
   );
 }

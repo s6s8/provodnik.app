@@ -69,6 +69,7 @@ export function TravelerBookingDetailScreen({
   const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
   const total = totalAmountRub(record);
   const remaining = Math.max(0, total - record.payment.depositRub);
+  const canLeaveReview = record.status === "completed";
 
   return (
     <div className="space-y-8">
@@ -158,6 +159,35 @@ export function TravelerBookingDetailScreen({
           </div>
         </CardContent>
       </Card>
+
+      {canLeaveReview ? (
+        <Card className="border-border/70 bg-card/90">
+          <CardHeader className="space-y-1">
+            <CardTitle>Close the loop</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Leave a quick review while the details are fresh. Stored locally on
+              this device in the MVP baseline.
+            </p>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center">
+            <Button asChild className="w-full sm:w-auto">
+              <Link href={`/traveler/bookings/${record.id}/review`}>
+                Leave review
+              </Link>
+            </Button>
+            {record.guide.slug ? (
+              <Button asChild variant="secondary" className="w-full sm:w-auto">
+                <Link href={`/guides/${record.guide.slug}`}>View guide profile</Link>
+              </Button>
+            ) : null}
+            {record.listingSlug ? (
+              <Button asChild variant="secondary" className="w-full sm:w-auto">
+                <Link href={`/listings/${record.listingSlug}`}>View listing</Link>
+              </Button>
+            ) : null}
+          </CardContent>
+        </Card>
+      ) : null}
 
       <div className="grid gap-3">
         <Card className="border-border/70 bg-card/90">

@@ -67,6 +67,7 @@ export function TravelerBookingsScreen() {
 function BookingCard({ record }: { record: TravelerBookingRecord }) {
   const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
   const amountLabel = formatRub(totalAmountRub(record));
+  const canLeaveReview = record.status === "completed";
 
   return (
     <Card className="border-border/70 bg-card/90">
@@ -88,18 +89,29 @@ function BookingCard({ record }: { record: TravelerBookingRecord }) {
           <Badge variant="secondary">{amountLabel}</Badge>
           <Badge variant="outline">{record.guide.displayName}</Badge>
           <Badge variant="outline">{record.guide.homeBase}</Badge>
+          {canLeaveReview ? <Badge variant="outline">Review ready</Badge> : null}
         </div>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           Updated {formatShortDate(record.updatedAt)}
         </p>
-        <Button asChild variant="secondary">
-          <Link href={`/traveler/bookings/${record.id}`}>
-            Open
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          {canLeaveReview ? (
+            <Button asChild>
+              <Link href={`/traveler/bookings/${record.id}/review`}>
+                Leave review
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          ) : null}
+          <Button asChild variant="secondary">
+            <Link href={`/traveler/bookings/${record.id}`}>
+              Open
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

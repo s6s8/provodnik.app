@@ -112,6 +112,70 @@ export const seededTravelerBookings: TravelerBookingRecord[] = [
       ],
     },
   },
+  {
+    id: "bk_seed_rostov_completed_1",
+    status: "completed",
+    createdAt: isoDaysAgo(18),
+    updatedAt: isoDaysAgo(9),
+    listingSlug: "rostov-food-walk",
+    request: {
+      id: "req_seed_rostov_food_walk_1",
+      destination: "Rostov-on-Don",
+      startDate: "2026-02-27",
+      endDate: "2026-02-27",
+      groupSize: 2,
+    },
+    traveler: {
+      displayName: "You",
+    },
+    guide: {
+      slug: "maria-rostov",
+      displayName: "Maria K.",
+      homeBase: "Rostov-on-Don",
+      rating: 4.9,
+      completedTrips: 122,
+      responseTimeHours: 3,
+    },
+    itinerary: {
+      timezone: "Europe/Moscow",
+      days: [
+        {
+          day: 1,
+          title: "Markets + riverside pacing",
+          beats: [
+            "Pacing check + timing to avoid peak lanes",
+            "Market tastings and buying guidance",
+            "Riverside wrap + quiet backup stop for weather",
+          ],
+        },
+      ],
+      notes:
+        "Completed booking seed to power the review entry state (local-first).",
+    },
+    payment: {
+      currency: "RUB",
+      lineItems: [
+        {
+          id: "li_guide_service",
+          label: "Guide service (hosting)",
+          amountRub: 8_500,
+          kind: "service",
+        },
+        {
+          id: "li_platform_fee",
+          label: "Platform fee",
+          amountRub: 700,
+          kind: "fee",
+        },
+      ],
+      depositRub: 0,
+      depositDueAt: isoDaysAgo(30),
+    },
+    cancellationPolicy: {
+      summary: "Completed seed (policy no longer applies).",
+      bullets: ["This booking is completed and included for review entry UX."],
+    },
+  },
 ];
 
 export const seededTravelerBookingTimeline: TravelerBookingTimelineStep[] = [

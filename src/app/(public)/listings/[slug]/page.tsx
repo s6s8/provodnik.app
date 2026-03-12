@@ -13,9 +13,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
-import { PublicGuideReviewsSummary } from "@/features/guide/components/public/public-guide-reviews-summary";
 import { PublicGuideTrustMarkers } from "@/features/guide/components/public/public-guide-trust-markers";
 import { getSeededPublicListing } from "@/data/public-listings/seed";
+import {
+  getSeededReviewsSummaryForTarget,
+  listSeededReviewsForTarget,
+} from "@/data/reviews/seed";
+import { PublicReviewsSection } from "@/features/reviews/components/public/public-reviews-section";
 
 function formatRub(value: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -54,6 +58,11 @@ export default function PublicListingDetailPage({
     (sum, item) => sum + item.durationHours,
     0,
   );
+
+  const seededGuideSummary = getSeededReviewsSummaryForTarget("guide", guide.slug);
+  const seededGuideReviews = listSeededReviewsForTarget("guide", guide.slug);
+  const seededListingSummary = getSeededReviewsSummaryForTarget("listing", listing.slug);
+  const seededListingReviews = listSeededReviewsForTarget("listing", listing.slug);
 
   return (
     <div className="space-y-10">
@@ -169,9 +178,39 @@ export default function PublicListingDetailPage({
 
           <div className="grid gap-4">
             <PublicGuideTrustMarkers trustMarkers={guide.trustMarkers} />
-            <PublicGuideReviewsSummary summary={guide.reviewsSummary} />
+            <PublicReviewsSection
+              title="Guide reviews"
+              target={{ type: "guide", slug: guide.slug }}
+              initialSummary={seededGuideSummary}
+              initialReviews={seededGuideReviews}
+            />
           </div>
         </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.25fr_0.75fr] lg:items-start">
+        <PublicReviewsSection
+          title="Listing reviews"
+          target={{ type: "listing", slug: listing.slug }}
+          initialSummary={seededListingSummary}
+          initialReviews={seededListingReviews}
+        />
+        <Card className="border-border/70 bg-card/80">
+          <CardHeader className="space-y-2">
+            <CardTitle className="text-base">Review posture</CardTitle>
+            <CardDescription>Local-first baseline (no backend moderation).</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm text-muted-foreground">
+            <p>
+              Reviews are stored locally on the device where they were created. This keeps
+              the trust loop UI real without inventing backend behavior.
+            </p>
+            <p>
+              Flagging, removals, and disputes will be added once the marketplace ships real
+              identities and persistence.
+            </p>
+          </CardContent>
+        </Card>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr] lg:items-start">

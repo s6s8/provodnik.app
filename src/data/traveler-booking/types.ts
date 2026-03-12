@@ -33,6 +33,7 @@ export type TravelerBookingRecord = {
   status: TravelerBookingStatus;
   createdAt: string;
   updatedAt: string;
+  listingSlug?: string;
   request: {
     id: string;
     destination: string;
@@ -44,6 +45,7 @@ export type TravelerBookingRecord = {
     displayName: string;
   };
   guide: {
+    slug?: string;
     displayName: string;
     homeBase: string;
     rating: number;
