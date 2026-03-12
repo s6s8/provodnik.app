@@ -19,6 +19,7 @@ import {
   readDemoSessionFromDocument,
   writeDemoSessionToDocument,
 } from "@/lib/demo-session";
+import type { AuthContext } from "@/lib/auth/types";
 import { cn } from "@/lib/utils";
 
 const roles = [
@@ -56,7 +57,12 @@ function getRoleFromPathname(pathname: string): DemoRole | null {
   return "admin";
 }
 
-export function WorkspaceRoleNav({ className }: { className?: string }) {
+type WorkspaceRoleNavProps = {
+  className?: string;
+  auth: AuthContext;
+};
+
+export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
   const activeLabel = getActiveRoleLabel(pathname);
@@ -75,6 +81,10 @@ export function WorkspaceRoleNav({ className }: { className?: string }) {
     if (!demoSession) return null;
     return getDemoUserIdForRole(demoSession.role);
   }, [demoSession]);
+
+  const hasSupabaseAuth = auth.hasSupabaseEnv && auth.isAuthenticated;
+  const effectiveRole: DemoRole | null =
+    (auth.role as DemoRole | null) ?? demoSession?.role ?? null;
 
   useEffect(() => {
     if (!notificationsUserId) return () => {};
@@ -120,15 +130,22 @@ export function WorkspaceRoleNav({ className }: { className?: string }) {
                 variant="secondary"
                 className={cn(
                   "bg-background",
-                  !demoSession && "text-muted-foreground"
+                  !hasSupabaseAuth && !demoSession && "text-muted-foreground"
                 )}
               >
-                {demoSession ? `Demo: ${demoSession.role}` : "Demo: signed out"}
+                {hasSupabaseAuth
+                  ? effectiveRole
+                    ? `Signed in · ${effectiveRole}`
+                    : "Signed in"
+                  : demoSession
+                    ? `Demo: ${demoSession.role}`
+                    : "Not signed in"}
               </Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Protected routes are demo/session-aware locally and do not require
-              Supabase keys.
+              {auth.hasSupabaseEnv
+                ? "Protected routes now respect Supabase auth; local demo session remains available for scaffolding."
+                : "Protected routes are demo/session-aware locally and do not require Supabase keys."}
             </p>
           </div>
         </div>
@@ -193,7 +210,7 @@ export function WorkspaceRoleNav({ className }: { className?: string }) {
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <p className="text-xs font-medium text-muted-foreground">
-            Local demo session
+            {hasSupabaseAuth ? "Local demo session (optional)" : "Local demo session"}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -235,29 +252,31 @@ export function WorkspaceRoleNav({ className }: { className?: string }) {
           </div>
         </div>
 
-        {pathRole && demoSession && demoSession.role !== pathRole ? (
+        {pathRole && effectiveRole && effectiveRole !== pathRole ? (
           <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
             <p className="text-sm font-semibold text-foreground">
-              Role boundary (local scaffold)
+              Role boundary
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               You&apos;re viewing <span className="font-medium">{pathRole}</span>{" "}
               routes while signed in as{" "}
-              <span className="font-medium">{demoSession.role}</span>. This is a
-              demo-only state; real enforcement will be added when auth is wired.
+              <span className="font-medium">{effectiveRole}</span>.{" "}
+              {hasSupabaseAuth
+                ? "This is allowed in the MVP shell; stricter enforcement will follow."
+                : "This is a demo-only state; real enforcement will be added when auth is wired."}
             </p>
           </div>
         ) : null}
 
-        {!pathRole && demoSession ? (
+        {!pathRole && effectiveRole ? (
           <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
             <p className="text-sm font-semibold text-foreground">
-              Demo session active
+              Session active
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               You&apos;re signed in as{" "}
-              <span className="font-medium">{demoSession.role}</span>. Navigate
-              to a protected role route to see boundary expectations.
+              <span className="font-medium">{effectiveRole}</span>. Navigate to a
+              protected role route to see boundary expectations.
             </p>
           </div>
         ) : null}
