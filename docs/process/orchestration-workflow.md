@@ -87,6 +87,15 @@
 7. Move to `Review` when implementation is ready.
 8. Move to `Done` after merge.
 
+## Validation rule
+- Fast branch validation in worktrees:
+  - `bun run lint`
+  - `bun run typecheck`
+- Final route/framework validation:
+  - run `bun run build` on `main` after the worktree change is merged or cherry-picked
+- Reason:
+  - the local worktree setup reuses the main install for speed, and Next/Turbopack rejects out-of-root linked `node_modules` during `build`
+
 ## Labels
 - Area:
   - `area:foundation`

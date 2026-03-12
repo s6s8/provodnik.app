@@ -24,26 +24,54 @@
 
 ### Current issue order
 1. `#1` traveler request creation
-   - status: `Workflow = Review`
+   - status: `Workflow = Done`
    - result: implemented frontend-first traveler request form
 2. `#2` traveler request shared contract and submission adapter
-   - status: `Workflow = Review`
+   - status: `Workflow = Done`
    - result: shared request schema and local submission adapter now live in `src/data`
-3. `#5` protected workspace shell and role navigation
+3. `#3` guide onboarding and verification intake
+   - status: `Workflow = Done`
+   - result: guide onboarding and verification form now lives in the guide workspace
+4. `#4` admin guide review queue scaffold
+   - status: `Workflow = Done`
+   - result: guide moderation queue now exists in the admin workspace
+5. `#5` protected workspace shell and role navigation
+   - status: `Workflow = Done`
+   - result: shared protected shell and role navigation now wrap all protected routes
+6. `#6` traveler requests workspace and request detail flow
+   - status: `Workflow = Done`
+   - result: traveler workspace, local request storage, request detail, offer comparison, and timeline are live
+7. `#8` guide request inbox and structured offer composer
+   - status: `Workflow = Done`
+   - result: guide inbox, request detail route, and local offer composer are live
+8. `#9` shell-safe auth and role boundary scaffolding
+   - status: `Workflow = Done`
+   - result: local demo session role context is visible in the protected shell without Supabase auth
+
+### Current ready queue
+1. `#7` public guide profile and trust markers
    - status: `Workflow = Ready`
-   - why next: unlocks stronger route framing across traveler, guide, and admin
-4. `#3` guide onboarding and verification intake
-   - status: `Workflow = Backlog`
-5. `#4` admin guide review queue scaffold
-   - status: `Workflow = Backlog`
+   - why next: unlocks public trust surfaces that listing discovery can reuse
+2. `#10` guide listing manager and supply editor scaffold
+   - status: `Workflow = Ready`
+   - why next: guide onboarding now needs a supply creation destination
+3. `#12` listing discovery and tour detail baseline
+   - status: `Workflow = Ready`
+   - why next: public marketplace discovery should follow trust and supply surfaces
 
 ### Remaining Release 1 slices
 - public guide profile and trust markers
 - listing discovery and listing detail surfaces
 - guide listing manager
-- guide request inbox and structured offer composer
 - booking detail and deposit-ready confirmation flow
-- role/auth boundary scaffolding that stays shell-safe without real auth
+- admin listing moderation
+
+### Validation baseline
+- Repo-level validation currently passes on `main`:
+  - `bun run lint`
+  - `bun run typecheck`
+  - `bun run build`
+- Worktree branches use shared installs for speed, so final `build` validation is run after merge on `main`.
 
 ## Release 2 Marketplace Quality
 - Focus:

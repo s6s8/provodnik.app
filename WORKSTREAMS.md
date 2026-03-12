@@ -99,3 +99,5 @@ Primary paths:
 - Feature branches should avoid editing `src/components/ui/*`.
 - Shared type and contract changes should be coordinated through `agent-data`.
 - Rebase from `main` before opening merge requests between worktrees.
+- Use worktree `lint` and `typecheck` for fast branch checks.
+- Run final `bun run build` on `main` after merge, because the shared-install worktree setup is not Turbopack-safe for build validation.
