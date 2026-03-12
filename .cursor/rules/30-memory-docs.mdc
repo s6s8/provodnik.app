@@ -1,0 +1,16 @@
+---
+description: Repo memory and source-of-truth documentation guidance
+globs:
+  - "AGENT.md"
+  - "AGENTS.md"
+  - "CODING.md"
+  - "docs/architecture/**"
+  - "docs/adr/**"
+  - ".github/CODEOWNERS"
+alwaysApply: false
+---
+
+- Keep stable memory files short and high-signal.
+- Update the matching source-of-truth file when ownership, module boundaries, or durable workflow changes.
+- Record enduring decisions in ADRs.
+- Do not turn memory files into task logs, changelogs, or sprint notes.

@@ -1,0 +1,72 @@
+name: Bug
+description: Track a concrete bug with reproduction and acceptance criteria
+title: "[Bug]: "
+labels:
+  - type:bug
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - foundation
+        - traveler
+        - guide
+        - admin
+        - data
+    validations:
+      required: true
+  - type: dropdown
+    id: worktree
+    attributes:
+      label: Worktree
+      options:
+        - provodnik-foundation
+        - provodnik-traveler
+        - provodnik-guide
+        - provodnik-admin
+        - provodnik-data
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Bug summary
+      placeholder: Traveler page crashes when Supabase env is missing
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      placeholder: |
+        1. Start app without Supabase env
+        2. Open traveler route
+        3. Observe crash
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: App shell should still render without backend credentials
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      placeholder: |
+        - Crash is removed
+        - Shell remains usable
+        - Relevant checks pass
+    validations:
+      required: true
+  - type: textarea
+    id: paths
+    attributes:
+      label: Expected paths
+  - type: textarea
+    id: notes
+    attributes:
+      label: Codex or Cursor notes

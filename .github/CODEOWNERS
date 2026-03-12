@@ -1,0 +1,29 @@
+# Replace placeholder handles with real GitHub users or teams before relying on automatic review requests.
+
+* @provodnik/agent-foundation
+
+/src/app/ @provodnik/agent-foundation
+/src/components/ @provodnik/agent-foundation
+/src/features/home/ @provodnik/agent-foundation
+
+/src/app/(protected)/traveler/ @provodnik/agent-traveler
+/src/features/traveler/ @provodnik/agent-traveler
+
+/src/app/(protected)/guide/ @provodnik/agent-guide
+/src/features/guide/ @provodnik/agent-guide
+
+/src/app/(protected)/admin/ @provodnik/agent-admin
+/src/features/admin/ @provodnik/agent-admin
+
+/src/lib/supabase/ @provodnik/agent-data
+/src/lib/env.ts @provodnik/agent-data
+/src/data/ @provodnik/agent-data
+/src/features/shared/ @provodnik/agent-data
+
+/MVP.md @provodnik/agent-foundation
+/PRD.md @provodnik/agent-foundation
+/WORKSTREAMS.md @provodnik/agent-foundation
+/AGENTS.md @provodnik/agent-foundation
+/PROVODNIK-REPO-MEMORY.md @provodnik/agent-foundation
+/docs/architecture/ @provodnik/agent-foundation
+/docs/adr/ @provodnik/agent-foundation

@@ -1,0 +1,107 @@
+name: Task
+description: Track a concrete implementation task for Codex orchestration and Cursor execution
+title: "[Task]: "
+labels:
+  - type:feature
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      description: Primary ownership area for this task
+      options:
+        - foundation
+        - traveler
+        - guide
+        - admin
+        - data
+    validations:
+      required: true
+  - type: dropdown
+    id: worktree
+    attributes:
+      label: Worktree
+      description: Default isolated coding space for this task
+      options:
+        - provodnik-foundation
+        - provodnik-traveler
+        - provodnik-guide
+        - provodnik-admin
+        - provodnik-data
+    validations:
+      required: true
+  - type: dropdown
+    id: task_type
+    attributes:
+      label: Task type
+      options:
+        - feature
+        - bug
+        - refactor
+        - docs
+        - chore
+    validations:
+      required: true
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: One concrete outcome
+      placeholder: Implement traveler request creation form
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: What is included
+      placeholder: |
+        - Build the form UI
+        - Add validation
+        - Wire submit path
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: What this task must not include
+      placeholder: |
+        - Payments
+        - Matching logic
+  - type: textarea
+    id: acceptance_criteria
+    attributes:
+      label: Acceptance criteria
+      description: Definition of done
+      placeholder: |
+        - User can enter destination, dates, budget, and group size
+        - Validation errors are visible
+        - Mobile layout works
+        - Lint and typecheck pass
+    validations:
+      required: true
+  - type: textarea
+    id: paths
+    attributes:
+      label: Expected paths
+      description: Likely files or directories in scope
+      placeholder: |
+        - src/app/(protected)/traveler/*
+        - src/features/traveler/*
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies or blockers
+      placeholder: |
+        - Needs shared request payload schema
+        - Blocked on data contract
+  - type: textarea
+    id: orchestration_notes
+    attributes:
+      label: Codex or Cursor notes
+      description: Handoff notes, constraints, or specific skill refs
+      placeholder: |
+        - Use /frontend-agent
+        - Follow AGENTS.md and .cursor/rules
+        - Keep src/components/ui untouched
