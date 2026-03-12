@@ -1,5 +1,6 @@
 import { Globe2, MapPinned, Shield, Sparkles } from "lucide-react";
 
+import { FavoriteToggle } from "@/components/shared/favorite-toggle";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -60,6 +61,12 @@ export function PublicGuideProfileBasics({ guide }: { guide: PublicGuideProfile 
                 </div>
               </div>
             </div>
+            <FavoriteToggle
+              targetType="guide"
+              slug={guide.slug}
+              label={`Save guide ${guide.displayName}`}
+              className="shrink-0"
+            />
           </div>
         </CardHeader>
         <CardContent className="grid gap-5">

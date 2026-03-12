@@ -61,6 +61,9 @@ export function TravelerRequestsWorkspaceScreen() {
               <Link href="/traveler/bookings">Bookings</Link>
             </Button>
             <Button asChild variant="outline">
+              <Link href="/traveler/favorites">Favorites</Link>
+            </Button>
+            <Button asChild variant="outline">
               <Link href="/traveler/open-requests">
                 Open requests
                 {joinedOpenRequestsCount > 0 ? (

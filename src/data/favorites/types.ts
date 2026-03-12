@@ -1,5 +1,10 @@
 export type FavoriteTargetType = "guide" | "listing";
 
+export type FavoriteTarget = {
+  type: FavoriteTargetType;
+  slug: string;
+};
+
 export type FavoriteRecord = {
   id: string;
   userId: string;
@@ -8,5 +13,10 @@ export type FavoriteRecord = {
     type: FavoriteTargetType;
     slug: string;
   };
+};
+
+export type FavoriteEntry = {
+  createdAt: string;
+  removed?: true;
 };
 

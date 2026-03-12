@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FavoriteToggle } from "@/components/shared/favorite-toggle";
 import type { PublicListing } from "@/data/public-listings/types";
 
 function formatRub(value: number) {
@@ -22,7 +23,15 @@ export function PublicListingCard({ listing }: { listing: PublicListing }) {
             {listing.city} · {listing.durationDays} day
             {listing.durationDays === 1 ? "" : "s"}
           </Badge>
-          <Badge variant="outline">Up to {listing.groupSizeMax}</Badge>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline">Up to {listing.groupSizeMax}</Badge>
+            <FavoriteToggle
+              targetType="listing"
+              slug={listing.slug}
+              label={`Save listing ${listing.title}`}
+              className="h-8 px-3"
+            />
+          </div>
         </div>
         <CardTitle className="text-base leading-snug sm:text-lg">
           <Link

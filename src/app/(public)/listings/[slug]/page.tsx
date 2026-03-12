@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { FavoriteToggle } from "@/components/shared/favorite-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,13 +58,20 @@ export default function PublicListingDetailPage({
   return (
     <div className="space-y-10">
       <div className="space-y-3">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">
             {listing.city} · {listing.durationDays} day
             {listing.durationDays === 1 ? "" : "s"}
           </Badge>
           <Badge variant="outline">Up to {listing.groupSizeMax}</Badge>
           <Badge variant="outline">From {formatRub(listing.priceFromRub)}</Badge>
+          </div>
+          <FavoriteToggle
+            targetType="listing"
+            slug={listing.slug}
+            label={`Save listing ${listing.title}`}
+          />
         </div>
 
         <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
