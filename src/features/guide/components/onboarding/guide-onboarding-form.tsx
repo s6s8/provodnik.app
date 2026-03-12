@@ -18,6 +18,12 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import type { AuthContext } from "@/lib/auth/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type {
+  GuideProfileRow,
+  GuideVerificationStatusDb,
+} from "@/lib/supabase/types";
 
 function splitCommaList(value: string): string[] {
   return value
@@ -58,10 +64,19 @@ function formatExperienceLevel(
   }
 }
 
-export function GuideOnboardingForm() {
+type GuideOnboardingFormProps = {
+  auth: AuthContext;
+};
+
+export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
   const [submitted, setSubmitted] = React.useState<GuideOnboardingValues | null>(
     null
   );
+  const [persistedToBackend, setPersistedToBackend] = React.useState(false);
+  const [backendError, setBackendError] = React.useState<string | null>(null);
+
+  const canPersistToSupabase =
+    auth.hasSupabaseEnv && auth.isAuthenticated && auth.source === "supabase";
 
   const form = useForm<GuideOnboardingValues>({
     resolver: zodResolver(guideOnboardingSchema),
@@ -109,8 +124,89 @@ export function GuideOnboardingForm() {
   } = form;
 
   const onSubmit = React.useCallback(async (values: GuideOnboardingValues) => {
+    setBackendError(null);
+
+    if (canPersistToSupabase) {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+
+        if (!user || userError) {
+          setPersistedToBackend(false);
+          setBackendError(
+            "Session is not available; saved locally only in this browser."
+          );
+          setSubmitted(values);
+          return;
+        }
+
+        const verificationStatus: GuideVerificationStatusDb =
+          values.consentBackgroundCheck && values.attestTruthful
+            ? "submitted"
+            : "draft";
+
+        const verificationNotesParts: string[] = [
+          `Base city: ${values.currentBaseCity}`,
+          `Regions: ${values.regions.join(", ")}`,
+          `Languages: ${values.languages.join(", ")}`,
+          `Specialties: ${values.specialties.join(", ")}`,
+          `Years experience: ${values.yearsExperience}`,
+          `Max group size: ${values.groupSizeMax}`,
+          `First aid training: ${values.hasFirstAidTraining ? "yes" : "no"}`,
+          `Accepts private tours: ${values.acceptsPrivateTours ? "yes" : "no"}`,
+          `Accepts group tours: ${values.acceptsGroupTours ? "yes" : "no"}`,
+          `Emergency contact: ${values.emergencyContactName} / ${values.emergencyContactPhone}`,
+          `References: ${values.referenceName1} / ${values.referenceContact1}; ${values.referenceName2} / ${values.referenceContact2}`,
+          `Background check consent: ${
+            values.consentBackgroundCheck ? "yes" : "no"
+          }`,
+          `Attestation: ${values.attestTruthful ? "yes" : "no"}`,
+        ];
+
+        const payload: Partial<GuideProfileRow> = {
+          user_id: user.id,
+          display_name: values.displayName,
+          bio: values.bio,
+          years_experience: values.yearsExperience,
+          regions: values.regions,
+          languages: values.languages,
+          specialties: values.specialties,
+          verification_status: verificationStatus,
+          verification_notes: verificationNotesParts.join(" | "),
+        };
+
+        const { error: upsertError } = await supabase
+          .from("guide_profiles")
+          .upsert(payload, { onConflict: "user_id" });
+
+        if (upsertError) {
+          setPersistedToBackend(false);
+          setBackendError(
+            "We could not reach the backend; saved locally only in this browser."
+          );
+          setSubmitted(values);
+          return;
+        }
+
+        setPersistedToBackend(true);
+      } catch (error) {
+        console.error("Failed to persist guide onboarding to Supabase", error);
+        setPersistedToBackend(false);
+        setBackendError(
+          "We could not reach the backend; saved locally only in this browser."
+        );
+        setSubmitted(values);
+        return;
+      }
+    } else {
+      setPersistedToBackend(false);
+    }
+
     setSubmitted(values);
-  }, []);
+  }, [canPersistToSupabase]);
 
   const handleStartOver = React.useCallback(() => {
     setSubmitted(null);
@@ -132,8 +228,9 @@ export function GuideOnboardingForm() {
             <div className="space-y-1">
               <CardTitle>Onboarding captured locally</CardTitle>
               <p className="text-sm text-muted-foreground">
-                For MVP baseline, this does not persist yet. You can review the
-                captured intake below.
+                {persistedToBackend
+                  ? "Your intake has been written to your guide profile in Supabase. You can review the captured intake below."
+                  : "For this session, the full intake is stored locally in this browser. You can review the captured intake below."}
               </p>
             </div>
           </CardHeader>
@@ -249,6 +346,9 @@ export function GuideOnboardingForm() {
             Start over
             <RotateCcw className="size-4" />
           </Button>
+          {backendError ? (
+            <p className="text-sm text-muted-foreground sm:ml-2">{backendError}</p>
+          ) : null}
         </div>
       </div>
     );

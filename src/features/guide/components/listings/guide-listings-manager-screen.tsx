@@ -23,6 +23,9 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import type { AuthContext } from "@/lib/auth/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
 
 function splitCommaList(value: string): string[] {
   return value
@@ -73,14 +76,154 @@ function createEmptyListing(): GuideListing {
   };
 }
 
-export function GuideListingsManagerScreen() {
-  const [records, setRecords] = React.useState<GuideListingRecord[]>(() =>
-    getSeededGuideListingRecords()
-  );
+type GuideListingsManagerScreenProps = {
+  auth: AuthContext;
+};
+
+type BackendMode = "local" | "supabase";
+
+function mapDbStatusToUi(status: ListingStatusDb): GuideListing["status"] {
+  if (status === "published") return "active";
+  if (status === "rejected") return "archived";
+  return status;
+}
+
+function mapUiStatusToDb(status: GuideListing["status"]): ListingStatusDb {
+  if (status === "active") return "published";
+  if (status === "archived") return "rejected";
+  return status;
+}
+
+function mapListingRowToRecord(row: ListingRow): GuideListingRecord {
+  const durationHours =
+    typeof row.duration_minutes === "number"
+      ? Math.max(0.5, row.duration_minutes / 60)
+      : 3;
+
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    listing: {
+      title: row.title,
+      region: row.region,
+      durationHours,
+      capacity: row.max_group_size,
+      inclusions: row.inclusions ?? [],
+      exclusions: row.exclusions ?? [],
+      pricing: {
+        mode: "per_person",
+        priceRub: Math.max(0, Math.round(row.price_from_minor / 100)),
+      },
+      status: mapDbStatusToUi(row.status),
+    },
+  };
+}
+
+function mapListingToDbInput(
+  listing: GuideListing,
+  existing?: ListingRow | null
+): Partial<ListingRow> {
+  const durationMinutes = Math.round(Math.max(30, listing.durationHours * 60));
+
+  return {
+    id: existing?.id,
+    slug: existing?.slug ?? "",
+    title: listing.title,
+    region: listing.region,
+    city: existing?.city ?? null,
+    category: existing?.category ?? "general",
+    route_summary: existing?.route_summary ?? null,
+    description: existing?.description ?? null,
+    duration_minutes: durationMinutes,
+    max_group_size: listing.capacity,
+    price_from_minor: listing.pricing.priceRub * 100,
+    currency: existing?.currency ?? "RUB",
+    private_available: existing?.private_available ?? true,
+    group_available: existing?.group_available ?? true,
+    instant_book: existing?.instant_book ?? false,
+    meeting_point: existing?.meeting_point ?? null,
+    inclusions: listing.inclusions,
+    exclusions: listing.exclusions,
+    cancellation_policy_key: existing?.cancellation_policy_key ?? "flexible",
+    status: mapUiStatusToDb(listing.status),
+    featured_rank: existing?.featured_rank ?? null,
+  };
+}
+
+export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenProps) {
+  const [records, setRecords] = React.useState<GuideListingRecord[]>([]);
+  const [backendMode, setBackendMode] = React.useState<BackendMode>("local");
   const [selectedId, setSelectedId] = React.useState<string | null>(
-    records[0]?.id ?? null
+    null
   );
   const [savedId, setSavedId] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    let isMounted = true;
+
+    async function loadListings() {
+      if (!auth.hasSupabaseEnv || !auth.isAuthenticated || auth.source !== "supabase") {
+        if (!isMounted) return;
+        const seeded = getSeededGuideListingRecords();
+        setRecords(seeded);
+        setSelectedId(seeded[0]?.id ?? null);
+        setBackendMode("local");
+        return;
+      }
+
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) {
+          if (!isMounted) return;
+          const seeded = getSeededGuideListingRecords();
+          setRecords(seeded);
+          setSelectedId(seeded[0]?.id ?? null);
+          setBackendMode("local");
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from("listings")
+          .select("*")
+          .eq("guide_id", user.id)
+          .order("updated_at", { ascending: false });
+
+        if (error || !data) {
+          console.error("Failed to load guide listings from Supabase", error);
+          if (!isMounted) return;
+          const seeded = getSeededGuideListingRecords();
+          setRecords(seeded);
+          setSelectedId(seeded[0]?.id ?? null);
+          setBackendMode("local");
+          return;
+        }
+
+        const mapped = (data as ListingRow[]).map(mapListingRowToRecord);
+        if (!isMounted) return;
+        setRecords(mapped);
+        setSelectedId(mapped[0]?.id ?? null);
+        setBackendMode("supabase");
+      } catch (error) {
+        console.error("Failed to load guide listings from Supabase", error);
+        if (!isMounted) return;
+        const seeded = getSeededGuideListingRecords();
+        setRecords(seeded);
+        setSelectedId(seeded[0]?.id ?? null);
+        setBackendMode("local");
+      }
+    }
+
+    void loadListings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [auth.hasSupabaseEnv, auth.isAuthenticated, auth.source]);
 
   const selectedRecord = React.useMemo(() => {
     if (!selectedId) return null;
@@ -114,6 +257,69 @@ export function GuideListingsManagerScreen() {
       const now = new Date().toISOString();
       const recordId = selectedRecord?.id ?? createListingId();
 
+      if (backendMode === "supabase") {
+        try {
+          const supabase = createSupabaseBrowserClient();
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+
+          if (!user) {
+            console.warn("No Supabase user session; falling back to local save.");
+          } else {
+            const { data: existingRows } = await supabase
+              .from("listings")
+              .select("*")
+              .eq("id", recordId)
+              .maybeSingle();
+
+            const mappedInput = mapListingToDbInput(
+              values,
+              (existingRows as ListingRow | null) ?? null
+            );
+
+            const { data: upserted, error } = await supabase
+              .from("listings")
+              .upsert(
+                {
+                  ...mappedInput,
+                  guide_id: user.id,
+                  slug:
+                    mappedInput.slug && mappedInput.slug.length > 0
+                      ? mappedInput.slug
+                      : `listing-${recordId}`,
+                },
+                { onConflict: "id" }
+              )
+              .select("*")
+              .maybeSingle();
+
+            if (error) {
+              console.error("Failed to upsert listing to Supabase", error);
+            } else if (upserted) {
+              const asRow = upserted as ListingRow;
+              const nextRecord = mapListingRowToRecord(asRow);
+              setRecords((current) => {
+                const existingIndex = current.findIndex(
+                  (item) => item.id === nextRecord.id
+                );
+                if (existingIndex === -1) {
+                  return [nextRecord, ...current];
+                }
+                const next = [...current];
+                next[existingIndex] = nextRecord;
+                return next.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+              });
+              setSelectedId(nextRecord.id);
+              setSavedId(nextRecord.id);
+              return;
+            }
+          }
+        } catch (error) {
+          console.error("Failed to save listing to Supabase", error);
+        }
+      }
+
       setRecords((current) => {
         const nextRecord: GuideListingRecord = {
           id: recordId,
@@ -135,7 +341,7 @@ export function GuideListingsManagerScreen() {
       setSelectedId(recordId);
       setSavedId(recordId);
     },
-    [selectedRecord]
+    [backendMode, selectedRecord]
   );
 
   function handleCreateNew() {
@@ -154,8 +360,9 @@ export function GuideListingsManagerScreen() {
               Listing manager
             </h1>
             <p className="max-w-3xl text-base text-muted-foreground">
-              Manage seeded supply and shape listing fields for MVP baseline.
-              Changes stay local in this session.
+                Manage your supply and shape listing fields for MVP baseline. When
+                signed in with Supabase, listings load from and save to your guide
+                account; otherwise they stay local in this session.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">

@@ -1,0 +1,163 @@
+{
+  "meta": {
+    "title": "PROVODNIK",
+    "subtitle": "Описание проекта, продукта, рынка и текущего статуса разработки",
+    "tagline": "Мобильный маркетплейс экскурсий и туров по России",
+    "prepared_for": "Рабочий обзор проекта",
+    "basis_date": "12 марта 2026",
+    "author": "Codex"
+  },
+  "executive_summary": [
+    "Provodnik — это mobile-first marketplace для экскурсий и туров по России, который объединяет готовые листинги, traveler requests, сбор групп и структурированный отклик гидов.",
+    "Ключевая гипотеза проекта: рынок уже подтвержден крупными игроками, но значительная часть спроса и предложения по-прежнему обслуживается вручную через Telegram, звонки, соцсети и личные контакты.",
+    "Проект не строится как еще один generic listing site. Основной wedge — request-first flow, бюджетный group formation и lower-commission модель для локальных гидов и мини-операторов.",
+    "На текущий момент в репозитории уже собрана рабочая MVP-база: public shell, protected workspaces, traveler requests, guide onboarding, listing discovery, moderation scaffolds и booking-ready foundation."
+  ],
+  "sections": [
+    {
+      "title": "1. Что такое Provodnik",
+      "paragraphs": [
+        "Provodnik — это маркетплейс экскурсий и туров по России, ориентированный на ту часть рынка, где потребности путешественников не закрываются фиксированными каталогами, а работа гидов и небольших операторов остается слабо оцифрованной.",
+        "Продукт объединяет несколько сценариев в одной системе: поиск готовых предложений, создание пользовательского запроса по датам, бюджету и формату, присоединение к уже существующей группе, получение структурированных офферов от гидов, бронирование и последующую trust-loop механику через отзывы и moderation."
+      ],
+      "bullets": [
+        "Фокус на mobile-first web app, а не на brochure site.",
+        "Основной продуктовый сценарий: request-first, но не request-only.",
+        "Ценность для traveler-side: лучшее совпадение по бюджету, датам и формату, плюс более низкая цена через сбор группы.",
+        "Ценность для guide-side: lower take rate, дополнительный канал продаж и более структурированные лиды."
+      ]
+    },
+    {
+      "title": "2. Проблема рынка",
+      "paragraphs": [
+        "Согласно PRD и market research, рынок экскурсий в России уже частично оцифрован, но остается структурно фрагментированным. Крупные игроки закрывают широкий каталог и базовые trust-механики, однако значительная часть локального спроса и long-tail supply все еще живет вне формальных marketplace flows.",
+        "Это проявляется в нескольких устойчивых проблемах: коммуникация между traveler и guide часто происходит вручную, групповой формат собирается хаотично, custom demand плохо вписывается в fixed listing model, а для небольших гидов высокие комиссии крупных агрегаторов снижают экономическую привлекательность работы через платформы."
+      ],
+      "bullets": [
+        "Большая доля спроса и предложения распределена между Telegram, звонками, соцсетями, объявлениями и личными рекомендациями.",
+        "Budget-sensitive travelers остаются недообслуженными, потому что private format часто слишком дорогой.",
+        "Custom itineraries и нестандартные запросы неудобно обрабатывать в listing-first архитектуре.",
+        "Trust зависит от разрозненных сигналов, а не от единой истории бронирований, отзывов и verification."
+      ]
+    },
+    {
+      "title": "3. Результаты market research",
+      "paragraphs": [
+        "Research показывает, что категория уже подтверждена сильными игроками. Tripster и Sputnik8 доказывают, что в рынке есть достаточно спроса, готовность к онлайн-бронированию, чувствительность к response speed и высокая значимость рейтингов, отзывов, cancellation rules и anti-circumvention механизмов.",
+        "Одновременно research показывает, что head-to-head стратегия против incumbents как \"еще один каталог, но дешевле\" будет слабой. Простое снижение комиссии не создает moat. Более сильный вход — это цифровизация fragment tail: traveler-created requests, сбор группы по бюджету и датам, а также under-digitized regional supply."
+      ],
+      "bullets": [
+        "Tripster силен в trust, conversion discipline и supply quality control.",
+        "Sputnik8 публично декларирует комиссию 24% и выше, что делает lower-take positioning коммерчески понятным.",
+        "Оба крупных игрока фактически подтверждают необходимость reviews, moderation, response speed и refund logic как category table stakes.",
+        "Наиболее перспективное окно для Provodnik — custom demand, group assembly и long-tail regional supply."
+      ]
+    },
+    {
+      "title": "4. Почему продукт имеет право на существование",
+      "paragraphs": [
+        "Продуктовая логика Provodnik опирается не на копирование incumbent model, а на другую рыночную механику. Вместо того чтобы просто строить каталог экскурсий, Provodnik должен становиться demand-and-supply exchange, где traveler может описать нужный формат поездки, а гиды получают квалифицированный запрос и могут ответить на него структурированным оффером.",
+        "Такой подход особенно силен в сценариях, где важны бюджетные ограничения, гибкость маршрута, набор участников и локальная специфика. Именно эти кейсы хуже всего обслуживаются существующими listing-first платформами."
+      ],
+      "bullets": [
+        "Lower commission работает только в паре с новым типом качественного спроса.",
+        "Group formation снижает price friction и расширяет доступность экскурсий.",
+        "Request workflow помогает конвертировать спрос, который иначе уходит в ручную коммуникацию.",
+        "Trust-layer через verification, ratings, booking state и policy pages обязателен с первого этапа."
+      ]
+    },
+    {
+      "title": "5. Что уже сделано в приложении",
+      "paragraphs": [
+        "Проект уже находится на стадии рабочей MVP-базы. На main зафиксирован baseline, который проходит lint, typecheck и build и дает основу для дальнейшей продуктовой итерации без повторной сборки фундамента.",
+        "Согласно roadmap и repo docs, Release 1 Transaction Foundation по основным tracked slices завершен. Это означает, что в проекте уже собраны ключевые scaffolds и локальные flows, необходимые для демонстрации product architecture и перехода к следующему качественному слою."
+      ],
+      "bullets": [
+        "Собран public marketing shell и baseline маршрутизация на Next.js 16 App Router.",
+        "Поднят protected shell с role navigation для traveler, guide и admin workspaces.",
+        "Реализованы traveler request creation, local request storage, request detail и offer comparison flow.",
+        "Реализованы guide onboarding, verification intake, request inbox и structured offer composer.",
+        "Добавлены public guide profiles, trust markers, listing discovery, listing detail и booking detail scaffolds.",
+        "Собраны admin queues для проверки гидов и moderation листингов.",
+        "Приложение поддерживает shell-safe local state без обязательных Supabase credentials."
+      ]
+    },
+    {
+      "title": "6. Что делаем дальше",
+      "paragraphs": [
+        "После завершения Release 1 основной фокус смещается на Release 2 Marketplace Quality. Здесь задача уже не в том, чтобы просто показать структуру продукта, а в том, чтобы усилить marketplace loop и trust mechanics, которые критичны для реального запуска.",
+        "Только после стабилизации non-payment marketplace loops имеет смысл подключать реальную платежную интеграцию и финальный booking confirmation flow. Такой порядок снижает технический шум и позволяет доказать продуктовую логику до интеграции hardest operational surface."
+      ],
+      "bullets": [
+        "Open request discovery и group join experience.",
+        "Favorites и saved supply для traveler-side retention.",
+        "Post-booking reviews, trust loop и visibility signals.",
+        "Notification center и ключевые marketplace notifications.",
+        "Dispute intake, refund operations и policy surfaces.",
+        "Guide booking operations beyond current booking-detail scaffold.",
+        "Финальная платежная интеграция отложена до MVP closeout slice."
+      ]
+    },
+    {
+      "title": "7. Технологическая база",
+      "paragraphs": [
+        "Текущий стек выбран под web-first marketplace с сильной долей SEO, account flows, role-based protected areas и дальнейшей возможностью подключать платежи, moderation и analytics без преждевременного усложнения архитектуры.",
+        "Архитектурно проект уже разделен по зонам ответственности: public app shell, traveler/guide/admin areas, shared data contracts и app-level providers. Это важно для масштабирования команды и для поэтапного развития продукта."
+      ],
+      "bullets": [
+        "Next.js 16 App Router, React 19, TypeScript.",
+        "Tailwind CSS v4 и shadcn/ui для mobile-first интерфейсов.",
+        "TanStack Query для server state и cache orchestration.",
+        "React Hook Form и Zod для typed forms и validation.",
+        "Supabase helpers как backend baseline для auth, data и storage сценариев.",
+        "Структурное разделение по модулям: src/app, src/features, src/components, src/lib, src/data."
+      ]
+    },
+    {
+      "title": "8. Основные риски и условия успеха",
+      "paragraphs": [
+        "Риски проекта понятны заранее и подтверждены research: cold start marketplace, disintermediation, trust fragility, regulation и operational complexity. Это не побочные темы, а основные условия выживания продукта в категории.",
+        "Соответственно, успех проекта будет зависеть не только от интерфейса и маркетинга, но и от того, насколько системно будет выстроен trust layer: verification, response speed, moderation, refund logic, clear policies и прозрачный booking state."
+      ],
+      "bullets": [
+        "Без достаточной плотности спроса и предложения launch wedge не станет ликвидным.",
+        "Без trust mechanics lower commission может привлечь низкокачественный supply.",
+        "Без anti-circumvention controls часть сделок может утекать off-platform.",
+        "Без быстрых notifications и response tooling guide-side conversion будет проседать.",
+        "Без дисциплинированного запуска по 1–3 регионам проект рискует распылить операционный фокус."
+      ]
+    }
+  ],
+  "tables": {
+    "competitors": {
+      "title": "Сравнение рыночной позиции",
+      "headers": ["Параметр", "Tripster", "Sputnik8", "Provodnik"],
+      "rows": [
+        ["Основная модель", "Listing-first marketplace", "Marketplace / showcase model", "Request-first + listings"],
+        ["Сильная сторона", "Trust, conversion discipline, quality control", "Широкий supply и большой guide base", "Custom demand, group formation, lower take"],
+        ["Публичная комиссия", "Комиссия подтверждена, фиксированный процент публично не верифицирован", "24% и выше, минимум 200 RUB", "Целевой take rate 10–15%"],
+        ["Главный wedge", "Широкий каталог и trust", "Большой охват и supply breadth", "Budget-led groups, traveler requests, regional tail"]
+      ]
+    },
+    "roadmap": {
+      "title": "Текущий execution status",
+      "headers": ["Этап", "Статус", "Содержание"],
+      "rows": [
+        ["Release 1 Transaction Foundation", "Завершен на main", "Request creation, guide onboarding, protected shell, moderation scaffold, listing and booking baseline"],
+        ["Release 2 Marketplace Quality", "Следующий основной фокус", "Group joining, favorites, reviews, notifications, disputes, ranking signals"],
+        ["Final MVP Closeout", "После стабилизации non-payment loops", "Real payment integration и end-to-end booking confirmation"],
+        ["Release 3 Optimization", "Следующая волна", "Analytics, controls, anti-circumvention, launch-region tooling"]
+      ]
+    }
+  },
+  "sources": [
+    "PRD.md",
+    "MVP.md",
+    "MARKET_RESEARCH.md",
+    "APP_STACK.md",
+    "README.md",
+    "AGENTS.md",
+    "docs/process/mvp-orchestration-roadmap.md",
+    "docs/architecture/module-map.md"
+  ]
+}

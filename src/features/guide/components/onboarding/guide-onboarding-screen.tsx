@@ -5,8 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { GuideOnboardingForm } from "@/features/guide/components/onboarding/guide-onboarding-form";
+import type { AuthContext } from "@/lib/auth/types";
 
-export function GuideOnboardingScreen() {
+type GuideOnboardingScreenProps = {
+  auth: AuthContext;
+};
+
+export function GuideOnboardingScreen({ auth }: GuideOnboardingScreenProps) {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
@@ -16,8 +21,9 @@ export function GuideOnboardingScreen() {
             Guide onboarding and verification intake
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Capture profile basics and verification intake details. This is
-            frontend-only for now; your data stays on this device.
+            Capture profile basics and verification intake details. When signed in
+            with Supabase, your intake is persisted to your guide profile; without
+            Supabase configured it stays local to this browser.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -42,7 +48,7 @@ export function GuideOnboardingScreen() {
           </p>
         </CardHeader>
         <CardContent>
-          <GuideOnboardingForm />
+          <GuideOnboardingForm auth={auth} />
         </CardContent>
       </Card>
     </div>

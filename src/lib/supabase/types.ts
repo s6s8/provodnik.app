@@ -1,5 +1,13 @@
 export type Uuid = string;
 
+export type AppRoleDb = "traveler" | "guide" | "admin";
+
+export type GuideVerificationStatusDb =
+  | "draft"
+  | "submitted"
+  | "approved"
+  | "rejected";
+
 export type OfferStatus =
   | "pending"
   | "accepted"
@@ -36,6 +44,8 @@ export type ThreadSubject = "request" | "offer" | "booking" | "dispute";
 export type MessageSenderRole = "traveler" | "guide" | "admin" | "system";
 
 export type EventScope = "request" | "booking" | "dispute" | "moderation";
+
+export type ListingStatusDb = "draft" | "published" | "paused" | "rejected";
 
 export type GuideOfferRow = {
   id: Uuid;
@@ -158,5 +168,89 @@ export type OpenRequestMemberRow = {
   status: MemberStatus;
   joined_at: string;
   left_at: string | null;
+};
+
+export type GuideProfileRow = {
+  user_id: Uuid;
+  slug: string | null;
+  display_name: string | null;
+  bio: string | null;
+  years_experience: number | null;
+  regions: string[];
+  languages: string[];
+  specialties: string[];
+  attestation_status: string | null;
+  verification_status: GuideVerificationStatusDb;
+  verification_notes: string | null;
+  payout_account_label: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ListingRow = {
+  id: Uuid;
+  guide_id: Uuid;
+  slug: string;
+  title: string;
+  region: string;
+  city: string | null;
+  category: string;
+  route_summary: string | null;
+  description: string | null;
+  duration_minutes: number | null;
+  max_group_size: number;
+  price_from_minor: number;
+  currency: string;
+  private_available: boolean;
+  group_available: boolean;
+  instant_book: boolean;
+  meeting_point: string | null;
+  inclusions: string[];
+  exclusions: string[];
+  cancellation_policy_key: string;
+  status: ListingStatusDb;
+  featured_rank: number | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type StorageAssetKindDb =
+  | "guide-avatar"
+  | "guide-document"
+  | "listing-cover"
+  | "listing-gallery"
+  | "dispute-evidence";
+
+export type StorageAssetRow = {
+  id: Uuid;
+  owner_id: Uuid;
+  bucket_id: string;
+  object_path: string;
+  asset_kind: StorageAssetKindDb;
+  mime_type: string | null;
+  byte_size: number | null;
+  created_at: string;
+};
+
+export type GuideDocumentRow = {
+  id: Uuid;
+  guide_id: Uuid;
+  asset_id: Uuid;
+  document_type: string;
+  status: GuideVerificationStatusDb;
+  admin_note: string | null;
+  reviewed_by: Uuid | null;
+  reviewed_at: string | null;
+  created_at: string;
+};
+
+export type ListingMediaRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  asset_id: Uuid;
+  is_cover: boolean;
+  sort_order: number;
+  alt_text: string | null;
+  created_at: string;
 };
 
