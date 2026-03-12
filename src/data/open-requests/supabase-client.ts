@@ -120,6 +120,9 @@ export async function listOpenRequestsFromSupabase(): Promise<
   OpenRequestDetail[]
 > {
   const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: requests, error: requestsError } = await supabase
     .from("traveler_requests")
     .select(
@@ -216,13 +219,14 @@ export async function listOpenRequestsFromSupabase(): Promise<
           : undefined,
     };
 
-    const { data: membershipRow } = await supabase
-      .from("open_request_members")
-      .select("status, left_at")
-      .eq("request_id", request.id)
-      .order("joined_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const { data: membershipRow } = user
+      ? await supabase
+          .from("open_request_members")
+          .select("status, left_at")
+          .eq("request_id", request.id)
+          .eq("traveler_id", user.id)
+          .maybeSingle()
+      : { data: null };
 
     const isJoined =
       !!membershipRow &&
@@ -245,6 +249,9 @@ export async function getOpenRequestDetailFromSupabase(
   openRequestId: Uuid,
 ): Promise<OpenRequestDetail | null> {
   const supabase = getSupabaseClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const { data: request, error: requestError } = await supabase
     .from("traveler_requests")
     .select(
@@ -330,13 +337,14 @@ export async function getOpenRequestDetailFromSupabase(
         : undefined,
   };
 
-  const { data: membershipRow } = await supabase
-    .from("open_request_members")
-    .select("status, left_at")
-    .eq("request_id", openRequestId)
-    .order("joined_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
+  const { data: membershipRow } = user
+    ? await supabase
+        .from("open_request_members")
+        .select("status, left_at")
+        .eq("request_id", openRequestId)
+        .eq("traveler_id", user.id)
+        .maybeSingle()
+    : { data: null };
 
   const isJoined =
     !!membershipRow &&
