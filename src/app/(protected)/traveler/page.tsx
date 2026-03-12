@@ -1,5 +1,5 @@
-import { TravelerRequestCreateScreen } from "@/features/traveler/components/request-create/traveler-request-create-screen";
+import { redirect } from "next/navigation";
 
 export default function TravelerPage() {
-  return <TravelerRequestCreateScreen />;
+  redirect("/traveler/requests");
 }

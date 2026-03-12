@@ -1,16 +1,22 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
+import {
+  addLocalTravelerRequest,
+  createTravelerRequestRecord,
+} from "@/data/traveler-request/local-store";
 import {
   travelerExperienceTypes,
   travelerRequestSchema,
   type TravelerRequest,
 } from "@/data/traveler-request/schema";
 import { submitTravelerRequest } from "@/data/traveler-request/submit";
+import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -52,7 +58,7 @@ function formatExperienceType(
 }
 
 export function TravelerRequestCreateForm() {
-  const [submitted, setSubmitted] = React.useState<TravelerRequest | null>(
+  const [submitted, setSubmitted] = React.useState<TravelerRequestRecord | null>(
     null
   );
 
@@ -82,7 +88,9 @@ export function TravelerRequestCreateForm() {
 
   const onSubmit = React.useCallback(async (values: RequestFormValues) => {
     const submission = await submitTravelerRequest(values);
-    setSubmitted(submission.request);
+    const record = createTravelerRequestRecord(submission.request);
+    addLocalTravelerRequest(record);
+    setSubmitted(record);
   }, []);
 
   const handleCreateAnother = React.useCallback(() => {
@@ -101,54 +109,67 @@ export function TravelerRequestCreateForm() {
             <div className="space-y-1">
               <CardTitle>Request created locally</CardTitle>
               <p className="text-sm text-muted-foreground">
-                In MVP baseline, this does not persist yet. You can still review
-                the captured details below.
+                This request is now stored locally and linked into your traveler
+                workspace on this device.
               </p>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <SummaryRow
               label="Category"
-              value={formatExperienceType(submitted.experienceType)}
+              value={formatExperienceType(submitted.request.experienceType)}
             />
-            <SummaryRow label="Destination" value={submitted.destination} />
+            <SummaryRow label="Destination" value={submitted.request.destination} />
             <SummaryRow
               label="Dates"
-              value={`${submitted.startDate} to ${submitted.endDate}`}
+              value={`${submitted.request.startDate} to ${submitted.request.endDate}`}
             />
             <SummaryRow
               label="Group size"
-              value={`${submitted.groupSize} traveler${
-                submitted.groupSize === 1 ? "" : "s"
+              value={`${submitted.request.groupSize} traveler${
+                submitted.request.groupSize === 1 ? "" : "s"
               }`}
             />
             <SummaryRow
               label="Private or group"
               value={
-                submitted.groupPreference === "private" ? "Private" : "Group"
+                submitted.request.groupPreference === "private"
+                  ? "Private"
+                  : "Group"
               }
             />
             <SummaryRow
               label="Open to joining others"
-              value={submitted.openToJoiningOthers ? "Yes" : "No"}
+              value={submitted.request.openToJoiningOthers ? "Yes" : "No"}
             />
             <SummaryRow
               label="Allow suggestions outside constraints"
               value={
-                submitted.allowGuideSuggestionsOutsideConstraints ? "Yes" : "No"
+                submitted.request.allowGuideSuggestionsOutsideConstraints
+                  ? "Yes"
+                  : "No"
               }
             />
             <SummaryRow
               label="Budget per person"
-              value={formatRub(submitted.budgetPerPersonRub)}
+              value={formatRub(submitted.request.budgetPerPersonRub)}
             />
-            {submitted.notes ? (
-              <SummaryRow label="Notes" value={submitted.notes} />
+            {submitted.request.notes ? (
+              <SummaryRow label="Notes" value={submitted.request.notes} />
             ) : null}
           </CardContent>
         </Card>
 
         <div className="flex flex-col gap-2 sm:flex-row">
+          <Button asChild>
+            <Link href={`/traveler/requests/${submitted.id}`}>
+              Open request
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/traveler/requests">View all requests</Link>
+          </Button>
           <Button type="button" onClick={handleCreateAnother}>
             Create another request
             <RotateCcw className="size-4" />
