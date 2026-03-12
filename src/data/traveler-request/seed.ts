@@ -1,8 +1,18 @@
+import type { TravelerRequest } from "@/data/traveler-request/schema";
 import type {
   TravelerOffer,
   TravelerRequestRecord,
   TravelerRequestTimelineEvent,
 } from "@/data/traveler-request/types";
+
+export type TravelerRequestInboxItem = {
+  id: string;
+  createdAt: string;
+  traveler: {
+    displayName: string;
+  };
+  request: TravelerRequest;
+};
 
 function isoDaysAgo(daysAgo: number) {
   const value = new Date();
@@ -70,6 +80,61 @@ export const seededTravelerRequests: TravelerRequestRecord[] = [
   },
 ];
 
+const seededTravelerRequestInbox: readonly TravelerRequestInboxItem[] = [
+  {
+    id: "trq_20014",
+    createdAt: "2026-03-11T08:14:00Z",
+    traveler: { displayName: "Irina" },
+    request: {
+      experienceType: "culture",
+      destination: "Saint Petersburg",
+      startDate: "2026-04-10",
+      endDate: "2026-04-13",
+      groupSize: 2,
+      groupPreference: "private",
+      openToJoiningOthers: false,
+      allowGuideSuggestionsOutsideConstraints: true,
+      budgetPerPersonRub: 120_000,
+      notes: "Museums + a calmer pace. Prefer morning start, no long walks.",
+    },
+  },
+  {
+    id: "trq_20018",
+    createdAt: "2026-03-10T18:37:00Z",
+    traveler: { displayName: "Danylo" },
+    request: {
+      experienceType: "food",
+      destination: "Kazan",
+      startDate: "2026-04-02",
+      endDate: "2026-04-04",
+      groupSize: 4,
+      groupPreference: "group",
+      openToJoiningOthers: true,
+      allowGuideSuggestionsOutsideConstraints: false,
+      budgetPerPersonRub: 55_000,
+      notes:
+        "Street food + local markets. Need vegetarian options for one person.",
+    },
+  },
+  {
+    id: "trq_20021",
+    createdAt: "2026-03-09T07:05:00Z",
+    traveler: { displayName: "Mina" },
+    request: {
+      experienceType: "nature",
+      destination: "Altai",
+      startDate: "2026-06-01",
+      endDate: "2026-06-07",
+      groupSize: 1,
+      groupPreference: "private",
+      openToJoiningOthers: false,
+      allowGuideSuggestionsOutsideConstraints: true,
+      budgetPerPersonRub: 180_000,
+      notes: "Day hikes, scenic viewpoints, and safe logistics. Moderate fitness.",
+    },
+  },
+] as const;
+
 export const seededTravelerOffers: TravelerOffer[] = [
   {
     id: "offer_kazan_1",
@@ -98,7 +163,7 @@ export const seededTravelerOffers: TravelerOffer[] = [
       "Restaurant reservations",
     ],
     message:
-      "I’ll keep mornings relaxed and cluster sights by neighborhood. Day 2 is the main food day; I can adjust cuisine style based on your preferences.",
+      "I'll keep mornings relaxed and cluster sights by neighborhood. Day 2 is the main food day; I can adjust cuisine style based on your preferences.",
   },
   {
     id: "offer_kazan_2",
@@ -123,7 +188,7 @@ export const seededTravelerOffers: TravelerOffer[] = [
     ],
     included: ["Local guide", "Tasting set", "Transit guidance"],
     message:
-      "If you’re ok with a tighter schedule on Day 1, I can free up Day 3 for a slower day with optional add-ons (craft market or day-trip).",
+      "If you're ok with a tighter schedule on Day 1, I can free up Day 3 for a slower day with optional add-ons (craft market or day-trip).",
   },
   {
     id: "offer_baikal_1",
@@ -148,7 +213,7 @@ export const seededTravelerOffers: TravelerOffer[] = [
     ],
     included: ["Guide + driver coordination", "Transfers", "Photo spots map"],
     message:
-      "I’ll minimize transfers by anchoring you in one base and planning short loops. We’ll keep flexible windows for lighting and weather.",
+      "I'll minimize transfers by anchoring you in one base and planning short loops. We'll keep flexible windows for lighting and weather.",
   },
 ];
 
@@ -179,7 +244,7 @@ export const seededTravelerTimeline: TravelerRequestTimelineEvent[] = [
     requestId: "req_seed_altai_nature_1",
     at: isoDaysAgo(3),
     title: "Request submitted",
-    description: "We’re matching you with guides who can cover this terrain.",
+    description: "We're matching you with guides who can cover this terrain.",
   },
   {
     id: "tl_baikal_1",
@@ -199,7 +264,20 @@ export const seededTravelerTimeline: TravelerRequestTimelineEvent[] = [
     requestId: "req_seed_baikal_relax_1",
     at: isoDaysAgo(1),
     title: "Shortlist updated",
-    description: "You’re narrowing down to the best fit before booking.",
+    description: "You're narrowing down to the best fit before booking.",
   },
 ];
 
+export function getSeededTravelerRequests(): TravelerRequestInboxItem[] {
+  return [...seededTravelerRequestInbox].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt)
+  );
+}
+
+export function getSeededTravelerRequestById(
+  requestId: string
+): TravelerRequestInboxItem | null {
+  return (
+    seededTravelerRequestInbox.find((item) => item.id === requestId) ?? null
+  );
+}

@@ -1,4 +1,7 @@
+import Link from "next/link";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { GuideOnboardingForm } from "@/features/guide/components/onboarding/guide-onboarding-form";
@@ -16,6 +19,11 @@ export function GuideOnboardingScreen() {
             Capture profile basics and verification intake details. This is
             frontend-only for now; your data stays on this device.
           </p>
+        </div>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button asChild variant="secondary">
+            <Link href="/guide/requests">Open requests inbox</Link>
+          </Button>
         </div>
       </div>
 
