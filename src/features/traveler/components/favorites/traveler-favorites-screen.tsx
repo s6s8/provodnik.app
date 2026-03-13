@@ -53,27 +53,27 @@ export function TravelerFavoritesScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Favorites
+              Избранное
             </h1>
             <p className="max-w-3xl text-base text-muted-foreground">
               {usesBackend
-                ? "Saved guides and listings now reload from your Supabase account when you are signed in."
-                : "Saved guides and listings are stored locally on this device in the MVP baseline. Use the save controls on public pages to build your short list."}
+                ? "Сохранённые гиды и программы подтягиваются из вашего аккаунта, когда вы авторизованы."
+                : "Сейчас избранное хранится локально на этом устройстве. Нажимайте «Сохранить» на публичных страницах, чтобы собрать короткий список."}
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild variant="secondary">
               <Link href="/listings">
-                Browse listings
+                Смотреть программы
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/traveler/requests">Requests</Link>
+              <Link href="/traveler/requests">Мои запросы</Link>
             </Button>
           </div>
         </div>
@@ -82,17 +82,17 @@ export function TravelerFavoritesScreen() {
       {favorites.length === 0 ? (
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>No favorites yet</CardTitle>
+            <CardTitle>Избранное пока пусто</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Tap “Save” on a listing or guide profile to keep it here.
+              Нажмите «Сохранить» на странице программы или профиля гида, чтобы добавить сюда.
             </p>
           </CardHeader>
           <CardContent className="flex flex-wrap gap-2">
             <Button asChild variant="secondary">
-              <Link href="/listings">Explore listings</Link>
+              <Link href="/listings">Перейти к программам</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/guides/maria-rostov">View a guide profile</Link>
+              <Link href="/guides/maria-rostov">Посмотреть профиль гида</Link>
             </Button>
           </CardContent>
         </Card>
@@ -133,7 +133,7 @@ function FavoritesSection<T extends string>({
       </div>
       <Separator />
       {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nothing saved yet.</p>
+        <p className="text-sm text-muted-foreground">Здесь пока ничего нет.</p>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">{items.map(renderItem)}</div>
       )}
@@ -160,21 +160,21 @@ function ListingFavoriteCard({ slug }: { slug: string }) {
         {listing ? (
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">
-              {listing.city} · {listing.durationDays} day
-              {listing.durationDays === 1 ? "" : "s"}
+              {listing.city} · {listing.durationDays}{" "}
+              {listing.durationDays === 1 ? "день" : "дней"}
             </Badge>
-            <Badge variant="outline">Up to {listing.groupSizeMax}</Badge>
+            <Badge variant="outline">До {listing.groupSizeMax} человек</Badge>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Listing details are unavailable in the local seed.
+            Детали программы недоступны в этой демо-версии.
           </p>
         )}
       </CardHeader>
       <CardContent className="flex items-center justify-end gap-2">
         <Button asChild variant="secondary" size="sm">
           <Link href={href}>
-            View
+            Открыть
             <ArrowRight className="size-4" />
           </Link>
         </Button>
@@ -203,14 +203,14 @@ function GuideFavoriteCard({ slug }: { slug: string }) {
           <p className="text-sm text-muted-foreground">{guide.headline}</p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Guide details are unavailable in the local seed.
+            Детали профиля гида недоступны в этой демо-версии.
           </p>
         )}
       </CardHeader>
       <CardContent className="flex items-center justify-end gap-2">
         <Button asChild variant="secondary" size="sm">
           <Link href={href}>
-            View profile
+            Открыть профиль
             <ArrowRight className="size-4" />
           </Link>
         </Button>

@@ -15,27 +15,27 @@ const GUIDE_QUALITY_BY_SLUG: Record<string, MarketplaceQualitySnapshot> = {
     completionRate: 98,
     cancellationRate: 1,
     tier: "strong",
-    visibilityLabel: "Priority visibility",
+    visibilityLabel: "Высокий приоритет",
     visibilityNote:
-      "Fast replies and near-zero cancellations keep this guide higher in discovery and request routing.",
+      "Быстрые ответы и почти нулевые отмены помогают этому гиду чаще показываться в каталоге и в распределении заявок.",
   },
   "elena-kazan": {
     responseTimeHours: 3.8,
     completionRate: 95,
     cancellationRate: 3,
     tier: "watch",
-    visibilityLabel: "Healthy but watched",
+    visibilityLabel: "Нормально, но под наблюдением",
     visibilityNote:
-      "Supply remains visible, but slower response windows are more likely to lose ranking to faster guides.",
+      "Предложение остается видимым, но более медленный отклик ухудшает позицию по сравнению с более быстрыми гидами.",
   },
   "artem-sochi": {
     responseTimeHours: 7.4,
     completionRate: 89,
     cancellationRate: 6,
     tier: "risk",
-    visibilityLabel: "At-risk visibility",
+    visibilityLabel: "Риск снижения видимости",
     visibilityNote:
-      "Long response times and elevated cancellations suppress distribution until consistency improves.",
+      "Долгий ответ и повышенные отмены уменьшают видимость, пока качество не выровняется.",
   },
 };
 
@@ -45,27 +45,27 @@ const LISTING_QUALITY_BY_SLUG: Record<string, MarketplaceQualitySnapshot> = {
     completionRate: 97,
     cancellationRate: 2,
     tier: "strong",
-    visibilityLabel: "Strong listing lift",
+    visibilityLabel: "Сильная карточка",
     visibilityNote:
-      "This itinerary inherits a high-trust guide profile and stays eligible for stronger discovery placement.",
+      "Этот маршрут поддерживается сильным профилем гида и чаще получает хорошее место в выдаче.",
   },
   "kazan-food-walk-hidden-tea-rooms": {
     responseTimeHours: 3.2,
     completionRate: 94,
     cancellationRate: 3,
     tier: "watch",
-    visibilityLabel: "Competitive, not dominant",
+    visibilityLabel: "Конкурентно, но не лидирует",
     visibilityNote:
-      "Solid quality keeps it searchable, but it may rank behind faster supply during busy demand windows.",
+      "Качество достаточное для поиска, но в пиковые периоды маршрут может уступать более быстрым предложениям.",
   },
   "sochi-off-season-photo-route": {
     responseTimeHours: 6.8,
     completionRate: 90,
     cancellationRate: 5,
     tier: "risk",
-    visibilityLabel: "Needs quality recovery",
+    visibilityLabel: "Нужно восстановить качество",
     visibilityNote:
-      "The marketplace reduces exposure when response and completion consistency fall below the preferred band.",
+      "Площадка уменьшает охват, когда скорость ответа и надежность проведения падают ниже желаемого уровня.",
   },
 };
 
@@ -74,9 +74,9 @@ const DEFAULT_GUIDE_QUALITY: MarketplaceQualitySnapshot = {
   completionRate: 95,
   cancellationRate: 3,
   tier: "watch",
-  visibilityLabel: "Neutral visibility",
+  visibilityLabel: "Нейтральная видимость",
   visibilityNote:
-    "Discovery stays healthy when replies are fast, trips complete reliably, and cancellations remain rare.",
+    "Карточка держится в выдаче лучше, когда ответы быстрые, экскурсии проходят стабильно, а отмен мало.",
 };
 
 export function getGuideQualitySnapshot(slug: string): MarketplaceQualitySnapshot {

@@ -25,18 +25,18 @@ import { cn } from "@/lib/utils";
 const roles = [
   {
     href: "/traveler",
-    label: "Traveler",
-    description: "Request and booking flow",
+    label: "Путешественник",
+    description: "Заявки, общение с гидом и бронирование",
   },
   {
     href: "/guide",
-    label: "Guide",
-    description: "Supply, offers, operations",
+    label: "Гид",
+    description: "Публикации, ответы на запросы, маршруты",
   },
   {
     href: "/admin",
-    label: "Admin",
-    description: "Moderation and control",
+    label: "Оператор",
+    description: "Модерация, споры и поддержка",
   },
 ] as const;
 
@@ -44,7 +44,7 @@ function getActiveRoleLabel(pathname: string) {
   const match = roles.find(
     (role) => pathname === role.href || pathname.startsWith(`${role.href}/`)
   );
-  return match?.label ?? "Workspace";
+  return match?.label ?? "Кабинет";
 }
 
 function getRoleFromPathname(pathname: string): DemoRole | null {
@@ -116,13 +116,13 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
         "border-b border-border/60 bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60",
         className
       )}
-      aria-label="Workspace navigation"
+      aria-label="Навигация по рабочей области"
     >
       <div className="mx-auto w-full max-w-7xl px-6 py-4">
         <div className="flex items-start justify-between gap-6">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-foreground">Workspace</p>
+              <p className="text-sm font-semibold text-foreground">Рабочая область</p>
               <Badge variant="outline" className="bg-background">
                 {activeLabel}
               </Badge>
@@ -135,17 +135,17 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               >
                 {hasSupabaseAuth
                   ? effectiveRole
-                    ? `Signed in · ${effectiveRole}`
-                    : "Signed in"
+                    ? `Вы вошли · ${effectiveRole}`
+                    : "Вы вошли"
                   : demoSession
-                    ? `Demo: ${demoSession.role}`
-                    : "Not signed in"}
+                    ? `Демо-режим: ${demoSession.role}`
+                    : "Без входа"}
               </Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {auth.hasSupabaseEnv
-                ? "Protected routes now respect Supabase auth; local demo session remains available for scaffolding."
-                : "Protected routes are demo/session-aware locally and do not require Supabase keys."}
+                ? "Закрытые разделы используют Supabase-авторизацию, локальный демо-режим остаётся для отработки сценариев."
+                : "Закрытые разделы в демо-режиме работают без Supabase-ключей и подходят для локальной проверки потока."}
             </p>
           </div>
         </div>
@@ -194,10 +194,10 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               <Link
                 href="/notifications"
                 aria-current={pathname === "/notifications" ? "page" : undefined}
-                title="Unified feed for marketplace events"
+                title="Лента уведомлений по событиям на площадке"
               >
                 <Bell className="size-4" />
-                Notifications
+                Уведомления
                 {demoSession && unreadNotifications > 0 ? (
                   <Badge variant="secondary" className="ml-2 bg-background">
                     {unreadNotifications}
@@ -210,7 +210,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
 
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <p className="text-xs font-medium text-muted-foreground">
-            {hasSupabaseAuth ? "Local demo session (optional)" : "Local demo session"}
+            {hasSupabaseAuth ? "Локальный демо-режим (по желанию)" : "Локальный демо-режим"}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -220,7 +220,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               disabled={isPending}
               onClick={() => signInAs("traveler")}
             >
-              Traveler
+              Путешественник
             </Button>
             <Button
               type="button"
@@ -229,7 +229,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               disabled={isPending}
               onClick={() => signInAs("guide")}
             >
-              Guide
+              Гид
             </Button>
             <Button
               type="button"
@@ -238,7 +238,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               disabled={isPending}
               onClick={() => signInAs("admin")}
             >
-              Admin
+              Оператор
             </Button>
             <Button
               type="button"
@@ -247,7 +247,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               disabled={isPending || !demoSession}
               onClick={signOut}
             >
-              Clear
+              Выйти из демо
             </Button>
           </div>
         </div>
@@ -255,15 +255,15 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
         {pathRole && effectiveRole && effectiveRole !== pathRole ? (
           <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
             <p className="text-sm font-semibold text-foreground">
-              Role boundary
+              Права доступа
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              You&apos;re viewing <span className="font-medium">{pathRole}</span>{" "}
-              routes while signed in as{" "}
+              Вы смотрите раздел для роли{" "}
+              <span className="font-medium">{pathRole}</span>, войдя как{" "}
               <span className="font-medium">{effectiveRole}</span>.{" "}
               {hasSupabaseAuth
-                ? "This is allowed in the MVP shell; stricter enforcement will follow."
-                : "This is a demo-only state; real enforcement will be added when auth is wired."}
+                ? "В текущем MVP это допустимо, позже правила станут строже."
+                : "В демо-режиме ограничения мягче, реальные проверки появятся после подключения авторизации."}
             </p>
           </div>
         ) : null}
@@ -271,12 +271,11 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
         {!pathRole && effectiveRole ? (
           <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
             <p className="text-sm font-semibold text-foreground">
-              Session active
+              Сессия активна
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              You&apos;re signed in as{" "}
-              <span className="font-medium">{effectiveRole}</span>. Navigate to a
-              protected role route to see boundary expectations.
+              Вы вошли как{" "}
+              <span className="font-medium">{effectiveRole}</span>. Перейдите в закрытый раздел роли, чтобы увидеть, как работают границы доступа.
             </p>
           </div>
         ) : null}

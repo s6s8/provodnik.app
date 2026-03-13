@@ -18,17 +18,17 @@ export function GuideBookingStatusBadge({
 function formatStatusLabel(status: GuideBookingStatus) {
   switch (status) {
     case "awaiting_confirmation":
-      return "Awaiting confirmation";
+      return "Ожидает подтверждения";
     case "confirmed":
-      return "Confirmed";
+      return "Подтверждена";
     case "in_progress":
-      return "In progress";
+      return "В процессе";
     case "completed":
-      return "Completed";
+      return "Завершена";
     case "cancelled":
-      return "Cancelled";
+      return "Отменена";
     case "no_show":
-      return "No-show";
+      return "Неявка";
     default: {
       const exhaustive: never = status;
       return exhaustive;

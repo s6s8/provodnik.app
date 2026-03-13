@@ -1,84 +1,80 @@
 import Link from "next/link";
-import { Database, LayoutTemplate, ShieldAlert, UserRound } from "lucide-react";
+
+import { LifeBuoy, ShieldCheck, Star, Wallet } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-const workstreams = [
+const trustCards = [
   {
-    title: "Foundation",
+    title: "Проверенные гиды",
     description:
-      "Shared shell, auth boundary, design system wrappers, and app-level wiring.",
-    href: "/",
-    icon: LayoutTemplate,
+      "Профиль, отзывы, языки, специализация и сигналы доверия видны до заявки.",
+    icon: ShieldCheck,
   },
   {
-    title: "Traveler",
+    title: "Честные отзывы",
     description:
-      "Requests, bookings, favorites, and the account experience for demand-side users.",
-    href: "/traveler",
-    icon: UserRound,
+      "Отзывы публикуются после реальной поездки и помогают понять темп и качество маршрута.",
+    icon: Star,
   },
   {
-    title: "Guide",
+    title: "Поддержка в спорных случаях",
     description:
-      "Onboarding, listing management, offer workflows, and booking operations for supply.",
-    href: "/guide",
-    icon: ShieldAlert,
+      "Если маршрут меняется или возникают вопросы, у сервиса есть понятная операторская поддержка.",
+    icon: LifeBuoy,
   },
   {
-    title: "Admin + Data",
+    title: "Ясные условия",
     description:
-      "Moderation, refunds, disputes, Supabase contracts, and typed backend integration.",
-    href: "/admin",
-    icon: Database,
+      "До бронирования видны правила отмены, возвратов и что входит в стоимость.",
+    icon: Wallet,
   },
-];
+] as const;
 
 export function WorkstreamsGrid() {
   return (
-    <section className="space-y-6">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Parallel implementation lanes
-        </h2>
-        <p className="max-w-3xl text-muted-foreground">
-          Worktree ownership is already split so multiple agents can code
-          without stepping on the same files.
-        </p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        {workstreams.map((workstream) => {
-          const Icon = workstream.icon;
+    <section className="grid gap-5 lg:grid-cols-[1.12fr_0.88fr] lg:items-start">
+      <div className="grid gap-4 sm:grid-cols-2">
+        {trustCards.map((item) => {
+          const Icon = item.icon;
 
           return (
-            <Card key={workstream.title} className="border-border/70 bg-card/80">
-              <CardHeader className="space-y-4">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <Icon className="size-5" />
-                </div>
-                <div className="space-y-2">
-                  <CardTitle>{workstream.title}</CardTitle>
-                  <CardDescription className="leading-6">
-                    {workstream.description}
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <Button asChild variant="outline">
-                  <Link href={workstream.href}>Open workspace</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            <article
+              key={item.title}
+              className="section-frame rounded-[1.8rem] p-5 sm:p-6"
+            >
+              <div className="flex size-11 items-center justify-center rounded-2xl bg-accent/20 text-accent-foreground">
+                <Icon className="size-5" />
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                {item.description}
+              </p>
+            </article>
           );
         })}
+      </div>
+
+      <div className="section-frame rounded-[2.2rem] p-6 sm:p-8">
+        <p className="editorial-kicker">Для гидов тоже</p>
+        <h2 className="mt-4 text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          Гид получает не поток случайных лидов, а понятную рабочую область.
+        </h2>
+        <p className="mt-4 max-w-md text-sm leading-7 text-muted-foreground sm:text-base">
+          У сервиса есть отдельные кабинеты для путешественника, гида и оператора:
+          заявки, переписка, отзывы, модерация и статусы не размазаны по разным
+          чатам и таблицам.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button asChild className="rounded-full px-5">
+            <Link href="/guide">Рабочая область гида</Link>
+          </Button>
+          <Button asChild variant="outline" className="rounded-full px-5">
+            <Link href="/auth">Войти в сервис</Link>
+          </Button>
+        </div>
       </div>
     </section>
   );

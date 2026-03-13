@@ -43,8 +43,8 @@ function formatAt(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
+    year: "2-digit",
+    month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
@@ -54,52 +54,52 @@ function formatAt(iso: string) {
 function severityBadge(severity: DisputeSeverity) {
   switch (severity) {
     case "low":
-      return { label: "Low", variant: "outline" as const, Icon: Clock };
+      return { label: "Низкий", variant: "outline" as const, Icon: Clock };
     case "medium":
-      return { label: "Medium", variant: "default" as const, Icon: AlertTriangle };
+      return { label: "Средний", variant: "default" as const, Icon: AlertTriangle };
     case "high":
-      return { label: "High", variant: "default" as const, Icon: ShieldAlert };
+      return { label: "Высокий", variant: "default" as const, Icon: ShieldAlert };
     case "critical":
-      return { label: "Critical", variant: "destructive" as const, Icon: AlertOctagon };
+      return { label: "Критический", variant: "destructive" as const, Icon: AlertOctagon };
   }
 }
 
 function stageLabel(stage: DisputeStage) {
   switch (stage) {
     case "intake":
-      return "Intake";
+      return "Приём обращения";
     case "investigating":
-      return "Investigating";
+      return "Проверка";
     case "awaiting-evidence":
-      return "Awaiting evidence";
+      return "Ждём материалы";
     case "ready-to-decide":
-      return "Ready to decide";
+      return "Готово к решению";
     case "resolved":
-      return "Resolved";
+      return "Закрыто";
   }
 }
 
 function dispositionLabel(disposition: DisputeQueueDisposition) {
   switch (disposition) {
     case "open":
-      return "Open";
+      return "Открыто";
     case "needs-action":
-      return "Needs action";
+      return "Нужно действие";
     case "waiting":
-      return "Waiting";
+      return "Ожидание";
     case "resolved":
-      return "Resolved";
+      return "Закрыто";
   }
 }
 
 function freezeLabel(posture: PayoutFreezePosture) {
   switch (posture) {
     case "not-frozen":
-      return { label: "No freeze", variant: "outline" as const };
+      return { label: "Без блокировки", variant: "outline" as const };
     case "soft-freeze":
-      return { label: "Soft freeze", variant: "default" as const };
+      return { label: "Мягкая блокировка", variant: "default" as const };
     case "hard-freeze":
-      return { label: "Hard freeze", variant: "destructive" as const };
+      return { label: "Жёсткая блокировка", variant: "destructive" as const };
   }
 }
 
@@ -214,20 +214,19 @@ export function DisputesQueue() {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
-            <Badge variant="outline">Admin workspace</Badge>
+            <Badge variant="outline">Админ‑панель</Badge>
             <div className="space-y-1">
-              <Badge variant="outline">
-                {backendMode === "supabase" ? "Supabase-backed" : "Seed fallback"}
-              </Badge>
               <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Disputes & refunds operations
+                Споры и возвраты
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground">
-                Triage disputes, track payout-freeze posture, and record an audit-ready
-                case narrative. When an authenticated admin session is available, this
-                queue reads real Supabase dispute records. It still does not execute
-                refunds or payment actions.
+                Обрабатывайте споры по поездкам, управляйте блокировкой выплат
+                и фиксируйте решения в форме, удобной для аудита.
               </p>
+              <Badge variant="outline">
+                Режим данных:{" "}
+                {backendMode === "supabase" ? "боевой (Supabase)" : "демо‑набор"}
+              </Badge>
             </div>
           </div>
 
@@ -235,13 +234,13 @@ export function DisputesQueue() {
             <Button asChild type="button" variant="outline">
               <Link href="/admin">
                 <ClipboardList className="mr-1 size-4" />
-                Guide review
+                Проверка гидов
               </Link>
             </Button>
             <Button asChild type="button" variant="outline">
               <Link href="/admin/listings">
                 <FileSearch className="mr-1 size-4" />
-                Listing moderation
+                Модерация объявлений
               </Link>
             </Button>
           </div>
@@ -252,18 +251,17 @@ export function DisputesQueue() {
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-lg">Queue controls</CardTitle>
+              <CardTitle className="text-lg">Фильтры очереди</CardTitle>
               <CardDescription>
-                Filter the operational queue and search across case metadata and
-                timeline events.
+                Фильтруйте очередь по состоянию, стадии и серьёзности спора.
               </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">All {counts.all}</Badge>
-              <Badge variant="outline">Open {counts.open}</Badge>
-              <Badge variant="outline">Needs action {counts.needsAction}</Badge>
-              <Badge variant="outline">Waiting {counts.waiting}</Badge>
-              <Badge variant="outline">Resolved {counts.resolved}</Badge>
+              <Badge variant="outline">Все {counts.all}</Badge>
+              <Badge variant="outline">Открыты {counts.open}</Badge>
+              <Badge variant="outline">Нужно действие {counts.needsAction}</Badge>
+              <Badge variant="outline">Ожидание {counts.waiting}</Badge>
+              <Badge variant="outline">Закрыты {counts.resolved}</Badge>
             </div>
           </div>
 
@@ -274,8 +272,8 @@ export function DisputesQueue() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search case id, booking, party, policy, timeline..."
-                aria-label="Search dispute cases"
+                placeholder="Поиск по ID, брони, гостю, гиду, политике..."
+                aria-label="Поиск по спорам"
               />
             </div>
             <div className="flex flex-col gap-2 md:items-end">
@@ -285,35 +283,35 @@ export function DisputesQueue() {
                   variant={dispositionFilter === "all" ? "secondary" : "outline"}
                   onClick={() => setDispositionFilter("all")}
                 >
-                  All
+                  Все
                 </Button>
                 <Button
                   type="button"
                   variant={dispositionFilter === "needs-action" ? "secondary" : "outline"}
                   onClick={() => setDispositionFilter("needs-action")}
                 >
-                  Needs action
+                  Нужно действие
                 </Button>
                 <Button
                   type="button"
                   variant={dispositionFilter === "open" ? "secondary" : "outline"}
                   onClick={() => setDispositionFilter("open")}
                 >
-                  Open
+                  Открыто
                 </Button>
                 <Button
                   type="button"
                   variant={dispositionFilter === "waiting" ? "secondary" : "outline"}
                   onClick={() => setDispositionFilter("waiting")}
                 >
-                  Waiting
+                  Ожидание
                 </Button>
                 <Button
                   type="button"
                   variant={dispositionFilter === "resolved" ? "secondary" : "outline"}
                   onClick={() => setDispositionFilter("resolved")}
                 >
-                  Resolved
+                  Закрыто
                 </Button>
               </div>
 
@@ -323,35 +321,35 @@ export function DisputesQueue() {
                   variant={severityFilter === "all" ? "secondary" : "outline"}
                   onClick={() => setSeverityFilter("all")}
                 >
-                  Any severity
+                  Любая серьёзность
                 </Button>
                 <Button
                   type="button"
                   variant={severityFilter === "medium" ? "secondary" : "outline"}
                   onClick={() => setSeverityFilter("medium")}
                 >
-                  Medium
+                  Средний
                 </Button>
                 <Button
                   type="button"
                   variant={severityFilter === "high" ? "secondary" : "outline"}
                   onClick={() => setSeverityFilter("high")}
                 >
-                  High
+                  Высокий
                 </Button>
                 <Button
                   type="button"
                   variant={severityFilter === "critical" ? "secondary" : "outline"}
                   onClick={() => setSeverityFilter("critical")}
                 >
-                  Critical
+                  Критический
                 </Button>
                 <Button
                   type="button"
                   variant={severityFilter === "low" ? "secondary" : "outline"}
                   onClick={() => setSeverityFilter("low")}
                 >
-                  Low
+                  Низкий
                 </Button>
               </div>
 
@@ -361,7 +359,7 @@ export function DisputesQueue() {
                   variant={stageFilter === "all" ? "secondary" : "outline"}
                   onClick={() => setStageFilter("all")}
                 >
-                  Any stage
+                  Любая стадия
                 </Button>
                 {(
                   [
@@ -426,7 +424,7 @@ export function DisputesQueue() {
                         <Badge variant="outline">{item.id}</Badge>
                       </div>
                       <CardDescription className="flex flex-wrap gap-x-2 gap-y-1">
-                        <span>Booking {item.booking.id}</span>
+                        <span>Бронь {item.booking.id}</span>
                         <span className="text-muted-foreground/50">-</span>
                         <span>{item.booking.routeLabel}</span>
                         <span className="text-muted-foreground/50">-</span>
@@ -434,14 +432,14 @@ export function DisputesQueue() {
                           {item.booking.amount.amount} {item.booking.amount.currency}
                         </span>
                         <span className="text-muted-foreground/50">-</span>
-                        <span>Booking status: {item.booking.status}</span>
+                        <span>Статус брони: {item.booking.status}</span>
                       </CardDescription>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
                       <Button asChild type="button" variant="secondary">
-                        <Link href={`/admin/disputes/${item.id}`} aria-label={`Open ${item.id}`}>
-                          Open case
+                        <Link href={`/admin/disputes/${item.id}`} aria-label={`Открыть спор ${item.id}`}>
+                          Открыть спор
                         </Link>
                       </Button>
                     </div>
@@ -453,7 +451,7 @@ export function DisputesQueue() {
 
                   <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
                     <div className="text-xs text-muted-foreground">
-                      Opened {formatAt(item.createdAt)} · Updated {formatAt(item.updatedAt)}
+                      Создано {formatAt(item.createdAt)} · Обновлено {formatAt(item.updatedAt)}
                     </div>
                     {lastEvent ? (
                       <div
@@ -462,7 +460,7 @@ export function DisputesQueue() {
                           item.disposition === "needs-action" && "border-border"
                         )}
                       >
-                        <span className="font-medium text-foreground">Latest: </span>
+                        <span className="font-medium text-foreground">Последнее событие: </span>
                         {formatAt(lastEvent.at)} · {lastEvent.actor} · {lastEvent.summary}
                       </div>
                     ) : null}
@@ -471,17 +469,17 @@ export function DisputesQueue() {
 
                 <CardFooter className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
                   <div className="text-xs text-muted-foreground">
-                    Queue state is seeded; operator annotations are stored locally in the
-                    case detail view.
+                    В демо‑режиме состояние очереди задаётся набором примеров, а
+                    заметки оператора живут локально в детальной карточке спора.
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge variant="outline">
                       <Clock className="mr-1 size-3.5" />
-                      Policy: {item.policyKey.replaceAll("-", " ")}
+                      Политика: {item.policyKey.replaceAll("-", " ")}
                     </Badge>
                     <Badge variant="outline">
                       <AlertTriangle className="mr-1 size-3.5" />
-                      Next actions: {item.nextActions.length}
+                      Следующие действия: {item.nextActions.length}
                     </Badge>
                   </div>
                 </CardFooter>

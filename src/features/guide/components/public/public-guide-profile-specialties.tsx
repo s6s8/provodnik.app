@@ -20,10 +20,10 @@ export function PublicGuideProfileSpecialties({
       <CardHeader className="space-y-2">
         <CardTitle className="flex items-center gap-2">
           <Compass className="size-4 text-primary" />
-          Specialties
+          Специализация
         </CardTitle>
         <CardDescription>
-          What this guide is best suited to run and optimize for.
+          В чём этот гид чувствует себя уверенно и какие форматы ведёт чаще всего.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
@@ -37,11 +37,10 @@ export function PublicGuideProfileSpecialties({
         <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium">
             <ListChecks className="size-4 text-primary" />
-            Experience notes
+            Дополнительно об опыте
           </div>
           <p className="text-sm leading-6 text-muted-foreground">
-            This section will later include standardized operating details:
-            group size preference, transport assumptions, and accessibility.
+            Позже здесь появятся стандартные детали: привычный размер группы, базовые ожидания по транспорту и особенности доступности.
           </p>
         </div>
       </CardContent>

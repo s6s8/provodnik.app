@@ -64,27 +64,28 @@ export function TravelerRequestsWorkspaceScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Requests
+              Мои запросы
             </h1>
             <p className="max-w-3xl text-base text-muted-foreground">
-              Track active travel requests and compare seeded guide offers. New
-              requests are saved locally on this device in MVP baseline.
+              Здесь вы видите все свои запросы на поездки: новые, с откликами
+              гидов и уже забронированные маршруты. Запросы сейчас сохраняются
+              локально на этом устройстве.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild variant="secondary">
-              <Link href="/traveler/bookings">Bookings</Link>
+              <Link href="/traveler/bookings">Бронирования</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/traveler/favorites">Favorites</Link>
+              <Link href="/traveler/favorites">Избранное</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/traveler/open-requests">
-                Open requests
+                Открытые группы
                 {joinedOpenRequestsCount > 0 ? (
                   <Badge
                     variant="secondary"
@@ -97,7 +98,7 @@ export function TravelerRequestsWorkspaceScreen() {
             </Button>
             <Button asChild>
               <Link href="/traveler/requests/new">
-                New
+                Новый запрос
                 <Plus className="size-4" />
               </Link>
             </Button>
@@ -109,15 +110,15 @@ export function TravelerRequestsWorkspaceScreen() {
         {joinedOpenRequestsCount > 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-base">Groups you’ve joined</CardTitle>
+              <CardTitle className="text-base">Групповые поездки</CardTitle>
               <p className="text-sm text-muted-foreground">
-                You have joined {joinedOpenRequestsCount} open request
-                {joinedOpenRequestsCount === 1 ? "" : "s"} locally on this device.
+                Вы присоединились к {joinedOpenRequestsCount} открытым
+                запросам-группам на этом устройстве.
               </p>
             </CardHeader>
             <CardContent>
               <Button asChild variant="secondary">
-                <Link href="/traveler/open-requests">View joined groups</Link>
+                <Link href="/traveler/open-requests">Открытые группы</Link>
               </Button>
             </CardContent>
           </Card>
@@ -126,15 +127,16 @@ export function TravelerRequestsWorkspaceScreen() {
         {requests.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
-              <CardTitle>No requests yet</CardTitle>
+              <CardTitle>У вас пока нет запросов</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Create your first request to start receiving offers.
+                Оставьте первый запрос — и мы покажем, как могут отвечать
+                гиды с разными программами и бюджетами.
               </p>
               <Button asChild>
                 <Link href="/traveler/requests/new">
-                  Create request
+                  Создать запрос
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -154,7 +156,7 @@ export function TravelerRequestsWorkspaceScreen() {
 
 function RequestCard({ record }: { record: TravelerRequestRecord }) {
   const offerCount = listOffersForTravelerRequest(record.id).length;
-  const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
+  const dateLabel = `${record.request.startDate} — ${record.request.endDate}`;
 
   return (
     <Card className="border-border/70 bg-card/90">
@@ -173,21 +175,24 @@ function RequestCard({ record }: { record: TravelerRequestRecord }) {
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{record.request.experienceType}</Badge>
-          <Badge variant="outline">{`${record.request.groupSize} traveler${
-            record.request.groupSize === 1 ? "" : "s"
-          }`}</Badge>
-          <Badge variant="outline">{`${offerCount} offer${
-            offerCount === 1 ? "" : "s"
-          }`}</Badge>
+          <Badge variant="outline">
+            {record.request.groupSize}{" "}
+            {record.request.groupSize === 1 ? "путешественник" : "путешественника"}
+          </Badge>
+          <Badge variant="outline">
+            {offerCount === 0
+              ? "Нет откликов"
+              : `${offerCount} предложени${offerCount === 1 ? "е" : "я"}`}
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Updated {formatShortDate(record.updatedAt)}
+          Обновлено {formatShortDate(record.updatedAt)}
         </p>
         <Button asChild variant="secondary">
           <Link href={`/traveler/requests/${record.id}`}>
-            Open
+            Открыть
             <ArrowRight className="size-4" />
           </Link>
         </Button>
@@ -199,7 +204,7 @@ function RequestCard({ record }: { record: TravelerRequestRecord }) {
 function formatShortDate(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("en-GB", {
+  return date.toLocaleDateString("ru-RU", {
     day: "2-digit",
     month: "short",
   });

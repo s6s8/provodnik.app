@@ -3,14 +3,14 @@ import type { PublicGuideProfile } from "@/data/public-guides/types";
 export const seededPublicGuides: readonly PublicGuideProfile[] = [
   {
     slug: "maria-rostov",
-    displayName: "Maria K.",
-    headline: "Local guide for Rostov-on-Don food walks and day trips.",
-    homeBase: "Rostov-on-Don",
+    displayName: "Мария К.",
+    headline: "Локальный гид по Ростову-на-Дону: гастромаршруты и поездки на день.",
+    homeBase: "Ростов-на-Дону",
     yearsExperience: 6,
-    regions: ["Rostov Oblast", "Krasnodar Krai", "Azov Sea coast"],
-    languages: ["Russian", "English"],
-    specialties: ["Food & markets", "History", "Family-friendly"],
-    bio: "I design compact, high-signal itineraries: fewer stops, more context. Expect clear pacing, flexible plans for weather, and practical logistics.",
+    regions: ["Ростовская область", "Краснодарский край", "Побережье Азовского моря"],
+    languages: ["Русский", "Английский"],
+    specialties: ["Еда и рынки", "История", "С детьми"],
+    bio: "Я собираю компактные маршруты без перегруза: меньше точек, больше смысла. Обычно мои экскурсии выбирают за ясный темп, аккуратную логистику и запасной план на случай погоды.",
     trustMarkers: {
       emailVerified: true,
       phoneVerified: true,
@@ -26,14 +26,14 @@ export const seededPublicGuides: readonly PublicGuideProfile[] = [
   },
   {
     slug: "alexei-baikal",
-    displayName: "Alexei S.",
-    headline: "Winter Baikal routes, ice safety, and small-group logistics.",
-    homeBase: "Irkutsk",
+    displayName: "Алексей С.",
+    headline: "Зимний Байкал, ледовая безопасность и маршруты для маленьких групп.",
+    homeBase: "Иркутск",
     yearsExperience: 9,
-    regions: ["Irkutsk Oblast", "Lake Baikal", "Olkhon Island"],
-    languages: ["Russian", "English", "German"],
-    specialties: ["Nature", "Photography", "Off-season travel"],
-    bio: "I’m strict about safety and honest about conditions. My focus is predictable transport, warm checkpoints, and realistic distances for the group.",
+    regions: ["Иркутская область", "Озеро Байкал", "Ольхон"],
+    languages: ["Русский", "Английский", "Немецкий"],
+    specialties: ["Природа", "Фотография", "Несезонные поездки"],
+    bio: "Я строго отношусь к безопасности и честно объясняю, что реально возможно по погоде. Мой фокус - предсказуемый транспорт, теплые остановки и адекватный темп для группы.",
     trustMarkers: {
       emailVerified: true,
       phoneVerified: false,
@@ -52,4 +52,3 @@ export const seededPublicGuides: readonly PublicGuideProfile[] = [
 export function getSeededPublicGuide(slug: string) {
   return seededPublicGuides.find((guide) => guide.slug === slug) ?? null;
 }
-

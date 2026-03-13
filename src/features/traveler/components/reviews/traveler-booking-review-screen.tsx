@@ -45,7 +45,7 @@ function featuredTargetsForBooking(record: TravelerBookingRecord): Array<{
     targets.push({
       type: "guide",
       slug: record.guide.slug,
-      label: `Guide: ${record.guide.displayName}`,
+      label: `Гид: ${record.guide.displayName}`,
     });
   }
 
@@ -53,7 +53,7 @@ function featuredTargetsForBooking(record: TravelerBookingRecord): Array<{
     targets.push({
       type: "listing",
       slug: record.listingSlug,
-      label: "Listing itinerary",
+      label: "Программа тура",
     });
   }
 
@@ -157,7 +157,7 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
         disputeId: null,
         actorId: review.author.userId,
         eventType: "review_submitted",
-        summary: `Review submitted for ${values.targetType}:${values.targetSlug}`,
+        summary: `Отзыв отправлен для ${values.targetType}:${values.targetSlug}`,
         detail: values.title,
         payload: {
           rating: values.rating,
@@ -171,19 +171,19 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
   if (!record) {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-2">
-            <CardTitle>Booking not found</CardTitle>
+            <CardTitle>Бронирование не найдено</CardTitle>
             <p className="text-sm text-muted-foreground">
-              This booking ID doesn’t exist on this device.
+              На этом устройстве нет поездки с таким идентификатором.
             </p>
           </CardHeader>
           <CardContent>
             <Button asChild variant="secondary">
               <Link href="/traveler/bookings">
                 <ArrowLeft className="size-4" />
-                Back to bookings
+                Ко всем поездкам
               </Link>
             </Button>
           </CardContent>
@@ -195,23 +195,23 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
   if (record.status !== "completed") {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-2">
-            <CardTitle>Review not available yet</CardTitle>
+            <CardTitle>Отзыв пока недоступен</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Reviews unlock once a booking is marked completed.
+              Оставить отзыв можно после завершения поездки.
             </p>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="secondary">
               <Link href={`/traveler/bookings/${record.id}`}>
                 <ArrowLeft className="size-4" />
-                Back to booking
+                Вернуться к поездке
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/traveler/bookings">View all bookings</Link>
+              <Link href="/traveler/bookings">Все поездки</Link>
             </Button>
           </CardContent>
         </Card>
@@ -222,30 +222,30 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
   if (submitted) {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="flex flex-row items-start gap-4 space-y-0">
             <div className="mt-0.5 flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <CheckCircle2 className="size-5" />
             </div>
             <div className="space-y-1">
-              <CardTitle>Review saved locally</CardTitle>
+              <CardTitle>Отзыв сохранён</CardTitle>
               <p className="text-sm text-muted-foreground">
                 {persistedToBackend
-                  ? "This review was written to Supabase and will survive refresh and device changes."
-                  : "This review is stored on this device only because the booking is not yet persisted in Supabase."}
+                  ? "Отзыв сохранён в вашем аккаунте и не пропадёт при обновлениях или смене устройства."
+                  : "Отзыв сейчас хранится только на этом устройстве."}
               </p>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid gap-1 rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Target</p>
+              <p className="text-xs text-muted-foreground">К чему относится отзыв</p>
               <p className="text-sm font-medium text-foreground">
                 {submitted.target.type} · {submitted.target.slug}
               </p>
             </div>
             <div className="grid gap-1 rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Rating</p>
+              <p className="text-xs text-muted-foreground">Оценка</p>
               <p className="text-sm font-medium text-foreground">
                 {submitted.rating} / 5
               </p>
@@ -257,17 +257,17 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
           <Button asChild>
             <Link href={`/traveler/bookings/${record.id}`}>
               <ArrowLeft className="size-4" />
-              Back to booking
+              Вернуться к поездке
             </Link>
           </Button>
           {record.guide.slug ? (
             <Button asChild variant="secondary">
-              <Link href={`/guides/${record.guide.slug}`}>Open guide profile</Link>
+              <Link href={`/guides/${record.guide.slug}`}>Профиль гида</Link>
             </Button>
           ) : null}
           {record.listingSlug ? (
             <Button asChild variant="secondary">
-              <Link href={`/listings/${record.listingSlug}`}>Open listing</Link>
+              <Link href={`/listings/${record.listingSlug}`}>Программа тура</Link>
             </Button>
           ) : null}
         </div>
@@ -281,32 +281,31 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
         <Button asChild variant="ghost" className="-ml-3 px-3">
           <Link href={`/traveler/bookings/${record.id}`}>
             <ArrowLeft className="size-4" />
-            Booking
+            Поездка
           </Link>
         </Button>
         <div className="space-y-2">
-          <Badge variant="outline">Traveler workspace</Badge>
+          <Badge variant="outline">Кабинет путешественника</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Leave a review
+            Оставить отзыв
           </h1>
           <p className="max-w-3xl text-sm text-muted-foreground">
-            Short, concrete feedback builds trust. No moderation backend yet—keep
-            it factual and helpful.
+            Короткий и конкретный отзыв помогает другим путешественникам выбрать поездку.
           </p>
         </div>
       </div>
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Review details</CardTitle>
+          <CardTitle>Детали отзыва</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Booking: {record.request.destination} · {record.request.startDate}
+            Поездка: {record.request.destination} · {record.request.startDate}
           </p>
         </CardHeader>
         <CardContent className="space-y-5">
           {targets.length > 1 ? (
             <div className="grid gap-2">
-              <p className="text-sm font-medium text-foreground">Review target</p>
+              <p className="text-sm font-medium text-foreground">К чему оставить отзыв</p>
               <div className="flex flex-col gap-2 sm:flex-row">
                 {targets.map((target) => {
                   const isActive =
@@ -335,10 +334,10 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
           <form
             className="grid gap-5"
             onSubmit={handleSubmit(onSubmit)}
-            aria-label="Submit traveler review"
+            aria-label="Отправить отзыв путешественника"
           >
             <div className="grid gap-2">
-              <p className="text-sm font-medium text-foreground">Rating</p>
+              <p className="text-sm font-medium text-foreground">Оценка</p>
               <div className="flex flex-wrap gap-2">
                 {([1, 2, 3, 4, 5] as const).map((value) => {
                   const active = rating === value;
@@ -366,11 +365,11 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
 
             <div className="grid gap-2">
               <label htmlFor="title" className="text-sm font-medium text-foreground">
-                Title
+                Заголовок
               </label>
               <Input
                 id="title"
-                placeholder="e.g. Clear pacing and logistics"
+                placeholder="Например: чёткий темп и организация"
                 aria-invalid={Boolean(errors.title)}
                 aria-describedby={errors.title ? "title-error" : undefined}
                 {...register("title")}
@@ -384,11 +383,11 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
 
             <div className="grid gap-2">
               <label htmlFor="body" className="text-sm font-medium text-foreground">
-                What went well (and what could improve)?
+                Что понравилось, а что можно улучшить?
               </label>
               <Textarea
                 id="body"
-                placeholder="Aim for specifics: pacing, logistics, safety, context, communication..."
+                placeholder="Напишите по делу: маршрут, темп, безопасность, организация, общение…"
                 aria-invalid={Boolean(errors.body)}
                 aria-describedby={errors.body ? "body-error" : undefined}
                 {...register("body")}
@@ -399,7 +398,7 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
                 </p>
               ) : null}
               <p className="text-xs text-muted-foreground">
-                Stored locally only. Don’t include phone numbers or private details.
+                Не указывайте телефоны и личные данные.
               </p>
             </div>
 
@@ -410,7 +409,7 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
                 ) : null}
               </p>
               <Button type="submit" disabled={isSubmitting}>
-                Save review locally
+                Сохранить отзыв
               </Button>
             </div>
           </form>

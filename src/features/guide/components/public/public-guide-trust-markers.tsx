@@ -21,28 +21,28 @@ const trustMarkerCatalog: Record<
   { label: string; description: string; Icon: typeof BadgeCheck }
 > = {
   emailVerified: {
-    label: "Email verified",
-    description: "Account email confirmed.",
+    label: "Подтверждён email",
+    description: "Адрес электронной почты подтверждён.",
     Icon: MailCheck,
   },
   phoneVerified: {
-    label: "Phone verified",
-    description: "Phone number confirmed.",
+    label: "Подтверждён телефон",
+    description: "Номер телефона подтверждён.",
     Icon: PhoneCall,
   },
   identityVerified: {
-    label: "Identity verified",
-    description: "Identity document checked.",
+    label: "Проверена личность",
+    description: "Документы гида проверены.",
     Icon: BadgeCheck,
   },
   backgroundCheck: {
-    label: "Background check",
-    description: "Additional screening complete.",
+    label: "Дополнительная проверка",
+    description: "Проведена расширенная проверка надёжности.",
     Icon: FileCheck2,
   },
   references: {
-    label: "References",
-    description: "External references provided.",
+    label: "Рекомендации",
+    description: "Есть внешние рекомендации и отзывы.",
     Icon: ContactRound,
   },
 };
@@ -59,13 +59,13 @@ export function PublicGuideTrustMarkers({
     <Card className="border-border/70 bg-card/80">
       <CardHeader className="space-y-2">
         <CardTitle className="flex items-center justify-between gap-3">
-          <span>Trust markers</span>
+          <span>Маркер доверия</span>
           <Badge variant={enabled.length >= 3 ? "secondary" : "outline"}>
-            {enabled.length}/{keys.length} visible
+            {enabled.length}/{keys.length} активно
           </Badge>
         </CardTitle>
         <CardDescription>
-          Verification and signals that help travelers assess supply.
+          Подтверждения и сигналы, которые помогают путешественникам оценить гида.
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-2">
@@ -101,7 +101,7 @@ export function PublicGuideTrustMarkers({
                 </div>
               </div>
               <Badge variant={isEnabled ? "secondary" : "outline"}>
-                {isEnabled ? "Verified" : "Not provided"}
+                {isEnabled ? "Подтверждено" : "Не заполнено"}
               </Badge>
             </div>
           );

@@ -13,9 +13,9 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 const hasEnv = hasSupabaseEnv();
 
 const roles = [
-  { value: "traveler", label: "Traveler" },
-  { value: "guide", label: "Guide" },
-  { value: "admin", label: "Admin (operators only)" },
+  { value: "traveler", label: "Путешественник" },
+  { value: "guide", label: "Гид" },
+  { value: "admin", label: "Оператор" },
 ] as const;
 
 export function AuthEntryScreen() {
@@ -27,29 +27,29 @@ export function AuthEntryScreen() {
 
   if (!hasEnv) {
     return (
-      <Card className="border-border/70 bg-card/90">
+      <Card className="glass-panel rounded-[2.2rem] border border-white/70">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <AlertCircle className="size-4 text-amber-500" />
-            Supabase auth not configured
+            Supabase не настроен
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
+        <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
           <p>
-            This environment does not have Supabase keys configured. The protected
-            workspace can still be explored using the local demo session controls in
-            the workspace header.
+            В этом окружении не заданы ключи Supabase. Публичную витрину можно
+            смотреть как обычно, а рабочие кабинеты доступны через локальный
+            демо-режим в защищенной части приложения.
           </p>
           <p>
-            To enable real auth, set{" "}
+            Для реального входа укажите{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-xs">
               NEXT_PUBLIC_SUPABASE_URL
             </code>{" "}
-            and{" "}
+            и{" "}
             <code className="rounded bg-muted px-1 py-0.5 text-xs">
               NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
             </code>{" "}
-            in <code className="rounded bg-muted px-1 py-0.5 text-xs">.env.local</code>.
+            в <code className="rounded bg-muted px-1 py-0.5 text-xs">.env.local</code>.
           </p>
         </CardContent>
       </Card>
@@ -63,18 +63,16 @@ export function AuthEntryScreen() {
 
     const trimmedEmail = email.trim();
     if (!trimmedEmail) {
-      setError("Enter an email to continue.");
+      setError("Введите email, чтобы продолжить.");
       return;
     }
 
     setIsSubmitting(true);
+
     try {
       const supabase = createSupabaseBrowserClient();
-
       const redirectTo =
-        typeof window !== "undefined"
-          ? `${window.location.origin}/traveler`
-          : undefined;
+        typeof window !== "undefined" ? `${window.location.origin}/traveler` : undefined;
 
       const { error: signInError } = await supabase.auth.signInWithOtp({
         email: trimmedEmail,
@@ -90,66 +88,57 @@ export function AuthEntryScreen() {
       }
 
       setSuccess(
-        "Check your email for a sign-in link. After confirmation, you will be redirected into the workspace.",
+        "Ссылка для входа отправлена. Откройте письмо, подтвердите вход и вернитесь в сервис.",
       );
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : "Unexpected error during sign-in.";
-      setError(message);
+      setError(err instanceof Error ? err.message : "Не удалось отправить ссылку.");
     } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <Card className="border-border/70 bg-card/90">
-      <CardHeader>
-        <CardTitle className="text-base">Sign in to Provodnik</CardTitle>
+    <Card className="glass-panel rounded-[2.2rem] border border-white/70">
+      <CardHeader className="space-y-2">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+          Magic-link вход
+        </p>
+        <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
+          Войти в Provodnik
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <CardContent className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <label
-                htmlFor="email"
-                className="text-xs font-medium text-muted-foreground"
-              >
-                Work email
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Mail className="pointer-events-none absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  autoComplete="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
-                  className="pl-8"
-                  required
-                />
-              </div>
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
+              Email для входа
+            </label>
+            <div className="relative">
+              <Mail className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                className="h-12 rounded-2xl bg-white/82 pl-10"
+                required
+              />
             </div>
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2">
-              <label
-                htmlFor="role"
-                className="text-xs font-medium text-muted-foreground"
-              >
-                Workspace role
-              </label>
-            </div>
+            <label htmlFor="role" className="text-sm font-medium text-foreground">
+              Роль в сервисе
+            </label>
             <select
               id="role"
               value={role}
               onChange={(event) =>
                 setRole(event.target.value as (typeof roles)[number]["value"])
               }
-              className="inline-flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              className="inline-flex h-12 w-full items-center justify-between rounded-2xl border border-input bg-white/82 px-4 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {roles.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -157,38 +146,36 @@ export function AuthEntryScreen() {
                 </option>
               ))}
             </select>
-            <p className="text-xs text-muted-foreground">
-              This seeds your app role for the MVP baseline. Operator/admin access
-              should only be used for internal review.
+            <p className="text-xs leading-6 text-muted-foreground">
+              Роль влияет на то, какой рабочий кабинет откроется после входа.
             </p>
           </div>
 
           {error ? (
-            <div className="flex items-start gap-2 text-sm text-destructive">
+            <div className="flex items-start gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
               <AlertCircle className="mt-0.5 size-4" />
               <p>{error}</p>
             </div>
           ) : null}
 
           {success ? (
-            <div className="flex items-start gap-2 text-sm text-emerald-600">
+            <div className="flex items-start gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm text-emerald-700">
               <CheckCircle2 className="mt-0.5 size-4" />
               <p>{success}</p>
             </div>
           ) : null}
 
-          <div className="flex items-center justify-between gap-3 pt-2">
-            <p className="text-xs text-muted-foreground">
-              Magic-link auth is handled by Supabase. You can keep another tab open in
-              the workspace while confirming.
-            </p>
-            <Button type="submit" size="sm" disabled={isSubmitting}>
-              {isSubmitting ? "Sending link..." : "Send sign-in link"}
+          <div className="space-y-3 border-t border-border/70 pt-4">
+            <Button type="submit" className="h-12 w-full rounded-full" disabled={isSubmitting}>
+              {isSubmitting ? "Отправляем ссылку..." : "Получить ссылку для входа"}
             </Button>
+            <p className="text-xs leading-6 text-muted-foreground">
+              Авторизацию обрабатывает Supabase. После подтверждения вы вернетесь в
+              сервис уже с активной сессией.
+            </p>
           </div>
         </form>
       </CardContent>
     </Card>
   );
 }
-

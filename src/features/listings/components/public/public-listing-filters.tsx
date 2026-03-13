@@ -11,15 +11,15 @@ import type {
 } from "@/data/public-listings/types";
 
 type Filters = {
-  region: string | "All";
-  durationDays: PublicListing["durationDays"] | "All";
-  theme: PublicListingTheme | "All";
+  region: string | "all";
+  durationDays: PublicListing["durationDays"] | "all";
+  theme: PublicListingTheme | "all";
 };
 
 const defaultFilters: Filters = {
-  region: "All",
-  durationDays: "All",
-  theme: "All",
+  region: "all",
+  durationDays: "all",
+  theme: "all",
 };
 
 export function PublicListingFilters({
@@ -31,26 +31,26 @@ export function PublicListingFilters({
 }) {
   const [filters, setFilters] = useState<Filters>(defaultFilters);
 
-  const regions = useMemo(() => {
-    return Array.from(new Set(listings.map((l) => l.region))).sort();
-  }, [listings]);
+  const regions = useMemo(
+    () => Array.from(new Set(listings.map((listing) => listing.region))).sort(),
+    [listings],
+  );
 
-  const themes = useMemo(() => {
-    return Array.from(new Set(listings.flatMap((l) => l.themes))).sort();
-  }, [listings]);
+  const themes = useMemo(
+    () => Array.from(new Set(listings.flatMap((listing) => listing.themes))).sort(),
+    [listings],
+  );
 
   const filtered = useMemo(() => {
     return listings.filter((listing) => {
-      if (filters.region !== "All" && listing.region !== filters.region) {
-        return false;
-      }
+      if (filters.region !== "all" && listing.region !== filters.region) return false;
       if (
-        filters.durationDays !== "All" &&
+        filters.durationDays !== "all" &&
         listing.durationDays !== filters.durationDays
       ) {
         return false;
       }
-      if (filters.theme !== "All" && !listing.themes.includes(filters.theme)) {
+      if (filters.theme !== "all" && !listing.themes.includes(filters.theme)) {
         return false;
       }
       return true;
@@ -62,101 +62,65 @@ export function PublicListingFilters({
   }, [filtered, onFilteredListingsChange]);
 
   return (
-    <Card className="border-border/70 bg-card/80">
+    <Card className="glass-panel rounded-[2rem] border border-white/70">
       <CardHeader className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="text-base">Filters</CardTitle>
-          <Badge variant="secondary">{filtered.length} matches</Badge>
+          <CardTitle className="text-base">Фильтры витрины</CardTitle>
+          <Badge variant="secondary" className="rounded-full px-3">
+            {filtered.length} вариантов
+          </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-5">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-              Region
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={filters.region === "All" ? "default" : "outline"}
-                onClick={() => setFilters((prev) => ({ ...prev, region: "All" }))}
-              >
-                All
-              </Button>
-              {regions.map((region) => (
-                <Button
-                  key={region}
-                  type="button"
-                  size="sm"
-                  variant={filters.region === region ? "default" : "outline"}
-                  onClick={() => setFilters((prev) => ({ ...prev, region }))}
-                >
-                  {region}
-                </Button>
-              ))}
-            </div>
-          </div>
+        <FilterBlock
+          title="Регион"
+          items={["all", ...regions]}
+          active={filters.region}
+          getLabel={(value) => (value === "all" ? "Все" : value)}
+          onSelect={(value) =>
+            setFilters((prev) => ({ ...prev, region: value as Filters["region"] }))
+          }
+        />
 
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-              Duration
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {(["All", 1, 2, 3] as const).map((value) => (
-                <Button
-                  key={value}
-                  type="button"
-                  size="sm"
-                  variant={filters.durationDays === value ? "default" : "outline"}
-                  onClick={() =>
-                    setFilters((prev) => ({ ...prev, durationDays: value }))
-                  }
-                >
-                  {value === "All" ? "All" : `${value} day${value === 1 ? "" : "s"}`}
-                </Button>
-              ))}
-            </div>
-          </div>
+        <FilterBlock
+          title="Длительность"
+          items={["all", 1, 2, 3]}
+          active={filters.durationDays}
+          getLabel={(value) =>
+            value === "all"
+              ? "Все"
+              : `${value} ${value === 1 ? "день" : value > 1 && value < 5 ? "дня" : "дней"}`
+          }
+          onSelect={(value) =>
+            setFilters((prev) => ({
+              ...prev,
+              durationDays: value as Filters["durationDays"],
+            }))
+          }
+        />
 
-          <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-[0.18em]">
-              Theme
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                variant={filters.theme === "All" ? "default" : "outline"}
-                onClick={() => setFilters((prev) => ({ ...prev, theme: "All" }))}
-              >
-                All
-              </Button>
-              {themes.map((theme) => (
-                <Button
-                  key={theme}
-                  type="button"
-                  size="sm"
-                  variant={filters.theme === theme ? "default" : "outline"}
-                  onClick={() => setFilters((prev) => ({ ...prev, theme }))}
-                >
-                  {theme}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
+        <FilterBlock
+          title="Формат"
+          items={["all", ...themes]}
+          active={filters.theme}
+          getLabel={(value) => (value === "all" ? "Все" : value)}
+          onSelect={(value) =>
+            setFilters((prev) => ({ ...prev, theme: value as Filters["theme"] }))
+          }
+        />
 
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
           <p className="text-sm text-muted-foreground">
-            These are seeded examples for the public baseline.
+            Каталог показывает готовые форматы для MVP: короткие прогулки, поездки на
+            день и сезонные маршруты.
           </p>
           <Button
             type="button"
             variant="ghost"
+            className="rounded-full"
             onClick={() => setFilters(defaultFilters)}
           >
-            Reset
+            Сбросить
           </Button>
         </div>
       </CardContent>
@@ -164,3 +128,38 @@ export function PublicListingFilters({
   );
 }
 
+function FilterBlock<T extends string | number>({
+  title,
+  items,
+  active,
+  getLabel,
+  onSelect,
+}: {
+  title: string;
+  items: readonly T[];
+  active: T;
+  getLabel: (item: T) => string;
+  onSelect: (item: T) => void;
+}) {
+  return (
+    <div className="space-y-2">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        {title}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item) => (
+          <Button
+            key={String(item)}
+            type="button"
+            size="sm"
+            variant={active === item ? "default" : "outline"}
+            className="rounded-full"
+            onClick={() => onSelect(item)}
+          >
+            {getLabel(item)}
+          </Button>
+        ))}
+      </div>
+    </div>
+  );
+}

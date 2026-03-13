@@ -55,23 +55,23 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
   if (!record) {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Guide workspace</Badge>
+        <Badge variant="outline">Кабинет гида</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-2">
-            <CardTitle>Booking not found</CardTitle>
+            <CardTitle>Бронирование не найдено</CardTitle>
             <p className="text-sm text-muted-foreground">
-              This booking ID doesn’t exist on this device.
+              По этому идентификатору нет данных на этом устройстве.
             </p>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="secondary">
               <Link href="/guide/bookings">
                 <ArrowLeft className="size-4" />
-                Back to bookings
+                Назад к списку
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/guide/requests">Go to requests</Link>
+              <Link href="/guide/requests">Во входящие запросы</Link>
             </Button>
           </CardContent>
         </Card>
@@ -93,14 +93,14 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
           <Button asChild variant="ghost" className="-ml-3 px-3">
             <Link href="/guide/bookings">
               <ArrowLeft className="size-4" />
-              Bookings
+              Бронирования
             </Link>
           </Button>
           <GuideBookingStatusBadge status={record.status} />
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">Guide workspace</Badge>
+          <Badge variant="outline">Кабинет гида</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {record.request.destination}
           </h1>
@@ -111,11 +111,11 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
             </span>
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
-              {record.request.groupSize} traveler{record.request.groupSize === 1 ? "" : "s"}
+              Группа {record.request.groupSize} чел.
             </span>
             <span className="inline-flex items-center gap-2">
               <MapPin className="size-4 text-muted-foreground" />
-              Payout-ready flow (no real payments)
+              Модель выплат и залога — демо, без реальных списаний
             </span>
           </div>
         </div>
@@ -123,45 +123,49 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
 
       {actionResult ? (
         <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-          Updated locally:{" "}
+          Статус обновлён локально:{" "}
           <span className="font-medium text-foreground">{actionResult.action}</span>{" "}
-          → <span className="font-medium text-foreground">{actionResult.nextStatus}</span>
+          →{" "}
+          <span className="font-medium text-foreground">
+            {formatStatusLabelForSummary(actionResult.nextStatus)}
+          </span>
         </div>
       ) : null}
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Guide actions</CardTitle>
+          <CardTitle>Операции по бронированию</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Update the operational state locally. This is scaffold-only in the MVP baseline.
+            Фиксируйте, как идёт тур: подтверждение, завершение, отмены и неявки
+            отражаются только на этом устройстве.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <ActionButton
-              label="Confirm"
-              description="Lock this booking operationally."
+              label="Подтвердить"
+              description="Закрепить тур и ожидать гостей."
               icon={<CheckCircle2 className="size-4" />}
               disabled={!canConfirm}
               onClick={() => performAction("confirm")}
             />
             <ActionButton
-              label="Complete"
-              description="Mark trip as delivered."
+              label="Завершить"
+              description="Отметить тур как проведённый."
               icon={<CheckCircle2 className="size-4" />}
               disabled={!canComplete}
               onClick={() => performAction("complete")}
             />
             <ActionButton
-              label="Cancel"
-              description="Cancel the booking."
+              label="Отменить"
+              description="Зафиксировать отмену со стороны гида или гостя."
               icon={<XCircle className="size-4" />}
               disabled={!canCancel}
               onClick={() => performAction("cancel")}
             />
             <ActionButton
-              label="No-show"
-              description="Traveler didn’t show."
+              label="Неявка"
+              description="Гости не пришли к старту тура."
               icon={<ShieldAlert className="size-4" />}
               disabled={!canNoShow}
               onClick={() => performAction("no_show")}
@@ -173,10 +177,10 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button className="w-full sm:w-auto" disabled>
               <CreditCard className="size-4" />
-              Collect deposit (scaffold)
+              Взять залог (демо)
             </Button>
             <Button className="w-full sm:w-auto" variant="secondary" disabled>
-              Payout to guide (scaffold)
+              Выплата гиду (демо)
             </Button>
           </div>
         </CardContent>
@@ -185,15 +189,17 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
       <div className="grid gap-3 lg:grid-cols-2">
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>Traveler roster</CardTitle>
+            <CardTitle>Состав группы</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Who you’re hosting (seeded locally).
+              Кто едет на этот тур (данные сгенерированы локально).
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="secondary">{record.travelerRoster.length} travelers</Badge>
-              <Badge variant="outline">Primary contact highlighted</Badge>
+              <Badge variant="secondary">
+                {record.travelerRoster.length} участников
+              </Badge>
+              <Badge variant="outline">Основной контакт выделен</Badge>
             </div>
             <div className="grid gap-2">
               {record.travelerRoster.map((item) => (
@@ -209,9 +215,9 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
                       {item.displayName}
                     </p>
                     {item.isPrimaryContact ? (
-                      <Badge variant="secondary">Primary</Badge>
+                      <Badge variant="secondary">Основной контакт</Badge>
                     ) : (
-                      <Badge variant="outline">Roster</Badge>
+                      <Badge variant="outline">Участник</Badge>
                     )}
                   </div>
                   {item.notes ? (
@@ -225,15 +231,17 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
 
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>Itinerary summary</CardTitle>
+            <CardTitle>Сводка маршрута</CardTitle>
             <p className="text-sm text-muted-foreground">
-              A structured outline you can confirm and run.
+              Структура дня за днём, чтобы удобно вести тур по плану.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="outline">{record.itinerary.timezone}</Badge>
-              <Badge variant="secondary">{record.itinerary.days.length} days</Badge>
+              <Badge variant="secondary">
+                {record.itinerary.days.length} дней
+              </Badge>
             </div>
 
             <div className="space-y-3">
@@ -243,7 +251,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
                   className="rounded-lg border border-border/70 bg-background/60 p-3"
                 >
                   <p className="text-sm font-medium text-foreground">
-                    Day {day.day}: {day.title}
+                    День {day.day}: {day.title}
                   </p>
                   <ul className="mt-2 grid gap-1 text-sm text-muted-foreground">
                     {day.beats.map((beat) => (
@@ -259,7 +267,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
 
             {record.itinerary.notes ? (
               <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Notes</p>
+                <p className="text-xs text-muted-foreground">Заметки</p>
                 <p className="mt-1 text-sm text-foreground">{record.itinerary.notes}</p>
               </div>
             ) : null}
@@ -269,16 +277,29 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Payment framing</CardTitle>
+          <CardTitle>Деньги и залог</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Payment-ready only: line items and deposit framing are seeded; no real payment transport.
+            Суммы и залог показывают ориентировочную экономику тура. В этой версии нет
+            реальных платежей — только модель.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
-            <StatCard label="Deposit" value={formatRub(record.payment.depositRub)} helper={`Due ${formatDueDate(record.payment.depositDueAt)}`} />
-            <StatCard label="Total" value={formatRub(total)} helper="Seeded line items" />
-            <StatCard label="Payout estimate" value={formatRub(record.payment.payoutEstimateRub)} helper="After completion (scaffold)" />
+            <StatCard
+              label="Залог"
+              value={formatRub(record.payment.depositRub)}
+              helper={`Ориентировочно до ${formatDueDate(record.payment.depositDueAt)}`}
+            />
+            <StatCard
+              label="Сумма по туру"
+              value={formatRub(total)}
+              helper="Сумма по позициям стоимости"
+            />
+            <StatCard
+              label="Оценка выплаты гиду"
+              value={formatRub(record.payment.payoutEstimateRub)}
+              helper="После завершения тура (демо‑модель)"
+            />
           </div>
 
           <div className="grid gap-2">
@@ -408,5 +429,26 @@ function nextStatusForAction(
   }
 
   return null;
+}
+
+function formatStatusLabelForSummary(status: GuideBookingStatus) {
+  switch (status) {
+    case "awaiting_confirmation":
+      return "Ожидает подтверждения";
+    case "confirmed":
+      return "Подтверждена";
+    case "in_progress":
+      return "В процессе";
+    case "completed":
+      return "Завершена";
+    case "cancelled":
+      return "Отменена";
+    case "no_show":
+      return "Неявка";
+    default: {
+      const exhaustive: never = status;
+      return exhaustive;
+    }
+  }
 }
 

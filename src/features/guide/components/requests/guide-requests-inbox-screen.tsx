@@ -39,39 +39,77 @@ function formatExperienceType(value: string): string {
 export function GuideRequestsInboxScreen() {
   const items = getSeededTravelerRequests();
 
+  const summary = {
+    total: items.length,
+    highBudget:
+      items.filter((item) => item.request.budgetPerPersonRub >= 15000).length,
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <Badge variant="outline">Guide workspace</Badge>
+        <Badge variant="outline">Кабинет гида</Badge>
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Requests inbox
+            Входящие запросы
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Seeded traveler requests for MVP baseline. Open a request to draft an
-            offer locally.
+            Здесь появляются запросы путешественников. Открывайте карточку запроса,
+            чтобы разобрать задачу и собрать предложение под бюджет гостя.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild variant="secondary">
-            <Link href="/guide/bookings">Bookings workspace</Link>
+            <Link href="/guide/bookings">Бронирования</Link>
           </Button>
           <Button asChild variant="outline">
-            <Link href="/guide/listings">Manage listings</Link>
+            <Link href="/guide/listings">Мои программы</Link>
           </Button>
         </div>
       </div>
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Incoming requests</CardTitle>
+          <CardTitle>Сводка по запросам</CardTitle>
           <p className="text-sm text-muted-foreground">
-            {items.length} seeded request{items.length === 1 ? "" : "s"}.
+            Сколько запросов сейчас в очереди и сколько из них с высоким бюджетом.
+          </p>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+            <p className="text-xs text-muted-foreground">Всего запросов</p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              {summary.total}
+            </p>
+          </div>
+          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+            <p className="text-xs text-muted-foreground">Бюджет от 15 000 ₽</p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              {summary.highBudget}
+            </p>
+          </div>
+          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+            <p className="text-xs text-muted-foreground">Готовы к разбору</p>
+            <p className="mt-1 text-base font-semibold text-foreground">
+              {summary.total}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-border/70 bg-card/90">
+        <CardHeader className="space-y-1">
+          <CardTitle>Входящие запросы</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {items.length} запрос
+            {items.length === 1 ? "" : items.length > 1 && items.length < 5 ? "а" : "ов"}.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No requests yet.</p>
+            <p className="text-sm text-muted-foreground">
+              Пока нет новых запросов от путешественников.
+            </p>
           ) : (
             <div className="space-y-3">
               {items.map((item, index) => (
@@ -79,7 +117,7 @@ export function GuideRequestsInboxScreen() {
                   <Link
                     href={`/guide/requests/${item.id}`}
                     className="block rounded-xl border border-border/70 bg-background/60 p-4 transition-colors hover:bg-background"
-                    aria-label={`Open request from ${item.traveler.displayName}`}
+                    aria-label={`Открыть запрос от ${item.traveler.displayName}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
@@ -87,7 +125,7 @@ export function GuideRequestsInboxScreen() {
                           {item.traveler.displayName}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {formatExperienceType(item.request.experienceType)} in{" "}
+                          {formatExperienceType(item.request.experienceType)} в{" "}
                           <span className="font-medium text-foreground">
                             {item.request.destination}
                           </span>
@@ -100,16 +138,20 @@ export function GuideRequestsInboxScreen() {
 
                     <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                       <p>
-                        <span className="font-medium text-foreground">Dates:</span>{" "}
+                        <span className="font-medium text-foreground">Даты:</span>{" "}
                         {item.request.startDate} to {item.request.endDate}
                       </p>
                       <p>
-                        <span className="font-medium text-foreground">Group:</span>{" "}
+                        <span className="font-medium text-foreground">Группа:</span>{" "}
                         {item.request.groupSize} · {item.request.groupPreference}
                       </p>
                       <p className="sm:col-span-2">
-                        <span className="font-medium text-foreground">Budget:</span>{" "}
-                        RUB {item.request.budgetPerPersonRub.toLocaleString()} / person
+                        <span className="font-medium text-foreground">Бюджет:</span>{" "}
+                        ₽{" "}
+                        {item.request.budgetPerPersonRub.toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}{" "}
+                        на человека
                       </p>
                     </div>
 

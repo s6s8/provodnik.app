@@ -12,7 +12,7 @@ export default async function ProtectedLayout({
   const auth = await readAuthContextFromServer();
 
   return (
-    <div className="min-h-screen bg-muted/20">
+    <div className="min-h-screen bg-background">
       <SiteHeader />
       <WorkspaceRoleNav auth={auth} />
       <main className="mx-auto w-full max-w-7xl px-6 py-8 md:py-10">

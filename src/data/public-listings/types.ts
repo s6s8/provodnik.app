@@ -1,19 +1,19 @@
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 
 export type PublicListingTheme =
-  | "Food"
-  | "History"
-  | "Nature"
-  | "Photography"
-  | "Family"
-  | "Off-season";
+  | "Еда"
+  | "История"
+  | "Природа"
+  | "Фотография"
+  | "С семьей"
+  | "Несезон";
 
 export type PublicListingInclusion =
-  | "Guide time"
-  | "Local transport"
-  | "Museum tickets"
-  | "Tea & snacks"
-  | "Safety equipment";
+  | "Работа гида"
+  | "Локальный транспорт"
+  | "Билеты в музеи"
+  | "Чай и перекус"
+  | "Снаряжение";
 
 export type PublicListingItineraryItem = {
   title: string;

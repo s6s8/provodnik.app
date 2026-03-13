@@ -67,24 +67,24 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
   if (!record) {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-2">
-            <CardTitle>Request not found</CardTitle>
+            <CardTitle>Запрос не найден</CardTitle>
             <p className="text-sm text-muted-foreground">
-              This request ID doesn’t exist on this device.
+              На этом устройстве нет запроса с таким идентификатором.
             </p>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="secondary">
               <Link href="/traveler/requests">
                 <ArrowLeft className="size-4" />
-                Back to requests
+                Ко всем запросам
               </Link>
             </Button>
             <Button asChild>
               <Link href="/traveler/requests/new">
-                Create a request
+                Создать запрос
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -105,14 +105,14 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
           <Button asChild variant="ghost" className="-ml-3 px-3">
             <Link href="/traveler/requests">
               <ArrowLeft className="size-4" />
-              Requests
+              Мои запросы
             </Link>
           </Button>
           <TravelerRequestStatusBadge status={record.status} />
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">Traveler workspace</Badge>
+          <Badge variant="outline">Кабинет путешественника</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {record.request.destination}
           </h1>
@@ -132,28 +132,32 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Request summary</CardTitle>
+          <CardTitle>Кратко о запросе</CardTitle>
           <p className="text-sm text-muted-foreground">
-            A structured snapshot to compare guide responses.
+            Структурированное описание, чтобы сравнивать предложения гидов.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">{record.request.experienceType}</Badge>
-            <Badge variant="outline">{record.request.groupPreference}</Badge>
             <Badge variant="outline">
-              Budget {formatRub(record.request.budgetPerPersonRub)} / person
+              {record.request.groupPreference === "private"
+                ? "Только ваша компания"
+                : "Готовы к группе"}
+            </Badge>
+            <Badge variant="outline">
+              Бюджет {formatRub(record.request.budgetPerPersonRub)} на человека
             </Badge>
             <Badge variant="outline">
               {record.request.openToJoiningOthers
-                ? "Open to joining others"
-                : "Not joining others"}
+                ? "Можно присоединиться к другой группе"
+                : "Только отдельная группа"}
             </Badge>
           </div>
 
           {record.request.notes ? (
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Notes</p>
+              <p className="text-xs text-muted-foreground">Комментарии</p>
               <p className="mt-1 text-sm text-foreground">{record.request.notes}</p>
             </div>
           ) : null}
@@ -163,22 +167,22 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
       <div className="grid gap-3">
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-foreground">Offers</h2>
+            <h2 className="text-lg font-semibold text-foreground">Предложения гидов</h2>
             <p className="text-sm text-muted-foreground">
-              Seeded for demo purposes in MVP baseline.
+              Для примера показаны сгенерированные отклики от гидов.
             </p>
           </div>
           <Badge variant="outline">
-            {offers.length} offer{offers.length === 1 ? "" : "s"}
+            {offers.length} предложени{offers.length === 1 ? "е" : "я"}
           </Badge>
         </div>
 
         {offers.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-base">No offers yet</CardTitle>
+              <CardTitle className="text-base">Пока нет откликов</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Newly created local requests won’t have seeded offers.
+                Для только что созданных запросов отклики появятся позже.
               </p>
             </CardHeader>
           </Card>
@@ -189,9 +193,9 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Timeline</CardTitle>
+          <CardTitle>Хронология</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Activity for this request (seeded + fallback for local).
+            Что происходило с этим запросом по шагам.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -222,12 +226,12 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
           <div className="space-y-1">
             <CardTitle className="text-base">{offer.guide.name}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {offer.guide.homeBase} · {offer.guide.rating.toFixed(1)} rating ·{" "}
-              {offer.guide.completedTrips} trips
+              {offer.guide.homeBase} · оценка {offer.guide.rating.toFixed(1)} ·{" "}
+              {offer.guide.completedTrips} поездок
             </p>
           </div>
           <Badge variant={offer.status === "shortlisted" ? "default" : "outline"}>
-            {offer.status}
+            {offer.status === "shortlisted" ? "В избранном" : "Черновик"}
           </Badge>
         </div>
 
@@ -235,18 +239,21 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
 
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{formatRub(offer.priceTotalRub)}</Badge>
-          <Badge variant="outline">{offer.durationDays} days</Badge>
           <Badge variant="outline">
-            For {offer.groupSizeMin}-{offer.groupSizeMax} travelers
+            {offer.durationDays}{" "}
+            {offer.durationDays === 1 ? "день" : "дней"}
           </Badge>
           <Badge variant="outline">
-            Responds in ~{offer.guide.responseTimeHours}h
+            Для {offer.groupSizeMin}–{offer.groupSizeMax} путешественников
+          </Badge>
+          <Badge variant="outline">
+            Отвечает примерно за {offer.guide.responseTimeHours} ч
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Highlights</p>
+          <p className="text-xs font-medium text-muted-foreground">Особенности</p>
           <ul className="grid gap-1 text-sm text-foreground">
             {offer.highlights.map((item) => (
               <li key={item} className="rounded-md border border-border/70 p-2">
@@ -257,7 +264,7 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Included</p>
+          <p className="text-xs font-medium text-muted-foreground">Что включено</p>
           <div className="flex flex-wrap gap-2">
             {offer.included.map((item) => (
               <Badge key={item} variant="outline">
@@ -268,7 +275,7 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
         </div>
 
         <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-          <p className="text-xs text-muted-foreground">Message</p>
+          <p className="text-xs text-muted-foreground">Сообщение гида</p>
           <p className="mt-1 text-sm text-foreground">{offer.message}</p>
         </div>
       </CardContent>

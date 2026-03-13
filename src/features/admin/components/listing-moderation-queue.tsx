@@ -175,8 +175,8 @@ function formatAt(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
+    year: "2-digit",
+    month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
@@ -205,47 +205,47 @@ function matchesQuery(item: ModerationListing, query: string) {
 function riskLabel(key: ListingRiskKey) {
   switch (key) {
     case "newSeller":
-      return "New seller";
+      return "Новый продавец";
     case "priceOutlier":
-      return "Price outlier";
+      return "Аномальная цена";
     case "duplicateContent":
-      return "Duped content";
+      return "Дубли контента";
     case "keywordSpam":
-      return "Keyword spam";
+      return "Спам в тексте";
     case "geoMismatch":
-      return "Geo mismatch";
+      return "Несовпадение гео";
     case "riskyMedia":
-      return "Risky media";
+      return "Риск-медиа";
   }
 }
 
 function visibilityBadge(visibility: ListingVisibility) {
   switch (visibility) {
     case "draft":
-      return { label: "Draft", variant: "outline" as const };
+      return { label: "Черновик", variant: "outline" as const };
     case "published":
-      return { label: "Published", variant: "secondary" as const };
+      return { label: "Опубликовано", variant: "secondary" as const };
     case "hidden":
-      return { label: "Hidden", variant: "outline" as const };
+      return { label: "Скрыто", variant: "outline" as const };
     case "blocked":
-      return { label: "Blocked", variant: "destructive" as const };
+      return { label: "Заблокировано", variant: "destructive" as const };
     case "needs-changes":
-      return { label: "Needs changes", variant: "default" as const };
+      return { label: "Нужны правки", variant: "default" as const };
   }
 }
 
 function actionBadge(action: ModerationAction) {
   switch (action) {
     case "pending":
-      return { label: "Pending", variant: "outline" as const };
+      return { label: "В очереди", variant: "outline" as const };
     case "approve":
-      return { label: "Approved", variant: "secondary" as const };
+      return { label: "Одобрено", variant: "secondary" as const };
     case "hide":
-      return { label: "Hidden", variant: "outline" as const };
+      return { label: "Скрыто", variant: "outline" as const };
     case "block":
-      return { label: "Blocked", variant: "destructive" as const };
+      return { label: "Заблокировано", variant: "destructive" as const };
     case "request-changes":
-      return { label: "Needs changes", variant: "default" as const };
+      return { label: "Нужны правки", variant: "default" as const };
   }
 }
 
@@ -426,15 +426,14 @@ export function ListingModerationQueue() {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
-            <Badge variant="outline">Admin workspace</Badge>
+            <Badge variant="outline">Админ‑панель</Badge>
             <div className="space-y-1">
               <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Listing moderation
+                Модерация объявлений
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground">
-                Review new or risky listings, track risk signals, and apply visibility
-                actions. When an authenticated admin session is available, those
-                actions are written to Supabase listing and moderation records.
+                Проверяйте новые и рискованные объявления, оценивайте сигналы риска
+                и управляйте видимостью предложений на маркетплейсе.
               </p>
             </div>
           </div>
@@ -443,13 +442,13 @@ export function ListingModerationQueue() {
             <Button asChild type="button" variant="outline">
               <Link href="/admin">
                 <ClipboardList className="mr-1 size-4" />
-                Admin home
+                Проверка гидов
               </Link>
             </Button>
             <Button asChild type="button" variant="outline">
               <Link href="/admin/disputes">
                 <AlertTriangle className="mr-1 size-4" />
-                Disputes
+                Споры и возвраты
               </Link>
             </Button>
           </div>
@@ -460,18 +459,18 @@ export function ListingModerationQueue() {
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-lg">Queue controls</CardTitle>
+              <CardTitle className="text-lg">Фильтры очереди</CardTitle>
               <CardDescription>
-                Filter by moderation action and search across listing metadata.
+                Фильтруйте по действию модерации и ищите по названию, продавцу и ID.
               </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">All {counts.all}</Badge>
-              <Badge variant="outline">Pending {counts.pending}</Badge>
-              <Badge variant="outline">Approved {counts.approve}</Badge>
-              <Badge variant="outline">Needs changes {counts.requestChanges}</Badge>
-              <Badge variant="outline">Hidden {counts.hide}</Badge>
-              <Badge variant="outline">Blocked {counts.block}</Badge>
+              <Badge variant="outline">Все {counts.all}</Badge>
+              <Badge variant="outline">В очереди {counts.pending}</Badge>
+              <Badge variant="outline">Одобрено {counts.approve}</Badge>
+              <Badge variant="outline">Нужны правки {counts.requestChanges}</Badge>
+              <Badge variant="outline">Скрыто {counts.hide}</Badge>
+              <Badge variant="outline">Заблокировано {counts.block}</Badge>
             </div>
           </div>
 
@@ -482,8 +481,8 @@ export function ListingModerationQueue() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search title, seller, location, id, signals..."
-                aria-label="Search listings"
+                placeholder="Поиск по названию, продавцу, локации, ID, сигналам..."
+                aria-label="Поиск по объявлениям"
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -492,42 +491,42 @@ export function ListingModerationQueue() {
                 variant={actionFilter === "all" ? "secondary" : "outline"}
                 onClick={() => setActionFilter("all")}
               >
-                All
+                Все
               </Button>
               <Button
                 type="button"
                 variant={actionFilter === "pending" ? "secondary" : "outline"}
                 onClick={() => setActionFilter("pending")}
               >
-                Pending
+                В очереди
               </Button>
               <Button
                 type="button"
                 variant={actionFilter === "request-changes" ? "secondary" : "outline"}
                 onClick={() => setActionFilter("request-changes")}
               >
-                Needs changes
+                Нужны правки
               </Button>
               <Button
                 type="button"
                 variant={actionFilter === "approve" ? "secondary" : "outline"}
                 onClick={() => setActionFilter("approve")}
               >
-                Approved
+                Одобрено
               </Button>
               <Button
                 type="button"
                 variant={actionFilter === "hide" ? "secondary" : "outline"}
                 onClick={() => setActionFilter("hide")}
               >
-                Hidden
+                Скрыто
               </Button>
               <Button
                 type="button"
                 variant={actionFilter === "block" ? "secondary" : "outline"}
                 onClick={() => setActionFilter("block")}
               >
-                Blocked
+                Заблокировано
               </Button>
             </div>
           </div>
@@ -585,9 +584,9 @@ export function ListingModerationQueue() {
                           {item.listing.price.amount} {item.listing.price.currency}
                         </span>
                         <span className="text-muted-foreground/50">-</span>
-                        <span>Seller {item.listing.sellerDisplayName}</span>
+                <span>Продавец {item.listing.sellerDisplayName}</span>
                         <span className="text-muted-foreground/50">-</span>
-                        <span>Submitted {formatAt(item.submittedAt)}</span>
+                <span>Заявка от {formatAt(item.submittedAt)}</span>
                       </CardDescription>
                     </div>
 
@@ -600,7 +599,7 @@ export function ListingModerationQueue() {
                         }
                         aria-expanded={expanded}
                       >
-                        {expanded ? "Hide details" : "View details"}
+                {expanded ? "Свернуть" : "Показать детали"}
                       </Button>
                       <Button
                         type="button"
@@ -608,7 +607,7 @@ export function ListingModerationQueue() {
                         onClick={() => applyAction(item.id, "approve", "published")}
                       >
                         <Eye className="mr-1 size-4" />
-                        Publish
+                Опубликовать
                       </Button>
                       <Button
                         type="button"
@@ -616,7 +615,7 @@ export function ListingModerationQueue() {
                         onClick={() => applyAction(item.id, "request-changes", "needs-changes")}
                       >
                         <FileWarning className="mr-1 size-4" />
-                        Request changes
+                Запросить правки
                       </Button>
                       <Button
                         type="button"
@@ -624,7 +623,7 @@ export function ListingModerationQueue() {
                         onClick={() => applyAction(item.id, "hide", "hidden")}
                       >
                         <EyeOff className="mr-1 size-4" />
-                        Hide
+                Скрыть
                       </Button>
                       <Button
                         type="button"
@@ -632,7 +631,7 @@ export function ListingModerationQueue() {
                         onClick={() => applyAction(item.id, "block", "blocked")}
                       >
                         <Ban className="mr-1 size-4" />
-                        Block
+                Заблокировать
                       </Button>
                     </div>
                   </div>
@@ -643,7 +642,7 @@ export function ListingModerationQueue() {
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                         <Globe className="size-4" />
-                        <span>Languages: {item.listing.language.join(", ")}</span>
+                  <span>Языки: {item.listing.language.join(", ")}</span>
                       </div>
                       <p className="max-w-3xl text-sm text-foreground">{item.excerpt}</p>
                     </div>
@@ -651,12 +650,12 @@ export function ListingModerationQueue() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant={enabledRisk.length > 0 ? "default" : "outline"}>
                         <AlertTriangle className="mr-1 size-3" />
-                        Risk signals: {enabledRisk.length}/{riskKeys.length}
+                    Сигналы риска: {enabledRisk.length}/{riskKeys.length}
                       </Badge>
                       {item.policyNotes.length > 0 ? (
                         <Badge variant="outline">
                           <ClipboardList className="mr-1 size-3" />
-                          Policy notes: {item.policyNotes.length}
+                      Политики: {item.policyNotes.length}
                         </Badge>
                       ) : null}
                     </div>
@@ -669,7 +668,7 @@ export function ListingModerationQueue() {
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <div className="text-sm font-medium text-foreground">
-                            Risk signals
+                            Сигналы риска
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {riskKeys.map((key) => {
@@ -692,14 +691,14 @@ export function ListingModerationQueue() {
                             </ul>
                           ) : (
                             <div className="text-sm text-muted-foreground">
-                              No risk reasons recorded for this seed item.
+                              Объяснения сигналов риска для этого примера не заданы.
                             </div>
                           )}
                         </div>
 
                         <div className="space-y-2">
                           <div className="text-sm font-medium text-foreground">
-                            Policy notes
+                            Политики и требования
                           </div>
                           <div className="space-y-2">
                             {item.policyNotes.length === 0 ? (
@@ -732,17 +731,17 @@ export function ListingModerationQueue() {
 
                       <div className="space-y-2">
                         <div className="text-sm font-medium text-foreground">
-                          Moderation note
+                          Комментарий модерации
                         </div>
                         <Textarea
                           value={state.note}
                           onChange={(event) => setNote(item.id, event.target.value)}
-                          placeholder="Add rationale, evidence, required edits, or follow-ups..."
-                          aria-label="Moderation note"
+                          placeholder="Зафиксируйте обоснование решения, необходимые правки и ссылки на доказательства."
+                          aria-label="Комментарий модерации"
                         />
                         <div className="text-xs text-muted-foreground">
-                          Last action: {action.label}
-                          {state.decidedAt ? ` at ${formatAt(state.decidedAt)}` : ""}
+                          Последнее действие: {action.label}
+                          {state.decidedAt ? ` · ${formatAt(state.decidedAt)}` : ""}
                         </div>
                       </div>
                     </div>
@@ -751,7 +750,7 @@ export function ListingModerationQueue() {
 
                 <CardFooter className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
                   <div className="text-xs text-muted-foreground">
-                    Actions are stored locally and reset on refresh.
+            В демо‑режиме действия и заметки хранятся локально и сбрасываются при обновлении.
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
@@ -768,7 +767,7 @@ export function ListingModerationQueue() {
                         }))
                       }
                     >
-                      Reset action
+              Сбросить решение
                     </Button>
                   </div>
                 </CardFooter>

@@ -31,17 +31,16 @@ function formatRub(amount: number) {
 function formatExperienceType(value: TravelerRequestInboxItem["request"]["experienceType"]) {
   switch (value) {
     case "city":
-      return "City";
+      return "Город";
     case "nature":
-      return "Nature";
+      return "Природа";
     case "culture":
-      return "Culture";
+      return "Культура";
     case "food":
-      return "Food";
+      return "Еда";
     case "adventure":
-      return "Adventure";
     case "relax":
-      return "Relax";
+      return "Отдых";
     default: {
       const exhaustive: never = value;
       return exhaustive;
@@ -92,9 +91,9 @@ export function GuideRequestDetailScreen({
     resolver: zodResolver(guideOfferSchema),
     defaultValues: {
       priceTotalRub: inboxItem.request.budgetPerPersonRub * inboxItem.request.groupSize,
-      timingSummary: `Reply within 24h, start around ${inboxItem.request.startDate}`,
+      timingSummary: `Ответ в течение 24 часов, старт около ${inboxItem.request.startDate}`,
       capacity: Math.max(inboxItem.request.groupSize, 4),
-      inclusions: ["Guiding service", "Route planning", "Local recommendations"],
+      inclusions: ["Услуги гида", "Планирование маршрута", "Локальные рекомендации"],
       expiresAt: defaultExpiryValue(),
       notes: "",
     },
@@ -127,10 +126,10 @@ export function GuideRequestDetailScreen({
         <Button asChild variant="ghost" className="-ml-3 px-3">
           <Link href="/guide/requests">
             <ArrowLeft className="size-4" />
-            Requests inbox
+            Входящие запросы
           </Link>
         </Button>
-        <Badge variant="outline">Guide workspace</Badge>
+        <Badge variant="outline">Кабинет гида</Badge>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
@@ -138,11 +137,11 @@ export function GuideRequestDetailScreen({
           <CardHeader className="space-y-3">
             <div className="space-y-1">
               <CardTitle className="text-2xl">
-                Traveler request from {inboxItem.traveler.displayName}
+                Запрос от {inboxItem.traveler.displayName}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Build a structured offer around this request and keep it in
-                local state for MVP baseline.
+                Посмотрите, что важно гостю, и соберите предложение по маршруту, цене и
+                условиям под этот запрос.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -153,31 +152,30 @@ export function GuideRequestDetailScreen({
                 {inboxItem.request.startDate} to {inboxItem.request.endDate}
               </Badge>
               <Badge variant="outline">
-                {inboxItem.request.groupSize} traveler
-                {inboxItem.request.groupSize === 1 ? "" : "s"}
+                Группа {inboxItem.request.groupSize} чел.
               </Badge>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-3 sm:grid-cols-2">
               <InfoBlock
-                label="Destination"
+                label="Направление"
                 value={inboxItem.request.destination}
               />
               <InfoBlock
-                label="Group preference"
+                label="Формат группы"
                 value={inboxItem.request.groupPreference}
               />
               <InfoBlock
-                label="Budget / person"
+                label="Бюджет на человека"
                 value={formatRub(inboxItem.request.budgetPerPersonRub)}
               />
               <InfoBlock
-                label="Flexibility"
+                label="Гибкость по условиям"
                 value={
                   inboxItem.request.allowGuideSuggestionsOutsideConstraints
-                    ? "Open to nearby suggestions"
-                    : "Strict constraints"
+                    ? "Открыт к предложениям рядом по формату"
+                    : "Жёсткие ограничения по запросу"
                 }
               />
             </div>
@@ -185,28 +183,29 @@ export function GuideRequestDetailScreen({
             <Separator />
 
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Traveler note</p>
+              <p className="text-sm font-medium text-foreground">Комментарий гостя</p>
               <div className="rounded-lg border border-border/70 bg-background/60 p-3">
                 <p className="text-sm text-foreground">
-                  {inboxItem.request.notes || "No extra notes provided."}
+                  {inboxItem.request.notes || "Гость не добавил дополнительных комментариев."}
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">
-                Guide framing checklist
+                Чек‑лист гида перед ответом
               </p>
               <ul className="grid gap-2 text-sm text-muted-foreground">
                 <li className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  Address budget realism and whether the requested pace fits the
-                  destination.
+                  Оцените, реалистичен ли бюджет и совпадает ли темп поездки с
+                  направлением.
                 </li>
                 <li className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  Make timing explicit so the traveler can compare offers quickly.
+                  Сформулируйте сроки и формат по дням, чтобы гость быстро сравнил
+                  предложения.
                 </li>
                 <li className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  Keep inclusions structured and avoid vague free-form promises.
+                  Выпишите, что именно включено в цену, без размытых формулировок.
                 </li>
               </ul>
             </div>
@@ -216,21 +215,21 @@ export function GuideRequestDetailScreen({
         <div className="space-y-4">
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
-              <CardTitle>Structured offer composer</CardTitle>
+              <CardTitle>Конструктор предложения</CardTitle>
               <p className="text-sm text-muted-foreground">
-                This draft stays local. The goal is to shape the offer model
-                before backend persistence exists.
+                Черновик предложения хранится только на этом устройстве. Здесь вы
+                отрабатываете модель цены и условий.
               </p>
             </CardHeader>
             <CardContent>
               <form
                 className="grid gap-5"
                 onSubmit={handleSubmit(onSubmit)}
-                aria-label="Guide offer composer"
+                aria-label="Конструктор предложения гида"
               >
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <FieldLabel htmlFor="priceTotalRub">Total price (RUB)</FieldLabel>
+                    <FieldLabel htmlFor="priceTotalRub">Итоговая цена (RUB)</FieldLabel>
                     <Input
                       id="priceTotalRub"
                       type="number"
@@ -249,7 +248,7 @@ export function GuideRequestDetailScreen({
                   </div>
 
                   <div className="grid gap-2">
-                    <FieldLabel htmlFor="capacity">Capacity</FieldLabel>
+                    <FieldLabel htmlFor="capacity">Максимум гостей</FieldLabel>
                     <Input
                       id="capacity"
                       type="number"
@@ -267,10 +266,10 @@ export function GuideRequestDetailScreen({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="timingSummary">Timing summary</FieldLabel>
+                  <FieldLabel htmlFor="timingSummary">Сводка по таймингу</FieldLabel>
                   <Input
                     id="timingSummary"
-                    placeholder="e.g. 3-day route, morning starts, flexible weather swap"
+                    placeholder="Например, 3 дня, утренние старты, гибкий перенос по погоде"
                     aria-invalid={Boolean(errors.timingSummary)}
                     aria-describedby={
                       errors.timingSummary ? "timingSummary-error" : undefined
@@ -278,7 +277,7 @@ export function GuideRequestDetailScreen({
                     {...register("timingSummary")}
                   />
                   <FieldHint>
-                    Keep this tight enough to compare with other guide offers.
+                    Коротко и по делу, чтобы гость мог сравнить с другими предложениями.
                   </FieldHint>
                   <FieldError
                     id="timingSummary-error"
@@ -287,10 +286,10 @@ export function GuideRequestDetailScreen({
                 </div>
 
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="inclusions">Inclusions</FieldLabel>
+                  <FieldLabel htmlFor="inclusions">Что включено</FieldLabel>
                   <Input
                     id="inclusions"
-                    placeholder="Guiding service, museum tickets, transport support"
+                    placeholder="Например, сопровождение, билеты, помощь с транспортом"
                     value={inclusions.join(", ")}
                     onChange={(event) => {
                       setValue("inclusions", splitCommaList(event.target.value), {
@@ -304,8 +303,7 @@ export function GuideRequestDetailScreen({
                     }
                   />
                   <FieldHint>
-                    Use a comma-separated list. The traveler should understand
-                    exactly what is included.
+                    Перечислите через запятую. Гость должен понимать, за что платит.
                   </FieldHint>
                   <FieldError
                     id="inclusions-error"
@@ -319,7 +317,7 @@ export function GuideRequestDetailScreen({
 
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="grid gap-2">
-                    <FieldLabel htmlFor="expiresAt">Offer expires at</FieldLabel>
+                    <FieldLabel htmlFor="expiresAt">Срок действия предложения</FieldLabel>
                     <Input
                       id="expiresAt"
                       type="datetime-local"
@@ -333,10 +331,10 @@ export function GuideRequestDetailScreen({
                     />
                   </div>
                   <div className="grid gap-2">
-                    <FieldLabel htmlFor="notes">Offer note</FieldLabel>
+                    <FieldLabel htmlFor="notes">Комментарий гида</FieldLabel>
                     <Textarea
                       id="notes"
-                      placeholder="Explain pace, tradeoffs, or optional adjustments."
+                      placeholder="Опишите темп, возможные компромиссы и варианты настройки под гостя."
                       aria-invalid={Boolean(errors.notes)}
                       aria-describedby={errors.notes ? "notes-error" : undefined}
                       {...register("notes")}
@@ -347,10 +345,10 @@ export function GuideRequestDetailScreen({
 
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <Button type="submit" disabled={isSubmitting}>
-                    Save local draft
+                    Сохранить черновик
                   </Button>
                   <Button type="button" variant="outline" onClick={handleReset}>
-                    Reset
+                    Сбросить
                     <RotateCcw className="size-4" />
                   </Button>
                 </div>
@@ -365,36 +363,36 @@ export function GuideRequestDetailScreen({
                   <CheckCircle2 className="size-5" />
                 </div>
                 <div className="space-y-1">
-                  <CardTitle>Local draft saved</CardTitle>
+                  <CardTitle>Черновик предложения сохранён</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    This structured offer is not persisted yet, but the model is
-                    ready for backend wiring.
+                    Структура предложения сохранена локально и готова к последующей
+                    привязке к бэкенду и бронированиям.
                   </p>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
                 <InfoBlock
-                  label="Total price"
+                  label="Итоговая цена"
                   value={formatRub(submittedOffer.priceTotalRub)}
                 />
                 <InfoBlock
-                  label="Timing summary"
+                  label="Сводка по таймингу"
                   value={submittedOffer.timingSummary}
                 />
                 <InfoBlock
-                  label="Capacity"
-                  value={`${submittedOffer.capacity} travelers`}
+                  label="Максимум гостей"
+                  value={`${submittedOffer.capacity} человек`}
                 />
                 <InfoBlock
-                  label="Expires"
+                  label="Действительно до"
                   value={formatDateLabel(submittedOffer.expiresAt)}
                 />
                 <InfoBlock
-                  label="Inclusions"
+                  label="Что включено"
                   value={submittedOffer.inclusions.join(", ")}
                 />
                 {submittedOffer.notes ? (
-                  <InfoBlock label="Notes" value={submittedOffer.notes} />
+                  <InfoBlock label="Комментарий гида" value={submittedOffer.notes} />
                 ) : null}
               </CardContent>
             </Card>

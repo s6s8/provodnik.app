@@ -16,9 +16,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Provodnik",
+  title: "Provodnik — экскурсии и туры по России",
   description:
-    "Request-first marketplace baseline for tours and excursions across Russia.",
+    "Онлайн‑сервис бронирования экскурсий и авторских туров по России с местными гидами, понятной программой и прозрачными правилами.",
 };
 
 export default function RootLayout({

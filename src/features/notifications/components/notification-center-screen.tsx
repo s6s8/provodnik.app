@@ -61,14 +61,14 @@ export function NotificationCenterScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Notification center</Badge>
+        <Badge variant="outline">Центр уведомлений</Badge>
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Notifications
+            Уведомления
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            A unified feed for request, booking, and moderation events. Read state is
-            stored locally for the demo session role; no backend required.
+            Единая лента по заявкам, бронированиям и событиям модерации. Для
+            демо-режима статус прочтения хранится локально.
           </p>
         </div>
       </div>
@@ -81,7 +81,7 @@ export function NotificationCenterScreen() {
             variant={filter === "all" ? "secondary" : "outline"}
             onClick={() => setFilter("all")}
           >
-            All
+            Все
             <Badge variant="outline" className="ml-2 bg-background">
               {notifications.length}
             </Badge>
@@ -92,7 +92,7 @@ export function NotificationCenterScreen() {
             variant={filter === "unread" ? "secondary" : "outline"}
             onClick={() => setFilter("unread")}
           >
-            Unread
+            Непрочитанные
             <Badge
               variant={unreadCount === 0 ? "outline" : "secondary"}
               className="ml-2 bg-background"
@@ -112,7 +112,7 @@ export function NotificationCenterScreen() {
             markAllNotificationsRead(userId);
           }}
         >
-          Mark all read
+          Прочитать всё
           <Check className="size-4" />
         </Button>
       </div>
@@ -121,9 +121,10 @@ export function NotificationCenterScreen() {
         {visible.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
-              <CardTitle>No notifications</CardTitle>
+              <CardTitle>Пока пусто</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Seeded events will appear here as marketplace activity grows.
+                Новые события появятся здесь, когда в кабинете будут заявки,
+                бронирования и сообщения.
               </p>
             </CardHeader>
           </Card>
@@ -181,10 +182,10 @@ function NotificationCard({
               {isUnread ? (
                 <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
                   <Circle className="size-2 fill-primary text-primary" />
-                  Unread
+                  Новое
                 </span>
               ) : (
-                <span className="text-xs text-muted-foreground">Read</span>
+                <span className="text-xs text-muted-foreground">Прочитано</span>
               )}
             </div>
             <CardTitle className={cn("text-base", isUnread && "font-semibold")}>
@@ -206,7 +207,7 @@ function NotificationCard({
                 else markNotificationUnread(userId, notification.id);
               }}
             >
-              {isUnread ? "Mark read" : "Mark unread"}
+              {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
             </Button>
           </div>
         </div>
@@ -216,7 +217,7 @@ function NotificationCard({
             <Separator className="flex-1" />
             <Button asChild size="sm" variant="ghost">
               <Link href={notification.href}>
-                Open destination
+                Открыть событие
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
@@ -235,34 +236,34 @@ function getSeverityBadgeVariant(severity: NotificationSeverity) {
 }
 
 function labelSeverity(severity: NotificationSeverity) {
-  if (severity === "success") return "Success";
-  if (severity === "warning") return "Attention";
-  return "Info";
+  if (severity === "success") return "Готово";
+  if (severity === "warning") return "Важно";
+  return "Инфо";
 }
 
 function labelKind(kind: NotificationRecord["kind"]) {
   switch (kind) {
     case "request_update":
-      return "Request";
+      return "Заявка";
     case "new_offer":
-      return "Offer";
+      return "Предложение";
     case "booking_update":
-      return "Booking";
+      return "Бронирование";
     case "message":
-      return "Message";
+      return "Сообщение";
     case "review_reminder":
-      return "Review";
+      return "Отзыв";
     case "system":
-      return "System";
+      return "Система";
     default:
-      return "Update";
+      return "Обновление";
   }
 }
 
 function formatTimestamp(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("en-GB", {
+  return date.toLocaleString("ru-RU", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -276,9 +277,9 @@ function groupNotifications(items: NotificationRecord[]) {
   const startOfYesterday = startOfToday - 24 * 60 * 60 * 1000;
 
   const groups: { key: string; label: string; items: NotificationRecord[] }[] = [
-    { key: "today", label: "Today", items: [] },
-    { key: "yesterday", label: "Yesterday", items: [] },
-    { key: "earlier", label: "Earlier", items: [] },
+    { key: "today", label: "Сегодня", items: [] },
+    { key: "yesterday", label: "Вчера", items: [] },
+    { key: "earlier", label: "Раньше", items: [] },
   ];
 
   for (const item of items) {

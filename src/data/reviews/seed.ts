@@ -1,4 +1,4 @@
-import type { ReviewsSummary, ReviewRecord } from "@/data/reviews/types";
+import type { ReviewRecord, ReviewsSummary } from "@/data/reviews/types";
 
 function isoDaysAgo(daysAgo: number) {
   const value = new Date();
@@ -10,42 +10,42 @@ const seededReviews: readonly ReviewRecord[] = [
   {
     id: "rev_seed_maria_1",
     createdAt: isoDaysAgo(36),
-    author: { userId: "usr_traveler_irina", displayName: "Irina" },
+    author: { userId: "usr_traveler_irina", displayName: "Ирина" },
     target: { type: "guide", slug: "maria-rostov" },
     rating: 5,
-    title: "Compact route, great pacing",
-    body: "Fewer stops but higher signal. Clear logistics and flexible backup plan when it started raining.",
-    tags: ["pacing", "logistics", "food"],
+    title: "Очень точный темп и маршрут",
+    body: "Мария не пытается показать слишком много. Благодаря этому экскурсия получилась живой, а логистика была очень спокойной.",
+    tags: ["темп", "логистика", "еда"],
   },
   {
     id: "rev_seed_maria_2",
     createdAt: isoDaysAgo(12),
-    author: { userId: "usr_traveler_danylo", displayName: "Danylo" },
+    author: { userId: "usr_traveler_danylo", displayName: "Даниил" },
     target: { type: "guide", slug: "maria-rostov" },
     rating: 4,
-    title: "Good context, would book again",
-    body: "Loved the market route. A couple of stops were crowded, but the timing guidance helped a lot.",
-    tags: ["context", "markets"],
+    title: "Понравилось, поехал бы еще",
+    body: "Маршрут по рынку отличный, а подсказки по времени реально помогли. На выходных хотелось бы еще одну более тихую остановку.",
+    tags: ["контекст", "рынки"],
   },
   {
     id: "rev_seed_alexei_1",
     createdAt: isoDaysAgo(84),
-    author: { userId: "usr_traveler_mina", displayName: "Mina" },
+    author: { userId: "usr_traveler_mina", displayName: "Мина" },
     target: { type: "guide", slug: "alexei-baikal" },
     rating: 5,
-    title: "Safety-first and honest",
-    body: "Clear checkpoints, warm breaks, and realistic distances. Great for small-group winter travel.",
-    tags: ["safety", "winter", "photography"],
+    title: "Безопасно и честно",
+    body: "Алексей очень спокойно ведет группу, не обещает невозможного и всегда держит в голове запасной план по погоде.",
+    tags: ["безопасность", "зима", "фото"],
   },
   {
     id: "rev_seed_listing_rostov_food_walk_1",
     createdAt: isoDaysAgo(9),
-    author: { userId: "usr_traveler_you", displayName: "You" },
+    author: { userId: "usr_traveler_you", displayName: "Вы" },
     target: { type: "listing", slug: "rostov-food-walk" },
     rating: 5,
-    title: "Great for a short trip",
-    body: "Easy to follow and the itinerary felt intentional. Would be even better with 1–2 quieter stops on weekends.",
-    tags: ["short", "family"],
+    title: "Отлично для короткой поездки",
+    body: "Маршрут легко читается, а программа выглядит продуманной. На выходных добавил бы еще одну спокойную точку.",
+    tags: ["короткая поездка", "семья"],
   },
 ] as const;
 
@@ -89,4 +89,3 @@ export function getSeededReviewsSummaryForTarget(
     lastReviewAt,
   };
 }
-

@@ -26,7 +26,7 @@ function formatRub(amount: number) {
 function formatShortDateTime(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("en-GB", {
+  return date.toLocaleString("ru-RU", {
     day: "2-digit",
     month: "short",
     hour: "2-digit",
@@ -61,10 +61,10 @@ export function TravelerOpenRequestDetailScreen({
     if (!result.ok) {
       setMessage(
         result.reason === "full"
-          ? "This group is full."
+          ? "Группа уже набрана."
           : result.reason === "closed"
-            ? "This group is not accepting members."
-            : "Open request not found.",
+            ? "Группа больше не набирает участников."
+            : "Групповой запрос не найден.",
       );
     }
     refresh();
@@ -76,8 +76,8 @@ export function TravelerOpenRequestDetailScreen({
     if (!result.ok) {
       setMessage(
         result.reason === "organizer"
-          ? "Organizers can’t leave their own group in MVP baseline."
-          : "Open request not found.",
+          ? "Организатор не может покинуть свою группу в текущей версии."
+          : "Групповой запрос не найден.",
       );
     }
     refresh();
@@ -86,19 +86,19 @@ export function TravelerOpenRequestDetailScreen({
   if (!detail) {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-2">
-            <CardTitle>Open request not found</CardTitle>
+            <CardTitle>Группа не найдена</CardTitle>
             <p className="text-sm text-muted-foreground">
-              This request ID doesn’t exist in the seeded discovery list.
+              Такой групповой запрос в текущем списке не найден на этом устройстве.
             </p>
           </CardHeader>
           <CardContent>
             <Button asChild variant="secondary">
               <Link href="/traveler/open-requests">
                 <ArrowLeft className="size-4" />
-                Back to open requests
+                К списку групп
               </Link>
             </Button>
           </CardContent>
@@ -119,16 +119,16 @@ export function TravelerOpenRequestDetailScreen({
           <Button asChild variant="ghost" className="-ml-3 px-3">
             <Link href="/traveler/open-requests">
               <ArrowLeft className="size-4" />
-              Open requests
+              Открытые группы
             </Link>
           </Button>
           <Badge variant={detail.isJoined ? "default" : "outline"}>
-            {detail.isJoined ? "Joined" : "Not joined"}
+            {detail.isJoined ? "Вы в группе" : "Не в группе"}
           </Badge>
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">Traveler workspace</Badge>
+          <Badge variant="outline">Кабинет путешественника</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {record.destinationLabel}
           </h1>
@@ -139,9 +139,9 @@ export function TravelerOpenRequestDetailScreen({
             </span>
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
-              {record.group.sizeCurrent}/{record.group.sizeTarget} members ·{" "}
-              {detail.remainingSpots} spot{detail.remainingSpots === 1 ? "" : "s"}{" "}
-              left
+              {record.group.sizeCurrent}/{record.group.sizeTarget} участник
+              {record.group.sizeTarget === 1 ? "" : "ов"} · осталось{" "}
+              {detail.remainingSpots} мест
             </span>
           </div>
         </div>
@@ -149,9 +149,9 @@ export function TravelerOpenRequestDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Group overview</CardTitle>
+          <CardTitle>О группе</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Local-first demo. Actions update only this device.
+            Демо-режим: действия с группой сейчас меняют данные только на этом устройстве.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -159,11 +159,11 @@ export function TravelerOpenRequestDetailScreen({
             <Badge variant="secondary">{record.status}</Badge>
             <Badge variant="outline">{record.visibility}</Badge>
             <Badge variant="outline">
-              Updated {formatShortDateTime(record.updatedAt)}
+              Обновлено {formatShortDateTime(record.updatedAt)}
             </Badge>
             {typeof detail.economics.budgetPerPersonRub === "number" ? (
               <Badge variant="outline">
-                Budget {formatRub(detail.economics.budgetPerPersonRub)} / person
+                Бюджет {formatRub(detail.economics.budgetPerPersonRub)} на человека
               </Badge>
             ) : null}
           </div>
@@ -171,7 +171,7 @@ export function TravelerOpenRequestDetailScreen({
           <Separator />
 
           <div className="space-y-2">
-            <p className="text-xs font-medium text-muted-foreground">Highlights</p>
+            <p className="text-xs font-medium text-muted-foreground">Особенности</p>
             <ul className="grid gap-2 text-sm text-foreground">
               {record.highlights.map((item) => (
                 <li key={item} className="rounded-md border border-border/70 p-2">
@@ -183,28 +183,25 @@ export function TravelerOpenRequestDetailScreen({
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Remaining capacity</p>
+              <p className="text-xs text-muted-foreground">Свободные места</p>
               <p className="mt-1 text-sm text-foreground">
                 {record.group.openToMoreMembers && detail.remainingSpots > 0
-                  ? `${detail.remainingSpots} spot${
-                      detail.remainingSpots === 1 ? "" : "s"
-                    } available`
-                  : "Not accepting members"}
+                  ? `Осталось ${detail.remainingSpots} мест`
+                  : "Набор в группу закрыт"}
               </p>
             </div>
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
               <p className="text-xs text-muted-foreground">
-                Estimated group economics
+                Примерный бюджет группы
               </p>
               <p className="mt-1 text-sm text-foreground">
                 {typeof detail.economics.estimatedTotalCurrentRub === "number"
-                  ? `~${formatRub(detail.economics.estimatedTotalCurrentRub)} total at current size`
-                  : "No budget estimate"}
+                  ? `~${formatRub(detail.economics.estimatedTotalCurrentRub)} при текущем составе`
+                  : "Оценка бюджета не указана"}
               </p>
               {typeof detail.economics.estimatedTotalAtTargetRub === "number" ? (
                 <p className="mt-1 text-sm text-muted-foreground">
-                  ~{formatRub(detail.economics.estimatedTotalAtTargetRub)} at target
-                  size
+                  ~{formatRub(detail.economics.estimatedTotalAtTargetRub)} при целевом размере группы
                 </p>
               ) : null}
             </div>
@@ -219,16 +216,16 @@ export function TravelerOpenRequestDetailScreen({
           <div className="flex flex-col gap-2 sm:flex-row">
             {detail.isJoined ? (
               <Button type="button" variant="outline" onClick={handleLeave}>
-                Leave group
+                Выйти из группы
               </Button>
             ) : (
               <Button type="button" onClick={handleJoin} disabled={!canJoin}>
-                Join group
+                Присоединиться к группе
               </Button>
             )}
             <Button asChild variant="secondary">
               <Link href={`/traveler/requests/${record.travelerRequestId}`}>
-                View source request
+                Открыть исходный запрос
               </Link>
             </Button>
           </div>
@@ -237,9 +234,10 @@ export function TravelerOpenRequestDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Roster</CardTitle>
+          <CardTitle>Состав группы</CardTitle>
           <p className="text-sm text-muted-foreground">
-            {rosterCount} member{rosterCount === 1 ? "" : "s"} in this group.
+            В группе {rosterCount} участник
+            {rosterCount === 1 ? "" : "а"}.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -254,11 +252,11 @@ export function TravelerOpenRequestDetailScreen({
                     {member.displayName}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Joined {formatShortDateTime(member.joinedAt)}
+                    В группе с {formatShortDateTime(member.joinedAt)}
                   </p>
                 </div>
                 <Badge variant={member.role === "organizer" ? "secondary" : "outline"}>
-                  {member.role}
+                  {member.role === "organizer" ? "Организатор" : "Участник"}
                 </Badge>
               </div>
               {member.note ? (

@@ -1,39 +1,58 @@
 import Link from "next/link";
 
+const footerColumns = [
+  {
+    title: "Путешественникам",
+    links: [
+      { href: "/listings", label: "Каталог экскурсий" },
+      { href: "/traveler", label: "Личный кабинет" },
+      { href: "/trust", label: "Гарантии и поддержка" },
+    ],
+  },
+  {
+    title: "Сервис",
+    links: [
+      { href: "/guide", label: "Стать гидом" },
+      { href: "/policies/cancellation", label: "Правила отмены" },
+      { href: "/policies/refunds", label: "Возвраты" },
+    ],
+  },
+] as const;
+
 export function SiteFooter() {
   return (
-    <footer className="border-t border-border/60 bg-background/95">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-6 py-8 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
-        <div>
-          <p className="font-medium text-foreground">Provodnik</p>
-          <p>Marketplace baseline for the Russia tours MVP.</p>
+    <footer className="border-t border-white/50 bg-[rgba(246,241,233,0.94)]">
+      <div className="mx-auto grid w-full max-w-[1280px] gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_0.9fr] lg:px-8">
+        <div className="space-y-4">
+          <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+            Provodnik
+          </p>
+          <h2 className="max-w-md text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Удобное бронирование экскурсий без хаоса в переписке и скрытых условий.
+          </h2>
+          <p className="max-w-xl text-sm leading-7 text-muted-foreground">
+            Подбирайте маршруты по городу, длительности и формату, а если готового
+            тура нет, отправляйте заявку и получайте ответ от живого гида.
+          </p>
         </div>
-        <div className="flex flex-wrap gap-x-6 gap-y-2">
-          <div className="flex gap-4">
-            <Link href="/traveler" className="transition-colors hover:text-foreground">
-              Traveler
-            </Link>
-            <Link href="/guide" className="transition-colors hover:text-foreground">
-              Guide
-            </Link>
-            <Link href="/admin" className="transition-colors hover:text-foreground">
-              Admin
-            </Link>
-          </div>
-          <div className="flex gap-4">
-            <Link href="/trust" className="transition-colors hover:text-foreground">
-              Trust
-            </Link>
-            <Link
-              href="/policies/cancellation"
-              className="transition-colors hover:text-foreground"
-            >
-              Cancellation
-            </Link>
-            <Link href="/policies/refunds" className="transition-colors hover:text-foreground">
-              Refunds
-            </Link>
-          </div>
+
+        <div className="grid gap-8 sm:grid-cols-2">
+          {footerColumns.map((column) => (
+            <div key={column.title} className="space-y-4">
+              <p className="text-sm font-semibold text-foreground">{column.title}</p>
+              <div className="grid gap-3 text-sm text-muted-foreground">
+                {column.links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="transition-colors hover:text-foreground"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </footer>

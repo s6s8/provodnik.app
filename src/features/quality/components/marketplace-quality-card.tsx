@@ -11,8 +11,8 @@ import {
 import type { MarketplaceQualitySnapshot } from "@/data/quality/seed";
 
 function formatResponseTime(hours: number) {
-  if (hours < 1) return `${Math.round(hours * 60)} min`;
-  return `${hours.toFixed(1)} h`;
+  if (hours < 1) return `${Math.round(hours * 60)} мин`;
+  return `${hours.toFixed(1)} ч`;
 }
 
 function tierVariant(tier: MarketplaceQualitySnapshot["tier"]) {
@@ -48,28 +48,28 @@ export function MarketplaceQualityCard({
         <div className="grid gap-3 sm:grid-cols-3">
           <MetricTile
             icon={<TimerReset className="size-4" />}
-            label="Response"
+            label="Ответ"
             value={formatResponseTime(snapshot.responseTimeHours)}
-            helper="Median reply speed"
+            helper="Среднее время ответа"
           />
           <MetricTile
             icon={<Gauge className="size-4" />}
-            label="Completion"
+            label="Завершение"
             value={`${snapshot.completionRate}%`}
-            helper="Trips completed"
+            helper="Завершённые поездки"
           />
           <MetricTile
             icon={<Activity className="size-4" />}
-            label="Cancellation"
+            label="Отмена"
             value={`${snapshot.cancellationRate}%`}
-            helper="Trips cancelled"
+            helper="Отменённые поездки"
           />
         </div>
 
         <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
           <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
             <ShieldAlert className="size-4" />
-            Visibility logic
+            Логика видимости
           </div>
           <p className="text-sm text-muted-foreground">{snapshot.visibilityNote}</p>
         </div>

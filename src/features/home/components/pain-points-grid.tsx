@@ -1,62 +1,64 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Camera, Castle, Snowflake, UtensilsCrossed } from "lucide-react";
 
-const painPoints = [
+const categories = [
   {
-    title: "Fragmented traveler demand",
-    description:
-      "Requests currently leak across Telegram, phone calls, and personal contacts with no structured qualification.",
+    title: "Гастрономия",
+    description: "Рынки, локальные кухни, винодельни и понятный темп без перегруза.",
+    icon: UtensilsCrossed,
   },
   {
-    title: "Manual group assembly",
-    description:
-      "Budget-sensitive users have to find each other manually instead of joining a clear, shared request state.",
+    title: "История и города",
+    description: "Прогулки по центру, крепости, музеи и маршруты на день.",
+    icon: Castle,
   },
   {
-    title: "Weak unified trust layer",
-    description:
-      "Reputation, verification, and booking confidence are split across channels rather than attached to a single transaction.",
+    title: "Природа и сезон",
+    description: "Байкал, ледовые маршруты, побережье и выезды под погоду.",
+    icon: Snowflake,
   },
   {
-    title: "Guide-side operational drag",
-    description:
-      "High commission and poor lead quality waste guide time and margin before the tour even starts.",
+    title: "Фотопоездки",
+    description: "Свет, точки съемки и паузы для фото уже заложены в маршрут.",
+    icon: Camera,
   },
-];
+] as const;
 
 export function PainPointsGrid() {
   return (
-    <section className="space-y-6">
-      <div className="space-y-2">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          Pain points the MVP is designed to remove
+    <section className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+      <div className="space-y-4">
+        <p className="editorial-kicker">Популярные форматы</p>
+        <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+          Не каталог ради каталога, а понятные сценарии поездки.
         </h2>
-        <p className="max-w-3xl text-muted-foreground">
-          The baseline is deliberately shaped around marketplace friction, not
-          around generic brochure-site concerns.
+        <p className="max-w-lg text-sm leading-7 text-muted-foreground sm:text-base">
+          На витрине сразу видно длительность, размер группы и ожидания по темпу.
+          Поэтому пользователю проще выбрать экскурсию, а не читать длинное
+          описание и гадать, подойдет ли она семье, паре или друзьям.
         </p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {painPoints.map((painPoint) => (
-          <Card key={painPoint.title} className="border-border/70 bg-card/80">
-            <CardHeader>
-              <CardTitle className="text-lg">{painPoint.title}</CardTitle>
-              <CardDescription className="leading-6">
-                {painPoint.description}
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="pt-0 text-sm text-muted-foreground">
-              Captured directly in the MVP scope and release slices documented
-              in `MVP.md`.
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-2">
+        {categories.map((item) => {
+          const Icon = item.icon;
+
+          return (
+            <article
+              key={item.title}
+              className="section-frame rounded-[1.8rem] p-5 sm:p-6"
+            >
+              <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                <Icon className="size-5" />
+              </div>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                {item.description}
+              </p>
+            </article>
+          );
+        })}
       </div>
     </section>
   );

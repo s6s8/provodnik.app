@@ -61,20 +61,21 @@ export function TravelerOpenRequestsScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Open requests
+              Открытые группы
             </h1>
             <p className="max-w-3xl text-base text-muted-foreground">
-              Discover seeded traveler groups that are forming and join locally.
-              This is local-first in MVP baseline: it updates only on this device.
+              Здесь появляются примеры групповых запросов на поездки. Можно
+              присоединиться к группе — изменения пока сохраняются только на
+              этом устройстве.
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
             <Button asChild variant="secondary">
-              <Link href="/traveler/requests">Your requests</Link>
+              <Link href="/traveler/requests">Мои запросы</Link>
             </Button>
           </div>
         </div>
@@ -91,11 +92,11 @@ export function TravelerOpenRequestsScreen() {
 
 function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
 
-  const joinedLabel = item.isJoined ? "Joined" : "Not joined";
+  const joinedLabel = item.isJoined ? "Вы в группе" : "Не в группе";
   const spotsLabel =
     item.record.group.openToMoreMembers && item.remainingSpots > 0
-      ? `${item.remainingSpots} spot${item.remainingSpots === 1 ? "" : "s"} left`
-      : "Not accepting members";
+      ? `Осталось ${item.remainingSpots} мест`
+      : "Набор в группу закрыт";
 
   return (
     <Card className="border-border/70 bg-card/90">
@@ -130,7 +131,7 @@ function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
           <Badge variant="outline">{spotsLabel}</Badge>
           {typeof item.record.budgetPerPersonRub === "number" ? (
             <Badge variant="outline">
-              {formatRub(item.record.budgetPerPersonRub)} / person
+              {formatRub(item.record.budgetPerPersonRub)} на человека
             </Badge>
           ) : null}
           <Badge variant="outline">{item.record.visibility}</Badge>
@@ -138,14 +139,14 @@ function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-xs font-medium text-muted-foreground">Highlights</p>
+          <p className="text-xs font-medium text-muted-foreground">Особенности</p>
           <p className="mt-1 line-clamp-2 text-sm text-foreground">
             {item.record.highlights.join(" · ")}
           </p>
         </div>
         <Button asChild variant="secondary" className="shrink-0">
           <Link href={`/traveler/open-requests/${item.record.id}`}>
-            Details
+            Подробнее
             <ArrowRight className="size-4" />
           </Link>
         </Button>

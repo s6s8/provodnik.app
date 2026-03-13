@@ -48,8 +48,8 @@ function formatAt(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
+    year: "2-digit",
+    month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
@@ -59,71 +59,71 @@ function formatAt(iso: string) {
 function actorLabel(actor: DisputeTimelineActor) {
   switch (actor) {
     case "traveler":
-      return "Traveler";
+      return "Гость";
     case "guide":
-      return "Guide";
+      return "Гид";
     case "system":
-      return "System";
+      return "Система";
     case "admin":
-      return "Admin";
+      return "Оператор";
   }
 }
 
 function eventTypeLabel(type: DisputeTimelineEventType) {
   switch (type) {
     case "opened":
-      return "Opened";
+      return "Создано";
     case "message":
-      return "Message";
+      return "Сообщение";
     case "evidence":
-      return "Evidence";
+      return "Доказательства";
     case "booking-update":
-      return "Booking update";
+      return "Обновление брони";
     case "payout-freeze":
-      return "Payout posture";
+      return "Поза выплат";
     case "internal-note":
-      return "Internal note";
+      return "Внутренняя заметка";
     case "decision":
-      return "Decision";
+      return "Решение";
   }
 }
 
 function severityBadge(severity: DisputeSeverity) {
   switch (severity) {
     case "low":
-      return { label: "Low", variant: "outline" as const, Icon: Clock };
+      return { label: "Низкий", variant: "outline" as const, Icon: Clock };
     case "medium":
-      return { label: "Medium", variant: "default" as const, Icon: AlertTriangle };
+      return { label: "Средний", variant: "default" as const, Icon: AlertTriangle };
     case "high":
-      return { label: "High", variant: "default" as const, Icon: ShieldAlert };
+      return { label: "Высокий", variant: "default" as const, Icon: ShieldAlert };
     case "critical":
-      return { label: "Critical", variant: "destructive" as const, Icon: AlertOctagon };
+      return { label: "Критический", variant: "destructive" as const, Icon: AlertOctagon };
   }
 }
 
 function freezeBadge(posture: PayoutFreezePosture) {
   switch (posture) {
     case "not-frozen":
-      return { label: "No freeze", variant: "outline" as const };
+      return { label: "Без блокировки", variant: "outline" as const };
     case "soft-freeze":
-      return { label: "Soft freeze", variant: "default" as const };
+      return { label: "Мягкая блокировка", variant: "default" as const };
     case "hard-freeze":
-      return { label: "Hard freeze", variant: "destructive" as const };
+      return { label: "Жёсткая блокировка", variant: "destructive" as const };
   }
 }
 
 function outcomeLabel(outcome: DisputeDecisionOutcome) {
   switch (outcome) {
     case "refund-recommended":
-      return "Recommend refund";
+      return "Рекомендован полный возврат";
     case "partial-refund-recommended":
-      return "Recommend partial refund";
+      return "Рекомендован частичный возврат";
     case "goodwill-credit-recommended":
-      return "Recommend goodwill credit";
+      return "Рекомендован бонус/кредит";
     case "refund-denied":
-      return "Deny refund";
+      return "Отказать в возврате";
     case "no-action":
-      return "No action";
+      return "Без действия";
   }
 }
 
@@ -257,14 +257,12 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
     return (
       <Card className="border-border/70 bg-card/90">
         <CardHeader>
-          <CardTitle className="text-lg">Case not found</CardTitle>
-          <CardDescription>
-            This seed dataset includes {DEFAULT_DISPUTE_CASES.length} cases.
-          </CardDescription>
+          <CardTitle className="text-lg">Спор не найден</CardTitle>
+          <CardDescription>В демо‑наборе {DEFAULT_DISPUTE_CASES.length} споров.</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button asChild variant="outline" type="button">
-            <Link href="/admin/disputes">Back to disputes queue</Link>
+            <Link href="/admin/disputes">Вернуться к очереди споров</Link>
           </Button>
         </CardFooter>
       </Card>
@@ -282,20 +280,19 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-2">
-            <Badge variant="outline">Admin workspace</Badge>
+            <Badge variant="outline">Админ‑панель</Badge>
             <div className="space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                  Dispute case
+                  Карточка спора
                 </h1>
                 <Badge variant="outline" className="bg-background">
                   {dispute.id}
                 </Badge>
               </div>
               <p className="max-w-3xl text-base text-muted-foreground">
-                This view is designed for auditability: it collects posture, evidence
-                references, policy context, and operator notes. It does not execute
-                refunds or payment actions.
+                Экран для работы со спором: блокировка выплат, доказательства, контекст
+                политики и комментарии оператора. Платёжные действия не выполняются.
               </p>
             </div>
           </div>
@@ -304,19 +301,19 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
             <Button asChild type="button" variant="outline">
               <Link href="/admin/disputes">
                 <ClipboardList className="mr-1 size-4" />
-                Disputes queue
+                Очередь споров
               </Link>
             </Button>
             <Button asChild type="button" variant="outline">
               <Link href="/admin">
                 <TimerReset className="mr-1 size-4" />
-                Guide review
+                Проверка гидов
               </Link>
             </Button>
             <Button asChild type="button" variant="outline">
               <Link href="/admin/listings">
                 <FileSearch className="mr-1 size-4" />
-                Listings
+                Объявления
               </Link>
             </Button>
           </div>
@@ -331,7 +328,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                 {dispute.parties.travelerDisplayName} vs {dispute.parties.guideDisplayName}
               </CardTitle>
               <CardDescription className="flex flex-wrap gap-x-2 gap-y-1">
-                <span>Booking {dispute.booking.id}</span>
+                <span>Бронь {dispute.booking.id}</span>
                 <span className="text-muted-foreground/50">-</span>
                 <span>{dispute.booking.routeLabel}</span>
                 <span className="text-muted-foreground/50">-</span>
@@ -339,7 +336,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                   {dispute.booking.amount.amount} {dispute.booking.amount.currency}
                 </span>
                 <span className="text-muted-foreground/50">-</span>
-                <span>Booking status: {dispute.booking.status}</span>
+                <span>Статус брони: {dispute.booking.status}</span>
               </CardDescription>
             </div>
 
@@ -355,7 +352,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                 {freeze.label}
               </Badge>
               <Badge variant="outline">
-                Policy: {dispute.policyKey.replaceAll("-", " ")}
+                Политика: {dispute.policyKey.replaceAll("-", " ")}
               </Badge>
             </div>
           </div>
@@ -364,27 +361,27 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
 
           <div className="grid gap-4 md:grid-cols-3">
             <div className="space-y-1">
-              <div className="text-sm font-medium text-foreground">Case timestamps</div>
+              <div className="text-sm font-medium text-foreground">Временные метки</div>
               <div className="text-sm text-muted-foreground">
-                Opened {formatAt(dispute.createdAt)}
+                Создано {formatAt(dispute.createdAt)}
               </div>
               <div className="text-sm text-muted-foreground">
-                Updated {formatAt(dispute.updatedAt)}
+                Обновлено {formatAt(dispute.updatedAt)}
               </div>
             </div>
             <div className="space-y-1">
-              <div className="text-sm font-medium text-foreground">Payout posture</div>
+              <div className="text-sm font-medium text-foreground">Поза выплат</div>
               <div className="text-sm text-muted-foreground">{dispute.payout.reason}</div>
               {dispute.payout.frozenAt ? (
                 <div className="text-sm text-muted-foreground">
-                  Applied {formatAt(dispute.payout.frozenAt)}
+                  Применено {formatAt(dispute.payout.frozenAt)}
                 </div>
               ) : null}
             </div>
             <div className="space-y-1">
-              <div className="text-sm font-medium text-foreground">Next actions</div>
+              <div className="text-sm font-medium text-foreground">Следующие действия</div>
               <div className="text-sm text-muted-foreground">
-                {completedActions}/{dispute.nextActions.length} marked complete locally
+                {completedActions}/{dispute.nextActions.length} помечено выполненным (локально)
               </div>
             </div>
           </div>
@@ -392,7 +389,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
 
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <div className="text-sm font-medium text-foreground">Case summary</div>
+            <div className="text-sm font-medium text-foreground">Краткое описание спора</div>
             <div className="rounded-md border border-border/70 bg-background/40 p-3 text-sm text-foreground">
               {dispute.summary}
             </div>
@@ -401,8 +398,8 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="space-y-3 lg:col-span-2">
               <div className="flex items-center justify-between gap-3">
-                <div className="text-sm font-medium text-foreground">Timeline</div>
-                <Badge variant="outline">{dispute.timeline.length} events</Badge>
+                <div className="text-sm font-medium text-foreground">Хронология</div>
+                <Badge variant="outline">{dispute.timeline.length} событий</Badge>
               </div>
               <div className="space-y-2">
                 {dispute.timeline.map((event) => (
@@ -433,7 +430,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
             </div>
 
             <div className="space-y-3">
-              <div className="text-sm font-medium text-foreground">Policy context</div>
+              <div className="text-sm font-medium text-foreground">Контекст политики</div>
               <div className="space-y-2">
                 {dispute.policyContext.map((note) => (
                   <div
@@ -453,7 +450,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between gap-2">
-                  <div className="text-sm font-medium text-foreground">Payout freeze posture</div>
+                  <div className="text-sm font-medium text-foreground">Поза блокировки выплат</div>
                   <Badge variant={freeze.variant}>
                     <Snowflake className="mr-1 size-3.5" />
                     {freeze.label}
@@ -475,8 +472,8 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {backendMode === "supabase"
-                    ? "This updates dispute posture in Supabase; it still does not execute any payment action."
-                    : "This only records operator posture locally; it does not freeze funds."}
+                    ? "Изменяет позу выплат в записи спора (Supabase). Платёж не исполняется."
+                    : "Фиксируется только локальная поза оператора; средства не блокируются."}
                 </div>
               </div>
             </div>
@@ -487,10 +484,10 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2">
-                <div className="text-sm font-medium text-foreground">Internal notes</div>
+                <div className="text-sm font-medium text-foreground">Внутренние заметки</div>
                 <Badge variant="outline">
                   <MessageSquareText className="mr-1 size-3.5" />
-                  {backendMode === "supabase" ? "Persisted" : "Local-only"}
+                  {backendMode === "supabase" ? "В базе" : "Только локально"}
                 </Badge>
               </div>
               <Textarea
@@ -513,18 +510,18 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                     payload: undefined,
                   });
                 }}
-                placeholder="Record evidence references, policy rationale, and communication posture. Avoid speculation; cite timestamps and artifacts."
-                aria-label="Internal operator notes"
+              placeholder="Фиксируйте ссылки на доказательства, обоснование по политике и позицию коммуникации. Избегайте догадок; ссылайтесь на события и артефакты."
+              aria-label="Внутренние заметки оператора"
               />
               <div className="text-xs text-muted-foreground">
                 {backendMode === "supabase"
-                  ? "Save the admin update below to write notes and resolution state to Supabase."
-                  : "Notes are stored in component state and reset on refresh."}
+                  ? "Сохраните обновление ниже, чтобы записать заметки и состояние решения в Supabase."
+                  : "В демо‑режиме заметки живут в состоянии компонента и сбрасываются при обновлении."}
               </div>
             </div>
 
             <div className="space-y-2">
-              <div className="text-sm font-medium text-foreground">Next actions checklist</div>
+              <div className="text-sm font-medium text-foreground">Чек‑лист действий</div>
               <div className="space-y-2">
                 {dispute.nextActions.map((action) => {
                   const done = local.actionChecks[action.key] ?? false;
@@ -542,8 +539,8 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                             {action.title}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            Owner: {action.owner}
-                            {action.dueAt ? ` · Due ${formatAt(action.dueAt)}` : ""}
+                            Ответственный: {action.owner}
+                            {action.dueAt ? ` · до {formatAt(action.dueAt)}` : ""}
                           </div>
                         </div>
                         <Button
@@ -553,7 +550,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                           onClick={() => toggleAction(action.key)}
                           aria-pressed={done}
                         >
-                          {done ? "Marked done" : "Mark done"}
+                          {done ? "Отмечено" : "Отметить выполненным"}
                         </Button>
                       </div>
                     </div>
@@ -567,10 +564,10 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
 
           <div className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-medium text-foreground">Operator decision (draft)</div>
+              <div className="text-sm font-medium text-foreground">Решение оператора (черновик)</div>
               <Badge variant="outline">
                 <AlertTriangle className="mr-1 size-3.5" />
-                No execution
+                Без исполнения
               </Badge>
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -580,7 +577,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                 variant={local.operatorOutcome === "unset" ? "secondary" : "outline"}
                 onClick={() => setLocal((prev) => ({ ...prev, operatorOutcome: "unset" }))}
               >
-                Unset
+                Не выбрано
               </Button>
               {(
                 [
@@ -624,13 +621,13 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                   },
                 });
               }}
-              placeholder="Draft rationale and next communication. Keep it factual and reference timeline evidence."
-              aria-label="Decision draft rationale"
+              placeholder="Черновик обоснования и следующего шага коммуникации. Пишите по фактам, ссылайтесь на события и доказательства."
+              aria-label="Черновик обоснования решения"
             />
             <div className="text-xs text-muted-foreground">
               {backendMode === "supabase"
-                ? "Use save to write this operator decision into the dispute record and notes log."
-                : "This is a decision draft only. A real system would create an auditable record and route for approval."}
+                ? "Кнопка сохранения ниже зафиксирует решение и заметки в записи спора."
+                : "В демо‑режиме это только черновик, без создания формального маршрута согласования."}
             </div>
           </div>
         </CardContent>
@@ -638,8 +635,8 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
         <CardFooter className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
           <div className="text-xs text-muted-foreground">
             {backendMode === "supabase"
-              ? "This dispute detail is backed by Supabase records."
-              : "All interactions here are local-first scaffolding."}
+              ? "Спор загружается из Supabase и сохраняет изменения."
+              : "В демо‑режиме все изменения живут локально и не затрагивают реальные данные."}
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button
@@ -663,7 +660,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
               }}
               disabled={backendMode !== "supabase" || saving}
             >
-              {saving ? "Saving..." : "Save admin update"}
+              {saving ? "Сохранение..." : "Сохранить обновление"}
             </Button>
             <Button
               type="button"
@@ -685,9 +682,9 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                   payload: undefined,
                 });
               }}
-              aria-label="Reset local annotations"
+              aria-label="Сбросить локальные пометки"
             >
-              Reset local draft
+              Сбросить черновик
             </Button>
           </div>
         </CardFooter>

@@ -1,66 +1,65 @@
-import { ShieldCheck, Sparkles, Wallet, Zap } from "lucide-react";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-
-const items = [
+const steps = [
   {
-    title: "Lower-friction demand capture",
+    number: "01",
+    title: "Выбираете маршрут или город",
     description:
-      "Travelers can create structured requests instead of forcing every need into a listing-first funnel.",
-    icon: Sparkles,
+      "Сначала смотрите готовые экскурсии по цене, длительности и формату группы.",
   },
   {
-    title: "Fast response discipline",
+    number: "02",
+    title: "Отправляете заявку",
     description:
-      "Guide response time is a product primitive because slow supply kills marketplace conversion.",
-    icon: Zap,
+      "Если нужен маршрут под даты или особый формат, отправляете запрос с бюджетом и составом группы.",
   },
   {
-    title: "Trust that survives scale",
+    number: "03",
+    title: "Гид подтверждает детали",
     description:
-      "Verification, reviews, moderation, and explicit booking states are part of the MVP baseline.",
-    icon: ShieldCheck,
+      "В карточке видно, кто ведет маршрут, какие есть отзывы и как быстро обычно отвечают.",
   },
   {
-    title: "Healthy guide economics",
+    number: "04",
+    title: "Бронируете без сюрпризов",
     description:
-      "The product is positioned around lower commission and better-qualified demand than incumbent channels.",
-    icon: Wallet,
+      "До оплаты понятны условия отмены, возвратов и что точно входит в программу.",
   },
-];
+] as const;
 
 export function FoundationGrid() {
   return (
-    <section className="grid gap-4 lg:grid-cols-2">
-      {items.map((item) => {
-        const Icon = item.icon;
+    <section className="section-frame rounded-[2.4rem] p-6 sm:p-8 lg:p-10">
+      <div className="grid gap-8 lg:grid-cols-[0.78fr_1.22fr]">
+        <div className="space-y-4">
+          <p className="editorial-kicker">Как это работает</p>
+          <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Бронирование строится вокруг ясного решения, а не переписки наугад.
+          </h2>
+          <p className="max-w-md text-sm leading-7 text-muted-foreground sm:text-base">
+            Логика сервиса простая: сначала выбор маршрута, потом подтверждение
+            деталей и только после этого финальное бронирование. Так турист видит,
+            за что он платит и кто именно ведет программу.
+          </p>
+        </div>
 
-        return (
-          <Card key={item.title} className="border-border/70 bg-card/80">
-            <CardHeader className="space-y-4">
-              <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                <Icon className="size-5" />
-              </div>
-              <div className="space-y-2">
-                <CardTitle>{item.title}</CardTitle>
-                <CardDescription className="text-sm leading-6">
-                  {item.description}
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-0 text-sm text-muted-foreground">
-              Shared baseline and route structure are already in place so each
-              worktree can build independently.
-            </CardContent>
-          </Card>
-        );
-      })}
+        <div className="grid gap-4 sm:grid-cols-2">
+          {steps.map((step) => (
+            <article
+              key={step.number}
+              className="rounded-[1.8rem] border border-border/75 bg-white/72 p-5 sm:p-6"
+            >
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-primary">
+                {step.number}
+              </p>
+              <h3 className="mt-5 text-xl font-semibold tracking-tight text-foreground">
+                {step.title}
+              </h3>
+              <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                {step.description}
+              </p>
+            </article>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

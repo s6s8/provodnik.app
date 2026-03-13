@@ -47,7 +47,7 @@ const DEFAULT_APPLICATIONS: readonly GuideApplication[] = [
     submittedAt: "2026-03-08T10:12:00Z",
     applicant: {
       displayName: "Elena S.",
-      homeBase: "Tbilisi, GE",
+      homeBase: "Тбилиси, Грузия",
       languages: ["en", "ru", "ka"],
       yearsExperience: 6,
     },
@@ -59,14 +59,14 @@ const DEFAULT_APPLICATIONS: readonly GuideApplication[] = [
       references: true,
     },
     documents: [
-      { key: "identity", label: "Identity document", state: "verified" },
-      { key: "selfie", label: "Selfie match", state: "needs-review" },
-      { key: "address", label: "Proof of address", state: "uploaded" },
-      { key: "certification", label: "Guide certification", state: "uploaded" },
+      { key: "identity", label: "Удостоверение личности", state: "verified" },
+      { key: "selfie", label: "Совпадение селфи", state: "needs-review" },
+      { key: "address", label: "Подтверждение адреса", state: "uploaded" },
+      { key: "certification", label: "Сертификат гида", state: "uploaded" },
     ],
-    flags: ["First-time guide profile", "High volume of edits in bio"],
+    flags: ["Профиль гида впервые", "Много правок в описании"],
     summary:
-      "City walking tours focused on history and local food. Strong English, prior agency experience. Requests fast verification.",
+      "Пешеходные экскурсии по городу с акцентом на историю и локальную кухню. Хороший английский, прошлый опыт в агентстве. Просит быструю верификацию.",
   },
   {
     id: "ga_10221",
@@ -85,21 +85,21 @@ const DEFAULT_APPLICATIONS: readonly GuideApplication[] = [
       references: false,
     },
     documents: [
-      { key: "identity", label: "Identity document", state: "missing" },
-      { key: "selfie", label: "Selfie match", state: "missing" },
-      { key: "address", label: "Proof of address", state: "uploaded" },
-      { key: "certification", label: "Guide certification", state: "missing" },
+      { key: "identity", label: "Удостоверение личности", state: "missing" },
+      { key: "selfie", label: "Совпадение селфи", state: "missing" },
+      { key: "address", label: "Подтверждение адреса", state: "uploaded" },
+      { key: "certification", label: "Сертификат гида", state: "missing" },
     ],
-    flags: ["Phone not verified", "Incomplete docs"],
+    flags: ["Телефон не подтверждён", "Неполный набор документов"],
     summary:
-      "New guide application for day trips. Limited detail on itinerary and safety plan. Needs document completion.",
+      "Новая заявка гида на однодневные поездки. Мало деталей по маршруту и плану безопасности. Требуется дозагрузить документы.",
   },
   {
     id: "ga_10233",
     submittedAt: "2026-03-10T08:03:00Z",
     applicant: {
-      displayName: "Nadia K.",
-      homeBase: "Yerevan, AM",
+      displayName: "Надя К.",
+      homeBase: "Ереван, Армения",
       languages: ["en", "hy"],
       yearsExperience: 9,
     },
@@ -111,14 +111,14 @@ const DEFAULT_APPLICATIONS: readonly GuideApplication[] = [
       references: true,
     },
     documents: [
-      { key: "identity", label: "Identity document", state: "verified" },
-      { key: "selfie", label: "Selfie match", state: "verified" },
-      { key: "address", label: "Proof of address", state: "verified" },
-      { key: "certification", label: "Guide certification", state: "verified" },
+      { key: "identity", label: "Удостоверение личности", state: "verified" },
+      { key: "selfie", label: "Совпадение селфи", state: "verified" },
+      { key: "address", label: "Подтверждение адреса", state: "verified" },
+      { key: "certification", label: "Сертификат гида", state: "verified" },
     ],
     flags: [],
     summary:
-      "Experienced guide specializing in museums and family-friendly routes. Clean verification set with references and background check.",
+      "Опытный гид, специализация — музеи и семейные маршруты. Полный комплект проверки: рекомендации и проверка благонадёжности.",
   },
 ] as const;
 
@@ -137,8 +137,8 @@ function formatSubmittedAt(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   return date.toLocaleString(undefined, {
-    year: "numeric",
-    month: "short",
+    year: "2-digit",
+    month: "2-digit",
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
@@ -164,15 +164,15 @@ function matchesQuery(app: GuideApplication, query: string) {
 function trustSignalLabel(key: TrustSignalKey) {
   switch (key) {
     case "emailVerified":
-      return "Email";
+      return "Почта";
     case "phoneVerified":
-      return "Phone";
+      return "Телефон";
     case "identityVerified":
-      return "Identity";
+      return "Личность";
     case "backgroundCheck":
-      return "Background";
+      return "Проверка";
     case "references":
-      return "References";
+      return "Рекомендации";
   }
 }
 
@@ -209,28 +209,28 @@ function docStateVariant(state: VerificationState): "default" | "secondary" | "d
 function docStateLabel(state: VerificationState) {
   switch (state) {
     case "verified":
-      return "Verified";
+      return "Подтверждён";
     case "needs-review":
-      return "Needs review";
+      return "Нужна проверка";
     case "uploaded":
-      return "Uploaded";
+      return "Загружен";
     case "missing":
-      return "Missing";
+      return "Отсутствует";
     case "rejected":
-      return "Rejected";
+      return "Отклонён";
   }
 }
 
 function decisionBadge(decision: GuideApplicationDecision) {
   switch (decision) {
     case "pending":
-      return { label: "Pending", variant: "outline" as const };
+      return { label: "В очереди", variant: "outline" as const };
     case "approved":
-      return { label: "Approved", variant: "secondary" as const };
+      return { label: "Одобрено", variant: "secondary" as const };
     case "needs-more-info":
-      return { label: "Needs info", variant: "default" as const };
+      return { label: "Нужна информация", variant: "default" as const };
     case "rejected":
-      return { label: "Rejected", variant: "destructive" as const };
+      return { label: "Отклонено", variant: "destructive" as const };
   }
 }
 
@@ -399,15 +399,14 @@ export function GuideReviewQueue() {
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-2">
-            <Badge variant="outline">Admin workspace</Badge>
+            <Badge variant="outline">Админ‑панель</Badge>
             <div className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Guide review queue
+                Очередь проверки гидов
               </h1>
               <p className="max-w-3xl text-base text-muted-foreground">
-                Review new guide applications, verify documents, and record moderation
-                decisions. When an authenticated admin session is available, those
-                decisions are written to Supabase moderation records.
+                Проверяйте заявки гидов, качество документов и уровень доверия.
+                Решения фиксируются для аудита и управления доступом к маркетплейсу.
               </p>
             </div>
           </div>
@@ -415,13 +414,13 @@ export function GuideReviewQueue() {
             <Button asChild variant="outline" type="button">
               <Link href="/admin/listings">
                 <ClipboardList className="mr-1 size-4" />
-                Listing moderation
+                Модерация объявлений
               </Link>
             </Button>
             <Button asChild variant="outline" type="button">
               <Link href="/admin/disputes">
                 <Flag className="mr-1 size-4" />
-                Disputes
+                Споры и возвраты
               </Link>
             </Button>
           </div>
@@ -432,17 +431,17 @@ export function GuideReviewQueue() {
         <CardHeader className="space-y-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="space-y-1">
-              <CardTitle className="text-lg">Queue controls</CardTitle>
+              <CardTitle className="text-lg">Фильтры очереди</CardTitle>
               <CardDescription>
-                Filter by decision status and search across applicants.
+                Фильтруйте по статусу решения и ищите по ФИО, городу и языкам.
               </CardDescription>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">All {counts.all}</Badge>
-              <Badge variant="outline">Pending {counts.pending}</Badge>
-              <Badge variant="outline">Approved {counts.approved}</Badge>
-              <Badge variant="outline">Needs info {counts.needsMoreInfo}</Badge>
-              <Badge variant="outline">Rejected {counts.rejected}</Badge>
+              <Badge variant="outline">Все {counts.all}</Badge>
+              <Badge variant="outline">В очереди {counts.pending}</Badge>
+              <Badge variant="outline">Одобрено {counts.approved}</Badge>
+              <Badge variant="outline">Нужна инфо {counts.needsMoreInfo}</Badge>
+              <Badge variant="outline">Отклонено {counts.rejected}</Badge>
             </div>
           </div>
 
@@ -453,8 +452,8 @@ export function GuideReviewQueue() {
               <Input
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search by name, city, id, language, flag..."
-                aria-label="Search applications"
+                placeholder="Поиск по имени, городу, ID, языкам, флагам..."
+                aria-label="Поиск по заявкам"
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
@@ -463,35 +462,35 @@ export function GuideReviewQueue() {
                 variant={statusFilter === "all" ? "secondary" : "outline"}
                 onClick={() => setStatusFilter("all")}
               >
-                All
+                Все
               </Button>
               <Button
                 type="button"
                 variant={statusFilter === "pending" ? "secondary" : "outline"}
                 onClick={() => setStatusFilter("pending")}
               >
-                Pending
+                В очереди
               </Button>
               <Button
                 type="button"
                 variant={statusFilter === "needs-more-info" ? "secondary" : "outline"}
                 onClick={() => setStatusFilter("needs-more-info")}
               >
-                Needs info
+                Нужна инфо
               </Button>
               <Button
                 type="button"
                 variant={statusFilter === "approved" ? "secondary" : "outline"}
                 onClick={() => setStatusFilter("approved")}
               >
-                Approved
+                Одобрено
               </Button>
               <Button
                 type="button"
                 variant={statusFilter === "rejected" ? "secondary" : "outline"}
                 onClick={() => setStatusFilter("rejected")}
               >
-                Rejected
+                Отклонено
               </Button>
             </div>
           </div>
@@ -502,9 +501,9 @@ export function GuideReviewQueue() {
         {visible.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
-              <CardTitle className="text-lg">No results</CardTitle>
+              <CardTitle className="text-lg">Ничего не найдено</CardTitle>
               <CardDescription>
-                Try clearing filters or adjusting the search query.
+                Попробуйте сбросить фильтры или изменить поисковый запрос.
               </CardDescription>
             </CardHeader>
           </Card>
@@ -531,8 +530,8 @@ export function GuideReviewQueue() {
                         <Badge variant="outline">{app.id}</Badge>
                       </div>
                       <CardDescription>
-                        {app.applicant.homeBase} - {app.applicant.yearsExperience}{" "}
-                        yrs exp - Submitted {formatSubmittedAt(app.submittedAt)}
+                        {app.applicant.homeBase} · стаж {app.applicant.yearsExperience}{" "}
+                        лет · заявка от {formatSubmittedAt(app.submittedAt)}
                       </CardDescription>
                     </div>
 
@@ -543,28 +542,28 @@ export function GuideReviewQueue() {
                         onClick={() => setExpandedId((prev) => (prev === app.id ? null : app.id))}
                         aria-expanded={expanded}
                       >
-                        {expanded ? "Hide details" : "View details"}
+                        {expanded ? "Свернуть" : "Показать детали"}
                       </Button>
                       <Button
                         type="button"
                         variant="secondary"
                         onClick={() => setDecision(app.id, "approved", app)}
                       >
-                        Approve
+                        Одобрить
                       </Button>
                       <Button
                         type="button"
                         variant="outline"
                         onClick={() => setDecision(app.id, "needs-more-info", app)}
                       >
-                        Request info
+                        Запросить инфо
                       </Button>
                       <Button
                         type="button"
                         variant="destructive"
                         onClick={() => setDecision(app.id, "rejected", app)}
                       >
-                        Reject
+                        Отклонить
                       </Button>
                     </div>
                   </div>
@@ -575,7 +574,7 @@ export function GuideReviewQueue() {
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                         <Globe className="size-4" />
-                        <span>Languages: {app.applicant.languages.join(", ")}</span>
+                        <span>Языки: {app.applicant.languages.join(", ")}</span>
                       </div>
                       <p className="max-w-3xl text-sm text-foreground">{app.summary}</p>
                     </div>
@@ -583,17 +582,17 @@ export function GuideReviewQueue() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="outline">
                         <FileText className="mr-1 size-3" />
-                        Docs: {docs.verified} verified, {docs.needsReview} needs
-                        review, {docs.missing} missing
+                        Документы: {docs.verified} подтверждено, {docs.needsReview} к
+                        проверке, {docs.missing} нет
                       </Badge>
                       <Badge variant={enabledTrust.length >= 3 ? "secondary" : "outline"}>
                         <ShieldCheck className="mr-1 size-3" />
-                        Trust: {enabledTrust.length}/{trustKeys.length}
+                        Доверие: {enabledTrust.length}/{trustKeys.length}
                       </Badge>
                       {app.flags.length > 0 ? (
                         <Badge variant="outline">
                           <Flag className="mr-1 size-3" />
-                          Flags: {app.flags.length}
+                          Флаги: {app.flags.length}
                         </Badge>
                       ) : null}
                     </div>
@@ -606,7 +605,7 @@ export function GuideReviewQueue() {
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
                           <div className="text-sm font-medium text-foreground">
-                            Trust signals
+                            Сигналы доверия
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {trustKeys.map((key) => {
@@ -627,7 +626,7 @@ export function GuideReviewQueue() {
 
                         <div className="space-y-2">
                           <div className="text-sm font-medium text-foreground">
-                            Documents
+                            Документы
                           </div>
                           <div className="flex flex-wrap gap-2">
                             {app.documents.map((doc) => (
@@ -646,7 +645,7 @@ export function GuideReviewQueue() {
                       {app.flags.length > 0 ? (
                         <div className="space-y-2">
                           <div className="text-sm font-medium text-foreground">
-                            Flags
+                            Флаги риска
                           </div>
                           <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                             {app.flags.map((flag) => (
@@ -658,17 +657,19 @@ export function GuideReviewQueue() {
 
                       <div className="space-y-2">
                         <div className="text-sm font-medium text-foreground">
-                          Decision note
+                          Комментарий по решению
                         </div>
                         <Textarea
                           value={state.note}
                           onChange={(event) => setNote(app.id, event.target.value, app)}
-                          placeholder="Add rationale, missing items, or follow-ups..."
-                          aria-label="Decision note"
+                          placeholder="Зафиксируйте обоснование решения, недостающие данные и следующие шаги."
+                          aria-label="Комментарий по решению"
                         />
                         <div className="text-xs text-muted-foreground">
-                          Last decision: {decision.label}
-                          {state.decidedAt ? ` at ${formatSubmittedAt(state.decidedAt)}` : ""}
+                          Последнее решение: {decision.label}
+                          {state.decidedAt
+                            ? ` · ${formatSubmittedAt(state.decidedAt)}`
+                            : ""}
                         </div>
                       </div>
                     </div>
@@ -677,7 +678,7 @@ export function GuideReviewQueue() {
 
                 <CardFooter className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
                   <div className="text-xs text-muted-foreground">
-                    Decisions are stored locally and reset on refresh.
+                    В демо‑режиме решения и комментарии хранятся локально и сбрасываются при обновлении.
                   </div>
                   <div className="flex flex-wrap items-center gap-2">
                     <Button
@@ -690,7 +691,7 @@ export function GuideReviewQueue() {
                         }))
                       }
                     >
-                      Reset decision
+                      Сбросить решение
                     </Button>
                   </div>
                 </CardFooter>

@@ -12,7 +12,11 @@ function formatIsoShort(iso: string | undefined) {
   if (!iso) return "-";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+  return date.toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export function PublicReviewsSection({
@@ -71,14 +75,13 @@ export function PublicReviewsSection({
           </Badge>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Latest: {formatIsoShort(summary.lastReviewAt)} · Published Supabase reviews appear here when available.
+          Последний отзыв: {formatIsoShort(summary.lastReviewAt)} · Здесь появляются подтверждённые отзывы после завершённых поездок.
         </p>
       </CardHeader>
       <CardContent className="grid gap-3">
         {items.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-4 text-sm text-muted-foreground">
-            No reviews yet. After a completed booking, travelers can leave a review from their
-            bookings workspace.
+            Здесь будут отзывы путешественников. После завершения поездки гость может оставить оценку и комментарий в своём кабинете.
           </div>
         ) : (
           <div className="grid gap-3">

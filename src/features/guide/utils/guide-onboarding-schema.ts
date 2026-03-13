@@ -16,111 +16,114 @@ export const guideOnboardingSchema = z.object({
   displayName: z
     .string()
     .trim()
-    .min(2, "Tell us the name travelers should see.")
-    .max(60, "Keep it under 60 characters."),
+    .min(2, "Укажите имя, которое будут видеть путешественники.")
+    .max(60, "Не более 60 символов."),
   tagline: z
     .string()
     .trim()
-    .min(2, "Add a short tagline.")
-    .max(80, "Keep it under 80 characters."),
+    .min(2, "Добавьте короткий слоган.")
+    .max(80, "Не более 80 символов."),
   bio: z
     .string()
     .trim()
-    .min(40, "Add a short bio (40 characters minimum).")
-    .max(900, "Keep the bio under 900 characters."),
+    .min(40, "Добавьте короткое описание (минимум 40 символов).")
+    .max(900, "Не более 900 символов."),
   regions: z
     .array(z.string().min(1))
-    .min(1, "Pick at least one region."),
+    .min(1, "Выберите хотя бы один регион."),
   languages: z
     .array(z.string().min(1))
-    .min(1, "Pick at least one language."),
+    .min(1, "Выберите хотя бы один язык."),
   specialties: z
     .array(z.string().min(1))
-    .min(1, "Pick at least one specialty."),
+    .min(1, "Укажите хотя бы одну специализацию."),
   experienceLevel: z.enum(guideExperienceLevels),
   yearsExperience: z
     .number()
-    .int("Use a whole number.")
-    .min(0, "Years cannot be negative.")
-    .max(60, "Years looks too high."),
+    .int("Используйте целое число.")
+    .min(0, "Количество лет не может быть отрицательным.")
+    .max(60, "Слишком большое количество лет стажа."),
   currentBaseCity: z
     .string()
     .trim()
-    .min(2, "Add your base city.")
-    .max(60, "Keep it under 60 characters."),
+    .min(2, "Укажите базовый город.")
+    .max(60, "Не более 60 символов."),
   groupSizeMax: z
     .number()
-    .int("Use a whole number.")
-    .min(1, "Minimum group size is 1.")
-    .max(50, "For MVP baseline, cap group size at 50."),
+    .int("Используйте целое число.")
+    .min(1, "Минимальный размер группы — 1.")
+    .max(50, "В MVP максимум 50 человек в группе."),
   hasFirstAidTraining: z.boolean(),
   acceptsPrivateTours: z.boolean(),
   acceptsGroupTours: z.boolean(),
   legalName: z
     .string()
     .trim()
-    .min(3, "Enter your legal name.")
-    .max(100, "Keep it under 100 characters."),
+    .min(3, "Укажите полное юридическое имя.")
+    .max(100, "Не более 100 символов."),
   birthDate: z.string().min(1, "Pick your birth date."),
   citizenshipCountry: z
     .string()
     .trim()
-    .min(2, "Enter citizenship country.")
-    .max(56, "Keep it under 56 characters."),
+    .min(2, "Укажите страну гражданства.")
+    .max(56, "Не более 56 символов."),
   govIdType: z.enum(guideGovIdTypes),
   govIdLast4: z
     .string()
     .trim()
-    .regex(/^\d{4}$/, "Use the last 4 digits."),
+    .regex(/^\d{4}$/, "Введите только последние 4 цифры."),
   addressLine1: z
     .string()
     .trim()
-    .min(4, "Enter your street address.")
-    .max(120, "Keep it under 120 characters."),
+    .min(4, "Укажите улицу и дом.")
+    .max(120, "Не более 120 символов."),
   addressCity: z
     .string()
     .trim()
-    .min(2, "Enter your city.")
-    .max(60, "Keep it under 60 characters."),
+    .min(2, "Укажите город.")
+    .max(60, "Не более 60 символов."),
   addressCountry: z
     .string()
     .trim()
-    .min(2, "Enter your country.")
-    .max(56, "Keep it under 56 characters."),
+    .min(2, "Укажите страну.")
+    .max(56, "Не более 56 символов."),
   emergencyContactName: z
     .string()
     .trim()
-    .min(2, "Add an emergency contact name.")
-    .max(80, "Keep it under 80 characters."),
+    .min(2, "Добавьте имя контактного лица на случай ЧС.")
+    .max(80, "Не более 80 символов."),
   emergencyContactPhone: z
     .string()
     .trim()
-    .min(6, "Add an emergency contact phone.")
-    .max(30, "Keep it under 30 characters."),
+    .min(6, "Добавьте телефон контактного лица.")
+    .max(30, "Не более 30 символов."),
   referenceName1: z
     .string()
     .trim()
-    .min(2, "Add a reference name.")
-    .max(80, "Keep it under 80 characters."),
+    .min(2, "Добавьте имя первого рекомендателя.")
+    .max(80, "Не более 80 символов."),
   referenceContact1: z
     .string()
     .trim()
-    .min(4, "Add a reference contact.")
-    .max(120, "Keep it under 120 characters."),
+    .min(4, "Добавьте контакты первого рекомендателя.")
+    .max(120, "Не более 120 символов."),
   referenceName2: z
     .string()
     .trim()
-    .min(2, "Add a second reference name.")
-    .max(80, "Keep it under 80 characters."),
+    .min(2, "Добавьте имя второго рекомендателя.")
+    .max(80, "Не более 80 символов."),
   referenceContact2: z
     .string()
     .trim()
-    .min(4, "Add a second reference contact.")
-    .max(120, "Keep it under 120 characters."),
+    .min(4, "Добавьте контакты второго рекомендателя.")
+    .max(120, "Не более 120 символов."),
   consentBackgroundCheck: z
     .boolean()
-    .refine((value) => value, "Consent is required."),
-  attestTruthful: z.boolean().refine((value) => value, "Attestation is required."),
+    .refine((value) => value, "Нужно согласиться на проверку.")
+  ,
+  attestTruthful: z
+    .boolean()
+    .refine((value) => value, "Нужно подтвердить достоверность данных."),
 });
 
 export type GuideOnboardingValues = z.infer<typeof guideOnboardingSchema>;

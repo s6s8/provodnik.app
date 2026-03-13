@@ -41,23 +41,23 @@ export function TravelerBookingDetailScreen({
   if (!record) {
     return (
       <div className="space-y-6">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-2">
-            <CardTitle>Booking not found</CardTitle>
+            <CardTitle>Бронирование не найдено</CardTitle>
             <p className="text-sm text-muted-foreground">
-              This booking ID doesn’t exist on this device.
+              По этому идентификатору поездка на этом устройстве не найдена.
             </p>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="secondary">
               <Link href="/traveler/bookings">
                 <ArrowLeft className="size-4" />
-                Back to bookings
+                К списку поездок
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/traveler/requests">Go to requests</Link>
+              <Link href="/traveler/requests">Все запросы</Link>
             </Button>
           </CardContent>
         </Card>
@@ -78,14 +78,14 @@ export function TravelerBookingDetailScreen({
           <Button asChild variant="ghost" className="-ml-3 px-3">
             <Link href="/traveler/bookings">
               <ArrowLeft className="size-4" />
-              Bookings
+              Мои поездки
             </Link>
           </Button>
           <TravelerBookingStatusBadge status={record.status} />
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">Traveler workspace</Badge>
+          <Badge variant="outline">Кабинет путешественника</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {record.request.destination}
           </h1>
@@ -96,8 +96,8 @@ export function TravelerBookingDetailScreen({
             </span>
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
-              {record.request.groupSize} traveler
-              {record.request.groupSize === 1 ? "" : "s"}
+              {record.request.groupSize}{" "}
+              {record.request.groupSize === 1 ? "путешественник" : "путешественника"}
             </span>
             <span className="inline-flex items-center gap-2">
               <MapPin className="size-4 text-muted-foreground" />
@@ -109,39 +109,39 @@ export function TravelerBookingDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Deposit-ready confirmation</CardTitle>
+          <CardTitle>Подтверждение поездки</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Secure the dates with a deposit. Remaining balance is due closer to
-            the trip.
+            Забронируйте даты с помощью предоплаты. Оставшаяся сумма вносится
+            ближе к началу путешествия.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-3">
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Deposit</p>
+              <p className="text-xs text-muted-foreground">Предоплата</p>
               <p className="mt-1 text-base font-semibold text-foreground">
                 {formatRub(record.payment.depositRub)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Due {formatDueDate(record.payment.depositDueAt)}
+                Оплатить до {formatDueDate(record.payment.depositDueAt)}
               </p>
             </div>
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Remaining</p>
+              <p className="text-xs text-muted-foreground">Остаток</p>
               <p className="mt-1 text-base font-semibold text-foreground">
                 {formatRub(remaining)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Collected after deposit in MVP flow
+                Вносится после предоплаты (демо-режим)
               </p>
             </div>
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Total</p>
+              <p className="text-xs text-muted-foreground">Итого</p>
               <p className="mt-1 text-base font-semibold text-foreground">
                 {formatRub(total)}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">
-                Includes fees + estimates
+                Включая комиссии и ориентировочные расходы
               </p>
             </div>
           </div>
@@ -149,11 +149,11 @@ export function TravelerBookingDetailScreen({
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button className="w-full sm:w-auto" disabled>
               <CreditCard className="size-4" />
-              Pay deposit (scaffold)
+              Оплатить предоплату (демо)
             </Button>
             <Button asChild variant="secondary" className="w-full sm:w-auto">
               <Link href={`/traveler/requests/${record.request.id}`}>
-                View original request
+                Открыть исходный запрос
               </Link>
             </Button>
           </div>
@@ -163,26 +163,26 @@ export function TravelerBookingDetailScreen({
       {canLeaveReview ? (
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>Close the loop</CardTitle>
+            <CardTitle>Поделитесь впечатлениями</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Leave a quick review while the details are fresh. Stored locally on
-              this device in the MVP baseline.
+              Оставьте короткий отзыв, пока детали свежи в памяти. Сейчас отзывы
+              сохраняются локально на этом устройстве.
             </p>
           </CardHeader>
           <CardContent className="flex flex-col gap-2 sm:flex-row sm:items-center">
             <Button asChild className="w-full sm:w-auto">
               <Link href={`/traveler/bookings/${record.id}/review`}>
-                Leave review
+                Оставить отзыв
               </Link>
             </Button>
             {record.guide.slug ? (
               <Button asChild variant="secondary" className="w-full sm:w-auto">
-                <Link href={`/guides/${record.guide.slug}`}>View guide profile</Link>
+                <Link href={`/guides/${record.guide.slug}`}>Профиль гида</Link>
               </Button>
             ) : null}
             {record.listingSlug ? (
               <Button asChild variant="secondary" className="w-full sm:w-auto">
-                <Link href={`/listings/${record.listingSlug}`}>View listing</Link>
+                <Link href={`/listings/${record.listingSlug}`}>Программа тура</Link>
               </Button>
             ) : null}
           </CardContent>
@@ -192,17 +192,17 @@ export function TravelerBookingDetailScreen({
       <div className="grid gap-3">
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>Traveler summary</CardTitle>
+            <CardTitle>Кто едет</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Who this booking is for.
+              Информация о путешественнике и размере группы.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{record.traveler.displayName}</Badge>
               <Badge variant="outline">
-                {record.request.groupSize} traveler
-                {record.request.groupSize === 1 ? "" : "s"}
+                {record.request.groupSize}{" "}
+                {record.request.groupSize === 1 ? "путешественник" : "путешественника"}
               </Badge>
             </div>
           </CardContent>
@@ -210,20 +210,22 @@ export function TravelerBookingDetailScreen({
 
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>Guide summary</CardTitle>
+            <CardTitle>Ваш гид</CardTitle>
             <p className="text-sm text-muted-foreground">
-              The guide you’re booking with.
+              Кто будет вести вашу поездку.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex flex-wrap items-center gap-2">
               <Badge variant="secondary">{record.guide.displayName}</Badge>
               <Badge variant="outline">
-                {record.guide.rating.toFixed(1)} rating
+                Оценка {record.guide.rating.toFixed(1)} / 5
               </Badge>
-              <Badge variant="outline">{record.guide.completedTrips} trips</Badge>
               <Badge variant="outline">
-                Responds in ~{record.guide.responseTimeHours}h
+                {record.guide.completedTrips} завершённых поездок
+              </Badge>
+              <Badge variant="outline">
+                Отвечает примерно за {record.guide.responseTimeHours} ч
               </Badge>
             </div>
           </CardContent>
@@ -232,15 +234,18 @@ export function TravelerBookingDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Itinerary framing</CardTitle>
+          <CardTitle>Программа по дням</CardTitle>
           <p className="text-sm text-muted-foreground">
-            A structured outline for what you’re about to confirm.
+            Краткий план поездки по дням и основным точкам.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="outline">{record.itinerary.timezone}</Badge>
-            <Badge variant="secondary">{record.itinerary.days.length} days</Badge>
+            <Badge variant="secondary">
+              {record.itinerary.days.length}{" "}
+              {record.itinerary.days.length === 1 ? "день" : "дней"}
+            </Badge>
           </div>
 
           <div className="space-y-3">
@@ -250,7 +255,7 @@ export function TravelerBookingDetailScreen({
                 className="rounded-lg border border-border/70 bg-background/60 p-3"
               >
                 <p className="text-sm font-medium text-foreground">
-                  Day {day.day}: {day.title}
+                  День {day.day}: {day.title}
                 </p>
                 <ul className="mt-2 grid gap-1 text-sm text-muted-foreground">
                   {day.beats.map((beat) => (
@@ -266,7 +271,7 @@ export function TravelerBookingDetailScreen({
 
           {record.itinerary.notes ? (
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Notes</p>
+              <p className="text-xs text-muted-foreground">Дополнительно</p>
               <p className="mt-1 text-sm text-foreground">{record.itinerary.notes}</p>
             </div>
           ) : null}
@@ -275,9 +280,9 @@ export function TravelerBookingDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Payment breakdown</CardTitle>
+          <CardTitle>Состав стоимости</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Transparent line items (seeded for MVP baseline).
+            Разбивка стоимости по позициям для наглядности (демо-данные).
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -303,18 +308,18 @@ export function TravelerBookingDetailScreen({
           <Separator />
 
           <div className="grid gap-2">
-            <Row label="Deposit due now" value={formatRub(record.payment.depositRub)} />
-            <Row label="Remaining after deposit" value={formatRub(remaining)} />
-            <Row label="Total" value={formatRub(total)} strong />
+            <Row label="Предоплата сейчас" value={formatRub(record.payment.depositRub)} />
+            <Row label="Останется после предоплаты" value={formatRub(remaining)} />
+            <Row label="Итого" value={formatRub(total)} strong />
           </div>
         </CardContent>
       </Card>
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Cancellation policy</CardTitle>
+          <CardTitle>Отмена и изменения</CardTitle>
           <p className="text-sm text-muted-foreground">
-            A quick summary before you pay.
+            Кратко о том, что происходит при переносе или отмене поездки.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -339,14 +344,16 @@ export function TravelerBookingDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Status timeline</CardTitle>
+          <CardTitle>Ход поездки</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Clear milestones from booking to trip completion.
+            Основные этапы — от подтверждения бронирования до завершения поездки.
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
           {timeline.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No timeline events.</p>
+            <p className="text-sm text-muted-foreground">
+              Для этой поездки события ещё не зафиксированы.
+            </p>
           ) : (
             <div className="space-y-2">
               {timeline.map((step) => (

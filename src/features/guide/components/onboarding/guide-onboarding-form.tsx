@@ -36,11 +36,11 @@ function splitCommaList(value: string): string[] {
 function formatGovIdType(value: (typeof guideGovIdTypes)[number]): string {
   switch (value) {
     case "passport":
-      return "Passport";
+      return "Загранпаспорт";
     case "national_id":
-      return "National ID";
+      return "Внутренний паспорт / ID-карта";
     case "drivers_license":
-      return "Driver's license";
+      return "Водительское удостоверение";
     default: {
       const exhaustive: never = value;
       return exhaustive;
@@ -53,11 +53,11 @@ function formatExperienceLevel(
 ): string {
   switch (value) {
     case "starter":
-      return "Starter";
+      return "Начинающий";
     case "intermediate":
-      return "Intermediate";
+      return "Опытный";
     case "expert":
-      return "Expert";
+      return "Эксперт";
     default: {
       const exhaustive: never = value;
       return exhaustive;
@@ -141,7 +141,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         if (!user || userError) {
           setPersistedToBackend(false);
           setBackendError(
-            "Session is not available; saved locally only in this browser."
+            "Сессия недоступна — данные анкеты сохранены только локально в этом браузере."
           );
           setSubmitted(values);
           return;
@@ -153,21 +153,21 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
             : "draft";
 
         const verificationNotesParts: string[] = [
-          `Base city: ${values.currentBaseCity}`,
-          `Regions: ${values.regions.join(", ")}`,
-          `Languages: ${values.languages.join(", ")}`,
-          `Specialties: ${values.specialties.join(", ")}`,
-          `Years experience: ${values.yearsExperience}`,
-          `Max group size: ${values.groupSizeMax}`,
-          `First aid training: ${values.hasFirstAidTraining ? "yes" : "no"}`,
-          `Accepts private tours: ${values.acceptsPrivateTours ? "yes" : "no"}`,
-          `Accepts group tours: ${values.acceptsGroupTours ? "yes" : "no"}`,
-          `Emergency contact: ${values.emergencyContactName} / ${values.emergencyContactPhone}`,
-          `References: ${values.referenceName1} / ${values.referenceContact1}; ${values.referenceName2} / ${values.referenceContact2}`,
-          `Background check consent: ${
-            values.consentBackgroundCheck ? "yes" : "no"
+          `Базовый город: ${values.currentBaseCity}`,
+          `Регионы: ${values.regions.join(", ")}`,
+          `Языки: ${values.languages.join(", ")}`,
+          `Специализации: ${values.specialties.join(", ")}`,
+          `Лет опыта: ${values.yearsExperience}`,
+          `Максимальный размер группы: ${values.groupSizeMax}`,
+          `Обучение первой помощи: ${values.hasFirstAidTraining ? "да" : "нет"}`,
+          `Принимает частные туры: ${values.acceptsPrivateTours ? "да" : "нет"}`,
+          `Принимает групповые туры: ${values.acceptsGroupTours ? "да" : "нет"}`,
+          `Контакт на случай ЧС: ${values.emergencyContactName} / ${values.emergencyContactPhone}`,
+          `Рекомендации: ${values.referenceName1} / ${values.referenceContact1}; ${values.referenceName2} / ${values.referenceContact2}`,
+          `Согласие на проверку благонадёжности: ${
+            values.consentBackgroundCheck ? "да" : "нет"
           }`,
-          `Attestation: ${values.attestTruthful ? "yes" : "no"}`,
+          `Подтверждение достоверности: ${values.attestTruthful ? "да" : "нет"}`,
         ];
 
         const payload: Partial<GuideProfileRow> = {
@@ -189,7 +189,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         if (upsertError) {
           setPersistedToBackend(false);
           setBackendError(
-            "We could not reach the backend; saved locally only in this browser."
+            "Не удалось связаться с бэкендом — данные анкеты сохранены только локально в этом браузере."
           );
           setSubmitted(values);
           return;
@@ -213,7 +213,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         setPersistedToBackend(false);
         setDocumentReservations([]);
         setBackendError(
-          "We could not reach the backend; saved locally only in this browser."
+          "Не удалось связаться с бэкендом — данные анкеты сохранены только локально в этом браузере."
         );
         setSubmitted(values);
         return;
@@ -246,32 +246,34 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
             </div>
             <div className="space-y-1">
               <CardTitle>
-                {persistedToBackend ? "Onboarding saved to backend" : "Onboarding captured locally"}
+                {persistedToBackend
+                  ? "Анкета сохранена в Supabase"
+                  : "Анкета сохранена локально"}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 {persistedToBackend
-                  ? "Your intake has been written to your guide profile in Supabase. You can review the captured intake below."
-                  : "For this session, the full intake is stored locally in this browser. You can review the captured intake below."}
+                  ? "Данные анкеты записаны в профиль гида в Supabase. Ниже — сводка по введённой информации."
+                  : "В этом режиме анкета хранится только в этом браузере. Ниже — сводка по введённой информации."}
               </p>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
-            <SummarySection title="Profile basics">
-              <SummaryRow label="Display name" value={submitted.displayName} />
-              <SummaryRow label="Tagline" value={submitted.tagline} />
-              <SummaryRow label="Bio" value={submitted.bio} />
+            <SummarySection title="Основы профиля">
+              <SummaryRow label="Имя для профиля" value={submitted.displayName} />
+              <SummaryRow label="Слоган" value={submitted.tagline} />
+              <SummaryRow label="О себе" value={submitted.bio} />
               <SummaryRow
-                label="Regions"
+                label="Регионы"
                 value={submitted.regions.length ? submitted.regions.join(", ") : "-"}
               />
               <SummaryRow
-                label="Languages"
+                label="Языки"
                 value={
                   submitted.languages.length ? submitted.languages.join(", ") : "-"
                 }
               />
               <SummaryRow
-                label="Specialties"
+                label="Специализации"
                 value={
                   submitted.specialties.length
                     ? submitted.specialties.join(", ")
@@ -280,80 +282,80 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
               />
             </SummarySection>
 
-            <SummarySection title="Operating details">
+            <SummarySection title="Операционные параметры">
               <SummaryRow
-                label="Experience level"
+                label="Уровень опыта"
                 value={formatExperienceLevel(submitted.experienceLevel)}
               />
               <SummaryRow
-                label="Years of experience"
+                label="Лет опыта"
                 value={`${submitted.yearsExperience}`}
               />
-              <SummaryRow label="Base city" value={submitted.currentBaseCity} />
+              <SummaryRow label="Базовый город" value={submitted.currentBaseCity} />
               <SummaryRow
-                label="Max group size"
+                label="Максимальный размер группы"
                 value={`${submitted.groupSizeMax}`}
               />
               <SummaryRow
-                label="First aid training"
-                value={submitted.hasFirstAidTraining ? "Yes" : "No"}
+                label="Подтверждённый курс первой помощи"
+                value={submitted.hasFirstAidTraining ? "Да" : "Нет"}
               />
               <SummaryRow
-                label="Accepts private tours"
-                value={submitted.acceptsPrivateTours ? "Yes" : "No"}
+                label="Принимает частные туры"
+                value={submitted.acceptsPrivateTours ? "Да" : "Нет"}
               />
               <SummaryRow
-                label="Accepts group tours"
-                value={submitted.acceptsGroupTours ? "Yes" : "No"}
+                label="Принимает групповые туры"
+                value={submitted.acceptsGroupTours ? "Да" : "Нет"}
               />
             </SummarySection>
 
-            <SummarySection title="Identity & verification">
-              <SummaryRow label="Legal name" value={submitted.legalName} />
-              <SummaryRow label="Birth date" value={submitted.birthDate} />
+            <SummarySection title="Личность и проверка">
+              <SummaryRow label="Юридическое имя" value={submitted.legalName} />
+              <SummaryRow label="Дата рождения" value={submitted.birthDate} />
               <SummaryRow
-                label="Citizenship country"
+                label="Страна гражданства"
                 value={submitted.citizenshipCountry}
               />
               <SummaryRow
-                label="Government ID type"
+                label="Тип документа"
                 value={formatGovIdType(submitted.govIdType)}
               />
-              <SummaryRow label="Gov ID last 4" value={submitted.govIdLast4} />
-              <SummaryRow label="Address line 1" value={submitted.addressLine1} />
-              <SummaryRow label="Address city" value={submitted.addressCity} />
-              <SummaryRow label="Address country" value={submitted.addressCountry} />
+              <SummaryRow label="Последние 4 цифры документа" value={submitted.govIdLast4} />
+              <SummaryRow label="Адрес (улица и дом)" value={submitted.addressLine1} />
+              <SummaryRow label="Город" value={submitted.addressCity} />
+              <SummaryRow label="Страна" value={submitted.addressCountry} />
               <SummaryRow
-                label="Emergency contact"
+                label="Контакт на случай ЧС"
                 value={`${submitted.emergencyContactName} / ${submitted.emergencyContactPhone}`}
               />
             </SummarySection>
 
-            <SummarySection title="References">
+            <SummarySection title="Рекомендации">
               <SummaryRow
-                label="Reference 1"
+                label="Рекомендатель 1"
                 value={`${submitted.referenceName1} / ${submitted.referenceContact1}`}
               />
               <SummaryRow
-                label="Reference 2"
+                label="Рекомендатель 2"
                 value={`${submitted.referenceName2} / ${submitted.referenceContact2}`}
               />
             </SummarySection>
 
-            <SummarySection title="Consents">
+            <SummarySection title="Согласия">
               <div className="grid gap-2 rounded-lg border border-border/70 bg-background/60 p-3">
                 <div className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <ShieldCheck className="size-4 text-primary" />
-                  <span>Verification intake confirmed</span>
+                  <span>Анкета для проверки сохранена</span>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Background check consent:{" "}
+                  Согласие на проверку благонадёжности:{" "}
                   <span className="font-medium text-foreground">
-                    {submitted.consentBackgroundCheck ? "Yes" : "No"}
+                    {submitted.consentBackgroundCheck ? "Да" : "Нет"}
                   </span>
-                  . Attestation:{" "}
+                  . Подтверждение достоверности:{" "}
                   <span className="font-medium text-foreground">
-                    {submitted.attestTruthful ? "Yes" : "No"}
+                    {submitted.attestTruthful ? "Да" : "Нет"}
                   </span>
                   .
                 </p>
@@ -361,7 +363,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
             </SummarySection>
 
             {persistedToBackend && documentReservations.length > 0 ? (
-              <SummarySection title="Reserved backend document paths">
+              <SummarySection title="Зарезервированные пути документов в бэкенде">
                 {documentReservations.map((item) => (
                   <SummaryRow
                     key={item.documentType}
@@ -376,7 +378,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button type="button" onClick={handleStartOver}>
-            Start over
+            Заполнить заново
             <RotateCcw className="size-4" />
           </Button>
           {backendError ? (
@@ -391,62 +393,62 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
     <form
       className="grid gap-6"
       onSubmit={handleSubmit(onSubmit)}
-      aria-label="Guide onboarding and verification intake"
+      aria-label="Анкета гида и данные для проверки"
     >
       <SectionHeader
-        badge="Profile basics"
-        title="Public profile"
-        description="What travelers will see when browsing your guide profile."
+        badge="Профиль"
+        title="Публичный профиль"
+        description="То, что видят путешественники при выборе гида."
       />
 
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="displayName">Display name</FieldLabel>
+          <FieldLabel htmlFor="displayName">Имя в профиле</FieldLabel>
           <Input
             id="displayName"
-            placeholder="e.g. Amina K."
+            placeholder="Например, Амина К."
             autoComplete="nickname"
             aria-invalid={Boolean(errors.displayName)}
             aria-describedby={errors.displayName ? "displayName-error" : undefined}
             {...register("displayName")}
           />
-          <FieldHint>Use the name travelers should recognize.</FieldHint>
+          <FieldHint>Имя, по которому вас легко узнать и найти.</FieldHint>
           <FieldError id="displayName-error" message={errors.displayName?.message} />
         </div>
 
         <div className="grid gap-2">
-          <FieldLabel htmlFor="tagline">Tagline</FieldLabel>
+          <FieldLabel htmlFor="tagline">Слоган</FieldLabel>
           <Input
             id="tagline"
-            placeholder="e.g. Calm city walks + hidden cafes"
+            placeholder="Например, спокойные прогулки + скрытые кафе"
             autoComplete="off"
             aria-invalid={Boolean(errors.tagline)}
             aria-describedby={errors.tagline ? "tagline-error" : undefined}
             {...register("tagline")}
           />
-          <FieldHint>One short sentence that fits in a card.</FieldHint>
+          <FieldHint>Короткая фраза, которая помещается в карточку.</FieldHint>
           <FieldError id="tagline-error" message={errors.tagline?.message} />
         </div>
 
         <div className="grid gap-2">
-          <FieldLabel htmlFor="bio">Bio</FieldLabel>
+          <FieldLabel htmlFor="bio">О себе</FieldLabel>
           <Textarea
             id="bio"
-            placeholder="Tell travelers what you love guiding, your approach, and what they can expect."
+            placeholder="Расскажите, что вы любите показывать, как ведёте группы и чего ждать от тура."
             aria-invalid={Boolean(errors.bio)}
             aria-describedby={errors.bio ? "bio-error" : undefined}
             {...register("bio")}
           />
-          <FieldHint>40+ characters. Keep it friendly and concrete.</FieldHint>
+          <FieldHint>От 40 символов. Конкретика, без «воды».</FieldHint>
           <FieldError id="bio-error" message={errors.bio?.message} />
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="regions">Regions</FieldLabel>
+            <FieldLabel htmlFor="regions">Регионы</FieldLabel>
             <Input
               id="regions"
-              placeholder="e.g. Moscow, Kazan, Altai"
+              placeholder="Например, Москва, Казань, Алтай"
               autoComplete="off"
               aria-invalid={Boolean(errors.regions)}
               aria-describedby={errors.regions ? "regions-error" : undefined}
@@ -458,7 +460,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
                 });
               }}
             />
-            <FieldHint>Comma-separated list. At least one required.</FieldHint>
+            <FieldHint>Список через запятую. Минимум один регион.</FieldHint>
             <FieldError
               id="regions-error"
               message={typeof errors.regions?.message === "string" ? errors.regions.message : undefined}
@@ -466,10 +468,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="languages">Languages</FieldLabel>
+            <FieldLabel htmlFor="languages">Языки</FieldLabel>
             <Input
               id="languages"
-              placeholder="e.g. English, Russian"
+              placeholder="Например, русский, английский"
               autoComplete="off"
               aria-invalid={Boolean(errors.languages)}
               aria-describedby={errors.languages ? "languages-error" : undefined}
@@ -481,7 +483,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
                 });
               }}
             />
-            <FieldHint>Comma-separated list. At least one required.</FieldHint>
+            <FieldHint>Список через запятую. Минимум один язык.</FieldHint>
             <FieldError
               id="languages-error"
               message={
@@ -494,10 +496,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         </div>
 
         <div className="grid gap-2">
-          <FieldLabel htmlFor="specialties">Specialties</FieldLabel>
+            <FieldLabel htmlFor="specialties">Специализации</FieldLabel>
           <Input
             id="specialties"
-            placeholder="e.g. history, street food, nature hikes"
+              placeholder="Например, история, стритфуд, походы"
             autoComplete="off"
             aria-invalid={Boolean(errors.specialties)}
             aria-describedby={errors.specialties ? "specialties-error" : undefined}
@@ -509,7 +511,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
               });
             }}
           />
-          <FieldHint>Comma-separated list. At least one required.</FieldHint>
+          <FieldHint>Список через запятую. Минимум одно направление.</FieldHint>
           <FieldError
             id="specialties-error"
             message={
@@ -524,15 +526,15 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <Separator className="my-1" />
 
       <SectionHeader
-        badge="Operating details"
-        title="How you run tours"
-        description="Set expectations for availability, group size, and formats."
+        badge="Операции"
+        title="Как вы ведёте туры"
+        description="Задайте рамки по формату, размеру групп и доступности."
       />
 
       <div className="grid gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="experienceLevel">Experience level</FieldLabel>
+            <FieldLabel htmlFor="experienceLevel">Уровень опыта</FieldLabel>
             <select
               id="experienceLevel"
               aria-invalid={Boolean(errors.experienceLevel)}
@@ -559,7 +561,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="yearsExperience">Years of experience</FieldLabel>
+            <FieldLabel htmlFor="yearsExperience">Лет опыта</FieldLabel>
             <Input
               id="yearsExperience"
               type="number"
@@ -581,10 +583,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="currentBaseCity">Base city</FieldLabel>
+            <FieldLabel htmlFor="currentBaseCity">Базовый город</FieldLabel>
             <Input
               id="currentBaseCity"
-              placeholder="e.g. Saint Petersburg"
+              placeholder="Например, Санкт‑Петербург"
               autoComplete="address-level2"
               aria-invalid={Boolean(errors.currentBaseCity)}
               aria-describedby={
@@ -592,7 +594,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
               }
               {...register("currentBaseCity")}
             />
-            <FieldHint>Where you start most tours.</FieldHint>
+            <FieldHint>Город, откуда чаще всего стартуют туры.</FieldHint>
             <FieldError
               id="currentBaseCity-error"
               message={errors.currentBaseCity?.message}
@@ -600,7 +602,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="groupSizeMax">Max group size</FieldLabel>
+            <FieldLabel htmlFor="groupSizeMax">Максимальный размер группы</FieldLabel>
             <Input
               id="groupSizeMax"
               type="number"
@@ -611,18 +613,18 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
               aria-describedby={errors.groupSizeMax ? "groupSizeMax-error" : undefined}
               {...register("groupSizeMax", { valueAsNumber: true })}
             />
-            <FieldHint>For MVP baseline, cap at 50.</FieldHint>
+            <FieldHint>В этой версии максимум 50 человек.</FieldHint>
             <FieldError id="groupSizeMax-error" message={errors.groupSizeMax?.message} />
           </div>
         </div>
 
-        <fieldset className="grid gap-2" aria-label="Operating options">
+        <fieldset className="grid gap-2" aria-label="Параметры работы">
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" className="mt-1" {...register("hasFirstAidTraining")} />
             <span>
-              <span className="font-medium text-foreground">First aid training</span>
+              <span className="font-medium text-foreground">Обучение первой помощи</span>
               <span className="block text-xs text-muted-foreground">
-                Let travelers know you have valid first aid training.
+                Покажите гостям, что у вас есть действующий курс первой помощи.
               </span>
             </span>
           </label>
@@ -630,9 +632,9 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" className="mt-1" {...register("acceptsPrivateTours")} />
             <span>
-              <span className="font-medium text-foreground">Accept private tours</span>
+              <span className="font-medium text-foreground">Принимаю частные туры</span>
               <span className="block text-xs text-muted-foreground">
-                You can run experiences for one party.
+                Готовы работать с одной компанией за раз.
               </span>
             </span>
           </label>
@@ -640,9 +642,9 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           <label className="flex items-start gap-2 text-sm">
             <input type="checkbox" className="mt-1" {...register("acceptsGroupTours")} />
             <span>
-              <span className="font-medium text-foreground">Accept group tours</span>
+              <span className="font-medium text-foreground">Принимаю групповые туры</span>
               <span className="block text-xs text-muted-foreground">
-                You can combine multiple travelers into one group.
+                Готовы объединять несколько путешественников в одну группу.
               </span>
             </span>
           </label>
@@ -652,18 +654,18 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <Separator className="my-1" />
 
       <SectionHeader
-        badge="Identity & verification"
-        title="Verification intake"
-        description="Required to run paid tours. For now, captured locally on this device."
+        badge="Проверка"
+        title="Данные для верификации"
+        description="Нужно для платных туров. Пока всё хранится локально на этом устройстве."
       />
 
       <div className="grid gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="legalName">Legal name</FieldLabel>
+            <FieldLabel htmlFor="legalName">Юридическое имя</FieldLabel>
             <Input
               id="legalName"
-              placeholder="As shown on your ID"
+              placeholder="Как в паспорте или ID‑карте"
               autoComplete="name"
               aria-invalid={Boolean(errors.legalName)}
               aria-describedby={errors.legalName ? "legalName-error" : undefined}
@@ -673,7 +675,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="birthDate">Birth date</FieldLabel>
+            <FieldLabel htmlFor="birthDate">Дата рождения</FieldLabel>
             <Input
               id="birthDate"
               type="date"
@@ -687,10 +689,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="citizenshipCountry">Citizenship country</FieldLabel>
+            <FieldLabel htmlFor="citizenshipCountry">Страна гражданства</FieldLabel>
             <Input
               id="citizenshipCountry"
-              placeholder="e.g. Russia"
+              placeholder="Например, Россия"
               autoComplete="country"
               aria-invalid={Boolean(errors.citizenshipCountry)}
               aria-describedby={
@@ -705,7 +707,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="govIdType">Government ID type</FieldLabel>
+            <FieldLabel htmlFor="govIdType">Тип документа</FieldLabel>
             <select
               id="govIdType"
               aria-invalid={Boolean(errors.govIdType)}
@@ -729,7 +731,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="govIdLast4">Gov ID last 4 digits</FieldLabel>
+            <FieldLabel htmlFor="govIdLast4">Последние 4 цифры документа</FieldLabel>
             <Input
               id="govIdLast4"
               placeholder="1234"
@@ -739,17 +741,17 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
               aria-describedby={errors.govIdLast4 ? "govIdLast4-error" : undefined}
               {...register("govIdLast4")}
             />
-            <FieldHint>Do not enter the full document number.</FieldHint>
+            <FieldHint>Не указывайте полный номер документа.</FieldHint>
             <FieldError id="govIdLast4-error" message={errors.govIdLast4?.message} />
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2 sm:col-span-2">
-            <FieldLabel htmlFor="addressLine1">Address line 1</FieldLabel>
+            <FieldLabel htmlFor="addressLine1">Адрес (улица и дом)</FieldLabel>
             <Input
               id="addressLine1"
-              placeholder="Street address"
+              placeholder="Улица и дом"
               autoComplete="street-address"
               aria-invalid={Boolean(errors.addressLine1)}
               aria-describedby={errors.addressLine1 ? "addressLine1-error" : undefined}
@@ -759,10 +761,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="addressCity">City</FieldLabel>
+            <FieldLabel htmlFor="addressCity">Город</FieldLabel>
             <Input
               id="addressCity"
-              placeholder="City"
+              placeholder="Город"
               autoComplete="address-level2"
               aria-invalid={Boolean(errors.addressCity)}
               aria-describedby={errors.addressCity ? "addressCity-error" : undefined}
@@ -772,10 +774,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="addressCountry">Country</FieldLabel>
+            <FieldLabel htmlFor="addressCountry">Страна</FieldLabel>
             <Input
               id="addressCountry"
-              placeholder="Country"
+              placeholder="Страна"
               autoComplete="country"
               aria-invalid={Boolean(errors.addressCountry)}
               aria-describedby={errors.addressCountry ? "addressCountry-error" : undefined}
@@ -790,10 +792,12 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="emergencyContactName">Emergency contact name</FieldLabel>
+            <FieldLabel htmlFor="emergencyContactName">
+              Имя контактного лица на случай ЧС
+            </FieldLabel>
             <Input
               id="emergencyContactName"
-              placeholder="Full name"
+              placeholder="Полное имя"
               autoComplete="off"
               aria-invalid={Boolean(errors.emergencyContactName)}
               aria-describedby={
@@ -809,11 +813,11 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
           <div className="grid gap-2">
             <FieldLabel htmlFor="emergencyContactPhone">
-              Emergency contact phone
+              Телефон контактного лица
             </FieldLabel>
             <Input
               id="emergencyContactPhone"
-              placeholder="+7 999 000-00-00"
+              placeholder="+7 999 000‑00‑00"
               autoComplete="tel"
               aria-invalid={Boolean(errors.emergencyContactPhone)}
               aria-describedby={
@@ -832,18 +836,18 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <Separator className="my-1" />
 
       <SectionHeader
-        badge="References"
-        title="Professional references"
-        description="Two people who can vouch for your guiding experience."
+        badge="Рекомендации"
+        title="Профессиональные рекомендации"
+        description="Два человека, которые могут подтвердить ваш опыт гида."
       />
 
       <div className="grid gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="referenceName1">Reference 1 name</FieldLabel>
+            <FieldLabel htmlFor="referenceName1">Имя рекомендателя 1</FieldLabel>
             <Input
               id="referenceName1"
-              placeholder="Full name"
+              placeholder="Полное имя"
               autoComplete="off"
               aria-invalid={Boolean(errors.referenceName1)}
               aria-describedby={errors.referenceName1 ? "referenceName1-error" : undefined}
@@ -856,10 +860,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="referenceContact1">Reference 1 contact</FieldLabel>
+            <FieldLabel htmlFor="referenceContact1">Контакты рекомендателя 1</FieldLabel>
             <Input
               id="referenceContact1"
-              placeholder="Phone, email, or link"
+              placeholder="Телефон, email или ссылка"
               autoComplete="off"
               aria-invalid={Boolean(errors.referenceContact1)}
               aria-describedby={
@@ -876,10 +880,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="referenceName2">Reference 2 name</FieldLabel>
+            <FieldLabel htmlFor="referenceName2">Имя рекомендателя 2</FieldLabel>
             <Input
               id="referenceName2"
-              placeholder="Full name"
+              placeholder="Полное имя"
               autoComplete="off"
               aria-invalid={Boolean(errors.referenceName2)}
               aria-describedby={errors.referenceName2 ? "referenceName2-error" : undefined}
@@ -892,10 +896,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <FieldLabel htmlFor="referenceContact2">Reference 2 contact</FieldLabel>
+            <FieldLabel htmlFor="referenceContact2">Контакты рекомендателя 2</FieldLabel>
             <Input
               id="referenceContact2"
-              placeholder="Phone, email, or link"
+              placeholder="Телефон, email или ссылка"
               autoComplete="off"
               aria-invalid={Boolean(errors.referenceContact2)}
               aria-describedby={
@@ -914,9 +918,9 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <Separator className="my-1" />
 
       <SectionHeader
-        badge="Consents"
-        title="Consent and attestation"
-        description="Required to proceed with verification."
+        badge="Согласия"
+        title="Согласия и подтверждения"
+        description="Обязательные пункты для запуска проверки."
       />
 
       <div className="grid gap-3">
@@ -925,10 +929,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
             <input type="checkbox" className="mt-1" {...register("consentBackgroundCheck")} />
             <span>
               <span className="font-medium text-foreground">
-                I consent to a background check
+                    Я согласен(а) на проверку благонадёжности
               </span>
               <span className="block text-xs text-muted-foreground">
-                This is required before accepting paid bookings.
+                    Это обязательное условие перед приёмом платных бронирований.
               </span>
             </span>
           </label>
@@ -943,11 +947,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
             <input type="checkbox" className="mt-1" {...register("attestTruthful")} />
             <span>
               <span className="font-medium text-foreground">
-                I attest the information provided is truthful
+                    Подтверждаю, что данные указаны честно и без искажений
               </span>
               <span className="block text-xs text-muted-foreground">
-                Providing false information may result in removal from the
-                marketplace.
+                    Предоставление ложных данных может привести к блокировке профиля.
               </span>
             </span>
           </label>
@@ -957,10 +960,10 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          Review carefully - verification fields are product-critical.
+          Проверьте данные внимательно — поля для проверки критичны для работы.
         </p>
         <Button type="submit" disabled={isSubmitting}>
-          Submit intake (local)
+          Сохранить анкету (локально)
         </Button>
       </div>
     </form>

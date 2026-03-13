@@ -1,13 +1,6 @@
 import { CheckCircle2, Clock3, Shield, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
 const iconMap = {
   trust: Shield,
@@ -35,38 +28,35 @@ export function DashboardOverview({
 }) {
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <Badge variant="outline">{eyebrow}</Badge>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            {title}
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground">
-            {description}
-          </p>
+      <section className="section-frame rounded-[2.3rem] p-6 sm:p-8">
+        <div className="max-w-3xl space-y-4">
+          <Badge variant="secondary">{eyebrow}</Badge>
+          <div className="space-y-3">
+            <h1 className="text-5xl font-semibold text-foreground sm:text-6xl">{title}</h1>
+            <p className="text-sm leading-7 text-muted-foreground sm:text-base">{description}</p>
+          </div>
         </div>
-      </div>
+      </section>
 
       <div className="grid gap-4 md:grid-cols-2">
         {stats.map((stat) => {
           const Icon = iconMap[stat.icon];
 
           return (
-            <Card key={stat.title} className="border-border/70 bg-card/90">
-              <CardHeader className="flex flex-row items-center gap-4 space-y-0">
-                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <article
+              key={stat.title}
+              className="section-frame rounded-[1.9rem] p-5 shadow-[0_16px_40px_rgba(35,45,49,0.06)]"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
                   <Icon className="size-5" />
                 </div>
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{stat.title}</CardTitle>
-                  <CardDescription>{stat.description}</CardDescription>
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-semibold text-foreground">{stat.title}</h2>
+                  <p className="text-sm leading-7 text-muted-foreground">{stat.description}</p>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-0 text-sm text-muted-foreground">
-                This route is scaffolded and ready for parallel implementation in
-                its dedicated worktree.
-              </CardContent>
-            </Card>
+              </div>
+            </article>
           );
         })}
       </div>

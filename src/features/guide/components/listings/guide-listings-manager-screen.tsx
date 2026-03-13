@@ -262,10 +262,10 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
           : ("watch" as const),
       visibilityLabel:
         backendMode === "supabase" && mediaCount >= Math.max(1, records.length)
-          ? "Quality signals healthy"
-          : "Improve quality inputs",
+          ? "Сигналы качества в порядке"
+          : "Усилите качество листингов",
       visibilityNote:
-        "Visibility improves when reply speed stays fast, trips complete reliably, and each listing carries strong media and clear itinerary detail.",
+        "Выше выдача у тех гидов, кто быстро отвечает, стабильно доводит поездки до конца и заполняет листинги медиа и понятным описанием маршрута.",
     };
   }, [backendMode, mediaReservationsByListing, records.length]);
 
@@ -406,27 +406,27 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Guide workspace</Badge>
+        <Badge variant="outline">Кабинет гида</Badge>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Listing manager
+              Мои программы
             </h1>
             <p className="max-w-3xl text-base text-muted-foreground">
-                Manage your supply and shape listing fields for MVP baseline. When
-                signed in with Supabase, listings load from and save to your guide
-                account; otherwise they stay local in this session.
+              Управляйте своим предложением: редактируйте программы, цены и вместимость.
+              При входе через Supabase данные сохраняются в вашем профиле гида, без
+              Supabase — только локально в этом браузере.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="secondary">
-              <Link href="/guide/requests">Requests inbox</Link>
+              <Link href="/guide/requests">Входящие запросы</Link>
             </Button>
             <Button asChild variant="outline">
-              <Link href="/guide/bookings">Bookings</Link>
+              <Link href="/guide/bookings">Бронирования</Link>
             </Button>
             <Button type="button" onClick={handleCreateNew}>
-              New listing
+              Новая программа
               <Plus className="size-4" />
             </Button>
           </div>
@@ -434,18 +434,19 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
       </div>
 
       <MarketplaceQualityCard
-        title="Supply quality indicators"
-        description="Guide-facing view of the seeded ranking signals the marketplace exposes in MVP."
+        title="Качество предложения"
+        description="Экран гида с основными сигналами, от которых зависит место в выдаче."
         snapshot={rankingSnapshot}
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
-            <CardTitle>Listings</CardTitle>
+            <CardTitle>Программы</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {records.length} seeded or locally edited listing
-              {records.length === 1 ? "" : "s"}.
+              {records.length} программа
+              {records.length === 1 ? "" : records.length > 1 && records.length < 5 ? "ы" : ""}
+              , созданные или отредактированные на этом устройстве.
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -470,7 +471,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                         {record.listing.title}
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        {record.listing.region} · {record.listing.durationHours}h
+                        {record.listing.region} · {record.listing.durationHours} ч
                       </p>
                     </div>
                     <Badge variant={record.listing.status === "active" ? "secondary" : "outline"}>
@@ -487,11 +488,11 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                         : "Per group"}
                     </Badge>
                     <Badge variant="outline">
-                      Updated {formatUpdatedAt(record.updatedAt)}
+                      Обновлено {formatUpdatedAt(record.updatedAt)}
                     </Badge>
                     {mediaReservationsByListing[record.id]?.length ? (
                       <Badge variant="outline">
-                        Media paths {mediaReservationsByListing[record.id]?.length}
+                        Медиафайлов: {mediaReservationsByListing[record.id]?.length}
                       </Badge>
                     ) : null}
                   </div>
@@ -504,34 +505,34 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
             <CardTitle>
-              {selectedRecord ? "Edit listing" : "New listing scaffold"}
+              {selectedRecord ? "Редактирование программы" : "Новая программа"}
             </CardTitle>
             <p className="text-sm text-muted-foreground">
-              Capture the minimum launch fields for supply creation.
+              Заполните минимальный набор полей, чтобы программа была понятна гостям и системе.
             </p>
           </CardHeader>
           <CardContent className="space-y-4">
             {savedId ? (
               <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-                {backendMode === "supabase"
-                  ? (
-                    <>
-                      Saved to Supabase for listing{" "}
-                      <span className="font-medium text-foreground">{savedId}</span>.
-                    </>
-                  )
-                  : (
-                    <>
-                      Saved locally for listing{" "}
-                      <span className="font-medium text-foreground">{savedId}</span>.
-                    </>
-                  )}
+                {backendMode === "supabase" ? (
+                  <>
+                    Программа{" "}
+                    <span className="font-medium text-foreground">{savedId}</span> сохранена
+                    в Supabase.
+                  </>
+                ) : (
+                  <>
+                    Программа{" "}
+                    <span className="font-medium text-foreground">{savedId}</span> сохранена
+                    локально на этом устройстве.
+                  </>
+                )}
               </div>
             ) : null}
 
             {selectedRecord && mediaReservationsByListing[selectedRecord.id]?.[0] ? (
               <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-                Reserved media path:{" "}
+                Зарезервированный путь к медиафайлу:{" "}
                 <span className="font-medium text-foreground">
                   {mediaReservationsByListing[selectedRecord.id]?.[0]?.objectPath}
                 </span>
@@ -540,10 +541,10 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
 
             <form className="grid gap-5" onSubmit={handleSubmit(onSubmit)}>
               <div className="grid gap-2">
-                <FieldLabel htmlFor="title">Title</FieldLabel>
+                <FieldLabel htmlFor="title">Название программы</FieldLabel>
                 <Input
                   id="title"
-                  placeholder="e.g. Kazan food walk with hidden tea rooms"
+                  placeholder="Например, Казанский фуд‑маршрут с чайными комнатами"
                   aria-invalid={Boolean(errors.title)}
                   aria-describedby={errors.title ? "title-error" : undefined}
                   {...register("title")}
@@ -553,10 +554,10 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="region">Region</FieldLabel>
+                  <FieldLabel htmlFor="region">Регион</FieldLabel>
                   <Input
                     id="region"
-                    placeholder="e.g. Kazan"
+                    placeholder="Например, Казань"
                     aria-invalid={Boolean(errors.region)}
                     aria-describedby={errors.region ? "region-error" : undefined}
                     {...register("region")}
@@ -564,7 +565,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                   <FieldError id="region-error" message={errors.region?.message} />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="durationHours">Duration (hours)</FieldLabel>
+                  <FieldLabel htmlFor="durationHours">Длительность (часы)</FieldLabel>
                   <Input
                     id="durationHours"
                     type="number"
@@ -586,7 +587,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="capacity">Capacity</FieldLabel>
+                  <FieldLabel htmlFor="capacity">Максимум участников</FieldLabel>
                   <Input
                     id="capacity"
                     type="number"
@@ -602,7 +603,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="status">Status</FieldLabel>
+                  <FieldLabel htmlFor="status">Статус</FieldLabel>
                   <select
                     id="status"
                     className={cn(
@@ -626,7 +627,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
 
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="pricing.mode">Pricing mode</FieldLabel>
+                  <FieldLabel htmlFor="pricing.mode">Тип цены</FieldLabel>
                   <select
                     id="pricing.mode"
                     className={cn(
@@ -652,7 +653,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                   />
                 </div>
                 <div className="grid gap-2">
-                  <FieldLabel htmlFor="pricing.priceRub">Price (RUB)</FieldLabel>
+                  <FieldLabel htmlFor="pricing.priceRub">Цена (RUB)</FieldLabel>
                   <Input
                     id="pricing.priceRub"
                     type="number"
@@ -674,10 +675,10 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
               <Separator />
 
               <div className="grid gap-2">
-                <FieldLabel htmlFor="inclusions">Inclusions</FieldLabel>
+                <FieldLabel htmlFor="inclusions">Что включено</FieldLabel>
                 <Textarea
                   id="inclusions"
-                  placeholder="Guiding service, route planning, local recommendations"
+                  placeholder="Например, сопровождение, маршрут, советы по еде"
                   value={inclusions.join(", ")}
                   onChange={(event) => {
                     setValue("inclusions", splitCommaList(event.target.value), {
@@ -686,14 +687,14 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                     });
                   }}
                 />
-                <FieldHint>Comma-separated list of what is included.</FieldHint>
+                <FieldHint>Перечислите через запятую то, что входит в программу.</FieldHint>
               </div>
 
               <div className="grid gap-2">
-                <FieldLabel htmlFor="exclusions">Exclusions</FieldLabel>
+                <FieldLabel htmlFor="exclusions">Что не включено</FieldLabel>
                 <Textarea
                   id="exclusions"
-                  placeholder="Tickets, transport, meals"
+                  placeholder="Например, билеты, транспорт, питание"
                   value={exclusions.join(", ")}
                   onChange={(event) => {
                     setValue("exclusions", splitCommaList(event.target.value), {
@@ -702,16 +703,16 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
                     });
                   }}
                 />
-                <FieldHint>Comma-separated list of what is excluded.</FieldHint>
+                <FieldHint>Перечислите через запятую то, что оплачивается отдельно.</FieldHint>
               </div>
 
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button type="submit" disabled={isSubmitting}>
-                  Save locally
+                  Сохранить
                   <Save className="size-4" />
                 </Button>
                 <Button type="button" variant="outline" onClick={() => reset(selectedRecord?.listing ?? createEmptyListing())}>
-                  Reset form
+                  Сбросить форму
                   <RotateCcw className="size-4" />
                 </Button>
               </div>

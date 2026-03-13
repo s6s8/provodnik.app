@@ -3,113 +3,113 @@ import type { PublicListing } from "@/data/public-listings/types";
 export const seededPublicListings: readonly PublicListing[] = [
   {
     slug: "rostov-food-walk",
-    title: "Rostov food walk: markets + riverside bites",
-    city: "Rostov-on-Don",
-    region: "Rostov Oblast",
+    title: "Гастропрогулка по Ростову: рынок, дворики и набережная",
+    city: "Ростов-на-Дону",
+    region: "Ростовская область",
     durationDays: 1,
     priceFromRub: 8500,
     groupSizeMax: 6,
-    themes: ["Food", "History", "Family"],
+    themes: ["Еда", "История", "С семьей"],
     highlights: [
-      "Central market with a guide-led tasting route",
-      "Riverside walk with context, not trivia",
-      "Backup indoor stops for weather",
+      "Центральный рынок с понятным маршрутом дегустаций",
+      "Прогулка по набережной с контекстом, а не набором фактов",
+      "Есть запасной план на случай дождя",
     ],
     itinerary: [
       {
-        title: "Warm start + plan check",
+        title: "Знакомство и настройка маршрута",
         description:
-          "Quick preferences check, pacing, and what to skip if the market is packed.",
+          "Коротко обсуждаем темп, предпочтения и что лучше пропустить, если рынок слишком шумный.",
         durationHours: 0.5,
       },
       {
-        title: "Market lanes + tastings",
+        title: "Рынок и дегустации",
         description:
-          "High-signal stalls and local staples with practical buying tips.",
+          "Локальные продукты, сильные точки и практичные советы, что стоит попробовать и купить.",
         durationHours: 2,
       },
       {
-        title: "Old streets + river promenade",
+        title: "Старые улицы и набережная",
         description:
-          "Compact loop with photo stops and a clean logistics finish near transport.",
+          "Компактный городской круг с остановками для фото и удобным завершением рядом с транспортом.",
         durationHours: 1.5,
       },
     ],
-    inclusions: ["Guide time", "Tea & snacks"],
+    inclusions: ["Работа гида", "Чай и перекус"],
     guideSlug: "maria-rostov",
   },
   {
     slug: "baikal-ice-safety-day",
-    title: "Baikal winter day: ice routes + safety pacing",
-    city: "Irkutsk",
-    region: "Irkutsk Oblast",
+    title: "Зимний Байкал: ледовые маршруты и безопасный темп",
+    city: "Иркутск",
+    region: "Иркутская область",
     durationDays: 1,
     priceFromRub: 14500,
     groupSizeMax: 5,
-    themes: ["Nature", "Photography", "Off-season"],
+    themes: ["Природа", "Фотография", "Несезон"],
     highlights: [
-      "Realistic distances for the group (no hero plans)",
-      "Ice safety checkpoints and warm breaks",
-      "Photo-focused stops with time windows",
+      "Реалистичная дистанция без героических обещаний",
+      "Точки контроля льда и паузы на обогрев",
+      "Остановки под фото с учетом света и погоды",
     ],
     itinerary: [
       {
-        title: "Conditions briefing",
+        title: "Брифинг по условиям",
         description:
-          "Route selection based on wind, visibility, and current surface.",
+          "Выбираем маршрут по ветру, видимости и текущему состоянию поверхности.",
         durationHours: 0.75,
       },
       {
-        title: "Ice walk + shoreline viewpoints",
+        title: "Ледовая прогулка и видовые точки",
         description:
-          "Short segments, controlled pace, and clear regroup points.",
+          "Короткие отрезки, понятный темп и заранее оговоренные места сбора.",
         durationHours: 3,
       },
       {
-        title: "Warm checkpoint + wrap",
+        title: "Теплая остановка и завершение",
         description:
-          "Hot tea stop and a predictable finish for return transport.",
+          "Чай, короткий отдых и предсказуемый финал, чтобы спокойно вернуться в город.",
         durationHours: 1,
       },
     ],
-    inclusions: ["Guide time", "Tea & snacks", "Safety equipment"],
+    inclusions: ["Работа гида", "Чай и перекус", "Снаряжение"],
     guideSlug: "alexei-baikal",
   },
   {
     slug: "rostov-day-trip-azov",
-    title: "Azov day trip: fortress, coast, and local lunch",
-    city: "Azov",
-    region: "Rostov Oblast",
+    title: "Азов за день: крепость, море и обед с местным колоритом",
+    city: "Азов",
+    region: "Ростовская область",
     durationDays: 1,
     priceFromRub: 12500,
     groupSizeMax: 6,
-    themes: ["History", "Family", "Photography"],
+    themes: ["История", "С семьей", "Фотография"],
     highlights: [
-      "Fortress + museum context without overloading",
-      "Coastal viewpoints with optional short walks",
-      "Flexible lunch options (allergies-friendly)",
+      "Крепость и музей без перегруза датами",
+      "Видовые точки у воды и короткие прогулки по желанию",
+      "Гибкий выбор обеда, в том числе для гостей с ограничениями",
     ],
     itinerary: [
       {
-        title: "Transfer + timing buffer",
+        title: "Выезд и запас по времени",
         description:
-          "Departure timed to avoid queues; plan variants for weekends.",
+          "Стартуем так, чтобы избежать очередей и иметь запасной вариант на выходные дни.",
         durationHours: 1,
       },
       {
-        title: "Fortress loop",
+        title: "Маршрут по крепости",
         description:
-          "Compact circuit with context, photos, and rest points.",
+          "Небольшой круг с историей места, фотоостановками и понятными паузами на отдых.",
         durationHours: 2,
       },
       {
-        title: "Lunch + coast",
+        title: "Обед и береговая линия",
         description:
-          "Local lunch stop, then a short coastal segment for wind/season.",
+          "Обед в локальном месте, затем короткий участок у воды с поправкой на сезон и ветер.",
         durationHours: 2,
       },
     ],
-    inclusions: ["Guide time", "Local transport"],
+    inclusions: ["Работа гида", "Локальный транспорт"],
     guideSlug: "maria-rostov",
   },
 ] as const;
@@ -117,4 +117,3 @@ export const seededPublicListings: readonly PublicListing[] = [
 export function getSeededPublicListing(slug: string) {
   return seededPublicListings.find((listing) => listing.slug === slug) ?? null;
 }
-

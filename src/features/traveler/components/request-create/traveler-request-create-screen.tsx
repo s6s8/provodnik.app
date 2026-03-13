@@ -7,24 +7,25 @@ export function TravelerRequestCreateScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Create a travel request
+            Новый запрос на поездку
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Capture what you need in a structured way so guides can respond with
-            comparable offers. This is frontend-only for now; your request stays
-            on this device.
+            Опишите, куда и как вы хотите поехать, чтобы гиды могли предложить
+            понятные программы с понятным бюджетом. Сейчас запросы хранятся
+            локально на этом устройстве.
           </p>
         </div>
       </div>
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Request details</CardTitle>
+          <CardTitle>Основные параметры поездки</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Add the minimum needed for a good first response.
+            Укажите базовые даты, формат и бюджет — этого достаточно, чтобы
+            получить первые отклики.
           </p>
         </CardHeader>
         <CardContent>

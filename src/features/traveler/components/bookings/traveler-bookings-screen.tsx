@@ -22,14 +22,15 @@ export function TravelerBookingsScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Traveler workspace</Badge>
+        <Badge variant="outline">Кабинет путешественника</Badge>
         <div className="space-y-2">
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Bookings
+            Мои поездки
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Booking details and payment milestones. This surface is powered by
-            seeded local data in the MVP baseline.
+            Здесь собраны все ваши подтверждённые поездки: статусы, оплата и
+            детали маршрута. Пока данные живут только локально на этом
+            устройстве.
           </p>
         </div>
       </div>
@@ -38,15 +39,16 @@ export function TravelerBookingsScreen() {
         {bookings.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
-              <CardTitle>No bookings yet</CardTitle>
+              <CardTitle>Пока нет бронирований</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Once you accept an offer, it becomes a booking.
+                Как только вы согласуете предложение гида, оно появится здесь
+                как оформленная поездка.
               </p>
             </CardHeader>
             <CardContent>
               <Button asChild variant="secondary">
                 <Link href="/traveler/requests">
-                  Browse requests
+                  Перейти к запросам
                   <ArrowRight className="size-4" />
                 </Link>
               </Button>
@@ -76,8 +78,8 @@ function BookingCard({ record }: { record: TravelerBookingRecord }) {
           <div className="space-y-1">
             <CardTitle className="text-base">{record.request.destination}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {dateLabel} · {record.request.groupSize} traveler
-              {record.request.groupSize === 1 ? "" : "s"}
+              {dateLabel} · {record.request.groupSize}{" "}
+              {record.request.groupSize === 1 ? "путешественник" : "путешественника"}
             </p>
           </div>
           <TravelerBookingStatusBadge status={record.status} />
@@ -89,25 +91,27 @@ function BookingCard({ record }: { record: TravelerBookingRecord }) {
           <Badge variant="secondary">{amountLabel}</Badge>
           <Badge variant="outline">{record.guide.displayName}</Badge>
           <Badge variant="outline">{record.guide.homeBase}</Badge>
-          {canLeaveReview ? <Badge variant="outline">Review ready</Badge> : null}
+          {canLeaveReview ? (
+            <Badge variant="outline">Можно оставить отзыв</Badge>
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Updated {formatShortDate(record.updatedAt)}
+          Обновлено {formatShortDate(record.updatedAt)}
         </p>
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {canLeaveReview ? (
             <Button asChild>
               <Link href={`/traveler/bookings/${record.id}/review`}>
-                Leave review
+                Оставить отзыв
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
           ) : null}
           <Button asChild variant="secondary">
             <Link href={`/traveler/bookings/${record.id}`}>
-              Open
+              Открыть
               <ArrowRight className="size-4" />
             </Link>
           </Button>

@@ -4,8 +4,8 @@ import { seededPublicListings } from "@/data/public-listings/seed";
 import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
 
 export const metadata: Metadata = {
-  title: "Listings",
-  description: "Explore seeded tour listings for the public MVP baseline.",
+  title: "Экскурсии",
+  description: "Готовые маршруты и экскурсии по России от проверенных гидов.",
 };
 
 export default function PublicListingsPage() {

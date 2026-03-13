@@ -36,17 +36,17 @@ function formatExperienceType(
 ): string {
   switch (value) {
     case "city":
-      return "City";
+      return "Город";
     case "nature":
-      return "Nature";
+      return "Природа";
     case "culture":
-      return "Culture";
+      return "Культура";
     case "food":
-      return "Food";
+      return "Еда";
     case "adventure":
-      return "Adventure";
+      return "Приключение";
     case "relax":
-      return "Relax";
+      return "Отдых";
     default: {
       const exhaustive: never = value;
       return exhaustive;
@@ -103,55 +103,55 @@ export function TravelerRequestCreateForm() {
               <CheckCircle2 className="size-5" />
             </div>
             <div className="space-y-1">
-              <CardTitle>Request created locally</CardTitle>
+              <CardTitle>Запрос сохранён</CardTitle>
               <p className="text-sm text-muted-foreground">
-                This request is now stored locally and linked into your traveler
-                workspace on this device.
+                Сейчас запрос хранится локально и доступен в вашем кабинете
+                путешественника на этом устройстве.
               </p>
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <SummaryRow
-              label="Category"
+              label="Категория"
               value={formatExperienceType(submitted.request.experienceType)}
             />
-            <SummaryRow label="Destination" value={submitted.request.destination} />
+            <SummaryRow label="Направление" value={submitted.request.destination} />
             <SummaryRow
-              label="Dates"
-              value={`${submitted.request.startDate} to ${submitted.request.endDate}`}
+              label="Даты"
+              value={`${submitted.request.startDate} — ${submitted.request.endDate}`}
             />
             <SummaryRow
-              label="Group size"
-              value={`${submitted.request.groupSize} traveler${
-                submitted.request.groupSize === 1 ? "" : "s"
+              label="Размер группы"
+              value={`${submitted.request.groupSize} путешественник${
+                submitted.request.groupSize === 1 ? "" : "а"
               }`}
             />
             <SummaryRow
-              label="Private or group"
+              label="Формат"
               value={
                 submitted.request.groupPreference === "private"
-                  ? "Private"
-                  : "Group"
+                  ? "Только ваша компания"
+                  : "Готовы к группе"
               }
             />
             <SummaryRow
-              label="Open to joining others"
-              value={submitted.request.openToJoiningOthers ? "Yes" : "No"}
+              label="Можно присоединиться к другим"
+              value={submitted.request.openToJoiningOthers ? "Да" : "Нет"}
             />
             <SummaryRow
-              label="Allow suggestions outside constraints"
+              label="Можно предлагать варианты вне рамок"
               value={
                 submitted.request.allowGuideSuggestionsOutsideConstraints
-                  ? "Yes"
-                  : "No"
+                  ? "Да"
+                  : "Нет"
               }
             />
             <SummaryRow
-              label="Budget per person"
+              label="Бюджет на человека"
               value={formatRub(submitted.request.budgetPerPersonRub)}
             />
             {submitted.request.notes ? (
-              <SummaryRow label="Notes" value={submitted.request.notes} />
+              <SummaryRow label="Пожелания" value={submitted.request.notes} />
             ) : null}
           </CardContent>
         </Card>
@@ -159,15 +159,15 @@ export function TravelerRequestCreateForm() {
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild>
             <Link href={`/traveler/requests/${submitted.id}`}>
-              Open request
+              Открыть запрос
               <ArrowRight className="size-4" />
             </Link>
           </Button>
           <Button asChild variant="secondary">
-            <Link href="/traveler/requests">View all requests</Link>
+            <Link href="/traveler/requests">Все запросы</Link>
           </Button>
           <Button type="button" onClick={handleCreateAnother}>
-            Create another request
+            Создать ещё один запрос
             <RotateCcw className="size-4" />
           </Button>
         </div>
@@ -179,10 +179,10 @@ export function TravelerRequestCreateForm() {
     <form
       className="grid gap-5"
       onSubmit={handleSubmit(onSubmit)}
-      aria-label="Create traveler request"
+      aria-label="Создать запрос путешественника"
     >
       <div className="grid gap-2">
-        <FieldLabel htmlFor="experienceType">Category</FieldLabel>
+        <FieldLabel htmlFor="experienceType">Категория поездки</FieldLabel>
         <select
           id="experienceType"
           aria-invalid={Boolean(errors.experienceType)}
@@ -202,7 +202,7 @@ export function TravelerRequestCreateForm() {
             </option>
           ))}
         </select>
-        <FieldHint>Pick the main type of experience you want.</FieldHint>
+        <FieldHint>Выберите основной формат, который вам ближе.</FieldHint>
         <FieldError
           id="experienceType-error"
           message={errors.experienceType?.message}
@@ -210,24 +210,24 @@ export function TravelerRequestCreateForm() {
       </div>
 
       <div className="grid gap-2">
-        <FieldLabel htmlFor="destination">Where do you want to go?</FieldLabel>
+        <FieldLabel htmlFor="destination">Куда хотите поехать?</FieldLabel>
         <Input
           id="destination"
-          placeholder="e.g. Kazan, Altai, Baikal"
+          placeholder="Например: Казань, Алтай, Байкал"
           autoComplete="off"
           aria-invalid={Boolean(errors.destination)}
           aria-describedby={errors.destination ? "destination-error" : undefined}
           {...register("destination")}
         />
         <FieldHint>
-          City, region, or a rough area is enough for the first pass.
+          Город, регион или примерное направление — для начала достаточно.
         </FieldHint>
         <FieldError id="destination-error" message={errors.destination?.message} />
       </div>
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startDate">Start date</FieldLabel>
+          <FieldLabel htmlFor="startDate">Дата начала</FieldLabel>
           <Input
             id="startDate"
             type="date"
@@ -239,7 +239,7 @@ export function TravelerRequestCreateForm() {
         </div>
 
         <div className="grid gap-2">
-          <FieldLabel htmlFor="endDate">End date</FieldLabel>
+          <FieldLabel htmlFor="endDate">Дата окончания</FieldLabel>
           <Input
             id="endDate"
             type="date"
@@ -253,7 +253,7 @@ export function TravelerRequestCreateForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="groupSize">Group size</FieldLabel>
+          <FieldLabel htmlFor="groupSize">Сколько вас поедет?</FieldLabel>
           <Input
             id="groupSize"
             type="number"
@@ -264,13 +264,13 @@ export function TravelerRequestCreateForm() {
             aria-describedby={errors.groupSize ? "groupSize-error" : undefined}
             {...register("groupSize", { valueAsNumber: true })}
           />
-          <FieldHint>How many travelers will join this request?</FieldHint>
+          <FieldHint>Укажите количество человек в вашей компании.</FieldHint>
           <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
 
         <div className="grid gap-2">
-          <FieldLabel>Private or group</FieldLabel>
-          <fieldset className="grid gap-2" aria-label="Group preference">
+          <FieldLabel>Формат поездки</FieldLabel>
+          <fieldset className="grid gap-2" aria-label="Формат группы">
             <label className="flex items-start gap-2 text-sm">
               <input
                 type="radio"
@@ -279,9 +279,9 @@ export function TravelerRequestCreateForm() {
                 {...register("groupPreference")}
               />
               <span>
-                <span className="font-medium text-foreground">Private</span>
+                <span className="font-medium text-foreground">Только ваша компания</span>
                 <span className="block text-xs text-muted-foreground">
-                  Only your party, no added travelers.
+                  Без присоединения других путешественников к вашей компании.
                 </span>
               </span>
             </label>
@@ -293,9 +293,9 @@ export function TravelerRequestCreateForm() {
                 {...register("groupPreference")}
               />
               <span>
-                <span className="font-medium text-foreground">Group</span>
+                <span className="font-medium text-foreground">Группа</span>
                 <span className="block text-xs text-muted-foreground">
-                  You are open to a shared group experience.
+                  Готовы к общей поездке с другими путешественниками.
                 </span>
               </span>
             </label>
@@ -308,7 +308,7 @@ export function TravelerRequestCreateForm() {
 
         <div className="grid gap-2">
           <FieldLabel htmlFor="budgetPerPersonRub">
-            Budget per person (RUB)
+            Бюджет на человека (₽)
           </FieldLabel>
           <Input
             id="budgetPerPersonRub"
@@ -323,7 +323,7 @@ export function TravelerRequestCreateForm() {
             {...register("budgetPerPersonRub", { valueAsNumber: true })}
           />
           <FieldHint>
-            A rough ceiling helps guides propose realistic itineraries.
+            Верхняя граница бюджета помогает гидам предлагать реалистичные программы.
           </FieldHint>
           <FieldError
             id="budgetPerPersonRub-error"
@@ -341,11 +341,11 @@ export function TravelerRequestCreateForm() {
           />
           <span>
             <span className="font-medium text-foreground">
-              Open to joining others
+              Готовы присоединиться к другим путешественникам
             </span>
             <span className="block text-xs text-muted-foreground">
-              If you pick group, guides can suggest adding you to another
-              compatible group.
+              Если выберете формат «группа», гиды смогут предложить подходящую
+              существующую группу.
             </span>
           </span>
         </label>
@@ -364,37 +364,39 @@ export function TravelerRequestCreateForm() {
           />
           <span>
             <span className="font-medium text-foreground">
-              Allow suggestions outside exact constraints
+              Разрешить предлагать варианты вне заданных рамок
             </span>
             <span className="block text-xs text-muted-foreground">
-              Guides can propose nearby dates, small budget adjustments, or a
-              different pace if they explain why.
+              Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или
+              другой темп, если объяснят, зачем это нужно.
             </span>
           </span>
         </label>
       </div>
 
       <div className="grid gap-2">
-        <FieldLabel htmlFor="notes">Notes (optional)</FieldLabel>
+        <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
         <Textarea
           id="notes"
-          placeholder="Preferences, pace, interests, accessibility needs, travel style, etc."
+          placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха…"
           aria-invalid={Boolean(errors.notes)}
           aria-describedby={errors.notes ? "notes-error" : undefined}
           {...register("notes")}
         />
         <FieldHint>
-          Keep it short; you will be able to refine once offers start coming in.
+          Пишите коротко — детали можно будет уточнить после первых откликов.
         </FieldHint>
         <FieldError id="notes-error" message={errors.notes?.message} />
       </div>
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
-          {isSubmitSuccessful ? "Captured. You can create another anytime." : null}
+          {isSubmitSuccessful
+            ? "Готово. В любой момент можно создать ещё один запрос."
+            : null}
         </p>
         <Button type="submit" disabled={isSubmitting}>
-          Create request
+          Отправить запрос
         </Button>
       </div>
     </form>

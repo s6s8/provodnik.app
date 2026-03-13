@@ -2,9 +2,12 @@
 
 import { useMemo, useState } from "react";
 
+import { MapPinned, SlidersHorizontal } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import type { PublicListing } from "@/data/public-listings/types";
 import { PublicListingCard } from "@/features/listings/components/public/public-listing-card";
 import { PublicListingFilters } from "@/features/listings/components/public/public-listing-filters";
-import type { PublicListing } from "@/data/public-listings/types";
 
 export function PublicListingDiscoveryScreen({
   listings,
@@ -13,34 +16,104 @@ export function PublicListingDiscoveryScreen({
 }) {
   const [filtered, setFiltered] = useState<readonly PublicListing[]>(listings);
 
-  const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => a.priceFromRub - b.priceFromRub);
-  }, [filtered]);
+  const sorted = useMemo(
+    () => [...filtered].sort((a, b) => a.priceFromRub - b.priceFromRub),
+    [filtered],
+  );
 
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <p className="text-sm text-muted-foreground">Public discovery</p>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-          Explore seeded tours
-        </h1>
-        <p className="max-w-prose text-sm text-muted-foreground">
-          A lightweight discovery surface for the MVP baseline: cards, quick
-          filters, and a detail view with trust framing.
-        </p>
+      <section className="section-frame overflow-hidden rounded-[2.4rem] p-6 sm:p-8 lg:p-10">
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="space-y-5">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <MapPinned className="size-4 text-primary" />
+              Каталог экскурсий
+            </div>
+            <h1 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
+              Подберите экскурсию по городу, длительности и формату группы.
+            </h1>
+            <p className="max-w-2xl text-base leading-8 text-muted-foreground">
+              В карточке сразу видно цену, размер группы, рейтинг и как быстро гид
+              отвечает на новые заявки. Это ближе к реальному бронированию, чем к
+              длинной статье о маршруте.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
+                Ростов и юг России
+              </Badge>
+              <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
+                Байкал и сезонные поездки
+              </Badge>
+              <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
+                Семьи, пары и компании
+              </Badge>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="rounded-[1.8rem] border border-border/70 bg-white/78 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Сейчас в каталоге
+              </p>
+              <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+                {listings.length}
+              </p>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                Готовых маршрутов для запуска витрины и теста бронирования.
+              </p>
+            </div>
+            <div className="rounded-[1.8rem] border border-border/70 bg-white/78 p-5">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                Что важно
+              </p>
+              <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
+                Цена, отзыв, темп и понятный план дня
+              </p>
+              <p className="mt-2 text-sm leading-7 text-muted-foreground">
+                Мы делаем упор на понятные карточки маршрутов, а не на длинный
+                рекламный текст.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <SlidersHorizontal className="size-4" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Фильтры витрины</p>
+            <p className="text-sm text-muted-foreground">
+              Сузьте выдачу по региону, длительности и формату.
+            </p>
+          </div>
+        </div>
+
+        <PublicListingFilters listings={listings} onFilteredListingsChange={setFiltered} />
       </div>
 
-      <PublicListingFilters
-        listings={listings}
-        onFilteredListingsChange={setFiltered}
-      />
+      <section className="space-y-4">
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <p className="text-sm text-muted-foreground">Найдено маршрутов</p>
+            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+              {sorted.length}
+            </h2>
+          </div>
+          <div className="rounded-full border border-border/70 bg-white/74 px-4 py-2 text-sm text-muted-foreground">
+            Сортировка: сначала самые доступные по цене
+          </div>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {sorted.map((listing) => (
-          <PublicListingCard key={listing.slug} listing={listing} />
-        ))}
-      </div>
+        <div className="grid gap-5 lg:grid-cols-3">
+          {sorted.map((listing) => (
+            <PublicListingCard key={listing.slug} listing={listing} />
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
-
