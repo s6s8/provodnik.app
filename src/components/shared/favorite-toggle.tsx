@@ -31,7 +31,7 @@ export function FavoriteToggle({
   className?: string;
 }) {
   const userId = React.useMemo(() => getActiveFavoritesUserId(), []);
-  const [saved, setSaved] = React.useState(() => isFavorite(userId, targetType, slug));
+  const [saved, setSaved] = React.useState(false);
   const [usesBackend, setUsesBackend] = React.useState(false);
 
   React.useEffect(() => {
@@ -108,7 +108,7 @@ export function FavoriteToggle({
         className={cn("size-4", saved && "fill-current")}
         aria-hidden="true"
       />
-      {saved ? "Saved" : "Save"}
+      {saved ? "Сохранено" : "Сохранить"}
     </Button>
   );
 }
