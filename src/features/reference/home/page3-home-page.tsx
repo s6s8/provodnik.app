@@ -106,7 +106,7 @@ const highlightRows = [
   },
 ] as const;
 
-export default function HomePage() {
+export function Page3HomePage() {
   const featuredListings = seededPublicListings.slice(0, 3);
   const featuredGuides = seededPublicGuides.slice(0, 2);
 

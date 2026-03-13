@@ -6,6 +6,8 @@ export const seededPublicListings: readonly PublicListing[] = [
     title: "Гастропрогулка по Ростову: рынок, дворики и набережная",
     city: "Ростов-на-Дону",
     region: "Ростовская область",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 8500,
     groupSizeMax: 6,
@@ -43,6 +45,8 @@ export const seededPublicListings: readonly PublicListing[] = [
     title: "Зимний Байкал: ледовые маршруты и безопасный темп",
     city: "Иркутск",
     region: "Иркутская область",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 14500,
     groupSizeMax: 5,
@@ -80,6 +84,8 @@ export const seededPublicListings: readonly PublicListing[] = [
     title: "Азов за день: крепость, море и обед с местным колоритом",
     city: "Азов",
     region: "Ростовская область",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 12500,
     groupSizeMax: 6,
@@ -111,6 +117,201 @@ export const seededPublicListings: readonly PublicListing[] = [
     ],
     inclusions: ["Работа гида", "Локальный транспорт"],
     guideSlug: "maria-rostov",
+  },
+  {
+    slug: "spb-white-nights-editorial",
+    title: "Белые ночи: тихая Нева, дворы и светлый Петербург без спешки",
+    city: "Санкт-Петербург",
+    region: "Санкт-Петербург",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&h=1200&q=80",
+    durationDays: 1,
+    priceFromRub: 14200,
+    groupSizeMax: 6,
+    themes: ["История", "Фотография", "С семьей"],
+    highlights: [
+      "Маршрут выстроен вокруг света, а не вокруг очередей",
+      "Дворы и набережные с паузами на видовые точки",
+      "Спокойный темп, удобный для первой встречи с городом",
+    ],
+    itinerary: [
+      {
+        title: "Невский и первые акценты",
+        description:
+          "Начинаем с понятного ритма прогулки и быстро уходим с перегруженных участков к более тихим адресам.",
+        durationHours: 1,
+      },
+      {
+        title: "Дворы, вода и свет",
+        description:
+          "Идем через дворы-колодцы и небольшие набережные, обсуждая город через детали среды, а не через длинный список дат.",
+        durationHours: 2,
+      },
+      {
+        title: "Финал у Невы",
+        description:
+          "Завершаем маршрут в точке, где удобно задержаться на фото или спокойно уйти на ужин без лишней логистики.",
+        durationHours: 1,
+      },
+    ],
+    inclusions: ["Работа гида", "Чай и перекус"],
+    guideSlug: "anna-petersburg",
+  },
+  {
+    slug: "kazan-evening-taste-walk",
+    title: "Казань вечером: чайные истории, старые улицы и татарский вкус",
+    city: "Казань",
+    region: "Республика Татарстан",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&h=1200&q=80",
+    durationDays: 1,
+    priceFromRub: 9800,
+    groupSizeMax: 8,
+    themes: ["Еда", "История", "С семьей"],
+    highlights: [
+      "Вечерний маршрут без перегруженного центра",
+      "Чай, выпечка и разговор о городе через гастрономию",
+      "Короткие переходы и комфортный темп для компании",
+    ],
+    itinerary: [
+      {
+        title: "Старый город и вводный круг",
+        description:
+          "Собираем контекст прогулки и выбираем темп так, чтобы маршрут подошел и семьям, и небольшой взрослой компании.",
+        durationHours: 1,
+      },
+      {
+        title: "Чайная пауза и локальные вкусы",
+        description:
+          "Заходим в проверенное место, где легко обсудить татарскую кухню через понятные примеры и без туристической постановочности.",
+        durationHours: 1.5,
+      },
+      {
+        title: "Подсвеченные улицы и финал",
+        description:
+          "Доходим до красивых вечерних точек, откуда удобно продолжить ужин или вернуться в отель.",
+        durationHours: 1,
+      },
+    ],
+    inclusions: ["Работа гида", "Чай и перекус"],
+    guideSlug: "timur-kazan",
+  },
+  {
+    slug: "suzdal-morning-bells",
+    title: "Суздаль с первого света: монастыри, луга и утренний воздух над рекой",
+    city: "Суздаль",
+    region: "Владимирская область",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&h=1200&q=80",
+    durationDays: 1,
+    priceFromRub: 8900,
+    groupSizeMax: 5,
+    themes: ["История", "Фотография", "С семьей"],
+    highlights: [
+      "Ранний старт ради света и тишины",
+      "Видовые точки без длинных переездов",
+      "Маршрут хорошо подходит тем, кто не любит спешку",
+    ],
+    itinerary: [
+      {
+        title: "Тихое утро в центре",
+        description:
+          "Выходим до дневного потока и видим старый город в более спокойном и цельном состоянии.",
+        durationHours: 1,
+      },
+      {
+        title: "Монастыри и берег",
+        description:
+          "Идем короткими переходами между ключевыми точками, оставляя время на паузы и фотографии.",
+        durationHours: 2,
+      },
+      {
+        title: "Локальный финал",
+        description:
+          "Завершаем прогулку ремесленной лавкой или медовухой - в зависимости от настроения группы.",
+        durationHours: 1,
+      },
+    ],
+    inclusions: ["Работа гида"],
+    guideSlug: "elena-suzdal",
+  },
+  {
+    slug: "kaliningrad-dunes-courtyards",
+    title: "Калининград и Куршская коса: виллы, ветер и дюны одним уверенным днем",
+    city: "Калининград",
+    region: "Калининградская область",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=1200&q=80",
+    durationDays: 2,
+    priceFromRub: 18600,
+    groupSizeMax: 6,
+    themes: ["Природа", "История", "Фотография"],
+    highlights: [
+      "Сочетание городских вилл и береговой линии без хаотичной логистики",
+      "Продуманные остановки там, где пейзаж действительно работает",
+      "Есть запасные сценарии на случай сильного ветра",
+    ],
+    itinerary: [
+      {
+        title: "Калининградские кварталы",
+        description:
+          "Начинаем с архитектурного контекста и собираем ощущение города через улицы, виллы и воду.",
+        durationHours: 2,
+      },
+      {
+        title: "Выезд к морю",
+        description:
+          "Перестраиваемся в более свободный темп и выезжаем на побережье с понятными паузами по пути.",
+        durationHours: 2.5,
+      },
+      {
+        title: "Дюны и вечерний берег",
+        description:
+          "Финал строится вокруг света и погоды, чтобы получить сильную картинку, а не галочку по точкам.",
+        durationHours: 2,
+      },
+    ],
+    inclusions: ["Работа гида", "Локальный транспорт"],
+    guideSlug: "igor-kaliningrad",
+  },
+  {
+    slug: "murmansk-northern-coast",
+    title: "Мурманск и северный берег: порт, тундра и мягкий свет Баренцева моря",
+    city: "Мурманск",
+    region: "Мурманская область",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1600&h=1200&q=80",
+    durationDays: 2,
+    priceFromRub: 21400,
+    groupSizeMax: 4,
+    themes: ["Природа", "Фотография", "Несезон"],
+    highlights: [
+      "Северный маршрут без обещаний того, что зависит от погоды",
+      "Порт и берег в одном цельном ритме дня",
+      "Маленькая группа и аккуратная логистика на длинных отрезках",
+    ],
+    itinerary: [
+      {
+        title: "Портовый контекст",
+        description:
+          "Начинаем с Мурманска и собираем северную историю через порт, масштаб и городскую повседневность.",
+        durationHours: 1.5,
+      },
+      {
+        title: "Дорога к берегу",
+        description:
+          "Следим за погодой, светом и состоянием дороги, чтобы сохранить маршрут красивым и реалистичным.",
+        durationHours: 3,
+      },
+      {
+        title: "Баренцево море",
+        description:
+          "На месте оставляем время на наблюдение, фото и паузу, а не только на обязательную отметку о прибытии.",
+        durationHours: 2,
+      },
+    ],
+    inclusions: ["Работа гида", "Локальный транспорт", "Чай и перекус"],
+    guideSlug: "natalia-murmansk",
   },
 ] as const;
 

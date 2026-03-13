@@ -26,6 +26,7 @@ export type PublicListing = {
   title: string;
   city: string;
   region: string;
+  coverImageUrl?: string;
   durationDays: 1 | 2 | 3;
   priceFromRub: number;
   groupSizeMax: number;
