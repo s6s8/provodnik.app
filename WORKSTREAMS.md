@@ -9,7 +9,7 @@ These worktrees are intended for parallel MVP implementation from the shared bas
 
 ## Tracking model
 
-- GitHub Issues hold task records and acceptance criteria.
+- `s6s8/provodnik.app-Tasks` issues hold task records and acceptance criteria.
 - GitHub Project holds live status such as `Ready`, `In Progress`, `Blocked`, `Review`, and `Done`.
 - Worktrees isolate code changes per stream; they do not replace issue tracking.
 

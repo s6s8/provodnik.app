@@ -5,6 +5,7 @@ Provodnik is a mobile-first marketplace for tours and excursions in Russia. The 
 ## Workspace layout
 
 - app repo: `D:\dev\projects\provodnik\provodnik.app`
+- task repo: `D:\dev\projects\provodnik\provodnik.app-Tasks`
 - git worktrees root: `D:\dev\projects\provodnik\worktrees`
 
 ## Stack
@@ -54,3 +55,9 @@ The app shell works without Supabase credentials, but Supabase helper functions 
 - `PRD.md`: product requirements and market thesis
 - `MARKET_RESEARCH.md`: competitor and market context
 - `WORKSTREAMS.md`: branch and worktree split for parallel delivery
+
+## Task tracking
+
+- code repo: `s6s8/provodnik.app`
+- issue repo: `s6s8/provodnik.app-Tasks`
+- shared board: `Provodnik`

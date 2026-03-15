@@ -1,7 +1,7 @@
 # Orchestration Workflow
 
 ## Operating model
-- GitHub Issues = task records
+- `s6s8/provodnik.app-Tasks` issues = task records
 - GitHub Project = live board and status
 - Worktrees = isolated coding spaces
 - `AGENTS.md` + repo memory docs = stable context
@@ -17,7 +17,7 @@
   - `.github/instructions/*.instructions.md`
   - `docs/adr/*`
 - Live execution state:
-  - GitHub Issues
+  - `s6s8/provodnik.app-Tasks` issues
   - GitHub Project
   - Pull requests
 
@@ -35,7 +35,7 @@
 
 ## Project model
 - Active project:
-  - `Provodnik Delivery`
+  - `Provodnik`
   - `https://github.com/users/s6s8/projects/1`
 - Built-in field:
   - `Status`: `Todo`, `In Progress`, `Done`
@@ -113,7 +113,7 @@
 ## Cursor delegation format
 ```text
 Workspace: D:\dev\projects\provodnik\worktrees\provodnik-traveler
-Issue: #42
+Issue: s6s8/provodnik.app-Tasks#42
 Task: Implement traveler request form.
 Use: /frontend-agent /react-best-practices
 Rules: follow AGENTS.md and .cursor/rules; use --model auto; do not touch unrelated files.
@@ -124,8 +124,9 @@ Return: changed files, checks run, remaining risks.
 ## Remote GitHub setup
 - Remote setup completed on GitHub:
   - labels for `area:*` and `type:*`
-  - project `Provodnik Delivery`
-  - linked repository `s6s8/provodnik.app`
+  - project `Provodnik`
+  - code repository `s6s8/provodnik.app`
+  - task repository `s6s8/provodnik.app-Tasks`
   - custom fields `Workflow`, `Area`, `Worktree`, `Priority`, `Branch`
 - Next optional improvements:
   - create saved views on GitHub

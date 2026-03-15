@@ -49,7 +49,7 @@
 - Do not invent backend behavior that is not documented in code or product docs.
 - Keep payment integration out of MVP; booking work should remain reservation-ready and policy-complete without a live payment processor.
 - For Cursor and `cursor-agent`, use `--model auto` unless the user explicitly overrides it.
-- Use GitHub Issues as task records and GitHub Project as the live status board.
+- Use `s6s8/provodnik.app-Tasks` issues as task records and GitHub Project as the live status board.
 - Use worktrees as isolated coding spaces, not as the task ledger.
 
 ## Runbook
@@ -84,4 +84,4 @@
 - Validate the change with the cheapest meaningful checks.
 - Report outcome, affected paths, and any unverified risk.
 - Keep stable memory in docs; keep live task status in issues/projects, not here.
-- Treat the linked GitHub issue as the task source of truth when one exists.
+- Treat the linked issue in `s6s8/provodnik.app-Tasks` as the task source of truth when one exists.

@@ -6,7 +6,7 @@
 
 ## Memory model
 - Stable memory lives in repo files.
-- Live status lives in GitHub issues, pull requests, and GitHub Projects.
+- Live status lives in `s6s8/provodnik.app-Tasks` issues, pull requests, and GitHub Projects.
 
 ## Stable files
 - `AGENTS.md`: canonical root instructions, paths, rules, and runbook
@@ -33,8 +33,8 @@
 6. Use issues or project items for current status.
 
 ## Live work tracking
-- GitHub Issues are the task record.
-- GitHub Project `Provodnik Delivery` is the status board:
+- `s6s8/provodnik.app-Tasks` issues are the task record.
+- GitHub Project `Provodnik` is the status board:
   - `https://github.com/users/s6s8/projects/1`
 - Worktrees isolate code changes but do not replace issue tracking.
 - Pull requests carry review and merge state.

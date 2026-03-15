@@ -6,7 +6,7 @@
 
 ## Active tracking
 - GitHub Project:
-  - `Provodnik Delivery`
+  - `Provodnik`
   - `https://github.com/users/s6s8/projects/1`
 - Milestones:
   - `Release 1 Transaction Foundation`
