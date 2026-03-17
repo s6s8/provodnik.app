@@ -13,6 +13,7 @@ import {
   type OpenRequestDetail,
 } from "@/data/open-requests/local-store";
 import { cn } from "@/lib/utils";
+import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -73,11 +74,7 @@ export function TravelerOpenRequestsScreen() {
               этом устройстве.
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Button asChild variant="secondary">
-              <Link href="/traveler/requests">Мои запросы</Link>
-            </Button>
-          </div>
+          <TravelerWorkspaceNav includeListings />
         </div>
       </div>
 

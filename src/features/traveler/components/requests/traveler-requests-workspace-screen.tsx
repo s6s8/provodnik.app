@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Plus, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/data/traveler-request/local-store";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
+import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 export function TravelerRequestsWorkspaceScreen() {
   const [requests, setRequests] = React.useState<TravelerRequestRecord[]>([]);
@@ -76,33 +77,10 @@ export function TravelerRequestsWorkspaceScreen() {
               локально на этом устройстве.
             </p>
           </div>
-          <div className="flex shrink-0 items-center gap-2">
-            <Button asChild variant="secondary">
-              <Link href="/traveler/bookings">Бронирования</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/traveler/favorites">Избранное</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/traveler/open-requests">
-                Открытые группы
-                {joinedOpenRequestsCount > 0 ? (
-                  <Badge
-                    variant="secondary"
-                    className="ml-2 bg-background text-foreground"
-                  >
-                    {joinedOpenRequestsCount}
-                  </Badge>
-                ) : null}
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/traveler/requests/new">
-                Новый запрос
-                <Plus className="size-4" />
-              </Link>
-            </Button>
-          </div>
+          <TravelerWorkspaceNav
+            joinedOpenRequestsCount={joinedOpenRequestsCount}
+            includeListings
+          />
         </div>
       </div>
 

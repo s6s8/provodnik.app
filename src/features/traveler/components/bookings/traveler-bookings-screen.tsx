@@ -11,6 +11,7 @@ import { Separator } from "@/components/ui/separator";
 import { listTravelerBookings } from "@/data/traveler-booking/local-store";
 import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
 import { TravelerBookingStatusBadge } from "@/features/traveler/components/bookings/traveler-booking-status";
+import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 export function TravelerBookingsScreen() {
   const [bookings, setBookings] = React.useState<TravelerBookingRecord[]>([]);
@@ -23,15 +24,18 @@ export function TravelerBookingsScreen() {
     <div className="space-y-8">
       <div className="space-y-3">
         <Badge variant="outline">Кабинет путешественника</Badge>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Мои поездки
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground">
-            Здесь собраны все ваши подтверждённые поездки: статусы, оплата и
-            детали маршрута. Пока данные живут только локально на этом
-            устройстве.
-          </p>
+        <div className="flex items-end justify-between gap-3">
+          <div className="space-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              Мои поездки
+            </h1>
+            <p className="max-w-3xl text-base text-muted-foreground">
+              Здесь собраны все ваши подтверждённые поездки: статусы, оплата и
+              детали маршрута. Пока данные живут только локально на этом
+              устройстве.
+            </p>
+          </div>
+          <TravelerWorkspaceNav includeListings />
         </div>
       </div>
 
