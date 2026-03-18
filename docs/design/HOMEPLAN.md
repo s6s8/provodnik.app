@@ -21,8 +21,8 @@ Layout spec: `docs/design/LAYOUT.md`
 
 | File | Action |
 |---|---|
-| `src/app/(public)/page.tsx` | **Rewrite** — new dark homepage |
-| `src/app/(public)/layout.tsx` | **Modify** — conditionally remove/adapt `SiteHeader` for home route, or the page opts out of the shared layout chrome |
+| `src/app/(home)/page.tsx` | **Rewrite** — new dark homepage |
+| `src/app/(home)/layout.tsx` | **Modify** — when needed, homepage-only layout chrome decisions live here |
 | `src/data/public-listings/seed.ts` | **Extend** — add international demo listings |
 | `src/data/public-listings/types.ts` | **Extend** — add optional `imageUrl` and `guideAvatarUrl` fields |
 | `src/data/public-guides/seed.ts` | **Extend** — add international demo guide profiles |
@@ -41,7 +41,7 @@ Layout spec: `docs/design/LAYOUT.md`
 ## 1. Layout Strategy
 
 ### Problem
-The public layout (`src/app/(public)/layout.tsx`) wraps every page in:
+The marketing layout (`src/app/(site)/layout.tsx`) wraps most public pages in:
 ```
 SiteHeader → constrained <main> (max-w-[1280px], padding, gap) → SiteFooter
 ```
@@ -54,56 +54,21 @@ The target design needs:
 Next.js App Router doesn't support per-page layout opt-out within the same route group. Two clean options:
 
 **Option A (recommended): Render layout chrome conditionally inside the page itself.**
-Move the homepage to `src/app/(public)/page.tsx` but have it render its own full-bleed wrapper that overrides the `<main>` constraints. The page renders with `negative margin` or an absolutely-positioned full-width container that breaks out of the parent padding. The `SiteHeader` renders but is visually hidden or overlaid on the homepage.
+Move the homepage into its own route group (`src/app/(home)/page.tsx`) with a layout that does not apply the constrained marketing chrome. The page can render full-bleed without negative margin hacks.
 
 **Option B: Separate route group.**
 Create `src/app/(home)/page.tsx` with its own layout that has no `SiteHeader` and no constrained `<main>`. Redirect or alias `/` to this route. This is cleaner but creates a separate layout file.
 
-**Recommended: Option A** — keep the page in `(public)` and use CSS to break out of the constrained `<main>`:
-1. Add a `data-page="home"` attribute on the homepage wrapper.
-2. In the public layout, detect the home page via children inspection or via a CSS approach:
-   - The homepage wrapper uses `class="fixed inset-0"` or negative-margin technique to escape the `max-w` + padding constraint.
-   - OR, modify the public layout to make `<main>` constraints conditional: when children have `[data-home-hero]`, remove padding/max-width.
+**Recommended: use the dedicated `(home)` route group** so the homepage has a clean layout boundary, and keep `(site)` for the marketing shell.
 
-**Simplest practical approach**: Modify `(public)/layout.tsx` to pass through the children without the constrained wrapper when the page signals it (via a CSS class). The homepage JSX renders its own full-width dark container.
-
-Actually the simplest: the homepage `page.tsx` renders a `<div>` that uses Tailwind's negative margin utilities to break out:
-```
-className="-mx-4 -mt-6 sm:-mx-6 md:-mt-10 lg:-mx-8"
-```
-to negate the layout padding. But this is fragile.
-
-**Final recommendation**: Modify `(public)/layout.tsx` minimally — wrap children in a container that homepage can opt out of using a special class. Or better: move homepage to `src/app/page.tsx` (root, outside route group) with its own inline layout. But that changes URL routing.
-
-**Decision: Modify `(public)/layout.tsx`** to conditionally not render `SiteHeader` and to remove the constrained `<main>` wrapper for the homepage. Use a parallel layout approach:
+If the homepage ever needs shared chrome, that decision should live in `src/app/(home)/layout.tsx` and not in the marketing layout.
 
 ```tsx
-// src/app/(public)/layout.tsx
-export default function PublicLayout({ children }: { children: ReactNode }) {
-  return (
-    <div className="app-shell min-h-screen bg-background">
-      <SiteHeader />
-      <main className="relative z-10 mx-auto flex w-full max-w-[1280px] flex-1 flex-col gap-16 px-4 py-6 sm:px-6 md:gap-20 md:py-10 lg:px-8 lg:gap-24">
-        {children}
-      </main>
-      <SiteFooter />
-    </div>
-  );
+// src/app/(home)/layout.tsx
+export default function HomeLayout({ children }: { children: ReactNode }) {
+  return children;
 }
 ```
-
-The cleanest approach: **the homepage renders a full-viewport overlay on top** using `fixed` or negative margins, effectively becoming the entire viewport. The `SiteHeader` is behind it. On scroll past the hero, the regular layout takes over.
-
-**FINAL DECISION**: Use negative margins on the homepage root div to escape the `<main>` constraints, combined with hiding the `SiteHeader` by layering the hero on top with `relative z-20`. This avoids touching the layout file.
-
-```tsx
-// In page.tsx:
-<div className="home-dark -mx-4 -mt-6 sm:-mx-6 md:-mt-10 lg:-mx-8 -mb-16 md:-mb-20 lg:-mb-24">
-  {/* full-bleed dark homepage */}
-</div>
-```
-
-This negates the exact padding/margin values from the layout's `<main>` tag. Combined with a high `z-index`, the hero overlays the sticky header.
 
 ---
 

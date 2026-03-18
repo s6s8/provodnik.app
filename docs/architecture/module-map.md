@@ -7,8 +7,9 @@
 ## Current areas
 | Area | Owns | Notes |
 | --- | --- | --- |
-| `src/app` | Routing, layouts, route composition | App Router with `(public)` and `(protected)` groups |
-| `src/features/home` | Public landing sections | Current homepage implementation |
+| `src/app` | Routing, layouts, route composition | App Router groups include `(home)`, `(site)`, `(protected)`, `(reference)` |
+| `src/features/homepage` | Public homepage | Current `/` implementation (`src/app/(home)/page.tsx`) |
+| `src/features/home` | Legacy landing sections | Used by reference pages; not the live homepage shell |
 | `src/features/listings` | Public listing discovery + detail | Seeded cards, filters, and tour detail baseline |
 | `src/features/traveler` | Traveler flows | Planned; route scaffold exists |
 | `src/features/guide` | Guide flows | Planned; route scaffold exists |
@@ -29,7 +30,7 @@
 - Shared schemas, Supabase access, and cross-feature contracts belong in `src/data`, `src/features/shared`, or `src/lib/supabase`.
 
 ## Worktree mapping
-- Foundation: `src/app`, `src/components`, `src/lib`, `src/features/home`
+- Foundation: `src/app`, `src/components`, `src/lib`, `src/features/homepage`, `src/features/home`
 - Traveler: `src/features/traveler`, `src/app/(protected)/traveler`
 - Guide: `src/features/guide`, `src/app/(protected)/guide`
 - Admin: `src/features/admin`, `src/app/(protected)/admin`
