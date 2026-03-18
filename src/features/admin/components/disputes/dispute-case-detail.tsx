@@ -307,6 +307,12 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
             <Button asChild type="button" variant="outline">
               <Link href="/admin">
                 <TimerReset className="mr-1 size-4" />
+                Обзор
+              </Link>
+            </Button>
+            <Button asChild type="button" variant="outline">
+              <Link href="/admin/guides">
+                <ClipboardList className="mr-1 size-4" />
                 Проверка гидов
               </Link>
             </Button>
@@ -540,7 +546,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
                           </div>
                           <div className="text-xs text-muted-foreground">
                             Ответственный: {action.owner}
-                            {action.dueAt ? ` · до {formatAt(action.dueAt)}` : ""}
+                            {action.dueAt ? ` · до ${formatAt(action.dueAt)}` : ""}
                           </div>
                         </div>
                         <Button
