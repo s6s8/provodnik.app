@@ -442,6 +442,12 @@ export function ListingModerationQueue() {
             <Button asChild type="button" variant="outline">
               <Link href="/admin">
                 <ClipboardList className="mr-1 size-4" />
+                Обзор
+              </Link>
+            </Button>
+            <Button asChild type="button" variant="outline">
+              <Link href="/admin/guides">
+                <ClipboardList className="mr-1 size-4" />
                 Проверка гидов
               </Link>
             </Button>
