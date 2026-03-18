@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { getSeededTravelerRequestById } from "@/data/traveler-request/seed";
-import { GuideRequestDetailScreen } from "@/features/guide/components/requests/guide-request-detail-screen";
+import { GuideRequestDetailRoute } from "@/features/guide/components/requests/guide-request-detail-route";
 
 export default async function GuideRequestDetailPage({
   params,
@@ -9,10 +8,7 @@ export default async function GuideRequestDetailPage({
   params: Promise<{ requestId: string }>;
 }) {
   const { requestId } = await params;
-  const request = getSeededTravelerRequestById(requestId);
-
-  if (!request) notFound();
-
-  return <GuideRequestDetailScreen inboxItem={request} />;
+  if (!requestId) notFound();
+  return <GuideRequestDetailRoute requestId={requestId} />;
 }
 
