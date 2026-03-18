@@ -1,3 +1,5 @@
+"use client";
+
 import type { TravelerRequest } from "@/data/traveler-request/schema";
 import {
   seededTravelerOffers,
