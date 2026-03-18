@@ -1,3 +1,6 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -18,20 +21,33 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { DEFAULT_DISPUTE_CASES } from "@/features/admin/components/disputes/dispute-seed";
-import { type GuideApplication } from "@/features/admin/types/guide-review";
-import { type ModerationListing } from "@/features/admin/types/listing-moderation";
+import {
+  listDisputeCasesForAdminFromSupabase,
+  listGuideApplicationsForAdminFromSupabase,
+  listModerationListingsForAdminFromSupabase,
+} from "@/data/admin/supabase";
 
 // Local-only snapshot for the overview. Detailed queues remain the source of truth.
 const GUIDE_EXAMPLE_COUNT: number = 3;
 const LISTING_EXAMPLE_COUNT: number = 3;
 
-const DISPUTE_COUNTS = (() => {
+type DisputeCounts = {
+  total: number;
+  open: number;
+  needsAction: number;
+  waiting: number;
+  resolved: number;
+};
+
+function countDisputeCases(
+  cases: ReadonlyArray<{ disposition: string }>,
+): DisputeCounts {
   let open = 0;
   let needsAction = 0;
   let waiting = 0;
   let resolved = 0;
 
-  for (const item of DEFAULT_DISPUTE_CASES) {
+  for (const item of cases) {
     if (item.disposition === "open") open += 1;
     else if (item.disposition === "needs-action") needsAction += 1;
     else if (item.disposition === "waiting") waiting += 1;
@@ -39,25 +55,70 @@ const DISPUTE_COUNTS = (() => {
   }
 
   return {
-    total: DEFAULT_DISPUTE_CASES.length,
+    total: cases.length,
     open,
     needsAction,
     waiting,
     resolved,
   };
-})();
+}
 
-type AdminOverviewSnapshotProps = {
-  guideApplicationsSample?: readonly GuideApplication[];
-  listingsSample?: readonly ModerationListing[];
-};
+const DEMO_DISPUTE_COUNTS: DisputeCounts = countDisputeCases(DEFAULT_DISPUTE_CASES);
 
-export function AdminOverviewScreen({
-  guideApplicationsSample,
-  listingsSample,
-}: AdminOverviewSnapshotProps) {
-  const guideCount = guideApplicationsSample?.length ?? GUIDE_EXAMPLE_COUNT;
-  const listingCount = listingsSample?.length ?? LISTING_EXAMPLE_COUNT;
+export function AdminOverviewScreen() {
+  // Keep the overview consistent with the detailed queues:
+  // - queues switch to Supabase-backed data only after a non-empty fetch
+  // - so the overview mirrors that behavior per-card.
+  const [guideBackendMode, setGuideBackendMode] = React.useState<"local" | "supabase">("local");
+  const [listingBackendMode, setListingBackendMode] = React.useState<"local" | "supabase">("local");
+  const [disputeBackendMode, setDisputeBackendMode] = React.useState<"local" | "supabase">("local");
+
+  const [guideCount, setGuideCount] = React.useState<number>(GUIDE_EXAMPLE_COUNT);
+  const [listingCount, setListingCount] = React.useState<number>(LISTING_EXAMPLE_COUNT);
+  const [disputeCounts, setDisputeCounts] = React.useState<DisputeCounts>(DEMO_DISPUTE_COUNTS);
+
+  React.useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      const [guidesResult, listingsResult, disputesResult] = await Promise.allSettled([
+        listGuideApplicationsForAdminFromSupabase(),
+        listModerationListingsForAdminFromSupabase(),
+        listDisputeCasesForAdminFromSupabase(),
+      ]);
+
+      if (ignore) return;
+
+      if (
+        guidesResult.status === "fulfilled" &&
+        guidesResult.value.length > 0
+      ) {
+        setGuideCount(guidesResult.value.length);
+        setGuideBackendMode("supabase");
+      }
+
+      if (
+        listingsResult.status === "fulfilled" &&
+        listingsResult.value.length > 0
+      ) {
+        setListingCount(listingsResult.value.length);
+        setListingBackendMode("supabase");
+      }
+
+      if (
+        disputesResult.status === "fulfilled" &&
+        disputesResult.value.length > 0
+      ) {
+        setDisputeCounts(countDisputeCases(disputesResult.value));
+        setDisputeBackendMode("supabase");
+      }
+    }
+
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -154,7 +215,10 @@ export function AdminOverviewScreen({
           <CardHeader className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-lg">Проверка гидов</CardTitle>
-              <Badge variant="outline">{guideCount} в демо‑очереди</Badge>
+              <Badge variant="outline">
+                {guideCount}{" "}
+                {guideBackendMode === "supabase" ? "в очереди" : "в демо‑очереди"}
+              </Badge>
             </div>
             <CardDescription>
               Верификация личность → документы → сигналы доверия, прежде чем
@@ -182,7 +246,10 @@ export function AdminOverviewScreen({
           <CardHeader className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-lg">Модерация объявлений</CardTitle>
-              <Badge variant="outline">{listingCount} в демо‑очереди</Badge>
+              <Badge variant="outline">
+                {listingCount}{" "}
+                {listingBackendMode === "supabase" ? "в очереди" : "в демо‑очереди"}
+              </Badge>
             </div>
             <CardDescription>
               Управление видимостью предложений и реагирование на риск‑сигналы
@@ -211,8 +278,9 @@ export function AdminOverviewScreen({
             <div className="flex items-center justify-between gap-2">
               <CardTitle className="text-lg">Споры и возвраты</CardTitle>
               <Badge variant="outline">
-                {DISPUTE_COUNTS.total} споров · {DISPUTE_COUNTS.needsAction}{" "}
+                {disputeCounts.total} споров · {disputeCounts.needsAction}{" "}
                 требует действий
+                {disputeBackendMode === "local" ? " · демо‑набор" : ""}
               </Badge>
             </div>
             <CardDescription>
