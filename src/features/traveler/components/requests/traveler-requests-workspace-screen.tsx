@@ -17,6 +17,16 @@ import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
 import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
+function pluralizeRu(value: number, [one, few, many]: [string, string, string]) {
+  const abs = Math.abs(value);
+  const mod10 = abs % 10;
+  const mod100 = abs % 100;
+  if (mod100 >= 11 && mod100 <= 14) return many;
+  if (mod10 === 1) return one;
+  if (mod10 >= 2 && mod10 <= 4) return few;
+  return many;
+}
+
 export function TravelerRequestsWorkspaceScreen() {
   const [requests, setRequests] = React.useState<TravelerRequestRecord[]>([]);
   const [joinedOpenRequestsCount, setJoinedOpenRequestsCount] = React.useState(0);
@@ -44,7 +54,11 @@ export function TravelerRequestsWorkspaceScreen() {
     void load();
 
     function handleStorage(event: StorageEvent) {
-      if (event.key?.startsWith("provodnik.traveler.open-requests.") ?? false) {
+      const key = event.key ?? "";
+      if (
+        key.startsWith("provodnik.traveler.open-requests.") ||
+        key === "provodnik.traveler.requests.v1"
+      ) {
         void load();
       }
     }
@@ -66,7 +80,7 @@ export function TravelerRequestsWorkspaceScreen() {
     <div className="space-y-8">
       <div className="space-y-3">
         <Badge variant="outline">Кабинет путешественника</Badge>
-        <div className="flex items-end justify-between gap-3">
+        <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               Мои запросы
@@ -135,6 +149,12 @@ export function TravelerRequestsWorkspaceScreen() {
 function RequestCard({ record }: { record: TravelerRequestRecord }) {
   const offerCount = listOffersForTravelerRequest(record.id).length;
   const dateLabel = `${record.request.startDate} — ${record.request.endDate}`;
+  const travelerLabel = pluralizeRu(record.request.groupSize, [
+    "путешественник",
+    "путешественника",
+    "путешественников",
+  ]);
+  const offerLabel = pluralizeRu(offerCount, ["отклик", "отклика", "откликов"]);
 
   return (
     <Card className="border-border/70 bg-card/90">
@@ -154,13 +174,10 @@ function RequestCard({ record }: { record: TravelerRequestRecord }) {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{record.request.experienceType}</Badge>
           <Badge variant="outline">
-            {record.request.groupSize}{" "}
-            {record.request.groupSize === 1 ? "путешественник" : "путешественника"}
+            {record.request.groupSize} {travelerLabel}
           </Badge>
           <Badge variant="outline">
-            {offerCount === 0
-              ? "Нет откликов"
-              : `${offerCount} предложени${offerCount === 1 ? "е" : "я"}`}
+            {offerCount === 0 ? "Нет откликов" : `${offerCount} ${offerLabel}`}
           </Badge>
         </div>
       </CardHeader>

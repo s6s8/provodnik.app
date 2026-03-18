@@ -90,12 +90,12 @@ export function TravelerFavoritesScreen() {
       ) : (
         <div className="grid gap-6">
           <FavoritesSection
-            title="Saved listings"
+            title="Сохранённые программы"
             items={listingFavorites.map((item) => item.target.slug)}
             renderItem={(slug) => <ListingFavoriteCard key={slug} slug={slug} />}
           />
           <FavoritesSection
-            title="Saved guides"
+            title="Сохранённые гиды"
             items={guideFavorites.map((item) => item.target.slug)}
             renderItem={(slug) => <GuideFavoriteCard key={slug} slug={slug} />}
           />
