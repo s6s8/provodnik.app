@@ -10,7 +10,12 @@ import {
   guideOfferSchema,
   type GuideOfferDraft,
 } from "@/data/guide-offer/schema";
-import type { TravelerRequestInboxItem } from "@/data/traveler-request/seed";
+import type { TravelerRequestRecord } from "@/data/traveler-request/types";
+import {
+  listLocalGuideOffersForRequest,
+  upsertLocalGuideOffer,
+  type GuideOfferLocalRecord,
+} from "@/data/guide-offer/local-store";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +33,7 @@ function formatRub(amount: number) {
   }).format(amount);
 }
 
-function formatExperienceType(value: TravelerRequestInboxItem["request"]["experienceType"]) {
+function formatExperienceType(value: TravelerRequestRecord["request"]["experienceType"]) {
   switch (value) {
     case "city":
       return "Город";
@@ -79,20 +84,25 @@ function formatDateLabel(value: string) {
 }
 
 export function GuideRequestDetailScreen({
-  inboxItem,
+  record,
 }: {
-  inboxItem: TravelerRequestInboxItem;
+  record: TravelerRequestRecord;
 }) {
-  const [submittedOffer, setSubmittedOffer] = React.useState<GuideOfferDraft | null>(
-    null
+  const [submittedOffer, setSubmittedOffer] = React.useState<GuideOfferLocalRecord | null>(
+    null,
   );
+  const [existingOffers, setExistingOffers] = React.useState<GuideOfferLocalRecord[]>([]);
+
+  React.useEffect(() => {
+    setExistingOffers(listLocalGuideOffersForRequest(record.id));
+  }, [record.id]);
 
   const form = useForm<GuideOfferDraft>({
     resolver: zodResolver(guideOfferSchema),
     defaultValues: {
-      priceTotalRub: inboxItem.request.budgetPerPersonRub * inboxItem.request.groupSize,
-      timingSummary: `Ответ в течение 24 часов, старт около ${inboxItem.request.startDate}`,
-      capacity: Math.max(inboxItem.request.groupSize, 4),
+      priceTotalRub: record.request.budgetPerPersonRub * record.request.groupSize,
+      timingSummary: `Ответ в течение 24 часов, старт около ${record.request.startDate}`,
+      capacity: Math.max(record.request.groupSize, 4),
       inclusions: ["Услуги гида", "Планирование маршрута", "Локальные рекомендации"],
       expiresAt: defaultExpiryValue(),
       notes: "",
@@ -112,8 +122,10 @@ export function GuideRequestDetailScreen({
   const inclusions = useWatch({ control, name: "inclusions" }) ?? [];
 
   const onSubmit = React.useCallback(async (values: GuideOfferDraft) => {
-    setSubmittedOffer(values);
-  }, []);
+    const next = upsertLocalGuideOffer(record.id, values, submittedOffer?.id);
+    setSubmittedOffer(next);
+    setExistingOffers(listLocalGuideOffersForRequest(record.id));
+  }, [record.id, submittedOffer?.id]);
 
   const handleReset = React.useCallback(() => {
     setSubmittedOffer(null);
@@ -137,7 +149,7 @@ export function GuideRequestDetailScreen({
           <CardHeader className="space-y-3">
             <div className="space-y-1">
               <CardTitle className="text-2xl">
-                Запрос от {inboxItem.traveler.displayName}
+                Запрос: {record.request.destination}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Посмотрите, что важно гостю, и соберите предложение по маршруту, цене и
@@ -146,13 +158,13 @@ export function GuideRequestDetailScreen({
             </div>
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary">
-                {formatExperienceType(inboxItem.request.experienceType)}
+                {formatExperienceType(record.request.experienceType)}
               </Badge>
               <Badge variant="outline">
-                {inboxItem.request.startDate} to {inboxItem.request.endDate}
+                {record.request.startDate} to {record.request.endDate}
               </Badge>
               <Badge variant="outline">
-                Группа {inboxItem.request.groupSize} чел.
+                Группа {record.request.groupSize} чел.
               </Badge>
             </div>
           </CardHeader>
@@ -160,20 +172,20 @@ export function GuideRequestDetailScreen({
             <div className="grid gap-3 sm:grid-cols-2">
               <InfoBlock
                 label="Направление"
-                value={inboxItem.request.destination}
+                value={record.request.destination}
               />
               <InfoBlock
                 label="Формат группы"
-                value={inboxItem.request.groupPreference}
+                value={record.request.groupPreference}
               />
               <InfoBlock
                 label="Бюджет на человека"
-                value={formatRub(inboxItem.request.budgetPerPersonRub)}
+                value={formatRub(record.request.budgetPerPersonRub)}
               />
               <InfoBlock
                 label="Гибкость по условиям"
                 value={
-                  inboxItem.request.allowGuideSuggestionsOutsideConstraints
+                  record.request.allowGuideSuggestionsOutsideConstraints
                     ? "Открыт к предложениям рядом по формату"
                     : "Жёсткие ограничения по запросу"
                 }
@@ -186,7 +198,7 @@ export function GuideRequestDetailScreen({
               <p className="text-sm font-medium text-foreground">Комментарий гостя</p>
               <div className="rounded-lg border border-border/70 bg-background/60 p-3">
                 <p className="text-sm text-foreground">
-                  {inboxItem.request.notes || "Гость не добавил дополнительных комментариев."}
+                  {record.request.notes || "Гость не добавил дополнительных комментариев."}
                 </p>
               </div>
             </div>
@@ -213,6 +225,37 @@ export function GuideRequestDetailScreen({
         </Card>
 
         <div className="space-y-4">
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader className="space-y-1">
+              <CardTitle>Сигналы спроса и переговоров</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Быстрые подсказки: насколько вы укладываетесь в бюджет и сколько откликов уже есть.
+              </p>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-3">
+              <InfoBlock
+                label="Бюджет на человека"
+                value={formatRub(record.request.budgetPerPersonRub)}
+              />
+              <InfoBlock
+                label="Откликов (локально)"
+                value={`${existingOffers.length}`}
+              />
+              <InfoBlock
+                label="Текущий черновик"
+                value={
+                  submittedOffer
+                    ? statusLabelForDraft({
+                        budgetPerPersonRub: record.request.budgetPerPersonRub,
+                        groupSize: record.request.groupSize,
+                        priceTotalRub: submittedOffer.draft.priceTotalRub,
+                      })
+                    : "Пока не сохранён"
+                }
+              />
+            </CardContent>
+          </Card>
+
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
               <CardTitle>Конструктор предложения</CardTitle>
@@ -373,27 +416,65 @@ export function GuideRequestDetailScreen({
               <CardContent className="space-y-3">
                 <InfoBlock
                   label="Итоговая цена"
-                  value={formatRub(submittedOffer.priceTotalRub)}
+                  value={formatRub(submittedOffer.draft.priceTotalRub)}
                 />
                 <InfoBlock
                   label="Сводка по таймингу"
-                  value={submittedOffer.timingSummary}
+                  value={submittedOffer.draft.timingSummary}
                 />
                 <InfoBlock
                   label="Максимум гостей"
-                  value={`${submittedOffer.capacity} человек`}
+                  value={`${submittedOffer.draft.capacity} человек`}
                 />
                 <InfoBlock
                   label="Действительно до"
-                  value={formatDateLabel(submittedOffer.expiresAt)}
+                  value={formatDateLabel(submittedOffer.draft.expiresAt)}
                 />
                 <InfoBlock
                   label="Что включено"
-                  value={submittedOffer.inclusions.join(", ")}
+                  value={submittedOffer.draft.inclusions.join(", ")}
                 />
-                {submittedOffer.notes ? (
-                  <InfoBlock label="Комментарий гида" value={submittedOffer.notes} />
+                {submittedOffer.draft.notes ? (
+                  <InfoBlock label="Комментарий гида" value={submittedOffer.draft.notes} />
                 ) : null}
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {existingOffers.length > 0 ? (
+            <Card className="border-border/70 bg-card/90">
+              <CardHeader className="space-y-1">
+                <CardTitle>Мои последние предложения</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Сохранённые локально предложения для этого запроса.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {existingOffers.slice(0, 3).map((offer) => (
+                  <div
+                    key={offer.id}
+                    className="rounded-lg border border-border/70 bg-background/60 p-3"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="text-sm font-medium text-foreground">
+                        {formatRub(offer.draft.priceTotalRub)}
+                      </p>
+                      <Badge variant="outline">
+                        {statusLabelForDraft({
+                          budgetPerPersonRub: record.request.budgetPerPersonRub,
+                          groupSize: record.request.groupSize,
+                          priceTotalRub: offer.draft.priceTotalRub,
+                        })}
+                      </Badge>
+                    </div>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Обновлено {formatDateLabel(offer.updatedAt)}
+                    </p>
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      {offer.draft.timingSummary}
+                    </p>
+                  </div>
+                ))}
               </CardContent>
             </Card>
           ) : null}
@@ -401,6 +482,24 @@ export function GuideRequestDetailScreen({
       </div>
     </div>
   );
+}
+
+function statusLabelForDraft({
+  budgetPerPersonRub,
+  groupSize,
+  priceTotalRub,
+}: {
+  budgetPerPersonRub: number;
+  groupSize: number;
+  priceTotalRub: number;
+}) {
+  const perPerson = priceTotalRub / Math.max(groupSize, 1);
+  const delta = perPerson - budgetPerPersonRub;
+  const abs = Math.abs(delta);
+
+  if (abs <= 250) return "В бюджете";
+  if (delta > 0) return `Выше бюджета на ${formatRub(Math.round(delta))}`;
+  return `Ниже бюджета на ${formatRub(Math.round(abs))}`;
 }
 
 function FieldLabel(props: React.ComponentProps<"label">) {
