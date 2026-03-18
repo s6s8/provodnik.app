@@ -2,11 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
 import { createTravelerRequestPersistent } from "@/data/traveler-request/local-store";
+import {
+  addLocalCreatedOpenRequest,
+  createPublicOpenRequestFromTravelerRequest,
+} from "@/data/open-requests/local-store";
 import {
   travelerExperienceTypes,
   travelerRequestSchema,
@@ -21,6 +26,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 type RequestFormValues = TravelerRequest;
+
+type TravelerRequestCreateFormProps = {
+  redirectToOnSuccess?: string;
+};
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -54,7 +63,10 @@ function formatExperienceType(
   }
 }
 
-export function TravelerRequestCreateForm() {
+export function TravelerRequestCreateForm({
+  redirectToOnSuccess,
+}: TravelerRequestCreateFormProps) {
+  const router = useRouter();
   const [submitted, setSubmitted] = React.useState<TravelerRequestRecord | null>(
     null
   );
@@ -81,13 +93,24 @@ export function TravelerRequestCreateForm() {
     handleSubmit,
     formState: { errors, isSubmitting, isSubmitSuccessful },
     reset,
+    watch,
   } = form;
 
-  const onSubmit = React.useCallback(async (values: RequestFormValues) => {
-    const submission = await submitTravelerRequest(values);
-    const record = await createTravelerRequestPersistent(submission.request);
-    setSubmitted(record);
-  }, []);
+  const watched = watch();
+
+  const onSubmit = React.useCallback(
+    async (values: RequestFormValues) => {
+      const submission = await submitTravelerRequest(values);
+      const record = await createTravelerRequestPersistent(submission.request);
+      addLocalCreatedOpenRequest(createPublicOpenRequestFromTravelerRequest(record));
+      setSubmitted(record);
+
+      if (redirectToOnSuccess) {
+        router.push(redirectToOnSuccess);
+      }
+    },
+    [redirectToOnSuccess, router]
+  );
 
   const handleCreateAnother = React.useCallback(() => {
     setSubmitted(null);
@@ -177,10 +200,11 @@ export function TravelerRequestCreateForm() {
 
   return (
     <form
-      className="grid gap-5"
+      className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] lg:items-start"
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Создать запрос путешественника"
     >
+      <div className="grid gap-5">
       <div className="grid gap-2">
         <FieldLabel htmlFor="experienceType">Категория поездки</FieldLabel>
         <select
@@ -398,6 +422,49 @@ export function TravelerRequestCreateForm() {
         <Button type="submit" disabled={isSubmitting}>
           Отправить запрос
         </Button>
+      </div>
+      </div>
+
+      <div className="space-y-3">
+        <Card className="border-border/70 bg-card/90">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">Черновик запроса</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <SummaryRow
+              label="Направление"
+              value={
+                watched.destination?.trim() || "Например: Казань, Алтай или Байкал"
+              }
+            />
+            <SummaryRow
+              label="Даты"
+              value={
+                watched.startDate && watched.endDate
+                  ? `${watched.startDate} — ${watched.endDate}`
+                  : "Выберите примерные даты поездки"
+              }
+            />
+            <SummaryRow
+              label="Размер группы"
+              value={
+                watched.groupSize
+                  ? `${watched.groupSize} путешественник${
+                      watched.groupSize === 1 ? "" : "а"
+                    }`
+                  : "Укажите, сколько человек поедет"
+              }
+            />
+            <SummaryRow
+              label="Бюджет на человека"
+              value={
+                typeof watched.budgetPerPersonRub === "number"
+                  ? formatRub(watched.budgetPerPersonRub)
+                  : "Верхняя граница бюджета поможет гидам предлагать реалистичные программы."
+              }
+            />
+          </CardContent>
+        </Card>
       </div>
     </form>
   );
