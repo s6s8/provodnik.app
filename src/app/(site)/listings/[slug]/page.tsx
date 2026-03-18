@@ -155,17 +155,30 @@ export default async function PublicListingDetailPage({
               </Button>
             </div>
 
-            <p className="text-xs leading-6 text-muted-foreground">
-              Продолжая, вы принимаете{" "}
-              <Link href="/policies/cancellation" className="underline underline-offset-4">
-                правила отмены
-              </Link>{" "}
-              и{" "}
-              <Link href="/policies/refunds" className="underline underline-offset-4">
-                возвратов
-              </Link>
-              . Кнопка ведет в личный кабинет путешественника для оформления заявки.
-            </p>
+            <div className="space-y-2 text-xs leading-6 text-muted-foreground">
+              <p>
+                Продолжая, вы принимаете{" "}
+                <Link href="/policies/cancellation" className="underline underline-offset-4">
+                  правила отмены
+                </Link>{" "}
+                и{" "}
+                <Link href="/policies/refunds" className="underline underline-offset-4">
+                  возвратов
+                </Link>
+                . Кнопка ведет в личный кабинет путешественника для оформления заявки.
+              </p>
+              <p>
+                Если даты или формат не подходят, можно{" "}
+                <Link href="/traveler" className="underline underline-offset-4">
+                  оставить запрос под свои планы
+                </Link>{" "}
+                или{" "}
+                <Link href="/requests" className="underline underline-offset-4">
+                  посмотреть открытые запросы и примеры поездок
+                </Link>
+                .
+              </p>
+            </div>
           </CardContent>
         </Card>
       </section>
