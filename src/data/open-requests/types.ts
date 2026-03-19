@@ -21,14 +21,17 @@ export type OpenRequestRecord = {
   createdAt: string;
   updatedAt: string;
   travelerRequestId: string;
+  destinationSlug?: string;
   group: {
     sizeTarget: number;
     sizeCurrent: number;
     openToMoreMembers: boolean;
   };
   destinationLabel: string;
+  regionLabel?: string;
   dateRangeLabel: string;
+  coverImageUrl?: string;
   budgetPerPersonRub?: number;
+  transportLabel?: string;
   highlights: string[];
 };
-

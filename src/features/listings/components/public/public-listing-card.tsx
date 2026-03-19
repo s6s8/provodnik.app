@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Clock3, Star, Users } from "lucide-react";
 
 import { FavoriteToggle } from "@/components/shared/favorite-toggle";
+import { PriceScenarios } from "@/components/shared/price-scenarios";
+import { TransportOptionPill } from "@/components/shared/transport-option-pill";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PublicListing } from "@/data/public-listings/types";
@@ -54,6 +56,16 @@ export function PublicListingCard({ listing }: { listing: PublicListing }) {
           <p className="text-sm leading-7 text-muted-foreground">
             {listing.highlights[0]}
           </p>
+          {listing.transportOptions?.length ? (
+            <div className="flex flex-wrap gap-2">
+              {listing.transportOptions.map((option) => (
+                <TransportOptionPill
+                  key={`${listing.slug}-${option.mode}-${option.label}`}
+                  option={option}
+                />
+              ))}
+            </div>
+          ) : null}
           <div className="flex flex-wrap gap-2">
             {listing.themes.map((theme) => (
               <span
@@ -80,6 +92,10 @@ export function PublicListingCard({ listing }: { listing: PublicListing }) {
             <Link href={`/listings/${listing.slug}`}>Смотреть программу</Link>
           </Button>
         </div>
+
+        {listing.priceScenarios?.length ? (
+          <PriceScenarios scenarios={listing.priceScenarios.slice(0, 2)} />
+        ) : null}
       </div>
     </article>
   );

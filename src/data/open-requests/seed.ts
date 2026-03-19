@@ -17,14 +17,19 @@ const seededOpenRequests: readonly OpenRequestRecord[] = [
     createdAt: isoDaysAgo(5),
     updatedAt: isoDaysAgo(1),
     travelerRequestId: "req_seed_altai_nature_1",
+    destinationSlug: "altai",
     group: {
       sizeTarget: 6,
       sizeCurrent: 4,
       openToMoreMembers: true,
     },
     destinationLabel: "Altai",
+    regionLabel: "Горный Алтай",
     dateRangeLabel: "Jun 10–16, 2026",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&h=1200&q=80",
     budgetPerPersonRub: 110_000,
+    transportLabel: "Джип + пешие выходы",
     highlights: [
       "Moderate hikes + scenic viewpoints",
       "Comfortable stays, not luxury",
@@ -38,14 +43,19 @@ const seededOpenRequests: readonly OpenRequestRecord[] = [
     createdAt: isoDaysAgo(2),
     updatedAt: isoDaysAgo(0),
     travelerRequestId: "trq_20014",
+    destinationSlug: "saint-petersburg",
     group: {
       sizeTarget: 4,
       sizeCurrent: 2,
       openToMoreMembers: true,
     },
     destinationLabel: "Saint Petersburg",
+    regionLabel: "Северо-Запад России",
     dateRangeLabel: "Apr 10–13, 2026",
+    coverImageUrl:
+      "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&h=1200&q=80",
     budgetPerPersonRub: 120_000,
+    transportLabel: "Пешком + такси между локациями",
     highlights: ["Museums", "Calm pace", "Morning starts preferred"],
   },
 ] as const;
@@ -129,4 +139,3 @@ export function listSeededRosterForOpenRequest(
     .map((member) => ({ ...member }))
     .sort((a, b) => a.joinedAt.localeCompare(b.joinedAt));
 }
-

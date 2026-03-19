@@ -14,14 +14,24 @@ export const destinationSchema = z.object({
     .trim()
     .min(2, "Destination label must be at least 2 characters.")
     .max(120, "Keep destination label under 120 characters."),
+  labelRu: z
+    .string()
+    .trim()
+    .min(2, "Russian label must be at least 2 characters.")
+    .max(120, "Keep Russian label under 120 characters.")
+    .optional(),
   countryCode: z
     .string()
     .trim()
     .length(2, "Use a 2-letter country code.")
     .transform((value) => value.toUpperCase()),
   region: z.string().trim().max(120, "Keep region under 120 characters.").optional(),
+  regionLabel: z
+    .string()
+    .trim()
+    .max(120, "Keep region label under 120 characters.")
+    .optional(),
   heroImageUrl: z.string().url().optional(),
 });
 
 export type Destination = z.infer<typeof destinationSchema>;
-

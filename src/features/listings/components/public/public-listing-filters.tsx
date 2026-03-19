@@ -32,7 +32,10 @@ export function PublicListingFilters({
   const [filters, setFilters] = useState<Filters>(defaultFilters);
 
   const regions = useMemo(
-    () => Array.from(new Set(listings.map((listing) => listing.region))).sort(),
+    () =>
+      Array.from(
+        new Set(listings.map((listing) => listing.regionLabel ?? listing.region)),
+      ).sort(),
     [listings],
   );
 
@@ -43,7 +46,12 @@ export function PublicListingFilters({
 
   const filtered = useMemo(() => {
     return listings.filter((listing) => {
-      if (filters.region !== "all" && listing.region !== filters.region) return false;
+      if (
+        filters.region !== "all" &&
+        (listing.regionLabel ?? listing.region) !== filters.region
+      ) {
+        return false;
+      }
       if (
         filters.durationDays !== "all" &&
         listing.durationDays !== filters.durationDays

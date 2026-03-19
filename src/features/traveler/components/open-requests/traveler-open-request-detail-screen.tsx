@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, Users } from "lucide-react";
 
+import { AvatarStack } from "@/components/shared/avatar-stack";
+import { GroupProgress } from "@/components/shared/group-progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -170,6 +172,11 @@ export function TravelerOpenRequestDetailScreen({
 
           <Separator />
 
+          <GroupProgress
+            current={record.group.sizeCurrent}
+            target={record.group.sizeTarget}
+          />
+
           <div className="space-y-2">
             <p className="text-xs font-medium text-muted-foreground">Особенности</p>
             <ul className="grid gap-2 text-sm text-foreground">
@@ -182,6 +189,12 @@ export function TravelerOpenRequestDetailScreen({
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+              <p className="text-xs text-muted-foreground">Регион</p>
+              <p className="mt-1 text-sm text-foreground">
+                {record.regionLabel ?? "Не указан"}
+              </p>
+            </div>
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
               <p className="text-xs text-muted-foreground">Свободные места</p>
               <p className="mt-1 text-sm text-foreground">
@@ -202,6 +215,11 @@ export function TravelerOpenRequestDetailScreen({
               {typeof detail.economics.estimatedTotalAtTargetRub === "number" ? (
                 <p className="mt-1 text-sm text-muted-foreground">
                   ~{formatRub(detail.economics.estimatedTotalAtTargetRub)} при целевом размере группы
+                </p>
+              ) : null}
+              {record.transportLabel ? (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Логистика: {record.transportLabel}
                 </p>
               ) : null}
             </div>
@@ -241,6 +259,12 @@ export function TravelerOpenRequestDetailScreen({
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
+          <AvatarStack
+            items={detail.roster.map((member) => ({
+              id: member.id,
+              label: member.displayName,
+            }))}
+          />
           {detail.roster.map((member) => (
             <div
               key={member.id}
@@ -269,4 +293,3 @@ export function TravelerOpenRequestDetailScreen({
     </div>
   );
 }
-

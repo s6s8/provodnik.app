@@ -74,7 +74,7 @@ export function ListingCoverArt({
           <div className="max-w-xl space-y-2">
             <p className="flex items-center gap-2 text-sm text-white/78">
               <MapPin className="size-4" />
-              {listing.region}
+              {listing.regionLabel ?? listing.region}
             </p>
             <h2
               className={cn(

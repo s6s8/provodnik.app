@@ -4,6 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowRight, Users } from "lucide-react";
 
+import { AvatarStack } from "@/components/shared/avatar-stack";
+import { GroupProgress } from "@/components/shared/group-progress";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -120,6 +122,11 @@ function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
 
         <Separator />
 
+        <GroupProgress
+          current={item.record.group.sizeCurrent}
+          target={item.record.group.sizeTarget}
+        />
+
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{item.record.status}</Badge>
           <Badge variant="outline">
@@ -139,6 +146,18 @@ function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <div className="min-w-0">
+          <div className="mb-2 flex items-center gap-3">
+            <AvatarStack
+              size="sm"
+              items={item.roster.map((member) => ({
+                id: member.id,
+                label: member.displayName,
+              }))}
+            />
+            {item.record.regionLabel ? (
+              <p className="text-xs text-muted-foreground">{item.record.regionLabel}</p>
+            ) : null}
+          </div>
           <p className="text-xs font-medium text-muted-foreground">Особенности</p>
           <p className="mt-1 line-clamp-2 text-sm text-foreground">
             {item.record.highlights.join(" · ")}
@@ -154,4 +173,3 @@ function OpenRequestCard({ item }: { item: OpenRequestDetail }) {
     </Card>
   );
 }
-
