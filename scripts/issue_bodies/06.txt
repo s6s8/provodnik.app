@@ -1,0 +1,11 @@
+Build the central marketplace page for a single request at `/requests/[requestId]`.
+
+- [ ] Add route: `src/app/(site)/requests/[requestId]/page.tsx`.
+- [ ] Layout: destination hero, request summary, group progress, participant avatars/roster preview, budget and estimated price, side action rail (Join group, estimated price if you join).
+- [ ] Section: guide offers list with offer cards (guide, price, Accept / Propose counter). Reuse or adapt traveler request detail and guide offer shapes.
+- [ ] Ensure one source of truth for request + open group + offers (use existing data layer; document mapping if not already done in Phase 0).
+- [ ] Logged-in vs anonymous: join/counter may require auth; page is still viewable by all.
+
+**Acceptance:** Request detail is the clear center of negotiation and group formation. Matches IMPLEMENTATION.md §13.3. Works with seeded/demo data.
+
+Ref: IMPLEMENTATION.md §13.3, §18.

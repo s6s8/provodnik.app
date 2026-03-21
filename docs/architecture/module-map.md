@@ -7,9 +7,9 @@
 ## Current areas
 | Area | Owns | Notes |
 | --- | --- | --- |
-| `src/app` | Routing, layouts, route composition | App Router groups include `(home)`, `(site)`, `(protected)`, `(reference)` |
-| `src/features/homepage` | Public homepage | Current `/` implementation (`src/app/(home)/page.tsx`) |
-| `src/features/home` | Legacy landing sections | Used by reference pages; not the live homepage shell |
+| `src/app` | Routing, layouts, route composition | App Router: `(home)` = `/`, `(site)` = public inner pages, `(protected)` = traveler/guide/admin |
+| `src/features/homepage` | Legacy editorial shell (unused by `/`) | Prior landing experiment; `(home)` now composes `src/features/home` |
+| `src/features/home` | Live landing sections at `/` | Glassmorphism homepage: nav, hero, gateway, destinations, how-it-works, trust, footer |
 | `src/features/listings` | Public listing discovery + detail | Seeded cards, filters, and tour detail baseline |
 | `src/features/traveler` | Traveler flows | Planned; route scaffold exists |
 | `src/features/guide` | Guide flows | Planned; route scaffold exists |

@@ -1,5 +1,5 @@
-import { AdminOverviewScreen } from "@/features/admin/components/admin-overview-screen";
+import { GuideReviewQueue } from "@/features/admin/components/guide-review-queue";
 
 export default function AdminPage() {
-  return <AdminOverviewScreen />;
+  return <GuideReviewQueue />;
 }

@@ -14,23 +14,21 @@ export const metadata: Metadata = {
 export default function CancellationPolicyPage() {
   return (
     <div className="space-y-10">
-      <section className="section-frame rounded-[2.2rem] p-6 sm:p-8 lg:p-10">
-        <div className="space-y-6">
-          <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
-            Правила сервиса
-          </Badge>
-          <div className="space-y-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Отмена бронирования: что происходит с деньгами и маршрутом
-            </h1>
-            <p className="max-w-prose text-sm leading-7 text-muted-foreground sm:text-base">
-              Этот текст описывает логику отмен в Provodnik на этапе MVP. Он помогает понимать, чего
-              ожидать при переносе или отмене поездки, но не заменяет полноценные юридические
-              документы.
-            </p>
-          </div>
+      <div className="space-y-3">
+        <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
+          Правила сервиса
+        </Badge>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Отмена бронирования: что происходит с деньгами и маршрутом
+          </h1>
+          <p className="max-w-prose text-sm text-muted-foreground">
+            Этот текст описывает логику отмен в Provodnik на этапе MVP. Он помогает
+            понимать, чего ожидать при переносе или отмене поездки, но не заменяет
+            полноценные юридические документы.
+          </p>
         </div>
-      </section>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="border-border/70 bg-card/80">

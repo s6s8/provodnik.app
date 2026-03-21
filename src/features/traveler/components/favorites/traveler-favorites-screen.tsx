@@ -16,7 +16,6 @@ import {
 import { listFavoritesForCurrentUserFromSupabase } from "@/data/favorites/supabase-client";
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
 import { getSeededPublicListing } from "@/data/public-listings/seed";
-import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 export function TravelerFavoritesScreen() {
   const userId = React.useMemo(() => getActiveFavoritesUserId(), []);
@@ -66,7 +65,17 @@ export function TravelerFavoritesScreen() {
                 : "Сейчас избранное хранится локально на этом устройстве. Нажимайте «Сохранить» на публичных страницах, чтобы собрать короткий список."}
             </p>
           </div>
-          <TravelerWorkspaceNav includeListings />
+          <div className="flex shrink-0 items-center gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/listings">
+                Смотреть программы
+                <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
+              <Link href="/traveler/requests">Мои запросы</Link>
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -90,12 +99,12 @@ export function TravelerFavoritesScreen() {
       ) : (
         <div className="grid gap-6">
           <FavoritesSection
-            title="Сохранённые программы"
+            title="Saved listings"
             items={listingFavorites.map((item) => item.target.slug)}
             renderItem={(slug) => <ListingFavoriteCard key={slug} slug={slug} />}
           />
           <FavoritesSection
-            title="Сохранённые гиды"
+            title="Saved guides"
             items={guideFavorites.map((item) => item.target.slug)}
             renderItem={(slug) => <GuideFavoriteCard key={slug} slug={slug} />}
           />

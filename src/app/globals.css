@@ -1,9 +1,12 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
+
 @import "tw-animate-css";
 
 @theme inline {
-  --font-sans: var(--font-manrope);
-  --font-display: var(--font-cormorant);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-cormorant-garamond), ui-serif, Georgia, "Times New Roman", serif;
+  --font-display: var(--font-cormorant-garamond), ui-serif, Georgia, "Times New Roman", serif;
   --font-mono: var(--font-geist-mono);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -32,29 +35,42 @@
 }
 
 :root {
-  --background: oklch(0.985 0.01 87.4);
-  --foreground: oklch(0.258 0.03 214.4);
-  --card: oklch(0.995 0.008 88.3 / 96%);
-  --card-foreground: oklch(0.258 0.03 214.4);
-  --popover: oklch(0.995 0.005 88.1 / 98%);
-  --popover-foreground: oklch(0.258 0.03 214.4);
-  --primary: oklch(0.46 0.103 201.8);
-  --primary-foreground: oklch(0.985 0.004 90);
-  --secondary: oklch(0.93 0.027 88.1);
-  --secondary-foreground: oklch(0.28 0.024 212.1);
-  --muted: oklch(0.952 0.015 88.1);
-  --muted-foreground: oklch(0.53 0.018 213.7);
-  --accent: oklch(0.8 0.096 55.7);
-  --accent-foreground: oklch(0.24 0.03 210.2);
-  --destructive: oklch(0.63 0.182 28.6);
-  --border: oklch(0.875 0.018 86.7);
-  --input: oklch(0.99 0.006 88.4 / 98%);
-  --ring: oklch(0.56 0.088 196.1);
+  --color-bg: #f9f8f7;
+  --color-surface: #f2ede6;
+  --color-primary: #0f766e;
+  --color-primary-mid: #14b8a6;
+  --color-primary-light: #2dd4bf;
+  --color-amber: #d97706;
+  --color-amber-mid: #f97316;
+  --color-text: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #94a3b8;
+  --color-border: #cbd5e1;
+  --color-border-light: #e2e8f0;
+
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: #ffffff;
+  --card-foreground: var(--color-text);
+  --popover: #ffffff;
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-primary);
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface);
+  --secondary-foreground: var(--color-text);
+  --muted: #f1f5f9;
+  --muted-foreground: var(--color-text-muted);
+  --accent: var(--color-amber-mid);
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: var(--color-border);
+  --input: var(--color-border-light);
+  --ring: var(--color-primary-mid);
   --radius: 1.6rem;
 }
 
 * {
-  border-color: var(--border);
+  border-color: var(--color-border);
 }
 
 html {
@@ -63,23 +79,9 @@ html {
 
 body {
   min-height: 100vh;
-  color: var(--foreground);
-  font-family: var(--font-manrope), sans-serif;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(245, 199, 120, 0.36), transparent 28%),
-    radial-gradient(circle at 88% 8%, rgba(65, 136, 167, 0.2), transparent 24%),
-    linear-gradient(180deg, #fbfaf6 0%, #f6f1e8 40%, #f7f4ee 100%);
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 18% 12%, rgba(255, 255, 255, 0.78), transparent 24%),
-    radial-gradient(circle at 82% 18%, rgba(255, 255, 255, 0.54), transparent 18%);
-  opacity: 0.8;
+  color: var(--color-text);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  background: var(--color-bg);
 }
 
 a {
@@ -88,16 +90,8 @@ a {
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--accent) 44%, white);
-  color: var(--foreground);
-}
-
-h1,
-h2,
-h3,
-[data-display="true"] {
-  font-family: var(--font-cormorant), serif;
-  letter-spacing: -0.03em;
+  background: color-mix(in srgb, var(--color-primary-light) 35%, white);
+  color: var(--color-text);
 }
 
 .app-shell {
@@ -105,22 +99,11 @@ h3,
   overflow: clip;
 }
 
-.app-shell::after {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 32rem;
-  pointer-events: none;
-  background:
-    radial-gradient(circle at 10% 0%, rgba(244, 187, 99, 0.28), transparent 28%),
-    radial-gradient(circle at 85% 0%, rgba(58, 123, 167, 0.18), transparent 30%);
-  opacity: 0.94;
-}
-
 .glass-panel {
-  background: color-mix(in srgb, var(--card) 88%, white 12%);
-  backdrop-filter: blur(22px);
-  box-shadow: 0 28px 80px rgba(28, 53, 68, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .editorial-kicker {
@@ -128,14 +111,14 @@ h3,
   font-weight: 700;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--foreground) 58%, white);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .section-frame {
   position: relative;
-  border: 1px solid color-mix(in srgb, var(--border) 84%, transparent);
-  background: color-mix(in srgb, var(--card) 92%, white 8%);
-  box-shadow: 0 22px 80px rgba(23, 47, 62, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
 .travel-section {

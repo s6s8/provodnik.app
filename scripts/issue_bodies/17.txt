@@ -1,0 +1,8 @@
+- [ ] Unify state transitions: same request/offer/booking states read consistently across public, traveler, and guide views.
+- [ ] Add or refine empty states and loading states on core routes (requests, request detail, destinations, traveler/guide dashboards).
+- [ ] Verify mobile behavior on core routes (home, requests, request detail, create request, traveler/guide roots).
+- [ ] Run `bun run lint` and `bun run typecheck`; fix any regressions. Optionally run `bun run build` and fix route or config issues.
+
+**Acceptance:** No broken flows across roles. Core routes are usable on mobile. Lint and typecheck pass.
+
+Ref: IMPLEMENTATION.md §17 Phase 7, §21.

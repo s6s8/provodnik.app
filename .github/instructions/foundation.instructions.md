@@ -1,5 +1,5 @@
 ---
-applyTo: "src/app/layout.tsx,src/app/globals.css,src/app/(home)/**,src/app/(site)/**,src/app/(reference)/**,src/app/(protected)/layout.tsx,src/components/**,src/features/home/**,src/features/homepage/**"
+applyTo: "src/app/layout.tsx,src/app/globals.css,src/app/(home)/**,src/app/(site)/**,src/app/(protected)/layout.tsx,src/components/**,src/features/home/**,src/features/homepage/**"
 ---
 
 Preserve the current shared shell and visual system.

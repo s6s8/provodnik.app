@@ -1,12 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { MapPinned, SlidersHorizontal } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import type { PublicListing } from "@/data/public-listings/types";
 import { PublicListingCard } from "@/features/listings/components/public/public-listing-card";
 import { PublicListingFilters } from "@/features/listings/components/public/public-listing-filters";
@@ -50,14 +48,6 @@ export function PublicListingDiscoveryScreen({
               <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
                 Семьи, пары и компании
               </Badge>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild size="sm" className="rounded-full">
-                <Link href="/traveler">Оставить запрос под ваши даты</Link>
-              </Button>
-              <Button asChild size="sm" variant="outline" className="rounded-full">
-                <Link href="/requests">Смотреть открытые запросы</Link>
-              </Button>
             </div>
           </div>
 
@@ -122,35 +112,6 @@ export function PublicListingDiscoveryScreen({
           {sorted.map((listing) => (
             <PublicListingCard key={listing.slug} listing={listing} />
           ))}
-        </div>
-      </section>
-
-      <section className="section-frame rounded-[2rem] border border-border/70 bg-card/80 p-5 sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Если не нашли подходящий маршрут
-            </p>
-            <p className="max-w-xl text-sm leading-7 text-muted-foreground sm:text-base">
-              Provodnik строит витрину вокруг запросов. Можно сразу{" "}
-              <Link href="/traveler" className="underline underline-offset-4">
-                оставить заявку под ваши даты и город
-              </Link>{" "}
-              или{" "}
-              <Link href="/requests" className="underline underline-offset-4">
-                посмотреть открытые запросы и примеры поездок
-              </Link>
-              .
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Button asChild size="sm" className="rounded-full">
-              <Link href="/traveler">Оставить запрос</Link>
-            </Button>
-            <Button asChild size="sm" variant="outline" className="rounded-full">
-              <Link href="/requests">Смотреть запросы</Link>
-            </Button>
-          </div>
         </div>
       </section>
     </div>

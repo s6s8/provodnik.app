@@ -2,25 +2,21 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { TravelerRequestCreateForm } from "@/features/traveler/components/request-create/traveler-request-create-form";
-import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 export function TravelerRequestCreateScreen() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
         <Badge variant="outline">Кабинет путешественника</Badge>
-        <div className="flex items-end justify-between gap-3">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Новый запрос на поездку
-            </h1>
-            <p className="max-w-3xl text-base text-muted-foreground">
-              Опишите, куда и как вы хотите поехать, чтобы гиды могли предложить
-              понятные программы с понятным бюджетом. Сейчас запросы хранятся
-              локально на этом устройстве.
-            </p>
-          </div>
-          <TravelerWorkspaceNav includeListings />
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            Новый запрос на поездку
+          </h1>
+          <p className="max-w-3xl text-base text-muted-foreground">
+            Опишите, куда и как вы хотите поехать, чтобы гиды могли предложить
+            понятные программы с понятным бюджетом. Сейчас запросы хранятся
+            локально на этом устройстве.
+          </p>
         </div>
       </div>
 

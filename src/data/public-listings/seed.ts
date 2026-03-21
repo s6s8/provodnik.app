@@ -7,7 +7,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Ростов-на-Дону",
     region: "Ростовская область",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 8500,
     groupSizeMax: 6,
@@ -46,7 +46,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Иркутск",
     region: "Иркутская область",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 14500,
     groupSizeMax: 5,
@@ -85,7 +85,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Азов",
     region: "Ростовская область",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 12500,
     groupSizeMax: 6,
@@ -124,7 +124,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Санкт-Петербург",
     region: "Санкт-Петербург",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 14200,
     groupSizeMax: 6,
@@ -163,7 +163,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Казань",
     region: "Республика Татарстан",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 9800,
     groupSizeMax: 8,
@@ -202,7 +202,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Суздаль",
     region: "Владимирская область",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 1,
     priceFromRub: 8900,
     groupSizeMax: 5,
@@ -241,7 +241,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Калининград",
     region: "Калининградская область",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 2,
     priceFromRub: 18600,
     groupSizeMax: 6,
@@ -280,7 +280,7 @@ export const seededPublicListings: readonly PublicListing[] = [
     city: "Мурманск",
     region: "Мурманская область",
     coverImageUrl:
-      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1455156218388-5e61287f7b4c?auto=format&fit=crop&w=1600&h=1200&q=80",
     durationDays: 2,
     priceFromRub: 21400,
     groupSizeMax: 4,

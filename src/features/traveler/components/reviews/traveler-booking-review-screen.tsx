@@ -23,7 +23,6 @@ import { getTravelerBookingById } from "@/data/traveler-booking/local-store";
 import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import { cn } from "@/lib/utils";
-import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 type ReviewFormValues = ReviewSubmission;
 
@@ -285,17 +284,14 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
             Поездка
           </Link>
         </Button>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="space-y-2">
-            <Badge variant="outline">Кабинет путешественника</Badge>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Оставить отзыв
-            </h1>
-            <p className="max-w-3xl text-sm text-muted-foreground">
-              Короткий и конкретный отзыв помогает другим путешественникам выбрать поездку.
-            </p>
-          </div>
-          <TravelerWorkspaceNav includeListings />
+        <div className="space-y-2">
+          <Badge variant="outline">Кабинет путешественника</Badge>
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            Оставить отзыв
+          </h1>
+          <p className="max-w-3xl text-sm text-muted-foreground">
+            Короткий и конкретный отзыв помогает другим путешественникам выбрать поездку.
+          </p>
         </div>
       </div>
 

@@ -13,7 +13,6 @@ import {
   type OpenRequestDetail,
 } from "@/data/open-requests/local-store";
 import { cn } from "@/lib/utils";
-import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -63,7 +62,7 @@ export function TravelerOpenRequestsScreen() {
     <div className="space-y-8">
       <div className="space-y-3">
         <Badge variant="outline">Кабинет путешественника</Badge>
-        <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="flex items-end justify-between gap-3">
           <div className="space-y-2">
             <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               Открытые группы
@@ -74,35 +73,19 @@ export function TravelerOpenRequestsScreen() {
               этом устройстве.
             </p>
           </div>
-          <TravelerWorkspaceNav includeListings />
+          <div className="flex shrink-0 items-center gap-2">
+            <Button asChild variant="secondary">
+              <Link href="/traveler/requests">Мои запросы</Link>
+            </Button>
+          </div>
         </div>
       </div>
 
-      {items.length === 0 ? (
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-1">
-            <CardTitle>Пока нет доступных групп</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              В демо-режиме группы появляются из примеров. Если хотите начать поездку
-              быстрее — создайте запрос и сравните ответы гидов.
-            </p>
-          </CardHeader>
-          <CardContent className="flex flex-wrap gap-2">
-            <Button asChild variant="secondary">
-              <Link href="/traveler/requests/new">Создать запрос</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link href="/listings">Смотреть программы</Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-3">
-          {items.map((item) => (
-            <OpenRequestCard key={item.record.id} item={item} />
-          ))}
-        </div>
-      )}
+      <div className="grid gap-3">
+        {items.map((item) => (
+          <OpenRequestCard key={item.record.id} item={item} />
+        ))}
+      </div>
     </div>
   );
 }

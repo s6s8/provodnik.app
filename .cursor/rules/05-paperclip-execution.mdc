@@ -1,0 +1,17 @@
+---
+description: Paperclip execution rules for Cursor coding lanes
+alwaysApply: false
+---
+
+- Treat GitHub issues in `s6s8/provodnik.app-Tasks` as the scoped task contract for implementation.
+- Work only inside the assigned worktree and issue branch.
+- Follow `AGENTS.md`, `docs/process/orchestration-workflow.md`, and `docs/process/paperclip-agent-contract.md` before making planning assumptions.
+- If the issue text is stale relative to `design/IMPLEMENTATION-GUIDE.md` or `design/STAKEHOLDER-FEEDBACK.md`, stop and push that mismatch back to the tracker or CTO instead of freelancing a plan.
+- Keep changes confined to the expected paths for the assigned area.
+- Return:
+  - changed files
+  - checks run
+  - blockers
+  - remaining risk
+- Do not update Slack directly from Cursor lanes.
+- Do not close GitHub issues from Cursor lanes.

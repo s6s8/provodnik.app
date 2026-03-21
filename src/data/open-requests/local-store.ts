@@ -1,5 +1,3 @@
-"use client";
-
 import {
   getSeededOpenRequestById,
   getSeededOpenRequests,
@@ -9,7 +7,6 @@ import type {
   OpenRequestGroupRosterMember,
   OpenRequestRecord,
 } from "@/data/open-requests/types";
-import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import {
   getOpenRequestDetailFromSupabase,
   joinOpenRequestInSupabase,
@@ -18,8 +15,6 @@ import {
 } from "@/data/open-requests/supabase-client";
 
 const STORAGE_KEY = "provodnik.traveler.open-requests.membership.v1";
-const STORAGE_CREATED_OPEN_REQUESTS_KEY =
-  "provodnik.public.open-requests.created.v1";
 const CURRENT_USER_ID = "usr_traveler_you";
 const CURRENT_USER_LABEL = "You";
 
@@ -55,111 +50,6 @@ function getLocalMembership(): LocalMembershipStore {
 function saveLocalMembership(store: LocalMembershipStore) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
-}
-
-function getLocalCreatedOpenRequests(): OpenRequestRecord[] {
-  if (typeof window === "undefined") return [];
-  const parsed = safeParseJson<OpenRequestRecord[]>(
-    window.localStorage.getItem(STORAGE_CREATED_OPEN_REQUESTS_KEY),
-  );
-  if (!parsed || !Array.isArray(parsed)) return [];
-  return parsed;
-}
-
-function saveLocalCreatedOpenRequests(records: OpenRequestRecord[]) {
-  if (typeof window === "undefined") return;
-  window.localStorage.setItem(
-    STORAGE_CREATED_OPEN_REQUESTS_KEY,
-    JSON.stringify(records),
-  );
-}
-
-export function addLocalCreatedOpenRequest(record: OpenRequestRecord) {
-  const current = getLocalCreatedOpenRequests();
-  const merged = [record, ...current].filter(Boolean);
-
-  const unique = new Map<string, OpenRequestRecord>();
-  for (const item of merged) unique.set(item.id, item);
-
-  saveLocalCreatedOpenRequests(
-    [...unique.values()].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
-  );
-}
-
-export function listLocalCreatedOpenRequests(): OpenRequestRecord[] {
-  return getLocalCreatedOpenRequests()
-    .map((item) => ({
-      ...item,
-      group: { ...item.group },
-      highlights: [...item.highlights],
-    }))
-    .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-}
-
-function formatDateRange(startDate: string, endDate: string) {
-  if (!startDate && !endDate) return "Dates TBD";
-  if (startDate && endDate) return `${startDate} — ${endDate}`;
-  return startDate || endDate;
-}
-
-function buildHighlights(record: TravelerRequestRecord): string[] {
-  const highlights: string[] = [];
-  highlights.push(`Experience: ${record.request.experienceType}`);
-
-  if (record.request.groupPreference === "group") {
-    highlights.push("Open group formation");
-  } else {
-    highlights.push("Private trip");
-  }
-
-  if (record.request.openToJoiningOthers) {
-    highlights.push("Open to joining others");
-  }
-
-  if (typeof record.request.budgetPerPersonRub === "number") {
-    highlights.push(`Budget ≤ ${record.request.budgetPerPersonRub.toLocaleString("ru-RU")} ₽`);
-  }
-
-  if (record.request.notes) {
-    const notes = record.request.notes.trim();
-    if (notes) highlights.push(notes.length > 80 ? `${notes.slice(0, 77)}…` : notes);
-  }
-
-  return highlights;
-}
-
-export function createPublicOpenRequestFromTravelerRequest(
-  travelerRecord: TravelerRequestRecord,
-): OpenRequestRecord {
-  const now = new Date().toISOString();
-  const id = getUuid("or_local");
-
-  const sizeCurrent = Math.max(1, travelerRecord.request.groupSize || 1);
-  const wantsGroup =
-    travelerRecord.request.groupPreference === "group" ||
-    travelerRecord.request.openToJoiningOthers;
-  const sizeTarget = wantsGroup ? Math.max(sizeCurrent, 6) : sizeCurrent;
-
-  return {
-    id,
-    status: wantsGroup ? "forming_group" : "open",
-    visibility: "public",
-    createdAt: now,
-    updatedAt: now,
-    travelerRequestId: travelerRecord.id,
-    group: {
-      sizeTarget,
-      sizeCurrent,
-      openToMoreMembers: wantsGroup && sizeCurrent < sizeTarget,
-    },
-    destinationLabel: travelerRecord.request.destination,
-    dateRangeLabel: formatDateRange(
-      travelerRecord.request.startDate,
-      travelerRecord.request.endDate,
-    ),
-    budgetPerPersonRub: travelerRecord.request.budgetPerPersonRub,
-    highlights: buildHighlights(travelerRecord),
-  };
 }
 
 export function setLocalOpenRequestMembership(

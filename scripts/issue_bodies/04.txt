@@ -1,0 +1,9 @@
+Extract or promote reusable marketplace UI blocks so public and protected pages can share them.
+
+- [ ] Add shared components (e.g. under `src/features/.../shared` or a dedicated shared-marketplace area) for: `GlassFilterBar`, `RequestMarketplaceCard`, `RequestSummaryPanel`, `GroupProgressPanel`, `ParticipantAvatarCluster`, `OfferMarketplaceCard`, `DestinationHero`, `DestinationSection`, `StatusPillGroup`. Implement only those needed for Phase 2.
+- [ ] Use existing primitives from `src/components/ui` and `src/components/shared`; do not duplicate.
+- [ ] Document where each component lives and who consumes it.
+
+**Acceptance:** At least the components required for `/requests` and `/requests/[requestId]` exist and are reusable. No new one-off page-only blobs for request/offer cards.
+
+Ref: IMPLEMENTATION.md §14, §17 Phase 1.

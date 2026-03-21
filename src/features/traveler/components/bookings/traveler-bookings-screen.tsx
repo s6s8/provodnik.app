@@ -11,52 +11,27 @@ import { Separator } from "@/components/ui/separator";
 import { listTravelerBookings } from "@/data/traveler-booking/local-store";
 import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
 import { TravelerBookingStatusBadge } from "@/features/traveler/components/bookings/traveler-booking-status";
-import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
 
 export function TravelerBookingsScreen() {
   const [bookings, setBookings] = React.useState<TravelerBookingRecord[]>([]);
 
   React.useEffect(() => {
-    function refresh() {
-      setBookings(listTravelerBookings());
-    }
-
-    refresh();
-
-    function handleStorage(event: StorageEvent) {
-      if (event.key === "provodnik.traveler.bookings.v1") {
-        refresh();
-      }
-    }
-
-    function handleFocus() {
-      refresh();
-    }
-
-    window.addEventListener("storage", handleStorage);
-    window.addEventListener("focus", handleFocus);
-    return () => {
-      window.removeEventListener("storage", handleStorage);
-      window.removeEventListener("focus", handleFocus);
-    };
+    setBookings(listTravelerBookings());
   }, []);
 
   return (
     <div className="space-y-8">
       <div className="space-y-3">
         <Badge variant="outline">Кабинет путешественника</Badge>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Мои поездки
-            </h1>
-            <p className="max-w-3xl text-base text-muted-foreground">
-              Здесь собраны все ваши подтверждённые поездки: статусы, оплата и
-              детали маршрута. Пока данные живут только локально на этом
-              устройстве.
-            </p>
-          </div>
-          <TravelerWorkspaceNav includeListings />
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+            Мои поездки
+          </h1>
+          <p className="max-w-3xl text-base text-muted-foreground">
+            Здесь собраны все ваши подтверждённые поездки: статусы, оплата и
+            детали маршрута. Пока данные живут только локально на этом
+            устройстве.
+          </p>
         </div>
       </div>
 
@@ -92,7 +67,7 @@ export function TravelerBookingsScreen() {
 }
 
 function BookingCard({ record }: { record: TravelerBookingRecord }) {
-  const dateLabel = `${record.request.startDate} — ${record.request.endDate}`;
+  const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
   const amountLabel = formatRub(totalAmountRub(record));
   const canLeaveReview = record.status === "completed";
 
@@ -153,7 +128,7 @@ function totalAmountRub(record: TravelerBookingRecord) {
 function formatShortDate(iso: string) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("ru-RU", {
+  return date.toLocaleDateString("en-GB", {
     day: "2-digit",
     month: "short",
   });
@@ -167,3 +142,4 @@ function formatRub(amount: number) {
     maximumFractionDigits: 0,
   }).format(amount);
 }
+

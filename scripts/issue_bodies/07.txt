@@ -1,0 +1,10 @@
+Add a public request-creation flow at `/requests/new`.
+
+- [ ] Add route: `src/app/(site)/requests/new/page.tsx`.
+- [ ] Reuse existing request form logic from `src/features/traveler/components/request-create/`; wrap in dark glass form card and public-safe copy.
+- [ ] Add live preview card (how the request will appear on the marketplace). On submit: create request (local-store or Supabase), redirect to `/requests/[requestId]` or `/requests`.
+- [ ] Optional: auth gate for creation; page still explains the flow when not logged in.
+
+**Acceptance:** Users can create a request from a public URL. Form and preview match IMPLEMENTATION.md §13.4. Success path enters marketplace flow.
+
+Ref: IMPLEMENTATION.md §13.4, §18.

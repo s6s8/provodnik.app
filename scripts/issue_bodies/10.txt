@@ -1,0 +1,9 @@
+Align listings pages with the dark marketplace shell and request-first cross-links.
+
+- [ ] Redesign `/listings` (discovery): same dark shell, glass filter bar, dense card grid; add links to "Open requests in this city" and "Create request".
+- [ ] Redesign `/listings/[slug]` (detail): keep description, guide, reviews, price; strengthen primary CTAs: "Create request for this tour", "Join existing group", "Requests in this city". Optionally show related open groups.
+- [ ] Reuse existing listing data and components; change layout and chrome, not data contracts.
+
+**Acceptance:** Listings feel part of the same product family as home and requests. Listing detail supports the request-first loop.
+
+Ref: IMPLEMENTATION.md §13.6, §13.7.

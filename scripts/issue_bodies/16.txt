@@ -1,0 +1,7 @@
+- [ ] Optionally turn `/admin` into an overview page with links to Guide review, Listings moderation, Disputes, and any marketplace health signals. If keeping current behavior, add at least a short nav or summary.
+- [ ] Align admin moderation and disputes pages with the dark workspace shell. Preserve operator clarity and audibility; avoid decorative clutter.
+- [ ] Ensure request, offer, booking, and dispute entities are clearly connected in admin views (e.g. links, IDs, status).
+
+**Acceptance:** Admin has a clear entry point and consistent shell. Moderation and disputes remain usable and auditable.
+
+Ref: IMPLEMENTATION.md §13.19–13.21, §17 Phase 6.

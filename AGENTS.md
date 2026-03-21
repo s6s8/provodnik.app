@@ -52,6 +52,15 @@
 - Use `s6s8/provodnik.app-Tasks` issues as task records and GitHub Project as the live status board.
 - Use worktrees as isolated coding spaces, not as the task ledger.
 
+## Paperclip Execution Model
+- `CEO` owns task-program direction and hiring decisions.
+- `Provodnik Tracker` owns GitHub intake, issue normalization, and board hygiene.
+- `CTO` owns technical sequencing, lane assignment, integration order, and stable workflow updates.
+- Cursor lanes execute scoped code tasks inside the assigned worktree only.
+- Codex lanes supervise, review, reconcile tracker state, and update durable docs.
+- Slack dev notes must be derived from local source files in `codex-ops`; do not treat Slack as source of truth.
+- If the design docs in `design/IMPLEMENTATION-GUIDE.md`, `design/LAYOUT.md`, and `design/STAKEHOLDER-FEEDBACK.md` sharpen or override older route assumptions, update planning docs and issue wording before delegating implementation.
+
 ## Runbook
 - Install: `bun install`
 - Dev: `bun dev`
@@ -74,6 +83,7 @@
 - `APP_STACK.md`: stack rationale
 - `PROVODNIK-REPO-MEMORY.md`: repo-specific memory and status workflow
 - `docs/process/orchestration-workflow.md`: issues, project, worktree, and Cursor execution flow
+- `docs/process/paperclip-agent-contract.md`: Paperclip CEO, CTO, tracker, and executor contract
 - `.cursor/rules/*`: Cursor project rules
 - `docs/architecture/module-map.md`: module ownership and boundaries
 - `docs/adr/*`: durable technical decisions

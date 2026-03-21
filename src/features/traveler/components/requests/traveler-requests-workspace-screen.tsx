@@ -2,34 +2,31 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check, X } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { listOpenRequests } from "@/data/open-requests/local-store";
+import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { listTravelerBookings } from "@/data/traveler-booking/local-store";
+import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
 import {
   listOffersForTravelerRequest,
   listTravelerRequests,
 } from "@/data/traveler-request/local-store";
-import type { TravelerRequestRecord } from "@/data/traveler-request/types";
-import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
-import { TravelerWorkspaceNav } from "@/features/traveler/components/shared/traveler-workspace-nav";
-
-function pluralizeRu(value: number, [one, few, many]: [string, string, string]) {
-  const abs = Math.abs(value);
-  const mod10 = abs % 10;
-  const mod100 = abs % 100;
-  if (mod100 >= 11 && mod100 <= 14) return many;
-  if (mod10 === 1) return one;
-  if (mod10 >= 2 && mod10 <= 4) return few;
-  return many;
-}
+import type {
+  TravelerOffer,
+  TravelerRequestRecord,
+} from "@/data/traveler-request/types";
+import { PublicRequestCard } from "@/features/requests/components/public/public-request-card";
 
 export function TravelerRequestsWorkspaceScreen() {
   const [requests, setRequests] = React.useState<TravelerRequestRecord[]>([]);
-  const [joinedOpenRequestsCount, setJoinedOpenRequestsCount] = React.useState(0);
+  const [groupRecords, setGroupRecords] = React.useState<OpenRequestRecord[]>([]);
+  const [offers, setOffers] = React.useState<Array<TravelerOffer & { requestId: string }>>([]);
+  const [bookings, setBookings] = React.useState<TravelerBookingRecord[]>([]);
 
   React.useEffect(() => {
     let isMounted = true;
@@ -38,27 +35,36 @@ export function TravelerRequestsWorkspaceScreen() {
       try {
         const nextRequests = await listTravelerRequests();
         const allOpenRequests = await listOpenRequests();
-        const joined = allOpenRequests.filter((item) => item.isJoined).length;
+        const joined = allOpenRequests.filter((item) => item.isJoined).map((item) => item.record);
+        const nextOffers = nextRequests.flatMap((request) =>
+          listOffersForTravelerRequest(request.id).map((offer) => ({
+            ...offer,
+            requestId: request.id,
+          })),
+        );
+        const nextBookings = listTravelerBookings().filter(
+          (booking) => booking.status === "confirmed" || booking.status === "in_progress" || booking.status === "completed",
+        );
 
         if (!isMounted) return;
 
         setRequests(nextRequests);
-        setJoinedOpenRequestsCount(joined);
+        setGroupRecords(joined);
+        setOffers(nextOffers);
+        setBookings(nextBookings);
       } catch {
         if (!isMounted) return;
         setRequests([]);
-        setJoinedOpenRequestsCount(0);
+        setGroupRecords([]);
+        setOffers([]);
+        setBookings([]);
       }
     }
 
     void load();
 
     function handleStorage(event: StorageEvent) {
-      const key = event.key ?? "";
-      if (
-        key.startsWith("provodnik.traveler.open-requests.") ||
-        key === "provodnik.traveler.requests.v1"
-      ) {
+      if (event.key?.startsWith("provodnik.traveler.open-requests.") ?? false) {
         void load();
       }
     }
@@ -76,131 +82,253 @@ export function TravelerRequestsWorkspaceScreen() {
     };
   }, []);
 
+  const stats = React.useMemo(
+    () => [
+      { label: "запросов", value: requests.length },
+      { label: "групп", value: groupRecords.length },
+      { label: "предложений", value: offers.length },
+    ],
+    [groupRecords.length, offers.length, requests.length],
+  );
+
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <Badge variant="outline">Кабинет путешественника</Badge>
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div className="space-y-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              Мои запросы
-            </h1>
-            <p className="max-w-3xl text-base text-muted-foreground">
-              Здесь вы видите все свои запросы на поездки: новые, с откликами
-              гидов и уже забронированные маршруты. Запросы сейчас сохраняются
-              локально на этом устройстве.
-            </p>
+      <header className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="space-y-3">
+            <p className="editorial-kicker">Кабинет путешественника</p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+                Мой кабинет
+              </h1>
+              <div className="glass-panel flex items-center gap-2 rounded-full border border-white/10 px-3 py-1.5">
+                <div
+                  aria-hidden
+                  className="flex size-8 items-center justify-center rounded-full bg-white/15 text-xs font-semibold text-white"
+                >
+                  П
+                </div>
+                <p className="text-sm font-medium text-white">Путешественник</p>
+              </div>
+            </div>
           </div>
-          <TravelerWorkspaceNav
-            joinedOpenRequestsCount={joinedOpenRequestsCount}
-            includeListings
-          />
+          <Button asChild>
+            <Link href="/traveler/requests/new">Новый запрос</Link>
+          </Button>
         </div>
-      </div>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {stats.map((item) => (
+            <div
+              key={item.label}
+              className="glass-panel rounded-full border border-white/10 px-4 py-2.5"
+            >
+              <p className="text-xs text-white/60">#{item.value}</p>
+              <p className="text-sm font-medium text-white">{item.label}</p>
+            </div>
+          ))}
+        </div>
+      </header>
 
-      <div className="space-y-4">
-        {joinedOpenRequestsCount > 0 ? (
-          <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-base">Групповые поездки</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Вы присоединились к {joinedOpenRequestsCount} открытым
-                запросам-группам на этом устройстве.
-              </p>
-            </CardHeader>
-            <CardContent>
-              <Button asChild variant="secondary">
-                <Link href="/traveler/open-requests">Открытые группы</Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ) : null}
+      <Tabs defaultValue="requests" className="w-full">
+        <TabsList>
+          <TabsTrigger value="requests">Мои запросы</TabsTrigger>
+          <TabsTrigger value="groups">Группы</TabsTrigger>
+          <TabsTrigger value="offers">Предложения гидов</TabsTrigger>
+          <TabsTrigger value="bookings">Бронирования</TabsTrigger>
+        </TabsList>
 
-        {requests.length === 0 ? (
-          <Card className="border-border/70 bg-card/90">
-            <CardHeader>
-              <CardTitle>У вас пока нет запросов</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Оставьте первый запрос — и мы покажем, как могут отвечать
-                гиды с разными программами и бюджетами.
-              </p>
-              <Button asChild>
-                <Link href="/traveler/requests/new">
-                  Создать запрос
-                  <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-3">
-            {requests.map((item) => (
-              <RequestCard key={item.id} record={item} />
-            ))}
-          </div>
-        )}
-      </div>
+        <TabsContent value="requests" className="space-y-4">
+          {requests.length === 0 ? (
+            <EmptyState
+              title="У вас пока нет запросов"
+              description="Создайте первый запрос и получите предложения от гидов."
+              ctaHref="/traveler/requests/new"
+              ctaLabel="Создать запрос"
+            />
+          ) : (
+            <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {requests.map((request) => (
+                <PublicRequestCard
+                  key={request.id}
+                  request={toOpenRequestCardModel(request)}
+                />
+              ))}
+            </section>
+          )}
+        </TabsContent>
+
+        <TabsContent value="groups" className="space-y-3">
+          {groupRecords.length === 0 ? (
+            <EmptyState
+              title="Нет активных групп"
+              description="Когда вы присоединитесь к группе, она появится здесь."
+              ctaHref="/traveler/open-requests"
+              ctaLabel="Открыть группы"
+            />
+          ) : (
+            <div className="grid gap-3">
+              {groupRecords.map((group) => (
+                <Card key={group.id} className="glass-panel border-white/10 bg-transparent">
+                  <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
+                    <div className="space-y-1">
+                      <p className="text-base font-semibold text-white">{group.destinationLabel}</p>
+                      <p className="text-sm text-white/65">{group.dateRangeLabel}</p>
+                      <p className="text-sm text-white/70">
+                        {group.group.sizeCurrent} из {group.group.sizeTarget} участников
+                      </p>
+                    </div>
+                    <Badge className={groupStatusClassName(group.status)}>
+                      {groupStatusLabel(group.status)}
+                    </Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="offers" className="space-y-3">
+          {offers.length === 0 ? (
+            <EmptyState
+              title="Пока нет предложений от гидов"
+              description="Новые отклики появятся здесь, когда гиды ответят на запрос."
+            />
+          ) : (
+            <div className="grid gap-3">
+              {offers.map((offer) => (
+                <Card key={offer.id} className="glass-panel border-white/10 bg-transparent">
+                  <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
+                    <div className="space-y-1">
+                      <p className="text-base font-semibold text-white">{offer.guide.name}</p>
+                      <p className="text-sm text-white/65">{getOfferTitle(offer)}</p>
+                      <p className="text-sm font-medium text-white">{formatRub(offer.priceTotalRub)}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button type="button" size="sm" variant="secondary">
+                        <Check className="size-3.5" />
+                        Принять
+                      </Button>
+                      <Button type="button" size="sm" variant="outline">
+                        <X className="size-3.5" />
+                        Отклонить
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="bookings" className="space-y-3">
+          {bookings.length === 0 ? (
+            <EmptyState
+              title="Нет подтвержденных бронирований"
+              description="Подтвержденные бронирования появятся в этом разделе."
+            />
+          ) : (
+            <div className="grid gap-3">
+              {bookings.map((booking) => (
+                <Card key={booking.id} className="glass-panel border-white/10 bg-transparent">
+                  <CardContent className="flex flex-wrap items-center justify-between gap-4 p-4">
+                    <div className="space-y-1">
+                      <p className="text-base font-semibold text-white">{booking.request.destination}</p>
+                      <p className="text-sm text-white/65">
+                        {booking.request.startDate} - {booking.request.endDate}
+                      </p>
+                      <p className="text-sm font-medium text-white">
+                        {formatRub(sumRub(booking.payment.lineItems))}
+                      </p>
+                    </div>
+                    <Badge className="bg-emerald-500/18 text-emerald-100">Подтверждено</Badge>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
 
-function RequestCard({ record }: { record: TravelerRequestRecord }) {
-  const offerCount = listOffersForTravelerRequest(record.id).length;
-  const dateLabel = `${record.request.startDate} — ${record.request.endDate}`;
-  const travelerLabel = pluralizeRu(record.request.groupSize, [
-    "путешественник",
-    "путешественника",
-    "путешественников",
-  ]);
-  const offerLabel = pluralizeRu(offerCount, ["отклик", "отклика", "откликов"]);
-
+function EmptyState({
+  title,
+  description,
+  ctaHref,
+  ctaLabel,
+}: {
+  title: string;
+  description: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+}) {
   return (
-    <Card className="border-border/70 bg-card/90">
-      <CardHeader className="space-y-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <CardTitle className="text-base">
-              {record.request.destination}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">{dateLabel}</p>
-          </div>
-          <TravelerRequestStatusBadge status={record.status} />
-        </div>
-
-        <Separator />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{record.request.experienceType}</Badge>
-          <Badge variant="outline">
-            {record.request.groupSize} {travelerLabel}
-          </Badge>
-          <Badge variant="outline">
-            {offerCount === 0 ? "Нет откликов" : `${offerCount} ${offerLabel}`}
-          </Badge>
-        </div>
+    <Card className="glass-panel border-white/10 bg-transparent">
+      <CardHeader>
+        <CardTitle className="text-white">{title}</CardTitle>
       </CardHeader>
-      <CardContent className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Обновлено {formatShortDate(record.updatedAt)}
-        </p>
-        <Button asChild variant="secondary">
-          <Link href={`/traveler/requests/${record.id}`}>
-            Открыть
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
+      <CardContent className="space-y-3">
+        <p className="text-sm text-white/70">{description}</p>
+        {ctaHref && ctaLabel ? (
+          <Button asChild size="sm">
+            <Link href={ctaHref}>
+              {ctaLabel}
+              <ArrowRight className="size-4" />
+            </Link>
+          </Button>
+        ) : null}
       </CardContent>
     </Card>
   );
 }
 
-function formatShortDate(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("ru-RU", {
-    day: "2-digit",
-    month: "short",
-  });
+function toOpenRequestCardModel(request: TravelerRequestRecord): OpenRequestRecord {
+  return {
+    id: request.id,
+    status: "forming_group",
+    visibility: "public",
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+    travelerRequestId: request.id,
+    group: {
+      sizeTarget: Math.max(request.request.groupSize, 2),
+      sizeCurrent: request.request.groupSize,
+      openToMoreMembers: request.request.openToJoiningOthers,
+    },
+    destinationLabel: request.request.destination,
+    dateRangeLabel: `${request.request.startDate} — ${request.request.endDate}`,
+    budgetPerPersonRub: request.request.budgetPerPersonRub,
+    highlights: request.request.notes ? [request.request.notes] : ["Запрос путешественника"],
+  };
 }
+
+function groupStatusLabel(status: OpenRequestRecord["status"]) {
+  if (status === "forming_group") return "Формируется";
+  if (status === "matched") return "Идут переговоры";
+  return "Подтверждено";
+}
+
+function groupStatusClassName(status: OpenRequestRecord["status"]) {
+  if (status === "forming_group") return "bg-sky-500/18 text-sky-100";
+  if (status === "matched") return "bg-amber-500/18 text-amber-100";
+  return "bg-emerald-500/18 text-emerald-100";
+}
+
+function getOfferTitle(offer: TravelerOffer) {
+  if (offer.highlights.length > 0) return offer.highlights[0];
+  return `Тур на ${offer.durationDays} дн.`;
+}
+
+function sumRub(items: TravelerBookingRecord["payment"]["lineItems"]) {
+  return items.reduce((sum, item) => sum + item.amountRub, 0);
+}
+
+function formatRub(amount: number) {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+

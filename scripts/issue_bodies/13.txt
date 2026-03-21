@@ -1,0 +1,9 @@
+Align traveler sub-pages with the dark protected shell and cross-linking.
+
+- [ ] Apply dark workspace shell to `/traveler/requests`, `/traveler/open-requests`, `/traveler/bookings`, `/traveler/favorites`, and detail/review pages.
+- [ ] Add cross-links: from "My requests" to public `/requests`; from booking/request cards to public request or listing where relevant.
+- [ ] Improve offer counts, next actions, and joined-state visibility on request and open-request lists.
+
+**Acceptance:** All traveler pages share the same shell and feel connected to the public marketplace.
+
+Ref: IMPLEMENTATION.md §13.10–13.13.

@@ -1,12 +1,9 @@
-"use client";
-
 import type { TravelerRequest } from "@/data/traveler-request/schema";
 import {
   seededTravelerOffers,
   seededTravelerRequests,
   seededTravelerTimeline,
 } from "@/data/traveler-request/seed";
-import { listLocalGuideOffersForRequest } from "@/data/guide-offer/local-store";
 import type {
   TravelerOffer,
   TravelerRequestRecord,
@@ -106,36 +103,9 @@ export async function getTravelerRequestById(
 }
 
 export function listOffersForTravelerRequest(requestId: string): TravelerOffer[] {
-  const seeded = seededTravelerOffers.filter((offer) => offer.requestId === requestId);
-
-  const localGuideOffers = listLocalGuideOffersForRequest(requestId).map((record) => {
-    const offer: TravelerOffer = {
-      id: record.id,
-      requestId: record.requestId,
-      status: "new",
-      createdAt: record.createdAt,
-      guide: {
-        name: "Вы (гид)",
-        rating: 5.0,
-        completedTrips: 0,
-        homeBase: "—",
-        responseTimeHours: 2,
-      },
-      priceTotalRub: record.draft.priceTotalRub,
-      durationDays: 1,
-      groupSizeMin: 1,
-      groupSizeMax: record.draft.capacity,
-      highlights: [record.draft.timingSummary],
-      included: record.draft.inclusions,
-      message: record.draft.notes || "Предложение сохранено из кабинета гида.",
-    };
-
-    return offer;
-  });
-
-  return [...localGuideOffers, ...seeded].sort(
-    (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
-  );
+  return seededTravelerOffers
+    .filter((offer) => offer.requestId === requestId)
+    .sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt));
 }
 
 export function listTimelineForTravelerRequest(

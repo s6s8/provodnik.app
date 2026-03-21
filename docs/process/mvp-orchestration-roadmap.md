@@ -1,5 +1,15 @@
 # MVP Orchestration Roadmap
 
+This file is now a historical sequencing reference, not the active planning source of truth.
+
+Active rule:
+
+- use `IMPLEMENTATION.md` for the current execution plan;
+- use `s6s8/provodnik.app-Tasks` issues for live task records;
+- use the GitHub Project for status.
+
+If this file disagrees with `IMPLEMENTATION.md`, `IMPLEMENTATION.md` wins.
+
 ## Goal
 - Turn the MVP into an execution queue that can be driven issue by issue without re-deriving priorities every session.
 - Keep payment integration out of MVP. Booking work should end at reservation and policy-complete confirmation states without a live payment processor.

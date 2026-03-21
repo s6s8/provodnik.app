@@ -14,23 +14,21 @@ export const metadata: Metadata = {
 export default function TrustPage() {
   return (
     <div className="space-y-10">
-      <section className="section-frame rounded-[2.2rem] p-6 sm:p-8 lg:p-10">
-        <div className="space-y-6">
-          <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
-            Правила сервиса
-          </Badge>
-          <div className="space-y-3">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-              Доверие к бронированию — до оплаты, во время поездки и после неё
-            </h1>
-            <p className="max-w-prose text-sm leading-7 text-muted-foreground sm:text-base">
-              Provodnik — маркетплейс экскурсий и туров по России с бронированием по запросу.
-              Описанные ниже принципы задают ожидаемое поведение сервиса в MVP‑версии и не
-              являются окончательными юридическими условиями.
-            </p>
-          </div>
+      <div className="space-y-3">
+        <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
+          Правила сервиса
+        </Badge>
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+            Доверие к бронированию — до оплаты, во время поездки и после неё
+          </h1>
+          <p className="max-w-prose text-sm text-muted-foreground">
+            Provodnik — маркетплейс экскурсий и туров по России с бронированием по
+            запросу. Описанные ниже принципы задают ожидаемое поведение сервиса в
+            MVP‑версии и не являются окончательными юридическими условиями.
+          </p>
         </div>
-      </section>
+      </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="border-border/70 bg-card/80">

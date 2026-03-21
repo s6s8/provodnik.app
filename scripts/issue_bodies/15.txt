@@ -1,0 +1,9 @@
+Align guide inbox, offer creation, listings, and bookings with the dark shell and shared marketplace state.
+
+- [ ] Apply dark workspace shell to `/guide/requests`, `/guide/requests/[requestId]`, `/guide/listings`, `/guide/bookings` and detail.
+- [ ] In request detail: keep offer constructor; improve preview of what traveler sees; align with shared request/offer state. Ensure submitted offers appear on public request detail where applicable.
+- [ ] Improve visibility of demand and negotiation (e.g. offer status, expiry) in guide inbox and detail.
+
+**Acceptance:** Guide workspace is visually consistent and connected to the same request/offer/booking flow as traveler and public.
+
+Ref: IMPLEMENTATION.md §13.15–13.18.

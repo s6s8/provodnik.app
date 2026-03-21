@@ -1,14 +1,12 @@
 import type { Metadata } from "next";
-
-import { PublicRequestCreateScreen } from "@/features/requests/components/public/public-request-create-screen";
+import { CreateRequestForm } from "@/features/requests/components/public/create-request-form";
 
 export const metadata: Metadata = {
-  title: "Новый запрос",
-  description:
-    "Форма создания публичного запроса на поездку с живым превью и входом в маркетплейс по спросу.",
+  title: "Создать запрос",
+  description: "Оставьте заявку: мы поможем найти группу и предложить цену с местным гидом.",
 };
 
-export default function PublicRequestNewPage() {
-  return <PublicRequestCreateScreen />;
+export default function CreateRequestPage() {
+  return <CreateRequestForm />;
 }
 

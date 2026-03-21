@@ -27,8 +27,11 @@ export type OpenRequestRecord = {
     openToMoreMembers: boolean;
   };
   destinationLabel: string;
+  imageUrl?: string;
+  regionLabel?: string;
   dateRangeLabel: string;
   budgetPerPersonRub?: number;
+  priceScenarios?: Array<{ groupSize: number; pricePerPersonRub: number }>;
   highlights: string[];
 };
 

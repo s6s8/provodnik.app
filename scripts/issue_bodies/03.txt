@@ -1,0 +1,9 @@
+Evolve the protected layout so traveler, guide, and admin areas use a dark premium workspace shell.
+
+- [ ] Update `src/app/(protected)/layout.tsx`: dark background, clear workspace nav, compact but premium controls.
+- [ ] Ensure `WorkspaceRoleNav` and any role-specific chrome work in the new shell.
+- [ ] Keep operator clarity for admin; avoid decorative clutter.
+
+**Acceptance:** Protected routes (traveler, guide, admin, notifications) share a consistent dark workspace shell. Role switching and navigation remain clear.
+
+Ref: IMPLEMENTATION.md §8.1, §16.3.

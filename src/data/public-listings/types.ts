@@ -19,6 +19,11 @@ export type PublicListingItineraryItem = {
   title: string;
   description: string;
   durationHours: number;
+  travelToNextMinutes?: number;
+  travelToNextLabel?: string;
+  transportOptions?: Array<
+    "walking" | "city_bus" | "taxi" | "own_car" | "guide_transport"
+  >;
 };
 
 export type PublicListing = {

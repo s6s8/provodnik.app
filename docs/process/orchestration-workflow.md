@@ -1,15 +1,19 @@
 # Orchestration Workflow
 
 ## Operating model
+- `IMPLEMENTATION.md` = planning source of truth
+- `design/IMPLEMENTATION-GUIDE.md` + `design/STAKEHOLDER-FEEDBACK.md` + `design/LAYOUT.md` = active design constraints that must be reflected in planning and issue wording
 - `s6s8/provodnik.app-Tasks` issues = task records
 - GitHub Project = live board and status
 - Worktrees = isolated coding spaces
 - `AGENTS.md` + repo memory docs = stable context
 - Cursor = coding executor
 - Codex = orchestrator
+- Paperclip = execution control plane
 
 ## Source of truth split
 - Stable repo truth:
+  - `IMPLEMENTATION.md`
   - `AGENTS.md`
   - `PROVODNIK-REPO-MEMORY.md`
   - `docs/architecture/module-map.md`
@@ -20,6 +24,30 @@
   - `s6s8/provodnik.app-Tasks` issues
   - GitHub Project
   - Pull requests
+
+## Planning rule
+- `IMPLEMENTATION.md` is the only planning source of truth.
+- Issues, project items, and local helper files must mirror its phases, route map, and acceptance direction.
+- If an issue list or roadmap conflicts with `IMPLEMENTATION.md`, update the helper doc or issue wording instead of inventing a second plan.
+- If the design docs introduce sharper requirements than the current issue wording, update `IMPLEMENTATION.md` and the affected issues before delegating coding work.
+
+## Paperclip role model
+
+- `CEO`
+  - approves the active delivery program
+  - approves hiring and escalation paths
+- `Provodnik Tracker`
+  - normalizes GitHub issues
+  - updates GitHub status and comments
+  - assigns execution-ready work to the `CTO`
+- `CTO`
+  - owns technical sequencing and lane assignment
+  - manages dependency order and integration readiness
+  - updates durable workflow and architecture docs
+- Cursor executors
+  - implement scoped issues in assigned worktrees
+- Codex review lanes
+  - verify, integrate, and reconcile tracker or doc drift
 
 ## Issue model
 - One issue = one concrete task or bug.
@@ -53,39 +81,47 @@
   - `Milestone`
   - `Repository`
 
-## Worktree mapping
-- `provodnik-foundation`
-  - shared layout, app shell, providers, homepage, shared UI composition
-- `provodnik-traveler`
-  - traveler routes and traveler feature work
-- `provodnik-guide`
-  - guide routes and guide feature work
-- `provodnik-admin`
-  - admin routes and admin feature work
-- `provodnik-data`
-  - schemas, contracts, Supabase helpers, shared data layer
+## Worktree mapping (parallel implementation)
+
+Implementation worktrees and branches live under `D:\dev\projects\provodnik\worktrees\`:
+
+| Worktree | Path | Issues (branch per issue) |
+|----------|------|---------------------------|
+| **provodnik-data** | `worktrees/provodnik-data` | #2 `impl/issue-2-arch` |
+| **impl-foundation** | `worktrees/impl-foundation` | #3–#12, #17 (`impl/issue-N-...`) |
+| **impl-traveler** | `worktrees/impl-traveler` | #13, #14 |
+| **impl-guide** | `worktrees/impl-guide` | #15, #16 |
+| **impl-admin** | `worktrees/impl-admin` | #18 |
+
+- **Pull issues:** run `./scripts/pull_issues.ps1` from app repo root (updates `scripts/open-issues.json` and `scripts/open-issues.md`).
+- **Full agent TODO:** `scripts/AGENT_TODO.md` (checklist, phase order, quick commands).
+- **Update/close issues:** `scripts/README-issues.md` (gh issue close, comment, labels).
+- **One Cursor window per worktree** = work on multiple issues in parallel; switch branch in that worktree for the next issue in sequence.
 
 ## Branch naming
-- Recommended:
-  - `issue-<number>-<short-slug>`
+- Active convention:
+  - `impl/issue-<number>-<short-slug>`
 - Example:
-  - `issue-42-traveler-request-form`
+  - `impl/issue-13-traveler-dashboard`
 
 ## Execution loop
 1. Create or refine the issue.
 2. Put the issue in `Ready`.
 3. Assign the area and worktree.
-4. Create or switch to the matching worktree/branch.
-5. Delegate implementation to Cursor with:
+4. Tracker creates or updates the matching Paperclip issue and assigns it to the `CTO`.
+5. `CTO` creates or switches to the matching worktree/branch.
+6. Delegate implementation to Cursor with:
    - workspace
    - issue goal
    - acceptance criteria
    - path scope
    - explicit skill refs if useful
    - validation expectations
-6. Update the issue with progress, blockers, and PR link.
-7. Move to `Review` when implementation is ready.
-8. Move to `Done` after merge.
+7. Update the GitHub issue with progress, blockers, checks, and PR link.
+8. Append a concise implementation note to `D:\dev\projects\codex-ops\projects\provodnik\dev-notes.md`.
+9. Mirror the same note into Slack when Slack auth is available.
+10. Move to `Review` when implementation is ready.
+11. Move to `Done` after merge.
 
 ## Validation rule
 - Fast branch validation in worktrees:

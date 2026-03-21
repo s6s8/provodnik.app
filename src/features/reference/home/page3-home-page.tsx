@@ -1,7 +1,6 @@
 import type { CSSProperties, ReactNode } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Lora, Plus_Jakarta_Sans, Roboto_Mono } from "next/font/google";
 import {
   ArrowRight,
   CalendarDays,
@@ -16,20 +15,26 @@ import {
 import { seededPublicGuides } from "@/data/public-guides/seed";
 import { seededPublicListings } from "@/data/public-listings/seed";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-plus-jakarta-home",
-});
+const plusJakarta = {
+  variable: "",
+  style: {
+    fontFamily: '"Inter", ui-sans-serif, system-ui, sans-serif',
+  },
+};
 
-const lora = Lora({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-lora-home",
-});
+const lora = {
+  variable: "",
+  style: {
+    fontFamily: '"Cormorant Garamond", Georgia, serif',
+  },
+};
 
-const robotoMono = Roboto_Mono({
-  subsets: ["latin", "cyrillic"],
-  variable: "--font-roboto-mono-home",
-});
+const robotoMono = {
+  variable: "",
+  style: {
+    fontFamily: '"Geist Mono", "SFMono-Regular", Consolas, monospace',
+  },
+};
 
 const homeTheme = {
   "--card": "#f5f5f4",
@@ -78,11 +83,11 @@ const homeTheme = {
 
 const listingImages: Record<string, string> = {
   "rostov-food-walk":
-    "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&h=900&q=80",
+    "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=1200&h=900&q=80",
   "baikal-ice-safety-day":
-    "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1200&h=900&q=80",
+    "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?auto=format&fit=crop&w=1200&h=900&q=80",
   "rostov-day-trip-azov":
-    "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&h=900&q=80",
+    "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=1200&h=900&q=80",
 };
 
 const highlightRows = [

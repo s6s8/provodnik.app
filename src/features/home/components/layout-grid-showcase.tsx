@@ -12,28 +12,28 @@ const cards: LayoutGridCard[] = [
     id: 1,
     className: "md:col-span-2 h-[18rem] md:h-[24rem]",
     thumbnail:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?auto=format&fit=crop&w=1600&h=1200&q=80",
     content: <RostovContent />,
   },
   {
     id: 2,
     className: "col-span-1 h-[18rem] md:h-[24rem]",
     thumbnail:
-      "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1200&h=1400&q=80",
+      "https://images.unsplash.com/photo-1508193638397-1c4234db14d8?auto=format&fit=crop&w=1200&h=1400&q=80",
     content: <BaikalContent />,
   },
   {
     id: 3,
     className: "col-span-1 h-[18rem] md:h-[24rem]",
     thumbnail:
-      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&h=1400&q=80",
+      "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=1200&h=1400&q=80",
     content: <KazanContent />,
   },
   {
     id: 4,
     className: "md:col-span-2 h-[18rem] md:h-[24rem]",
     thumbnail:
-      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&h=1200&q=80",
+      "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=1600&h=1200&q=80",
     content: <AltaiContent />,
   },
 ];

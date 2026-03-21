@@ -412,12 +412,6 @@ export function GuideReviewQueue() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Button asChild variant="outline" type="button">
-              <Link href="/admin">
-                <ClipboardList className="mr-1 size-4" />
-                Обзор
-              </Link>
-            </Button>
-            <Button asChild variant="outline" type="button">
               <Link href="/admin/listings">
                 <ClipboardList className="mr-1 size-4" />
                 Модерация объявлений

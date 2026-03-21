@@ -16,7 +16,7 @@ const stories = [
     city: "Ростов-на-Дону",
     feedback: "Рынок, дворики и южный ритм за один день",
     mainImage:
-      "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&h=1200&q=80",
+      "https://images.unsplash.com/photo-1534430480872-3498386e7856?auto=format&fit=crop&w=900&h=1200&q=80",
     height: "h-[28rem]",
   },
   {
@@ -24,7 +24,7 @@ const stories = [
     city: "Байкал",
     feedback: "Ледовые маршруты и спокойный темп для маленькой группы",
     mainImage:
-      "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=900&h=1200&q=80",
+      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=900&h=1200&q=80",
     height: "h-[18rem]",
   },
   {
@@ -32,7 +32,7 @@ const stories = [
     city: "Казань",
     feedback: "Городской уикенд: еда, история и вечерний свет",
     mainImage:
-      "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=900&h=1200&q=80",
+      "https://images.unsplash.com/photo-1518684079-3c830dcef090?auto=format&fit=crop&w=900&h=1200&q=80",
     height: "h-[22rem]",
   },
   {
@@ -40,7 +40,7 @@ const stories = [
     city: "Карелия",
     feedback: "Лес, вода и маршрут без суеты",
     mainImage:
-      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&h=1200&q=80",
+      "https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=900&h=1200&q=80",
     height: "h-[26rem]",
   },
   {
@@ -48,7 +48,7 @@ const stories = [
     city: "Сочи",
     feedback: "Видовые точки, набережная и спокойный семейный день",
     mainImage:
-      "https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&h=1200&q=80",
+      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=900&h=1200&q=80",
     height: "h-[20rem]",
   },
   {
@@ -56,7 +56,7 @@ const stories = [
     city: "Алтай",
     feedback: "Выезд на природу с фото-остановками и запасом по погоде",
     mainImage:
-      "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=900&h=1200&q=80",
+      "https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=900&h=1200&q=80",
     height: "h-[24rem]",
   },
 ] as const;

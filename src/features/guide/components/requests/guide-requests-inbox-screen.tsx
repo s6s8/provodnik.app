@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { TravelerRequestRecord } from "@/data/traveler-request/types";
+import { getSeededTravelerRequests } from "@/data/traveler-request/seed";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -36,23 +36,17 @@ function formatExperienceType(value: string): string {
   }
 }
 
-export function GuideRequestsInboxScreen({
-  items,
-}: {
-  items: TravelerRequestRecord[];
-}) {
-  const sorted = [...items].sort((a, b) =>
-    (b.updatedAt || b.createdAt).localeCompare(a.updatedAt || a.createdAt),
-  );
+export function GuideRequestsInboxScreen() {
+  const items = getSeededTravelerRequests();
 
   const summary = {
-    total: sorted.length,
+    total: items.length,
     highBudget:
-      sorted.filter((item) => item.request.budgetPerPersonRub >= 15000).length,
+      items.filter((item) => item.request.budgetPerPersonRub >= 15000).length,
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="space-y-3">
         <Badge variant="outline">Кабинет гида</Badge>
         <div className="space-y-2">
@@ -107,33 +101,28 @@ export function GuideRequestsInboxScreen({
         <CardHeader className="space-y-1">
           <CardTitle>Входящие запросы</CardTitle>
           <p className="text-sm text-muted-foreground">
-            {sorted.length} запрос
-            {sorted.length === 1
-              ? ""
-              : sorted.length > 1 && sorted.length < 5
-                ? "а"
-                : "ов"}
-            .
+            {items.length} запрос
+            {items.length === 1 ? "" : items.length > 1 && items.length < 5 ? "а" : "ов"}.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
-          {sorted.length === 0 ? (
+          {items.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Пока нет новых запросов от путешественников.
             </p>
           ) : (
             <div className="space-y-3">
-              {sorted.map((item, index) => (
+              {items.map((item, index) => (
                 <div key={item.id} className="space-y-3">
                   <Link
                     href={`/guide/requests/${item.id}`}
                     className="block rounded-xl border border-border/70 bg-background/60 p-4 transition-colors hover:bg-background"
-                    aria-label={`Открыть запрос ${item.request.destination}`}
+                    aria-label={`Открыть запрос от ${item.traveler.displayName}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
                         <p className="text-sm font-semibold text-foreground">
-                          Запрос: {item.request.destination}
+                          {item.traveler.displayName}
                         </p>
                         <p className="text-sm text-muted-foreground">
                           {formatExperienceType(item.request.experienceType)} в{" "}
@@ -143,7 +132,7 @@ export function GuideRequestsInboxScreen({
                         </p>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {formatDateTime(item.updatedAt || item.createdAt)}
+                        {formatDateTime(item.createdAt)}
                       </p>
                     </div>
 
@@ -173,7 +162,7 @@ export function GuideRequestsInboxScreen({
                     ) : null}
                   </Link>
 
-                  {index < sorted.length - 1 ? <Separator /> : null}
+                  {index < items.length - 1 ? <Separator /> : null}
                 </div>
               ))}
             </div>

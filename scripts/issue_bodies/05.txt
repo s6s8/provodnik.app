@@ -1,0 +1,11 @@
+Build the public demand board at `/requests`.
+
+- [ ] Add route: `src/app/(site)/requests/page.tsx`.
+- [ ] Implement public request board UI: dark shell, glass filter bar (city, date, budget, group size), dense grid of request cards.
+- [ ] Each card: destination image, city, date, participants joined, target group size, estimated price per person, "Join group" / "View" CTA. Reuse or adapt data from `open-requests` seed/local-store.
+- [ ] Link cards to `/requests/[requestId]`. Optional: URL-driven filters (query params).
+- [ ] Reuse shared marketplace components where applicable.
+
+**Acceptance:** `/requests` renders a request-first marketplace view. Cards match IMPLEMENTATION.md §13.2. Works with seeded/demo data. No Supabase required for basic view.
+
+Ref: IMPLEMENTATION.md §13.2, §18.
