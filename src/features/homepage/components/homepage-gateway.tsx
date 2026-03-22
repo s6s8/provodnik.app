@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, Coins, Star, Users } from "lucide-react";
+import { CalendarDays, CheckCircle2, Coins, Star, Users } from "lucide-react";
 
 import {
   type HomeHeroAction,
@@ -114,6 +114,11 @@ function MiniRequestCard({ card }: { card: HomeMiniRequest }) {
       href={card.href}
       className="group relative flex min-h-[168px] flex-col rounded-[14px] border border-[rgba(226,232,240,0.95)] bg-[rgba(255,255,255,0.72)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65),0_10px_22px_rgba(15,23,42,0.05)] backdrop-blur-sm transition-transform duration-200 hover:-translate-y-0.5"
     >
+      {card.confirmed ? (
+        <span className="absolute right-2.5 top-2.5 flex size-5 items-center justify-center rounded-full bg-emerald-500 shadow-sm">
+          <CheckCircle2 className="size-3 text-white" strokeWidth={2.5} />
+        </span>
+      ) : null}
       {card.badge ? (
         <span className="absolute right-2.5 top-2.5 inline-flex items-center rounded-full bg-[var(--color-amber)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white shadow-sm">
           {card.badge}

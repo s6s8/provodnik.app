@@ -27,7 +27,7 @@ export function HomePageHero() {
           fill
           priority
           sizes="(max-width: 1200px) 100vw, 1120px"
-          className="object-cover object-[center_42%]"
+          className="object-cover object-center"
         />
 
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0.06)_38%,rgba(15,23,42,0.04)_100%)]" />
@@ -37,7 +37,7 @@ export function HomePageHero() {
         <div className="relative flex min-h-[520px] flex-col">
           <HomePageNavbar />
 
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-end px-5 pb-12 pt-6 text-center sm:px-10 sm:pb-14">
+          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8 pt-4 text-center sm:px-10 sm:pb-14">
             <p className="text-[0.8125rem] font-medium tracking-[0.05em] text-[rgba(71,85,105,0.92)]">
               {hero.kicker}
             </p>

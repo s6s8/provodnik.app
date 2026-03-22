@@ -16,6 +16,7 @@ export type HomeMiniRequest = {
   groupLabel: string;
   priceLabel: string;
   href: string;
+  confirmed?: boolean;
   badge?: string;
   avatars: string[];
 };
@@ -67,7 +68,7 @@ export const homepageContent = {
   ] satisfies HomeNavItem[],
   hero: {
     imageUrl:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1600&h=900&q=85",
+      "https://images.unsplash.com/photo-1458668383970-8ddd3927deed?auto=format&fit=crop&w=1600&h=900&q=85",
     kicker: "Маршруты с локальными проводниками",
     titleLines: [
       "Объединяйтесь. Договаривайтесь.",
@@ -108,6 +109,7 @@ export const homepageContent = {
           groupLabel: "3-5 чел.",
           priceLabel: "28-42 тыс. ₽",
           href: "/requests",
+          confirmed: true,
           avatars: [
             "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&h=200&q=80",
             "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=200&h=200&q=80",

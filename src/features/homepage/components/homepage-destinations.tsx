@@ -107,11 +107,6 @@ function DestinationCard({
             {card.name}
           </p>
           <p className="text-[0.75rem] text-white/85">{card.subtitle}</p>
-          {card.description ? (
-            <p className="mt-2 max-w-[24rem] text-[0.75rem] leading-relaxed text-white/78">
-              {card.description}
-            </p>
-          ) : null}
           {card.ctaLabel ? (
             <span className="mt-3 inline-flex h-9 items-center rounded-full bg-[var(--color-primary)] px-4 text-[0.8125rem] font-semibold text-white shadow-[0_10px_26px_rgba(15,118,110,0.28)] ring-1 ring-white/20">
               {card.ctaLabel}
@@ -119,9 +114,11 @@ function DestinationCard({
           ) : null}
         </div>
 
-        <p className="mb-1 shrink-0 self-end text-right text-[0.6875rem] font-medium text-white/88 drop-shadow-sm">
-          {card.toursLabel}
-        </p>
+        {!card.featured && (
+          <p className="mb-1 shrink-0 self-end text-right text-[0.6875rem] font-medium text-white/88 drop-shadow-sm">
+            {card.toursLabel}
+          </p>
+        )}
       </div>
     </Link>
   );

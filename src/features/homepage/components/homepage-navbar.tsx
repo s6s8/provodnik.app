@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils";
 
 export function HomePageNavbar() {
   return (
-    <nav className="relative z-20 flex w-full items-center justify-between border-b border-white/55 bg-[rgba(255,255,255,0.52)] px-5 py-3.5 shadow-[inset_0_-1px_0_rgba(255,255,255,0.35)] backdrop-blur-[16px] backdrop-saturate-150 md:px-10 lg:px-12">
+    <nav
+      className="relative z-20 flex w-full items-center justify-between bg-[rgba(255,255,255,0.52)] px-5 py-3.5 shadow-[inset_0_-1px_0_rgba(255,255,255,0.35)] backdrop-blur-[16px] backdrop-saturate-150 md:px-10 lg:px-12"
+      style={{ borderBottom: "1px solid rgba(255,255,255,0.45)" }}
+    >
       <Link
         href="/"
         className="flex items-center gap-2.5 text-[1.05rem] font-semibold tracking-tight text-[var(--color-text)]"

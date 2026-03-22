@@ -29,6 +29,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+cursor-smoke*.err
+cursor-smoke*.out
+.codex-dev.log
 
 # env files (can opt-in for committing if needed)
 .env*
@@ -40,3 +43,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local agent artifacts
+/Say READY and exit
+/agent
+/output/
+/tmp/

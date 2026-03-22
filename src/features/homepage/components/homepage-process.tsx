@@ -85,7 +85,7 @@ function ProcessStep({
       )}
     >
       <div className="flex items-center gap-2 text-[var(--color-text)]">
-        <span className="font-display text-[1.65rem] font-bold leading-none tabular-nums">
+        <span className="font-sans text-[1.65rem] font-bold leading-none tabular-nums">
           {index + 1}.
         </span>
         <Icon className="size-[18px] shrink-0 text-[var(--color-primary)]" strokeWidth={1.75} />
