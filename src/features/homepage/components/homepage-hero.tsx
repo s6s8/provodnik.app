@@ -31,18 +31,18 @@ export function HomePageHero() {
         />
 
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0.06)_38%,rgba(15,23,42,0.04)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_55%_at_50%_0%,rgba(255,255,255,0.5),transparent_58%)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(15,23,42,0.28),transparent_70%)]" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,transparent_0%,rgba(249,248,247,0.55)_100%)]" />
 
         <div className="relative flex min-h-[520px] flex-col">
           <HomePageNavbar />
 
           <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8 pt-4 text-center sm:px-10 sm:pb-14">
-            <p className="text-[0.8125rem] font-medium tracking-[0.05em] text-[rgba(71,85,105,0.92)]">
+            <p className="text-[0.8125rem] font-medium tracking-[0.05em] text-white/80 drop-shadow-[0_1px_4px_rgba(15,23,42,0.25)]">
               {hero.kicker}
             </p>
 
-            <h1 className="mt-4 max-w-[820px] font-display text-[2.5rem] font-semibold leading-[1.12] text-[var(--color-text)] sm:text-[2.85rem] lg:text-[3.35rem]">
+            <h1 className="mt-4 max-w-[820px] font-display text-[2.5rem] font-semibold leading-[1.12] text-white drop-shadow-[0_2px_12px_rgba(15,23,42,0.35)] sm:text-[2.85rem] lg:text-[3.35rem]">
               {hero.titleLines.map((line) => (
                 <span key={line} className="block">
                   {line}
