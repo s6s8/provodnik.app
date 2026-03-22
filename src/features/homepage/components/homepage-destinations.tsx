@@ -117,7 +117,7 @@ function DestinationCard({
             {card.subtitle}
           </p>
           {card.ctaLabel ? (
-            <span className="mt-3 inline-flex h-9 items-center justify-center rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 group-hover:-translate-y-px group-hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]">
+            <span className="mt-3 inline-flex h-9 items-center justify-center rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]">
               {card.ctaLabel}
             </span>
           ) : null}
