@@ -21,9 +21,11 @@ export function HomePageFooter() {
           <h3 className="text-[0.8125rem] font-semibold text-[var(--color-text)]">
             {about.title}
           </h3>
-          <div className="space-y-1 text-[0.75rem] leading-relaxed text-[var(--color-text-muted)]">
+          <div className="space-y-1 text-[0.75rem] leading-relaxed">
             {about.lines.map((line) => (
-              <p key={line}>{line}</p>
+              <p key={line} className="text-[var(--color-text-secondary)]">
+                {line}
+              </p>
             ))}
           </div>
         </div>
@@ -38,7 +40,7 @@ export function HomePageFooter() {
                 <Link
                   key={link.label}
                   href={link.href}
-                  className="block text-[0.78rem] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-primary)]"
+                  className="block text-[0.8125rem] text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text)]"
                 >
                   {link.label}
                 </Link>
@@ -91,7 +93,7 @@ function SocialLinkButton({
     <Link
       href={href}
       aria-label={label}
-      className="flex size-8 items-center justify-center rounded-full border border-[rgba(226,232,240,0.9)] bg-[rgba(255,255,255,0.65)] text-[var(--color-text-secondary)] shadow-[0_4px_12px_rgba(15,23,42,0.04)] backdrop-blur-sm transition-colors hover:text-[var(--color-primary)]"
+      className="flex size-8 items-center justify-center rounded-full border border-[rgba(226,232,240,0.9)] bg-[rgba(255,255,255,0.65)] text-[var(--color-text-secondary)] shadow-[0_4px_12px_rgba(15,23,42,0.04)] backdrop-blur-sm transition-colors hover:text-[var(--color-text)]"
     >
       {children}
     </Link>

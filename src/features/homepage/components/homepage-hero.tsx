@@ -10,10 +10,10 @@ import { HomePageNavbar } from "@/features/homepage/components/homepage-navbar";
 import { cn } from "@/lib/utils";
 
 const primaryActionClass =
-  "inline-flex h-10 items-center justify-center rounded-full bg-[var(--color-primary)] px-7 text-[0.875rem] font-semibold text-white shadow-[0_4px_16px_rgba(15,118,110,0.3)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_8px_22px_rgba(15,118,110,0.28)]";
+  "inline-flex h-10 items-center justify-center rounded-full bg-[var(--color-primary)] px-6 text-[0.875rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]";
 
 const secondaryActionClass =
-  "inline-flex h-10 items-center justify-center rounded-full border border-[rgba(203,213,225,0.95)] bg-[rgba(255,255,255,0.62)] px-7 text-[0.875rem] font-medium text-[var(--color-text)] shadow-[0_6px_18px_rgba(15,23,42,0.06)] backdrop-blur-md transition-[transform,box-shadow] duration-200 hover:-translate-y-px";
+  "inline-flex h-10 items-center justify-center rounded-full border border-[rgba(203,213,225,0.92)] bg-[rgba(255,255,255,0.62)] px-6 text-[0.875rem] font-semibold text-[var(--color-text)] backdrop-blur-md shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px";
 
 export function HomePageHero() {
   const { hero } = homepageContent;
@@ -70,7 +70,7 @@ export function HomePageHero() {
 
               <button
                 type="submit"
-                className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_10px_24px_rgba(15,118,110,0.25)]"
+                className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]"
               >
                 <Search className="size-3.5 opacity-95" strokeWidth={2.25} />
                 {hero.searchButtonLabel}

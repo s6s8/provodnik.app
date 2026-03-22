@@ -97,10 +97,10 @@ function GatewayAction({ action }: { action: HomeHeroAction }) {
     <Link
       href={action.href}
       className={cn(
-        "inline-flex h-9 items-center justify-center rounded-full px-[1.15rem] text-[0.8125rem] font-semibold transition-[transform,box-shadow] duration-200 hover:-translate-y-px",
+        "inline-flex h-9 items-center justify-center rounded-full px-5 text-[0.8125rem] font-semibold transition-[transform,box-shadow] duration-200 hover:-translate-y-px",
         action.tone === "primary"
-          ? "bg-[var(--color-primary)] text-white shadow-[0_12px_28px_rgba(15,118,110,0.22)]"
-          : "border border-[rgba(203,213,225,0.95)] bg-[rgba(255,255,255,0.55)] text-[var(--color-text)] shadow-[0_6px_16px_rgba(15,23,42,0.05)] backdrop-blur-md",
+          ? "bg-[var(--color-primary)] text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]"
+          : "border border-[rgba(203,213,225,0.92)] bg-[rgba(255,255,255,0.62)] text-[var(--color-text)] backdrop-blur-md shadow-[0_4px_14px_rgba(15,23,42,0.06)]",
       )}
     >
       {action.label}
@@ -120,7 +120,7 @@ function MiniRequestCard({ card }: { card: HomeMiniRequest }) {
         </span>
       ) : null}
       {card.badge ? (
-        <span className="absolute right-2.5 top-2.5 inline-flex items-center rounded-full bg-[var(--color-amber)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white shadow-sm">
+        <span className="absolute right-2.5 top-2.5 inline-flex items-center rounded-full bg-[rgba(217,119,6,0.92)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white shadow-sm">
           {card.badge}
         </span>
       ) : null}
@@ -174,7 +174,7 @@ function MiniListingCard({ card }: { card: HomeMiniListing }) {
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(15,23,42,0.05)_0%,rgba(15,23,42,0.22)_100%)]" />
         {card.badge ? (
-          <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-[rgba(217,119,6,0.92)] px-2 py-0.5 text-[0.625rem] font-semibold text-white shadow-sm">
+          <span className="absolute left-2.5 top-2.5 inline-flex items-center rounded-full bg-[rgba(217,119,6,0.92)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white shadow-sm">
             {card.badge}
           </span>
         ) : null}

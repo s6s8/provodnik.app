@@ -84,7 +84,7 @@ function DestinationCard({
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_12%,rgba(255,255,255,0.22),transparent_38%)]" />
 
       {card.badge ? (
-        <span className="absolute right-3 top-3 inline-flex h-6 items-center rounded-full bg-[rgba(217,119,6,0.9)] px-2.5 text-[0.625rem] font-semibold text-white shadow-md ring-1 ring-white/25">
+        <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-[rgba(217,119,6,0.92)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white shadow-sm">
           {card.badge}
         </span>
       ) : null}
@@ -117,7 +117,7 @@ function DestinationCard({
             {card.subtitle}
           </p>
           {card.ctaLabel ? (
-            <span className="mt-3 inline-flex h-9 items-center rounded-full bg-[var(--color-primary)] px-4 text-[0.8125rem] font-semibold text-white shadow-[0_10px_26px_rgba(15,118,110,0.28)] ring-1 ring-white/20">
+            <span className="mt-3 inline-flex h-9 items-center justify-center rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 group-hover:-translate-y-px group-hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]">
               {card.ctaLabel}
             </span>
           ) : null}
