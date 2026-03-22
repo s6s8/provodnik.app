@@ -30,9 +30,8 @@ export function HomePageHero() {
           className="object-cover object-center"
         />
 
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.22)_0%,rgba(255,255,255,0.06)_38%,rgba(15,23,42,0.04)_100%)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_100%,rgba(15,23,42,0.28),transparent_70%)]" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-[linear-gradient(180deg,transparent_0%,rgba(249,248,247,0.55)_100%)]" />
+        <div className="absolute inset-0 bg-[rgba(15,23,42,0.28)]" />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_55%,rgba(15,23,42,0.48),transparent_80%)]" />
 
         <div className="relative flex min-h-[520px] flex-col">
           <HomePageNavbar />
