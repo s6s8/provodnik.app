@@ -1,0 +1,13 @@
+---
+description: UI/UX implementation — UI/UX Pro Max skill, design-system search, Provodnik stack
+globs:
+  - provodnik.app/**/*.tsx
+  - provodnik.app/**/*.css
+  - design/**/*.html
+  - design/**/*.css
+---
+
+- For UI/UX tasks (build, design, implement, review, fix, polish), read and follow `.cursor/skills/ui-ux-pro-max/SKILL.md` in this workspace (orchestration root `.cursor`; use `provodnik.app/.cursor` when only that repo is open).
+- **Before** implementing new layouts or visual direction, run the design-system search from the repo root that contains `.cursor/skills/ui-ux-pro-max` (see paths in the skill). Default product/stack context for product code: **Next.js + shadcn** — use `--stack nextjs` and `--stack shadcn` when pulling stack guidelines, not only `html-tailwind`.
+- Prefer **persisting** shared direction with `--design-system --persist` when the project does not already have `design-system/MASTER.md`, or when starting a major surface; keep page-specific deltas in `design-system/pages/` as described in the skill.
+- Respect `00-repo-baseline.mdc`: do not refactor `provodnik.app/src/components/ui/*` unless the task is explicitly shared-foundation work; apply tokens, composition, and page-level styling around existing primitives.

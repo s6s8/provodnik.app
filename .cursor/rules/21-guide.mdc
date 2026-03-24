@@ -1,0 +1,11 @@
+---
+description: Guide flow guidance for supply-side work
+globs:
+  - "src/app/(protected)/guide/**"
+  - "src/features/guide/**"
+alwaysApply: false
+---
+
+- Guide scope is onboarding, verification intake, listings, offers, and booking operations.
+- Keep guide-specific logic in `src/features/guide`.
+- Treat verification and attestation fields as product-critical flows.

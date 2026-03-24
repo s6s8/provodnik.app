@@ -1,0 +1,13 @@
+---
+description: Core repo rules for all Provodnik work
+alwaysApply: true
+---
+
+- Build within the current MVP baseline; do not assume unfinished features already exist.
+- Keep changes small, coherent, and aligned with `docs/architecture/module-map.md`.
+- Keep `src/components/ui/*` stable unless the task is shared-foundation work.
+- Keep the shell runnable without Supabase env unless the task explicitly requires backend flows.
+- For Cursor and `cursor-agent`, use `--model auto` unless the user explicitly asks for another model.
+- Update stable docs when ownership, architecture, or durable workflow changes.
+- Do not store temporary task status in repo memory files.
+- UI/UX work in `provodnik.app/` or `design/`: follow `.cursor/skills/ui-ux-pro-max/SKILL.md` and rule `15-ui-ux-pro-max.mdc` (design-system search before new visual work; Next.js + shadcn stack flags in app code).

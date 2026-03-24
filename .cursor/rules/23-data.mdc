@@ -1,0 +1,14 @@
+---
+description: Shared data contract and Supabase guidance
+globs:
+  - "src/lib/env.ts"
+  - "src/lib/supabase/**"
+  - "src/data/**"
+  - "src/features/shared/**"
+alwaysApply: false
+---
+
+- This area owns shared schemas, backend contracts, and Supabase access patterns.
+- Do not hardcode secrets or fake env fallbacks.
+- Missing Supabase env is a valid local shell state; fail only when a backend-dependent flow is used.
+- Prefer central typed contracts over duplicated request or response shapes.

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Provodnik — Создать запрос</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/home.css" />
+  </head>
+  <body class="hw-theme-cool hw-theme-alice">
+    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
+    <div class="hw-top">
+      <div class="hw-hero hw-hero--subpage">
+        <div class="hw-hero-bg" aria-hidden="true"></div>
+        <div class="hw-nav-shell">
+          <nav class="hw-nav-inner" aria-label="Основная навигация">
+            <a class="hw-brand" href="index.html">
+              <span class="hw-brand-mark" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
+                  <circle cx="12" cy="12" r="3" fill="currentColor" />
+                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+              </span>
+              Provodnik
+            </a>
+            <ul class="hw-nav-links">
+              <li><a href="index.html">Направления</a></li>
+              <li><a class="is-active" href="requests.html" aria-current="page">Запросы</a></li>
+              <li><a href="guide.html">Гиды</a></li>
+              <li><a href="tour.html">Экскурсии</a></li>
+              <li><a href="dashboard.html">Профиль</a></li>
+            </ul>
+            <details class="hw-nav-mobile">
+              <summary aria-label="Открыть меню">
+                <span></span>
+                <span></span>
+                <span></span>
+              </summary>
+              <div class="hw-nav-mobile-menu">
+                <a href="index.html">Направления</a>
+                <a class="is-active" href="requests.html" aria-current="page">Запросы</a>
+                <a href="guide.html">Гиды</a>
+                <a href="tour.html">Экскурсии</a>
+                <a href="dashboard.html">Профиль</a>
+              </div>
+            </details>
+          </nav>
+        </div>
+        <div class="hw-hero-main">
+          <header class="hw-hero-head">
+            <div class="hw-hero-inner">
+              <p class="hw-kicker">Новый запрос</p>
+              <h1>Соберите группу под маршрут</h1>
+              <p class="hw-subhero-lead">Форма и превью карточки используют те же стеклянные панели и кнопки, что блок «Биржа запросов» на главной.</p>
+            </div>
+          </header>
+        </div>
+      </div>
+    </div>
+
+    <main id="main-content">
+      <section class="hw-dest-wrap">
+        <div class="hw-dual hw-dual--in-main">
+          <article class="hw-gateway hw-gateway--market hw-gateway--filter-bar" aria-labelledby="cr-form-title">
+            <h2 id="cr-form-title">Параметры поездки</h2>
+            <p>Заполните поля — публикация появится в общей ленте с теми же карточками, что на главной.</p>
+            <form class="hw-form-grid">
+              <div class="hw-form-grid-2">
+                <label class="hw-field" for="cr-dest"><span>Город</span><input class="hw-input" id="cr-dest" value="Киото" /></label>
+                <label class="hw-field" for="cr-dates"><span>Даты</span><input class="hw-input" id="cr-dates" value="15–22 октября" /></label>
+              </div>
+              <div class="hw-form-grid-2">
+                <label class="hw-field" for="cr-size"><span>Размер группы</span><input class="hw-input" id="cr-size" value="6 человек" /></label>
+                <label class="hw-field" for="cr-budget"><span>Бюджет / чел.</span><input class="hw-input" id="cr-budget" value="до 42 тыс. ₽" /></label>
+              </div>
+              <div class="hw-form-grid-2">
+                <label class="hw-field" for="cr-cat"><span>Категория</span>
+                  <select class="hw-select" id="cr-cat">
+                    <option>Культура и гастрономия</option>
+                  </select>
+                </label>
+                <label class="hw-field" for="cr-flex"><span>Даты</span>
+                  <select class="hw-select" id="cr-flex">
+                    <option>Гибкие ±2 дня</option>
+                  </select>
+                </label>
+              </div>
+              <label class="hw-field" for="cr-notes"><span>Комментарий</span><textarea class="hw-textarea" id="cr-notes">Спокойный темп, 1–2 музея в день, вечерняя гастро-программа.</textarea></label>
+              <div class="hw-gateway-actions" style="margin-top: 4px">
+                <button type="button" class="hw-gw-btn hw-gw-btn--primary">Опубликовать запрос</button>
+              </div>
+            </form>
+          </article>
+          <div style="min-width: 0; align-self: start">
+            <p class="hw-visually-hidden" id="cr-prev-label">Превью в бирже</p>
+            <a class="hw-gw-card hw-gw-card--media hw-gw-card--listing" href="requests.html" aria-labelledby="cr-prev-label">
+              <div class="hw-gw-card-media">
+                <div
+                  class="hw-gw-card-media-bg"
+                  style="background-image: url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80')"
+                  aria-hidden="true"
+                ></div>
+                <div class="hw-gw-card-media-scrim" aria-hidden="true"></div>
+                <span class="hw-gw-card__pill">Черновик</span>
+              </div>
+              <div class="hw-gw-card-body--listing">
+                <div class="hw-gw-card-text-stack">
+                  <p class="hw-gw-card-title hw-gw-card-title--listing">Киото</p>
+                  <p class="hw-gw-card-subtitle">6 человек · до 42 тыс. ₽ · открыт для офферов гидов</p>
+                </div>
+                <div class="hw-gw-card-footer-row">
+                  <span class="hw-gw-card-price">Превью карточки</span>
+                </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="hw-footer">
+      <div class="hw-footer-grid">
+        <nav class="hw-footer-col" aria-label="О нас">
+          <h4>О нас</h4>
+          <ul class="hw-footer-list">
+            <li><a href="#">О сервисе</a></li>
+            <li><a href="#">Команда</a></li>
+            <li><a href="#">Контакты</a></li>
+          </ul>
+        </nav>
+        <nav class="hw-footer-col" aria-label="Помощь">
+          <h4>Помощь</h4>
+          <ul class="hw-footer-list">
+            <li><a href="#">Центр поддержки</a></li>
+            <li><a href="#">Для гидов</a></li>
+            <li><a href="#">Для путешественников</a></li>
+          </ul>
+        </nav>
+        <nav class="hw-footer-col" aria-label="Правила">
+          <h4>Правила</h4>
+          <ul class="hw-footer-list">
+            <li><a href="#">Условия использования</a></li>
+            <li><a href="#">Политика конфиденциальности</a></li>
+          </ul>
+        </nav>
+        <div class="hw-footer-col">
+          <h4>Соцсети</h4>
+          <div class="hw-social">
+            <a href="#" aria-label="ВКонтакте">VK</a>
+            <a href="#" aria-label="Telegram">TG</a>
+            <a href="#" aria-label="Instagram">IG</a>
+          </div>
+        </div>
+      </div>
+      <div class="hw-footer-bar">
+        <span>© 2024 Provodnik</span>
+        <a href="#">Термины сервиса</a>
+        <a href="#">Политика конфиденциальности</a>
+      </div>
+    </footer>
+  </body>
+</html>

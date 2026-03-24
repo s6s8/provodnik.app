@@ -1,0 +1,13 @@
+---
+description: Shared shell, layout, and public-surface guidance
+globs:
+  - "src/app/**"
+  - "src/components/**"
+  - "src/features/home/**"
+alwaysApply: false
+---
+
+- Preserve the current visual language and shared shell unless the task is explicitly design-led.
+- Prefer server components by default; add `"use client"` only when required.
+- Keep app-wide providers in `src/components/providers` and shared chrome in `src/components/shared`.
+- Do not move feature-specific logic into shared components.

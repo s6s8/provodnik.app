@@ -1,0 +1,11 @@
+---
+description: Traveler flow guidance for demand-side work
+globs:
+  - "src/app/(protected)/traveler/**"
+  - "src/features/traveler/**"
+alwaysApply: false
+---
+
+- Traveler scope is request creation, joining, bookings, favorites, and traveler account UX.
+- Keep traveler-specific logic in `src/features/traveler`.
+- Shared contracts and backend shapes belong in the data layer, not page-local code.

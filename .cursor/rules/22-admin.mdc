@@ -1,0 +1,11 @@
+---
+description: Admin and operations guidance
+globs:
+  - "src/app/(protected)/admin/**"
+  - "src/features/admin/**"
+alwaysApply: false
+---
+
+- Admin scope is moderation, disputes, refunds, supply controls, and marketplace operations.
+- Favor operator clarity, explicit state, and auditability over decorative complexity.
+- Keep admin-only logic in `src/features/admin`.
