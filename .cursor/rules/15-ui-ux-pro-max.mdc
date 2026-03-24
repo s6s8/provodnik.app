@@ -1,0 +1,12 @@
+---
+description: UI/UX implementation — UI/UX Pro Max skill, design-system search, Next.js + shadcn
+globs:
+  - "**/*.tsx"
+  - "**/*.css"
+  - "**/*.mdx"
+---
+
+- For UI/UX tasks (build, design, implement, review, fix, polish), read and follow `.cursor/skills/ui-ux-pro-max/SKILL.md` in this repository.
+- **Before** implementing new layouts or visual direction, run the design-system search from **this repo root** (`provodnik.app`). Commands use `python .cursor/skills/ui-ux-pro-max/scripts/search.py` (see the skill for flags). For this codebase, prefer **`--stack nextjs`** and **`--stack shadcn`** for implementation guidance, not only `html-tailwind`.
+- Use **`--design-system --persist`** when establishing or resetting global visual direction; use `design-system/pages/` for page-specific overrides per the skill.
+- Respect `00-repo-baseline.mdc`: keep `src/components/ui/*` stable unless the task is explicitly shared-foundation work.

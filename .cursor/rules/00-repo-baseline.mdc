@@ -10,3 +10,4 @@ alwaysApply: true
 - For Cursor and `cursor-agent`, use `--model auto` unless the user explicitly asks for another model.
 - Update stable docs when ownership, architecture, or durable workflow changes.
 - Do not store temporary task status in repo memory files.
+- UI/UX work: follow `.cursor/skills/ui-ux-pro-max/SKILL.md` and `15-ui-ux-pro-max.mdc` (run design-system search before major UI direction; use `--stack nextjs` and `--stack shadcn` for implementation hints).

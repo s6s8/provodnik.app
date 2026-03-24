@@ -41,6 +41,7 @@
 - `agent-data`: data contracts, `src/lib/supabase`, shared schemas/types
 
 ## Rules
+- **UI/UX Pro Max:** Cursor skill at `.cursor/skills/ui-ux-pro-max/` ([upstream](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill)). For design-led or greenfield UI, read `SKILL.md`, run the `search.py` design-system flow from this repo root, and use `--stack nextjs` / `--stack shadcn` for stack hints. Refresh via `npx uipro-cli@latest init --ai cursor`.
 - Preserve the existing visual language unless the task is explicitly design-led.
 - Avoid editing `src/components/ui/*` unless the task is truly shared-foundation work.
 - Coordinate shared type or contract changes through the data layer.
