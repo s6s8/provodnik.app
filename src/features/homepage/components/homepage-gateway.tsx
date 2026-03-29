@@ -3,159 +3,33 @@
 import Link from "next/link";
 import { useState } from "react";
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+import type { RequestRecord } from "@/data/supabase/queries";
 
-type TravelerCard = {
-  location: string;
-  spots: string;
-  title: string;
-  desc: string;
-  fillPct: number;
-  avatars: string[];
-  price: string;
-};
-
-type GuideCard = {
-  location: string;
-  spots: string;
-  title: string;
-  desc: string;
-  fillPct: number;
-  openTag: string;
-  price: string;
-};
-
-// ── Hardcoded demo data matching the HTML SOT ─────────────────────────────────
-
-const travelerCards: TravelerCard[] = [
-  {
-    location: "Байкал",
-    spots: "4 / 6 мест",
-    title: "Ольхон, Иркутская область",
-    desc: "24–26 июля · джип, катер и вечер у воды",
-    fillPct: 66,
-    avatars: ["АК", "МЛ", "ТГ"],
-    price: "35–50 тыс. ₽",
-  },
-  {
-    location: "Казань",
-    spots: "2 / 4 мест",
-    title: "Казанский кремль и старый город",
-    desc: "10–12 августа · кремль, медина, ночной Кабан",
-    fillPct: 50,
-    avatars: ["АС", "ОЗ"],
-    price: "18–25 тыс. ₽",
-  },
-  {
-    location: "Мурманск",
-    spots: "3 / 5 мест",
-    title: "Кольский полуостров, Арктика",
-    desc: "5–8 сентября · полярное сияние, саамские истории",
-    fillPct: 60,
-    avatars: ["ВТ", "НК", "ЗИ"],
-    price: "42–58 тыс. ₽",
-  },
-];
-
-const guideCards: GuideCard[] = [
-  {
-    location: "Алтай",
-    spots: "5 чел.",
-    title: "Чуйский тракт, перевалы",
-    desc: "2–5 августа · бюджет 40–60 тыс. на группу, нужен транспорт",
-    fillPct: 100,
-    openTag: "Ждут предложений",
-    price: "40–60 тыс. ₽",
-  },
-  {
-    location: "Карелия",
-    spots: "4 чел.",
-    title: "Ладога, скалы, баня",
-    desc: "15–18 июля · водный маршрут, нужна лодка и знаток края",
-    fillPct: 100,
-    openTag: "Ждут предложений",
-    price: "28–40 тыс. ₽",
-  },
-  {
-    location: "Калмыкия",
-    spots: "6 чел.",
-    title: "Степь, хурулы, Элиста",
-    desc: "12–14 сентября · этнопрограмма, степные ночёвки",
-    fillPct: 100,
-    openTag: "Ждут предложений",
-    price: "22–34 тыс. ₽",
-  },
-];
-
-// ── Sub-components ────────────────────────────────────────────────────────────
-
-function TravelerReqCard({ card }: { card: TravelerCard }) {
-  return (
-    <article className="req-card">
-      <div className="req-card-top">
-        <span>{card.location}</span>
-        <span className="req-spots">{card.spots}</span>
-      </div>
-      <p className="req-title">{card.title}</p>
-      <p className="req-desc">{card.desc}</p>
-      <div className="req-bar">
-        <div className="req-bar-fill" style={{ width: `${card.fillPct}%` }} />
-      </div>
-      <div className="req-foot">
-        <div className="avatars">
-          {card.avatars.map((initials) => (
-            <span key={initials} className="avatar">
-              {initials}
-            </span>
-          ))}
-        </div>
-        <span className="req-price">{card.price}</span>
-      </div>
-    </article>
-  );
+interface Props {
+  requests: RequestRecord[];
 }
 
-function GuideReqCard({ card }: { card: GuideCard }) {
-  return (
-    <article className="req-card">
-      <div className="req-card-top">
-        <span>{card.location}</span>
-        <span className="req-spots">{card.spots}</span>
-      </div>
-      <p className="req-title">{card.title}</p>
-      <p className="req-desc">{card.desc}</p>
-      <div className="req-bar">
-        <div className="req-bar-fill" style={{ width: `${card.fillPct}%` }} />
-      </div>
-      <div className="req-foot">
-        <span
-          style={{
-            fontSize: "0.75rem",
-            fontWeight: 600,
-            color: "var(--primary)",
-          }}
-        >
-          {card.openTag}
-        </span>
-        <span className="req-price">{card.price}</span>
-      </div>
-    </article>
-  );
+function deriveAvatars(count: number): string[] {
+  const pool = ["АК", "МЛ", "ТГ", "ВС", "ОР", "ЛК", "ИА", "ДМ"];
+  return pool.slice(0, Math.min(count, pool.length));
 }
 
-// ── Main export ───────────────────────────────────────────────────────────────
+function formatPrice(budgetRub: number): string {
+  if (!budgetRub) return "По договорённости";
+  const k = Math.round(budgetRub / 1000);
+  return `${k} тыс. ₽`;
+}
 
-export function HomePageGateway() {
+export function HomePageGateway({ requests }: Props) {
   const [activeTab, setActiveTab] = useState<"traveler" | "guide">("traveler");
   const isTraveler = activeTab === "traveler";
 
+  const travelerCards = requests.slice(0, 3);
+  const guideCards = requests.slice(0, 3);
+
   return (
-    <section
-      className="section low"
-      aria-labelledby="gateway-title"
-    >
+    <section className="section low" aria-labelledby="gateway-title">
       <div className="container">
-        {/* Section header */}
         <div style={{ textAlign: "center", marginBottom: "32px" }}>
           <p className="sec-label" style={{ marginBottom: "8px" }}>
             Для кого Provodnik
@@ -165,14 +39,7 @@ export function HomePageGateway() {
           </h2>
         </div>
 
-        {/* Role toggle */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: "28px",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "28px" }}>
           <div
             role="tablist"
             aria-label="Роль"
@@ -241,11 +108,37 @@ export function HomePageGateway() {
           className="glass-panel"
           style={{ padding: "32px" }}
         >
-          <div className="grid-3" style={{ marginBottom: "24px" }}>
-            {travelerCards.map((card) => (
-              <TravelerReqCard key={card.title} card={card} />
-            ))}
-          </div>
+          {travelerCards.length === 0 ? (
+            <p style={{ textAlign: "center", color: "var(--on-surface-muted)" }}>Пока нет открытых запросов.</p>
+          ) : (
+            <div className="grid-3" style={{ marginBottom: "24px" }}>
+              {travelerCards.map((req) => {
+                const fillPct = req.capacity > 0 ? Math.round((req.groupSize / req.capacity) * 100) : 0;
+                const avatars = deriveAvatars(req.groupSize);
+                return (
+                  <article key={req.id} className="req-card">
+                    <div className="req-card-top">
+                      <span>{req.destination.split(",")[0]}</span>
+                      <span className="req-spots">{req.groupSize} / {req.capacity} мест</span>
+                    </div>
+                    <p className="req-title">{req.destination}</p>
+                    <p className="req-desc">{req.dateLabel} · {req.format}</p>
+                    <div className="req-bar">
+                      <div className="req-bar-fill" style={{ width: `${fillPct}%` }} />
+                    </div>
+                    <div className="req-foot">
+                      <div className="avatars">
+                        {avatars.map((initials) => (
+                          <span key={initials} className="avatar">{initials}</span>
+                        ))}
+                      </div>
+                      <span className="req-price">{formatPrice(req.budgetRub)}</span>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Link href="/requests/new" className="btn-primary">
               Создать запрос
@@ -262,11 +155,31 @@ export function HomePageGateway() {
           className="glass-panel"
           style={{ padding: "32px" }}
         >
-          <div className="grid-3" style={{ marginBottom: "24px" }}>
-            {guideCards.map((card) => (
-              <GuideReqCard key={card.title} card={card} />
-            ))}
-          </div>
+          {guideCards.length === 0 ? (
+            <p style={{ textAlign: "center", color: "var(--on-surface-muted)" }}>Пока нет открытых запросов.</p>
+          ) : (
+            <div className="grid-3" style={{ marginBottom: "24px" }}>
+              {guideCards.map((req) => (
+                <article key={req.id} className="req-card">
+                  <div className="req-card-top">
+                    <span>{req.destination.split(",")[0]}</span>
+                    <span className="req-spots">{req.groupSize} чел.</span>
+                  </div>
+                  <p className="req-title">{req.destination}</p>
+                  <p className="req-desc">{req.dateLabel} · {req.description || req.format}</p>
+                  <div className="req-bar">
+                    <div className="req-bar-fill" style={{ width: "100%" }} />
+                  </div>
+                  <div className="req-foot">
+                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--primary)" }}>
+                      Ждут предложений
+                    </span>
+                    <span className="req-price">{formatPrice(req.budgetRub)}</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Link href="/requests" className="btn-primary">
               Предложить цену
