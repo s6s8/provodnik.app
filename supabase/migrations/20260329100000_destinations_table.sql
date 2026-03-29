@@ -18,10 +18,12 @@ create table if not exists public.destinations (
 
 alter table public.destinations enable row level security;
 
+drop policy if exists "destinations_public_read" on public.destinations;
 create policy "destinations_public_read"
   on public.destinations for select
   using (true);
 
+drop policy if exists "destinations_admin_write" on public.destinations;
 create policy "destinations_admin_write"
   on public.destinations for all
   using (public.is_admin());
