@@ -15,6 +15,7 @@
 -- 0. FULL WIPE — safe, entire DB is seed data
 -- ---------------------------------------------------------------------------
 truncate public.marketplace_events cascade;
+do $$ begin execute 'truncate public.destinations cascade'; exception when undefined_table then null; end $$;
 do $$ begin
   execute 'truncate public.quality_snapshots cascade';
 exception when undefined_table then null;
@@ -195,12 +196,20 @@ exception when undefined_table then null;
 end $$;
 
 -- ---------------------------------------------------------------------------
--- 12. DESTINATIONS (via marketplace_events)
+-- 12. DESTINATIONS (proper table)
 -- ---------------------------------------------------------------------------
-insert into public.marketplace_events (id,scope,request_id,booking_id,dispute_id,actor_id,event_type,summary,detail,payload,created_at) values
-  ('50000000-0000-4000-8000-000000000001','moderation',null,null,null,null,'destination_seed','Элиста, Калмыкия','Каталог направления',jsonb_build_object('slug','elista-kalmykia','name','Элиста','region','Калмыкия','imageUrl','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&h=1200&q=80','description','Буддийская культура, степные пейзажи и спокойный темп.'),timezone('utc',now())),
-  ('50000000-0000-4000-8000-000000000002','moderation',null,null,null,null,'destination_seed','Казань, Татарстан','Каталог направления',jsonb_build_object('slug','kazan-tatarstan','name','Казань','region','Татарстан','imageUrl','https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&h=1200&q=80','description','Городские маршруты с историей и гастрономией.'),timezone('utc',now())),
-  ('50000000-0000-4000-8000-000000000003','moderation',null,null,null,null,'destination_seed','Санкт-Петербург, Ленобласть','Каталог направления',jsonb_build_object('slug','saint-petersburg-leningrad-oblast','name','Санкт-Петербург','region','Ленобласть','imageUrl','https://images.unsplash.com/photo-1520637836862-4d197d17c55a?auto=format&fit=crop&w=1600&h=1200&q=80','description','Культурные и загородные маршруты.'),timezone('utc',now())),
-  ('50000000-0000-4000-8000-000000000004','moderation',null,null,null,null,'destination_seed','Москва, МО','Каталог направления',jsonb_build_object('slug','moscow-moscow-oblast','name','Москва','region','МО','imageUrl','https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=1600&h=1200&q=80','description','Городские и выездные форматы.'),timezone('utc',now())),
-  ('50000000-0000-4000-8000-000000000005','moderation',null,null,null,null,'destination_seed','Сочи, Краснодарский край','Каталог направления',jsonb_build_object('slug','sochi-krasnodar-krai','name','Сочи','region','Краснодарский край','imageUrl','https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=1200&q=80','description','Море, горные локации и активные маршруты.'),timezone('utc',now())),
-  ('50000000-0000-4000-8000-000000000006','moderation',null,null,null,null,'destination_seed','Байкал, Иркутская область','Каталог направления',jsonb_build_object('slug','baikal-irkutsk-oblast','name','Байкал','region','Иркутская область','imageUrl','https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1600&h=1200&q=80','description','Природные маршруты и фотопоездки.'),timezone('utc',now()));
+do $$ begin
+  execute 'truncate public.destinations cascade';
+exception when undefined_table then null;
+end $$;
+
+do $$ begin
+insert into public.destinations (slug,name,region,category,description,hero_image_url,listing_count,guides_count,rating) values
+  ('elista-kalmykia','Элиста','Калмыкия','culture','Буддийская культура, степные пейзажи и спокойный темп прогулок. Город удобен для маршрутов на 1-2 дня.','https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&h=1200&q=80',1,1,4.8),
+  ('kazan-tatarstan','Казань','Татарстан','culture','Казань подходит для городских маршрутов с историей и гастрономией. Центр удобен для небольших групп.','https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=1600&h=1200&q=80',2,1,4.9),
+  ('saint-petersburg','Санкт-Петербург','Ленобласть','city','Культурные и загородные маршруты в одном запросе. Переезды между точками короткие и предсказуемые.','https://images.unsplash.com/photo-1520637836862-4d197d17c55a?auto=format&fit=crop&w=1600&h=1200&q=80',1,1,5.0),
+  ('moscow','Москва','МО','city','Широкий выбор городских и выездных форматов. Логистика удобна для групп с разным темпом.','https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=1600&h=1200&q=80',1,1,4.8),
+  ('sochi','Сочи','Краснодарский край','nature','Море, горные локации и активные маршруты в пределах одного региона. Удобно для комбинированных программ.','https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=1200&q=80',1,1,4.7),
+  ('baikal','Байкал','Иркутская область','nature','Природные маршруты и фотопоездки небольшими группами. Требует точного планирования переездов.','https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=1600&h=1200&q=80',2,2,4.9);
+exception when undefined_table then null;
+end $$;

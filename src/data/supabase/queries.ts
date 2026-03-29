@@ -1,4 +1,4 @@
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
 export type DestinationCategory = "city" | "nature" | "culture";
@@ -124,6 +124,17 @@ export type RequestFilters = { destination?: string; status?: string };
 export type GuideFilters = { destination?: string };
 
 // ---------------------------------------------------------------------------
+// Admin client for public reads (bypasses RLS)
+// ---------------------------------------------------------------------------
+
+function getPublicClient(): SupabaseClient {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error("Missing Supabase env vars for public reads");
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
 
@@ -163,6 +174,22 @@ function formatDateLabel(start: string, end?: string | null) {
   return `${start} - ${end}`;
 }
 
+function daysLabel(days: number): string {
+  if (days === 1) return "1 день";
+  if (days >= 2 && days <= 4) return `${days} дня`;
+  return `${days} дней`;
+}
+
+function parseImageFromJson(jsonText: string | null | undefined): string {
+  if (!jsonText) return fallbackHeroImage;
+  try {
+    const parsed = JSON.parse(jsonText);
+    return parsed?.imageUrl ?? fallbackHeroImage;
+  } catch {
+    return fallbackHeroImage;
+  }
+}
+
 function applyListingFilters(listings: ListingRecord[], filters?: ListingFilters) {
   if (!filters) return listings;
   return listings.filter((listing) => {
@@ -184,42 +211,21 @@ function applyRequestFilters(requests: RequestRecord[], filters?: RequestFilters
 function applyGuideFilters(guides: GuideRecord[], filters?: GuideFilters) {
   if (!filters?.destination) return guides;
   return guides.filter((guide) =>
-    guide.destinations.some((destination) => destination.toLowerCase().includes(filters.destination!.toLowerCase())),
+    guide.destinations.some((d) => d.toLowerCase().includes(filters.destination!.toLowerCase())),
   );
 }
 
-type ReviewRow = {
-  id: string;
-  author_name: string;
-  rating: number;
-  title: string | null;
-  body: string | null;
-  created_at: string;
-};
-
-function mapReviewRow(review: ReviewRow): ReviewRecord {
-  return {
-    id: review.id,
-    authorName: review.author_name,
-    rating: review.rating,
-    title: review.title ?? "Отзыв",
-    body: review.body ?? "",
-    createdAt: review.created_at,
-  };
-}
+// ---------------------------------------------------------------------------
+// Row mappers (match actual DB schema)
+// ---------------------------------------------------------------------------
 
 function mapListingRow(row: Record<string, unknown>): ListingRecord {
   const priceMinor = (row.price_from_minor as number) ?? 0;
   const durationMin = (row.duration_minutes as number) ?? 480;
   const days = Math.max(1, Math.round(durationMin / 480));
-  const city = (row.city as string) ?? (row.region as string) ?? "";
+  const city = (row.city as string) ?? "";
   const region = (row.region as string) ?? "";
-  const descJson = typeof row.description === "string" ? row.description : "";
-  let imageUrl = fallbackHeroImage;
-  try {
-    const parsed = JSON.parse(descJson);
-    if (parsed?.imageUrl) imageUrl = parsed.imageUrl;
-  } catch { /* not JSON, use fallback */ }
+  const imageUrl = parseImageFromJson(row.description as string);
 
   return {
     id: row.id as string,
@@ -231,10 +237,10 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
     imageUrl,
     priceRub: Math.round(priceMinor / 100),
     durationDays: days,
-    durationLabel: `${days} ${days === 1 ? "день" : days < 5 ? "дня" : "дней"}`,
+    durationLabel: daysLabel(days),
     groupSize: (row.max_group_size as number) ?? 6,
-    difficulty: (row.category as string)?.includes("природ") ? "Средняя" : "Лёгкая",
-    departure: (row.meeting_point as string) ?? city ?? region,
+    difficulty: ((row.category as string) ?? "").toLowerCase().includes("природ") ? "Средняя" : "Лёгкая",
+    departure: (row.meeting_point as string) ?? city,
     format: (row.category as string) ?? "Авторский маршрут",
     description: (row.route_summary as string) ?? "",
     inclusions: (row.inclusions as string[]) ?? [],
@@ -249,16 +255,11 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
   };
 }
 
-function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник Provodnik", requesterInitials = "ПП"): RequestRecord {
+function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
   const budgetMinor = (row.budget_minor as number) ?? 0;
   const budgetRub = Math.round(budgetMinor / 100);
-  let imageUrl = fallbackHeroImage;
-  const notes = (row.notes as string) ?? "";
-  try {
-    const parsed = JSON.parse(notes);
-    if (parsed?.imageUrl) imageUrl = parsed.imageUrl;
-  } catch { /* not JSON */ }
+  const imageUrl = parseImageFromJson(row.notes as string);
 
   return {
     id: row.id as string,
@@ -273,7 +274,7 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     budgetLabel: budgetMinor ? `${formatRub(budgetRub)} / чел.` : "По договорённости",
     requesterName,
     requesterInitials,
-    description: notes,
+    description: (row.format_preference as string) ?? "",
     format: (row.category as string) ?? "",
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
@@ -282,13 +283,34 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
   };
 }
 
+function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknown> | null): GuideRecord {
+  const fullName = (profile?.full_name as string) ?? (gp.display_name as string) ?? "Локальный гид";
+  const regions = (gp.regions as string[]) ?? [];
+  return {
+    id: gp.user_id as string,
+    slug: (gp.slug as string) ?? normalizeSlug(fullName),
+    fullName,
+    avatarUrl: (profile?.avatar_url as string) ?? undefined,
+    initials: getInitials(fullName),
+    homeBase: regions[0] ?? "Россия",
+    bio: (gp.bio as string) ?? "Проводник по локальным маршрутам.",
+    destinations: regions,
+    destinationSlugs: regions.map(normalizeSlug),
+    rating: 4.8,
+    reviewCount: 0,
+    topListingTitle: undefined,
+    experienceYears: (gp.years_experience as number) ?? 5,
+  };
+}
+
 // ---------------------------------------------------------------------------
-// Destinations
+// Destinations (public.destinations table)
 // ---------------------------------------------------------------------------
 
-export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
+export async function getDestinations(_client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
-    const { data, error } = await client.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
+    const db = getPublicClient();
+    const { data, error } = await db.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
@@ -299,10 +321,10 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
         name: row.name,
         region: row.region ?? "Россия",
         category: (row.category as DestinationCategory | null) ?? titleToCategory(row.name),
-        description: row.description ?? "Маршрут с локальным проводником и плавным темпом.",
+        description: row.description ?? "",
         heroImageUrl: row.hero_image_url ?? fallbackHeroImage,
         listingCount: row.listing_count ?? 0,
-        guidesCount: row.guides_count ?? Math.max(3, Math.round((row.listing_count ?? 6) / 2)),
+        guidesCount: row.guides_count ?? 0,
         avgRating: row.rating ?? 4.7 + ((index % 3) * 0.1),
       })),
       error: null,
@@ -312,9 +334,10 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
   }
 }
 
-export async function getDestinationBySlug(client: SupabaseClient, slug: string): Promise<QueryResult<DestinationRecord>> {
+export async function getDestinationBySlug(_client: SupabaseClient, slug: string): Promise<QueryResult<DestinationRecord>> {
   try {
-    const { data, error } = await client.from("destinations").select("*").eq("slug", slug).maybeSingle();
+    const db = getPublicClient();
+    const { data, error } = await db.from("destinations").select("*").eq("slug", slug).maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
@@ -325,7 +348,7 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
         name: data.name,
         region: data.region ?? "Россия",
         category: (data.category as DestinationCategory | null) ?? titleToCategory(data.name),
-        description: data.description ?? "Маршрут с локальным проводником и плавным темпом.",
+        description: data.description ?? "",
         heroImageUrl: data.hero_image_url ?? fallbackHeroImage,
         listingCount: data.listing_count ?? 0,
         guidesCount: data.guides_count ?? 0,
@@ -339,19 +362,20 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
 }
 
 // ---------------------------------------------------------------------------
-// Listings
+// Listings (public.listings — RLS: published are readable)
 // ---------------------------------------------------------------------------
 
 export async function getActiveListings(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   filters?: ListingFilters,
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
-    const { data, error } = await client
+    const db = getPublicClient();
+    const { data, error } = await db
       .from("listings")
       .select("*")
       .eq("status", "published")
-      .order("created_at", { ascending: false });
+      .order("featured_rank", { ascending: true, nullsFirst: false });
 
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
@@ -363,11 +387,12 @@ export async function getActiveListings(
 }
 
 export async function getListingBySlug(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<ListingRecord>> {
   try {
-    const { data, error } = await client.from("listings").select("*").eq("slug", slug).maybeSingle();
+    const db = getPublicClient();
+    const { data, error } = await db.from("listings").select("*").eq("slug", slug).maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
@@ -378,11 +403,12 @@ export async function getListingBySlug(
 }
 
 export async function getListingsByDestination(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
-    const { data, error } = await client
+    const db = getPublicClient();
+    const { data, error } = await db
       .from("listings")
       .select("*")
       .or(`city.ilike.%${slug}%,region.ilike.%${slug}%`)
@@ -398,11 +424,12 @@ export async function getListingsByDestination(
 }
 
 export async function getListingsByGuide(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   guideId: string,
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
-    const { data, error } = await client.from("listings").select("*").eq("guide_id", guideId);
+    const db = getPublicClient();
+    const { data, error } = await db.from("listings").select("*").eq("guide_id", guideId).eq("status", "published");
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
@@ -413,15 +440,16 @@ export async function getListingsByGuide(
 }
 
 // ---------------------------------------------------------------------------
-// Requests
+// Requests (public.traveler_requests)
 // ---------------------------------------------------------------------------
 
 export async function getOpenRequests(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   filters?: RequestFilters,
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
-    const { data, error } = await client
+    const db = getPublicClient();
+    const { data, error } = await db
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
@@ -437,11 +465,12 @@ export async function getOpenRequests(
 }
 
 export async function getRequestById(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   id: string,
 ): Promise<QueryResult<RequestRecord>> {
   try {
-    const { data, error } = await client.from("traveler_requests").select("*").eq("id", id).maybeSingle();
+    const db = getPublicClient();
+    const { data, error } = await db.from("traveler_requests").select("*").eq("id", id).maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
@@ -467,39 +496,26 @@ export async function getUserRequests(
 }
 
 // ---------------------------------------------------------------------------
-// Guides
+// Guides (public.guide_profiles + public.profiles)
 // ---------------------------------------------------------------------------
 
 export async function getGuides(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   filters?: GuideFilters,
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
-    const { data, error } = await client.from("guide_profiles").select("*, profiles!inner(id, full_name, avatar_url)");
+    const db = getPublicClient();
+    const { data, error } = await db
+      .from("guide_profiles")
+      .select("*, profiles:user_id(id, full_name, avatar_url)")
+      .eq("verification_status", "approved");
+
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: applyGuideFilters(
-        data.map((row) => {
-          const profile = row.profiles as Record<string, unknown> | null;
-          const fullName = (profile?.full_name as string) ?? row.display_name ?? "Локальный гид";
-          return {
-            id: row.user_id as string,
-            slug: row.slug ?? normalizeSlug(fullName),
-            fullName,
-            avatarUrl: (profile?.avatar_url as string) ?? undefined,
-            initials: getInitials(fullName),
-            homeBase: (row.regions as string[])?.[0] ?? "Россия",
-            bio: row.bio ?? "Проводник по локальным маршрутам и камерным поездкам.",
-            destinations: (row.regions as string[]) ?? [],
-            destinationSlugs: ((row.regions as string[]) ?? []).map(normalizeSlug),
-            rating: 4.8,
-            reviewCount: 0,
-            topListingTitle: undefined,
-            experienceYears: row.years_experience ?? 5,
-          };
-        }),
+        data.map((row) => mapGuideRow(row, row.profiles as Record<string, unknown> | null)),
         filters,
       ),
       error: null,
@@ -510,40 +526,28 @@ export async function getGuides(
 }
 
 export async function getGuideBySlug(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<GuideRecord>> {
   try {
-    const { data, error } = await client.from("guide_profiles").select("*, profiles!inner(id, full_name, avatar_url)").eq("slug", slug).maybeSingle();
+    const db = getPublicClient();
+    const { data, error } = await db
+      .from("guide_profiles")
+      .select("*, profiles:user_id(id, full_name, avatar_url)")
+      .eq("slug", slug)
+      .maybeSingle();
+
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
-    const profile = data.profiles as Record<string, unknown> | null;
-    const fullName = (profile?.full_name as string) ?? data.display_name ?? "Локальный гид";
-    return {
-      data: {
-        id: data.user_id as string,
-        slug: data.slug ?? slug,
-        fullName,
-        avatarUrl: (profile?.avatar_url as string) ?? undefined,
-        initials: getInitials(fullName),
-        homeBase: (data.regions as string[])?.[0] ?? "Россия",
-        bio: data.bio ?? "Проводник по локальным маршрутам и камерным поездкам.",
-        destinations: (data.regions as string[]) ?? [],
-        destinationSlugs: ((data.regions as string[]) ?? []).map(normalizeSlug),
-        rating: 4.8,
-        reviewCount: 0,
-        experienceYears: data.years_experience ?? 5,
-      },
-      error: null,
-    };
+    return { data: mapGuideRow(data, data.profiles as Record<string, unknown> | null), error: null };
   } catch (error) {
     return { data: null, error: makeError(error) };
   }
 }
 
 // ---------------------------------------------------------------------------
-// Offers
+// Offers (public.guide_offers)
 // ---------------------------------------------------------------------------
 
 export async function getOffersForRequest(
@@ -575,7 +579,7 @@ export async function getOffersForRequest(
 }
 
 // ---------------------------------------------------------------------------
-// Bookings
+// Bookings (public.bookings)
 // ---------------------------------------------------------------------------
 
 export async function getUserBookings(
@@ -588,13 +592,13 @@ export async function getUserBookings(
     if (!data || data.length === 0) return { data: [], error: null };
 
     return {
-      data: data.map((booking) => ({
-        id: booking.id,
-        title: booking.request_id ?? "Бронирование",
-        destination: booking.meeting_point ?? "Маршрут",
-        dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
-        priceRub: Math.round(booking.subtotal_minor / 100),
-        status: booking.status,
+      data: data.map((b) => ({
+        id: b.id,
+        title: b.meeting_point ?? "Бронирование",
+        destination: b.meeting_point ?? "Маршрут",
+        dateLabel: formatDateLabel(b.starts_at ?? "", b.ends_at),
+        priceRub: Math.round((b.subtotal_minor ?? 0) / 100),
+        status: b.status,
       })),
       error: null,
     };
@@ -613,13 +617,13 @@ export async function getGuideBookings(
     if (!data || data.length === 0) return { data: [], error: null };
 
     return {
-      data: data.map((booking) => ({
-        id: booking.id,
-        title: booking.request_id ?? "Бронирование",
-        destination: booking.meeting_point ?? "Маршрут",
-        dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
-        priceRub: Math.round(booking.subtotal_minor / 100),
-        status: booking.status,
+      data: data.map((b) => ({
+        id: b.id,
+        title: b.meeting_point ?? "Бронирование",
+        destination: b.meeting_point ?? "Маршрут",
+        dateLabel: formatDateLabel(b.starts_at ?? "", b.ends_at),
+        priceRub: Math.round((b.subtotal_minor ?? 0) / 100),
+        status: b.status,
       })),
       error: null,
     };
@@ -629,7 +633,7 @@ export async function getGuideBookings(
 }
 
 // ---------------------------------------------------------------------------
-// Favorites
+// Favorites (public.favorites)
 // ---------------------------------------------------------------------------
 
 export async function getUserFavorites(
@@ -642,10 +646,10 @@ export async function getUserFavorites(
     if (!data || data.length === 0) return { data: [], error: null };
 
     return {
-      data: data.map((favorite) => ({
-        id: favorite.id,
-        listingSlug: favorite.listing_id,
-        createdAt: favorite.created_at,
+      data: data.map((f) => ({
+        id: f.id,
+        listingSlug: f.listing_id,
+        createdAt: f.created_at,
       })),
       error: null,
     };
@@ -675,7 +679,7 @@ export async function toggleFavorite(
       return { data: false, error: null };
     }
 
-    const { error } = await client.from("favorites").insert({ user_id: userId, listing_id: listingId });
+    const { error } = await client.from("favorites").insert({ user_id: userId, subject: "listing", listing_id: listingId });
     if (error) throw error;
     return { data: true, error: null };
   } catch (error) {
@@ -684,26 +688,70 @@ export async function toggleFavorite(
 }
 
 // ---------------------------------------------------------------------------
-// Reviews
+// Reviews (public.reviews — columns: booking_id, traveler_id, guide_id, listing_id)
 // ---------------------------------------------------------------------------
 
-export async function getListingReviews(client: SupabaseClient, slug: string): Promise<QueryResult<ReviewRecord[]>> {
+export async function getListingReviews(_client: SupabaseClient, listingSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
-    const { data, error } = await client.from("reviews").select("*").eq("target_type", "listing").eq("target_slug", slug);
+    const db = getPublicClient();
+    // First resolve listing UUID from slug
+    const { data: listing } = await db.from("listings").select("id").eq("slug", listingSlug).maybeSingle();
+    if (!listing) return { data: [], error: null };
+
+    const { data, error } = await db
+      .from("reviews")
+      .select("*, profiles:traveler_id(full_name)")
+      .eq("listing_id", listing.id)
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
-    return { data: data.map(mapReviewRow), error: null };
+
+    return {
+      data: data.map((r) => ({
+        id: r.id,
+        authorName: (r.profiles as Record<string, unknown>)?.full_name as string ?? "Путешественник",
+        rating: r.rating,
+        title: r.title ?? "Отзыв",
+        body: r.body ?? "",
+        createdAt: r.created_at,
+      })),
+      error: null,
+    };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
 }
 
-export async function getGuideReviews(client: SupabaseClient, slug: string): Promise<QueryResult<ReviewRecord[]>> {
+export async function getGuideReviews(_client: SupabaseClient, guideSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
-    const { data, error } = await client.from("reviews").select("*").eq("target_type", "guide").eq("target_slug", slug);
+    const db = getPublicClient();
+    // First resolve guide UUID from slug
+    const { data: gp } = await db.from("guide_profiles").select("user_id").eq("slug", guideSlug).maybeSingle();
+    if (!gp) return { data: [], error: null };
+
+    const { data, error } = await db
+      .from("reviews")
+      .select("*, profiles:traveler_id(full_name)")
+      .eq("guide_id", gp.user_id)
+      .eq("status", "published")
+      .order("created_at", { ascending: false });
+
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
-    return { data: data.map(mapReviewRow), error: null };
+
+    return {
+      data: data.map((r) => ({
+        id: r.id,
+        authorName: (r.profiles as Record<string, unknown>)?.full_name as string ?? "Путешественник",
+        rating: r.rating,
+        title: r.title ?? "Отзыв",
+        body: r.body ?? "",
+        createdAt: r.created_at,
+      })),
+      error: null,
+    };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
