@@ -1,4 +1,12 @@
+import Image from "next/image";
 import Link from "next/link";
+
+export interface ReqCardMember {
+  id: string;
+  displayName: string;
+  initials: string;
+  avatarUrl?: string;
+}
 
 interface ReqCardProps {
   href: string;
@@ -8,6 +16,7 @@ interface ReqCardProps {
   date: string;
   desc?: string;
   fillPct: number;
+  members?: ReqCardMember[];
   avatars?: string[];
   price: string;
 }
@@ -20,6 +29,7 @@ export function ReqCard({
   date,
   desc,
   fillPct,
+  members,
   avatars,
   price,
 }: ReqCardProps) {
@@ -43,7 +53,24 @@ export function ReqCard({
       </div>
 
       <div className="req-foot">
-        {avatars && avatars.length > 0 ? (
+        {members && members.length > 0 ? (
+          <div className="avatars">
+            {members.slice(0, 5).map((m, i) => (
+              <span
+                key={m.id}
+                className="avatar"
+                title={m.displayName}
+                style={{ marginLeft: i === 0 ? "0" : "-6px" }}
+              >
+                {m.avatarUrl ? (
+                  <Image src={m.avatarUrl} alt={m.displayName} width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+                ) : (
+                  m.initials
+                )}
+              </span>
+            ))}
+          </div>
+        ) : avatars && avatars.length > 0 ? (
           <div className="avatars">
             {avatars.map((initials, i) => (
               <span

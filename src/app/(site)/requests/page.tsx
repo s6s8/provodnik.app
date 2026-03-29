@@ -28,6 +28,7 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
     dateRangeLabel: request.dateLabel,
     budgetPerPersonRub: request.budgetRub,
     highlights: [request.title, request.description, request.format].filter(Boolean) as string[],
+    members: request.members,
   };
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -9,16 +10,27 @@ interface Props {
   requests: RequestRecord[];
 }
 
-function deriveAvatars(groupSize: number, capacity: number): string[] {
-  const pool = ["АК", "МЛ", "ТГ", "ВС", "ОР", "ЛК", "ИА", "ДМ"];
-  const count = Math.max(groupSize, Math.min(3, capacity));
-  return pool.slice(0, Math.min(count, pool.length));
-}
-
 function formatPrice(budgetRub: number): string {
   if (!budgetRub) return "По договорённости";
   const k = Math.round(budgetRub / 1000);
   return `${k} тыс. ₽`;
+}
+
+function MemberAvatars({ members }: { members: RequestRecord["members"] }) {
+  if (members.length === 0) return null;
+  return (
+    <div className="avatars">
+      {members.slice(0, 5).map((m) => (
+        <span key={m.id} className="avatar" title={m.displayName}>
+          {m.avatarUrl ? (
+            <Image src={m.avatarUrl} alt={m.displayName} width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
+          ) : (
+            m.initials
+          )}
+        </span>
+      ))}
+    </div>
+  );
 }
 
 export function HomePageGateway({ requests }: Props) {
@@ -115,7 +127,6 @@ export function HomePageGateway({ requests }: Props) {
             <div className="grid-3" style={{ marginBottom: "24px" }}>
               {travelerCards.map((req) => {
                 const fillPct = req.capacity > 0 ? Math.round((req.groupSize / req.capacity) * 100) : 0;
-                const avatars = deriveAvatars(req.groupSize, req.capacity);
                 return (
                   <Link key={req.id} href={`/requests/${req.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <article className="req-card">
@@ -129,11 +140,7 @@ export function HomePageGateway({ requests }: Props) {
                         <div className="req-bar-fill" style={{ width: `${fillPct}%` }} />
                       </div>
                       <div className="req-foot">
-                        <div className="avatars">
-                          {avatars.map((initials) => (
-                            <span key={initials} className="avatar">{initials}</span>
-                          ))}
-                        </div>
+                        <MemberAvatars members={req.members} />
                         <span className="req-price">{formatPrice(req.budgetRub)}</span>
                       </div>
                     </article>

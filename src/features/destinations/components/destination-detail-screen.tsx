@@ -7,12 +7,6 @@ import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { ListingRecord } from "@/data/supabase/queries";
 
-const STATIC_AVATARS = ["АК", "МЛ", "ТГ", "ВС", "ОР", "ЛК"];
-
-function deriveAvatars(sizeCurrent: number): string[] {
-  return STATIC_AVATARS.slice(0, Math.min(sizeCurrent, STATIC_AVATARS.length));
-}
-
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
   return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
@@ -282,7 +276,7 @@ export function DestinationDetailScreen({
                     date={request.dateRangeLabel}
                     desc={request.highlights[1]}
                     fillPct={fillPct}
-                    avatars={deriveAvatars(request.group.sizeCurrent)}
+                    members={request.members}
                     price={derivePrice(request.budgetPerPersonRub)}
                   />
                 );

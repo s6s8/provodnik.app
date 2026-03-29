@@ -33,5 +33,6 @@ export type OpenRequestRecord = {
   budgetPerPersonRub?: number;
   priceScenarios?: Array<{ groupSize: number; pricePerPersonRub: number }>;
   highlights: string[];
+  members?: Array<{ id: string; displayName: string; initials: string; avatarUrl?: string }>;
 };
 

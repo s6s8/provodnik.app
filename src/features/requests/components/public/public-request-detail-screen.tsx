@@ -11,7 +11,6 @@ type GuideOffer = {
   href?: string;
 };
 
-const STATIC_AVATARS = ["АК", "МЛ", "ТГ", "ВС", "НО", "ОР", "ЛК"];
 
 interface Props {
   request: OpenRequestRecord;
@@ -28,10 +27,7 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
     100,
     Math.round((request.group.sizeCurrent / request.group.sizeTarget) * 100),
   );
-  const avatars = STATIC_AVATARS.slice(
-    0,
-    Math.min(request.group.sizeCurrent, STATIC_AVATARS.length),
-  );
+  const members = request.members ?? [];
   const heroImage =
     request.imageUrl ??
     "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80";
@@ -136,10 +132,11 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
                   </h2>
                   <div style={{ display: "flex", alignItems: "center" }}>
                     <div style={{ display: "flex" }}>
-                      {avatars.map((init, i) => (
+                      {members.map((m, i) => (
                         <span
-                          key={i}
+                          key={m.id}
                           className="avatar"
+                          title={m.displayName}
                           style={{
                             width: "28px",
                             height: "28px",
@@ -153,9 +150,14 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
                             fontSize: "0.5625rem",
                             fontWeight: 600,
                             color: "var(--on-surface)",
+                            overflow: "hidden",
                           }}
                         >
-                          {init}
+                          {m.avatarUrl ? (
+                            <img src={m.avatarUrl} alt={m.displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          ) : (
+                            m.initials
+                          )}
                         </span>
                       ))}
                     </div>

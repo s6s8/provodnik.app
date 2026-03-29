@@ -6,14 +6,8 @@ import Link from "next/link";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { ReqCard } from "@/components/shared/req-card";
 
-const STATIC_AVATARS = ["АК", "МЛ", "ТГ", "ВС", "ОР", "ЛК", "ИА", "ДМ"];
-
 const CATEGORY_PILLS = ["Все", "Природа", "Города", "Север", "Зима", "Семейные"] as const;
 type CategoryPill = (typeof CATEGORY_PILLS)[number];
-
-function deriveAvatars(sizeCurrent: number): string[] {
-  return STATIC_AVATARS.slice(0, Math.min(sizeCurrent, STATIC_AVATARS.length));
-}
 
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
@@ -189,7 +183,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     date={request.dateRangeLabel}
                     desc={request.highlights[1]}
                     fillPct={fillPct}
-                    avatars={deriveAvatars(request.group.sizeCurrent)}
+                    members={request.members}
                     price={derivePrice(request.budgetPerPersonRub)}
                   />
                 );

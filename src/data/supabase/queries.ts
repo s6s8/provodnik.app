@@ -59,6 +59,13 @@ export type GuideRecord = {
   experienceYears: number;
 };
 
+export type RequestMember = {
+  id: string;
+  displayName: string;
+  initials: string;
+  avatarUrl?: string;
+};
+
 export type RequestRecord = {
   id: string;
   destination: string;
@@ -78,6 +85,7 @@ export type RequestRecord = {
   createdAt: string;
   offerCount: number;
   imageUrl: string;
+  members: RequestMember[];
 };
 
 export type OfferRecord = {
@@ -288,7 +296,39 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     createdAt: (row.created_at as string) ?? "",
     offerCount: 0,
     imageUrl,
+    members: [],
   };
+}
+
+async function fetchMembersForRequests(db: SupabaseClient, requestIds: string[]): Promise<Map<string, RequestMember[]>> {
+  const map = new Map<string, RequestMember[]>();
+  if (requestIds.length === 0) return map;
+
+  const { data } = await db
+    .from("open_request_members")
+    .select("request_id, traveler_id, profiles:traveler_id(id, full_name, avatar_url)")
+    .in("request_id", requestIds)
+    .eq("status", "joined");
+
+  if (!data) return map;
+
+  for (const row of data) {
+    const reqId = row.request_id as string;
+    const profileRaw = row.profiles as unknown;
+    const profile = Array.isArray(profileRaw) ? profileRaw[0] as Record<string, unknown> | undefined : profileRaw as Record<string, unknown> | null;
+    const fullName = (profile?.full_name as string) ?? "Участник";
+    const member: RequestMember = {
+      id: (profile?.id as string) ?? row.traveler_id,
+      displayName: fullName,
+      initials: getInitials(fullName),
+      avatarUrl: (profile?.avatar_url as string) ?? undefined,
+    };
+    const list = map.get(reqId) ?? [];
+    list.push(member);
+    map.set(reqId, list);
+  }
+
+  return map;
 }
 
 function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknown> | null): GuideRecord {
@@ -466,7 +506,14 @@ export async function getOpenRequests(
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
-    return { data: applyRequestFilters(data.map((row) => mapRequestRow(row)), filters), error: null };
+    const records = data.map((row) => mapRequestRow(row));
+    const membersMap = await fetchMembersForRequests(db, records.map((r) => r.id));
+    for (const rec of records) {
+      rec.members = membersMap.get(rec.id) ?? [];
+      if (rec.members.length > 0) rec.groupSize = rec.members.length;
+    }
+
+    return { data: applyRequestFilters(records, filters), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -482,7 +529,12 @@ export async function getRequestById(
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
-    return { data: mapRequestRow(data), error: null };
+    const record = mapRequestRow(data);
+    const membersMap = await fetchMembersForRequests(db, [id]);
+    record.members = membersMap.get(id) ?? [];
+    if (record.members.length > 0) record.groupSize = record.members.length;
+
+    return { data: record, error: null };
   } catch (error) {
     return { data: null, error: makeError(error) };
   }
