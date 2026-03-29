@@ -9,8 +9,9 @@ interface Props {
   requests: RequestRecord[];
 }
 
-function deriveAvatars(count: number): string[] {
+function deriveAvatars(groupSize: number, capacity: number): string[] {
   const pool = ["АК", "МЛ", "ТГ", "ВС", "ОР", "ЛК", "ИА", "ДМ"];
+  const count = Math.max(groupSize, Math.min(3, capacity));
   return pool.slice(0, Math.min(count, pool.length));
 }
 
@@ -114,7 +115,7 @@ export function HomePageGateway({ requests }: Props) {
             <div className="grid-3" style={{ marginBottom: "24px" }}>
               {travelerCards.map((req) => {
                 const fillPct = req.capacity > 0 ? Math.round((req.groupSize / req.capacity) * 100) : 0;
-                const avatars = deriveAvatars(req.groupSize);
+                const avatars = deriveAvatars(req.groupSize, req.capacity);
                 return (
                   <Link key={req.id} href={`/requests/${req.id}`} style={{ textDecoration: "none", color: "inherit" }}>
                     <article className="req-card">
@@ -123,7 +124,7 @@ export function HomePageGateway({ requests }: Props) {
                         <span className="req-spots">{req.groupSize} / {req.capacity} мест</span>
                       </div>
                       <p className="req-title">{req.destination}</p>
-                      <p className="req-desc">{req.dateLabel} · {req.format}</p>
+                      <p className="req-desc">{req.dateLabel}{req.description ? ` · ${req.description}` : ""}</p>
                       <div className="req-bar">
                         <div className="req-bar-fill" style={{ width: `${fillPct}%` }} />
                       </div>

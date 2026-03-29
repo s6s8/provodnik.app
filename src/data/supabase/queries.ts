@@ -255,26 +255,34 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
   };
 }
 
+function parseNotesJson(notes: string | null | undefined): Record<string, unknown> {
+  if (!notes) return {};
+  try { return JSON.parse(notes) as Record<string, unknown>; } catch { return {}; }
+}
+
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
   const budgetMinor = (row.budget_minor as number) ?? 0;
   const budgetRub = Math.round(budgetMinor / 100);
-  const imageUrl = parseImageFromJson(row.notes as string);
+  const meta = parseNotesJson(row.notes as string);
+  const imageUrl = (meta.imageUrl as string) ?? fallbackHeroImage;
+  const dateRangeLabel = (meta.dateRangeLabel as string) ?? formatDateLabel((row.starts_on as string) ?? "", row.ends_on as string | null);
+  const destinationLabel = (meta.destinationLabel as string) ?? dest;
 
   return {
     id: row.id as string,
-    destination: dest,
+    destination: destinationLabel,
     destinationSlug: normalizeSlug(dest),
-    destinationRegion: (row.region as string) ?? "Россия",
-    title: `${dest} — маршрут под группу`,
-    dateLabel: formatDateLabel((row.starts_on as string) ?? "", row.ends_on as string | null),
+    destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "Россия",
+    title: `${destinationLabel} — маршрут под группу`,
+    dateLabel: dateRangeLabel,
     groupSize: (row.participants_count as number) ?? 1,
     capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
     budgetRub,
     budgetLabel: budgetMinor ? `${formatRub(budgetRub)} / чел.` : "По договорённости",
     requesterName,
     requesterInitials,
-    description: (row.format_preference as string) ?? "",
+    description: (row.format_preference as string) ?? (row.category as string) ?? "",
     format: (row.category as string) ?? "",
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
