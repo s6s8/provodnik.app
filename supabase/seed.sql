@@ -15,7 +15,10 @@
 -- 0. FULL WIPE — safe, entire DB is seed data
 -- ---------------------------------------------------------------------------
 truncate public.marketplace_events cascade;
-truncate public.quality_snapshots cascade;
+do $$ begin
+  execute 'truncate public.quality_snapshots cascade';
+exception when undefined_table then null;
+end $$;
 truncate public.reviews cascade;
 truncate public.favorites cascade;
 truncate public.bookings cascade;
@@ -168,8 +171,9 @@ insert into public.favorites (id,user_id,subject,listing_id,guide_id) values
   ('80000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000003','guide',null,'00000000-0000-4000-8000-000000000002');
 
 -- ---------------------------------------------------------------------------
--- 11. QUALITY SNAPSHOTS
+-- 11. QUALITY SNAPSHOTS (skipped if table doesn't exist yet — run migration first)
 -- ---------------------------------------------------------------------------
+do $$ begin
 insert into public.quality_snapshots (subject_type,subject_slug,tier,response_time_hours,completion_rate,rating_avg,review_count) values
   ('guide','alexei-sokolov','gold',2.5,0.98,4.9,42),
   ('guide','bair-elista','gold',3.0,0.95,4.8,28),
@@ -184,6 +188,8 @@ insert into public.quality_snapshots (subject_type,subject_slug,tier,response_ti
   ('listing','baikal-irkutsk-listvyanka-olkhon-preview','gold',null,null,4.9,31),
   ('listing','moscow-historic-center-and-estates','silver',null,null,4.8,15),
   ('listing','baikal-olkhon-winter-ice','gold',null,null,4.9,22);
+exception when undefined_table then null;
+end $$;
 
 -- ---------------------------------------------------------------------------
 -- 12. DESTINATIONS (via marketplace_events)
