@@ -16,10 +16,12 @@ create table if not exists public.quality_snapshots (
 -- RLS: public read, admin write
 alter table public.quality_snapshots enable row level security;
 
+drop policy if exists "quality_snapshots_public_read" on public.quality_snapshots;
 create policy "quality_snapshots_public_read"
   on public.quality_snapshots for select
   using (true);
 
+drop policy if exists "quality_snapshots_admin_write" on public.quality_snapshots;
 create policy "quality_snapshots_admin_write"
   on public.quality_snapshots for all
   using (public.is_admin());
