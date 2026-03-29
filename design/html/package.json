@@ -1,0 +1,11 @@
+{
+  "name": "provodnik-static-html",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./input.css -o ./css/tailwind.css --minify",
+    "watch": "tailwindcss -i ./input.css -o ./css/tailwind.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

@@ -1,480 +1,1122 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Provodnik — маршруты с локальными проводниками. Объединяйтесь в группы, договаривайтесь о цене с гидами, бронируйте экскурсии по России."
-    />
-    <title>Provodnik — Главная</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/home.css" />
-  </head>
-  <body class="hw-theme-cool hw-theme-alice">
-    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
-    <div class="hw-top">
-      <div class="hw-hero">
-        <div class="hw-hero-bg" aria-hidden="true"></div>
-        <div class="hw-nav-shell">
-          <nav class="hw-nav-inner" aria-label="Основная навигация">
-            <a class="hw-brand" href="index.html">
-              <span class="hw-brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </span>
-              Provodnik
-            </a>
-            <ul class="hw-nav-links">
-              <li><a class="is-active" href="index.html" aria-current="page">Направления</a></li>
-              <li><a href="requests.html">Запросы</a></li>
-              <li><a href="guide.html">Гиды</a></li>
-              <li><a href="tour.html">Экскурсии</a></li>
-              <li><a href="dashboard.html">Профиль</a></li>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Provodnik — маршруты по России с локальными гидами. Создайте запрос, соберите группу, договоритесь о цене." />
+  <title>Provodnik — Главная</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       DESIGN TOKENS
+    ============================================================ */
+    :root {
+      --primary:               #0058be;
+      --primary-hover:         #2170e4;
+      --surface:               #f9f9ff;
+      --surface-low:           #f3f3fa;
+      --surface-lowest:        #ffffff;
+      --on-surface:            #191c20;
+      --on-surface-muted:      #5a5e6b;
+      --outline-variant:       #c2c6d6;
+      --footer-bg:             #0f172a;
+
+      --glass-bg:     rgba(249, 249, 255, 0.60);
+      --glass-border: rgba(194, 198, 214, 0.18);
+      --glass-blur:   blur(20px);
+      --glass-shadow: 0 8px 32px rgba(25, 28, 32, 0.06);
+      --glass-radius: 28px;
+      --card-shadow:  0 4px 24px rgba(25, 28, 32, 0.07);
+      --card-radius:  24px;
+
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-ui:      'DM Sans', system-ui, sans-serif;
+
+      --max-w:    1200px;
+      --sec-pad:  80px;
+      --px:       clamp(20px, 4vw, 48px);
+    }
+
+    /* ============================================================
+       BASE RESET
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--surface);
+      color: var(--on-surface);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
+
+    .sr-only {
+      position: absolute; width: 1px; height: 1px;
+      padding: 0; margin: -1px; overflow: hidden;
+      clip: rect(0,0,0,0); white-space: nowrap; border-width: 0;
+    }
+
+    /* ============================================================
+       LAYOUT HELPERS
+    ============================================================ */
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: var(--px);
+    }
+
+    /* ============================================================
+       BUTTON PRIMITIVES
+    ============================================================ */
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 22px; border-radius: 9999px;
+      background: var(--primary); color: #fff;
+      font-family: var(--font-ui); font-size: 0.875rem; font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.87; }
+
+    .btn-ghost {
+      display: inline-flex; align-items: center;
+      padding: 9px 18px; border-radius: 9999px;
+      border: 1px solid rgba(0, 88, 190, 0.22);
+      color: var(--primary);
+      font-family: var(--font-ui); font-size: 0.875rem; font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { background: rgba(0, 88, 190, 0.05); border-color: var(--primary); }
+
+    /* ============================================================
+       NAV
+    ============================================================ */
+    .site-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 14px var(--px);
+    }
+
+    .main-nav {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 24px;
+      border-radius: 9999px;
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 24px rgba(25, 28, 32, 0.06);
+    }
+
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.3125rem; font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--on-surface);
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 32px;
+    }
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--on-surface-muted);
+      transition: color 0.15s;
+      position: relative;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-links a[aria-current="page"] {
+      color: var(--primary);
+    }
+    .nav-links a[aria-current="page"]::after {
+      content: '';
+      position: absolute; bottom: -5px; left: 50%;
+      transform: translateX(-50%);
+      width: 4px; height: 4px;
+      background: var(--primary); border-radius: 50%;
+    }
+
+    .nav-ctas { display: flex; align-items: center; gap: 8px; }
+
+    /* ============================================================
+       HERO
+    ============================================================ */
+    .hero {
+      position: relative;
+      min-height: 55vh;
+      max-height: 720px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=85');
+      background-size: cover;
+      background-position: center 40%;
+    }
+
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(25, 28, 32, 0.12) 0%,
+        rgba(25, 28, 32, 0.38) 55%,
+        rgba(25, 28, 32, 0.60) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 96px 20px 48px;
+      max-width: 860px;
+      width: 100%;
+    }
+
+    .hero-kicker {
+      display: inline-block;
+      padding: 5px 16px; border-radius: 9999px;
+      background: rgba(255, 255, 255, 0.14);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      font-size: 0.6875rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.82);
+      margin-bottom: 20px;
+    }
+
+    .hero-headline {
+      font-family: var(--font-display);
+      font-size: clamp(2.25rem, 5vw, 3.625rem);
+      font-weight: 600; line-height: 1.06;
+      color: #fff;
+      margin-bottom: 32px;
+    }
+
+    .hero-search {
+      display: flex; align-items: center; gap: 8px;
+      width: 100%; max-width: 600px;
+      margin-inline: auto;
+      padding: 7px 7px 7px 22px;
+      border-radius: 9999px;
+      background: rgba(249, 249, 255, 0.62);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(194, 198, 214, 0.35);
+      box-shadow: 0 8px 32px rgba(25, 28, 32, 0.14);
+    }
+
+    .hero-search input {
+      flex: 1; min-width: 0;
+      background: transparent; border: none; outline: none;
+      font-family: var(--font-ui); font-size: 0.9375rem;
+      color: var(--on-surface);
+    }
+    .hero-search input::placeholder { color: rgba(25, 28, 32, 0.48); }
+
+    .hero-search button {
+      flex-shrink: 0;
+      padding: 10px 22px; border-radius: 9999px;
+      background: var(--primary); color: #fff;
+      font-family: var(--font-ui); font-size: 0.875rem; font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .hero-search button:hover { opacity: 0.87; }
+
+    .hero-links {
+      display: flex; align-items: center; justify-content: center;
+      gap: 24px; margin-top: 16px;
+    }
+    .hero-links a {
+      font-size: 0.875rem; font-weight: 500;
+      color: rgba(255, 255, 255, 0.78);
+      transition: color 0.15s;
+    }
+    .hero-links a:hover { color: #fff; }
+
+    /* ============================================================
+       SECTION LABELS / TITLES
+    ============================================================ */
+    .sec-label {
+      font-size: 0.6875rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--on-surface-muted);
+      margin-bottom: 8px;
+    }
+
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.875rem, 3.5vw, 2.375rem);
+      font-weight: 600; line-height: 1.1;
+      color: var(--on-surface);
+    }
+
+    /* ============================================================
+       GATEWAY
+    ============================================================ */
+    .gateway {
+      padding-block: var(--sec-pad);
+      background: var(--surface-low);
+    }
+
+    .gateway-head {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .role-toggle-wrap {
+      display: flex; justify-content: center;
+      margin-bottom: 28px;
+    }
+
+    .role-toggle {
+      display: inline-flex;
+      padding: 4px; gap: 2px;
+      border-radius: 9999px;
+      background: var(--surface-lowest);
+      border: 1px solid var(--outline-variant);
+    }
+
+    .role-btn {
+      padding: 10px 30px; border-radius: 9999px;
+      font-family: var(--font-ui); font-size: 0.875rem; font-weight: 600;
+      color: var(--on-surface-muted);
+      transition: background 0.2s, color 0.2s;
+    }
+    .role-btn.active { background: var(--primary); color: #fff; }
+
+    .gateway-panel { display: none; }
+    .gateway-panel.active { display: block; }
+
+    .glass-panel {
+      border-radius: var(--glass-radius);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+      padding: 32px;
+    }
+
+    .req-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .req-card {
+      display: block;
+      background: var(--surface-lowest);
+      border-radius: var(--card-radius);
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.15s;
+      color: inherit;
+    }
+    .req-card:hover { transform: translateY(-3px); }
+
+    .req-card-top {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 0.6875rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--on-surface-muted);
+      margin-bottom: 14px;
+    }
+    .req-spots { color: var(--primary); }
+
+    .req-title {
+      font-size: 0.9375rem; font-weight: 600;
+      color: var(--on-surface); margin-bottom: 5px;
+    }
+
+    .req-desc {
+      font-size: 0.8125rem; color: var(--on-surface-muted);
+      line-height: 1.5; margin-bottom: 14px;
+    }
+
+    .req-bar {
+      height: 4px; background: var(--surface-low);
+      border-radius: 9999px; margin-bottom: 14px;
+    }
+    .req-bar-fill {
+      height: 100%; background: var(--primary); border-radius: 9999px;
+    }
+
+    .req-foot {
+      display: flex; align-items: center; justify-content: space-between;
+    }
+
+    .avatars { display: flex; }
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface-low);
+      border: 2px solid var(--surface-lowest);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.5625rem; font-weight: 600;
+      color: var(--on-surface);
+      margin-left: -6px;
+    }
+    .avatar:first-child { margin-left: 0; }
+
+    .req-price {
+      font-size: 0.875rem; font-weight: 600;
+      color: var(--on-surface);
+    }
+
+    .req-open-tag {
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--primary);
+    }
+
+    .gateway-cta { display: flex; justify-content: center; }
+
+    /* ============================================================
+       DESTINATIONS
+    ============================================================ */
+    .destinations {
+      padding-block: var(--sec-pad);
+      background: var(--surface);
+    }
+
+    .dest-head {
+      display: flex; align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px; margin-bottom: 28px;
+    }
+
+    .link-accent {
+      font-size: 0.875rem; font-weight: 600;
+      color: var(--primary); white-space: nowrap;
+    }
+    .link-accent:hover { text-decoration: underline; }
+
+    .dest-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr 1fr;
+      grid-template-rows: 226px 226px;
+      gap: 14px;
+    }
+
+    .dest-card {
+      position: relative;
+      border-radius: 28px; overflow: hidden;
+      display: block;
+      background-size: cover; background-position: center;
+      transition: transform 0.2s;
+    }
+    .dest-card:hover { transform: scale(1.015); }
+
+    .dest-featured { grid-row: span 2; }
+
+    .dest-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(15, 23, 42, 0.78) 0%,
+        rgba(15, 23, 42, 0.06) 55%
+      );
+    }
+
+    .dest-body {
+      position: absolute; inset-inline: 0; bottom: 0;
+      padding: 22px;
+      color: #fff;
+    }
+    .dest-featured .dest-body { padding: 28px; }
+
+    .dest-name-large {
+      font-family: var(--font-display);
+      font-size: 2.375rem; font-weight: 600; line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .dest-blurb {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.76);
+      line-height: 1.55; margin-bottom: 18px;
+      max-width: 28ch;
+    }
+
+    .dest-pill {
+      display: inline-flex; align-items: center;
+      padding: 8px 20px; border-radius: 9999px;
+      background: var(--primary);
+      font-size: 0.8125rem; font-weight: 600; color: #fff;
+    }
+
+    .dest-small-body {
+      position: absolute; inset-inline: 0; bottom: 0;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 18px 22px;
+      color: #fff;
+    }
+
+    .dest-name-small {
+      font-size: 1.125rem; font-weight: 600;
+    }
+
+    .dest-count {
+      font-size: 0.75rem; font-weight: 500;
+      color: rgba(255,255,255,0.75);
+    }
+
+    /* ============================================================
+       HOW IT WORKS
+    ============================================================ */
+    .hiw {
+      padding-block: var(--sec-pad);
+      background: var(--surface-low);
+    }
+
+    .hiw-head {
+      text-align: center; margin-bottom: 52px;
+    }
+
+    .hiw-steps {
+      display: flex; align-items: flex-start;
+    }
+
+    .hiw-step {
+      flex: 1; text-align: center;
+      padding-inline: 20px;
+    }
+
+    .hiw-num {
+      font-family: var(--font-display);
+      font-size: 3.75rem; font-weight: 700; line-height: 1;
+      color: var(--primary); opacity: 0.18;
+      margin-bottom: 14px;
+    }
+
+    .hiw-title {
+      font-size: 1.0625rem; font-weight: 600;
+      color: var(--on-surface); margin-bottom: 8px;
+    }
+
+    .hiw-desc {
+      font-size: 0.875rem; color: var(--on-surface-muted);
+      line-height: 1.65;
+    }
+
+    .hiw-line {
+      flex-shrink: 0;
+      width: 80px;
+      border-top: 2px dashed rgba(0, 88, 190, 0.22);
+      padding-top: 0;
+      margin-top: 29px; /* ≈ half of 3.75rem number height */
+    }
+
+    /* ============================================================
+       TRUST STRIP
+    ============================================================ */
+    .trust {
+      padding-block: 56px;
+      background: var(--surface);
+      border-top: 1px solid rgba(194, 198, 214, 0.40);
+      border-bottom: 1px solid rgba(194, 198, 214, 0.40);
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 36px;
+    }
+
+    .trust-item {
+      display: flex; align-items: flex-start; gap: 14px;
+    }
+
+    .trust-icon {
+      flex-shrink: 0;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(0, 88, 190, 0.08);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--primary);
+    }
+
+    .trust-label {
+      font-size: 1rem; font-weight: 600;
+      color: var(--on-surface); margin-bottom: 4px;
+    }
+
+    .trust-desc {
+      font-size: 0.875rem; color: var(--on-surface-muted);
+      line-height: 1.55;
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    .footer {
+      background: var(--footer-bg);
+      padding-top: 56px; padding-bottom: 32px;
+    }
+
+    .footer-inner { padding-inline: var(--px); max-width: var(--max-w); margin-inline: auto; }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      padding-bottom: 40px; margin-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .footer-col-label {
+      font-size: 0.6875rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.42);
+      margin-bottom: 14px;
+    }
+
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+      font-size: 0.875rem; color: rgba(255,255,255,0.60);
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: #fff; }
+
+    .footer-social { display: flex; gap: 10px; margin-top: 6px; }
+    .social-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.55);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .social-btn:hover { border-color: rgba(255,255,255,0.38); color: #fff; }
+
+    .footer-bottom {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+    }
+
+    .footer-copy {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.35);
+    }
+
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.35);
+      transition: color 0.15s;
+    }
+    .footer-legal a:hover { color: rgba(255,255,255,0.70); }
+
+    /* ============================================================
+       RESPONSIVE
+    ============================================================ */
+    @media (max-width: 1023px) {
+      .dest-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto;
+      }
+      .dest-featured {
+        grid-column: span 2;
+        min-height: 300px;
+      }
+      .dest-grid .dest-card:not(.dest-featured) { min-height: 180px; }
+
+      .hiw-steps { flex-direction: column; align-items: stretch; gap: 28px; }
+      .hiw-line { display: none; }
+      .hiw-step {
+        text-align: left; padding: 0;
+        display: flex; align-items: flex-start; gap: 20px;
+      }
+      .hiw-num { flex-shrink: 0; width: 52px; margin-bottom: 0; font-size: 2.75rem; }
+      .hiw-step-text {}
+    }
+
+    @media (max-width: 767px) {
+      :root { --sec-pad: 56px; }
+
+      .nav-links { display: none; }
+      .btn-ghost.nav-login { display: none; }
+
+      .req-cards { grid-template-columns: 1fr; }
+
+      .dest-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .dest-featured { grid-column: span 1; min-height: 260px; }
+      .dest-grid .dest-card:not(.dest-featured) { min-height: 170px; }
+
+      .trust-grid { grid-template-columns: 1fr; gap: 22px; }
+
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+
+    @media (max-width: 479px) {
+      .hero-links { flex-direction: column; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main-content" style="position:absolute;left:-9999px;top:4px;padding:8px 16px;background:var(--primary);color:#fff;border-radius:9999px;font-size:.875rem;font-weight:600;z-index:100;">
+    Перейти к содержимому
+  </a>
+
+  <!-- ╔══════════════════════════════════════
+       NAV
+  ═══════════════════════════════════════╗ -->
+  <header class="site-header" role="banner">
+    <nav class="main-nav" aria-label="Основная навигация">
+
+      <a class="nav-logo" href="index.html">Provodnik</a>
+
+      <ul class="nav-links" role="list">
+        <li><a href="destination.html" aria-current="page">Направления</a></li>
+        <li><a href="guide.html">Гиды</a></li>
+        <li><a href="#hiw">Как это работает</a></li>
+      </ul>
+
+      <div class="nav-ctas">
+        <a class="btn-ghost nav-login" href="#">Войти</a>
+        <a class="btn-primary" href="create-request.html">Создать запрос</a>
+      </div>
+
+    </nav>
+  </header>
+
+  <main id="main-content">
+
+    <!-- ╔══════════════════════════════════════
+         HERO
+    ═══════════════════════════════════════╗ -->
+    <section class="hero" aria-label="Главный баннер">
+      <div class="hero-bg" role="img" aria-label="Берег озера Байкал, утренний свет"></div>
+      <div class="hero-overlay" aria-hidden="true"></div>
+
+      <div class="hero-content">
+        <p class="hero-kicker">Маршруты с локальными проводниками</p>
+
+        <h1 class="hero-headline">
+          Путешествуйте по России<br>с теми, кто знает каждый камень
+        </h1>
+
+        <form class="hero-search" action="requests.html" method="get" role="search" aria-label="Поиск направления">
+          <label class="sr-only" for="search-input">Куда едем?</label>
+          <input
+            id="search-input" type="search" name="q"
+            placeholder="Куда едем? Байкал, Казань, Алтай…"
+            autocomplete="off"
+          />
+          <button type="submit">Найти</button>
+        </form>
+
+        <div class="hero-links">
+          <a href="create-request.html">Создать запрос →</a>
+          <a href="requests.html">Найти группу →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════
+         GATEWAY — role selector
+    ═══════════════════════════════════════╗ -->
+    <section class="gateway" aria-labelledby="gateway-title">
+      <div class="container">
+
+        <div class="gateway-head">
+          <p class="sec-label">Для кого Provodnik</p>
+          <h2 class="sec-title" id="gateway-title">Выберите свою роль</h2>
+        </div>
+
+        <div class="role-toggle-wrap">
+          <div class="role-toggle" role="tablist" aria-label="Роль">
+            <button class="role-btn active" role="tab" aria-selected="true"
+                    aria-controls="panel-traveler" id="tab-traveler"
+                    data-panel="traveler">
+              Я путешественник
+            </button>
+            <button class="role-btn" role="tab" aria-selected="false"
+                    aria-controls="panel-guide" id="tab-guide"
+                    data-panel="guide">
+              Я гид
+            </button>
+          </div>
+        </div>
+
+        <!-- Путешественник -->
+        <div class="gateway-panel active" id="panel-traveler"
+             role="tabpanel" aria-labelledby="tab-traveler">
+          <div class="glass-panel">
+            <div class="req-cards">
+
+              <a class="req-card" href="requests.html">
+                <div class="req-card-top">
+                  <span>Байкал</span>
+                  <span class="req-spots">4 / 6 мест</span>
+                </div>
+                <p class="req-title">Ольхон, Иркутская область</p>
+                <p class="req-desc">24–26 июля · джип, катер и вечер у воды</p>
+                <div class="req-bar"><div class="req-bar-fill" style="width:66%"></div></div>
+                <div class="req-foot">
+                  <div class="avatars">
+                    <span class="avatar">АК</span>
+                    <span class="avatar">МЛ</span>
+                    <span class="avatar">ТГ</span>
+                  </div>
+                  <span class="req-price">35–50 тыс. ₽</span>
+                </div>
+              </a>
+
+              <a class="req-card" href="requests.html">
+                <div class="req-card-top">
+                  <span>Казань</span>
+                  <span class="req-spots">2 / 4 мест</span>
+                </div>
+                <p class="req-title">Казанский кремль и старый город</p>
+                <p class="req-desc">10–12 августа · кремль, медина, ночной Кабан</p>
+                <div class="req-bar"><div class="req-bar-fill" style="width:50%"></div></div>
+                <div class="req-foot">
+                  <div class="avatars">
+                    <span class="avatar">АС</span>
+                    <span class="avatar">ОЗ</span>
+                  </div>
+                  <span class="req-price">18–25 тыс. ₽</span>
+                </div>
+              </a>
+
+              <a class="req-card" href="requests.html">
+                <div class="req-card-top">
+                  <span>Мурманск</span>
+                  <span class="req-spots">3 / 5 мест</span>
+                </div>
+                <p class="req-title">Кольский полуостров, Арктика</p>
+                <p class="req-desc">5–8 сентября · полярное сияние, саамские истории</p>
+                <div class="req-bar"><div class="req-bar-fill" style="width:60%"></div></div>
+                <div class="req-foot">
+                  <div class="avatars">
+                    <span class="avatar">ВТ</span>
+                    <span class="avatar">НК</span>
+                    <span class="avatar">ЗИ</span>
+                  </div>
+                  <span class="req-price">42–58 тыс. ₽</span>
+                </div>
+              </a>
+
+            </div>
+            <div class="gateway-cta">
+              <a class="btn-primary" href="create-request.html">Создать запрос</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Гид -->
+        <div class="gateway-panel" id="panel-guide"
+             role="tabpanel" aria-labelledby="tab-guide">
+          <div class="glass-panel">
+            <div class="req-cards">
+
+              <a class="req-card" href="requests.html">
+                <div class="req-card-top">
+                  <span>Алтай</span>
+                  <span class="req-spots">5 чел.</span>
+                </div>
+                <p class="req-title">Чуйский тракт, перевалы</p>
+                <p class="req-desc">2–5 августа · бюджет 40–60 тыс. на группу, нужен транспорт</p>
+                <div class="req-bar"><div class="req-bar-fill" style="width:100%"></div></div>
+                <div class="req-foot">
+                  <span class="req-open-tag">Ждут предложений</span>
+                  <span class="req-price">40–60 тыс. ₽</span>
+                </div>
+              </a>
+
+              <a class="req-card" href="requests.html">
+                <div class="req-card-top">
+                  <span>Карелия</span>
+                  <span class="req-spots">4 чел.</span>
+                </div>
+                <p class="req-title">Ладога, скалы, баня</p>
+                <p class="req-desc">15–18 июля · водный маршрут, нужна лодка и знаток края</p>
+                <div class="req-bar"><div class="req-bar-fill" style="width:100%"></div></div>
+                <div class="req-foot">
+                  <span class="req-open-tag">Ждут предложений</span>
+                  <span class="req-price">28–40 тыс. ₽</span>
+                </div>
+              </a>
+
+              <a class="req-card" href="requests.html">
+                <div class="req-card-top">
+                  <span>Калмыкия</span>
+                  <span class="req-spots">6 чел.</span>
+                </div>
+                <p class="req-title">Степь, хурулы, Элиста</p>
+                <p class="req-desc">12–14 сентября · этнопрограмма, степные ночёвки</p>
+                <div class="req-bar"><div class="req-bar-fill" style="width:100%"></div></div>
+                <div class="req-foot">
+                  <span class="req-open-tag">Ждут предложений</span>
+                  <span class="req-price">22–34 тыс. ₽</span>
+                </div>
+              </a>
+
+            </div>
+            <div class="gateway-cta">
+              <a class="btn-primary" href="requests.html">Предложить цену</a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════
+         POPULAR DESTINATIONS
+    ═══════════════════════════════════════╗ -->
+    <section class="destinations" aria-labelledby="dest-title">
+      <div class="container">
+
+        <div class="dest-head">
+          <div>
+            <p class="sec-label">Популярные направления</p>
+            <h2 class="sec-title" id="dest-title">Российские маршруты, которые собирают группы быстрее всего</h2>
+          </div>
+          <a class="link-accent" href="destination.html">Все направления →</a>
+        </div>
+
+        <div class="dest-grid">
+
+          <!-- Байкал — featured -->
+          <a class="dest-card dest-featured" href="destination.html"
+             style="background-image:url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80');">
+            <div class="dest-overlay"></div>
+            <div class="dest-body">
+              <h3 class="dest-name-large">Озеро Байкал</h3>
+              <p class="dest-blurb">Ледяные бухты зимой, байкальский закат летом и маршруты от Иркутска до Ольхона с проверенными проводниками.</p>
+              <span class="dest-pill">Смотреть туры</span>
+            </div>
+          </a>
+
+          <!-- Казань -->
+          <a class="dest-card" href="destination.html"
+             style="background-image:url('https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80');">
+            <div class="dest-overlay"></div>
+            <div class="dest-small-body">
+              <h3 class="dest-name-small">Казань</h3>
+              <span class="dest-count">14 туров</span>
+            </div>
+          </a>
+
+          <!-- Калининград -->
+          <a class="dest-card" href="destination.html"
+             style="background-image:url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80');">
+            <div class="dest-overlay"></div>
+            <div class="dest-small-body">
+              <h3 class="dest-name-small">Калининград</h3>
+              <span class="dest-count">20 туров</span>
+            </div>
+          </a>
+
+          <!-- Суздаль -->
+          <a class="dest-card" href="destination.html"
+             style="background-image:url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=900&q=80');">
+            <div class="dest-overlay"></div>
+            <div class="dest-small-body">
+              <h3 class="dest-name-small">Суздаль</h3>
+              <span class="dest-count">16 туров</span>
+            </div>
+          </a>
+
+          <!-- Мурманск -->
+          <a class="dest-card" href="destination.html"
+             style="background-image:url('https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=900&q=80');">
+            <div class="dest-overlay"></div>
+            <div class="dest-small-body">
+              <h3 class="dest-name-small">Мурманск</h3>
+              <span class="dest-count">19 туров</span>
+            </div>
+          </a>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════
+         HOW IT WORKS — 3 steps
+    ═══════════════════════════════════════╗ -->
+    <section class="hiw" id="hiw" aria-labelledby="hiw-title">
+      <div class="container">
+
+        <div class="hiw-head">
+          <p class="sec-label">Как это работает</p>
+          <h2 class="sec-title" id="hiw-title">Три шага от идеи до поездки</h2>
+        </div>
+
+        <div class="hiw-steps">
+
+          <div class="hiw-step">
+            <div class="hiw-num">1</div>
+            <div class="hiw-step-text">
+              <h3 class="hiw-title">Создайте запрос</h3>
+              <p class="hiw-desc">Опишите маршрут, даты и бюджет — займёт пару минут</p>
+            </div>
+          </div>
+
+          <div class="hiw-line" aria-hidden="true"></div>
+
+          <div class="hiw-step">
+            <div class="hiw-num">2</div>
+            <div class="hiw-step-text">
+              <h3 class="hiw-title">Гиды предлагают цены</h3>
+              <p class="hiw-desc">Выберите подходящего проводника из откликов</p>
+            </div>
+          </div>
+
+          <div class="hiw-line" aria-hidden="true"></div>
+
+          <div class="hiw-step">
+            <div class="hiw-num">3</div>
+            <div class="hiw-step-text">
+              <h3 class="hiw-title">Экскурсия подтверждена</h3>
+              <p class="hiw-desc">Оплата и выезд — всё согласовано, группа собрана</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ╔══════════════════════════════════════
+         TRUST STRIP
+    ═══════════════════════════════════════╗ -->
+    <section class="trust" aria-label="Преимущества Provodnik">
+      <div class="container">
+        <div class="trust-grid">
+
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="trust-label">Проверенные гиды</p>
+              <p class="trust-desc">Верификация и отзывы от реальных путешественников</p>
+            </div>
+          </div>
+
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="trust-label">Прозрачные условия</p>
+              <p class="trust-desc">Всё обговаривается до оплаты, без скрытых комиссий</p>
+            </div>
+          </div>
+
+          <div class="trust-item">
+            <div class="trust-icon" aria-hidden="true">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M20 6L9 17l-5-5"/>
+              </svg>
+            </div>
+            <div>
+              <p class="trust-label">Комиссия ниже</p>
+              <p class="trust-desc">Меньше, чем у Tripster и других крупных агрегаторов</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ╔══════════════════════════════════════
+       FOOTER
+  ═══════════════════════════════════════╗ -->
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+
+      <div class="footer-grid">
+
+        <nav aria-label="О проекте">
+          <p class="footer-col-label">О проекте</p>
+          <ul class="footer-links">
+            <li><a href="#">О нас</a></li>
+            <li><a href="guide.html">Для гидов</a></li>
+            <li><a href="#">Блог</a></li>
+          </ul>
+        </nav>
+
+        <nav aria-label="Поддержка">
+          <p class="footer-col-label">Поддержка</p>
+          <ul class="footer-links">
+            <li><a href="#">FAQ</a></li>
+            <li><a href="#">Помощь</a></li>
+            <li><a href="#">Связаться с нами</a></li>
+          </ul>
+        </nav>
+
+        <div>
+          <nav aria-label="Правила">
+            <p class="footer-col-label">Правила</p>
+            <ul class="footer-links">
+              <li><a href="#">Условия использования</a></li>
+              <li><a href="#">Конфиденциальность</a></li>
+              <li><a href="#">Cookies</a></li>
             </ul>
-            <details class="hw-nav-mobile">
-              <summary aria-label="Открыть меню">
-                <span></span>
-                <span></span>
-                <span></span>
-              </summary>
-              <div class="hw-nav-mobile-menu">
-                <a class="is-active" href="index.html" aria-current="page">Направления</a>
-                <a href="requests.html">Запросы</a>
-                <a href="guide.html">Гиды</a>
-                <a href="tour.html">Экскурсии</a>
-                <a href="dashboard.html">Профиль</a>
-              </div>
-            </details>
           </nav>
-        </div>
-        <div class="hw-hero-main">
-          <header class="hw-hero-head">
-            <div class="hw-hero-inner">
-              <h1>Настоящие места не ищут в турагентствах</h1>
-              <div class="hw-hero-search" role="search" aria-label="Поиск направления">
-                <form class="hw-search" action="index.html" method="get">
-                  <label class="hw-visually-hidden" for="hw-search-q">Куда едем?</label>
-                  <input id="hw-search-q" type="search" name="q" placeholder="Куда едем?" autocomplete="off" />
-                  <button type="submit" class="hw-search-go">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-                      <circle cx="11" cy="11" r="7" />
-                      <path d="M20 20l-4-4" />
-                    </svg>
-                    <span>Найти</span>
-                  </button>
-                </form>
-              </div>
-            </div>
-          </header>
 
-          <section class="hw-dual" aria-labelledby="hw-dual-heading">
-          <h2 id="hw-dual-heading" class="hw-visually-hidden">Вход в сервис</h2>
-          <article class="hw-gateway hw-gateway--market" aria-labelledby="gw-req-title">
-            <h2 id="gw-req-title">Биржа запросов</h2>
-            <p>Присоединяйтесь к путешественникам, собирайте группу и договаривайтесь о цене с местными проводниками.</p>
-            <div class="hw-gateway-actions">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="create-request.html">Создать запрос</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="requests.html">Найти группу</a>
+          <div style="margin-top:24px;">
+            <p class="footer-col-label">Мы в сети</p>
+            <div class="footer-social">
+
+              <a class="social-btn" href="#" aria-label="ВКонтакте">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.87h-1.62c-.61 0-.8-.49-1.9-1.6-.95-.93-1.37-.93-1.6-.93-.33 0-.42.09-.42.56v1.46c0 .4-.13.64-1.18.64-1.74 0-3.67-1.06-5.02-3.03C4.7 10.3 4.27 8.45 4.27 8.06c0-.23.09-.45.56-.45h1.62c.42 0 .58.19.74.64.82 2.36 2.19 4.43 2.75 4.43.21 0 .3-.1.3-.64V9.81c-.07-1.15-.67-1.24-.67-1.65 0-.19.15-.39.4-.39h2.55c.35 0 .47.19.47.6v3.23c0 .35.15.47.26.47.21 0 .38-.12.77-.51 1.19-1.33 2.04-3.38 2.04-3.38.11-.23.3-.45.73-.45h1.62c.49 0 .6.25.49.6-.21 1-.2.97-1.55 2.94-.23.37-.32.54 0 .93.23.28.98.93 1.48 1.49.92 1.04 1.62 1.91 1.81 2.51.2.59-.1.89-.7.89z"/>
+                </svg>
+              </a>
+
+              <a class="social-btn" href="#" aria-label="Telegram">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z"/>
+                </svg>
+              </a>
+
             </div>
-            <div class="hw-mini-grid hw-mini-grid--market">
-              <a class="hw-gw-card" href="requests.html">
-                <div class="hw-gw-card-meta">
-                  <svg class="hw-gw-card-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  <span>Группа</span>
-                </div>
-                <div class="hw-gw-card-body">
-                  <p class="hw-gw-card-title">Байкал</p>
-                  <div class="hw-gw-card-row">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M8 2v4M16 2v4" />
-                      <rect width="18" height="18" x="3" y="4" rx="2" />
-                      <path d="M3 10h18" />
-                    </svg>
-                    <span>4–6 чел.</span>
-                  </div>
-                  <div class="hw-gw-card-row">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <circle cx="8" cy="8" r="6" />
-                      <path d="M18.09 10.37A6 6 0 1 1 10.34 3" />
-                      <path d="M14 6h1v4" />
-                    </svg>
-                    <span>35–50 тыс. ₽</span>
-                  </div>
-                  <p class="hw-gw-card-date">24–26 июля</p>
-                </div>
-                <div class="hw-gw-card-foot" aria-hidden="true">
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=12')"></span>
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=33')"></span>
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=45')"></span>
-                </div>
-              </a>
-              <a class="hw-gw-card hw-gw-card--has-badge" href="requests.html">
-                <span class="hw-gw-card__badge-check" aria-hidden="true" title="Группа набрана">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="m9 12 2 2 4-4" />
-                  </svg>
-                </span>
-                <div class="hw-gw-card-meta">
-                  <svg class="hw-gw-card-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  <span>Группа</span>
-                </div>
-                <div class="hw-gw-card-body">
-                  <p class="hw-gw-card-title">Алтай</p>
-                  <div class="hw-gw-card-row">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M8 2v4M16 2v4" />
-                      <rect width="18" height="18" x="3" y="4" rx="2" />
-                      <path d="M3 10h18" />
-                    </svg>
-                    <span>3–5 чел.</span>
-                  </div>
-                  <div class="hw-gw-card-row">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <circle cx="8" cy="8" r="6" />
-                      <path d="M18.09 10.37A6 6 0 1 1 10.34 3" />
-                      <path d="M14 6h1v4" />
-                    </svg>
-                    <span>28–42 тыс. ₽</span>
-                  </div>
-                  <p class="hw-gw-card-date">2–5 августа</p>
-                </div>
-                <div class="hw-gw-card-foot" aria-hidden="true">
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=5')"></span>
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=9')"></span>
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=16')"></span>
-                </div>
-              </a>
-              <a class="hw-gw-card hw-gw-card--has-badge" href="requests.html">
-                <span class="hw-gw-card__pill">Новинка</span>
-                <div class="hw-gw-card-meta">
-                  <svg class="hw-gw-card-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                    <circle cx="9" cy="7" r="4" />
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                  </svg>
-                  <span>Группа</span>
-                </div>
-                <div class="hw-gw-card-body">
-                  <p class="hw-gw-card-title">Калмыкия</p>
-                  <div class="hw-gw-card-row">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <path d="M8 2v4M16 2v4" />
-                      <rect width="18" height="18" x="3" y="4" rx="2" />
-                      <path d="M3 10h18" />
-                    </svg>
-                    <span>5–7 чел.</span>
-                  </div>
-                  <div class="hw-gw-card-row">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                      <circle cx="8" cy="8" r="6" />
-                      <path d="M18.09 10.37A6 6 0 1 1 10.34 3" />
-                      <path d="M14 6h1v4" />
-                    </svg>
-                    <span>22–31 тыс. ₽</span>
-                  </div>
-                  <p class="hw-gw-card-date">12–14 сентября</p>
-                </div>
-                <div class="hw-gw-card-foot" aria-hidden="true">
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=47')"></span>
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=52')"></span>
-                  <span class="hw-gw-avatar" style="background-image: url('https://i.pravatar.cc/80?img=68')"></span>
-                </div>
-              </a>
-            </div>
-          </article>
-          <article class="hw-gateway hw-gateway--market" aria-labelledby="gw-offers-title">
-            <h2 id="gw-offers-title">Готовые предложения</h2>
-            <p>Выбирайте из действующих предложений гидов и турагентств.</p>
-            <div class="hw-gateway-actions">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="tour.html">Смотреть каталог</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="destination.html">По направлениям</a>
-            </div>
-            <div class="hw-mini-grid hw-mini-grid--market">
-              <a class="hw-gw-card hw-gw-card--media hw-gw-card--listing" href="tour.html">
-                <div class="hw-gw-card-media">
-                  <div class="hw-gw-card-media-bg hw-mini-thumb hw-mini-thumb--kamchatka" aria-hidden="true"></div>
-                  <div class="hw-gw-card-media-scrim" aria-hidden="true"></div>
-                  <span class="hw-gw-card__pill hw-gw-card__pill--hit">Хит</span>
-                </div>
-                <div class="hw-gw-card-body--listing">
-                  <div class="hw-gw-card-text-stack">
-                    <p class="hw-gw-card-title hw-gw-card-title--listing">Камчатка</p>
-                    <p class="hw-gw-card-subtitle">Вулканы и океан</p>
-                  </div>
-                  <div class="hw-gw-card-rating" aria-label="Рейтинг 4,9 из 5">
-                    <svg class="hw-gw-card-star" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        stroke-width="1.25"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span>4,9/5</span>
-                  </div>
-                  <div class="hw-gw-card-footer-row">
-                    <span class="hw-gw-card-guide" style="background-image: url('https://i.pravatar.cc/80?img=12')" aria-hidden="true"></span>
-                    <span class="hw-gw-card-price">от 120 тыс. ₽</span>
-                  </div>
-                </div>
-              </a>
-              <a class="hw-gw-card hw-gw-card--media hw-gw-card--listing" href="tour.html">
-                <div class="hw-gw-card-media">
-                  <div class="hw-gw-card-media-bg hw-mini-thumb hw-mini-thumb--altai" aria-hidden="true"></div>
-                  <div class="hw-gw-card-media-scrim" aria-hidden="true"></div>
-                  <span class="hw-gw-card__pill">Новинка</span>
-                </div>
-                <div class="hw-gw-card-body--listing">
-                  <div class="hw-gw-card-text-stack">
-                    <p class="hw-gw-card-title hw-gw-card-title--listing">Алтай</p>
-                    <p class="hw-gw-card-subtitle">Горы, реки и степь</p>
-                  </div>
-                  <div class="hw-gw-card-rating" aria-label="Рейтинг 4,8 из 5">
-                    <svg class="hw-gw-card-star" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        stroke-width="1.25"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span>4,8/5</span>
-                  </div>
-                  <div class="hw-gw-card-footer-row">
-                    <span class="hw-gw-card-guide" style="background-image: url('https://i.pravatar.cc/80?img=33')" aria-hidden="true"></span>
-                    <span class="hw-gw-card-price">от 85 тыс. ₽</span>
-                  </div>
-                </div>
-              </a>
-              <a class="hw-gw-card hw-gw-card--media hw-gw-card--listing" href="tour.html">
-                <div class="hw-gw-card-media">
-                  <div class="hw-gw-card-media-bg hw-mini-thumb hw-mini-thumb--karelia" aria-hidden="true"></div>
-                  <div class="hw-gw-card-media-scrim" aria-hidden="true"></div>
-                  <span class="hw-gw-card__pill hw-gw-card__pill--hit">Хит</span>
-                </div>
-                <div class="hw-gw-card-body--listing">
-                  <div class="hw-gw-card-text-stack">
-                    <p class="hw-gw-card-title hw-gw-card-title--listing">Карелия</p>
-                    <p class="hw-gw-card-subtitle">Ладога и шхеры</p>
-                  </div>
-                  <div class="hw-gw-card-rating" aria-label="Рейтинг 4,9 из 5">
-                    <svg class="hw-gw-card-star" width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                      <path
-                        d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        stroke-width="1.25"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                    <span>4,9/5</span>
-                  </div>
-                  <div class="hw-gw-card-footer-row">
-                    <span class="hw-gw-card-guide" style="background-image: url('https://i.pravatar.cc/80?img=45')" aria-hidden="true"></span>
-                    <span class="hw-gw-card-price">от 45 тыс. ₽</span>
-                  </div>
-                </div>
-              </a>
-            </div>
-          </article>
-          </section>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2024 Provodnik. Все права защищены.</p>
+        <div class="footer-legal">
+          <a href="#">Условия</a>
+          <a href="#">Конфиденциальность</a>
         </div>
       </div>
+
     </div>
+  </footer>
 
-    <main id="main-content">
-      <section class="hw-dest-wrap" aria-labelledby="dest-heading">
-        <div class="hw-dest-head">
-          <h2 id="dest-heading">Популярные направления</h2>
-        </div>
-        <div class="hw-dest-grid">
-          <div class="hw-dest-feature hw-dest-feature--baikal">
-            <span class="hw-badge-corner new">Хит</span>
-            <div class="inner">
-              <h3>Озеро Байкал</h3>
-              <p>Лёд, тайга и горы — маршруты с проверенными гидами Иркутска и Улан-Удэ.</p>
-              <a class="hw-btn hw-btn-primary" href="destination.html">Смотреть туры</a>
-            </div>
-          </div>
-          <div class="hw-dest-small-grid">
-            <a class="hw-dest-small hw-dest-small--kazan" href="#">
-              <span class="hw-badge-corner">Новинка</span>
-              <div class="lbl">
-                <strong>Казань</strong>
-                <span>Кремль</span>
-                <span class="hw-pill-count">14 туров</span>
-              </div>
-            </a>
-            <a class="hw-dest-small hw-dest-small--kaliningrad" href="#">
-              <div class="lbl">
-                <strong>Калининград</strong>
-                <span>Кафедральный собор</span>
-                <span class="hw-pill-count">9 туров</span>
-              </div>
-            </a>
-            <a class="hw-dest-small hw-dest-small--suzdal" href="#">
-              <span class="hw-badge-corner new">Хит</span>
-              <div class="lbl">
-                <strong>Суздаль</strong>
-                <span>Кремль</span>
-                <span class="hw-pill-count">7 туров</span>
-              </div>
-            </a>
-            <a class="hw-dest-small hw-dest-small--murmansk" href="#">
-              <div class="lbl">
-                <strong>Мурманск</strong>
-                <span>Северное сияние</span>
-                <span class="hw-pill-count">11 туров</span>
-              </div>
-            </a>
-          </div>
-        </div>
-      </section>
+  <script>
+    // Role toggle
+    const roleBtns  = document.querySelectorAll('.role-btn');
+    const rolePanels = document.querySelectorAll('.gateway-panel');
 
-      <section class="hw-steps" aria-labelledby="how-heading">
-        <div class="hw-steps-inner">
-          <p class="hw-steps-kicker">Как это работает</p>
-          <h2 id="how-heading">Два клика — и твоя поездка уже ищет попутчиков.</h2>
-          <p class="sub">Остальное происходит само.</p>
-          <div class="hw-step-row">
-            <div class="hw-step">
-              <div class="hw-step-icon" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3-3" /></svg>
-              </div>
-              <span class="hw-step-num">1</span>
-              <h3>Опиши, куда зовёт душа</h3>
-              <p>Направление, даты, компания — за две минуты.</p>
-            </div>
-            <div class="hw-step">
-              <div class="hw-step-icon" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-              </div>
-              <span class="hw-step-num">2</span>
-              <h3>Попутчики находятся сами</h3>
-              <p>Люди с тем же маршрутом видят твой запрос и присоединяются.</p>
-            </div>
-            <div class="hw-step">
-              <div class="hw-step-icon" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
-              </div>
-              <span class="hw-step-num">3</span>
-              <h3>Местные проводники делают предложения</h3>
-              <p>Они соревнуются за твою группу — ты получаешь лучшее.</p>
-            </div>
-            <div class="hw-step">
-              <div class="hw-step-icon" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14M7 12H5a2 2 0 1 0 0 4h4c.6 0 1.1-.2 1.4-.6L21 10" /></svg>
-              </div>
-              <span class="hw-step-num">4</span>
-              <h3>Ты выбираешь и договариваешься напрямую</h3>
-              <p>Никаких посредников. Никакой переплаты.</p>
-            </div>
-            <div class="hw-step">
-              <div class="hw-step-icon" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>
-              </div>
-              <span class="hw-step-num">5</span>
-              <h3>Всё. Едешь.</h3>
-              <p>Дата подтверждена. Группа собрана. Рюкзак можно собирать.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="hw-trust" aria-labelledby="trust-heading">
-        <h2 id="trust-heading" class="hw-visually-hidden">Преимущества сервиса</h2>
-        <article class="hw-trust-card">
-          <div class="hw-trust-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
-          </div>
-          <div>
-            <h3>Проверенные гиды</h3>
-            <p>Документы, отзывы и история сделок — до бронирования.</p>
-          </div>
-        </article>
-        <article class="hw-trust-card">
-          <div class="hw-trust-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M11 12h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 14M7 12H5a2 2 0 1 0 0 4h4c.6 0 1.1-.2 1.4-.6L21 10" /></svg>
-          </div>
-          <div>
-            <h3>Прозрачные условия</h3>
-            <p>Цена за человека, состав группы и даты видны до оплаты.</p>
-          </div>
-        </article>
-        <article class="hw-trust-card">
-          <div class="hw-trust-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2v4M12 16v4M4 10h4M16 10h4" stroke-linecap="round" /><circle cx="12" cy="12" r="3" /></svg>
-          </div>
-          <div>
-            <h3>Комиссия ниже крупных агрегаторов</h3>
-            <p>Больше бюджета остаётся на впечатления, а не на посредников.</p>
-          </div>
-        </article>
-      </section>
-    </main>
-
-    <footer class="hw-footer">
-      <div class="hw-footer-grid">
-        <nav class="hw-footer-col" aria-label="О нас">
-          <h4>О нас</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">О сервисе</a></li>
-            <li><a href="#">Команда</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Помощь">
-          <h4>Помощь</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Центр поддержки</a></li>
-            <li><a href="#">Для гидов</a></li>
-            <li><a href="#">Для путешественников</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Правила">
-          <h4>Правила</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Условия использования</a></li>
-            <li><a href="#">Политика конфиденциальности</a></li>
-          </ul>
-        </nav>
-        <div class="hw-footer-col">
-          <h4>Соцсети</h4>
-          <div class="hw-social">
-            <a href="#" aria-label="ВКонтакте">VK</a>
-            <a href="#" aria-label="Telegram">TG</a>
-            <a href="#" aria-label="Instagram">IG</a>
-          </div>
-        </div>
-      </div>
-      <div class="hw-footer-bar">
-        <span>© 2024 Provodnik</span>
-        <a href="#">Термины сервиса</a>
-        <a href="#">Политика конфиденциальности</a>
-      </div>
-    </footer>
-  </body>
+    roleBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.panel;
+        roleBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+        rolePanels.forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        btn.setAttribute('aria-selected','true');
+        document.getElementById('panel-' + target).classList.add('active');
+      });
+    });
+  </script>
+</body>
 </html>

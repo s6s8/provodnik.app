@@ -1,198 +1,55 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Provodnik — Детали запроса</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/home.css" />
-  </head>
-  <body class="hw-theme-cool hw-theme-alice">
-    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
-    <div class="hw-top">
-      <div class="hw-hero hw-hero--subpage">
-        <div class="hw-hero-bg" aria-hidden="true"></div>
-        <div class="hw-nav-shell">
-          <nav class="hw-nav-inner" aria-label="Основная навигация">
-            <a class="hw-brand" href="index.html">
-              <span class="hw-brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </span>
-              Provodnik
-            </a>
-            <ul class="hw-nav-links">
-              <li><a href="index.html">Направления</a></li>
-              <li><a class="is-active" href="requests.html" aria-current="page">Запросы</a></li>
-              <li><a href="guide.html">Гиды</a></li>
-              <li><a href="tour.html">Экскурсии</a></li>
-              <li><a href="dashboard.html">Профиль</a></li>
-            </ul>
-            <details class="hw-nav-mobile">
-              <summary aria-label="Открыть меню">
-                <span></span>
-                <span></span>
-                <span></span>
-              </summary>
-              <div class="hw-nav-mobile-menu">
-                <a href="index.html">Направления</a>
-                <a class="is-active" href="requests.html" aria-current="page">Запросы</a>
-                <a href="guide.html">Гиды</a>
-                <a href="tour.html">Экскурсии</a>
-                <a href="dashboard.html">Профиль</a>
-              </div>
-            </details>
-          </nav>
-        </div>
-        <div class="hw-hero-main">
-          <header class="hw-hero-head">
-            <div class="hw-hero-inner">
-              <p class="hw-kicker">Запрос</p>
-              <h1>Киото — храмовые тропы</h1>
-              <p class="hw-subhero-lead">Четыре дня спокойного темпа: храмы, чайные кварталы и локальная кухня. Ниже — состав группы и предложения гидов.</p>
-            </div>
-          </header>
-        </div>
-      </div>
-    </div>
-
-    <main id="main-content">
-      <section class="hw-dest-wrap">
-        <div class="hw-dual hw-dual--in-main">
-          <article class="hw-gateway hw-gateway--market" aria-labelledby="rq-d-title">
-            <h2 id="rq-d-title">Детали</h2>
-            <p>Город, даты, целевой размер группы и бюджет на человека — в том же формате стеклянной панели, что на главной.</p>
-            <div class="hw-gateway-actions">
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="requests.html">Все запросы</a>
-            </div>
-            <div class="hw-mini-grid hw-mini-grid--market" style="display: block; margin: 0">
-              <div class="hw-meta-row" style="margin-top: 0">
-                <span class="hw-chip">Киото</span>
-                <span class="hw-chip">15–18 ноября</span>
-                <span class="hw-chip">5 из 8</span>
-                <span class="hw-chip">до 42 тыс. ₽</span>
-              </div>
-              <div class="hw-gw-progress" style="--hw-pct: 62%; margin-top: 16px"><span></span></div>
-            </div>
-          </article>
-          <article class="hw-gateway hw-gateway--market" aria-labelledby="rq-j-title">
-            <h2 id="rq-j-title">Присоединиться</h2>
-            <p>Если вы входите в группу, расчётная цена на человека обычно снижается — гиды видят больший состав.</p>
-            <div class="hw-gateway-actions">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="#">Вступить в группу</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="#">Задать вопрос</a>
-            </div>
-            <div class="hw-mini-grid hw-mini-grid--market" style="margin-top: 12px">
-              <p style="margin: 0; font-size: 14px; color: var(--hw-muted)">При ещё одном участнике: <strong>≈ 39 тыс. ₽</strong> / чел.</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="hw-dest-wrap" aria-labelledby="offers-heading">
-        <div class="hw-dest-head">
-          <h2 id="offers-heading">Предложения гидов</h2>
-        </div>
-        <div class="hw-mini-grid hw-mini-grid--market">
-          <article class="hw-gw-card">
-            <div class="hw-gw-card-meta">
-              <span>Гид</span>
-            </div>
-            <div class="hw-gw-card-body">
-              <p class="hw-gw-card-title">Кэндзи Танака</p>
-              <p class="hw-gw-card-subtitle" style="margin: 0 0 8px">Рейтинг 4,9 · утренние слоты без толп</p>
-              <div class="hw-meta-row">
-                <span class="hw-chip">38 тыс. ₽</span>
-              </div>
-            </div>
-            <div class="hw-gateway-actions" style="margin-top: auto; padding: 0; flex-wrap: wrap">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="#">Принять</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="#">Контрпредложение</a>
-            </div>
-          </article>
-          <article class="hw-gw-card">
-            <div class="hw-gw-card-meta">
-              <span>Гид</span>
-            </div>
-            <div class="hw-gw-card-body">
-              <p class="hw-gw-card-title">Юки Сато</p>
-              <p class="hw-gw-card-subtitle" style="margin: 0 0 8px">Рейтинг 4,8 · фото-точки и вечерние кварталы</p>
-              <div class="hw-meta-row">
-                <span class="hw-chip">41 тыс. ₽</span>
-              </div>
-            </div>
-            <div class="hw-gateway-actions" style="margin-top: auto; padding: 0; flex-wrap: wrap">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="#">Принять</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="#">Контрпредложение</a>
-            </div>
-          </article>
-          <article class="hw-gw-card">
-            <div class="hw-gw-card-meta">
-              <span>Гид</span>
-            </div>
-            <div class="hw-gw-card-body">
-              <p class="hw-gw-card-title">Аи Мураками</p>
-              <p class="hw-gw-card-subtitle" style="margin: 0 0 8px">Рейтинг 5,0 · бутик-маршрут</p>
-              <div class="hw-meta-row">
-                <span class="hw-chip">43 тыс. ₽</span>
-              </div>
-            </div>
-            <div class="hw-gateway-actions" style="margin-top: auto; padding: 0; flex-wrap: wrap">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="#">Принять</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="guide.html">Профиль</a>
-            </div>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <footer class="hw-footer">
-      <div class="hw-footer-grid">
-        <nav class="hw-footer-col" aria-label="О нас">
-          <h4>О нас</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">О сервисе</a></li>
-            <li><a href="#">Команда</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Помощь">
-          <h4>Помощь</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Центр поддержки</a></li>
-            <li><a href="#">Для гидов</a></li>
-            <li><a href="#">Для путешественников</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Правила">
-          <h4>Правила</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Условия использования</a></li>
-            <li><a href="#">Политика конфиденциальности</a></li>
-          </ul>
-        </nav>
-        <div class="hw-footer-col">
-          <h4>Соцсети</h4>
-          <div class="hw-social">
-            <a href="#" aria-label="ВКонтакте">VK</a>
-            <a href="#" aria-label="Telegram">TG</a>
-            <a href="#" aria-label="Instagram">IG</a>
-          </div>
-        </div>
-      </div>
-      <div class="hw-footer-bar">
-        <span>© 2024 Provodnik</span>
-        <a href="#">Термины сервиса</a>
-        <a href="#">Политика конфиденциальности</a>
-      </div>
-    </footer>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Открытая группа на Байкал: детали маршрута, участники и офферы гидов." />
+  <title>Provodnik — Детали запроса</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #0058be; --primary-hover: #2170e4; --surface: #f9f9ff; --surface-low: #f3f3fa; --surface-lowest: #ffffff; --on-surface: #191c20; --on-surface-muted: #5a5e6b; --outline-variant: #c2c6d6; --footer-bg: #0f172a;
+      --glass-bg: rgba(249,249,255,0.60); --glass-border: rgba(194,198,214,0.18); --glass-blur: blur(20px); --glass-shadow: 0 8px 32px rgba(25,28,32,0.06); --glass-radius: 28px; --card-shadow: 0 4px 24px rgba(25,28,32,0.07); --card-radius: 24px;
+      --font-display: 'Cormorant Garamond', Georgia, serif; --font-ui: 'DM Sans', system-ui, sans-serif; --max-w: 1200px; --sec-pad: 80px; --px: clamp(20px, 4vw, 48px);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0} html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:var(--font-ui);background:var(--surface);color:var(--on-surface);line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none} button{cursor:pointer;border:none;background:none;font-family:inherit} ul{list-style:none}
+    .container{width:100%;max-width:var(--max-w);margin-inline:auto;padding-inline:var(--px)}
+    .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 22px;border-radius:9999px;background:var(--primary);color:#fff;font-size:.875rem;font-weight:600;transition:opacity .15s}.btn-primary:hover{opacity:.87}
+    .btn-ghost{display:inline-flex;align-items:center;justify-content:center;padding:9px 18px;border-radius:9999px;border:1px solid rgba(0,88,190,.22);color:var(--primary);font-size:.875rem;font-weight:500;transition:background .15s,border-color .15s}.btn-ghost:hover{background:rgba(0,88,190,.05);border-color:var(--primary)}
+    .site-header{position:fixed;top:0;left:0;right:0;z-index:50;padding:14px var(--px)}
+    .main-nav{max-width:var(--max-w);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-radius:9999px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 4px 24px rgba(25,28,32,.06);position:relative}
+    .nav-logo{font-family:var(--font-display);font-size:1.3125rem;font-weight:600;letter-spacing:.02em;color:var(--on-surface)}
+    .nav-links{display:flex;align-items:center;gap:32px}.nav-links a{font-size:.875rem;font-weight:500;color:var(--on-surface-muted);transition:color .15s;position:relative}.nav-links a:hover{color:var(--primary)}.nav-links a[aria-current="page"]{color:var(--primary)}.nav-links a[aria-current="page"]::after{content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--primary);border-radius:50%}
+    .nav-ctas{display:flex;align-items:center;gap:8px}.mobile-menu-toggle{display:none;position:relative}.mobile-menu-toggle summary{list-style:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--on-surface-muted);transition:background .15s}.mobile-menu-toggle summary:hover{background:rgba(0,88,190,.06)}.mobile-menu-toggle summary::-webkit-details-marker{display:none}
+    .mobile-menu{position:absolute;right:0;top:calc(100% + 8px);width:220px;border-radius:20px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 12px 40px rgba(25,28,32,.10);padding:8px;display:flex;flex-direction:column;gap:2px;z-index:100}
+    .mobile-menu a{padding:10px 14px;border-radius:12px;font-size:.875rem;font-weight:500;color:var(--on-surface-muted);transition:background .15s,color .15s}.mobile-menu a:hover{background:rgba(0,88,190,.06);color:var(--primary)}.mobile-menu a[aria-current="page"]{color:var(--primary);font-weight:600}.mobile-menu-cta{margin-top:4px;background:var(--primary)!important;color:#fff!important;font-weight:600!important;text-align:center}
+    .sec-label{font-size:.6875rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:8px}
+    .hero{position:relative;min-height:480px;padding:140px 0 54px;display:flex;align-items:flex-end;color:#fff;overflow:hidden}.hero::before{content:"";position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat}.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(15,23,42,0.78) 0%,rgba(15,23,42,0.06) 55%)}.hero-content{position:relative;z-index:1;max-width:760px}.hero h1{font-family:var(--font-display);font-size:clamp(2.4rem,5vw,3rem);line-height:1.04;font-weight:600}.hero p:last-child{margin-top:16px;font-size:1rem;line-height:1.65;color:rgba(255,255,255,.82)}
+    .content-section{background:var(--surface);padding:56px 0 80px}.content-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:32px;align-items:start}
+    .status-card,.mini-offer{background:var(--surface-lowest);border-radius:var(--card-radius);box-shadow:var(--card-shadow)} .status-card{padding:28px}
+    .status-top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}.status-top h2{font-size:1rem;font-weight:600}.avatars{display:flex}.avatar{width:28px;height:28px;border-radius:50%;background:var(--surface-low);border:2px solid var(--surface-lowest);margin-left:-6px;display:flex;align-items:center;justify-content:center;font-size:.5625rem;font-weight:600}.avatar:first-child{margin-left:0}.status-count{font-size:.875rem;color:var(--on-surface-muted);margin-left:12px}
+    .bar{height:4px;background:var(--surface-low);border-radius:9999px;overflow:hidden;margin-bottom:22px}.bar-fill{height:100%;background:var(--primary);border-radius:9999px;width:83%}
+    .meta-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 20px}.meta-grid dt{font-size:.75rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:6px}.meta-grid dd{font-size:.9375rem;font-weight:500;color:var(--on-surface)}
+    .text-block{padding-top:24px}.text-block h2{font-family:var(--font-display);font-size:1.75rem;line-height:1.1;margin-bottom:14px}.text-block p,.plan-list li{color:var(--on-surface-muted);font-size:.9375rem;line-height:1.72}.text-block p+p{margin-top:14px}.plan-list{display:grid;gap:12px}
+    .offer-card{position:sticky;top:96px;padding:28px;background:var(--surface-lowest);box-shadow:var(--card-shadow);border-radius:var(--card-radius)}
+    .price{font-family:var(--font-display);font-size:2.5rem;line-height:1;margin-bottom:8px}.note{font-size:.875rem;color:var(--on-surface-muted);margin-bottom:20px}.divider{height:1px;background:rgba(194,198,214,.30);margin:22px 0}.offer-list{display:grid;gap:12px}
+    .mini-offer{padding:16px;display:grid;gap:12px}.mini-offer-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.avatar-lg{width:38px;height:38px;border-radius:50%;background:var(--surface-low);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:var(--primary);flex-shrink:0}.guide-meta strong{display:block;font-size:.9375rem}.guide-meta span{font-size:.8125rem;color:var(--on-surface-muted)}.mini-offer-price{font-size:.875rem;font-weight:600;color:var(--on-surface)}
+    .footer{background:#0f172a;padding-top:56px;padding-bottom:32px}.footer-inner{padding-inline:var(--px);max-width:var(--max-w);margin-inline:auto}.footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;padding-bottom:40px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.08)}.footer-col-label{font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:14px}.footer-links{display:flex;flex-direction:column;gap:10px}.footer-links a{font-size:.875rem;color:rgba(255,255,255,.60);transition:color .15s}.footer-links a:hover{color:#fff}.footer-social{display:flex;gap:10px;margin-top:6px}.social-btn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);transition:border-color .15s,color .15s}.social-btn:hover{border-color:rgba(255,255,255,.38);color:#fff}.footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}.footer-copy{font-size:.8125rem;color:rgba(255,255,255,.35)}.footer-legal{display:flex;gap:20px}.footer-legal a{font-size:.8125rem;color:rgba(255,255,255,.35);transition:color .15s}.footer-legal a:hover{color:rgba(255,255,255,.70)}
+    @media (max-width:1023px){.content-grid{grid-template-columns:1fr}.offer-card{position:static}}
+    @media (max-width:767px){.nav-links{display:none}.btn-ghost.nav-login{display:none}.mobile-menu-toggle{display:block}.meta-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr;gap:28px}.footer-bottom{flex-direction:column;align-items:flex-start;gap:8px}}
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner"><nav class="main-nav" aria-label="Основная навигация"><a class="nav-logo" href="index.html">Provodnik</a><ul class="nav-links" role="list"><li><a href="destination.html">Направления</a></li><li><a href="requests.html" aria-current="page">Запросы</a></li><li><a href="guide.html">Гиды</a></li></ul><div class="nav-ctas"><a class="btn-ghost nav-login" href="#">Войти</a><a class="btn-primary" href="create-request.html">Создать запрос</a></div><details class="mobile-menu-toggle"><summary aria-label="Открыть меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></summary><div class="mobile-menu"><a href="destination.html">Направления</a><a href="requests.html" aria-current="page">Запросы</a><a href="guide.html">Гиды</a><a class="mobile-menu-cta" href="create-request.html">Создать запрос</a></div></details></nav></header>
+  <main>
+    <section class="hero"><div class="container"><div class="hero-content"><p class="sec-label">Открытая группа · Байкал</p><h1>Байкал — лёд, остров Ольхон и вечерние огни Иркутска</h1><p>Четыре дня без гонки по точкам: лёд Малого Моря, один длинный день на Ольхоне и вечерняя гастрономия в Иркутске.</p></div></div></section>
+    <section class="content-section"><div class="container"><div class="content-grid"><div><article class="status-card"><div class="status-top"><h2>Участники группы</h2><div style="display:flex;align-items:center;"><div class="avatars"><span class="avatar">АК</span><span class="avatar">МЛ</span><span class="avatar">ТГ</span><span class="avatar">ВС</span><span class="avatar">НО</span></div><span class="status-count">5 из 6 мест занято</span></div></div><div class="bar"><div class="bar-fill"></div></div><dl class="meta-grid"><div><dt>Даты</dt><dd>24–26 июля</dd></div><div><dt>Направление</dt><dd>Ольхон</dd></div><div><dt>Бюджет</dt><dd>35–50 тыс. ₽</dd></div><div><dt>Формат</dt><dd>Джип + катер</dd></div></dl></article><section class="text-block"><h2>О маршруте</h2><p>Эта группа собирает не классический марафон по точкам Байкала, а спокойный маршрут с двумя акцентами: ледяная фактура Малого Моря и один полноформатный день на Ольхоне. Важно оставить время на тишину, съёмку и нормальную паузу на еду, а не считать поездку цепочкой коротких высадок.</p><p>В Иркутске нужен финальный городской вечер с локальной гастрономией и короткой прогулкой по Ангаре. Запрос открыт для тех, кто готов ехать в маленькой компании, обсуждать бюджет прозрачно и брать маршрут целиком, а не отдельными фрагментами.</p></section><section class="text-block"><h2>Что запланировано</h2><ul class="plan-list"><li>День 1 — прилёт, заселение, вечер на Ангаре.</li><li>День 2–3 — Малое Море и остров Ольхон.</li><li>День 4 — возвращение, гастро-ужин в Иркутске.</li></ul></section></div><aside class="offer-card"><div class="price">35–50 тыс. ₽</div><p class="note">на человека при заполнении группы</p><a class="btn-primary" style="width:100%;" href="requests.html">Присоединиться к группе</a><div class="divider"></div><p class="sec-label" style="color:var(--on-surface-muted)">Офферы гидов</p><div class="offer-list"><article class="mini-offer"><div class="mini-offer-head"><div style="display:flex;gap:12px;align-items:center;"><span class="avatar-lg">АВ</span><div class="guide-meta"><strong>Андрей Воронов</strong><span>4.9 ★</span></div></div><span class="mini-offer-price">48 тыс. ₽ / группа</span></div><a class="btn-ghost" href="#">Принять</a></article><article class="mini-offer"><div class="mini-offer-head"><div style="display:flex;gap:12px;align-items:center;"><span class="avatar-lg">МС</span><div class="guide-meta"><strong>Мария Седова</strong><span>4.7 ★</span></div></div><span class="mini-offer-price">44 тыс. ₽ / группа</span></div><a class="btn-ghost" href="#">Принять</a></article><article class="mini-offer"><div class="mini-offer-head"><div style="display:flex;gap:12px;align-items:center;"><span class="avatar-lg">ТА</span><div class="guide-meta"><strong>Тимур Абаев</strong><span>4.8 ★</span></div></div><span class="mini-offer-price">52 тыс. ₽ / группа</span></div><a class="btn-ghost" href="#">Принять</a></article></div></aside></div></div></section>
+  </main>
+  <footer class="footer" role="contentinfo"><div class="footer-inner"><div class="footer-grid"><nav aria-label="О проекте"><p class="footer-col-label">О проекте</p><ul class="footer-links"><li><a href="#">О нас</a></li><li><a href="guide.html">Для гидов</a></li><li><a href="#">Блог</a></li></ul></nav><nav aria-label="Поддержка"><p class="footer-col-label">Поддержка</p><ul class="footer-links"><li><a href="#">FAQ</a></li><li><a href="#">Помощь</a></li><li><a href="#">Связаться с нами</a></li></ul></nav><div><nav aria-label="Правила"><p class="footer-col-label">Правила</p><ul class="footer-links"><li><a href="#">Условия использования</a></li><li><a href="#">Конфиденциальность</a></li><li><a href="#">Cookies</a></li></ul></nav><div style="margin-top:24px;"><p class="footer-col-label">Мы в сети</p><div class="footer-social"><a class="social-btn" href="#" aria-label="ВКонтакте"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.87h-1.62c-.61 0-.8-.49-1.9-1.6-.95-.93-1.37-.93-1.6-.93-.33 0-.42.09-.42.56v1.46c0 .4-.13.64-1.18.64-1.74 0-3.67-1.06-5.02-3.03C4.7 10.3 4.27 8.45 4.27 8.06c0-.23.09-.45.56-.45h1.62c.42 0 .58.19.74.64.82 2.36 2.19 4.43 2.75 4.43.21 0 .3-.1.3-.64V9.81c-.07-1.15-.67-1.24-.67-1.65 0-.19.15-.39.4-.39h2.55c.35 0 .47.19.47.6v3.23c0 .35.15.47.26.47.21 0 .38-.12.77-.51 1.19-1.33 2.04-3.38 2.04-3.38.11-.23.3-.45.73-.45h1.62c.49 0 .6.25.49.6-.21 1-.2.97-1.55 2.94-.23.37-.32.54 0 .93.23.28.98.93 1.48 1.49.92 1.04 1.62 1.91 1.81 2.51.2.59-.1.89-.7.89z"/></svg></a><a class="social-btn" href="#" aria-label="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z"/></svg></a></div></div></div></div><div class="footer-bottom"><p class="footer-copy">© 2024 Provodnik. Все права защищены.</p><div class="footer-legal"><a href="#">Условия</a><a href="#">Конфиденциальность</a></div></div></div></footer>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
 </html>

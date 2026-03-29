@@ -1,255 +1,41 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Provodnik — Профиль гида</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/home.css" />
-  </head>
-  <body class="hw-theme-cool hw-theme-alice">
-    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
-    <div class="hw-top">
-      <div class="hw-hero hw-guide-hero">
-        <div class="hw-hero-bg" aria-hidden="true"></div>
-        <div class="hw-nav-shell">
-          <nav class="hw-nav-inner" aria-label="Основная навигация">
-            <a class="hw-brand" href="index.html">
-              <span class="hw-brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </span>
-              Provodnik
-            </a>
-            <ul class="hw-nav-links">
-              <li><a href="index.html">Направления</a></li>
-              <li><a href="requests.html">Запросы</a></li>
-              <li><a class="is-active" href="guide.html" aria-current="page">Гиды</a></li>
-              <li><a href="tour.html">Экскурсии</a></li>
-              <li><a href="dashboard.html">Профиль</a></li>
-            </ul>
-            <details class="hw-nav-mobile">
-              <summary aria-label="Открыть меню">
-                <span></span>
-                <span></span>
-                <span></span>
-              </summary>
-              <div class="hw-nav-mobile-menu">
-                <a href="index.html">Направления</a>
-                <a href="requests.html">Запросы</a>
-                <a class="is-active" href="guide.html" aria-current="page">Гиды</a>
-                <a href="tour.html">Экскурсии</a>
-                <a href="dashboard.html">Профиль</a>
-              </div>
-            </details>
-          </nav>
-        </div>
-        <div class="hw-guide-hero-main">
-          <article class="hw-guide-profile-card">
-            <img
-              class="hw-guide-avatar"
-              src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=420&q=80"
-              alt="Алексей Волков"
-            />
-            <h1>Алексей Волков <span aria-hidden="true">✔</span></h1>
-            <p class="hw-guide-meta">⭐ 4.9/5&nbsp;&nbsp;&nbsp;&nbsp;85 завершенных туров</p>
-            <p class="hw-guide-locations">Города: Казань, Алтай, Карелия</p>
-            <div class="hw-guide-actions">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="create-request.html">Отправить запрос</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="requests.html">Смотреть предложения</a>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-
-    <main id="main-content">
-      <section class="hw-guide-section hw-guide-section--tours" aria-labelledby="guide-tours-heading">
-        <div class="hw-guide-wrap">
-          <h2 id="guide-tours-heading">Экскурсии гида</h2>
-          <div class="hw-guide-tour-grid">
-            <article class="hw-guide-tour-card">
-              <div class="hw-guide-tour-media hw-guide-tour-media--altai">
-                <span class="hw-guide-pill">5 дней</span>
-                <span class="hw-guide-pill hw-guide-pill--muted">4-6 чел.</span>
-                <span class="hw-guide-pill hw-guide-pill--active">Активный</span>
-              </div>
-              <div class="hw-guide-tour-body">
-                <h3>Алтай. Долина Чулышман</h3>
-                <p>Тур с путешественниками и<br />видами Долины Чулышман</p>
-                <div class="hw-guide-tour-row">
-                  <span>⭐ 4,9/5</span>
-                  <strong>от 45 тыс. ₽</strong>
-                </div>
-              </div>
-            </article>
-            <article class="hw-guide-tour-card">
-              <div class="hw-guide-tour-media hw-guide-tour-media--kazan">
-                <span class="hw-guide-pill">5 дней</span>
-                <span class="hw-guide-pill hw-guide-pill--muted">4-6 чел.</span>
-                <span class="hw-guide-pill hw-guide-pill--active">Активный</span>
-              </div>
-              <div class="hw-guide-tour-body">
-                <h3>Казань. Вечерний город</h3>
-                <p>Встречайте закат со смотровых<br />и прогулкой вдоль Казанки</p>
-                <div class="hw-guide-tour-row">
-                  <span>⭐ 4,9/5</span>
-                  <strong>от 45 тыс. ₽</strong>
-                </div>
-              </div>
-            </article>
-            <article class="hw-guide-tour-card">
-              <div class="hw-guide-tour-media hw-guide-tour-media--karelia">
-                <span class="hw-guide-pill">5 дней</span>
-                <span class="hw-guide-pill hw-guide-pill--muted">4-6 чел.</span>
-                <span class="hw-guide-pill hw-guide-pill--active">Активный</span>
-              </div>
-              <div class="hw-guide-tour-body">
-                <h3>Карелия. Ладога на байдарках</h3>
-                <p>Туры спасают от монотонки и<br />дарят новый фокус в поездке</p>
-                <div class="hw-guide-tour-row">
-                  <span>⭐ 4,9/5</span>
-                  <strong>от 45 тыс. ₽</strong>
-                </div>
-              </div>
-            </article>
-            <article class="hw-guide-tour-card">
-              <div class="hw-guide-tour-media hw-guide-tour-media--karelia-2">
-                <span class="hw-guide-pill">5 дней</span>
-                <span class="hw-guide-pill hw-guide-pill--muted">4-6 чел.</span>
-                <span class="hw-guide-pill hw-guide-pill--active">Активный</span>
-              </div>
-              <div class="hw-guide-tour-body">
-                <h3>Карелия. Ладога на байдарках</h3>
-                <p>Карелия, шхерные Ладоги и<br />байдарки с людьми твоего ритма</p>
-                <div class="hw-guide-tour-row">
-                  <span>⭐ 4,9/5</span>
-                  <strong>от 45 тыс. ₽</strong>
-                </div>
-              </div>
-            </article>
-            <article class="hw-guide-tour-card">
-              <div class="hw-guide-tour-media hw-guide-tour-media--altai-2">
-                <span class="hw-guide-pill">5 дней</span>
-                <span class="hw-guide-pill hw-guide-pill--muted">4-6 чел.</span>
-                <span class="hw-guide-pill hw-guide-pill--active">Активный</span>
-              </div>
-              <div class="hw-guide-tour-body">
-                <h3>Карелия. Долина Чулышман</h3>
-                <p>Турохотку уводим в пейзажи и<br />детали Долины Чулышман</p>
-                <div class="hw-guide-tour-row">
-                  <span>⭐ 4,9/5</span>
-                  <strong>от 45 тыс. ₽</strong>
-                </div>
-              </div>
-            </article>
-            <article class="hw-guide-tour-card">
-              <div class="hw-guide-tour-media hw-guide-tour-media--kazan-2">
-                <span class="hw-guide-pill">5 дней</span>
-                <span class="hw-guide-pill hw-guide-pill--muted">4-6 чел.</span>
-                <span class="hw-guide-pill hw-guide-pill--active">Активный</span>
-              </div>
-              <div class="hw-guide-tour-body">
-                <h3>Казань. Вечерний город</h3>
-                <p>Вечерние экскурсии и<br />гастрономический трек</p>
-                <div class="hw-guide-tour-row">
-                  <span>⭐ 4,9/5</span>
-                  <strong>от 45 тыс. ₽</strong>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section class="hw-guide-section hw-guide-section--offers" aria-labelledby="guide-offers-heading">
-        <div class="hw-guide-wrap">
-          <div class="hw-guide-offers-box">
-            <h2 id="guide-offers-heading">Мои предложения</h2>
-            <div class="hw-guide-offers-grid">
-              <article class="hw-guide-offer-card">
-                <p class="hw-guide-offer-kicker">Группа <span>Активный</span></p>
-                <h3>Байкал</h3>
-                <p>Предложение для вашей группы</p>
-                <strong>120 тыс. ₽</strong>
-                <div class="hw-guide-offer-actions">
-                  <a href="#">Изменить</a>
-                  <a href="#">Отозвать</a>
-                </div>
-              </article>
-              <article class="hw-guide-offer-card">
-                <p class="hw-guide-offer-kicker">Группа <span>Активный</span></p>
-                <h3>Байкал</h3>
-                <p>Предложение для вашей группы</p>
-                <strong>120 тыс. ₽</strong>
-                <div class="hw-guide-offer-actions">
-                  <a href="#">Изменить</a>
-                  <a href="#">Отозвать</a>
-                </div>
-              </article>
-              <article class="hw-guide-offer-card">
-                <p class="hw-guide-offer-kicker">Группа <span>Активный</span></p>
-                <h3>Байкал</h3>
-                <p>Предложение для вашей группы</p>
-                <strong>120 тыс. ₽</strong>
-                <div class="hw-guide-offer-actions">
-                  <a href="#">Изменить</a>
-                  <a href="#">Отозвать</a>
-                </div>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="hw-footer">
-      <div class="hw-footer-grid">
-        <nav class="hw-footer-col" aria-label="О нас">
-          <h4>О нас</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">О сервисе</a></li>
-            <li><a href="#">Команда</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Помощь">
-          <h4>Помощь</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Центр поддержки</a></li>
-            <li><a href="#">Для гидов</a></li>
-            <li><a href="#">Для путешественников</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Правила">
-          <h4>Правила</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Условия использования</a></li>
-            <li><a href="#">Политика конфиденциальности</a></li>
-          </ul>
-        </nav>
-        <div class="hw-footer-col">
-          <h4>Соцсети</h4>
-          <div class="hw-social">
-            <a href="#" aria-label="ВКонтакте">VK</a>
-            <a href="#" aria-label="Telegram">TG</a>
-            <a href="#" aria-label="Instagram">IG</a>
-          </div>
-        </div>
-      </div>
-      <div class="hw-footer-bar">
-        <span>© 2024 Provodnik</span>
-        <a href="#">Термины сервиса</a>
-        <a href="#">Политика конфиденциальности</a>
-      </div>
-    </footer>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Профиль гида Андрея Воронова: Байкал, туры, активные офферы и отзывы путешественников." />
+  <title>Provodnik — Андрей Воронов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--primary:#0058be;--primary-hover:#2170e4;--surface:#f9f9ff;--surface-low:#f3f3fa;--surface-lowest:#fff;--on-surface:#191c20;--on-surface-muted:#5a5e6b;--outline-variant:#c2c6d6;--footer-bg:#0f172a;--glass-bg:rgba(249,249,255,.60);--glass-border:rgba(194,198,214,.18);--glass-blur:blur(20px);--glass-shadow:0 8px 32px rgba(25,28,32,.06);--glass-radius:28px;--card-shadow:0 4px 24px rgba(25,28,32,.07);--card-radius:24px;--font-display:'Cormorant Garamond', Georgia, serif;--font-ui:'DM Sans', system-ui, sans-serif;--max-w:1200px;--sec-pad:80px;--px:clamp(20px,4vw,48px)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0} html{font-size:16px;scroll-behavior:smooth} body{font-family:var(--font-ui);background:var(--surface);color:var(--on-surface);line-height:1.5;-webkit-font-smoothing:antialiased} a{color:inherit;text-decoration:none} ul{list-style:none}
+    .container{width:100%;max-width:var(--max-w);margin-inline:auto;padding-inline:var(--px)} .btn-primary,.btn-ghost{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;font-size:.875rem}.btn-primary{padding:9px 22px;background:var(--primary);color:#fff;font-weight:600}.btn-ghost{padding:9px 18px;border:1px solid rgba(0,88,190,.22);color:var(--primary);font-weight:500}
+    .site-header{position:fixed;top:0;left:0;right:0;z-index:50;padding:14px var(--px)} .main-nav{max-width:var(--max-w);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-radius:9999px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 4px 24px rgba(25,28,32,.06);position:relative}.nav-logo{font-family:var(--font-display);font-size:1.3125rem;font-weight:600;letter-spacing:.02em}.nav-links{display:flex;gap:32px}.nav-links a{font-size:.875rem;font-weight:500;color:var(--on-surface-muted);position:relative}.nav-links a[aria-current="page"]{color:var(--primary)}.nav-links a[aria-current="page"]::after{content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--primary);border-radius:50%}.nav-ctas{display:flex;gap:8px}.mobile-menu-toggle{display:none;position:relative}.mobile-menu-toggle summary{list-style:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--on-surface-muted)}.mobile-menu{position:absolute;right:0;top:calc(100% + 8px);width:220px;border-radius:20px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 12px 40px rgba(25,28,32,.10);padding:8px;display:flex;flex-direction:column;gap:2px;z-index:100}.mobile-menu a{padding:10px 14px;border-radius:12px;font-size:.875rem;font-weight:500;color:var(--on-surface-muted)}.mobile-menu a[aria-current="page"]{color:var(--primary);font-weight:600}.mobile-menu-cta{margin-top:4px;background:var(--primary)!important;color:#fff!important;font-weight:600!important;text-align:center}
+    .sec-label{font-size:.6875rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:8px}.sec-title{font-family:var(--font-display);font-size:clamp(1.875rem,3.5vw,2.375rem);font-weight:600;line-height:1.1}
+    .hero{position:relative;padding:110px 0 56px}.hero::before{content:"";position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1545569341-9eb8b30979d9?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;opacity:.40}.hero::after{content:"";position:absolute;inset:0;background:rgba(249,249,255,.88)}.hero-grid{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:48px}
+    .card{background:var(--surface-lowest);border-radius:28px;box-shadow:var(--card-shadow)} .profile-card{padding:36px}.avatar-big{width:80px;height:80px;border-radius:50%;background:var(--surface-low);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.5rem;color:var(--primary);margin-bottom:18px}
+    .profile-card h1{font-family:var(--font-display);font-size:2.5rem;line-height:1.05}.muted{color:var(--on-surface-muted);line-height:1.65}.badge-row,.pill-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.badge-row span,.pill-row span{font-size:.8125rem}.badge-row .check{color:var(--primary);font-weight:600}.pill-row span{padding:8px 14px;border-radius:9999px;background:var(--surface-low)}
+    .stats-side{display:grid;gap:16px}.mini-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.mini-stats .card{padding:16px;border-radius:16px}.mini-stats strong{display:block;font-family:var(--font-display);font-size:1.75rem}.mini-stats span{font-size:.8125rem;color:var(--on-surface-muted)}
+    .section{padding-block:64px}.section.low{background:var(--surface-low)} .tour-grid,.req-grid,.review-grid{display:grid;gap:16px}.tour-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.req-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.review-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .tour-card{position:relative;min-height:340px;border-radius:28px;overflow:hidden;background-size:cover;background-position:center}.tour-card::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(15,23,42,.78) 0%,rgba(15,23,42,.06) 55%)}.tour-content{position:absolute;left:0;right:0;bottom:0;padding:24px;z-index:1;color:#fff}.tour-content h3{font-family:var(--font-display);font-size:2rem;line-height:1.02}.tour-meta{margin-top:12px;display:grid;gap:6px;font-size:.875rem;color:rgba(255,255,255,.82)}.price-pill{width:fit-content;margin-top:14px;padding:8px 16px;border-radius:9999px;background:rgba(249,249,255,.18);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.20);font-size:.8125rem;font-weight:600}
+    .req-card{display:block;background:var(--surface-lowest);border-radius:var(--card-radius);padding:20px;box-shadow:var(--card-shadow)}.req-top{display:flex;justify-content:space-between;gap:12px;font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:14px}.req-top .spots{color:var(--primary)}.req-card h3{font-size:1rem;font-weight:600;margin-bottom:6px}.req-card p{font-size:.875rem;color:var(--on-surface-muted);line-height:1.6}.bar{height:4px;background:var(--surface-low);border-radius:9999px;overflow:hidden;margin:14px 0}.bar span{display:block;height:100%;background:var(--primary);border-radius:9999px}.req-foot{display:flex;justify-content:space-between;gap:12px;font-size:.875rem;font-weight:600}
+    .review{display:flex;gap:14px;align-items:flex-start}.review .bubble{width:42px;height:42px;border-radius:50%;background:var(--surface-low);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:var(--primary);flex-shrink:0}.review strong{display:block;margin-bottom:4px}.review small{display:block;color:var(--on-surface-muted);margin-bottom:8px}
+    .footer{background:#0f172a;padding-top:56px;padding-bottom:32px}.footer-inner{padding-inline:var(--px);max-width:var(--max-w);margin-inline:auto}.footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;padding-bottom:40px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.08)}.footer-col-label{font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:14px}.footer-links{display:flex;flex-direction:column;gap:10px}.footer-links a{font-size:.875rem;color:rgba(255,255,255,.60)}.footer-social{display:flex;gap:10px;margin-top:6px}.social-btn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55)}.footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}.footer-copy,.footer-legal a{font-size:.8125rem;color:rgba(255,255,255,.35)}.footer-legal{display:flex;gap:20px}
+    @media (max-width:1023px){.hero-grid,.tour-grid,.req-grid,.review-grid,.mini-stats{grid-template-columns:1fr}}
+    @media (max-width:767px){.nav-links,.btn-ghost.nav-login{display:none}.mobile-menu-toggle{display:block}.footer-grid{grid-template-columns:1fr}.footer-bottom{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner"><nav class="main-nav" aria-label="Основная навигация"><a class="nav-logo" href="index.html">Provodnik</a><ul class="nav-links" role="list"><li><a href="destination.html">Направления</a></li><li><a href="requests.html">Запросы</a></li><li><a href="guide.html" aria-current="page">Гиды</a></li></ul><div class="nav-ctas"><a class="btn-ghost nav-login" href="#">Войти</a><a class="btn-primary" href="create-request.html">Создать запрос</a></div><details class="mobile-menu-toggle"><summary aria-label="Открыть меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></summary><div class="mobile-menu"><a href="destination.html">Направления</a><a href="requests.html">Запросы</a><a href="guide.html" aria-current="page">Гиды</a><a class="mobile-menu-cta" href="create-request.html">Создать запрос</a></div></details></nav></header>
+  <main>
+    <section class="hero"><div class="container"><div class="hero-grid"><article class="card profile-card"><div class="avatar-big">АВ</div><h1>Андрей Воронов</h1><p class="muted" style="margin-top:12px">Локальный проводник · Байкал и Восточная Сибирь</p><div class="badge-row"><span class="check">✓ Верифицирован</span><span>★ 4.9</span><span>48 поездок</span></div><div class="pill-row"><span>Русский, английский</span><span>Иркутск, Ольхон, Листвянка</span></div><a class="btn-primary" style="width:100%;margin-top:24px" href="request-details.html">Связаться с гидом</a></article><div class="stats-side"><div class="mini-stats"><div class="card"><strong>4.9 / 5</strong><span>средний рейтинг</span></div><div class="card"><strong>48</strong><span>завершённых поездок</span></div><div class="card"><strong>6 лет</strong><span>опыта в регионе</span></div></div><p class="muted">Работаю с Байкалом с 2018 года. Специализация — малые группы до 6 человек, маршруты без навязчивого расписания. Зимой — лёд и переходы по Малому Морю, летом — Ольхон и фотографические выезды на закат.</p></div></div></div></section>
+    <section class="section low"><div class="container"><p class="sec-label">Туры гида</p><h2 class="sec-title" style="margin-bottom:28px">Авторские маршруты Андрея</h2><div class="tour-grid"><a class="tour-card" href="tour.html" style="background-image:url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80')"><div class="tour-content"><h3>Ольхон 3 дня</h3><div class="tour-meta"><span>Андрей Воронов · 4.9 ★</span></div><div class="price-pill">от 45 тыс. ₽</div></div></a><a class="tour-card" href="tour.html" style="background-image:url('https://images.unsplash.com/photo-1508193638397-1c4234db14d8?auto=format&fit=crop&w=1600&q=80')"><div class="tour-content"><h3>Зимний Байкал</h3><div class="tour-meta"><span>Андрей Воронов · 4.8 ★</span></div><div class="price-pill">от 38 тыс. ₽</div></div></a><a class="tour-card" href="tour.html" style="background-image:url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1600&q=80')"><div class="tour-content"><h3>Иркутск + Листвянка</h3><div class="tour-meta"><span>Андрей Воронов · 4.7 ★</span></div><div class="price-pill">от 22 тыс. ₽</div></div></a></div></div></section>
+    <section class="section"><div class="container"><p class="sec-label">Активные офферы</p><h2 class="sec-title" style="margin-bottom:28px">Открытые запросы, где гид предложил цену</h2><div class="req-grid"><a class="req-card" href="request-details.html"><div class="req-top"><span>Байкал</span><span class="spots">оффер отправлен</span></div><h3>Ольхон и лёд Малого Моря</h3><p>24–26 июля · группа почти собрана, Андрей дал оффер на камерный темп и городское завершение в Иркутске.</p><div class="bar"><span style="width:67%"></span></div><div class="req-foot"><span>48 тыс. ₽ / группа</span><span>4.9 ★</span></div></a><a class="req-card" href="requests.html"><div class="req-top"><span>Алтай</span><span class="spots">оффер отправлен</span></div><h3>Чуйский тракт и перевалы</h3><p>2–5 августа · гид предложил схему с длинными остановками и одним резервным блоком под погоду.</p><div class="bar"><span style="width:60%"></span></div><div class="req-foot"><span>52 тыс. ₽ / группа</span><span>4.9 ★</span></div></a><a class="req-card" href="requests.html"><div class="req-top"><span>Карелия</span><span class="spots">оффер отправлен</span></div><h3>Ладога, скалы, баня</h3><p>15–18 июля · read-only карточка активной заявки, где гид уже обозначил бюджет и формат лодки.</p><div class="bar"><span style="width:50%"></span></div><div class="req-foot"><span>41 тыс. ₽ / группа</span><span>4.9 ★</span></div></a></div></div></section>
+    <section class="section low"><div class="container"><p class="sec-label">Отзывы</p><h2 class="sec-title" style="margin-bottom:28px">Что говорят путешественники</h2><div class="review-grid"><article class="review"><div class="bubble">АК</div><div><strong>Анна Климова</strong><small>Февраль 2026 · 4.9</small><p class="muted">Андрей не перегружает Байкал списком обязательных точек. В поездке осталось место и для льда, и для тишины, и для нормального ритма группы.</p></div></article><article class="review"><div class="bubble">МС</div><div><strong>Михаил Серов</strong><small>Март 2026 · 4.9</small><p class="muted">Сильнее всего запомнилось, как он перестроил день под ветер и при этом не сломал маршрут. Это редкий уровень спокойствия и контроля.</p></div></article><article class="review"><div class="bubble">ТП</div><div><strong>Татьяна Пестова</strong><small>Июль 2025 · 4.9</small><p class="muted">На Ольхоне было ощущение не группового тура, а хорошо собранной поездки для друзей. Всё прозрачно по деньгам и очень аккуратно по темпу.</p></div></article></div></div></section>
+  </main>
+  <footer class="footer" role="contentinfo"><div class="footer-inner"><div class="footer-grid"><nav aria-label="О проекте"><p class="footer-col-label">О проекте</p><ul class="footer-links"><li><a href="#">О нас</a></li><li><a href="guide.html">Для гидов</a></li><li><a href="#">Блог</a></li></ul></nav><nav aria-label="Поддержка"><p class="footer-col-label">Поддержка</p><ul class="footer-links"><li><a href="#">FAQ</a></li><li><a href="#">Помощь</a></li><li><a href="#">Связаться с нами</a></li></ul></nav><div><nav aria-label="Правила"><p class="footer-col-label">Правила</p><ul class="footer-links"><li><a href="#">Условия использования</a></li><li><a href="#">Конфиденциальность</a></li><li><a href="#">Cookies</a></li></ul></nav><div style="margin-top:24px;"><p class="footer-col-label">Мы в сети</p><div class="footer-social"><a class="social-btn" href="#" aria-label="ВКонтакте"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.87h-1.62c-.61 0-.8-.49-1.9-1.6-.95-.93-1.37-.93-1.6-.93-.33 0-.42.09-.42.56v1.46c0 .4-.13.64-1.18.64-1.74 0-3.67-1.06-5.02-3.03C4.7 10.3 4.27 8.45 4.27 8.06c0-.23.09-.45.56-.45h1.62c.42 0 .58.19.74.64.82 2.36 2.19 4.43 2.75 4.43.21 0 .3-.1.3-.64V9.81c-.07-1.15-.67-1.24-.67-1.65 0-.19.15-.39.4-.39h2.55c.35 0 .47.19.47.6v3.23c0 .35.15.47.26.47.21 0 .38-.12.77-.51 1.19-1.33 2.04-3.38 2.04-3.38.11-.23.3-.45.73-.45h1.62c.49 0 .6.25.49.6-.21 1-.2.97-1.55 2.94-.23.37-.32.54 0 .93.23.28.98.93 1.48 1.49.92 1.04 1.62 1.91 1.81 2.51.2.59-.1.89-.7.89z"/></svg></a><a class="social-btn" href="#" aria-label="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z"/></svg></a></div></div></div></div><div class="footer-bottom"><p class="footer-copy">© 2024 Provodnik. Все права защищены.</p><div class="footer-legal"><a href="#">Условия</a><a href="#">Конфиденциальность</a></div></div></div></footer>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
 </html>

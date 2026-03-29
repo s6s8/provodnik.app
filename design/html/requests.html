@@ -1,331 +1,460 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Provodnik — Биржа запросов</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/home.css" />
-  </head>
-  <body class="hw-theme-cool hw-theme-alice hw-requests-page">
-    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
-    <div class="hw-top">
-      <div class="hw-hero hw-hero--requests">
-        <div class="hw-hero-bg" aria-hidden="true"></div>
-        <div class="hw-nav-shell">
-          <nav class="hw-nav-inner" aria-label="Основная навигация">
-            <a class="hw-brand" href="index.html">
-              <span class="hw-brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </span>
-              Provodnik
-            </a>
-            <ul class="hw-nav-links">
-              <li><a href="index.html">Направления</a></li>
-              <li><a class="is-active" href="requests.html" aria-current="page">Запросы</a></li>
-              <li><a href="guide.html">Гиды</a></li>
-              <li><a href="tour.html">Экскурсии</a></li>
-              <li><a href="dashboard.html">Профиль</a></li>
-            </ul>
-            <details class="hw-nav-mobile">
-              <summary aria-label="Открыть меню">
-                <span></span>
-                <span></span>
-                <span></span>
-              </summary>
-              <div class="hw-nav-mobile-menu">
-                <a href="index.html">Направления</a>
-                <a class="is-active" href="requests.html" aria-current="page">Запросы</a>
-                <a href="guide.html">Гиды</a>
-                <a href="tour.html">Экскурсии</a>
-                <a href="dashboard.html">Профиль</a>
-              </div>
-            </details>
-          </nav>
-        </div>
-        <main id="main-content" class="hw-hero-main hw-requests-main">
-          <section class="hw-requests-market" aria-labelledby="requests-market-heading">
-            <h1 id="requests-market-heading" class="hw-visually-hidden">Биржа запросов</h1>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Биржа запросов Provodnik: открытые группы путешественников по России, к которым можно присоединиться или запустить свой маршрут." />
+  <title>Provodnik — Биржа запросов</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:               #0058be;
+      --primary-hover:         #2170e4;
+      --surface:               #f9f9ff;
+      --surface-low:           #f3f3fa;
+      --surface-lowest:        #ffffff;
+      --on-surface:            #191c20;
+      --on-surface-muted:      #5a5e6b;
+      --outline-variant:       #c2c6d6;
+      --footer-bg:             #0f172a;
+      --glass-bg:     rgba(249, 249, 255, 0.60);
+      --glass-border: rgba(194, 198, 214, 0.18);
+      --glass-blur:   blur(20px);
+      --glass-shadow: 0 8px 32px rgba(25, 28, 32, 0.06);
+      --glass-radius: 28px;
+      --card-shadow:  0 4px 24px rgba(25, 28, 32, 0.07);
+      --card-radius:  24px;
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-ui:      'DM Sans', system-ui, sans-serif;
+      --max-w:    1200px;
+      --sec-pad:  80px;
+      --px:       clamp(20px, 4vw, 48px);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-ui);
+      background: var(--surface);
+      color: var(--on-surface);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    button, input { font: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    img { max-width: 100%; display: block; }
+    ul { list-style: none; }
 
-            <div class="hw-requests-filters" aria-label="Фильтры запросов">
-              <button type="button" class="hw-rq-filter">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  <path d="M8 2v4M16 2v4" />
-                  <rect width="18" height="18" x="3" y="4" rx="2" />
-                  <path d="M3 10h18" />
-                </svg>
-                <span>город</span>
-              </button>
-              <button type="button" class="hw-rq-filter">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  <path d="M8 2v4M16 2v4" />
-                  <rect width="18" height="18" x="3" y="4" rx="2" />
-                  <path d="M3 10h18" />
-                </svg>
-                <span>Даты</span>
-              </button>
-              <button type="button" class="hw-rq-filter">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  <circle cx="12" cy="12" r="8" />
-                  <path d="M12 7v5l3 2" />
-                </svg>
-                <span>Бюджет</span>
-              </button>
-              <button type="button" class="hw-rq-filter">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-                <span>Размер группы</span>
-              </button>
-            </div>
-
-            <div class="hw-rq-hero-grid">
-              <article class="hw-rq-feature-card">
-                <div class="hw-rq-feature-image" aria-hidden="true"></div>
-                <span class="hw-rq-feature-badge">Активен</span>
-                <div class="hw-rq-feature-overlay">
-                  <h2>Гастрономический тур по Риму</h2>
-                  <p>4 участника joined - Целевая группа: 6 - Оценка $42 за чел.</p>
-                  <div class="hw-rq-avatars" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=12')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=33')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=45')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=24')"></span>
-                  </div>
-                </div>
-              </article>
-
-              <div class="hw-rq-side-stack">
-                <article class="hw-rq-side-card">
-                  <div class="hw-rq-side-thumb hw-rq-side-thumb--kyoto" aria-hidden="true"></div>
-                  <div class="hw-rq-side-body">
-                    <h3>Сакура в Киото</h3>
-                    <p>2 участника - Цена: 4 - $350/чел.</p>
-                  </div>
-                </article>
-                <article class="hw-rq-side-card">
-                  <div class="hw-rq-side-thumb hw-rq-side-thumb--paris" aria-hidden="true"></div>
-                  <div class="hw-rq-side-body">
-                    <h3>Кафе Парижа</h3>
-                    <p>3 участника - Цена: 5 - $550/чел.</p>
-                  </div>
-                </article>
-              </div>
-            </div>
-
-            <section class="hw-rq-grid" aria-label="Список запросов">
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--alps" aria-hidden="true"></div>
-                <h3>Поход по Альпам</h3>
-                <p>4 участника - Цена: 4</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=20')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=21')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=22')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 60 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--surf" aria-hidden="true"></div>
-                <h3>Серфинг на Бали</h3>
-                <p>2 участника - Цена: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=34')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=35')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=36')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 55 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--safari" aria-hidden="true"></div>
-                <h3>Сафари в Кении</h3>
-                <p>3 участника - Цель: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=41')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=42')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=43')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 55 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--yoga" aria-hidden="true"></div>
-                <h3>Йога в Убуде</h3>
-                <p>2 участника - Цель: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=46')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=47')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=48')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 45 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--alps" aria-hidden="true"></div>
-                <h3>Поход по Альпам</h3>
-                <p>4 участника - Цена: 4</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=20')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=21')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=22')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 60 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--surf" aria-hidden="true"></div>
-                <h3>Серфинг на Бали</h3>
-                <p>2 участника - Цена: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=34')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=35')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=36')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 55 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--safari" aria-hidden="true"></div>
-                <h3>Сафари в Кении</h3>
-                <p>3 участника - Цель: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=41')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=42')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=43')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 55 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--yoga" aria-hidden="true"></div>
-                <h3>Йога в Убуде</h3>
-                <p>2 участника - Цель: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=46')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=47')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=48')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 45 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--alps" aria-hidden="true"></div>
-                <h3>Поход по Альпам</h3>
-                <p>4 участника - Цена: 4</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=20')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=21')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=22')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 60 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--surf" aria-hidden="true"></div>
-                <h3>Серфинг на Бали</h3>
-                <p>2 участника - Цена: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=34')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=35')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=36')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 55 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--safari" aria-hidden="true"></div>
-                <h3>Сафари в Кении</h3>
-                <p>3 участника - Цель: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=41')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=42')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=43')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 55 тыс. Р</span>
-                </div>
-              </article>
-              <article class="hw-rq-mini-card">
-                <div class="hw-rq-mini-thumb hw-rq-mini-thumb--yoga" aria-hidden="true"></div>
-                <h3>Йога в Убуде</h3>
-                <p>2 участника - Цель: 5</p>
-                <div class="hw-rq-mini-foot">
-                  <div class="hw-rq-avatars hw-rq-avatars--mini" aria-hidden="true">
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=46')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=47')"></span>
-                    <span class="hw-rq-avatar" style="background-image: url('https://i.pravatar.cc/80?img=48')"></span>
-                  </div>
-                  <span class="hw-rq-price">от 45 тыс. Р</span>
-                </div>
-              </article>
-            </section>
-          </section>
-        </main>
+    .container {
+      width: 100%;
+      max-width: var(--max-w);
+      margin-inline: auto;
+      padding-inline: var(--px);
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 9px 22px; border-radius: 9999px;
+      background: var(--primary); color: #fff;
+      font-family: var(--font-ui); font-size: 0.875rem; font-weight: 600;
+      transition: opacity 0.15s;
+    }
+    .btn-primary:hover { opacity: 0.87; }
+    .btn-ghost {
+      display: inline-flex; align-items: center;
+      padding: 9px 18px; border-radius: 9999px;
+      border: 1px solid rgba(0, 88, 190, 0.22);
+      color: var(--primary);
+      font-family: var(--font-ui); font-size: 0.875rem; font-weight: 500;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-ghost:hover { background: rgba(0, 88, 190, 0.05); border-color: var(--primary); }
+    .site-header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+      padding: 14px var(--px);
+    }
+    .main-nav {
+      max-width: var(--max-w);
+      margin-inline: auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 24px;
+      border-radius: 9999px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 4px 24px rgba(25, 28, 32, 0.06);
+      position: relative;
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.3125rem; font-weight: 600;
+      letter-spacing: 0.02em;
+      color: var(--on-surface);
+    }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a {
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--on-surface-muted);
+      transition: color 0.15s;
+      position: relative;
+    }
+    .nav-links a:hover { color: var(--primary); }
+    .nav-links a[aria-current="page"] { color: var(--primary); }
+    .nav-links a[aria-current="page"]::after {
+      content: '';
+      position: absolute; bottom: -5px; left: 50%;
+      transform: translateX(-50%);
+      width: 4px; height: 4px;
+      background: var(--primary); border-radius: 50%;
+    }
+    .nav-ctas { display: flex; align-items: center; gap: 8px; }
+    .mobile-menu-toggle { display: none; position: relative; }
+    .mobile-menu-toggle summary {
+      list-style: none; cursor: pointer;
+      padding: 8px; border-radius: 8px;
+      color: var(--on-surface-muted);
+      transition: background 0.15s;
+    }
+    .mobile-menu-toggle summary:hover { background: rgba(0,88,190,0.06); }
+    .mobile-menu-toggle summary::-webkit-details-marker { display: none; }
+    .mobile-menu {
+      position: absolute; right: 0; top: calc(100% + 8px);
+      width: 220px; border-radius: 20px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      box-shadow: 0 12px 40px rgba(25,28,32,0.10);
+      padding: 8px; display: flex; flex-direction: column; gap: 2px;
+      z-index: 100;
+    }
+    .mobile-menu a {
+      padding: 10px 14px; border-radius: 12px;
+      font-size: 0.875rem; font-weight: 500;
+      color: var(--on-surface-muted);
+      transition: background 0.15s, color 0.15s;
+    }
+    .mobile-menu a:hover { background: rgba(0,88,190,0.06); color: var(--primary); }
+    .mobile-menu a[aria-current="page"] { color: var(--primary); font-weight: 600; }
+    .mobile-menu-cta {
+      margin-top: 4px; background: var(--primary) !important;
+      color: #fff !important; font-weight: 600 !important; text-align: center;
+    }
+    .sec-label {
+      font-size: 0.6875rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--on-surface-muted);
+      margin-bottom: 8px;
+    }
+    .sec-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.875rem, 3.5vw, 2.375rem);
+      font-weight: 600; line-height: 1.1;
+      color: var(--on-surface);
+    }
+    .page-header {
+      background: var(--surface-low);
+      padding: 100px 0 48px;
+      text-align: center;
+    }
+    .page-header .lead {
+      max-width: 760px;
+      margin: 16px auto 0;
+      font-size: 1rem;
+      color: var(--on-surface-muted);
+      line-height: 1.65;
+    }
+    .search-shell {
+      width: min(560px, 100%);
+      margin: 28px auto 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 8px 8px 22px;
+      border-radius: 9999px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(194, 198, 214, 0.35);
+      box-shadow: var(--glass-shadow);
+    }
+    .search-shell input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--on-surface);
+      font-size: 0.9375rem;
+    }
+    .search-shell input::placeholder { color: rgba(25, 28, 32, 0.48); }
+    .filter-strip {
+      background: var(--surface);
+      padding-block: 20px;
+    }
+    .filter-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .filter-pill {
+      padding: 9px 18px;
+      border-radius: 9999px;
+      border: 1px solid rgba(0, 88, 190, 0.18);
+      background: transparent;
+      color: var(--on-surface-muted);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .filter-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .requests-grid-section {
+      background: var(--surface);
+      padding-block: 48px;
+    }
+    .requests-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .req-card {
+      display: block;
+      background: var(--surface-lowest);
+      border-radius: var(--card-radius);
+      padding: 20px;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.15s;
+    }
+    .req-card:hover { transform: translateY(-3px); }
+    .req-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--on-surface-muted);
+      margin-bottom: 14px;
+    }
+    .req-spots { color: var(--primary); }
+    .req-title {
+      font-size: 1.0625rem;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 6px;
+    }
+    .req-meta {
+      font-size: 0.8125rem;
+      color: var(--on-surface-muted);
+      margin-bottom: 8px;
+    }
+    .req-desc {
+      font-size: 0.875rem;
+      color: var(--on-surface-muted);
+      line-height: 1.55;
+      margin-bottom: 14px;
+    }
+    .req-bar {
+      height: 4px;
+      background: var(--surface-low);
+      border-radius: 9999px;
+      margin-bottom: 14px;
+      overflow: hidden;
+    }
+    .req-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 9999px;
+    }
+    .req-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .avatars { display: flex; }
+    .avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: var(--surface-low);
+      border: 2px solid var(--surface-lowest);
+      margin-left: -6px;
+      font-size: 0.5625rem; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--on-surface);
+    }
+    .avatar:first-child { margin-left: 0; }
+    .req-price {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--on-surface);
+      text-align: right;
+    }
+    .cta-strip {
+      background: var(--surface-low);
+      padding-block: 48px;
+      text-align: center;
+    }
+    .cta-strip h2 {
+      font-family: var(--font-display);
+      font-size: clamp(1.875rem, 3vw, 2.5rem);
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+    .footer {
+      background: #0f172a;
+      padding-top: 56px; padding-bottom: 32px;
+    }
+    .footer-inner { padding-inline: var(--px); max-width: var(--max-w); margin-inline: auto; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      padding-bottom: 40px; margin-bottom: 28px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-col-label {
+      font-size: 0.6875rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: rgba(255,255,255,0.42);
+      margin-bottom: 14px;
+    }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-links a {
+      font-size: 0.875rem; color: rgba(255,255,255,0.60);
+      transition: color 0.15s;
+    }
+    .footer-links a:hover { color: #fff; }
+    .footer-social { display: flex; gap: 10px; margin-top: 6px; }
+    .social-btn {
+      width: 38px; height: 38px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex; align-items: center; justify-content: center;
+      color: rgba(255,255,255,0.55);
+      transition: border-color 0.15s, color 0.15s;
+    }
+    .social-btn:hover { border-color: rgba(255,255,255,0.38); color: #fff; }
+    .footer-bottom {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+    }
+    .footer-copy { font-size: 0.8125rem; color: rgba(255,255,255,0.35); }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a {
+      font-size: 0.8125rem; color: rgba(255,255,255,0.35);
+      transition: color 0.15s;
+    }
+    .footer-legal a:hover { color: rgba(255,255,255,0.70); }
+    @media (max-width: 1023px) {
+      .requests-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 767px) {
+      .nav-links { display: none; }
+      .btn-ghost.nav-login { display: none; }
+      .mobile-menu-toggle { display: block; }
+      .requests-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <nav class="main-nav" aria-label="Основная навигация">
+      <a class="nav-logo" href="index.html">Provodnik</a>
+      <ul class="nav-links" role="list">
+        <li><a href="destination.html">Направления</a></li>
+        <li><a href="requests.html" aria-current="page">Запросы</a></li>
+        <li><a href="guide.html">Гиды</a></li>
+      </ul>
+      <div class="nav-ctas">
+        <a class="btn-ghost nav-login" href="#">Войти</a>
+        <a class="btn-primary" href="create-request.html">Создать запрос</a>
       </div>
+      <details class="mobile-menu-toggle">
+        <summary aria-label="Открыть меню">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/>
+          </svg>
+        </summary>
+        <div class="mobile-menu">
+          <a href="destination.html">Направления</a>
+          <a href="requests.html" aria-current="page">Запросы</a>
+          <a href="guide.html">Гиды</a>
+          <a class="mobile-menu-cta" href="create-request.html">Создать запрос</a>
+        </div>
+      </details>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-header">
+      <div class="container">
+        <p class="sec-label">Биржа запросов</p>
+        <h1 class="sec-title">Открытые группы путешественников по России</h1>
+        <p class="lead">Выберите направление, присоединяйтесь к формирующейся группе или создайте свой запрос — и гиды предложат маршрут под вашу компанию.</p>
+        <form class="search-shell" role="search" action="requests.html" method="get">
+          <input type="search" name="q" placeholder="Город, регион или тема поездки" />
+          <button class="btn-primary" type="submit">Найти</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="filter-strip">
+      <div class="container">
+        <div class="filter-row">
+          <button class="filter-pill active" type="button">Все</button>
+          <button class="filter-pill" type="button">Природа</button>
+          <button class="filter-pill" type="button">Города</button>
+          <button class="filter-pill" type="button">Север</button>
+          <button class="filter-pill" type="button">Зима</button>
+          <button class="filter-pill" type="button">Семейные</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="requests-grid-section">
+      <div class="container">
+        <div class="requests-grid">
+          <a class="req-card" href="request-details.html"><div class="req-card-top"><span>Байкал</span><span class="req-spots">4 / 6 мест</span></div><h2 class="req-title">Ольхон, Иркутская обл.</h2><p class="req-meta">24–26 июля</p><p class="req-desc">Лёд Малого Моря, одна длинная прогулка по острову и спокойные вечерние разговоры в Иркутске без жёсткого тайминга.</p><div class="req-bar"><div class="req-bar-fill" style="width:67%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">АК</span><span class="avatar">МЛ</span><span class="avatar">ТГ</span><span class="avatar">ВС</span></div><span class="req-price">35–50 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Алтай</span><span class="req-spots">3 / 5 мест</span></div><h2 class="req-title">Чуйский тракт, перевалы</h2><p class="req-meta">2–5 авг</p><p class="req-desc">Нужна спокойная группа на горные переезды, смотровые точки на закате и одну ночёвку с видом на долину без палаточного марафона.</p><div class="req-bar"><div class="req-bar-fill" style="width:60%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">ОР</span><span class="avatar">ЛК</span><span class="avatar">ИА</span></div><span class="req-price">28–45 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Карелия</span><span class="req-spots">2 / 4 мест</span></div><h2 class="req-title">Ладога, скалы, баня</h2><p class="req-meta">15–18 июля</p><p class="req-desc">Короткий маршрут по воде и шхерам, без перегруза активностями: лодка, баня на берегу и один длинный вечер у костра.</p><div class="req-bar"><div class="req-bar-fill" style="width:50%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">ДМ</span><span class="avatar">ОЛ</span></div><span class="req-price">22–35 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Казань</span><span class="req-spots">2 / 4 мест</span></div><h2 class="req-title">Кремль и старый город</h2><p class="req-meta">10–12 авг</p><p class="req-desc">Нужен городской маршрут с акцентом на локальную кухню, дворики и вечерний ритм центра без автобусного формата.</p><div class="req-bar"><div class="req-bar-fill" style="width:50%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">НП</span><span class="avatar">АР</span></div><span class="req-price">18–25 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Мурманск</span><span class="req-spots">3 / 5 мест</span></div><h2 class="req-title">Кольский, полярное сияние</h2><p class="req-meta">5–8 сент</p><p class="req-desc">Группа собирает северную поездку ради сияния, Териберки и одного резервного дня на погоду без гонки по всем точкам региона.</p><div class="req-bar"><div class="req-bar-fill" style="width:60%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">ВТ</span><span class="avatar">ЗИ</span><span class="avatar">ЕК</span></div><span class="req-price">42–58 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Суздаль</span><span class="req-spots">4 / 6 мест</span></div><h2 class="req-title">Древние монастыри и кремль</h2><p class="req-meta">20–21 июля</p><p class="req-desc">Неспешный выезд на выходные: звонницы, старые улицы, один длинный обед и прогулка по вечернему городу малой компанией.</p><div class="req-bar"><div class="req-bar-fill" style="width:67%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">ТА</span><span class="avatar">ЮК</span><span class="avatar">СП</span><span class="avatar">ЛИ</span></div><span class="req-price">12–18 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Камчатка</span><span class="req-spots">2 / 6 мест</span></div><h2 class="req-title">Вулканы, океан, Тихий берег</h2><p class="req-meta">10–15 авг</p><p class="req-desc">Нужен проводник под экспедиционный темп: один вертолётный день, два больших природных блока и запас по погоде в финале маршрута.</p><div class="req-bar"><div class="req-bar-fill" style="width:33%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">ИС</span><span class="avatar">РН</span></div><span class="req-price">95–130 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Калмыкия</span><span class="req-spots">3 / 6 мест</span></div><h2 class="req-title">Степь, хурулы, Элиста</h2><p class="req-meta">12–14 сент</p><p class="req-desc">Маршрут под маленькую группу: буддийские храмы, степной ужин и ночное небо без большого количества переездов внутри дня.</p><div class="req-bar"><div class="req-bar-fill" style="width:50%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">АН</span><span class="avatar">ВС</span><span class="avatar">ОТ</span></div><span class="req-price">22–34 тыс. ₽</span></div></a>
+          <a class="req-card" href="requests.html"><div class="req-card-top"><span>Калининград</span><span class="req-spots">1 / 4 мест</span></div><h2 class="req-title">Янтарный берег, прусские истории</h2><p class="req-meta">8–10 авг</p><p class="req-desc">Пока только старт группы: хотят совместить море, немецкое наследие и один гастрономический вечер в старых кварталах города.</p><div class="req-bar"><div class="req-bar-fill" style="width:25%"></div></div><div class="req-foot"><div class="avatars"><span class="avatar">МК</span></div><span class="req-price">20–30 тыс. ₽</span></div></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta-strip">
+      <div class="container">
+        <h2>Не нашли подходящую группу?</h2>
+        <p style="color:var(--on-surface-muted);font-size:1rem;margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;">Создайте свой запрос — гиды предложат маршрут специально под вашу компанию.</p>
+        <a class="btn-primary" href="create-request.html">Создать запрос</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <nav aria-label="О проекте"><p class="footer-col-label">О проекте</p><ul class="footer-links"><li><a href="#">О нас</a></li><li><a href="guide.html">Для гидов</a></li><li><a href="#">Блог</a></li></ul></nav>
+        <nav aria-label="Поддержка"><p class="footer-col-label">Поддержка</p><ul class="footer-links"><li><a href="#">FAQ</a></li><li><a href="#">Помощь</a></li><li><a href="#">Связаться с нами</a></li></ul></nav>
+        <div><nav aria-label="Правила"><p class="footer-col-label">Правила</p><ul class="footer-links"><li><a href="#">Условия использования</a></li><li><a href="#">Конфиденциальность</a></li><li><a href="#">Cookies</a></li></ul></nav><div style="margin-top:24px;"><p class="footer-col-label">Мы в сети</p><div class="footer-social"><a class="social-btn" href="#" aria-label="ВКонтакте"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.87h-1.62c-.61 0-.8-.49-1.9-1.6-.95-.93-1.37-.93-1.6-.93-.33 0-.42.09-.42.56v1.46c0 .4-.13.64-1.18.64-1.74 0-3.67-1.06-5.02-3.03C4.7 10.3 4.27 8.45 4.27 8.06c0-.23.09-.45.56-.45h1.62c.42 0 .58.19.74.64.82 2.36 2.19 4.43 2.75 4.43.21 0 .3-.1.3-.64V9.81c-.07-1.15-.67-1.24-.67-1.65 0-.19.15-.39.4-.39h2.55c.35 0 .47.19.47.6v3.23c0 .35.15.47.26.47.21 0 .38-.12.77-.51 1.19-1.33 2.04-3.38 2.04-3.38.11-.23.3-.45.73-.45h1.62c.49 0 .6.25.49.6-.21 1-.2.97-1.55 2.94-.23.37-.32.54 0 .93.23.28.98.93 1.48 1.49.92 1.04 1.62 1.91 1.81 2.51.2.59-.1.89-.7.89z"/></svg></a><a class="social-btn" href="#" aria-label="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z"/></svg></a></div></div></div>
+      </div>
+      <div class="footer-bottom"><p class="footer-copy">© 2024 Provodnik. Все права защищены.</p><div class="footer-legal"><a href="#">Условия</a><a href="#">Конфиденциальность</a></div></div>
     </div>
-
-    <footer class="hw-footer">
-      <div class="hw-footer-grid">
-        <nav class="hw-footer-col" aria-label="О нас">
-          <h4>О нас</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">О сервисе</a></li>
-            <li><a href="#">Команда</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Помощь">
-          <h4>Помощь</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Центр поддержки</a></li>
-            <li><a href="#">Для гидов</a></li>
-            <li><a href="#">Для путешественников</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Правила">
-          <h4>Правила</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Условия использования</a></li>
-            <li><a href="#">Политика конфиденциальности</a></li>
-          </ul>
-        </nav>
-        <div class="hw-footer-col">
-          <h4>Соцсети</h4>
-          <div class="hw-social">
-            <a href="#" aria-label="ВКонтакте">VK</a>
-            <a href="#" aria-label="Telegram">TG</a>
-            <a href="#" aria-label="Instagram">IG</a>
-          </div>
-        </div>
-      </div>
-      <div class="hw-footer-bar">
-        <span>© 2024 Provodnik</span>
-        <a href="#">Термины сервиса</a>
-        <a href="#">Политика конфиденциальности</a>
-      </div>
-    </footer>
-  </body>
+  </footer>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
 </html>

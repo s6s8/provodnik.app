@@ -1,168 +1,54 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Provodnik — Создать запрос</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/home.css" />
-  </head>
-  <body class="hw-theme-cool hw-theme-alice">
-    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
-    <div class="hw-top">
-      <div class="hw-hero hw-hero--subpage">
-        <div class="hw-hero-bg" aria-hidden="true"></div>
-        <div class="hw-nav-shell">
-          <nav class="hw-nav-inner" aria-label="Основная навигация">
-            <a class="hw-brand" href="index.html">
-              <span class="hw-brand-mark" aria-hidden="true">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
-                  <circle cx="12" cy="12" r="3" fill="currentColor" />
-                  <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                </svg>
-              </span>
-              Provodnik
-            </a>
-            <ul class="hw-nav-links">
-              <li><a href="index.html">Направления</a></li>
-              <li><a class="is-active" href="requests.html" aria-current="page">Запросы</a></li>
-              <li><a href="guide.html">Гиды</a></li>
-              <li><a href="tour.html">Экскурсии</a></li>
-              <li><a href="dashboard.html">Профиль</a></li>
-            </ul>
-            <details class="hw-nav-mobile">
-              <summary aria-label="Открыть меню">
-                <span></span>
-                <span></span>
-                <span></span>
-              </summary>
-              <div class="hw-nav-mobile-menu">
-                <a href="index.html">Направления</a>
-                <a class="is-active" href="requests.html" aria-current="page">Запросы</a>
-                <a href="guide.html">Гиды</a>
-                <a href="tour.html">Экскурсии</a>
-                <a href="dashboard.html">Профиль</a>
-              </div>
-            </details>
-          </nav>
-        </div>
-        <div class="hw-hero-main">
-          <header class="hw-hero-head">
-            <div class="hw-hero-inner">
-              <p class="hw-kicker">Новый запрос</p>
-              <h1>Соберите группу под маршрут</h1>
-              <p class="hw-subhero-lead">Форма и превью карточки используют те же стеклянные панели и кнопки, что блок «Биржа запросов» на главной.</p>
-            </div>
-          </header>
-        </div>
-      </div>
-    </div>
-
-    <main id="main-content">
-      <section class="hw-dest-wrap">
-        <div class="hw-dual hw-dual--in-main">
-          <article class="hw-gateway hw-gateway--market hw-gateway--filter-bar" aria-labelledby="cr-form-title">
-            <h2 id="cr-form-title">Параметры поездки</h2>
-            <p>Заполните поля — публикация появится в общей ленте с теми же карточками, что на главной.</p>
-            <form class="hw-form-grid">
-              <div class="hw-form-grid-2">
-                <label class="hw-field" for="cr-dest"><span>Город</span><input class="hw-input" id="cr-dest" value="Киото" /></label>
-                <label class="hw-field" for="cr-dates"><span>Даты</span><input class="hw-input" id="cr-dates" value="15–22 октября" /></label>
-              </div>
-              <div class="hw-form-grid-2">
-                <label class="hw-field" for="cr-size"><span>Размер группы</span><input class="hw-input" id="cr-size" value="6 человек" /></label>
-                <label class="hw-field" for="cr-budget"><span>Бюджет / чел.</span><input class="hw-input" id="cr-budget" value="до 42 тыс. ₽" /></label>
-              </div>
-              <div class="hw-form-grid-2">
-                <label class="hw-field" for="cr-cat"><span>Категория</span>
-                  <select class="hw-select" id="cr-cat">
-                    <option>Культура и гастрономия</option>
-                  </select>
-                </label>
-                <label class="hw-field" for="cr-flex"><span>Даты</span>
-                  <select class="hw-select" id="cr-flex">
-                    <option>Гибкие ±2 дня</option>
-                  </select>
-                </label>
-              </div>
-              <label class="hw-field" for="cr-notes"><span>Комментарий</span><textarea class="hw-textarea" id="cr-notes">Спокойный темп, 1–2 музея в день, вечерняя гастро-программа.</textarea></label>
-              <div class="hw-gateway-actions" style="margin-top: 4px">
-                <button type="button" class="hw-gw-btn hw-gw-btn--primary">Опубликовать запрос</button>
-              </div>
-            </form>
-          </article>
-          <div style="min-width: 0; align-self: start">
-            <p class="hw-visually-hidden" id="cr-prev-label">Превью в бирже</p>
-            <a class="hw-gw-card hw-gw-card--media hw-gw-card--listing" href="requests.html" aria-labelledby="cr-prev-label">
-              <div class="hw-gw-card-media">
-                <div
-                  class="hw-gw-card-media-bg"
-                  style="background-image: url('https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&q=80')"
-                  aria-hidden="true"
-                ></div>
-                <div class="hw-gw-card-media-scrim" aria-hidden="true"></div>
-                <span class="hw-gw-card__pill">Черновик</span>
-              </div>
-              <div class="hw-gw-card-body--listing">
-                <div class="hw-gw-card-text-stack">
-                  <p class="hw-gw-card-title hw-gw-card-title--listing">Киото</p>
-                  <p class="hw-gw-card-subtitle">6 человек · до 42 тыс. ₽ · открыт для офферов гидов</p>
-                </div>
-                <div class="hw-gw-card-footer-row">
-                  <span class="hw-gw-card-price">Превью карточки</span>
-                </div>
-              </div>
-            </a>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <footer class="hw-footer">
-      <div class="hw-footer-grid">
-        <nav class="hw-footer-col" aria-label="О нас">
-          <h4>О нас</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">О сервисе</a></li>
-            <li><a href="#">Команда</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Помощь">
-          <h4>Помощь</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Центр поддержки</a></li>
-            <li><a href="#">Для гидов</a></li>
-            <li><a href="#">Для путешественников</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Правила">
-          <h4>Правила</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Условия использования</a></li>
-            <li><a href="#">Политика конфиденциальности</a></li>
-          </ul>
-        </nav>
-        <div class="hw-footer-col">
-          <h4>Соцсети</h4>
-          <div class="hw-social">
-            <a href="#" aria-label="ВКонтакте">VK</a>
-            <a href="#" aria-label="Telegram">TG</a>
-            <a href="#" aria-label="Instagram">IG</a>
-          </div>
-        </div>
-      </div>
-      <div class="hw-footer-bar">
-        <span>© 2024 Provodnik</span>
-        <a href="#">Термины сервиса</a>
-        <a href="#">Политика конфиденциальности</a>
-      </div>
-    </footer>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Публикация нового запроса: маршрут, даты, размер группы и формат поездки." />
+  <title>Provodnik — Создать запрос</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:#0058be;--primary-hover:#2170e4;--surface:#f9f9ff;--surface-low:#f3f3fa;--surface-lowest:#ffffff;--on-surface:#191c20;--on-surface-muted:#5a5e6b;--outline-variant:#c2c6d6;--footer-bg:#0f172a;
+      --glass-bg:rgba(249,249,255,0.60);--glass-border:rgba(194,198,214,0.18);--glass-blur:blur(20px);--glass-shadow:0 8px 32px rgba(25,28,32,0.06);--glass-radius:28px;--card-shadow:0 4px 24px rgba(25,28,32,0.07);--card-radius:24px;
+      --font-display:'Cormorant Garamond', Georgia, serif;--font-ui:'DM Sans', system-ui, sans-serif;--max-w:1200px;--sec-pad:80px;--px:clamp(20px,4vw,48px)
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0} html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:var(--font-ui);background:var(--surface-low);color:var(--on-surface);line-height:1.5;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none} button,input,textarea,select{font:inherit} button{cursor:pointer;border:none;background:none}
+    .container{width:100%;max-width:var(--max-w);margin-inline:auto;padding-inline:var(--px)}
+    .btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 22px;border-radius:9999px;background:var(--primary);color:#fff;font-size:.875rem;font-weight:600;transition:opacity .15s}.btn-primary:hover{opacity:.87}
+    .btn-ghost{display:inline-flex;align-items:center;padding:9px 18px;border-radius:9999px;border:1px solid rgba(0,88,190,.22);color:var(--primary);font-size:.875rem;font-weight:500;transition:background .15s,border-color .15s}.btn-ghost:hover{background:rgba(0,88,190,.05);border-color:var(--primary)}
+    .site-header{position:fixed;top:0;left:0;right:0;z-index:50;padding:14px var(--px)} .main-nav{max-width:var(--max-w);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-radius:9999px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 4px 24px rgba(25,28,32,.06);position:relative}
+    .nav-logo{font-family:var(--font-display);font-size:1.3125rem;font-weight:600;letter-spacing:.02em;color:var(--on-surface)} .nav-links{display:flex;align-items:center;gap:32px}.nav-links a{font-size:.875rem;font-weight:500;color:var(--on-surface-muted);transition:color .15s;position:relative}.nav-links a:hover{color:var(--primary)}.nav-links a[aria-current="page"]{color:var(--primary)}.nav-links a[aria-current="page"]::after{content:"";position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:4px;height:4px;background:var(--primary);border-radius:50%}
+    .nav-ctas{display:flex;align-items:center;gap:8px}.mobile-menu-toggle{display:none;position:relative}.mobile-menu-toggle summary{list-style:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--on-surface-muted);transition:background .15s}.mobile-menu-toggle summary:hover{background:rgba(0,88,190,.06)}.mobile-menu-toggle summary::-webkit-details-marker{display:none}
+    .mobile-menu{position:absolute;right:0;top:calc(100% + 8px);width:220px;border-radius:20px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 12px 40px rgba(25,28,32,.10);padding:8px;display:flex;flex-direction:column;gap:2px;z-index:100}
+    .mobile-menu a{padding:10px 14px;border-radius:12px;font-size:.875rem;font-weight:500;color:var(--on-surface-muted);transition:background .15s,color .15s}.mobile-menu a:hover{background:rgba(0,88,190,.06);color:var(--primary)}.mobile-menu a[aria-current="page"]{color:var(--primary);font-weight:600}.mobile-menu-cta{margin-top:4px;background:var(--primary)!important;color:#fff!important;font-weight:600!important;text-align:center}
+    .sec-label{font-size:.6875rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:8px}.sec-title{font-family:var(--font-display);font-size:clamp(1.875rem,3.5vw,2.375rem);font-weight:600;line-height:1.1;color:var(--on-surface)}
+    .page-head{padding:110px 0 40px;text-align:center}.page-head p:last-child{max-width:720px;margin:16px auto 0;color:var(--on-surface-muted);line-height:1.65}
+    .form-layout{padding:0 0 80px}.form-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:32px;align-items:start}
+    .glass-panel{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);border-radius:28px;padding:36px}
+    .field-grid{display:grid;gap:20px}.field-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.field label,.toggle-copy strong{font-size:.8125rem;font-weight:600;color:var(--on-surface);margin-bottom:6px;display:block}
+    .field input,.field select,.field textarea{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(194,198,214,.50);background:var(--surface-lowest);font-size:.9375rem;color:var(--on-surface);outline:none;transition:border-color .15s,box-shadow .15s}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(0,88,190,.08)} .field textarea{resize:vertical;min-height:120px}
+    .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0}.toggle-copy span{display:block;font-size:.875rem;color:var(--on-surface-muted);margin-top:4px}
+    .toggle{position:relative;width:48px;height:28px;flex-shrink:0}.toggle input{position:absolute;inset:0;opacity:0}.toggle-track{width:100%;height:100%;border-radius:9999px;background:rgba(0,88,190,.18);display:block;position:relative}.toggle-track::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 2px 10px rgba(25,28,32,.14);transition:transform .15s}.toggle input:checked + .toggle-track{background:var(--primary)}.toggle input:checked + .toggle-track::after{transform:translateX(20px)}
+    .preview-wrap{position:sticky;top:96px}.preview-card{background:var(--surface-lowest);border-radius:var(--card-radius);padding:24px;box-shadow:var(--card-shadow)} .req-card-top{display:flex;justify-content:space-between;gap:12px;font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:14px}
+    .preview-card h2{font-size:1rem;font-weight:600;margin-bottom:6px}.preview-card p{font-size:.875rem;color:var(--on-surface-muted);line-height:1.55}.bar{height:4px;background:var(--surface-low);border-radius:9999px;overflow:hidden;margin:14px 0}.bar-fill{width:0;height:100%;background:var(--primary);border-radius:9999px}
+    .preview-foot{display:flex;align-items:center;justify-content:space-between;gap:12px}.avatars{display:flex}.avatar{width:28px;height:28px;border-radius:50%;background:var(--surface-low);border:2px solid var(--surface-lowest);margin-left:-6px}.avatar:first-child{margin-left:0}.preview-note{margin-top:16px;font-size:.875rem;color:var(--on-surface-muted);line-height:1.65}
+    .footer{background:#0f172a;padding-top:56px;padding-bottom:32px}.footer-inner{padding-inline:var(--px);max-width:var(--max-w);margin-inline:auto}.footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;padding-bottom:40px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.08)}.footer-col-label{font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:14px}.footer-links{display:flex;flex-direction:column;gap:10px}.footer-links a{font-size:.875rem;color:rgba(255,255,255,.60);transition:color .15s}.footer-links a:hover{color:#fff}.footer-social{display:flex;gap:10px;margin-top:6px}.social-btn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55);transition:border-color .15s,color .15s}.social-btn:hover{border-color:rgba(255,255,255,.38);color:#fff}.footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}.footer-copy{font-size:.8125rem;color:rgba(255,255,255,.35)}.footer-legal{display:flex;gap:20px}.footer-legal a{font-size:.8125rem;color:rgba(255,255,255,.35);transition:color .15s}.footer-legal a:hover{color:rgba(255,255,255,.70)}
+    @media (max-width:1023px){.form-grid{grid-template-columns:1fr}.preview-wrap{position:static}}
+    @media (max-width:767px){.nav-links{display:none}.btn-ghost.nav-login{display:none}.mobile-menu-toggle{display:block}.field-row{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr;gap:28px}.footer-bottom{flex-direction:column;align-items:flex-start;gap:8px}.glass-panel{padding:24px}}
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner"><nav class="main-nav" aria-label="Основная навигация"><a class="nav-logo" href="index.html">Provodnik</a><ul class="nav-links" role="list"><li><a href="destination.html">Направления</a></li><li><a href="requests.html" aria-current="page">Запросы</a></li><li><a href="guide.html">Гиды</a></li></ul><div class="nav-ctas"><a class="btn-ghost nav-login" href="#">Войти</a><a class="btn-primary" href="create-request.html">Создать запрос</a></div><details class="mobile-menu-toggle"><summary aria-label="Открыть меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></summary><div class="mobile-menu"><a href="destination.html">Направления</a><a href="requests.html" aria-current="page">Запросы</a><a href="guide.html">Гиды</a><a class="mobile-menu-cta" href="create-request.html">Создать запрос</a></div></details></nav></header>
+  <main>
+    <section class="page-head"><div class="container"><p class="sec-label">Новый запрос</p><h1 class="sec-title">Создайте запрос — гиды предложат маршрут</h1><p>Опишите куда, когда и с кем — проводники увидят ваш запрос и пришлют предложения.</p></div></section>
+    <section class="form-layout"><div class="container"><div class="form-grid"><form class="glass-panel"><div class="field-grid"><div class="field"><label for="destination">Направление</label><input id="destination" type="text" placeholder="Байкал, Казань, Алтай…" /></div><div class="field-row"><div class="field"><label for="date-from">Даты поездки</label><input id="date-from" type="date" /></div><div class="field"><label for="date-to">До</label><input id="date-to" type="date" /></div></div><div class="field-row"><div class="field"><label for="group-min">Состав группы — минимум</label><input id="group-min" type="number" placeholder="2" /></div><div class="field"><label for="group-max">Максимум</label><input id="group-max" type="number" placeholder="6" /></div></div><div class="field-row"><div class="field"><label for="budget-from">Бюджет на человека — от ₽</label><input id="budget-from" type="number" placeholder="18000" /></div><div class="field"><label for="budget-to">До ₽</label><input id="budget-to" type="number" placeholder="35000" /></div></div><div class="field"><label for="format">Формат поездки</label><select id="format"><option>Природа и активный отдых</option><option>Города и культура</option><option>Гастрономия</option><option>Семейный</option><option>Экстрим</option></select></div><div class="field"><label for="description">Описание</label><textarea id="description" rows="4" placeholder="Расскажите подробнее: что важно, чего хотите избежать, особые пожелания…"></textarea></div><div class="toggle-row"><div class="toggle-copy"><strong>Открытая группа</strong><span>Другие путешественники смогут присоединиться к карточке.</span></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span></label></div><div class="toggle-row"><div class="toggle-copy"><strong>Принимать офферы от гидов</strong><span>Предложения появятся сразу после публикации запроса.</span></div><label class="toggle"><input type="checkbox" checked /><span class="toggle-track"></span></label></div></div><button class="btn-primary" style="width:100%;margin-top:28px;" type="submit">Опубликовать запрос</button></form><aside class="preview-wrap"><p class="sec-label">Так будет выглядеть ваш запрос</p><article class="preview-card"><div class="req-card-top"><span>Ваше направление</span><span>0 / 0 мест</span></div><h2>Название запроса</h2><p>Даты · Формат поездки</p><div class="bar"><div class="bar-fill"></div></div><div class="preview-foot"><div class="avatars"><span class="avatar"></span><span class="avatar"></span><span class="avatar"></span></div><strong style="font-size:.875rem;color:var(--on-surface);">— тыс. ₽</strong></div></article><p class="preview-note">После публикации гиды увидят ваш запрос и начнут присылать предложения.</p></aside></div></div></section>
+  </main>
+  <footer class="footer" role="contentinfo"><div class="footer-inner"><div class="footer-grid"><nav aria-label="О проекте"><p class="footer-col-label">О проекте</p><ul class="footer-links"><li><a href="#">О нас</a></li><li><a href="guide.html">Для гидов</a></li><li><a href="#">Блог</a></li></ul></nav><nav aria-label="Поддержка"><p class="footer-col-label">Поддержка</p><ul class="footer-links"><li><a href="#">FAQ</a></li><li><a href="#">Помощь</a></li><li><a href="#">Связаться с нами</a></li></ul></nav><div><nav aria-label="Правила"><p class="footer-col-label">Правила</p><ul class="footer-links"><li><a href="#">Условия использования</a></li><li><a href="#">Конфиденциальность</a></li><li><a href="#">Cookies</a></li></ul></nav><div style="margin-top:24px;"><p class="footer-col-label">Мы в сети</p><div class="footer-social"><a class="social-btn" href="#" aria-label="ВКонтакте"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.87h-1.62c-.61 0-.8-.49-1.9-1.6-.95-.93-1.37-.93-1.6-.93-.33 0-.42.09-.42.56v1.46c0 .4-.13.64-1.18.64-1.74 0-3.67-1.06-5.02-3.03C4.7 10.3 4.27 8.45 4.27 8.06c0-.23.09-.45.56-.45h1.62c.42 0 .58.19.74.64.82 2.36 2.19 4.43 2.75 4.43.21 0 .3-.1.3-.64V9.81c-.07-1.15-.67-1.24-.67-1.65 0-.19.15-.39.4-.39h2.55c.35 0 .47.19.47.6v3.23c0 .35.15.47.26.47.21 0 .38-.12.77-.51 1.19-1.33 2.04-3.38 2.04-3.38.11-.23.3-.45.73-.45h1.62c.49 0 .6.25.49.6-.21 1-.2.97-1.55 2.94-.23.37-.32.54 0 .93.23.28.98.93 1.48 1.49.92 1.04 1.62 1.91 1.81 2.51.2.59-.1.89-.7.89z"/></svg></a><a class="social-btn" href="#" aria-label="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z"/></svg></a></div></div></div></div><div class="footer-bottom"><p class="footer-copy">© 2024 Provodnik. Все права защищены.</p><div class="footer-legal"><a href="#">Условия</a><a href="#">Конфиденциальность</a></div></div></div></footer>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
 </html>

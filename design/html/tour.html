@@ -1,237 +1,36 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Provodnik — Экскурсия</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="css/home.css" />
-  </head>
-  <body class="hw-theme-cool hw-theme-alice hw-tour-page">
-    <a class="hw-skip-link" href="#main-content">Перейти к основному содержимому</a>
-
-    <header class="hw-top hw-tour-top">
-      <div class="hw-tour-cover" aria-hidden="true"></div>
-
-      <div class="hw-nav-shell">
-        <nav class="hw-nav-inner" aria-label="Основная навигация">
-          <a class="hw-brand" href="index.html">
-            <span class="hw-brand-mark" aria-hidden="true">
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.5)" stroke-width="1.2" />
-                <circle cx="12" cy="12" r="3" fill="currentColor" />
-                <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-              </svg>
-            </span>
-            Provodnik
-          </a>
-          <ul class="hw-nav-links">
-            <li><a class="is-active" href="index.html" aria-current="page">Направления</a></li>
-            <li><a href="requests.html">Запросы</a></li>
-            <li><a href="guide.html">Гиды</a></li>
-            <li><a href="tour.html">Экскурсии</a></li>
-            <li><a href="dashboard.html">Профиль</a></li>
-          </ul>
-          <details class="hw-nav-mobile">
-            <summary aria-label="Открыть меню">
-              <span></span>
-              <span></span>
-              <span></span>
-            </summary>
-            <div class="hw-nav-mobile-menu">
-              <a class="is-active" href="index.html" aria-current="page">Направления</a>
-              <a href="requests.html">Запросы</a>
-              <a href="guide.html">Гиды</a>
-              <a href="tour.html">Экскурсии</a>
-              <a href="dashboard.html">Профиль</a>
-            </div>
-          </details>
-        </nav>
-      </div>
-
-      <div class="hw-tour-hero-wrap">
-        <section class="hw-tour-hero-card" aria-label="Карточка экскурсии">
-          <div class="hw-tour-hero-head">
-            <h1>Камчатка: Вулканы<br />и Тихий Океан</h1>
-            <p>Экспедиция к Долине гейзеров и на берег океана.</p>
-            <div class="hw-tour-hero-rating">
-              <span class="hw-tour-stars">★★★★★</span>
-              <span>4,9/5 (120 отзывов)</span>
-            </div>
-          </div>
-          <p class="hw-tour-hero-price">от 120 000 ₽</p>
-        </section>
-      </div>
-    </header>
-
-    <main id="main-content" class="hw-tour-main">
-      <section class="hw-tour-layout" aria-label="Детали тура">
-        <div class="hw-tour-left-col">
-          <article class="hw-tour-card hw-tour-card--description">
-            <h2>Описание тура</h2>
-            <p>
-              Присоединяйтесь к путешественникам, объединяйтесь в группы по размерам и распределяйте расходы с
-              гидом. Маршрут проходит по восточному побережью Камчатки.
-            </p>
-            <ul class="hw-tour-list">
-              <li>Впечатляющая природа: вулканы, гейзеры, горячие источники</li>
-              <li>Гастроужины с локальными морепродуктами</li>
-              <li>Золотой пляж с панорамным видом на Тихий океан</li>
-              <li>Подбор группы и бюджета через биржу запросов</li>
-            </ul>
-          </article>
-
-          <article class="hw-tour-card hw-tour-card--guide">
-            <h2>Ваш гид</h2>
-            <div class="hw-tour-guide-row">
-              <img
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80"
-                alt="Алексей Смирнов"
-              />
-              <div>
-                <p class="hw-tour-guide-name">Алексей Смирнов</p>
-                <p class="hw-tour-guide-meta">8+ лет • 5/5</p>
-                <p class="hw-tour-guide-bio">Эксперт Камчатки, проводник в группе и автор выездных экспедиций.</p>
-              </div>
-              <span class="hw-tour-guide-rating">4,9/5</span>
-            </div>
-          </article>
-
-          <article class="hw-tour-card hw-tour-card--split">
-            <h2>Включено/Не включено</h2>
-            <div class="hw-tour-two-list">
-              <ul class="hw-tour-list hw-tour-list--dense">
-                <li>Сложные трансферы</li>
-                <li>Профессиональный проводник</li>
-                <li>Выездная еда включена</li>
-              </ul>
-              <ul class="hw-tour-list hw-tour-list--dense">
-                <li>Не входит перелёт</li>
-                <li>Часть личных трат</li>
-                <li>Не включено ПЦР</li>
-              </ul>
-            </div>
-          </article>
-        </div>
-
-        <div class="hw-tour-right-col">
-          <article class="hw-tour-card hw-tour-card--plan">
-            <h2>Планирование поездки</h2>
-            <p class="hw-tour-plan-sub">Быстрый расчёт поездки</p>
-            <p class="hw-tour-plan-price">145 - 180 тыс. ₽</p>
-            <div class="hw-tour-plan-chips">
-              <span>10-12 дней</span>
-              <span>5-6 чел.</span>
-              <span>Авиабилеты: Нет</span>
-            </div>
-            <div class="hw-tour-plan-actions">
-              <a class="hw-gw-btn hw-gw-btn--primary" href="create-request.html">Создать запрос на этот тур</a>
-              <a class="hw-gw-btn hw-gw-btn--secondary" href="requests.html">Присоединиться к существующей группе</a>
-            </div>
-          </article>
-
-          <article class="hw-tour-card hw-tour-card--reviews">
-            <h2>Отзывы</h2>
-            <div class="hw-tour-reviews-top">
-              <p class="hw-tour-reviews-score">4,9</p>
-              <div class="hw-tour-bars">
-                <span style="--w: 92%"></span>
-                <span style="--w: 74%"></span>
-                <span style="--w: 51%"></span>
-                <span style="--w: 26%"></span>
-                <span style="--w: 15%"></span>
-              </div>
-            </div>
-            <div class="hw-tour-review-item">
-              <p>Провели сессию с гидом на рассвете. Всё чётко организовано, рекомендую.</p>
-              <div class="hw-tour-review-avatars">
-                <span style="background-image: url('https://i.pravatar.cc/80?img=12')"></span>
-                <span style="background-image: url('https://i.pravatar.cc/80?img=33')"></span>
-                <span style="background-image: url('https://i.pravatar.cc/80?img=45')"></span>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="hw-tour-similar" aria-labelledby="hw-tour-similar-heading">
-        <h2 id="hw-tour-similar-heading">Похожие туры</h2>
-        <div class="hw-tour-similar-grid">
-          <article class="hw-tour-mini">
-            <div class="hw-tour-mini-image hw-tour-mini-image--altai"></div>
-            <div class="hw-tour-mini-body">
-              <h3>Алтай</h3>
-              <p>Горное озеро</p>
-              <div class="hw-tour-mini-meta"><span>4,9/5</span><span>10-12 дней</span><span>5-6 чел.</span></div>
-              <p class="hw-tour-mini-price">от 145 000 ₽</p>
-            </div>
-          </article>
-          <article class="hw-tour-mini">
-            <div class="hw-tour-mini-image hw-tour-mini-image--karelia"></div>
-            <div class="hw-tour-mini-body">
-              <h3>Карелия</h3>
-              <p>Северное Сияние</p>
-              <div class="hw-tour-mini-meta"><span>4,9/5</span><span>10-12 дней</span><span>5-6 чел.</span></div>
-              <p class="hw-tour-mini-price">от 145 000 ₽</p>
-            </div>
-          </article>
-          <article class="hw-tour-mini">
-            <div class="hw-tour-mini-image hw-tour-mini-image--baikal"></div>
-            <div class="hw-tour-mini-body">
-              <h3>Байкал</h3>
-              <p>Зимняя сказка</p>
-              <div class="hw-tour-mini-meta"><span>4,9/5</span><span>10-12 дней</span><span>5-6 чел.</span></div>
-              <p class="hw-tour-mini-price">от 145 000 ₽</p>
-            </div>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <footer class="hw-footer">
-      <div class="hw-footer-grid">
-        <nav class="hw-footer-col" aria-label="О нас">
-          <h4>О нас</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">О сервисе</a></li>
-            <li><a href="#">Команда</a></li>
-            <li><a href="#">Контакты</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Помощь">
-          <h4>Помощь</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Центр поддержки</a></li>
-            <li><a href="#">Для гидов</a></li>
-            <li><a href="#">Для путешественников</a></li>
-          </ul>
-        </nav>
-        <nav class="hw-footer-col" aria-label="Правила">
-          <h4>Правила</h4>
-          <ul class="hw-footer-list">
-            <li><a href="#">Условия использования</a></li>
-            <li><a href="#">Политика конфиденциальности</a></li>
-          </ul>
-        </nav>
-        <div class="hw-footer-col">
-          <h4>Соцсети</h4>
-          <div class="hw-social">
-            <a href="#" aria-label="ВКонтакте">VK</a>
-            <a href="#" aria-label="Telegram">TG</a>
-            <a href="#" aria-label="Instagram">IG</a>
-          </div>
-        </div>
-      </div>
-      <div class="hw-footer-bar">
-        <span>© 2024 Provodnik</span>
-        <a href="#">Термины сервиса</a>
-        <a href="#">Политика конфиденциальности</a>
-      </div>
-    </footer>
-  </body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Тур на Камчатку: программа по дням, что включено и как перевести тур в свой запрос." />
+  <title>Provodnik — Камчатка</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root{--primary:#0058be;--primary-hover:#2170e4;--surface:#f9f9ff;--surface-low:#f3f3fa;--surface-lowest:#fff;--on-surface:#191c20;--on-surface-muted:#5a5e6b;--outline-variant:#c2c6d6;--footer-bg:#0f172a;--glass-bg:rgba(249,249,255,.60);--glass-border:rgba(194,198,214,.18);--glass-blur:blur(20px);--glass-shadow:0 8px 32px rgba(25,28,32,.06);--glass-radius:28px;--card-shadow:0 4px 24px rgba(25,28,32,.07);--card-radius:24px;--font-display:'Cormorant Garamond', Georgia, serif;--font-ui:'DM Sans', system-ui, sans-serif;--max-w:1200px;--sec-pad:80px;--px:clamp(20px,4vw,48px)}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0} html{font-size:16px;scroll-behavior:smooth} body{font-family:var(--font-ui);background:var(--surface);color:var(--on-surface);line-height:1.5;-webkit-font-smoothing:antialiased} a{color:inherit;text-decoration:none} ul{list-style:none}
+    .container{width:100%;max-width:var(--max-w);margin-inline:auto;padding-inline:var(--px)} .btn-primary,.btn-ghost{display:inline-flex;align-items:center;justify-content:center;border-radius:9999px;font-size:.875rem}.btn-primary{padding:9px 22px;background:var(--primary);color:#fff;font-weight:600}.btn-ghost{padding:9px 18px;border:1px solid rgba(0,88,190,.22);color:var(--primary);font-weight:500}
+    .site-header{position:fixed;top:0;left:0;right:0;z-index:50;padding:14px var(--px)} .main-nav{max-width:var(--max-w);margin-inline:auto;display:flex;align-items:center;justify-content:space-between;padding:10px 24px;border-radius:9999px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 4px 24px rgba(25,28,32,.06);position:relative}.nav-logo{font-family:var(--font-display);font-size:1.3125rem;font-weight:600;letter-spacing:.02em}.nav-links{display:flex;gap:32px}.nav-links a{font-size:.875rem;font-weight:500;color:var(--on-surface-muted)}.nav-ctas{display:flex;gap:8px}.mobile-menu-toggle{display:none;position:relative}.mobile-menu-toggle summary{list-style:none;cursor:pointer;padding:8px;border-radius:8px;color:var(--on-surface-muted)}.mobile-menu{position:absolute;right:0;top:calc(100% + 8px);width:220px;border-radius:20px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:0 12px 40px rgba(25,28,32,.10);padding:8px;display:flex;flex-direction:column;gap:2px;z-index:100}.mobile-menu a{padding:10px 14px;border-radius:12px;font-size:.875rem;font-weight:500;color:var(--on-surface-muted)}.mobile-menu-cta{margin-top:4px;background:var(--primary)!important;color:#fff!important;font-weight:600!important;text-align:center}
+    .sec-label{font-size:.6875rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;color:var(--on-surface-muted);margin-bottom:8px}.hero{position:relative;min-height:50vh;padding:160px 0 56px;display:flex;align-items:flex-end;color:#fff;overflow:hidden}.hero::before{content:"";position:absolute;inset:0;background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80') center/cover no-repeat}.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(25,28,32,.12) 0%,rgba(25,28,32,.38) 55%,rgba(25,28,32,.60) 100%)}.hero-content{position:relative;z-index:1;max-width:760px}.hero h1{font-family:var(--font-display);font-size:clamp(2.5rem,5vw,4rem);line-height:1.03;font-weight:600}.hero-pills{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}.hero-pills span{padding:8px 16px;border-radius:9999px;background:rgba(249,249,255,.18);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.20);font-size:.8125rem}
+    .main-sec{padding-block:64px}.grid{display:grid;grid-template-columns:minmax(0,1.55fr) 360px;gap:40px}.gallery{display:grid;gap:12px}.gallery-main{aspect-ratio:16/9;border-radius:20px;background:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80') center/cover}.gallery-thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.gallery-thumbs div{aspect-ratio:16/11;border-radius:18px;background-size:cover;background-position:center}
+    .text-block{padding-top:32px}.text-block h2{font-family:var(--font-display);font-size:1.875rem;line-height:1.08;margin-bottom:14px}.text-block p,.day-list li,.include-list li{font-size:.9375rem;line-height:1.72;color:var(--on-surface-muted)}.text-block p+p{margin-top:14px}.day-list,.include-list{display:grid;gap:12px}.include-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .book{position:sticky;top:96px;padding:28px;background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);border-radius:28px}.price{font-family:var(--font-display);font-size:2.4rem;line-height:1}.small{margin-top:8px;color:var(--on-surface-muted);font-size:.875rem}.divider{height:1px;background:rgba(194,198,214,.30);margin:20px 0}.guide-mini{background:var(--surface-lowest);border-radius:16px;padding:14px;display:flex;align-items:center;justify-content:space-between;gap:12px}.guide-left{display:flex;align-items:center;gap:12px}.circle{width:36px;height:36px;border-radius:50%;background:var(--surface-low);display:flex;align-items:center;justify-content:center;color:var(--primary);font-weight:600}
+    .reviews{background:var(--surface-low);padding-block:48px}.review-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.review{display:flex;gap:14px}.review .circle{width:42px;height:42px}.review strong{display:block;margin-bottom:4px}.review small{display:block;color:var(--on-surface-muted);margin-bottom:8px}
+    .footer{background:#0f172a;padding-top:56px;padding-bottom:32px}.footer-inner{padding-inline:var(--px);max-width:var(--max-w);margin-inline:auto}.footer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;padding-bottom:40px;margin-bottom:28px;border-bottom:1px solid rgba(255,255,255,.08)}.footer-col-label{font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:14px}.footer-links{display:flex;flex-direction:column;gap:10px}.footer-links a{font-size:.875rem;color:rgba(255,255,255,.60)}.footer-social{display:flex;gap:10px;margin-top:6px}.social-btn{width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.55)}.footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px}.footer-copy,.footer-legal a{font-size:.8125rem;color:rgba(255,255,255,.35)}.footer-legal{display:flex;gap:20px}
+    @media (max-width:1023px){.grid,.review-grid{grid-template-columns:1fr}.book{position:static}}
+    @media (max-width:767px){.nav-links,.btn-ghost.nav-login{display:none}.mobile-menu-toggle{display:block}.gallery-thumbs,.include-grid,.footer-grid{grid-template-columns:1fr}.footer-bottom{flex-direction:column;align-items:flex-start}}
+  </style>
+</head>
+<body>
+  <header class="site-header" role="banner"><nav class="main-nav" aria-label="Основная навигация"><a class="nav-logo" href="index.html">Provodnik</a><ul class="nav-links" role="list"><li><a href="destination.html">Направления</a></li><li><a href="requests.html">Запросы</a></li><li><a href="guide.html">Гиды</a></li></ul><div class="nav-ctas"><a class="btn-ghost nav-login" href="#">Войти</a><a class="btn-primary" href="create-request.html">Создать запрос</a></div><details class="mobile-menu-toggle"><summary aria-label="Открыть меню"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></summary><div class="mobile-menu"><a href="destination.html">Направления</a><a href="requests.html">Запросы</a><a href="guide.html">Гиды</a><a class="mobile-menu-cta" href="create-request.html">Создать запрос</a></div></details></nav></header>
+  <main>
+    <section class="hero"><div class="container"><div class="hero-content"><p class="sec-label" style="color:rgba(255,255,255,.72)">Авторский тур · Камчатка</p><h1>Вулканы, океан и рассвет над Тихим побережьем</h1><div class="hero-pills"><span>6 дней</span><span>Группа до 8 человек</span><span>от 120 тыс. ₽</span></div></div></div></section>
+    <section class="main-sec"><div class="container"><div class="grid"><div><div class="gallery"><div class="gallery-main"></div><div class="gallery-thumbs"><div style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80&crop=top')"></div><div style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80&crop=center')"></div><div style="background-image:url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80&crop=bottom')"></div></div></div><section class="text-block"><h2>О маршруте</h2><p>Этот тур собирает Камчатку не как набор экстремальных точек, а как последовательность сильных ландшафтов: вулканическое плато, тихоокеанский берег, один вертолётный день и свободный финальный блок под ритм группы.</p><p>Группа маленькая, поэтому логистика и темп остаются гибкими. На маршруте важны не только большие виды, но и комфорт между ними: тёплые остановки, понятные переходы и честная развёртка, что включено в цену.</p><p>Тур можно взять как готовый сценарий или использовать как базу для собственного запроса, если нужен другой состав или дополнительные дни.</p></section><section class="text-block"><h2>Программа по дням</h2><ol class="day-list"><li><strong>День 1.</strong> Прилёт в Петропавловск-Камчатский, заселение, знакомство с группой.</li><li><strong>День 2.</strong> Авачинский вулкан — подъём до кратера.</li><li><strong>День 3.</strong> Курильское озеро — медведи и нерест.</li><li><strong>День 4.</strong> Тихоокеанское побережье — пляж Халактырский.</li><li><strong>День 5.</strong> Долина гейзеров — вертолётный тур.</li><li><strong>День 6.</strong> Свободное время, вылет.</li></ol></section><section class="text-block"><h2>Что включено</h2><div class="include-grid"><ul class="include-list"><li>Трансфер из аэропорта</li><li>Проживание в кемпинге</li><li>Все входные билеты</li><li>Снаряжение</li></ul><ul class="include-list"><li>Питание во время переходов</li><li>Гид на всё время</li><li>Не включено: авиабилеты</li><li>Не включено: страховка и личные расходы</li></ul></div></section></div><aside class="book"><div class="price">от 120 тыс. ₽</div><p class="small">на человека</p><p class="small">Группа 4–8 человек · 6 дней</p><a class="btn-primary" style="width:100%;margin-top:18px" href="create-request.html">Создать запрос на этот тур</a><a class="btn-ghost" style="width:100%;margin-top:10px" href="requests.html">Найти открытую группу</a><div class="divider"></div><div class="guide-mini"><div class="guide-left"><span class="circle">АВ</span><div><strong>Андрей Воронов</strong><div class="small" style="margin:0">Камчатка · 4.9 ★</div></div></div><a href="guide.html" style="font-size:.875rem;font-weight:600;color:var(--primary)">Профиль →</a></div><p class="small" style="margin-top:14px">Оплата после подтверждения состава группы и дат.</p></aside></div></div></section>
+    <section class="reviews"><div class="container"><p class="sec-label">Отзывы</p><h2 style="font-family:var(--font-display);font-size:clamp(1.875rem,3.5vw,2.375rem);font-weight:600;line-height:1.1;margin-bottom:28px">Что говорят о поездке</h2><div class="review-grid"><article class="review"><div class="circle">АМ</div><div><strong>Анна Миронова</strong><small>4.9</small><p style="color:var(--on-surface-muted);line-height:1.65">Понравилось, что даже на сложном маршруте было ощущение собранности и контроля. Никакой суеты между точками, всё объяснено заранее.</p></div></article><article class="review"><div class="circle">РК</div><div><strong>Роман Котов</strong><small>4.9</small><p style="color:var(--on-surface-muted);line-height:1.65">Сильнейший момент — океан после вулканического дня. Маршрут реально держит контраст и не превращается в хаотичный набор вау-остановок.</p></div></article><article class="review"><div class="circle">ТС</div><div><strong>Татьяна Соколова</strong><small>4.8</small><p style="color:var(--on-surface-muted);line-height:1.65">Для Камчатки неожиданно комфортный темп. Было понятно, где усилие, а где отдых, и это сделало поездку очень ровной по ощущениям.</p></div></article></div></div></section>
+  </main>
+  <footer class="footer" role="contentinfo"><div class="footer-inner"><div class="footer-grid"><nav aria-label="О проекте"><p class="footer-col-label">О проекте</p><ul class="footer-links"><li><a href="#">О нас</a></li><li><a href="guide.html">Для гидов</a></li><li><a href="#">Блог</a></li></ul></nav><nav aria-label="Поддержка"><p class="footer-col-label">Поддержка</p><ul class="footer-links"><li><a href="#">FAQ</a></li><li><a href="#">Помощь</a></li><li><a href="#">Связаться с нами</a></li></ul></nav><div><nav aria-label="Правила"><p class="footer-col-label">Правила</p><ul class="footer-links"><li><a href="#">Условия использования</a></li><li><a href="#">Конфиденциальность</a></li><li><a href="#">Cookies</a></li></ul></nav><div style="margin-top:24px;"><p class="footer-col-label">Мы в сети</p><div class="footer-social"><a class="social-btn" href="#" aria-label="ВКонтакте"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M15.07 2H8.93C3.33 2 2 3.33 2 8.93v6.14C2 20.67 3.33 22 8.93 22h6.14C20.67 22 22 20.67 22 15.07V8.93C22 3.33 20.67 2 15.07 2zm3.08 13.87h-1.62c-.61 0-.8-.49-1.9-1.6-.95-.93-1.37-.93-1.6-.93-.33 0-.42.09-.42.56v1.46c0 .4-.13.64-1.18.64-1.74 0-3.67-1.06-5.02-3.03C4.7 10.3 4.27 8.45 4.27 8.06c0-.23.09-.45.56-.45h1.62c.42 0 .58.19.74.64.82 2.36 2.19 4.43 2.75 4.43.21 0 .3-.1.3-.64V9.81c-.07-1.15-.67-1.24-.67-1.65 0-.19.15-.39.4-.39h2.55c.35 0 .47.19.47.6v3.23c0 .35.15.47.26.47.21 0 .38-.12.77-.51 1.19-1.33 2.04-3.38 2.04-3.38.11-.23.3-.45.73-.45h1.62c.49 0 .6.25.49.6-.21 1-.2.97-1.55 2.94-.23.37-.32.54 0 .93.23.28.98.93 1.48 1.49.92 1.04 1.62 1.91 1.81 2.51.2.59-.1.89-.7.89z"/></svg></a><a class="social-btn" href="#" aria-label="Telegram"><svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z"/></svg></a></div></div></div></div><div class="footer-bottom"><p class="footer-copy">© 2024 Provodnik. Все права защищены.</p><div class="footer-legal"><a href="#">Условия</a><a href="#">Конфиденциальность</a></div></div></div></footer>
+  <script src="https://mcp.figma.com/mcp/html-to-design/capture.js" async></script>
+</body>
 </html>
