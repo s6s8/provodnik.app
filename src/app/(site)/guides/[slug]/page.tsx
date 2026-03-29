@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getSeededPublicGuide } from "@/data/public-guides/seed";
-import { GuideProfile } from "@/features/guide/components/public/guide-profile";
+import { seededPublicListings } from "@/data/public-listings/seed";
+import { listSeededReviewsForTarget } from "@/data/reviews/seed";
+import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
 
 export function generateMetadata({
   params,
@@ -28,5 +30,7 @@ export default async function PublicGuideProfilePage({
   const { slug } = await params;
   const guide = getSeededPublicGuide(slug);
   if (!guide) notFound();
-  return <GuideProfile guideId={guide.slug} />;
+  const listings = seededPublicListings.filter((l) => l.guideSlug === slug);
+  const reviews = listSeededReviewsForTarget("guide", slug);
+  return <GuideProfileScreen guide={guide} listings={listings} reviews={reviews} />;
 }

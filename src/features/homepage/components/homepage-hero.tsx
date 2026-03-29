@@ -1,94 +1,168 @@
-import Image from "next/image";
 import Link from "next/link";
-import { Search } from "lucide-react";
-
-import {
-  homeContainerClass,
-  homepageContent,
-} from "@/features/homepage/components/homepage-content";
-import { HomePageNavbar } from "@/features/homepage/components/homepage-navbar";
-import { cn } from "@/lib/utils";
-
-const primaryActionClass =
-  "inline-flex h-10 items-center justify-center rounded-full bg-[var(--color-primary)] px-6 text-[0.875rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]";
-
-const secondaryActionClass =
-  "inline-flex h-10 items-center justify-center rounded-full border border-[rgba(203,213,225,0.92)] bg-[rgba(255,255,255,0.62)] px-6 text-[0.875rem] font-semibold text-[var(--color-text)] backdrop-blur-md shadow-[0_4px_14px_rgba(15,23,42,0.06)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px";
 
 export function HomePageHero() {
-  const { hero } = homepageContent;
-
   return (
-    <section className={cn(homeContainerClass, "relative pt-2 sm:pt-3")}>
-      <div className="relative min-h-[520px] overflow-hidden rounded-[32px] border border-white/70 shadow-[0_28px_80px_rgba(33,49,63,0.14)]">
-        <Image
-          src={hero.imageUrl}
-          alt="Путешественники на берегу большого озера"
-          fill
-          priority
-          sizes="(max-width: 1200px) 100vw, 1120px"
-          className="object-cover object-center"
-        />
+    <section
+      aria-label="Главный баннер"
+      style={{
+        position: "relative",
+        minHeight: "55vh",
+        maxHeight: "720px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        overflow: "hidden",
+      }}
+    >
+      {/* Background image */}
+      <div
+        role="img"
+        aria-label="Берег озера Байкал, утренний свет"
+        style={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage:
+            "url('https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=85')",
+          backgroundSize: "cover",
+          backgroundPosition: "center 40%",
+        }}
+      />
 
-        <div className="absolute inset-0 bg-[rgba(15,23,42,0.28)]" />
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_80%_70%_at_50%_55%,rgba(15,23,42,0.48),transparent_80%)]" />
+      {/* Gradient overlay */}
+      <div className="overlay-bottom" aria-hidden="true" />
 
-        <div className="relative flex min-h-[520px] flex-col">
-          <HomePageNavbar />
+      {/* Content */}
+      <div
+        className="on-dark"
+        style={{
+          position: "relative",
+          zIndex: 2,
+          padding: "96px 20px 48px",
+          maxWidth: "860px",
+          width: "100%",
+        }}
+      >
+        {/* Kicker */}
+        <p
+          style={{
+            display: "inline-block",
+            padding: "5px 16px",
+            borderRadius: "9999px",
+            background: "rgba(255,255,255,0.14)",
+            backdropFilter: "blur(12px)",
+            WebkitBackdropFilter: "blur(12px)",
+            border: "1px solid rgba(255,255,255,0.22)",
+            fontSize: "0.6875rem",
+            fontWeight: 500,
+            letterSpacing: "0.18em",
+            textTransform: "uppercase",
+            color: "rgba(255,255,255,0.82)",
+            marginBottom: "20px",
+          }}
+        >
+          Маршруты с локальными проводниками
+        </p>
 
-          <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-5 pb-8 pt-4 text-center sm:px-10 sm:pb-14">
-            <p className="text-[0.8125rem] font-medium tracking-[0.05em] text-white/80 drop-shadow-[0_1px_4px_rgba(15,23,42,0.25)]">
-              {hero.kicker}
-            </p>
+        {/* Headline */}
+        <h1
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "clamp(2.25rem, 5vw, 3.625rem)",
+            fontWeight: 600,
+            lineHeight: 1.06,
+            marginBottom: "32px",
+          }}
+        >
+          Путешествуйте по России
+          <br />
+          с теми, кто знает каждый камень
+        </h1>
 
-            <h1 className="mt-4 max-w-[820px] font-display text-[2.5rem] font-semibold leading-[1.12] text-white drop-shadow-[0_2px_12px_rgba(15,23,42,0.35)] sm:text-[2.85rem] lg:text-[3.35rem]">
-              {hero.titleLines.map((line) => (
-                <span key={line} className="block">
-                  {line}
-                </span>
-              ))}
-            </h1>
+        {/* Search bar */}
+        <form
+          action="/destinations"
+          method="get"
+          role="search"
+          aria-label="Поиск направления"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "8px",
+            width: "100%",
+            maxWidth: "600px",
+            marginInline: "auto",
+            padding: "7px 7px 7px 22px",
+            borderRadius: "9999px",
+            background: "var(--glass-bg)",
+            backdropFilter: "var(--glass-blur)",
+            WebkitBackdropFilter: "var(--glass-blur)",
+            border: "1px solid var(--glass-border)",
+            boxShadow: "var(--glass-shadow)",
+          }}
+        >
+          <label className="sr-only" htmlFor="hero-search-input">
+            Куда едем?
+          </label>
+          <input
+            id="hero-search-input"
+            type="search"
+            name="q"
+            placeholder="Куда едем? Байкал, Казань, Алтай…"
+            autoComplete="off"
+            style={{
+              flex: 1,
+              minWidth: 0,
+              background: "transparent",
+              border: "none",
+              outline: "none",
+              fontFamily: "var(--font-ui)",
+              fontSize: "0.9375rem",
+              color: "var(--on-surface)",
+            }}
+          />
+          <button
+            type="submit"
+            className="btn-primary"
+            style={{ flexShrink: 0 }}
+          >
+            Найти
+          </button>
+        </form>
 
-            <form
-              action="/destinations"
-              method="get"
-              className="mt-6 flex w-full max-w-[480px] items-center gap-2 rounded-full border border-[rgba(203,213,225,0.88)] bg-[rgba(255,255,255,0.72)] px-4 py-2 pl-5 shadow-[0_12px_32px_rgba(15,23,42,0.07)] backdrop-blur-xl backdrop-saturate-150"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2.5 text-left">
-                <Search
-                  className="size-[17px] shrink-0 text-[var(--color-text-secondary)] opacity-80"
-                  strokeWidth={2}
-                />
-                <input
-                  type="text"
-                  name="q"
-                  aria-label="Поиск направления"
-                  placeholder={hero.searchPlaceholder}
-                  className="h-9 w-full bg-transparent text-[0.9375rem] text-[var(--color-text)] outline-none placeholder:text-[var(--color-text-muted)]"
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="inline-flex h-9 shrink-0 items-center justify-center gap-1.5 rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]"
-              >
-                <Search className="size-3.5 opacity-95" strokeWidth={2.25} />
-                {hero.searchButtonLabel}
-              </button>
-            </form>
-
-            <div className="mt-5 flex flex-wrap items-center justify-center gap-2.5">
-              {hero.actions.map((action) => (
-                <Link
-                  key={action.label}
-                  href={action.href}
-                  className={action.tone === "primary" ? primaryActionClass : secondaryActionClass}
-                >
-                  {action.label}
-                </Link>
-              ))}
-            </div>
-          </div>
+        {/* Ghost links */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "24px",
+            marginTop: "16px",
+            flexWrap: "wrap",
+          }}
+        >
+          <Link
+            href="/requests/new"
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "rgba(255,255,255,0.78)",
+              transition: "color 0.15s",
+            }}
+          >
+            Создать запрос →
+          </Link>
+          <Link
+            href="/requests"
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 500,
+              color: "rgba(255,255,255,0.78)",
+              transition: "color 0.15s",
+            }}
+          >
+            Найти группу →
+          </Link>
         </div>
       </div>
     </section>

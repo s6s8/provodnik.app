@@ -1,134 +1,200 @@
-import Image from "next/image";
 import Link from "next/link";
+import { seededDestinations } from "@/data/destinations/index";
 
-import {
-  type HomeDestination,
-  homeContainerClass,
-  homepageContent,
-} from "@/features/homepage/components/homepage-content";
-import { cn } from "@/lib/utils";
+// Static featured destination card data (matches HTML SOT)
+const FEATURED = {
+  slug: "lake-baikal",
+  name: "Озеро Байкал",
+  blurb:
+    "Ледяные бухты зимой, байкальский закат летом и маршруты от Иркутска до Ольхона с проверенными проводниками.",
+  imageUrl:
+    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80",
+};
+
+// Additional small cards matching HTML SOT (static — not from seed, to match exact design)
+const SMALL_CARDS = [
+  {
+    name: "Казань",
+    tours: "14 туров",
+    slug: "kazan",
+    imageUrl:
+      "https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Калининград",
+    tours: "20 туров",
+    slug: "kaliningrad",
+    imageUrl:
+      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Суздаль",
+    tours: "16 туров",
+    slug: "suzdal",
+    imageUrl:
+      "https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=900&q=80",
+  },
+  {
+    name: "Мурманск",
+    tours: "19 туров",
+    slug: "murmansk",
+    imageUrl:
+      "https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=900&q=80",
+  },
+];
+
 
 export function HomePageDestinations() {
-  const featured = homepageContent.destinations.cards.find((card) => card.featured);
-  const secondaryCards = homepageContent.destinations.cards.filter(
-    (card) => !card.featured,
-  );
+  // seededDestinations available for future dynamic enrichment
+  void seededDestinations;
 
   return (
-    <section className={cn(homeContainerClass, "pb-10 pt-4 sm:pt-6")}>
-      <div className="space-y-5">
-        <h2 className="text-[1.75rem] font-semibold tracking-tight text-[var(--color-text)] sm:text-[1.875rem]">
-          {homepageContent.destinations.title}
-        </h2>
+    <section className="section" aria-labelledby="dest-title">
+      <div className="container">
+        {/* Section header */}
+        <div className="section-hd">
+          <div>
+            <p className="sec-label" style={{ marginBottom: "8px" }}>
+              Популярные направления
+            </p>
+            <h2 id="dest-title" className="sec-title">
+              Российские маршруты, которые собирают группы быстрее всего
+            </h2>
+          </div>
+          <Link
+            href="/destinations"
+            style={{
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              color: "var(--primary)",
+              whiteSpace: "nowrap",
+            }}
+          >
+            Все направления →
+          </Link>
+        </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr] lg:grid-rows-2 lg:gap-3">
-          {featured ? (
-            <DestinationCard
-              card={featured}
-              className="min-h-[380px] sm:col-span-2 sm:min-h-[400px] lg:col-span-1 lg:row-span-2 lg:min-h-[420px]"
-              contentClassName="max-w-[22rem]"
-            />
-          ) : null}
+        {/* Destination grid */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.35fr 1fr 1fr",
+            gridTemplateRows: "226px 226px",
+            gap: "14px",
+          }}
+        >
+          {/* Featured card — spans 2 rows */}
+          <Link
+            href={`/destinations/${FEATURED.slug}`}
+            style={{
+              position: "relative",
+              display: "block",
+              borderRadius: "28px",
+              overflow: "hidden",
+              backgroundImage: `url('${FEATURED.imageUrl}')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              gridRow: "span 2",
+              transition: "transform 0.2s",
+            }}
+            aria-label={`Посмотреть туры: ${FEATURED.name}`}
+          >
+            <div className="overlay-top" aria-hidden="true" />
+            <div
+              style={{
+                position: "absolute",
+                insetInline: 0,
+                bottom: 0,
+                padding: "28px",
+                color: "#fff",
+              }}
+            >
+              <h3
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "2.375rem",
+                  fontWeight: 600,
+                  lineHeight: 1,
+                  marginBottom: "10px",
+                }}
+              >
+                {FEATURED.name}
+              </h3>
+              <p
+                style={{
+                  fontSize: "0.8125rem",
+                  color: "rgba(255,255,255,0.76)",
+                  lineHeight: 1.55,
+                  marginBottom: "18px",
+                  maxWidth: "28ch",
+                }}
+              >
+                {FEATURED.blurb}
+              </p>
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  padding: "8px 20px",
+                  borderRadius: "9999px",
+                  background: "var(--primary)",
+                  fontSize: "0.8125rem",
+                  fontWeight: 600,
+                  color: "#fff",
+                }}
+              >
+                Смотреть туры
+              </span>
+            </div>
+          </Link>
 
-          {secondaryCards.map((card) => (
-            <DestinationCard
-              key={card.name}
-              card={card}
-              className="min-h-[188px] lg:min-h-[200px]"
-              contentClassName="max-w-[11rem]"
-            />
+          {/* Small cards */}
+          {SMALL_CARDS.map((dest) => (
+            <Link
+              key={dest.slug}
+              href={`/destinations/${dest.slug}`}
+              style={{
+                position: "relative",
+                display: "block",
+                borderRadius: "28px",
+                overflow: "hidden",
+                backgroundImage: `url('${dest.imageUrl}')`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                transition: "transform 0.2s",
+              }}
+              aria-label={`${dest.name} — ${dest.tours}`}
+            >
+              <div className="overlay-top" aria-hidden="true" />
+              <div
+                style={{
+                  position: "absolute",
+                  insetInline: 0,
+                  bottom: 0,
+                  display: "flex",
+                  alignItems: "flex-end",
+                  justifyContent: "space-between",
+                  padding: "18px 22px",
+                  color: "#fff",
+                }}
+              >
+                <h3 style={{ fontFamily: "var(--font-display)", fontSize: "1.125rem", fontWeight: 600 }}>
+                  {dest.name}
+                </h3>
+                <span
+                  style={{
+                    fontSize: "0.75rem",
+                    fontWeight: 500,
+                    color: "rgba(255,255,255,0.75)",
+                  }}
+                >
+                  {dest.tours}
+                </span>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function DestinationCard({
-  card,
-  className,
-  contentClassName,
-}: {
-  card: HomeDestination;
-  className?: string;
-  contentClassName?: string;
-}) {
-  return (
-    <Link
-      href={card.href}
-      className={cn(
-        "group relative overflow-hidden rounded-[24px] border border-white/60 shadow-[0_22px_60px_rgba(33,49,63,0.11)] ring-1 ring-black/[0.03] transition-shadow duration-300 hover:shadow-[0_28px_72px_rgba(33,49,63,0.14)]",
-        card.featured && "rounded-[26px]",
-        className,
-      )}
-    >
-      <Image
-        src={card.imageUrl}
-        alt={card.name}
-        fill
-        sizes={
-          card.featured
-            ? "(max-width: 1024px) 100vw, 520px"
-            : "(max-width: 1024px) 50vw, 280px"
-        }
-        className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
-      />
-      <div
-        className={cn(
-          "absolute inset-0",
-          card.featured
-            ? "bg-[linear-gradient(180deg,rgba(15,23,42,0.02)_0%,transparent_42%,rgba(15,23,42,0.88)_100%)]"
-            : "bg-[linear-gradient(180deg,rgba(15,23,42,0.08)_0%,rgba(15,23,42,0.72)_100%)]",
-        )}
-      />
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_85%_12%,rgba(255,255,255,0.22),transparent_38%)]" />
-
-      {card.badge ? (
-        <span className="absolute right-3 top-3 inline-flex items-center rounded-full bg-[rgba(217,119,6,0.92)] px-2 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wide text-white shadow-sm">
-          {card.badge}
-        </span>
-      ) : null}
-
-      <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 sm:p-5">
-        <div
-          className={cn(
-            contentClassName,
-            card.featured
-              ? "rounded-2xl border border-white/25 bg-[rgba(255,255,255,0.14)] px-3 py-2.5 shadow-[0_12px_40px_rgba(15,23,42,0.12)] backdrop-blur-md backdrop-saturate-150"
-              : "space-y-1",
-          )}
-        >
-          <p
-            className={cn(
-              "font-semibold leading-tight text-white",
-              card.featured
-                ? "font-display text-[1.625rem] sm:text-[1.75rem] drop-shadow-sm"
-                : "text-[0.9375rem] drop-shadow-sm",
-            )}
-          >
-            {card.name}
-          </p>
-          <p
-            className={cn(
-              "text-[0.75rem] text-white/85",
-              !card.featured && "drop-shadow-sm",
-            )}
-          >
-            {card.subtitle}
-          </p>
-          {card.ctaLabel ? (
-            <span className="mt-3 inline-flex h-9 items-center justify-center rounded-full bg-[var(--color-primary)] px-5 text-[0.8125rem] font-semibold text-white shadow-[0_8px_24px_rgba(15,118,110,0.28)] transition-[transform,box-shadow] duration-200 hover:-translate-y-px hover:shadow-[0_12px_28px_rgba(15,118,110,0.32)]">
-              {card.ctaLabel}
-            </span>
-          ) : null}
-        </div>
-
-        {!card.featured && (
-          <p className="mb-1 shrink-0 self-end text-right text-[0.6875rem] font-medium text-white/88 drop-shadow-sm">
-            {card.toursLabel}
-          </p>
-        )}
-      </div>
-    </Link>
   );
 }

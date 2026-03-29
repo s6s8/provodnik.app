@@ -1,6 +1,7 @@
-import { TravelerRequestsWorkspaceScreen } from "@/features/traveler/components/requests/traveler-requests-workspace-screen";
+import { TravelerDashboardScreen } from "@/features/traveler/components/traveler-dashboard-screen";
+import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 
-export default function TravelerRequestsPage() {
-  return <TravelerRequestsWorkspaceScreen />;
+export default async function TravelerRequestsPage() {
+  const auth = await readAuthContextFromServer();
+  return <TravelerDashboardScreen auth={auth} />;
 }
-

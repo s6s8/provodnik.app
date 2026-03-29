@@ -2,77 +2,93 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { seededDestinations } from "@/data/destinations/seed";
-import { seededPublicGuides } from "@/data/public-guides/seed";
 import { seededPublicListings } from "@/data/public-listings/seed";
-import { getSeededOpenRequests } from "@/data/open-requests/seed";
-import { PublicDestinationDetailScreen } from "@/features/destinations/components/public/public-destination-detail-screen";
+import {
+  getDestinationBySlug,
+  getListingsByDestination,
+  type ListingRecord,
+} from "@/data/supabase/queries";
+import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Направление",
   description: "Откройте город: экскурсии, группы путешественников и локальные гиды.",
 };
 
-export default function DestinationDetailPage({
+const fallbackImage =
+  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80";
+
+function mapSeededListings(slug: string): ListingRecord[] {
+  return seededPublicListings
+    .filter((listing) => listing.city === seededDestinations.find((item) => item.slug === slug)?.name)
+    .map((listing) => ({
+      id: listing.slug,
+      slug: listing.slug,
+      title: listing.title,
+      destinationSlug: slug,
+      destinationName: listing.city,
+      destinationRegion: listing.region,
+      imageUrl: listing.coverImageUrl ?? fallbackImage,
+      priceRub: listing.priceFromRub,
+      durationDays: listing.durationDays,
+      durationLabel: `${listing.durationDays} дн.`,
+      groupSize: listing.groupSizeMax,
+      difficulty: "Средняя",
+      departure: listing.city,
+      format: listing.themes[0] ?? "Маршрут",
+      description: listing.highlights.join(". "),
+      inclusions: [...listing.inclusions],
+      exclusions: [],
+      guideSlug: listing.guideSlug,
+      guideName: "Локальный гид",
+      guideHomeBase: listing.city,
+      rating: 4.8,
+      reviewCount: 0,
+      status: "active",
+    }));
+}
+
+export default async function DestinationDetailPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const destination =
-    seededDestinations.find((item) => item.slug === params.slug) ?? null;
+  const { slug } = await params;
+
+  let destination = seededDestinations.find((item) => item.slug === slug) ?? null;
+  let listings = mapSeededListings(slug);
+
+  try {
+    const client = await createSupabaseServerClient();
+    const destinationResult = await getDestinationBySlug(client, slug);
+    const listingsResult = await getListingsByDestination(client, slug);
+
+    if (destinationResult.data) {
+      destination = {
+        slug: destinationResult.data.slug,
+        name: destinationResult.data.name,
+        region: destinationResult.data.region,
+        imageUrl: destinationResult.data.heroImageUrl,
+        description: destinationResult.data.description,
+        listingCount: destinationResult.data.listingCount,
+        openRequestCount: destinationResult.data.guidesCount,
+      };
+    }
+
+    if (listingsResult.data?.length) {
+      listings = listingsResult.data;
+    }
+  } catch {}
 
   if (!destination) {
     notFound();
   }
 
-  const normalizedName = destination.name.toLowerCase();
-  const normalizedRegion = destination.region?.toLowerCase() ?? "";
-
-  const listings = seededPublicListings.filter((listing) => {
-    const city = listing.city.toLowerCase();
-    const region = listing.region.toLowerCase();
-
-    return (
-      city.includes(normalizedName) ||
-      normalizedName.includes(city) ||
-      (normalizedRegion.length > 0 && region.includes(normalizedRegion)) ||
-      (normalizedName === "байкал" && region.includes("иркут"))
-    );
-  });
-
-  const requests = getSeededOpenRequests().filter((request) => {
-    const destinationLabel = request.destinationLabel.toLowerCase();
-    const regionLabel = request.regionLabel?.toLowerCase() ?? "";
-
-    return (
-      destinationLabel.includes(normalizedName) ||
-      (normalizedRegion.length > 0 && regionLabel.includes(normalizedRegion))
-    );
-  });
-
-  const guideSlugsFromListings = new Set(listings.map((listing) => listing.guideSlug));
-
-  const guides = seededPublicGuides.filter((guide) => {
-    const homeBase = guide.homeBase.toLowerCase();
-    const matchesLocation =
-      homeBase.includes(normalizedName) ||
-      guide.regions.some((region) => {
-        const normalizedGuideRegion = region.toLowerCase();
-        return (
-          normalizedGuideRegion.includes(normalizedName) ||
-          (normalizedRegion.length > 0 &&
-            normalizedGuideRegion.includes(normalizedRegion))
-        );
-      });
-
-    return matchesLocation || guideSlugsFromListings.has(guide.slug);
-  });
-
   return (
-    <PublicDestinationDetailScreen
+    <DestinationDetailScreen
       destination={destination}
-      requests={requests}
       listings={listings}
-      guides={guides}
     />
   );
 }

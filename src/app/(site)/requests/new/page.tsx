@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { CreateRequestForm } from "@/features/requests/components/public/create-request-form";
+import { CreateRequestScreen } from "@/features/requests/components/create-request-screen";
 
 export const metadata: Metadata = {
   title: "Создать запрос",
@@ -7,6 +7,6 @@ export const metadata: Metadata = {
 };
 
 export default function CreateRequestPage() {
-  return <CreateRequestForm />;
+  return <CreateRequestScreen />;
 }
 

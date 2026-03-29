@@ -26,7 +26,7 @@ const seededOpenRequests: readonly OpenRequestRecord[] = [
     regionLabel: "Республика Алтай",
     imageUrl:
       "https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=1600&h=1200&q=80",
-    dateRangeLabel: "Jun 10–16, 2026",
+    dateRangeLabel: "10–16 июня",
     budgetPerPersonRub: 110_000,
     priceScenarios: [
       { groupSize: 6, pricePerPersonRub: 96_000 },
@@ -35,9 +35,9 @@ const seededOpenRequests: readonly OpenRequestRecord[] = [
       { groupSize: 3, pricePerPersonRub: 168_000 },
     ],
     highlights: [
-      "Moderate hikes + scenic viewpoints",
-      "Comfortable stays, not luxury",
-      "Open to joining others (group)",
+      "Чуйский тракт, перевалы и Телецкое озеро",
+      "Умеренные треки, комфортное жильё",
+      "Открыты для присоединения к группе",
     ],
   },
   {
@@ -56,7 +56,7 @@ const seededOpenRequests: readonly OpenRequestRecord[] = [
     regionLabel: "Ленинградская область",
     imageUrl:
       "https://images.unsplash.com/photo-1467269204594-9661b134dd2b?auto=format&fit=crop&w=1600&h=1200&q=80",
-    dateRangeLabel: "Apr 10–13, 2026",
+    dateRangeLabel: "10–13 апреля",
     budgetPerPersonRub: 120_000,
     priceScenarios: [
       { groupSize: 5, pricePerPersonRub: 98_000 },
@@ -64,7 +64,7 @@ const seededOpenRequests: readonly OpenRequestRecord[] = [
       { groupSize: 3, pricePerPersonRub: 156_000 },
       { groupSize: 2, pricePerPersonRub: 228_000 },
     ],
-    highlights: ["Museums", "Calm pace", "Morning starts preferred"],
+    highlights: ["Эрмитаж, Русский музей, белые ночи", "Спокойный ритм, без спешки", "Предпочтение утренним визитам"],
   },
 ] as const;
 

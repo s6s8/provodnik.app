@@ -1,46 +1,101 @@
-import { Percent, ScrollText, ShieldCheck } from "lucide-react";
+const trustItems = [
+  {
+    label: "Проверенные гиды",
+    description: "Верификация и отзывы от реальных путешественников",
+  },
+  {
+    label: "Безопасные платежи",
+    description: "Средства защищены до подтверждения поездки",
+  },
+  {
+    label: "Поддержка 24/7",
+    description: "Команда на связи до, во время и после поездки",
+  },
+] as const;
 
-import {
-  type HomeTrustCard,
-  homeContainerClass,
-  homepageContent,
-} from "@/features/homepage/components/homepage-content";
-import { cn } from "@/lib/utils";
-
-const trustIcons = {
-  shield: ShieldCheck,
-  scroll: ScrollText,
-  percent: Percent,
-} as const;
-
-export function HomePageTrust() {
+function CheckIcon() {
   return (
-    <section className={cn(homeContainerClass, "pb-8 pt-2 sm:pb-10")}>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 lg:gap-4">
-        {homepageContent.trust.cards.map((card) => (
-          <TrustCard key={card.title} card={card} />
-        ))}
-      </div>
-    </section>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2.5}
+      aria-hidden="true"
+    >
+      <path d="M20 6L9 17l-5-5" />
+    </svg>
   );
 }
 
-function TrustCard({ card }: { card: HomeTrustCard }) {
-  const Icon = trustIcons[card.icon];
-
+export function HomePageTrust() {
   return (
-    <article className="flex items-start gap-3 rounded-[20px] border border-[rgba(226,232,240,0.85)] bg-[rgba(255,255,255,0.55)] px-4 py-4 shadow-[0_10px_28px_rgba(33,49,63,0.05)] backdrop-blur-lg backdrop-saturate-150">
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[rgba(15,118,110,0.1)] text-[var(--color-primary)] ring-1 ring-[rgba(15,118,110,0.08)]">
-        <Icon className="size-[18px]" strokeWidth={1.75} />
+    <section
+      aria-label="Преимущества Provodnik"
+      style={{
+        paddingBlock: "56px",
+        background: "var(--surface)",
+        borderTop: "1px solid rgba(194,198,214,0.40)",
+        borderBottom: "1px solid rgba(194,198,214,0.40)",
+      }}
+    >
+      <div className="container">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "36px",
+          }}
+        >
+          {trustItems.map((item) => (
+            <div
+              key={item.label}
+              style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}
+            >
+              {/* Icon circle */}
+              <div
+                aria-hidden="true"
+                style={{
+                  flexShrink: 0,
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "50%",
+                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "var(--primary)",
+                }}
+              >
+                <CheckIcon />
+              </div>
+
+              <div>
+                <p
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: "var(--on-surface)",
+                    marginBottom: "4px",
+                  }}
+                >
+                  {item.label}
+                </p>
+                <p
+                  style={{
+                    fontSize: "0.875rem",
+                    color: "var(--on-surface-muted)",
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-      <div className="min-w-0">
-        <h3 className="text-[0.9375rem] font-semibold leading-snug text-[var(--color-text)]">
-          {card.title}
-        </h3>
-        <p className="mt-1 text-[0.8125rem] leading-relaxed text-[var(--color-text-secondary)]">
-          {card.description}
-        </p>
-      </div>
-    </article>
+    </section>
   );
 }

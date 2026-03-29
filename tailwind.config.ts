@@ -1,37 +1,41 @@
 import type { Config } from "tailwindcss";
 
-/**
- * Homepage spec palette (HOMEPAGE-SPEC.md — Global design tokens).
- * Loaded via `@config` in `src/app/globals.css` for Tailwind v4.
- */
 const config = {
   theme: {
     extend: {
       colors: {
-        canvas: "#F9F8F7",
-        surface: "#F2EDE6",
-        card: "#FFFFFF",
-        glass: "rgb(255 255 255 / 0.55)",
-        "glass-border": "rgb(255 255 255 / 0.6)",
-        primary: "#0F766E",
-        "primary-mid": "#14B8A6",
-        "primary-light": "#2DD4BF",
-        amber: "#D97706",
-        "amber-mid": "#F97316",
-        neutral: {
-          DEFAULT: "#0F172A",
-          secondary: "#475569",
-          muted: "#94A3B8",
-        },
-        border: "#CBD5E1",
-        "border-light": "#E2E8F0",
-        success: "#10B981",
-        warning: "#F59E0B",
-        error: "#EF4444",
+        brand: "var(--brand)",
+        "brand-mid": "var(--brand-mid)",
+        "brand-light": "var(--brand-light)",
+        surface: "var(--surface)",
+        "surface-low": "var(--surface-low)",
+        "surface-high": "var(--surface-high)",
+        ink: "var(--ink)",
+        "ink-2": "var(--ink-2)",
+        "ink-3": "var(--ink-3)",
+        glass: "var(--glass-bg)",
+        "glass-border": "var(--glass-border)",
+        border: "var(--border)",
+        input: "var(--input)",
+        ring: "var(--ring)",
+        background: "var(--background)",
+        foreground: "var(--foreground)",
+        card: "var(--card)",
+        popover: "var(--popover)",
+        primary: "var(--primary)",
+        secondary: "var(--secondary)",
+        muted: "var(--muted)",
+        accent: "var(--accent)",
+        destructive: "var(--destructive)",
       },
       fontFamily: {
-        serif: ["var(--font-cormorant-garamond)", "ui-serif", "Georgia", "serif"],
-        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Georgia", "serif"],
+      },
+      boxShadow: {
+        glass: "var(--glass-shadow)",
+        editorial: "0 28px 80px rgba(33,49,63,0.14)",
       },
     },
   },

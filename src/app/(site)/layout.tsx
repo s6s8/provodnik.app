@@ -5,11 +5,9 @@ import { SiteHeader } from "@/components/shared/site-header";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-[var(--surface)] text-[var(--on-surface)]">
       <SiteHeader />
-      <main className="mx-auto w-full max-w-[1400px] px-4 py-8 sm:px-6 md:py-12 lg:px-8">
-        {children}
-      </main>
+      <main className="pt-[88px]">{children}</main>
       <SiteFooter />
     </div>
   );

@@ -1,94 +1,253 @@
+"use client";
+
+import { useState, useMemo } from "react";
 import Link from "next/link";
-import { Users } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { getSeededOpenRequests } from "@/data/open-requests/seed";
-
 import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { ReqCard } from "@/components/shared/req-card";
 
-import { PublicRequestCard } from "./public-request-card";
+const STATIC_AVATARS = ["АК", "МЛ", "ТГ", "ВС", "ОР", "ЛК", "ИА", "ДМ"];
 
-function getOpenRequests(requests: OpenRequestRecord[]) {
-  // Marketplace shows public groups that are not closed.
-  return requests.filter(
-    (r) => r.status === "open" || r.status === "forming_group",
-  );
+const CATEGORY_PILLS = ["Все", "Природа", "Города", "Север", "Зима", "Семейные"] as const;
+type CategoryPill = (typeof CATEGORY_PILLS)[number];
+
+function deriveAvatars(sizeCurrent: number): string[] {
+  return STATIC_AVATARS.slice(0, Math.min(sizeCurrent, STATIC_AVATARS.length));
 }
 
-export function PublicRequestsMarketplaceScreen() {
-  const requests = getOpenRequests(getSeededOpenRequests());
+function derivePrice(budgetPerPersonRub?: number): string {
+  if (!budgetPerPersonRub) return "По договорённости";
+  return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
+}
+
+interface Props {
+  initialData?: OpenRequestRecord[] | null;
+}
+
+export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
+  const requests = initialData ?? getSeededOpenRequests();
+
+  const [activeCategory, setActiveCategory] = useState<CategoryPill>("Все");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredRequests = useMemo(() => {
+    return requests.filter((r) => {
+      if (searchQuery && !r.destinationLabel.toLowerCase().includes(searchQuery.toLowerCase())) {
+        return false;
+      }
+      // Category filtering: for demo, "Все" shows all; others filter by keywords in destinationLabel / highlights
+      if (activeCategory !== "Все") {
+        const haystack = [r.destinationLabel, ...(r.highlights ?? [])].join(" ").toLowerCase();
+        const categoryMap: Record<Exclude<CategoryPill, "Все">, string[]> = {
+          Природа: ["байкал", "алтай", "карелия", "камчатка", "природа", "лес", "гора", "степь"],
+          Города: ["казань", "суздаль", "калининград", "москва", "питер", "город"],
+          Север: ["мурманск", "кольский", "север", "арктика", "ямал"],
+          Зима: ["зима", "лёд", "снег", "лыжи", "сноуборд"],
+          Семейные: ["семья", "семейн", "дети", "ребёнок"],
+        };
+        const keywords = categoryMap[activeCategory as Exclude<CategoryPill, "Все">] ?? [];
+        if (!keywords.some((kw) => haystack.includes(kw))) return false;
+      }
+      return true;
+    });
+  }, [requests, activeCategory, searchQuery]);
 
   return (
-    <div className="space-y-8">
-      <header className="space-y-3">
-        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-foreground">
-          Маркетплейс запросов
-        </h1>
-        <p className="text-base text-muted-foreground">
-          Присоединяйтесь к группам и путешествуйте по лучшей цене
-        </p>
-        <div className="flex flex-wrap gap-3">
-          <Button asChild variant="default" size="lg" className="rounded-full">
-            <Link href="/requests/new">Создать запрос</Link>
-          </Button>
-        </div>
-      </header>
+    <main>
+      {/* Page header */}
+      <section
+        className="page-header"
+        style={{
+          background: "var(--surface-low)",
+          paddingTop: "100px",
+          paddingBottom: "48px",
+          textAlign: "center",
+        }}
+      >
+        <div className="container">
+          <p className="sec-label">Биржа запросов</p>
+          <h1 className="sec-title">Открытые группы путешественников по России</h1>
+          <p
+            style={{
+              maxWidth: "760px",
+              margin: "16px auto 0",
+              fontSize: "1rem",
+              color: "var(--on-surface-muted)",
+              lineHeight: 1.65,
+            }}
+          >
+            Выберите направление, присоединяйтесь к формирующейся группе или создайте свой запрос —
+            и гиды предложат маршрут под вашу компанию.
+          </p>
 
-      <div className="glass-panel rounded-[1.5rem] border border-white/10 p-4">
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            className="cursor-pointer rounded-full bg-primary px-4 py-2 text-sm font-semibold text-white transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-            aria-pressed="true"
+          {/* Search bar */}
+          <div
+            style={{
+              width: "min(560px, 100%)",
+              margin: "28px auto 0",
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+              padding: "8px 8px 8px 22px",
+              borderRadius: "9999px",
+              background: "rgba(249,249,255,0.60)",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+              border: "1px solid rgba(194,198,214,0.18)",
+              boxShadow: "0 8px 32px rgba(25,28,32,0.06)",
+            }}
           >
-            Все регионы
-          </button>
-          <button
-            type="button"
-            className="cursor-pointer rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm font-semibold text-white/70 transition-all duration-300 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-            aria-pressed="false"
-          >
-            По дате
-          </button>
-          <button
-            type="button"
-            className="cursor-pointer rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm font-semibold text-white/70 transition-all duration-300 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-            aria-pressed="false"
-          >
-            По бюджету
-          </button>
-          <button
-            type="button"
-            className="cursor-pointer rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm font-semibold text-white/70 transition-all duration-300 hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:outline-none"
-            aria-pressed="false"
-          >
-            По размеру группы
-          </button>
-        </div>
-      </div>
-
-      {requests.length > 0 ? (
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
-          {requests.map((request) => (
-            <PublicRequestCard key={request.id} request={request} />
-          ))}
-        </section>
-      ) : (
-        <section className="glass-panel rounded-[1.5rem] border border-white/10 p-8">
-          <div className="space-y-4">
-            <Users className="size-10 text-white/20" />
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold tracking-tight text-white">
-                Нет открытых запросов
-              </h3>
-            </div>
-            <Button asChild variant="default" size="lg" className="w-full rounded-full">
-              <Link href="/requests/new">Создать запрос</Link>
-            </Button>
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              style={{ color: "var(--on-surface-muted)", flexShrink: 0 }}
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" strokeLinecap="round" />
+            </svg>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Поиск по направлению или маршруту"
+              style={{
+                flex: 1,
+                minWidth: 0,
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                color: "var(--on-surface)",
+                fontSize: "0.9375rem",
+              }}
+            />
           </div>
-        </section>
-      )}
-    </div>
+
+          <div style={{ marginTop: "20px" }}>
+            <Link href="/requests/new" className="btn-primary">
+              Создать запрос
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Filter pills */}
+      <section
+        style={{
+          background: "var(--surface)",
+          paddingBlock: "20px",
+        }}
+      >
+        <div className="container">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              flexWrap: "wrap",
+              gap: "10px",
+            }}
+          >
+            {CATEGORY_PILLS.map((pill) => (
+              <button
+                key={pill}
+                type="button"
+                className={`filter-pill${activeCategory === pill ? " active" : ""}`}
+                onClick={() => setActiveCategory(pill)}
+              >
+                {pill}
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Requests grid */}
+      <section
+        style={{
+          background: "var(--surface)",
+          paddingBlock: "48px",
+        }}
+      >
+        <div className="container">
+          {filteredRequests.length > 0 ? (
+            <div className="requests-grid">
+              {filteredRequests.map((request) => {
+                const location = request.destinationLabel.split(",")[0].trim();
+                const fillPct = Math.round(
+                  (request.group.sizeCurrent / request.group.sizeTarget) * 100,
+                );
+                return (
+                  <ReqCard
+                    key={request.id}
+                    href={`/requests/${request.id}`}
+                    location={location}
+                    spotsLabel={`${request.group.sizeCurrent} / ${request.group.sizeTarget} мест`}
+                    title={request.highlights[0] ?? request.destinationLabel}
+                    date={request.dateRangeLabel}
+                    desc={request.highlights[1]}
+                    fillPct={fillPct}
+                    avatars={deriveAvatars(request.group.sizeCurrent)}
+                    price={derivePrice(request.budgetPerPersonRub)}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <p
+              style={{
+                textAlign: "center",
+                color: "var(--on-surface-muted)",
+                padding: "48px 0",
+                fontSize: "1rem",
+              }}
+            >
+              Ничего не найдено. Попробуйте изменить запрос или фильтр.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {/* CTA strip */}
+      <section
+        className="section low"
+        style={{
+          background: "var(--surface-low)",
+          paddingBlock: "48px",
+          textAlign: "center",
+        }}
+      >
+        <div className="container">
+          <h2
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "clamp(1.875rem, 3vw, 2.5rem)",
+              fontWeight: 600,
+              marginBottom: "18px",
+              color: "var(--on-surface)",
+            }}
+          >
+            Не нашли подходящую группу?
+          </h2>
+          <p
+            style={{
+              color: "var(--on-surface-muted)",
+              fontSize: "1rem",
+              marginBottom: "24px",
+              maxWidth: "480px",
+              margin: "0 auto 24px",
+            }}
+          >
+            Создайте свой запрос — гиды предложат маршрут специально под вашу компанию.
+          </p>
+          <Link href="/requests/new" className="btn-primary">
+            Создать запрос
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }
-

@@ -1,103 +1,100 @@
-import { Fragment } from "react";
-import {
-  ArrowRight,
-  Banknote,
-  CheckCircle2,
-  Search,
-  Users,
-  Waypoints,
-} from "lucide-react";
-
-import {
-  type HomeProcessStep,
-  homeContainerClass,
-  homepageContent,
-} from "@/features/homepage/components/homepage-content";
-import { cn } from "@/lib/utils";
-
-const stepIcons = {
-  search: Search,
-  users: Users,
-  banknote: Banknote,
-  waypoints: Waypoints,
-  check: CheckCircle2,
-} as const;
+const steps = [
+  {
+    num: "1",
+    title: "Опишите маршрут",
+    desc: "Укажите направление, даты и бюджет — займёт пару минут",
+  },
+  {
+    num: "2",
+    title: "Получите офферы от гидов",
+    desc: "Выберите подходящего проводника из откликов",
+  },
+  {
+    num: "3",
+    title: "Путешествуйте",
+    desc: "Оплата и выезд — всё согласовано, группа собрана",
+  },
+] as const;
 
 export function HomePageProcess() {
-  const steps = homepageContent.process.steps;
-
   return (
-    <section id="process" className={cn(homeContainerClass, "pb-6 pt-2 sm:pb-8")}>
-      <div className="rounded-[24px] border border-[rgba(226,232,240,0.65)] bg-[rgba(255,255,255,0.35)] px-4 py-6 shadow-[0_14px_40px_rgba(33,49,63,0.04)] backdrop-blur-md backdrop-saturate-150 sm:px-6 sm:py-7">
-        <h2 className="text-[1.75rem] font-semibold tracking-tight text-[var(--color-text)] sm:text-[1.875rem]">
-          {homepageContent.process.title}
-        </h2>
+    <section id="hiw" className="section low" aria-labelledby="hiw-title">
+      <div className="container">
+        {/* Section header */}
+        <header style={{ textAlign: "center", marginBottom: "52px" }}>
+          <p className="sec-label" style={{ marginBottom: "8px" }}>
+            Как это работает
+          </p>
+          <h2 id="hiw-title" className="sec-title">
+            Три шага от идеи до поездки
+          </h2>
+        </header>
 
-        <div className="mt-6 lg:hidden">
-          <div className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="flex min-w-max items-start gap-4 pr-2">
-              {steps.map((step, index) => (
-                <Fragment key={step.title}>
-                  <ProcessStep step={step} index={index} />
-                  {index < steps.length - 1 ? (
-                    <ArrowRight className="mt-6 size-4 shrink-0 text-[rgba(203,213,225,0.95)]" strokeWidth={1.5} />
-                  ) : null}
-                </Fragment>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-7 hidden items-start gap-1 lg:flex">
+        {/* Steps row */}
+        <div style={{ display: "flex", alignItems: "flex-start" }}>
           {steps.map((step, index) => (
-            <Fragment key={step.title}>
-              <ProcessStep step={step} index={index} wide />
+            <div key={step.num} style={{ display: "contents" }}>
+              <article
+                style={{
+                  flex: 1,
+                  textAlign: "center",
+                  paddingInline: "20px",
+                }}
+              >
+                {/* Large ghostly step number */}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    fontFamily: "var(--font-display)",
+                    fontSize: "clamp(5rem, 10vw, 8rem)",
+                    fontWeight: 700,
+                    lineHeight: 1,
+                    color: "var(--primary)",
+                    opacity: 0.18,
+                    marginBottom: "14px",
+                  }}
+                >
+                  {step.num}
+                </div>
+                <h3
+                  style={{
+                    fontSize: "1.0625rem",
+                    fontWeight: 600,
+                    color: "var(--on-surface)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {step.title}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "0.875rem",
+                    color: "var(--on-surface-muted)",
+                    lineHeight: 1.65,
+                    maxWidth: "20ch",
+                    marginInline: "auto",
+                  }}
+                >
+                  {step.desc}
+                </p>
+              </article>
+
+              {/* Dashed connector line between steps */}
               {index < steps.length - 1 ? (
-                <ArrowRight
-                  className="mx-0.5 mt-7 size-[1rem] shrink-0 text-[rgba(203,213,225,0.95)]"
-                  strokeWidth={1.5}
+                <div
+                  aria-hidden="true"
+                  style={{
+                    flexShrink: 0,
+                    width: "80px",
+                    borderTop: "2px dashed color-mix(in srgb, var(--outline-variant) 60%, transparent)",
+                    marginTop: "29px",
+                  }}
                 />
               ) : null}
-            </Fragment>
+            </div>
           ))}
         </div>
       </div>
     </section>
-  );
-}
-
-function ProcessStep({
-  step,
-  index,
-  wide = false,
-}: {
-  step: HomeProcessStep;
-  index: number;
-  wide?: boolean;
-}) {
-  const Icon = stepIcons[step.icon];
-
-  return (
-    <article
-      className={cn(
-        "flex flex-col gap-2",
-        wide ? "min-w-0 flex-1" : "w-[148px]",
-      )}
-    >
-      <div className="flex items-center gap-2 text-[var(--color-text)]">
-        <span className="font-sans text-[1.65rem] font-bold leading-none tabular-nums">
-          {index + 1}.
-        </span>
-        <Icon className="size-[18px] shrink-0 text-[var(--color-primary)]" strokeWidth={1.75} />
-      </div>
-      <p
-        className={cn(
-          "text-[0.8125rem] font-semibold leading-snug text-[var(--color-text)]",
-          wide ? "max-w-[9.5rem]" : "max-w-[9rem]",
-        )}
-      >
-        {step.title}
-      </p>
-    </article>
   );
 }

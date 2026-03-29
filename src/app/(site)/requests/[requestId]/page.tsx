@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { RequestDetailScreen } from "@/features/requests/components/public/request-detail";
+import { PublicRequestDetailScreen } from "@/features/requests/components/public/public-request-detail-screen";
 import { getSeededOpenRequestById } from "@/data/open-requests/seed";
 
 export const metadata: Metadata = {
@@ -31,6 +31,6 @@ export default function RequestDetailPage({
     );
   }
 
-  return <RequestDetailScreen request={request} />;
+  return <PublicRequestDetailScreen request={request} />;
 }
 

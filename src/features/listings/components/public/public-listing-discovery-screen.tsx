@@ -1,119 +1,121 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
+import { Compass } from "lucide-react";
 
-import { MapPinned, SlidersHorizontal } from "lucide-react";
+import { ListingCard } from "@/components/shared/listing-card";
+import type { ListingRecord } from "@/data/supabase/queries";
+import type { PublicListing, PublicListingTheme } from "@/data/public-listings/types";
 
-import { Badge } from "@/components/ui/badge";
-import type { PublicListing } from "@/data/public-listings/types";
-import { PublicListingCard } from "@/features/listings/components/public/public-listing-card";
-import { PublicListingFilters } from "@/features/listings/components/public/public-listing-filters";
+const filters = ["Все", "Природа", "История", "С семьёй", "Фотография"] as const;
+const filterThemeMap: Partial<Record<(typeof filters)[number], PublicListingTheme>> = {
+  Природа: "Природа",
+  История: "История",
+  "С семьёй": "С семьей",
+  Фотография: "Фотография",
+};
+
+function mapListing(listing: PublicListing): ListingRecord {
+  return {
+    id: listing.slug,
+    slug: listing.slug,
+    title: listing.title,
+    destinationSlug: listing.city.toLowerCase().replaceAll(" ", "-"),
+    destinationName: listing.city,
+    destinationRegion: listing.region,
+    imageUrl:
+      listing.coverImageUrl ??
+      "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80",
+    priceRub: listing.priceFromRub,
+    durationDays: listing.durationDays,
+    durationLabel: `${listing.durationDays} дн.`,
+    groupSize: listing.groupSizeMax,
+    difficulty: "Средняя",
+    departure: listing.city,
+    format: listing.themes[0] ?? "Маршрут",
+    description: listing.highlights.join(". "),
+    inclusions: [...listing.inclusions],
+    exclusions: [],
+    guideSlug: listing.guideSlug,
+    guideName: "Локальный гид",
+    guideHomeBase: listing.city,
+    rating: 4.8,
+    reviewCount: 0,
+    status: "active",
+  };
+}
 
 export function PublicListingDiscoveryScreen({
   listings,
 }: {
   listings: readonly PublicListing[];
 }) {
-  const [filtered, setFiltered] = useState<readonly PublicListing[]>(listings);
+  const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>("Все");
 
-  const sorted = useMemo(
-    () => [...filtered].sort((a, b) => a.priceFromRub - b.priceFromRub),
-    [filtered],
-  );
+  const filteredListings = useMemo(() => {
+    if (activeFilter === "Все") {
+      return listings;
+    }
+
+    const theme = filterThemeMap[activeFilter];
+    if (!theme) return listings;
+
+    return listings.filter((listing) => listing.themes.includes(theme));
+  }, [activeFilter, listings]);
 
   return (
-    <div className="space-y-8">
-      <section className="section-frame overflow-hidden rounded-[2.4rem] p-6 sm:p-8 lg:p-10">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <div className="space-y-5">
-            <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-white/75 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              <MapPinned className="size-4 text-primary" />
-              Каталог экскурсий
-            </div>
-            <h1 className="max-w-3xl text-balance text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-              Подберите экскурсию по городу, длительности и формату группы.
-            </h1>
-            <p className="max-w-2xl text-base leading-8 text-muted-foreground">
-              В карточке сразу видно цену, размер группы, рейтинг и как быстро гид
-              отвечает на новые заявки. Это ближе к реальному бронированию, чем к
-              длинной статье о маршруте.
-            </p>
-            <div className="flex flex-wrap gap-2">
-              <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
-                Ростов и юг России
-              </Badge>
-              <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
-                Байкал и сезонные поездки
-              </Badge>
-              <Badge className="rounded-full bg-primary/10 px-3 py-1.5 text-primary hover:bg-primary/10">
-                Семьи, пары и компании
-              </Badge>
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
-            <div className="rounded-[1.8rem] border border-border/70 bg-white/78 p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Сейчас в каталоге
-              </p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-                {listings.length}
-              </p>
-              <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                Готовых маршрутов для запуска витрины и теста бронирования.
-              </p>
-            </div>
-            <div className="rounded-[1.8rem] border border-border/70 bg-white/78 p-5">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                Что важно
-              </p>
-              <p className="mt-2 text-lg font-semibold tracking-tight text-foreground">
-                Цена, отзыв, темп и понятный план дня
-              </p>
-              <p className="mt-2 text-sm leading-7 text-muted-foreground">
-                Мы делаем упор на понятные карточки маршрутов, а не на длинный
-                рекламный текст.
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-10">
+      <section className="space-y-4">
+        <p className="editorial-kicker">Экскурсии</p>
+        <h1 className="text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] text-[var(--ink)]">
+          Маршруты с локальными гидами
+        </h1>
+        <p className="max-w-[48rem] text-[1rem] leading-8 text-[var(--ink-2)]">
+          Подборка авторских маршрутов по городам и природным направлениям России с понятным темпом, стоимостью и форматом группы.
+        </p>
       </section>
 
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <SlidersHorizontal className="size-4" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Фильтры витрины</p>
-            <p className="text-sm text-muted-foreground">
-              Сузьте выдачу по региону, длительности и формату.
-            </p>
-          </div>
-        </div>
-
-        <PublicListingFilters listings={listings} onFilteredListingsChange={setFiltered} />
+      <div className="flex flex-wrap gap-3">
+        {filters.map((filter) => (
+          <button
+            key={filter}
+            type="button"
+            onClick={() => setActiveFilter(filter)}
+            className={
+              activeFilter === filter
+                ? "inline-flex h-10 items-center justify-center rounded-full bg-[var(--brand)] px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
+                : "inline-flex h-10 items-center justify-center rounded-full bg-[var(--surface-low)] px-5 text-[0.9rem] font-medium text-[var(--ink-2)]"
+            }
+          >
+            {filter}
+          </button>
+        ))}
       </div>
 
-      <section className="space-y-4">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <p className="text-sm text-muted-foreground">Найдено маршрутов</p>
-            <h2 className="text-3xl font-semibold tracking-tight text-foreground">
-              {sorted.length}
-            </h2>
-          </div>
-          <div className="rounded-full border border-border/70 bg-white/74 px-4 py-2 text-sm text-muted-foreground">
-            Сортировка: сначала самые доступные по цене
-          </div>
-        </div>
-
-        <div className="grid gap-5 lg:grid-cols-3">
-          {sorted.map((listing) => (
-            <PublicListingCard key={listing.slug} listing={listing} />
+      {filteredListings.length > 0 ? (
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {filteredListings.map((listing) => (
+            <ListingCard key={listing.slug} listing={mapListing(listing)} />
           ))}
         </div>
-      </section>
+      ) : (
+        <div className="glass-card flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
+          <span className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] text-[var(--brand)]">
+            <Compass className="size-6" strokeWidth={1.9} />
+          </span>
+          <h2 className="mt-5 text-[1.35rem] font-semibold text-[var(--ink)]">Маршруты не найдены</h2>
+          <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-[var(--ink-2)]">
+            Попробуйте другой фильтр или создайте запрос на индивидуальный маршрут.
+          </p>
+          <Link
+            href="/requests/new"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-[var(--brand)] px-6 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
+          >
+            Создать запрос
+          </Link>
+        </div>
+      )}
     </div>
   );
 }
