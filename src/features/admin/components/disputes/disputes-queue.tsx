@@ -25,7 +25,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { DEFAULT_DISPUTE_CASES } from "@/features/admin/components/disputes/dispute-seed";
+import type { DisputeCase } from "@/features/admin/types/disputes";
 import { listDisputeCasesForAdminFromSupabase } from "@/data/admin/supabase";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import type {
@@ -103,7 +103,7 @@ function freezeLabel(posture: PayoutFreezePosture) {
   }
 }
 
-function matchesQuery(query: string, item: (typeof DEFAULT_DISPUTE_CASES)[number]) {
+function matchesQuery(query: string, item: DisputeCase) {
   const q = query.trim().toLowerCase();
   if (!q) return true;
   const haystack = [
@@ -128,7 +128,7 @@ function matchesQuery(query: string, item: (typeof DEFAULT_DISPUTE_CASES)[number
 }
 
 export function DisputesQueue() {
-  const [cases, setCases] = React.useState(() => DEFAULT_DISPUTE_CASES);
+  const [cases, setCases] = React.useState<DisputeCase[]>([]);
   const [backendMode, setBackendMode] = React.useState<"local" | "supabase">("local");
   const [query, setQuery] = React.useState("");
   const [dispositionFilter, setDispositionFilter] =

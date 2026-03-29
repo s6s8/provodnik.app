@@ -8,15 +8,30 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { listGuideBookings } from "@/data/guide-booking/local-store";
-import type { GuideBookingRecord } from "@/data/guide-booking/types";
+import { getGuideBookings, type BookingRecord } from "@/data/supabase/queries";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/guide-booking-status";
 
 export function GuideBookingsScreen() {
-  const [bookings, setBookings] = React.useState<GuideBookingRecord[]>([]);
+  const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
 
   React.useEffect(() => {
-    setBookings(listGuideBookings());
+    let ignore = false;
+
+    async function load() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || ignore) return;
+        const { data } = await getGuideBookings(supabase, user.id);
+        if (!ignore && data) setBookings(data);
+      } catch {
+        // leave empty
+      }
+    }
+
+    void load();
+    return () => { ignore = true; };
   }, []);
 
   const summary = React.useMemo(() => {
@@ -27,7 +42,7 @@ export function GuideBookingsScreen() {
     let totalEarningsRub = 0;
 
     for (const booking of bookings) {
-      totalEarningsRub += totalAmountRub(booking);
+      totalEarningsRub += booking.priceRub;
 
       if (
         booking.status === "awaiting_confirmation" ||
@@ -141,35 +156,29 @@ export function GuideBookingsScreen() {
   );
 }
 
-function BookingCard({ record }: { record: GuideBookingRecord }) {
-  const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
-
+function BookingCard({ record }: { record: BookingRecord }) {
   return (
     <Card className="border-border/70 bg-card/90">
       <CardHeader className="space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardTitle className="text-base">{record.request.destination}</CardTitle>
+            <CardTitle className="text-base">{record.destination}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {dateLabel} · группа {record.request.groupSize} чел.
+              {record.dateLabel}
             </p>
           </div>
-          <GuideBookingStatusBadge status={record.status} />
+          <GuideBookingStatusBadge status={record.status as import("@/data/guide-booking/types").GuideBookingStatus} />
         </div>
 
         <Separator />
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{formatRub(totalAmountRub(record))}</Badge>
-          <Badge variant="outline">
-            В ростере: {record.travelerRoster.length}
-          </Badge>
-          <Badge variant="outline">Залог {formatRub(record.payment.depositRub)}</Badge>
+          <Badge variant="secondary">{formatRub(record.priceRub)}</Badge>
         </div>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
-          Обновлено {formatShortDate(record.updatedAt)}
+          {record.title}
         </p>
         <Button asChild variant="secondary">
           <Link href={`/guide/bookings/${record.id}`}>
@@ -182,18 +191,6 @@ function BookingCard({ record }: { record: GuideBookingRecord }) {
   );
 }
 
-function totalAmountRub(record: GuideBookingRecord) {
-  return record.payment.lineItems.reduce((sum, item) => sum + item.amountRub, 0);
-}
-
-function formatShortDate(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-  });
-}
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {

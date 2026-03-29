@@ -2,10 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
-import { seededDestinations } from "@/data/destinations/seed";
-import { getDestinations } from "@/data/supabase/queries";
+import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { DestinationSummary } from "@/data/destinations/types";
 
 export const metadata: Metadata = {
   title: "Направления | Provodnik",
@@ -13,22 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default async function DestinationsPage() {
-  let destinations: DestinationSummary[] = [...seededDestinations];
+  let destinations: DestinationRecord[] = [];
 
   try {
     const client = await createSupabaseServerClient();
     const result = await getDestinations(client);
-    if (result.data && result.data.length > 0) {
-      destinations = result.data.map((d) => ({
-        slug: d.slug,
-        name: d.name,
-        region: d.region,
-        imageUrl: d.heroImageUrl,
-        description: d.description,
-        listingCount: d.listingCount,
-        openRequestCount: d.guidesCount,
-      }));
-    }
+    if (result.data) destinations = result.data;
   } catch {}
 
   const [featured, ...rest] = destinations;
@@ -62,12 +50,16 @@ export default async function DestinationsPage() {
             Города и регионы России с проверенными маршрутами и локальными гидами.
           </p>
 
+          {destinations.length === 0 && (
+            <p style={{ color: "var(--on-surface-muted)", marginTop: "32px" }}>Пока нет доступных направлений.</p>
+          )}
+
           {destinations.length > 0 && (
             <div className="dest-grid">
               {featured && (
                 <Link href={`/destinations/${featured.slug}`} className="dest-card dest-card-featured">
                   <Image
-                    src={featured.imageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80"}
+                    src={featured.heroImageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80"}
                     alt={featured.name}
                     fill
                     style={{ objectFit: "cover" }}
@@ -86,7 +78,7 @@ export default async function DestinationsPage() {
               {rest.slice(0, 4).map((dest) => (
                 <Link key={dest.slug} href={`/destinations/${dest.slug}`} className="dest-card">
                   <Image
-                    src={dest.imageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80"}
+                    src={dest.heroImageUrl || "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80"}
                     alt={dest.name}
                     fill
                     style={{ objectFit: "cover" }}

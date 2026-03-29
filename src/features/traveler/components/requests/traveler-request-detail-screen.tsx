@@ -9,10 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  getTravelerRequestById,
-  listOffersForTravelerRequest,
-  listTimelineForTravelerRequest,
-} from "@/data/traveler-request/local-store";
+  getTravelerRequestByIdFromSupabase,
+} from "@/data/traveler-request/supabase-client";
 import type {
   TravelerOffer,
   TravelerRequestRecord,
@@ -48,7 +46,7 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
 
     async function load() {
       try {
-        const next = await getTravelerRequestById(requestId);
+        const next = await getTravelerRequestByIdFromSupabase(requestId);
         if (!isMounted) return;
         setRecord(next);
       } catch {
@@ -94,8 +92,8 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
     );
   }
 
-  const offers = listOffersForTravelerRequest(record.id);
-  const timeline = listTimelineForTravelerRequest(record.id);
+  const offers: TravelerOffer[] = [];
+  const timeline: TravelerRequestTimelineEvent[] = [];
   const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
 
   return (

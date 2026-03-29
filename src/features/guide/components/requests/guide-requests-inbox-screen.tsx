@@ -1,6 +1,10 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 
-import { getSeededTravelerRequests } from "@/data/traveler-request/seed";
+import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,32 +21,32 @@ function formatDateTime(value: string): string {
   });
 }
 
-function formatExperienceType(value: string): string {
-  switch (value) {
-    case "city":
-      return "City";
-    case "nature":
-      return "Nature";
-    case "culture":
-      return "Culture";
-    case "food":
-      return "Food";
-    case "adventure":
-      return "Adventure";
-    case "relax":
-      return "Relax";
-    default:
-      return value;
-  }
-}
-
 export function GuideRequestsInboxScreen() {
-  const items = getSeededTravelerRequests();
+  const [items, setItems] = React.useState<RequestRecord[]>([]);
+
+  React.useEffect(() => {
+    let ignore = false;
+
+    async function load() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data } = await getOpenRequests(supabase);
+        if (!ignore && data) setItems(data);
+      } catch {
+        // leave empty
+      }
+    }
+
+    void load();
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const summary = {
     total: items.length,
     highBudget:
-      items.filter((item) => item.request.budgetPerPersonRub >= 15000).length,
+      items.filter((item) => item.budgetRub >= 15000).length,
   };
 
   return (
@@ -117,17 +121,17 @@ export function GuideRequestsInboxScreen() {
                   <Link
                     href={`/guide/requests/${item.id}`}
                     className="block rounded-xl border border-border/70 bg-background/60 p-4 transition-colors hover:bg-background"
-                    aria-label={`Открыть запрос от ${item.traveler.displayName}`}
+                    aria-label={`Открыть запрос от ${item.requesterName}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="space-y-1">
                         <p className="text-sm font-semibold text-foreground">
-                          {item.traveler.displayName}
+                          {item.requesterName}
                         </p>
                         <p className="text-sm text-muted-foreground">
-                          {formatExperienceType(item.request.experienceType)} в{" "}
+                          {item.format} в{" "}
                           <span className="font-medium text-foreground">
-                            {item.request.destination}
+                            {item.destination}
                           </span>
                         </p>
                       </div>
@@ -139,25 +143,21 @@ export function GuideRequestsInboxScreen() {
                     <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                       <p>
                         <span className="font-medium text-foreground">Даты:</span>{" "}
-                        {item.request.startDate} to {item.request.endDate}
+                        {item.dateLabel}
                       </p>
                       <p>
                         <span className="font-medium text-foreground">Группа:</span>{" "}
-                        {item.request.groupSize} · {item.request.groupPreference}
+                        {item.groupSize}
                       </p>
                       <p className="sm:col-span-2">
                         <span className="font-medium text-foreground">Бюджет:</span>{" "}
-                        ₽{" "}
-                        {item.request.budgetPerPersonRub.toLocaleString(undefined, {
-                          maximumFractionDigits: 0,
-                        })}{" "}
-                        на человека
+                        {item.budgetLabel}
                       </p>
                     </div>
 
-                    {item.request.notes ? (
+                    {item.description ? (
                       <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-                        {item.request.notes}
+                        {item.description}
                       </p>
                     ) : null}
                   </Link>
@@ -172,4 +172,3 @@ export function GuideRequestsInboxScreen() {
     </div>
   );
 }
-

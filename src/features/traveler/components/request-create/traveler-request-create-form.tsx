@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { createTravelerRequestPersistent } from "@/data/traveler-request/local-store";
+import { createTravelerRequestInSupabase } from "@/data/traveler-request/supabase-client";
 import {
   travelerExperienceTypes,
   travelerRequestSchema,
@@ -85,7 +85,7 @@ export function TravelerRequestCreateForm() {
 
   const onSubmit = React.useCallback(async (values: RequestFormValues) => {
     const submission = await submitTravelerRequest(values);
-    const record = await createTravelerRequestPersistent(submission.request);
+    const record = await createTravelerRequestInSupabase(submission.request);
     setSubmitted(record);
   }, []);
 

@@ -2,14 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 
-import { seededPublicGuides } from "@/data/public-guides/seed";
+import { getGuides, type GuideRecord } from "@/data/supabase/queries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Гиды | Provodnik",
   description: "Локальные гиды по России — проверенные маршруты, живые отзывы.",
 };
 
-export default function GuidesPage() {
+export default async function GuidesPage() {
+  let guides: GuideRecord[] = [];
+
+  try {
+    const client = await createSupabaseServerClient();
+    const result = await getGuides(client);
+    if (result.data) guides = result.data;
+  } catch {}
+
   return (
     <section
       style={{
@@ -40,8 +49,12 @@ export default function GuidesPage() {
           Гиды, которые превращают маршрут в историю. Каждый проверен и имеет живые отзывы путешественников.
         </p>
 
+        {guides.length === 0 && (
+          <p style={{ color: "var(--on-surface-muted)" }}>Пока нет доступных гидов.</p>
+        )}
+
         <div className="guides-grid">
-          {seededPublicGuides.map((guide) => (
+          {guides.map((guide) => (
             <Link
               key={guide.slug}
               href={`/guides/${guide.slug}`}
@@ -56,15 +69,15 @@ export default function GuidesPage() {
                 }}
               >
                 <div className="avatar-lg">
-                  {guide.avatarImageUrl ? (
+                  {guide.avatarUrl ? (
                     <Image
-                      src={guide.avatarImageUrl}
-                      alt={guide.displayName}
+                      src={guide.avatarUrl}
+                      alt={guide.fullName}
                       fill
                       style={{ objectFit: "cover" }}
                     />
                   ) : (
-                    guide.avatarInitials
+                    guide.initials
                   )}
                 </div>
                 <div>
@@ -75,7 +88,7 @@ export default function GuidesPage() {
                       color: "var(--on-surface)",
                     }}
                   >
-                    {guide.displayName}
+                    {guide.fullName}
                   </p>
                   <p
                     style={{
@@ -100,7 +113,7 @@ export default function GuidesPage() {
                   overflow: "hidden",
                 }}
               >
-                {guide.headline}
+                {guide.bio}
               </p>
 
               <p
@@ -109,7 +122,7 @@ export default function GuidesPage() {
                   color: "var(--on-surface-muted)",
                 }}
               >
-                ★ {guide.reviewsSummary.averageRating} · {guide.reviewsSummary.totalReviews} отзывов
+                ★ {guide.rating} · {guide.reviewCount} отзывов
               </p>
             </Link>
           ))}

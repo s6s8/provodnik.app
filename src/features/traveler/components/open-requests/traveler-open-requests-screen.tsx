@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  listOpenRequests,
+  listOpenRequestsFromSupabase,
   type OpenRequestDetail,
-} from "@/data/open-requests/local-store";
+} from "@/data/open-requests/supabase-client";
 import { cn } from "@/lib/utils";
 
 function formatRub(amount: number) {
@@ -29,7 +29,7 @@ export function TravelerOpenRequestsScreen() {
   const refresh = React.useCallback(() => {
     void (async () => {
       try {
-        const next = await listOpenRequests();
+        const next = await listOpenRequestsFromSupabase();
         setItems(next);
       } catch {
         setItems([]);

@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 
-import { getSeededOpenRequests } from "@/data/open-requests/seed";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { ReqCard } from "@/components/shared/req-card";
 
@@ -26,7 +25,7 @@ interface Props {
 }
 
 export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
-  const requests = initialData ?? getSeededOpenRequests();
+  const requests = initialData ?? [];
 
   const [activeCategory, setActiveCategory] = useState<CategoryPill>("Все");
   const [searchQuery, setSearchQuery] = useState("");

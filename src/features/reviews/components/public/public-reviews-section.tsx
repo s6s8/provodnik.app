@@ -6,7 +6,8 @@ import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { ReviewRecord, ReviewsSummary } from "@/data/reviews/types";
-import { getAllReviewsSummaryForTarget, listAllReviewsForTarget } from "@/data/reviews/local-store";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getListingReviews, getGuideReviews } from "@/data/supabase/queries";
 
 function formatIsoShort(iso: string | undefined) {
   if (!iso) return "-";
@@ -38,30 +39,55 @@ export function PublicReviewsSection({
   );
 
   React.useEffect(() => {
-    const localSummary = getAllReviewsSummaryForTarget(target.type, target.slug);
-    const localItems = listAllReviewsForTarget(target.type, target.slug);
-    const merged = new Map<string, ReviewRecord>();
+    let cancelled = false;
 
-    for (const item of initialReviews) merged.set(item.id, item);
-    for (const item of localItems) merged.set(item.id, item);
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const result =
+          target.type === "listing"
+            ? await getListingReviews(supabase, target.slug)
+            : await getGuideReviews(supabase, target.slug);
 
-    const mergedItems = [...merged.values()].sort((a, b) =>
-      b.createdAt.localeCompare(a.createdAt),
-    );
-    const total = mergedItems.reduce((sum, item) => sum + item.rating, 0);
-    const mergedSummary: ReviewsSummary =
-      mergedItems.length > 0
-        ? {
-            averageRating: Math.round((total / mergedItems.length) * 100) / 100,
-            totalReviews: mergedItems.length,
-            lastReviewAt: mergedItems[0]?.createdAt,
-          }
-        : initialSummary.totalReviews > 0
-          ? initialSummary
-          : localSummary;
+        if (cancelled) return;
 
-    setSummary(mergedSummary);
-    setItems(mergedItems.slice(0, maxItems));
+        const supabaseItems: ReviewRecord[] = (result.data ?? []).map((r) => ({
+          id: r.id,
+          createdAt: r.createdAt,
+          author: { userId: "", displayName: r.authorName },
+          target: { type: target.type, slug: target.slug },
+          rating: r.rating as ReviewRecord["rating"],
+          title: r.title,
+          body: r.body,
+        }));
+
+        const merged = new Map<string, ReviewRecord>();
+        for (const item of initialReviews) merged.set(item.id, item);
+        for (const item of supabaseItems) merged.set(item.id, item);
+
+        const mergedItems = [...merged.values()].sort((a, b) =>
+          b.createdAt.localeCompare(a.createdAt),
+        );
+        const total = mergedItems.reduce((sum, item) => sum + item.rating, 0);
+        const mergedSummary: ReviewsSummary =
+          mergedItems.length > 0
+            ? {
+                averageRating: Math.round((total / mergedItems.length) * 100) / 100,
+                totalReviews: mergedItems.length,
+                lastReviewAt: mergedItems[0]?.createdAt,
+              }
+            : initialSummary;
+
+        setSummary(mergedSummary);
+        setItems(mergedItems.slice(0, maxItems));
+      } catch {
+        if (!cancelled) {
+          setItems(initialReviews.slice(0, maxItems));
+        }
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, [initialReviews, initialSummary, maxItems, target.slug, target.type]);
 
   return (

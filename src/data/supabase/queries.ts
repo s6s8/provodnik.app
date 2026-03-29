@@ -1,16 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { seededDestinations } from "@/data/destinations/seed";
-import { listSeededFavoritesForUser } from "@/data/favorites/seed";
-import { getSeededPublicGuide, seededPublicGuides } from "@/data/public-guides/seed";
-import type { PublicGuideProfile } from "@/data/public-guides/types";
-import { getSeededPublicListing, seededPublicListings } from "@/data/public-listings/seed";
-import type { PublicListing } from "@/data/public-listings/types";
-import { getSeededReviewsSummaryForTarget, listSeededReviewsForTarget } from "@/data/reviews/seed";
-import { seededGuideBookings } from "@/data/guide-booking/seed";
-import { getSeededTravelerRequestById, seededTravelerOffers, seededTravelerRequests } from "@/data/traveler-request/seed";
-import { seededTravelerBookings } from "@/data/traveler-booking/seed";
-
 export type QueryResult<T> = { data: T | null; error: Error | null };
 export type DestinationCategory = "city" | "nature" | "culture";
 
@@ -133,14 +122,10 @@ export type ReviewRecord = {
 export type ListingFilters = { destination?: string; duration?: string; priceRange?: string; format?: string };
 export type RequestFilters = { destination?: string; status?: string };
 export type GuideFilters = { destination?: string };
-type ReviewRow = {
-  id: string;
-  author_name: string;
-  rating: number;
-  title: string | null;
-  body: string | null;
-  created_at: string;
-};
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
 const fallbackHeroImage =
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2400&q=80";
@@ -178,115 +163,6 @@ function formatDateLabel(start: string, end?: string | null) {
   return `${start} - ${end}`;
 }
 
-function mapDestinationSeed(): DestinationRecord[] {
-  return seededDestinations.map((destination, index) => ({
-    id: `dest-seed-${destination.slug}`,
-    slug: destination.slug,
-    name: destination.name,
-    region: destination.region ?? "Россия",
-    category: titleToCategory(destination.name),
-    description: destination.description ?? "Маршрут с локальным проводником и спокойным темпом.",
-    heroImageUrl: destination.imageUrl ?? fallbackHeroImage,
-    listingCount: destination.listingCount ?? 0,
-    guidesCount: Math.max(3, Math.round((destination.listingCount ?? 6) / 2)),
-    avgRating: 4.7 + ((index % 3) * 0.1),
-  }));
-}
-
-function mapGuideSeed(guide: PublicGuideProfile): GuideRecord {
-  const topListing = seededPublicListings.find((listing) => listing.guideSlug === guide.slug);
-
-  return {
-    id: `guide-seed-${guide.slug}`,
-    slug: guide.slug,
-    fullName: guide.displayName,
-    avatarUrl: guide.avatarImageUrl,
-    initials: guide.avatarInitials ?? getInitials(guide.displayName),
-    homeBase: guide.homeBase,
-    bio: guide.bio,
-    destinations: [...guide.regions],
-    destinationSlugs: guide.regions.map(normalizeSlug),
-    rating: guide.reviewsSummary.averageRating,
-    reviewCount: guide.reviewsSummary.totalReviews,
-    topListingTitle: topListing?.title,
-    experienceYears: guide.yearsExperience,
-  };
-}
-
-function mapListingSeed(listing: PublicListing): ListingRecord {
-  const guide = getSeededPublicGuide(listing.guideSlug);
-  const reviews = getSeededReviewsSummaryForTarget("listing", listing.slug);
-  const destination = mapDestinationSeed().find((item) => item.region.toLowerCase().includes(listing.region.toLowerCase()));
-
-  return {
-    id: `listing-seed-${listing.slug}`,
-    slug: listing.slug,
-    title: listing.title,
-    destinationSlug: destination?.slug ?? normalizeSlug(listing.city),
-    destinationName: listing.city,
-    destinationRegion: listing.region,
-    imageUrl: listing.coverImageUrl ?? fallbackHeroImage,
-    priceRub: listing.priceFromRub,
-    durationDays: listing.durationDays,
-    durationLabel: `${listing.durationDays} ${listing.durationDays === 1 ? "день" : listing.durationDays < 5 ? "дня" : "дней"}`,
-    groupSize: listing.groupSizeMax,
-    difficulty: listing.durationDays > 1 ? "Средняя" : "Лёгкая",
-    departure: listing.city,
-    format: listing.themes[0] ?? "Авторский маршрут",
-    description: listing.highlights.join(". "),
-    inclusions: [...listing.inclusions],
-    exclusions: ["Авиабилеты", "Личные расходы"],
-    guideSlug: listing.guideSlug,
-    guideName: guide?.displayName ?? "Локальный гид",
-    guideAvatarUrl: guide?.avatarImageUrl,
-    guideHomeBase: guide?.homeBase ?? listing.city,
-    rating: reviews.averageRating || guide?.reviewsSummary.averageRating || 4.8,
-    reviewCount: reviews.totalReviews || guide?.reviewsSummary.totalReviews || 0,
-    status: "active",
-  };
-}
-
-function mapRequestSeeds(): RequestRecord[] {
-  return seededTravelerRequests.map((item) => ({
-    id: item.id,
-    destination: item.request.destination,
-    destinationSlug: normalizeSlug(item.request.destination),
-    destinationRegion: "Россия",
-    title: `${item.request.destination} — маршрут под вашу компанию`,
-    dateLabel: formatDateLabel(item.request.startDate, item.request.endDate),
-    groupSize: item.request.groupSize,
-    capacity: Math.max(item.request.groupSize + 2, 4),
-    budgetRub: item.request.budgetPerPersonRub,
-    budgetLabel: `${formatRub(item.request.budgetPerPersonRub)} / чел.`,
-    requesterName: "Алексей Козлов",
-    requesterInitials: "АК",
-    description: item.request.notes ?? "Нужен маршрут с локальным проводником и ясной логистикой.",
-    format: item.request.experienceType,
-    status: item.status === "booked" ? "booked" : item.status === "closed" ? "expired" : "open",
-    createdAt: item.createdAt,
-    offerCount: seededTravelerOffers.filter((offer) => offer.requestId === item.id).length,
-    imageUrl:
-      mapDestinationSeed().find((destination) => destination.slug === normalizeSlug(item.request.destination))
-        ?.heroImageUrl ?? fallbackHeroImage,
-  }));
-}
-
-function mapOfferSeeds(requestId: string): OfferRecord[] {
-  return seededTravelerOffers
-    .filter((offer) => offer.requestId === requestId)
-    .map((offer) => ({
-      id: offer.id,
-      requestId: offer.requestId,
-      guideSlug: normalizeSlug(offer.guide.name),
-      guideName: offer.guide.name,
-      guideRating: offer.guide.rating,
-      priceRub: offer.priceTotalRub,
-      capacity: offer.groupSizeMax,
-      message: offer.message,
-      status: offer.status === "accepted" ? "accepted" : offer.status === "declined" ? "declined" : "pending",
-    }));
-}
-
 function applyListingFilters(listings: ListingRecord[], filters?: ListingFilters) {
   if (!filters) return listings;
   return listings.filter((listing) => {
@@ -312,13 +188,109 @@ function applyGuideFilters(guides: GuideRecord[], filters?: GuideFilters) {
   );
 }
 
-export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
-  const fallback = mapDestinationSeed();
+type ReviewRow = {
+  id: string;
+  author_name: string;
+  rating: number;
+  title: string | null;
+  body: string | null;
+  created_at: string;
+};
 
+function mapReviewRow(review: ReviewRow): ReviewRecord {
+  return {
+    id: review.id,
+    authorName: review.author_name,
+    rating: review.rating,
+    title: review.title ?? "Отзыв",
+    body: review.body ?? "",
+    createdAt: review.created_at,
+  };
+}
+
+function mapListingRow(row: Record<string, unknown>): ListingRecord {
+  const priceMinor = (row.price_from_minor as number) ?? 0;
+  const durationMin = (row.duration_minutes as number) ?? 480;
+  const days = Math.max(1, Math.round(durationMin / 480));
+  const city = (row.city as string) ?? (row.region as string) ?? "";
+  const region = (row.region as string) ?? "";
+  const descJson = typeof row.description === "string" ? row.description : "";
+  let imageUrl = fallbackHeroImage;
+  try {
+    const parsed = JSON.parse(descJson);
+    if (parsed?.imageUrl) imageUrl = parsed.imageUrl;
+  } catch { /* not JSON, use fallback */ }
+
+  return {
+    id: row.id as string,
+    slug: row.slug as string,
+    title: row.title as string,
+    destinationSlug: normalizeSlug(city || region),
+    destinationName: city || region,
+    destinationRegion: region,
+    imageUrl,
+    priceRub: Math.round(priceMinor / 100),
+    durationDays: days,
+    durationLabel: `${days} ${days === 1 ? "день" : days < 5 ? "дня" : "дней"}`,
+    groupSize: (row.max_group_size as number) ?? 6,
+    difficulty: (row.category as string)?.includes("природ") ? "Средняя" : "Лёгкая",
+    departure: (row.meeting_point as string) ?? city ?? region,
+    format: (row.category as string) ?? "Авторский маршрут",
+    description: (row.route_summary as string) ?? "",
+    inclusions: (row.inclusions as string[]) ?? [],
+    exclusions: (row.exclusions as string[]) ?? [],
+    guideSlug: normalizeSlug((row.guide_id as string) ?? ""),
+    guideName: "Локальный гид",
+    guideAvatarUrl: undefined,
+    guideHomeBase: city || region,
+    rating: 4.8,
+    reviewCount: 0,
+    status: "active",
+  };
+}
+
+function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник Provodnik", requesterInitials = "ПП"): RequestRecord {
+  const dest = (row.destination as string) ?? "Маршрут";
+  const budgetMinor = (row.budget_minor as number) ?? 0;
+  const budgetRub = Math.round(budgetMinor / 100);
+  let imageUrl = fallbackHeroImage;
+  const notes = (row.notes as string) ?? "";
+  try {
+    const parsed = JSON.parse(notes);
+    if (parsed?.imageUrl) imageUrl = parsed.imageUrl;
+  } catch { /* not JSON */ }
+
+  return {
+    id: row.id as string,
+    destination: dest,
+    destinationSlug: normalizeSlug(dest),
+    destinationRegion: (row.region as string) ?? "Россия",
+    title: `${dest} — маршрут под группу`,
+    dateLabel: formatDateLabel((row.starts_on as string) ?? "", row.ends_on as string | null),
+    groupSize: (row.participants_count as number) ?? 1,
+    capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
+    budgetRub,
+    budgetLabel: budgetMinor ? `${formatRub(budgetRub)} / чел.` : "По договорённости",
+    requesterName,
+    requesterInitials,
+    description: notes,
+    format: (row.category as string) ?? "",
+    status: (row.status as RequestRecord["status"]) ?? "open",
+    createdAt: (row.created_at as string) ?? "",
+    offerCount: 0,
+    imageUrl,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Destinations
+// ---------------------------------------------------------------------------
+
+export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
     const { data, error } = await client.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
     if (error) throw error;
-    if (!data || data.length === 0) return { data: fallback, error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: data.map((row, index) => ({
@@ -336,7 +308,7 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
       error: null,
     };
   } catch (error) {
-    return { data: fallback, error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -344,7 +316,7 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
   try {
     const { data, error } = await client.from("destinations").select("*").eq("slug", slug).maybeSingle();
     if (error) throw error;
-    if (!data) return { data: mapDestinationSeed().find((item) => item.slug === slug) ?? null, error: null };
+    if (!data) return { data: null, error: null };
 
     return {
       data: {
@@ -362,16 +334,18 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
       error: null,
     };
   } catch (error) {
-    return { data: mapDestinationSeed().find((item) => item.slug === slug) ?? null, error: makeError(error) };
+    return { data: null, error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Listings
+// ---------------------------------------------------------------------------
 
 export async function getActiveListings(
   client: SupabaseClient,
   filters?: ListingFilters,
 ): Promise<QueryResult<ListingRecord[]>> {
-  const fallback = seededPublicListings.map(mapListingSeed);
-
   try {
     const { data, error } = await client
       .from("listings")
@@ -380,41 +354,11 @@ export async function getActiveListings(
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: applyListingFilters(fallback, filters), error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
-    return {
-      data: applyListingFilters(
-        data.map((row) => ({
-          id: row.id,
-          slug: row.slug,
-          title: row.title,
-          destinationSlug: normalizeSlug(row.city ?? row.region),
-          destinationName: row.city ?? row.region,
-          destinationRegion: row.region,
-          imageUrl: fallbackHeroImage,
-          priceRub: Math.round(row.price_from_minor / 100),
-          durationDays: Math.max(1, Math.round((row.duration_minutes ?? 480) / 480)),
-          durationLabel: `${Math.max(1, Math.round((row.duration_minutes ?? 480) / 480))} дн.`,
-          groupSize: row.max_group_size,
-          difficulty: row.category === "nature" ? "Средняя" : "Лёгкая",
-          departure: row.meeting_point ?? row.city ?? row.region,
-          format: row.category,
-          description: row.description ?? row.route_summary ?? "",
-          inclusions: row.inclusions,
-          exclusions: row.exclusions,
-          guideSlug: normalizeSlug(row.guide_id),
-          guideName: "Локальный гид",
-          guideHomeBase: row.city ?? row.region,
-          rating: 4.8,
-          reviewCount: 0,
-          status: "active",
-        })),
-        filters,
-      ),
-      error: null,
-    };
+    return { data: applyListingFilters(data.map(mapListingRow), filters), error: null };
   } catch (error) {
-    return { data: applyListingFilters(fallback, filters), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -425,38 +369,11 @@ export async function getListingBySlug(
   try {
     const { data, error } = await client.from("listings").select("*").eq("slug", slug).maybeSingle();
     if (error) throw error;
-    if (!data) return { data: seededPublicListings.map(mapListingSeed).find((item) => item.slug === slug) ?? null, error: null };
+    if (!data) return { data: null, error: null };
 
-    return {
-      data: {
-        id: data.id,
-        slug: data.slug,
-        title: data.title,
-        destinationSlug: normalizeSlug(data.city ?? data.region),
-        destinationName: data.city ?? data.region,
-        destinationRegion: data.region,
-        imageUrl: fallbackHeroImage,
-        priceRub: Math.round(data.price_from_minor / 100),
-        durationDays: Math.max(1, Math.round((data.duration_minutes ?? 480) / 480)),
-        durationLabel: `${Math.max(1, Math.round((data.duration_minutes ?? 480) / 480))} дн.`,
-        groupSize: data.max_group_size,
-        difficulty: data.category === "nature" ? "Средняя" : "Лёгкая",
-        departure: data.meeting_point ?? data.city ?? data.region,
-        format: data.category,
-        description: data.description ?? data.route_summary ?? "",
-        inclusions: data.inclusions,
-        exclusions: data.exclusions,
-        guideSlug: normalizeSlug(data.guide_id),
-        guideName: "Локальный гид",
-        guideHomeBase: data.city ?? data.region,
-        rating: 4.8,
-        reviewCount: 0,
-        status: "active",
-      },
-      error: null,
-    };
+    return { data: mapListingRow(data), error: null };
   } catch (error) {
-    return { data: seededPublicListings.map(mapListingSeed).find((item) => item.slug === slug) ?? null, error: makeError(error) };
+    return { data: null, error: makeError(error) };
   }
 }
 
@@ -464,15 +381,6 @@ export async function getListingsByDestination(
   client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<ListingRecord[]>> {
-  const fallback = seededPublicListings
-    .filter((listing) => {
-      const citySlug = normalizeSlug(listing.city);
-      const regionSlug = normalizeSlug(listing.region);
-
-      return citySlug === slug || regionSlug === slug || (slug === "lake-baikal" && regionSlug.includes("irkut"));
-    })
-    .map(mapListingSeed);
-
   try {
     const { data, error } = await client
       .from("listings")
@@ -481,38 +389,11 @@ export async function getListingsByDestination(
       .eq("status", "published");
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: fallback, error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
-    return {
-      data: data.map((row) => ({
-        id: row.id,
-        slug: row.slug,
-        title: row.title,
-        destinationSlug: normalizeSlug(row.city ?? row.region),
-        destinationName: row.city ?? row.region,
-        destinationRegion: row.region,
-        imageUrl: fallbackHeroImage,
-        priceRub: Math.round(row.price_from_minor / 100),
-        durationDays: Math.max(1, Math.round((row.duration_minutes ?? 480) / 480)),
-        durationLabel: `${Math.max(1, Math.round((row.duration_minutes ?? 480) / 480))} дн.`,
-        groupSize: row.max_group_size,
-        difficulty: row.category === "nature" ? "Средняя" : "Лёгкая",
-        departure: row.meeting_point ?? row.city ?? row.region,
-        format: row.category,
-        description: row.description ?? row.route_summary ?? "",
-        inclusions: row.inclusions,
-        exclusions: row.exclusions,
-        guideSlug: normalizeSlug(row.guide_id),
-        guideName: "Локальный гид",
-        guideHomeBase: row.city ?? row.region,
-        rating: 4.8,
-        reviewCount: 0,
-        status: "active",
-      })),
-      error: null,
-    };
+    return { data: data.map(mapListingRow), error: null };
   } catch (error) {
-    return { data: fallback, error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -520,54 +401,25 @@ export async function getListingsByGuide(
   client: SupabaseClient,
   guideId: string,
 ): Promise<QueryResult<ListingRecord[]>> {
-  const fallback = seededPublicListings
-    .filter((listing) => listing.guideSlug === guideId || normalizeSlug(listing.guideSlug) === normalizeSlug(guideId))
-    .map(mapListingSeed);
-
   try {
     const { data, error } = await client.from("listings").select("*").eq("guide_id", guideId);
     if (error) throw error;
-    if (!data || data.length === 0) return { data: fallback, error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
-    return {
-      data: data.map((row) => ({
-        id: row.id,
-        slug: row.slug,
-        title: row.title,
-        destinationSlug: normalizeSlug(row.city ?? row.region),
-        destinationName: row.city ?? row.region,
-        destinationRegion: row.region,
-        imageUrl: fallbackHeroImage,
-        priceRub: Math.round(row.price_from_minor / 100),
-        durationDays: Math.max(1, Math.round((row.duration_minutes ?? 480) / 480)),
-        durationLabel: `${Math.max(1, Math.round((row.duration_minutes ?? 480) / 480))} дн.`,
-        groupSize: row.max_group_size,
-        difficulty: row.category === "nature" ? "Средняя" : "Лёгкая",
-        departure: row.meeting_point ?? row.city ?? row.region,
-        format: row.category,
-        description: row.description ?? row.route_summary ?? "",
-        inclusions: row.inclusions,
-        exclusions: row.exclusions,
-        guideSlug: normalizeSlug(row.guide_id),
-        guideName: "Локальный гид",
-        guideHomeBase: row.city ?? row.region,
-        rating: 4.8,
-        reviewCount: 0,
-        status: "active",
-      })),
-      error: null,
-    };
+    return { data: data.map(mapListingRow), error: null };
   } catch (error) {
-    return { data: fallback, error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Requests
+// ---------------------------------------------------------------------------
 
 export async function getOpenRequests(
   client: SupabaseClient,
   filters?: RequestFilters,
 ): Promise<QueryResult<RequestRecord[]>> {
-  const fallback = mapRequestSeeds();
-
   try {
     const { data, error } = await client
       .from("traveler_requests")
@@ -576,36 +428,11 @@ export async function getOpenRequests(
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: applyRequestFilters(fallback, filters), error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
-    return {
-      data: applyRequestFilters(
-        data.map((row) => ({
-          id: row.id,
-          destination: row.destination,
-          destinationSlug: normalizeSlug(row.destination),
-          destinationRegion: row.region ?? "Россия",
-          title: `${row.destination} — маршрут под группу`,
-          dateLabel: formatDateLabel(row.starts_on, row.ends_on),
-          groupSize: row.participants_count,
-          capacity: row.group_capacity ?? row.participants_count,
-          budgetRub: Math.round((row.budget_minor ?? 0) / 100),
-          budgetLabel: row.budget_minor ? `${formatRub(Math.round(row.budget_minor / 100))} / чел.` : "По договорённости",
-          requesterName: "Путешественник Provodnik",
-          requesterInitials: "ПП",
-          description: row.notes ?? "Нужен маршрут с локальной экспертизой и ясной логистикой.",
-          format: row.category,
-          status: row.status,
-          createdAt: row.created_at,
-          offerCount: 0,
-          imageUrl: fallbackHeroImage,
-        })),
-        filters,
-      ),
-      error: null,
-    };
+    return { data: applyRequestFilters(data.map((row) => mapRequestRow(row)), filters), error: null };
   } catch (error) {
-    return { data: applyRequestFilters(fallback, filters), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -616,33 +443,11 @@ export async function getRequestById(
   try {
     const { data, error } = await client.from("traveler_requests").select("*").eq("id", id).maybeSingle();
     if (error) throw error;
-    if (!data) return { data: mapRequestSeeds().find((request) => request.id === id) ?? null, error: null };
+    if (!data) return { data: null, error: null };
 
-    return {
-      data: {
-        id: data.id,
-        destination: data.destination,
-        destinationSlug: normalizeSlug(data.destination),
-        destinationRegion: data.region ?? "Россия",
-        title: `${data.destination} — маршрут под группу`,
-        dateLabel: formatDateLabel(data.starts_on, data.ends_on),
-        groupSize: data.participants_count,
-        capacity: data.group_capacity ?? data.participants_count,
-        budgetRub: Math.round((data.budget_minor ?? 0) / 100),
-        budgetLabel: data.budget_minor ? `${formatRub(Math.round(data.budget_minor / 100))} / чел.` : "По договорённости",
-        requesterName: "Путешественник Provodnik",
-        requesterInitials: "ПП",
-        description: data.notes ?? "Нужен маршрут с локальной экспертизой и ясной логистикой.",
-        format: data.category,
-        status: data.status,
-        createdAt: data.created_at,
-        offerCount: 0,
-        imageUrl: fallbackHeroImage,
-      },
-      error: null,
-    };
+    return { data: mapRequestRow(data), error: null };
   } catch (error) {
-    return { data: mapRequestSeeds().find((request) => request.id === id) ?? null, error: makeError(error) };
+    return { data: null, error: makeError(error) };
   }
 }
 
@@ -653,69 +458,54 @@ export async function getUserRequests(
   try {
     const { data, error } = await client.from("traveler_requests").select("*").eq("traveler_id", userId);
     if (error) throw error;
-    if (!data || data.length === 0) return { data: mapRequestSeeds(), error: null };
-    return {
-      data: data.map((row) => ({
-        id: row.id,
-        destination: row.destination,
-        destinationSlug: normalizeSlug(row.destination),
-        destinationRegion: row.region ?? "Россия",
-        title: `${row.destination} — маршрут под группу`,
-        dateLabel: formatDateLabel(row.starts_on, row.ends_on),
-        groupSize: row.participants_count,
-        capacity: row.group_capacity ?? row.participants_count,
-        budgetRub: Math.round((row.budget_minor ?? 0) / 100),
-        budgetLabel: row.budget_minor ? `${formatRub(Math.round(row.budget_minor / 100))} / чел.` : "По договорённости",
-        requesterName: "Вы",
-        requesterInitials: "ВЫ",
-        description: row.notes ?? "Нужен маршрут с локальной экспертизой и ясной логистикой.",
-        format: row.category,
-        status: row.status,
-        createdAt: row.created_at,
-        offerCount: 0,
-        imageUrl: fallbackHeroImage,
-      })),
-      error: null,
-    };
+    if (!data || data.length === 0) return { data: [], error: null };
+
+    return { data: data.map((row) => mapRequestRow(row, "Вы", "ВЫ")), error: null };
   } catch (error) {
-    return { data: mapRequestSeeds(), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Guides
+// ---------------------------------------------------------------------------
 
 export async function getGuides(
   client: SupabaseClient,
   filters?: GuideFilters,
 ): Promise<QueryResult<GuideRecord[]>> {
-  const fallback = seededPublicGuides.map(mapGuideSeed);
-
   try {
-    const { data, error } = await client.from("profiles").select("*").eq("role", "guide");
+    const { data, error } = await client.from("guide_profiles").select("*, profiles!inner(id, full_name, avatar_url)");
     if (error) throw error;
-    if (!data || data.length === 0) return { data: applyGuideFilters(fallback, filters), error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: applyGuideFilters(
-        data.map((row) => ({
-          id: row.id,
-          slug: row.slug ?? normalizeSlug(row.full_name ?? row.id),
-          fullName: row.full_name ?? "Локальный гид",
-          avatarUrl: row.avatar_url ?? undefined,
-          initials: getInitials(row.full_name ?? "Гид"),
-          homeBase: row.home_base ?? "Россия",
-          bio: row.bio ?? "Проводник по локальным маршрутам и камерным поездкам.",
-          destinations: [row.home_base ?? "Россия"],
-          destinationSlugs: [normalizeSlug(row.home_base ?? "russia")],
-          rating: 4.8,
-          reviewCount: 0,
-          topListingTitle: undefined,
-          experienceYears: 5,
-        })),
+        data.map((row) => {
+          const profile = row.profiles as Record<string, unknown> | null;
+          const fullName = (profile?.full_name as string) ?? row.display_name ?? "Локальный гид";
+          return {
+            id: row.user_id as string,
+            slug: row.slug ?? normalizeSlug(fullName),
+            fullName,
+            avatarUrl: (profile?.avatar_url as string) ?? undefined,
+            initials: getInitials(fullName),
+            homeBase: (row.regions as string[])?.[0] ?? "Россия",
+            bio: row.bio ?? "Проводник по локальным маршрутам и камерным поездкам.",
+            destinations: (row.regions as string[]) ?? [],
+            destinationSlugs: ((row.regions as string[]) ?? []).map(normalizeSlug),
+            rating: 4.8,
+            reviewCount: 0,
+            topListingTitle: undefined,
+            experienceYears: row.years_experience ?? 5,
+          };
+        }),
         filters,
       ),
       error: null,
     };
   } catch (error) {
-    return { data: applyGuideFilters(fallback, filters), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -724,31 +514,37 @@ export async function getGuideBySlug(
   slug: string,
 ): Promise<QueryResult<GuideRecord>> {
   try {
-    const { data, error } = await client.from("profiles").select("*").eq("slug", slug).maybeSingle();
+    const { data, error } = await client.from("guide_profiles").select("*, profiles!inner(id, full_name, avatar_url)").eq("slug", slug).maybeSingle();
     if (error) throw error;
-    if (!data) return { data: seededPublicGuides.map(mapGuideSeed).find((guide) => guide.slug === slug) ?? null, error: null };
+    if (!data) return { data: null, error: null };
 
+    const profile = data.profiles as Record<string, unknown> | null;
+    const fullName = (profile?.full_name as string) ?? data.display_name ?? "Локальный гид";
     return {
       data: {
-        id: data.id,
+        id: data.user_id as string,
         slug: data.slug ?? slug,
-        fullName: data.full_name ?? "Локальный гид",
-        avatarUrl: data.avatar_url ?? undefined,
-        initials: getInitials(data.full_name ?? "Гид"),
-        homeBase: data.home_base ?? "Россия",
+        fullName,
+        avatarUrl: (profile?.avatar_url as string) ?? undefined,
+        initials: getInitials(fullName),
+        homeBase: (data.regions as string[])?.[0] ?? "Россия",
         bio: data.bio ?? "Проводник по локальным маршрутам и камерным поездкам.",
-        destinations: [data.home_base ?? "Россия"],
-        destinationSlugs: [normalizeSlug(data.home_base ?? "russia")],
+        destinations: (data.regions as string[]) ?? [],
+        destinationSlugs: ((data.regions as string[]) ?? []).map(normalizeSlug),
         rating: 4.8,
         reviewCount: 0,
-        experienceYears: 5,
+        experienceYears: data.years_experience ?? 5,
       },
       error: null,
     };
   } catch (error) {
-    return { data: seededPublicGuides.map(mapGuideSeed).find((guide) => guide.slug === slug) ?? null, error: makeError(error) };
+    return { data: null, error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Offers
+// ---------------------------------------------------------------------------
 
 export async function getOffersForRequest(
   client: SupabaseClient,
@@ -757,7 +553,7 @@ export async function getOffersForRequest(
   try {
     const { data, error } = await client.from("guide_offers").select("*").eq("request_id", requestId);
     if (error) throw error;
-    if (!data || data.length === 0) return { data: mapOfferSeeds(requestId), error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: data.map((row) => ({
@@ -774,9 +570,13 @@ export async function getOffersForRequest(
       error: null,
     };
   } catch (error) {
-    return { data: mapOfferSeeds(requestId), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Bookings
+// ---------------------------------------------------------------------------
 
 export async function getUserBookings(
   client: SupabaseClient,
@@ -785,20 +585,7 @@ export async function getUserBookings(
   try {
     const { data, error } = await client.from("bookings").select("*").eq("traveler_id", userId);
     if (error) throw error;
-    if (!data || data.length === 0) {
-      return {
-        data: seededTravelerBookings.map((booking) => ({
-          id: booking.id,
-          title: booking.request.destination,
-          destination: booking.request.destination,
-          dateLabel: formatDateLabel(booking.request.startDate, booking.request.endDate),
-          priceRub: booking.payment.lineItems.reduce((sum, line) => sum + line.amountRub, 0),
-          guideName: booking.guide.displayName,
-          status: booking.status,
-        })),
-        error: null,
-      };
-    }
+    if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: data.map((booking) => ({
@@ -812,18 +599,7 @@ export async function getUserBookings(
       error: null,
     };
   } catch (error) {
-    return {
-      data: seededTravelerBookings.map((booking) => ({
-        id: booking.id,
-        title: booking.request.destination,
-        destination: booking.request.destination,
-        dateLabel: formatDateLabel(booking.request.startDate, booking.request.endDate),
-        priceRub: booking.payment.lineItems.reduce((sum, line) => sum + line.amountRub, 0),
-        guideName: booking.guide.displayName,
-        status: booking.status,
-      })),
-      error: makeError(error),
-    };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -834,20 +610,7 @@ export async function getGuideBookings(
   try {
     const { data, error } = await client.from("bookings").select("*").eq("guide_id", guideId);
     if (error) throw error;
-    if (!data || data.length === 0) {
-      return {
-        data: seededGuideBookings.map((booking) => ({
-          id: booking.id,
-          title: booking.request.destination,
-          destination: booking.request.destination,
-          dateLabel: formatDateLabel(booking.request.startDate, booking.request.endDate),
-          priceRub: booking.payment.lineItems.reduce((sum, line) => sum + line.amountRub, 0),
-          travelerName: booking.travelerRoster[0]?.displayName,
-          status: booking.status,
-        })),
-        error: null,
-      };
-    }
+    if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: data.map((booking) => ({
@@ -861,20 +624,13 @@ export async function getGuideBookings(
       error: null,
     };
   } catch (error) {
-    return {
-      data: seededGuideBookings.map((booking) => ({
-        id: booking.id,
-        title: booking.request.destination,
-        destination: booking.request.destination,
-        dateLabel: formatDateLabel(booking.request.startDate, booking.request.endDate),
-        priceRub: booking.payment.lineItems.reduce((sum, line) => sum + line.amountRub, 0),
-        travelerName: booking.travelerRoster[0]?.displayName,
-        status: booking.status,
-      })),
-      error: makeError(error),
-    };
+    return { data: [], error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Favorites
+// ---------------------------------------------------------------------------
 
 export async function getUserFavorites(
   client: SupabaseClient,
@@ -883,18 +639,7 @@ export async function getUserFavorites(
   try {
     const { data, error } = await client.from("favorites").select("*").eq("user_id", userId);
     if (error) throw error;
-    if (!data || data.length === 0) {
-      return {
-        data: listSeededFavoritesForUser(userId)
-          .filter((favorite) => favorite.target.type === "listing")
-          .map((favorite) => ({
-            id: favorite.id,
-            listingSlug: favorite.target.slug,
-            createdAt: favorite.createdAt,
-          })),
-        error: null,
-      };
-    }
+    if (!data || data.length === 0) return { data: [], error: null };
 
     return {
       data: data.map((favorite) => ({
@@ -905,16 +650,7 @@ export async function getUserFavorites(
       error: null,
     };
   } catch (error) {
-    return {
-      data: listSeededFavoritesForUser(userId)
-        .filter((favorite) => favorite.target.type === "listing")
-        .map((favorite) => ({
-          id: favorite.id,
-          listingSlug: favorite.target.slug,
-          createdAt: favorite.createdAt,
-        })),
-      error: makeError(error),
-    };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -943,21 +679,22 @@ export async function toggleFavorite(
     if (error) throw error;
     return { data: true, error: null };
   } catch (error) {
-    const fallbackState = !listSeededFavoritesForUser(userId).some(
-      (favorite) => favorite.target.type === "listing" && favorite.target.slug === listingId,
-    );
-    return { data: fallbackState, error: makeError(error) };
+    return { data: false, error: makeError(error) };
   }
 }
+
+// ---------------------------------------------------------------------------
+// Reviews
+// ---------------------------------------------------------------------------
 
 export async function getListingReviews(client: SupabaseClient, slug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
     const { data, error } = await client.from("reviews").select("*").eq("target_type", "listing").eq("target_slug", slug);
     if (error) throw error;
-    if (!data || data.length === 0) return { data: mapSeedReviews("listing", slug), error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
     return { data: data.map(mapReviewRow), error: null };
   } catch (error) {
-    return { data: mapSeedReviews("listing", slug), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
 }
 
@@ -965,41 +702,9 @@ export async function getGuideReviews(client: SupabaseClient, slug: string): Pro
   try {
     const { data, error } = await client.from("reviews").select("*").eq("target_type", "guide").eq("target_slug", slug);
     if (error) throw error;
-    if (!data || data.length === 0) return { data: mapSeedReviews("guide", slug), error: null };
+    if (!data || data.length === 0) return { data: [], error: null };
     return { data: data.map(mapReviewRow), error: null };
   } catch (error) {
-    return { data: mapSeedReviews("guide", slug), error: makeError(error) };
+    return { data: [], error: makeError(error) };
   }
-}
-
-function mapReviewRow(review: ReviewRow): ReviewRecord {
-  return {
-    id: review.id,
-    authorName: review.author_name,
-    rating: review.rating,
-    title: review.title ?? "Отзыв",
-    body: review.body ?? "",
-    createdAt: review.created_at,
-  };
-}
-
-function mapSeedReviews(type: "guide" | "listing", slug: string): ReviewRecord[] {
-  return listSeededReviewsForTarget(type, slug).map((review) => ({
-    id: review.id,
-    authorName: review.author.displayName,
-    rating: review.rating,
-    title: review.title,
-    body: review.body,
-    createdAt: review.createdAt,
-  }));
-}
-
-export function getSeededRequestByListing(listingId: string) {
-  const listing = getSeededPublicListing(listingId);
-  if (!listing) return null;
-  return mapRequestSeeds().find((request) => request.destination.toLowerCase().includes(listing.city.toLowerCase()));
-}
-
-export function getSeededTravelerRequest(id: string) {
-  return getSeededTravelerRequestById(id);
 }

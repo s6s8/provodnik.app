@@ -1,11 +1,11 @@
+"use client";
+
+import * as React from "react";
 import Link from "next/link";
 
 import { ReqCard } from "@/components/shared/req-card";
 import type { AuthContext } from "@/lib/auth/types";
-import {
-  seededTravelerRequests,
-  seededTravelerOffers,
-} from "@/data/traveler-request/seed";
+import { listTravelerRequestsFromSupabase } from "@/data/traveler-request/supabase-client";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -47,10 +47,6 @@ function statusBadge(
   }
 }
 
-function offerCount(requestId: string): number {
-  return seededTravelerOffers.filter((o) => o.requestId === requestId).length;
-}
-
 // ─── types ───────────────────────────────────────────────────────────────────
 
 interface Props {
@@ -65,13 +61,24 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
   const userInitials = initials(displayName);
   const email = auth?.email ?? null;
 
-  const items = requests ?? seededTravelerRequests;
+  const [loaded, setLoaded] = React.useState<TravelerRequestRecord[]>([]);
+
+  React.useEffect(() => {
+    if (requests) return;
+    let cancelled = false;
+    void listTravelerRequestsFromSupabase()
+      .then((data) => { if (!cancelled) setLoaded(data); })
+      .catch(() => { if (!cancelled) setLoaded([]); });
+    return () => { cancelled = true; };
+  }, [requests]);
+
+  const items = requests ?? loaded;
 
   // stats
   const activeCount = items.filter(
     (r) => r.status === "submitted" || r.status === "offers_received"
   ).length;
-  const offersCount = seededTravelerOffers.length;
+  const offersCount = 0;
   const confirmedCount = items.filter(
     (r) => r.status === "booked" || r.status === "shortlisted"
   ).length;
@@ -217,7 +224,7 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                 {items.map((record) => {
                   const { request, id, status } = record;
                   const badge = statusBadge(status);
-                  const offers = offerCount(id);
+                  const offers: number = 0;
                   const budget = request.budgetPerPersonRub;
                   const priceLabel = `от ${(budget * 0.8).toLocaleString("ru-RU")} ₽`;
                   const startFmt = new Date(request.startDate).toLocaleDateString(

@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  getOpenRequestDetailById,
-  joinOpenRequest,
-  leaveOpenRequest,
-} from "@/data/open-requests/local-store";
+  getOpenRequestDetailFromSupabase,
+  joinOpenRequestInSupabase,
+  leaveOpenRequestInSupabase,
+  type OpenRequestDetail,
+} from "@/data/open-requests/supabase-client";
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -39,14 +40,12 @@ export function TravelerOpenRequestDetailScreen({
 }: {
   openRequestId: string;
 }) {
-  const [detail, setDetail] = React.useState<
-    Awaited<ReturnType<typeof getOpenRequestDetailById>>
-  >(null);
+  const [detail, setDetail] = React.useState<OpenRequestDetail | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
 
   const refresh = React.useCallback(() => {
     void (async () => {
-      const next = await getOpenRequestDetailById(openRequestId);
+      const next = await getOpenRequestDetailFromSupabase(openRequestId);
       setDetail(next);
     })();
   }, [openRequestId]);
@@ -57,28 +56,20 @@ export function TravelerOpenRequestDetailScreen({
 
   async function handleJoin() {
     setMessage(null);
-    const result = await joinOpenRequest(openRequestId);
-    if (!result.ok) {
-      setMessage(
-        result.reason === "full"
-          ? "Группа уже набрана."
-          : result.reason === "closed"
-            ? "Группа больше не набирает участников."
-            : "Групповой запрос не найден.",
-      );
+    try {
+      await joinOpenRequestInSupabase(openRequestId);
+    } catch {
+      setMessage("Не удалось присоединиться к группе.");
     }
     refresh();
   }
 
   async function handleLeave() {
     setMessage(null);
-    const result = await leaveOpenRequest(openRequestId);
-    if (!result.ok) {
-      setMessage(
-        result.reason === "organizer"
-          ? "Организатор не может покинуть свою группу в текущей версии."
-          : "Групповой запрос не найден.",
-      );
+    try {
+      await leaveOpenRequestInSupabase(openRequestId);
+    } catch {
+      setMessage("Не удалось выйти из группы.");
     }
     refresh();
   }

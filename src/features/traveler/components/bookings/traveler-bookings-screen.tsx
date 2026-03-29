@@ -8,15 +8,27 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { listTravelerBookings } from "@/data/traveler-booking/local-store";
-import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
-import { TravelerBookingStatusBadge } from "@/features/traveler/components/bookings/traveler-booking-status";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getUserBookings, type BookingRecord } from "@/data/supabase/queries";
+
 
 export function TravelerBookingsScreen() {
-  const [bookings, setBookings] = React.useState<TravelerBookingRecord[]>([]);
+  const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
 
   React.useEffect(() => {
-    setBookings(listTravelerBookings());
+    let cancelled = false;
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || cancelled) return;
+        const result = await getUserBookings(supabase, user.id);
+        if (!cancelled && result.data) setBookings(result.data);
+      } catch {
+        if (!cancelled) setBookings([]);
+      }
+    })();
+    return () => { cancelled = true; };
   }, []);
 
   return (
@@ -66,9 +78,7 @@ export function TravelerBookingsScreen() {
   );
 }
 
-function BookingCard({ record }: { record: TravelerBookingRecord }) {
-  const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
-  const amountLabel = formatRub(totalAmountRub(record));
+function BookingCard({ record }: { record: BookingRecord }) {
   const canLeaveReview = record.status === "completed";
 
   return (
@@ -76,30 +86,28 @@ function BookingCard({ record }: { record: TravelerBookingRecord }) {
       <CardHeader className="space-y-2">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <CardTitle className="text-base">{record.request.destination}</CardTitle>
+            <CardTitle className="text-base">{record.destination}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {dateLabel} · {record.request.groupSize}{" "}
-              {record.request.groupSize === 1 ? "путешественник" : "путешественника"}
+              {record.dateLabel}
             </p>
           </div>
-          <TravelerBookingStatusBadge status={record.status} />
+          <Badge variant="outline">{record.status}</Badge>
         </div>
 
         <Separator />
 
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{amountLabel}</Badge>
-          <Badge variant="outline">{record.guide.displayName}</Badge>
-          <Badge variant="outline">{record.guide.homeBase}</Badge>
+          <Badge variant="secondary">{formatRub(record.priceRub)}</Badge>
+          {record.guideName ? (
+            <Badge variant="outline">{record.guideName}</Badge>
+          ) : null}
           {canLeaveReview ? (
             <Badge variant="outline">Можно оставить отзыв</Badge>
           ) : null}
         </div>
       </CardHeader>
       <CardContent className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          Обновлено {formatShortDate(record.updatedAt)}
-        </p>
+        <p className="text-sm text-muted-foreground" />
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
           {canLeaveReview ? (
             <Button asChild>
@@ -119,19 +127,6 @@ function BookingCard({ record }: { record: TravelerBookingRecord }) {
       </CardContent>
     </Card>
   );
-}
-
-function totalAmountRub(record: TravelerBookingRecord) {
-  return record.payment.lineItems.reduce((sum, item) => sum + item.amountRub, 0);
-}
-
-function formatShortDate(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "short",
-  });
 }
 
 function formatRub(amount: number) {

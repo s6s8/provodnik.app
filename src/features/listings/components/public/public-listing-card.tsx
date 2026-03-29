@@ -1,12 +1,11 @@
 import Link from "next/link";
 
-import { Clock3, Star, Users } from "lucide-react";
+import { Star, Users } from "lucide-react";
 
 import { FavoriteToggle } from "@/components/shared/favorite-toggle";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PublicListing } from "@/data/public-listings/types";
-import { getListingQualitySnapshot } from "@/data/quality/seed";
 import { ListingCoverArt } from "@/features/listings/components/public/listing-cover-art";
 
 function formatRub(value: number) {
@@ -18,8 +17,6 @@ function formatRub(value: number) {
 }
 
 export function PublicListingCard({ listing }: { listing: PublicListing }) {
-  const quality = getListingQualitySnapshot(listing.slug);
-
   return (
     <article className="glass-panel overflow-hidden rounded-[2rem] border border-white/70">
       <div className="relative">
@@ -39,10 +36,6 @@ export function PublicListingCard({ listing }: { listing: PublicListing }) {
           <Badge variant="secondary" className="rounded-full px-3">
             <Star className="mr-1 size-3.5 fill-current" />
             4.8
-          </Badge>
-          <Badge variant="outline" className="rounded-full px-3">
-            <Clock3 className="mr-1 size-3.5" />
-            Ответ в среднем {quality.responseTimeHours.toFixed(1)} ч
           </Badge>
           <Badge variant="outline" className="rounded-full px-3">
             <Users className="mr-1 size-3.5" />

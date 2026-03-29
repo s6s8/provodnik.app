@@ -10,7 +10,7 @@ import {
   guideOfferSchema,
   type GuideOfferDraft,
 } from "@/data/guide-offer/schema";
-import type { TravelerRequestInboxItem } from "@/data/traveler-request/seed";
+import type { RequestRecord } from "@/data/supabase/queries";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,26 +26,6 @@ function formatRub(amount: number) {
     currencyDisplay: "code",
     maximumFractionDigits: 0,
   }).format(amount);
-}
-
-function formatExperienceType(value: TravelerRequestInboxItem["request"]["experienceType"]) {
-  switch (value) {
-    case "city":
-      return "Город";
-    case "nature":
-      return "Природа";
-    case "culture":
-      return "Культура";
-    case "food":
-      return "Еда";
-    case "adventure":
-    case "relax":
-      return "Отдых";
-    default: {
-      const exhaustive: never = value;
-      return exhaustive;
-    }
-  }
 }
 
 function splitCommaList(value: string): string[] {
@@ -81,7 +61,7 @@ function formatDateLabel(value: string) {
 export function GuideRequestDetailScreen({
   inboxItem,
 }: {
-  inboxItem: TravelerRequestInboxItem;
+  inboxItem: RequestRecord;
 }) {
   const [submittedOffer, setSubmittedOffer] = React.useState<GuideOfferDraft | null>(
     null
@@ -90,9 +70,9 @@ export function GuideRequestDetailScreen({
   const form = useForm<GuideOfferDraft>({
     resolver: zodResolver(guideOfferSchema),
     defaultValues: {
-      priceTotalRub: inboxItem.request.budgetPerPersonRub * inboxItem.request.groupSize,
-      timingSummary: `Ответ в течение 24 часов, старт около ${inboxItem.request.startDate}`,
-      capacity: Math.max(inboxItem.request.groupSize, 4),
+      priceTotalRub: inboxItem.budgetRub * inboxItem.groupSize,
+      timingSummary: `Ответ в течение 24 часов, старт около ${inboxItem.dateLabel}`,
+      capacity: Math.max(inboxItem.groupSize, 4),
       inclusions: ["Услуги гида", "Планирование маршрута", "Локальные рекомендации"],
       expiresAt: defaultExpiryValue(),
       notes: "",
@@ -137,7 +117,7 @@ export function GuideRequestDetailScreen({
           <CardHeader className="space-y-3">
             <div className="space-y-1">
               <CardTitle className="text-2xl">
-                Запрос от {inboxItem.traveler.displayName}
+                Запрос от {inboxItem.requesterName}
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Посмотрите, что важно гостю, и соберите предложение по маршруту, цене и
@@ -146,13 +126,13 @@ export function GuideRequestDetailScreen({
             </div>
             <div className="flex flex-wrap gap-2">
               <Badge variant="secondary">
-                {formatExperienceType(inboxItem.request.experienceType)}
+                {inboxItem.format}
               </Badge>
               <Badge variant="outline">
-                {inboxItem.request.startDate} to {inboxItem.request.endDate}
+                {inboxItem.dateLabel}
               </Badge>
               <Badge variant="outline">
-                Группа {inboxItem.request.groupSize} чел.
+                Группа {inboxItem.groupSize} чел.
               </Badge>
             </div>
           </CardHeader>
@@ -160,33 +140,29 @@ export function GuideRequestDetailScreen({
             <div className="grid gap-3 sm:grid-cols-2">
               <InfoBlock
                 label="Направление"
-                value={inboxItem.request.destination}
+                value={inboxItem.destination}
               />
               <InfoBlock
-                label="Формат группы"
-                value={inboxItem.request.groupPreference}
+                label="Формат"
+                value={inboxItem.format}
               />
               <InfoBlock
-                label="Бюджет на человека"
-                value={formatRub(inboxItem.request.budgetPerPersonRub)}
+                label="Бюджет"
+                value={formatRub(inboxItem.budgetRub)}
               />
               <InfoBlock
-                label="Гибкость по условиям"
-                value={
-                  inboxItem.request.allowGuideSuggestionsOutsideConstraints
-                    ? "Открыт к предложениям рядом по формату"
-                    : "Жёсткие ограничения по запросу"
-                }
+                label="Статус"
+                value={inboxItem.status}
               />
             </div>
 
             <Separator />
 
             <div className="space-y-2">
-              <p className="text-sm font-medium text-foreground">Комментарий гостя</p>
+              <p className="text-sm font-medium text-foreground">Описание запроса</p>
               <div className="rounded-lg border border-border/70 bg-background/60 p-3">
                 <p className="text-sm text-foreground">
-                  {inboxItem.request.notes || "Гость не добавил дополнительных комментариев."}
+                  {inboxItem.description || "Гость не добавил дополнительных комментариев."}
                 </p>
               </div>
             </div>

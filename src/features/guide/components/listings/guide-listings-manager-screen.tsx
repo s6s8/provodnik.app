@@ -12,9 +12,7 @@ import {
   guideListingStatuses,
   type GuideListing,
 } from "@/data/guide-listing/schema";
-import {
-  getSeededGuideListingRecords,
-} from "@/data/guide-listing/seed";
+
 import type { GuideListingRecord } from "@/data/guide-listing/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -173,9 +171,8 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
     async function loadListings() {
       if (!auth.hasSupabaseEnv || !auth.isAuthenticated || auth.source !== "supabase") {
         if (!isMounted) return;
-        const seeded = getSeededGuideListingRecords();
-        setRecords(seeded);
-        setSelectedId(seeded[0]?.id ?? null);
+        setRecords([]);
+        setSelectedId(null);
         setMediaReservationsByListing({});
         setBackendMode("local");
         return;
@@ -189,9 +186,8 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
 
         if (!user) {
           if (!isMounted) return;
-          const seeded = getSeededGuideListingRecords();
-          setRecords(seeded);
-          setSelectedId(seeded[0]?.id ?? null);
+          setRecords([]);
+          setSelectedId(null);
           setMediaReservationsByListing({});
           setBackendMode("local");
           return;
@@ -206,9 +202,8 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
         if (error || !data) {
           console.error("Failed to load guide listings from Supabase", error);
           if (!isMounted) return;
-          const seeded = getSeededGuideListingRecords();
-          setRecords(seeded);
-          setSelectedId(seeded[0]?.id ?? null);
+          setRecords([]);
+          setSelectedId(null);
           setMediaReservationsByListing({});
           setBackendMode("local");
           return;
@@ -226,9 +221,8 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
       } catch (error) {
         console.error("Failed to load guide listings from Supabase", error);
         if (!isMounted) return;
-        const seeded = getSeededGuideListingRecords();
-        setRecords(seeded);
-        setSelectedId(seeded[0]?.id ?? null);
+        setRecords([]);
+        setSelectedId(null);
         setMediaReservationsByListing({});
         setBackendMode("local");
       }

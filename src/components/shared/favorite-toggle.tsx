@@ -5,16 +5,10 @@ import * as React from "react";
 import { Heart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { getActiveFavoritesUserId } from "@/data/favorites/active-user";
 import {
   isFavoriteInSupabase,
   toggleFavoriteInSupabase,
 } from "@/data/favorites/supabase-client";
-import {
-  isFavorite,
-  subscribeToFavoritesChanged,
-  toggleFavorite,
-} from "@/data/favorites/local-store";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import type { FavoriteTargetType } from "@/data/favorites/types";
 import { cn } from "@/lib/utils";
@@ -30,9 +24,7 @@ export function FavoriteToggle({
   label: string;
   className?: string;
 }) {
-  const userId = React.useMemo(() => getActiveFavoritesUserId(), []);
   const [saved, setSaved] = React.useState(false);
-  const [usesBackend, setUsesBackend] = React.useState(false);
 
   React.useEffect(() => {
     let ignore = false;
@@ -42,25 +34,18 @@ export function FavoriteToggle({
         const persisted = await isFavoriteInSupabase(targetType, slug);
         if (ignore) return;
         setSaved(persisted);
-        setUsesBackend(true);
-        return;
       } catch {
-        if (ignore) return;
-        setUsesBackend(false);
+        // Supabase unavailable — leave as unsaved
       }
-
-      setSaved(isFavorite(userId, targetType, slug));
     }
 
     void refresh();
-    const unsubscribe = subscribeToFavoritesChanged(refresh);
     window.addEventListener("focus", refresh);
     return () => {
       ignore = true;
-      unsubscribe();
       window.removeEventListener("focus", refresh);
     };
-  }, [slug, targetType, userId]);
+  }, [slug, targetType]);
 
   return (
     <Button
@@ -69,18 +54,12 @@ export function FavoriteToggle({
       size="sm"
       className={cn("gap-2", className)}
       onClick={async () => {
-        if (usesBackend) {
-          try {
-            const nextSaved = await toggleFavoriteInSupabase(targetType, slug);
-            setSaved(nextSaved);
-          } catch {
-            toggleFavorite(userId, targetType, slug);
-            setSaved(isFavorite(userId, targetType, slug));
-            setUsesBackend(false);
-          }
-        } else {
-          toggleFavorite(userId, targetType, slug);
-          setSaved(isFavorite(userId, targetType, slug));
+        try {
+          const nextSaved = await toggleFavoriteInSupabase(targetType, slug);
+          setSaved(nextSaved);
+        } catch {
+          // Supabase unavailable — optimistic toggle
+          setSaved((prev) => !prev);
         }
 
         void recordMarketplaceEventFromClient({
@@ -95,8 +74,8 @@ export function FavoriteToggle({
           payload: {
             targetType,
             targetSlug: slug,
-            userId: usesBackend ? "supabase-user" : userId,
-            persistence: usesBackend ? "supabase" : "local",
+            userId: "supabase-user",
+            persistence: "supabase",
           },
         });
       }}

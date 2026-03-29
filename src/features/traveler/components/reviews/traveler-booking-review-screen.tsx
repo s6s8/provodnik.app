@@ -12,15 +12,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
-import { addLocalReview } from "@/data/reviews/local-store";
 import { createReviewInSupabase } from "@/data/reviews/supabase-client";
 import type { ReviewRecord, ReviewTargetType } from "@/data/reviews/types";
 import {
   reviewSubmissionSchema,
   type ReviewSubmission,
 } from "@/data/reviews/schema";
-import { getTravelerBookingById } from "@/data/traveler-booking/local-store";
-import type { TravelerBookingRecord } from "@/data/traveler-booking/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getUserBookings, type BookingRecord } from "@/data/supabase/queries";
 import { recordMarketplaceEventFromClient } from "@/data/marketplace-events/client";
 import { cn } from "@/lib/utils";
 
@@ -33,40 +32,37 @@ function buildReviewId() {
   return `rev_local_${Date.now().toString(16)}_${Math.random().toString(16).slice(2)}`;
 }
 
-function featuredTargetsForBooking(record: TravelerBookingRecord): Array<{
+function featuredTargetsForBooking(_record: BookingRecord): Array<{
   type: ReviewTargetType;
   slug: string;
   label: string;
 }> {
-  const targets: Array<{ type: ReviewTargetType; slug: string; label: string }> =
-    [];
-
-  if (record.guide.slug) {
-    targets.push({
-      type: "guide",
-      slug: record.guide.slug,
-      label: `Гид: ${record.guide.displayName}`,
-    });
-  }
-
-  if (record.listingSlug) {
-    targets.push({
-      type: "listing",
-      slug: record.listingSlug,
-      label: "Программа тура",
-    });
-  }
-
-  return targets;
+  // With the simplified BookingRecord from Supabase queries, guide/listing slugs
+  // are not directly available. Return empty for now.
+  return [];
 }
 
 export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }) {
-  const [record, setRecord] = React.useState<TravelerBookingRecord | null>(null);
+  const [record, setRecord] = React.useState<BookingRecord | null>(null);
   const [submitted, setSubmitted] = React.useState<ReviewRecord | null>(null);
   const [persistedToBackend, setPersistedToBackend] = React.useState(false);
 
   React.useEffect(() => {
-    setRecord(getTravelerBookingById(bookingId));
+    let cancelled = false;
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user || cancelled) return;
+        const result = await getUserBookings(supabase, user.id);
+        if (cancelled) return;
+        const found = result.data?.find((b) => b.id === bookingId) ?? null;
+        setRecord(found);
+      } catch {
+        if (!cancelled) setRecord(null);
+      }
+    })();
+    return () => { cancelled = true; };
   }, [bookingId]);
 
   const targets = React.useMemo(() => {
@@ -132,7 +128,7 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
           createdAt: now,
           author: {
             userId: "usr_local_traveler_you",
-            displayName: record.traveler.displayName || "You",
+            displayName: record.travelerName || "You",
           },
           target: {
             type: values.targetType,
@@ -143,8 +139,6 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
           body: values.body,
           tags: values.tags?.length ? values.tags : undefined,
         };
-
-        addLocalReview(review);
       }
 
       setPersistedToBackend(usedBackend);
@@ -152,7 +146,7 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
 
       void recordMarketplaceEventFromClient({
         scope: "booking",
-        requestId: record.request.id,
+        requestId: record.id,
         bookingId: record.id,
         disputeId: null,
         actorId: review.author.userId,
@@ -260,14 +254,9 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
               Вернуться к поездке
             </Link>
           </Button>
-          {record.guide.slug ? (
+          {record.guideName ? (
             <Button asChild variant="secondary">
-              <Link href={`/guides/${record.guide.slug}`}>Профиль гида</Link>
-            </Button>
-          ) : null}
-          {record.listingSlug ? (
-            <Button asChild variant="secondary">
-              <Link href={`/listings/${record.listingSlug}`}>Программа тура</Link>
+              <Link href="/traveler/bookings">Все поездки</Link>
             </Button>
           ) : null}
         </div>
@@ -299,7 +288,7 @@ export function TravelerBookingReviewScreen({ bookingId }: { bookingId: string }
         <CardHeader className="space-y-1">
           <CardTitle>Детали отзыва</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Поездка: {record.request.destination} · {record.request.startDate}
+            Поездка: {record.destination} · {record.dateLabel}
           </p>
         </CardHeader>
         <CardContent className="space-y-5">

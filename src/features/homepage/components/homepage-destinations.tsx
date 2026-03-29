@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { seededDestinations } from "@/data/destinations/index";
 
 // Static featured destination card data (matches HTML SOT)
 const FEATURED = {
@@ -45,8 +44,7 @@ const SMALL_CARDS = [
 
 
 export function HomePageDestinations() {
-  // seededDestinations available for future dynamic enrichment
-  void seededDestinations;
+
 
   return (
     <section className="section" aria-labelledby="dest-title">

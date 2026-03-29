@@ -5,7 +5,6 @@ import type {
   PublicListingInclusion,
   PublicListingTheme,
 } from "@/data/public-listings/types";
-import { seededPublicListings } from "@/data/public-listings/seed";
 import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
 import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -71,7 +70,7 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
 }
 
 export default async function PublicListingsPage() {
-  let listings = seededPublicListings;
+  let listings: PublicListing[] = [];
 
   try {
     const client = await createSupabaseServerClient();

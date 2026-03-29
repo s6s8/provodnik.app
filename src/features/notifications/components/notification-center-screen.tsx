@@ -8,21 +8,28 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getDemoUserIdForRole } from "@/data/notifications/demo";
-import {
-  countUnreadNotificationsForUser,
-  listNotificationsForUser,
-  markAllNotificationsRead,
-  markNotificationRead,
-  markNotificationUnread,
-  subscribeToNotificationsChanged,
-} from "@/data/notifications/local-store";
 import type { NotificationRecord, NotificationSeverity } from "@/data/notifications/types";
 import type { DemoRole } from "@/lib/demo-session";
 import { readDemoSessionFromDocument } from "@/lib/demo-session";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 type FeedFilter = "all" | "unread";
+
+function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
+  return {
+    id: row.id as string,
+    userId: row.user_id as string,
+    kind: (row.kind as NotificationRecord["kind"]) ?? "system",
+    severity: "info" as NotificationSeverity,
+    createdAt: row.created_at as string,
+    readAt: row.is_read ? (row.created_at as string) : null,
+    title: row.title as string,
+    body: (row.body as string) ?? "",
+    href: (row.href as string) ?? undefined,
+    metadata: undefined,
+  };
+}
 
 export function NotificationCenterScreen() {
   const [role, setRole] = React.useState<DemoRole | null>(null);
@@ -30,26 +37,80 @@ export function NotificationCenterScreen() {
   const [notifications, setNotifications] = React.useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
 
-  const userId = React.useMemo(() => (role ? getDemoUserIdForRole(role) : null), [role]);
-
-  const refresh = React.useCallback(() => {
-    if (!userId) return;
-    const next = listNotificationsForUser(userId);
-    setNotifications(next);
-    setUnreadCount(countUnreadNotificationsForUser(userId));
-  }, [userId]);
-
   React.useEffect(() => {
     setRole(readDemoSessionFromDocument()?.role ?? "traveler");
   }, []);
 
   React.useEffect(() => {
-    refresh();
-  }, [refresh]);
+    let ignore = false;
 
-  React.useEffect(() => {
-    return subscribeToNotificationsChanged(() => refresh());
-  }, [refresh]);
+    async function load() {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data, error } = await supabase
+          .from("notifications")
+          .select("id, user_id, kind, title, body, href, is_read, created_at")
+          .order("created_at", { ascending: false });
+
+        if (error || !data || ignore) return;
+        const mapped = data.map(mapNotificationRow);
+        setNotifications(mapped);
+        setUnreadCount(mapped.filter((n) => n.readAt === null).length);
+      } catch {
+        // Supabase unavailable
+      }
+    }
+
+    void load();
+    return () => { ignore = true; };
+  }, [role]);
+
+  const markRead = React.useCallback(
+    async (notificationId: string) => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        await supabase.from("notifications").update({ is_read: true }).eq("id", notificationId);
+      } catch {
+        // ignore
+      }
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.id === notificationId ? { ...n, readAt: n.readAt ?? new Date().toISOString() } : n,
+        ),
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    },
+    [],
+  );
+
+  const markUnread = React.useCallback(
+    async (notificationId: string) => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        await supabase.from("notifications").update({ is_read: false }).eq("id", notificationId);
+      } catch {
+        // ignore
+      }
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === notificationId ? { ...n, readAt: null } : n)),
+      );
+      setUnreadCount((prev) => prev + 1);
+    },
+    [],
+  );
+
+  const markAllRead = React.useCallback(async () => {
+    try {
+      const supabase = createSupabaseBrowserClient();
+      await supabase.from("notifications").update({ is_read: true }).eq("is_read", false);
+    } catch {
+      // ignore
+    }
+    setNotifications((prev) =>
+      prev.map((n) => (n.readAt === null ? { ...n, readAt: new Date().toISOString() } : n)),
+    );
+    setUnreadCount(0);
+  }, []);
 
   const visible = React.useMemo(() => {
     if (filter === "unread") return notifications.filter((item) => item.readAt === null);
@@ -67,8 +128,7 @@ export function NotificationCenterScreen() {
             Уведомления
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Единая лента по заявкам, бронированиям и событиям модерации. Для
-            демо-режима статус прочтения хранится локально.
+            Единая лента по заявкам, бронированиям и событиям модерации.
           </p>
         </div>
       </div>
@@ -106,11 +166,8 @@ export function NotificationCenterScreen() {
           type="button"
           size="sm"
           variant="secondary"
-          disabled={!userId || unreadCount === 0}
-          onClick={() => {
-            if (!userId) return;
-            markAllNotificationsRead(userId);
-          }}
+          disabled={unreadCount === 0}
+          onClick={() => void markAllRead()}
         >
           Прочитать всё
           <Check className="size-4" />
@@ -141,7 +198,8 @@ export function NotificationCenterScreen() {
                     <NotificationCard
                       key={item.id}
                       notification={item}
-                      userId={userId}
+                      onMarkRead={markRead}
+                      onMarkUnread={markUnread}
                     />
                   ))}
                 </div>
@@ -156,10 +214,12 @@ export function NotificationCenterScreen() {
 
 function NotificationCard({
   notification,
-  userId,
+  onMarkRead,
+  onMarkUnread,
 }: {
   notification: NotificationRecord;
-  userId: string | null;
+  onMarkRead: (id: string) => void;
+  onMarkUnread: (id: string) => void;
 }) {
   const isUnread = notification.readAt === null;
   const severityVariant = getSeverityBadgeVariant(notification.severity);
@@ -200,11 +260,9 @@ function NotificationCard({
               type="button"
               size="sm"
               variant={isUnread ? "secondary" : "outline"}
-              disabled={!userId}
               onClick={() => {
-                if (!userId) return;
-                if (isUnread) markNotificationRead(userId, notification.id);
-                else markNotificationUnread(userId, notification.id);
+                if (isUnread) onMarkRead(notification.id);
+                else onMarkUnread(notification.id);
               }}
             >
               {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
@@ -295,4 +353,3 @@ function groupNotifications(items: NotificationRecord[]) {
 
   return groups.filter((group) => group.items.length > 0);
 }
-

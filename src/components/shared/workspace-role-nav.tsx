@@ -9,10 +9,6 @@ import { Bell } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getDemoUserIdForRole } from "@/data/notifications/demo";
-import {
-  countUnreadNotificationsForUser,
-  subscribeToNotificationsChanged,
-} from "@/data/notifications/local-store";
 import type { DemoRole, DemoSession } from "@/lib/demo-session";
 import {
   clearDemoSessionFromDocument,
@@ -71,11 +67,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
   const [demoSession, setDemoSession] = useState<DemoSession | null>(() =>
     readDemoSessionFromDocument()
   );
-  const [unreadNotifications, setUnreadNotifications] = useState(() => {
-    const session = readDemoSessionFromDocument();
-    if (!session) return 0;
-    return countUnreadNotificationsForUser(getDemoUserIdForRole(session.role));
-  });
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
 
   const notificationsUserId = useMemo(() => {
     if (!demoSession) return null;
@@ -86,20 +78,15 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
   const effectiveRole: DemoRole | null =
     (auth.role as DemoRole | null) ?? demoSession?.role ?? null;
 
+  // Unread count is static 0 for now; will be wired to Upstash later.
   useEffect(() => {
-    if (!notificationsUserId) return () => {};
-
-    return subscribeToNotificationsChanged(() =>
-      setUnreadNotifications(countUnreadNotificationsForUser(notificationsUserId))
-    );
+    setUnreadNotifications(0);
   }, [notificationsUserId]);
 
   function signInAs(role: DemoRole) {
     writeDemoSessionToDocument(role);
     setDemoSession(readDemoSessionFromDocument());
-    setUnreadNotifications(
-      countUnreadNotificationsForUser(getDemoUserIdForRole(role))
-    );
+    setUnreadNotifications(0);
     startTransition(() => router.refresh());
   }
 

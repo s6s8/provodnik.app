@@ -8,18 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getActiveFavoritesUserId } from "@/data/favorites/active-user";
-import {
-  listFavoritesForUser,
-  subscribeToFavoritesChanged,
-} from "@/data/favorites/local-store";
 import { listFavoritesForCurrentUserFromSupabase } from "@/data/favorites/supabase-client";
-import { getSeededPublicGuide } from "@/data/public-guides/seed";
-import { getSeededPublicListing } from "@/data/public-listings/seed";
+import type { FavoriteRecord } from "@/data/favorites/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { getListingBySlug, getGuideBySlug, type ListingRecord, type GuideRecord } from "@/data/supabase/queries";
 
 export function TravelerFavoritesScreen() {
-  const userId = React.useMemo(() => getActiveFavoritesUserId(), []);
-  const [favorites, setFavorites] = React.useState(() => listFavoritesForUser(userId));
+  const [favorites, setFavorites] = React.useState<FavoriteRecord[]>([]);
   const [usesBackend, setUsesBackend] = React.useState(false);
 
   const refresh = React.useCallback(() => {
@@ -28,21 +23,17 @@ export function TravelerFavoritesScreen() {
         const persisted = await listFavoritesForCurrentUserFromSupabase();
         setFavorites(persisted);
         setUsesBackend(true);
-        return;
       } catch {
+        setFavorites([]);
         setUsesBackend(false);
       }
-
-      setFavorites(listFavoritesForUser(userId));
     })();
-  }, [userId]);
+  }, []);
 
   React.useEffect(() => {
     refresh();
-    const unsubscribe = subscribeToFavoritesChanged(refresh);
     window.addEventListener("focus", refresh);
     return () => {
-      unsubscribe();
       window.removeEventListener("focus", refresh);
     };
   }, [refresh]);
@@ -142,8 +133,21 @@ function FavoritesSection<T extends string>({
 }
 
 function ListingFavoriteCard({ slug }: { slug: string }) {
-  const listing = getSeededPublicListing(slug);
+  const [listing, setListing] = React.useState<ListingRecord | null>(null);
   const href = `/listings/${slug}`;
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const result = await getListingBySlug(supabase, slug);
+        if (!cancelled && result.data) setListing(result.data);
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [slug]);
+
   const title = listing?.title ?? slug;
 
   return (
@@ -160,14 +164,14 @@ function ListingFavoriteCard({ slug }: { slug: string }) {
         {listing ? (
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">
-              {listing.city} · {listing.durationDays}{" "}
+              {listing.destinationName} · {listing.durationDays}{" "}
               {listing.durationDays === 1 ? "день" : "дней"}
             </Badge>
-            <Badge variant="outline">До {listing.groupSizeMax} человек</Badge>
+            <Badge variant="outline">До {listing.groupSize} человек</Badge>
           </div>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Детали программы недоступны в этой демо-версии.
+            Загрузка данных программы...
           </p>
         )}
       </CardHeader>
@@ -184,9 +188,22 @@ function ListingFavoriteCard({ slug }: { slug: string }) {
 }
 
 function GuideFavoriteCard({ slug }: { slug: string }) {
-  const guide = getSeededPublicGuide(slug);
+  const [guide, setGuide] = React.useState<GuideRecord | null>(null);
   const href = `/guides/${slug}`;
-  const title = guide?.displayName ?? slug;
+
+  React.useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const result = await getGuideBySlug(supabase, slug);
+        if (!cancelled && result.data) setGuide(result.data);
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [slug]);
+
+  const title = guide?.fullName ?? slug;
 
   return (
     <Card className="border-border/70 bg-card/90">
@@ -200,10 +217,10 @@ function GuideFavoriteCard({ slug }: { slug: string }) {
           <Heart className="mt-0.5 size-4 text-muted-foreground" aria-hidden="true" />
         </div>
         {guide ? (
-          <p className="text-sm text-muted-foreground">{guide.headline}</p>
+          <p className="text-sm text-muted-foreground">{guide.bio}</p>
         ) : (
           <p className="text-sm text-muted-foreground">
-            Детали профиля гида недоступны в этой демо-версии.
+            Загрузка данных профиля гида...
           </p>
         )}
       </CardHeader>

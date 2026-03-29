@@ -31,10 +31,7 @@ import {
   listDisputeCasesForAdminFromSupabase,
   saveDisputeAdminUpdateInSupabase,
 } from "@/data/admin/supabase";
-import {
-  DEFAULT_DISPUTE_CASES,
-  getDisputeCaseById,
-} from "@/features/admin/components/disputes/dispute-seed";
+import type { DisputeCase } from "@/features/admin/types/disputes";
 import type {
   DisputeDecisionOutcome,
   DisputeSeverity,
@@ -135,7 +132,7 @@ type LocalCaseState = {
   operatorOutcome: DisputeDecisionOutcome | "unset";
 };
 
-function buildInitialLocalFromDispute(dispute?: ReturnType<typeof getDisputeCaseById> | null): LocalCaseState {
+function buildInitialLocalFromDispute(dispute?: DisputeCase | null): LocalCaseState {
   const actionChecks: Record<string, boolean> = {};
   for (const action of dispute?.nextActions ?? []) {
     actionChecks[action.key] = false;
@@ -150,16 +147,16 @@ function buildInitialLocalFromDispute(dispute?: ReturnType<typeof getDisputeCase
 }
 
 export function DisputeCaseDetail({ caseId }: { caseId: string }) {
-  const [dispute, setDispute] = React.useState(() => getDisputeCaseById(caseId));
+  const [dispute, setDispute] = React.useState<DisputeCase | null>(null);
   const [backendMode, setBackendMode] = React.useState<"local" | "supabase">("local");
   const [saving, setSaving] = React.useState(false);
   const [local, setLocal] = React.useState<LocalCaseState>(() =>
-    buildInitialLocalFromDispute(getDisputeCaseById(caseId)),
+    buildInitialLocalFromDispute(null),
   );
 
   React.useEffect(() => {
-    setDispute(getDisputeCaseById(caseId));
-    setLocal(buildInitialLocalFromDispute(getDisputeCaseById(caseId)));
+    setDispute(null);
+    setLocal(buildInitialLocalFromDispute(null));
   }, [caseId]);
 
   React.useEffect(() => {
@@ -258,7 +255,7 @@ export function DisputeCaseDetail({ caseId }: { caseId: string }) {
       <Card className="border-border/70 bg-card/90">
         <CardHeader>
           <CardTitle className="text-lg">Спор не найден</CardTitle>
-          <CardDescription>В демо‑наборе {DEFAULT_DISPUTE_CASES.length} споров.</CardDescription>
+          <CardDescription>Спор не найден в базе данных.</CardDescription>
         </CardHeader>
         <CardFooter>
           <Button asChild variant="outline" type="button">
