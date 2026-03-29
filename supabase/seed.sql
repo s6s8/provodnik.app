@@ -28,7 +28,8 @@ truncate public.traveler_requests cascade;
 truncate public.listings cascade;
 truncate public.guide_profiles cascade;
 truncate public.profiles cascade;
-delete from auth.users where true;
+delete from auth.users;
+delete from auth.identities;
 
 -- ---------------------------------------------------------------------------
 -- 1. AUTH USERS
@@ -54,7 +55,8 @@ values
   ('10000000-0000-4000-8000-000000000205','00000000-0000-0000-0000-000000000000','authenticated','authenticated','traveler.irina@example.com',  extensions.crypt('SeedPass1!',extensions.gen_salt('bf')),timezone('utc',now()),'{"provider":"email","providers":["email"]}','{"full_name":"Ирина В."}',          timezone('utc',now()),timezone('utc',now()),false),
   ('10000000-0000-4000-8000-000000000206','00000000-0000-0000-0000-000000000000','authenticated','authenticated','traveler.maksim@example.com', extensions.crypt('SeedPass1!',extensions.gen_salt('bf')),timezone('utc',now()),'{"provider":"email","providers":["email"]}','{"full_name":"Максим К."}',         timezone('utc',now()),timezone('utc',now()),false),
   ('10000000-0000-4000-8000-000000000207','00000000-0000-0000-0000-000000000000','authenticated','authenticated','traveler.svetlana@example.com',extensions.crypt('SeedPass1!',extensions.gen_salt('bf')),timezone('utc',now()),'{"provider":"email","providers":["email"]}','{"full_name":"Светлана Н."}',       timezone('utc',now()),timezone('utc',now()),false),
-  ('10000000-0000-4000-8000-000000000208','00000000-0000-0000-0000-000000000000','authenticated','authenticated','traveler.pavel@example.com',  extensions.crypt('SeedPass1!',extensions.gen_salt('bf')),timezone('utc',now()),'{"provider":"email","providers":["email"]}','{"full_name":"Павел Р."}',          timezone('utc',now()),timezone('utc',now()),false);
+  ('10000000-0000-4000-8000-000000000208','00000000-0000-0000-0000-000000000000','authenticated','authenticated','traveler.pavel@example.com',  extensions.crypt('SeedPass1!',extensions.gen_salt('bf')),timezone('utc',now()),'{"provider":"email","providers":["email"]}','{"full_name":"Павел Р."}',          timezone('utc',now()),timezone('utc',now()),false)
+on conflict (id) do update set email=excluded.email, encrypted_password=excluded.encrypted_password, updated_at=timezone('utc',now());
 
 -- ---------------------------------------------------------------------------
 -- 2. PROFILES
@@ -75,7 +77,8 @@ insert into public.profiles (id, role, email, full_name, avatar_url) values
   ('10000000-0000-4000-8000-000000000205','traveler','traveler.irina@example.com',  'Ирина В.',    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&h=400&q=80'),
   ('10000000-0000-4000-8000-000000000206','traveler','traveler.maksim@example.com', 'Максим К.',   'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=400&h=400&q=80'),
   ('10000000-0000-4000-8000-000000000207','traveler','traveler.svetlana@example.com','Светлана Н.', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=400&h=400&q=80'),
-  ('10000000-0000-4000-8000-000000000208','traveler','traveler.pavel@example.com',  'Павел Р.',    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=400&q=80');
+  ('10000000-0000-4000-8000-000000000208','traveler','traveler.pavel@example.com',  'Павел Р.',    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&h=400&q=80')
+on conflict (id) do update set role=excluded.role, email=excluded.email, full_name=excluded.full_name, avatar_url=excluded.avatar_url, updated_at=timezone('utc',now());
 
 -- ---------------------------------------------------------------------------
 -- 3. GUIDE PROFILES
