@@ -7,7 +7,6 @@ import type {
 } from "@/data/public-listings/types";
 import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
 import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Экскурсии",
@@ -72,14 +71,10 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
 export default async function PublicListingsPage() {
   let listings: PublicListing[] = [];
 
-  try {
-    const client = await createSupabaseServerClient();
-    const result = await getActiveListings(client);
-
-    if (result.data && result.data.length > 0) {
-      listings = result.data.map((listing) => mapToPublicListing(listing));
-    }
-  } catch {}
+  const result = await getActiveListings(null as any);
+  if (result.data && result.data.length > 0) {
+    listings = result.data.map((listing) => mapToPublicListing(listing));
+  }
 
   return <PublicListingDiscoveryScreen listings={listings} />;
 }

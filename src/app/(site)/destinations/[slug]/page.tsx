@@ -7,7 +7,6 @@ import {
   type ListingRecord,
 } from "@/data/supabase/queries";
 import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { DestinationSummary } from "@/data/destinations/types";
 
 export const metadata: Metadata = {
@@ -21,10 +20,9 @@ export default async function DestinationDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const client = await createSupabaseServerClient();
 
-  const destinationResult = await getDestinationBySlug(client, slug);
-  const listingsResult = await getListingsByDestination(client, slug);
+  const destinationResult = await getDestinationBySlug(null as any, slug);
+  const listingsResult = await getListingsByDestination(null as any, slug);
 
   if (!destinationResult.data) notFound();
 

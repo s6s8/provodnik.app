@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getRequestById, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestDetailScreen } from "@/features/requests/components/public/public-request-detail-screen";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Детали запроса",
@@ -25,7 +24,7 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
       sizeCurrent: request.groupSize,
       openToMoreMembers: request.groupSize < request.capacity,
     },
-    destinationLabel: `${request.destination}, ${request.destinationRegion}`,
+    destinationLabel: request.destination,
     imageUrl: request.imageUrl,
     regionLabel: request.destinationRegion,
     dateRangeLabel: request.dateLabel,
@@ -39,17 +38,9 @@ export default async function RequestDetailPage({
 }: {
   params: { requestId: string };
 }) {
-  let request: OpenRequestRecord | null = null;
+  const result = await getRequestById(null as any, params.requestId);
 
-  try {
-    const client = await createSupabaseServerClient();
-    const result = await getRequestById(client, params.requestId);
-    if (result.data) {
-      request = mapToOpenRequestRecord(result.data);
-    }
-  } catch {}
-
-  if (!request) {
+  if (!result.data) {
     return (
       <div className="space-y-6">
         <div className="space-y-3">
@@ -63,5 +54,5 @@ export default async function RequestDetailPage({
     );
   }
 
-  return <PublicRequestDetailScreen request={request} />;
+  return <PublicRequestDetailScreen request={mapToOpenRequestRecord(result.data)} />;
 }

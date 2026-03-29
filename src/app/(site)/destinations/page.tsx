@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Направления | Provodnik",
@@ -13,11 +12,8 @@ export const metadata: Metadata = {
 export default async function DestinationsPage() {
   let destinations: DestinationRecord[] = [];
 
-  try {
-    const client = await createSupabaseServerClient();
-    const result = await getDestinations(client);
-    if (result.data) destinations = result.data;
-  } catch {}
+  const result = await getDestinations(null as any);
+  if (result.data) destinations = result.data;
 
   const [featured, ...rest] = destinations;
 

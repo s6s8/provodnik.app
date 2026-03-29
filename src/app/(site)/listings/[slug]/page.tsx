@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getListingBySlug, getGuideBySlug, getListingReviews } from "@/data/supabase/queries";
 import type { PublicListing, PublicListingInclusion } from "@/data/public-listings/types";
 import { ListingDetailScreen } from "@/features/listings/components/public/listing-detail-screen";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -12,8 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const client = await createSupabaseServerClient();
-  const result = await getListingBySlug(client, slug);
+  const result = await getListingBySlug(null as any, slug);
   if (!result.data) return { title: "Экскурсия не найдена" };
 
   return {
@@ -28,14 +26,13 @@ export default async function PublicListingDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const client = await createSupabaseServerClient();
 
-  const listingResult = await getListingBySlug(client, slug);
+  const listingResult = await getListingBySlug(null as any, slug);
   if (!listingResult.data) notFound();
 
   const l = listingResult.data;
-  const guideResult = await getGuideBySlug(client, l.guideSlug);
-  const reviewsResult = await getListingReviews(client, slug);
+  const guideResult = await getGuideBySlug(null as any, l.guideSlug);
+  const reviewsResult = await getListingReviews(null as any, slug);
 
   const listing: PublicListing = {
     slug: l.slug,

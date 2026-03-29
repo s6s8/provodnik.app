@@ -3,7 +3,6 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Гиды | Provodnik",
@@ -13,11 +12,8 @@ export const metadata: Metadata = {
 export default async function GuidesPage() {
   let guides: GuideRecord[] = [];
 
-  try {
-    const client = await createSupabaseServerClient();
-    const result = await getGuides(client);
-    if (result.data) guides = result.data;
-  } catch {}
+  const result = await getGuides(null as any);
+  if (result.data) guides = result.data;
 
   return (
     <section

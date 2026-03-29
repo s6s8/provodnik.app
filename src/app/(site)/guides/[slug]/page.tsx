@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { getGuideBySlug, getListingsByGuide, getGuideReviews } from "@/data/supabase/queries";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -12,8 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const client = await createSupabaseServerClient();
-  const result = await getGuideBySlug(client, slug);
+  const result = await getGuideBySlug(null as any, slug);
   if (!result.data) return { title: "Гид не найден" };
 
   return {
@@ -28,14 +26,13 @@ export default async function PublicGuideProfilePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const client = await createSupabaseServerClient();
 
-  const guideResult = await getGuideBySlug(client, slug);
+  const guideResult = await getGuideBySlug(null as any, slug);
   if (!guideResult.data) notFound();
 
   const g = guideResult.data;
-  const listingsResult = await getListingsByGuide(client, g.id);
-  const reviewsResult = await getGuideReviews(client, slug);
+  const listingsResult = await getListingsByGuide(null as any, g.id);
+  const reviewsResult = await getGuideReviews(null as any, slug);
 
   const guide: PublicGuideProfile = {
     slug: g.slug,
