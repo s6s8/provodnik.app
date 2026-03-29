@@ -28,6 +28,7 @@ create policy "destinations_admin_write"
   on public.destinations for all
   using (public.is_admin());
 
+drop trigger if exists set_destinations_updated_at on public.destinations;
 create trigger set_destinations_updated_at
   before update on public.destinations
   for each row execute procedure public.set_updated_at();
