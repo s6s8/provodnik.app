@@ -116,25 +116,27 @@ export function HomePageGateway({ requests }: Props) {
                 const fillPct = req.capacity > 0 ? Math.round((req.groupSize / req.capacity) * 100) : 0;
                 const avatars = deriveAvatars(req.groupSize);
                 return (
-                  <article key={req.id} className="req-card">
-                    <div className="req-card-top">
-                      <span>{req.destination.split(",")[0]}</span>
-                      <span className="req-spots">{req.groupSize} / {req.capacity} мест</span>
-                    </div>
-                    <p className="req-title">{req.destination}</p>
-                    <p className="req-desc">{req.dateLabel} · {req.format}</p>
-                    <div className="req-bar">
-                      <div className="req-bar-fill" style={{ width: `${fillPct}%` }} />
-                    </div>
-                    <div className="req-foot">
-                      <div className="avatars">
-                        {avatars.map((initials) => (
-                          <span key={initials} className="avatar">{initials}</span>
-                        ))}
+                  <Link key={req.id} href={`/requests/${req.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                    <article className="req-card">
+                      <div className="req-card-top">
+                        <span>{req.destination.split(",")[0]}</span>
+                        <span className="req-spots">{req.groupSize} / {req.capacity} мест</span>
                       </div>
-                      <span className="req-price">{formatPrice(req.budgetRub)}</span>
-                    </div>
-                  </article>
+                      <p className="req-title">{req.destination}</p>
+                      <p className="req-desc">{req.dateLabel} · {req.format}</p>
+                      <div className="req-bar">
+                        <div className="req-bar-fill" style={{ width: `${fillPct}%` }} />
+                      </div>
+                      <div className="req-foot">
+                        <div className="avatars">
+                          {avatars.map((initials) => (
+                            <span key={initials} className="avatar">{initials}</span>
+                          ))}
+                        </div>
+                        <span className="req-price">{formatPrice(req.budgetRub)}</span>
+                      </div>
+                    </article>
+                  </Link>
                 );
               })}
             </div>
@@ -160,23 +162,25 @@ export function HomePageGateway({ requests }: Props) {
           ) : (
             <div className="grid-3" style={{ marginBottom: "24px" }}>
               {guideCards.map((req) => (
-                <article key={req.id} className="req-card">
-                  <div className="req-card-top">
-                    <span>{req.destination.split(",")[0]}</span>
-                    <span className="req-spots">{req.groupSize} чел.</span>
-                  </div>
-                  <p className="req-title">{req.destination}</p>
-                  <p className="req-desc">{req.dateLabel} · {req.description || req.format}</p>
-                  <div className="req-bar">
-                    <div className="req-bar-fill" style={{ width: "100%" }} />
-                  </div>
-                  <div className="req-foot">
-                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--primary)" }}>
-                      Ждут предложений
-                    </span>
-                    <span className="req-price">{formatPrice(req.budgetRub)}</span>
-                  </div>
-                </article>
+                <Link key={req.id} href={`/requests/${req.id}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  <article className="req-card">
+                    <div className="req-card-top">
+                      <span>{req.destination.split(",")[0]}</span>
+                      <span className="req-spots">{req.groupSize} чел.</span>
+                    </div>
+                    <p className="req-title">{req.destination}</p>
+                    <p className="req-desc">{req.dateLabel} · {req.description || req.format}</p>
+                    <div className="req-bar">
+                      <div className="req-bar-fill" style={{ width: "100%" }} />
+                    </div>
+                    <div className="req-foot">
+                      <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--primary)" }}>
+                        Ждут предложений
+                      </span>
+                      <span className="req-price">{formatPrice(req.budgetRub)}</span>
+                    </div>
+                  </article>
+                </Link>
               ))}
             </div>
           )}

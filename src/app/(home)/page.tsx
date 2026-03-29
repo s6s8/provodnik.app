@@ -1,5 +1,4 @@
 import { getDestinations, getOpenRequests, type DestinationRecord, type RequestRecord } from "@/data/supabase/queries";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { HomePageShell } from "@/features/homepage/components/homepage-shell";
 
 export default async function HomePage() {
@@ -7,10 +6,9 @@ export default async function HomePage() {
   let requests: RequestRecord[] = [];
 
   try {
-    const client = await createSupabaseServerClient();
     const [destResult, reqResult] = await Promise.all([
-      getDestinations(client),
-      getOpenRequests(client),
+      getDestinations(null as any),
+      getOpenRequests(null as any),
     ]);
     destinations = destResult.data ?? [];
     requests = reqResult.data ?? [];
