@@ -37,9 +37,10 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
 export default async function RequestDetailPage({
   params,
 }: {
-  params: { requestId: string };
+  params: Promise<{ requestId: string }>;
 }) {
-  const result = await getRequestById(null as any, params.requestId);
+  const { requestId } = await params;
+  const result = await getRequestById(null as any, requestId);
 
   if (!result.data) {
     return (
