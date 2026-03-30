@@ -159,6 +159,10 @@ select {
   font: inherit;
 }
 
+button {
+  font-family: var(--font-ui);
+}
+
 ::selection {
   background: color-mix(in srgb, var(--brand-light) 82%, white);
   color: var(--ink);
@@ -222,6 +226,7 @@ select {
   border-radius: 9999px;
   background: var(--primary);
   color: #fff;
+  font-family: var(--font-ui);
   font-size: 0.875rem;
   font-weight: 600;
   transition: opacity 0.15s;
@@ -237,6 +242,7 @@ select {
   border-radius: 9999px;
   border: 1px solid rgba(0, 88, 190, 0.22);
   color: var(--primary);
+  font-family: var(--font-ui);
   font-size: 0.875rem;
   font-weight: 500;
   background: transparent;
@@ -250,6 +256,7 @@ select {
 
 /* ─── Typography ──────────────────────────────────────────── */
 .sec-label {
+  font-family: var(--font-ui);
   font-size: 0.6875rem;
   font-weight: 500;
   letter-spacing: 0.18em;
@@ -290,7 +297,13 @@ select {
   margin-bottom: 14px;
 }
 .req-spots { color: var(--primary); }
-.req-title { font-size: 1.0625rem; font-weight: 600; margin-bottom: 6px; color: var(--on-surface); }
+.req-title {
+  font-family: var(--font-ui);
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--on-surface);
+}
 .req-meta { font-size: 0.8125rem; color: var(--on-surface-muted); margin-bottom: 8px; }
 .req-desc {
   font-size: 0.875rem;
@@ -976,10 +989,33 @@ select {
   margin-bottom: 32px;
 }
 
+.gateway-section {
+  position: relative;
+  overflow: hidden;
+}
+
 .gateway-tab-wrap {
   display: flex;
   justify-content: center;
   margin-bottom: 28px;
+}
+
+.gateway-stage {
+  position: relative;
+  isolation: isolate;
+}
+
+.gateway-stage::before {
+  content: "";
+  position: absolute;
+  inset: 12px 0 0;
+  border-radius: calc(var(--glass-radius) + 20px);
+  background:
+    radial-gradient(circle at 18% 22%, rgba(33, 112, 228, 0.2), transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(0, 88, 190, 0.14), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), rgba(232, 240, 251, 0.58));
+  z-index: 0;
+  pointer-events: none;
 }
 
 .gateway-tabs {
@@ -1010,6 +1046,8 @@ select {
 }
 
 .gateway-panel {
+  position: relative;
+  z-index: 1;
   padding: 32px;
 }
 
@@ -1241,8 +1279,125 @@ select {
   line-height: 1.65;
 }
 
+.card-title-sm {
+  font-family: var(--font-ui);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.destinations-link {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--primary);
+  white-space: nowrap;
+}
+
+.homepage-destinations-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr 1fr;
+  grid-template-rows: 226px 226px;
+  gap: 14px;
+}
+
+.homepage-destinations-card {
+  position: relative;
+  display: block;
+  border-radius: 28px;
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.homepage-destinations-card:hover {
+  transform: translateY(-3px);
+}
+
+.homepage-destinations-card-featured {
+  grid-row: span 2;
+}
+
+.homepage-destinations-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.homepage-destinations-featured-content {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  padding: 28px;
+  color: #fff;
+}
+
+.homepage-destinations-featured-title {
+  font-family: var(--font-display);
+  font-size: 2.375rem;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 10px;
+}
+
+.homepage-destinations-featured-description {
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.76);
+  line-height: 1.55;
+  margin-bottom: 18px;
+  max-width: 28ch;
+}
+
+.homepage-destinations-featured-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 20px;
+  border-radius: 9999px;
+  background: var(--primary);
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.homepage-destinations-card-content {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  color: #fff;
+}
+
+.homepage-destinations-meta {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  white-space: nowrap;
+}
+
 /* ─── Responsive helpers ─────────────────────────────────────── */
 @media (max-width: 767px) {
+  .homepage-destinations-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .homepage-destinations-card-featured {
+    grid-row: span 1;
+    min-height: 280px;
+  }
+
+  .homepage-destinations-card:not(.homepage-destinations-card-featured) {
+    min-height: 220px;
+  }
+
   .stats-row {
     grid-template-columns: repeat(3, 1fr);
     gap: 16px;
