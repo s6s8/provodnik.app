@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'git push'; then echo 'BLOCKED: Never push without explicit user instruction. Pushing triggers Vercel production deploy. Commit only, then report the hash.' && exit 1; fi"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import json,sys,os; d=json.load(sys.stdin); f=d.get('file_path',''); ext=os.path.splitext(f)[1]; print('SQL change detected - run: bun run types') if ext=='.sql' else None\" 2>/dev/null || true"
+          }
+        ]
+      }
+    ]
+  }
+}

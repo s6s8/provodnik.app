@@ -7,7 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "check": "tsc --noEmit && eslint",
+    "db:reset": "supabase db reset",
+    "db:diff": "supabase db diff --schema public",
+    "db:push": "supabase db push",
+    "db:migrate": "supabase migration new",
+    "types": "supabase gen types typescript --local > src/types/supabase.ts",
+    "types:remote": "supabase gen types typescript --linked > src/types/supabase.ts"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",

@@ -11,10 +11,12 @@
 - Main repo branch: `main`
 
 ## Current state
-- This is an MVP baseline, not a finished product.
-- Public marketing shell exists.
-- Protected placeholder routes exist for `traveler`, `guide`, and `admin`.
-- Supabase helpers exist, but most product logic is still to be built.
+- Phase 0 (visual polish) — COMPLETE as of 2026-03-30. Commits: 5bb5dca, 1843be8, 0c98d11, 8826655, 95d5b33.
+- Phase 1 (Auth & Data Integrity) — NEXT. See `D:\dev\projects\provodnik\PLAN.md` for full task list.
+- Public pages fully built and styled per DESIGN.md.
+- Supabase schema: 6 migrations applied. Tables: profiles, listings, requests, offers, bookings, reviews, notifications, disputes, conversations.
+- Auth: demo mode only — real Supabase Auth not yet wired end-to-end.
+- No middleware.ts yet — routes are unprotected.
 
 ## Stack
 - `Next.js 16` App Router
@@ -65,8 +67,35 @@
 ## Runbook
 - Install: `bun install`
 - Dev: `bun dev`
-- Checks: `bun run lint`, `bun run typecheck`
-- Use `bun run build` after routing, config, or framework-level changes.
+- Build check: `bun run build`
+- Checks: `bun run check` (typecheck + lint in one shot)
+- DB reset: `bun run db:reset`
+- Schema diff: `bun run db:diff`
+- Type generation: `bun run types`
+- **After any schema change**: run `bun run types` to regenerate `src/types/supabase.ts`
+
+## Git rules
+- **NEVER run `git push`** — pushing triggers Vercel production deployment
+- Commit only. Report commit hash. Wait for user to say push.
+- Commit format: `type(scope): description\n\nCo-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
+
+## Documentation
+- Before coding against Next.js, Supabase, TanStack Query, or Tailwind APIs — fetch current docs via Context7 MCP
+- Never guess API signatures — use `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`
+
+## CSS rules
+- All styles in `src/app/globals.css` only
+- No per-component `<style>` blocks, no inline `style={{}}` for layout
+- Use CSS custom properties from `:root`
+- Design tokens: `D:\dev\projects\provodnik\DESIGN.md`
+
+## Verification (definition of done)
+Every task must pass before marking complete:
+1. `bun run build` — zero errors
+2. `bun run typecheck` — zero errors
+3. No inline `style={{}}` added for layout purposes
+4. No hardcoded hex values outside `:root` in globals.css
+5. Commit exists with Co-Authored-By line
 
 ## Env
 - Copy `.env.example` to `.env.local`
