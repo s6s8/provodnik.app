@@ -1102,7 +1102,7 @@ button {
 
 .hiw-num {
   font-family: var(--font-display);
-  font-size: clamp(5rem, 10vw, 8rem);
+  font-size: clamp(2.5rem, 4vw, 3.5rem);
   font-weight: 700;
   line-height: 1;
   color: var(--primary);
