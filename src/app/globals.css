@@ -45,6 +45,7 @@
 }
 
 :root {
+  --nav-h: 88px;
   --primary: #0058be;
   --primary-hover: #2170e4;
   --surface: #f9f9ff;
@@ -543,9 +544,9 @@ button {
   }
 }
 
-/* ─── Hero bleed (offsets site layout pt-[88px] for photo heroes) ── */
+/* ─── Hero bleed (offsets site layout nav spacing for photo heroes) ── */
 .hero-bleed {
-  margin-top: -88px;
+  margin-top: calc(-1 * var(--nav-h));
 }
 
 /* ─── Site Header ─────────────────────────────────────────── */
@@ -805,7 +806,7 @@ button {
   }
   .dest-card-featured { grid-column: auto; grid-row: auto; height: 280px; }
   .dest-card { height: 220px; }
-  .dest-page { padding: 88px 0 56px; }
+  .dest-page { padding: var(--nav-h) 0 56px; }
 }
 
 /* ─── Destination Detail ────────────────────────────────────── */
@@ -890,6 +891,13 @@ button {
   color: var(--sec-label-color);
 }
 
+.photo-hero-content {
+  position: relative;
+  z-index: 2;
+  padding-top: calc(var(--nav-h) + 48px);
+  padding-bottom: 56px;
+}
+
 /* ─── Glass pill (hero/card badges) ──────────────────────────── */
 .glass-pill {
   display: inline-flex;
@@ -927,12 +935,8 @@ button {
 }
 
 .home-hero-content {
-  position: relative;
-  z-index: 2;
   width: 100%;
   max-width: 860px;
-  padding-top: 96px;
-  padding-bottom: 48px;
 }
 
 .home-hero-kicker {
@@ -1139,11 +1143,6 @@ button {
 @media (max-width: 767px) {
   .home-hero {
     min-height: 520px;
-  }
-
-  .home-hero-content {
-    padding-top: 72px;
-    padding-bottom: 40px;
   }
 
   .home-hero-actions {

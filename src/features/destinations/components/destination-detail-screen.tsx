@@ -57,7 +57,7 @@ export function DestinationDetailScreen({
         <div className="overlay-bottom" aria-hidden />
 
         {/* Hero content */}
-        <div className="container on-dark" style={{ position: "relative", zIndex: 2, paddingTop: "160px" }}>
+        <div className="container on-dark photo-hero-content">
           <div style={{ maxWidth: "720px" }}>
             {destination.region ? (
               <p

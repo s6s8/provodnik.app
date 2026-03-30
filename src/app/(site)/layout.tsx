@@ -7,7 +7,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-[var(--surface)] text-[var(--on-surface)]">
       <SiteHeader />
-      <main className="pt-[88px]">{children}</main>
+      <main className="pt-[var(--nav-h)]">{children}</main>
       <SiteFooter />
     </div>
   );

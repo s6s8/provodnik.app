@@ -92,15 +92,7 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
         <div className="overlay-bottom" aria-hidden />
 
         {/* Hero content */}
-        <div
-          className="container on-dark"
-          style={{
-            position: "relative",
-            zIndex: 1,
-            paddingBottom: "56px",
-            paddingTop: "160px",
-          }}
-        >
+        <div className="container on-dark photo-hero-content">
           <p
             className="sec-label"
           >

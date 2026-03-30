@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export function HomePageHero() {
   return (
-    <section aria-label="Главный баннер" className="home-hero">
+    <section aria-label="Главный баннер" className="hero-bleed home-hero">
       <div
         role="img"
         aria-label="Горный пейзаж России в мягком свете"
@@ -10,7 +10,7 @@ export function HomePageHero() {
       />
       <div className="overlay-bottom" aria-hidden="true" />
 
-      <div className="container home-hero-content on-dark">
+      <div className="container home-hero-content on-dark photo-hero-content">
         <p className="home-hero-kicker">Маршруты с локальными проводниками</p>
 
         <h1 className="home-hero-title">

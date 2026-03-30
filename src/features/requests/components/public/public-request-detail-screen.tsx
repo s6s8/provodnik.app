@@ -47,7 +47,6 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
         className="hero-bleed photo-hero"
         style={{
           minHeight: "480px",
-          padding: "140px 0 54px",
         }}
       >
         {/* Background image */}
@@ -63,7 +62,7 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
         />
         {/* Gradient overlay */}
         <div className="overlay-top" aria-hidden="true" />
-        <div className="container on-dark" style={{ position: "relative", zIndex: 1 }}>
+        <div className="container on-dark photo-hero-content">
           <div style={{ maxWidth: "760px" }}>
             <p
               className="sec-label"
