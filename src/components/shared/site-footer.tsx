@@ -12,21 +12,67 @@ const TG_ICON = (
   </svg>
 );
 
+const projectLinks = [
+  { href: "/trust", label: "О нас" },
+  { href: "/#hiw", label: "Как это работает" },
+  { href: "/guides", label: "Для гидов" },
+  { href: "/trust", label: "Блог" },
+] as const;
+
+const supportLinks = [
+  { href: "/trust", label: "FAQ" },
+  { href: "/trust", label: "Помощь" },
+  { href: "/trust", label: "Связаться с нами" },
+] as const;
+
+const policyLinks = [
+  { href: "/policies/cancellation", label: "Условия использования" },
+  { href: "/policies/cancellation", label: "Конфиденциальность" },
+  { href: "/policies/cancellation", label: "Cookies" },
+] as const;
+
+const socialLinks = [
+  { href: "https://vk.com", label: "ВКонтакте", icon: VK_ICON },
+  { href: "https://t.me", label: "Telegram", icon: TG_ICON },
+] as const;
+
+const legalLinks = [
+  { href: "/policies/cancellation", label: "Условия" },
+  { href: "/policies/cancellation", label: "Конфиденциальность" },
+] as const;
+
 export function SiteFooter() {
   return (
     <footer className="site-footer" role="contentinfo">
-        <div className="footer-inner">
-          {/* 3-column grid */}
-          <div className="footer-grid">
-            {/* Col 1: О проекте */}
-            <nav aria-label="О проекте">
-              <p className="footer-col-label">О проекте</p>
+      <div className="footer-inner">
+        <div className="footer-grid">
+          <nav aria-label="О проекте">
+            <p className="footer-col-label">О проекте</p>
+            <ul className="footer-links">
+              {projectLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href}>{link.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <nav aria-label="Поддержка">
+            <p className="footer-col-label">Поддержка</p>
+            <ul className="footer-links">
+              {supportLinks.map((link) => (
+                <li key={link.label}>
+                  <Link href={link.href}>{link.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
+
+          <div>
+            <nav aria-label="Правила">
+              <p className="footer-col-label">Правила</p>
               <ul className="footer-links">
-                {[
-                  { href: "#", label: "О нас" },
-                  { href: "/guides", label: "Для гидов" },
-                  { href: "#", label: "Блог" },
-                ].map((link) => (
+                {policyLinks.map((link) => (
                   <li key={link.label}>
                     <Link href={link.href}>{link.label}</Link>
                   </li>
@@ -34,77 +80,37 @@ export function SiteFooter() {
               </ul>
             </nav>
 
-            {/* Col 2: Поддержка */}
-            <nav aria-label="Поддержка">
-              <p className="footer-col-label">Поддержка</p>
-              <ul className="footer-links">
-                {[
-                  { href: "#", label: "FAQ" },
-                  { href: "#", label: "Помощь" },
-                  { href: "#", label: "Связаться с нами" },
-                ].map((link) => (
-                  <li key={link.label}>
-                    <Link href={link.href}>{link.label}</Link>
-                  </li>
+            <div className="footer-social-col">
+              <p className="footer-col-label">Мы в сети</p>
+              <div className="footer-social">
+                {socialLinks.map((social) => (
+                  <a
+                    key={social.label}
+                    href={social.href}
+                    aria-label={social.label}
+                    className="footer-social-btn"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {social.icon}
+                  </a>
                 ))}
-              </ul>
-            </nav>
-
-            {/* Col 3: Правила + Мы в сети */}
-            <div>
-              <nav aria-label="Правила">
-                <p className="footer-col-label">Правила</p>
-                <ul className="footer-links">
-                  {[
-                    { href: "#", label: "Условия использования" },
-                    { href: "#", label: "Конфиденциальность" },
-                    { href: "#", label: "Cookies" },
-                  ].map((link) => (
-                    <li key={link.label}>
-                      <Link href={link.href}>{link.label}</Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-
-              <div style={{ marginTop: 24 }}>
-                <p className="footer-col-label">Мы в сети</p>
-                <div className="footer-social">
-                  {[
-                    { href: "#", label: "ВКонтакте", icon: VK_ICON },
-                    { href: "#", label: "Telegram", icon: TG_ICON },
-                  ].map((social) => (
-                    <Link
-                      key={social.label}
-                      href={social.href}
-                      aria-label={social.label}
-                      className="footer-social-btn"
-                    >
-                      {social.icon}
-                    </Link>
-                  ))}
-                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Bottom row */}
-          <div className="footer-bottom">
-            <p className="footer-copy">
-              © 2026 Provodnik. Все права защищены.
-            </p>
-            <div className="footer-legal">
-              {[
-                { href: "#", label: "Условия" },
-                { href: "#", label: "Конфиденциальность" },
-              ].map((link) => (
-                <Link key={link.label} href={link.href}>
-                  {link.label}
-                </Link>
-              ))}
-            </div>
+        <div className="footer-bottom">
+          <p className="footer-copy">© 2026 Provodnik. Все права защищены.</p>
+          <div className="footer-legal">
+            {legalLinks.map((link) => (
+              <Link key={link.label} href={link.href}>
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
-      </footer>
+      </div>
+    </footer>
   );
 }

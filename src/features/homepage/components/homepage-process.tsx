@@ -1,18 +1,28 @@
 const steps = [
   {
     num: "1",
-    title: "Опишите маршрут",
-    desc: "Укажите направление, даты и бюджет — займёт пару минут",
+    title: "Создайте запрос",
+    desc: "Укажите направление, даты, бюджет и размер группы",
   },
   {
     num: "2",
-    title: "Получите офферы от гидов",
-    desc: "Выберите подходящего проводника из откликов",
+    title: "Другие присоединяются",
+    desc: "Путешественники с похожими планами вступают в вашу группу",
   },
   {
     num: "3",
-    title: "Путешествуйте",
-    desc: "Оплата и выезд — всё согласовано, группа собрана",
+    title: "Гиды предлагают цену",
+    desc: "Проводники видят запрос и присылают структурированные офферы",
+  },
+  {
+    num: "4",
+    title: "Договоритесь об условиях",
+    desc: "Выберите оффер, обсудите детали, подтвердите бронирование",
+  },
+  {
+    num: "5",
+    title: "Отправляйтесь в путь",
+    desc: "Маршрут подтверждён, группа собрана, гид готов",
   },
 ] as const;
 
@@ -20,77 +30,24 @@ export function HomePageProcess() {
   return (
     <section id="hiw" className="section low" aria-labelledby="hiw-title">
       <div className="container">
-        {/* Section header */}
-        <header style={{ textAlign: "center", marginBottom: "52px" }}>
-          <p className="sec-label" style={{ marginBottom: "8px" }}>
-            Как это работает
-          </p>
+        <div className="hiw-header">
+          <p className="sec-label">Как это работает</p>
           <h2 id="hiw-title" className="sec-title">
-            Три шага от идеи до поездки
+            Пять шагов от запроса до маршрута
           </h2>
-        </header>
+        </div>
 
-        {/* Steps row */}
-        <div style={{ display: "flex", alignItems: "flex-start" }}>
+        <div className="hiw-row">
           {steps.map((step, index) => (
-            <div key={step.num} style={{ display: "contents" }}>
-              <article
-                style={{
-                  flex: 1,
-                  textAlign: "center",
-                  paddingInline: "20px",
-                }}
-              >
-                {/* Large ghostly step number */}
-                <div
-                  aria-hidden="true"
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "clamp(5rem, 10vw, 8rem)",
-                    fontWeight: 700,
-                    lineHeight: 1,
-                    color: "var(--primary)",
-                    opacity: 0.18,
-                    marginBottom: "14px",
-                  }}
-                >
+            <div key={step.num} className="hiw-item">
+              <article className="hiw-step">
+                <div aria-hidden="true" className="hiw-num">
                   {step.num}
                 </div>
-                <h3
-                  style={{
-                    fontSize: "1.0625rem",
-                    fontWeight: 600,
-                    color: "var(--on-surface)",
-                    marginBottom: "8px",
-                  }}
-                >
-                  {step.title}
-                </h3>
-                <p
-                  style={{
-                    fontSize: "0.875rem",
-                    color: "var(--on-surface-muted)",
-                    lineHeight: 1.65,
-                    maxWidth: "20ch",
-                    marginInline: "auto",
-                  }}
-                >
-                  {step.desc}
-                </p>
+                <h3 className="hiw-title">{step.title}</h3>
+                <p className="hiw-desc">{step.desc}</p>
               </article>
-
-              {/* Dashed connector line between steps */}
-              {index < steps.length - 1 ? (
-                <div
-                  aria-hidden="true"
-                  style={{
-                    flexShrink: 0,
-                    width: "80px",
-                    borderTop: "2px dashed color-mix(in srgb, var(--outline-variant) 60%, transparent)",
-                    marginTop: "29px",
-                  }}
-                />
-              ) : null}
+              {index < steps.length - 1 ? <div aria-hidden="true" className="hiw-connector" /> : null}
             </div>
           ))}
         </div>
