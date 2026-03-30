@@ -4,10 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
-  { href: "/", label: "Главная" },
   { href: "/destinations", label: "Направления" },
-  { href: "/requests", label: "Запросы" },
   { href: "/guides", label: "Гиды" },
+  { href: "/#hiw", label: "Как это работает" },
 ] as const;
 
 export function SiteHeader() {
@@ -21,23 +20,29 @@ export function SiteHeader() {
         </Link>
 
         <ul className="nav-links" role="list">
-          {navLinks.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                aria-current={pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href)) ? "page" : undefined}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
+          {navLinks.map((link) => {
+            const isHashLink = link.href.includes("#");
+            const isActive = isHashLink ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`);
+
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={isActive ? "active" : undefined}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="nav-ctas">
-          <Link href="/auth" className="btn-ghost-nav">
+          <Link href="/auth" className="btn-ghost nav-login">
             Войти
           </Link>
-          <Link href="/requests/new" className="btn-primary-nav">
+          <Link href="/requests/new" className="btn-primary nav-request-cta">
             Создать запрос
           </Link>
         </div>
