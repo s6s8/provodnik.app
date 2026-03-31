@@ -1,10 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
+
 import {
   BadgeCheck,
-  ClipboardList,
   FileText,
   Flag,
   Globe,
@@ -16,16 +15,8 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import {
   listGuideApplicationsForAdminFromSupabase,
@@ -394,58 +385,34 @@ export function GuideReviewQueue() {
     });
   }, []);
 
+  const filterButtons = [
+    { value: "all" as const, label: `Все (${counts.all})` },
+    { value: "pending" as const, label: `В очереди (${counts.pending})` },
+    { value: "needs-more-info" as const, label: `Нужна инфо (${counts.needsMoreInfo})` },
+    { value: "approved" as const, label: `Одобрено (${counts.approved})` },
+    { value: "rejected" as const, label: `Отклонено (${counts.rejected})` },
+  ];
+
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <Badge variant="outline">Админ‑панель</Badge>
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Очередь проверки гидов
-              </h1>
-              <p className="max-w-3xl text-base text-muted-foreground">
-                Проверяйте заявки гидов, качество документов и уровень доверия.
-                Решения фиксируются для аудита и управления доступом к маркетплейсу.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button asChild variant="outline" type="button">
-              <Link href="/admin/listings">
-                <ClipboardList className="mr-1 size-4" />
-                Модерация объявлений
-              </Link>
-            </Button>
-            <Button asChild variant="outline" type="button">
-              <Link href="/admin/disputes">
-                <Flag className="mr-1 size-4" />
-                Споры и возвраты
-              </Link>
-            </Button>
-          </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Очередь проверки гидов</h1>
+          <p className="max-w-3xl text-base text-muted-foreground">
+            Проверяйте заявки гидов, качество документов и уровень доверия. Решения
+            фиксируются для аудита и управления доступом к маркетплейсу.
+          </p>
         </div>
       </div>
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-3">
-          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="space-y-1">
-              <CardTitle className="text-lg">Фильтры очереди</CardTitle>
-              <CardDescription>
-                Фильтруйте по статусу решения и ищите по ФИО, городу и языкам.
-              </CardDescription>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Все {counts.all}</Badge>
-              <Badge variant="outline">В очереди {counts.pending}</Badge>
-              <Badge variant="outline">Одобрено {counts.approved}</Badge>
-              <Badge variant="outline">Нужна инфо {counts.needsMoreInfo}</Badge>
-              <Badge variant="outline">Отклонено {counts.rejected}</Badge>
-            </div>
+          <div className="space-y-1">
+            <CardTitle className="text-lg">Фильтры очереди</CardTitle>
+            <CardDescription>
+              Фильтруйте по статусу решения и ищите по ФИО, городу и языкам.
+            </CardDescription>
           </div>
-
-          <Separator />
 
           <div className="flex flex-col gap-3 md:flex-row md:items-center">
             <div className="w-full md:max-w-sm">
@@ -457,45 +424,26 @@ export function GuideReviewQueue() {
               />
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                type="button"
-                variant={statusFilter === "all" ? "secondary" : "outline"}
-                onClick={() => setStatusFilter("all")}
-              >
-                Все
-              </Button>
-              <Button
-                type="button"
-                variant={statusFilter === "pending" ? "secondary" : "outline"}
-                onClick={() => setStatusFilter("pending")}
-              >
-                В очереди
-              </Button>
-              <Button
-                type="button"
-                variant={statusFilter === "needs-more-info" ? "secondary" : "outline"}
-                onClick={() => setStatusFilter("needs-more-info")}
-              >
-                Нужна инфо
-              </Button>
-              <Button
-                type="button"
-                variant={statusFilter === "approved" ? "secondary" : "outline"}
-                onClick={() => setStatusFilter("approved")}
-              >
-                Одобрено
-              </Button>
-              <Button
-                type="button"
-                variant={statusFilter === "rejected" ? "secondary" : "outline"}
-                onClick={() => setStatusFilter("rejected")}
-              >
-                Отклонено
-              </Button>
+              {filterButtons.map((button) => (
+                <Button
+                  key={button.value}
+                  type="button"
+                  variant={statusFilter === button.value ? "secondary" : "outline"}
+                  onClick={() => setStatusFilter(button.value)}
+                >
+                  {button.label}
+                </Button>
+              ))}
             </div>
           </div>
         </CardHeader>
       </Card>
+
+      {backendMode === "local" ? (
+        <p className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-low)] px-4 py-3 text-xs text-[var(--on-surface-muted)]">
+          Демо-режим: решения хранятся локально и сбрасываются при обновлении страницы.
+        </p>
+      ) : null}
 
       <div className="space-y-4">
         {visible.length === 0 ? (
@@ -523,15 +471,13 @@ export function GuideReviewQueue() {
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                     <div className="space-y-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <CardTitle className="text-lg">
-                          {app.applicant.displayName}
-                        </CardTitle>
+                        <CardTitle className="text-lg">{app.applicant.displayName}</CardTitle>
                         <Badge variant={decision.variant}>{decision.label}</Badge>
                         <Badge variant="outline">{app.id}</Badge>
                       </div>
                       <CardDescription>
-                        {app.applicant.homeBase} · стаж {app.applicant.yearsExperience}{" "}
-                        лет · заявка от {formatSubmittedAt(app.submittedAt)}
+                        {app.applicant.homeBase} · стаж {app.applicant.yearsExperience} лет · заявка от{" "}
+                        {formatSubmittedAt(app.submittedAt)}
                       </CardDescription>
                     </div>
 
@@ -544,25 +490,13 @@ export function GuideReviewQueue() {
                       >
                         {expanded ? "Свернуть" : "Показать детали"}
                       </Button>
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setDecision(app.id, "approved", app)}
-                      >
+                      <Button type="button" variant="secondary" onClick={() => setDecision(app.id, "approved", app)}>
                         Одобрить
                       </Button>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => setDecision(app.id, "needs-more-info", app)}
-                      >
+                      <Button type="button" variant="outline" onClick={() => setDecision(app.id, "needs-more-info", app)}>
                         Запросить инфо
                       </Button>
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => setDecision(app.id, "rejected", app)}
-                      >
+                      <Button type="button" variant="destructive" onClick={() => setDecision(app.id, "rejected", app)}>
                         Отклонить
                       </Button>
                     </div>
@@ -582,8 +516,8 @@ export function GuideReviewQueue() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge variant="outline">
                         <FileText className="mr-1 size-3" />
-                        Документы: {docs.verified} подтверждено, {docs.needsReview} к
-                        проверке, {docs.missing} нет
+                        Документы: {docs.verified} подтверждено, {docs.needsReview} к проверке,{" "}
+                        {docs.missing} нет
                       </Badge>
                       <Badge variant={enabledTrust.length >= 3 ? "secondary" : "outline"}>
                         <ShieldCheck className="mr-1 size-3" />
@@ -600,22 +534,15 @@ export function GuideReviewQueue() {
 
                   {expanded ? (
                     <div className="space-y-4">
-                      <Separator />
-
                       <div className="grid gap-4 md:grid-cols-2">
                         <div className="space-y-2">
-                          <div className="text-sm font-medium text-foreground">
-                            Сигналы доверия
-                          </div>
+                          <div className="text-sm font-medium text-foreground">Сигналы доверия</div>
                           <div className="flex flex-wrap gap-2">
                             {trustKeys.map((key) => {
                               const Icon = trustSignalIcon(key);
                               const enabled = app.trustSignals[key];
                               return (
-                                <Badge
-                                  key={key}
-                                  variant={enabled ? "secondary" : "outline"}
-                                >
+                                <Badge key={key} variant={enabled ? "secondary" : "outline"}>
                                   <Icon className="mr-1 size-3" />
                                   {trustSignalLabel(key)}
                                 </Badge>
@@ -625,9 +552,7 @@ export function GuideReviewQueue() {
                         </div>
 
                         <div className="space-y-2">
-                          <div className="text-sm font-medium text-foreground">
-                            Документы
-                          </div>
+                          <div className="text-sm font-medium text-foreground">Документы</div>
                           <div className="flex flex-wrap gap-2">
                             {app.documents.map((doc) => (
                               <Badge
@@ -644,9 +569,7 @@ export function GuideReviewQueue() {
 
                       {app.flags.length > 0 ? (
                         <div className="space-y-2">
-                          <div className="text-sm font-medium text-foreground">
-                            Флаги риска
-                          </div>
+                          <div className="text-sm font-medium text-foreground">Флаги риска</div>
                           <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                             {app.flags.map((flag) => (
                               <li key={flag}>{flag}</li>
@@ -656,45 +579,35 @@ export function GuideReviewQueue() {
                       ) : null}
 
                       <div className="space-y-2">
-                        <div className="text-sm font-medium text-foreground">
-                          Комментарий по решению
-                        </div>
+                        <div className="text-sm font-medium text-foreground">Комментарий по решению</div>
                         <Textarea
                           value={state.note}
                           onChange={(event) => setNote(app.id, event.target.value, app)}
                           placeholder="Зафиксируйте обоснование решения, недостающие данные и следующие шаги."
                           aria-label="Комментарий по решению"
                         />
-                        <div className="text-xs text-muted-foreground">
-                          Последнее решение: {decision.label}
-                          {state.decidedAt
-                            ? ` · ${formatSubmittedAt(state.decidedAt)}`
-                            : ""}
+                        <div className="space-y-2">
+                          <div className="text-xs text-muted-foreground">
+                            Последнее решение: {decision.label}
+                            {state.decidedAt ? ` · ${formatSubmittedAt(state.decidedAt)}` : ""}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() =>
+                              setReviewState((prev) => ({
+                                ...prev,
+                                [app.id]: { decision: "pending", note: "" },
+                              }))
+                            }
+                          >
+                            Сбросить решение
+                          </Button>
                         </div>
                       </div>
                     </div>
                   ) : null}
                 </CardContent>
-
-                <CardFooter className="flex flex-col items-start gap-2 md:flex-row md:items-center md:justify-between">
-                  <div className="text-xs text-muted-foreground">
-                    В демо‑режиме решения и комментарии хранятся локально и сбрасываются при обновлении.
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() =>
-                        setReviewState((prev) => ({
-                          ...prev,
-                          [app.id]: { decision: "pending", note: "" },
-                        }))
-                      }
-                    >
-                      Сбросить решение
-                    </Button>
-                  </div>
-                </CardFooter>
               </Card>
             );
           })
@@ -703,4 +616,3 @@ export function GuideReviewQueue() {
     </div>
   );
 }
-

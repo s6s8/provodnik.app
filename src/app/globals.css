@@ -186,6 +186,10 @@ button {
   border-bottom: 1px solid var(--nav-glass-border);
 }
 
+.layout-protected {
+  padding-top: var(--nav-h);
+}
+
 .glass-card,
 .glass-panel {
   background: var(--glass-bg);

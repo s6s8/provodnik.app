@@ -231,6 +231,29 @@ function outcomeLabel(outcome: DisputeDecisionOutcome | "unset") {
   }
 }
 
+function isReadableDisplayName(value: string | null | undefined): value is string {
+  if (!value) return false;
+
+  const normalized = value.trim();
+  if (!normalized) return false;
+  if (/^[?\s.]+$/.test(normalized)) return false;
+  if (/�/.test(normalized)) return false;
+
+  return /\p{L}/u.test(normalized);
+}
+
+function getCanonicalGuideDisplayName(
+  fullName: string | null | undefined,
+  guideDisplayName: string | null | undefined,
+  email: string | null | undefined,
+): string {
+  if (isReadableDisplayName(fullName)) return fullName.trim();
+  if (isReadableDisplayName(guideDisplayName)) return guideDisplayName.trim();
+  if (isReadableDisplayName(email)) return email.trim();
+
+  return "Guide";
+}
+
 async function currentAdminUserId(): Promise<Uuid> {
   const supabase = createSupabaseBrowserClient();
   const {
@@ -381,11 +404,11 @@ export async function listGuideApplicationsForAdminFromSupabase(): Promise<
       id: profile.user_id,
       submittedAt: profile.updated_at,
       applicant: {
-        displayName:
-          profile.display_name ||
-          (account.full_name as string | null) ||
-          (account.email as string | null) ||
-          "Guide",
+        displayName: getCanonicalGuideDisplayName(
+          account.full_name as string | null,
+          profile.display_name,
+          account.email as string | null,
+        ),
         homeBase: profile.regions[0] ?? "Unknown",
         languages: profile.languages,
         yearsExperience: profile.years_experience ?? 0,
@@ -475,13 +498,14 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
   PersistedModerationListing[]
 > {
   const supabase = createSupabaseBrowserClient();
-  const [{ data: listings, error: listingsError }, { data: guideProfiles, error: guidesError }, { data: media, error: mediaError }, { data: cases, error: casesError }, { data: actions, error: actionsError }] =
+  const [{ data: listings, error: listingsError }, { data: guideProfiles, error: guidesError }, { data: profileRows, error: profileRowsError }, { data: media, error: mediaError }, { data: cases, error: casesError }, { data: actions, error: actionsError }] =
     await Promise.all([
       supabase
         .from("listings")
         .select("id, guide_id, slug, title, region, city, category, route_summary, description, duration_minutes, max_group_size, price_from_minor, currency, private_available, group_available, instant_book, meeting_point, inclusions, exclusions, cancellation_policy_key, status, featured_rank, created_at, updated_at")
         .order("updated_at", { ascending: false }),
       supabase.from("guide_profiles").select("user_id, display_name, languages"),
+      supabase.from("profiles").select("id, full_name, email"),
       supabase.from("listing_media").select("listing_id"),
       supabase
         .from("moderation_cases")
@@ -495,6 +519,7 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
 
   if (listingsError) throw listingsError;
   if (guidesError) throw guidesError;
+  if (profileRowsError) throw profileRowsError;
   if (mediaError) throw mediaError;
   if (casesError) throw casesError;
   if (actionsError) throw actionsError;
@@ -503,6 +528,12 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
     (guideProfiles ?? []).map((row) => [
       row.user_id as string,
       row as { display_name?: string | null; languages?: string[] | null },
+    ]),
+  );
+  const profileById = new Map(
+    (profileRows ?? []).map((row) => [
+      row.id as string,
+      row as { full_name?: string | null; email?: string | null },
     ]),
   );
   const mediaCountByListing = new Map<string, number>();
@@ -525,6 +556,7 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
 
   return ((listings ?? []) as ListingRow[]).map((listing) => {
     const guide = guidesById.get(listing.guide_id) ?? {};
+    const profile = profileById.get(listing.guide_id) ?? {};
     const moderationCase = casesByListing.get(listing.id);
     const latestAction = moderationCase
       ? latestActionByCase.get(moderationCase.id)
@@ -546,7 +578,11 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
           amount: Math.round(listing.price_from_minor / 100),
           currency: listing.currency as "USD" | "EUR" | "GEL",
         },
-        sellerDisplayName: (guide.display_name as string | null) ?? "Guide",
+        sellerDisplayName: getCanonicalGuideDisplayName(
+          profile.full_name as string | null,
+          guide.display_name as string | null,
+          profile.email as string | null,
+        ),
       },
       visibility,
       riskSignals: {
