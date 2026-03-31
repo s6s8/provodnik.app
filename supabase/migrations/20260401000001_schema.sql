@@ -1035,25 +1035,25 @@ on conflict (id) do nothing;
 -- owner_id is uuid  → compare with auth.uid() (uuid = uuid, no cast needed)
 -- path folder check → split_part(name, '/', 1) returns text; auth.uid()::text is text (text = text)
 create policy "guide_media_select"        on storage.objects for select
-  using  (bucket_id = 'guide-media' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
+  using  (bucket_id = 'guide-media' and (split_part(name, '/', 1) = (select auth.uid()::text) or public.is_admin()));
 create policy "guide_media_insert"        on storage.objects for insert
-  with check (bucket_id = 'guide-media' and split_part(name, '/', 1) = ((select auth.uid()::uuid)::text));
+  with check (bucket_id = 'guide-media' and split_part(name, '/', 1) = (select auth.uid()::text));
 create policy "guide_media_update"        on storage.objects for update
-  using  (bucket_id = 'guide-media' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
+  using  (bucket_id = 'guide-media' and (split_part(name, '/', 1) = (select auth.uid()::text) or public.is_admin()));
 
 create policy "listing_media_public_read" on storage.objects for select
   using  (bucket_id = 'listing-media');
 create policy "listing_media_insert"      on storage.objects for insert
-  with check (bucket_id = 'listing-media' and split_part(name, '/', 1) = ((select auth.uid()::uuid)::text));
+  with check (bucket_id = 'listing-media' and split_part(name, '/', 1) = (select auth.uid()::text));
 create policy "listing_media_update"      on storage.objects for update
-  using  (bucket_id = 'listing-media' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
+  using  (bucket_id = 'listing-media' and (split_part(name, '/', 1) = (select auth.uid()::text) or public.is_admin()));
 
 create policy "dispute_evidence_select"   on storage.objects for select
-  using  (bucket_id = 'dispute-evidence' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
+  using  (bucket_id = 'dispute-evidence' and (split_part(name, '/', 1) = (select auth.uid()::text) or public.is_admin()));
 create policy "dispute_evidence_insert"   on storage.objects for insert
-  with check (bucket_id = 'dispute-evidence' and split_part(name, '/', 1) = ((select auth.uid()::uuid)::text));
+  with check (bucket_id = 'dispute-evidence' and split_part(name, '/', 1) = (select auth.uid()::text));
 create policy "dispute_evidence_update"   on storage.objects for update
-  using  (bucket_id = 'dispute-evidence' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
+  using  (bucket_id = 'dispute-evidence' and (split_part(name, '/', 1) = (select auth.uid()::text) or public.is_admin()));
 
 -- ---------------------------------------------------------------------------
 -- VIEWS
