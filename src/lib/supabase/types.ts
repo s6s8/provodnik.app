@@ -191,6 +191,16 @@ export type GuideProfileRow = {
   updated_at: string;
 };
 
+export type GuideProfileOnboardingPersistenceRow = Pick<
+  GuideProfileRow,
+  | "bio"
+  | "regions"
+  | "languages"
+  | "specialties"
+  | "specialization"
+  | "is_available"
+>;
+
 export type ListingRow = {
   id: Uuid;
   guide_id: Uuid;
