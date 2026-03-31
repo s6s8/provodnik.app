@@ -34,8 +34,20 @@ drop table if exists public.profiles                  cascade;
 drop table if exists public.quality_snapshots         cascade;
 drop table if exists public.destinations              cascade;
 
--- Storage buckets
-delete from storage.buckets where id in ('guide-media', 'listing-media', 'dispute-evidence');
+-- Storage buckets (must use Storage API — direct DELETE is blocked by trigger)
+do $$
+declare
+  b text;
+begin
+  foreach b in array array['guide-media', 'listing-media', 'dispute-evidence'] loop
+    begin
+      perform storage.empty_bucket(b);
+      perform storage.delete_bucket(b);
+    exception when others then
+      null; -- bucket doesn't exist, skip
+    end;
+  end loop;
+end $$;
 
 -- Functions
 drop function if exists public.set_updated_at()                                                                                      cascade;
