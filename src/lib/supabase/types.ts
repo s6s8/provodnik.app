@@ -176,6 +176,10 @@ export type GuideProfileRow = {
   display_name: string | null;
   bio: string | null;
   years_experience: number | null;
+  specialization: string | null;
+  rating: number;
+  completed_tours: number;
+  is_available: boolean;
   regions: string[];
   languages: string[];
   specialties: string[];

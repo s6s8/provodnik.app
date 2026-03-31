@@ -2,35 +2,44 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 
 import { Bell } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getDemoUserIdForRole } from "@/data/notifications/demo";
 import type { DemoRole, DemoSession } from "@/lib/demo-session";
 import {
   clearDemoSessionFromDocument,
   readDemoSessionFromDocument,
   writeDemoSessionToDocument,
 } from "@/lib/demo-session";
+import {
+  getDashboardPathForRole,
+  getWorkspacePrefixForRole,
+} from "@/lib/auth/role-routing";
 import type { AuthContext } from "@/lib/auth/types";
 import { cn } from "@/lib/utils";
 
 const roles = [
   {
-    href: "/traveler",
+    role: "traveler",
+    href: getDashboardPathForRole("traveler") ?? "/traveler/dashboard",
+    workspacePrefix: getWorkspacePrefixForRole("traveler") ?? "/traveler",
     label: "Путешественник",
     description: "Заявки, общение с гидом и бронирование",
   },
   {
-    href: "/guide",
+    role: "guide",
+    href: getDashboardPathForRole("guide") ?? "/guide/dashboard",
+    workspacePrefix: getWorkspacePrefixForRole("guide") ?? "/guide",
     label: "Гид",
     description: "Публикации, ответы на запросы, маршруты",
   },
   {
-    href: "/admin",
+    role: "admin",
+    href: getDashboardPathForRole("admin") ?? "/admin/dashboard",
+    workspacePrefix: getWorkspacePrefixForRole("admin") ?? "/admin",
     label: "Оператор",
     description: "Модерация, споры и поддержка",
   },
@@ -38,19 +47,20 @@ const roles = [
 
 function getActiveRoleLabel(pathname: string) {
   const match = roles.find(
-    (role) => pathname === role.href || pathname.startsWith(`${role.href}/`)
+    (role) =>
+      pathname === role.workspacePrefix ||
+      pathname.startsWith(`${role.workspacePrefix}/`)
   );
   return match?.label ?? "Кабинет";
 }
 
 function getRoleFromPathname(pathname: string): DemoRole | null {
   const match = roles.find(
-    (role) => pathname === role.href || pathname.startsWith(`${role.href}/`)
+    (role) =>
+      pathname === role.workspacePrefix ||
+      pathname.startsWith(`${role.workspacePrefix}/`)
   );
-  if (!match) return null;
-  if (match.href === "/traveler") return "traveler";
-  if (match.href === "/guide") return "guide";
-  return "admin";
+  return match?.role ?? null;
 }
 
 type WorkspaceRoleNavProps = {
@@ -67,33 +77,21 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
   const [demoSession, setDemoSession] = useState<DemoSession | null>(() =>
     readDemoSessionFromDocument()
   );
-  const [unreadNotifications, setUnreadNotifications] = useState(0);
-
-  const notificationsUserId = useMemo(() => {
-    if (!demoSession) return null;
-    return getDemoUserIdForRole(demoSession.role);
-  }, [demoSession]);
+  const unreadNotifications = 0;
 
   const hasSupabaseAuth = auth.hasSupabaseEnv && auth.isAuthenticated;
   const effectiveRole: DemoRole | null =
     (auth.role as DemoRole | null) ?? demoSession?.role ?? null;
 
-  // Unread count is static 0 for now; will be wired to Upstash later.
-  useEffect(() => {
-    setUnreadNotifications(0);
-  }, [notificationsUserId]);
-
   function signInAs(role: DemoRole) {
     writeDemoSessionToDocument(role);
     setDemoSession(readDemoSessionFromDocument());
-    setUnreadNotifications(0);
     startTransition(() => router.refresh());
   }
 
   function signOut() {
     clearDemoSessionFromDocument();
     setDemoSession(null);
-    setUnreadNotifications(0);
     startTransition(() => router.refresh());
   }
 
@@ -131,8 +129,8 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               {auth.hasSupabaseEnv
-                ? "Закрытые разделы используют Supabase-авторизацию, локальный демо-режим остаётся для отработки сценариев."
-                : "Закрытые разделы в демо-режиме работают без Supabase-ключей и подходят для локальной проверки потока."}
+                ? "Каждая роль открывает только свой закрытый кабинет через Supabase-авторизацию."
+                : "Без Supabase-ключей доступен локальный демо-режим с теми же ролевыми маршрутами."}
             </p>
           </div>
         </div>
@@ -141,7 +139,8 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
           <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {roles.map((role) => {
               const isActive =
-                pathname === role.href || pathname.startsWith(`${role.href}/`);
+                pathname === role.workspacePrefix ||
+                pathname.startsWith(`${role.workspacePrefix}/`);
 
               return (
                 <Button
@@ -245,12 +244,12 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               Права доступа
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
-              Вы смотрите раздел для роли{" "}
+              Этот раздел закреплён за ролью{" "}
               <span className="font-medium">{pathRole}</span>, войдя как{" "}
               <span className="font-medium">{effectiveRole}</span>.{" "}
               {hasSupabaseAuth
-                ? "В текущем MVP это допустимо, позже правила станут строже."
-                : "В демо-режиме ограничения мягче, реальные проверки появятся после подключения авторизации."}
+                ? "После проверки сессии пользователь перенаправляется в свой рабочий кабинет."
+                : "В демо-режиме переключите роль на соответствующую, чтобы открыть нужный кабинет."}
             </p>
           </div>
         ) : null}
@@ -262,7 +261,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
             </p>
             <p className="mt-1 text-sm text-muted-foreground">
               Вы вошли как{" "}
-              <span className="font-medium">{effectiveRole}</span>. Перейдите в закрытый раздел роли, чтобы увидеть, как работают границы доступа.
+              <span className="font-medium">{effectiveRole}</span>. Откройте свой dashboard в навигации выше, чтобы перейти в закрытую рабочую область.
             </p>
           </div>
         ) : null}
