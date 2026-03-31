@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   getDashboardPathForRole,
@@ -242,8 +241,8 @@ export function AuthEntryScreen() {
     : "Нет аккаунта? Создать профиль";
 
   return (
-    <Card className="auth-card glass-panel">
-      <CardHeader className="space-y-0 p-0">
+    <div className="auth-card glass-panel">
+      <div>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3">
             <Link href="/" className="auth-toggle inline-flex w-fit items-center">
@@ -253,16 +252,16 @@ export function AuthEntryScreen() {
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
                 {isSignUp ? "Регистрация" : "Вход"}
               </p>
-              <CardTitle className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
                 {title}
-              </CardTitle>
+              </h1>
               <p className="max-w-sm text-sm leading-6 text-muted-foreground">{subtitle}</p>
             </div>
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="p-0">
+      <div>
         {!hasEnv ? (
           <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
             <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
@@ -399,7 +398,7 @@ export function AuthEntryScreen() {
         >
           {toggleLabel}
         </button>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
