@@ -131,22 +131,6 @@ begin
   ) as seed(id, email, encrypted_password, raw_app_meta_data, raw_user_meta_data)
   where auth.users.id = seed.id;
 
-  if exists (
-    select 1
-    from information_schema.columns
-    where table_schema = 'auth'
-      and table_name = 'users'
-      and column_name = 'confirmed_at'
-  ) then
-    execute format(
-      'update auth.users set confirmed_at = coalesce(confirmed_at, %L::timestamptz) where id in (%L::uuid, %L::uuid, %L::uuid)',
-      seeded_at,
-      admin_id,
-      traveler_id,
-      guide_id
-    );
-  end if;
-
   insert into public.profiles (id, role, email, full_name, avatar_url)
   values
     (
