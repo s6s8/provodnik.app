@@ -1,9 +1,19 @@
 import { cookies } from "next/headers";
 
+import {
+  getDashboardPathForRole,
+  isAppRole,
+} from "@/lib/auth/role-routing";
 import { hasSupabaseEnv } from "@/lib/env";
 import { DEMO_SESSION_COOKIE, parseDemoSessionCookieValue } from "@/lib/demo-session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { AppRole, AuthContext } from "@/lib/auth/types";
+import type { AuthContext } from "@/lib/auth/types";
+
+const MISSING_ROLE_RECOVERY_TO = "/auth?error=missing-role";
+
+function getCanonicalRedirect(role: AuthContext["role"]): AuthContext["canonicalRedirectTo"] {
+  return getDashboardPathForRole(role) as AuthContext["canonicalRedirectTo"];
+}
 
 export async function readAuthContextFromServer(): Promise<AuthContext> {
   const hasEnv = hasSupabaseEnv();
@@ -18,6 +28,8 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     source: demoSession ? "demo" : "none",
     role: demoSession?.role ?? null,
     email: null,
+    canonicalRedirectTo: getCanonicalRedirect(demoSession?.role ?? null),
+    missingRoleRecoveryTo: null,
   };
 
   if (!hasEnv) {
@@ -40,19 +52,28 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     .eq("id", session.user.id)
     .maybeSingle();
 
-  const profileRole =
-    profile?.role === "traveler" ||
-    profile?.role === "guide" ||
-    profile?.role === "admin"
-      ? (profile.role as AppRole)
-      : null;
+  const profileRole = isAppRole(profile?.role) ? profile.role : null;
+
+  if (!profileRole) {
+    return {
+      hasSupabaseEnv: hasEnv,
+      isAuthenticated: true,
+      source: "supabase",
+      role: null,
+      email: session.user.email ?? null,
+      canonicalRedirectTo: null,
+      missingRoleRecoveryTo: MISSING_ROLE_RECOVERY_TO,
+    };
+  }
 
   return {
     hasSupabaseEnv: hasEnv,
     isAuthenticated: true,
     source: "supabase",
-    role: profileRole ?? baseContext.role,
+    role: profileRole,
     email: session.user.email ?? null,
+    canonicalRedirectTo: getCanonicalRedirect(profileRole),
+    missingRoleRecoveryTo: null,
   };
 }
 

@@ -1,5 +1,5 @@
-import { GuideReviewQueue } from "@/features/admin/components/guide-review-queue";
+import { redirect } from "next/navigation";
 
 export default function AdminPage() {
-  return <GuideReviewQueue />;
+  redirect("/admin/dashboard");
 }
