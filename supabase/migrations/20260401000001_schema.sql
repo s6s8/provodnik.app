@@ -40,21 +40,6 @@ begin
 end;
 $$;
 
-create or replace function public.current_profile_role()
-returns public.app_role language sql security definer stable set search_path = public as $$
-  select role from public.profiles where id = auth.uid();
-$$;
-
-create or replace function public.is_admin()
-returns boolean language sql security definer stable set search_path = public as $$
-  select public.current_profile_role() = 'admin';
-$$;
-
-create or replace function public.is_guide()
-returns boolean language sql security definer stable set search_path = public as $$
-  select public.current_profile_role() = 'guide';
-$$;
-
 -- ---------------------------------------------------------------------------
 -- TABLES
 -- ---------------------------------------------------------------------------
@@ -73,6 +58,22 @@ create table public.profiles (
 alter table public.profiles enable row level security;
 create trigger set_profiles_updated_at before update on public.profiles
   for each row execute procedure public.set_updated_at();
+
+-- Role helper functions (defined after profiles table exists)
+create or replace function public.current_profile_role()
+returns public.app_role language sql security definer stable set search_path = public as $$
+  select role from public.profiles where id = auth.uid();
+$$;
+
+create or replace function public.is_admin()
+returns boolean language sql security definer stable set search_path = public as $$
+  select public.current_profile_role() = 'admin';
+$$;
+
+create or replace function public.is_guide()
+returns boolean language sql security definer stable set search_path = public as $$
+  select public.current_profile_role() = 'guide';
+$$;
 
 -- guide_profiles
 create table public.guide_profiles (
