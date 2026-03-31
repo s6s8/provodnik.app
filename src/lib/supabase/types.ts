@@ -191,6 +191,21 @@ export type GuideProfileRow = {
   updated_at: string;
 };
 
+export type GuideProfileUpsert = Pick<
+  GuideProfileRow,
+  | "user_id"
+  | "display_name"
+  | "bio"
+  | "years_experience"
+  | "specialization"
+  | "regions"
+  | "languages"
+  | "specialties"
+  | "is_available"
+  | "verification_status"
+  | "verification_notes"
+>;
+
 export type ListingRow = {
   id: Uuid;
   guide_id: Uuid;

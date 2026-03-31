@@ -2,6 +2,7 @@ import type {
   BookingRow,
   GuideOfferRow,
   GuideProfileRow,
+  GuideProfileUpsert,
   ListingMediaRow,
   ListingRow,
   TravelerRequestRow,
@@ -38,14 +39,20 @@ export interface Database {
           id: string;
           role: "traveler" | "guide" | "admin" | null;
           slug: string | null;
+          email: string | null;
           full_name: string | null;
+          phone: string | null;
           avatar_url: string | null;
           home_base: string | null;
           bio: string | null;
+          created_at: string;
+          updated_at: string;
         };
       };
       guide_profiles: {
         Row: GuideProfileRow;
+        Insert: GuideProfileUpsert;
+        Update: Partial<GuideProfileUpsert>;
       };
       listings: {
         Row: ListingRow;
