@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   CheckCircle2,
+  Eye,
+  EyeOff,
   LockKeyhole,
   Mail,
   UserRound,
@@ -58,7 +61,7 @@ function getFriendlyAuthError(message: string) {
   }
 
   if (normalized.includes("email not confirmed")) {
-    return "Подтвердите email по письму от Supabase, затем попробуйте войти снова.";
+    return "Подтвердите email по письму и попробуйте снова.";
   }
 
   if (
@@ -106,6 +109,7 @@ export function AuthEntryScreen() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [role, setRole] = useState<RoleValue>("traveler");
+  const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -114,37 +118,7 @@ export function AuthEntryScreen() {
     setMode(nextMode);
     setError(null);
     setSuccess(null);
-  }
-
-  if (!hasEnv) {
-    return (
-      <Card className="glass-panel rounded-[2.2rem] border border-white/70">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <AlertCircle className="size-4 text-amber-500" />
-            Supabase не настроен
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm leading-7 text-muted-foreground">
-          <p>
-            В этом окружении не заданы ключи Supabase. Публичную витрину можно
-            смотреть как обычно, а рабочие кабинеты доступны через локальный
-            демо-режим в защищенной части приложения.
-          </p>
-          <p>
-            Для реального входа укажите{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              NEXT_PUBLIC_SUPABASE_URL
-            </code>{" "}
-            и{" "}
-            <code className="rounded bg-muted px-1 py-0.5 text-xs">
-              NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-            </code>{" "}
-            в <code className="rounded bg-muted px-1 py-0.5 text-xs">.env.local</code>.
-          </p>
-        </CardContent>
-      </Card>
-    );
+    setShowPassword(false);
   }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -258,58 +232,57 @@ export function AuthEntryScreen() {
   }
 
   const isSignUp = mode === "sign-up";
-  const title = isSignUp ? "Создать аккаунт" : "Войти в Provodnik";
+  const title = isSignUp ? "Новый профиль" : "С возвращением";
   const subtitle = isSignUp
-    ? "Регистрация создает профиль и сразу привязывает роль кабинета."
-    : "Войдите по email и паролю, а мы откроем нужный кабинет по роли профиля.";
+    ? "Создайте доступ и выберите формат кабинета."
+    : "Войдите по email и паролю, чтобы открыть свой кабинет.";
+  const ctaLabel = isSignUp ? "Создать профиль" : "Войти";
+  const toggleLabel = isSignUp
+    ? "Уже есть аккаунт? Войти"
+    : "Нет аккаунта? Создать профиль";
 
   return (
-    <Card className="glass-panel rounded-[2.2rem] border border-white/70">
-      <CardHeader className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          {isSignUp ? "Регистрация" : "Авторизация"}
-        </p>
-        <div className="space-y-2">
-          <CardTitle className="text-3xl font-semibold tracking-tight text-foreground">
-            {title}
-          </CardTitle>
-          <p className="text-sm leading-6 text-muted-foreground">{subtitle}</p>
+    <Card className="auth-card glass-panel">
+      <CardHeader className="space-y-0 p-0">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-3">
+            <Link href="/" className="auth-toggle inline-flex w-fit items-center">
+              Provodnik
+            </Link>
+            <div className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                {isSignUp ? "Регистрация" : "Вход"}
+              </p>
+              <CardTitle className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+                {title}
+              </CardTitle>
+              <p className="max-w-sm text-sm leading-6 text-muted-foreground">{subtitle}</p>
+            </div>
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="space-y-5">
-        <div className="grid grid-cols-2 gap-2 rounded-[1.6rem] border border-white/60 bg-white/50 p-1">
-          <button
-            type="button"
-            onClick={() => handleModeChange("sign-in")}
-            className={`rounded-[1.2rem] px-4 py-3 text-sm font-medium transition ${
-              mode === "sign-in"
-                ? "bg-foreground text-background shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Вход
-          </button>
-          <button
-            type="button"
-            onClick={() => handleModeChange("sign-up")}
-            className={`rounded-[1.2rem] px-4 py-3 text-sm font-medium transition ${
-              mode === "sign-up"
-                ? "bg-foreground text-background shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Регистрация
-          </button>
-        </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+      <CardContent className="p-0">
+        {!hasEnv ? (
+          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
+            <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
+            <p>
+              В этой среде вход пока недоступен. Проверьте значения{" "}
+              <code>NEXT_PUBLIC_SUPABASE_URL</code> и{" "}
+              <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> в{" "}
+              <code>.env.local</code>.
+            </p>
+          </div>
+        ) : null}
+
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           {isSignUp ? (
-            <div className="space-y-2">
+            <div className="auth-field">
               <label htmlFor="full-name" className="text-sm font-medium text-foreground">
                 Как к вам обращаться
               </label>
               <div className="relative">
-                <UserRound className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
+                <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   id="full-name"
                   type="text"
@@ -317,19 +290,19 @@ export function AuthEntryScreen() {
                   placeholder="Например, Анна Смирнова"
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
-                  className="h-12 rounded-2xl bg-white/82 pl-10"
+                  className="auth-field-input pl-11"
                   required={isSignUp}
                 />
               </div>
             </div>
           ) : null}
 
-          <div className="space-y-2">
+          <div className="auth-field">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
               Email
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
@@ -337,95 +310,95 @@ export function AuthEntryScreen() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="h-12 rounded-2xl bg-white/82 pl-10"
+                className="auth-field-input pl-11"
                 required
               />
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="auth-field">
             <label htmlFor="password" className="text-sm font-medium text-foreground">
               {isSignUp ? "Создайте пароль" : "Пароль"}
             </label>
             <div className="relative">
-              <LockKeyhole className="pointer-events-none absolute left-3 top-3 size-4 text-muted-foreground" />
+              <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete={isSignUp ? "new-password" : "current-password"}
                 placeholder={isSignUp ? "Минимум 6 символов" : "Введите пароль"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="h-12 rounded-2xl bg-white/82 pl-10"
+                className="auth-field-input pl-11 pr-14"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                className="auth-toggle absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center"
+                aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                aria-pressed={showPassword}
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
             </div>
           </div>
 
           {isSignUp ? (
-            <div className="space-y-2">
-              <label htmlFor="role" className="text-sm font-medium text-foreground">
-                Роль в сервисе
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(event) => setRole(event.target.value as RoleValue)}
-                className="inline-flex h-12 w-full items-center justify-between rounded-2xl border border-input bg-white/82 px-4 py-2 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                {roles.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <p className="text-xs leading-6 text-muted-foreground">
-                После регистрации мы откроем кабинет, который соответствует роли в вашем
-                профиле.
-              </p>
+            <div className="auth-field">
+              <span className="text-sm font-medium text-foreground">Выберите роль</span>
+              <div className="grid grid-cols-2 gap-3">
+                {roles
+                  .filter((option) => option.value !== "admin")
+                  .map((option) => {
+                    const isActive = role === option.value;
+
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setRole(option.value)}
+                        className={`rounded-full border px-4 py-3 text-sm font-medium transition ${
+                          isActive
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-transparent text-foreground hover:border-primary/50 hover:text-foreground"
+                        }`}
+                        aria-pressed={isActive}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+              </div>
             </div>
           ) : null}
 
           {error ? (
-            <div className="flex items-start gap-2 rounded-2xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
-              <AlertCircle className="mt-0.5 size-4" />
+            <div className="flex items-start gap-2 rounded-[1.4rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+              <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <p>{error}</p>
             </div>
           ) : null}
 
           {success ? (
-            <div className="flex items-start gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3 text-sm text-emerald-700">
-              <CheckCircle2 className="mt-0.5 size-4" />
+            <div className="flex items-start gap-2 rounded-[1.4rem] border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-foreground">
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
               <p>{success}</p>
             </div>
           ) : null}
 
-          <div className="space-y-3 border-t border-border/70 pt-4">
-            <Button type="submit" className="h-12 w-full rounded-full" disabled={isSubmitting}>
-              {isSubmitting
-                ? isSignUp
-                  ? "Создаем аккаунт..."
-                  : "Входим..."
-                : isSignUp
-                  ? "Создать аккаунт"
-                  : "Войти"}
-            </Button>
-            <p className="text-xs leading-6 text-muted-foreground">
-              {isSignUp
-                ? "Имя и роль сохранятся в профиле Supabase. Если проект требует подтверждения email, завершите регистрацию по письму и затем войдите."
-                : "После входа маршрут определяется по роли в профиле: путешественник, гид или оператор."}
-            </p>
-            <button
-              type="button"
-              onClick={() => handleModeChange(isSignUp ? "sign-in" : "sign-up")}
-              className="text-sm font-medium text-foreground underline underline-offset-4"
-            >
-              {isSignUp
-                ? "Уже есть аккаунт? Войти"
-                : "Нет аккаунта? Зарегистрироваться"}
-            </button>
-          </div>
+          <Button type="submit" className="h-12 w-full rounded-full" disabled={isSubmitting || !hasEnv}>
+            {isSubmitting ? `${ctaLabel}...` : ctaLabel}
+          </Button>
         </form>
+
+        <button
+          type="button"
+          onClick={() => handleModeChange(isSignUp ? "sign-in" : "sign-up")}
+          className="auth-toggle mt-6 inline-flex w-fit items-center text-sm"
+        >
+          {toggleLabel}
+        </button>
       </CardContent>
     </Card>
   );
