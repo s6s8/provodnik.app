@@ -62,7 +62,7 @@ create trigger set_profiles_updated_at before update on public.profiles
 -- Role helper functions — must come after profiles table
 create or replace function public.current_profile_role()
 returns public.app_role language sql security definer stable set search_path = public as $$
-  select role from public.profiles where id = (select auth.uid());
+  select role from public.profiles where id = (select auth.uid()::uuid);
 $$;
 
 create or replace function public.is_admin()
@@ -638,77 +638,77 @@ $$;
 
 create or replace function public.can_access_request_thread(target_request_id uuid, target_user_id uuid default null)
 returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce(target_user_id, (select auth.uid())) is not null
+  select coalesce(target_user_id, (select auth.uid()::uuid)) is not null
     and exists (
       select 1 from public.traveler_requests tr
       where tr.id = target_request_id
         and (
-          tr.traveler_id = coalesce(target_user_id, (select auth.uid()))
-          or public.user_has_role(coalesce(target_user_id, (select auth.uid())), 'guide'::public.app_role)
-          or public.user_has_role(coalesce(target_user_id, (select auth.uid())), 'admin'::public.app_role)
+          tr.traveler_id = coalesce(target_user_id, (select auth.uid()::uuid))
+          or public.user_has_role(coalesce(target_user_id, (select auth.uid()::uuid)), 'guide'::public.app_role)
+          or public.user_has_role(coalesce(target_user_id, (select auth.uid()::uuid)), 'admin'::public.app_role)
         )
     );
 $$;
 
 create or replace function public.can_access_offer_thread(target_offer_id uuid, target_user_id uuid default null)
 returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce(target_user_id, (select auth.uid())) is not null
+  select coalesce(target_user_id, (select auth.uid()::uuid)) is not null
     and exists (
       select 1 from public.guide_offers go
       join public.traveler_requests tr on tr.id = go.request_id
       where go.id = target_offer_id
         and (
-          go.guide_id      = coalesce(target_user_id, (select auth.uid()))
-          or tr.traveler_id = coalesce(target_user_id, (select auth.uid()))
-          or public.user_has_role(coalesce(target_user_id, (select auth.uid())), 'admin'::public.app_role)
+          go.guide_id      = coalesce(target_user_id, (select auth.uid()::uuid))
+          or tr.traveler_id = coalesce(target_user_id, (select auth.uid()::uuid))
+          or public.user_has_role(coalesce(target_user_id, (select auth.uid()::uuid)), 'admin'::public.app_role)
         )
     );
 $$;
 
 create or replace function public.can_access_booking_thread(target_booking_id uuid, target_user_id uuid default null)
 returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce(target_user_id, (select auth.uid())) is not null
+  select coalesce(target_user_id, (select auth.uid()::uuid)) is not null
     and exists (
       select 1 from public.bookings b
       where b.id = target_booking_id
         and (
-          b.traveler_id = coalesce(target_user_id, (select auth.uid()))
-          or b.guide_id = coalesce(target_user_id, (select auth.uid()))
-          or public.user_has_role(coalesce(target_user_id, (select auth.uid())), 'admin'::public.app_role)
+          b.traveler_id = coalesce(target_user_id, (select auth.uid()::uuid))
+          or b.guide_id = coalesce(target_user_id, (select auth.uid()::uuid))
+          or public.user_has_role(coalesce(target_user_id, (select auth.uid()::uuid)), 'admin'::public.app_role)
         )
     );
 $$;
 
 create or replace function public.can_access_dispute_thread(target_dispute_id uuid, target_user_id uuid default null)
 returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce(target_user_id, (select auth.uid())) is not null
+  select coalesce(target_user_id, (select auth.uid()::uuid)) is not null
     and exists (
       select 1 from public.disputes d
       join public.bookings b on b.id = d.booking_id
       where d.id = target_dispute_id
         and (
-          d.opened_by            = coalesce(target_user_id, (select auth.uid()))
-          or d.assigned_admin_id = coalesce(target_user_id, (select auth.uid()))
-          or b.traveler_id       = coalesce(target_user_id, (select auth.uid()))
-          or b.guide_id          = coalesce(target_user_id, (select auth.uid()))
-          or public.user_has_role(coalesce(target_user_id, (select auth.uid())), 'admin'::public.app_role)
+          d.opened_by            = coalesce(target_user_id, (select auth.uid()::uuid))
+          or d.assigned_admin_id = coalesce(target_user_id, (select auth.uid()::uuid))
+          or b.traveler_id       = coalesce(target_user_id, (select auth.uid()::uuid))
+          or b.guide_id          = coalesce(target_user_id, (select auth.uid()::uuid))
+          or public.user_has_role(coalesce(target_user_id, (select auth.uid()::uuid)), 'admin'::public.app_role)
         )
     );
 $$;
 
 create or replace function public.can_access_conversation_thread(target_thread_id uuid, target_user_id uuid default null)
 returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce(target_user_id, (select auth.uid())) is not null
+  select coalesce(target_user_id, (select auth.uid()::uuid)) is not null
     and exists (
       select 1 from public.conversation_threads ct
       where ct.id = target_thread_id
         and (
-          ct.created_by = coalesce(target_user_id, (select auth.uid()))
+          ct.created_by = coalesce(target_user_id, (select auth.uid()::uuid))
           or case ct.subject_type
-            when 'request' then public.can_access_request_thread(ct.request_id, coalesce(target_user_id, (select auth.uid())))
-            when 'offer'   then public.can_access_offer_thread(ct.offer_id,     coalesce(target_user_id, (select auth.uid())))
-            when 'booking' then public.can_access_booking_thread(ct.booking_id, coalesce(target_user_id, (select auth.uid())))
-            when 'dispute' then public.can_access_dispute_thread(ct.dispute_id, coalesce(target_user_id, (select auth.uid())))
+            when 'request' then public.can_access_request_thread(ct.request_id, coalesce(target_user_id, (select auth.uid()::uuid)))
+            when 'offer'   then public.can_access_offer_thread(ct.offer_id,     coalesce(target_user_id, (select auth.uid()::uuid)))
+            when 'booking' then public.can_access_booking_thread(ct.booking_id, coalesce(target_user_id, (select auth.uid()::uuid)))
+            when 'dispute' then public.can_access_dispute_thread(ct.dispute_id, coalesce(target_user_id, (select auth.uid()::uuid)))
             else false
           end
         )
@@ -724,12 +724,12 @@ create or replace function public.can_create_conversation_thread(
   target_user_id      uuid default null
 )
 returns boolean language sql stable security definer set search_path = public as $$
-  select coalesce(target_user_id, (select auth.uid())) is not null
+  select coalesce(target_user_id, (select auth.uid()::uuid)) is not null
     and case target_subject_type
-      when 'request' then public.can_access_request_thread(target_request_id, coalesce(target_user_id, (select auth.uid())))
-      when 'offer'   then public.can_access_offer_thread(target_offer_id,     coalesce(target_user_id, (select auth.uid())))
-      when 'booking' then public.can_access_booking_thread(target_booking_id, coalesce(target_user_id, (select auth.uid())))
-      when 'dispute' then public.can_access_dispute_thread(target_dispute_id, coalesce(target_user_id, (select auth.uid())))
+      when 'request' then public.can_access_request_thread(target_request_id, coalesce(target_user_id, (select auth.uid()::uuid)))
+      when 'offer'   then public.can_access_offer_thread(target_offer_id,     coalesce(target_user_id, (select auth.uid()::uuid)))
+      when 'booking' then public.can_access_booking_thread(target_booking_id, coalesce(target_user_id, (select auth.uid()::uuid)))
+      when 'dispute' then public.can_access_dispute_thread(target_dispute_id, coalesce(target_user_id, (select auth.uid()::uuid)))
       else false
     end;
 $$;
@@ -743,101 +743,101 @@ $$;
 
 -- profiles
 create policy "profiles_select" on public.profiles for select
-  using ((select auth.uid()) = id or public.is_admin());
+  using ((select auth.uid()::uuid) = id or public.is_admin());
 create policy "profiles_insert" on public.profiles for insert
-  with check ((select auth.uid()) = id or public.is_admin());
+  with check ((select auth.uid()::uuid) = id or public.is_admin());
 create policy "profiles_update" on public.profiles for update
-  using ((select auth.uid()) = id or public.is_admin());
+  using ((select auth.uid()::uuid) = id or public.is_admin());
 
 -- guide_profiles
 create policy "guide_profiles_select" on public.guide_profiles for select
   using (
     verification_status = 'approved'::public.guide_verification_status
-    or ((select auth.uid()) is not null and (select auth.uid()) = user_id)
+    or ((select auth.uid()::uuid) is not null and (select auth.uid()::uuid) = user_id)
     or public.is_admin()
   );
 create policy "guide_profiles_insert" on public.guide_profiles for insert
-  with check (((select auth.uid()) is not null and (select auth.uid()) = user_id) or public.is_admin());
+  with check (((select auth.uid()::uuid) is not null and (select auth.uid()::uuid) = user_id) or public.is_admin());
 create policy "guide_profiles_update" on public.guide_profiles for update
-  using (((select auth.uid()) is not null and (select auth.uid()) = user_id) or public.is_admin())
-  with check (((select auth.uid()) is not null and (select auth.uid()) = user_id) or public.is_admin());
+  using (((select auth.uid()::uuid) is not null and (select auth.uid()::uuid) = user_id) or public.is_admin())
+  with check (((select auth.uid()::uuid) is not null and (select auth.uid()::uuid) = user_id) or public.is_admin());
 
 -- listings
 create policy "listings_select" on public.listings for select
-  using (status = 'published'::public.listing_status or (select auth.uid()) = guide_id or public.is_admin());
+  using (status = 'published'::public.listing_status or (select auth.uid()::uuid) = guide_id or public.is_admin());
 create policy "listings_insert" on public.listings for insert
-  with check ((select auth.uid()) = guide_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = guide_id or public.is_admin());
 create policy "listings_update" on public.listings for update
-  using ((select auth.uid()) = guide_id or public.is_admin());
+  using ((select auth.uid()::uuid) = guide_id or public.is_admin());
 
 -- traveler_requests
 create policy "traveler_requests_select" on public.traveler_requests for select
   using (
-    (select auth.uid()) = traveler_id
+    (select auth.uid()::uuid) = traveler_id
     or public.is_admin()
     or (status = 'open'::public.request_status and public.is_guide())
     or (status = 'open'::public.request_status and open_to_join = true)
   );
 create policy "traveler_requests_insert" on public.traveler_requests for insert
-  with check ((select auth.uid()) = traveler_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = traveler_id or public.is_admin());
 create policy "traveler_requests_update" on public.traveler_requests for update
-  using ((select auth.uid()) = traveler_id or public.is_admin());
+  using ((select auth.uid()::uuid) = traveler_id or public.is_admin());
 
 -- open_request_members
 create policy "open_request_members_select" on public.open_request_members for select
   using (
-    (select auth.uid()) = traveler_id
+    (select auth.uid()::uuid) = traveler_id
     or public.is_admin()
-    or exists (select 1 from public.traveler_requests tr where tr.id = request_id and tr.traveler_id = (select auth.uid()))
+    or exists (select 1 from public.traveler_requests tr where tr.id = request_id and tr.traveler_id = (select auth.uid()::uuid))
   );
 create policy "open_request_members_insert" on public.open_request_members for insert
-  with check ((select auth.uid()) = traveler_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = traveler_id or public.is_admin());
 create policy "open_request_members_update" on public.open_request_members for update
   using (
-    (select auth.uid()) = traveler_id
+    (select auth.uid()::uuid) = traveler_id
     or public.is_admin()
-    or exists (select 1 from public.traveler_requests tr where tr.id = request_id and tr.traveler_id = (select auth.uid()))
+    or exists (select 1 from public.traveler_requests tr where tr.id = request_id and tr.traveler_id = (select auth.uid()::uuid))
   );
 
 -- guide_offers
 create policy "guide_offers_select" on public.guide_offers for select
   using (
-    (select auth.uid()) = guide_id
+    (select auth.uid()::uuid) = guide_id
     or public.is_admin()
-    or exists (select 1 from public.traveler_requests tr where tr.id = request_id and tr.traveler_id = (select auth.uid()))
+    or exists (select 1 from public.traveler_requests tr where tr.id = request_id and tr.traveler_id = (select auth.uid()::uuid))
   );
 create policy "guide_offers_insert" on public.guide_offers for insert
-  with check ((select auth.uid()) = guide_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = guide_id or public.is_admin());
 create policy "guide_offers_update" on public.guide_offers for update
-  using ((select auth.uid()) = guide_id or public.is_admin());
+  using ((select auth.uid()::uuid) = guide_id or public.is_admin());
 
 -- bookings
 create policy "bookings_select" on public.bookings for select
-  using ((select auth.uid()) = traveler_id or (select auth.uid()) = guide_id or public.is_admin());
+  using ((select auth.uid()::uuid) = traveler_id or (select auth.uid()::uuid) = guide_id or public.is_admin());
 create policy "bookings_insert" on public.bookings for insert
-  with check ((select auth.uid()) = traveler_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = traveler_id or public.is_admin());
 create policy "bookings_update" on public.bookings for update
-  using ((select auth.uid()) = traveler_id or (select auth.uid()) = guide_id or public.is_admin());
+  using ((select auth.uid()::uuid) = traveler_id or (select auth.uid()::uuid) = guide_id or public.is_admin());
 
 -- reviews
 create policy "reviews_select" on public.reviews for select
-  using (status = 'published'::public.review_status or (select auth.uid()) = traveler_id or public.is_admin());
+  using (status = 'published'::public.review_status or (select auth.uid()::uuid) = traveler_id or public.is_admin());
 create policy "reviews_insert" on public.reviews for insert
   with check (
-    (select auth.uid()) = traveler_id
+    (select auth.uid()::uuid) = traveler_id
     and exists (select 1 from public.bookings b where b.id = booking_id and b.status = 'completed'::public.booking_status)
     or public.is_admin()
   );
 create policy "reviews_update" on public.reviews for update
-  using ((select auth.uid()) = traveler_id or public.is_admin());
+  using ((select auth.uid()::uuid) = traveler_id or public.is_admin());
 
 -- favorites
 create policy "favorites_owner" on public.favorites for all
-  using ((select auth.uid()) = user_id or public.is_admin());
+  using ((select auth.uid()::uuid) = user_id or public.is_admin());
 
 -- notifications
 create policy "notifications_owner" on public.notifications for all
-  using ((select auth.uid()) = user_id or public.is_admin());
+  using ((select auth.uid()::uuid) = user_id or public.is_admin());
 
 -- notification_deliveries
 create policy "notification_deliveries_admin" on public.notification_deliveries for all
@@ -846,23 +846,23 @@ create policy "notification_deliveries_admin" on public.notification_deliveries 
 -- disputes
 create policy "disputes_select" on public.disputes for select
   using (
-    (select auth.uid()) = opened_by
-    or (select auth.uid()) = assigned_admin_id
+    (select auth.uid()::uuid) = opened_by
+    or (select auth.uid()::uuid) = assigned_admin_id
     or public.is_admin()
     or exists (
       select 1 from public.bookings b
       where b.id = booking_id
-        and (b.traveler_id = (select auth.uid()) or b.guide_id = (select auth.uid()))
+        and (b.traveler_id = (select auth.uid()::uuid) or b.guide_id = (select auth.uid()::uuid))
     )
   );
 create policy "disputes_insert" on public.disputes for insert
   with check (
     (
-      (select auth.uid()) = opened_by
+      (select auth.uid()::uuid) = opened_by
       and exists (
         select 1 from public.bookings b
         where b.id = booking_id
-          and (b.traveler_id = (select auth.uid()) or b.guide_id = (select auth.uid()))
+          and (b.traveler_id = (select auth.uid()::uuid) or b.guide_id = (select auth.uid()::uuid))
       )
     )
     or public.is_admin()
@@ -880,7 +880,7 @@ create policy "dispute_notes_select" on public.dispute_notes for select
         select 1 from public.disputes d
         join public.bookings b on b.id = d.booking_id
         where d.id = dispute_id
-          and (b.traveler_id = (select auth.uid()) or b.guide_id = (select auth.uid()))
+          and (b.traveler_id = (select auth.uid()::uuid) or b.guide_id = (select auth.uid()::uuid))
       )
     )
   );
@@ -891,19 +891,19 @@ create policy "dispute_notes_update" on public.dispute_notes for update
 
 -- storage_assets
 create policy "storage_assets_select" on public.storage_assets for select
-  using ((select auth.uid()) = owner_id or public.is_admin());
+  using ((select auth.uid()::uuid) = owner_id or public.is_admin());
 create policy "storage_assets_insert" on public.storage_assets for insert
-  with check ((select auth.uid()) = owner_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = owner_id or public.is_admin());
 create policy "storage_assets_update" on public.storage_assets for update
-  using ((select auth.uid()) = owner_id or public.is_admin());
+  using ((select auth.uid()::uuid) = owner_id or public.is_admin());
 
 -- guide_documents
 create policy "guide_documents_select" on public.guide_documents for select
-  using ((select auth.uid()) = guide_id or public.is_admin());
+  using ((select auth.uid()::uuid) = guide_id or public.is_admin());
 create policy "guide_documents_insert" on public.guide_documents for insert
-  with check ((select auth.uid()) = guide_id or public.is_admin());
+  with check ((select auth.uid()::uuid) = guide_id or public.is_admin());
 create policy "guide_documents_update" on public.guide_documents for update
-  using ((select auth.uid()) = guide_id or public.is_admin());
+  using ((select auth.uid()::uuid) = guide_id or public.is_admin());
 
 -- listing_media
 create policy "listing_media_select" on public.listing_media for select
@@ -912,55 +912,55 @@ create policy "listing_media_select" on public.listing_media for select
     or exists (
       select 1 from public.listings l
       where l.id = listing_id
-        and (l.status = 'published'::public.listing_status or l.guide_id = (select auth.uid()))
+        and (l.status = 'published'::public.listing_status or l.guide_id = (select auth.uid()::uuid))
     )
   );
 create policy "listing_media_insert" on public.listing_media for insert
   with check (
     public.is_admin()
-    or exists (select 1 from public.listings l where l.id = listing_id and l.guide_id = (select auth.uid()))
+    or exists (select 1 from public.listings l where l.id = listing_id and l.guide_id = (select auth.uid()::uuid))
   );
 create policy "listing_media_update" on public.listing_media for update
   using (
     public.is_admin()
-    or exists (select 1 from public.listings l where l.id = listing_id and l.guide_id = (select auth.uid()))
+    or exists (select 1 from public.listings l where l.id = listing_id and l.guide_id = (select auth.uid()::uuid))
   );
 
 -- dispute_evidence
 create policy "dispute_evidence_select" on public.dispute_evidence for select
   using (
-    (select auth.uid()) = uploaded_by
+    (select auth.uid()::uuid) = uploaded_by
     or public.is_admin()
     or exists (
       select 1 from public.disputes d
       join public.bookings b on b.id = d.booking_id
       where d.id = dispute_id
-        and (b.traveler_id = (select auth.uid()) or b.guide_id = (select auth.uid()))
+        and (b.traveler_id = (select auth.uid()::uuid) or b.guide_id = (select auth.uid()::uuid))
     )
   );
 create policy "dispute_evidence_insert" on public.dispute_evidence for insert
   with check (
-    (select auth.uid()) = uploaded_by
+    (select auth.uid()::uuid) = uploaded_by
     and (
       public.is_admin()
       or exists (
         select 1 from public.disputes d
         join public.bookings b on b.id = d.booking_id
         where d.id = dispute_id
-          and (b.traveler_id = (select auth.uid()) or b.guide_id = (select auth.uid()))
+          and (b.traveler_id = (select auth.uid()::uuid) or b.guide_id = (select auth.uid()::uuid))
       )
     )
   );
 
 -- conversation_threads
 create policy "conversation_threads_select" on public.conversation_threads for select
-  using (public.can_access_conversation_thread(id, (select auth.uid())));
+  using (public.can_access_conversation_thread(id, (select auth.uid()::uuid)));
 create policy "conversation_threads_insert" on public.conversation_threads for insert
   with check (
     (
-      (select auth.uid()) is not null
-      and created_by = (select auth.uid())
-      and public.can_create_conversation_thread(subject_type, request_id, offer_id, booking_id, dispute_id, (select auth.uid()))
+      (select auth.uid()::uuid) is not null
+      and created_by = (select auth.uid()::uuid)
+      and public.can_create_conversation_thread(subject_type, request_id, offer_id, booking_id, dispute_id, (select auth.uid()::uuid))
     )
     or public.is_admin()
   );
@@ -969,28 +969,28 @@ create policy "conversation_threads_update" on public.conversation_threads for u
 
 -- thread_participants
 create policy "thread_participants_select" on public.thread_participants for select
-  using (public.can_access_conversation_thread(thread_id, (select auth.uid())));
+  using (public.can_access_conversation_thread(thread_id, (select auth.uid()::uuid)));
 create policy "thread_participants_insert" on public.thread_participants for insert
   with check (
     public.is_admin()
     or (
-      (select auth.uid()) is not null
-      and public.can_access_conversation_thread(thread_id, (select auth.uid()))
+      (select auth.uid()::uuid) is not null
+      and public.can_access_conversation_thread(thread_id, (select auth.uid()::uuid))
       and public.can_access_conversation_thread(thread_id, user_id)
     )
   );
 create policy "thread_participants_update" on public.thread_participants for update
-  using (((select auth.uid()) is not null and user_id = (select auth.uid())) or public.is_admin());
+  using (((select auth.uid()::uuid) is not null and user_id = (select auth.uid()::uuid)) or public.is_admin());
 
 -- messages
 create policy "messages_select" on public.messages for select
-  using (public.can_access_conversation_thread(thread_id, (select auth.uid())));
+  using (public.can_access_conversation_thread(thread_id, (select auth.uid()::uuid)));
 create policy "messages_insert" on public.messages for insert
   with check (
     (
-      (select auth.uid()) is not null
-      and public.can_access_conversation_thread(thread_id, (select auth.uid()))
-      and (sender_id is null or sender_id = (select auth.uid()))
+      (select auth.uid()::uuid) is not null
+      and public.can_access_conversation_thread(thread_id, (select auth.uid()::uuid))
+      and (sender_id is null or sender_id = (select auth.uid()::uuid))
     )
     or public.is_admin()
   );
@@ -999,7 +999,7 @@ create policy "messages_insert" on public.messages for insert
 create policy "marketplace_events_select" on public.marketplace_events for select
   using (public.is_admin());
 create policy "marketplace_events_insert" on public.marketplace_events for insert
-  with check (public.is_admin() or (select auth.uid()) is not null);
+  with check (public.is_admin() or (select auth.uid()::uuid) is not null);
 
 -- moderation_cases
 create policy "moderation_cases_admin" on public.moderation_cases for all
@@ -1035,25 +1035,25 @@ on conflict (id) do nothing;
 -- owner_id is uuid  → compare with auth.uid() (uuid = uuid, no cast needed)
 -- path folder check → split_part(name, '/', 1) returns text; auth.uid()::text is text (text = text)
 create policy "guide_media_select"        on storage.objects for select
-  using  (bucket_id = 'guide-media' and (owner_id = (select auth.uid()) or public.is_admin()));
+  using  (bucket_id = 'guide-media' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
 create policy "guide_media_insert"        on storage.objects for insert
-  with check (bucket_id = 'guide-media' and split_part(name, '/', 1) = ((select auth.uid())::text));
+  with check (bucket_id = 'guide-media' and split_part(name, '/', 1) = ((select auth.uid()::uuid)::text));
 create policy "guide_media_update"        on storage.objects for update
-  using  (bucket_id = 'guide-media' and (owner_id = (select auth.uid()) or public.is_admin()));
+  using  (bucket_id = 'guide-media' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
 
 create policy "listing_media_public_read" on storage.objects for select
   using  (bucket_id = 'listing-media');
 create policy "listing_media_insert"      on storage.objects for insert
-  with check (bucket_id = 'listing-media' and split_part(name, '/', 1) = ((select auth.uid())::text));
+  with check (bucket_id = 'listing-media' and split_part(name, '/', 1) = ((select auth.uid()::uuid)::text));
 create policy "listing_media_update"      on storage.objects for update
-  using  (bucket_id = 'listing-media' and (owner_id = (select auth.uid()) or public.is_admin()));
+  using  (bucket_id = 'listing-media' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
 
 create policy "dispute_evidence_select"   on storage.objects for select
-  using  (bucket_id = 'dispute-evidence' and (owner_id = (select auth.uid()) or public.is_admin()));
+  using  (bucket_id = 'dispute-evidence' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
 create policy "dispute_evidence_insert"   on storage.objects for insert
-  with check (bucket_id = 'dispute-evidence' and split_part(name, '/', 1) = ((select auth.uid())::text));
+  with check (bucket_id = 'dispute-evidence' and split_part(name, '/', 1) = ((select auth.uid()::uuid)::text));
 create policy "dispute_evidence_update"   on storage.objects for update
-  using  (bucket_id = 'dispute-evidence' and (owner_id = (select auth.uid()) or public.is_admin()));
+  using  (bucket_id = 'dispute-evidence' and (owner_id = (select auth.uid()::uuid) or public.is_admin()));
 
 -- ---------------------------------------------------------------------------
 -- VIEWS
