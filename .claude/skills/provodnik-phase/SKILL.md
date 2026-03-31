@@ -1,6 +1,6 @@
 ---
 name: provodnik-phase
-description: Fire the next Provodnik phase task via Codex — loads PLAN.md, picks the next unchecked item, and fires the right codex exec prompt
+description: Fire the next Provodnik phase task via Codex — loads PLAN.md, picks the next unchecked item, and fires the right codex exec prompt with superpowers injected
 ---
 
 # Provodnik Phase Runner
@@ -15,13 +15,25 @@ Identify the next unchecked [ ] item
 Read D:\dev\projects\codex-ops\state\handoffs\provodnik\handoff.md for blockers
 ```
 
-## Step 2 — Fire Codex
+## Step 2 — Pick the right superpowers skill to inject
+
+| Task type | Inject this skill |
+|---|---|
+| Bug, error, unexpected behavior | `systematic-debugging` |
+| New feature / page | `test-driven-development` |
+| Multiple independent sub-tasks | `dispatching-parallel-agents` |
+| Any task before finishing | `verification-before-completion` |
+
+## Step 3 — Fire Codex
 
 ```bash
 codex exec --dangerously-bypass-approvals-and-sandbox "
 Read D:\dev\projects\provodnik\provodnik.app\AGENTS.md first.
 Read D:\dev\projects\provodnik\DESIGN.md section 6 before touching any UI.
 Workspace: D:\dev\projects\provodnik\provodnik.app
+
+Before writing any code, read and follow the superpowers skill:
+C:\Users\x\.agents\skills\superpowers\<skill-name>\SKILL.md
 
 --- TASK ---
 <paste the full PLAN.md task text here>
@@ -41,9 +53,12 @@ Workspace: D:\dev\projects\provodnik\provodnik.app
 "
 ```
 
-## Step 3 — After Codex completes
+## Step 4 — After Codex completes
 
-1. Verify commit exists: `git log --oneline -3`
-2. Mark item as `[x]` in PLAN.md
-3. Update handoff.md Changed Recently section
-4. Report to user: commit hash + what was done
+The CODEX_DONE hook will fire automatically. When it does, invoke `/codex-result` immediately.
+Do not wait for the user to ask. /codex-result handles everything:
+- Commit verification
+- Build + typecheck
+- PLAN.md update
+- handoff.md update
+- Report to user

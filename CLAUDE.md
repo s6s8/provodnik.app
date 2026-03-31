@@ -24,6 +24,33 @@ ACCEPTANCE: bun run build passes. Do NOT push — commit only.
 "
 ```
 
+## Superpowers — Agent-Agnostic Skills
+
+`obra/superpowers` skills apply to **Claude, Codex, and Cursor** — not just one agent.
+
+**Claude invokes superpowers via the `Skill` tool** (not Read). Example:
+- Before any bug fix → invoke `systematic-debugging`
+- Before planning a feature → invoke `writing-plans`
+- Before multiple parallel tasks → invoke `dispatching-parallel-agents`
+- Before finishing work → invoke `verification-before-completion`
+
+**When delegating to Codex or Cursor**, inject the skill file path into the prompt so the agent reads it:
+```
+Before writing any code, read and follow:
+C:\Users\x\.agents\skills\superpowers\systematic-debugging\SKILL.md
+```
+
+Superpowers live in: `C:\Users\x\.agents\skills\superpowers\`
+Key skills:
+| Skill | When to use |
+|---|---|
+| `systematic-debugging` | Any bug, error, or unexpected behavior |
+| `writing-plans` | Before planning a feature or phase |
+| `dispatching-parallel-agents` | Multiple independent tasks |
+| `finishing-a-development-branch` | Branch ready to merge |
+| `verification-before-completion` | Before committing any work |
+| `test-driven-development` | Writing tests |
+
 ## Documentation — Always Fetch Fresh Docs
 
 When the task involves any of these libraries, **use Context7 MCP before writing any code**:

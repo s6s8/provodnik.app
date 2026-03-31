@@ -20,6 +20,15 @@
             "command": "echo \"$CLAUDE_TOOL_INPUT\" | python3 -c \"import json,sys,os; d=json.load(sys.stdin); f=d.get('file_path',''); ext=os.path.splitext(f)[1]; print('SQL change detected - run: bun run types') if ext=='.sql' else None\" 2>/dev/null || true"
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'codex exec'; then echo 'CODEX_DONE: Codex has finished. You MUST now invoke /codex-result — check commits, verify build, update PLAN.md and handoff.md, report result to user. Do not skip this.'; fi"
+          }
+        ]
       }
     ]
   }

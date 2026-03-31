@@ -7,6 +7,9 @@ description: Run the full verification checklist before committing any task — 
 
 Use when: Codex has finished a task, or Claude has made direct edits, before committing.
 
+> Also invoke the `verification-before-completion` superpower for deeper checks:
+> `C:\Users\x\.agents\skills\superpowers\verification-before-completion\SKILL.md`
+
 ## Checklist (run in order, stop on first failure)
 
 ### 1. Build
