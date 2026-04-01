@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 
@@ -12,18 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 type ListingFormProps = {
-  /**
-   * Pre-filled values for edit mode. Omit for create mode.
-   */
   defaultValues?: Partial<ListingInput>;
-  /**
-   * Called with validated data when the user submits.
-   * Should return the id of the saved listing.
-   */
   onSubmit: (data: ListingInput) => Promise<string>;
-  /**
-   * Label for the submit button.
-   */
   submitLabel?: string;
 };
 
@@ -50,7 +39,6 @@ export function ListingForm({
   onSubmit,
   submitLabel = "Сохранить",
 }: ListingFormProps) {
-  const router = useRouter();
   const [serverError, setServerError] = React.useState<string | null>(null);
 
   const {
@@ -76,29 +64,27 @@ export function ListingForm({
     async (data: ListingInput) => {
       setServerError(null);
       try {
-        const id = await onSubmit(data);
-        router.push(`/guide/listings/${id}`);
+        await onSubmit(data);
       } catch (err) {
         setServerError(
           err instanceof Error ? err.message : "Произошла ошибка. Попробуйте ещё раз.",
         );
       }
     },
-    [onSubmit, router],
+    [onSubmit],
   );
 
   return (
     <form onSubmit={handleSubmit(submit)} className="grid gap-5" noValidate>
-      {serverError && (
+      {serverError ? (
         <div
           role="alert"
           className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
         >
           {serverError}
         </div>
-      )}
+      ) : null}
 
-      {/* Title */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="title">Название тура</FieldLabel>
         <Input
@@ -111,7 +97,6 @@ export function ListingForm({
         <FieldError id="title-error" message={errors.title?.message} />
       </div>
 
-      {/* Destination */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="destination">Направление</FieldLabel>
         <Input
@@ -124,7 +109,6 @@ export function ListingForm({
         <FieldError id="destination-error" message={errors.destination?.message} />
       </div>
 
-      {/* Price + Group size */}
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <FieldLabel htmlFor="price_per_person">Цена за человека (₽)</FieldLabel>
@@ -155,7 +139,6 @@ export function ListingForm({
         </div>
       </div>
 
-      {/* Duration */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="duration_days">Длительность (дней)</FieldLabel>
         <Input
@@ -171,7 +154,6 @@ export function ListingForm({
         <FieldError id="duration-error" message={errors.duration_days?.message} />
       </div>
 
-      {/* Description */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="description">Описание</FieldLabel>
         <Textarea
@@ -185,7 +167,6 @@ export function ListingForm({
         <FieldError id="description-error" message={errors.description?.message} />
       </div>
 
-      {/* Included */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="included">Что включено</FieldLabel>
         <Textarea
@@ -202,7 +183,6 @@ export function ListingForm({
         <FieldError id="included-error" message={errors.included?.message} />
       </div>
 
-      {/* Excluded */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="excluded">Что не включено</FieldLabel>
         <Textarea
@@ -219,11 +199,6 @@ export function ListingForm({
         <FieldError id="excluded-error" message={errors.excluded?.message} />
       </div>
 
-      {/* Photo notice */}
-      <div className="rounded-lg border border-border/50 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-        Фото можно добавить после публикации.
-      </div>
-
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? "Сохранение..." : submitLabel}
@@ -231,7 +206,7 @@ export function ListingForm({
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.back()}
+          onClick={() => window.history.back()}
           disabled={isSubmitting}
         >
           Отмена
