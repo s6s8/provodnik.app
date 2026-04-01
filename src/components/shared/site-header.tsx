@@ -2,6 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { MessageSquare } from "lucide-react";
+
+import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 
 const navLinks = [
   { href: "/destinations", label: "Направления" },
@@ -15,6 +18,7 @@ interface SiteHeaderProps {
 
 export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
   const pathname = usePathname();
+  const { unreadCount } = useUnreadCount(isAuthenticated);
 
   return (
     <header className="site-header" role="banner">
@@ -43,6 +47,21 @@ export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
         </ul>
 
         <div className="nav-ctas">
+          {isAuthenticated ? (
+            <Link
+              href="/messages"
+              className={pathname === "/messages" || pathname.startsWith("/messages/") ? "nav-message-link active" : "nav-message-link"}
+              aria-label="Сообщения"
+            >
+              <MessageSquare className="nav-message-icon" aria-hidden="true" />
+              <span>Сообщения</span>
+              {unreadCount > 0 ? (
+                <span className="nav-message-badge" aria-live="polite">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
           {!isAuthenticated && (
             <Link href="/auth" className="btn-ghost nav-login">
               Войти

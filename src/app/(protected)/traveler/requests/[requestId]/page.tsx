@@ -15,6 +15,8 @@ import type {
   TravelerRequestRow,
 } from "@/lib/supabase/types";
 
+import { openOfferThreadAction } from "./actions";
+
 const travelerRequestSelect =
   "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
 
@@ -140,16 +142,22 @@ function OffersSection({ offers, requestId, canAccept, guideNames }: OffersSecti
                 <p className="request-offer-message">{offer.message}</p>
               ) : null}
 
-              {canAccept ? (
-                <div className="request-offer-actions">
+              <div className="request-offer-actions">
+                {canAccept ? (
                   <AcceptOfferButton
                     offerId={offer.id}
                     requestId={requestId}
                     guideId={offer.guide_id}
                     priceMinor={offer.price_minor}
                   />
-                </div>
-              ) : null}
+                ) : null}
+                <form action={openOfferThreadAction}>
+                  <input type="hidden" name="offer_id" value={offer.id} />
+                  <button type="submit" className="btn-ghost">
+                    Написать гиду
+                  </button>
+                </form>
+              </div>
             </article>
           ))}
         </div>

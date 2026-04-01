@@ -1,14 +1,20 @@
 "use server";
 
+import { z } from "zod";
 import { redirect } from "next/navigation";
 
 import { notifyBookingCreated } from "@/lib/notifications/triggers";
+import { getOrCreateThread } from "@/lib/supabase/conversations";
 import { createBooking } from "@/lib/supabase/bookings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AcceptOfferActionState = {
   error: string | null;
 };
+
+const offerThreadSchema = z.object({
+  offerId: z.string().uuid("Некорректный идентификатор предложения."),
+});
 
 /**
  * Accept a guide offer:
@@ -139,4 +145,47 @@ export async function acceptOfferAction(
   }
 
   redirect(`/traveler/bookings/${booking.id}`);
+}
+
+export async function openOfferThreadAction(formData: FormData) {
+  const parsed = offerThreadSchema.safeParse({
+    offerId: formData.get("offer_id"),
+  });
+
+  if (!parsed.success) {
+    redirect("/messages");
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/auth");
+  }
+
+  const { data: offer, error } = await supabase
+    .from("guide_offers")
+    .select("id, request_id, guide_id")
+    .eq("id", parsed.data.offerId)
+    .maybeSingle();
+
+  if (error || !offer) {
+    redirect("/messages");
+  }
+
+  const { data: request, error: requestError } = await supabase
+    .from("traveler_requests")
+    .select("traveler_id")
+    .eq("id", offer.request_id)
+    .maybeSingle();
+
+  if (requestError || !request || request.traveler_id !== user.id) {
+    redirect("/messages");
+  }
+
+  const thread = await getOrCreateThread("offer", offer.id, user.id, [offer.guide_id]);
+  redirect(`/messages/${thread.id}`);
 }

@@ -6,6 +6,8 @@ import { getBooking } from "@/lib/supabase/bookings";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+import { openBookingThreadAction } from "./actions";
+
 function formatRub(minorUnits: number) {
   const rub = Math.round(minorUnits / 100);
   return new Intl.NumberFormat("ru-RU", {
@@ -149,6 +151,12 @@ export default async function TravelerBookingDetailPage({
               ) : null}
             </div>
           </div>
+          <form action={openBookingThreadAction} className="booking-confirm-message-form">
+            <input type="hidden" name="booking_id" value={booking.id} />
+            <button type="submit" className="btn-primary">
+              Написать гиду
+            </button>
+          </form>
         </div>
 
         {/* Muted note */}
