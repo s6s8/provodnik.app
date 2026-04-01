@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getRequestById, type RequestRecord } from "@/data/supabase/queries";
@@ -8,10 +9,27 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember, getRequestMembers } from "@/lib/supabase/request-members";
 import { hasSupabaseEnv } from "@/lib/env";
 
-export const metadata: Metadata = {
-  title: "Детали запроса",
-  description: "Подробности открытой группы путешественников.",
-};
+const getRequestDetail = cache(async (requestId: string) =>
+  getRequestById(null as any, requestId),
+);
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ requestId: string }>;
+}): Promise<Metadata> {
+  const { requestId } = await params;
+  const result = await getRequestDetail(requestId);
+
+  if (!result.data) {
+    return { title: "Запрос не найден" };
+  }
+
+  return {
+    title: `${result.data.destination} — ${result.data.dateLabel}`,
+    description: result.data.description || "Подробности открытой группы путешественников.",
+  };
+}
 
 function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
   return {
@@ -42,13 +60,12 @@ export default async function RequestDetailPage({
   params: Promise<{ requestId: string }>;
 }) {
   const { requestId } = await params;
-  const result = await getRequestById(null as any, requestId);
+  const result = await getRequestDetail(requestId);
 
   if (!result.data) notFound();
 
   const request = mapToOpenRequestRecord(result.data);
 
-  // Auth context — degrade gracefully if Supabase env is not configured
   let currentUserId: string | null = null;
   let isMember = false;
   let ownerId: string | null = null;
@@ -58,7 +75,6 @@ export default async function RequestDetailPage({
     try {
       const supabase = await createSupabaseServerClient();
 
-      // Fetch owner id and auth user in parallel
       const [userResult, ownerResult, memberResult] = await Promise.all([
         supabase.auth.getUser(),
         supabase
@@ -83,11 +99,6 @@ export default async function RequestDetailPage({
 
   const isOwner = ownerId !== null && currentUserId === ownerId;
 
-  // Join button visible when:
-  // - request is open
-  // - user is authenticated
-  // - user is not the owner/creator
-  // - user is not already a member
   const showJoinButton =
     request.status === "open" &&
     currentUserId !== null &&

@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const metadata: Metadata = {
-  title: "Доверие",
-  description:
-    "Как Provodnik заботится о прозрачности цен, правилах отмены и безопасности бронирований.",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: "Доверие и безопасность",
+    description:
+      "Как Provodnik заботится о прозрачности цен, правилах отмены и безопасности бронирований.",
+  };
+}
 
 export default function TrustPage() {
   return (
@@ -124,5 +126,3 @@ export default function TrustPage() {
     </div>
   );
 }
-
-

@@ -1,9 +1,36 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import { getGuideBySlug, getListingsByGuide, getGuideReviews } from "@/data/supabase/queries";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
+
+const getGuidePageData = cache(async (slug: string) => {
+  const guideResult = await getGuideBySlug(null as any, slug);
+  if (!guideResult.data) {
+    return {
+      guideResult,
+      listingRecords: [],
+      reviewRecords: [],
+    };
+  }
+
+  const [listingsResult, reviewsResult] = await Promise.all([
+    getListingsByGuide(null as any, guideResult.data.id),
+    getGuideReviews(null as any, slug),
+  ]);
+
+  return {
+    guideResult,
+    listingRecords: listingsResult.data ?? [],
+    reviewRecords: reviewsResult.data ?? [],
+  };
+});
+
+function serializeJsonLd(jsonLd: Record<string, unknown>) {
+  return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+}
 
 export async function generateMetadata({
   params,
@@ -11,12 +38,15 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const result = await getGuideBySlug(null as any, slug);
-  if (!result.data) return { title: "Гид не найден" };
+  const { guideResult } = await getGuidePageData(slug);
+
+  if (!guideResult.data) {
+    return { title: "Гид не найден" };
+  }
 
   return {
-    title: `${result.data.fullName} | Гид Provodnik`,
-    description: result.data.bio,
+    title: guideResult.data.fullName,
+    description: guideResult.data.bio,
   };
 }
 
@@ -27,12 +57,10 @@ export default async function PublicGuideProfilePage({
 }) {
   const { slug } = await params;
 
-  const guideResult = await getGuideBySlug(null as any, slug);
+  const { guideResult, listingRecords, reviewRecords } = await getGuidePageData(slug);
   if (!guideResult.data) notFound();
 
   const g = guideResult.data;
-  const listingsResult = await getListingsByGuide(null as any, g.id);
-  const reviewsResult = await getGuideReviews(null as any, slug);
 
   const guide: PublicGuideProfile = {
     slug: g.slug,
@@ -53,7 +81,7 @@ export default async function PublicGuideProfilePage({
     },
   };
 
-  const listings = (listingsResult.data ?? []).map((l) => ({
+  const listings = listingRecords.map((l) => ({
     slug: l.slug,
     title: l.title,
     city: l.destinationName,
@@ -69,7 +97,7 @@ export default async function PublicGuideProfilePage({
     guideSlug: l.guideSlug,
   }));
 
-  const reviews = (reviewsResult.data ?? []).map((r) => ({
+  const reviews = reviewRecords.map((r) => ({
     id: r.id,
     createdAt: r.createdAt,
     author: { displayName: r.authorName },
@@ -79,5 +107,31 @@ export default async function PublicGuideProfilePage({
     body: r.body,
   }));
 
-  return <GuideProfileScreen guide={guide} listings={listings} reviews={reviews} />;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "TravelAgency",
+    name: g.fullName,
+    description: g.bio,
+    image: g.avatarUrl,
+    areaServed: g.destinations.length > 0 ? g.destinations : [g.homeBase],
+    url: `https://provodnik.app/guides/${g.slug}`,
+    aggregateRating:
+      g.reviewCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: g.rating,
+            reviewCount: g.reviewCount,
+          }
+        : undefined,
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+      <GuideProfileScreen guide={guide} listings={listings} reviews={reviews} />
+    </>
+  );
 }

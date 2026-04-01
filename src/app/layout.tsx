@@ -4,9 +4,27 @@ import { AppProviders } from "@/components/providers/app-providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Provodnik — экскурсии и туры по России",
-  description:
-    "Онлайн‑сервис бронирования экскурсий и авторских туров по России с местными гидами, понятной программой и прозрачными правилами.",
+  metadataBase: new URL("https://provodnik.app"),
+  title: {
+    default: "Provodnik — Найди своего гида",
+    template: "%s — Provodnik",
+  },
+  description: "Маркетплейс частных экскурсий и гидов по России",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "ru_RU",
+    siteName: "Provodnik",
+  },
 };
 
 export default function RootLayout({

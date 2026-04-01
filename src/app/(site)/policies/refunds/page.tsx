@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const metadata: Metadata = {
-  title: "Политика возвратов",
-  description:
-    "Как и в каких случаях Provodnik возвращает деньги за экскурсии и туры в версии MVP.",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: "Политика возвратов",
+    description:
+      "Как и в каких случаях Provodnik возвращает деньги за экскурсии и туры в версии MVP.",
+  };
+}
 
 export default function RefundPolicyPage() {
   return (
@@ -104,5 +106,3 @@ export default function RefundPolicyPage() {
     </div>
   );
 }
-
-
