@@ -1,10 +1,6 @@
-export type NotificationKind =
-  | "request_update"
-  | "new_offer"
-  | "booking_update"
-  | "message"
-  | "review_reminder"
-  | "system";
+import type { NotificationKindDb } from "@/lib/supabase/types";
+
+export type NotificationKind = NotificationKindDb;
 
 export type NotificationSeverity = "info" | "success" | "warning";
 

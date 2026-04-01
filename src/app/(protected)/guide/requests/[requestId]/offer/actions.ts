@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { notifyNewOffer } from "@/lib/notifications/triggers";
 import {
   createGuideOffer,
   hasGuideOffered,
@@ -52,7 +53,13 @@ export async function submitOfferAction(
       return { error: first?.message ?? "Ошибка валидации." };
     }
 
-    await createGuideOffer(parsed.data, guideId);
+    const offer = await createGuideOffer(parsed.data, guideId);
+
+    try {
+      await notifyNewOffer(requestId, offer.id);
+    } catch {
+      // Notification delivery must not block offer creation.
+    }
   } catch (err) {
     if (
       err instanceof Error &&

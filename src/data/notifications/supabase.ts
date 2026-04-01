@@ -1,7 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { NotificationRow, NotificationKindDb } from "@/lib/supabase/types";
 import type {
-  NotificationKind,
   NotificationRecord,
   NotificationSeverity,
 } from "@/data/notifications/types";
@@ -21,25 +20,6 @@ const NOTIFICATION_SEVERITY_BY_KIND: Record<
   admin_alert: "warning",
 };
 
-function mapKind(kind: NotificationKindDb): NotificationKind {
-  switch (kind) {
-    case "new_offer":
-      return "new_offer";
-    case "booking_created":
-    case "booking_confirmed":
-    case "booking_cancelled":
-    case "booking_completed":
-      return "booking_update";
-    case "dispute_opened":
-      return "system";
-    case "review_requested":
-      return "review_reminder";
-    case "offer_expiring":
-    case "admin_alert":
-      return "system";
-  }
-}
-
 function mapRow(row: NotificationRow): NotificationRecord {
   const kindDb = row.kind;
   const severity = NOTIFICATION_SEVERITY_BY_KIND[kindDb] ?? "info";
@@ -47,7 +27,7 @@ function mapRow(row: NotificationRow): NotificationRecord {
   return {
     id: row.id,
     userId: row.user_id,
-    kind: mapKind(kindDb),
+    kind: kindDb,
     severity,
     createdAt: row.created_at,
     readAt: row.is_read ? row.created_at : null,

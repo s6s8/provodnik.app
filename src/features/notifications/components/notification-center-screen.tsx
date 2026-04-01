@@ -9,19 +9,19 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { NotificationRecord, NotificationSeverity } from "@/data/notifications/types";
-import type { DemoRole } from "@/lib/demo-session";
-import { readDemoSessionFromDocument } from "@/lib/demo-session";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 type FeedFilter = "all" | "unread";
 
 function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
+  const kind = (row.kind as NotificationRecord["kind"]) ?? "admin_alert";
+
   return {
     id: row.id as string,
     userId: row.user_id as string,
-    kind: (row.kind as NotificationRecord["kind"]) ?? "system",
-    severity: "info" as NotificationSeverity,
+    kind,
+    severity: getSeverityForKind(kind),
     createdAt: row.created_at as string,
     readAt: row.is_read ? (row.created_at as string) : null,
     title: row.title as string,
@@ -32,14 +32,9 @@ function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
 }
 
 export function NotificationCenterScreen() {
-  const [role, setRole] = React.useState<DemoRole | null>(null);
   const [filter, setFilter] = React.useState<FeedFilter>("all");
   const [notifications, setNotifications] = React.useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
-
-  React.useEffect(() => {
-    setRole(readDemoSessionFromDocument()?.role ?? "traveler");
-  }, []);
 
   React.useEffect(() => {
     let ignore = false;
@@ -63,7 +58,7 @@ export function NotificationCenterScreen() {
 
     void load();
     return () => { ignore = true; };
-  }, [role]);
+  }, []);
 
   const markRead = React.useCallback(
     async (notificationId: string) => {
@@ -301,20 +296,41 @@ function labelSeverity(severity: NotificationSeverity) {
 
 function labelKind(kind: NotificationRecord["kind"]) {
   switch (kind) {
-    case "request_update":
-      return "Заявка";
     case "new_offer":
       return "Предложение";
-    case "booking_update":
-      return "Бронирование";
-    case "message":
-      return "Сообщение";
-    case "review_reminder":
+    case "offer_expiring":
+      return "Срок предложения";
+    case "booking_created":
+      return "Новое бронирование";
+    case "booking_confirmed":
+      return "Подтверждение";
+    case "booking_cancelled":
+      return "Отмена";
+    case "booking_completed":
+      return "Завершение";
+    case "dispute_opened":
+      return "Спор";
+    case "review_requested":
       return "Отзыв";
-    case "system":
-      return "Система";
+    case "admin_alert":
+      return "Админ";
     default:
-      return "Обновление";
+      return "Заявка";
+  }
+}
+
+function getSeverityForKind(kind: NotificationRecord["kind"]): NotificationSeverity {
+  switch (kind) {
+    case "booking_confirmed":
+    case "booking_completed":
+      return "success";
+    case "offer_expiring":
+    case "booking_cancelled":
+    case "dispute_opened":
+    case "admin_alert":
+      return "warning";
+    default:
+      return "info";
   }
 }
 
