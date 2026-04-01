@@ -73,9 +73,9 @@ A live, request-first tour marketplace for Russia's initial launch region where:
 > Real users must be able to sign up, log in, and have correct data access.
 
 - [x] **1.1** Wire Supabase Auth end-to-end: email magic link signup/login flow — deferred to final stage; seed accounts login working via Supabase Auth
-- [ ] **1.2** Add `middleware.ts` protecting all `/traveler/*`, `/guide/*`, `/admin/*` routes — redirect to `/auth` if unauthenticated
-- [ ] **1.3** Role-based route guards: traveler can't access `/guide/*`, guide can't access `/admin/*`
-- [ ] **1.4** Profile creation on first login: auto-create `profiles` row with chosen role
+- [x] **1.2** Add `middleware.ts` protecting all `/traveler/*`, `/guide/*`, `/admin/*` routes — migrated to `proxy.ts` (Next.js 16), JWT claims, commits `154466a`, `d4c34ce`
+- [x] **1.3** Role-based route guards: additive hierarchy (admin > guide > traveler), `roleHasAccess()` in `role-routing.ts` — commit `d4c34ce`
+- [x] **1.4** Profile creation on first login: `?role=` URL param pre-selects role on sign-up form — commit `30dee5d`
 - [x] **1.5** Guide onboarding flow: save `guide_profiles` to Supabase (not just UI), enforce required fields — commit `5dbf4ff`
 - [x] **1.6** Row-Level Security (RLS) audit: verify every table has correct RLS policies — migration `20260331130000_phase1_rls_audit.sql`, commit `5dbf4ff`
 - [x] **1.7** Add proper error boundaries: per-route error.tsx and not-found.tsx pages — commit `5dbf4ff`
