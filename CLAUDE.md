@@ -83,19 +83,21 @@ Never guess API signatures. Context7 takes 10 seconds. Hallucinated APIs waste h
 
 ## Current Phase
 
-**Phase 1 — Auth & Data Integrity** (next to implement)
+**Phase 7 — Launch Prep** (in progress as of 2026-04-01)
 Plan: `D:\dev\projects\provodnik\PLAN.md`
 Handoff: `D:\dev\projects\codex-ops\state\handoffs\provodnik\handoff.md`
 
-Key Phase 1 tasks:
-- 1.1 Supabase Auth end-to-end (email magic link) — uses `@supabase/ssr` already installed
-- 1.2 `middleware.ts` protecting `/traveler/*`, `/guide/*`, `/admin/*`
-- 1.3 Role-based route guards
-- 1.4 Profile creation on first login
-- 1.5 Guide onboarding → persists to Supabase
-- 1.6 RLS audit on all tables
-- 1.7 error.tsx + not-found.tsx per route
-- 1.8 loading.tsx skeletons
+Phases 0–6 are fully complete. Remaining Phase 7 items:
+- [ ] 7.4 Onboard 3–5 real guides in launch region
+- [ ] 7.5 Create 5–10 seed requests
+- [ ] 7.6 Domain/DNS — provodnik.app → production
+- [ ] 7.7 SSL + CSP headers (security headers done; needs real domain)
+- [ ] 7.8 Supabase daily backups enabled
+- [ ] 7.10 Soft launch to closed group
+
+Pending manual infra:
+- `supabase db push` — 3 new migrations (messaging RLS, notifications RLS, storage buckets)
+- Vercel env vars: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
 
 ## Key Commands
 

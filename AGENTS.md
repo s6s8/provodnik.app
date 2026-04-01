@@ -11,12 +11,21 @@
 - Main repo branch: `main`
 
 ## Current state
-- Phase 0 (visual polish) — COMPLETE as of 2026-03-30. Commits: 5bb5dca, 1843be8, 0c98d11, 8826655, 95d5b33.
-- Phase 1 (Auth & Data Integrity) — NEXT. See `D:\dev\projects\provodnik\PLAN.md` for full task list.
-- Public pages fully built and styled per DESIGN.md.
-- Supabase schema: 6 migrations applied. Tables: profiles, listings, requests, offers, bookings, reviews, notifications, disputes, conversations.
-- Auth: demo mode only — real Supabase Auth not yet wired end-to-end.
-- No middleware.ts yet — routes are unprotected.
+- Phase 0 (visual polish) — COMPLETE 2026-03-30
+- Phase 1 (auth & data integrity) — COMPLETE 2026-03-31
+- Phase 2 (core marketplace loop) — COMPLETE 2026-04-01. HEAD: `e94760a`
+- Phase 3 (messaging + notifications) — COMPLETE 2026-04-01
+- Phase 4 (trust + moderation) — COMPLETE 2026-04-01
+- Phase 5 (SEO + content) — COMPLETE 2026-04-01
+- Phase 6 (quality + devops) — COMPLETE 2026-04-01. HEAD: `c437207`
+- Phase 7 (launch prep) — IN PROGRESS. Items 7.1–7.3, 7.9 done. Remaining: DNS, backups, guide onboarding, soft launch.
+
+Key facts:
+- Auth: Supabase Auth wired end-to-end. JWT role claims via custom_access_token_hook. proxy.ts protects all routes.
+- 10 migrations applied to production. 3 new ones (messaging RLS, notifications RLS, storage buckets) need `supabase db push`.
+- Storage: 4 buckets (guide-avatars, guide-documents, listing-media, dispute-evidence).
+- Rate limiting: Upstash Redis — degrades gracefully if env vars not set.
+- CI: GitHub Actions on every push (typecheck + lint + build).
 
 ## Stack
 - `Next.js 16` App Router
