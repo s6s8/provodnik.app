@@ -179,15 +179,15 @@ A live, request-first tour marketplace for Russia's initial launch region where:
 ### Phase 7 — Launch Prep (3 days)
 > Final checklist before real users arrive.
 
-- [ ] **7.1** Legal: terms of service, privacy policy pages (not just placeholders)
-- [ ] **7.2** Cancellation policy finalized with real terms
-- [ ] **7.3** Support channel: email or Telegram link in footer and error pages
+- [x] **7.1** Legal: terms of service, privacy policy pages (not just placeholders) — `dbe8693`
+- [x] **7.2** Cancellation policy finalized with real terms — `dbe8693`
+- [x] **7.3** Support channel: email or Telegram link in footer and error pages — `dbe8693`
 - [ ] **7.4** Onboard 3-5 real guides in launch region with completed profiles
 - [ ] **7.5** Create 5-10 seed requests to demonstrate marketplace activity
 - [ ] **7.6** Domain and DNS: provodnik.app pointed to production
 - [ ] **7.7** SSL, CSP headers, security headers configured
 - [ ] **7.8** Backup strategy: Supabase daily backups enabled
-- [ ] **7.9** Runbook: how to handle common ops tasks (ban user, resolve dispute, remove listing)
+- [x] **7.9** Runbook: how to handle common ops tasks (ban user, resolve dispute, remove listing) — `797de88`
 - [ ] **7.10** Soft launch to closed group, collect feedback, fix critical bugs
 
 **Exit criteria:** Real guides are on the platform. Real requests can be created and confirmed. Support exists.
