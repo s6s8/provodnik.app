@@ -1,6 +1,22 @@
 import Link from "next/link";
 
 import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { joinRequestAction } from "@/app/(site)/requests/[requestId]/actions";
+
+function JoinGroupForm({ requestId }: { requestId: string }) {
+  const action = joinRequestAction.bind(null, requestId);
+  return (
+    <form action={action}>
+      <button
+        type="submit"
+        className="btn-primary"
+        style={{ width: "100%", justifyContent: "center" }}
+      >
+        Присоединиться к группе
+      </button>
+    </form>
+  );
+}
 
 type GuideOffer = {
   id: string;
@@ -11,10 +27,13 @@ type GuideOffer = {
   href?: string;
 };
 
-
 interface Props {
   request: OpenRequestRecord;
   offers?: GuideOffer[] | null;
+  currentUserId?: string | null;
+  isMember?: boolean;
+  showJoinButton?: boolean;
+  memberCount?: number;
 }
 
 function formatPrice(rub?: number): string {
@@ -22,12 +41,69 @@ function formatPrice(rub?: number): string {
   return `${new Intl.NumberFormat("ru-RU").format(rub)} ₽ / чел`;
 }
 
-export function PublicRequestDetailScreen({ request, offers }: Props) {
+/**
+ * Build up to 5 evenly distributed data points between groupSizeMin and
+ * groupSizeMax, given a fixed total budget in rubles.
+ */
+function buildPriceScenarios(
+  budgetRub: number,
+  groupSizeMin: number,
+  groupSizeMax: number,
+): Array<{ size: number; pricePerPerson: number }> {
+  if (budgetRub <= 0 || groupSizeMin < 1 || groupSizeMax < groupSizeMin) {
+    return [];
+  }
+
+  const range = groupSizeMax - groupSizeMin;
+
+  if (range === 0) {
+    // Single scenario
+    return [{ size: groupSizeMin, pricePerPerson: Math.round(budgetRub / groupSizeMin) }];
+  }
+
+  // Pick up to 5 evenly-spaced points — always include min and max
+  const maxPoints = 5;
+  const points: number[] = [];
+
+  if (range + 1 <= maxPoints) {
+    // Include every integer
+    for (let s = groupSizeMin; s <= groupSizeMax; s++) {
+      points.push(s);
+    }
+  } else {
+    // Evenly space maxPoints across [min, max]
+    for (let i = 0; i < maxPoints; i++) {
+      const fraction = i / (maxPoints - 1);
+      const size = Math.round(groupSizeMin + fraction * range);
+      if (!points.includes(size)) points.push(size);
+    }
+  }
+
+  return points.map((size) => ({
+    size,
+    pricePerPerson: Math.round(budgetRub / size),
+  }));
+}
+
+function formatRub(rub: number): string {
+  return `${new Intl.NumberFormat("ru-RU").format(rub)} ₽`;
+}
+
+export function PublicRequestDetailScreen({
+  request,
+  offers,
+  currentUserId,
+  isMember = false,
+  showJoinButton = false,
+  memberCount,
+}: Props) {
   const fillPct = Math.min(
     100,
     Math.round((request.group.sizeCurrent / request.group.sizeTarget) * 100),
   );
   const members = request.members ?? [];
+  const visibleMembers = members.slice(0, 5);
+  const overflowCount = members.length - visibleMembers.length;
   const heroImage =
     request.imageUrl ??
     "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80";
@@ -39,6 +115,29 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
   const title = request.highlights[0] ?? request.destinationLabel;
   const description = request.highlights[1] ?? "";
   const aboutText = request.highlights.slice(2).join(" ") || request.highlights.join(" ");
+
+  // Price scenarios: use budgetPerPersonRub * sizeTarget as total budget proxy
+  const totalBudget =
+    request.budgetPerPersonRub && request.group.sizeTarget
+      ? request.budgetPerPersonRub * request.group.sizeTarget
+      : 0;
+
+  const priceScenarios = totalBudget > 0
+    ? buildPriceScenarios(totalBudget, 1, request.group.sizeTarget)
+    : [];
+
+  // Current active size for highlighting
+  const activeMemberCount = memberCount ?? request.group.sizeCurrent;
+
+  // Find the highlighted column — closest to current member count
+  const highlightedSize = priceScenarios.length > 0
+    ? priceScenarios.reduce((prev, curr) =>
+        Math.abs(curr.size - activeMemberCount) <
+        Math.abs(prev.size - activeMemberCount)
+          ? curr
+          : prev,
+      ).size
+    : null;
 
   return (
     <main>
@@ -129,42 +228,43 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
                   <h2 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--on-surface)" }}>
                     Участники группы
                   </h2>
-                  <div style={{ display: "flex", alignItems: "center" }}>
-                    <div style={{ display: "flex" }}>
-                      {members.map((m, i) => (
-                        <span
-                          key={m.id}
-                          className="avatar"
-                          title={m.displayName}
-                          style={{
-                            width: "28px",
-                            height: "28px",
-                            borderRadius: "50%",
-                            background: "var(--surface-low)",
-                            border: "2px solid var(--surface-lowest)",
-                            marginLeft: i === 0 ? 0 : "-6px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: "0.5625rem",
-                            fontWeight: 600,
-                            color: "var(--on-surface)",
-                            overflow: "hidden",
-                          }}
-                        >
-                          {m.avatarUrl ? (
-                            <img src={m.avatarUrl} alt={m.displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                          ) : (
-                            m.initials
-                          )}
-                        </span>
-                      ))}
-                    </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    {/* Avatar stack */}
+                    {visibleMembers.length > 0 && (
+                      <div className="avatars">
+                        {visibleMembers.map((m, i) => (
+                          <span
+                            key={m.id}
+                            className="avatar member-avatar"
+                            title={m.displayName}
+                            style={{ marginLeft: i === 0 ? 0 : undefined }}
+                          >
+                            {m.avatarUrl ? (
+                              <img
+                                src={m.avatarUrl}
+                                alt={m.displayName}
+                                className="member-avatar-image"
+                              />
+                            ) : (
+                              m.initials
+                            )}
+                          </span>
+                        ))}
+                        {overflowCount > 0 && (
+                          <span
+                            className="avatar member-avatar"
+                            title={`Ещё ${overflowCount} участник(а)`}
+                            style={{ marginLeft: undefined }}
+                          >
+                            +{overflowCount}
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <span
                       style={{
                         fontSize: "0.875rem",
                         color: "var(--on-surface-muted)",
-                        marginLeft: "12px",
                       }}
                     >
                       {request.group.sizeCurrent} из {request.group.sizeTarget} мест занято
@@ -271,6 +371,24 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
                 </dl>
               </article>
 
+              {/* Price scenarios */}
+              {priceScenarios.length > 0 && (
+                <div className="price-scenarios" style={{ marginBottom: "24px" }}>
+                  <p className="price-scenarios-label">Стоимость на человека</p>
+                  <div className="price-scenarios-row">
+                    {priceScenarios.map(({ size, pricePerPerson }) => (
+                      <div
+                        key={size}
+                        className={`price-scenarios-cell${highlightedSize === size ? " highlighted" : ""}`}
+                      >
+                        <div className="price-scenarios-size">{size} чел.</div>
+                        <div className="price-scenarios-price">{formatRub(pricePerPerson)}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* О маршруте */}
               <section style={{ paddingTop: "24px" }}>
                 <h2
@@ -328,7 +446,7 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
             </div>
 
             {/* Right column — sticky offer card */}
-            <aside>
+            <aside className="route-feedback-aside">
               <div
                 style={{
                   position: "sticky",
@@ -361,13 +479,22 @@ export function PublicRequestDetailScreen({ request, offers }: Props) {
                   на человека при заполнении группы
                 </p>
 
-                <Link
-                  href={`/requests/${request.id}/join`}
-                  className="btn-primary"
-                  style={{ width: "100%", justifyContent: "center" }}
-                >
-                  Присоединиться к группе
-                </Link>
+                {/* Join / Member state */}
+                {isMember ? (
+                  <span className="member-chip" style={{ display: "flex", justifyContent: "center" }}>
+                    Вы участник ✓
+                  </span>
+                ) : showJoinButton ? (
+                  <JoinGroupForm requestId={request.id} />
+                ) : !currentUserId ? (
+                  <Link
+                    href={`/auth/login?next=/requests/${request.id}`}
+                    className="btn-primary"
+                    style={{ width: "100%", justifyContent: "center" }}
+                  >
+                    Войти и присоединиться
+                  </Link>
+                ) : null}
 
                 {/* Divider */}
                 <div
