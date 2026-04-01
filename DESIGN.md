@@ -165,7 +165,7 @@ Every section's content goes inside a `.container`. The container never has back
 Sections alternate between `--surface` and `--surface-low`. This creates visual separation without any divider lines.
 
 ```
-hero          → no background (full photo)
+hero          → no background (full-bleed photo from top:0, nav glass floats above)
 gateway       → --surface-low
 destinations  → --surface
 how it works  → --surface-low
@@ -190,7 +190,7 @@ Reduce to `56px` on mobile (`max-width: 767px`).
 | 3-equal | `grid-template-columns: repeat(3, 1fr)` | Request cards, trust strip, footer |
 | Featured + 2×2 | `grid-template-columns: 1.35fr 1fr 1fr` + `grid-template-rows: Xpx Xpx` | Destinations |
 | Flex steps with connectors | `display: flex` + `.connector` dividers | How it works |
-| Role toggle + panel swap | `display: none / block` via JS | Gateway |
+| Tab bar + panel swap | `role="tablist"` React state | Gateway |
 
 ---
 
@@ -329,28 +329,48 @@ Fixed pill nav. Glass surface. Three center links only. Two CTAs on the right.
 Active state: `color: var(--primary)` + 4px dot below via `::after` pseudo-element.
 Mobile: hide center links, hide ghost CTA, keep logo + primary CTA.
 
-### 6.7 Role Toggle
+**Nav / hero relationship — DECIDED:**
+The nav is `position: fixed` and floats above the page as a glass pill. Hero sections are **full-bleed from `top: 0`** — the photo runs behind the nav. The layout wrapper adds `padding-top: var(--nav-h)` (88px) to push non-hero pages below the nav. Hero pages cancel this with `.hero-bleed { margin-top: calc(-1 * var(--nav-h)) }` to reclaim the full viewport. Hero content (title, kicker) must have its own `padding-top` of at least `calc(var(--nav-h) + 48px)` so text starts clearly below the glass nav.
 
-Pattern for any either/or content switch:
+```css
+:root {
+  --nav-h: 88px; /* single source of truth — matches site-header height */
+}
 
-```html
-<div class="role-toggle" role="tablist">
-  <button class="role-btn active" role="tab" aria-selected="true" data-panel="option-a">Label A</button>
-  <button class="role-btn" role="tab" aria-selected="false" data-panel="option-b">Label B</button>
-</div>
+.hero-bleed {
+  margin-top: calc(-1 * var(--nav-h));
+}
+
+/* Inner content must clear the nav */
+.photo-hero-content {
+  padding-top: calc(var(--nav-h) + 48px);
+}
 ```
 
-```js
-roleBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.panel;
-    roleBtns.forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
-    rolePanels.forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    btn.setAttribute('aria-selected','true');
-    document.getElementById('panel-' + target).classList.add('active');
-  });
-});
+All pages with photo heroes use `.hero-bleed` + `.photo-hero` on the `<section>`, and `.photo-hero-content` on the inner container. No inline `style` padding overrides.
+
+### 6.7 Gateway Tab Bar
+
+The homepage gateway uses a **tab bar** pattern — not two side-by-side boxes. This is the decided, final pattern.
+
+Two tabs: **"Я путешественник"** | **"Я гид"**
+
+Each tab reveals a glass panel with 3 request cards + a CTA below. One panel visible at a time.
+
+```tsx
+const [activeTab, setActiveTab] = useState<"traveler" | "guide">("traveler");
+
+<div role="tablist" className="gateway-tabs">
+  <button role="tab" aria-selected={isTraveler} aria-controls="panel-traveler">Я путешественник</button>
+  <button role="tab" aria-selected={!isTraveler} aria-controls="panel-guide">Я гид</button>
+</div>
+
+<div role="tabpanel" id="panel-traveler" hidden={!isTraveler} className="glass-panel gateway-panel">
+  {/* 3 request cards + Создать запрос CTA */}
+</div>
+<div role="tabpanel" id="panel-guide" hidden={isTraveler} className="glass-panel gateway-panel">
+  {/* 3 request cards + Предложить цену CTA */}
+</div>
 ```
 
 Always use `role="tablist"` / `role="tab"` / `role="tabpanel"` + `aria-selected` for accessibility.

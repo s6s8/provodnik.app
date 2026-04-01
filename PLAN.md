@@ -85,17 +85,26 @@ A live, request-first tour marketplace for Russia's initial launch region where:
 
 ---
 
-### Phase 2 — Core Marketplace Loop (2 weeks)
+### Phase 2 — Core Marketplace Loop ✅ COMPLETE (2026-04-01)
 > The agreement path. Traveler and guide connect, negotiate, and confirm — no payments required.
+> Delivered via 7 parallel Codex agents across 3 waves. Final `main` HEAD: `e94760a`.
 
-- [ ] **2.1** Traveler creates request → persists to Supabase `traveler_requests`
-- [ ] **2.2** Guide sees request in inbox → sends structured offer → persists to `guide_offers`
-- [ ] **2.3** Traveler views offers on request detail → accepts one → creates `bookings` row
-- [ ] **2.4** Group joining: other travelers join open request → `open_request_members` updates → price recalculates
-- [ ] **2.5** Booking lifecycle: pending → confirmed → completed/cancelled/disputed with proper state machine
-- [ ] **2.6** Price scenario display on request detail (Stakeholder Change 5): show per-person cost at different group sizes
-- [ ] **2.7** Booking confirmation page with price range acknowledgment
-- [ ] **2.8** Guide listing CRUD: create, edit, pause, publish listings with validation
+- [x] **2.1** Traveler creates request → persists to Supabase `traveler_requests` — `a8add61`
+- [x] **2.2** Guide sees request in inbox → sends structured offer → persists to `guide_offers` — `def1357`
+- [x] **2.3** Traveler views offers on request detail → accepts one → creates `bookings` row — `041124c`
+- [x] **2.4** Group joining: other travelers join open request → `open_request_members` updates → price recalculates — `c54a362`
+- [x] **2.5** Booking lifecycle: pending → confirmed → completed/cancelled/disputed with proper state machine — `65a4c00`
+- [x] **2.6** Price scenario display on request detail (Stakeholder Change 5): show per-person cost at different group sizes — `c54a362`
+- [x] **2.7** Booking confirmation page with price range acknowledgment — `041124c`
+- [x] **2.8** Guide listing CRUD: create, edit, pause, publish listings with validation — `f536d62`
+- [x] **FEAT-001** Hide "Войти" nav link for authenticated users — `b3a28ac`
+
+**Schema notes (discovered during Phase 2):**
+- `bookings.subtotal_minor` not `total_price` (prices in minor units)
+- `guide_profiles.verification_status === 'approved'` not `is_verified`
+- No telegram field in DB; phone lives on `profiles` not `guide_profiles`
+- Listing soft-delete maps to `status='rejected'` (no `deleted_at` column)
+- Publish goes to `status='published'`; admin review via `moderation_cases` table
 
 **Exit criteria:** Full loop works: request → offer → accept → booking confirmed. Guide and traveler see each other's contact info to settle payment offline. Group size changes reflect in pricing.
 
