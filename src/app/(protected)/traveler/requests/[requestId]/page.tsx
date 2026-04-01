@@ -5,9 +5,12 @@ import type {
   TravelerRequestRecord,
   TravelerRequestStatus,
 } from "@/data/traveler-request/types";
+import { AcceptOfferButton } from "@/features/traveler/components/requests/accept-offer-button";
 import { TravelerRequestDetailScreen } from "@/features/traveler/components/requests/traveler-request-detail-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getOffersForRequest } from "@/lib/supabase/offers";
 import type {
+  GuideOfferRow,
   RequestStatus,
   TravelerRequestRow,
 } from "@/lib/supabase/types";
@@ -72,6 +75,89 @@ function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
   };
 }
 
+function formatRub(minorUnits: number) {
+  const rub = Math.round(minorUnits / 100);
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 0,
+  }).format(rub);
+}
+
+function formatDate(iso: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+}
+
+interface OffersSectionProps {
+  offers: GuideOfferRow[];
+  requestId: string;
+  canAccept: boolean;
+  guideNames: Record<string, string | null>;
+}
+
+function OffersSection({ offers, requestId, canAccept, guideNames }: OffersSectionProps) {
+  const pendingOffers = offers.filter((o) => o.status === "pending");
+
+  return (
+    <section className="request-offers-section">
+      <div className="request-offers-header">
+        <h2 className="request-offers-title">Предложения гидов</h2>
+        <span className="request-offers-count">{pendingOffers.length}</span>
+      </div>
+
+      {pendingOffers.length === 0 ? (
+        <div className="glass-card request-offers-empty">
+          <p className="request-offers-empty-text">
+            Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
+          </p>
+        </div>
+      ) : (
+        <div className="request-offers-list">
+          {pendingOffers.map((offer) => (
+            <article key={offer.id} className="glass-card request-offer-card">
+              <div className="request-offer-guide">
+                <div className="request-offer-avatar">
+                  {(guideNames[offer.guide_id] ?? "Г").charAt(0).toUpperCase()}
+                </div>
+                <div className="request-offer-guide-info">
+                  <p className="request-offer-guide-name">
+                    {guideNames[offer.guide_id] ?? "Гид"}
+                  </p>
+                  {offer.expires_at ? (
+                    <p className="request-offer-valid-until">
+                      До {formatDate(offer.expires_at)}
+                    </p>
+                  ) : null}
+                </div>
+                <p className="request-offer-price">{formatRub(offer.price_minor)}</p>
+              </div>
+
+              {offer.message ? (
+                <p className="request-offer-message">{offer.message}</p>
+              ) : null}
+
+              {canAccept ? (
+                <div className="request-offer-actions">
+                  <AcceptOfferButton
+                    offerId={offer.id}
+                    requestId={requestId}
+                    guideId={offer.guide_id}
+                    priceMinor={offer.price_minor}
+                  />
+                </div>
+              ) : null}
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export default async function TravelerRequestDetailPage({
   params,
 }: {
@@ -101,10 +187,47 @@ export default async function TravelerRequestDetailPage({
 
     if (!data) notFound();
 
+    const requestRow = data as TravelerRequestRow;
+    const isOwner = requestRow.traveler_id === user.id;
+    const isOpen = requestRow.status === "open";
+    const canAccept = isOwner && isOpen;
+
+    // Fetch offers in parallel
+    let offers: GuideOfferRow[] = [];
+    let guideNames: Record<string, string | null> = {};
+
+    try {
+      offers = await getOffersForRequest(requestId);
+
+      if (offers.length > 0) {
+        const guideIds = [...new Set(offers.map((o) => o.guide_id))];
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id, full_name")
+          .in("id", guideIds);
+
+        if (profiles) {
+          for (const p of profiles) {
+            guideNames[p.id] = p.full_name;
+          }
+        }
+      }
+    } catch {
+      // Non-fatal — render page without offers
+    }
+
     return (
-      <TravelerRequestDetailScreen
-        record={mapTravelerRequestRow(data as TravelerRequestRow)}
-      />
+      <div className="request-detail-root">
+        <TravelerRequestDetailScreen
+          record={mapTravelerRequestRow(requestRow)}
+        />
+        <OffersSection
+          offers={offers}
+          requestId={requestId}
+          canAccept={canAccept}
+          guideNames={guideNames}
+        />
+      </div>
     );
   } catch {
     notFound();
