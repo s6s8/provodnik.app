@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import {
   getDestinationBySlug,
@@ -9,10 +10,39 @@ import {
 import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
 import type { DestinationSummary } from "@/data/destinations/types";
 
-export const metadata: Metadata = {
-  title: "Направление",
-  description: "Откройте город: экскурсии, группы путешественников и локальные гиды.",
-};
+const getDestinationPageData = cache(async (slug: string) => {
+  const [destinationResult, listingsResult] = await Promise.all([
+    getDestinationBySlug(null as any, slug),
+    getListingsByDestination(null as any, slug),
+  ]);
+
+  return {
+    destinationResult,
+    listings: listingsResult.data ?? [],
+  };
+});
+
+function serializeJsonLd(jsonLd: Record<string, unknown>) {
+  return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const { destinationResult } = await getDestinationPageData(slug);
+
+  if (!destinationResult.data) {
+    return { title: "Направление не найдено" };
+  }
+
+  return {
+    title: destinationResult.data.name,
+    description: destinationResult.data.description,
+  };
+}
 
 export default async function DestinationDetailPage({
   params,
@@ -21,8 +51,7 @@ export default async function DestinationDetailPage({
 }) {
   const { slug } = await params;
 
-  const destinationResult = await getDestinationBySlug(null as any, slug);
-  const listingsResult = await getListingsByDestination(null as any, slug);
+  const { destinationResult, listings } = await getDestinationPageData(slug);
 
   if (!destinationResult.data) notFound();
 
@@ -37,12 +66,31 @@ export default async function DestinationDetailPage({
     openRequestCount: d.guidesCount,
   };
 
-  const listings: ListingRecord[] = listingsResult.data ?? [];
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Place",
+    name: d.name,
+    description: d.description,
+    image: d.heroImageUrl ? [d.heroImageUrl] : undefined,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: d.name,
+      addressRegion: d.region,
+      addressCountry: "RU",
+    },
+    url: `https://provodnik.app/destinations/${d.slug}`,
+  };
 
   return (
-    <DestinationDetailScreen
-      destination={destination}
-      listings={listings}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
+      />
+      <DestinationDetailScreen
+        destination={destination}
+        listings={listings as ListingRecord[]}
+      />
+    </>
   );
 }

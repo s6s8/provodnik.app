@@ -4,10 +4,12 @@ import Image from "next/image";
 
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
 
-export const metadata: Metadata = {
-  title: "Гиды | Provodnik",
-  description: "Локальные гиды по России — проверенные маршруты, живые отзывы.",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: "Гиды",
+    description: "Найдите опытного гида для вашего путешествия",
+  };
+}
 
 export default async function GuidesPage() {
   let guides: GuideRecord[] = [];

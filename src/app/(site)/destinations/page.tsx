@@ -4,10 +4,12 @@ import Image from "next/image";
 
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
 
-export const metadata: Metadata = {
-  title: "Направления | Provodnik",
-  description: "Выберите город или регион для путешествия с локальным гидом.",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: "Направления",
+    description: "Откройте лучшие направления для путешествий по России",
+  };
+}
 
 export default async function DestinationsPage() {
   let destinations: DestinationRecord[] = [];

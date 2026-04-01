@@ -5,11 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export const metadata: Metadata = {
-  title: "Политика отмен",
-  description:
-    "Как работают отмены экскурсий и туров в Provodnik в версии MVP и какие последствия по платежам.",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: "Политика отмены",
+    description:
+      "Как работают отмены экскурсий и туров в Provodnik в версии MVP и какие последствия по платежам.",
+  };
+}
 
 export default function CancellationPolicyPage() {
   return (
@@ -122,5 +124,3 @@ export default function CancellationPolicyPage() {
     </div>
   );
 }
-
-

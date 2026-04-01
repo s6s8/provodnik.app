@@ -4,10 +4,12 @@ import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public/public-requests-marketplace-screen";
 
-export const metadata: Metadata = {
-  title: "Маркетплейс запросов",
-  description: "Присоединяйтесь к группам и путешествуйте по лучшей цене.",
-};
+export function generateMetadata(): Metadata {
+  return {
+    title: "Биржа запросов",
+    description: "Запросы путешественников — предложите свои услуги гида",
+  };
+}
 
 function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
   return {
