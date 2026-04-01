@@ -132,7 +132,15 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
         }))
       : fallbackListings;
   const offerCards = (offers && offers.length > 0 ? offers : fallbackOffers) as typeof fallbackOffers;
-  const reviewCards = (reviews && reviews.length > 0 ? reviews : fallbackReviews) as typeof fallbackReviews;
+  const reviewCards = (reviews && reviews.length > 0 ? reviews : fallbackReviews).map((rev: any) => ({
+    id: rev.id,
+    authorName: rev.name || rev.author?.displayName || "Путешественник",
+    rating: rev.rating ?? 5,
+    title: rev.title || "Отзыв",
+    body: rev.body || "",
+    createdAt: rev.createdAt || new Date().toISOString(),
+    bookingLabel: rev.date || undefined,
+  }));
 
   return (
     <main>
