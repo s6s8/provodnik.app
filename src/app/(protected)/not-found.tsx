@@ -31,6 +31,9 @@ export default function NotFound() {
               На главную
             </Link>
           </Button>
+          <Button variant="outline" asChild>
+            <a href="mailto:support@provodnik.app">Связаться с поддержкой</a>
+          </Button>
         </>
       }
     />

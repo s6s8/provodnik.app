@@ -22,6 +22,9 @@ export default function SiteNotFound() {
           <Link href="/guides" className="btn-ghost">
             К проводникам
           </Link>
+          <a href="mailto:support@provodnik.app" className="btn-ghost">
+            Связаться с поддержкой
+          </a>
         </div>
       </section>
     </main>

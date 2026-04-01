@@ -26,9 +26,9 @@ const supportLinks = [
 ] as const;
 
 const policyLinks = [
-  { href: "/policies/cancellation", label: "Условия использования" },
-  { href: "/policies/cancellation", label: "Конфиденциальность" },
-  { href: "/policies/cancellation", label: "Cookies" },
+  { href: "/policies/terms", label: "Условия использования" },
+  { href: "/policies/privacy", label: "Конфиденциальность" },
+  { href: "/policies/privacy", label: "Cookies" },
 ] as const;
 
 const socialLinks = [
@@ -37,8 +37,8 @@ const socialLinks = [
 ] as const;
 
 const legalLinks = [
-  { href: "/policies/cancellation", label: "Условия" },
-  { href: "/policies/cancellation", label: "Конфиденциальность" },
+  { href: "/policies/terms", label: "Условия" },
+  { href: "/policies/privacy", label: "Конфиденциальность" },
 ] as const;
 
 export function SiteFooter() {
@@ -108,6 +108,7 @@ export function SiteFooter() {
                 {link.label}
               </Link>
             ))}
+            <a href="mailto:support@provodnik.app">Поддержка</a>
           </div>
         </div>
       </div>

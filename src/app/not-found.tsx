@@ -21,6 +21,9 @@ export default function NotFound() {
           <Link href="/requests" className="btn-ghost">
             К запросам
           </Link>
+          <a href="mailto:support@provodnik.app" className="btn-ghost">
+            Связаться с поддержкой
+          </a>
         </div>
       </section>
     </main>

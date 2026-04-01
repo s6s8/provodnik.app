@@ -34,6 +34,9 @@ export default function SiteError({ error, reset }: SiteErrorProps) {
           <Link href="/" className="btn-ghost">
             На главную
           </Link>
+          <a href="mailto:support@provodnik.app" className="btn-ghost">
+            Связаться с поддержкой
+          </a>
         </div>
       </section>
     </main>
