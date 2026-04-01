@@ -54,3 +54,9 @@ export function isRoleDashboardPathname(pathname: string | null | undefined): bo
 export function getRedirectPathForRole(role: AppRole | null | undefined): string | null {
   return getDashboardPathForRole(role);
 }
+
+const ROLE_RANK: Record<AppRole, number> = { traveler: 0, guide: 1, admin: 2 };
+
+export function roleHasAccess(userRole: AppRole, requiredRole: AppRole): boolean {
+  return ROLE_RANK[userRole] >= ROLE_RANK[requiredRole];
+}

@@ -4,7 +4,9 @@ import {
   getDashboardPathForRole,
   getRequiredRoleForPathname,
   isAppRole,
+  roleHasAccess,
 } from "@/lib/auth/role-routing";
+import type { AppRole } from "@/lib/auth/types";
 import { DEMO_SESSION_COOKIE, parseDemoSessionCookieValue } from "@/lib/demo-session";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
@@ -48,19 +50,15 @@ export async function proxy(request: NextRequest) {
     return applyCookies(redirectTo(request, "/auth"));
   }
 
-  const { data: profile } = (await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", session.user.id)
-    .maybeSingle()) as { data: { role: string | null } | null };
-
-  const role = isAppRole(profile?.role) ? profile.role : null;
+  const role = isAppRole(session.user.app_metadata?.role)
+    ? (session.user.app_metadata.role as AppRole)
+    : null;
 
   if (!role) {
     return applyCookies(redirectTo(request, "/auth?error=missing-role"));
   }
 
-  if (role !== requiredRole) {
+  if (!roleHasAccess(role, requiredRole)) {
     return applyCookies(
       redirectTo(request, getDashboardPathForRole(role) ?? "/auth?error=missing-role"),
     );
