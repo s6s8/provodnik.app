@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertCircle,
   CheckCircle2,
@@ -102,12 +102,18 @@ async function resolveDashboardPathForUser(
 
 export function AuthEntryScreen() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const urlRole = searchParams.get("role");
+
+  const validRoles = ["traveler", "guide"] as const;
+  const initialRole: RoleValue =
+    urlRole === "guide" ? "guide" : "traveler";
 
   const [mode, setMode] = useState<AuthFormMode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [role, setRole] = useState<RoleValue>("traveler");
+  const [role, setRole] = useState<RoleValue>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);

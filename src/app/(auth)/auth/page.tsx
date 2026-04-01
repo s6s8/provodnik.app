@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { AuthEntryScreen } from "@/features/auth/components/auth-entry-screen";
@@ -16,7 +17,9 @@ export default async function AuthPage() {
 
   return (
     <div className="auth-page">
-      <AuthEntryScreen />
+      <Suspense fallback={null}>
+        <AuthEntryScreen />
+      </Suspense>
     </div>
   );
 }
