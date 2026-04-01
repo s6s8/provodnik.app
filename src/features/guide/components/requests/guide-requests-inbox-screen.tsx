@@ -21,8 +21,19 @@ function formatDateTime(value: string): string {
   });
 }
 
+async function fetchOfferedRequestIds(guideId: string): Promise<Set<string>> {
+  const supabase = createSupabaseBrowserClient();
+  const { data } = await supabase
+    .from("guide_offers")
+    .select("request_id")
+    .eq("guide_id", guideId);
+  if (!data) return new Set();
+  return new Set(data.map((row) => row.request_id as string));
+}
+
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
+  const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
 
   React.useEffect(() => {
     let ignore = false;
@@ -32,6 +43,15 @@ export function GuideRequestsInboxScreen() {
         const supabase = createSupabaseBrowserClient();
         const { data } = await getOpenRequests(supabase);
         if (!ignore && data) setItems(data);
+
+        // Fetch current user's guide_id to check offered requests
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!ignore && session?.user?.id) {
+          const ids = await fetchOfferedRequestIds(session.user.id);
+          if (!ignore) setOfferedIds(ids);
+        }
       } catch {
         // leave empty
       }
@@ -116,55 +136,76 @@ export function GuideRequestsInboxScreen() {
             </p>
           ) : (
             <div className="space-y-3">
-              {items.map((item, index) => (
-                <div key={item.id} className="space-y-3">
-                  <Link
-                    href={`/guide/requests/${item.id}`}
-                    className="block rounded-xl border border-border/70 bg-background/60 p-4 transition-colors hover:bg-background"
-                    aria-label={`Открыть запрос от ${item.requesterName}`}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="space-y-1">
-                        <p className="text-sm font-semibold text-foreground">
-                          {item.requesterName}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {item.format} в{" "}
-                          <span className="font-medium text-foreground">
-                            {item.destination}
-                          </span>
+              {items.map((item, index) => {
+                const alreadyOffered = offeredIds.has(item.id);
+                return (
+                  <div key={item.id} className="space-y-3">
+                    <div className="rounded-xl border border-border/70 bg-background/60 p-4">
+                      {/* Card header */}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="space-y-1">
+                          <p className="text-sm font-semibold text-foreground">
+                            {item.requesterName}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            {item.format} в{" "}
+                            <span className="font-medium text-foreground">
+                              {item.destination}
+                            </span>
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground shrink-0">
+                          {formatDateTime(item.createdAt)}
                         </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {formatDateTime(item.createdAt)}
-                      </p>
+
+                      {/* Meta */}
+                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                        <p>
+                          <span className="font-medium text-foreground">Даты:</span>{" "}
+                          {item.dateLabel}
+                        </p>
+                        <p>
+                          <span className="font-medium text-foreground">Группа:</span>{" "}
+                          {item.groupSize} чел.
+                        </p>
+                        <p className="sm:col-span-2">
+                          <span className="font-medium text-foreground">Бюджет:</span>{" "}
+                          {item.budgetLabel}
+                        </p>
+                      </div>
+
+                      {item.description ? (
+                        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                          {item.description}
+                        </p>
+                      ) : null}
+
+                      {/* Actions */}
+                      <div className="mt-4 flex flex-wrap items-center gap-3">
+                        <Button asChild variant="ghost" size="sm" className="px-3">
+                          <Link href={`/guide/requests/${item.id}`}>
+                            Подробнее
+                          </Link>
+                        </Button>
+                        {alreadyOffered ? (
+                          <span className="offer-sent-chip" aria-label="Вы уже отправили предложение на этот запрос">
+                            ✓ Предложение отправлено
+                          </span>
+                        ) : (
+                          <Button asChild size="sm">
+                            <Link href={`/guide/requests/${item.id}/offer`}>
+                              Предложить цену
+                            </Link>
+                          </Button>
+                        )}
+                      </div>
                     </div>
 
-                    <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                      <p>
-                        <span className="font-medium text-foreground">Даты:</span>{" "}
-                        {item.dateLabel}
-                      </p>
-                      <p>
-                        <span className="font-medium text-foreground">Группа:</span>{" "}
-                        {item.groupSize}
-                      </p>
-                      <p className="sm:col-span-2">
-                        <span className="font-medium text-foreground">Бюджет:</span>{" "}
-                        {item.budgetLabel}
-                      </p>
-                    </div>
-
-                    {item.description ? (
-                      <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-                        {item.description}
-                      </p>
-                    ) : null}
-                  </Link>
-
-                  {index < items.length - 1 ? <Separator /> : null}
-                </div>
-              ))}
+                    {index < items.length - 1 ? <Separator /> : null}
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
