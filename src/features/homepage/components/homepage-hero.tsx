@@ -1,11 +1,15 @@
+import Image from "next/image";
 import Link from "next/link";
 
 export function HomePageHero() {
   return (
     <section aria-label="Главный баннер" className="hero-bleed home-hero">
-      <div
-        role="img"
-        aria-label="Горный пейзаж России в мягком свете"
+      <Image
+        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1800&q=85"
+        alt=""
+        fill
+        priority
+        sizes="100vw"
         className="home-hero-media"
       />
       <div className="overlay-bottom" aria-hidden="true" />

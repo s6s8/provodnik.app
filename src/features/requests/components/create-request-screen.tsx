@@ -112,7 +112,6 @@ export function CreateRequestScreen() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    console.log("formData", form);
   }
 
   const previewLocation = form.destination || "Ваше направление";

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import type { DestinationRecord } from "@/data/supabase/queries";
@@ -31,15 +32,13 @@ export function HomePageDestinations({ destinations }: Props) {
             <Link
               href={`/destinations/${featured.slug}`}
               className="homepage-destinations-card homepage-destinations-card-featured"
-              aria-label={`Посмотреть туры: ${featured.name}`}
             >
-              <img
+              <Image
                 src={featured.heroImageUrl}
                 alt=""
+                fill
+                sizes="(min-width: 1024px) 39vw, (min-width: 768px) 50vw, 100vw"
                 className="homepage-destinations-media"
-                loading="lazy"
-                decoding="async"
-                aria-hidden="true"
               />
               <div className="overlay-top" aria-hidden="true" />
               <div className="homepage-destinations-featured-content">
@@ -55,15 +54,13 @@ export function HomePageDestinations({ destinations }: Props) {
               key={dest.slug}
               href={`/destinations/${dest.slug}`}
               className="homepage-destinations-card"
-              aria-label={`${dest.name} — ${dest.listingCount} туров`}
             >
-              <img
+              <Image
                 src={dest.heroImageUrl}
                 alt=""
+                fill
+                sizes="(min-width: 1024px) 29vw, (min-width: 768px) 50vw, 100vw"
                 className="homepage-destinations-media"
-                loading="lazy"
-                decoding="async"
-                aria-hidden="true"
               />
               <div className="overlay-top" aria-hidden="true" />
               <div className="homepage-destinations-card-content">
