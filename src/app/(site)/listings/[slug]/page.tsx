@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { getListingBySlug, getGuideBySlug, getListingReviews } from "@/data/supabase/queries";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PublicReviewsSection, type PublicReviewItem } from "@/features/reviews/components/public/public-reviews-section";
+import { getListingBySlug, getGuideBySlug } from "@/data/supabase/queries";
 import type { PublicListing, PublicListingInclusion } from "@/data/public-listings/types";
-import { ListingDetailScreen } from "@/features/listings/components/public/listing-detail-screen";
+import { getReviewsForListing } from "@/lib/supabase/reviews";
 
 const getListingPageData = cache(async (slug: string) => {
   const listingResult = await getListingBySlug(null as any, slug);
@@ -16,15 +22,15 @@ const getListingPageData = cache(async (slug: string) => {
     };
   }
 
-  const [guideResult, reviewsResult] = await Promise.all([
+  const [guideResult, reviewRecords] = await Promise.all([
     getGuideBySlug(null as any, listingResult.data.guideSlug),
-    getListingReviews(null as any, slug),
+    getReviewsForListing(listingResult.data.id),
   ]);
 
   return {
     listingResult,
     guideResult,
-    reviewRecords: reviewsResult.data ?? [],
+    reviewRecords,
   };
 });
 
@@ -35,6 +41,10 @@ function truncateText(value: string, maxLength: number) {
 
 function serializeJsonLd(jsonLd: Record<string, unknown>) {
   return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
+}
+
+function formatRub(value: number) {
+  return new Intl.NumberFormat("ru-RU").format(value);
 }
 
 export async function generateMetadata({
@@ -71,12 +81,10 @@ export default async function PublicListingDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-
   const { listingResult, guideResult, reviewRecords } = await getListingPageData(slug);
   if (!listingResult.data) notFound();
 
   const l = listingResult.data;
-
   const listing: PublicListing = {
     slug: l.slug,
     title: l.title,
@@ -89,7 +97,7 @@ export default async function PublicListingDetailPage({
     themes: [],
     highlights: l.description ? [l.description] : [l.title],
     itinerary: [{ title: l.title, description: l.description, durationHours: l.durationDays * 6 }],
-    inclusions: l.inclusions.filter((v): v is PublicListingInclusion => true),
+    inclusions: l.inclusions.filter((value): value is PublicListingInclusion => true),
     guideSlug: l.guideSlug,
   };
 
@@ -107,14 +115,14 @@ export default async function PublicListingDetailPage({
       }
     : undefined;
 
-  const reviews = reviewRecords.map((r) => ({
-    id: r.id,
-    createdAt: r.createdAt,
-    author: { displayName: r.authorName },
-    target: { type: "listing" as const, slug },
-    rating: r.rating as 1 | 2 | 3 | 4 | 5,
-    title: r.title,
-    body: r.body,
+  const reviewItems: PublicReviewItem[] = reviewRecords.map((review) => ({
+    id: review.id,
+    authorName: review.travelerName,
+    rating: review.rating,
+    title: review.title,
+    body: review.body,
+    createdAt: review.createdAt,
+    bookingLabel: review.bookingLabel,
   }));
 
   const jsonLd = {
@@ -145,7 +153,139 @@ export default async function PublicListingDetailPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <ListingDetailScreen listing={listing} guide={guide} reviews={reviews} />
+
+      <main className="space-y-10 pb-16">
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0">
+            {listing.coverImageUrl ? (
+              <Image src={listing.coverImageUrl} alt={listing.title} fill priority sizes="100vw" className="object-cover" />
+            ) : (
+              <div className="h-full w-full bg-muted" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/10" />
+          </div>
+
+          <div className="container relative z-10 py-12 md:py-20">
+            <div className="max-w-3xl space-y-4">
+              <p className="sec-label">{listing.region}</p>
+              <h1 className="text-4xl font-semibold leading-none tracking-tight text-foreground md:text-5xl">
+                {listing.title}
+              </h1>
+              <p className="text-base leading-7 text-muted-foreground">{listing.highlights[0]}</p>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline">{listing.durationDays} дн.</Badge>
+                <Badge variant="outline">Группа до {listing.groupSizeMax} чел.</Badge>
+                <Badge variant="outline">от {formatRub(listing.priceFromRub)} ₽</Badge>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section>
+          <div className="container grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_360px]">
+            <div className="space-y-6">
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>О маршруте</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {listing.highlights.map((text) => (
+                    <p key={text} className="text-sm leading-7 text-muted-foreground">
+                      {text}
+                    </p>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Программа по дням</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {listing.itinerary.map((item, index) => (
+                    <div key={`${item.title}-${index}`} className="rounded-2xl border border-border/60 bg-background/60 p-4">
+                      <p className="text-sm font-medium text-foreground">День {index + 1}. {item.title}</p>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.description}</p>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              <Card className="glass-card">
+                <CardHeader>
+                  <CardTitle>Что включено</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4 md:grid-cols-2">
+                  <ul className="grid gap-2 text-sm text-muted-foreground">
+                    {listing.inclusions.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                  <ul className="grid gap-2 text-sm text-muted-foreground">
+                    <li>• Авиа и ж/д билеты</li>
+                    <li>• Личные расходы</li>
+                    <li>• Страховка</li>
+                  </ul>
+                </CardContent>
+              </Card>
+            </div>
+
+            <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
+              <Card className="glass-card">
+                <CardContent className="space-y-4 p-5">
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Стоимость</p>
+                    <p className="mt-1 text-3xl font-semibold">от {formatRub(listing.priceFromRub)} ₽</p>
+                    <p className="text-sm text-muted-foreground">на человека</p>
+                  </div>
+
+                  <Button asChild className="w-full">
+                    <Link href={`/requests/new?listing=${listing.slug}`}>Создать запрос</Link>
+                  </Button>
+                  <Button asChild variant="secondary" className="w-full">
+                    <Link href="/requests">Найти группу</Link>
+                  </Button>
+
+                  {guide ? (
+                    <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                      <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Гид</p>
+                      <p className="mt-1 font-medium text-foreground">{guide.displayName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {guide.homeBase} · {guide.reviewsSummary.averageRating.toFixed(1)} ★
+                      </p>
+                      <div className="mt-3">
+                        <Button asChild variant="ghost" className="px-0">
+                          <Link href={`/guide/${guide.slug}`}>Профиль →</Link>
+                        </Button>
+                      </div>
+                    </div>
+                  ) : null}
+                </CardContent>
+              </Card>
+            </aside>
+          </div>
+        </section>
+
+        <section>
+          <div className="container">
+            <PublicReviewsSection
+              title="Что говорят о поездке"
+              reviews={reviewItems}
+              summary={
+                reviewItems.length > 0
+                  ? {
+                      averageRating:
+                        Math.round((reviewItems.reduce((sum, item) => sum + item.rating, 0) / reviewItems.length) * 10) / 10,
+                      totalReviews: reviewItems.length,
+                      lastReviewAt: reviewItems[0]?.createdAt,
+                    }
+                  : undefined
+              }
+              emptyText="Пока у маршрута нет отзывов. Первый отзыв появится после завершённой поездки."
+            />
+          </div>
+        </section>
+      </main>
     </>
   );
 }

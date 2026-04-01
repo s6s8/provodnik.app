@@ -16,6 +16,8 @@ export type PublicGuideProfile = {
   displayName: string;
   headline: string;
   homeBase: string;
+  verificationStatus: "draft" | "submitted" | "approved" | "rejected";
+  completedTours: number;
   avatarInitials?: string;
   avatarImageUrl?: string;
   yearsExperience: number;

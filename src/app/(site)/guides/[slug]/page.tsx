@@ -67,6 +67,8 @@ export default async function PublicGuideProfilePage({
     displayName: g.fullName,
     headline: g.bio.slice(0, 120),
     homeBase: g.homeBase,
+    verificationStatus: "draft",
+    completedTours: 0,
     avatarInitials: g.initials,
     avatarImageUrl: g.avatarUrl,
     yearsExperience: g.experienceYears,
