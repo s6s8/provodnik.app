@@ -9,7 +9,11 @@ const navLinks = [
   { href: "/#hiw", label: "Как это работает" },
 ] as const;
 
-export function SiteHeader() {
+interface SiteHeaderProps {
+  isAuthenticated?: boolean;
+}
+
+export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
   const pathname = usePathname();
 
   return (
@@ -39,9 +43,11 @@ export function SiteHeader() {
         </ul>
 
         <div className="nav-ctas">
-          <Link href="/auth" className="btn-ghost nav-login">
-            Войти
-          </Link>
+          {!isAuthenticated && (
+            <Link href="/auth" className="btn-ghost nav-login">
+              Войти
+            </Link>
+          )}
           <Link href="/requests/new" className="btn-primary nav-request-cta">
             Создать запрос
           </Link>

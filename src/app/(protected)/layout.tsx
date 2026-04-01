@@ -13,7 +13,7 @@ export default async function ProtectedLayout({
 
   return (
     <div className="min-h-screen pt-[88px]">
-      <SiteHeader />
+      <SiteHeader isAuthenticated={auth.isAuthenticated} />
       <WorkspaceRoleNav auth={auth} />
       <main className="mx-auto w-full max-w-7xl px-6 py-8 md:py-10">
         <Suspense>{children}</Suspense>
