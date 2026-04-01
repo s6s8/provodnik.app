@@ -2105,3 +2105,84 @@ button {
 .booking-confirm-back-link:hover {
   text-decoration: underline;
 }
+
+/* ─── Group Member chip ────────────────────────────────────── */
+.member-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.875rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--success, #16a34a) 10%, transparent);
+  color: var(--success, #16a34a);
+  font-family: var(--font-ui);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* ─── Price Scenarios Table ────────────────────────────────── */
+.price-scenarios {
+  background: var(--surface-lowest);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  padding: 20px 24px;
+  overflow-x: auto;
+}
+
+.price-scenarios-label {
+  font-family: var(--font-ui);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--on-surface-muted);
+  margin-bottom: 16px;
+}
+
+.price-scenarios-grid {
+  display: grid;
+  gap: 0;
+}
+
+.price-scenarios-row {
+  display: flex;
+  gap: 0;
+}
+
+.price-scenarios-cell {
+  flex: 1;
+  text-align: center;
+  padding: 10px 8px;
+  border-radius: 10px;
+  min-width: 64px;
+}
+
+.price-scenarios-cell.highlighted {
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.price-scenarios-size {
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--on-surface-muted);
+  margin-bottom: 6px;
+}
+
+.price-scenarios-cell.highlighted .price-scenarios-size {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.price-scenarios-price {
+  font-family: var(--font-ui);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+
+.price-scenarios-cell.highlighted .price-scenarios-price {
+  color: var(--primary);
+}
