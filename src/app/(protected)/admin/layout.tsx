@@ -1,6 +1,9 @@
 import type { ReactNode } from "react";
 
+import { redirect } from "next/navigation";
+
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { getAdminNavCounts } from "@/lib/supabase/moderation";
 
 import { AdminMobileTabs, AdminSidebarNav } from "./admin-sidebar-nav";
 
@@ -25,6 +28,15 @@ export default async function AdminLayout({
   children: ReactNode;
 }) {
   const auth = await readAuthContextFromServer();
+  if (!auth.isAuthenticated) {
+    redirect("/auth");
+  }
+
+  if (auth.role !== "admin") {
+    redirect(auth.canonicalRedirectTo ?? "/auth");
+  }
+
+  const counts = await getAdminNavCounts();
   const email = auth.email ?? "admin@provodnik.app";
   const initials = getInitials(email);
 
@@ -43,13 +55,13 @@ export default async function AdminLayout({
               </div>
             </div>
             <div className="h-px bg-[rgba(15,25,35,0.08)]" />
-            <AdminSidebarNav />
+            <AdminSidebarNav counts={counts} />
           </div>
         </aside>
 
         <main className="min-w-0">{children}</main>
       </div>
-      <AdminMobileTabs />
+      <AdminMobileTabs counts={counts} />
     </div>
   );
 }
