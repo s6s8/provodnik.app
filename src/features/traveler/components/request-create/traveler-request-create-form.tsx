@@ -1,38 +1,24 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, CheckCircle2, RotateCcw } from "lucide-react";
 import { useForm } from "react-hook-form";
 
-import { createTravelerRequestInSupabase } from "@/data/traveler-request/supabase-client";
 import {
   travelerExperienceTypes,
   travelerRequestSchema,
   type TravelerRequest,
 } from "@/data/traveler-request/schema";
-import { submitTravelerRequest } from "@/data/traveler-request/submit";
-import type { TravelerRequestRecord } from "@/data/traveler-request/types";
+import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 type RequestFormValues = TravelerRequest;
 
-function formatRub(amount: number) {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "code",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 function formatExperienceType(
-  value: TravelerRequest["experienceType"]
+  value: TravelerRequest["experienceType"],
 ): string {
   switch (value) {
     case "city":
@@ -55,9 +41,8 @@ function formatExperienceType(
 }
 
 export function TravelerRequestCreateForm() {
-  const [submitted, setSubmitted] = React.useState<TravelerRequestRecord | null>(
-    null
-  );
+  const [serverError, setServerError] = React.useState<string | null>(null);
+  const [isPending, startTransition] = React.useTransition();
 
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(travelerRequestSchema),
@@ -79,101 +64,40 @@ export function TravelerRequestCreateForm() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isSubmitSuccessful },
-    reset,
+    formState: { errors, isSubmitting },
   } = form;
 
-  const onSubmit = React.useCallback(async (values: RequestFormValues) => {
-    const submission = await submitTravelerRequest(values);
-    const record = await createTravelerRequestInSupabase(submission.request);
-    setSubmitted(record);
-  }, []);
+  const isLoading = isSubmitting || isPending;
 
-  const handleCreateAnother = React.useCallback(() => {
-    setSubmitted(null);
-    reset();
-  }, [reset]);
+  const onSubmit = React.useCallback(
+    (values: RequestFormValues) => {
+      setServerError(null);
 
-  if (submitted) {
-    return (
-      <div className="space-y-4">
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="flex flex-row items-start gap-4 space-y-0">
-            <div className="mt-0.5 flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-              <CheckCircle2 className="size-5" />
-            </div>
-            <div className="space-y-1">
-              <CardTitle>Запрос сохранён</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Сейчас запрос хранится локально и доступен в вашем кабинете
-                путешественника на этом устройстве.
-              </p>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <SummaryRow
-              label="Категория"
-              value={formatExperienceType(submitted.request.experienceType)}
-            />
-            <SummaryRow label="Направление" value={submitted.request.destination} />
-            <SummaryRow
-              label="Даты"
-              value={`${submitted.request.startDate} — ${submitted.request.endDate}`}
-            />
-            <SummaryRow
-              label="Размер группы"
-              value={`${submitted.request.groupSize} путешественник${
-                submitted.request.groupSize === 1 ? "" : "а"
-              }`}
-            />
-            <SummaryRow
-              label="Формат"
-              value={
-                submitted.request.groupPreference === "private"
-                  ? "Только ваша компания"
-                  : "Готовы к группе"
-              }
-            />
-            <SummaryRow
-              label="Можно присоединиться к другим"
-              value={submitted.request.openToJoiningOthers ? "Да" : "Нет"}
-            />
-            <SummaryRow
-              label="Можно предлагать варианты вне рамок"
-              value={
-                submitted.request.allowGuideSuggestionsOutsideConstraints
-                  ? "Да"
-                  : "Нет"
-              }
-            />
-            <SummaryRow
-              label="Бюджет на человека"
-              value={formatRub(submitted.request.budgetPerPersonRub)}
-            />
-            {submitted.request.notes ? (
-              <SummaryRow label="Пожелания" value={submitted.request.notes} />
-            ) : null}
-          </CardContent>
-        </Card>
+      const fd = new FormData();
+      fd.set("experienceType", values.experienceType);
+      fd.set("destination", values.destination);
+      fd.set("startDate", values.startDate);
+      fd.set("endDate", values.endDate);
+      fd.set("groupSize", String(values.groupSize));
+      fd.set("groupPreference", values.groupPreference);
+      fd.set("openToJoiningOthers", String(values.openToJoiningOthers));
+      fd.set(
+        "allowGuideSuggestionsOutsideConstraints",
+        String(values.allowGuideSuggestionsOutsideConstraints),
+      );
+      fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
+      fd.set("notes", values.notes ?? "");
 
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button asChild>
-            <Link href={`/traveler/requests/${submitted.id}`}>
-              Открыть запрос
-              <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="secondary">
-            <Link href="/traveler/requests">Все запросы</Link>
-          </Button>
-          <Button type="button" onClick={handleCreateAnother}>
-            Создать ещё один запрос
-            <RotateCcw className="size-4" />
-          </Button>
-        </div>
-      </div>
-    );
-  }
+      startTransition(async () => {
+        const result = await createRequestAction({ error: null }, fd);
+        if (result?.error) {
+          setServerError(result.error);
+        }
+        // On success the action calls redirect() — no further handling needed here
+      });
+    },
+    [],
+  );
 
   return (
     <form
@@ -181,6 +105,15 @@ export function TravelerRequestCreateForm() {
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Создать запрос путешественника"
     >
+      {serverError ? (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        >
+          {serverError}
+        </div>
+      ) : null}
+
       <div className="grid gap-2">
         <FieldLabel htmlFor="experienceType">Категория поездки</FieldLabel>
         <select
@@ -192,7 +125,7 @@ export function TravelerRequestCreateForm() {
           className={cn(
             "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:cursor-not-allowed disabled:opacity-50"
+            "disabled:cursor-not-allowed disabled:opacity-50",
           )}
           {...register("experienceType")}
         >
@@ -279,7 +212,9 @@ export function TravelerRequestCreateForm() {
                 {...register("groupPreference")}
               />
               <span>
-                <span className="font-medium text-foreground">Только ваша компания</span>
+                <span className="font-medium text-foreground">
+                  Только ваша компания
+                </span>
                 <span className="block text-xs text-muted-foreground">
                   Без присоединения других путешественников к вашей компании.
                 </span>
@@ -389,14 +324,9 @@ export function TravelerRequestCreateForm() {
         <FieldError id="notes-error" message={errors.notes?.message} />
       </div>
 
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          {isSubmitSuccessful
-            ? "Готово. В любой момент можно создать ещё один запрос."
-            : null}
-        </p>
-        <Button type="submit" disabled={isSubmitting}>
-          Отправить запрос
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end">
+        <Button type="submit" disabled={isLoading}>
+          {isLoading ? "Сохраняем…" : "Отправить запрос"}
         </Button>
       </div>
     </form>
@@ -412,15 +342,9 @@ function FieldLabel(props: React.ComponentProps<"label">) {
   );
 }
 
-function FieldHint({
-  className,
-  ...props
-}: React.ComponentProps<"p">) {
+function FieldHint({ className, ...props }: React.ComponentProps<"p">) {
   return (
-    <p
-      {...props}
-      className={cn("text-xs text-muted-foreground", className)}
-    />
+    <p {...props} className={cn("text-xs text-muted-foreground", className)} />
   );
 }
 
@@ -437,14 +361,5 @@ function FieldError({
     <p id={id} className="text-xs font-medium text-destructive">
       {message}
     </p>
-  );
-}
-
-function SummaryRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="grid gap-1 rounded-lg border border-border/70 bg-background/60 p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="text-sm font-medium text-foreground">{value}</p>
-    </div>
   );
 }
