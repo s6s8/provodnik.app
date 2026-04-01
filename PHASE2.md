@@ -1,4 +1,4 @@
-# Phase 2 Task Spec — Core Marketplace Loop
+# Phase 2 Task Spec — Core Marketplace Loop [COMPLETE — 2026-04-01]
 
 > Workspace: D:\dev\projects\provodnik\provodnik.app
 > Read D:\dev\projects\provodnik\provodnik.app\AGENTS.md first.
