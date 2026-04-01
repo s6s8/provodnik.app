@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { createBooking } from "@/lib/supabase/bookings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -130,6 +131,12 @@ export async function acceptOfferAction(
     .eq("request_id", requestId)
     .eq("status", "pending")
     .neq("id", offerId);
+
+  try {
+    await notifyBookingCreated(booking.id);
+  } catch {
+    // Notification delivery must not block booking creation.
+  }
 
   redirect(`/traveler/bookings/${booking.id}`);
 }
