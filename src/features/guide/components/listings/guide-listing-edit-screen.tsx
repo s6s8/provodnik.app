@@ -8,21 +8,40 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ListingForm } from "./listing-form";
 import type { ListingInput } from "@/lib/supabase/listings";
+import {
+  ListingPhotoUploadSection,
+  type ListingUploadedPhoto,
+} from "./listing-photo-upload-section";
 
 type GuideListingEditScreenProps = {
   listingId: string;
   defaultValues: Partial<ListingInput>;
   onSubmit: (data: ListingInput) => Promise<string>;
+  initialPhotos: ListingUploadedPhoto[];
+  uploadActions: {
+    getUploadUrl: (
+      bucket: string,
+      fileName: string,
+      mimeType: string,
+    ) => Promise<{ path: string; token: string; signedUrl: string }>;
+    confirmUpload: (data: {
+      listingId: string;
+      objectPath: string;
+      mimeType: string;
+      byteSize: number;
+    }) => Promise<ListingUploadedPhoto>;
+  };
 };
 
 export function GuideListingEditScreen({
   listingId,
   defaultValues,
   onSubmit,
+  initialPhotos,
+  uploadActions,
 }: GuideListingEditScreenProps) {
   return (
     <div className="space-y-6">
-      {/* Breadcrumb */}
       <div className="flex gap-2">
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href="/guide/listings">
@@ -56,6 +75,12 @@ export function GuideListingEditScreen({
           />
         </CardContent>
       </Card>
+
+      <ListingPhotoUploadSection
+        listingId={listingId}
+        initialPhotos={initialPhotos}
+        actions={uploadActions}
+      />
     </div>
   );
 }
