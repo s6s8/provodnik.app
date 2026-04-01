@@ -18,7 +18,7 @@ function getDemoRoleFromRequest(request: NextRequest) {
   return parseDemoSessionCookieValue(cookieValue)?.role ?? null;
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const requiredRole = getRequiredRoleForPathname(request.nextUrl.pathname);
 
   if (!requiredRole) {
