@@ -1,38 +1,28 @@
 import Link from "next/link";
 
-import { ArrowLeft, Home } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { RouteFeedbackShell } from "@/components/shared/route-feedback-shell";
-
 export default function NotFound() {
   return (
-    <RouteFeedbackShell
-      eyebrow="404"
-      title="Страница не найдена"
-      description="Этого адреса нет в Provodnik. Вернитесь на главную или откройте страницу входа, чтобы попасть в нужный кабинет."
-      asideTitle="Безопасный выход"
-      asideItems={[
-        "Проверьте путь ещё раз: ссылка могла устареть.",
-        "Главная страница ведёт к публичной витрине и маршрутам.",
-        "Страница входа сразу перенаправит в ваш кабинет, если сессия уже активна.",
-      ]}
-      actions={
-        <>
-          <Button asChild>
-            <Link href="/">
-              <Home className="size-4" />
-              На главную
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/auth">
-              <ArrowLeft className="size-4" />
-              К входу
-            </Link>
-          </Button>
-        </>
-      }
-    />
+    <main className="container flex min-h-[100vh] items-center py-16">
+      <section className="glass-card w-full max-w-2xl space-y-6 px-6 py-8 md:px-10 md:py-12">
+        <div className="space-y-3">
+          <p className="editorial-kicker">404</p>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Страница не найдена
+          </h1>
+          <p className="max-w-xl text-sm text-[var(--ink-3)] md:text-base">
+            Адрес мог измениться, быть удалён или введён с ошибкой.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <Link href="/" className="btn-primary">
+            На главную
+          </Link>
+          <Link href="/requests" className="btn-ghost">
+            К запросам
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

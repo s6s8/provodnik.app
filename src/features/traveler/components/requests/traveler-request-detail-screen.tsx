@@ -1,16 +1,10 @@
-"use client";
-
-import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, CalendarDays, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, Users } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  getTravelerRequestByIdFromSupabase,
-} from "@/data/traveler-request/supabase-client";
 import type {
   TravelerOffer,
   TravelerRequestRecord,
@@ -38,60 +32,11 @@ function formatTimelineDate(iso: string) {
   });
 }
 
-export function TravelerRequestDetailScreen({ requestId }: { requestId: string }) {
-  const [record, setRecord] = React.useState<TravelerRequestRecord | null>(null);
-
-  React.useEffect(() => {
-    let isMounted = true;
-
-    async function load() {
-      try {
-        const next = await getTravelerRequestByIdFromSupabase(requestId);
-        if (!isMounted) return;
-        setRecord(next);
-      } catch {
-        if (!isMounted) return;
-        setRecord(null);
-      }
-    }
-
-    void load();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [requestId]);
-
-  if (!record) {
-    return (
-      <div className="space-y-6">
-        <Badge variant="outline">Кабинет путешественника</Badge>
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-2">
-            <CardTitle>Запрос не найден</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              На этом устройстве нет запроса с таким идентификатором.
-            </p>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-2 sm:flex-row">
-            <Button asChild variant="secondary">
-              <Link href="/traveler/requests">
-                <ArrowLeft className="size-4" />
-                Ко всем запросам
-              </Link>
-            </Button>
-            <Button asChild>
-              <Link href="/traveler/requests/new">
-                Создать запрос
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
+export function TravelerRequestDetailScreen({
+  record,
+}: {
+  record: TravelerRequestRecord;
+}) {
   const offers: TravelerOffer[] = [];
   const timeline: TravelerRequestTimelineEvent[] = [];
   const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
@@ -103,14 +48,16 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
           <Button asChild variant="ghost" className="-ml-3 px-3">
             <Link href="/traveler/requests">
               <ArrowLeft className="size-4" />
-              Мои запросы
+              {"\u041c\u043e\u0438 \u0437\u0430\u043f\u0440\u043e\u0441\u044b"}
             </Link>
           </Button>
           <TravelerRequestStatusBadge status={record.status} />
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">Кабинет путешественника</Badge>
+          <Badge variant="outline">
+            {"\u041a\u0430\u0431\u0438\u043d\u0435\u0442 \u043f\u0443\u0442\u0435\u0448\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u0438\u043a\u0430"}
+          </Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {record.request.destination}
           </h1>
@@ -130,9 +77,13 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Кратко о запросе</CardTitle>
+          <CardTitle>
+            {"\u041a\u0440\u0430\u0442\u043a\u043e \u043e \u0437\u0430\u043f\u0440\u043e\u0441\u0435"}
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Структурированное описание, чтобы сравнивать предложения гидов.
+            {
+              "\u0421\u0442\u0440\u0443\u043a\u0442\u0443\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u043e\u0435 \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435, \u0447\u0442\u043e\u0431\u044b \u0441\u0440\u0430\u0432\u043d\u0438\u0432\u0430\u0442\u044c \u043f\u0440\u0435\u0434\u043b\u043e\u0436\u0435\u043d\u0438\u044f \u0433\u0438\u0434\u043e\u0432."
+            }
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -140,22 +91,25 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
             <Badge variant="secondary">{record.request.experienceType}</Badge>
             <Badge variant="outline">
               {record.request.groupPreference === "private"
-                ? "Только ваша компания"
-                : "Готовы к группе"}
+                ? "\u0422\u043e\u043b\u044c\u043a\u043e \u0432\u0430\u0448\u0430 \u043a\u043e\u043c\u043f\u0430\u043d\u0438\u044f"
+                : "\u0413\u043e\u0442\u043e\u0432\u044b \u043a \u0433\u0440\u0443\u043f\u043f\u0435"}
             </Badge>
             <Badge variant="outline">
-              Бюджет {formatRub(record.request.budgetPerPersonRub)} на человека
+              {"\u0411\u044e\u0434\u0436\u0435\u0442"} {formatRub(record.request.budgetPerPersonRub)}{" "}
+              {"\u043d\u0430 \u0447\u0435\u043b\u043e\u0432\u0435\u043a\u0430"}
             </Badge>
             <Badge variant="outline">
               {record.request.openToJoiningOthers
-                ? "Можно присоединиться к другой группе"
-                : "Только отдельная группа"}
+                ? "\u041c\u043e\u0436\u043d\u043e \u043f\u0440\u0438\u0441\u043e\u0435\u0434\u0438\u043d\u0438\u0442\u044c\u0441\u044f \u043a \u0434\u0440\u0443\u0433\u043e\u0439 \u0433\u0440\u0443\u043f\u043f\u0435"
+                : "\u0422\u043e\u043b\u044c\u043a\u043e \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u0430\u044f \u0433\u0440\u0443\u043f\u043f\u0430"}
             </Badge>
           </div>
 
           {record.request.notes ? (
             <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Комментарии</p>
+              <p className="text-xs text-muted-foreground">
+                {"\u041a\u043e\u043c\u043c\u0435\u043d\u0442\u0430\u0440\u0438\u0438"}
+              </p>
               <p className="mt-1 text-sm text-foreground">{record.request.notes}</p>
             </div>
           ) : null}
@@ -165,22 +119,33 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
       <div className="grid gap-3">
         <div className="flex items-end justify-between gap-3">
           <div className="space-y-1">
-            <h2 className="text-lg font-semibold text-foreground">Предложения гидов</h2>
+            <h2 className="text-lg font-semibold text-foreground">
+              {"\u041f\u0440\u0435\u0434\u043b\u043e\u0436\u0435\u043d\u0438\u044f \u0433\u0438\u0434\u043e\u0432"}
+            </h2>
             <p className="text-sm text-muted-foreground">
-              Для примера показаны сгенерированные отклики от гидов.
+              {
+                "\u0414\u043b\u044f \u043f\u0440\u0438\u043c\u0435\u0440\u0430 \u043f\u043e\u043a\u0430\u0437\u0430\u043d\u044b \u0441\u0433\u0435\u043d\u0435\u0440\u0438\u0440\u043e\u0432\u0430\u043d\u043d\u044b\u0435 \u043e\u0442\u043a\u043b\u0438\u043a\u0438 \u043e\u0442 \u0433\u0438\u0434\u043e\u0432."
+              }
             </p>
           </div>
           <Badge variant="outline">
-            {offers.length} предложени{offers.length === 1 ? "е" : "я"}
+            {offers.length}{" "}
+            {offers.length === 1
+              ? "\u043f\u0440\u0435\u0434\u043b\u043e\u0436\u0435\u043d\u0438\u0435"
+              : "\u043f\u0440\u0435\u0434\u043b\u043e\u0436\u0435\u043d\u0438\u044f"}
           </Badge>
         </div>
 
         {offers.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-base">Пока нет откликов</CardTitle>
+              <CardTitle className="text-base">
+                {"\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u043e\u0442\u043a\u043b\u0438\u043a\u043e\u0432"}
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Для только что созданных запросов отклики появятся позже.
+                {
+                  "\u0414\u043b\u044f \u0442\u043e\u043b\u044c\u043a\u043e \u0447\u0442\u043e \u0441\u043e\u0437\u0434\u0430\u043d\u043d\u044b\u0445 \u0437\u0430\u043f\u0440\u043e\u0441\u043e\u0432 \u043e\u0442\u043a\u043b\u0438\u043a\u0438 \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u043f\u043e\u0437\u0436\u0435."
+                }
               </p>
             </CardHeader>
           </Card>
@@ -191,9 +156,13 @@ export function TravelerRequestDetailScreen({ requestId }: { requestId: string }
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Хронология</CardTitle>
+          <CardTitle>
+            {"\u0425\u0440\u043e\u043d\u043e\u043b\u043e\u0433\u0438\u044f"}
+          </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Что происходило с этим запросом по шагам.
+            {
+              "\u0427\u0442\u043e \u043f\u0440\u043e\u0438\u0441\u0445\u043e\u0434\u0438\u043b\u043e \u0441 \u044d\u0442\u0438\u043c \u0437\u0430\u043f\u0440\u043e\u0441\u043e\u043c \u043f\u043e \u0448\u0430\u0433\u0430\u043c."
+            }
           </p>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -224,12 +193,15 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
           <div className="space-y-1">
             <CardTitle className="text-base">{offer.guide.name}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {offer.guide.homeBase} · оценка {offer.guide.rating.toFixed(1)} ·{" "}
-              {offer.guide.completedTrips} поездок
+              {offer.guide.homeBase} {"\u00b7"} {"\u043e\u0446\u0435\u043d\u043a\u0430"}{" "}
+              {offer.guide.rating.toFixed(1)} {"\u00b7"} {offer.guide.completedTrips}{" "}
+              {"\u043f\u043e\u0435\u0437\u0434\u043e\u043a"}
             </p>
           </div>
           <Badge variant={offer.status === "shortlisted" ? "default" : "outline"}>
-            {offer.status === "shortlisted" ? "В избранном" : "Черновик"}
+            {offer.status === "shortlisted"
+              ? "\u0412 \u0438\u0437\u0431\u0440\u0430\u043d\u043d\u043e\u043c"
+              : "\u0427\u0435\u0440\u043d\u043e\u0432\u0438\u043a"}
           </Badge>
         </div>
 
@@ -239,19 +211,25 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
           <Badge variant="secondary">{formatRub(offer.priceTotalRub)}</Badge>
           <Badge variant="outline">
             {offer.durationDays}{" "}
-            {offer.durationDays === 1 ? "день" : "дней"}
+            {offer.durationDays === 1
+              ? "\u0434\u0435\u043d\u044c"
+              : "\u0434\u043d\u0435\u0439"}
           </Badge>
           <Badge variant="outline">
-            Для {offer.groupSizeMin}–{offer.groupSizeMax} путешественников
+            {"\u0414\u043b\u044f"} {offer.groupSizeMin}{"\u2013"}
+            {offer.groupSizeMax} {"\u043f\u0443\u0442\u0435\u0448\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u0438\u043a\u043e\u0432"}
           </Badge>
           <Badge variant="outline">
-            Отвечает примерно за {offer.guide.responseTimeHours} ч
+            {"\u041e\u0442\u0432\u0435\u0447\u0430\u0435\u0442 \u043f\u0440\u0438\u043c\u0435\u0440\u043d\u043e \u0437\u0430"}{" "}
+            {offer.guide.responseTimeHours} {"\u0447"}
           </Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Особенности</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {"\u041e\u0441\u043e\u0431\u0435\u043d\u043d\u043e\u0441\u0442\u0438"}
+          </p>
           <ul className="grid gap-1 text-sm text-foreground">
             {offer.highlights.map((item) => (
               <li key={item} className="rounded-md border border-border/70 p-2">
@@ -262,7 +240,9 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
         </div>
 
         <div className="space-y-2">
-          <p className="text-xs font-medium text-muted-foreground">Что включено</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {"\u0427\u0442\u043e \u0432\u043a\u043b\u044e\u0447\u0435\u043d\u043e"}
+          </p>
           <div className="flex flex-wrap gap-2">
             {offer.included.map((item) => (
               <Badge key={item} variant="outline">
@@ -273,7 +253,9 @@ function OfferCard({ offer }: { offer: TravelerOffer }) {
         </div>
 
         <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-          <p className="text-xs text-muted-foreground">Сообщение гида</p>
+          <p className="text-xs text-muted-foreground">
+            {"\u0421\u043e\u043e\u0431\u0449\u0435\u043d\u0438\u0435 \u0433\u0438\u0434\u0430"}
+          </p>
           <p className="mt-1 text-sm text-foreground">{offer.message}</p>
         </div>
       </CardContent>
@@ -304,4 +286,3 @@ function TimelineRow({
     </div>
   );
 }
-

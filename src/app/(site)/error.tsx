@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-import { AlertTriangle, RotateCcw } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { RouteFeedbackShell } from "@/components/shared/route-feedback-shell";
+import { useEffect } from "react";
 
 type SiteErrorProps = {
   error: Error & { digest?: string };
@@ -13,33 +9,33 @@ type SiteErrorProps = {
 };
 
 export default function SiteError({ error, reset }: SiteErrorProps) {
-  const detail = error.message || "Не удалось отрисовать публичную страницу.";
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
 
   return (
-    <RouteFeedbackShell
-      eyebrow="Ошибка страницы"
-      title="Не удалось загрузить витрину"
-      description="Публичная страница не собрала контент с первого раза. Повторите попытку или вернитесь на главную."
-      asideTitle="Что можно сделать"
-      asideItems={[
-        detail,
-        "Нажмите «Повторить», чтобы запросить страницу ещё раз.",
-        "Если проблема не исчезает, откройте главную страницу Provodnik.",
-      ]}
-      actions={
-        <>
-          <Button type="button" onClick={reset}>
-            <RotateCcw className="size-4" />
+    <main className="container flex min-h-[70vh] items-center py-16">
+      <section className="glass-card w-full max-w-2xl space-y-6 px-6 py-8 md:px-10 md:py-12">
+        <div className="space-y-3">
+          <p className="editorial-kicker">Сбой страницы</p>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Страница временно недоступна
+          </h1>
+          <p className="max-w-xl text-sm text-[var(--ink-3)] md:text-base">
+            Мы не смогли показать эту страницу. Попробуйте повторить действие
+            или вернуться на главную.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <button type="button" className="btn-primary" onClick={() => reset()}>
             Повторить
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/">
-              <AlertTriangle className="size-4" />
-              На главную
-            </Link>
-          </Button>
-        </>
-      }
-    />
+          </button>
+          <Link href="/" className="btn-ghost">
+            На главную
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

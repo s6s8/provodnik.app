@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { GuideOnboardingData } from "@/features/guide/types/guide-onboarding";
+
 export const guideGovIdTypes = [
   "passport",
   "national_id",
@@ -37,6 +39,7 @@ export const guideOnboardingSchema = z.object({
   specialties: z
     .array(z.string().min(1))
     .min(1, "Укажите хотя бы одну специализацию."),
+  isAvailable: z.boolean(),
   experienceLevel: z.enum(guideExperienceLevels),
   yearsExperience: z
     .number()
@@ -51,7 +54,7 @@ export const guideOnboardingSchema = z.object({
   groupSizeMax: z
     .number()
     .int("Используйте целое число.")
-    .min(1, "Минимальный размер группы — 1.")
+    .min(1, "Минимальный размер группы - 1.")
     .max(50, "В MVP максимум 50 человек в группе."),
   hasFirstAidTraining: z.boolean(),
   acceptsPrivateTours: z.boolean(),
@@ -61,7 +64,7 @@ export const guideOnboardingSchema = z.object({
     .trim()
     .min(3, "Укажите полное юридическое имя.")
     .max(100, "Не более 100 символов."),
-  birthDate: z.string().min(1, "Pick your birth date."),
+  birthDate: z.string().min(1, "Укажите дату рождения."),
   citizenshipCountry: z
     .string()
     .trim()
@@ -119,12 +122,16 @@ export const guideOnboardingSchema = z.object({
     .max(120, "Не более 120 символов."),
   consentBackgroundCheck: z
     .boolean()
-    .refine((value) => value, "Нужно согласиться на проверку.")
-  ,
+    .refine((value) => value, "Нужно согласиться на проверку."),
   attestTruthful: z
     .boolean()
     .refine((value) => value, "Нужно подтвердить достоверность данных."),
 });
 
 export type GuideOnboardingValues = z.infer<typeof guideOnboardingSchema>;
-
+type _GuideOnboardingShapeCheck =
+  GuideOnboardingValues extends GuideOnboardingData
+    ? GuideOnboardingData extends GuideOnboardingValues
+      ? true
+      : never
+    : never;

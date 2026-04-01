@@ -103,11 +103,8 @@ async function resolveDashboardPathForUser(
 export function AuthEntryScreen() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const urlRole = searchParams.get("role");
-
-  const validRoles = ["traveler", "guide"] as const;
   const initialRole: RoleValue =
-    urlRole === "guide" ? "guide" : "traveler";
+    searchParams.get("role") === "guide" ? "guide" : "traveler";
 
   const [mode, setMode] = useState<AuthFormMode>("sign-in");
   const [email, setEmail] = useState("");
@@ -155,10 +152,11 @@ export function AuthEntryScreen() {
       const supabase = createSupabaseBrowserClient();
 
       if (mode === "sign-in") {
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email: trimmedEmail,
-          password,
-        });
+        const { data, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email: trimmedEmail,
+            password,
+          });
 
         if (signInError) {
           setError(getFriendlyAuthError(signInError.message));
@@ -170,7 +168,10 @@ export function AuthEntryScreen() {
           return;
         }
 
-        const dashboardPath = await resolveDashboardPathForUser(supabase, data.user.id);
+        const dashboardPath = await resolveDashboardPathForUser(
+          supabase,
+          data.user.id,
+        );
 
         if (!dashboardPath) {
           await supabase.auth.signOut();
@@ -209,11 +210,16 @@ export function AuthEntryScreen() {
       }
 
       if (!data.user) {
-        setError("Аккаунт создан, но данные пользователя пока недоступны. Попробуйте войти снова.");
+        setError(
+          "Аккаунт создан, но данные пользователя пока недоступны. Попробуйте войти снова.",
+        );
         return;
       }
 
-      const dashboardPath = await resolveDashboardPathForUser(supabase, data.user.id);
+      const dashboardPath = await resolveDashboardPathForUser(
+        supabase,
+        data.user.id,
+      );
 
       if (!dashboardPath) {
         await supabase.auth.signOut();
@@ -261,7 +267,9 @@ export function AuthEntryScreen() {
               <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
                 {title}
               </h1>
-              <p className="max-w-sm text-sm leading-6 text-muted-foreground">{subtitle}</p>
+              <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+                {subtitle}
+              </p>
             </div>
           </div>
         </div>
@@ -331,7 +339,9 @@ export function AuthEntryScreen() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete={isSignUp ? "new-password" : "current-password"}
-                placeholder={isSignUp ? "Минимум 6 символов" : "Введите пароль"}
+                placeholder={
+                  isSignUp ? "Минимум 6 символов" : "Введите пароль"
+                }
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="auth-field-input pl-11 pr-14"
@@ -341,17 +351,25 @@ export function AuthEntryScreen() {
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
                 className="auth-toggle absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center"
-                aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
+                aria-label={
+                  showPassword ? "Скрыть пароль" : "Показать пароль"
+                }
                 aria-pressed={showPassword}
               >
-                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                {showPassword ? (
+                  <EyeOff className="size-4" />
+                ) : (
+                  <Eye className="size-4" />
+                )}
               </button>
             </div>
           </div>
 
           {isSignUp ? (
             <div className="auth-field">
-              <span className="text-sm font-medium text-foreground">Выберите роль</span>
+              <span className="text-sm font-medium text-foreground">
+                Выберите роль
+              </span>
               <div className="grid grid-cols-2 gap-3">
                 {roles
                   .filter((option) => option.value !== "admin")
@@ -392,7 +410,11 @@ export function AuthEntryScreen() {
             </div>
           ) : null}
 
-          <Button type="submit" className="h-12 w-full rounded-full" disabled={isSubmitting || !hasEnv}>
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-full"
+            disabled={isSubmitting || !hasEnv}
+          >
             {isSubmitting ? `${ctaLabel}...` : ctaLabel}
           </Button>
         </form>

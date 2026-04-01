@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { GuideOnboardingForm } from "@/features/guide/components/onboarding/guide-onboarding-form";
 import type { AuthContext } from "@/lib/auth/types";
 
@@ -21,9 +20,10 @@ export function GuideOnboardingScreen({ auth }: GuideOnboardingScreenProps) {
             Старт гида и проверка данных
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Заполните базовый профиль и данные для проверки. Если вы вошли через
-            Supabase, анкета сохранится в вашем профиле гида; без настроенного
-            Supabase она хранится только локально в этом браузере.
+            Заполните профиль и данные для проверки. При активной Supabase-сессии
+            анкета сохранится в `guide_profiles`, после чего откроется кабинет
+            гида. Если окружение или авторизация недоступны, форма завершится
+            локально и не сломает демо-режим.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -43,8 +43,8 @@ export function GuideOnboardingScreen({ auth }: GuideOnboardingScreenProps) {
         <CardHeader className="space-y-1">
           <CardTitle>Анкета гида</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Заполните минимум сейчас — позже это станет основой для верификации,
-            листингов и выплат.
+            Если backend отклонит сохранение по auth, RLS или сети, введённые
+            данные останутся в форме без сброса.
           </p>
         </CardHeader>
         <CardContent>
@@ -54,4 +54,3 @@ export function GuideOnboardingScreen({ auth }: GuideOnboardingScreenProps) {
     </div>
   );
 }
-

@@ -1,11 +1,7 @@
 "use client";
 
 import Link from "next/link";
-
-import { AlertTriangle, RotateCcw } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import { RouteFeedbackShell } from "@/components/shared/route-feedback-shell";
+import { useEffect } from "react";
 
 type ProtectedErrorProps = {
   error: Error & { digest?: string };
@@ -13,33 +9,33 @@ type ProtectedErrorProps = {
 };
 
 export default function ProtectedError({ error, reset }: ProtectedErrorProps) {
-  const detail = error.message || "Не удалось отрисовать защищённый маршрут.";
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
 
   return (
-    <RouteFeedbackShell
-      eyebrow="Ошибка кабинета"
-      title="Не удалось открыть рабочую область"
-      description="Похоже, защищённый маршрут не собрался с первого раза. Повторите попытку или вернитесь к безопасному входу."
-      asideTitle="Подсказки"
-      asideItems={[
-        detail,
-        "Повторите загрузку после короткой паузы.",
-        "Если ошибка возвращается, откройте страницу входа и войдите заново.",
-      ]}
-      actions={
-        <>
-          <Button type="button" onClick={reset}>
-            <RotateCcw className="size-4" />
+    <main className="container flex min-h-[60vh] items-center py-16">
+      <section className="glass-card w-full max-w-2xl space-y-6 px-6 py-8 md:px-10 md:py-12">
+        <div className="space-y-3">
+          <p className="editorial-kicker">Сбой кабинета</p>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            Раздел временно недоступен
+          </h1>
+          <p className="max-w-xl text-sm text-[var(--ink-3)] md:text-base">
+            Мы не смогли открыть этот раздел. Попробуйте повторить действие или
+            вернуться на главную.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <button type="button" className="btn-primary" onClick={() => reset()}>
             Повторить
-          </Button>
-          <Button variant="outline" asChild>
-            <Link href="/auth">
-              <AlertTriangle className="size-4" />
-              Перейти к входу
-            </Link>
-          </Button>
-        </>
-      }
-    />
+          </button>
+          <Link href="/" className="btn-ghost">
+            На главную
+          </Link>
+        </div>
+      </section>
+    </main>
   );
 }

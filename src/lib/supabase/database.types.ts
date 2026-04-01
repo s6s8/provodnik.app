@@ -7,6 +7,7 @@ import type {
   GuideDocumentRow,
   GuideOfferRow,
   GuideProfileRow,
+  GuideProfileUpsert,
   GuideVerificationStatusDb,
   ListingMediaRow,
   ListingRow,
@@ -171,7 +172,7 @@ export interface Database {
   public: {
     Tables: {
       profiles: TableDefinition<ProfileRow>;
-      guide_profiles: TableDefinition<GuideProfileRow, Partial<GuideProfileRow> & Pick<GuideProfileRow, "user_id">>;
+      guide_profiles: TableDefinition<GuideProfileRow, GuideProfileUpsert, Partial<GuideProfileUpsert>>;
       listings: TableDefinition<ListingRow, Partial<ListingRow> & Pick<ListingRow, "guide_id" | "slug" | "title" | "region" | "category" | "price_from_minor">>;
       traveler_requests: TableDefinition<TravelerRequestRow, Partial<TravelerRequestRow> & Pick<TravelerRequestRow, "traveler_id" | "destination" | "category" | "starts_on">>;
       open_request_members: TableDefinition<OpenRequestMemberRow, Partial<OpenRequestMemberRow> & Pick<OpenRequestMemberRow, "request_id" | "traveler_id">>;
