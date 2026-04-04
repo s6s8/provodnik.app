@@ -93,19 +93,19 @@ export function VerificationUploadForm({
   }, [actions, router]);
 
   return (
-    <div className="upload-form-shell">
-      <div className="upload-form-summary glass-panel">
-        <div className="upload-form-summary__item">
+    <div className="grid gap-6">
+      <div className="grid gap-3 rounded-glass border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]">
+        <div className="flex items-start gap-3 text-sm text-muted-foreground">
           <ShieldCheck size={18} />
           <span>Загрузите документы в хорошем качестве и без обрезки.</span>
         </div>
-        <div className="upload-form-summary__item">
+        <div className="flex items-start gap-3 text-sm text-muted-foreground">
           <Clock3 size={18} />
           <span>Проверка начинается только после кнопки «Отправить на проверку».</span>
         </div>
       </div>
 
-      <div className="upload-grid">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {verificationSlots.map((slot) => (
           <DocumentUploadCard
             key={slot.documentType}
@@ -124,21 +124,20 @@ export function VerificationUploadForm({
       </div>
 
       {submitError ? (
-        <div className="upload-alert upload-alert--danger">
+        <div className="flex items-start gap-3 rounded-[1rem] bg-destructive/10 px-4 py-3.5 text-destructive">
           <AlertCircle size={18} />
           <span>{submitError}</span>
         </div>
       ) : null}
 
-      <div className="upload-submit-row">
-        <p className="upload-submit-copy">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="max-w-2xl text-[0.9375rem] leading-[1.65] text-muted-foreground">
           {hasRequiredDocuments
             ? "Обязательные документы загружены. Можно отправлять профиль на проверку."
             : "Кнопка станет активной после загрузки паспорта и селфи с документом."}
         </p>
         <Button
           type="button"
-          className="btn-primary"
           onClick={handleSubmit}
           disabled={!hasRequiredDocuments || isSubmitting}
         >

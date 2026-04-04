@@ -114,7 +114,7 @@ export function ListingPhotoUploadSection({
   );
 
   return (
-    <section className="upload-photo-section glass-panel">
+    <section className="rounded-glass border border-glass-border bg-glass p-[clamp(1.25rem,3vw,1.75rem)] shadow-glass backdrop-blur-[20px]">
       <input
         ref={inputRef}
         type="file"
@@ -122,18 +122,21 @@ export function ListingPhotoUploadSection({
         className="sr-only"
         onChange={handleFileChange}
       />
-      <div className="upload-photo-section__header">
+      <div className="flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
         <div>
-          <p className="sec-label">Фото тура</p>
-          <h2 className="upload-photo-section__title">Добавить фото</h2>
-          <p className="upload-copy">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Фото тура
+          </p>
+          <h2 className="flex flex-wrap items-center gap-2 font-sans text-base font-semibold text-foreground">
+            Добавить фото
+          </h2>
+          <p className="text-[0.9375rem] leading-[1.65] text-muted-foreground">
             Первое фото станет обложкой. Можно загрузить несколько изображений по
             одному.
           </p>
         </div>
         <Button
           type="button"
-          className="btn-primary"
           onClick={handleSelectFile}
           disabled={!listingId}
         >
@@ -143,7 +146,7 @@ export function ListingPhotoUploadSection({
       </div>
 
       {!listingId ? (
-        <div className="upload-alert">
+        <div className="flex items-start gap-3 rounded-[1rem] bg-surface-low/[0.82] px-4 py-3.5 text-muted-foreground">
           <AlertCircle size={18} />
           <span>Сначала сохраните тур, чтобы привязать фотографии.</span>
         </div>
@@ -151,44 +154,47 @@ export function ListingPhotoUploadSection({
 
       <button
         type="button"
-        className="upload-photo-dropzone"
+        className="grid min-h-[13rem] w-full place-items-center gap-3 rounded-[calc(var(--card-radius)-2px)] border-2 border-dashed border-outline-variant bg-surface-high/[0.78] p-4 transition-[transform,border-color,background] duration-150 hover:-translate-y-0.5 hover:border-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
         onClick={handleSelectFile}
         disabled={!listingId}
       >
-        <span className="upload-card__preview-icon">
+        <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
           {progress !== null ? (
             <LoaderCircle size={24} className="animate-spin" />
           ) : (
             <ImagePlus size={24} />
           )}
         </span>
-        <span className="upload-card__dropzone-copy">
+        <span className="text-center text-sm text-muted-foreground">
           {progress !== null ? `Загрузка: ${progress}%` : "Нажмите, чтобы выбрать фотографию"}
         </span>
       </button>
 
       {error ? (
-        <div className="upload-alert upload-alert--danger">
+        <div className="flex items-start gap-3 rounded-[1rem] bg-destructive/10 px-4 py-3.5 text-destructive">
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
       ) : null}
 
       {photos.length ? (
-        <div className="upload-thumb-grid">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {photos.map((photo) => (
-            <div key={photo.id} className="upload-thumb">
+            <div
+              key={photo.id}
+              className="overflow-hidden rounded-card bg-surface-high shadow-card"
+            >
               <img
                 src={photo.publicUrl}
                 alt={photo.isCover ? "Обложка тура" : "Фотография тура"}
-                className="upload-thumb__image"
+                className="block aspect-[4/3] w-full object-cover"
               />
-              <div className="upload-thumb__meta">
+              <div className="flex items-center justify-between gap-3 px-4 py-3.5 text-[0.8125rem] text-muted-foreground">
                 <span
                   className={
                     photo.isCover
-                      ? "upload-status-badge upload-status-badge--success"
-                      : "upload-status-badge"
+                      ? "inline-flex items-center gap-1.5 rounded-full bg-success/12 px-3.5 py-1.5 text-xs font-semibold text-success"
+                      : "inline-flex items-center gap-1.5 rounded-full bg-surface-low px-3.5 py-1.5 text-xs font-semibold text-muted-foreground"
                   }
                 >
                   {photo.isCover ? "Обложка" : "Галерея"}
