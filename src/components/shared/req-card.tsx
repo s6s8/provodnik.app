@@ -1,5 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
 
 export interface ReqCardMember {
   id: string;
@@ -34,58 +36,55 @@ export function ReqCard({
   price,
 }: ReqCardProps) {
   return (
-    <Link href={href} className="req-card">
-      <div className="req-card-top">
+    <Link
+      href={href}
+      className="block bg-surface-high rounded-card p-5 shadow-card transition-transform hover:-translate-y-[3px] no-underline text-inherit"
+    >
+      <div className="mb-3.5 flex items-center justify-between gap-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         <span>{location}</span>
-        <span className="req-spots">{spotsLabel}</span>
+        <span className="text-primary">{spotsLabel}</span>
       </div>
 
-      <p className="req-title">{title}</p>
-      <p className="req-meta">{date}</p>
+      <p className="mb-1.5 font-sans text-[1.125rem] font-semibold text-foreground">{title}</p>
+      <p className="mb-2 text-[0.8125rem] text-muted-foreground">{date}</p>
 
-      {desc ? <p className="req-desc">{desc}</p> : null}
+      {desc ? <p className="mb-3.5 line-clamp-2 text-sm leading-[1.55] text-muted-foreground">{desc}</p> : null}
 
-      <div className="req-bar">
-        <div
-          className="req-bar-fill"
-          style={{ width: `${Math.min(100, Math.max(0, fillPct))}%` }}
-        />
-      </div>
+      <Progress value={Math.min(100, Math.max(0, fillPct))} className="mb-3.5 h-1" />
 
-      <div className="req-foot">
+      <div className="flex items-center justify-between gap-3">
         {members && members.length > 0 ? (
-          <div className="avatars">
-            {members.slice(0, 5).map((m, i) => (
-              <span
+          <div className="flex items-center">
+            {members.slice(0, 5).map((m) => (
+              <Avatar
                 key={m.id}
-                className="avatar"
+                className="size-7 -ml-1.5 border-2 border-surface-high first:ml-0"
                 title={m.displayName}
-                style={{ marginLeft: i === 0 ? "0" : "-6px" }}
               >
-                {m.avatarUrl ? (
-                  <Image src={m.avatarUrl} alt={m.displayName} width={28} height={28} style={{ borderRadius: "50%", objectFit: "cover" }} />
-                ) : (
-                  m.initials
-                )}
-              </span>
+                {m.avatarUrl ? <AvatarImage src={m.avatarUrl} alt={m.displayName} /> : null}
+                <AvatarFallback className="bg-surface-low text-[0.5625rem] font-semibold">
+                  {m.initials}
+                </AvatarFallback>
+              </Avatar>
             ))}
           </div>
         ) : avatars && avatars.length > 0 ? (
-          <div className="avatars">
+          <div className="flex items-center">
             {avatars.map((initials, i) => (
-              <span
+              <Avatar
                 key={i}
-                className="avatar"
-                style={{ marginLeft: i === 0 ? "0" : "-6px" }}
+                className="size-7 -ml-1.5 border-2 border-surface-high first:ml-0"
               >
-                {initials}
-              </span>
+                <AvatarFallback className="bg-surface-low text-[0.5625rem] font-semibold">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
             ))}
           </div>
         ) : (
           <div />
         )}
-        <span className="req-price">{price}</span>
+        <span className="text-sm font-semibold text-foreground">{price}</span>
       </div>
     </Link>
   );

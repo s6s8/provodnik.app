@@ -19,24 +19,24 @@ export function GuideCard({ guide }: GuideCardProps) {
               <Image src={guide.avatarUrl} alt={guide.fullName} fill sizes="72px" className="object-cover" />
             </div>
           ) : (
-            <div className="flex size-[4.5rem] items-center justify-center rounded-full bg-[var(--brand-light)] font-display text-2xl font-semibold text-[var(--brand)]">
+            <div className="flex size-[4.5rem] items-center justify-center rounded-full bg-brand-light font-display text-2xl font-semibold text-brand">
               {guide.initials}
             </div>
           )}
 
           <div className="flex-1 space-y-2">
-            <h3 className="text-2xl font-semibold leading-tight text-[var(--ink)]">{guide.fullName}</h3>
-            <p className="text-sm text-[var(--ink-2)]">{guide.homeBase}</p>
+            <h3 className="text-2xl font-semibold leading-tight text-ink">{guide.fullName}</h3>
+            <p className="text-sm text-ink-2">{guide.homeBase}</p>
             <RatingDisplay rating={guide.rating} reviewCount={guide.reviewCount} />
           </div>
         </div>
 
-        <p className="mt-4 text-sm leading-7 text-[var(--ink-2)]">{guide.bio}</p>
+        <p className="mt-4 text-sm leading-7 text-ink-2">{guide.bio}</p>
         <div className="mt-5 flex flex-wrap gap-2">
           {guide.destinations.slice(0, 3).map((destination) => (
             <span
               key={destination}
-              className="rounded-full bg-[var(--surface-high)] px-3 py-1.5 text-xs font-medium text-[var(--ink-2)]"
+              className="rounded-full bg-surface-high px-3 py-1.5 text-xs font-medium text-ink-2"
             >
               {destination}
             </span>

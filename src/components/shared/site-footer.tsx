@@ -43,26 +43,34 @@ const legalLinks = [
 
 export function SiteFooter() {
   return (
-    <footer className="site-footer" role="contentinfo">
-      <div className="footer-inner">
-        <div className="footer-grid">
+    <footer className="bg-footer-bg pb-8 pt-14" role="contentinfo">
+      <div className="mx-auto max-w-page px-[clamp(20px,4vw,48px)]">
+        <div className="mb-7 grid grid-cols-1 gap-7 pb-14 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
           <nav aria-label="О проекте">
-            <p className="footer-col-label">О проекте</p>
-            <ul className="footer-links">
+            <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/[0.68]">
+              О проекте
+            </p>
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
               {projectLinks.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href}>{link.label}</Link>
+                  <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
           </nav>
 
           <nav aria-label="Поддержка">
-            <p className="footer-col-label">Поддержка</p>
-            <ul className="footer-links">
+            <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/[0.68]">
+              Поддержка
+            </p>
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
               {supportLinks.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href}>{link.label}</Link>
+                  <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                    {link.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -70,25 +78,31 @@ export function SiteFooter() {
 
           <div>
             <nav aria-label="Правила">
-              <p className="footer-col-label">Правила</p>
-              <ul className="footer-links">
+              <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/[0.68]">
+                Правила
+              </p>
+              <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
                 {policyLinks.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href}>{link.label}</Link>
+                    <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>
             </nav>
 
-            <div className="footer-social-col">
-              <p className="footer-col-label">Мы в сети</p>
-              <div className="footer-social">
+            <div className="mt-6">
+              <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/[0.68]">
+                Мы в сети
+              </p>
+              <div className="mt-1.5 flex gap-2.5">
                 {socialLinks.map((social) => (
                   <a
                     key={social.label}
                     href={social.href}
                     aria-label={social.label}
-                    className="footer-social-btn"
+                    className="flex size-[38px] items-center justify-center rounded-full border border-white/12 text-white/55 transition-[border-color,color] duration-150 hover:border-white/[0.38] hover:text-white"
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -100,15 +114,24 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="footer-bottom">
-          <p className="footer-copy">© 2026 Provodnik. Все права защищены.</p>
-          <div className="footer-legal">
+        <div className="flex items-center justify-between gap-3 pt-7 max-md:flex-col max-md:items-start">
+          <p className="text-[0.8125rem] text-white/[0.35]">© 2026 Provodnik. Все права защищены.</p>
+          <div className="flex gap-5">
             {legalLinks.map((link) => (
-              <Link key={link.label} href={link.href}>
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70"
+              >
                 {link.label}
               </Link>
             ))}
-            <a href="mailto:support@provodnik.app">Поддержка</a>
+            <a
+              href="mailto:support@provodnik.app"
+              className="text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70"
+            >
+              Поддержка
+            </a>
           </div>
         </div>
       </div>

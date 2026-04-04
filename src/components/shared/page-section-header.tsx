@@ -16,70 +16,24 @@ export function PageSectionHeader({
   linkHref,
 }: PageSectionHeaderProps) {
   return (
-    <div
-      style={{
-        background: "var(--surface-low)",
-        padding: "100px 0 48px",
-        textAlign: "center",
-      }}
-    >
-      <p
-        className="sec-label"
-        style={{
-          fontSize: "0.6875rem",
-          fontWeight: 500,
-          letterSpacing: "0.18em",
-          textTransform: "uppercase",
-          color: "var(--on-surface-muted)",
-          marginBottom: "8px",
-        }}
-      >
+    <div className="bg-surface-low pb-12 pt-[100px] text-center">
+      <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-on-surface-muted">
         {label}
       </p>
 
-      <h1
-        style={{
-          fontFamily: "var(--font-display)",
-          fontSize: "clamp(1.875rem, 3.5vw, 2.375rem)",
-          fontWeight: 600,
-          lineHeight: 1.1,
-          color: "var(--on-surface)",
-        }}
-      >
-        {title}
-      </h1>
+      <h1 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1] text-on-surface">{title}</h1>
 
       {description ? (
-        <p
-          className="lead"
-          style={{
-            maxWidth: "760px",
-            margin: "16px auto 0",
-            fontSize: "1rem",
-            color: "var(--on-surface-muted)",
-            lineHeight: 1.65,
-          }}
-        >
+        <p className="mx-auto mt-4 max-w-[760px] text-base leading-[1.65] text-on-surface-muted">
           {description}
         </p>
       ) : null}
 
       {linkText && linkHref ? (
-        <div style={{ marginTop: "24px" }}>
+        <div className="mt-6">
           <Link
             href={linkHref}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              padding: "9px 18px",
-              borderRadius: "9999px",
-              border: "1px solid rgba(0, 88, 190, 0.22)",
-              color: "var(--primary)",
-              fontFamily: "var(--font-ui)",
-              fontSize: "0.875rem",
-              fontWeight: 500,
-              transition: "background 0.15s, border-color 0.15s",
-            }}
+            className="inline-flex items-center rounded-full border border-primary/[0.22] px-[18px] py-[9px] font-sans text-sm font-medium text-primary transition-[background,border-color] duration-150"
           >
             {linkText}
           </Link>

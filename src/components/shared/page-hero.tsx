@@ -28,7 +28,9 @@ export function PageHero({
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(15,23,42,0.15),rgba(15,23,42,0.55))]" />
 
           <div className="relative z-10 flex min-h-[420px] flex-col justify-end gap-5 px-6 py-8 text-white sm:min-h-[520px] sm:px-10 sm:py-10">
-            {kicker ? <p className="editorial-kicker text-white/80">{kicker}</p> : null}
+            {kicker ? (
+              <p className="text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-white/80">{kicker}</p>
+            ) : null}
             <h1 className="max-w-4xl text-[clamp(2.75rem,5vw,4.25rem)] font-semibold leading-[1.04] text-white">
               {title}
             </h1>

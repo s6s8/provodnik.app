@@ -8,7 +8,13 @@ type GlassCardProps = HTMLAttributes<HTMLDivElement> & {
 
 export function GlassCard({ children, className, ...props }: GlassCardProps) {
   return (
-    <div className={cn("glass-card", className)} {...props}>
+    <div
+      className={cn(
+        "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </div>
   );

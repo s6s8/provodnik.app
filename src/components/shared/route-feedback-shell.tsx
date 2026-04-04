@@ -26,9 +26,15 @@ export function RouteFeedbackShell({
   className,
 }: RouteFeedbackShellProps) {
   return (
-    <section className={cn("route-feedback-shell px-4 py-8 sm:px-6 lg:px-8", className)}>
-      <div aria-hidden="true" className="route-feedback-orb route-feedback-orb-primary" />
-      <div aria-hidden="true" className="route-feedback-orb route-feedback-orb-secondary" />
+    <section className={cn("relative isolate overflow-hidden px-4 py-8 sm:px-6 lg:px-8", className)}>
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-[160px] -top-[220px] size-[500px] rounded-full bg-primary/[0.12] blur-[120px]"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-[180px] -right-[120px] size-[400px] rounded-full bg-brand-light/[0.18] blur-[100px]"
+      />
 
       <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(260px,0.88fr)]">
@@ -55,7 +61,7 @@ export function RouteFeedbackShell({
             </div>
           </GlassCard>
 
-          <GlassCard className="route-feedback-aside relative overflow-hidden rounded-[2rem] p-6 sm:p-7">
+          <GlassCard className="relative overflow-hidden rounded-[2rem] p-6 sm:p-7">
             <div className="relative space-y-5">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-sm font-semibold text-foreground">{asideTitle}</p>

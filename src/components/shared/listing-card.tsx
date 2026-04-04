@@ -12,7 +12,7 @@ export function ListingCard({ listing }: ListingCardProps) {
   return (
     <Link
       href={`/listings/${listing.slug}`}
-      className="group relative block min-h-[360px] overflow-hidden rounded-[1.75rem] bg-[var(--ink)]"
+      className="group relative block min-h-[360px] overflow-hidden rounded-[1.75rem] bg-ink"
     >
       <Image
         src={listing.imageUrl}

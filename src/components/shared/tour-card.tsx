@@ -19,82 +19,34 @@ export function TourCard({
   price,
 }: TourCardProps) {
   return (
-    <Link
-      href={href}
-      className="tour-card"
-      style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "flex-end",
-        minHeight: "260px",
-        borderRadius: "28px",
-        overflow: "hidden",
-      }}
-    >
+    <Link href={href} className="relative flex min-h-[260px] items-end overflow-hidden rounded-card no-underline text-inherit transition-transform hover:-translate-y-[3px]">
       {/* Background image */}
       <Image
         src={imageUrl}
         alt={title}
         fill
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-        style={{ objectFit: "cover" }}
+        className="object-cover"
       />
 
       {/* Gradient overlay */}
-      <div className="overlay-top" aria-hidden="true" style={{ zIndex: 1 }} />
+      <div
+        className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]"
+        aria-hidden="true"
+      />
 
       {/* Content */}
-      <div
-        className="tour-content on-dark"
-        style={{
-          position: "relative",
-          zIndex: 2,
-          padding: "24px",
-          width: "100%",
-        }}
-      >
-        <h3
-          style={{
-            fontFamily: "var(--font-display)",
-            fontSize: "2rem",
-            lineHeight: 1.02,
-            fontWeight: 600,
-          }}
-        >
-          {title}
-        </h3>
+      <div className="relative z-[2] w-full p-6 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)] [--outline-variant:rgba(255,255,255,0.20)]">
+        <h3 className="font-display text-[2rem] font-semibold leading-[1.02]">{title}</h3>
 
-        <div
-          className="tour-meta"
-          style={{
-            marginTop: "12px",
-            display: "grid",
-            gap: "6px",
-            fontSize: "0.875rem",
-            color: "rgba(255,255,255,0.82)",
-          }}
-        >
+        <div className="mt-3 grid gap-1.5 text-sm text-white/82">
           <span>
             {guide}
             {rating !== undefined ? ` · ${rating} ★` : null}
           </span>
         </div>
 
-        <div
-          className="price-pill"
-          style={{
-            width: "fit-content",
-            marginTop: "14px",
-            padding: "8px 16px",
-            borderRadius: "9999px",
-            background: "rgba(249,249,255,0.18)",
-            backdropFilter: "blur(20px)",
-            WebkitBackdropFilter: "blur(20px)",
-            border: "1px solid rgba(255,255,255,0.20)",
-            fontSize: "0.8125rem",
-            fontWeight: 600,
-          }}
-        >
+        <div className="mt-3.5 w-fit rounded-full border border-white/20 bg-white/[0.18] px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-[20px]">
           {price}
         </div>
       </div>
