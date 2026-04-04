@@ -34,6 +34,9 @@ const config = {
         "on-surface": "var(--on-surface)",
         "on-surface-muted": "var(--on-surface-muted)",
         "outline-variant": "var(--outline-variant)",
+        "nav-glass-bg": "var(--nav-glass-bg)",
+        "nav-glass-border": "var(--nav-glass-border)",
+        "surface-lowest": "var(--surface-lowest)",
       },
       fontFamily: {
         serif: ["var(--font-serif)", "Georgia", "serif"],
