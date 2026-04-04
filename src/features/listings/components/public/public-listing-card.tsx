@@ -18,7 +18,7 @@ function formatRub(value: number) {
 
 export function PublicListingCard({ listing }: { listing: PublicListing }) {
   return (
-    <article className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass overflow-hidden rounded-[2rem] border border-white/70">
+    <article className="bg-glass backdrop-blur-[20px] border border-white/70 shadow-glass overflow-hidden rounded-[2rem]">
       <div className="relative">
         <ListingCoverArt listing={listing} compact />
         <div className="absolute right-4 top-4">

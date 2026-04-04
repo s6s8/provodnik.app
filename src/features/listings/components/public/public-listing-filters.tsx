@@ -62,7 +62,7 @@ export function PublicListingFilters({
   }, [filtered, onFilteredListingsChange]);
 
   return (
-    <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[2rem] border border-white/70">
+    <Card className="bg-glass backdrop-blur-[20px] border border-white/70 shadow-glass rounded-[2rem]">
       <CardHeader className="space-y-2">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle className="text-base">Фильтры витрины</CardTitle>

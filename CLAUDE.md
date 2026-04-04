@@ -72,9 +72,11 @@ Never guess API signatures. Context7 takes 10 seconds. Hallucinated APIs waste h
 
 ## CSS Rules
 
-- **All styles in `src/app/globals.css` only** — no per-component `<style>` blocks, no Tailwind inline classes for custom values, no inline `style={{}}` for layout
-- Use CSS custom properties from `:root` — never hardcode hex values or pixel values that duplicate tokens
-- Design tokens are in `D:\dev\projects\provodnik\DESIGN.md` — read before touching any visual code
+- **Tailwind utilities + shadcn/ui components only** — no custom CSS classes, no per-component `<style>` blocks, no inline `style={{}}` for layout
+- `globals.css` contains ONLY design tokens (`:root`, `.dark`) and global resets — never add custom classes there
+- Design tokens are exposed via `tailwind.config.ts` — use token names (`bg-surface-high`, `text-primary`, `rounded-card`) not raw `var()` references
+- Glass morphism pattern: `bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass`
+- shadcn/ui components: 23 installed in `src/components/ui/` — use them instead of hand-rolling buttons, badges, avatars, etc.
 
 ## Package Manager
 

@@ -17,13 +17,13 @@ export default function Loading() {
               </div>
             </div>
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[1.75rem] p-5 space-y-3">
+              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-[1.75rem] p-5 space-y-3">
                 <Skeleton className="h-6 w-40" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-11/12" />
                 <Skeleton className="h-4 w-4/5" />
               </div>
-              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[1.75rem] p-5 space-y-3">
+              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-[1.75rem] p-5 space-y-3">
                 <Skeleton className="h-6 w-36" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-10/12" />
@@ -32,7 +32,7 @@ export default function Loading() {
             </div>
           </div>
 
-          <aside className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[1.75rem] p-6 lg:sticky lg:top-24">
+          <aside className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-[1.75rem] p-6 lg:sticky lg:top-24">
             <div className="space-y-4">
               <Skeleton className="h-12 w-40" />
               <Skeleton className="h-4 w-44" />

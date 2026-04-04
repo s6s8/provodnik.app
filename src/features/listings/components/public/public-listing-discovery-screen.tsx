@@ -102,7 +102,7 @@ export function PublicListingDiscoveryScreen({
           ))}
         </div>
       ) : (
-        <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
+        <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
           <span className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] text-[var(--brand)]">
             <Compass className="size-6" strokeWidth={1.9} />
           </span>

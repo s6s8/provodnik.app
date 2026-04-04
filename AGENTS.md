@@ -93,17 +93,18 @@ Key facts:
 - Never guess API signatures — use `mcp__plugin_context7_context7__resolve-library-id` then `query-docs`
 
 ## CSS rules
-- All styles in `src/app/globals.css` only
-- No per-component `<style>` blocks, no inline `style={{}}` for layout
-- Use CSS custom properties from `:root`
-- Design tokens: `D:\dev\projects\provodnik\DESIGN.md`
+- Tailwind utilities + shadcn/ui components only — no custom CSS classes
+- `globals.css` has ONLY design tokens and global resets (179 lines) — never add custom classes
+- Design tokens exposed via `tailwind.config.ts` — use `bg-surface-high`, `text-primary`, `rounded-card` etc.
+- Glass pattern: `bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass`
+- 23 shadcn/ui components in `src/components/ui/` — use them, don't hand-roll
 
 ## Verification (definition of done)
 Every task must pass before marking complete:
 1. `bun run build` — zero errors
 2. `bun run typecheck` — zero errors
-3. No inline `style={{}}` added for layout purposes
-4. No hardcoded hex values outside `:root` in globals.css
+3. No custom CSS classes added — Tailwind utilities only
+4. No inline `style={{}}` for things expressible as Tailwind
 5. Commit exists with Co-Authored-By line
 
 ## Env
