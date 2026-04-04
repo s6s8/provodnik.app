@@ -28,7 +28,7 @@ export function DashboardOverview({
 }) {
   return (
     <div className="space-y-8">
-      <section className="section-frame rounded-[2.3rem] p-6 sm:p-8">
+      <section className="rounded-[2.3rem] bg-surface-high p-6 shadow-card sm:p-8">
         <div className="max-w-3xl space-y-4">
           <Badge variant="secondary">{eyebrow}</Badge>
           <div className="space-y-3">
@@ -45,7 +45,7 @@ export function DashboardOverview({
           return (
             <article
               key={stat.title}
-              className="section-frame rounded-[1.9rem] p-5 shadow-[0_16px_40px_rgba(35,45,49,0.06)]"
+              className="rounded-[1.9rem] bg-surface-high p-5 shadow-card"
             >
               <div className="flex items-start gap-4">
                 <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">

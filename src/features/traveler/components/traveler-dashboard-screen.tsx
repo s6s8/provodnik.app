@@ -4,7 +4,9 @@ import * as React from "react";
 import Link from "next/link";
 
 import { ReqCard } from "@/components/shared/req-card";
+import { Button } from "@/components/ui/button";
 import type { AuthContext } from "@/lib/auth/types";
+import { cn } from "@/lib/utils";
 import { listTravelerRequestsFromSupabase } from "@/data/traveler-request/supabase-client";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 
@@ -36,14 +38,26 @@ function statusBadge(
   switch (status) {
     case "offers_received":
     case "submitted":
-      return { label: "Активный", cls: "state active" };
+      return {
+        label: "Активный",
+        cls: "inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary",
+      };
     case "shortlisted":
-      return { label: "Набор группы", cls: "state wait" };
+      return {
+        label: "Набор группы",
+        cls: "inline-flex items-center gap-1.5 rounded-full bg-surface-low px-2.5 py-1 text-xs font-semibold text-muted-foreground",
+      };
     case "booked":
     case "closed":
-      return { label: "Завершён", cls: "state done" };
+      return {
+        label: "Завершён",
+        cls: "inline-flex items-center gap-1.5 rounded-full bg-[rgba(13,114,82,0.10)] px-2.5 py-1 text-xs font-semibold text-[#0d7252]",
+      };
     default:
-      return { label: "Черновик", cls: "state wait" };
+      return {
+        label: "Черновик",
+        cls: "inline-flex items-center gap-1.5 rounded-full bg-surface-low px-2.5 py-1 text-xs font-semibold text-muted-foreground",
+      };
   }
 }
 
@@ -85,92 +99,39 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
 
   return (
     <>
-      {/* ── Page header ───────────────────────────────────────────────────── */}
-      <section
-        style={{
-          background: "var(--surface)",
-          padding: "110px 0 32px",
-        }}
-      >
-        <div className="container">
-          <p className="sec-label">Личный кабинет</p>
-          <h1
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
-              lineHeight: 1.05,
-              fontWeight: 600,
-            }}
-          >
+      <section className="bg-surface pt-[110px] pb-8">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Личный кабинет
+          </p>
+          <h1 className="font-display text-[clamp(1.75rem,4vw,2.5rem)] font-semibold leading-[1.05]">
             Добро пожаловать, {displayName}
           </h1>
-          <p
-            style={{
-              marginTop: "14px",
-              color: "var(--on-surface-muted)",
-            }}
-          >
+          <p className="mt-3.5 text-muted-foreground">
             Ваши активные запросы, группы и предложения гидов.
           </p>
         </div>
       </section>
 
-      {/* ── Dashboard layout ──────────────────────────────────────────────── */}
-      <section style={{ padding: "0 0 80px" }}>
-        <div className="container">
-          <div className="dashboard-grid">
-            {/* ── Sidebar ─────────────────────────────────────────────────── */}
-            <aside className="dashboard-sidebar">
-              {/* Avatar */}
-              <div
-                style={{
-                  width: "72px",
-                  height: "72px",
-                  borderRadius: "50%",
-                  background: "var(--surface-low)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontFamily: "var(--font-display)",
-                  fontSize: "1.5rem",
-                  fontWeight: 600,
-                  color: "var(--primary)",
-                }}
-              >
+      <section className="pb-20">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
+            <aside className="self-start rounded-card bg-surface-high p-5 shadow-card max-lg:static lg:sticky lg:top-24">
+              <div className="flex size-[72px] items-center justify-center rounded-full bg-surface-low font-display text-2xl font-semibold text-primary">
                 {userInitials}
               </div>
 
-              <strong
-                style={{
-                  display: "block",
-                  fontSize: "0.9375rem",
-                  marginTop: "12px",
-                }}
-              >
-                {displayName}
-              </strong>
+              <strong className="mt-3 block text-[0.9375rem]">{displayName}</strong>
 
               {email && (
-                <small
-                  style={{
-                    display: "block",
-                    marginTop: "4px",
-                    color: "var(--on-surface-muted)",
-                    fontSize: "0.8125rem",
-                  }}
-                >
+                <small className="mt-1 block text-[0.8125rem] text-muted-foreground">
                   {email}
                 </small>
               )}
 
-              {/* Divider */}
-              <div className="dashboard-sidebar-divider" />
+              <div className="my-[18px] h-px bg-outline-variant/30" />
 
-              {/* Nav links */}
-              <nav
-                style={{ display: "grid", gap: "4px" }}
-                aria-label="Навигация по кабинету"
-              >
+              <nav className="grid gap-1" aria-label="Навигация по кабинету">
                 {[
                   { label: "Мои запросы", href: "/dashboard", active: true },
                   { label: "Группы", href: "/dashboard/groups", active: false },
@@ -188,7 +149,10 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                   <Link
                     key={href}
                     href={href}
-                    className={`side-nav-link${active ? " active" : ""}`}
+                    className={cn(
+                      "block rounded-[10px] px-3 py-2 text-sm font-medium text-muted-foreground no-underline transition-[background,color] duration-150 hover:bg-primary/5 hover:text-foreground",
+                      active && "bg-primary/[0.08] font-semibold text-primary"
+                    )}
                   >
                     {label}
                   </Link>
@@ -196,31 +160,15 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
               </nav>
             </aside>
 
-            {/* ── Main content ────────────────────────────────────────────── */}
             <div>
-              {/* Section header */}
-              <div
-                className="section-hd"
-                style={{
-                  marginBottom: "20px",
-                }}
-              >
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.5rem",
-                    fontWeight: 600,
-                  }}
-                >
-                  Мои запросы
-                </h2>
-                <Link href="/requests/new" className="btn-primary">
-                  Создать запрос
-                </Link>
+              <div className="mb-5 flex items-end justify-between gap-4">
+                <h2 className="font-display text-2xl font-semibold">Мои запросы</h2>
+                <Button asChild>
+                  <Link href="/requests/new">Создать запрос</Link>
+                </Button>
               </div>
 
-              {/* Request cards grid */}
-              <div className="dashboard-req-grid">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 {items.map((record) => {
                   const { request, id, status } = record;
                   const badge = statusBadge(status);
@@ -237,7 +185,6 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                   );
                   const spotsLabel = `${request.groupSize} чел.`;
 
-                  // fill bar: submitted=30%, offers_received=65%, shortlisted=80%, booked=100%, closed=100%
                   const fillMap: Record<string, number> = {
                     draft: 10,
                     submitted: 30,
@@ -249,18 +196,8 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                   const fillPct = fillMap[status] ?? 30;
 
                   return (
-                    <div key={id} style={{ position: "relative" }}>
-                      {/* Status badge overlay — uses .state CSS classes from globals.css */}
-                      <span
-                        className={badge.cls}
-                        style={{
-                          position: "absolute",
-                          top: "16px",
-                          right: "16px",
-                          zIndex: 1,
-                          pointerEvents: "none",
-                        }}
-                      >
+                    <div key={id} className="relative">
+                      <span className={cn("pointer-events-none absolute top-4 right-4 z-[1]", badge.cls)}>
                         {badge.label}
                       </span>
 
@@ -279,13 +216,7 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                 })}
               </div>
 
-              {/* Stats row — white cards, no decorative borders, just gap */}
-              <div
-                className="grid-3"
-                style={{
-                  marginTop: "20px",
-                }}
-              >
+              <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[
                   { value: activeCount, label: "активных запроса" },
                   { value: offersCount, label: "оффера от гидов" },
@@ -293,33 +224,12 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                 ].map(({ value, label }) => (
                   <div
                     key={label}
-                    style={{
-                      background: "var(--surface-lowest)",
-                      borderRadius: "16px",
-                      boxShadow: "var(--card-shadow)",
-                      padding: "20px",
-                      textAlign: "center",
-                    }}
+                    className="rounded-2xl bg-surface-lowest p-5 text-center shadow-card"
                   >
-                    <strong
-                      style={{
-                        display: "block",
-                        fontFamily: "var(--font-display)",
-                        fontSize: "2rem",
-                        fontWeight: 600,
-                        color: "var(--on-surface)",
-                      }}
-                    >
+                    <strong className="block font-display text-[2rem] font-semibold leading-none">
                       {value}
                     </strong>
-                    <span
-                      style={{
-                        fontSize: "0.875rem",
-                        color: "var(--on-surface-muted)",
-                      }}
-                    >
-                      {label}
-                    </span>
+                    <span className="text-sm text-muted-foreground">{label}</span>
                   </div>
                 ))}
               </div>
