@@ -3,6 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import type { UserThreadSummary } from "@/lib/supabase/conversations";
 
 function formatThreadTimestamp(timestamp: string | null) {
@@ -55,9 +56,9 @@ export function ConversationList({
 
   if (!threads.length) {
     return (
-      <div className="messages-empty-state glass-card">
-        <p className="messages-empty-title">У вас пока нет сообщений</p>
-        <p className="messages-empty-copy">
+      <div className="p-[clamp(1.5rem,4vw,2.25rem)] bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
+        <p className="text-base font-semibold text-foreground">У вас пока нет сообщений</p>
+        <p className="mt-2 text-[0.9375rem] leading-[1.6] text-muted-foreground">
           Когда вы начнёте диалог с гидом, он появится здесь.
         </p>
       </div>
@@ -65,7 +66,7 @@ export function ConversationList({
   }
 
   return (
-    <div className="messages-list-shell">
+    <div className="grid gap-3.5">
       {threads.map((thread) => {
         const title = thread.other_participant_names.join(", ") || "Диалог";
 
@@ -73,21 +74,26 @@ export function ConversationList({
           <Link
             key={thread.id}
             href={`/messages/${thread.id}`}
-            className="messages-thread-row"
+            className="flex items-center gap-4 p-4 rounded-card bg-surface-high shadow-card transition-[transform,box-shadow] duration-150 hover:-translate-y-[3px] hover:shadow-glass max-md:items-start"
           >
-            <div className="messages-thread-avatar" aria-hidden="true">
-              {title.charAt(0).toUpperCase()}
-            </div>
-            <div className="messages-thread-copy">
-              <div className="messages-thread-heading">
-                <p className="messages-thread-title">{title}</p>
-                {thread.unread ? <span className="messages-thread-dot" aria-hidden="true" /> : null}
+            <Avatar className="size-12" aria-hidden="true">
+              <AvatarFallback className="bg-primary/10 text-primary font-display text-xl font-semibold">
+                {title.charAt(0).toUpperCase()}
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0 flex-1 grid gap-1">
+              <div className="flex items-center gap-2">
+                <p className="text-base font-semibold text-foreground">{title}</p>
+                {thread.unread ? <span className="size-2 rounded-full bg-primary shrink-0" aria-hidden="true" /> : null}
               </div>
-              <p className="messages-thread-preview">
+              <p className="text-sm leading-[1.55] text-muted-foreground truncate">
                 {thread.last_message_preview ?? "Диалог создан. Начните переписку."}
               </p>
             </div>
-            <time className="messages-thread-time" dateTime={thread.last_message_created_at ?? undefined}>
+            <time
+              className="shrink-0 text-xs font-medium text-muted-foreground max-md:hidden"
+              dateTime={thread.last_message_created_at ?? undefined}
+            >
               {formatThreadTimestamp(thread.last_message_created_at)}
             </time>
           </Link>

@@ -92,16 +92,16 @@ export function ChatWindow({
 
   if (!renderedMessages.length && isFetching) {
     return (
-      <div className="chat-window-shell">
+      <div className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto">
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
             className={
-              index % 2 === 0 ? "message-bubble-row" : "message-bubble-row message-bubble-row-own"
+              index % 2 === 0 ? "flex justify-start" : "flex justify-end"
             }
           >
-            <div className="message-bubble-shell">
-              <div className="message-bubble-skeleton" />
+            <div className="grid gap-2.5 max-w-[min(100%,38rem)] px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass">
+              <div className="w-64 h-20 rounded-[1rem] bg-[color-mix(in_srgb,var(--surface-low)_82%,var(--surface-high))] relative overflow-hidden" />
             </div>
           </div>
         ))}
@@ -110,7 +110,7 @@ export function ChatWindow({
   }
 
   return (
-    <div className="chat-window-shell">
+    <div className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto">
       {renderedMessages.map((message) => {
         const isOwn = message.sender_id === currentUserId;
 

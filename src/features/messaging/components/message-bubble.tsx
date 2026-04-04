@@ -1,5 +1,7 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 function formatTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString("ru-RU", {
     hour: "2-digit",
@@ -32,31 +34,33 @@ export function MessageBubble({
   isOwn,
 }: MessageBubbleProps) {
   return (
-    <div className={isOwn ? "message-bubble-row message-bubble-row-own" : "message-bubble-row"}>
-      <article className={isOwn ? "message-bubble-shell message-bubble-shell-own" : "message-bubble-shell"}>
-        <div className="message-bubble-meta">
+    <div className={isOwn ? "flex justify-end" : "flex justify-start"}>
+      <article
+        className={
+          isOwn
+            ? "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-[color-mix(in_srgb,var(--primary)_12%,var(--surface-high))] border border-[color-mix(in_srgb,var(--primary)_18%,transparent)] shadow-glass"
+            : "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass"
+        }
+      >
+        <div className="flex items-center gap-3">
           {!isOwn ? (
-            <div className="message-bubble-avatar" aria-hidden="true">
-              {senderAvatar ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={senderAvatar}
-                  alt=""
-                  className="message-bubble-avatar-image"
-                />
-              ) : (
-                <span>{getInitials(senderName)}</span>
-              )}
-            </div>
+            <Avatar className="size-8" aria-hidden="true">
+              {senderAvatar ? <AvatarImage src={senderAvatar} alt="" /> : null}
+              <AvatarFallback className="bg-surface-low text-xs font-bold text-primary">
+                {getInitials(senderName)}
+              </AvatarFallback>
+            </Avatar>
           ) : null}
-          <div className="message-bubble-authoring">
-            <p className="message-bubble-author">{isOwn ? "Вы" : senderName}</p>
-            <time className="message-bubble-time" dateTime={timestamp}>
+          <div className="grid gap-0.5">
+            <p className="text-[0.8125rem] font-semibold text-foreground">{isOwn ? "Вы" : senderName}</p>
+            <time className="text-xs text-muted-foreground" dateTime={timestamp}>
               {formatTime(timestamp)}
             </time>
           </div>
         </div>
-        <p className="message-bubble-body">{body}</p>
+        <p className="whitespace-pre-wrap break-words text-[0.9375rem] leading-[1.65] text-foreground">
+          {body}
+        </p>
       </article>
     </div>
   );

@@ -13,13 +13,19 @@ export const metadata: Metadata = {
 export default async function MessagesPage() {
   if (!hasSupabaseEnv()) {
     return (
-      <section className="messages-page-shell">
-        <div className="messages-page-header">
-          <p className="sec-label">Сообщения</p>
-          <h1 className="sec-title">Сообщения</h1>
-          <p className="messages-page-description">
-            Чат станет доступен после подключения Supabase.
-          </p>
+      <section className="grid gap-6">
+        <div className="flex items-end justify-between gap-4 flex-wrap">
+          <div>
+            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">
+              Сообщения
+            </p>
+            <h1 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+              Сообщения
+            </h1>
+            <p className="max-w-[42rem] text-[0.9375rem] leading-[1.65] text-muted-foreground">
+              Чат станет доступен после подключения Supabase.
+            </p>
+          </div>
         </div>
         <ConversationList initialThreads={[]} />
       </section>
@@ -39,13 +45,19 @@ export default async function MessagesPage() {
   const threads = await getUserThreads(user.id);
 
   return (
-    <section className="messages-page-shell">
-      <div className="messages-page-header">
-        <p className="sec-label">Сообщения</p>
-        <h1 className="sec-title">Сообщения</h1>
-        <p className="messages-page-description">
-          Продолжайте диалоги с гидами и держите детали поездки в одном месте.
-        </p>
+    <section className="grid gap-6">
+      <div className="flex items-end justify-between gap-4 flex-wrap">
+        <div>
+          <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">
+            Сообщения
+          </p>
+          <h1 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+            Сообщения
+          </h1>
+          <p className="max-w-[42rem] text-[0.9375rem] leading-[1.65] text-muted-foreground">
+            Продолжайте диалоги с гидами и держите детали поездки в одном месте.
+          </p>
+        </div>
       </div>
       <ConversationList initialThreads={threads} />
     </section>

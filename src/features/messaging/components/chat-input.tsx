@@ -3,6 +3,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
 
+import { Button } from "@/components/ui/button";
+
 type SendMessageAction = (
   threadId: string,
   body: string,
@@ -43,13 +45,13 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
   };
 
   return (
-    <div className="chat-input-shell">
-      <label className="chat-input-label" htmlFor="chat-message-body">
+    <div className="grid gap-3 p-4 border-t border-glass-border">
+      <label className="text-xs font-semibold tracking-[0.08em] uppercase text-muted-foreground" htmlFor="chat-message-body">
         Новое сообщение
       </label>
       <textarea
         id="chat-message-body"
-        className="chat-input-field"
+        className="w-full min-h-[7rem] resize-y p-3.5 px-4 rounded-[1.5rem] border border-glass-border bg-surface-high/[0.82] text-foreground outline-none focus:border-primary"
         placeholder="Напишите сообщение гиду"
         value={body}
         onChange={(event) => setBody(event.target.value)}
@@ -61,16 +63,15 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
         }}
         rows={3}
       />
-      <div className="chat-input-footer">
-        {error ? <p className="chat-input-error">{error}</p> : <span className="chat-input-hint">Enter отправляет, Shift+Enter переносит строку.</span>}
-        <button
-          type="button"
-          className="btn-primary"
-          disabled={isPending}
-          onClick={handleSubmit}
-        >
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        {error ? (
+          <p className="text-[0.8125rem] font-semibold text-destructive">{error}</p>
+        ) : (
+          <span className="text-xs text-muted-foreground">Enter отправляет, Shift+Enter переносит строку.</span>
+        )}
+        <Button type="button" disabled={isPending} onClick={handleSubmit}>
           {isPending ? "Отправляем…" : "Отправить"}
-        </button>
+        </Button>
       </div>
     </div>
   );
