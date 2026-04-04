@@ -3,7 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import type { RequestRecord } from "@/data/supabase/queries";
+import { cn } from "@/lib/utils";
 
 interface Props {
   requests: RequestRecord[];
@@ -20,20 +24,25 @@ function MemberAvatarChip({ member }: { member: RequestRecord["members"][number]
   const showImage = Boolean(member.avatarUrl) && !hasImageError;
 
   return (
-    <span className="avatar member-avatar" title={member.displayName}>
+    <Avatar
+      className="size-7 -ml-1.5 border-2 border-surface-high first:ml-0"
+      title={member.displayName}
+    >
       {showImage ? (
-        <img
+        <AvatarImage
           src={member.avatarUrl ?? ""}
           alt={member.displayName}
-          className="member-avatar-image"
           loading="lazy"
           decoding="async"
           onError={() => setHasImageError(true)}
         />
       ) : (
-        member.initials
+        null
       )}
-    </span>
+      <AvatarFallback className="bg-surface-low text-[0.5625rem] font-semibold">
+        {member.initials}
+      </AvatarFallback>
+    </Avatar>
   );
 }
 
@@ -41,7 +50,7 @@ function MemberAvatars({ members }: { members: RequestRecord["members"] }) {
   if (members.length === 0) return null;
 
   return (
-    <div className="avatars">
+    <div className="flex items-center">
       {members.slice(0, 5).map((member) => (
         <MemberAvatarChip key={member.id} member={member} />
       ))}
@@ -57,17 +66,29 @@ export function HomePageGateway({ requests }: Props) {
   const guideCards = requests.slice(0, 3);
 
   return (
-    <section className="section low gateway-section" aria-labelledby="gateway-title">
-      <div className="container">
-        <div className="gateway-header">
-          <p className="sec-label">Для кого Provodnik</p>
-          <h2 id="gateway-title" className="sec-title">
+    <section
+      className="relative overflow-hidden bg-surface-low py-sec-pad"
+      aria-labelledby="gateway-title"
+    >
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+        <div className="mb-8 text-center">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Для кого Provodnik
+          </p>
+          <h2
+            id="gateway-title"
+            className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]"
+          >
             Выберите свою роль
           </h2>
         </div>
 
-        <div className="gateway-tab-wrap">
-          <div role="tablist" aria-label="Роль" className="gateway-tabs">
+        <div className="mb-7 flex justify-center">
+          <div
+            role="tablist"
+            aria-label="Роль"
+            className="inline-flex gap-0.5 rounded-full border border-outline-variant bg-surface-high p-1"
+          >
             <button
               type="button"
               role="tab"
@@ -75,7 +96,10 @@ export function HomePageGateway({ requests }: Props) {
               aria-selected={isTraveler}
               aria-controls="panel-traveler"
               onClick={() => setActiveTab("traveler")}
-              className={`gateway-tab ${isTraveler ? "gateway-tab-active" : ""}`}
+              className={cn(
+                "cursor-pointer rounded-full border-none bg-transparent px-[30px] py-2.5 font-sans text-sm font-semibold text-muted-foreground transition-[background,color] duration-200 max-md:flex-1 max-md:px-4",
+                isTraveler && "bg-primary text-white",
+              )}
             >
               Я путешественник
             </button>
@@ -86,57 +110,72 @@ export function HomePageGateway({ requests }: Props) {
               aria-selected={!isTraveler}
               aria-controls="panel-guide"
               onClick={() => setActiveTab("guide")}
-              className={`gateway-tab ${!isTraveler ? "gateway-tab-active" : ""}`}
+              className={cn(
+                "cursor-pointer rounded-full border-none bg-transparent px-[30px] py-2.5 font-sans text-sm font-semibold text-muted-foreground transition-[background,color] duration-200 max-md:flex-1 max-md:px-4",
+                !isTraveler && "bg-primary text-white",
+              )}
             >
               Я гид
             </button>
           </div>
         </div>
 
-        <div className="gateway-stage">
+        <div className="relative isolate">
           <div
             role="tabpanel"
             id="panel-traveler"
             aria-labelledby="tab-traveler"
             hidden={!isTraveler}
-            className="glass-panel gateway-panel"
+            className="relative z-[1] rounded-glass border border-glass-border bg-glass p-8 shadow-glass backdrop-blur-[20px] max-md:p-6"
           >
             {travelerCards.length === 0 ? (
-              <p className="gateway-empty">Пока нет открытых запросов.</p>
+              <p className="text-center text-muted-foreground">Пока нет открытых запросов.</p>
             ) : (
-              <div className="grid-3 gateway-grid">
+              <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {travelerCards.map((req) => (
-                  <Link key={req.id} href={`/requests/${req.id}`}>
-                    <article className="req-card">
-                      <div className="req-card-top">
+                  <Link
+                    key={req.id}
+                    href={`/requests/${req.id}`}
+                    className="block bg-surface-high text-inherit no-underline rounded-card p-5 shadow-card transition-transform hover:-translate-y-[3px]"
+                  >
+                    <article>
+                      <div className="mb-3.5 flex items-center justify-between gap-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         <span>{req.destination.split(",")[0]}</span>
-                        <span className="req-spots">
+                        <span className="text-primary">
                           {req.groupSize} / {req.capacity} мест
                         </span>
                       </div>
-                      <p className="req-title">{req.destination}</p>
-                      <p className="req-desc">
+                      <p className="mb-1.5 font-sans text-[1.125rem] font-semibold text-foreground">
+                        {req.destination}
+                      </p>
+                      <p className="mb-3.5 line-clamp-2 text-sm leading-[1.55] text-muted-foreground">
                         {req.dateLabel}
                         {req.description ? ` · ${req.description}` : ""}
                       </p>
-                      <progress
-                        className="req-progress"
-                        value={Math.min(req.groupSize, Math.max(req.capacity, 1))}
-                        max={Math.max(req.capacity, 1)}
+                      <Progress
+                        value={
+                          (Math.min(req.groupSize, Math.max(req.capacity, 1)) /
+                            Math.max(req.capacity, 1)) *
+                          100
+                        }
+                        max={100}
+                        className="mb-3.5 h-1"
                       />
-                      <div className="req-foot">
+                      <div className="flex items-center justify-between gap-3">
                         <MemberAvatars members={req.members} />
-                        <span className="req-price">{formatPrice(req.budgetRub)}</span>
+                        <span className="text-sm font-semibold text-foreground">
+                          {formatPrice(req.budgetRub)}
+                        </span>
                       </div>
                     </article>
                   </Link>
                 ))}
               </div>
             )}
-            <div className="gateway-actions">
-              <Link href="/requests/new" className="btn-primary">
-                Создать запрос
-              </Link>
+            <div className="flex justify-center">
+              <Button asChild>
+                <Link href="/requests/new">Создать запрос</Link>
+              </Button>
             </div>
           </div>
 
@@ -145,37 +184,47 @@ export function HomePageGateway({ requests }: Props) {
             id="panel-guide"
             aria-labelledby="tab-guide"
             hidden={isTraveler}
-            className="glass-panel gateway-panel"
+            className="relative z-[1] rounded-glass border border-glass-border bg-glass p-8 shadow-glass backdrop-blur-[20px] max-md:p-6"
           >
             {guideCards.length === 0 ? (
-              <p className="gateway-empty">Пока нет открытых запросов.</p>
+              <p className="text-center text-muted-foreground">Пока нет открытых запросов.</p>
             ) : (
-              <div className="grid-3 gateway-grid">
+              <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {guideCards.map((req) => (
-                  <Link key={req.id} href={`/requests/${req.id}`}>
-                    <article className="req-card">
-                      <div className="req-card-top">
+                  <Link
+                    key={req.id}
+                    href={`/requests/${req.id}`}
+                    className="block bg-surface-high text-inherit no-underline rounded-card p-5 shadow-card transition-transform hover:-translate-y-[3px]"
+                  >
+                    <article>
+                      <div className="mb-3.5 flex items-center justify-between gap-3 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
                         <span>{req.destination.split(",")[0]}</span>
-                        <span className="req-spots">{req.groupSize} чел.</span>
+                        <span className="text-primary">{req.groupSize} чел.</span>
                       </div>
-                      <p className="req-title">{req.destination}</p>
-                      <p className="req-desc">
+                      <p className="mb-1.5 font-sans text-[1.125rem] font-semibold text-foreground">
+                        {req.destination}
+                      </p>
+                      <p className="mb-3.5 line-clamp-2 text-sm leading-[1.55] text-muted-foreground">
                         {req.dateLabel} · {req.description || req.format}
                       </p>
-                      <progress className="req-progress" value={1} max={1} />
-                      <div className="req-foot">
-                        <span className="gateway-status">Ждут предложений</span>
-                        <span className="req-price">{formatPrice(req.budgetRub)}</span>
+                      <Progress value={100} max={100} className="mb-3.5 h-1" />
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-semibold text-primary">
+                          Ждут предложений
+                        </span>
+                        <span className="text-sm font-semibold text-foreground">
+                          {formatPrice(req.budgetRub)}
+                        </span>
                       </div>
                     </article>
                   </Link>
                 ))}
               </div>
             )}
-            <div className="gateway-actions">
-              <Link href="/requests" className="btn-primary">
-                Предложить цену
-              </Link>
+            <div className="flex justify-center">
+              <Button asChild>
+                <Link href="/requests">Предложить цену</Link>
+              </Button>
             </div>
           </div>
         </div>

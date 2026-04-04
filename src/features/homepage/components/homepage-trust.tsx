@@ -33,64 +33,22 @@ export function HomePageTrust() {
   return (
     <section
       aria-label="Преимущества Provodnik"
-      style={{
-        paddingBlock: "56px",
-        background: "var(--surface)",
-        borderTop: "1px solid rgba(194,198,214,0.40)",
-        borderBottom: "1px solid rgba(194,198,214,0.40)",
-      }}
+      className="border-t border-b border-outline-variant/40 bg-surface py-14"
     >
-      <div className="container">
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(3, 1fr)",
-            gap: "36px",
-          }}
-        >
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+        <div className="grid grid-cols-3 gap-9 max-md:grid-cols-1">
           {trustItems.map((item) => (
-            <div
-              key={item.label}
-              style={{ display: "flex", alignItems: "flex-start", gap: "14px" }}
-            >
-              {/* Icon circle */}
+            <div key={item.label} className="flex items-start gap-3.5">
               <div
                 aria-hidden="true"
-                style={{
-                  flexShrink: 0,
-                  width: "36px",
-                  height: "36px",
-                  borderRadius: "50%",
-                  background: "color-mix(in srgb, var(--primary) 8%, transparent)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  color: "var(--primary)",
-                }}
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-primary/[0.08] text-primary"
               >
                 <CheckIcon />
               </div>
 
               <div>
-                <p
-                  style={{
-                    fontSize: "1rem",
-                    fontWeight: 600,
-                    color: "var(--on-surface)",
-                    marginBottom: "4px",
-                  }}
-                >
-                  {item.label}
-                </p>
-                <p
-                  style={{
-                    fontSize: "0.875rem",
-                    color: "var(--on-surface-muted)",
-                    lineHeight: 1.55,
-                  }}
-                >
-                  {item.description}
-                </p>
+                <p className="mb-1 text-base font-semibold text-on-surface">{item.label}</p>
+                <p className="text-sm leading-[1.55] text-on-surface-muted">{item.description}</p>
               </div>
             </div>
           ))}
