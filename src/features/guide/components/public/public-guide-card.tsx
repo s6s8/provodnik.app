@@ -36,7 +36,7 @@ export function PublicGuideCard({
     <Link
       href={`/guide/${guide.id}`}
       className={cn(
-        "glass-panel flex gap-4 rounded-[1.5rem] border border-white/10 p-4 transition-all duration-300",
+        "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass flex gap-4 rounded-[1.5rem] border border-white/10 p-4 transition-all duration-300",
         "items-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
         "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg",
         className,

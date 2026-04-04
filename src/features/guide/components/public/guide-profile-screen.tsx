@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
-import { TourCard } from "@/components/shared/tour-card";
 import { ReqCard } from "@/components/shared/req-card";
+import { TourCard } from "@/components/shared/tour-card";
+import { Button } from "@/components/ui/button";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 
 interface Props {
@@ -132,292 +133,178 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
         }))
       : fallbackListings;
   const offerCards = (offers && offers.length > 0 ? offers : fallbackOffers) as typeof fallbackOffers;
-  const reviewCards = (reviews && reviews.length > 0 ? reviews : fallbackReviews).map((rev: any) => ({
-    id: rev.id,
-    authorName: rev.name || rev.author?.displayName || "Путешественник",
-    rating: rev.rating ?? 5,
-    title: rev.title || "Отзыв",
-    body: rev.body || "",
-    createdAt: rev.createdAt || new Date().toISOString(),
-    bookingLabel: rev.date || undefined,
-  }));
+  const reviewCards = (reviews && reviews.length > 0 ? reviews : fallbackReviews).map(
+    (rev: any) => ({
+      id: rev.id,
+      authorName: rev.name || rev.author?.displayName || "Путешественник",
+      rating: rev.rating ?? 5,
+      title: rev.title || "Отзыв",
+      body: rev.body || "",
+      createdAt: rev.createdAt || new Date().toISOString(),
+      bookingLabel: rev.date || undefined,
+    }),
+  );
 
   return (
     <main>
-      {/* ── Hero: portrait left + credentials right ── */}
-      <section
-        style={{
-          background: "var(--surface)",
-          padding: "110px 0 64px",
-        }}
-      >
-        <div className="container">
-          <div className="guide-hero-grid">
-            {/* Left: Portrait photo */}
-            <div
-              className="guide-hero-portrait"
-              style={{
-                position: "relative",
-                borderRadius: "28px",
-                overflow: "hidden",
-                aspectRatio: "3 / 4",
-                background: "var(--surface-low)",
-              }}
-            >
+      <section className="bg-surface pt-[110px] pb-16">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-14">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-[28px] bg-surface-low">
               {guide.avatarImageUrl ? (
                 <Image
                   src={guide.avatarImageUrl.replace("w=400&h=400", "w=600&h=800")}
                   alt={guide.displayName}
                   fill
                   sizes="(max-width: 767px) 100vw, 380px"
-                  style={{ objectFit: "cover", objectPosition: "top" }}
+                  className="object-cover object-top"
                   priority
                 />
               ) : (
-                <div
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontFamily: "var(--font-display)",
-                    fontSize: "4rem",
-                    color: "var(--primary)",
-                  }}
-                >
+                <div className="flex h-full w-full items-center justify-center font-display text-[4rem] text-primary">
                   {initials}
                 </div>
               )}
             </div>
 
-            {/* Right: Credentials */}
-            <div style={{ paddingTop: "8px" }}>
-              {/* Kicker */}
-              <p className="sec-label">{guide.homeBase}</p>
+            <div className="pt-2">
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                {guide.homeBase}
+              </p>
 
-              {/* Name */}
-              <h1
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
-                  lineHeight: 1.05,
-                  color: "var(--on-surface)",
-                  marginTop: "8px",
-                  marginBottom: "16px",
-                }}
-              >
+              <h1 className="mt-2 mb-4 font-display text-[clamp(2.5rem,5vw,3.5rem)] leading-[1.05] text-foreground">
                 {guide.displayName}
               </h1>
 
-              {/* Headline */}
-              <p
-                style={{
-                  fontSize: "1.0625rem",
-                  color: "var(--on-surface-muted)",
-                  lineHeight: 1.65,
-                  maxWidth: "36rem",
-                  marginBottom: "24px",
-                }}
-              >
+              <p className="mb-6 max-w-[36rem] text-[1.0625rem] leading-[1.65] text-muted-foreground">
                 {guide.headline}
               </p>
 
-              {/* Trust badges */}
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "8px",
-                  marginBottom: "24px",
-                }}
-              >
+              <div className="mb-6 flex flex-wrap gap-2">
                 {guide.trustMarkers.identityVerified && (
-                  <span className="pill-primary">
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/[0.08] px-3 py-1.5 text-[0.8125rem] font-semibold text-primary">
                     ✓ Верифицирован
                   </span>
                 )}
-                <span className="pill">
+                <span className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground">
                   {rating.toFixed(1)} / 5 · {totalReviews} отзывов
                 </span>
-                <span className="pill">
+                <span className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground">
                   {guide.yearsExperience} лет опыта
                 </span>
               </div>
 
-              {/* Stats row */}
-              <div
-                className="stats-row"
-                style={{
-                  marginBottom: "28px",
-                  paddingBottom: "28px",
-                  borderBottom: "1px solid var(--outline-variant)",
-                  width: "fit-content",
-                }}
-              >
+              <div className="mb-7 grid w-fit grid-cols-3 gap-8 border-b border-outline-variant pb-7">
                 <div>
-                  <strong
-                    style={{
-                      display: "block",
-                      fontFamily: "var(--font-display)",
-                      fontSize: "2rem",
-                      lineHeight: 1,
-                      color: "var(--on-surface)",
-                    }}
-                  >
+                  <strong className="block font-display text-[2rem] leading-none text-foreground">
                     {rating.toFixed(1)}
                   </strong>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--on-surface-muted)" }}>
-                    рейтинг
-                  </span>
+                  <span className="text-[0.8125rem] text-muted-foreground">рейтинг</span>
                 </div>
                 <div>
-                  <strong
-                    style={{
-                      display: "block",
-                      fontFamily: "var(--font-display)",
-                      fontSize: "2rem",
-                      lineHeight: 1,
-                      color: "var(--on-surface)",
-                    }}
-                  >
+                  <strong className="block font-display text-[2rem] leading-none text-foreground">
                     {totalReviews}
                   </strong>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--on-surface-muted)" }}>
-                    поездок
-                  </span>
+                  <span className="text-[0.8125rem] text-muted-foreground">поездок</span>
                 </div>
                 <div>
-                  <strong
-                    style={{
-                      display: "block",
-                      fontFamily: "var(--font-display)",
-                      fontSize: "2rem",
-                      lineHeight: 1,
-                      color: "var(--on-surface)",
-                    }}
-                  >
+                  <strong className="block font-display text-[2rem] leading-none text-foreground">
                     {guide.yearsExperience}
                   </strong>
-                  <span style={{ fontSize: "0.8125rem", color: "var(--on-surface-muted)" }}>
-                    лет опыта
-                  </span>
+                  <span className="text-[0.8125rem] text-muted-foreground">лет опыта</span>
                 </div>
               </div>
 
-              {/* Bio */}
-              <p
-                style={{
-                  color: "var(--on-surface-muted)",
-                  lineHeight: 1.7,
-                  marginBottom: "24px",
-                  maxWidth: "38rem",
-                }}
-              >
+              <p className="mb-6 max-w-[38rem] leading-[1.7] text-muted-foreground">
                 {guide.bio}
               </p>
 
-              {/* Language + specialty pills */}
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: "8px",
-                  marginBottom: "32px",
-                }}
-              >
+              <div className="mb-8 flex flex-wrap gap-2">
                 {guide.languages.map((lang) => (
-                  <span key={lang} className="pill">
+                  <span
+                    key={lang}
+                    className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground"
+                  >
                     {lang}
                   </span>
                 ))}
-                {guide.specialties.map((s) => (
-                  <span key={s} className="pill">
-                    {s}
+                {guide.specialties.map((specialty) => (
+                  <span
+                    key={specialty}
+                    className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground"
+                  >
+                    {specialty}
                   </span>
                 ))}
               </div>
 
-              {/* CTA */}
-              <Link href="/requests/new" className="btn-primary">
-                Связаться с гидом
-              </Link>
+              <Button asChild>
+                <Link href="/requests/new">Связаться с гидом</Link>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── Tours section ── */}
-      <section
-        className="section"
-        style={{ background: "var(--surface-low)" }}
-      >
-        <div className="container">
-          <p className="sec-label">Туры гида</p>
-          <h2
-            className="sec-title"
-            style={{ marginBottom: "28px" }}
-          >
+      <section className="bg-surface-low py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+            Туры гида
+          </p>
+          <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Авторские маршруты {guide.displayName.split(" ")[0]}а
           </h2>
-          <div className="grid-3">
-            {tourCards.map((t) => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {tourCards.map((tour) => (
               <TourCard
-                key={t.href}
-                href={t.href}
-                imageUrl={t.imageUrl}
-                title={t.title}
-                guide={t.guide}
-                rating={t.rating}
-                price={t.price}
+                key={tour.href}
+                href={tour.href}
+                imageUrl={tour.imageUrl}
+                title={tour.title}
+                guide={tour.guide}
+                rating={tour.rating}
+                price={tour.price}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Active offers section ── */}
-      <section className="section">
-        <div className="container">
-          <p className="sec-label">Активные офферы</p>
-          <h2
-            className="sec-title"
-            style={{ marginBottom: "28px" }}
-          >
+      <section className="py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+            Активные офферы
+          </p>
+          <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Открытые запросы, где гид предложил цену
           </h2>
-          <div className="grid-3">
-            {offerCards.map((o) => (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {offerCards.map((offer) => (
               <ReqCard
-                key={o.href}
-                href={o.href}
-                location={o.location}
-                spotsLabel={o.spotsLabel}
-                title={o.title}
-                date={o.date}
-                desc={o.desc}
-                fillPct={o.fillPct}
-                price={o.price}
+                key={offer.href}
+                href={offer.href}
+                location={offer.location}
+                spotsLabel={offer.spotsLabel}
+                title={offer.title}
+                date={offer.date}
+                desc={offer.desc}
+                fillPct={offer.fillPct}
+                price={offer.price}
               />
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Reviews section ── */}
-      <section
-        className="section"
-        style={{ background: "var(--surface-low)" }}
-      >
-        <div className="container">
-          <p className="sec-label">Отзывы</p>
-          <h2
-            className="sec-title"
-            style={{ marginBottom: "28px" }}
-          >
+      <section className="bg-surface-low py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+            Отзывы
+          </p>
+          <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Что говорят путешественники
           </h2>
-          <div className="grid-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {reviewCards.map((rev: any) => {
               const reviewInitials =
                 rev.initials ||
@@ -430,60 +317,32 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
                       .join("")
                       .toUpperCase()
                   : "??");
-              const reviewName = rev.name || rev.author?.displayName || "Путешественник";
-              const reviewDate = rev.date || (rev.createdAt ? new Date(rev.createdAt).toLocaleDateString("ru-RU", { month: "long", year: "numeric" }) : "");
+              const reviewName =
+                rev.name || rev.author?.displayName || "Путешественник";
+              const reviewDate =
+                rev.date ||
+                (rev.createdAt
+                  ? new Date(rev.createdAt).toLocaleDateString("ru-RU", {
+                      month: "long",
+                      year: "numeric",
+                    })
+                  : "");
               const reviewRating = rev.rating ?? 5;
               const reviewBody = rev.body || rev.title || "";
 
               return (
-                <article
-                  key={rev.id}
-                  style={{
-                    display: "flex",
-                    gap: "14px",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  {/* Avatar bubble */}
-                  <div
-                    style={{
-                      width: "42px",
-                      height: "42px",
-                      borderRadius: "50%",
-                      background: "var(--surface-low)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      color: "var(--primary)",
-                      flexShrink: 0,
-                    }}
-                  >
+                <article key={rev.id} className="flex items-start gap-3.5">
+                  <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-low text-xs font-semibold text-primary">
                     {reviewInitials}
                   </div>
                   <div>
-                    <strong style={{ display: "block", marginBottom: "4px" }}>
-                      {reviewName}
-                    </strong>
-                    <small
-                      style={{
-                        display: "block",
-                        color: "var(--on-surface-muted)",
-                        marginBottom: "8px",
-                      }}
-                    >
+                    <strong className="mb-1 block">{reviewName}</strong>
+                    <small className="mb-2 block text-muted-foreground">
                       {reviewDate}
                       {reviewDate ? " · " : ""}
                       {reviewRating.toFixed(1)}
                     </small>
-                    <p
-                      style={{
-                        color: "var(--on-surface-muted)",
-                        lineHeight: 1.65,
-                        fontSize: "0.9375rem",
-                      }}
-                    >
+                    <p className="text-[0.9375rem] leading-[1.65] text-muted-foreground">
                       {reviewBody}
                     </p>
                   </div>

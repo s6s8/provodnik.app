@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { ReqCard } from "@/components/shared/req-card";
 import { TourCard } from "@/components/shared/tour-card";
+import { Button } from "@/components/ui/button";
 import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { ListingRecord } from "@/data/supabase/queries";
@@ -35,232 +36,122 @@ export function DestinationDetailScreen({
 
   return (
     <main>
-      {/* Hero */}
-      <section
-        className="hero-bleed photo-hero"
-        style={{
-          minHeight: "520px",
-          paddingBottom: "56px",
-        }}
-      >
-        {/* Background image */}
+      <section className="-mt-nav-h relative flex min-h-[520px] items-end overflow-hidden pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
         <Image
           src={heroImage}
           alt={destination.name}
           fill
           priority
           sizes="100vw"
-          style={{ objectFit: "cover", zIndex: 0 }}
+          className="z-0 object-cover"
         />
 
-        {/* Gradient overlay */}
-        <div className="overlay-bottom" aria-hidden />
+        <div
+          className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,rgba(25,28,32,0.12)_0%,rgba(25,28,32,0.38)_55%,rgba(25,28,32,0.60)_100%)]"
+          aria-hidden
+        />
 
-        {/* Hero content */}
-        <div className="container on-dark photo-hero-content">
-          <div style={{ maxWidth: "720px" }}>
+        <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
+          <div className="max-w-[720px]">
             {destination.region ? (
-              <p
-                className="sec-label"
-                style={{ color: "rgba(255,255,255,0.72)", marginBottom: "8px" }}
-              >
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-white/70">
                 {destination.region}
               </p>
             ) : null}
 
-            <h1
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(3rem, 6vw, 4.5rem)",
-                lineHeight: 1.02,
-                fontWeight: 600,
-              }}
-            >
+            <h1 className="font-display text-[clamp(3rem,6vw,4.5rem)] font-semibold leading-[1.02]">
               {destination.name}
             </h1>
 
             {destination.description ? (
-              <p
-                style={{
-                  marginTop: "16px",
-                  maxWidth: "560px",
-                  fontSize: "1rem",
-                  lineHeight: 1.65,
-                  color: "rgba(255,255,255,0.82)",
-                }}
-              >
+              <p className="mt-4 max-w-[560px] text-base leading-[1.65] text-white/80">
                 {destination.description}
               </p>
             ) : null}
 
-            {/* Hero pills */}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "10px",
-                marginTop: "20px",
-              }}
-            >
-              <span className="glass-pill">
+            <div className="mt-5 flex flex-wrap gap-2.5">
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-[0.8125rem] font-medium text-white/90 backdrop-blur-[12px]">
                 Лучший сезон: весна / лето / осень
               </span>
-              <span className="glass-pill">
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-[0.8125rem] font-medium text-white/90 backdrop-blur-[12px]">
                 Природа · Культура · Гастрономия
               </span>
             </div>
 
-            {/* Hero actions */}
-            <div
-              style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: "10px",
-                marginTop: "20px",
-              }}
-            >
-              <Link href="/requests/new" className="btn-primary">
-                Найти гида
-              </Link>
-              <a
-                href="#tours"
-                className="btn-ghost"
-                style={{
-                  borderColor: "rgba(255,255,255,0.32)",
-                  color: "#fff",
-                }}
+            <div className="mt-5 flex flex-wrap gap-2.5">
+              <Button asChild>
+                <Link href="/requests/new">Найти гида</Link>
+              </Button>
+              <Button
+                variant="outline"
+                asChild
+                className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
               >
-                Смотреть маршруты
-              </a>
+                <a href="#tours">Смотреть маршруты</a>
+              </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats strip */}
-      <section
-        style={{
-          background: "var(--surface-low)",
-          paddingBlock: "32px",
-        }}
-      >
-        <div className="container">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "48px",
-              textAlign: "center",
-            }}
-            className="stats-grid"
-          >
+      <section className="bg-surface-low py-8">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="grid grid-cols-2 gap-8 text-center md:grid-cols-4 md:gap-12">
             <div>
-              <strong
-                style={{
-                  display: "block",
-                  fontFamily: "var(--font-ui)",
-                  fontSize: "2.25rem",
-                  fontWeight: 600,
-                  color: "var(--on-surface)",
-                }}
-              >
+              <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 {listingCount}
               </strong>
-              <span
-                style={{ fontSize: "0.875rem", color: "var(--on-surface-muted)" }}
-              >
-                готовых туров
-              </span>
+              <span className="text-sm text-muted-foreground">готовых туров</span>
             </div>
 
             <div>
-              <strong
-                style={{
-                  display: "block",
-                  fontFamily: "var(--font-ui)",
-                  fontSize: "2.25rem",
-                  fontWeight: 600,
-                  color: "var(--on-surface)",
-                }}
-              >
+              <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 {minPrice
                   ? `${new Intl.NumberFormat("ru-RU").format(Math.round(minPrice / 1000))} тыс. ₽`
                   : "—"}
               </strong>
-              <span
-                style={{ fontSize: "0.875rem", color: "var(--on-surface-muted)" }}
-              >
-                бюджет от
-              </span>
+              <span className="text-sm text-muted-foreground">бюджет от</span>
             </div>
 
             <div>
-              <strong
-                style={{
-                  display: "block",
-                  fontFamily: "var(--font-ui)",
-                  fontSize: "2.25rem",
-                  fontWeight: 600,
-                  color: "var(--on-surface)",
-                }}
-              >
+              <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 4.9 ★
               </strong>
-              <span
-                style={{ fontSize: "0.875rem", color: "var(--on-surface-muted)" }}
-              >
-                рейтинг гидов
-              </span>
+              <span className="text-sm text-muted-foreground">рейтинг гидов</span>
             </div>
 
             <div>
-              <strong
-                style={{
-                  display: "block",
-                  fontFamily: "var(--font-ui)",
-                  fontSize: "2.25rem",
-                  fontWeight: 600,
-                  color: "var(--on-surface)",
-                }}
-              >
-                {guideCount > 0 ? `${guideCount} групп` : openRequests.length > 0 ? `${openRequests.length} групп` : "—"}
+              <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
+                {guideCount > 0
+                  ? `${guideCount} групп`
+                  : openRequests.length > 0
+                    ? `${openRequests.length} групп`
+                    : "—"}
               </strong>
-              <span
-                style={{ fontSize: "0.875rem", color: "var(--on-surface-muted)" }}
-              >
-                формируется сейчас
-              </span>
+              <span className="text-sm text-muted-foreground">формируется сейчас</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Open requests section */}
       {openRequests.length > 0 && (
-        <section
-          className="section"
-          id="groups"
-          style={{ paddingBlock: "64px", background: "var(--surface)" }}
-        >
-          <div className="container">
-            <div className="section-hd">
+        <section className="py-sec-pad" id="groups">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+            <div className="mb-7 flex items-end justify-between gap-4">
               <div>
-                <p className="sec-label">Открытые группы</p>
-                <h2 className="sec-title">Путешественники ищут компанию</h2>
+                <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                  Открытые группы
+                </p>
+                <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+                  Путешественники ищут компанию
+                </h2>
               </div>
-              <Link
-                href="/requests"
-                style={{
-                  fontSize: "0.875rem",
-                  fontWeight: 600,
-                  color: "var(--primary)",
-                }}
-              >
+              <Link href="/requests" className="text-sm font-semibold text-primary">
                 Все запросы по направлению →
               </Link>
             </div>
 
-            <div className="grid-3 req-grid">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {openRequests.slice(0, 3).map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
                 const fillPct = Math.round(
@@ -286,35 +177,24 @@ export function DestinationDetailScreen({
         </section>
       )}
 
-      {/* Tours section */}
-      <section
-        className="section low"
-        id="tours"
-        style={{
-          paddingBlock: "64px",
-          background: "var(--surface-low)",
-        }}
-      >
-        <div className="container">
-          <div className="section-hd">
+      <section className="bg-surface-low py-sec-pad" id="tours">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="mb-7 flex items-end justify-between gap-4">
             <div>
-              <p className="sec-label">Готовые туры</p>
-              <h2 className="sec-title">Авторские маршруты с гидами</h2>
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                Готовые туры
+              </p>
+              <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+                Авторские маршруты с гидами
+              </h2>
             </div>
-            <Link
-              href="/listings"
-              style={{
-                fontSize: "0.875rem",
-                fontWeight: 600,
-                color: "var(--primary)",
-              }}
-            >
+            <Link href="/listings" className="text-sm font-semibold text-primary">
               Все туры →
             </Link>
           </div>
 
           {listings.length > 0 ? (
-            <div className="grid-3 tour-grid">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {listings.slice(0, 3).map((listing) => (
                 <TourCard
                   key={listing.id}
@@ -328,19 +208,12 @@ export function DestinationDetailScreen({
               ))}
             </div>
           ) : (
-            <p
-              style={{
-                color: "var(--on-surface-muted)",
-                fontSize: "1rem",
-                padding: "32px 0",
-              }}
-            >
+            <p className="py-8 text-base text-muted-foreground">
               Туры по этому направлению скоро появятся.
             </p>
           )}
         </div>
       </section>
-
     </main>
   );
 }

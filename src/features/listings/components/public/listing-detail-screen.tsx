@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import type { PublicListing } from "@/data/public-listings/types";
 
 interface Props {
@@ -44,23 +45,26 @@ const fallbackReviews = [
   },
 ];
 
-
 function getGuideInitials(guide: any): string {
   if (!guide) return "ГД";
   if (guide.avatarInitials) return guide.avatarInitials;
   const name: string = guide.displayName || guide.name || "";
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((p: string) => p[0])
-    .join("")
-    .toUpperCase() || "ГД";
+  return (
+    name
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((p: string) => p[0])
+      .join("")
+      .toUpperCase() || "ГД"
+  );
 }
 
 export function ListingDetailScreen({ listing, guide, reviews }: Props) {
   const coverImage = listing.coverImageUrl || fallbackCover;
-  const priceFormatted = new Intl.NumberFormat("ru-RU").format(listing.priceFromRub);
+  const priceFormatted = new Intl.NumberFormat("ru-RU").format(
+    listing.priceFromRub,
+  );
   const reviewCards = reviews && reviews.length > 0 ? reviews : fallbackReviews;
 
   const guideInitials = getGuideInitials(guide);
@@ -71,60 +75,40 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
 
   return (
     <main>
-      {/* ── Hero ── */}
-      <section
-        className="hero-bleed photo-hero"
-        style={{
-          minHeight: "520px",
-        }}
-      >
-        {/* Background image */}
+      <section className="-mt-nav-h relative flex min-h-[520px] items-end overflow-hidden pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
         <Image
           src={coverImage}
           alt={listing.title}
           fill
           priority
           sizes="100vw"
-          style={{ objectFit: "cover" }}
+          className="object-cover"
         />
 
-        {/* Gradient overlay */}
-        <div className="overlay-bottom" aria-hidden />
+        <div
+          className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,rgba(25,28,32,0.12)_0%,rgba(25,28,32,0.38)_55%,rgba(25,28,32,0.60)_100%)]"
+          aria-hidden
+        />
 
-        {/* Hero content */}
-        <div className="container on-dark photo-hero-content">
-          <p
-            className="sec-label"
-          >
+        <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-white/70">
             Авторский тур · {listing.region}
           </p>
 
-          <h1
-            className="display-xl"
-            style={{
-              lineHeight: 1.03,
-              fontWeight: 600,
-              maxWidth: "18ch",
-            }}
-          >
+          <h1 className="max-w-[18ch] font-display text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.03]">
             {listing.title}
           </h1>
 
-          {/* Hero pills */}
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "10px",
-              marginTop: "18px",
-            }}
-          >
+          <div className="mt-[18px] flex flex-wrap gap-2.5">
             {[
               `${listing.durationDays} дней`,
               `Группа до ${listing.groupSizeMax} человек`,
               `от ${priceFormatted} ₽`,
             ].map((label) => (
-              <span key={label} className="glass-pill">
+              <span
+                key={label}
+                className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-[0.8125rem] font-medium text-white/90 backdrop-blur-[12px]"
+              >
                 {label}
               </span>
             ))}
@@ -132,125 +116,70 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
         </div>
       </section>
 
-      {/* ── Main 2-col layout ── */}
-      <section style={{ paddingBlock: "64px" }}>
-        <div className="container">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 2fr) 360px",
-              gap: "40px",
-              alignItems: "start",
-            }}
-          >
-            {/* ── Left column ── */}
-            <div style={{ display: "grid", gap: "32px" }}>
-              {/* Gallery */}
-              <div style={{ display: "grid", gap: "12px" }}>
-                {/* Main image */}
-                <div
-                  style={{
-                    aspectRatio: "16 / 9",
-                    borderRadius: "20px",
-                    overflow: "hidden",
-                    position: "relative",
-                  }}
-                >
+      <section className="py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="grid items-start gap-10 lg:grid-cols-[minmax(0,2fr)_360px]">
+            <div className="grid gap-8">
+              <div className="grid gap-3">
+                <div className="relative aspect-[16/9] overflow-hidden rounded-[20px]">
                   <Image
                     src={coverImage}
                     alt={listing.title}
                     fill
                     sizes="(max-width: 1023px) 100vw, 66vw"
-                    style={{ objectFit: "cover" }}
+                    className="object-cover"
                   />
                 </div>
 
-                {/* Thumbnail row */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(3, 1fr)",
-                    gap: "12px",
-                  }}
-                >
+                <div className="grid grid-cols-3 gap-3">
                   {galleryThumbs.map((src, i) => (
                     <div
                       key={i}
-                      style={{
-                        aspectRatio: "16 / 11",
-                        borderRadius: "18px",
-                        overflow: "hidden",
-                        position: "relative",
-                      }}
+                      className="relative aspect-[16/11] overflow-hidden rounded-[18px]"
                     >
                       <Image
                         src={src}
                         alt={`${listing.title} — фото ${i + 2}`}
                         fill
                         sizes="(max-width: 1023px) 33vw, 22vw"
-                        style={{ objectFit: "cover" }}
+                        className="object-cover"
                       />
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* About route */}
               <section>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.875rem",
-                    lineHeight: 1.08,
-                    marginBottom: "14px",
-                  }}
-                >
+                <h2 className="mb-[14px] font-display text-[1.875rem] leading-[1.08]">
                   О маршруте
                 </h2>
                 {listing.highlights.map((text, i) => (
                   <p
                     key={i}
-                    style={{
-                      fontSize: "0.9375rem",
-                      lineHeight: 1.72,
-                      color: "var(--on-surface-muted)",
-                      marginTop: i > 0 ? "14px" : undefined,
-                    }}
+                    className={`text-[0.9375rem] leading-[1.72] text-muted-foreground ${
+                      i > 0 ? "mt-[14px]" : ""
+                    }`}
                   >
                     {text}
                   </p>
                 ))}
               </section>
 
-              {/* Day-by-day itinerary */}
               <section>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.875rem",
-                    lineHeight: 1.08,
-                    marginBottom: "18px",
-                  }}
-                >
+                <h2 className="mb-[18px] font-display text-[1.875rem] leading-[1.08]">
                   Программа по дням
                 </h2>
-                <ol style={{ display: "grid", gap: "14px" }}>
+                <ol className="grid gap-[14px]">
                   {listing.itinerary.map((item, index) => (
                     <li
                       key={`${item.title}-${index}`}
-                      style={{
-                        display: "flex",
-                        gap: "14px",
-                        fontSize: "0.9375rem",
-                        lineHeight: 1.72,
-                        color: "var(--on-surface-muted)",
-                      }}
+                      className="flex gap-[14px] text-[0.9375rem] leading-[1.72] text-muted-foreground"
                     >
-                      <strong style={{ color: "var(--on-surface)", flexShrink: 0 }}>
+                      <strong className="shrink-0 text-foreground">
                         День {index + 1}.
                       </strong>
                       <span>
-                        <strong style={{ color: "var(--on-surface)" }}>{item.title}.</strong>{" "}
+                        <strong className="text-foreground">{item.title}.</strong>{" "}
                         {item.description}
                       </span>
                     </li>
@@ -258,66 +187,30 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
                 </ol>
               </section>
 
-              {/* Includes / excludes */}
               <section>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.875rem",
-                    lineHeight: 1.08,
-                    marginBottom: "18px",
-                  }}
-                >
+                <h2 className="mb-[18px] font-display text-[1.875rem] leading-[1.08]">
                   Что включено
                 </h2>
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, 1fr)",
-                    gap: "12px",
-                  }}
-                >
-                  {/* Inclusions */}
-                  <ul style={{ display: "grid", gap: "10px" }}>
+                <div className="grid gap-3 md:grid-cols-2">
+                  <ul className="grid gap-2.5">
                     {listing.inclusions.map((item) => (
                       <li
                         key={item}
-                        style={{
-                          display: "flex",
-                          gap: "8px",
-                          fontSize: "0.9375rem",
-                          lineHeight: 1.6,
-                          color: "var(--on-surface-muted)",
-                        }}
+                        className="flex gap-2 text-[0.9375rem] leading-[1.6] text-muted-foreground"
                       >
-                        <span style={{ color: "var(--primary)", fontWeight: 600, flexShrink: 0 }}>
-                          ✓
-                        </span>
+                        <span className="shrink-0 font-semibold text-primary">✓</span>
                         {item}
                       </li>
                     ))}
                   </ul>
 
-                  {/* Exclusions */}
-                  <ul style={{ display: "grid", gap: "10px" }}>
+                  <ul className="grid gap-2.5">
                     {defaultExclusions.map((item) => (
                       <li
                         key={item}
-                        style={{
-                          display: "flex",
-                          gap: "8px",
-                          fontSize: "0.9375rem",
-                          lineHeight: 1.6,
-                          color: "var(--on-surface-muted)",
-                        }}
+                        className="flex gap-2 text-[0.9375rem] leading-[1.6] text-muted-foreground"
                       >
-                        <span
-                          style={{
-                            color: "var(--on-surface-muted)",
-                            fontWeight: 600,
-                            flexShrink: 0,
-                          }}
-                        >
+                        <span className="shrink-0 font-semibold text-muted-foreground">
                           ✗
                         </span>
                         {item}
@@ -328,155 +221,62 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
               </section>
             </div>
 
-            {/* ── Right column (sticky) ── */}
-            <aside
-              style={{
-                position: "sticky",
-                top: "96px",
-                display: "grid",
-                gap: "0",
-                padding: "28px",
-                background: "rgba(249,249,255,0.60)",
-                backdropFilter: "blur(20px)",
-                WebkitBackdropFilter: "blur(20px)",
-                border: "1px solid rgba(194,198,214,0.18)",
-                boxShadow: "0 8px 32px rgba(25,28,32,0.06)",
-                borderRadius: "28px",
-              }}
-            >
-              {/* Price */}
-              <div
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "2.4rem",
-                  lineHeight: 1,
-                  color: "var(--on-surface)",
-                }}
-              >
+            <aside className="sticky top-24 grid gap-0 rounded-[28px] border border-glass-border bg-glass p-7 shadow-glass backdrop-blur-[20px]">
+              <div className="font-display text-[2.4rem] leading-none text-foreground">
                 от {priceFormatted} ₽
               </div>
-              <p
-                style={{
-                  marginTop: "8px",
-                  color: "var(--on-surface-muted)",
-                  fontSize: "0.875rem",
-                }}
-              >
-                на человека
-              </p>
-              <p
-                style={{
-                  marginTop: "4px",
-                  color: "var(--on-surface-muted)",
-                  fontSize: "0.875rem",
-                }}
-              >
+              <p className="mt-2 text-sm text-muted-foreground">на человека</p>
+              <p className="mt-1 text-sm text-muted-foreground">
                 Группа 4–{listing.groupSizeMax} человек · {listing.durationDays}{" "}
-                {listing.durationDays === 1 ? "день" : listing.durationDays < 5 ? "дня" : "дней"}
+                {listing.durationDays === 1
+                  ? "день"
+                  : listing.durationDays < 5
+                    ? "дня"
+                    : "дней"}
               </p>
 
-              {/* CTAs */}
-              <Link
-                href={`/requests/new?listing=${listing.slug}`}
-                className="btn-primary"
-                style={{ width: "100%", marginTop: "18px" }}
-              >
-                Создать запрос
-              </Link>
-              <Link
-                href="/requests"
-                className="btn-ghost"
-                style={{ width: "100%", marginTop: "10px" }}
-              >
-                Найти группу
-              </Link>
+              <Button asChild className="mt-[18px] w-full">
+                <Link href={`/requests/new?listing=${listing.slug}`}>
+                  Создать запрос
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="mt-2.5 w-full">
+                <Link href="/requests">Найти группу</Link>
+              </Button>
 
-              {/* Divider */}
-              <div
-                style={{
-                  height: "1px",
-                  background: "rgba(194,198,214,0.30)",
-                  margin: "20px 0",
-                }}
-              />
+              <div className="my-5 h-px bg-[rgba(194,198,214,0.30)]" />
 
-              {/* Guide mini card */}
-              <div
-                style={{
-                  background: "var(--surface-lowest)",
-                  borderRadius: "16px",
-                  padding: "14px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "12px",
-                }}
-              >
-                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                  {/* Guide avatar */}
-                  <div
-                    style={{
-                      width: "36px",
-                      height: "36px",
-                      borderRadius: "50%",
-                      background: "var(--surface-low)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      color: "var(--primary)",
-                      fontWeight: 600,
-                      fontSize: "0.8125rem",
-                      flexShrink: 0,
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
+              <div className="flex items-center justify-between gap-3 rounded-2xl bg-background p-[14px]">
+                <div className="flex items-center gap-3">
+                  <div className="relative flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface-low text-[0.8125rem] font-semibold text-primary">
                     {guide?.avatarImageUrl ? (
                       <Image
                         src={guide.avatarImageUrl}
                         alt={guideName}
                         fill
                         sizes="36px"
-                        style={{ objectFit: "cover" }}
+                        className="object-cover"
                       />
                     ) : (
                       guideInitials
                     )}
                   </div>
                   <div>
-                    <strong style={{ display: "block", fontSize: "0.9375rem" }}>
-                      {guideName}
-                    </strong>
-                    <span
-                      style={{
-                        fontSize: "0.8125rem",
-                        color: "var(--on-surface-muted)",
-                      }}
-                    >
+                    <strong className="block text-[0.9375rem]">{guideName}</strong>
+                    <span className="text-[0.8125rem] text-muted-foreground">
                       {guideRegion} · {guideRating} ★
                     </span>
                   </div>
                 </div>
                 <Link
                   href={`/guides/${guideSlug}`}
-                  style={{
-                    fontSize: "0.875rem",
-                    fontWeight: 600,
-                    color: "var(--primary)",
-                    whiteSpace: "nowrap",
-                  }}
+                  className="whitespace-nowrap text-sm font-semibold text-primary"
                 >
                   Профиль →
                 </Link>
               </div>
 
-              <p
-                style={{
-                  marginTop: "14px",
-                  fontSize: "0.8125rem",
-                  color: "var(--on-surface-muted)",
-                }}
-              >
+              <p className="mt-[14px] text-[0.8125rem] text-muted-foreground">
                 Оплата после подтверждения состава группы и дат.
               </p>
             </aside>
@@ -484,17 +284,15 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
         </div>
       </section>
 
-      {/* ── Reviews section ── */}
-      <section style={{ background: "var(--surface-low)", paddingBlock: "48px" }}>
-        <div className="container">
-          <p className="sec-label">Отзывы</p>
-          <h2
-            className="sec-title"
-            style={{ marginBottom: "28px" }}
-          >
+      <section className="bg-surface-low py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+            Отзывы
+          </p>
+          <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Что говорят о поездке
           </h2>
-          <div className="grid-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {reviewCards.map((rev: any) => {
               const reviewInitials =
                 rev.initials ||
@@ -507,57 +305,22 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
                       .join("")
                       .toUpperCase()
                   : "??");
-              const reviewName = rev.name || rev.author?.displayName || "Путешественник";
+              const reviewName =
+                rev.name || rev.author?.displayName || "Путешественник";
               const reviewRating = rev.rating ?? 5;
               const reviewBody = rev.body || rev.title || "";
 
               return (
-                <article
-                  key={rev.id}
-                  style={{
-                    display: "flex",
-                    gap: "14px",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: "42px",
-                      height: "42px",
-                      borderRadius: "50%",
-                      background: "var(--surface-low)",
-                      border: "1px solid rgba(194,198,214,0.30)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "0.75rem",
-                      fontWeight: 600,
-                      color: "var(--primary)",
-                      flexShrink: 0,
-                    }}
-                  >
+                <article key={rev.id} className="flex items-start gap-3.5">
+                  <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full border border-[rgba(194,198,214,0.30)] bg-surface-low text-xs font-semibold text-primary">
                     {reviewInitials}
                   </div>
                   <div>
-                    <strong style={{ display: "block", marginBottom: "4px" }}>
-                      {reviewName}
-                    </strong>
-                    <small
-                      style={{
-                        display: "block",
-                        color: "var(--on-surface-muted)",
-                        marginBottom: "8px",
-                      }}
-                    >
+                    <strong className="mb-1 block">{reviewName}</strong>
+                    <small className="mb-2 block text-muted-foreground">
                       {reviewRating.toFixed(1)}
                     </small>
-                    <p
-                      style={{
-                        color: "var(--on-surface-muted)",
-                        lineHeight: 1.65,
-                        fontSize: "0.9375rem",
-                      }}
-                    >
+                    <p className="text-[0.9375rem] leading-[1.65] text-muted-foreground">
                       {reviewBody}
                     </p>
                   </div>

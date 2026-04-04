@@ -67,7 +67,9 @@ export function PublicListingDiscoveryScreen({
   return (
     <div className="space-y-10">
       <section className="space-y-4">
-        <p className="editorial-kicker">Экскурсии</p>
+        <p className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+          Экскурсии
+        </p>
         <h1 className="text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] text-[var(--ink)]">
           Маршруты с локальными гидами
         </h1>
@@ -100,7 +102,7 @@ export function PublicListingDiscoveryScreen({
           ))}
         </div>
       ) : (
-        <div className="glass-card flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
+        <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
           <span className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] text-[var(--brand)]">
             <Compass className="size-6" strokeWidth={1.9} />
           </span>
