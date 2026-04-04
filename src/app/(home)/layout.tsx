@@ -9,7 +9,7 @@ export default async function HomeLayout({ children }: { children: ReactNode }) 
   return (
     <>
       <SiteHeader isAuthenticated={auth.isAuthenticated} />
-      <main className="pt-[var(--nav-h)]">{children}</main>
+      <main className="pt-nav-h">{children}</main>
     </>
   );
 }

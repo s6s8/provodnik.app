@@ -88,10 +88,10 @@ export default async function AdminListingsPage() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-[var(--card-shadow)]">
+      <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-card">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-border/70 text-sm">
-            <thead className="bg-[var(--surface-low)] text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            <thead className="bg-surface-low text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">Листинг</th>
                 <th className="px-4 py-3 font-medium">Гид</th>
@@ -163,7 +163,7 @@ export default async function AdminListingsPage() {
                             type="submit"
                             variant="secondary"
                             size="sm"
-                            className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-[var(--success)] hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+                            className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
                           >
                             Одобрить
                           </Button>

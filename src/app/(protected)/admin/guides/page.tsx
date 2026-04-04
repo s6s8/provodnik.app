@@ -56,10 +56,10 @@ export default async function AdminGuidesPage() {
         </p>
       </div>
 
-      <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-[var(--card-shadow)]">
+      <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-card">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-border/70 text-sm">
-            <thead className="bg-[var(--surface-low)] text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
+            <thead className="bg-surface-low text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-medium">Гид</th>
                 <th className="px-4 py-3 font-medium">Email</th>
@@ -117,7 +117,7 @@ export default async function AdminGuidesPage() {
                     <td className="px-4 py-4">
                       <Link
                         href={`/admin/guides/${item.profile.user_id}`}
-                        className="text-sm font-medium text-[var(--primary)]"
+                        className="text-sm font-medium text-primary"
                       >
                         Просмотреть
                       </Link>

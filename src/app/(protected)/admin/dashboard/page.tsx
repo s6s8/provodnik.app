@@ -45,13 +45,13 @@ export default async function AdminDashboardPage() {
           <Link
             key={card.key}
             href={card.href}
-            className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)] transition-transform hover:-translate-y-0.5"
+            className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
           >
             <div className="text-sm text-muted-foreground">{card.label}</div>
             <div className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
               {stats[card.key]}
             </div>
-            <div className="mt-4 text-sm font-medium text-[var(--primary)]">
+            <div className="mt-4 text-sm font-medium text-primary">
               Открыть раздел
             </div>
           </Link>
@@ -61,7 +61,7 @@ export default async function AdminDashboardPage() {
       <div className="grid gap-4 lg:grid-cols-3">
         <Link
           href="/admin/guides"
-          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]"
+          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card"
         >
           <div className="text-sm font-medium text-foreground">
             Гиды ждут проверки
@@ -74,7 +74,7 @@ export default async function AdminDashboardPage() {
 
         <Link
           href="/admin/listings"
-          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]"
+          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card"
         >
           <div className="text-sm font-medium text-foreground">
             Листинги на модерации
@@ -87,7 +87,7 @@ export default async function AdminDashboardPage() {
 
         <Link
           href="/admin/disputes"
-          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]"
+          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card"
         >
           <div className="text-sm font-medium text-foreground">
             Очередь споров

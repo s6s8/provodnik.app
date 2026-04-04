@@ -23,7 +23,7 @@ export default function ProtectedError({ error, reset }: ProtectedErrorProps) {
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
             Раздел временно недоступен
           </h1>
-          <p className="max-w-xl text-sm text-[var(--ink-3)] md:text-base">
+          <p className="max-w-xl text-sm text-ink-3 md:text-base">
             Мы не смогли открыть этот раздел. Попробуйте повторить действие или
             вернуться на главную.
           </p>

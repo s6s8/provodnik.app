@@ -63,12 +63,12 @@ function WorkspaceSidebar({
     <aside className="hidden lg:block">
       <div className="bg-surface-high rounded-card shadow-card p-5 lg:sticky lg:top-24 self-start max-lg:static sticky top-28 space-y-5 p-6">
         <div className="space-y-3">
-          <div className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] font-display text-2xl font-semibold text-[var(--brand)]">
+          <div className="flex size-14 items-center justify-center rounded-full bg-brand-light font-display text-2xl font-semibold text-brand">
             {initials}
           </div>
           <div className="space-y-1">
-            <p className="font-medium text-[var(--ink)]">Кабинет путешественника</p>
-            <p className="text-sm text-[var(--ink-3)]">{email ?? "demo@provodnik.app"}</p>
+            <p className="font-medium text-ink">Кабинет путешественника</p>
+            <p className="text-sm text-ink-3">{email ?? "demo@provodnik.app"}</p>
           </div>
         </div>
         <div className="h-px bg-[rgba(15,25,35,0.08)]" />
@@ -85,8 +85,8 @@ function WorkspaceSidebar({
                 className={cn(
                   "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors",
                   isDefaultActive
-                    ? "bg-[var(--brand-light)] font-semibold text-[var(--brand)]"
-                    : "text-[var(--ink-2)] hover:bg-[var(--surface-low)] hover:text-[var(--ink)]",
+                    ? "bg-brand-light font-semibold text-brand"
+                    : "text-ink-2 hover:bg-surface-low hover:text-ink",
                 )}
               >
                 <Icon className="size-[18px]" strokeWidth={1.8} />
@@ -103,7 +103,7 @@ function WorkspaceSidebar({
 function MobileWorkspaceTabs() {
   return (
     <nav
-      className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-[1.5rem] border border-[var(--glass-border)] bg-[rgba(249,249,255,0.9)] p-2 shadow-[var(--glass-shadow)] backdrop-blur md:hidden"
+      className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-[1.5rem] border border-glass-border bg-[rgba(249,249,255,0.9)] p-2 shadow-glass backdrop-blur md:hidden"
       aria-label="Traveler workspace mobile"
     >
       {travelerNavItems.map((item, index) => {
@@ -118,8 +118,8 @@ function MobileWorkspaceTabs() {
             className={cn(
               "flex min-w-0 flex-col items-center gap-1 rounded-[1rem] px-2 py-2 text-center text-[11px] font-medium transition-colors",
               isDefaultActive
-                ? "bg-[var(--brand-light)] font-semibold text-[var(--brand)]"
-                : "text-[var(--ink-2)]",
+                ? "bg-brand-light font-semibold text-brand"
+                : "text-ink-2",
             )}
           >
             <Icon className="size-4" strokeWidth={1.9} />

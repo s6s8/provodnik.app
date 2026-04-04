@@ -11,7 +11,7 @@ export default function NotFound() {
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
             Страница не найдена
           </h1>
-          <p className="max-w-xl text-sm text-[var(--ink-3)] md:text-base">
+          <p className="max-w-xl text-sm text-ink-3 md:text-base">
             Адрес мог измениться, быть удалён или введён с ошибкой.
           </p>
         </div>

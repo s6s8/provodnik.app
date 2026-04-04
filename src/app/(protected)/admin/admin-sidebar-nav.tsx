@@ -65,15 +65,15 @@ function NavLink({
       className={cn(
         "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors",
         active
-          ? "bg-[var(--brand-light)] font-semibold text-[var(--brand)]"
-          : "text-[var(--ink-2)] hover:bg-[var(--surface-low)] hover:text-[var(--ink)]",
+          ? "bg-brand-light font-semibold text-brand"
+          : "text-ink-2 hover:bg-surface-low hover:text-ink",
       )}
     >
       <Icon className="size-[18px] shrink-0" strokeWidth={1.8} />
       <span className="hidden min-w-0 lg:block">{label}</span>
       <span className="min-w-0 lg:hidden">{mobileLabel}</span>
       {typeof count === "number" && count > 0 ? (
-        <span className="ml-auto inline-flex min-w-6 items-center justify-center rounded-full bg-[var(--brand-light)] px-2 py-0.5 text-xs font-semibold text-[var(--brand)]">
+        <span className="ml-auto inline-flex min-w-6 items-center justify-center rounded-full bg-brand-light px-2 py-0.5 text-xs font-semibold text-brand">
           {count}
         </span>
       ) : null}
@@ -111,7 +111,7 @@ export function AdminMobileTabs({
 
   return (
     <nav
-      className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-[1.5rem] border border-[var(--glass-border)] bg-[rgba(249,249,255,0.9)] p-2 shadow-[var(--glass-shadow)] backdrop-blur md:hidden"
+      className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-[1.5rem] border border-glass-border bg-[rgba(249,249,255,0.9)] p-2 shadow-glass backdrop-blur md:hidden"
       aria-label="Admin workspace mobile"
     >
       {adminNavItems.map((item) => {
@@ -127,14 +127,14 @@ export function AdminMobileTabs({
             className={cn(
               "flex min-w-0 flex-col items-center gap-1 rounded-[1rem] px-2 py-2 text-center text-[11px] font-medium transition-colors",
               active
-                ? "bg-[var(--brand-light)] font-semibold text-[var(--brand)]"
-                : "text-[var(--ink-2)]",
+                ? "bg-brand-light font-semibold text-brand"
+                : "text-ink-2",
             )}
           >
             <Icon className="size-4" strokeWidth={1.9} />
             <span className="truncate">{item.mobileLabel}</span>
             {typeof count === "number" && count > 0 ? (
-              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--brand-light)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--brand)]">
+              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-brand-light px-1.5 py-0.5 text-[10px] font-semibold text-brand">
                 {count}
               </span>
             ) : null}

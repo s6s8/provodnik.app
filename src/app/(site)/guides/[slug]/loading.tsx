@@ -39,7 +39,7 @@ export default function Loading() {
         </div>
       </section>
 
-      <section className="bg-[var(--surface-low)]">
+      <section className="bg-surface-low">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] space-y-6 py-8 lg:py-12">
           <div className="flex items-end justify-between gap-4">
             <div className="space-y-2">

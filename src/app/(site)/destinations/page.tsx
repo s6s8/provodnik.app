@@ -24,15 +24,15 @@ export default async function DestinationsPage() {
       <section className="bg-surface pt-24 pb-20">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">Направления</p>
-          <h1 className="font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.05] text-[var(--on-surface)] mt-2 mb-3">
+          <h1 className="font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.05] text-on-surface mt-2 mb-3">
             Куда поедем?
           </h1>
-          <p className="max-w-[46rem] text-base leading-[1.65] text-[var(--on-surface-muted)]">
+          <p className="max-w-[46rem] text-base leading-[1.65] text-on-surface-muted">
             Города и регионы России с проверенными маршрутами и локальными гидами.
           </p>
 
           {destinations.length === 0 && (
-            <p className="mt-8 text-[var(--on-surface-muted)]">Пока нет доступных направлений.</p>
+            <p className="mt-8 text-on-surface-muted">Пока нет доступных направлений.</p>
           )}
 
           {destinations.length > 0 && (

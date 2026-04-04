@@ -90,7 +90,7 @@ export function PublicReviewsSection({
           visibleReviews.map((review) => (
             <article
               key={review.id}
-              className="rounded-[var(--card-radius)] border border-border/60 bg-background/70 p-4 shadow-[var(--card-shadow)]"
+              className="rounded-card border border-border/60 bg-background/70 p-4 shadow-card"
             >
               <div className="flex items-start gap-3">
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-sm font-semibold text-primary">

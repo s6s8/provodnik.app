@@ -11,7 +11,7 @@ export default function SiteNotFound() {
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
             Эта страница не найдена
           </h1>
-          <p className="max-w-xl text-sm text-[var(--ink-3)] md:text-base">
+          <p className="max-w-xl text-sm text-ink-3 md:text-base">
             Ссылка могла устареть или вести не туда. Выберите другой раздел,
             чтобы продолжить.
           </p>

@@ -40,7 +40,7 @@ export default function Loading() {
               <Skeleton className="h-12 w-44" />
               <Skeleton className="h-4 w-40" />
               <Skeleton className="h-11 w-full rounded-full" />
-              <div className="h-px bg-[color:var(--outline-variant)]/40" />
+              <div className="h-px bg-outline-variant/40" />
               <Skeleton className="h-4 w-24" />
               {Array.from({ length: 2 }).map((_, index) => (
                 <div key={index} className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass p-4 space-y-3">

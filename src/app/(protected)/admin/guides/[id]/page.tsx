@@ -67,7 +67,7 @@ export default async function AdminGuideDetailPage({
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div className="space-y-2">
-          <Link href="/admin/guides" className="text-sm font-medium text-[var(--primary)]">
+          <Link href="/admin/guides" className="text-sm font-medium text-primary">
             Назад к очереди гидов
           </Link>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
@@ -86,7 +86,7 @@ export default async function AdminGuideDetailPage({
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.9fr)]">
         <section className="space-y-6">
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]">
+          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <h2 className="text-lg font-semibold text-foreground">Профиль</h2>
             <dl className="mt-4 grid gap-4 md:grid-cols-2">
               <div>
@@ -133,7 +133,7 @@ export default async function AdminGuideDetailPage({
             </div>
           </div>
 
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]">
+          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <div className="flex items-center justify-between gap-4">
               <h2 className="text-lg font-semibold text-foreground">Документы</h2>
               <span className="text-sm text-muted-foreground">
@@ -151,7 +151,7 @@ export default async function AdminGuideDetailPage({
               {detail.documents.map((document) => (
                 <div
                   key={document.id}
-                  className="flex flex-col gap-3 rounded-[1.25rem] border border-border/70 bg-[var(--surface-low)] p-4 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-3 rounded-[1.25rem] border border-border/70 bg-surface-low p-4 md:flex-row md:items-center md:justify-between"
                 >
                   <div>
                     <div className="font-medium text-foreground">
@@ -186,7 +186,7 @@ export default async function AdminGuideDetailPage({
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]">
+          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <h2 className="text-lg font-semibold text-foreground">Решение</h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Зафиксируйте решение по анкете. Для отклонения и запроса
@@ -197,7 +197,7 @@ export default async function AdminGuideDetailPage({
               <textarea
                 name="note"
                 rows={6}
-                className="w-full rounded-[1.25rem] border border-input bg-[var(--surface-lowest)] px-4 py-3 text-sm text-foreground outline-none focus:border-[var(--primary)]"
+                className="w-full rounded-[1.25rem] border border-input bg-surface-lowest px-4 py-3 text-sm text-foreground outline-none focus:border-primary"
                 placeholder="Комментарий для гида или внутренней истории модерации"
               />
 
@@ -206,7 +206,7 @@ export default async function AdminGuideDetailPage({
                   formAction={approveGuide.bind(null, id)}
                   type="submit"
                   variant="secondary"
-                  className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-[var(--success)] hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+                  className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
                 >
                   Одобрить гида
                 </Button>
@@ -228,14 +228,14 @@ export default async function AdminGuideDetailPage({
             </form>
           </div>
 
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-[var(--card-shadow)]">
+          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <h2 className="text-lg font-semibold text-foreground">
               История модерации
             </h2>
 
             {detail.moderation_case ? (
               <div className="mt-4 space-y-3">
-                <div className="rounded-[1.25rem] border border-border/70 bg-[var(--surface-low)] p-4">
+                <div className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4">
                   <div className="text-sm font-medium text-foreground">
                     Причина очереди
                   </div>
@@ -252,7 +252,7 @@ export default async function AdminGuideDetailPage({
                   detail.moderation_case.actions.map((action) => (
                     <div
                       key={action.id}
-                      className="rounded-[1.25rem] border border-border/70 bg-[var(--surface-low)] p-4"
+                      className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="font-medium capitalize text-foreground">

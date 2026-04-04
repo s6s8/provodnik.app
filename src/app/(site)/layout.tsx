@@ -8,9 +8,9 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   const auth = await readAuthContextFromServer();
 
   return (
-    <div className="min-h-screen bg-[var(--surface)] text-[var(--on-surface)]">
+    <div className="min-h-screen bg-surface text-on-surface">
       <SiteHeader isAuthenticated={auth.isAuthenticated} />
-      <main className="pt-[var(--nav-h)]">{children}</main>
+      <main className="pt-nav-h">{children}</main>
       <SiteFooter />
     </div>
   );

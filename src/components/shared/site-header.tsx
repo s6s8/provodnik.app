@@ -25,7 +25,7 @@ export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
   return (
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
       <nav
-        className="mx-auto grid max-w-page grid-cols-[auto_1fr_auto] items-center gap-6 rounded-full border border-[var(--nav-glass-border)] bg-[var(--nav-glass-bg)] px-6 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
+        className="mx-auto grid max-w-page grid-cols-[auto_1fr_auto] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-6 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
         aria-label="Основная навигация"
       >
         <Link href="/" className="font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">

@@ -27,7 +27,7 @@ export function HomePageHero() {
           Маршруты с локальными проводниками
         </p>
 
-        <h1 className="mb-8 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.06] text-[var(--on-surface)]">
+        <h1 className="mb-8 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.06] text-on-surface">
           Путешествуйте по России
           <br />
           с теми, кто знает каждый камень

@@ -39,7 +39,7 @@ export default function Loading() {
               <Skeleton className="h-4 w-52" />
               <Skeleton className="h-11 w-full rounded-full" />
               <Skeleton className="h-11 w-full rounded-full" />
-              <div className="h-px bg-[color:var(--outline-variant)]/40" />
+              <div className="h-px bg-outline-variant/40" />
               <div className="space-y-3">
                 <Skeleton className="h-4 w-24" />
                 <div className="flex items-center gap-3">

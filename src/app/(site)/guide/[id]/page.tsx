@@ -164,7 +164,7 @@ export default async function GuidePage({
       <main className="space-y-10 pb-16">
         <section className="py-8 md:py-12">
           <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-8 lg:gap-14 items-start">
-            <Card className="overflow-hidden border-border/70 bg-card/80 shadow-[var(--card-shadow)]">
+            <Card className="overflow-hidden border-border/70 bg-card/80 shadow-card">
               <div className="relative aspect-[3/4] bg-muted">
                 {guide.avatarImageUrl ? (
                   <Image

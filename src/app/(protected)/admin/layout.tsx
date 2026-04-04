@@ -46,12 +46,12 @@ export default async function AdminLayout({
         <aside className="hidden lg:block">
           <div className="bg-surface-high rounded-card shadow-card p-5 lg:sticky lg:top-24 self-start max-lg:static sticky top-28 space-y-5 p-6">
             <div className="space-y-3">
-              <div className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] font-display text-2xl font-semibold text-[var(--brand)]">
+              <div className="flex size-14 items-center justify-center rounded-full bg-brand-light font-display text-2xl font-semibold text-brand">
                 {initials}
               </div>
               <div className="space-y-1">
-                <p className="font-medium text-[var(--ink)]">Панель оператора</p>
-                <p className="text-sm text-[var(--ink-3)]">{email}</p>
+                <p className="font-medium text-ink">Панель оператора</p>
+                <p className="text-sm text-ink-3">{email}</p>
               </div>
             </div>
             <div className="h-px bg-[rgba(15,25,35,0.08)]" />

@@ -440,7 +440,7 @@ export function GuideReviewQueue() {
       </Card>
 
       {backendMode === "local" ? (
-        <p className="rounded-xl border border-[var(--outline-variant)] bg-[var(--surface-low)] px-4 py-3 text-xs text-[var(--on-surface-muted)]">
+        <p className="rounded-xl border border-outline-variant bg-surface-low px-4 py-3 text-xs text-on-surface-muted">
           Демо-режим: решения хранятся локально и сбрасываются при обновлении страницы.
         </p>
       ) : null}
