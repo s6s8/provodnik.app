@@ -163,7 +163,7 @@ export default async function GuidePage({
 
       <main className="space-y-10 pb-16">
         <section className="py-8 md:py-12">
-          <div className="container grid gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:items-start">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-8 lg:gap-14 items-start">
             <Card className="overflow-hidden border-border/70 bg-card/80 shadow-[var(--card-shadow)]">
               <div className="relative aspect-[3/4] bg-muted">
                 {guide.avatarImageUrl ? (
@@ -185,7 +185,7 @@ export default async function GuidePage({
 
             <div className="space-y-6">
               <div className="space-y-4">
-                <p className="sec-label">{guide.homeBase}</p>
+                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">{guide.homeBase}</p>
                 <div className="space-y-3">
                   <h1 className="text-4xl font-semibold leading-none tracking-tight text-foreground md:text-5xl">
                     {guide.displayName}
@@ -203,7 +203,7 @@ export default async function GuidePage({
                 reviewCount={guide.reviewsSummary.totalReviews}
               />
 
-              <Card className="glass-card">
+              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
                 <CardContent className="grid gap-4 p-5 sm:grid-cols-3">
                   <div>
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Рейтинг</p>
@@ -239,9 +239,9 @@ export default async function GuidePage({
         </section>
 
         <section>
-          <div className="container space-y-4">
-            <p className="sec-label">Туры гида</p>
-            <h2 className="sec-title">Авторские маршруты</h2>
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] space-y-4">
+            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">Туры гида</p>
+            <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">Авторские маршруты</h2>
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
               {listings.map((listing) => (
                 <TourCard
@@ -259,7 +259,7 @@ export default async function GuidePage({
         </section>
 
         <section>
-          <div className="container">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
             <PublicReviewsSection
               title="Что говорят путешественники"
               reviews={reviewItems}

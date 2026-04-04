@@ -68,7 +68,7 @@ export function PublicReviewsSection({
       : { averageRating: 0, totalReviews: 0, lastReviewAt: undefined });
 
   return (
-    <Card className="glass-card border-border/50">
+    <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass border-border/50">
       <CardHeader className="space-y-2">
         <CardTitle className="flex flex-wrap items-center justify-between gap-3">
           <span>{title}</span>

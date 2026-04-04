@@ -61,7 +61,7 @@ function WorkspaceSidebar({
 }) {
   return (
     <aside className="hidden lg:block">
-      <div className="glass-card sticky top-28 space-y-5 rounded-[1.75rem] p-6">
+      <div className="bg-surface-high rounded-card shadow-card p-5 lg:sticky lg:top-24 self-start max-lg:static sticky top-28 space-y-5 p-6">
         <div className="space-y-3">
           <div className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] font-display text-2xl font-semibold text-[var(--brand)]">
             {initials}

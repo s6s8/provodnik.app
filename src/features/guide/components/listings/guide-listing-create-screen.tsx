@@ -89,14 +89,14 @@ export function GuideListingCreateScreen({
             <div className="flex flex-wrap gap-3">
               <Button
                 type="button"
-                className="btn-ghost"
+                variant="outline"
                 onClick={() => router.push(`/guide/listings/${listingId}`)}
               >
                 Перейти к туру
               </Button>
               <Button
                 type="button"
-                className="btn-ghost"
+                variant="outline"
                 onClick={() => router.push(`/guide/listings/${listingId}/edit`)}
               >
                 Открыть редактирование

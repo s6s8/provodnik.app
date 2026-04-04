@@ -23,7 +23,7 @@ export default async function AuthPage() {
 
   return (
     <section className="grid gap-6 xl:grid-cols-[1.02fr_0.98fr] xl:items-start">
-      <div className="section-frame rounded-[2.2rem] p-6 sm:p-8 lg:p-10">
+      <div className="bg-surface-high rounded-card shadow-card rounded-[2.2rem] p-6 sm:p-8 lg:p-10">
         <div className="space-y-6">
           <div className="inline-flex items-center gap-2 rounded-full border border-border/70 bg-white/72 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
             <ShieldCheck className="size-4 text-primary" />

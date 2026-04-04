@@ -165,9 +165,9 @@ export default async function PublicListingDetailPage({
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/10" />
           </div>
 
-          <div className="container relative z-10 py-12 md:py-20">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] relative z-10 py-12 md:py-20">
             <div className="max-w-3xl space-y-4">
-              <p className="sec-label">{listing.region}</p>
+              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">{listing.region}</p>
               <h1 className="text-4xl font-semibold leading-none tracking-tight text-foreground md:text-5xl">
                 {listing.title}
               </h1>
@@ -182,9 +182,9 @@ export default async function PublicListingDetailPage({
         </section>
 
         <section>
-          <div className="container grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_360px]">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] grid gap-8 lg:grid-cols-[minmax(0,1.2fr)_360px]">
             <div className="space-y-6">
-              <Card className="glass-card">
+              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
                 <CardHeader>
                   <CardTitle>О маршруте</CardTitle>
                 </CardHeader>
@@ -197,7 +197,7 @@ export default async function PublicListingDetailPage({
                 </CardContent>
               </Card>
 
-              <Card className="glass-card">
+              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
                 <CardHeader>
                   <CardTitle>Программа по дням</CardTitle>
                 </CardHeader>
@@ -211,7 +211,7 @@ export default async function PublicListingDetailPage({
                 </CardContent>
               </Card>
 
-              <Card className="glass-card">
+              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
                 <CardHeader>
                   <CardTitle>Что включено</CardTitle>
                 </CardHeader>
@@ -231,7 +231,7 @@ export default async function PublicListingDetailPage({
             </div>
 
             <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
-              <Card className="glass-card">
+              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
                 <CardContent className="space-y-4 p-5">
                   <div>
                     <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">Стоимость</p>
@@ -267,7 +267,7 @@ export default async function PublicListingDetailPage({
         </section>
 
         <section>
-          <div className="container">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
             <PublicReviewsSection
               title="Что говорят о поездке"
               reviews={reviewItems}

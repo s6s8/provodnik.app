@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect } from "react";
 
+import { Button } from "@/components/ui/button";
+
 type SiteErrorProps = {
   error: Error & { digest?: string };
   reset: () => void;
@@ -14,10 +16,10 @@ export default function SiteError({ error, reset }: SiteErrorProps) {
   }, [error]);
 
   return (
-    <main className="container flex min-h-[70vh] items-center py-16">
-      <section className="glass-card w-full max-w-2xl space-y-6 px-6 py-8 md:px-10 md:py-12">
+    <main className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] flex min-h-[70vh] items-center py-16">
+      <section className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass w-full max-w-2xl space-y-6 px-6 py-8 md:px-10 md:py-12">
         <div className="space-y-3">
-          <p className="editorial-kicker">Сбой страницы</p>
+          <p className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Сбой страницы</p>
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
             Страница временно недоступна
           </h1>
@@ -28,15 +30,15 @@ export default function SiteError({ error, reset }: SiteErrorProps) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <button type="button" className="btn-primary" onClick={() => reset()}>
+          <Button type="button" onClick={() => reset()}>
             Повторить
-          </button>
-          <Link href="/" className="btn-ghost">
-            На главную
-          </Link>
-          <a href="mailto:support@provodnik.app" className="btn-ghost">
-            Связаться с поддержкой
-          </a>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/">На главную</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <a href="mailto:support@provodnik.app">Связаться с поддержкой</a>
+          </Button>
         </div>
       </section>
     </main>

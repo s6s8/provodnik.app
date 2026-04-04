@@ -49,7 +49,7 @@ export function TravelerBookingReviewScreen({
       </Button>
 
       <div className="space-y-2">
-        <p className="editorial-kicker">Кабинет путешественника</p>
+        <p className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Кабинет путешественника</p>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Оставить отзыв
         </h1>

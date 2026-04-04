@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { getBooking } from "@/lib/supabase/bookings";
@@ -137,43 +138,35 @@ export default async function TravelerBookingDetailPage({
         </Card>
       ) : null}
 
-      <div className="booking-confirm-shell">
-        <div className="booking-confirm-container">
-          <div className="booking-confirm-heading">
-            <h1 className="booking-confirm-title">Бронирование создано</h1>
+      <div className="py-12">
+        <div className="max-w-[640px] mx-auto px-[var(--px)] flex flex-col gap-6">
+          <div className="flex items-center gap-4 flex-wrap">
+            <h1 className="font-display text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-[1.05] text-foreground">Бронирование создано</h1>
             <BookingStatusBadge status={status} />
           </div>
 
-          <div className="booking-confirm-card">
-            <p className="booking-confirm-card-label">Детали поездки</p>
-            <p className="booking-confirm-destination">{destination}</p>
-            {dateRange ? <p className="booking-confirm-dates">{dateRange}</p> : null}
-            <p className="booking-confirm-price">{formatRub(priceMinor)}</p>
+          <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-1.5">
+            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
+            <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
+            {dateRange ? <p className="font-sans text-sm text-muted-foreground">{dateRange}</p> : null}
+            <p className="font-sans text-[1.125rem] font-semibold text-foreground mt-1">{formatRub(priceMinor)}</p>
           </div>
 
-          <div className="glass-card booking-confirm-guide-card">
-            <p className="booking-confirm-guide-label">Свяжитесь с гидом напрямую</p>
-            <div className="booking-confirm-guide-header">
-              <div className="booking-confirm-guide-avatar">
-                {guideAvatarUrl ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
-                    src={guideAvatarUrl}
-                    alt={guideName}
-                    className="booking-confirm-guide-avatar-img"
-                  />
-                ) : (
-                  <span className="booking-confirm-guide-avatar-initials">
-                    {getInitials(guideName)}
-                  </span>
-                )}
-              </div>
-              <div className="booking-confirm-guide-meta">
-                <p className="booking-confirm-guide-name">
+          <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass p-5 px-6 flex flex-col gap-3.5">
+            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
+            <div className="flex items-center gap-3.5">
+              <Avatar className="size-13 border-2 border-glass-border">
+                <AvatarImage src={guideAvatarUrl ?? undefined} alt={guideName} className="object-cover" />
+                <AvatarFallback className="font-display text-xl font-semibold text-primary">
+                  {getInitials(guideName)}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0 flex flex-col gap-[0.3rem]">
+                <p className="font-sans text-base font-semibold text-foreground flex items-center gap-1.5">
                   {guideName}
                   {isVerified ? (
                     <span
-                      className="booking-confirm-verified-badge"
+                      className="inline-flex items-center justify-center size-[18px] rounded-full bg-primary text-white text-[0.625rem] font-bold shrink-0"
                       aria-label="Верифицирован"
                     >
                       ✓
@@ -181,11 +174,11 @@ export default async function TravelerBookingDetailPage({
                   ) : null}
                 </p>
                 {guidePhone ? (
-                  <p className="booking-confirm-guide-contact">
-                    <span className="booking-confirm-contact-label">Телефон:</span>{" "}
+                  <p className="font-sans text-sm text-muted-foreground">
+                    <span className="font-medium">Телефон:</span>{" "}
                     <a
                       href={`tel:${guidePhone}`}
-                      className="booking-confirm-contact-link"
+                      className="text-primary no-underline hover:underline"
                     >
                       {guidePhone}
                     </a>
@@ -197,12 +190,10 @@ export default async function TravelerBookingDetailPage({
             <div className="flex flex-col gap-2 sm:flex-row">
               <form
                 action={openBookingThreadAction}
-                className="booking-confirm-message-form"
+                className="flex"
               >
                 <input type="hidden" name="booking_id" value={booking.id} />
-                <button type="submit" className="btn-primary">
-                  Написать гиду
-                </button>
+                <Button type="submit">Написать гиду</Button>
               </form>
 
               {canLeaveReview ? (
@@ -223,11 +214,14 @@ export default async function TravelerBookingDetailPage({
             </div>
           </div>
 
-          <p className="booking-confirm-note">
+          <p className="font-sans text-[0.8125rem] text-muted-foreground leading-[1.6] p-3.5 px-4 rounded-[12px] border border-glass-border bg-outline-variant/[0.08]">
             Итоговая стоимость и детали поездки обсуждаются с гидом напрямую
           </p>
 
-          <Link href="/traveler/bookings" className="booking-confirm-back-link">
+          <Link
+            href="/traveler/bookings"
+            className="font-sans text-sm font-medium text-primary no-underline inline-flex items-center gap-1 hover:underline"
+          >
             ← Мои бронирования
           </Link>
         </div>

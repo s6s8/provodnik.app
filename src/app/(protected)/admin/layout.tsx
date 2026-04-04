@@ -44,7 +44,7 @@ export default async function AdminLayout({
     <div className="pb-24 md:pb-0">
       <div className="mx-auto grid w-full max-w-7xl gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
         <aside className="hidden lg:block">
-          <div className="glass-card sticky top-28 space-y-5 rounded-[1.75rem] p-6">
+          <div className="bg-surface-high rounded-card shadow-card p-5 lg:sticky lg:top-24 self-start max-lg:static sticky top-28 space-y-5 p-6">
             <div className="space-y-3">
               <div className="flex size-14 items-center justify-center rounded-full bg-[var(--brand-light)] font-display text-2xl font-semibold text-[var(--brand)]">
                 {initials}

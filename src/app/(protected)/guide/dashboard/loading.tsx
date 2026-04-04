@@ -11,7 +11,7 @@ export default function Loading() {
         <div className="h-5 w-full max-w-3xl rounded-full bg-muted/60 animate-pulse" />
       </div>
 
-      <div className="glass-card space-y-6 p-6 md:p-8">
+      <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-6 p-6 md:p-8">
         <div className="flex flex-wrap gap-2">
           <div className="h-8 w-24 rounded-full bg-muted/70 animate-pulse" />
           <div className="h-8 w-32 rounded-full bg-muted/70 animate-pulse" />

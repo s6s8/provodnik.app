@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export default function Loading() {
   return (
     <main>
-      <section className="container py-8 lg:py-12">
+      <section className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-8 lg:py-12">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_360px]">
           <div className="space-y-6">
             <Skeleton className="aspect-[16/9] w-full rounded-[2rem]" />
@@ -17,13 +17,13 @@ export default function Loading() {
               </div>
             </div>
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="glass-card rounded-[1.75rem] p-5 space-y-3">
+              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[1.75rem] p-5 space-y-3">
                 <Skeleton className="h-6 w-40" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-11/12" />
                 <Skeleton className="h-4 w-4/5" />
               </div>
-              <div className="glass-card rounded-[1.75rem] p-5 space-y-3">
+              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[1.75rem] p-5 space-y-3">
                 <Skeleton className="h-6 w-36" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-10/12" />
@@ -32,7 +32,7 @@ export default function Loading() {
             </div>
           </div>
 
-          <aside className="glass-card rounded-[1.75rem] p-6 lg:sticky lg:top-24">
+          <aside className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass rounded-[1.75rem] p-6 lg:sticky lg:top-24">
             <div className="space-y-4">
               <Skeleton className="h-12 w-40" />
               <Skeleton className="h-4 w-44" />

@@ -17,7 +17,7 @@ export default function Loading() {
       </div>
 
       <div className="space-y-6">
-        <div className="glass-card space-y-4 p-6 md:p-8">
+        <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
           <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
           <div className="h-24 rounded-2xl bg-muted/60 animate-pulse" />
           <div className="grid gap-3 md:grid-cols-3">
@@ -33,7 +33,7 @@ export default function Loading() {
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
           <div className="space-y-6">
-            <div className="glass-card space-y-4 p-6 md:p-8">
+            <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
               <div className="h-3 w-28 rounded-full bg-muted/70 animate-pulse" />
               <div className="space-y-3">
                 <div className="h-4 w-full rounded-full bg-muted/60 animate-pulse" />
@@ -42,7 +42,7 @@ export default function Loading() {
               </div>
             </div>
 
-            <div className="glass-card space-y-4 p-6 md:p-8">
+            <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
               <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
               <div className="space-y-3">
                 {timelineSlots.map((_, index) => (
@@ -66,7 +66,7 @@ export default function Loading() {
           </div>
 
           <div className="space-y-4">
-            <div className="glass-card space-y-4 p-6 md:p-8">
+            <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
               <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
               <div className="space-y-3">
                 <div className="h-16 rounded-2xl bg-muted/60 animate-pulse" />
@@ -75,7 +75,7 @@ export default function Loading() {
               </div>
             </div>
 
-            <div className="glass-card space-y-4 p-6 md:p-8">
+            <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
               <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
               <div className="space-y-3">
                 <div className="h-12 rounded-2xl bg-muted/60 animate-pulse" />
