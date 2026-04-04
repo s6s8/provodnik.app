@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r 'def changed_path: (.tool_input.file_path // .tool_input.new_path // \"\"); if (changed_path | test(\"/mnt/rhhd/projects/provodnik/(src|supabase|public)/\")) and (changed_path | test(\"\\\\.(ts|tsx|js|jsx|json|css|sql)$\")) then {\"hookSpecificOutput\": {\"hookEventName\": \"PostToolUse\", \"additionalContext\": (\"[CODEBASE.md] \" + changed_path + \" was modified. Update the relevant section(s) in /mnt/rhhd/projects/provodnik/CODEBASE.md to reflect this change before finishing.\")}} else {} end'",
+            "timeout": 5,
+            "statusMessage": "Checking CODEBASE.md sync..."
+          }
+        ]
+      }
+    ]
+  }
+}
