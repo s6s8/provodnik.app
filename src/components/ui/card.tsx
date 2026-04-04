@@ -12,7 +12,7 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card glass-panel flex flex-col gap-5 overflow-hidden rounded-[1.9rem] border border-border/70 py-5 text-sm text-card-foreground shadow-[var(--shadow-soft)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-4 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-[1.9rem] *:[img:last-child]:rounded-b-[1.9rem]",
+        "group/card bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass flex flex-col gap-5 overflow-hidden py-5 text-sm text-card-foreground has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-4 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-glass *:[img:last-child]:rounded-b-glass",
         className
       )}
       {...props}
