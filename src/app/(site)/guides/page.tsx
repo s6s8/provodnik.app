@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Users } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -29,7 +30,15 @@ export default async function GuidesPage() {
         </p>
 
         {guides.length === 0 && (
-          <p className="text-on-surface-muted">Пока нет доступных гидов.</p>
+          <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
+            <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
+              <Users className="size-6" strokeWidth={1.9} />
+            </span>
+            <h2 className="mt-5 text-[1.35rem] font-semibold text-ink">Гиды скоро появятся</h2>
+            <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-ink-2">
+              Мы подбираем лучших местных знатоков. Совсем скоро здесь появятся проверенные гиды с живыми отзывами.
+            </p>
+          </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
