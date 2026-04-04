@@ -1,7 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { acceptOfferAction, type AcceptOfferActionState } from "@/app/(protected)/traveler/requests/[requestId]/actions";
+
+import {
+  acceptOfferAction,
+  type AcceptOfferActionState,
+} from "@/app/(protected)/traveler/requests/[requestId]/actions";
+import { Button } from "@/components/ui/button";
 
 const initialState: AcceptOfferActionState = { error: null };
 
@@ -18,7 +23,10 @@ export function AcceptOfferButton({
   guideId,
   priceMinor,
 }: AcceptOfferButtonProps) {
-  const [state, formAction, isPending] = useActionState(acceptOfferAction, initialState);
+  const [state, formAction, isPending] = useActionState(
+    acceptOfferAction,
+    initialState,
+  );
 
   return (
     <form action={formAction}>
@@ -27,15 +35,13 @@ export function AcceptOfferButton({
       <input type="hidden" name="guide_id" value={guideId} />
       <input type="hidden" name="price_minor" value={String(priceMinor)} />
       {state.error ? (
-        <p className="offer-accept-error">{state.error}</p>
+        <p className="mb-2 font-sans text-[0.8125rem] text-[#c0392b]">
+          {state.error}
+        </p>
       ) : null}
-      <button
-        type="submit"
-        className="btn-primary"
-        disabled={isPending}
-      >
+      <Button type="submit" disabled={isPending}>
         {isPending ? "Обработка…" : "Принять предложение"}
-      </button>
+      </Button>
     </form>
   );
 }

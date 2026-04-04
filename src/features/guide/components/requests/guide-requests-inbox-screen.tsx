@@ -65,8 +65,7 @@ export function GuideRequestsInboxScreen() {
 
   const summary = {
     total: items.length,
-    highBudget:
-      items.filter((item) => item.budgetRub >= 15000).length,
+    highBudget: items.filter((item) => item.budgetRub >= 15000).length,
   };
 
   return (
@@ -78,8 +77,9 @@ export function GuideRequestsInboxScreen() {
             Входящие запросы
           </h1>
           <p className="max-w-3xl text-base text-muted-foreground">
-            Здесь появляются запросы путешественников. Открывайте карточку запроса,
-            чтобы разобрать задачу и собрать предложение под бюджет гостя.
+            Здесь появляются запросы путешественников. Открывайте карточку
+            запроса, чтобы разобрать задачу и собрать предложение под бюджет
+            гостя.
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
@@ -96,7 +96,8 @@ export function GuideRequestsInboxScreen() {
         <CardHeader className="space-y-1">
           <CardTitle>Сводка по запросам</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Сколько запросов сейчас в очереди и сколько из них с высоким бюджетом.
+            Сколько запросов сейчас в очереди и сколько из них с высоким
+            бюджетом.
           </p>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-3">
@@ -126,7 +127,12 @@ export function GuideRequestsInboxScreen() {
           <CardTitle>Входящие запросы</CardTitle>
           <p className="text-sm text-muted-foreground">
             {items.length} запрос
-            {items.length === 1 ? "" : items.length > 1 && items.length < 5 ? "а" : "ов"}.
+            {items.length === 1
+              ? ""
+              : items.length > 1 && items.length < 5
+                ? "а"
+                : "ов"}
+            .
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -162,15 +168,21 @@ export function GuideRequestsInboxScreen() {
                       {/* Meta */}
                       <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                         <p>
-                          <span className="font-medium text-foreground">Даты:</span>{" "}
+                          <span className="font-medium text-foreground">
+                            Даты:
+                          </span>{" "}
                           {item.dateLabel}
                         </p>
                         <p>
-                          <span className="font-medium text-foreground">Группа:</span>{" "}
+                          <span className="font-medium text-foreground">
+                            Группа:
+                          </span>{" "}
                           {item.groupSize} чел.
                         </p>
                         <p className="sm:col-span-2">
-                          <span className="font-medium text-foreground">Бюджет:</span>{" "}
+                          <span className="font-medium text-foreground">
+                            Бюджет:
+                          </span>{" "}
                           {item.budgetLabel}
                         </p>
                       </div>
@@ -183,13 +195,21 @@ export function GuideRequestsInboxScreen() {
 
                       {/* Actions */}
                       <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <Button asChild variant="ghost" size="sm" className="px-3">
+                        <Button
+                          asChild
+                          variant="ghost"
+                          size="sm"
+                          className="px-3"
+                        >
                           <Link href={`/guide/requests/${item.id}`}>
                             Подробнее
                           </Link>
                         </Button>
                         {alreadyOffered ? (
-                          <span className="offer-sent-chip" aria-label="Вы уже отправили предложение на этот запрос">
+                          <span
+                            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary"
+                            aria-label="Вы уже отправили предложение на этот запрос"
+                          >
                             ✓ Предложение отправлено
                           </span>
                         ) : (

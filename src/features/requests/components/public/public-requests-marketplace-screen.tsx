@@ -3,10 +3,18 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { ReqCard } from "@/components/shared/req-card";
 
-const CATEGORY_PILLS = ["Все", "Природа", "Города", "Север", "Зима", "Семейные"] as const;
+const CATEGORY_PILLS = [
+  "Все",
+  "Природа",
+  "Города",
+  "Север",
+  "Зима",
+  "Семейные",
+] as const;
 type CategoryPill = (typeof CATEGORY_PILLS)[number];
 
 function derivePrice(budgetPerPersonRub?: number): string {
@@ -26,20 +34,42 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
   const filteredRequests = useMemo(() => {
     return requests.filter((r) => {
-      if (searchQuery && !r.destinationLabel.toLowerCase().includes(searchQuery.toLowerCase())) {
+      if (
+        searchQuery &&
+        !r.destinationLabel.toLowerCase().includes(searchQuery.toLowerCase())
+      ) {
         return false;
       }
       // Category filtering: for demo, "Все" shows all; others filter by keywords in destinationLabel / highlights
       if (activeCategory !== "Все") {
-        const haystack = [r.destinationLabel, ...(r.highlights ?? [])].join(" ").toLowerCase();
+        const haystack = [r.destinationLabel, ...(r.highlights ?? [])]
+          .join(" ")
+          .toLowerCase();
         const categoryMap: Record<Exclude<CategoryPill, "Все">, string[]> = {
-          Природа: ["байкал", "алтай", "карелия", "камчатка", "природа", "лес", "гора", "степь"],
-          Города: ["казань", "суздаль", "калининград", "москва", "питер", "город"],
+          Природа: [
+            "байкал",
+            "алтай",
+            "карелия",
+            "камчатка",
+            "природа",
+            "лес",
+            "гора",
+            "степь",
+          ],
+          Города: [
+            "казань",
+            "суздаль",
+            "калининград",
+            "москва",
+            "питер",
+            "город",
+          ],
           Север: ["мурманск", "кольский", "север", "арктика", "ямал"],
           Зима: ["зима", "лёд", "снег", "лыжи", "сноуборд"],
           Семейные: ["семья", "семейн", "дети", "ребёнок"],
         };
-        const keywords = categoryMap[activeCategory as Exclude<CategoryPill, "Все">] ?? [];
+        const keywords =
+          categoryMap[activeCategory as Exclude<CategoryPill, "Все">] ?? [];
         if (!keywords.some((kw) => haystack.includes(kw))) return false;
       }
       return true;
@@ -49,48 +79,21 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   return (
     <main>
       {/* Page header */}
-      <section
-        className="page-header"
-        style={{
-          background: "var(--surface-low)",
-          paddingTop: "100px",
-          paddingBottom: "48px",
-          textAlign: "center",
-        }}
-      >
-        <div className="container">
-          <p className="sec-label">Биржа запросов</p>
-          <h1 className="sec-title">Открытые группы путешественников по России</h1>
-          <p
-            style={{
-              maxWidth: "760px",
-              margin: "16px auto 0",
-              fontSize: "1rem",
-              color: "var(--on-surface-muted)",
-              lineHeight: 1.65,
-            }}
-          >
-            Выберите направление, присоединяйтесь к формирующейся группе или создайте свой запрос —
-            и гиды предложат маршрут под вашу компанию.
+      <section className="bg-surface-low pb-12 pt-[100px] text-center">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Биржа запросов
+          </p>
+          <h1 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+            Открытые группы путешественников по России
+          </h1>
+          <p className="mx-auto mt-4 max-w-[760px] text-base leading-[1.65] text-on-surface-muted">
+            Выберите направление, присоединяйтесь к формирующейся группе или
+            создайте свой запрос — и гиды предложат маршрут под вашу компанию.
           </p>
 
           {/* Search bar */}
-          <div
-            style={{
-              width: "min(560px, 100%)",
-              margin: "28px auto 0",
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "8px 8px 8px 22px",
-              borderRadius: "9999px",
-              background: "rgba(249,249,255,0.60)",
-              backdropFilter: "blur(20px)",
-              WebkitBackdropFilter: "blur(20px)",
-              border: "1px solid rgba(194,198,214,0.18)",
-              boxShadow: "0 8px 32px rgba(25,28,32,0.06)",
-            }}
-          >
+          <div className="mx-auto mt-7 flex w-full max-w-[560px] items-center gap-2.5 rounded-full border border-glass-border bg-glass px-[22px] py-2 shadow-glass backdrop-blur-[20px]">
             <svg
               width="16"
               height="16"
@@ -98,7 +101,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
               fill="none"
               stroke="currentColor"
               strokeWidth="2"
-              style={{ color: "var(--on-surface-muted)", flexShrink: 0 }}
+              className="shrink-0 text-on-surface-muted"
             >
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" strokeLinecap="round" />
@@ -108,47 +111,29 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Поиск по направлению или маршруту"
-              style={{
-                flex: 1,
-                minWidth: 0,
-                border: "none",
-                outline: "none",
-                background: "transparent",
-                color: "var(--on-surface)",
-                fontSize: "0.9375rem",
-              }}
+              className="min-w-0 flex-1 border-0 bg-transparent text-[0.9375rem] text-on-surface outline-none placeholder:text-on-surface-muted"
             />
           </div>
 
-          <div style={{ marginTop: "20px" }}>
-            <Link href="/requests/new" className="btn-primary">
-              Создать запрос
-            </Link>
-          </div>
+          <Button asChild className="mt-5">
+            <Link href="/requests/new">Создать запрос</Link>
+          </Button>
         </div>
       </section>
 
       {/* Filter pills */}
-      <section
-        style={{
-          background: "var(--surface)",
-          paddingBlock: "20px",
-        }}
-      >
-        <div className="container">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              flexWrap: "wrap",
-              gap: "10px",
-            }}
-          >
+      <section className="bg-surface py-5">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="flex flex-wrap justify-center gap-2.5">
             {CATEGORY_PILLS.map((pill) => (
               <button
                 key={pill}
                 type="button"
-                className={`filter-pill${activeCategory === pill ? " active" : ""}`}
+                className={`inline-flex cursor-pointer items-center rounded-full border px-4 py-[7px] text-sm font-medium transition-all ${
+                  activeCategory === pill
+                    ? "border-primary bg-primary text-white"
+                    : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                }`}
                 onClick={() => setActiveCategory(pill)}
               >
                 {pill}
@@ -159,15 +144,10 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       </section>
 
       {/* Requests grid */}
-      <section
-        style={{
-          background: "var(--surface)",
-          paddingBlock: "48px",
-        }}
-      >
-        <div className="container">
+      <section className="bg-surface py-12">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           {filteredRequests.length > 0 ? (
-            <div className="requests-grid">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredRequests.map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
                 const fillPct = Math.round(
@@ -190,14 +170,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
               })}
             </div>
           ) : (
-            <p
-              style={{
-                textAlign: "center",
-                color: "var(--on-surface-muted)",
-                padding: "48px 0",
-                fontSize: "1rem",
-              }}
-            >
+            <p className="py-12 text-center text-base text-on-surface-muted">
               Ничего не найдено. Попробуйте изменить запрос или фильтр.
             </p>
           )}
@@ -205,40 +178,18 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       </section>
 
       {/* CTA strip */}
-      <section
-        className="section low"
-        style={{
-          background: "var(--surface-low)",
-          paddingBlock: "48px",
-          textAlign: "center",
-        }}
-      >
-        <div className="container">
-          <h2
-            style={{
-              fontFamily: "var(--font-display)",
-              fontSize: "clamp(1.875rem, 3vw, 2.5rem)",
-              fontWeight: 600,
-              marginBottom: "18px",
-              color: "var(--on-surface)",
-            }}
-          >
+      <section className="bg-surface-low py-12 text-center">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <h2 className="mb-[18px] font-display text-[clamp(1.875rem,3vw,2.5rem)] font-semibold text-on-surface">
             Не нашли подходящую группу?
           </h2>
-          <p
-            style={{
-              color: "var(--on-surface-muted)",
-              fontSize: "1rem",
-              marginBottom: "24px",
-              maxWidth: "480px",
-              margin: "0 auto 24px",
-            }}
-          >
-            Создайте свой запрос — гиды предложат маршрут специально под вашу компанию.
+          <p className="mx-auto mb-6 max-w-[480px] text-base text-on-surface-muted">
+            Создайте свой запрос — гиды предложат маршрут специально под вашу
+            компанию.
           </p>
-          <Link href="/requests/new" className="btn-primary">
-            Создать запрос
-          </Link>
+          <Button asChild>
+            <Link href="/requests/new">Создать запрос</Link>
+          </Button>
         </div>
       </section>
     </main>

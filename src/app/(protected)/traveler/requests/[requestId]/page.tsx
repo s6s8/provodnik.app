@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import type { TravelerRequest } from "@/data/traveler-request/schema";
 import type {
   TravelerRequestRecord,
@@ -91,7 +93,11 @@ function formatDate(iso: string | null) {
   if (!iso) return "";
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  return d.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
 }
 
 interface OffersSectionProps {
@@ -101,48 +107,69 @@ interface OffersSectionProps {
   guideNames: Record<string, string | null>;
 }
 
-function OffersSection({ offers, requestId, canAccept, guideNames }: OffersSectionProps) {
+function OffersSection({
+  offers,
+  requestId,
+  canAccept,
+  guideNames,
+}: OffersSectionProps) {
   const pendingOffers = offers.filter((o) => o.status === "pending");
 
   return (
-    <section className="request-offers-section">
-      <div className="request-offers-header">
-        <h2 className="request-offers-title">Предложения гидов</h2>
-        <span className="request-offers-count">{pendingOffers.length}</span>
+    <section className="flex flex-col gap-4">
+      <div className="flex items-center gap-3">
+        <h2 className="font-display text-[clamp(1.25rem,2.5vw,1.5rem)] font-semibold leading-[1.1] text-foreground">
+          Предложения гидов
+        </h2>
+        <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
+          {pendingOffers.length}
+        </span>
       </div>
 
       {pendingOffers.length === 0 ? (
-        <div className="glass-card request-offers-empty">
-          <p className="request-offers-empty-text">
-            Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
+        <div className="rounded-glass border border-glass-border bg-glass p-6 shadow-glass backdrop-blur-[20px]">
+          <p className="font-sans text-sm leading-[1.6] text-muted-foreground">
+            Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее
+            время.
           </p>
         </div>
       ) : (
-        <div className="request-offers-list">
+        <div className="flex flex-col gap-4">
           {pendingOffers.map((offer) => (
-            <article key={offer.id} className="glass-card request-offer-card">
-              <div className="request-offer-guide">
-                <div className="request-offer-avatar">
-                  {(guideNames[offer.guide_id] ?? "Г").charAt(0).toUpperCase()}
-                </div>
-                <div className="request-offer-guide-info">
-                  <p className="request-offer-guide-name">
+            <article
+              key={offer.id}
+              className="flex flex-col gap-4 rounded-glass border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]"
+            >
+              <div className="flex items-center gap-3">
+                <Avatar className="size-11 border-2 border-glass-border">
+                  <AvatarFallback className="bg-surface-low text-sm font-semibold text-primary">
+                    {(guideNames[offer.guide_id] ?? "Г")
+                      .charAt(0)
+                      .toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-sans text-[0.9375rem] font-semibold text-foreground">
                     {guideNames[offer.guide_id] ?? "Гид"}
                   </p>
                   {offer.expires_at ? (
-                    <p className="request-offer-valid-until">
+                    <p className="mt-0.5 font-sans text-xs text-muted-foreground">
                       До {formatDate(offer.expires_at)}
                     </p>
                   ) : null}
                 </div>
-                <p className="request-offer-price">{formatRub(offer.price_minor)}</p>
+                <p className="shrink-0 whitespace-nowrap font-sans text-[1.0625rem] font-semibold text-foreground">
+                  {formatRub(offer.price_minor)}
+                </p>
               </div>
 
               {offer.message ? (
-                <p className="request-offer-message">{offer.message}</p>
+                <p className="rounded-[12px] border border-glass-border bg-surface/50 p-3 font-sans text-sm leading-[1.6] text-muted-foreground">
+                  {offer.message}
+                </p>
               ) : null}
 
-              <div className="request-offer-actions">
+              <div className="flex flex-wrap items-center gap-3">
                 {canAccept ? (
                   <AcceptOfferButton
                     offerId={offer.id}
@@ -153,9 +180,9 @@ function OffersSection({ offers, requestId, canAccept, guideNames }: OffersSecti
                 ) : null}
                 <form action={openOfferThreadAction}>
                   <input type="hidden" name="offer_id" value={offer.id} />
-                  <button type="submit" className="btn-ghost">
+                  <Button type="submit" variant="outline">
                     Написать гиду
-                  </button>
+                  </Button>
                 </form>
               </div>
             </article>
@@ -225,7 +252,7 @@ export default async function TravelerRequestDetailPage({
     }
 
     return (
-      <div className="request-detail-root">
+      <div className="flex flex-col gap-8">
         <TravelerRequestDetailScreen
           record={mapTravelerRequestRow(requestRow)}
         />

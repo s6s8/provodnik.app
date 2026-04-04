@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { ReqCard } from "@/components/shared/req-card";
 
 const FORMAT_OPTIONS = [
@@ -56,7 +56,8 @@ function formatBudget(from: string, to: string): string {
       return `${new Intl.NumberFormat("ru-RU").format(f)} — ${new Intl.NumberFormat("ru-RU").format(t)} ₽`;
     }
   }
-  if (from) return `от ${new Intl.NumberFormat("ru-RU").format(Number(from))} ₽`;
+  if (from)
+    return `от ${new Intl.NumberFormat("ru-RU").format(Number(from))} ₽`;
   if (to) return `до ${new Intl.NumberFormat("ru-RU").format(Number(to))} ₽`;
   return "— тыс. ₽";
 }
@@ -69,45 +70,16 @@ function formatSpots(min: string, max: string): string {
   return "0 / 0 мест";
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "12px 16px",
-  borderRadius: "9999px",
-  border: "1px solid var(--glass-border)",
-  background: "var(--glass-bg)",
-  fontSize: "0.9375rem",
-  color: "var(--on-surface)",
-  outline: "none",
-  transition: "border-color 0.15s, box-shadow 0.15s",
-  height: "44px",
-  boxSizing: "border-box",
-};
-
-const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: "0.8125rem",
-  fontWeight: 600,
-  color: "var(--on-surface)",
-  marginBottom: "6px",
-};
+const inputClassName =
+  "h-11 w-full rounded-full border border-glass-border bg-glass px-4 py-3 text-[0.9375rem] text-on-surface outline-none transition-[border-color,box-shadow] duration-150 focus:border-primary focus:ring-[3px] focus:ring-primary/[0.08]";
+const labelClassName =
+  "mb-1.5 block text-[0.8125rem] font-semibold text-on-surface";
 
 export function CreateRequestScreen() {
   const [form, setForm] = useState<FormState>(defaultForm);
-  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   function set(key: keyof FormState, value: string | boolean) {
     setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function focusStyle(field: string): React.CSSProperties {
-    if (focusedField === field) {
-      return {
-        ...inputStyle,
-        borderColor: "var(--primary)",
-        boxShadow: "0 0 0 3px color-mix(in srgb, var(--primary) 8%, transparent)",
-      };
-    }
-    return inputStyle;
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -130,66 +102,34 @@ export function CreateRequestScreen() {
   return (
     <main>
       {/* Page header */}
-      <section
-        style={{
-          background: "var(--surface-low)",
-          paddingTop: "110px",
-          paddingBottom: "40px",
-          textAlign: "center",
-        }}
-      >
-        <div className="container">
-          <p className="sec-label">Новый запрос</p>
-          <h1
-            className="sec-title"
-            style={{ marginTop: "4px" }}
-          >
+      <section className="bg-surface-low pb-10 pt-[110px] text-center">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+            Новый запрос
+          </p>
+          <h1 className="mt-1 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Создайте запрос — гиды предложат маршрут
           </h1>
-          <p
-            style={{
-              maxWidth: "720px",
-              margin: "16px auto 0",
-              color: "var(--on-surface-muted)",
-              lineHeight: 1.65,
-            }}
-          >
-            Опишите куда, когда и с кем — проводники увидят ваш запрос и пришлют предложения.
+          <p className="mx-auto mt-4 max-w-[720px] leading-[1.65] text-on-surface-muted">
+            Опишите куда, когда и с кем — проводники увидят ваш запрос и пришлют
+            предложения.
           </p>
         </div>
       </section>
 
       {/* Form layout */}
-      <section style={{ paddingBottom: "80px" }}>
-        <div className="container">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1fr) 320px",
-              gap: "32px",
-              alignItems: "start",
-              paddingTop: "0",
-            }}
-            className="create-request-grid"
-          >
+      <section className="pb-20">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="grid grid-cols-[minmax(0,1fr)_320px] items-start gap-8 max-md:grid-cols-1">
             {/* Left: form */}
             <form
               onSubmit={handleSubmit}
-              className="glass-panel"
-              style={{
-                background: "var(--glass-bg)",
-                backdropFilter: "var(--glass-blur)",
-                WebkitBackdropFilter: "var(--glass-blur)",
-                border: "1px solid var(--glass-border)",
-                boxShadow: "var(--glass-shadow)",
-                borderRadius: "var(--glass-radius)",
-                padding: "36px",
-              }}
+              className="rounded-glass border border-glass-border bg-glass p-9 shadow-glass backdrop-blur-[20px]"
             >
-              <div style={{ display: "grid", gap: "20px" }}>
+              <div className="grid gap-5">
                 {/* Destination */}
                 <div>
-                  <label htmlFor="destination" style={labelStyle}>
+                  <label htmlFor="destination" className={labelClassName}>
                     Направление
                   </label>
                   <input
@@ -198,22 +138,14 @@ export function CreateRequestScreen() {
                     placeholder="Байкал, Казань, Алтай…"
                     value={form.destination}
                     onChange={(e) => set("destination", e.target.value)}
-                    onFocus={() => setFocusedField("destination")}
-                    onBlur={() => setFocusedField(null)}
-                    style={focusStyle("destination")}
+                    className={inputClassName}
                   />
                 </div>
 
                 {/* Dates */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: "16px",
-                  }}
-                >
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="date-from" style={labelStyle}>
+                    <label htmlFor="date-from" className={labelClassName}>
                       Даты поездки
                     </label>
                     <input
@@ -221,13 +153,11 @@ export function CreateRequestScreen() {
                       type="date"
                       value={form.dateFrom}
                       onChange={(e) => set("dateFrom", e.target.value)}
-                      onFocus={() => setFocusedField("date-from")}
-                      onBlur={() => setFocusedField(null)}
-                      style={focusStyle("date-from")}
+                      className={inputClassName}
                     />
                   </div>
                   <div>
-                    <label htmlFor="date-to" style={labelStyle}>
+                    <label htmlFor="date-to" className={labelClassName}>
                       До
                     </label>
                     <input
@@ -235,23 +165,15 @@ export function CreateRequestScreen() {
                       type="date"
                       value={form.dateTo}
                       onChange={(e) => set("dateTo", e.target.value)}
-                      onFocus={() => setFocusedField("date-to")}
-                      onBlur={() => setFocusedField(null)}
-                      style={focusStyle("date-to")}
+                      className={inputClassName}
                     />
                   </div>
                 </div>
 
                 {/* Group size */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: "16px",
-                  }}
-                >
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="group-min" style={labelStyle}>
+                    <label htmlFor="group-min" className={labelClassName}>
                       Состав группы — минимум
                     </label>
                     <input
@@ -261,13 +183,11 @@ export function CreateRequestScreen() {
                       placeholder="2"
                       value={form.groupMin}
                       onChange={(e) => set("groupMin", e.target.value)}
-                      onFocus={() => setFocusedField("group-min")}
-                      onBlur={() => setFocusedField(null)}
-                      style={focusStyle("group-min")}
+                      className={inputClassName}
                     />
                   </div>
                   <div>
-                    <label htmlFor="group-max" style={labelStyle}>
+                    <label htmlFor="group-max" className={labelClassName}>
                       Максимум
                     </label>
                     <input
@@ -277,23 +197,15 @@ export function CreateRequestScreen() {
                       placeholder="6"
                       value={form.groupMax}
                       onChange={(e) => set("groupMax", e.target.value)}
-                      onFocus={() => setFocusedField("group-max")}
-                      onBlur={() => setFocusedField(null)}
-                      style={focusStyle("group-max")}
+                      className={inputClassName}
                     />
                   </div>
                 </div>
 
                 {/* Budget */}
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: "16px",
-                  }}
-                >
+                <div className="grid gap-4 sm:grid-cols-2">
                   <div>
-                    <label htmlFor="budget-from" style={labelStyle}>
+                    <label htmlFor="budget-from" className={labelClassName}>
                       Бюджет на человека — от ₽
                     </label>
                     <input
@@ -303,13 +215,11 @@ export function CreateRequestScreen() {
                       placeholder="18000"
                       value={form.budgetFrom}
                       onChange={(e) => set("budgetFrom", e.target.value)}
-                      onFocus={() => setFocusedField("budget-from")}
-                      onBlur={() => setFocusedField(null)}
-                      style={focusStyle("budget-from")}
+                      className={inputClassName}
                     />
                   </div>
                   <div>
-                    <label htmlFor="budget-to" style={labelStyle}>
+                    <label htmlFor="budget-to" className={labelClassName}>
                       До ₽
                     </label>
                     <input
@@ -319,25 +229,21 @@ export function CreateRequestScreen() {
                       placeholder="35000"
                       value={form.budgetTo}
                       onChange={(e) => set("budgetTo", e.target.value)}
-                      onFocus={() => setFocusedField("budget-to")}
-                      onBlur={() => setFocusedField(null)}
-                      style={focusStyle("budget-to")}
+                      className={inputClassName}
                     />
                   </div>
                 </div>
 
                 {/* Format */}
                 <div>
-                  <label htmlFor="format" style={labelStyle}>
+                  <label htmlFor="format" className={labelClassName}>
                     Формат поездки
                   </label>
                   <select
                     id="format"
                     value={form.format}
                     onChange={(e) => set("format", e.target.value)}
-                    onFocus={() => setFocusedField("format")}
-                    onBlur={() => setFocusedField(null)}
-                    style={focusStyle("format")}
+                    className={inputClassName}
                   >
                     {FORMAT_OPTIONS.map((opt) => (
                       <option key={opt} value={opt}>
@@ -349,7 +255,7 @@ export function CreateRequestScreen() {
 
                 {/* Description */}
                 <div>
-                  <label htmlFor="description" style={labelStyle}>
+                  <label htmlFor="description" className={labelClassName}>
                     Описание
                   </label>
                   <textarea
@@ -358,178 +264,73 @@ export function CreateRequestScreen() {
                     placeholder="Расскажите подробнее: что важно, чего хотите избежать, особые пожелания…"
                     value={form.description}
                     onChange={(e) => set("description", e.target.value)}
-                    onFocus={() => setFocusedField("description")}
-                    onBlur={() => setFocusedField(null)}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      borderRadius: "14px",
-                      border:
-                        focusedField === "description"
-                          ? "1px solid var(--primary)"
-                          : "1px solid var(--glass-border)",
-                      background: "var(--glass-bg)",
-                      fontSize: "0.9375rem",
-                      color: "var(--on-surface)",
-                      outline: "none",
-                      resize: "vertical",
-                      minHeight: "120px",
-                      boxShadow:
-                        focusedField === "description"
-                          ? "0 0 0 3px color-mix(in srgb, var(--primary) 8%, transparent)"
-                          : "none",
-                      transition: "border-color 0.15s, box-shadow 0.15s",
-                      boxSizing: "border-box",
-                      fontFamily: "inherit",
-                    }}
+                    className="min-h-[120px] w-full resize-y rounded-[14px] border border-glass-border bg-glass px-4 py-3 font-inherit text-[0.9375rem] text-on-surface outline-none transition-[border-color,box-shadow] duration-150 focus:border-primary focus:ring-[3px] focus:ring-primary/[0.08]"
                   />
                 </div>
 
                 {/* Toggle: open group */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "16px",
-                    padding: "14px 0",
-                  }}
-                >
+                <div className="flex items-center justify-between gap-4 py-[14px]">
                   <div>
-                    <strong
-                      style={{
-                        display: "block",
-                        fontSize: "0.8125rem",
-                        fontWeight: 600,
-                        color: "var(--on-surface)",
-                      }}
-                    >
+                    <strong className="block text-[0.8125rem] font-semibold text-on-surface">
                       Открытая группа
                     </strong>
-                    <span
-                      style={{
-                        display: "block",
-                        fontSize: "0.875rem",
-                        color: "var(--on-surface-muted)",
-                        marginTop: "4px",
-                      }}
-                    >
+                    <span className="mt-1 block text-[0.875rem] text-on-surface-muted">
                       Другие путешественники смогут присоединиться к карточке.
                     </span>
                   </div>
-                  <label
-                    style={{
-                      position: "relative",
-                      width: "48px",
-                      height: "28px",
-                      flexShrink: 0,
-                      cursor: "pointer",
-                    }}
-                  >
+                  <label className="relative h-7 w-12 shrink-0 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={form.openGroup}
                       onChange={(e) => set("openGroup", e.target.checked)}
-                      style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
+                      className="absolute inset-0 cursor-pointer opacity-0"
                     />
                     <span
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "9999px",
-                        background: form.openGroup ? "var(--primary)" : "rgba(0,88,190,0.18)",
-                        transition: "background 0.15s",
-                        position: "relative",
-                      }}
+                      className={`relative block h-full w-full rounded-full transition-colors duration-150 ${
+                        form.openGroup ? "bg-primary" : "bg-primary/20"
+                      }`}
                     >
                       <span
                         style={{
-                          position: "absolute",
                           top: "3px",
                           left: form.openGroup ? "23px" : "3px",
-                          width: "22px",
-                          height: "22px",
-                          borderRadius: "50%",
-                          background: "#fff",
-                          boxShadow: "0 2px 10px rgba(25,28,32,0.14)",
-                          transition: "left 0.15s",
+                          position: "absolute",
                         }}
+                        className="size-[22px] rounded-full bg-white shadow-[0_2px_10px_rgba(25,28,32,0.14)] transition-[left] duration-150"
                       />
                     </span>
                   </label>
                 </div>
 
                 {/* Toggle: accept offers */}
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "16px",
-                    padding: "14px 0",
-                  }}
-                >
+                <div className="flex items-center justify-between gap-4 py-[14px]">
                   <div>
-                    <strong
-                      style={{
-                        display: "block",
-                        fontSize: "0.8125rem",
-                        fontWeight: 600,
-                        color: "var(--on-surface)",
-                      }}
-                    >
+                    <strong className="block text-[0.8125rem] font-semibold text-on-surface">
                       Принимать офферы от гидов
                     </strong>
-                    <span
-                      style={{
-                        display: "block",
-                        fontSize: "0.875rem",
-                        color: "var(--on-surface-muted)",
-                        marginTop: "4px",
-                      }}
-                    >
+                    <span className="mt-1 block text-[0.875rem] text-on-surface-muted">
                       Предложения появятся сразу после публикации запроса.
                     </span>
                   </div>
-                  <label
-                    style={{
-                      position: "relative",
-                      width: "48px",
-                      height: "28px",
-                      flexShrink: 0,
-                      cursor: "pointer",
-                    }}
-                  >
+                  <label className="relative h-7 w-12 shrink-0 cursor-pointer">
                     <input
                       type="checkbox"
                       checked={form.acceptOffers}
                       onChange={(e) => set("acceptOffers", e.target.checked)}
-                      style={{ position: "absolute", inset: 0, opacity: 0, cursor: "pointer" }}
+                      className="absolute inset-0 cursor-pointer opacity-0"
                     />
                     <span
-                      style={{
-                        display: "block",
-                        width: "100%",
-                        height: "100%",
-                        borderRadius: "9999px",
-                        background: form.acceptOffers ? "var(--primary)" : "rgba(0,88,190,0.18)",
-                        transition: "background 0.15s",
-                        position: "relative",
-                      }}
+                      className={`relative block h-full w-full rounded-full transition-colors duration-150 ${
+                        form.acceptOffers ? "bg-primary" : "bg-primary/20"
+                      }`}
                     >
                       <span
                         style={{
-                          position: "absolute",
                           top: "3px",
                           left: form.acceptOffers ? "23px" : "3px",
-                          width: "22px",
-                          height: "22px",
-                          borderRadius: "50%",
-                          background: "#fff",
-                          boxShadow: "0 2px 10px rgba(25,28,32,0.14)",
-                          transition: "left 0.15s",
+                          position: "absolute",
                         }}
+                        className="size-[22px] rounded-full bg-white shadow-[0_2px_10px_rgba(25,28,32,0.14)] transition-[left] duration-150"
                       />
                     </span>
                   </label>
@@ -537,21 +338,16 @@ export function CreateRequestScreen() {
               </div>
 
               {/* Submit */}
-              <button
-                type="submit"
-                className="btn-primary"
-                style={{ width: "100%", marginTop: "28px" }}
-              >
+              <Button type="submit" className="mt-7 w-full">
                 Опубликовать запрос
-              </button>
+              </Button>
             </form>
 
             {/* Right: sticky preview */}
-            <aside
-              style={{ position: "sticky", top: "96px" }}
-              className="preview-aside"
-            >
-              <p className="sec-label">Так будет выглядеть ваш запрос</p>
+            <aside className="sticky top-24">
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                Так будет выглядеть ваш запрос
+              </p>
               <ReqCard
                 href="#"
                 location={previewLocation}
@@ -563,21 +359,14 @@ export function CreateRequestScreen() {
                 avatars={[]}
                 price={previewPrice}
               />
-              <p
-                style={{
-                  marginTop: "16px",
-                  fontSize: "0.875rem",
-                  color: "var(--on-surface-muted)",
-                  lineHeight: 1.65,
-                }}
-              >
-                После публикации гиды увидят ваш запрос и начнут присылать предложения.
+              <p className="mt-4 text-[0.875rem] leading-[1.65] text-on-surface-muted">
+                После публикации гиды увидят ваш запрос и начнут присылать
+                предложения.
               </p>
             </aside>
           </div>
         </div>
       </section>
-
     </main>
   );
 }

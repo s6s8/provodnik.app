@@ -1,5 +1,8 @@
 import Link from "next/link";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { joinRequestAction } from "@/app/(site)/requests/[requestId]/actions";
 
@@ -7,13 +10,9 @@ function JoinGroupForm({ requestId }: { requestId: string }) {
   const action = joinRequestAction.bind(null, requestId);
   return (
     <form action={action}>
-      <button
-        type="submit"
-        className="btn-primary"
-        style={{ width: "100%", justifyContent: "center" }}
-      >
+      <Button type="submit" className="w-full justify-center">
         Присоединиться к группе
-      </button>
+      </Button>
     </form>
   );
 }
@@ -58,7 +57,12 @@ function buildPriceScenarios(
 
   if (range === 0) {
     // Single scenario
-    return [{ size: groupSizeMin, pricePerPerson: Math.round(budgetRub / groupSizeMin) }];
+    return [
+      {
+        size: groupSizeMin,
+        pricePerPerson: Math.round(budgetRub / groupSizeMin),
+      },
+    ];
   }
 
   // Pick up to 5 evenly-spaced points — always include min and max
@@ -114,7 +118,8 @@ export function PublicRequestDetailScreen({
 
   const title = request.highlights[0] ?? request.destinationLabel;
   const description = request.highlights[1] ?? "";
-  const aboutText = request.highlights.slice(2).join(" ") || request.highlights.join(" ");
+  const aboutText =
+    request.highlights.slice(2).join(" ") || request.highlights.join(" ");
 
   // Price scenarios: use budgetPerPersonRub * sizeTarget as total budget proxy
   const totalBudget =
@@ -122,65 +127,51 @@ export function PublicRequestDetailScreen({
       ? request.budgetPerPersonRub * request.group.sizeTarget
       : 0;
 
-  const priceScenarios = totalBudget > 0
-    ? buildPriceScenarios(totalBudget, 1, request.group.sizeTarget)
-    : [];
+  const priceScenarios =
+    totalBudget > 0
+      ? buildPriceScenarios(totalBudget, 1, request.group.sizeTarget)
+      : [];
 
   // Current active size for highlighting
   const activeMemberCount = memberCount ?? request.group.sizeCurrent;
 
   // Find the highlighted column — closest to current member count
-  const highlightedSize = priceScenarios.length > 0
-    ? priceScenarios.reduce((prev, curr) =>
-        Math.abs(curr.size - activeMemberCount) <
-        Math.abs(prev.size - activeMemberCount)
-          ? curr
-          : prev,
-      ).size
-    : null;
+  const highlightedSize =
+    priceScenarios.length > 0
+      ? priceScenarios.reduce((prev, curr) =>
+          Math.abs(curr.size - activeMemberCount) <
+          Math.abs(prev.size - activeMemberCount)
+            ? curr
+            : prev,
+        ).size
+      : null;
 
   return (
     <main>
       {/* Hero */}
-      <section
-        className="hero-bleed photo-hero"
-        style={{
-          minHeight: "480px",
-        }}
-      >
+      <section className="relative -mt-nav-h flex min-h-[480px] items-end overflow-hidden [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
         {/* Background image */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `url('${heroImage}')`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-          }}
+        <img
+          src={heroImage}
+          alt=""
           aria-hidden="true"
+          className="absolute inset-0 h-full w-full object-cover"
         />
         {/* Gradient overlay */}
-        <div className="overlay-top" aria-hidden="true" />
-        <div className="container on-dark photo-hero-content">
-          <div style={{ maxWidth: "760px" }}>
-            <p
-              className="sec-label"
-              style={{ color: "rgba(255,255,255,0.75)", marginBottom: "12px" }}
-            >
+        <div
+          className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]"
+          aria-hidden="true"
+        />
+        <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pb-14 pt-[calc(var(--nav-h)+48px)] [--outline-variant:rgba(255,255,255,0.20)]">
+          <div className="max-w-[760px]">
+            <p className="mb-3 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-white/75">
               {heroLabel}
             </p>
-            <h1
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "clamp(2.4rem, 5vw, 3rem)",
-                lineHeight: 1.04,
-                fontWeight: 600,
-              }}
-            >
+            <h1 className="font-display text-[clamp(2.4rem,5vw,3rem)] font-semibold leading-[1.04] text-white">
               {title}
             </h1>
             {description && (
-              <p style={{ marginTop: "16px", fontSize: "1rem", lineHeight: 1.65, color: "rgba(255,255,255,0.82)" }}>
+              <p className="mt-4 text-base leading-[1.65] text-white/80">
                 {description}
               </p>
             )}
@@ -189,183 +180,92 @@ export function PublicRequestDetailScreen({
       </section>
 
       {/* Content */}
-      <section
-        style={{
-          background: "var(--surface)",
-          padding: "56px 0 80px",
-        }}
-      >
-        <div className="container">
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 2fr) minmax(0, 1fr)",
-              gap: "32px",
-              alignItems: "start",
-            }}
-          >
+      <section className="bg-surface py-[56px] pb-20">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
             {/* Left column */}
             <div>
               {/* Status card */}
-              <article
-                style={{
-                  background: "var(--surface-lowest)",
-                  borderRadius: "var(--card-radius)",
-                  boxShadow: "var(--card-shadow)",
-                  padding: "28px",
-                  marginBottom: "24px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: "16px",
-                    marginBottom: "18px",
-                  }}
-                >
-                  <h2 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--on-surface)" }}>
+              <article className="mb-6 rounded-card bg-surface-high p-7 shadow-card">
+                <div className="mb-[18px] flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                  <h2 className="text-base font-semibold text-on-surface">
                     Участники группы
                   </h2>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div className="flex items-center gap-2.5">
                     {/* Avatar stack */}
                     {visibleMembers.length > 0 && (
-                      <div className="avatars">
+                      <div className="flex items-center">
                         {visibleMembers.map((m, i) => (
-                          <span
+                          <Avatar
                             key={m.id}
-                            className="avatar member-avatar"
+                            className={`size-7 border-2 border-surface-high ${i === 0 ? "ml-0" : "-ml-1.5"}`}
                             title={m.displayName}
-                            style={{ marginLeft: i === 0 ? 0 : undefined }}
                           >
-                            {m.avatarUrl ? (
-                              <img
-                                src={m.avatarUrl}
-                                alt={m.displayName}
-                                className="member-avatar-image"
-                              />
-                            ) : (
-                              m.initials
-                            )}
-                          </span>
+                            <AvatarImage
+                              src={m.avatarUrl ?? undefined}
+                              alt={m.displayName}
+                            />
+                            <AvatarFallback className="bg-surface-low text-[0.5625rem] font-semibold">
+                              {m.initials}
+                            </AvatarFallback>
+                          </Avatar>
                         ))}
                         {overflowCount > 0 && (
-                          <span
-                            className="avatar member-avatar"
+                          <Avatar
+                            className="size-7 -ml-1.5 border-2 border-surface-high"
                             title={`Ещё ${overflowCount} участник(а)`}
-                            style={{ marginLeft: undefined }}
                           >
-                            +{overflowCount}
-                          </span>
+                            <AvatarFallback className="bg-surface-low text-[0.5625rem] font-semibold">
+                              +{overflowCount}
+                            </AvatarFallback>
+                          </Avatar>
                         )}
                       </div>
                     )}
-                    <span
-                      style={{
-                        fontSize: "0.875rem",
-                        color: "var(--on-surface-muted)",
-                      }}
-                    >
-                      {request.group.sizeCurrent} из {request.group.sizeTarget} мест занято
+                    <span className="text-[0.875rem] text-on-surface-muted">
+                      {request.group.sizeCurrent} из {request.group.sizeTarget}{" "}
+                      мест занято
                     </span>
                   </div>
                 </div>
 
                 {/* Progress bar */}
-                <div
-                  style={{
-                    height: "4px",
-                    background: "var(--surface-low)",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                    marginBottom: "22px",
-                  }}
-                >
-                  <div
-                    style={{
-                      height: "100%",
-                      background: "var(--primary)",
-                      borderRadius: "9999px",
-                      width: `${fillPct}%`,
-                    }}
-                  />
-                </div>
+                <Progress value={fillPct} className="mb-[22px] h-1" />
 
                 {/* Meta grid */}
-                <dl
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-                    gap: "18px 20px",
-                  }}
-                >
+                <dl className="grid gap-x-5 gap-y-[18px] sm:grid-cols-2">
                   <div>
-                    <dt
-                      style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        letterSpacing: "0.14em",
-                        textTransform: "uppercase",
-                        color: "var(--on-surface-muted)",
-                        marginBottom: "6px",
-                      }}
-                    >
+                    <dt className="mb-1.5 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
                       Даты
                     </dt>
-                    <dd style={{ fontSize: "0.9375rem", fontWeight: 500, color: "var(--on-surface)" }}>
+                    <dd className="text-[0.9375rem] font-medium text-on-surface">
                       {request.dateRangeLabel}
                     </dd>
                   </div>
                   <div>
-                    <dt
-                      style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        letterSpacing: "0.14em",
-                        textTransform: "uppercase",
-                        color: "var(--on-surface-muted)",
-                        marginBottom: "6px",
-                      }}
-                    >
+                    <dt className="mb-1.5 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
                       Направление
                     </dt>
-                    <dd style={{ fontSize: "0.9375rem", fontWeight: 500, color: "var(--on-surface)" }}>
+                    <dd className="text-[0.9375rem] font-medium text-on-surface">
                       {request.destinationLabel.split(",")[0].trim()}
                     </dd>
                   </div>
                   <div>
-                    <dt
-                      style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        letterSpacing: "0.14em",
-                        textTransform: "uppercase",
-                        color: "var(--on-surface-muted)",
-                        marginBottom: "6px",
-                      }}
-                    >
+                    <dt className="mb-1.5 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
                       Бюджет
                     </dt>
-                    <dd style={{ fontSize: "0.9375rem", fontWeight: 500, color: "var(--on-surface)" }}>
+                    <dd className="text-[0.9375rem] font-medium text-on-surface">
                       {formatPrice(request.budgetPerPersonRub)}
                     </dd>
                   </div>
                   <div>
-                    <dt
-                      style={{
-                        fontSize: "0.75rem",
-                        fontWeight: 600,
-                        letterSpacing: "0.14em",
-                        textTransform: "uppercase",
-                        color: "var(--on-surface-muted)",
-                        marginBottom: "6px",
-                      }}
-                    >
+                    <dt className="mb-1.5 text-[0.75rem] font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
                       Формат
                     </dt>
-                    <dd style={{ fontSize: "0.9375rem", fontWeight: 500, color: "var(--on-surface)" }}>
-                      {request.group.openToMoreMembers ? "Открыта запись" : "Группа закрыта"}
+                    <dd className="text-[0.9375rem] font-medium text-on-surface">
+                      {request.group.openToMoreMembers
+                        ? "Открыта запись"
+                        : "Группа закрыта"}
                     </dd>
                   </div>
                 </dl>
@@ -373,16 +273,26 @@ export function PublicRequestDetailScreen({
 
               {/* Price scenarios */}
               {priceScenarios.length > 0 && (
-                <div className="price-scenarios" style={{ marginBottom: "24px" }}>
-                  <p className="price-scenarios-label">Стоимость на человека</p>
-                  <div className="price-scenarios-row">
+                <div className="mb-6">
+                  <p className="mb-3 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
+                    Стоимость на человека
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                     {priceScenarios.map(({ size, pricePerPerson }) => (
                       <div
                         key={size}
-                        className={`price-scenarios-cell${highlightedSize === size ? " highlighted" : ""}`}
+                        className={`rounded-card border px-4 py-3 text-center shadow-card ${
+                          highlightedSize === size
+                            ? "border-primary/30 bg-primary/[0.08]"
+                            : "border-outline-variant/30 bg-surface-high"
+                        }`}
                       >
-                        <div className="price-scenarios-size">{size} чел.</div>
-                        <div className="price-scenarios-price">{formatRub(pricePerPerson)}</div>
+                        <div className="text-sm font-medium text-muted-foreground">
+                          {size} чел.
+                        </div>
+                        <div className="mt-1 text-base font-semibold text-foreground">
+                          {formatRub(pricePerPerson)}
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -390,52 +300,26 @@ export function PublicRequestDetailScreen({
               )}
 
               {/* О маршруте */}
-              <section style={{ paddingTop: "24px" }}>
-                <h2
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.75rem",
-                    lineHeight: 1.1,
-                    marginBottom: "14px",
-                    color: "var(--on-surface)",
-                  }}
-                >
+              <section className="pt-6">
+                <h2 className="mb-[14px] font-display text-[1.75rem] leading-[1.1] text-on-surface">
                   О маршруте
                 </h2>
-                <p
-                  style={{
-                    color: "var(--on-surface-muted)",
-                    fontSize: "0.9375rem",
-                    lineHeight: 1.72,
-                  }}
-                >
+                <p className="text-[0.9375rem] leading-[1.72] text-on-surface-muted">
                   {aboutText}
                 </p>
               </section>
 
               {/* Что запланировано */}
               {request.highlights.length > 1 && (
-                <section style={{ paddingTop: "32px" }}>
-                  <h2
-                    style={{
-                      fontFamily: "var(--font-display)",
-                      fontSize: "1.75rem",
-                      lineHeight: 1.1,
-                      marginBottom: "14px",
-                      color: "var(--on-surface)",
-                    }}
-                  >
+                <section className="pt-8">
+                  <h2 className="mb-[14px] font-display text-[1.75rem] leading-[1.1] text-on-surface">
                     Что запланировано
                   </h2>
-                  <ul style={{ display: "grid", gap: "12px" }}>
+                  <ul className="grid gap-3">
                     {request.highlights.map((item, i) => (
                       <li
                         key={i}
-                        style={{
-                          color: "var(--on-surface-muted)",
-                          fontSize: "0.9375rem",
-                          lineHeight: 1.72,
-                        }}
+                        className="text-[0.9375rem] leading-[1.72] text-on-surface-muted"
                       >
                         {item}
                       </li>
@@ -446,138 +330,81 @@ export function PublicRequestDetailScreen({
             </div>
 
             {/* Right column — sticky offer card */}
-            <aside className="route-feedback-aside">
-              <div
-                style={{
-                  position: "sticky",
-                  top: "96px",
-                  padding: "28px",
-                  background: "var(--surface-lowest)",
-                  boxShadow: "var(--card-shadow)",
-                  borderRadius: "var(--card-radius)",
-                }}
-              >
+            <aside>
+              <div className="sticky top-24 rounded-card bg-surface-high p-7 shadow-card">
                 {/* Price */}
-                <div
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "2.5rem",
-                    lineHeight: 1,
-                    marginBottom: "8px",
-                    color: "var(--on-surface)",
-                  }}
-                >
+                <div className="mb-2 font-display text-[2.5rem] leading-none text-on-surface">
                   {formatPrice(request.budgetPerPersonRub)}
                 </div>
-                <p
-                  style={{
-                    fontSize: "0.875rem",
-                    color: "var(--on-surface-muted)",
-                    marginBottom: "20px",
-                  }}
-                >
+                <p className="mb-5 text-[0.875rem] text-on-surface-muted">
                   на человека при заполнении группы
                 </p>
 
                 {/* Join / Member state */}
                 {isMember ? (
-                  <span className="member-chip" style={{ display: "flex", justifyContent: "center" }}>
+                  <span className="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-success/10 px-3.5 py-1.5 text-[0.8125rem] font-semibold text-success">
                     Вы участник ✓
                   </span>
                 ) : showJoinButton ? (
                   <JoinGroupForm requestId={request.id} />
                 ) : !currentUserId ? (
-                  <Link
-                    href={`/auth/login?next=/requests/${request.id}`}
-                    className="btn-primary"
-                    style={{ width: "100%", justifyContent: "center" }}
-                  >
-                    Войти и присоединиться
-                  </Link>
+                  <Button asChild className="w-full justify-center">
+                    <Link href={`/auth/login?next=/requests/${request.id}`}>
+                      Войти и присоединиться
+                    </Link>
+                  </Button>
                 ) : null}
 
                 {/* Divider */}
-                <div
-                  style={{
-                    height: "1px",
-                    background: "color-mix(in srgb, var(--outline-variant) 30%, transparent)",
-                    margin: "22px 0",
-                  }}
-                />
+                <div className="my-[22px] h-px bg-outline-variant/30" />
 
                 {/* Guide offers */}
-                <p
-                  className="sec-label"
-                  style={{ color: "var(--on-surface-muted)", marginBottom: "12px" }}
-                >
+                <p className="mb-3 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
                   Офферы гидов
                 </p>
-                <div style={{ display: "grid", gap: "12px" }}>
+                <div className="grid gap-3">
                   {offers && offers.length > 0 ? (
                     offers.map((offer) => (
                       <article
                         key={offer.id}
-                        style={{
-                          background: "var(--surface-lowest)",
-                          borderRadius: "var(--card-radius)",
-                          boxShadow: "var(--card-shadow)",
-                          padding: "16px",
-                          display: "grid",
-                          gap: "12px",
-                        }}
+                        className="grid gap-3 rounded-card bg-background/70 p-4 shadow-card"
                       >
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "space-between",
-                            gap: "12px",
-                          }}
-                        >
-                          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                            <span
-                              style={{
-                                width: "38px",
-                                height: "38px",
-                                borderRadius: "50%",
-                                background: "var(--surface-low)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                color: "var(--primary)",
-                                flexShrink: 0,
-                              }}
-                            >
-                              {offer.guideInitials}
-                            </span>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <Avatar className="size-[38px]">
+                              <AvatarFallback className="bg-surface-low text-[0.75rem] font-semibold text-primary">
+                                {offer.guideInitials}
+                              </AvatarFallback>
+                            </Avatar>
                             <div>
-                              <strong style={{ display: "block", fontSize: "0.9375rem", color: "var(--on-surface)" }}>
+                              <strong className="block text-[0.9375rem] text-on-surface">
                                 {offer.guideName}
                               </strong>
                               {offer.rating && (
-                                <span style={{ fontSize: "0.8125rem", color: "var(--on-surface-muted)" }}>
+                                <span className="text-[0.8125rem] text-on-surface-muted">
                                   {offer.rating} ★
                                 </span>
                               )}
                             </div>
                           </div>
-                          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--on-surface)" }}>
-                            {new Intl.NumberFormat("ru-RU").format(offer.priceTotalRub)} ₽ / группа
+                          <span className="text-[0.875rem] font-semibold text-on-surface">
+                            {new Intl.NumberFormat("ru-RU").format(
+                              offer.priceTotalRub,
+                            )}{" "}
+                            ₽ / группа
                           </span>
                         </div>
-                        <Link
-                          href={offer.href ?? "#"}
-                          className="btn-ghost"
-                          style={{ justifyContent: "center" }}
+                        <Button
+                          asChild
+                          variant="outline"
+                          className="justify-center"
                         >
-                          Посмотреть
-                        </Link>
+                          <Link href={offer.href ?? "#"}>Посмотреть</Link>
+                        </Button>
                       </article>
                     ))
                   ) : (
-                    <p style={{ fontSize: "0.9375rem", color: "var(--on-surface-muted)", lineHeight: 1.65 }}>
+                    <p className="text-[0.9375rem] leading-[1.65] text-on-surface-muted">
                       Пока нет предложений. Запрос уже виден гидам в системе.
                     </p>
                   )}
