@@ -253,11 +253,14 @@ export function AuthEntryScreen() {
     : "Нет аккаунта? Создать профиль";
 
   return (
-    <div className="auth-card glass-panel">
+    <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
       <div>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3">
-            <Link href="/" className="auth-toggle inline-flex w-fit items-center">
+            <Link
+              href="/"
+              className="inline-flex w-fit items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
+            >
               Provodnik
             </Link>
             <div className="space-y-2">
@@ -290,7 +293,7 @@ export function AuthEntryScreen() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           {isSignUp ? (
-            <div className="auth-field">
+            <div className="grid gap-2.5">
               <label htmlFor="full-name" className="text-sm font-medium text-foreground">
                 Как к вам обращаться
               </label>
@@ -303,14 +306,14 @@ export function AuthEntryScreen() {
                   placeholder="Например, Анна Смирнова"
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
-                  className="auth-field-input pl-11"
+                  className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
                   required={isSignUp}
                 />
               </div>
             </div>
           ) : null}
 
-          <div className="auth-field">
+          <div className="grid gap-2.5">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
               Email
             </label>
@@ -323,13 +326,13 @@ export function AuthEntryScreen() {
                 placeholder="you@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="auth-field-input pl-11"
+                className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
                 required
               />
             </div>
           </div>
 
-          <div className="auth-field">
+          <div className="grid gap-2.5">
             <label htmlFor="password" className="text-sm font-medium text-foreground">
               {isSignUp ? "Создайте пароль" : "Пароль"}
             </label>
@@ -344,13 +347,13 @@ export function AuthEntryScreen() {
                 }
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="auth-field-input pl-11 pr-14"
+                className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
-                className="auth-toggle absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center"
+                className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
                 aria-label={
                   showPassword ? "Скрыть пароль" : "Показать пароль"
                 }
@@ -366,7 +369,7 @@ export function AuthEntryScreen() {
           </div>
 
           {isSignUp ? (
-            <div className="auth-field">
+            <div className="grid gap-2.5">
               <span className="text-sm font-medium text-foreground">
                 Выберите роль
               </span>
@@ -422,7 +425,7 @@ export function AuthEntryScreen() {
         <button
           type="button"
           onClick={() => handleModeChange(isSignUp ? "sign-in" : "sign-up")}
-          className="auth-toggle mt-6 inline-flex w-fit items-center text-sm"
+          className="mt-6 inline-flex w-fit items-center text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
         >
           {toggleLabel}
         </button>
