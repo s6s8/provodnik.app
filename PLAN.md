@@ -183,7 +183,7 @@ A live, request-first tour marketplace for Russia's initial launch region where:
 - [x] **7.2** Cancellation policy finalized with real terms — `dbe8693`
 - [x] **7.3** Support channel: email or Telegram link in footer and error pages — `dbe8693`
 - [ ] **7.4** Onboard 3-5 real guides in launch region with completed profiles
-- [ ] **7.5** Create 5-10 seed requests to demonstrate marketplace activity
+- [x] **7.5** Create 5-10 seed requests to demonstrate marketplace activity — seed-clean.sql v4 with 16 accounts, 6 listings, 5 destinations, requests, bookings, reviews
 - [ ] **7.6** Domain and DNS: provodnik.app pointed to production
 - [ ] **7.7** SSL, CSP headers, security headers configured
 - [ ] **7.8** Backup strategy: Supabase daily backups enabled
