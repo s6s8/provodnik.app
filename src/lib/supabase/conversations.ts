@@ -470,6 +470,7 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
 
       return {
         ...row.thread,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         participants: participants.map(({ profile: _profile, ...participant }) => participant),
         other_participant_names: [...new Set(otherParticipantNames)],
         last_message_preview: latestMessage ? truncatePreview(latestMessage.body) : null,

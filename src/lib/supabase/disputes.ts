@@ -7,6 +7,7 @@ import { notifyDisputeOpened } from "@/lib/notifications/triggers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BookingRow, Uuid } from "@/lib/supabase/types";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const disputeStatusSchema = z.enum(["open", "under_review", "resolved", "closed"]);
 
 const openDisputeInputSchema = z.object({

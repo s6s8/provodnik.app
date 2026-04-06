@@ -357,6 +357,7 @@ function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknow
 // Destinations (public.destinations table)
 // ---------------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function getDestinations(_client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
     const db = getPublicClient();

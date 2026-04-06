@@ -97,6 +97,7 @@ export default async function PublicGuideProfilePage({
     themes: [],
     highlights: l.description ? [l.description] : [l.title],
     itinerary: [{ title: l.title, description: l.description, durationHours: l.durationDays * 6 }],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inclusions: l.inclusions as any[],
     guideSlug: l.guideSlug,
   }));

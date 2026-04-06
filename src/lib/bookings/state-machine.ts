@@ -22,6 +22,7 @@ export function canTransition(from: BookingStatus, to: BookingStatus): boolean {
 export async function transitionBooking(
   bookingId: string,
   to: BookingStatus,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _userId: string,
 ): Promise<{ id: string; status: BookingStatus }> {
   const supabase = await createSupabaseServerClient();
