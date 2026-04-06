@@ -349,7 +349,7 @@ export function PublicRequestDetailScreen({
                   <JoinGroupForm requestId={request.id} />
                 ) : !currentUserId ? (
                   <Button asChild className="w-full justify-center">
-                    <Link href={`/auth/login?next=/requests/${request.id}`}>
+                    <Link href={`/auth?next=/requests/${request.id}`}>
                       Войти и присоединиться
                     </Link>
                   </Button>

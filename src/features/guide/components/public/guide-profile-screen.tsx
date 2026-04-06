@@ -252,7 +252,7 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
             Туры гида
           </p>
           <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
-            Авторские маршруты {guide.displayName.split(" ")[0]}а
+            {(() => { const n = guide.displayName.split(" ")[0]; return `Авторские маршруты ${n.endsWith("й") ? n.slice(0, -1) + "я" : n + "а"}`; })()}
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {tourCards.map((tour) => (
