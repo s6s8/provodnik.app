@@ -28,7 +28,7 @@ export function DestinationDetailScreen({
     destination.imageUrl ||
     "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80";
 
-  const listingCount = destination.listingCount ?? listings.length;
+  const listingCount = listings.length > 0 ? listings.length : (destination.listingCount ?? 0);
   const guideCount = destination.openRequestCount ?? 0;
   const minPrice = listings.length
     ? Math.min(...listings.map((l) => l.priceRub))
@@ -108,7 +108,7 @@ export function DestinationDetailScreen({
               <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 {minPrice
                   ? `${new Intl.NumberFormat("ru-RU").format(Math.round(minPrice / 1000))} тыс. ₽`
-                  : "—"}
+                  : listingCount > 0 ? "Скоро" : "—"}
               </strong>
               <span className="text-sm text-muted-foreground">бюджет от</span>
             </div>

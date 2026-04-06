@@ -233,7 +233,9 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
   const days = Math.max(1, Math.round(durationMin / 480));
   const city = (row.city as string) ?? "";
   const region = (row.region as string) ?? "";
-  const imageUrl = parseImageFromJson(row.description as string);
+  const imageUrl =
+    (row.image_url as string | null) ??
+    parseImageFromJson(row.description as string | null | undefined);
 
   return {
     id: row.id as string,
@@ -456,10 +458,18 @@ export async function getListingsByDestination(
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
     const db = getPublicClient();
+    const { data: dest, error: destError } = await db
+      .from("destinations")
+      .select("name, region")
+      .eq("slug", slug)
+      .maybeSingle();
+    if (destError) throw destError;
+    if (!dest) return { data: [], error: null };
+
     const { data, error } = await db
       .from("listings")
       .select("*")
-      .or(`city.ilike.%${slug}%,region.ilike.%${slug}%`)
+      .or(`city.ilike.%${dest.name}%,region.ilike.%${dest.region}%`)
       .eq("status", "published");
 
     if (error) throw error;
