@@ -4,7 +4,9 @@ import { cache } from "react";
 
 import {
   getDestinationBySlug,
+  getGuidesByDestination,
   getListingsByDestination,
+  type GuideRecord,
   type ListingRecord,
 } from "@/data/supabase/queries";
 import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
@@ -16,9 +18,15 @@ const getDestinationPageData = cache(async (slug: string) => {
     getListingsByDestination(null as any, slug),
   ]);
 
+  const region = destinationResult.data?.region ?? null;
+  const guidesResult = region
+    ? await getGuidesByDestination(null as any, region)
+    : { data: [] };
+
   return {
     destinationResult,
     listings: listingsResult.data ?? [],
+    guides: guidesResult.data ?? [],
   };
 });
 
@@ -51,7 +59,7 @@ export default async function DestinationDetailPage({
 }) {
   const { slug } = await params;
 
-  const { destinationResult, listings } = await getDestinationPageData(slug);
+  const { destinationResult, listings, guides } = await getDestinationPageData(slug);
 
   if (!destinationResult.data) notFound();
 
@@ -90,6 +98,7 @@ export default async function DestinationDetailPage({
       <DestinationDetailScreen
         destination={destination}
         listings={listings as ListingRecord[]}
+        guides={guides as GuideRecord[]}
       />
     </>
   );

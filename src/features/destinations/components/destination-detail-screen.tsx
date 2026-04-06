@@ -6,7 +6,8 @@ import { TourCard } from "@/components/shared/tour-card";
 import { Button } from "@/components/ui/button";
 import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
-import type { ListingRecord } from "@/data/supabase/queries";
+import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
+import { PublicGuideCard } from "@/features/guide/components/public/public-guide-card";
 
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
@@ -17,12 +18,14 @@ interface Props {
   destination: DestinationSummary;
   openRequests?: OpenRequestRecord[];
   listings?: ListingRecord[];
+  guides?: GuideRecord[];
 }
 
 export function DestinationDetailScreen({
   destination,
   openRequests = [],
   listings = [],
+  guides = [],
 }: Props) {
   const heroImage =
     destination.imageUrl ||
@@ -214,6 +217,44 @@ export function DestinationDetailScreen({
           )}
         </div>
       </section>
+
+      {destination.region ? (
+        <section className="py-sec-pad" id="guides">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+            <div className="mb-7">
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                Местные гиды
+              </p>
+              <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+                Гиды в этом направлении
+              </h2>
+            </div>
+
+            {guides.length > 0 ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {guides.map((guide) => (
+                  <PublicGuideCard
+                    key={guide.id}
+                    guide={{
+                      id: guide.id,
+                      name: guide.fullName,
+                      avatarUrl: guide.avatarUrl ?? "",
+                      rating: guide.rating,
+                      tourCount: guide.reviewCount,
+                      specialties: [],
+                      cities: guide.destinations,
+                    }}
+                  />
+                ))}
+              </div>
+            ) : (
+              <p className="py-8 text-base text-muted-foreground">
+                Гиды по этому направлению скоро появятся.
+              </p>
+            )}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }

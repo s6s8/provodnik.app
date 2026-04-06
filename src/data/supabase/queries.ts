@@ -595,6 +595,32 @@ export async function getGuides(
   }
 }
 
+export async function getGuidesByDestination(
+  _client: SupabaseClient,
+  region: string,
+): Promise<QueryResult<GuideRecord[]>> {
+  try {
+    const db = getPublicClient();
+    const { data, error } = await db
+      .from("guide_profiles")
+      .select("*, profiles:user_id(id, full_name, avatar_url)")
+      .eq("verification_status", "approved")
+      .contains("regions", [region])
+      .order("years_experience", { ascending: false })
+      .limit(6);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return { data: [], error: null };
+
+    return {
+      data: data.map((row) => mapGuideRow(row, row.profiles as Record<string, unknown> | null)),
+      error: null,
+    };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
 export async function getGuideBySlug(
   _client: SupabaseClient,
   slug: string,
