@@ -15,7 +15,7 @@ interface Props {
 
 function formatPrice(budgetRub: number): string {
   if (!budgetRub) return "По договорённости";
-  const k = Math.round(budgetRub / 1000);
+  const k = Math.floor(budgetRub / 1000);
   return `${k} тыс. ₽`;
 }
 
