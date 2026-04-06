@@ -300,7 +300,7 @@ Each feature contains related components, types, utils, and hooks:
 │   └── components/
 │       ├── homepage-shell.tsx
 │       ├── homepage-hero.tsx
-│       ├── homepage-destinations.tsx
+│       ├── homepage-destinations.tsx   # Destination cards grid; aspect-[3/2] cards with bg-ink fallback + 3-stop gradient; featured card md:row-span-2
 │       ├── homepage-gateway.tsx
 │       ├── homepage-process.tsx
 │       └── homepage-trust.tsx
@@ -548,7 +548,7 @@ Each module exports typed functions that handle database operations. Components 
 | `PublicRequestDetailScreen` | `src/features/requests/components/public/public-request-detail-screen.tsx` | Requests | Public request detail; unauthenticated join CTA links to /auth?next=... (not /auth/login) |
 | `TravelerRequestCreateForm` | `src/features/traveler/components/request-create/traveler-request-create-form.tsx` | Traveler Requests | Create request form |
 | `NotificationCenterScreen` | `src/features/notifications/components/notification-center-screen.tsx` | Notifications | Notification list & management |
-| `PublicListingDiscoveryScreen` | `src/features/listings/components/public/public-listing-discovery-screen.tsx` | Listings | Public listing grid with filter pills (cursor-pointer + hover:bg-brand/10) |
+| `PublicListingDiscoveryScreen` | `src/features/listings/components/public/public-listing-discovery-screen.tsx` | Listings | Public listing grid with filter pills; page wraps in max-w-page container (listings/page.tsx) |
 | `PublicRequestsMarketplaceScreen` | `src/features/requests/components/public/public-requests-marketplace-screen.tsx` | Requests | Public request marketplace with category pills and search |
 | `AdminDashboardPage` | `src/app/(protected)/admin/dashboard/page.tsx` | Admin | Moderation overview; stat cards link to /admin/* sections; uses Badge header pattern |
 
