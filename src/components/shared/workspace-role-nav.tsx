@@ -194,77 +194,81 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
           </div>
         </nav>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <p className="text-xs font-medium text-muted-foreground">
-            {hasSupabaseAuth ? "Локальный демо-режим (по желанию)" : "Локальный демо-режим"}
-          </p>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button
-              type="button"
-              size="sm"
-              variant={demoSession?.role === "traveler" ? "secondary" : "outline"}
-              disabled={isPending}
-              onClick={() => signInAs("traveler")}
-            >
-              Путешественник
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={demoSession?.role === "guide" ? "secondary" : "outline"}
-              disabled={isPending}
-              onClick={() => signInAs("guide")}
-            >
-              Гид
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={demoSession?.role === "admin" ? "secondary" : "outline"}
-              disabled={isPending}
-              onClick={() => signInAs("admin")}
-            >
-              Оператор
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant="ghost"
-              disabled={isPending || !demoSession}
-              onClick={signOut}
-            >
-              Выйти из демо
-            </Button>
-          </div>
-        </div>
+        {process.env.NODE_ENV !== "production" && (
+          <>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              <p className="text-xs font-medium text-muted-foreground">
+                {hasSupabaseAuth ? "Локальный демо-режим (по желанию)" : "Локальный демо-режим"}
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={demoSession?.role === "traveler" ? "secondary" : "outline"}
+                  disabled={isPending}
+                  onClick={() => signInAs("traveler")}
+                >
+                  Путешественник
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={demoSession?.role === "guide" ? "secondary" : "outline"}
+                  disabled={isPending}
+                  onClick={() => signInAs("guide")}
+                >
+                  Гид
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={demoSession?.role === "admin" ? "secondary" : "outline"}
+                  disabled={isPending}
+                  onClick={() => signInAs("admin")}
+                >
+                  Оператор
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  disabled={isPending || !demoSession}
+                  onClick={signOut}
+                >
+                  Выйти из демо
+                </Button>
+              </div>
+            </div>
 
-        {pathRole && effectiveRole && effectiveRole !== pathRole ? (
-          <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
-            <p className="text-sm font-semibold text-foreground">
-              Права доступа
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Этот раздел закреплён за ролью{" "}
-              <span className="font-medium">{pathRole}</span>, войдя как{" "}
-              <span className="font-medium">{effectiveRole}</span>.{" "}
-              {hasSupabaseAuth
-                ? "После проверки сессии пользователь перенаправляется в свой рабочий кабинет."
-                : "В демо-режиме переключите роль на соответствующую, чтобы открыть нужный кабинет."}
-            </p>
-          </div>
-        ) : null}
+            {pathRole && effectiveRole && effectiveRole !== pathRole ? (
+              <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
+                <p className="text-sm font-semibold text-foreground">
+                  Права доступа
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Этот раздел закреплён за ролью{" "}
+                  <span className="font-medium">{pathRole}</span>, войдя как{" "}
+                  <span className="font-medium">{effectiveRole}</span>.{" "}
+                  {hasSupabaseAuth
+                    ? "После проверки сессии пользователь перенаправляется в свой рабочий кабинет."
+                    : "В демо-режиме переключите роль на соответствующую, чтобы открыть нужный кабинет."}
+                </p>
+              </div>
+            ) : null}
 
-        {!pathRole && effectiveRole ? (
-          <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
-            <p className="text-sm font-semibold text-foreground">
-              Сессия активна
-            </p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Вы вошли как{" "}
-              <span className="font-medium">{effectiveRole}</span>. Откройте свой dashboard в навигации выше, чтобы перейти в закрытую рабочую область.
-            </p>
-          </div>
-        ) : null}
+            {!pathRole && effectiveRole ? (
+              <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
+                <p className="text-sm font-semibold text-foreground">
+                  Сессия активна
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Вы вошли как{" "}
+                  <span className="font-medium">{effectiveRole}</span>. Откройте свой dashboard в навигации выше, чтобы перейти в закрытую рабочую область.
+                </p>
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
     </section>
   );

@@ -307,7 +307,6 @@ export function AuthEntryScreen() {
                   value={fullName}
                   onChange={(event) => setFullName(event.target.value)}
                   className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
-                  required={isSignUp}
                 />
               </div>
             </div>
@@ -327,7 +326,6 @@ export function AuthEntryScreen() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
-                required
               />
             </div>
           </div>
@@ -348,7 +346,6 @@ export function AuthEntryScreen() {
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
-                required
               />
               <button
                 type="button"
