@@ -50,6 +50,7 @@ export function SiteHeader({
   async function handleLogout() {
     const supabase = createSupabaseBrowserClient();
     await supabase.auth.signOut();
+    router.refresh();
     router.push("/");
   }
 

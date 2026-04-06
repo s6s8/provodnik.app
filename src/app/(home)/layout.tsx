@@ -8,7 +8,12 @@ export default async function HomeLayout({ children }: { children: ReactNode }) 
 
   return (
     <>
-      <SiteHeader isAuthenticated={auth.isAuthenticated} />
+      <SiteHeader
+        isAuthenticated={auth.isAuthenticated}
+        role={auth.role}
+        email={auth.email}
+        canonicalRedirectTo={auth.canonicalRedirectTo}
+      />
       <main className="pt-nav-h">{children}</main>
     </>
   );
