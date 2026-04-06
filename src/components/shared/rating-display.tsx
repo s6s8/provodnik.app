@@ -7,6 +7,10 @@ type RatingDisplayProps = {
 };
 
 export function RatingDisplay({ rating, reviewCount, className }: RatingDisplayProps) {
+  if (rating === 0 || reviewCount === 0) {
+    return <div className={className ?? "text-sm text-ink-2"}>нет отзывов</div>;
+  }
+
   return (
     <div className={className ?? "flex items-center gap-2 text-sm text-ink-2"}>
       <span className="flex items-center gap-1 font-semibold text-ink">
