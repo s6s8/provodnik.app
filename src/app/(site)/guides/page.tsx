@@ -3,6 +3,7 @@ import { Users } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
 
 export function generateMetadata(): Metadata {
@@ -71,6 +72,16 @@ export default async function GuidesPage() {
             </Link>
           ))}
         </div>
+
+        <section className="mt-16 rounded-2xl border border-border/60 bg-muted/40 px-8 py-10 text-center">
+          <h2 className="font-display text-2xl font-semibold">Вы гид?</h2>
+          <p className="mt-2 mx-auto max-w-xl text-base text-muted-foreground">
+            Присоединяйтесь к Provodnik — показывайте свои маршруты путешественникам со всей России.
+          </p>
+          <Button asChild className="mt-6">
+            <Link href="/auth?role=guide">Стать гидом</Link>
+          </Button>
+        </section>
       </div>
     </section>
   );
