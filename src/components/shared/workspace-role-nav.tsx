@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import { Bell } from "lucide-react";
 
@@ -45,24 +45,6 @@ const roles = [
   },
 ] as const;
 
-function getActiveRoleLabel(pathname: string) {
-  const match = roles.find(
-    (role) =>
-      pathname === role.workspacePrefix ||
-      pathname.startsWith(`${role.workspacePrefix}/`)
-  );
-  return match?.label ?? "Кабинет";
-}
-
-function getRoleFromPathname(pathname: string): DemoRole | null {
-  const match = roles.find(
-    (role) =>
-      pathname === role.workspacePrefix ||
-      pathname.startsWith(`${role.workspacePrefix}/`)
-  );
-  return match?.role ?? null;
-}
-
 type WorkspaceRoleNavProps = {
   className?: string;
   auth: AuthContext;
@@ -71,8 +53,6 @@ type WorkspaceRoleNavProps = {
 export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
-  const activeLabel = getActiveRoleLabel(pathname);
-  const pathRole = useMemo(() => getRoleFromPathname(pathname), [pathname]);
   const [isPending, startTransition] = useTransition();
   const [demoSession, setDemoSession] = useState<DemoSession | null>(() =>
     readDemoSessionFromDocument()
@@ -82,6 +62,9 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
   const hasSupabaseAuth = auth.hasSupabaseEnv && auth.isAuthenticated;
   const effectiveRole: DemoRole | null =
     (auth.role as DemoRole | null) ?? demoSession?.role ?? null;
+
+  // Only show the tab for the current user's role
+  const visibleRoles = roles.filter((r) => r.role === effectiveRole);
 
   function signInAs(role: DemoRole) {
     writeDemoSessionToDocument(role);
@@ -103,41 +86,10 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
       )}
       aria-label="Навигация по рабочей области"
     >
-      <div className="mx-auto w-full max-w-7xl px-6 py-4">
-        <div className="flex items-start justify-between gap-6">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <p className="text-sm font-semibold text-foreground">Рабочая область</p>
-              <Badge variant="outline" className="bg-background">
-                {activeLabel}
-              </Badge>
-              <Badge
-                variant="secondary"
-                className={cn(
-                  "bg-background",
-                  !hasSupabaseAuth && !demoSession && "text-muted-foreground"
-                )}
-              >
-                {hasSupabaseAuth
-                  ? effectiveRole
-                    ? `Вы вошли · ${effectiveRole}`
-                    : "Вы вошли"
-                  : demoSession
-                    ? `Демо-режим: ${demoSession.role}`
-                    : "Без входа"}
-              </Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {auth.hasSupabaseEnv
-                ? "Каждая роль открывает только свой закрытый кабинет через Supabase-авторизацию."
-                : "Без Supabase-ключей доступен локальный демо-режим с теми же ролевыми маршрутами."}
-            </p>
-          </div>
-        </div>
-
-        <nav className="mt-4" aria-label="Role destinations">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {roles.map((role) => {
+      <div className="mx-auto w-full max-w-7xl px-6">
+        <nav aria-label="Кабинет">
+          <div className="flex items-center gap-1 overflow-x-auto py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {visibleRoles.map((role) => {
               const isActive =
                 pathname === role.workspacePrefix ||
                 pathname.startsWith(`${role.workspacePrefix}/`);
@@ -150,8 +102,7 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
                   asChild
                   className={cn(
                     "shrink-0",
-                    isActive && "text-foreground",
-                    !isActive && "text-muted-foreground"
+                    isActive ? "text-foreground" : "text-muted-foreground"
                   )}
                 >
                   <Link
@@ -165,7 +116,9 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               );
             })}
 
-            <div className="mx-1 h-6 w-px shrink-0 bg-border/60" aria-hidden="true" />
+            {visibleRoles.length > 0 && (
+              <div className="mx-1 h-5 w-px shrink-0 bg-border/60" aria-hidden="true" />
+            )}
 
             <Button
               variant={pathname === "/notifications" ? "secondary" : "ghost"}
@@ -173,104 +126,70 @@ export function WorkspaceRoleNav({ className, auth }: WorkspaceRoleNavProps) {
               asChild
               className={cn(
                 "shrink-0",
-                pathname === "/notifications" && "text-foreground",
-                pathname !== "/notifications" && "text-muted-foreground"
+                pathname === "/notifications" ? "text-foreground" : "text-muted-foreground"
               )}
             >
               <Link
                 href="/notifications"
                 aria-current={pathname === "/notifications" ? "page" : undefined}
-                title="Лента уведомлений по событиям на площадке"
+                title="Лента уведомлений"
               >
                 <Bell className="size-4" />
                 Уведомления
-                {demoSession && unreadNotifications > 0 ? (
-                  <Badge variant="secondary" className="ml-2 bg-background">
+                {unreadNotifications > 0 && (
+                  <Badge variant="secondary" className="ml-1.5 bg-background">
                     {unreadNotifications}
                   </Badge>
-                ) : null}
+                )}
               </Link>
             </Button>
           </div>
         </nav>
 
         {process.env.NODE_ENV !== "production" && (
-          <>
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <p className="text-xs font-medium text-muted-foreground">
-                {hasSupabaseAuth ? "Локальный демо-режим (по желанию)" : "Локальный демо-режим"}
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={demoSession?.role === "traveler" ? "secondary" : "outline"}
-                  disabled={isPending}
-                  onClick={() => signInAs("traveler")}
-                >
-                  Путешественник
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={demoSession?.role === "guide" ? "secondary" : "outline"}
-                  disabled={isPending}
-                  onClick={() => signInAs("guide")}
-                >
-                  Гид
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant={demoSession?.role === "admin" ? "secondary" : "outline"}
-                  disabled={isPending}
-                  onClick={() => signInAs("admin")}
-                >
-                  Оператор
-                </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="ghost"
-                  disabled={isPending || !demoSession}
-                  onClick={signOut}
-                >
-                  Выйти из демо
-                </Button>
-              </div>
-            </div>
-
-            {pathRole && effectiveRole && effectiveRole !== pathRole ? (
-              <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
-                <p className="text-sm font-semibold text-foreground">
-                  Права доступа
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Этот раздел закреплён за ролью{" "}
-                  <span className="font-medium">{pathRole}</span>, войдя как{" "}
-                  <span className="font-medium">{effectiveRole}</span>.{" "}
-                  {hasSupabaseAuth
-                    ? "После проверки сессии пользователь перенаправляется в свой рабочий кабинет."
-                    : "В демо-режиме переключите роль на соответствующую, чтобы открыть нужный кабинет."}
-                </p>
-              </div>
-            ) : null}
-
-            {!pathRole && effectiveRole ? (
-              <div className="mt-4 rounded-lg border border-border bg-background px-4 py-3">
-                <p className="text-sm font-semibold text-foreground">
-                  Сессия активна
-                </p>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Вы вошли как{" "}
-                  <span className="font-medium">{effectiveRole}</span>. Откройте свой dashboard в навигации выше, чтобы перейти в закрытую рабочую область.
-                </p>
-              </div>
-            ) : null}
-          </>
+          <div className="flex flex-wrap items-center gap-2 border-t border-border/40 py-2">
+            <p className="text-xs text-muted-foreground">
+              {hasSupabaseAuth ? "Демо (по желанию):" : "Демо-режим:"}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant={demoSession?.role === "traveler" ? "secondary" : "outline"}
+              disabled={isPending}
+              onClick={() => signInAs("traveler")}
+            >
+              Путешественник
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={demoSession?.role === "guide" ? "secondary" : "outline"}
+              disabled={isPending}
+              onClick={() => signInAs("guide")}
+            >
+              Гид
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant={demoSession?.role === "admin" ? "secondary" : "outline"}
+              disabled={isPending}
+              onClick={() => signInAs("admin")}
+            >
+              Оператор
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              variant="ghost"
+              disabled={isPending || !demoSession}
+              onClick={signOut}
+            >
+              Выйти из демо
+            </Button>
+          </div>
         )}
       </div>
     </section>
   );
 }
-

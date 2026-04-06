@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function generateMetadata(): Metadata {
   return {
@@ -16,7 +17,8 @@ export function generateMetadata(): Metadata {
 export default async function GuidesPage() {
   let guides: GuideRecord[] = [];
 
-  const result = await getGuides(null as any);
+  const supabase = await createSupabaseServerClient();
+  const result = await getGuides(supabase);
   if (result.data) guides = result.data;
 
   return (

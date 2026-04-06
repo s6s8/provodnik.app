@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import type { PublicListing } from "@/data/public-listings/types";
 import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
 
 export function generateMetadata(): Metadata {
@@ -38,7 +39,8 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
 export default async function PublicListingsPage() {
   let listings: PublicListing[] = [];
 
-  const result = await getActiveListings(null as any);
+  const supabase = await createSupabaseServerClient();
+  const result = await getActiveListings(supabase);
   if (result.data && result.data.length > 0) {
     listings = result.data.map((listing) => mapToPublicListing(listing));
   }

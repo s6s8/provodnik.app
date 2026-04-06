@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function toursWord(n: number) {
   const mod10 = n % 10;
@@ -23,7 +24,8 @@ export function generateMetadata(): Metadata {
 export default async function DestinationsPage() {
   let destinations: DestinationRecord[] = [];
 
-  const result = await getDestinations(null as any);
+  const supabase = await createSupabaseServerClient();
+  const result = await getDestinations(supabase);
   if (result.data) destinations = result.data;
 
   const [featured, ...rest] = destinations;
