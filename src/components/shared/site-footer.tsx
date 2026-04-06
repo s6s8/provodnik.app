@@ -16,12 +16,11 @@ const projectLinks = [
   { href: "/trust", label: "О нас" },
   { href: "/#hiw", label: "Как это работает" },
   { href: "/guides", label: "Для гидов" },
-  { href: "/", label: "Блог" },
 ] as const;
 
 const supportLinks = [
-  { href: "/trust", label: "FAQ" },
-  { href: "/policies/terms", label: "Помощь" },
+  { href: "/trust", label: "Доверие и безопасность" },
+  { href: "/policies/terms", label: "Условия использования" },
   { href: "mailto:support@provodnik.app", label: "Связаться с нами" },
 ] as const;
 
