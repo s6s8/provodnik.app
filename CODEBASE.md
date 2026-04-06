@@ -103,21 +103,21 @@ Pages are organized by route groups and role-based access:
 ├── not-found.tsx                       # 404 page
 ├── (auth)/                             # Public auth pages
 │   ├── layout.tsx
-│   └── auth/page.tsx                   # Sign in/sign up
+│   └── auth/page.tsx                   # Sign in/sign up — dark brand gradient background, renders AuthEntryScreen
 ├── (home)/                             # Public homepage
 │   ├── layout.tsx
-│   └── page.tsx                        # Home hero
+│   └── page.tsx                        # Home hero — uses createSupabaseServerClient() + getDestinations() + getOpenRequests()
 ├── (site)/                             # Public browsing pages
 │   ├── layout.tsx
 │   ├── destinations/
-│   │   ├── page.tsx                    # Destinations list
+│   │   ├── page.tsx                    # Destinations list — uses createSupabaseServerClient() + getDestinations()
 │   │   └── [slug]/page.tsx             # Destination detail
 │   ├── guides/
-│   │   ├── page.tsx                    # Browse guides
+│   │   ├── page.tsx                    # Browse guides — uses createSupabaseServerClient() + getGuides()
 │   │   └── [slug]/page.tsx             # Guide profile
 │   ├── guide/[id]/page.tsx             # Guide detail (by ID)
 │   ├── listings/
-│   │   ├── page.tsx                    # Browse listings
+│   │   ├── page.tsx                    # Browse listings — uses createSupabaseServerClient() + getActiveListings()
 │   │   └── [slug]/page.tsx             # Listing detail
 │   ├── requests/
 │   │   ├── page.tsx                    # Browse open requests
@@ -232,7 +232,7 @@ Pages are organized by route groups and role-based access:
     ├── rating-display.tsx
     ├── transport-option-pill.tsx
     ├── favorite-toggle.tsx
-    ├── workspace-role-nav.tsx          # Role switcher
+    ├── workspace-role-nav.tsx          # Workspace sub-nav (current role tab + notifications)
     └── [other shared components]
 ```
 
@@ -358,7 +358,8 @@ Each feature contains related components, types, utils, and hooks:
         │   └── traveler-request-status.tsx
         ├── reviews/
         │   └── traveler-booking-review-screen.tsx
-        └── traveler-dashboard-screen.tsx
+        ├── traveler-dashboard-screen.tsx
+        └── traveler-dashboard-screen-stats.tsx  # Stats + "getting started" 3-card onboarding when all counts = 0
 ```
 
 ### `/src/data` – Service Layer (Data Fetching & Mutations)
@@ -441,7 +442,7 @@ Each module exports typed functions that handle database operations. Components 
 │   ├── role-routing.ts
 │   └── types.ts                        # AppRole, AuthContext, etc.
 ├── bookings/
-│   ├── state-machine.ts                # Booking status transitions
+│   ├── state-machine.ts                # Booking status transitions; _userId param kept for API compat (eslint-disable)
 │   └── __tests__/state-machine.test.ts
 ├── notifications/
 │   ├── create-notification.ts
@@ -459,8 +460,8 @@ Each module exports typed functions that handle database operations. Components 
 │   ├── database.types.ts               # Generated from Supabase schema
 │   ├── types.ts                        # Custom domain types
 │   ├── bookings.ts
-│   ├── conversations.ts
-│   ├── disputes.ts
+│   ├── conversations.ts                # _profile destructured-out in participants map (eslint-disable)
+│   ├── disputes.ts                     # disputeStatusSchema kept but used as type only (eslint-disable)
 │   ├── listings.ts
 │   ├── offers.ts
 │   ├── requests.ts
@@ -513,13 +514,14 @@ Each module exports typed functions that handle database operations. Components 
 | `SiteHeader` | `src/components/shared/site-header.tsx` | Navigation header (public & auth) |
 | `SiteFooter` | `src/components/shared/site-footer.tsx` | Footer with links & info |
 | `RouteFeedbackShell` | `src/components/shared/route-feedback-shell.tsx` | Error & loading state wrapper |
-| `WorkspaceRoleNav` | `src/components/shared/workspace-role-nav.tsx` | Role switcher (if user has multiple roles) |
+| `WorkspaceRoleNav` | `src/components/shared/workspace-role-nav.tsx` | Workspace sub-nav: shows only current user's role tab + notifications link. Debug demo-switcher visible in dev only. |
 
 ### Card Components
 
 | Component | Path | Purpose |
 |-----------|------|---------|
 | `GuideCard` | `src/components/shared/guide-card.tsx` | Display guide profile (compact) |
+| `PublicGuideCard` | `src/features/guide/components/public/public-guide-card.tsx` | Guide card for public pages (destinations, guides listing); uses design tokens — no hardcoded white colors |
 | `ListingCard` | `src/components/shared/listing-card.tsx` | Display tour listing (compact) |
 | `TourCard` | `src/components/shared/tour-card.tsx` | Display tour with preview |
 | `RequestCard` | `src/components/shared/request-card.tsx` | Display traveler request |
@@ -539,10 +541,16 @@ Each module exports typed functions that handle database operations. Components 
 | `ChatInput` | `src/features/messaging/components/chat-input.tsx` | Messaging | Message input & send |
 | `ConversationList` | `src/features/messaging/components/conversation-list.tsx` | Messaging | Thread list sidebar |
 | `MessageBubble` | `src/features/messaging/components/message-bubble.tsx` | Messaging | Individual message display |
+| `GuideDashboardScreen` | `src/features/guide/components/dashboard/guide-dashboard-screen.tsx` | Guide Dashboard | Stats + verification step-indicator (Заявка подана → На проверке → Одобрено) when !isVerified |
 | `GuideListingForm` | `src/features/guide/components/listings/listing-form.tsx` | Guide Listings | Create/edit listing form |
+| `GuideProfileScreen` | `src/features/guide/components/public/guide-profile-screen.tsx` | Guide Public | Public guide profile page; name genitive uses endsWith("й") → replace with "я" rule |
 | `OfferFormClient` | `src/features/guide/components/requests/offer-form-client.tsx` | Guide Requests | Create offer form |
+| `PublicRequestDetailScreen` | `src/features/requests/components/public/public-request-detail-screen.tsx` | Requests | Public request detail; unauthenticated join CTA links to /auth?next=... (not /auth/login) |
 | `TravelerRequestCreateForm` | `src/features/traveler/components/request-create/traveler-request-create-form.tsx` | Traveler Requests | Create request form |
 | `NotificationCenterScreen` | `src/features/notifications/components/notification-center-screen.tsx` | Notifications | Notification list & management |
+| `PublicListingDiscoveryScreen` | `src/features/listings/components/public/public-listing-discovery-screen.tsx` | Listings | Public listing grid with filter pills (cursor-pointer + hover:bg-brand/10) |
+| `PublicRequestsMarketplaceScreen` | `src/features/requests/components/public/public-requests-marketplace-screen.tsx` | Requests | Public request marketplace with category pills and search |
+| `AdminDashboardPage` | `src/app/(protected)/admin/dashboard/page.tsx` | Admin | Moderation overview; stat cards link to /admin/* sections; uses Badge header pattern |
 
 ---
 

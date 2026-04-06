@@ -6,6 +6,8 @@
 | audit-fixes | 2026-04-06 | build:✓ typecheck:✓ | — | — | 7 | 6 | 0 | 1→retry→1 |
 | phase-8-audit-fixes | 2026-04-06 | build:✓ typecheck:✓ | — | — | 13 | 13 | 0 | 0 |
 
+| design-redesign+lint | 2026-04-07 | build:✓ typecheck:✓ lint:✓(0 errors) | — | — | 4 cursor-agents | 3 | 0 | 1→retry→1 |
+
 ## Notes
 - T4 (B3 dashboard) failed first dispatch due to wrong worktree path (parent repo, not provodnik.app). Re-dispatched with corrected path — succeeded.
 - All commits landed linearly in provodnik.app (its own git repo, not the parent workspace repo)
@@ -13,3 +15,4 @@
 - Session 2 (2026-04-06): C6 (breadcrumbs) was on feat/c6-breadcrumbs with duplicate B4 commit; merged cleanly, build ✓, pushed to origin/main. All local audit branches deleted.
 - Phase 8 (2026-04-06): All 13 audit findings fixed (A1-A3, B2-B6, C1-C4, C6). B1 (forgot password) explicitly deferred by user. Site live at provodnik.app, origin/main HEAD: 97169ac.
 - Post-audit polish (2026-04-06): nav links (Туры/Запросы), account indicator pill, logout button (+ router.refresh() fix), footer links, protected layout auth props, Kazan/Nizhny DB images, guide@provodnik.test listings. HEAD: 1070cd0.
+- Design redesign + lint fix (2026-04-07): 9 commits covering homepage process icons, guide empty state, PublicGuideCard tokens, admin header, guide star color, listing pill hover, null-as-any in 7 routes, 47 lint errors fixed across 15+ files, lint enforcement in hooks/docs. ESLint: 0 errors 0 warnings. HEAD: 008e63a.
