@@ -4,10 +4,36 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { PublicListing } from "@/data/public-listings/types";
 
+interface ListingGuide {
+  displayName?: string;
+  name?: string;
+  avatarInitials?: string;
+  avatarUrl?: string;
+  avatarImageUrl?: string;
+  slug?: string;
+  id?: string;
+  rating?: number;
+  bio?: string;
+  homeBase?: string;
+  reviewsSummary?: { averageRating?: number };
+}
+
+interface ListingReview {
+  id: string;
+  name?: string;
+  rating?: number;
+  title?: string;
+  body?: string;
+  createdAt?: string;
+  date?: string;
+  initials?: string;
+  author?: { displayName?: string };
+}
+
 interface Props {
   listing: PublicListing;
-  guide?: any;
-  reviews?: any[];
+  guide?: ListingGuide;
+  reviews?: ListingReview[];
 }
 
 const fallbackCover =
@@ -45,7 +71,7 @@ const fallbackReviews = [
   },
 ];
 
-function getGuideInitials(guide: any): string {
+function getGuideInitials(guide: ListingGuide | undefined | null): string {
   if (!guide) return "ГД";
   if (guide.avatarInitials) return guide.avatarInitials;
   const name: string = guide.displayName || guide.name || "";
@@ -293,7 +319,7 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
             Что говорят о поездке
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {reviewCards.map((rev: any) => {
+            {reviewCards.map((rev: ListingReview) => {
               const reviewInitials =
                 rev.initials ||
                 (rev.author?.displayName

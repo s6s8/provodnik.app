@@ -375,6 +375,7 @@ function SectionHeader({ badge, title, description }: { badge: string; title: st
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TextField({ id, label, error, register, ...props }: { id: string; label: string; error?: string; register: ReturnType<typeof useForm<GuideOnboardingValues>>["register"] extends (...args: any[]) => infer R ? R : never } & React.ComponentProps<typeof Input>) {
   return (
     <div className="grid gap-2">
@@ -385,6 +386,7 @@ function TextField({ id, label, error, register, ...props }: { id: string; label
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function TextAreaField({ id, label, error, register, ...props }: { id: string; label: string; error?: string; register: ReturnType<typeof useForm<GuideOnboardingValues>>["register"] extends (...args: any[]) => infer R ? R : never } & React.ComponentProps<typeof Textarea>) {
   return (
     <div className="grid gap-2">
@@ -406,6 +408,7 @@ function CommaField({ id, label, value, error, hint, onChange }: { id: string; l
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function CheckboxField({ label, description, error, register }: { label: string; description: string; error?: string; register: ReturnType<typeof useForm<GuideOnboardingValues>>["register"] extends (...args: any[]) => infer R ? R : never }) {
   return (
     <div className="grid gap-1">

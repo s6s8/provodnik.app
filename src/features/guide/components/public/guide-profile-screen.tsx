@@ -6,11 +6,41 @@ import { TourCard } from "@/components/shared/tour-card";
 import { Button } from "@/components/ui/button";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 
+interface GuideListing {
+  slug?: string;
+  id?: string;
+  coverImageUrl?: string;
+  imageUrl?: string;
+  title?: string;
+  rating?: number;
+  priceFromRub?: number;
+  price?: string;
+}
+
+interface GuideOffer {
+  id: string;
+  title?: string;
+  price?: number;
+  date?: string;
+}
+
+interface GuideReview {
+  id: string;
+  name?: string;
+  rating?: number;
+  title?: string;
+  body?: string;
+  createdAt?: string;
+  date?: string;
+  initials?: string;
+  author?: { displayName?: string };
+}
+
 interface Props {
   guide: PublicGuideProfile;
-  listings?: any[];
-  offers?: any[];
-  reviews?: any[];
+  listings?: GuideListing[];
+  offers?: GuideOffer[];
+  reviews?: GuideReview[];
 }
 
 function getInitials(name: string, fallback?: string): string {
@@ -121,7 +151,7 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
 
   const tourCards =
     listings && listings.length > 0
-      ? listings.map((l: any) => ({
+      ? listings.map((l: GuideListing) => ({
           href: `/listings/${l.slug ?? l.id ?? ""}`,
           imageUrl: l.coverImageUrl ?? l.imageUrl ?? "",
           title: l.title ?? "",
@@ -133,17 +163,7 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
         }))
       : fallbackListings;
   const offerCards = (offers && offers.length > 0 ? offers : fallbackOffers) as typeof fallbackOffers;
-  const reviewCards = (reviews && reviews.length > 0 ? reviews : fallbackReviews).map(
-    (rev: any) => ({
-      id: rev.id,
-      authorName: rev.name || rev.author?.displayName || "Путешественник",
-      rating: rev.rating ?? 5,
-      title: rev.title || "Отзыв",
-      body: rev.body || "",
-      createdAt: rev.createdAt || new Date().toISOString(),
-      bookingLabel: rev.date || undefined,
-    }),
-  );
+  const reviewCards: GuideReview[] = reviews && reviews.length > 0 ? reviews : fallbackReviews;
 
   return (
     <main>
@@ -305,7 +325,7 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
             Что говорят путешественники
           </h2>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {reviewCards.map((rev: any) => {
+            {reviewCards.map((rev) => {
               const reviewInitials =
                 rev.initials ||
                 (rev.author?.displayName
