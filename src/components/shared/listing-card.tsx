@@ -27,7 +27,7 @@ export function ListingCard({ listing }: ListingCardProps) {
           {listing.destinationName} · {listing.durationLabel}
         </p>
         <h3 className="max-w-xs text-[2rem] font-semibold leading-[1.02] text-white">{listing.title}</h3>
-        <p className="max-w-sm text-sm leading-6 text-white/78">{listing.description}</p>
+        <p className="max-w-sm text-sm leading-[1.55] text-white/78">{listing.description}</p>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="space-y-1">
             <p className="text-sm font-medium text-white/88">{listing.guideName}</p>

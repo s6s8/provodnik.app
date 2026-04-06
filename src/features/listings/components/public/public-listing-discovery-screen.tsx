@@ -73,7 +73,7 @@ export function PublicListingDiscoveryScreen({
         <h1 className="text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] text-ink">
           Маршруты с локальными гидами
         </h1>
-        <p className="max-w-[48rem] text-[1rem] leading-8 text-ink-2">
+        <p className="max-w-[48rem] text-[1rem] leading-[1.65] text-ink-2">
           Подборка авторских маршрутов по городам и природным направлениям России с понятным темпом, стоимостью и форматом группы.
         </p>
       </section>
