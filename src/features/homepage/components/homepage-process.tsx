@@ -1,16 +1,21 @@
+import { MapPin, MessageSquare, Flag } from "lucide-react";
+
 const steps = [
   {
-    num: "1",
+    num: "01",
+    icon: MapPin,
     title: "Создайте запрос",
     desc: "Укажите направление, даты, бюджет и размер группы",
   },
   {
-    num: "2",
+    num: "02",
+    icon: MessageSquare,
     title: "Получите офферы от гидов",
     desc: "Проводники видят ваш запрос и присылают персональные предложения",
   },
   {
-    num: "3",
+    num: "03",
+    icon: Flag,
     title: "Отправляйтесь в путь",
     desc: "Выберите гида, подтвердите бронирование, встречайтесь в точке старта",
   },
@@ -33,30 +38,38 @@ export function HomePageProcess() {
         </div>
 
         <div className="flex items-stretch max-md:flex-col max-md:gap-4">
-          {steps.map((step, index) => (
-            <div key={step.num} className="flex min-w-0 flex-1 items-center max-md:block">
-              <article className="flex-1 rounded-card bg-surface-high p-7 shadow-card">
-                <div
-                  aria-hidden="true"
-                  className="mb-3.5 font-display text-[clamp(2.5rem,4vw,3.5rem)] font-bold leading-none text-primary/[0.18]"
-                >
-                  {step.num}
-                </div>
-                <h3 className="mb-2 font-sans text-base font-semibold text-foreground">
-                  {step.title}
-                </h3>
-                <p className="font-sans text-sm leading-[1.65] text-muted-foreground">
-                  {step.desc}
-                </p>
-              </article>
-              {index < steps.length - 1 ? (
-                <div
-                  aria-hidden="true"
-                  className="mx-3 w-12 shrink-0 border-t-2 border-dashed border-outline-variant/60 max-md:hidden"
-                />
-              ) : null}
-            </div>
-          ))}
+          {steps.map((step, index) => {
+            const Icon = step.icon;
+            return (
+              <div key={step.num} className="flex min-w-0 flex-1 items-center max-md:block">
+                <article className="flex-1 rounded-card bg-surface-high p-7 shadow-card">
+                  <div className="mb-4 flex items-center gap-3">
+                    <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand">
+                      <Icon className="size-5" strokeWidth={1.75} />
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="font-sans text-xs font-semibold tabular-nums text-muted-foreground/60"
+                    >
+                      {step.num}
+                    </span>
+                  </div>
+                  <h3 className="mb-2 font-sans text-base font-semibold text-foreground">
+                    {step.title}
+                  </h3>
+                  <p className="font-sans text-sm leading-[1.65] text-muted-foreground">
+                    {step.desc}
+                  </p>
+                </article>
+                {index < steps.length - 1 ? (
+                  <div
+                    aria-hidden="true"
+                    className="mx-3 w-12 shrink-0 border-t-2 border-dashed border-outline-variant/60 max-md:hidden"
+                  />
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
