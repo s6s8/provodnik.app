@@ -8,6 +8,7 @@ import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
 import { PublicGuideCard } from "@/features/guide/components/public/public-guide-card";
+import { pluralize } from "@/lib/utils";
 
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
@@ -32,7 +33,10 @@ export function DestinationDetailScreen({
     "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80";
 
   const listingCount = listings.length > 0 ? listings.length : (destination.listingCount ?? 0);
-  const guideCount = destination.openRequestCount ?? 0;
+  const formingGroupCount =
+    destination.openRequestCount && destination.openRequestCount > 0
+      ? destination.openRequestCount
+      : openRequests.length;
   const minPrice = listings.length
     ? Math.min(...listings.map((l) => l.priceRub))
     : null;
@@ -125,11 +129,9 @@ export function DestinationDetailScreen({
 
             <div>
               <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
-                {guideCount > 0
-                  ? `${guideCount} групп`
-                  : openRequests.length > 0
-                    ? `${openRequests.length} групп`
-                    : "—"}
+                {formingGroupCount > 0
+                  ? `${formingGroupCount} ${pluralize(formingGroupCount, "группа", "группы", "групп")}`
+                  : "—"}
               </strong>
               <span className="text-sm text-muted-foreground">формируется сейчас</span>
             </div>

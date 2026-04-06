@@ -70,7 +70,7 @@ begin
       jsonb_build_object(
         'role', 'guide',
         'full_name', 'Дмитрий Козлов',
-        'avatar_url', 'https://i.pravatar.cc/150?u=guide',
+        'avatar_url', 'https://i.pravatar.cc/150?u=30000000-0000-4000-8000-000000000001',
         'bio', 'Специализируюсь на горах и озерах. 8 лет опыта.',
         'specialization', 'Природа и культура'
       ),
@@ -123,7 +123,7 @@ begin
         jsonb_build_object(
           'role', 'guide',
           'full_name', 'Дмитрий Козлов',
-          'avatar_url', 'https://i.pravatar.cc/150?u=guide',
+          'avatar_url', 'https://i.pravatar.cc/150?u=30000000-0000-4000-8000-000000000001',
           'bio', 'Специализируюсь на горах и озерах. 8 лет опыта.',
           'specialization', 'Природа и культура'
         )
@@ -168,7 +168,7 @@ begin
       'guide',
       'guide@provodnik.test',
       'Дмитрий Козлов',
-      'https://i.pravatar.cc/150?u=guide'
+      'https://i.pravatar.cc/150?u=30000000-0000-4000-8000-000000000001'
     )
   on conflict do nothing;
 
@@ -200,7 +200,7 @@ begin
         'guide'::public.app_role,
         'guide@provodnik.test',
         'Дмитрий Козлов',
-        'https://i.pravatar.cc/150?u=guide'
+        'https://i.pravatar.cc/150?u=30000000-0000-4000-8000-000000000001'
       )
   ) as seed(id, role, email, full_name, avatar_url)
   where public.profiles.id = seed.id;

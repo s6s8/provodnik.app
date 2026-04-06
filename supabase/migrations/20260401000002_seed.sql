@@ -29,7 +29,7 @@ values
   -- test accounts
   ('10000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000000','authenticated','authenticated','admin@provodnik.test',    extensions.crypt('Admin1234!',  extensions.gen_salt('bf')),t,'{"provider":"email","providers":["email"],"role":"admin"}',   '{"role":"admin",   "full_name":"Алексей Смирнов",      "avatar_url":"https://i.pravatar.cc/150?u=admin"}',   t,t,false,'','','',''),
   ('20000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000000','authenticated','authenticated','traveler@provodnik.test', extensions.crypt('Travel1234!', extensions.gen_salt('bf')),t,'{"provider":"email","providers":["email"],"role":"traveler"}','{"role":"traveler","full_name":"Мария Иванова",       "avatar_url":"https://i.pravatar.cc/150?u=traveler"}',t,t,false,'','','',''),
-  ('30000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000000','authenticated','authenticated','guide@provodnik.test',    extensions.crypt('Guide1234!',  extensions.gen_salt('bf')),t,'{"provider":"email","providers":["email"],"role":"guide"}',   '{"role":"guide",   "full_name":"Дмитрий Козлов",       "avatar_url":"https://i.pravatar.cc/150?u=guide"}',   t,t,false,'','','',''),
+  ('30000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000000','authenticated','authenticated','guide@provodnik.test',    extensions.crypt('Guide1234!',  extensions.gen_salt('bf')),t,'{"provider":"email","providers":["email"],"role":"guide"}',   '{"role":"guide",   "full_name":"Дмитрий Козлов",       "avatar_url":"https://i.pravatar.cc/150?u=30000000-0000-4000-8000-000000000001"}',   t,t,false,'','','',''),
   -- demo accounts
   ('00000000-0000-4000-8000-000000000001','00000000-0000-0000-0000-000000000000','authenticated','authenticated','admin@provodnik.app',    extensions.crypt('Demo1234!',   extensions.gen_salt('bf')),t,'{"provider":"email","providers":["email"],"role":"admin"}',   '{"role":"admin",   "full_name":"Администратор"}',                                                                  t,t,false,'','','',''),
   ('00000000-0000-4000-8000-000000000002','00000000-0000-0000-0000-000000000000','authenticated','authenticated','guide@provodnik.app',    extensions.crypt('Demo1234!',   extensions.gen_salt('bf')),t,'{"provider":"email","providers":["email"],"role":"guide"}',   '{"role":"guide",   "full_name":"Алексей Соколов"}',                                                               t,t,false,'','','',''),
@@ -99,7 +99,7 @@ insert into public.profiles (id, role, email, full_name, avatar_url) values
   -- test accounts
   ('10000000-0000-4000-8000-000000000001','admin',   'admin@provodnik.test',    'Алексей Смирнов',      'https://i.pravatar.cc/150?u=admin'),
   ('20000000-0000-4000-8000-000000000001','traveler','traveler@provodnik.test', 'Мария Иванова',        'https://i.pravatar.cc/150?u=traveler'),
-  ('30000000-0000-4000-8000-000000000001','guide',   'guide@provodnik.test',    'Дмитрий Козлов',       'https://i.pravatar.cc/150?u=guide'),
+  ('30000000-0000-4000-8000-000000000001','guide',   'guide@provodnik.test',    'Дмитрий Козлов',       'https://i.pravatar.cc/150?u=30000000-0000-4000-8000-000000000001'),
   -- demo accounts
   ('00000000-0000-4000-8000-000000000001','admin',   'admin@provodnik.app',    'Администратор',         null),
   ('00000000-0000-4000-8000-000000000002','guide',   'guide@provodnik.app',    'Алексей Соколов',       'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=400&h=400&q=80'),
