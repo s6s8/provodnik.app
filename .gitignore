@@ -44,6 +44,9 @@ cursor-smoke*.out
 *.tsbuildinfo
 next-env.d.ts
 
+# Supabase CLI temp files — never commit these
+supabase/.temp/
+
 # local agent artifacts
 /Say READY and exit
 /agent

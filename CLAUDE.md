@@ -15,8 +15,8 @@ Claude is the **instruction giver**, not the code writer.
 Codex command pattern:
 ```bash
 codex exec --dangerously-bypass-approvals-and-sandbox "
-Read D:\dev\projects\provodnik\provodnik.app\AGENTS.md first.
-Workspace: D:\dev\projects\provodnik\provodnik.app
+Read /mnt/rhhd/projects/provodnik/provodnik.app/AGENTS.md first.
+Workspace: /mnt/rhhd/projects/provodnik/provodnik.app
 
 <task description>
 
@@ -24,32 +24,18 @@ ACCEPTANCE: bun run build passes. Do NOT push — commit only.
 "
 ```
 
-## Superpowers — Agent-Agnostic Skills
+## Skills — Claude Code Native
 
-`obra/superpowers` skills apply to **Claude, Codex, and Cursor** — not just one agent.
+Claude invokes skills via the `Skill` tool. Available skills:
 
-**Claude invokes superpowers via the `Skill` tool** (not Read). Example:
-- Before any bug fix → invoke `systematic-debugging`
-- Before planning a feature → invoke `writing-plans`
-- Before multiple parallel tasks → invoke `dispatching-parallel-agents`
-- Before finishing work → invoke `verification-before-completion`
-
-**When delegating to Codex or Cursor**, inject the skill file path into the prompt so the agent reads it:
-```
-Before writing any code, read and follow:
-C:\Users\x\.agents\skills\superpowers\systematic-debugging\SKILL.md
-```
-
-Superpowers live in: `C:\Users\x\.agents\skills\superpowers\`
-Key skills:
 | Skill | When to use |
 |---|---|
-| `systematic-debugging` | Any bug, error, or unexpected behavior |
-| `writing-plans` | Before planning a feature or phase |
-| `dispatching-parallel-agents` | Multiple independent tasks |
-| `finishing-a-development-branch` | Branch ready to merge |
-| `verification-before-completion` | Before committing any work |
-| `test-driven-development` | Writing tests |
+| `ui-ux-pro-max` | Any UI/UX design, component building, visual work |
+| `simplify` | After writing code — review for quality and reuse |
+| `update-config` | Configure hooks, automated behaviors in settings.json |
+| `claude-api` | Anything using Anthropic SDK or Claude API |
+
+**When delegating to Codex or opencode**, these skills are not available — inline the relevant guidance directly in the prompt.
 
 ## Documentation — Always Fetch Fresh Docs
 
@@ -86,8 +72,8 @@ Never guess API signatures. Context7 takes 10 seconds. Hallucinated APIs waste h
 ## Current Phase
 
 **Phase 7 — Launch Prep** (in progress as of 2026-04-01)
-Plan: `D:\dev\projects\provodnik\PLAN.md`
-Handoff: `D:\dev\projects\codex-ops\state\handoffs\provodnik\handoff.md`
+Plan: `/mnt/rhhd/projects/provodnik/PLAN.md`
+Handoff: `/mnt/rhhd/projects/codex-ops/state/handoffs/provodnik/handoff.md`
 
 Phases 0–6 are fully complete. Remaining Phase 7 items:
 - [ ] 7.4 Onboard 3–5 real guides in launch region
