@@ -9,9 +9,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember, getRequestMembers } from "@/lib/supabase/request-members";
 import { hasSupabaseEnv } from "@/lib/env";
 
-const getRequestDetail = cache(async (requestId: string) =>
-  getRequestById(null as any, requestId),
-);
+const getRequestDetail = cache(async (requestId: string) => {
+  const supabase = await createSupabaseServerClient();
+  return getRequestById(supabase, requestId);
+});
 
 export async function generateMetadata({
   params,

@@ -5,9 +5,11 @@ import { cache } from "react";
 import { getGuideBySlug, getListingsByGuide, getGuideReviews } from "@/data/supabase/queries";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const getGuidePageData = cache(async (slug: string) => {
-  const guideResult = await getGuideBySlug(null as any, slug);
+  const supabase = await createSupabaseServerClient();
+  const guideResult = await getGuideBySlug(supabase, slug);
   if (!guideResult.data) {
     return {
       guideResult,
@@ -17,8 +19,8 @@ const getGuidePageData = cache(async (slug: string) => {
   }
 
   const [listingsResult, reviewsResult] = await Promise.all([
-    getListingsByGuide(null as any, guideResult.data.id),
-    getGuideReviews(null as any, slug),
+    getListingsByGuide(supabase, guideResult.data.id),
+    getGuideReviews(supabase, slug),
   ]);
 
   return {

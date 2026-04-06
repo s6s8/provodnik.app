@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public/public-requests-marketplace-screen";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function generateMetadata(): Metadata {
   return {
@@ -38,7 +39,8 @@ export default async function RequestsPage() {
   let initialData: OpenRequestRecord[] | null = null;
 
   try {
-    const result = await getOpenRequests(null as any);
+    const supabase = await createSupabaseServerClient();
+    const result = await getOpenRequests(supabase);
     if (result.data && result.data.length > 0) {
       initialData = result.data.map(mapToOpenRequestRecord);
     }

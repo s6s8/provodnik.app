@@ -11,9 +11,11 @@ import { PublicReviewsSection, type PublicReviewItem } from "@/features/reviews/
 import { getListingBySlug, getGuideBySlug } from "@/data/supabase/queries";
 import type { PublicListing, PublicListingInclusion } from "@/data/public-listings/types";
 import { getReviewsForListing } from "@/lib/supabase/reviews";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const getListingPageData = cache(async (slug: string) => {
-  const listingResult = await getListingBySlug(null as any, slug);
+  const supabase = await createSupabaseServerClient();
+  const listingResult = await getListingBySlug(supabase, slug);
   if (!listingResult.data) {
     return {
       listingResult,
@@ -23,7 +25,7 @@ const getListingPageData = cache(async (slug: string) => {
   }
 
   const [guideResult, reviewRecords] = await Promise.all([
-    getGuideBySlug(null as any, listingResult.data.guideSlug),
+    getGuideBySlug(supabase, listingResult.data.guideSlug),
     getReviewsForListing(listingResult.data.id),
   ]);
 

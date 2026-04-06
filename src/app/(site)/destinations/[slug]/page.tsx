@@ -11,16 +11,18 @@ import {
 } from "@/data/supabase/queries";
 import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
 import type { DestinationSummary } from "@/data/destinations/types";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const getDestinationPageData = cache(async (slug: string) => {
+  const supabase = await createSupabaseServerClient();
   const [destinationResult, listingsResult] = await Promise.all([
-    getDestinationBySlug(null as any, slug),
-    getListingsByDestination(null as any, slug),
+    getDestinationBySlug(supabase, slug),
+    getListingsByDestination(supabase, slug),
   ]);
 
   const region = destinationResult.data?.region ?? null;
   const guidesResult = region
-    ? await getGuidesByDestination(null as any, region)
+    ? await getGuidesByDestination(supabase, region)
     : { data: [] };
 
   return {

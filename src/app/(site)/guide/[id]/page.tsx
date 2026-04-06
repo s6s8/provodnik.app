@@ -14,7 +14,8 @@ import { getReviewsForGuide } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const getGuidePageData = cache(async (id: string) => {
-  const guideResult = await getGuideBySlug(null as any, id);
+  const supabase = await createSupabaseServerClient();
+  const guideResult = await getGuideBySlug(supabase, id);
   if (!guideResult.data) {
     return {
       guideResult,
@@ -24,7 +25,6 @@ const getGuidePageData = cache(async (id: string) => {
     };
   }
 
-  const supabase = await createSupabaseServerClient();
   const { data: guideProfile, error: profileError } = await supabase
     .from("guide_profiles")
     .select("user_id, slug, verification_status, completed_tours, display_name, bio, years_experience, regions, languages, specialties, rating")
@@ -34,7 +34,7 @@ const getGuidePageData = cache(async (id: string) => {
   if (profileError) throw profileError;
 
   const [listingsResult, reviewRecords] = await Promise.all([
-    getListingsByGuide(null as any, guideResult.data.id),
+    getListingsByGuide(supabase, guideResult.data.id),
     getReviewsForGuide(guideResult.data.id),
   ]);
 
