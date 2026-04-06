@@ -41,11 +41,11 @@ export function HomePageDestinations({ destinations }: Props) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[1.35fr_1fr_1fr] md:grid-rows-[226px_226px]">
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[1.35fr_1fr_1fr]">
           {featured ? (
             <Link
               href={`/destinations/${featured.slug}`}
-              className="relative block overflow-hidden rounded-glass transition-transform duration-200 hover:-translate-y-[3px] md:row-span-2 max-md:min-h-[280px]"
+              className="relative block aspect-[3/2] overflow-hidden rounded-glass bg-ink transition-transform duration-200 hover:-translate-y-[3px] md:row-span-2 md:aspect-auto md:min-h-[465px]"
             >
               <Image
                 src={featured.heroImageUrl}
@@ -55,10 +55,10 @@ export function HomePageDestinations({ destinations }: Props) {
                 className="absolute inset-0 block h-full w-full object-cover"
               />
               <div
-                className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]"
+                className="absolute inset-0 pointer-events-none bg-gradient-to-t from-ink/85 via-ink/30 to-transparent"
                 aria-hidden="true"
               />
-              <div className="absolute inset-x-0 bottom-0 z-[1] p-7 text-white">
+              <div className="absolute inset-x-0 bottom-0 z-10 p-7 text-white">
                 <h3 className="mb-2.5 font-display text-[2.375rem] font-semibold leading-none">
                   {featured.name}
                 </h3>
@@ -76,7 +76,7 @@ export function HomePageDestinations({ destinations }: Props) {
             <Link
               key={dest.slug}
               href={`/destinations/${dest.slug}`}
-              className="relative block overflow-hidden rounded-glass transition-transform duration-200 hover:-translate-y-[3px]"
+              className="relative block aspect-[3/2] overflow-hidden rounded-glass bg-ink transition-transform duration-200 hover:-translate-y-[3px]"
             >
               <Image
                 src={dest.heroImageUrl}
@@ -86,10 +86,10 @@ export function HomePageDestinations({ destinations }: Props) {
                 className="absolute inset-0 block h-full w-full object-cover"
               />
               <div
-                className="absolute inset-0 pointer-events-none bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]"
+                className="absolute inset-0 pointer-events-none bg-gradient-to-t from-ink/85 via-ink/25 to-transparent"
                 aria-hidden="true"
               />
-              <div className="absolute inset-x-0 bottom-0 z-[1] flex items-end justify-between gap-3 px-[22px] py-[18px] text-white">
+              <div className="absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-3 px-[22px] py-[18px] text-white">
                 <h3 className="font-sans text-[1.125rem] font-semibold leading-[1.15]">
                   {dest.name}
                 </h3>

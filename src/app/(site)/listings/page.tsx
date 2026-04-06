@@ -45,5 +45,11 @@ export default async function PublicListingsPage() {
     listings = result.data.map((listing) => mapToPublicListing(listing));
   }
 
-  return <PublicListingDiscoveryScreen listings={listings} />;
+  return (
+    <section className="pt-[110px] pb-20">
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+        <PublicListingDiscoveryScreen listings={listings} />
+      </div>
+    </section>
+  );
 }
