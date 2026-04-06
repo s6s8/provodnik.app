@@ -27,6 +27,10 @@
           {
             "type": "command",
             "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -q 'codex exec'; then echo 'CODEX_DONE: Codex has finished. You MUST now invoke /codex-result — check commits, verify build, update PLAN.md and handoff.md, report result to user. Do not skip this.'; fi"
+          },
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE 'git commit|git merge'; then echo 'LINT_REMINDER: After committing/merging, run bun run lint to verify 0 errors before marking tasks done or pushing.'; fi"
           }
         ]
       }

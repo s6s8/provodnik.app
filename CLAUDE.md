@@ -20,7 +20,7 @@ Workspace: /mnt/rhhd/projects/provodnik/provodnik.app
 
 <task description>
 
-ACCEPTANCE: bun run build passes. Do NOT push — commit only.
+ACCEPTANCE: bun run typecheck && bun run lint && bun run build all pass. Do NOT push — commit only.
 "
 ```
 
@@ -55,6 +55,8 @@ Never guess API signatures. Context7 takes 10 seconds. Hallucinated APIs waste h
 - Pushing to `origin/main` triggers an immediate Vercel production deployment
 - Always end with: `git commit` → report commit hash → wait for user to say push
 - Commit message format: `type(scope): description` — Co-Authored-By line required
+- **Before every commit:** run `bun run typecheck && bun run lint` — both must exit 0
+- **After every merge:** run `bun run lint` to confirm 0 errors before marking task done
 
 ## CSS Rules
 
