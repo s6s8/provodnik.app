@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { canTransition, transitionBooking } from "@/lib/bookings/state-machine";
+import { transitionBooking } from "@/lib/bookings/state-machine";
 import { notifyDisputeOpened } from "@/lib/notifications/triggers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BookingRow, Uuid } from "@/lib/supabase/types";

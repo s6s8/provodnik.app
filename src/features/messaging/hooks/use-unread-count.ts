@@ -38,6 +38,7 @@ export function useUnreadCount(enabled = true) {
   }, [enabled]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void refetch();
   }, [refetch]);
 

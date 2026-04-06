@@ -151,6 +151,7 @@ export function PublicRequestDetailScreen({
       {/* Hero */}
       <section className="relative -mt-nav-h flex min-h-[480px] items-end overflow-hidden [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
         {/* Background image */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={heroImage}
           alt=""

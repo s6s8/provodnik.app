@@ -229,6 +229,7 @@ export function DocumentUploadCard({
         disabled={state.isUploading}
       >
         {hasImagePreview ? (
+          // eslint-disable-next-line @next/next/no-img-element
           <img
             src={state.previewUrl ?? ""}
             alt={label}

@@ -184,6 +184,7 @@ export function ListingPhotoUploadSection({
               key={photo.id}
               className="overflow-hidden rounded-card bg-surface-high shadow-card"
             >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photo.publicUrl}
                 alt={photo.isCover ? "Обложка тура" : "Фотография тура"}

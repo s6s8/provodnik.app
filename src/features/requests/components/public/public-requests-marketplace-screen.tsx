@@ -27,12 +27,11 @@ interface Props {
 }
 
 export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
-  const requests = initialData ?? [];
-
   const [activeCategory, setActiveCategory] = useState<CategoryPill>("Все");
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredRequests = useMemo(() => {
+    const requests = initialData ?? [];
     return requests.filter((r) => {
       if (
         searchQuery &&
@@ -74,7 +73,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       }
       return true;
     });
-  }, [requests, activeCategory, searchQuery]);
+  }, [initialData, activeCategory, searchQuery]);
 
   return (
     <main>

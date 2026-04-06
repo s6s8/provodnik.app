@@ -234,7 +234,7 @@ export default async function TravelerRequestDetailPage({
 
     // Fetch offers in parallel
     let offers: GuideOfferRow[] = [];
-    let guideNames: Record<string, string | null> = {};
+    const guideNames: Record<string, string | null> = {};
 
     try {
       offers = await getOffersForRequest(requestId);

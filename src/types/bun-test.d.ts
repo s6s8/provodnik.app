@@ -13,6 +13,7 @@ declare module "bun:test" {
     toHaveBeenCalledTimes(expected: number): void;
   };
   export const mock: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     <T extends (...args: any[]) => any>(
       implementation: T,
     ): T & {
