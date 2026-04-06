@@ -9,7 +9,12 @@ export default async function PublicLayout({ children }: { children: ReactNode }
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
-      <SiteHeader isAuthenticated={auth.isAuthenticated} />
+      <SiteHeader
+        isAuthenticated={auth.isAuthenticated}
+        role={auth.role}
+        email={auth.email}
+        canonicalRedirectTo={auth.canonicalRedirectTo}
+      />
       <main className="pt-nav-h">{children}</main>
       <SiteFooter />
     </div>

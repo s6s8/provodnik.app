@@ -1,26 +1,60 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
+import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
+  { href: "/listings", label: "Туры" },
+  { href: "/requests", label: "Запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
   { href: "/#hiw", label: "Как это работает" },
 ] as const;
 
+const roleLabels: Record<AppRole, string> = {
+  traveler: "Путешественник",
+  guide: "Гид",
+  admin: "Оператор",
+};
+
+const roleDashboards: Record<AppRole, AuthRedirectTarget> = {
+  traveler: "/traveler/dashboard",
+  guide: "/guide/dashboard",
+  admin: "/admin/dashboard",
+};
+
 interface SiteHeaderProps {
   isAuthenticated?: boolean;
+  role?: AppRole | null;
+  email?: string | null;
+  canonicalRedirectTo?: AuthRedirectTarget | null;
 }
 
-export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
+export function SiteHeader({
+  isAuthenticated = false,
+  role = null,
+  email = null,
+  canonicalRedirectTo = null,
+}: SiteHeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { unreadCount } = useUnreadCount(isAuthenticated);
+
+  async function handleLogout() {
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+  }
+
+  const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
+  const avatarInitial = email ? email[0].toUpperCase() : "?";
 
   return (
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
@@ -55,6 +89,18 @@ export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
         </ul>
 
         <div className="flex items-center justify-self-end gap-2">
+          {isAuthenticated && dashboardPath ? (
+            <Link
+              href={dashboardPath}
+              className="bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
+              aria-label="Личный кабинет"
+            >
+              <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-semibold flex items-center justify-center">
+                {avatarInitial}
+              </span>
+              {role ? roleLabels[role] : null}
+            </Link>
+          ) : null}
           {isAuthenticated ? (
             <Link
               href="/messages"
@@ -75,6 +121,11 @@ export function SiteHeader({ isAuthenticated = false }: SiteHeaderProps) {
                 </span>
               ) : null}
             </Link>
+          ) : null}
+          {isAuthenticated ? (
+            <Button variant="ghost" size="sm" onClick={handleLogout}>
+              Выйти
+            </Button>
           ) : null}
           {!isAuthenticated && (
             <Button variant="outline" asChild>
