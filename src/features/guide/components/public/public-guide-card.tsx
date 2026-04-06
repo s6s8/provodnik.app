@@ -36,13 +36,13 @@ export function PublicGuideCard({
     <Link
       href={`/guide/${guide.id}`}
       className={cn(
-        "bg-glass backdrop-blur-[20px] border border-white/10 shadow-glass flex gap-4 rounded-[1.5rem] p-4 transition-all duration-300",
+        "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex gap-4 rounded-[1.5rem] p-4 transition-all duration-300",
         "items-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
         "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg",
         className,
       )}
     >
-      <div className="relative size-14 shrink-0 overflow-hidden rounded-full border border-white/10 bg-white/8">
+      <div className="relative size-14 shrink-0 overflow-hidden rounded-full border border-border/40 bg-muted">
         <Image
           src={guide.avatarUrl}
           alt=""
@@ -54,13 +54,13 @@ export function PublicGuideCard({
 
       <div className="min-w-0 flex-1 space-y-2">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-base font-semibold text-white/95">
+          <span className="text-base font-semibold text-foreground">
             {guide.name}
           </span>
-          <span className="text-sm text-amber-300/95" aria-label={`Рейтинг ${ratingLabel}`}>
+          <span className="text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
             ★ {ratingLabel}
           </span>
-          <span className="text-xs text-white/50">
+          <span className="text-xs text-muted-foreground">
             {guide.tourCount} {toursWord(guide.tourCount)}
           </span>
         </div>
@@ -71,7 +71,7 @@ export function PublicGuideCard({
               <Badge
                 key={s}
                 variant="outline"
-                className="rounded-full border-white/10 bg-white/5 px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-normal text-white/70 normal-case"
+                className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-normal normal-case"
               >
                 {s}
               </Badge>
@@ -80,7 +80,7 @@ export function PublicGuideCard({
         ) : null}
 
         {guide.cities.length > 0 ? (
-          <p className="text-xs text-white/45">{guide.cities.join(" · ")}</p>
+          <p className="text-xs text-muted-foreground">{guide.cities.join(" · ")}</p>
         ) : null}
       </div>
     </Link>
