@@ -1,5 +1,6 @@
 import { Suspense, type ReactNode } from "react";
 
+import { BreadcrumbsClient } from "@/components/shared/breadcrumbs-client";
 import { SiteHeader } from "@/components/shared/site-header";
 import { WorkspaceRoleNav } from "@/components/shared/workspace-role-nav";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
@@ -16,6 +17,7 @@ export default async function ProtectedLayout({
       <SiteHeader isAuthenticated={auth.isAuthenticated} />
       <WorkspaceRoleNav auth={auth} />
       <main className="mx-auto w-full max-w-7xl px-6 py-8 md:py-10">
+        <BreadcrumbsClient />
         <Suspense>{children}</Suspense>
       </main>
     </div>
