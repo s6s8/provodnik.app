@@ -11,7 +11,7 @@ export function HomePageHero() {
     >
       <Image
         src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=1800&q=85"
-        alt=""
+        alt="Горный пейзаж России — путешествуйте с локальными проводниками"
         fill
         priority
         sizes="100vw"

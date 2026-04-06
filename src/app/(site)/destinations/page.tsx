@@ -4,6 +4,15 @@ import Image from "next/image";
 
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
 
+function toursWord(n: number) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 14) return "туров";
+  if (mod10 === 1) return "тур";
+  if (mod10 >= 2 && mod10 <= 4) return "тура";
+  return "туров";
+}
+
 export function generateMetadata(): Metadata {
   return {
     title: "Направления",
@@ -53,7 +62,7 @@ export default async function DestinationsPage() {
                   <div className="absolute inset-0 flex flex-col justify-end p-6 z-[1]">
                     {featured.listingCount ? (
                       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.14] backdrop-blur-[12px] border border-white/20 text-xs font-medium text-white/90 mb-2.5 w-fit">
-                        {featured.listingCount} туров
+                        {featured.listingCount} {toursWord(featured.listingCount)}
                       </span>
                     ) : null}
                     <p className="font-display text-[1.75rem] font-semibold text-white leading-[1.1]">{featured.name}</p>

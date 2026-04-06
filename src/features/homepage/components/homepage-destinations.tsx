@@ -3,6 +3,15 @@ import Link from "next/link";
 
 import type { DestinationRecord } from "@/data/supabase/queries";
 
+function toursWord(n: number) {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 14) return "туров";
+  if (mod10 === 1) return "тур";
+  if (mod10 >= 2 && mod10 <= 4) return "тура";
+  return "туров";
+}
+
 interface Props {
   destinations: DestinationRecord[];
 }
@@ -85,7 +94,7 @@ export function HomePageDestinations({ destinations }: Props) {
                   {dest.name}
                 </h3>
                 <span className="whitespace-nowrap text-xs font-medium text-white/75">
-                  {dest.listingCount} туров
+                  {dest.listingCount} {toursWord(dest.listingCount)}
                 </span>
               </div>
             </Link>
