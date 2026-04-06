@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, Map } from "lucide-react";
 
 import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -210,7 +210,7 @@ export function GuideListingsListScreen({
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="space-y-1">
-          <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
+          <p className="text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
             Кабинет гида
           </p>
           <h1 className="font-serif text-3xl font-semibold text-foreground">
@@ -238,16 +238,29 @@ export function GuideListingsListScreen({
       {/* Empty state */}
       {visible.length === 0 && (
         <Card className="border-border/70 bg-card/90">
-          <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
-            <p className="text-base font-medium text-foreground">
-              У вас пока нет туров. Создайте первый.
-            </p>
-            <Button asChild>
-              <Link href="/guide/listings/new">
-                <Plus className="size-4" />
-                Создать первый тур
-              </Link>
-            </Button>
+          <CardContent className="flex flex-col items-center gap-5 py-20 text-center">
+            <span className="flex size-14 items-center justify-center rounded-full bg-brand/10 text-brand">
+              <Map className="size-7" strokeWidth={1.5} />
+            </span>
+            <div className="space-y-1.5">
+              <p className="text-base font-semibold text-foreground">
+                У вас пока нет туров
+              </p>
+              <p className="max-w-xs text-sm text-muted-foreground">
+                Создайте первый маршрут, чтобы путешественники могли найти вас
+              </p>
+            </div>
+            <div className="flex flex-wrap justify-center gap-3">
+              <Button asChild>
+                <Link href="/guide/listings/new">
+                  <Plus className="size-4" />
+                  Создать тур
+                </Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/listings">Посмотреть примеры</Link>
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}
