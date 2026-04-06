@@ -69,7 +69,7 @@ export default async function GuidesPage() {
               </p>
 
               <p className="text-[0.8125rem] text-on-surface-muted">
-                ★ {guide.rating} · {guide.reviewCount} отзывов
+                <span className="text-amber-500">★</span> {guide.rating} · {guide.reviewCount} отзывов
               </p>
             </Link>
           ))}

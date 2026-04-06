@@ -86,8 +86,8 @@ export function PublicListingDiscoveryScreen({
             onClick={() => setActiveFilter(filter)}
             className={
               activeFilter === filter
-                ? "inline-flex h-10 items-center justify-center rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
-                : "inline-flex h-10 items-center justify-center rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2"
+                ? "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
+                : "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2 transition-colors hover:bg-brand/10 hover:text-brand"
             }
           >
             {filter}
