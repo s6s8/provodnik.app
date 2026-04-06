@@ -365,6 +365,17 @@ export function AuthEntryScreen() {
             </div>
           </div>
 
+          {!isSignUp ? (
+            <div className="flex justify-end">
+              <Link
+                href="/auth/forgot-password"
+                className="text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+              >
+                Забыли пароль?
+              </Link>
+            </div>
+          ) : null}
+
           {isSignUp ? (
             <div className="grid gap-2.5">
               <span className="text-sm font-medium text-foreground">
