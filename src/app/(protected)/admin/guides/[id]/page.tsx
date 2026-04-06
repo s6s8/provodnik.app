@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -5,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
 import { approveGuide, rejectGuide, requestChanges } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Верификация гида",
+};
 
 function formatDateTime(value: string) {
   const date = new Date(value);

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -8,6 +9,10 @@ import { getBooking } from "@/lib/supabase/bookings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { submitDispute } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Открыть спор",
+};
 
 function formatDateRange(startsOn: string | null, endsOn: string | null) {
   if (!startsOn) return "";

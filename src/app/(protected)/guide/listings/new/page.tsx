@@ -1,9 +1,14 @@
+import type { Metadata } from "next";
 import { GuideListingNewPageClient } from "@/features/guide/components/listings/guide-listing-new-page-client";
 import {
   confirmListingPhotoUpload,
   createListingAction,
   getListingUploadUrl,
 } from "../actions";
+
+export const metadata: Metadata = {
+  title: "Новый тур",
+};
 
 export default function GuideListingNewPage() {
   return (

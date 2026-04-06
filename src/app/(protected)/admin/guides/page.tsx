@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getGuideReviewQueue } from "@/lib/supabase/moderation";
+
+export const metadata: Metadata = {
+  title: "Очередь верификации",
+};
 
 function formatDateTime(value: string) {
   const date = new Date(value);

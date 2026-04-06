@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -11,6 +12,10 @@ import {
 import { VerificationUploadForm } from "@/features/guide/components/verification/verification-upload-form";
 import type { UploadedGuideDocument } from "@/features/guide/components/verification/verification-types";
 import { cn } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: "Верификация аккаунта",
+};
 
 type GuideVerificationDocumentRow = {
   id: string;

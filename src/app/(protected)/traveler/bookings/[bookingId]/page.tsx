@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
@@ -11,6 +12,10 @@ import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { openBookingThreadAction } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Бронирование",
+};
 
 function formatRub(minorUnits: number) {
   const rub = Math.round(minorUnits / 100);

@@ -12,7 +12,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { markReadAction, sendMessageAction } from "./actions";
 
 export const metadata: Metadata = {
-  title: "Сообщения",
+  title: "Переписка",
 };
 
 export default async function ThreadPage({

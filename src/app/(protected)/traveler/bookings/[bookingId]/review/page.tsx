@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { TravelerBookingReviewScreen } from "@/features/traveler/components/reviews/traveler-booking-review-screen";
@@ -6,6 +7,10 @@ import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { submitReview } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Оставить отзыв",
+};
 
 function resolveSearchValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;

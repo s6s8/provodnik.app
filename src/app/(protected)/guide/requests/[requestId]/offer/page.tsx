@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { getRequestById } from "@/data/supabase/queries";
@@ -5,6 +6,10 @@ import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { hasGuideOffered } from "@/lib/supabase/offers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { OfferFormClient } from "@/features/guide/components/requests/offer-form-client";
+
+export const metadata: Metadata = {
+  title: "Отправить предложение",
+};
 
 async function getGuideIdFromSession(): Promise<string | null> {
   try {

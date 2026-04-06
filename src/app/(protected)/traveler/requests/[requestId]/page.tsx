@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -18,6 +19,10 @@ import type {
 } from "@/lib/supabase/types";
 
 import { openOfferThreadAction } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Запрос",
+};
 
 const travelerRequestSelect =
   "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";

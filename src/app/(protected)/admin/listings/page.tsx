@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
@@ -8,6 +9,10 @@ import {
   performModerationAction,
   requireAdminSession,
 } from "@/lib/supabase/moderation";
+
+export const metadata: Metadata = {
+  title: "Туры на проверке",
+};
 
 function formatDateTime(value: string) {
   const date = new Date(value);

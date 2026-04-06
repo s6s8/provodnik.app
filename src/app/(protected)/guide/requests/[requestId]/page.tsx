@@ -1,7 +1,12 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getRequestById } from "@/data/supabase/queries";
 import { GuideRequestDetailScreen } from "@/features/guide/components/requests/guide-request-detail-screen";
+
+export const metadata: Metadata = {
+  title: "Запрос",
+};
 
 export default async function GuideRequestDetailPage({
   params,

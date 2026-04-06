@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getGuideListings } from "@/lib/supabase/listings";
 import type { ListingRow } from "@/lib/supabase/types";
@@ -7,6 +8,10 @@ import {
   pauseListingAction,
   deleteListingAction,
 } from "./actions";
+
+export const metadata: Metadata = {
+  title: "Мои туры",
+};
 
 export default async function GuideListingsPage() {
   let listings: ListingRow[] = [];

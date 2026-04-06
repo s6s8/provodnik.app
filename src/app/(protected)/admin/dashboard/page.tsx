@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { getAdminDashboardStats } from "@/lib/supabase/moderation";
+
+export const metadata: Metadata = {
+  title: "Панель оператора",
+};
 
 const statCards = [
   {
