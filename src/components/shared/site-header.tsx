@@ -133,9 +133,15 @@ export function SiteHeader({
               <Link href="/auth">Войти</Link>
             </Button>
           )}
-          <Button asChild>
-            <Link href="/requests/new">Создать запрос</Link>
-          </Button>
+          {role === "admin" ? null : role === "guide" ? (
+            <Button asChild>
+              <Link href="/requests">Смотреть запросы</Link>
+            </Button>
+          ) : (
+            <Button asChild>
+              <Link href="/requests/new">Создать запрос</Link>
+            </Button>
+          )}
         </div>
       </nav>
     </header>
