@@ -14,20 +14,18 @@ const TG_ICON = (
 
 const projectLinks = [
   { href: "/trust", label: "О нас" },
-  { href: "/#hiw", label: "Как это работает" },
   { href: "/guides", label: "Для гидов" },
 ] as const;
 
 const supportLinks = [
   { href: "/trust", label: "Доверие и безопасность" },
-  { href: "/policies/terms", label: "Условия использования" },
   { href: "mailto:support@provodnik.app", label: "Связаться с нами" },
 ] as const;
 
 const policyLinks = [
   { href: "/policies/terms", label: "Условия использования" },
   { href: "/policies/privacy", label: "Конфиденциальность" },
-  { href: "/policies/privacy", label: "Cookies" },
+  { href: "/policies/cookies", label: "Cookies" },
 ] as const;
 
 const socialLinks = [

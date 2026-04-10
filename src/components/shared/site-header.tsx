@@ -15,7 +15,6 @@ const navLinks = [
   { href: "/requests", label: "Запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
-  { href: "/#hiw", label: "Как это работает" },
 ] as const;
 
 const roleLabels: Record<AppRole, string> = {

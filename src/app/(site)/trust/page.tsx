@@ -15,6 +15,8 @@ export function generateMetadata(): Metadata {
 
 export default function TrustPage() {
   return (
+    <div className="pt-[110px] pb-20 bg-surface">
+    <div className="mx-auto w-full max-w-[860px] px-[clamp(20px,4vw,48px)]">
     <div className="space-y-10">
       <div className="space-y-3">
         <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
@@ -123,6 +125,8 @@ export default function TrustPage() {
           <Link href="/policies/cancellation">Подробнее об отменах и штрафах</Link>
         </Button>
       </div>
+    </div>
+    </div>
     </div>
   );
 }

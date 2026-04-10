@@ -215,23 +215,23 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
               </div>
 
               <div className="mb-7 grid w-fit grid-cols-3 gap-8 border-b border-outline-variant pb-7">
-                <div>
-                  <strong className="block font-display text-[2rem] leading-none text-foreground">
+                <div className="flex flex-col">
+                  <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
                     {rating.toFixed(1)}
                   </strong>
-                  <span className="text-[0.8125rem] text-muted-foreground">рейтинг</span>
+                  <span className="mt-1 text-[0.8125rem] text-muted-foreground">рейтинг</span>
                 </div>
-                <div>
-                  <strong className="block font-display text-[2rem] leading-none text-foreground">
+                <div className="flex flex-col">
+                  <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
                     {totalReviews}
                   </strong>
-                  <span className="text-[0.8125rem] text-muted-foreground">поездок</span>
+                  <span className="mt-1 text-[0.8125rem] text-muted-foreground">поездок</span>
                 </div>
-                <div>
-                  <strong className="block font-display text-[2rem] leading-none text-foreground">
+                <div className="flex flex-col">
+                  <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
                     {guide.yearsExperience}
                   </strong>
-                  <span className="text-[0.8125rem] text-muted-foreground">лет опыта</span>
+                  <span className="mt-1 text-[0.8125rem] text-muted-foreground">лет опыта</span>
                 </div>
               </div>
 
@@ -259,7 +259,7 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
               </div>
 
               <Button asChild>
-                <Link href="/requests/new">Связаться с гидом</Link>
+                <Link href={`/requests/new?guide=${guide.slug}`}>Связаться с гидом</Link>
               </Button>
             </div>
           </div>

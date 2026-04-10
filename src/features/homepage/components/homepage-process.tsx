@@ -42,14 +42,14 @@ export function HomePageProcess() {
             const Icon = step.icon;
             return (
               <div key={step.num} className="flex min-w-0 flex-1 items-center max-md:block">
-                <article className="flex-1 rounded-card bg-surface-high p-7 shadow-card">
-                  <div className="mb-4 flex items-center gap-3">
+                <article className="flex h-full flex-1 flex-col rounded-card bg-surface-high p-7 shadow-card">
+                  <div className="mb-5 flex items-center gap-3">
                     <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-brand/10 text-brand">
                       <Icon className="size-5" strokeWidth={1.75} />
                     </span>
                     <span
                       aria-hidden="true"
-                      className="font-sans text-xs font-semibold tabular-nums text-muted-foreground/60"
+                      className="font-sans text-[0.6875rem] font-semibold tabular-nums leading-none text-muted-foreground/60"
                     >
                       {step.num}
                     </span>
