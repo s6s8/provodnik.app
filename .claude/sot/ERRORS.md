@@ -76,6 +76,22 @@ _Append-only. Never delete entries. Format: ERR-NNN_
 - **Date:** 2026-04-07
 - **Prevention:** `bun run typecheck && bun run lint` must pass before every commit — enforced via hook
 
+### ERR-011: Guide seed avatars — wrong gender photos
+- **Symptom:** Elena Voronina (female) displayed male face photo; Maksim Korolev (male) displayed female face; Maria Grechko (female) same photo as Алексей Соколов
+- **Root Cause:** Unsplash photo IDs copy-pasted without checking gender/uniqueness
+- **Fix:** Updated seed.sql with correct-gender unique Unsplash IDs for three guides
+- **Files Affected:** `supabase/migrations/20260401000002_seed.sql`
+- **Date:** 2026-04-10
+- **Prevention:** When adding seed avatar URLs, verify photo gender matches name and no URL is reused across profiles
+
+### ERR-012: Policy pages text at borders — no container
+- **Symptom:** /trust, /policies/terms, /policies/privacy, /policies/cancellation, /policies/refunds content rendered edge-to-edge with no horizontal padding
+- **Root Cause:** No layout.tsx existed for /policies group; /trust page had no container wrapper
+- **Fix:** Added `src/app/(site)/policies/layout.tsx` with max-w-[860px] + clamp padding; wrapped /trust page content in same container
+- **Files Affected:** `src/app/(site)/policies/layout.tsx` (new), `src/app/(site)/trust/page.tsx`
+- **Date:** 2026-04-10
+- **Prevention:** All public content pages must have a layout with max-w + px-[clamp(20px,4vw,48px)]
+
 ### ERR-007: guide@provodnik.test has no listings
 - **Symptom:** Login as test guide → /guide/listings shows empty state
 - **Root Cause:** Seed listings belong to guide IDs 10000000-...-101 and 10000000-...-102, but test guide ID is 30000000-0000-4000-8000-000000000001
