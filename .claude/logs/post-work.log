@@ -1,0 +1,915 @@
+[2026-04-06 23:22:32] === post-work.sh start ===
+[2026-04-06 23:22:32] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:22:32] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:22:32] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:24:19] === post-work.sh start ===
+[2026-04-06 23:24:19] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:24:19] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:24:19] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:29:47] === post-work.sh start ===
+[2026-04-06 23:29:47] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:29:47] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:29:47] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:35:53] === post-work.sh start ===
+[2026-04-06 23:35:53] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:35:53] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:35:53] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:42:18] === post-work.sh start ===
+[2026-04-06 23:42:18] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:42:18] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:42:18] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:42:36] === post-work.sh start ===
+[2026-04-06 23:42:36] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:42:36] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:42:36] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:43:42] === post-work.sh start ===
+[2026-04-06 23:43:42] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:43:42] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:43:42] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:45:45] === post-work.sh start ===
+[2026-04-06 23:45:45] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:45:45] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:45:45] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:48:51] === post-work.sh start ===
+[2026-04-06 23:48:51] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:48:51] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:48:51] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-06 23:54:33] === post-work.sh start ===
+[2026-04-06 23:54:33] Step 1: Checking for uncommitted changes...
+[2026-04-06 23:54:33] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-06 23:54:33] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:01:19] === post-work.sh start ===
+[2026-04-07 00:01:19] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:01:19] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:01:22] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   1070cd0..e6d8bf4  main -> main
+[2026-04-07 00:01:24] Push successful.
+[2026-04-07 00:01:24] Step 3: Running build check...
+[2026-04-07 00:01:49] Build output (last 5 lines):
+[2026-04-07 00:01:49]   ƒ Proxy (Middleware)
+[2026-04-07 00:01:49]   
+[2026-04-07 00:01:49]   ○  (Static)   prerendered as static content
+[2026-04-07 00:01:49]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:01:49] Build: PASSED
+[2026-04-07 00:01:49] Step 4: Reading Slack state...
+[2026-04-07 00:01:49] Slack state loaded (37 lines).
+[2026-04-07 00:01:49] Step 5: Posting Slack update...
+[2026-04-07 00:01:50] Slack notification sent.
+[2026-04-07 00:01:50] Sending Telegram notification...
+{"ok":true,"result":{"message_id":3219,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775505710,"text":"Provodnik \u2014 push to main\ne6d8bf4 chore: gitignore supabase/.temp, fix CLAUDE.md Linux paths\nBuild: passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":66,"type":"code"}]}}[2026-04-07 00:01:50] Telegram notification sent.
+[2026-04-07 00:01:50] === post-work.sh done ===
+[2026-04-07 00:04:17] === post-work.sh start ===
+[2026-04-07 00:04:17] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:04:17] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:04:20] Already up to date with origin/main.
+[2026-04-07 00:04:20] Step 3: Running build check...
+[2026-04-07 00:04:43] Build output (last 5 lines):
+[2026-04-07 00:04:43]   ƒ Proxy (Middleware)
+[2026-04-07 00:04:43]   
+[2026-04-07 00:04:43]   ○  (Static)   prerendered as static content
+[2026-04-07 00:04:43]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:04:43] Build: PASSED
+[2026-04-07 00:04:43] Step 4: Reading Slack state...
+[2026-04-07 00:04:43] Slack state loaded (37 lines).
+[2026-04-07 00:04:43] Step 5: No push occurred — skipping Slack/Telegram notifications.
+[2026-04-07 00:04:43] === post-work.sh done ===
+[2026-04-07 00:07:03] === post-work.sh start ===
+[2026-04-07 00:07:03] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:07:03] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:07:07] Already up to date with origin/main.
+[2026-04-07 00:07:07] Step 3: Running build check...
+[2026-04-07 00:08:09] === post-work.sh start ===
+[2026-04-07 00:08:09] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:08:09] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:08:12] Already up to date with origin/main.
+[2026-04-07 00:08:12] Step 3: Running build check...
+[2026-04-07 00:08:35] Build output (last 5 lines):
+[2026-04-07 00:08:35]   ƒ Proxy (Middleware)
+[2026-04-07 00:08:35]   
+[2026-04-07 00:08:35]   ○  (Static)   prerendered as static content
+[2026-04-07 00:08:35]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:08:35] Build: PASSED
+[2026-04-07 00:08:35] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:08:35] === post-work.sh done ===
+[2026-04-07 00:09:00] === post-work.sh start ===
+[2026-04-07 00:09:00] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:09:00] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:09:02] Already up to date with origin/main.
+[2026-04-07 00:09:02] Step 3: Running build check...
+[2026-04-07 00:09:25] Build output (last 5 lines):
+[2026-04-07 00:09:25]   ƒ Proxy (Middleware)
+[2026-04-07 00:09:25]   
+[2026-04-07 00:09:25]   ○  (Static)   prerendered as static content
+[2026-04-07 00:09:25]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:09:25] Build: PASSED
+[2026-04-07 00:09:25] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:09:25] === post-work.sh done ===
+[2026-04-07 00:09:38] === post-work.sh start ===
+[2026-04-07 00:09:38] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:09:38] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:09:40] Already up to date with origin/main.
+[2026-04-07 00:09:40] Step 3: Running build check...
+[2026-04-07 00:10:03] Build output (last 5 lines):
+[2026-04-07 00:10:03]   ƒ Proxy (Middleware)
+[2026-04-07 00:10:03]   
+[2026-04-07 00:10:03]   ○  (Static)   prerendered as static content
+[2026-04-07 00:10:03]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:10:03] Build: PASSED
+[2026-04-07 00:10:03] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:10:03] === post-work.sh done ===
+[2026-04-07 00:10:35] === post-work.sh start ===
+[2026-04-07 00:10:35] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:10:35] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:10:38] Already up to date with origin/main.
+[2026-04-07 00:10:38] Step 3: Running build check...
+[2026-04-07 00:11:01] Build output (last 5 lines):
+[2026-04-07 00:11:01]   ƒ Proxy (Middleware)
+[2026-04-07 00:11:01]   
+[2026-04-07 00:11:01]   ○  (Static)   prerendered as static content
+[2026-04-07 00:11:01]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:11:01] Build: PASSED
+[2026-04-07 00:11:01] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:11:01] === post-work.sh done ===
+[2026-04-07 00:12:28] === post-work.sh start ===
+[2026-04-07 00:12:28] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:12:28] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:12:31] Already up to date with origin/main.
+[2026-04-07 00:12:31] Step 3: Running build check...
+[2026-04-07 00:12:54] Build output (last 5 lines):
+[2026-04-07 00:12:54]   ƒ Proxy (Middleware)
+[2026-04-07 00:12:54]   
+[2026-04-07 00:12:54]   ○  (Static)   prerendered as static content
+[2026-04-07 00:12:54]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:12:54] Build: PASSED
+[2026-04-07 00:12:54] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:12:54] === post-work.sh done ===
+[2026-04-07 00:14:07] === post-work.sh start ===
+[2026-04-07 00:14:07] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:14:07] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:14:09] Already up to date with origin/main.
+[2026-04-07 00:14:09] Step 3: Running build check...
+[2026-04-07 00:14:33] Build output (last 5 lines):
+[2026-04-07 00:14:33]   ƒ Proxy (Middleware)
+[2026-04-07 00:14:33]   
+[2026-04-07 00:14:33]   ○  (Static)   prerendered as static content
+[2026-04-07 00:14:33]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:14:33] Build: PASSED
+[2026-04-07 00:14:33] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:14:33] === post-work.sh done ===
+[2026-04-07 00:21:34] === post-work.sh start ===
+[2026-04-07 00:21:34] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:21:34] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:21:37] Already up to date with origin/main.
+[2026-04-07 00:21:37] Step 3: Running build check...
+[2026-04-07 00:22:00] Build output (last 5 lines):
+[2026-04-07 00:22:00]   ƒ Proxy (Middleware)
+[2026-04-07 00:22:00]   
+[2026-04-07 00:22:00]   ○  (Static)   prerendered as static content
+[2026-04-07 00:22:00]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:22:00] Build: PASSED
+[2026-04-07 00:22:00] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:22:00] === post-work.sh done ===
+[2026-04-07 00:31:41] === post-work.sh start ===
+[2026-04-07 00:31:41] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:31:41] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:31:44] Already up to date with origin/main.
+[2026-04-07 00:31:44] Step 3: Running build check...
+[2026-04-07 00:32:08] Build output (last 5 lines):
+[2026-04-07 00:32:08]   ƒ Proxy (Middleware)
+[2026-04-07 00:32:08]   
+[2026-04-07 00:32:08]   ○  (Static)   prerendered as static content
+[2026-04-07 00:32:08]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:32:08] Build: PASSED
+[2026-04-07 00:32:08] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:32:08] === post-work.sh done ===
+[2026-04-07 00:35:11] === post-work.sh start ===
+[2026-04-07 00:35:11] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:35:11] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:35:14] Already up to date with origin/main.
+[2026-04-07 00:35:14] Step 3: Running build check...
+[2026-04-07 00:35:39] Build output (last 5 lines):
+[2026-04-07 00:35:39]   ƒ Proxy (Middleware)
+[2026-04-07 00:35:39]   
+[2026-04-07 00:35:39]   ○  (Static)   prerendered as static content
+[2026-04-07 00:35:39]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:35:39] Build: PASSED
+[2026-04-07 00:35:39] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:35:39] === post-work.sh done ===
+[2026-04-07 00:36:55] === post-work.sh start ===
+[2026-04-07 00:36:55] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:36:55] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:36:58] Already up to date with origin/main.
+[2026-04-07 00:36:58] Step 3: Running build check...
+[2026-04-07 00:37:23] Build output (last 5 lines):
+[2026-04-07 00:37:23]   ƒ Proxy (Middleware)
+[2026-04-07 00:37:23]   
+[2026-04-07 00:37:23]   ○  (Static)   prerendered as static content
+[2026-04-07 00:37:23]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:37:23] Build: PASSED
+[2026-04-07 00:37:23] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:37:23] === post-work.sh done ===
+[2026-04-07 00:39:22] === post-work.sh start ===
+[2026-04-07 00:39:22] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:39:22] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:39:25] Already up to date with origin/main.
+[2026-04-07 00:39:25] Step 3: Running build check...
+[2026-04-07 00:39:49] Build output (last 5 lines):
+[2026-04-07 00:39:49]   ƒ Proxy (Middleware)
+[2026-04-07 00:39:49]   
+[2026-04-07 00:39:49]   ○  (Static)   prerendered as static content
+[2026-04-07 00:39:49]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:39:49] Build: PASSED
+[2026-04-07 00:39:49] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 00:39:49] === post-work.sh done ===
+[2026-04-07 00:55:14] === post-work.sh start ===
+[2026-04-07 00:55:14] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:55:14] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-07 00:55:14] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:55:54] === post-work.sh start ===
+[2026-04-07 00:55:54] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:55:54] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-07 00:55:54] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:56:31] === post-work.sh start ===
+[2026-04-07 00:56:31] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:56:31] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-07 00:56:31] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:57:08] === post-work.sh start ===
+[2026-04-07 00:57:08] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:57:08] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-07 00:57:08] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:57:21] === post-work.sh start ===
+[2026-04-07 00:57:21] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:57:21] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-07 00:57:21] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:57:36] === post-work.sh start ===
+[2026-04-07 00:57:36] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:57:36] Uncommitted changes found — skipping push. Manual commit required.
+[2026-04-07 00:57:36] === post-work.sh done (skipped — dirty workdir) ===
+[2026-04-07 00:59:09] === post-work.sh start ===
+[2026-04-07 00:59:09] Step 1: Checking for uncommitted changes...
+[2026-04-07 00:59:09] Step 2: Checking if ahead of origin/main...
+[2026-04-07 00:59:12] Local is 8 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   116cb1b..62ad6ad  main -> main
+[2026-04-07 00:59:15] Push successful.
+[2026-04-07 00:59:15] Step 3: Running build check...
+[2026-04-07 00:59:38] Build output (last 5 lines):
+[2026-04-07 00:59:38]   ƒ Proxy (Middleware)
+[2026-04-07 00:59:38]   
+[2026-04-07 00:59:38]   ○  (Static)   prerendered as static content
+[2026-04-07 00:59:38]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 00:59:38] Build: PASSED
+[2026-04-07 00:59:38] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3222,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775509179,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n62ad6ad fix(ux): auth redirect path and guide name genitive\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":59,"type":"code"}]}}[2026-04-07 00:59:39] Telegram ping sent.
+[2026-04-07 00:59:39] === post-work.sh done ===
+[2026-04-07 01:03:03] === post-work.sh start ===
+[2026-04-07 01:03:03] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:03:03] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:03:06] Already up to date with origin/main.
+[2026-04-07 01:03:06] Step 3: Running build check...
+[2026-04-07 01:03:29] Build output (last 5 lines):
+[2026-04-07 01:03:29]   ƒ Proxy (Middleware)
+[2026-04-07 01:03:29]   
+[2026-04-07 01:03:29]   ○  (Static)   prerendered as static content
+[2026-04-07 01:03:29]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:03:29] Build: PASSED
+[2026-04-07 01:03:29] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:03:29] === post-work.sh done ===
+[2026-04-07 01:05:50] === post-work.sh start ===
+[2026-04-07 01:05:50] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:05:50] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:05:53] Already up to date with origin/main.
+[2026-04-07 01:05:53] Step 3: Running build check...
+[2026-04-07 01:06:18] Build output (last 5 lines):
+[2026-04-07 01:06:18]   ƒ Proxy (Middleware)
+[2026-04-07 01:06:18]   
+[2026-04-07 01:06:18]   ○  (Static)   prerendered as static content
+[2026-04-07 01:06:18]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:06:18] Build: PASSED
+[2026-04-07 01:06:18] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:06:18] === post-work.sh done ===
+[2026-04-07 01:08:26] === post-work.sh start ===
+[2026-04-07 01:08:26] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:08:26] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:08:29] Already up to date with origin/main.
+[2026-04-07 01:08:29] Step 3: Running build check...
+[2026-04-07 01:08:52] Build output (last 5 lines):
+[2026-04-07 01:08:52]   ƒ Proxy (Middleware)
+[2026-04-07 01:08:52]   
+[2026-04-07 01:08:52]   ○  (Static)   prerendered as static content
+[2026-04-07 01:08:52]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:08:52] Build: PASSED
+[2026-04-07 01:08:52] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:08:52] === post-work.sh done ===
+[2026-04-07 01:12:01] === post-work.sh start ===
+[2026-04-07 01:12:01] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:12:01] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:12:03] Already up to date with origin/main.
+[2026-04-07 01:12:03] Step 3: Running build check...
+[2026-04-07 01:12:26] Build output (last 5 lines):
+[2026-04-07 01:12:26]   ƒ Proxy (Middleware)
+[2026-04-07 01:12:26]   
+[2026-04-07 01:12:26]   ○  (Static)   prerendered as static content
+[2026-04-07 01:12:26]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:12:26] Build: PASSED
+[2026-04-07 01:12:26] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:12:26] === post-work.sh done ===
+[2026-04-07 01:13:10] === post-work.sh start ===
+[2026-04-07 01:13:10] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:13:10] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:13:12] Already up to date with origin/main.
+[2026-04-07 01:13:12] Step 3: Running build check...
+[2026-04-07 01:13:36] Build output (last 5 lines):
+[2026-04-07 01:13:36]   ƒ Proxy (Middleware)
+[2026-04-07 01:13:36]   
+[2026-04-07 01:13:36]   ○  (Static)   prerendered as static content
+[2026-04-07 01:13:36]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:13:36] Build: PASSED
+[2026-04-07 01:13:36] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:13:36] === post-work.sh done ===
+[2026-04-07 01:14:08] === post-work.sh start ===
+[2026-04-07 01:14:08] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:14:08] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:14:11] Already up to date with origin/main.
+[2026-04-07 01:14:11] Step 3: Running build check...
+[2026-04-07 01:14:34] Build output (last 5 lines):
+[2026-04-07 01:14:34]   ƒ Proxy (Middleware)
+[2026-04-07 01:14:34]   
+[2026-04-07 01:14:34]   ○  (Static)   prerendered as static content
+[2026-04-07 01:14:34]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:14:34] Build: PASSED
+[2026-04-07 01:14:34] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:14:34] === post-work.sh done ===
+[2026-04-07 01:19:29] === post-work.sh start ===
+[2026-04-07 01:19:29] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:19:29] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:19:32] Already up to date with origin/main.
+[2026-04-07 01:19:32] Step 3: Running build check...
+[2026-04-07 01:19:56] Build output (last 5 lines):
+[2026-04-07 01:19:56]   ƒ Proxy (Middleware)
+[2026-04-07 01:19:56]   
+[2026-04-07 01:19:56]   ○  (Static)   prerendered as static content
+[2026-04-07 01:19:56]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:19:56] Build: PASSED
+[2026-04-07 01:19:56] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:19:56] === post-work.sh done ===
+[2026-04-07 01:21:07] === post-work.sh start ===
+[2026-04-07 01:21:07] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:21:07] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:21:09] Already up to date with origin/main.
+[2026-04-07 01:21:09] Step 3: Running build check...
+[2026-04-07 01:21:33] Build output (last 5 lines):
+[2026-04-07 01:21:33]   ƒ Proxy (Middleware)
+[2026-04-07 01:21:33]   
+[2026-04-07 01:21:33]   ○  (Static)   prerendered as static content
+[2026-04-07 01:21:33]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:21:33] Build: PASSED
+[2026-04-07 01:21:33] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:21:33] === post-work.sh done ===
+[2026-04-07 01:21:42] === post-work.sh start ===
+[2026-04-07 01:21:42] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:21:42] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:21:44] Already up to date with origin/main.
+[2026-04-07 01:21:44] Step 3: Running build check...
+[2026-04-07 01:22:08] Build output (last 5 lines):
+[2026-04-07 01:22:08]   ƒ Proxy (Middleware)
+[2026-04-07 01:22:08]   
+[2026-04-07 01:22:08]   ○  (Static)   prerendered as static content
+[2026-04-07 01:22:08]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:22:08] Build: PASSED
+[2026-04-07 01:22:08] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:22:08] === post-work.sh done ===
+[2026-04-07 01:53:11] === post-work.sh start ===
+[2026-04-07 01:53:11] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:53:11] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:53:14] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   62ad6ad..b8d2cef  main -> main
+[2026-04-07 01:53:18] Push successful.
+[2026-04-07 01:53:18] Step 3: Running build check...
+[2026-04-07 01:53:42] Build output (last 5 lines):
+[2026-04-07 01:53:42]   ƒ Proxy (Middleware)
+[2026-04-07 01:53:42]   
+[2026-04-07 01:53:42]   ○  (Static)   prerendered as static content
+[2026-04-07 01:53:42]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:53:42] Build: PASSED
+[2026-04-07 01:53:42] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3223,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775512422,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\nb8d2cef design: full page audit \u2014 fix data bugs + redesign pass\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":63,"type":"code"}]}}[2026-04-07 01:53:42] Telegram ping sent.
+[2026-04-07 01:53:42] === post-work.sh done ===
+[2026-04-07 01:53:52] === post-work.sh start ===
+[2026-04-07 01:53:52] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:53:52] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:53:55] Already up to date with origin/main.
+[2026-04-07 01:53:55] Step 3: Running build check...
+[2026-04-07 01:54:18] Build output (last 5 lines):
+[2026-04-07 01:54:18]   ƒ Proxy (Middleware)
+[2026-04-07 01:54:18]   
+[2026-04-07 01:54:18]   ○  (Static)   prerendered as static content
+[2026-04-07 01:54:18]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:54:18] Build: PASSED
+[2026-04-07 01:54:18] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:54:18] === post-work.sh done ===
+[2026-04-07 01:55:06] === post-work.sh start ===
+[2026-04-07 01:55:06] Step 1: Checking for uncommitted changes...
+[2026-04-07 01:55:06] Step 2: Checking if ahead of origin/main...
+[2026-04-07 01:55:08] Already up to date with origin/main.
+[2026-04-07 01:55:08] Step 3: Running build check...
+[2026-04-07 01:55:31] Build output (last 5 lines):
+[2026-04-07 01:55:31]   ƒ Proxy (Middleware)
+[2026-04-07 01:55:31]   
+[2026-04-07 01:55:31]   ○  (Static)   prerendered as static content
+[2026-04-07 01:55:31]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 01:55:31] Build: PASSED
+[2026-04-07 01:55:31] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 01:55:31] === post-work.sh done ===
+[2026-04-07 02:07:23] === post-work.sh start ===
+[2026-04-07 02:07:23] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:07:23] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:07:25] Already up to date with origin/main.
+[2026-04-07 02:07:25] Step 3: Running build check...
+[2026-04-07 02:07:51] Build output (last 5 lines):
+[2026-04-07 02:07:51]   ƒ Proxy (Middleware)
+[2026-04-07 02:07:51]   
+[2026-04-07 02:07:51]   ○  (Static)   prerendered as static content
+[2026-04-07 02:07:51]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:07:51] Build: PASSED
+[2026-04-07 02:07:51] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:07:51] === post-work.sh done ===
+[2026-04-07 02:12:45] === post-work.sh start ===
+[2026-04-07 02:12:45] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:12:45] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:12:48] Already up to date with origin/main.
+[2026-04-07 02:12:48] Step 3: Running build check...
+[2026-04-07 02:13:12] Build output (last 5 lines):
+[2026-04-07 02:13:12]   ƒ Proxy (Middleware)
+[2026-04-07 02:13:12]   
+[2026-04-07 02:13:12]   ○  (Static)   prerendered as static content
+[2026-04-07 02:13:12]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:13:12] Build: PASSED
+[2026-04-07 02:13:12] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:13:12] === post-work.sh done ===
+[2026-04-07 02:14:29] === post-work.sh start ===
+[2026-04-07 02:14:29] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:14:29] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:14:31] Local is 2 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   b8d2cef..6108843  main -> main
+[2026-04-07 02:14:35] Push successful.
+[2026-04-07 02:14:35] Step 3: Running build check...
+[2026-04-07 02:14:58] Build output (last 5 lines):
+[2026-04-07 02:14:58]   ƒ Proxy (Middleware)
+[2026-04-07 02:14:58]   
+[2026-04-07 02:14:58]   ○  (Static)   prerendered as static content
+[2026-04-07 02:14:58]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:14:58] Build: PASSED
+[2026-04-07 02:14:58] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3226,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775513698,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n6108843 design(guide): rich empty state for listings + fix header tracking\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":74,"type":"code"}]}}[2026-04-07 02:14:58] Telegram ping sent.
+[2026-04-07 02:14:58] === post-work.sh done ===
+[2026-04-07 02:16:10] === post-work.sh start ===
+[2026-04-07 02:16:10] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:16:10] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:16:12] Already up to date with origin/main.
+[2026-04-07 02:16:12] Step 3: Running build check...
+[2026-04-07 02:16:35] Build output (last 5 lines):
+[2026-04-07 02:16:35]   ƒ Proxy (Middleware)
+[2026-04-07 02:16:35]   
+[2026-04-07 02:16:35]   ○  (Static)   prerendered as static content
+[2026-04-07 02:16:35]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:16:35] Build: PASSED
+[2026-04-07 02:16:35] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:16:35] === post-work.sh done ===
+[2026-04-07 02:17:03] === post-work.sh start ===
+[2026-04-07 02:17:03] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:17:03] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:17:05] Already up to date with origin/main.
+[2026-04-07 02:17:05] Step 3: Running build check...
+[2026-04-07 02:17:28] Build output (last 5 lines):
+[2026-04-07 02:17:28]   ƒ Proxy (Middleware)
+[2026-04-07 02:17:28]   
+[2026-04-07 02:17:28]   ○  (Static)   prerendered as static content
+[2026-04-07 02:17:28]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:17:28] Build: PASSED
+[2026-04-07 02:17:28] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:17:28] === post-work.sh done ===
+[2026-04-07 02:24:53] === post-work.sh start ===
+[2026-04-07 02:24:53] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:24:53] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:24:55] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   6108843..96f67f6  main -> main
+[2026-04-07 02:24:58] Push successful.
+[2026-04-07 02:24:58] Step 3: Running build check...
+[2026-04-07 02:25:22] Build output (last 5 lines):
+[2026-04-07 02:25:22]   ƒ Proxy (Middleware)
+[2026-04-07 02:25:22]   
+[2026-04-07 02:25:22]   ○  (Static)   prerendered as static content
+[2026-04-07 02:25:22]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:25:22] Build: PASSED
+[2026-04-07 02:25:22] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3227,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775514322,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n96f67f6 fix(guide-card): replace hardcoded white tokens with design tokens\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":74,"type":"code"}]}}[2026-04-07 02:25:22] Telegram ping sent.
+[2026-04-07 02:25:22] === post-work.sh done ===
+[2026-04-07 02:29:20] === post-work.sh start ===
+[2026-04-07 02:29:20] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:29:20] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:29:23] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   96f67f6..98f34c0  main -> main
+[2026-04-07 02:29:25] Push successful.
+[2026-04-07 02:29:25] Step 3: Running build check...
+[2026-04-07 02:29:49] Build output (last 5 lines):
+[2026-04-07 02:29:49]   ƒ Proxy (Middleware)
+[2026-04-07 02:29:49]   
+[2026-04-07 02:29:49]   ○  (Static)   prerendered as static content
+[2026-04-07 02:29:49]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:29:49] Build: PASSED
+[2026-04-07 02:29:49] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3228,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775514589,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n98f34c0 design: final polish pass \u2014 admin header, guide stars, listing pills\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":76,"type":"code"}]}}[2026-04-07 02:29:49] Telegram ping sent.
+[2026-04-07 02:29:49] === post-work.sh done ===
+[2026-04-07 02:35:06] === post-work.sh start ===
+[2026-04-07 02:35:06] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:35:06] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:35:08] Already up to date with origin/main.
+[2026-04-07 02:35:08] Step 3: Running build check...
+[2026-04-07 02:35:33] Build output (last 5 lines):
+[2026-04-07 02:35:33]   ƒ Proxy (Middleware)
+[2026-04-07 02:35:33]   
+[2026-04-07 02:35:33]   ○  (Static)   prerendered as static content
+[2026-04-07 02:35:33]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:35:33] Build: PASSED
+[2026-04-07 02:35:33] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:35:33] === post-work.sh done ===
+[2026-04-07 02:36:00] === post-work.sh start ===
+[2026-04-07 02:36:00] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:36:00] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:36:03] Already up to date with origin/main.
+[2026-04-07 02:36:03] Step 3: Running build check...
+[2026-04-07 02:37:00] Build output (last 5 lines):
+[2026-04-07 02:37:00]   ƒ Proxy (Middleware)
+[2026-04-07 02:37:00]   
+[2026-04-07 02:37:00]   ○  (Static)   prerendered as static content
+[2026-04-07 02:37:00]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:37:00] Build: PASSED
+[2026-04-07 02:37:00] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:37:00] === post-work.sh done ===
+[2026-04-07 02:38:37] === post-work.sh start ===
+[2026-04-07 02:38:37] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:38:37] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:38:40] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   98f34c0..426c994  main -> main
+[2026-04-07 02:38:42] Push successful.
+[2026-04-07 02:38:42] Step 3: Running build check...
+[2026-04-07 02:39:06] Build output (last 5 lines):
+[2026-04-07 02:39:06]   ƒ Proxy (Middleware)
+[2026-04-07 02:39:06]   
+[2026-04-07 02:39:06]   ○  (Static)   prerendered as static content
+[2026-04-07 02:39:06]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:39:06] Build: PASSED
+[2026-04-07 02:39:06] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3230,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775515146,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n426c994 fix(lint): replace null-as-any with createSupabaseServerClient in route pages\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":85,"type":"code"}]}}[2026-04-07 02:39:06] Telegram ping sent.
+[2026-04-07 02:39:06] === post-work.sh done ===
+[2026-04-07 02:40:19] === post-work.sh start ===
+[2026-04-07 02:40:19] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:40:19] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:40:22] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   426c994..070fb29  main -> main
+[2026-04-07 02:40:24] Push successful.
+[2026-04-07 02:40:24] Step 3: Running build check...
+[2026-04-07 02:40:47] Build output (last 5 lines):
+[2026-04-07 02:40:47]   ƒ Proxy (Middleware)
+[2026-04-07 02:40:47]   
+[2026-04-07 02:40:47]   ○  (Static)   prerendered as static content
+[2026-04-07 02:40:47]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:40:47] Build: PASSED
+[2026-04-07 02:40:47] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3232,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775515247,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n070fb29 fix(lint): type any Props in feature screens\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":52,"type":"code"}]}}[2026-04-07 02:40:48] Telegram ping sent.
+[2026-04-07 02:40:48] === post-work.sh done ===
+[2026-04-07 02:44:20] === post-work.sh start ===
+[2026-04-07 02:44:20] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:44:20] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:44:22] Local is 2 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   070fb29..93b7da4  main -> main
+[2026-04-07 02:44:25] Push successful.
+[2026-04-07 02:44:25] Step 3: Running build check...
+[2026-04-07 02:44:47] Build output (last 5 lines):
+[2026-04-07 02:44:47]   ƒ Proxy (Middleware)
+[2026-04-07 02:44:47]   
+[2026-04-07 02:44:47]   ○  (Static)   prerendered as static content
+[2026-04-07 02:44:47]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:44:47] Build: PASSED
+[2026-04-07 02:44:47] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3234,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775515488,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n93b7da4 fix(lint): resolve all remaining errors and warnings\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":60,"type":"code"}]}}[2026-04-07 02:44:48] Telegram ping sent.
+[2026-04-07 02:44:48] === post-work.sh done ===
+[2026-04-07 02:45:56] === post-work.sh start ===
+[2026-04-07 02:45:56] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:45:56] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:46:00] Local is 1 commit(s) ahead of origin/main — pushing...
+remote: 
+remote: GitHub found 13 vulnerabilities on s6s8/provodnik.app's default branch (4 high, 8 moderate, 1 low). To find out more, visit:        
+remote:      https://github.com/s6s8/provodnik.app/security/dependabot        
+remote: 
+To github.com:s6s8/provodnik.app.git
+   93b7da4..008e63a  main -> main
+[2026-04-07 02:46:02] Push successful.
+[2026-04-07 02:46:02] Step 3: Running build check...
+[2026-04-07 02:46:24] Build output (last 5 lines):
+[2026-04-07 02:46:24]   ƒ Proxy (Middleware)
+[2026-04-07 02:46:24]   
+[2026-04-07 02:46:24]   ○  (Static)   prerendered as static content
+[2026-04-07 02:46:24]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:46:24] Build: PASSED
+[2026-04-07 02:46:24] Step 4: Sending Telegram push ping...
+{"ok":true,"result":{"message_id":3235,"from":{"id":290060382,"is_bot":true,"first_name":"Jarvis","username":"ssJarvisBot"},"chat":{"id":109577644,"first_name":"\u03df\ud83d\udda4\u03df","username":"CarbonChiron","type":"private"},"date":1775515585,"text":"\u041f\u0440\u043e\u0432\u043e\u0434\u043d\u0438\u043a \u2014 push to main\n008e63a chore(workflow): enforce bun run lint in hooks, docs, acceptance criteria\nBuild: \u2705 passed","entities":[{"offset":0,"length":24,"type":"bold"},{"offset":25,"length":81,"type":"code"}]}}[2026-04-07 02:46:25] Telegram ping sent.
+[2026-04-07 02:46:25] === post-work.sh done ===
+[2026-04-07 02:53:40] === post-work.sh start ===
+[2026-04-07 02:53:40] Step 1: Checking for uncommitted changes...
+[2026-04-07 02:53:40] Step 2: Checking if ahead of origin/main...
+[2026-04-07 02:53:44] Already up to date with origin/main.
+[2026-04-07 02:53:44] Step 3: Running build check...
+[2026-04-07 02:54:06] Build output (last 5 lines):
+[2026-04-07 02:54:06]   ƒ Proxy (Middleware)
+[2026-04-07 02:54:06]   
+[2026-04-07 02:54:06]   ○  (Static)   prerendered as static content
+[2026-04-07 02:54:06]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 02:54:06] Build: PASSED
+[2026-04-07 02:54:06] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 02:54:06] === post-work.sh done ===
+[2026-04-07 03:02:48] === post-work.sh start ===
+[2026-04-07 03:02:48] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:02:48] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:02:51] Already up to date with origin/main.
+[2026-04-07 03:02:51] Step 3: Running build check...
+[2026-04-07 03:03:13] Build output (last 5 lines):
+[2026-04-07 03:03:13]   ƒ Proxy (Middleware)
+[2026-04-07 03:03:13]   
+[2026-04-07 03:03:13]   ○  (Static)   prerendered as static content
+[2026-04-07 03:03:13]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:03:13] Build: PASSED
+[2026-04-07 03:03:13] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:03:13] === post-work.sh done ===
+[2026-04-07 03:11:39] === post-work.sh start ===
+[2026-04-07 03:11:39] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:11:39] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:11:42] Already up to date with origin/main.
+[2026-04-07 03:11:42] Step 3: Running build check...
+[2026-04-07 03:12:04] Build output (last 5 lines):
+[2026-04-07 03:12:04]   ƒ Proxy (Middleware)
+[2026-04-07 03:12:04]   
+[2026-04-07 03:12:04]   ○  (Static)   prerendered as static content
+[2026-04-07 03:12:04]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:12:04] Build: PASSED
+[2026-04-07 03:12:04] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:12:04] === post-work.sh done ===
+[2026-04-07 03:17:41] === post-work.sh start ===
+[2026-04-07 03:17:41] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:17:41] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:17:44] Already up to date with origin/main.
+[2026-04-07 03:17:44] Step 3: Running build check...
+[2026-04-07 03:17:55] Build output (last 5 lines):
+[2026-04-07 03:17:55]       at <unknown> ([next]/internal/font/google/cormorant_garamond_b1a9a6c3.module.css:125:9)
+[2026-04-07 03:17:55]       at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[2026-04-07 03:17:55]       at <unknown> ([next]/internal/font/google/cormorant_garamond_b1a9a6c3.module.css:170:9)
+[2026-04-07 03:17:55]       at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[2026-04-07 03:17:55]   error: script "build" exited with code 1
+[2026-04-07 03:17:55] Build: PASSED
+[2026-04-07 03:17:55] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:17:55] === post-work.sh done ===
+[2026-04-07 03:24:29] === post-work.sh start ===
+[2026-04-07 03:24:29] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:24:29] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:24:32] Already up to date with origin/main.
+[2026-04-07 03:24:32] Step 3: Running build check...
+[2026-04-07 03:24:55] Build output (last 5 lines):
+[2026-04-07 03:24:55]   ƒ Proxy (Middleware)
+[2026-04-07 03:24:55]   
+[2026-04-07 03:24:55]   ○  (Static)   prerendered as static content
+[2026-04-07 03:24:55]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:24:55] Build: PASSED
+[2026-04-07 03:24:55] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:24:55] === post-work.sh done ===
+[2026-04-07 03:27:57] === post-work.sh start ===
+[2026-04-07 03:27:57] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:27:57] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:28:00] Already up to date with origin/main.
+[2026-04-07 03:28:00] Step 3: Running build check...
+[2026-04-07 03:28:11] === post-work.sh start ===
+[2026-04-07 03:28:11] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:28:11] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:28:13] Already up to date with origin/main.
+[2026-04-07 03:28:13] Step 3: Running build check...
+[2026-04-07 03:28:35] Build output (last 5 lines):
+[2026-04-07 03:28:35]   ƒ Proxy (Middleware)
+[2026-04-07 03:28:35]   
+[2026-04-07 03:28:35]   ○  (Static)   prerendered as static content
+[2026-04-07 03:28:35]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:28:35] Build: PASSED
+[2026-04-07 03:28:35] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:28:35] === post-work.sh done ===
+[2026-04-07 03:32:13] === post-work.sh start ===
+[2026-04-07 03:32:13] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:32:13] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:32:15] Already up to date with origin/main.
+[2026-04-07 03:32:15] Step 3: Running build check...
+[2026-04-07 03:32:38] Build output (last 5 lines):
+[2026-04-07 03:32:38]   ƒ Proxy (Middleware)
+[2026-04-07 03:32:38]   
+[2026-04-07 03:32:38]   ○  (Static)   prerendered as static content
+[2026-04-07 03:32:38]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:32:38] Build: PASSED
+[2026-04-07 03:32:38] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:32:38] === post-work.sh done ===
+[2026-04-07 03:34:16] === post-work.sh start ===
+[2026-04-07 03:34:16] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:34:16] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:34:18] Already up to date with origin/main.
+[2026-04-07 03:34:18] Step 3: Running build check...
+[2026-04-07 03:34:47] Build output (last 5 lines):
+[2026-04-07 03:34:47]   ƒ Proxy (Middleware)
+[2026-04-07 03:34:47]   
+[2026-04-07 03:34:47]   ○  (Static)   prerendered as static content
+[2026-04-07 03:34:47]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:34:47] Build: PASSED
+[2026-04-07 03:34:47] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:34:47] === post-work.sh done ===
+[2026-04-07 03:45:01] === post-work.sh start ===
+[2026-04-07 03:45:01] Step 1: Checking for uncommitted changes...
+[2026-04-07 03:45:01] Step 2: Checking if ahead of origin/main...
+[2026-04-07 03:45:04] Already up to date with origin/main.
+[2026-04-07 03:45:04] Step 3: Running build check...
+[2026-04-07 03:45:26] Build output (last 5 lines):
+[2026-04-07 03:45:26]   ƒ Proxy (Middleware)
+[2026-04-07 03:45:26]   
+[2026-04-07 03:45:26]   ○  (Static)   prerendered as static content
+[2026-04-07 03:45:26]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 03:45:26] Build: PASSED
+[2026-04-07 03:45:26] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 03:45:26] === post-work.sh done ===
+[2026-04-07 04:11:25] === post-work.sh start ===
+[2026-04-07 04:11:25] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:11:25] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:11:28] Already up to date with origin/main.
+[2026-04-07 04:11:28] Step 3: Running build check...
+[2026-04-07 04:11:50] Build output (last 5 lines):
+[2026-04-07 04:11:50]   ƒ Proxy (Middleware)
+[2026-04-07 04:11:50]   
+[2026-04-07 04:11:50]   ○  (Static)   prerendered as static content
+[2026-04-07 04:11:50]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 04:11:50] Build: PASSED
+[2026-04-07 04:11:50] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 04:11:50] === post-work.sh done ===
+[2026-04-07 04:15:48] === post-work.sh start ===
+[2026-04-07 04:15:48] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:15:48] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:15:51] Already up to date with origin/main.
+[2026-04-07 04:15:51] Step 3: Running build check...
+[2026-04-07 04:17:16] === post-work.sh start ===
+[2026-04-07 04:17:16] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:17:16] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:17:19] Already up to date with origin/main.
+[2026-04-07 04:17:19] Step 3: Running build check...
+[2026-04-07 04:17:40] Build output (last 5 lines):
+[2026-04-07 04:17:40]   ƒ Proxy (Middleware)
+[2026-04-07 04:17:40]   
+[2026-04-07 04:17:40]   ○  (Static)   prerendered as static content
+[2026-04-07 04:17:40]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 04:17:40] Build: PASSED
+[2026-04-07 04:17:40] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 04:17:40] === post-work.sh done ===
+[2026-04-07 04:21:03] === post-work.sh start ===
+[2026-04-07 04:21:03] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:21:03] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:21:06] Already up to date with origin/main.
+[2026-04-07 04:21:06] Step 3: Running build check...
+[2026-04-07 04:28:12] === post-work.sh start ===
+[2026-04-07 04:28:12] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:28:12] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:28:15] Already up to date with origin/main.
+[2026-04-07 04:28:15] Step 3: Running build check...
+[2026-04-07 04:28:37] Build output (last 5 lines):
+[2026-04-07 04:28:37]   ƒ Proxy (Middleware)
+[2026-04-07 04:28:37]   
+[2026-04-07 04:28:37]   ○  (Static)   prerendered as static content
+[2026-04-07 04:28:37]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 04:28:37] Build: PASSED
+[2026-04-07 04:28:37] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 04:28:37] === post-work.sh done ===
+[2026-04-07 04:33:22] === post-work.sh start ===
+[2026-04-07 04:33:22] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:33:22] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:33:24] Already up to date with origin/main.
+[2026-04-07 04:33:24] Step 3: Running build check...
+[2026-04-07 04:33:35] Build output (last 5 lines):
+[2026-04-07 04:33:35]       at <unknown> ([next]/internal/font/google/cormorant_garamond_b1a9a6c3.module.css:116:9)
+[2026-04-07 04:33:35]       at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[2026-04-07 04:33:35]       at <unknown> ([next]/internal/font/google/cormorant_garamond_b1a9a6c3.module.css:161:9)
+[2026-04-07 04:33:35]       at <unknown> (https://nextjs.org/docs/messages/module-not-found)
+[2026-04-07 04:33:35]   error: script "build" exited with code 1
+[2026-04-07 04:33:35] Build: PASSED
+[2026-04-07 04:33:35] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 04:33:35] === post-work.sh done ===
+[2026-04-07 04:40:08] === post-work.sh start ===
+[2026-04-07 04:40:08] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:40:08] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:40:10] Already up to date with origin/main.
+[2026-04-07 04:40:10] Step 3: Running build check...
+[2026-04-07 04:40:32] Build output (last 5 lines):
+[2026-04-07 04:40:32]   ƒ Proxy (Middleware)
+[2026-04-07 04:40:32]   
+[2026-04-07 04:40:32]   ○  (Static)   prerendered as static content
+[2026-04-07 04:40:32]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 04:40:32] Build: PASSED
+[2026-04-07 04:40:32] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 04:40:32] === post-work.sh done ===
+[2026-04-07 04:40:40] === post-work.sh start ===
+[2026-04-07 04:40:40] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:40:40] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:40:43] Already up to date with origin/main.
+[2026-04-07 04:40:43] Step 3: Running build check...
+[2026-04-07 04:47:20] === post-work.sh start ===
+[2026-04-07 04:47:20] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:47:20] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:47:23] Already up to date with origin/main.
+[2026-04-07 04:47:23] Step 3: Running build check...
+[2026-04-07 04:47:56] Build output (last 5 lines):
+[2026-04-07 04:47:56]   ƒ Proxy (Middleware)
+[2026-04-07 04:47:56]   
+[2026-04-07 04:47:56]   ○  (Static)   prerendered as static content
+[2026-04-07 04:47:56]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 04:47:56] Build: PASSED
+[2026-04-07 04:47:56] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 04:47:56] === post-work.sh done ===
+[2026-04-07 04:53:08] === post-work.sh start ===
+[2026-04-07 04:53:08] Step 1: Checking for uncommitted changes...
+[2026-04-07 04:53:08] Step 2: Checking if ahead of origin/main...
+[2026-04-07 04:53:11] Already up to date with origin/main.
+[2026-04-07 04:53:11] Step 3: Running build check...
+[2026-04-07 06:02:07] === post-work.sh start ===
+[2026-04-07 06:02:07] Step 1: Checking for uncommitted changes...
+[2026-04-07 06:02:07] Step 2: Checking if ahead of origin/main...
+[2026-04-07 06:02:09] Already up to date with origin/main.
+[2026-04-07 06:02:09] Step 3: Running build check...
+[2026-04-07 06:02:31] Build output (last 5 lines):
+[2026-04-07 06:02:31]   ƒ Proxy (Middleware)
+[2026-04-07 06:02:31]   
+[2026-04-07 06:02:31]   ○  (Static)   prerendered as static content
+[2026-04-07 06:02:31]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 06:02:31] Build: PASSED
+[2026-04-07 06:02:31] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 06:02:31] === post-work.sh done ===
+[2026-04-07 07:58:50] === post-work.sh start ===
+[2026-04-07 07:58:50] Step 1: Checking for uncommitted changes...
+[2026-04-07 07:58:50] Step 2: Checking if ahead of origin/main...
+[2026-04-07 07:59:05] Already up to date with origin/main.
+[2026-04-07 07:59:05] Step 3: Running build check...
+[2026-04-07 07:59:31] Build output (last 5 lines):
+[2026-04-07 07:59:31]   ƒ Proxy (Middleware)
+[2026-04-07 07:59:31]   
+[2026-04-07 07:59:31]   ○  (Static)   prerendered as static content
+[2026-04-07 07:59:31]   ƒ  (Dynamic)  server-rendered on demand
+[2026-04-07 07:59:31] Build: PASSED
+[2026-04-07 07:59:31] Step 4: No push occurred — skipping Telegram ping.
+[2026-04-07 07:59:31] === post-work.sh done ===
+[2026-04-09 16:52:16] === post-work.sh start ===
+[2026-04-09 16:52:16] Step 1: Checking for uncommitted changes...
+[2026-04-09 16:52:16] Step 2: Checking if ahead of origin/main...
+[2026-04-09 16:52:22] Already up to date with origin/main.
+[2026-04-09 16:52:22] Step 3: Running build check...
