@@ -189,6 +189,19 @@ export type GuideProfileRow = {
   payout_account_label: string | null;
   created_at: string;
   updated_at: string;
+  // Tripster v1 additions
+  legal_status: "self_employed" | "individual" | "company" | null;
+  inn: string | null;
+  document_country: string | null;
+  is_tour_operator: boolean;
+  tour_operator_registry_number: string | null;
+  average_rating: number;
+  response_rate: number;
+  review_count: number;
+  contact_visibility_unlocked: boolean;
+  locale: string;
+  preferred_currency: string;
+  notification_prefs: Record<string, unknown>;
 };
 
 export type GuideProfileOnboardingPersistenceRow = Pick<
@@ -241,6 +254,33 @@ export type ListingRow = {
   featured_rank: number | null;
   created_at: string;
   updated_at: string;
+  // Tripster v1 additions
+  exp_type: "excursion" | "waterwalk" | "masterclass" | "photosession" | "quest" | "activity" | "tour" | "transfer" | null;
+  format: "group" | "private" | "combo" | null;
+  movement_type: string | null;
+  languages: string[];
+  currencies: string[];
+  idea: string | null;
+  route: string | null;
+  theme: string | null;
+  audience: string | null;
+  facts: string | null;
+  org_details: Record<string, unknown> | null;
+  difficulty_level: "easy" | "medium" | "hard" | "extreme" | null;
+  included: string[];
+  not_included: string[];
+  accommodation: Record<string, unknown> | null;
+  deposit_rate: number;
+  pickup_point_text: string | null;
+  dropoff_point_text: string | null;
+  vehicle_type: string | null;
+  baggage_allowance: string | null;
+  pii_gate_rate: number;
+  booking_cutoff_hours: number;
+  event_span_hours: number | null;
+  instant_booking: boolean;
+  average_rating: number;
+  review_count: number;
 };
 
 export type StorageAssetKindDb =
@@ -280,6 +320,190 @@ export type ListingMediaRow = {
   is_cover: boolean;
   sort_order: number;
   alt_text: string | null;
+  created_at: string;
+};
+
+// ---------------------------------------------------------------------------
+// Tripster v1 — new table row types
+// ---------------------------------------------------------------------------
+
+export type ListingDayRow = {
+  listing_id: Uuid;
+  day_number: number;
+  title: string | null;
+  body: string | null;
+  date_override: string | null;
+};
+
+export type ListingMealRow = {
+  listing_id: Uuid;
+  day_number: number;
+  meal_type: "breakfast" | "lunch" | "dinner";
+  status: "included" | "paid_extra" | "not_included";
+  note: string | null;
+};
+
+export type ListingTourDepartureRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  start_date: string;
+  end_date: string;
+  price_minor: number;
+  currency: string;
+  max_persons: number;
+  status: string;
+};
+
+export type ListingTariffRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  label: string;
+  price_minor: number;
+  currency: string | null;
+  min_persons: number | null;
+  max_persons: number | null;
+};
+
+export type ListingScheduleRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  weekday: number | null;
+  time_start: string;
+  time_end: string;
+};
+
+export type ListingScheduleExtraRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  date: string;
+  time_start: string | null;
+  time_end: string | null;
+};
+
+export type ListingLicenseRow = {
+  listing_id: Uuid;
+  license_id: Uuid;
+  scope: string | null;
+};
+
+export type ListingPhotoRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  url: string;
+  position: number;
+  alt_text: string | null;
+};
+
+export type ListingVideoRow = {
+  id: Uuid;
+  listing_id: Uuid;
+  url: string;
+  poster_url: string | null;
+  position: number;
+};
+
+export type ReviewRatingsBreakdownRow = {
+  review_id: Uuid;
+  axis: "material" | "engagement" | "knowledge" | "route";
+  score: number;
+};
+
+export type ReviewReplyRow = {
+  id: Uuid;
+  review_id: Uuid;
+  guide_id: Uuid;
+  body: string;
+  status: "draft" | "pending_review" | "published";
+  submitted_at: string | null;
+  published_at: string | null;
+};
+
+export type FavoritesFolderRow = {
+  id: Uuid;
+  user_id: Uuid;
+  name: string;
+  position: number;
+};
+
+export type FavoritesItemRow = {
+  folder_id: Uuid;
+  listing_id: Uuid;
+  added_at: string;
+};
+
+export type NotificationRow2 = {
+  id: Uuid;
+  user_id: Uuid;
+  event_type: string;
+  payload: Record<string, unknown> | null;
+  channel: "inbox" | "email" | "telegram" | "push" | null;
+  status: "pending" | "sent" | "failed" | "read";
+  created_at: string;
+  read_at: string | null;
+};
+
+export type ReferralCodeRow = {
+  id: Uuid;
+  user_id: Uuid;
+  code: string;
+  created_at: string;
+};
+
+export type ReferralRedemptionRow = {
+  code_id: Uuid;
+  redeemed_by: Uuid;
+  redeemed_at: string;
+};
+
+export type BonusLedgerRow = {
+  id: Uuid;
+  user_id: Uuid;
+  delta: number;
+  reason: string | null;
+  ref_id: Uuid | null;
+  created_at: string;
+};
+
+export type HelpArticleRow = {
+  id: Uuid;
+  slug: string;
+  category: string | null;
+  title: string;
+  body_md: string;
+  position: number;
+};
+
+export type PartnerAccountRow = {
+  id: Uuid;
+  user_id: Uuid;
+  api_token_hash: string;
+  created_at: string;
+};
+
+export type PartnerPayoutsLedgerRow = {
+  id: Uuid;
+  partner_id: Uuid;
+  delta: number;
+  ref_id: Uuid | null;
+  created_at: string;
+};
+
+export type DisputeRow = {
+  id: Uuid;
+  booking_id: Uuid | null;
+  opened_by: Uuid | null;
+  status: "open" | "investigating" | "resolved" | "closed";
+  resolution: string | null;
+  opened_at: string;
+  resolved_at: string | null;
+};
+
+export type DisputeEventRow = {
+  id: Uuid;
+  dispute_id: Uuid;
+  actor_id: Uuid | null;
+  event_type: string | null;
+  payload: Record<string, unknown> | null;
   created_at: string;
 };
 
