@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { notifyNewOffer } from "@/lib/notifications/triggers";
+import { getOrCreateThread } from "@/lib/supabase/conversations";
 import {
   createGuideOffer,
   hasGuideOffered,
@@ -59,6 +60,24 @@ export async function submitOfferAction(
       await notifyNewOffer(requestId, offer.id);
     } catch {
       // Notification delivery must not block offer creation.
+    }
+
+    try {
+      const supabase = await createSupabaseServerClient();
+      const { data: requestRow } = await supabase
+        .from("traveler_requests")
+        .select("traveler_id")
+        .eq("id", requestId)
+        .maybeSingle();
+
+      if (requestRow?.traveler_id && requestRow.traveler_id !== guideId) {
+        await getOrCreateThread("offer", offer.id, guideId, [
+          requestRow.traveler_id as string,
+        ]);
+      }
+    } catch {
+      // Thread creation is best-effort; offer already exists and traveler can
+      // still accept it to auto-create a thread later.
     }
   } catch (err) {
     if (
