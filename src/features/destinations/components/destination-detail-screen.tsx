@@ -77,10 +77,10 @@ export function DestinationDetailScreen({
             ) : null}
 
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-[0.8125rem] font-medium text-white/90 backdrop-blur-[12px]">
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
                 Лучший сезон: весна / лето / осень
               </span>
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-[0.8125rem] font-medium text-white/90 backdrop-blur-[12px]">
+              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
                 Природа · Культура · Гастрономия
               </span>
             </div>
