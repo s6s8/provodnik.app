@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CalendarDays,
@@ -21,15 +22,19 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideBookingStatus } from "@/data/guide-booking/types";
 import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/guide-booking-status";
 import { cn } from "@/lib/utils";
+import { confirmBookingAction } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
 
 type GuideBookingAction = "confirm" | "complete" | "cancel" | "no_show";
 
 export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
+  const router = useRouter();
+  const [isPending, startTransition] = React.useTransition();
   const [record, setRecord] = React.useState<BookingRecord | null>(null);
   const [actionResult, setActionResult] = React.useState<{
     action: GuideBookingAction;
     nextStatus: GuideBookingStatus;
   } | null>(null);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let ignore = false;
@@ -52,13 +57,28 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
     return () => { ignore = true; };
   }, [bookingId]);
 
-  const performAction = React.useCallback(
-    (action: GuideBookingAction) => {
+  const handleConfirm = React.useCallback(() => {
+    if (!record) return;
+    setErrorMessage(null);
+    startTransition(async () => {
+      const result = await confirmBookingAction(bookingId);
+      if (result.ok) {
+        setRecord((prev) => (prev ? { ...prev, status: result.status } : prev));
+        setActionResult({ action: "confirm", nextStatus: "confirmed" });
+        router.refresh();
+      } else {
+        setErrorMessage(result.error);
+      }
+    });
+  }, [bookingId, record, router]);
+
+  const performLocalAction = React.useCallback(
+    (action: Exclude<GuideBookingAction, "confirm">) => {
       if (!record) return;
-      const nextStatus = nextStatusForAction(record.status as GuideBookingStatus, action);
+      const currentGuideStatus = mapDbStatusToGuideStatus(record.status);
+      const nextStatus = nextStatusForAction(currentGuideStatus, action);
       if (!nextStatus) return;
 
-      // Status update is a no-op for now (no local-store); just update UI
       setRecord({ ...record, status: nextStatus });
       setActionResult({ action, nextStatus });
     },
@@ -92,7 +112,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
     );
   }
 
-  const statusTyped = record.status as GuideBookingStatus;
+  const statusTyped = mapDbStatusToGuideStatus(record.status);
   const canConfirm = Boolean(nextStatusForAction(statusTyped, "confirm"));
   const canComplete = Boolean(nextStatusForAction(statusTyped, "complete"));
   const canCancel = Boolean(nextStatusForAction(statusTyped, "cancel"));
@@ -108,7 +128,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
               Бронирования
             </Link>
           </Button>
-          <GuideBookingStatusBadge status={record.status as GuideBookingStatus} />
+          <GuideBookingStatusBadge status={statusTyped} />
         </div>
 
         <div className="space-y-2">
@@ -129,9 +149,18 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
         </div>
       </div>
 
+      {errorMessage ? (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
+        >
+          {errorMessage}
+        </div>
+      ) : null}
+
       {actionResult ? (
         <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-          Статус обновлён локально:{" "}
+          Статус обновлён:{" "}
           <span className="font-medium text-foreground">{actionResult.action}</span>{" "}
           →{" "}
           <span className="font-medium text-foreground">
@@ -150,32 +179,32 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
         <CardContent className="space-y-4">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <ActionButton
-              label="Подтвердить"
+              label={isPending ? "Подтверждаю…" : "Подтвердить"}
               description="Закрепить тур и ожидать гостей."
               icon={<CheckCircle2 className="size-4" />}
-              disabled={!canConfirm}
-              onClick={() => performAction("confirm")}
+              disabled={!canConfirm || isPending}
+              onClick={handleConfirm}
             />
             <ActionButton
               label="Завершить"
               description="Отметить тур как проведённый."
               icon={<CheckCircle2 className="size-4" />}
-              disabled={!canComplete}
-              onClick={() => performAction("complete")}
+              disabled={!canComplete || isPending}
+              onClick={() => performLocalAction("complete")}
             />
             <ActionButton
               label="Отменить"
               description="Зафиксировать отмену со стороны гида или гостя."
               icon={<XCircle className="size-4" />}
-              disabled={!canCancel}
-              onClick={() => performAction("cancel")}
+              disabled={!canCancel || isPending}
+              onClick={() => performLocalAction("cancel")}
             />
             <ActionButton
               label="Неявка"
               description="Гости не пришли к старту тура."
               icon={<ShieldAlert className="size-4" />}
-              disabled={!canNoShow}
-              onClick={() => performAction("no_show")}
+              disabled={!canNoShow || isPending}
+              onClick={() => performLocalAction("no_show")}
             />
           </div>
 
@@ -281,6 +310,27 @@ function formatRub(amount: number) {
   }).format(amount);
 }
 
+
+function mapDbStatusToGuideStatus(status: string): GuideBookingStatus {
+  switch (status) {
+    case "pending":
+    case "awaiting_guide_confirmation":
+    case "awaiting_confirmation":
+      return "awaiting_confirmation";
+    case "confirmed":
+      return "confirmed";
+    case "in_progress":
+      return "in_progress";
+    case "completed":
+      return "completed";
+    case "cancelled":
+      return "cancelled";
+    case "no_show":
+      return "no_show";
+    default:
+      return "awaiting_confirmation";
+  }
+}
 
 function nextStatusForAction(
   current: GuideBookingStatus,

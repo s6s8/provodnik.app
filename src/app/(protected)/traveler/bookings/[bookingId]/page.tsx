@@ -57,8 +57,18 @@ function toStateMachineStatus(s: string) {
     "cancelled",
     "disputed",
   ];
-  return allowed.includes(s as BookingStatus) ? (s as BookingStatus) : "pending";
+  if (allowed.includes(s as BookingStatus)) return s as BookingStatus;
+  if (s === "awaiting_guide_confirmation") return "pending";
+  return "pending";
 }
+
+const BOOKING_HEADINGS: Record<BookingStatus, string> = {
+  pending: "Бронирование ожидает подтверждения",
+  confirmed: "Бронирование подтверждено",
+  completed: "Поездка завершена",
+  cancelled: "Бронирование отменено",
+  disputed: "Открыт спор по бронированию",
+};
 
 function resolveSearchValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -146,7 +156,7 @@ export default async function TravelerBookingDetailPage({
       <div className="py-12">
         <div className="max-w-[640px] mx-auto px-[var(--px)] flex flex-col gap-6">
           <div className="flex items-center gap-4 flex-wrap">
-            <h1 className="font-display text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-[1.05] text-foreground">Бронирование создано</h1>
+            <h1 className="font-display text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-[1.05] text-foreground">{BOOKING_HEADINGS[status]}</h1>
             <BookingStatusBadge status={status} />
           </div>
 
