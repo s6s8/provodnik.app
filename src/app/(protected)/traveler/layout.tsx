@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Bell, BookOpen, Calendar, Heart } from "lucide-react";
 
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
@@ -39,6 +40,15 @@ export default async function TravelerLayout({
   children: ReactNode;
 }) {
   const auth = await readAuthContextFromServer();
+
+  if (!auth.isAuthenticated) {
+    redirect("/auth?next=/traveler/dashboard");
+  }
+
+  if (auth.role && auth.role !== "traveler") {
+    redirect(auth.canonicalRedirectTo ?? "/");
+  }
+
   const initials = getInitials(auth.email);
 
   return (

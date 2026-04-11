@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Users } from "lucide-react";
 import Link from "next/link";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { PublicGuidesGrid } from "@/features/guide/components/public/public-guides-grid";
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -36,7 +36,7 @@ export default async function GuidesPage() {
           Гиды, которые превращают маршрут в историю. Каждый проверен и имеет живые отзывы путешественников.
         </p>
 
-        {guides.length === 0 && (
+        {guides.length === 0 ? (
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
               <Users className="size-6" strokeWidth={1.9} />
@@ -46,38 +46,9 @@ export default async function GuidesPage() {
               Мы подбираем лучших местных знатоков. Совсем скоро здесь появятся проверенные гиды с живыми отзывами.
             </p>
           </div>
+        ) : (
+          <PublicGuidesGrid guides={guides} />
         )}
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {guides.map((guide) => (
-            <Link
-              key={guide.slug}
-              href={`/guides/${guide.slug}`}
-              className="block bg-surface-high rounded-card p-6 shadow-card transition-transform hover:-translate-y-[3px] no-underline text-inherit"
-            >
-              <div className="mb-4 flex items-center gap-4">
-                <Avatar className="size-14">
-                  <AvatarImage src={guide.avatarUrl ?? undefined} alt={guide.fullName} />
-                  <AvatarFallback className="bg-surface-low text-base font-semibold text-primary">
-                    {guide.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-base font-semibold text-on-surface">{guide.fullName}</p>
-                  <p className="text-[0.8125rem] text-on-surface-muted">{guide.homeBase}</p>
-                </div>
-              </div>
-
-              <p className="mb-4 line-clamp-2 text-[0.875rem] leading-[1.55] text-on-surface-muted">
-                {guide.bio}
-              </p>
-
-              <p className="text-[0.8125rem] text-on-surface-muted">
-                <span className="text-amber-500">★</span> {guide.rating} · {guide.reviewCount} отзывов
-              </p>
-            </Link>
-          ))}
-        </div>
 
         {auth.role !== "guide" && (
           <section className="mt-16 rounded-2xl border border-border/60 bg-muted/40 px-8 py-10 text-center">
