@@ -1,10 +1,19 @@
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageSquare } from "lucide-react";
+import { Menu, MessageSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -45,6 +54,7 @@ export function SiteHeader({
   const pathname = usePathname();
   const router = useRouter();
   const { unreadCount } = useUnreadCount(isAuthenticated);
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
   async function handleLogout() {
     const supabase = createSupabaseBrowserClient();
@@ -55,6 +65,10 @@ export function SiteHeader({
 
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const avatarInitial = email ? email[0].toUpperCase() : "?";
+  const dashboardLabel = role ? roleLabels[role] : "Кабинет";
+  const primaryCtaHref = role === "guide" ? "/requests" : "/requests/new";
+  const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
+  const showPrimaryCta = role !== "admin";
 
   return (
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
@@ -141,6 +155,113 @@ export function SiteHeader({
               <Link href="/requests/new">Создать запрос</Link>
             </Button>
           )}
+
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                className="md:hidden"
+                aria-label="Открыть меню"
+              >
+                <Menu className="size-5" aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent
+              side="right"
+              className="bg-background text-foreground border-l border-border"
+            >
+              <SheetHeader>
+                <SheetTitle>Меню</SheetTitle>
+              </SheetHeader>
+              <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Мобильная навигация">
+                {navLinks.map((link) => {
+                  const isHashLink = link.href.includes("#");
+                  const isActive = isHashLink
+                    ? pathname === "/"
+                    : pathname === link.href || pathname.startsWith(`${link.href}/`);
+
+                  return (
+                    <SheetClose asChild key={link.href}>
+                      <Link
+                        href={link.href}
+                        className={cn(
+                          "w-full rounded-md px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-surface-high hover:text-primary",
+                          isActive && "bg-surface-high text-primary",
+                        )}
+                        aria-current={isActive ? "page" : undefined}
+                      >
+                        {link.label}
+                      </Link>
+                    </SheetClose>
+                  );
+                })}
+
+                <div className="mt-2 h-px bg-border" role="separator" />
+
+                {isAuthenticated ? (
+                  <>
+                    {dashboardPath ? (
+                      <SheetClose asChild>
+                        <Link
+                          href={dashboardPath}
+                          className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
+                        >
+                          {dashboardLabel}
+                        </Link>
+                      </SheetClose>
+                    ) : null}
+                    <SheetClose asChild>
+                      <Link
+                        href="/messages"
+                        className="flex w-full items-center justify-between rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
+                      >
+                        <span className="inline-flex items-center gap-2">
+                          <MessageSquare className="size-4" aria-hidden="true" />
+                          Сообщения
+                        </span>
+                        {unreadCount > 0 ? (
+                          <span className="inline-flex h-[1.35rem] min-w-[1.35rem] items-center justify-center rounded-full bg-primary px-[0.35rem] text-[0.6875rem] font-bold leading-none text-white">
+                            {unreadCount > 99 ? "99+" : unreadCount}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Button
+                        variant="ghost"
+                        className="mt-1 w-full justify-start px-3 py-3 text-base font-medium"
+                        onClick={handleLogout}
+                      >
+                        Выйти
+                      </Button>
+                    </SheetClose>
+                  </>
+                ) : (
+                  <>
+                    <SheetClose asChild>
+                      <Link
+                        href="/auth"
+                        className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
+                      >
+                        Войти
+                      </Link>
+                    </SheetClose>
+                    {showPrimaryCta ? (
+                      <SheetClose asChild>
+                        <Link
+                          href={primaryCtaHref}
+                          className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                        >
+                          {primaryCtaLabel}
+                        </Link>
+                      </SheetClose>
+                    ) : null}
+                  </>
+                )}
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </nav>
     </header>
