@@ -237,18 +237,25 @@ export default async function PublicListingDetailPage({
 
                   <Button asChild className="w-full">
                     <Link href={`/requests/new?listing=${listing.slug}${guide ? `&guide=${guide.slug}` : ""}`}>
-                      Забронировать тур
+                      Отправить запрос гиду
                     </Link>
                   </Button>
                   <p className="text-xs text-muted-foreground">
-                    Гид получит ваш запрос и предложит дату и состав группы.
+                    Оплата не взимается на этом шаге. Гид свяжется с вами,
+                    уточнит детали и предложит удобный способ оплаты напрямую.
                   </p>
-                  <Button asChild variant="secondary" className="w-full">
-                    <Link href={`/requests/new?listing=${listing.slug}`}>Создать запрос</Link>
-                  </Button>
                   <Button asChild variant="ghost" className="w-full">
-                    <Link href="/requests">Найти группу</Link>
+                    <Link href="/requests">Найти группу на похожий маршрут</Link>
                   </Button>
+                  <p className="text-center text-[0.7rem] text-muted-foreground">
+                    Нужна помощь?{" "}
+                    <a
+                      href="mailto:hello@provodnik.app?subject=Вопрос%20по%20туру"
+                      className="underline underline-offset-2 hover:text-foreground"
+                    >
+                      Написать менеджеру
+                    </a>
+                  </p>
 
                   {guide ? (
                     <div className="rounded-2xl border border-border/60 bg-background/70 p-4">
