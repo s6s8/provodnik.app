@@ -104,28 +104,20 @@ export function TravelerBookingDetailScreen({
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Подтверждение поездки</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Забронируйте даты с помощью предоплаты. Оставшаяся сумма вносится
-            ближе к началу путешествия.
-          </p>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="size-4 text-muted-foreground" aria-hidden="true" />
+            Оплата
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Итого</p>
-              <p className="mt-1 text-base font-semibold text-foreground">
-                {formatRub(record.priceRub)}
-              </p>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Button className="w-full sm:w-auto" disabled>
-              <CreditCard className="size-4" />
-              Оплатить предоплату (демо)
-            </Button>
-          </div>
+        <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <p>
+            Оплата организуется менеджером Provodnik. После подтверждения
+            бронирования с вами свяжутся, чтобы согласовать способ оплаты и
+            внести предоплату.
+          </p>
+          <p>
+            Сумма тура: {formatRub(record.priceRub)}.
+          </p>
         </CardContent>
       </Card>
 
