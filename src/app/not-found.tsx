@@ -16,7 +16,7 @@ export default function NotFound() {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
           <Button asChild>
             <Link href="/">На главную</Link>
           </Button>

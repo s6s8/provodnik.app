@@ -29,7 +29,7 @@ export default function SiteError({ error, reset }: SiteErrorProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-center gap-3 sm:justify-start">
           <Button type="button" onClick={() => reset()}>
             Повторить
           </Button>
