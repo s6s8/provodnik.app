@@ -188,8 +188,21 @@ export async function confirmListingPhotoUpload(data: {
   const objectPath = storageRelation?.object_path ?? input.objectPath;
   const publicUrl = getPublicUrl("listing-media", objectPath);
 
+  if (isCover) {
+    const { error: updateError } = await supabase
+      .from("listings")
+      .update({ image_url: publicUrl })
+      .eq("id", input.listingId);
+
+    if (updateError) {
+      throw updateError;
+    }
+  }
+
   revalidatePath(`/guide/listings/${input.listingId}`);
   revalidatePath(`/guide/listings/${input.listingId}/edit`);
+  revalidatePath(`/listings/${listing.slug}`);
+  revalidatePath("/listings");
 
   return {
     id: media.id,
