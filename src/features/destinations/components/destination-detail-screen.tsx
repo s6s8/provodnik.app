@@ -127,14 +127,14 @@ export function DestinationDetailScreen({
               <span className="text-sm text-muted-foreground">рейтинг гидов</span>
             </div>
 
-            <div>
-              <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
-                {formingGroupCount > 0
-                  ? `${formingGroupCount} ${pluralize(formingGroupCount, "группа", "группы", "групп")}`
-                  : "—"}
-              </strong>
-              <span className="text-sm text-muted-foreground">формируется сейчас</span>
-            </div>
+            {formingGroupCount > 0 ? (
+              <div>
+                <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
+                  {`${formingGroupCount} ${pluralize(formingGroupCount, "группа", "группы", "групп")}`}
+                </strong>
+                <span className="text-sm text-muted-foreground">формируется сейчас</span>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>

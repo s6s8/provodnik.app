@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
+export type GuideVerificationStatus = "draft" | "submitted" | "approved" | "rejected";
+
 interface Props {
   listingCount: number;
   requestCount: number;
@@ -12,6 +14,44 @@ interface Props {
   guideName: string;
   hasData: boolean;
   isVerified: boolean;
+  verificationStatus: GuideVerificationStatus;
+  verificationNotes?: string | null;
+}
+
+type VerificationStep = {
+  label: string;
+  done: boolean;
+  active?: boolean;
+};
+
+function getVerificationSteps(status: GuideVerificationStatus): VerificationStep[] {
+  switch (status) {
+    case "approved":
+      return [
+        { label: "Заявка подана", done: true },
+        { label: "На проверке", done: true },
+        { label: "Одобрено", done: true },
+      ];
+    case "rejected":
+      return [
+        { label: "Заявка подана", done: true },
+        { label: "Отклонено", done: true },
+        { label: "Одобрено", done: false },
+      ];
+    case "submitted":
+      return [
+        { label: "Заявка подана", done: true },
+        { label: "На проверке", done: true, active: true },
+        { label: "Одобрено", done: false },
+      ];
+    case "draft":
+    default:
+      return [
+        { label: "Заявка подана", done: false, active: true },
+        { label: "На проверке", done: false },
+        { label: "Одобрено", done: false },
+      ];
+  }
 }
 
 type StatCardProps = {
@@ -32,12 +72,6 @@ function StatCard({ count, label }: StatCardProps) {
   );
 }
 
-const verificationSteps = [
-  { label: "Заявка подана", done: true },
-  { label: "На проверке", done: true, active: true },
-  { label: "Одобрено", done: false },
-] as const;
-
 export function GuideDashboardScreen({
   listingCount,
   requestCount,
@@ -45,8 +79,11 @@ export function GuideDashboardScreen({
   guideName,
   hasData,
   isVerified,
+  verificationStatus,
+  verificationNotes,
 }: Props) {
   if (!isVerified) {
+    const verificationSteps = getVerificationSteps(verificationStatus);
     return (
       <div className="space-y-8">
         <div className="space-y-3">
@@ -84,7 +121,7 @@ export function GuideDashboardScreen({
                       }`}
                     >
                       {step.done ? (
-                        "active" in step ? (
+                        step.active ? (
                           <Clock className="size-4" strokeWidth={2} />
                         ) : (
                           <CheckCircle2 className="size-4" strokeWidth={2} />
@@ -95,12 +132,12 @@ export function GuideDashboardScreen({
                     </span>
                     {/* Right connector */}
                     <div
-                      className={`h-0.5 flex-1 ${isLast ? "invisible" : step.done && !("active" in step) ? "bg-brand" : "bg-border"}`}
+                      className={`h-0.5 flex-1 ${isLast ? "invisible" : step.done && !step.active ? "bg-brand" : "bg-border"}`}
                     />
                   </div>
                   <p
                     className={`mt-2 text-center text-xs font-medium leading-tight ${
-                      "active" in step
+                      step.active
                         ? "text-brand"
                         : step.done
                           ? "text-foreground"
@@ -116,6 +153,11 @@ export function GuideDashboardScreen({
           <p className="mt-5 text-sm text-muted-foreground">
             Проверка обычно занимает 1–2 рабочих дня. Мы уведомим вас по email.
           </p>
+          {verificationStatus === "rejected" ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              Заявка отклонена. Проверьте комментарий администратора{verificationNotes ? `: ${verificationNotes}` : "."}
+            </p>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-2 sm:flex-row">

@@ -73,7 +73,7 @@ export default async function DestinationDetailPage({
     imageUrl: d.heroImageUrl,
     description: d.description,
     listingCount: d.listingCount,
-    openRequestCount: d.guidesCount,
+    openRequestCount: 0,
   };
 
   const jsonLd = {

@@ -93,12 +93,12 @@ export default async function PublicListingDetailPage({
     city: l.destinationName,
     region: l.destinationRegion,
     coverImageUrl: l.imageUrl,
-    durationDays: Math.min(3, Math.max(1, l.durationDays)) as 1 | 2 | 3,
+    durationDays: l.durationDays,
     priceFromRub: l.priceRub,
     groupSizeMax: l.groupSize,
     themes: [],
     highlights: l.description ? [l.description] : [l.title],
-    itinerary: [{ title: l.title, description: l.description, durationHours: l.durationDays * 6 }],
+    itinerary: [],
     inclusions: l.inclusions.filter((value): value is PublicListingInclusion => true),
     guideSlug: l.guideSlug,
   };
@@ -201,28 +201,22 @@ export default async function PublicListingDetailPage({
 
               <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
                 <CardHeader>
-                  <CardTitle>Программа по дням</CardTitle>
+                  <CardTitle>Включено</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {listing.itinerary.map((item, index) => (
-                    <div key={`${item.title}-${index}`} className="rounded-2xl border border-border/60 bg-background/60 p-4">
-                      <p className="text-sm font-medium text-foreground">День {index + 1}. {item.title}</p>
-                      <p className="mt-1 text-sm leading-6 text-muted-foreground">{item.description}</p>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
-
-              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
-                <CardHeader>
-                  <CardTitle>Что включено</CardTitle>
-                </CardHeader>
-                <CardContent className="grid gap-4 md:grid-cols-2">
+                <CardContent>
                   <ul className="grid gap-2 text-sm text-muted-foreground">
                     {listing.inclusions.map((item) => (
                       <li key={item}>• {item}</li>
                     ))}
                   </ul>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
+                <CardHeader>
+                  <CardTitle>Не включено</CardTitle>
+                </CardHeader>
+                <CardContent>
                   <ul className="grid gap-2 text-sm text-muted-foreground">
                     <li>• Авиа и ж/д билеты</li>
                     <li>• Личные расходы</li>
@@ -242,9 +236,17 @@ export default async function PublicListingDetailPage({
                   </div>
 
                   <Button asChild className="w-full">
+                    <Link href={`/requests/new?listing=${listing.slug}${guide ? `&guide=${guide.slug}` : ""}`}>
+                      Забронировать тур
+                    </Link>
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    Гид получит ваш запрос и предложит дату и состав группы.
+                  </p>
+                  <Button asChild variant="secondary" className="w-full">
                     <Link href={`/requests/new?listing=${listing.slug}`}>Создать запрос</Link>
                   </Button>
-                  <Button asChild variant="secondary" className="w-full">
+                  <Button asChild variant="ghost" className="w-full">
                     <Link href="/requests">Найти группу</Link>
                   </Button>
 

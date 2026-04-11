@@ -76,30 +76,32 @@ export function SiteHeader({
         className="mx-auto grid max-w-page grid-cols-[auto_1fr_auto] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-6 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
         aria-label="Основная навигация"
       >
-        <Link href="/" className="font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
+        <Link href="/" prefetch={false} className="font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
           Provodnik
         </Link>
 
         <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden" role="list">
-          {navLinks.map((link) => {
-            const isHashLink = link.href.includes("#");
-            const isActive = isHashLink ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`);
+          {navLinks
+            .filter((link) => !(role === "guide" && link.href === "/requests"))
+            .map((link) => {
+              const isHashLink = link.href.includes("#");
+              const isActive = isHashLink ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`);
 
-            return (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={cn(
-                    "relative text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
-                    isActive && "text-primary",
-                  )}
-                  aria-current={isActive ? "page" : undefined}
-                >
-                  {link.label}
-                </Link>
-              </li>
-            );
-          })}
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={cn(
+                      "relative text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
+                      isActive && "text-primary",
+                    )}
+                    aria-current={isActive ? "page" : undefined}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
         </ul>
 
         <div className="flex items-center justify-self-end gap-2">

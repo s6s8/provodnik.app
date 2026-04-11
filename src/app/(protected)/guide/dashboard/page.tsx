@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 
-import { GuideDashboardScreen } from "@/features/guide/components/dashboard/guide-dashboard-screen";
+import {
+  GuideDashboardScreen,
+  type GuideVerificationStatus,
+} from "@/features/guide/components/dashboard/guide-dashboard-screen";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -36,6 +39,8 @@ export default async function GuideDashboardPage() {
   let hasData = false;
   let isVerified = false;
   let guideName = deriveGuideName(auth.email);
+  let verificationStatus: GuideVerificationStatus = "draft";
+  let verificationNotes: string | null = null;
 
   if (auth.isAuthenticated) {
     try {
@@ -50,7 +55,7 @@ export default async function GuideDashboardPage() {
             supabase
               .from("guide_profiles")
               .select(
-                "verification_status, display_name, rating, completed_tours",
+                "verification_status, verification_notes, display_name, rating, completed_tours",
               )
               .eq("user_id", user.id)
               .maybeSingle(),
@@ -69,8 +74,10 @@ export default async function GuideDashboardPage() {
               .eq("status", "open"),
           ]);
 
-        isVerified =
-          guideProfile.data?.verification_status === "approved";
+        verificationStatus =
+          (guideProfile.data?.verification_status as GuideVerificationStatus | undefined) ?? "draft";
+        verificationNotes = guideProfile.data?.verification_notes ?? null;
+        isVerified = verificationStatus === "approved";
         bookingCount = guideBookings.count ?? 0;
         listingCount = guideListings.count ?? 0;
         requestCount = guideRequests.count ?? 0;
@@ -81,6 +88,8 @@ export default async function GuideDashboardPage() {
     } catch {
       hasData = false;
       isVerified = false;
+      verificationStatus = "draft";
+      verificationNotes = null;
     }
   }
 
@@ -92,6 +101,8 @@ export default async function GuideDashboardPage() {
       isVerified={isVerified}
       listingCount={listingCount}
       requestCount={requestCount}
+      verificationStatus={verificationStatus}
+      verificationNotes={verificationNotes}
     />
   );
 }

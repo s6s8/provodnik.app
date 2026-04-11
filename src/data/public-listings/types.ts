@@ -32,7 +32,7 @@ export type PublicListing = {
   city: string;
   region: string;
   coverImageUrl?: string;
-  durationDays: 1 | 2 | 3;
+  durationDays: number;
   priceFromRub: number;
   groupSizeMax: number;
   themes: readonly PublicListingTheme[];
