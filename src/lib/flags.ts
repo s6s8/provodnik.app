@@ -1,0 +1,23 @@
+const env = (k: string, d = "0"): string =>
+  typeof process !== "undefined" && process.env[k] !== undefined ? (process.env[k] as string) : d;
+
+const bool = (k: string): boolean => env(k, "0") === "1";
+
+export const flags = {
+  FEATURE_TRIPSTER_V1: bool("FEATURE_TRIPSTER_V1"),
+  FEATURE_TRIPSTER_TOURS: bool("FEATURE_TRIPSTER_TOURS"),
+  FEATURE_TRIPSTER_KPI: bool("FEATURE_TRIPSTER_KPI"),
+  FEATURE_TRIPSTER_NOTIFICATIONS: bool("FEATURE_TRIPSTER_NOTIFICATIONS"),
+  FEATURE_TRIPSTER_REPUTATION: bool("FEATURE_TRIPSTER_REPUTATION"),
+  FEATURE_TRIPSTER_PERIPHERALS: bool("FEATURE_TRIPSTER_PERIPHERALS"),
+  FEATURE_TRIPSTER_HELP: bool("FEATURE_TRIPSTER_HELP"),
+  FEATURE_TRIPSTER_FAVORITES: bool("FEATURE_TRIPSTER_FAVORITES"),
+  FEATURE_TRIPSTER_PARTNER: bool("FEATURE_TRIPSTER_PARTNER"),
+  FEATURE_TRIPSTER_REFERRALS: bool("FEATURE_TRIPSTER_REFERRALS"),
+  FEATURE_TRIPSTER_QUIZ: bool("FEATURE_TRIPSTER_QUIZ"),
+  FEATURE_TRIPSTER_DISPUTES: bool("FEATURE_TRIPSTER_DISPUTES"),
+  FEATURE_DEPOSITS: bool("FEATURE_DEPOSITS"),
+} as const;
+
+export type FlagName = keyof typeof flags;
+export const isEnabled = (k: FlagName): boolean => flags[k];
