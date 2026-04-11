@@ -41,7 +41,7 @@ export function HomePageDestinations({ destinations }: Props) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[1.35fr_1fr_1fr]">
+        <div className="grid grid-cols-1 gap-3.5 md:grid-cols-[1.35fr_1fr_1fr] md:grid-rows-2">
           {featured ? (
             <Link
               href={`/destinations/${featured.slug}`}
@@ -76,7 +76,7 @@ export function HomePageDestinations({ destinations }: Props) {
             <Link
               key={dest.slug}
               href={`/destinations/${dest.slug}`}
-              className="relative block aspect-[3/2] overflow-hidden rounded-glass bg-ink transition-transform duration-200 hover:-translate-y-[3px]"
+              className="relative block aspect-[3/2] overflow-hidden rounded-glass bg-ink transition-transform duration-200 hover:-translate-y-[3px] md:aspect-auto md:min-h-[225px]"
             >
               <Image
                 src={dest.heroImageUrl}

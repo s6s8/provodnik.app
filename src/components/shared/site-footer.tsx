@@ -33,11 +33,6 @@ const socialLinks = [
   { href: "https://t.me", label: "Telegram", icon: TG_ICON },
 ] as const;
 
-const legalLinks = [
-  { href: "/policies/terms", label: "Условия" },
-  { href: "/policies/privacy", label: "Конфиденциальность" },
-] as const;
-
 export function SiteFooter() {
   return (
     <footer className="bg-footer-bg pb-8 pt-14" role="contentinfo">
@@ -113,23 +108,12 @@ export function SiteFooter() {
 
         <div className="flex items-center justify-between gap-3 pt-7 max-md:flex-col max-md:items-start">
           <p className="text-[0.8125rem] text-white/[0.35]">© 2026 Provodnik. Все права защищены.</p>
-          <div className="flex gap-5">
-            {legalLinks.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70"
-              >
-                {link.label}
-              </Link>
-            ))}
-            <a
-              href="mailto:support@provodnik.app"
-              className="text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70"
-            >
-              Поддержка
-            </a>
-          </div>
+          <a
+            href="mailto:support@provodnik.app"
+            className="text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70"
+          >
+            Поддержка
+          </a>
         </div>
       </div>
     </footer>

@@ -16,8 +16,8 @@ export function generateMetadata(): Metadata {
 export default function TrustPage() {
   return (
     <div className="pt-[110px] pb-20 bg-surface">
-    <div className="mx-auto w-full max-w-[860px] px-[clamp(20px,4vw,48px)]">
-    <div className="space-y-10">
+      <div className="mx-auto w-full max-w-[760px] px-[clamp(28px,5vw,56px)]">
+        <div className="space-y-10">
       <div className="space-y-3">
         <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
           Правила сервиса

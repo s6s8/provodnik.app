@@ -57,9 +57,10 @@ function getVerificationSteps(status: GuideVerificationStatus): VerificationStep
 type StatCardProps = {
   count: number | string;
   label: string;
+  hint?: string;
 };
 
-function StatCard({ count, label }: StatCardProps) {
+function StatCard({ count, label, hint }: StatCardProps) {
   return (
     <Card className="border-border/70 bg-card/90">
       <CardContent className="pt-6">
@@ -67,6 +68,9 @@ function StatCard({ count, label }: StatCardProps) {
           {count}
         </strong>
         <span className="text-sm text-muted-foreground">{label}</span>
+        {hint ? (
+          <span className="mt-1 block text-xs text-muted-foreground/70">{hint}</span>
+        ) : null}
       </CardContent>
     </Card>
   );
@@ -190,29 +194,29 @@ export function GuideDashboardScreen({
         <StatCard
           count={hasData ? listingCount : "—"}
           label="Туров опубликовано"
+          hint="Только активные публикации"
         />
         <StatCard
           count={hasData ? requestCount : "—"}
           label="Новых запросов"
+          hint="Открытые запросы путешественников"
         />
         <StatCard
           count={hasData ? bookingCount : "—"}
           label="Бронирований"
+          hint="Все статусы, без архивных"
         />
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <Button asChild>
-          <Link href="/guide/listings">Мои туры</Link>
+          <Link href="/guide/listings/new">Новый тур</Link>
         </Button>
         <Button asChild variant="secondary">
-          <Link href="/guide/requests">Запросы</Link>
+          <Link href="/guide/listings">Мои туры</Link>
         </Button>
         <Button asChild variant="outline">
           <Link href="/guide/bookings">Бронирования</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/guide/listings/new">Новый тур</Link>
         </Button>
       </div>
     </div>
