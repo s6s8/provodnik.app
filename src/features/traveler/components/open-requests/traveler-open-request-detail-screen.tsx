@@ -37,8 +37,10 @@ function formatShortDateTime(iso: string) {
 
 export function TravelerOpenRequestDetailScreen({
   openRequestId,
+  currentUserRole = null,
 }: {
   openRequestId: string;
+  currentUserRole?: "traveler" | "guide" | "admin" | null;
 }) {
   const [detail, setDetail] = React.useState<OpenRequestDetail | null>(null);
   const [message, setMessage] = React.useState<string | null>(null);
@@ -100,8 +102,12 @@ export function TravelerOpenRequestDetailScreen({
 
   const record = detail.record;
   const rosterCount = detail.roster.length;
+  const isGuide = currentUserRole === "guide";
   const canJoin =
-    !detail.isJoined && record.group.openToMoreMembers && detail.remainingSpots > 0;
+    !isGuide &&
+    !detail.isJoined &&
+    record.group.openToMoreMembers &&
+    detail.remainingSpots > 0;
 
   return (
     <div className="space-y-8">
@@ -205,7 +211,7 @@ export function TravelerOpenRequestDetailScreen({
           ) : null}
 
           <div className="flex flex-col gap-2 sm:flex-row">
-            {detail.isJoined ? (
+            {isGuide ? null : detail.isJoined ? (
               <Button type="button" variant="outline" onClick={handleLeave}>
                 Выйти из группы
               </Button>

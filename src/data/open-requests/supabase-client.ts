@@ -375,6 +375,20 @@ export async function joinOpenRequestInSupabase(openRequestId: Uuid) {
     throw new Error("User must be authenticated to join an open request.");
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    throw profileError;
+  }
+
+  if (profile?.role === "guide") {
+    throw new Error("Гиды не могут присоединяться к группам");
+  }
+
   const { error } = await supabase.from("open_request_members").upsert(
     {
       request_id: openRequestId,
