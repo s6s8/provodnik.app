@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Compass } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
 import { ListingCard } from "@/components/shared/listing-card";
 import type { ListingRecord } from "@/data/supabase/queries";
 import type { PublicListing, PublicListingTheme } from "@/data/public-listings/types";
@@ -48,21 +49,39 @@ function mapListing(listing: PublicListing): ListingRecord {
 
 export function PublicListingDiscoveryScreen({
   listings,
+  initialSearch = "",
 }: {
   listings: readonly PublicListing[];
+  initialSearch?: string;
 }) {
   const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>("Все");
+  const [search, setSearch] = useState(initialSearch);
 
   const filteredListings = useMemo(() => {
-    if (activeFilter === "Все") {
-      return listings;
-    }
+    const themeFiltered =
+      activeFilter === "Все"
+        ? listings
+        : (() => {
+            const theme = filterThemeMap[activeFilter];
+            if (!theme) return listings;
+            return listings.filter((listing) => listing.themes.includes(theme));
+          })();
 
-    const theme = filterThemeMap[activeFilter];
-    if (!theme) return listings;
+    const query = search.trim().toLowerCase();
+    if (!query) return themeFiltered;
 
-    return listings.filter((listing) => listing.themes.includes(theme));
-  }, [activeFilter, listings]);
+    return themeFiltered.filter((listing) => {
+      const haystack = [
+        listing.title,
+        listing.highlights.join(" "),
+        listing.city,
+        listing.region,
+      ]
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(query);
+    });
+  }, [activeFilter, listings, search]);
 
   return (
     <div className="space-y-10">
@@ -77,6 +96,16 @@ export function PublicListingDiscoveryScreen({
           Подборка авторских маршрутов по городам и природным направлениям России с понятным темпом, стоимостью и форматом группы.
         </p>
       </section>
+
+      <div className="max-w-[32rem]">
+        <Input
+          type="search"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Поиск по названию, описанию или направлению…"
+          aria-label="Поиск по турам"
+        />
+      </div>
 
       <div className="flex flex-wrap gap-3">
         {filters.map((filter) => (

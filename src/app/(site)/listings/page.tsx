@@ -36,7 +36,11 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
   };
 }
 
-export default async function PublicListingsPage() {
+export default async function PublicListingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
   let listings: PublicListing[] = [];
 
   const supabase = await createSupabaseServerClient();
@@ -45,10 +49,13 @@ export default async function PublicListingsPage() {
     listings = result.data.map((listing) => mapToPublicListing(listing));
   }
 
+  const params = await searchParams;
+  const initialSearch = (params.q ?? "").trim();
+
   return (
     <section className="pt-[110px] pb-20">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        <PublicListingDiscoveryScreen listings={listings} />
+        <PublicListingDiscoveryScreen listings={listings} initialSearch={initialSearch} />
       </div>
     </section>
   );
