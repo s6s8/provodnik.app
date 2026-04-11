@@ -31,9 +31,13 @@ async function fetchOfferedRequestIds(guideId: string): Promise<Set<string>> {
   return new Set(data.map((row) => row.request_id as string));
 }
 
+type RequestsFilter = "all" | "no-offer" | "offered";
+
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
+  const [filter, setFilter] = React.useState<RequestsFilter>("no-offer");
+  const [didAutoSelect, setDidAutoSelect] = React.useState(false);
 
   React.useEffect(() => {
     let ignore = false;
@@ -67,6 +71,34 @@ export function GuideRequestsInboxScreen() {
     total: items.length,
     highBudget: items.filter((item) => item.budgetRub >= 15000).length,
   };
+
+  const noOfferCount = items.filter((item) => !offeredIds.has(item.id)).length;
+  const offeredCount = items.length - noOfferCount;
+
+  React.useEffect(() => {
+    if (didAutoSelect) return;
+    if (items.length === 0) return;
+    if (noOfferCount === 0) {
+      setFilter("all");
+    }
+    setDidAutoSelect(true);
+  }, [didAutoSelect, items.length, noOfferCount]);
+
+  const filteredItems = React.useMemo(() => {
+    if (filter === "no-offer") {
+      return items.filter((item) => !offeredIds.has(item.id));
+    }
+    if (filter === "offered") {
+      return items.filter((item) => offeredIds.has(item.id));
+    }
+    return items;
+  }, [filter, items, offeredIds]);
+
+  const tabs: Array<{ key: RequestsFilter; label: string; count: number }> = [
+    { key: "all", label: "Все", count: items.length },
+    { key: "no-offer", label: "Без моего предложения", count: noOfferCount },
+    { key: "offered", label: "С моим предложением", count: offeredCount },
+  ];
 
   return (
     <div className="space-y-6">
@@ -141,8 +173,48 @@ export function GuideRequestsInboxScreen() {
               Пока нет новых запросов от путешественников.
             </p>
           ) : (
+            <>
+              <div
+                role="tablist"
+                aria-label="Фильтр запросов"
+                className="flex flex-wrap gap-2"
+              >
+                {tabs.map((tab) => {
+                  const isSelected = filter === tab.key;
+                  return (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      role="tab"
+                      aria-selected={isSelected}
+                      onClick={() => setFilter(tab.key)}
+                      className={
+                        isSelected
+                          ? "inline-flex items-center gap-2 rounded-full border border-transparent bg-foreground px-4 py-2 text-sm font-medium text-background transition"
+                          : "inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background"
+                      }
+                    >
+                      <span>{tab.label}</span>
+                      <span
+                        className={
+                          isSelected
+                            ? "rounded-full bg-background/20 px-2 py-0.5 text-xs tabular-nums"
+                            : "rounded-full bg-muted/40 px-2 py-0.5 text-xs tabular-nums"
+                        }
+                      >
+                        {tab.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
             <div className="space-y-3">
-              {items.map((item, index) => {
+              {filteredItems.length === 0 ? (
+                <p className="text-center text-sm text-muted-foreground">
+                  Нет запросов в этой категории
+                </p>
+              ) : null}
+              {filteredItems.map((item, index) => {
                 const alreadyOffered = offeredIds.has(item.id);
                 return (
                   <div key={item.id} className="space-y-3">
@@ -222,11 +294,12 @@ export function GuideRequestsInboxScreen() {
                       </div>
                     </div>
 
-                    {index < items.length - 1 ? <Separator /> : null}
+                    {index < filteredItems.length - 1 ? <Separator /> : null}
                   </div>
                 );
               })}
             </div>
+            </>
           )}
         </CardContent>
       </Card>
