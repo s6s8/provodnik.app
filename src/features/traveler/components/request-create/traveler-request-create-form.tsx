@@ -164,10 +164,14 @@ export function TravelerRequestCreateForm() {
           <Input
             id="startDate"
             type="date"
+            min={new Date().toISOString().slice(0, 10)}
             aria-invalid={Boolean(errors.startDate)}
-            aria-describedby={errors.startDate ? "startDate-error" : undefined}
+            aria-describedby={errors.startDate ? "startDate-error" : "startDate-hint"}
             {...register("startDate")}
           />
+          <FieldHint id="startDate-hint">
+            Кликните по полю, чтобы открыть календарь.
+          </FieldHint>
           <FieldError id="startDate-error" message={errors.startDate?.message} />
         </div>
 
@@ -176,10 +180,14 @@ export function TravelerRequestCreateForm() {
           <Input
             id="endDate"
             type="date"
+            min={new Date().toISOString().slice(0, 10)}
             aria-invalid={Boolean(errors.endDate)}
-            aria-describedby={errors.endDate ? "endDate-error" : undefined}
+            aria-describedby={errors.endDate ? "endDate-error" : "endDate-hint"}
             {...register("endDate")}
           />
+          <FieldHint id="endDate-hint">
+            Или оставьте пустым, если даты плавающие.
+          </FieldHint>
           <FieldError id="endDate-error" message={errors.endDate?.message} />
         </div>
       </div>
