@@ -392,6 +392,20 @@ export type ListingScheduleExtraRow = {
   time_end: string | null;
 };
 
+/** Guide-owned license document; linked to listings via listing_licenses. */
+export type GuideLicenseRow = {
+  id: Uuid;
+  guide_id: Uuid;
+  license_type: string;
+  license_number: string;
+  issued_by: string;
+  valid_until: string | null;
+  /** Whether the license applies to all current/future listings (UI) vs selected listings only. */
+  scope_mode: "all" | "selected";
+  created_at: string;
+  updated_at: string;
+};
+
 export type ListingLicenseRow = {
   listing_id: Uuid;
   license_id: Uuid;

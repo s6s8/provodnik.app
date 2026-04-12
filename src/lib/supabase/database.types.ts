@@ -6,9 +6,11 @@ import type {
   EventScope,
   GuideDocumentRow,
   GuideOfferRow,
+  GuideLicenseRow,
   GuideProfileRow,
   GuideProfileUpsert,
   GuideVerificationStatusDb,
+  ListingLicenseRow,
   ListingMediaRow,
   ListingRow,
   ListingStatusDb,
@@ -173,7 +175,23 @@ export interface Database {
     Tables: {
       profiles: TableDefinition<ProfileRow>;
       guide_profiles: TableDefinition<GuideProfileRow, GuideProfileUpsert, Partial<GuideProfileUpsert>>;
+      guide_licenses: TableDefinition<
+        GuideLicenseRow,
+        Pick<GuideLicenseRow, "guide_id" | "license_type" | "license_number" | "issued_by"> &
+          Partial<Pick<GuideLicenseRow, "valid_until" | "scope_mode">>,
+        Partial<
+          Pick<
+            GuideLicenseRow,
+            "license_type" | "license_number" | "issued_by" | "valid_until" | "scope_mode" | "updated_at"
+          >
+        >
+      >;
       listings: TableDefinition<ListingRow, Partial<ListingRow> & Pick<ListingRow, "guide_id" | "slug" | "title" | "region" | "category" | "price_from_minor">>;
+      listing_licenses: TableDefinition<
+        ListingLicenseRow,
+        Pick<ListingLicenseRow, "listing_id" | "license_id"> & Partial<Pick<ListingLicenseRow, "scope">>,
+        Partial<Pick<ListingLicenseRow, "scope">>
+      >;
       traveler_requests: TableDefinition<TravelerRequestRow, Partial<TravelerRequestRow> & Pick<TravelerRequestRow, "traveler_id" | "destination" | "category" | "starts_on">>;
       open_request_members: TableDefinition<OpenRequestMemberRow, Partial<OpenRequestMemberRow> & Pick<OpenRequestMemberRow, "request_id" | "traveler_id">>;
       guide_offers: TableDefinition<GuideOfferRow, Partial<GuideOfferRow> & Pick<GuideOfferRow, "request_id" | "guide_id" | "price_minor">>;

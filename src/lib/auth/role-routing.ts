@@ -33,6 +33,10 @@ export function getWorkspacePrefixForRole(role: AppRole | null | undefined): str
 export function getRequiredRoleForPathname(pathname: string | null | undefined): AppRole | null {
   if (!pathname) return null;
 
+  if (isPathWithinTree(pathname, "/profile/guide")) {
+    return "guide";
+  }
+
   for (const role of ROLE_ORDER) {
     if (isPathWithinTree(pathname, ROLE_WORKSPACE_PREFIXES[role])) {
       return role;
