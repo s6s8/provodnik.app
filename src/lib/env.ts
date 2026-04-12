@@ -48,6 +48,10 @@ export const serverEnv = {
   RESEND_API_KEY: parsedServerEnv.RESEND_API_KEY,
 };
 
+export function getSiteUrl(): string {
+  return clientEnv.NEXT_PUBLIC_APP_URL ?? "https://provodnik.app";
+}
+
 export function hasSupabaseEnv() {
   return Boolean(
     clientEnv.NEXT_PUBLIC_SUPABASE_URL &&

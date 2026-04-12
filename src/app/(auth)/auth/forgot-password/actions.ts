@@ -2,7 +2,7 @@
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getResendClient } from "@/lib/email/resend-client";
-import { clientEnv } from "@/lib/env";
+import { getSiteUrl } from "@/lib/env";
 
 export type ForgotPasswordResult =
   | { ok: true }
@@ -19,14 +19,12 @@ export async function sendPasswordResetEmail(
 
   try {
     const admin = createSupabaseAdminClient();
-    const siteUrl =
-      clientEnv.NEXT_PUBLIC_APP_URL ?? "https://provodnik.app";
 
     const { data, error } = await admin.auth.admin.generateLink({
       type: "recovery",
       email: trimmed,
       options: {
-        redirectTo: `${siteUrl}/auth/confirm`,
+        redirectTo: `${getSiteUrl()}/auth/confirm`,
       },
     });
 
