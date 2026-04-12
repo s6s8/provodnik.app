@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { ListingRow } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
@@ -18,6 +19,7 @@ import {
   type ListingExpType,
   type SectionKey,
 } from "./types";
+import { CompletenessPanel } from "./completeness";
 import { useAutosave } from "./useAutosave";
 import type { SectionProps } from "./sections";
 import {
@@ -213,6 +215,8 @@ export function ListingEditorShell({ listing, userId }: Props) {
             );
           })}
         </nav>
+        <Separator className="my-4" />
+        <CompletenessPanel listing={listingState} draft={draft} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
