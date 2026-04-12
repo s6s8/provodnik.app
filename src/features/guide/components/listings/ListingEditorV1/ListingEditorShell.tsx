@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
@@ -18,6 +19,30 @@ import {
   type SectionKey,
 } from "./types";
 import { useAutosave } from "./useAutosave";
+import type { SectionProps } from "./sections";
+import {
+  AudienceFactsSection,
+  BasicsSection,
+  IdeaRouteThemeSection,
+  MeetingPointSection,
+  OrgDetailsSection,
+  PhotosSection,
+  ScheduleSection,
+  TariffsSection,
+} from "./sections";
+
+const SECTION_COMPONENTS: Partial<
+  Record<SectionKey, ComponentType<SectionProps>>
+> = {
+  basics: BasicsSection,
+  photos: PhotosSection,
+  schedule: ScheduleSection,
+  tariffs: TariffsSection,
+  idea_route_theme: IdeaRouteThemeSection,
+  audience_facts: AudienceFactsSection,
+  org_details: OrgDetailsSection,
+  meeting_point: MeetingPointSection,
+};
 
 const EXP_TYPE_OPTIONS: { value: ListingExpType; label: string }[] = [
   { value: "excursion", label: "Экскурсия" },
@@ -55,10 +80,24 @@ interface Props {
 export function ListingEditorShell({ listing, userId }: Props) {
   const router = useRouter();
   const [listingState, setListingState] = useState(listing);
+  const [draft, setDraft] = useState<Partial<ListingRow>>({});
   const [activeSection, setActiveSection] = useState<SectionKey | null>(() =>
     listing.exp_type ? SECTIONS_BY_TYPE[listing.exp_type][0] ?? null : null,
   );
   const { save, autosaveState } = useAutosave(listing.id, userId);
+
+  const merged = useMemo(
+    () => ({ ...listingState, ...draft }),
+    [listingState, draft],
+  );
+
+  const handleChange = useCallback(
+    (patch: Partial<ListingRow>) => {
+      setDraft((prev) => ({ ...prev, ...patch }));
+      save({ ...draft, ...patch });
+    },
+    [draft, save],
+  );
 
   const sectionKeys = useMemo(
     () =>
@@ -69,6 +108,7 @@ export function ListingEditorShell({ listing, userId }: Props) {
   const onTitleChange = useCallback(
     (value: string) => {
       setListingState((prev) => ({ ...prev, title: value }));
+      setDraft((prev) => ({ ...prev, title: value }));
       save({ title: value });
     },
     [save],
@@ -107,7 +147,12 @@ export function ListingEditorShell({ listing, userId }: Props) {
     }
   }, [listingState.id, userId, router]);
 
-  const canPublish = passesPublishGate(listingState);
+  const canPublish = passesPublishGate(merged as ListingRow);
+
+  const ActiveSection =
+    activeSection != null
+      ? SECTION_COMPONENTS[activeSection]
+      : undefined;
 
   if (!listingState.exp_type) {
     return (
@@ -145,7 +190,7 @@ export function ListingEditorShell({ listing, userId }: Props) {
             Тур
           </p>
           <p className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">
-            {listingState.title || "Без названия"}
+            {merged.title || "Без названия"}
           </p>
         </div>
         <nav className="flex flex-row gap-1 overflow-x-auto p-2 md:flex-col md:overflow-visible">
@@ -174,7 +219,7 @@ export function ListingEditorShell({ listing, userId }: Props) {
         <header className="flex flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex min-w-0 flex-1 flex-col gap-2 sm:max-w-xl">
             <Input
-              value={listingState.title}
+              value={merged.title}
               onChange={(e) => onTitleChange(e.target.value)}
               className="text-base font-semibold"
               aria-label="Название тура"
@@ -199,9 +244,22 @@ export function ListingEditorShell({ listing, userId }: Props) {
         </header>
 
         <main className="flex-1 p-4 md:p-6">
-          <div>
-            Section: {activeSection ?? "—"}
-          </div>
+          {ActiveSection ? (
+            <ActiveSection
+              listing={listingState}
+              draft={draft}
+              onChange={handleChange}
+              userId={userId}
+            />
+          ) : (
+            <div className="p-8 text-sm text-muted-foreground">
+              Раздел «
+              {activeSection != null
+                ? (ALL_SECTIONS[activeSection]?.label ?? "—")
+                : "—"}
+              » в разработке
+            </div>
+          )}
         </main>
       </div>
     </div>
