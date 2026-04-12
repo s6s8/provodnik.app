@@ -86,9 +86,10 @@ type GuideListingsManagerScreenProps = {
 type BackendMode = "local" | "supabase";
 
 function mapDbStatusToUi(status: ListingStatusDb): GuideListing["status"] {
-  if (status === "published") return "active";
-  if (status === "rejected") return "archived";
-  return status;
+  if (status === "published" || status === "active") return "active";
+  if (status === "rejected" || status === "archived") return "archived";
+  if (status === "pending_review") return "draft";
+  return status as GuideListing["status"];
 }
 
 function mapUiStatusToDb(status: GuideListing["status"]): ListingStatusDb {

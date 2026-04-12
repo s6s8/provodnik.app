@@ -19,7 +19,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id: ref } = await params;
   const supabase = await createSupabaseServerClient();
-  const base = supabase.from("listings").select("title, description").eq("status", "published");
+  const base = supabase.from("listings").select("title, description").eq("status", "active");
   const { data } = listingRefIsUuid(ref)
     ? await base.eq("id", ref).maybeSingle()
     : await base.eq("slug", ref).maybeSingle();
@@ -41,7 +41,7 @@ export default async function ListingDetailPage({
   const supabase = await createSupabaseServerClient();
   const auth = await readAuthContextFromServer();
 
-  const listingQuery = supabase.from("listings").select("*").eq("status", "published");
+  const listingQuery = supabase.from("listings").select("*").eq("status", "active");
   const { data: listingRaw } = listingRefIsUuid(ref)
     ? await listingQuery.eq("id", ref).maybeSingle()
     : await listingQuery.eq("slug", ref).maybeSingle();
@@ -50,6 +50,11 @@ export default async function ListingDetailPage({
 
   const listing = listingRaw as ListingDetailRow;
   const id = listing.id;
+
+  if (listing.exp_type === "transfer") {
+    const { default: TransferPage } = await import("./transfer/page");
+    return <TransferPage params={params} />;
+  }
 
   const [photosRes, scheduleRes, tariffsRes, guideRes] = await Promise.all([
     supabase.from("listing_photos").select("*").eq("listing_id", id).order("position"),
@@ -66,13 +71,6 @@ export default async function ListingDetailPage({
   const schedule = scheduleRes.data ?? [];
   const tariffs = tariffsRes.data ?? [];
   const guide = guideRes.data;
-
-  if (listing.exp_type === "tour") {
-    // Tour detail — wave 5.4; placeholder uses excursion template
-  }
-  if (listing.exp_type === "transfer") {
-    // Transfer detail — wave 5.5; placeholder uses excursion template
-  }
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">

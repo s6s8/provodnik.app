@@ -19,6 +19,9 @@ const STATUS_LABELS: Record<ListingStatusDb, string> = {
   published: "Опубликован",
   paused: "Приостановлен",
   rejected: "Удалён",
+  pending_review: "На проверке",
+  active: "Активен",
+  archived: "В архиве",
 };
 
 const STATUS_VARIANT: Record<
@@ -29,6 +32,9 @@ const STATUS_VARIANT: Record<
   published: "secondary",
   paused: "outline",
   rejected: "destructive",
+  pending_review: "outline",
+  active: "secondary",
+  archived: "outline",
 };
 
 function formatPrice(priceMinor: number): string {
