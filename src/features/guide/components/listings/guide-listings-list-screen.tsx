@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import { RejectionCard } from "@/features/guide/components/listings/RejectionCard";
+
 // ---------------------------------------------------------------------------
 // Status chip
 // ---------------------------------------------------------------------------
@@ -136,18 +138,19 @@ type ServerActions = {
 type GuideListingsListScreenProps = {
   initialListings: ListingRow[];
   actions: ServerActions;
+  /** When true, rejected listings show a rejection alert below each card. */
+  showListingRejectionCard?: boolean;
 };
 
 export function GuideListingsListScreen({
   initialListings,
   actions,
+  showListingRejectionCard = false,
 }: GuideListingsListScreenProps) {
   const router = useRouter();
   const [listings, setListings] = React.useState<ListingRow[]>(initialListings);
   const [pending, setPending] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
-
-  const visible = listings.filter((l) => l.status !== "rejected");
 
   const runAction = React.useCallback(
     async (
@@ -242,7 +245,7 @@ export function GuideListingsListScreen({
       )}
 
       {/* Empty state */}
-      {visible.length === 0 && (
+      {listings.length === 0 && (
         <Card className="border-border/70 bg-card/90">
           <CardContent className="flex flex-col items-center gap-5 py-20 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-brand/10 text-brand">
@@ -272,49 +275,51 @@ export function GuideListingsListScreen({
       )}
 
       {/* Listing cards */}
-      {visible.length > 0 && (
+      {listings.length > 0 && (
         <div className="grid gap-4">
-          {visible.map((listing) => (
-            <Card
-              key={listing.id}
-              className="border-border/70 bg-card/90 transition-all hover:-translate-y-0.5"
-            >
-              <CardHeader className="pb-2">
-                <div className="flex flex-wrap items-start justify-between gap-2">
-                  <div className="space-y-1">
-                    <CardTitle className="text-base">
-                      <Link
-                        href={`/guide/listings/${listing.id}`}
-                        className="transition-colors hover:text-primary"
-                      >
-                        {listing.title}
-                      </Link>
-                    </CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      {listing.region}
-                      {listing.duration_minutes !== null
-                        ? ` · ${Math.round(listing.duration_minutes / 60 / 24)} дн.`
-                        : null}
-                      {` · до ${listing.max_group_size} чел.`}
-                    </p>
+          {listings.map((listing) => (
+            <React.Fragment key={listing.id}>
+              <Card className="border-border/70 bg-card/90 transition-all hover:-translate-y-0.5">
+                <CardHeader className="pb-2">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
+                    <div className="space-y-1">
+                      <CardTitle className="text-base">
+                        <Link
+                          href={`/guide/listings/${listing.id}`}
+                          className="transition-colors hover:text-primary"
+                        >
+                          {listing.title}
+                        </Link>
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {listing.region}
+                        {listing.duration_minutes !== null
+                          ? ` · ${Math.round(listing.duration_minutes / 60 / 24)} дн.`
+                          : null}
+                        {` · до ${listing.max_group_size} чел.`}
+                      </p>
+                    </div>
+                    <StatusChip status={listing.status} />
                   </div>
-                  <StatusChip status={listing.status} />
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <p className="text-sm font-semibold text-foreground">
-                  {formatPrice(listing.price_from_minor)}{" "}
-                  <span className="font-normal text-muted-foreground">/ чел.</span>
-                </p>
-                <ActionButtons
-                  listing={listing}
-                  onPublish={handlePublish}
-                  onPause={handlePause}
-                  onDelete={handleDelete}
-                  pending={pending}
-                />
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <p className="text-sm font-semibold text-foreground">
+                    {formatPrice(listing.price_from_minor)}{" "}
+                    <span className="font-normal text-muted-foreground">/ чел.</span>
+                  </p>
+                  <ActionButtons
+                    listing={listing}
+                    onPublish={handlePublish}
+                    onPause={handlePause}
+                    onDelete={handleDelete}
+                    pending={pending}
+                  />
+                </CardContent>
+              </Card>
+              {showListingRejectionCard && listing.status === "rejected" && (
+                <RejectionCard listing={listing} />
+              )}
+            </React.Fragment>
           ))}
         </div>
       )}

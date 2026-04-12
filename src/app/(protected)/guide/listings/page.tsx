@@ -37,6 +37,7 @@ export default async function GuideListingsPage() {
         pauseAction: pauseListingAction,
         deleteAction: deleteListingAction,
       }}
+      showListingRejectionCard
     />
   );
 }

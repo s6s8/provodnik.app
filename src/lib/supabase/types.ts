@@ -259,6 +259,8 @@ export type ListingRow = {
   exclusions: string[];
   cancellation_policy_key: string;
   status: ListingStatusDb;
+  /** Set when moderation rejects a listing (column may be absent until migrated). */
+  rejection_reason?: string | null;
   featured_rank: number | null;
   image_url: string | null;
   created_at: string;
