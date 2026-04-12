@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { PhotoGallery } from "@/components/listing-detail/PhotoGallery";
 import { ScheduleDisplay } from "@/components/listing-detail/ScheduleDisplay";
@@ -191,6 +192,9 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
           </Button>
         </div>
       </div>
+
+      <Separator className="my-8" />
+      <TransferCrossSellWidget region={listing.region} currentListingId={listing.id} />
     </div>
   );
 }

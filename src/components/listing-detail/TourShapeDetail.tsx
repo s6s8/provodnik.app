@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { PhotoGallery } from "@/components/listing-detail/PhotoGallery";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
@@ -7,6 +8,7 @@ import { TourDeparturesList } from "@/components/listing-detail/TourDeparturesLi
 import { TourItineraryDisplay } from "@/components/listing-detail/TourItineraryDisplay";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type {
   GuideProfileRow,
@@ -248,6 +250,9 @@ export function TourShapeDetail({
           </Button>
         </div>
       </div>
+
+      <Separator className="my-8" />
+      <TransferCrossSellWidget region={listing.region} currentListingId={listing.id} />
     </div>
   );
 }
