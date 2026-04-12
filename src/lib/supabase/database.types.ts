@@ -1,5 +1,6 @@
 import type {
   AppRoleDb,
+  BonusLedgerRow,
   BookingRow,
   BookingStatus,
   ConversationThreadRow,
@@ -25,6 +26,8 @@ import type {
   OpenRequestMemberRow,
   PartnerAccountRow,
   PartnerPayoutsLedgerRow,
+  ReferralCodeRow,
+  ReferralRedemptionRow,
   RequestStatus,
   ReviewRatingsBreakdownRow,
   StorageAssetKindDb,
@@ -228,6 +231,18 @@ export interface Database {
         Partial<Pick<PartnerAccountRow, "api_token_hash">>
       >;
       partner_payouts_ledger: TableDefinition<PartnerPayoutsLedgerRow>;
+      referral_codes: TableDefinition<
+        ReferralCodeRow,
+        Pick<ReferralCodeRow, "user_id" | "code">
+      >;
+      referral_redemptions: TableDefinition<
+        ReferralRedemptionRow,
+        Pick<ReferralRedemptionRow, "code_id" | "redeemed_by">
+      >;
+      bonus_ledger: TableDefinition<
+        BonusLedgerRow,
+        Pick<BonusLedgerRow, "user_id" | "delta" | "reason" | "ref_id">
+      >;
     };
     Views: {
       v_guide_dashboard_kpi: {
