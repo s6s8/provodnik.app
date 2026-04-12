@@ -15,6 +15,8 @@ export type AuthContext = {
   source: AuthSource;
   role: AppRole | null;
   email: string | null;
+  /** Supabase auth user id when session exists; null for demo / anonymous. */
+  userId: string | null;
   canonicalRedirectTo?: AuthRedirectTarget | null;
   missingRoleRecoveryTo?: AuthRecoveryTarget | null;
 };

@@ -14,6 +14,7 @@ export default async function PublicSiteLayout({ children }: { children: ReactNo
         role={auth.role}
         email={auth.email}
         canonicalRedirectTo={auth.canonicalRedirectTo}
+        userId={auth.userId}
       />
       <main className="pt-nav-h">{children}</main>
       <SiteFooter />

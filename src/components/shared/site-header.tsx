@@ -15,7 +15,9 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
+import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
+import { flags } from "@/lib/flags";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +45,7 @@ interface SiteHeaderProps {
   role?: AppRole | null;
   email?: string | null;
   canonicalRedirectTo?: AuthRedirectTarget | null;
+  userId?: string | null;
 }
 
 export function SiteHeader({
@@ -50,6 +53,7 @@ export function SiteHeader({
   role = null,
   email = null,
   canonicalRedirectTo = null,
+  userId = null,
 }: SiteHeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -116,6 +120,9 @@ export function SiteHeader({
               </span>
               {role ? roleLabels[role] : null}
             </Link>
+          ) : null}
+          {flags.FEATURE_TRIPSTER_NOTIFICATIONS && isAuthenticated && userId ? (
+            <NotificationBell userId={userId} />
           ) : null}
           {isAuthenticated ? (
             <Link

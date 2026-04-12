@@ -28,6 +28,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     source: demoSession ? "demo" : "none",
     role: demoSession?.role ?? null,
     email: null,
+    userId: null,
     canonicalRedirectTo: getCanonicalRedirect(demoSession?.role ?? null),
     missingRoleRecoveryTo: null,
   };
@@ -61,6 +62,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
       source: "supabase",
       role: null,
       email: session.user.email ?? null,
+      userId: session.user.id,
       canonicalRedirectTo: null,
       missingRoleRecoveryTo: MISSING_ROLE_RECOVERY_TO,
     };
@@ -72,6 +74,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     source: "supabase",
     role: profileRole,
     email: session.user.email ?? null,
+    userId: session.user.id,
     canonicalRedirectTo: getCanonicalRedirect(profileRole),
     missingRoleRecoveryTo: null,
   };
