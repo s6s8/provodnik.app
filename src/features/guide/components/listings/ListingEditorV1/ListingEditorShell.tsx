@@ -29,8 +29,10 @@ import {
   MeetingPointSection,
   OrgDetailsSection,
   PhotosSection,
+  PickupDropoffSection,
   ScheduleSection,
   TariffsSection,
+  VehicleBaggageSection,
 } from "./sections";
 
 const SECTION_COMPONENTS: Partial<
@@ -44,6 +46,8 @@ const SECTION_COMPONENTS: Partial<
   audience_facts: AudienceFactsSection,
   org_details: OrgDetailsSection,
   meeting_point: MeetingPointSection,
+  pickup_dropoff: PickupDropoffSection,
+  vehicle_baggage: VehicleBaggageSection,
 };
 
 const EXP_TYPE_OPTIONS: { value: ListingExpType; label: string }[] = [

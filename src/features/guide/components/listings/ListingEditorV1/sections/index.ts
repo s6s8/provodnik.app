@@ -6,4 +6,6 @@ export { IdeaRouteThemeSection } from "./IdeaRouteThemeSection";
 export { AudienceFactsSection } from "./AudienceFactsSection";
 export { OrgDetailsSection } from "./OrgDetailsSection";
 export { MeetingPointSection } from "./MeetingPointSection";
+export { PickupDropoffSection } from "./PickupDropoffSection";
+export { VehicleBaggageSection } from "./VehicleBaggageSection";
 export type { SectionProps } from "./BasicsSection";
