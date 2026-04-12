@@ -1,9 +1,13 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import type { GuideOfferRow } from "@/lib/supabase/types";
+import type { GuideOfferRow, MessageRow } from "@/lib/supabase/types";
 
 import { OfferCard } from "./OfferCard";
+import {
+  SystemEventMessage,
+  type SystemEventPayload,
+} from "./SystemEventMessage";
 
 function formatTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString("ru-RU", {
@@ -65,7 +69,9 @@ function tryGetOfferSentMetadata(metadata: unknown) {
   return parseOfferSentPayload(rawPayload as Record<string, unknown>);
 }
 
-interface MessageBubbleProps {
+// Legacy props interface kept for backward compatibility with chat-window's
+// existing MessageWithSender shape where sender_profile is available.
+interface LegacyMessageBubbleProps {
   body: string;
   senderName: string;
   senderAvatar?: string | null;
@@ -76,22 +82,75 @@ interface MessageBubbleProps {
   currentUserId?: string;
 }
 
-export function MessageBubble({
-  body,
-  senderName,
-  senderAvatar,
-  timestamp,
-  isOwn,
-  metadata,
-  senderId,
-  currentUserId,
-}: MessageBubbleProps) {
-  const offerPayload = tryGetOfferSentMetadata(metadata);
+// New interface that accepts the full MessageRow and currentUserId.
+interface MessageRowProps {
+  message: MessageRow;
+  currentUserId: string;
+  senderName?: string;
+  senderAvatar?: string | null;
+}
 
+type MessageBubbleProps = LegacyMessageBubbleProps | MessageRowProps;
+
+function isMessageRowProps(props: MessageBubbleProps): props is MessageRowProps {
+  return "message" in props;
+}
+
+export function MessageBubble(props: MessageBubbleProps) {
+  // New usage: MessageRow + currentUserId
+  if (isMessageRowProps(props)) {
+    const { message, currentUserId, senderName = "Участник", senderAvatar } = props;
+
+    if (message.sender_role === "system") {
+      const payload = message.metadata as SystemEventPayload;
+      return (
+        <SystemEventMessage
+          eventType={payload.event_type}
+          payload={payload}
+          createdAt={message.created_at}
+        />
+      );
+    }
+
+    const offerPayload = tryGetOfferSentMetadata(message.metadata);
+    if (offerPayload) {
+      const isOwn = message.sender_id === currentUserId;
+      const viewerRole: "traveler" | "guide" =
+        message.sender_id === currentUserId ? "guide" : "traveler";
+      return (
+        <div className={isOwn ? "flex justify-end" : "flex justify-start"}>
+          <OfferCard
+            offerId={offerPayload.offer_id}
+            priceMinor={offerPayload.price_minor}
+            currency={offerPayload.currency}
+            description={offerPayload.description}
+            status={offerPayload.status}
+            validUntil={offerPayload.valid_until}
+            viewerRole={viewerRole}
+          />
+        </div>
+      );
+    }
+
+    const isOwn = message.sender_id === currentUserId;
+    return (
+      <UserBubble
+        body={message.body}
+        senderName={senderName}
+        senderAvatar={senderAvatar ?? null}
+        timestamp={message.created_at}
+        isOwn={isOwn}
+      />
+    );
+  }
+
+  // Legacy usage: flat props (used by existing chat-window.tsx)
+  const { body, senderName, senderAvatar, timestamp, isOwn, metadata, senderId, currentUserId } = props;
+
+  const offerPayload = tryGetOfferSentMetadata(metadata);
   if (offerPayload && currentUserId) {
     const viewerRole: "traveler" | "guide" =
       senderId != null && senderId === currentUserId ? "guide" : "traveler";
-
     return (
       <div className={isOwn ? "flex justify-end" : "flex justify-start"}>
         <OfferCard
@@ -107,6 +166,32 @@ export function MessageBubble({
     );
   }
 
+  return (
+    <UserBubble
+      body={body}
+      senderName={senderName}
+      senderAvatar={senderAvatar ?? null}
+      timestamp={timestamp}
+      isOwn={isOwn}
+    />
+  );
+}
+
+interface UserBubbleProps {
+  body: string;
+  senderName: string;
+  senderAvatar: string | null;
+  timestamp: string;
+  isOwn: boolean;
+}
+
+function UserBubble({
+  body,
+  senderName,
+  senderAvatar,
+  timestamp,
+  isOwn,
+}: UserBubbleProps) {
   return (
     <div className={isOwn ? "flex justify-end" : "flex justify-start"}>
       <article
