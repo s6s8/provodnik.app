@@ -73,21 +73,23 @@ Never guess API signatures. Context7 takes 10 seconds. Hallucinated APIs waste h
 
 ## Current Phase
 
-**Phase 7 — Launch Prep** (in progress as of 2026-04-01)
-Plan: `/mnt/rhhd/projects/provodnik/PLAN.md`
-Handoff: `/mnt/rhhd/projects/codex-ops/state/handoffs/provodnik/handoff.md`
+**Tripster V1 — Complete** (all 42 waves merged to main as of 2026-04-12)
+Feature flags doc: `docs/tripster-v1-rollout.md`
 
-Phases 0–6 are fully complete. Remaining Phase 7 items:
-- [ ] 7.4 Onboard 3–5 real guides in launch region
-- [ ] 7.5 Create 5–10 seed requests
-- [ ] 7.6 Domain/DNS — provodnik.app → production
-- [ ] 7.7 SSL + CSP headers (security headers done; needs real domain)
-- [ ] 7.8 Supabase daily backups enabled
-- [ ] 7.10 Soft launch to closed group
+All Tripster V1 waves (Phases 0–13, 42 waves) are merged to main.
+Production DB is fully migrated (all migrations applied via Supabase MCP).
 
-Pending manual infra:
-- `supabase db push` — 3 new migrations (messaging RLS, notifications RLS, storage buckets)
-- Vercel env vars: `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN`
+Remaining soft-launch items (manual):
+- [ ] `vercel login` then run `.claude/set-vercel-env.sh` — sets RESEND_API_KEY + 13 feature flags on production/preview
+- [ ] Onboard 3–5 real guides in launch region
+- [ ] Create 5–10 seed requests
+- [ ] Domain/DNS — provodnik.app → production
+- [ ] Supabase daily backups enabled
+- [ ] Soft launch to closed group
+
+Env vars already set in `.env.local` (local dev) and to be synced to Vercel:
+- `RESEND_API_KEY` — email sending (forgot password, transactional)
+- `FEATURE_TRIPSTER_V1=1` and all sub-flags per `docs/tripster-v1-rollout.md`
 
 ## Key Commands
 
