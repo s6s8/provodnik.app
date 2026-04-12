@@ -6,8 +6,10 @@ import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { OpenDisputeButton } from "@/features/disputes/components/open-dispute-button";
 import { getBooking } from "@/lib/supabase/bookings";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
+import { flags } from "@/lib/flags";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -127,7 +129,8 @@ export default async function TravelerBookingDetailPage({
   const existingReview =
     booking.status === "completed" ? await getReviewForBooking(booking.id) : null;
   const canLeaveReview = booking.status === "completed" && !existingReview;
-  const canOpenDispute = booking.status === "confirmed";
+  const canOpenDispute =
+    booking.status === "confirmed" || booking.status === "completed";
 
   return (
     <div className="space-y-6">
@@ -219,12 +222,10 @@ export default async function TravelerBookingDetailPage({
                 </Button>
               ) : null}
 
-              {canOpenDispute ? (
-                <Button asChild variant="secondary">
-                  <Link href={`/traveler/bookings/${booking.id}/dispute`}>
-                    Открыть спор
-                  </Link>
-                </Button>
+              {flags.FEATURE_TRIPSTER_DISPUTES &&
+              booking.status !== "disputed" &&
+              canOpenDispute ? (
+                <OpenDisputeButton bookingId={booking.id} />
               ) : null}
             </div>
           </div>

@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 
+import { flags } from "@/lib/flags";
 import { getBooking } from "@/lib/supabase/bookings";
 import { openDispute } from "@/lib/supabase/disputes";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -13,6 +14,10 @@ const disputeFormSchema = z.object({
 });
 
 export async function submitDispute(bookingId: string, formData: FormData) {
+  if (!flags.FEATURE_TRIPSTER_DISPUTES) {
+    redirect(`/traveler/bookings/${bookingId}`);
+  }
+
   const parsed = disputeFormSchema.safeParse({
     reason: formData.get("reason"),
     requestedOutcome: formData.get("requestedOutcome"),

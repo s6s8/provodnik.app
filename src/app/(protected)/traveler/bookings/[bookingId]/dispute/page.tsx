@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { flags } from "@/lib/flags";
 import { getBooking } from "@/lib/supabase/bookings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -42,6 +43,8 @@ export default async function TravelerBookingDisputePage({
   const { bookingId } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
   const error = resolveSearchValue(resolvedSearchParams.error);
+
+  if (!flags.FEATURE_TRIPSTER_DISPUTES) notFound();
 
   const supabase = await createSupabaseServerClient();
   const {
