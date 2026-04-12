@@ -25,6 +25,7 @@ import type { SectionProps } from "./sections";
 import {
   AudienceFactsSection,
   BasicsSection,
+  DeparturesSection,
   IdeaRouteThemeSection,
   ItinerarySection,
   MeetingPointSection,
@@ -50,6 +51,7 @@ const SECTION_COMPONENTS: Partial<
   meeting_point: MeetingPointSection,
   pickup_dropoff: PickupDropoffSection,
   vehicle_baggage: VehicleBaggageSection,
+  departures: DeparturesSection,
 };
 
 const EXP_TYPE_OPTIONS: { value: ListingExpType; label: string }[] = [

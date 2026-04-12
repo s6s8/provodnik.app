@@ -10,4 +10,5 @@ export { MeetingPointSection } from "./MeetingPointSection";
 export { PickupDropoffSection } from "./PickupDropoffSection";
 export { VehicleBaggageSection } from "./VehicleBaggageSection";
 export { VideosSection } from "./VideosSection";
+export { DeparturesSection } from "./DeparturesSection";
 export type { SectionProps } from "./BasicsSection";
