@@ -356,6 +356,25 @@ export type ListingMediaRow = {
 // Tripster v1 — new table row types
 // ---------------------------------------------------------------------------
 
+/** `public.reviews` row shape for reputation UI (subset; DB may include more columns). */
+export type ReviewStatusDb =
+  | "draft"
+  | "submitted"
+  | "published"
+  | "flagged"
+  | "hidden";
+
+export type ReviewRow = {
+  id: Uuid;
+  listing_id: Uuid | null;
+  guide_id: Uuid | null;
+  traveler_id: Uuid;
+  rating: number;
+  body: string | null;
+  status: ReviewStatusDb;
+  created_at: string;
+};
+
 export type ListingDayRow = {
   listing_id: Uuid;
   day_number: number;
