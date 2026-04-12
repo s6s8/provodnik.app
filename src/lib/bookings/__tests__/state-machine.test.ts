@@ -53,11 +53,13 @@ function createBookingSupabase(fromStatus: BookingStatus, toStatus: BookingStatu
 describe('BOOKING_TRANSITIONS', () => {
   it('defines the expected transition map', () => {
     expect(BOOKING_TRANSITIONS).toEqual({
-      pending: ['confirmed', 'cancelled'],
-      confirmed: ['completed', 'cancelled', 'disputed'],
+      pending: ['confirmed', 'cancelled', 'awaiting_guide_confirmation'],
+      awaiting_guide_confirmation: ['confirmed', 'cancelled'],
+      confirmed: ['completed', 'cancelled', 'disputed', 'no_show'],
       completed: [],
       cancelled: [],
       disputed: ['cancelled'],
+      no_show: [],
     })
   })
 })
@@ -66,9 +68,13 @@ describe('canTransition', () => {
   const validTransitions: Array<[BookingStatus, BookingStatus]> = [
     ['pending', 'confirmed'],
     ['pending', 'cancelled'],
+    ['pending', 'awaiting_guide_confirmation'],
+    ['awaiting_guide_confirmation', 'confirmed'],
+    ['awaiting_guide_confirmation', 'cancelled'],
     ['confirmed', 'completed'],
     ['confirmed', 'cancelled'],
     ['confirmed', 'disputed'],
+    ['confirmed', 'no_show'],
     ['disputed', 'cancelled'],
   ]
 
@@ -79,6 +85,8 @@ describe('canTransition', () => {
     ['completed', 'cancelled'],
     ['cancelled', 'confirmed'],
     ['disputed', 'confirmed'],
+    ['awaiting_guide_confirmation', 'completed'],
+    ['no_show', 'confirmed'],
   ]
 
   it.each(validTransitions)('allows %s -> %s', (from, to) => {
@@ -98,9 +106,13 @@ describe('transitionBooking', () => {
   const validTransitions: Array<[BookingStatus, BookingStatus]> = [
     ['pending', 'confirmed'],
     ['pending', 'cancelled'],
+    ['pending', 'awaiting_guide_confirmation'],
+    ['awaiting_guide_confirmation', 'confirmed'],
+    ['awaiting_guide_confirmation', 'cancelled'],
     ['confirmed', 'completed'],
     ['confirmed', 'cancelled'],
     ['confirmed', 'disputed'],
+    ['confirmed', 'no_show'],
     ['disputed', 'cancelled'],
   ]
 
@@ -110,6 +122,8 @@ describe('transitionBooking', () => {
     ['completed', 'confirmed'],
     ['cancelled', 'pending'],
     ['disputed', 'completed'],
+    ['awaiting_guide_confirmation', 'completed'],
+    ['no_show', 'confirmed'],
   ]
 
   it.each(validTransitions)('persists a valid transition from %s to %s', async (from, to) => {

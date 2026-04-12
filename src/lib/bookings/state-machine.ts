@@ -2,17 +2,21 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type BookingStatus =
   | "pending"
+  | "awaiting_guide_confirmation"
   | "confirmed"
   | "completed"
   | "cancelled"
-  | "disputed";
+  | "disputed"
+  | "no_show";
 
 export const BOOKING_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
-  pending: ["confirmed", "cancelled"],
-  confirmed: ["completed", "cancelled", "disputed"],
+  pending: ["confirmed", "cancelled", "awaiting_guide_confirmation"],
+  awaiting_guide_confirmation: ["confirmed", "cancelled"],
+  confirmed: ["completed", "cancelled", "disputed", "no_show"],
   completed: [],
   cancelled: [],
   disputed: ["cancelled"],
+  no_show: [],
 };
 
 export function canTransition(from: BookingStatus, to: BookingStatus): boolean {
