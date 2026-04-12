@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { ExcursionShapeDetail, type ListingDetailRow } from "@/components/listing-detail/ExcursionShapeDetail";
+import { TourShapeDetail } from "@/components/listing-detail/TourShapeDetail";
 import { SiteFooter } from "@/components/shared/site-footer";
 import { SiteHeader } from "@/components/shared/site-header";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { flags } from "@/lib/flags";
 
 function listingRefIsUuid(ref: string): boolean {
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ref);
@@ -62,7 +64,7 @@ export default async function ListingDetailPage({
     supabase.from("listing_tariffs").select("*").eq("listing_id", id),
     supabase
       .from("guide_profiles")
-      .select("user_id, slug, display_name, bio, average_rating, review_count, contact_visibility_unlocked")
+      .select("user_id, slug, display_name, bio, average_rating, review_count, contact_visibility_unlocked, is_tour_operator")
       .eq("user_id", listing.guide_id)
       .maybeSingle(),
   ]);
@@ -71,6 +73,47 @@ export default async function ListingDetailPage({
   const schedule = scheduleRes.data ?? [];
   const tariffs = tariffsRes.data ?? [];
   const guide = guideRes.data;
+
+
+  if (listing.exp_type === "tour") {
+    if (flags.FEATURE_TRIPSTER_TOURS) {
+      const [daysRes, mealsRes, departuresRes] = await Promise.all([
+        supabase.from("listing_days").select("*").eq("listing_id", id).order("day_number"),
+        supabase.from("listing_meals").select("*").eq("listing_id", id),
+        supabase
+          .from("listing_tour_departures")
+          .select("*")
+          .eq("listing_id", id)
+          .eq("status", "active")
+          .order("start_date"),
+      ]);
+
+      return (
+        <div className="min-h-screen bg-surface text-on-surface">
+          <SiteHeader
+            isAuthenticated={auth.isAuthenticated}
+            role={auth.role}
+            email={auth.email}
+            canonicalRedirectTo={auth.canonicalRedirectTo}
+          />
+          <main className="pt-nav-h">
+            <TourShapeDetail
+              listing={listing}
+              photos={photos}
+              tariffs={tariffs}
+              days={daysRes.data ?? []}
+              meals={mealsRes.data ?? []}
+              departures={departuresRes.data ?? []}
+              guide={guide}
+            />
+          </main>
+          <SiteFooter />
+        </div>
+      );
+    }
+    // Flag off — fall through to excursion template below
+  }
+
 
   return (
     <div className="min-h-screen bg-surface text-on-surface">
