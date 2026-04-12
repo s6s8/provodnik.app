@@ -91,7 +91,7 @@ async function loadBooking(bookingId: string): Promise<BookingRow | null> {
   return (data as BookingRow | null) ?? null;
 }
 
-async function recalculateGuideStats(guideId: string) {
+export async function recalculateGuideStats(guideId: string) {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("reviews")

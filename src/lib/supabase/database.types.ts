@@ -24,6 +24,7 @@ import type {
   OfferStatus,
   OpenRequestMemberRow,
   RequestStatus,
+  ReviewRatingsBreakdownRow,
   StorageAssetKindDb,
   StorageAssetRow,
   ThreadParticipantRow,
@@ -200,6 +201,11 @@ export interface Database {
       favorites: TableDefinition<FavoriteRow>;
       notifications: TableDefinition<NotificationRow, Partial<NotificationRow> & Pick<NotificationRow, "user_id" | "kind" | "title">>;
       reviews: TableDefinition<ReviewRow, Partial<ReviewRow> & Pick<ReviewRow, "booking_id" | "traveler_id" | "rating">>;
+      review_ratings_breakdown: TableDefinition<
+        ReviewRatingsBreakdownRow,
+        ReviewRatingsBreakdownRow,
+        Partial<ReviewRatingsBreakdownRow>
+      >;
       disputes: TableDefinition<DisputeRow, Partial<DisputeRow> & Pick<DisputeRow, "booking_id" | "opened_by" | "reason">>;
       dispute_notes: TableDefinition<DisputeNoteRow, Partial<DisputeNoteRow> & Pick<DisputeNoteRow, "dispute_id" | "author_id" | "note">>;
       conversation_threads: TableDefinition<ConversationThreadRow, Partial<ConversationThreadRow> & Pick<ConversationThreadRow, "subject_type">>;

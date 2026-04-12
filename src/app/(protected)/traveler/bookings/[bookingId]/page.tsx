@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpenDisputeButton } from "@/features/disputes/components/open-dispute-button";
+import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReviewForm";
 import { getBooking } from "@/lib/supabase/bookings";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
 import { flags } from "@/lib/flags";
@@ -128,9 +129,20 @@ export default async function TravelerBookingDetailPage({
   const status = toStateMachineStatus(booking.status);
   const existingReview =
     booking.status === "completed" ? await getReviewForBooking(booking.id) : null;
-  const canLeaveReview = booking.status === "completed" && !existingReview;
   const canOpenDispute =
     booking.status === "confirmed" || booking.status === "completed";
+
+  let listingTitle = "Поездка";
+  if (booking.listing_id) {
+    const { data: listingRow } = await supabase
+      .from("listings")
+      .select("title")
+      .eq("id", booking.listing_id)
+      .maybeSingle();
+    if (listingRow?.title) {
+      listingTitle = listingRow.title;
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -214,14 +226,6 @@ export default async function TravelerBookingDetailPage({
                 <Button type="submit">Написать гиду</Button>
               </form>
 
-              {canLeaveReview ? (
-                <Button asChild variant="secondary">
-                  <Link href={`/traveler/bookings/${booking.id}/review`}>
-                    Оставить отзыв
-                  </Link>
-                </Button>
-              ) : null}
-
               {flags.FEATURE_TRIPSTER_DISPUTES &&
               booking.status !== "disputed" &&
               canOpenDispute ? (
@@ -229,6 +233,15 @@ export default async function TravelerBookingDetailPage({
               ) : null}
             </div>
           </div>
+
+          {booking.status === "completed" && !existingReview ? (
+            <FourAxisReviewForm
+              bookingId={booking.id}
+              guideId={booking.guide_id}
+              listingId={booking.listing_id ?? ""}
+              listingTitle={listingTitle}
+            />
+          ) : null}
 
           <p className="font-sans text-[0.8125rem] text-muted-foreground leading-[1.6] p-3.5 px-4 rounded-[12px] border border-glass-border bg-outline-variant/[0.08]">
             Итоговая стоимость и детали поездки обсуждаются с гидом напрямую
