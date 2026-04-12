@@ -45,7 +45,14 @@ export type MessageSenderRole = "traveler" | "guide" | "admin" | "system";
 
 export type EventScope = "request" | "booking" | "dispute" | "moderation";
 
-export type ListingStatusDb = "draft" | "published" | "paused" | "rejected";
+export type ListingStatusDb =
+  | "draft"
+  | "published"
+  | "paused"
+  | "rejected"
+  | "pending_review"
+  | "active"
+  | "archived";
 
 export type GuideOfferRow = {
   id: Uuid;
@@ -281,6 +288,7 @@ export type ListingRow = {
   instant_booking: boolean;
   average_rating: number;
   review_count: number;
+  image_url: string | null;
 };
 
 export type StorageAssetKindDb =
