@@ -22,7 +22,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideBookingStatus } from "@/data/guide-booking/types";
 import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/guide-booking-status";
 import { cn } from "@/lib/utils";
-import { confirmBookingAction } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
+import { confirmBookingAction, completeBookingAction } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
 
 type GuideBookingAction = "confirm" | "complete" | "cancel" | "no_show";
 
@@ -72,8 +72,23 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
     });
   }, [bookingId, record, router]);
 
+  const handleComplete = React.useCallback(() => {
+    if (!record) return;
+    setErrorMessage(null);
+    startTransition(async () => {
+      const result = await completeBookingAction(bookingId);
+      if (result.ok) {
+        setRecord((prev) => (prev ? { ...prev, status: result.status } : prev));
+        setActionResult({ action: "complete", nextStatus: "completed" });
+        router.refresh();
+      } else {
+        setErrorMessage(result.error);
+      }
+    });
+  }, [bookingId, record, router]);
+
   const performLocalAction = React.useCallback(
-    (action: Exclude<GuideBookingAction, "confirm">) => {
+    (action: Exclude<GuideBookingAction, "confirm" | "complete">) => {
       if (!record) return;
       const currentGuideStatus = mapDbStatusToGuideStatus(record.status);
       const nextStatus = nextStatusForAction(currentGuideStatus, action);
@@ -186,11 +201,11 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
               onClick={handleConfirm}
             />
             <ActionButton
-              label="Завершить"
+              label={isPending ? "Завершаю…" : "Завершить"}
               description="Отметить тур как проведённый."
               icon={<CheckCircle2 className="size-4" />}
               disabled={!canComplete || isPending}
-              onClick={() => performLocalAction("complete")}
+              onClick={handleComplete}
             />
             <ActionButton
               label="Отменить"

@@ -8,23 +8,9 @@ import { AlertCircle, ArrowLeft, CheckCircle2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { hasSupabaseEnv } from "@/lib/env";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { sendPasswordResetEmail } from "@/app/(auth)/auth/forgot-password/actions";
 
 const hasEnv = hasSupabaseEnv();
-
-function getFriendlyAuthError(message: string) {
-  const normalized = message.toLowerCase();
-
-  if (normalized.includes("user not found")) {
-    return "Аккаунт с таким email не найден.";
-  }
-
-  if (normalized.includes("email rate limit exceeded")) {
-    return "Слишком много запросов. Попробуйте снова чуть позже.";
-  }
-
-  return message;
-}
 
 export function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
@@ -46,28 +32,16 @@ export function ForgotPasswordScreen() {
     setIsSubmitting(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const siteUrl =
-        process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-        trimmedEmail,
-        {
-          redirectTo: `${siteUrl}/auth/confirm`,
-        },
-      );
+      const result = await sendPasswordResetEmail(trimmedEmail);
 
-      if (resetError) {
-        setError(getFriendlyAuthError(resetError.message));
+      if (!result.ok) {
+        setError(result.error);
         return;
       }
 
       setSuccess(true);
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? getFriendlyAuthError(submitError.message)
-          : "Не удалось отправить письмо. Попробуйте еще раз.",
-      );
+    } catch {
+      setError("Не удалось отправить письмо. Попробуйте еще раз.");
     } finally {
       setIsSubmitting(false);
     }

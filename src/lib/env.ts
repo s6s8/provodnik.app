@@ -10,6 +10,7 @@ const clientEnvSchema = z.object({
 const serverEnvSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   SUPABASE_SECRET_KEY: z.string().min(1).optional(),
+  RESEND_API_KEY: z.string().min(1).optional(),
 });
 
 const parsedClientEnv = clientEnvSchema.parse({
@@ -23,6 +24,7 @@ const parsedClientEnv = clientEnvSchema.parse({
 const parsedServerEnv = serverEnvSchema.parse({
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   SUPABASE_SECRET_KEY: process.env.SUPABASE_SECRET_KEY,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
 });
 
 export const clientEnv = {
@@ -43,6 +45,7 @@ export const serverEnv = {
   SUPABASE_SECRET_KEY:
     parsedServerEnv.SUPABASE_SECRET_KEY ??
     parsedServerEnv.SUPABASE_SERVICE_ROLE_KEY,
+  RESEND_API_KEY: parsedServerEnv.RESEND_API_KEY,
 };
 
 export function hasSupabaseEnv() {
