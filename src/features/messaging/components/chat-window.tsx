@@ -122,6 +122,9 @@ export function ChatWindow({
             senderAvatar={message.sender_profile?.avatar_url ?? null}
             timestamp={message.created_at}
             isOwn={isOwn}
+            metadata={message.metadata}
+            senderId={message.sender_id}
+            currentUserId={currentUserId}
           />
         );
       })}

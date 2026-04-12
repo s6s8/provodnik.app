@@ -12,6 +12,7 @@ export type OfferStatus =
   | "pending"
   | "accepted"
   | "declined"
+  | "counter_offered"
   | "expired"
   | "withdrawn";
 

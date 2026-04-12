@@ -1,6 +1,9 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import type { GuideOfferRow } from "@/lib/supabase/types";
+
+import { OfferCard } from "./OfferCard";
 
 function formatTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString("ru-RU", {
@@ -10,12 +13,56 @@ function formatTime(timestamp: string) {
 }
 
 function getInitials(senderName: string) {
-  return senderName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("") || "П";
+  return (
+    senderName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase() ?? "")
+      .join("") || "П"
+  );
+}
+
+function parseOfferSentPayload(
+  payload: Record<string, unknown>,
+): {
+  offer_id: string;
+  price_minor: number;
+  currency: string;
+  description: string | null;
+  status: GuideOfferRow["status"];
+  valid_until: string | null;
+} | null {
+  if (typeof payload.offer_id !== "string") return null;
+  const priceMinor = payload.price_minor;
+  if (typeof priceMinor !== "number" || !Number.isFinite(priceMinor)) return null;
+  if (typeof payload.currency !== "string") return null;
+  const description =
+    payload.description === null || typeof payload.description === "string"
+      ? (payload.description as string | null)
+      : null;
+  if (typeof payload.status !== "string") return null;
+  const validUntil =
+    payload.valid_until === null || typeof payload.valid_until === "string"
+      ? (payload.valid_until as string | null)
+      : null;
+  return {
+    offer_id: payload.offer_id,
+    price_minor: priceMinor,
+    currency: payload.currency,
+    description,
+    status: payload.status as GuideOfferRow["status"],
+    valid_until: validUntil,
+  };
+}
+
+function tryGetOfferSentMetadata(metadata: unknown) {
+  if (!metadata || typeof metadata !== "object") return null;
+  const m = metadata as Record<string, unknown>;
+  if (m.system_event_type !== "offer_sent") return null;
+  const rawPayload = m.system_event_payload;
+  if (!rawPayload || typeof rawPayload !== "object") return null;
+  return parseOfferSentPayload(rawPayload as Record<string, unknown>);
 }
 
 interface MessageBubbleProps {
@@ -24,6 +71,9 @@ interface MessageBubbleProps {
   senderAvatar?: string | null;
   timestamp: string;
   isOwn: boolean;
+  metadata?: unknown;
+  senderId?: string | null;
+  currentUserId?: string;
 }
 
 export function MessageBubble({
@@ -32,7 +82,31 @@ export function MessageBubble({
   senderAvatar,
   timestamp,
   isOwn,
+  metadata,
+  senderId,
+  currentUserId,
 }: MessageBubbleProps) {
+  const offerPayload = tryGetOfferSentMetadata(metadata);
+
+  if (offerPayload && currentUserId) {
+    const viewerRole: "traveler" | "guide" =
+      senderId != null && senderId === currentUserId ? "guide" : "traveler";
+
+    return (
+      <div className={isOwn ? "flex justify-end" : "flex justify-start"}>
+        <OfferCard
+          offerId={offerPayload.offer_id}
+          priceMinor={offerPayload.price_minor}
+          currency={offerPayload.currency}
+          description={offerPayload.description}
+          status={offerPayload.status}
+          validUntil={offerPayload.valid_until}
+          viewerRole={viewerRole}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={isOwn ? "flex justify-end" : "flex justify-start"}>
       <article
@@ -52,7 +126,9 @@ export function MessageBubble({
             </Avatar>
           ) : null}
           <div className="grid gap-0.5">
-            <p className="text-[0.8125rem] font-semibold text-foreground">{isOwn ? "Вы" : senderName}</p>
+            <p className="text-[0.8125rem] font-semibold text-foreground">
+              {isOwn ? "Вы" : senderName}
+            </p>
             <time className="text-xs text-muted-foreground" dateTime={timestamp}>
               {formatTime(timestamp)}
             </time>
