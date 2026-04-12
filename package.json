@@ -16,7 +16,9 @@
     "db:push": "supabase db push",
     "db:migrate": "supabase migration new",
     "types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
-    "types:remote": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts"
+    "types:remote": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
+    "playwright": "playwright test",
+    "playwright:e2e": "playwright test tests/e2e/tripster-v1/"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
@@ -43,6 +45,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
