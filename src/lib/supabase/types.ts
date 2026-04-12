@@ -259,6 +259,7 @@ export type ListingRow = {
   cancellation_policy_key: string;
   status: ListingStatusDb;
   featured_rank: number | null;
+  image_url: string | null;
   created_at: string;
   updated_at: string;
   // Tripster v1 additions
