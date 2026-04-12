@@ -23,6 +23,8 @@ import type {
   NotificationRow,
   OfferStatus,
   OpenRequestMemberRow,
+  PartnerAccountRow,
+  PartnerPayoutsLedgerRow,
   RequestStatus,
   ReviewRatingsBreakdownRow,
   StorageAssetKindDb,
@@ -220,6 +222,12 @@ export interface Database {
       moderation_actions: TableDefinition<ModerationActionRow>;
       quality_snapshots: TableDefinition<QualitySnapshotRow>;
       destinations: TableDefinition<DestinationRow>;
+      partner_accounts: TableDefinition<
+        PartnerAccountRow,
+        Pick<PartnerAccountRow, "user_id" | "api_token_hash">,
+        Partial<Pick<PartnerAccountRow, "api_token_hash">>
+      >;
+      partner_payouts_ledger: TableDefinition<PartnerPayoutsLedgerRow>;
     };
     Views: {
       v_guide_dashboard_kpi: {
