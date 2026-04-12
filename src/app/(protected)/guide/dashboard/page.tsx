@@ -4,6 +4,7 @@ import {
   GuideDashboardScreen,
   type GuideVerificationStatus,
 } from "@/features/guide/components/dashboard/guide-dashboard-screen";
+import { KpiStrip } from "@/features/guide/components/dashboard/KpiStrip";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -41,6 +42,7 @@ export default async function GuideDashboardPage() {
   let guideName = deriveGuideName(auth.email);
   let verificationStatus: GuideVerificationStatus = "draft";
   let verificationNotes: string | null = null;
+  let userId: string | null = null;
 
   if (auth.isAuthenticated) {
     try {
@@ -50,6 +52,7 @@ export default async function GuideDashboardPage() {
       } = await supabase.auth.getUser();
 
       if (user) {
+        userId = user.id;
         const [guideProfile, guideBookings, guideListings, guideRequests] =
           await Promise.all([
             supabase
@@ -94,15 +97,18 @@ export default async function GuideDashboardPage() {
   }
 
   return (
-    <GuideDashboardScreen
-      bookingCount={bookingCount}
-      guideName={guideName}
-      hasData={hasData}
-      isVerified={isVerified}
-      listingCount={listingCount}
-      requestCount={requestCount}
-      verificationStatus={verificationStatus}
-      verificationNotes={verificationNotes}
-    />
+    <div className="space-y-8">
+      {userId ? <KpiStrip userId={userId} /> : null}
+      <GuideDashboardScreen
+        bookingCount={bookingCount}
+        guideName={guideName}
+        hasData={hasData}
+        isVerified={isVerified}
+        listingCount={listingCount}
+        requestCount={requestCount}
+        verificationStatus={verificationStatus}
+        verificationNotes={verificationNotes}
+      />
+    </div>
   );
 }

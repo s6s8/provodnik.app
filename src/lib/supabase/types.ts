@@ -178,6 +178,23 @@ export type OpenRequestMemberRow = {
   left_at: string | null;
 };
 
+/** Read model for `v_guide_dashboard_kpi` (30d aggregates when present; extra keys from older view shapes are ignored). */
+export type GuideDashboardKpiViewRow = {
+  guide_id: Uuid;
+  views_30d?: number | null;
+  requests_30d?: number | null;
+  offers_sent_30d?: number | null;
+  bookings_30d?: number | null;
+  active_listings?: number | null;
+  average_rating?: number | null;
+  response_rate?: number | null;
+  review_count?: number | null;
+  listing_count?: number | null;
+  active_bookings?: number | null;
+  completed_bookings?: number | null;
+  open_requests?: number | null;
+};
+
 export type GuideProfileRow = {
   user_id: Uuid;
   slug: string | null;

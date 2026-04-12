@@ -7,6 +7,7 @@ import type {
   GuideDocumentRow,
   GuideOfferRow,
   GuideLicenseRow,
+  GuideDashboardKpiViewRow,
   GuideProfileRow,
   GuideProfileUpsert,
   GuideVerificationStatusDb,
@@ -215,7 +216,10 @@ export interface Database {
       destinations: TableDefinition<DestinationRow>;
     };
     Views: {
-      [_ in never]: never;
+      v_guide_dashboard_kpi: {
+        Row: GuideDashboardKpiViewRow;
+        Relationships: [];
+      };
     };
     Functions: {
       can_access_booking_thread: {
