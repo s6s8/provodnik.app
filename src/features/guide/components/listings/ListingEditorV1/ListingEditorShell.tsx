@@ -23,12 +23,16 @@ import { CompletenessPanel } from "./completeness";
 import { useAutosave } from "./useAutosave";
 import type { SectionProps } from "./sections";
 import {
+  AccommodationSection,
   AudienceFactsSection,
   BasicsSection,
   DeparturesSection,
+  DifficultySection,
   IdeaRouteThemeSection,
+  IncludedExcludedSection,
   ItinerarySection,
   MeetingPointSection,
+  MealsGridSection,
   OrgDetailsSection,
   PhotosSection,
   PickupDropoffSection,
@@ -52,6 +56,10 @@ const SECTION_COMPONENTS: Partial<
   pickup_dropoff: PickupDropoffSection,
   vehicle_baggage: VehicleBaggageSection,
   departures: DeparturesSection,
+  meals_grid: MealsGridSection,
+  included_excluded: IncludedExcludedSection,
+  difficulty: DifficultySection,
+  accommodation: AccommodationSection,
 };
 
 const EXP_TYPE_OPTIONS: { value: ListingExpType; label: string }[] = [
