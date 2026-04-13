@@ -115,7 +115,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
           </div>
 
           <Button asChild className="mt-5">
-            <Link href="/requests/new">Создать запрос</Link>
+            <Link href="/traveler/requests/new">Создать запрос</Link>
           </Button>
         </div>
       </section>
@@ -187,7 +187,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
             компанию.
           </p>
           <Button asChild>
-            <Link href="/requests/new">Создать запрос</Link>
+            <Link href="/traveler/requests/new">Создать запрос</Link>
           </Button>
         </div>
       </section>
