@@ -49,6 +49,7 @@ export const COPY = {
     howItWorks: 'Как это работает',
     becomeGuide: 'Стать гидом',
     signIn: 'Войти',
+    notifications: 'Уведомления',
   },
 
   // Empty states — always end with a CTA hint

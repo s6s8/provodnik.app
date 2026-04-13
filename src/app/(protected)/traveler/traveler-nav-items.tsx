@@ -34,7 +34,7 @@ const travelerNavItems = [
   },
   {
     href: "/notifications",
-    label: "Уведомления",
+    label: COPY.nav.notifications,
     mobileLabel: "Увед.",
     icon: Bell,
   },
