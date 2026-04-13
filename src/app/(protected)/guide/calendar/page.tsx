@@ -28,29 +28,29 @@ export default async function GuideCalendarPage() {
   let departures: ListingTourDepartureRow[] = [];
   let listings: { id: string; title: string; exp_type: string | null }[] = [];
 
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return (
+      <div className="space-y-6">
+        <Card className="border-border/70 bg-card/90">
+          <CardHeader>
+            <CardTitle className="text-xl">Календарь</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Не удалось загрузить профиль. Обновите страницу или войдите снова.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   try {
-    const supabase = await createSupabaseServerClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      return (
-        <div className="space-y-6">
-          <Card className="border-border/70 bg-card/90">
-            <CardHeader>
-              <CardTitle className="text-xl">Календарь</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Не удалось загрузить профиль. Обновите страницу или войдите снова.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      );
-    }
-
     const guideId = user.id;
 
     const { data: listingsRaw } = await supabase

@@ -90,7 +90,9 @@ export default async function GuideStatisticsPage({
   if (!user) notFound();
 
   const userId = user.id;
-  const cutoff = new Date(Date.now() - rangeDays * 24 * 60 * 60 * 1000).toISOString();
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - rangeDays);
+  const cutoff = cutoffDate.toISOString();
 
   const { data: bookings } = await supabase
     .from("bookings")
