@@ -144,7 +144,9 @@ export async function acceptOfferAction(
     // Notification delivery must not block booking creation.
   }
 
-  redirect(`/traveler/bookings/${booking.id}`);
+  redirect(
+    `/traveler/requests/${requestId}/accepted?booking_id=${booking.id}&guide_id=${guideId}`,
+  );
 }
 
 export async function openOfferThreadAction(formData: FormData) {
