@@ -1,63 +1,52 @@
 # Provodnik
 
-Provodnik is a mobile-first marketplace for tours and excursions in Russia. The current baseline is set up for parallel MVP implementation across dedicated worktrees.
+Mobile-first marketplace for tours and excursions in Russia.
 
-## Workspace layout
+## Workspace
 
-- app repo: `D:\dev\projects\provodnik\provodnik.app`
-- task repo: `D:\dev\projects\provodnik\provodnik.app-Tasks`
-- git worktrees root: `D:\dev\projects\provodnik\worktrees`
+- **App repo:** `D:/dev2/projects/provodnik/provodnik.app/` ← you are here
+- **Root workspace:** `D:/dev2/projects/provodnik/` — SOT files, docs, scripts, agent tooling
 
 ## Stack
 
-- `Next.js 16`
-- `TypeScript`
-- `Tailwind CSS v4`
-- `shadcn/ui`
-- `Supabase`
-- `TanStack Query`
-- `React Hook Form`
-- `Zod`
+- Next.js 15 (App Router) + React 19 + TypeScript
+- Tailwind CSS v4 + shadcn/ui
+- Supabase (PostgreSQL + RLS + Auth)
+- TanStack Query · React Hook Form · Zod
+- Package manager: bun
 
 ## Quick start
 
 ```bash
 bun install
-bun dev
+cp .env.example .env.local   # fill in Supabase credentials
+bun dev                      # http://localhost:3000
 ```
 
-Open `http://localhost:3000`.
+## Key commands
 
-## Environment
+```bash
+bun run build        # production build
+bun run check        # typecheck + lint
+bun run db:reset     # reset local Supabase + all migrations + seed
+bun run types        # regenerate src/types/supabase.ts
+```
 
-Copy `.env.example` to `.env.local` and fill in:
+## Status
 
-- `NEXT_PUBLIC_APP_URL`
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
-- `SUPABASE_SECRET_KEY`
-- `SUPABASE_DB_PASSWORD` when you are ready to run Supabase CLI migrations against the hosted project
+Tripster V1 complete — all 42 waves merged, DB migrated, Vercel build green.
 
-Legacy aliases are still accepted:
+Remaining soft-launch items (tracked in root SOT):
+- Set Vercel env vars
+- Onboard 3–5 real guides
+- Domain/DNS and Supabase daily backups
 
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
+## Docs
 
-The app shell works without Supabase credentials, but Supabase helper functions will throw if called before configuration.
+All product, architecture, and business docs live in the root workspace:
 
-## Project docs
+- `D:/dev2/projects/provodnik/docs/product/` — MVP, PRD, market research
+- `D:/dev2/projects/provodnik/docs/architecture/` — ADRs, module map
+- `D:/dev2/projects/provodnik/docs/business/` — investor materials
 
-- `AGENTS.md`: canonical repo operating context
-- `PROVODNIK-REPO-MEMORY.md`: repo memory, ownership, and status-tracking workflow
-- `docs/process/orchestration-workflow.md`: issue, project, worktree, and Cursor workflow
-- `docs/process/mvp-orchestration-roadmap.md`: MVP release order and execution queue
-- `MVP.md`: full product scope and release definition
-- `PRD.md`: product requirements and market thesis
-- `MARKET_RESEARCH.md`: competitor and market context
-- `WORKSTREAMS.md`: branch and worktree split for parallel delivery
-
-## Task tracking
-
-- code repo: `s6s8/provodnik.app`
-- issue repo: `s6s8/provodnik.app-Tasks`
-- shared board: `Provodnik`
+For agent/orchestration instructions see `AGENTS.md` in this directory.

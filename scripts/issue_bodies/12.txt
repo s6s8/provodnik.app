@@ -1,9 +1,0 @@
-Replace the redirect at `/traveler` with a real dashboard.
-
-- [ ] Implement `/traveler` overview: summary rail or hero, tabs or sections for My requests, Groups joined, Offers, Bookings. Use compact image-led cards; link to existing traveler sub-routes.
-- [ ] Reuse existing traveler screens; do not duplicate their logic. Dashboard is composition + navigation.
-- [ ] Show negotiation/booking status where useful (badges, counts).
-
-**Acceptance:** `/traveler` is the traveler control center. User sees current activity at a glance.
-
-Ref: IMPLEMENTATION.md §13.9, §18.

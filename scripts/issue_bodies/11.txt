@@ -1,6 +1,0 @@
-- [ ] Redesign `/guides/[slug]`: dark shell, tours grid, "Active offers to groups" section, cities served. Keep trust markers and reviews. Link to requests/destinations where relevant.
-- [ ] Align `/trust`, `/auth`, and policy pages (`/policies/cancellation`, `/policies/refunds`) with the dark public shell; improve readability and navigation, no functional regression.
-
-**Acceptance:** Guide profile is both trust page and supply-side entry. Trust and policy pages match dark shell.
-
-Ref: IMPLEMENTATION.md §13.8, §13.23.

@@ -10,4 +10,4 @@ Keep shared chrome in `src/components/shared` and app-wide providers in `src/com
 
 Do not move feature-specific logic into shared components.
 
-If you change global layout, route groups, provider shape, or design tokens, update `docs/architecture/module-map.md`.
+If you change global layout, route groups, provider shape, or design tokens, update `D:/dev2/projects/provodnik/docs/architecture/module-map.md` (root workspace).

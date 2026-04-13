@@ -1,9 +1,0 @@
-Make `/guide` a real role home instead of only onboarding.
-
-- [ ] Implement guide overview: summary (incoming requests, active offers, accepted bookings, listing quality); links to Listings, Requests, Bookings. If onboarding incomplete, show onboarding status and CTA.
-- [ ] Reuse existing guide screens; dashboard is composition + navigation.
-- [ ] Optional: conditional landing — if profile incomplete, keep onboarding as primary; else show dashboard first.
-
-**Acceptance:** `/guide` is the guide operational home.
-
-Ref: IMPLEMENTATION.md §13.14, §18.

@@ -1,4 +1,6 @@
-Follow `AGENT.md` first, then `docs/architecture/module-map.md`, then any matching `.github/instructions/*.instructions.md`.
+Follow `AGENTS.md` first, then any matching `.github/instructions/*.instructions.md`.
+
+Full docs, SOT files, and architecture notes live in the root workspace at `D:/dev2/projects/provodnik/docs/`.
 
 Use the smallest coherent change that solves the task.
 
@@ -13,9 +15,9 @@ Do not edit `src/components/ui/*` unless the task is shared-foundation work.
 Keep the shell runnable without Supabase env unless the task explicitly requires configured backend flows.
 
 When architecture, ownership, or conventions change, update the matching source-of-truth docs:
-- `AGENT.md`
-- `docs/architecture/module-map.md`
+- `AGENTS.md` in this repo
+- `D:/dev2/projects/provodnik/docs/architecture/module-map.md`
 - `.github/CODEOWNERS`
-- `docs/adr/*` for durable decisions
+- `D:/dev2/projects/provodnik/docs/architecture/adr/` for durable decisions
 
 Do not store temporary task status in repo memory files. Live progress belongs in issues, pull requests, or GitHub Projects.
