@@ -1,38 +1,10 @@
 import type { ReactNode } from "react";
 
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Bell, BookOpen, Calendar, Heart } from "lucide-react";
 
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
-import { cn } from "@/lib/utils";
-
-const travelerNavItems = [
-  {
-    href: "/traveler/requests",
-    label: "Мои запросы",
-    mobileLabel: "Запросы",
-    icon: BookOpen,
-  },
-  {
-    href: "/traveler/bookings",
-    label: "Бронирования",
-    mobileLabel: "Брони",
-    icon: Calendar,
-  },
-  {
-    href: "/traveler/favorites",
-    label: "Избранное",
-    mobileLabel: "Избранное",
-    icon: Heart,
-  },
-  {
-    href: "/notifications",
-    label: "Уведомления",
-    mobileLabel: "Увед.",
-    icon: Bell,
-  },
-] as const;
+import { TravelerMobileTabs } from "@/app/(protected)/traveler/traveler-mobile-tabs";
+import { TravelerNavItems } from "@/app/(protected)/traveler/traveler-nav-items";
 
 export default async function TravelerLayout({
   children,
@@ -57,7 +29,7 @@ export default async function TravelerLayout({
         <WorkspaceSidebar initials={initials} email={auth.email} />
         <main className="min-w-0">{children}</main>
       </div>
-      <MobileWorkspaceTabs />
+      <TravelerMobileTabs />
     </div>
   );
 }
@@ -83,61 +55,10 @@ function WorkspaceSidebar({
         </div>
         <div className="h-px bg-[rgba(15,25,35,0.08)]" />
         <nav className="space-y-2" aria-label="Traveler workspace">
-          {travelerNavItems.map((item, index) => {
-            const Icon = item.icon;
-            const isDefaultActive = index === 0;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={isDefaultActive ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors",
-                  isDefaultActive
-                    ? "bg-brand-light font-semibold text-brand"
-                    : "text-ink-2 hover:bg-surface-low hover:text-ink",
-                )}
-              >
-                <Icon className="size-[18px]" strokeWidth={1.8} />
-                <span>{item.label}</span>
-              </Link>
-            );
-          })}
+          <TravelerNavItems />
         </nav>
       </div>
     </aside>
-  );
-}
-
-function MobileWorkspaceTabs() {
-  return (
-    <nav
-      className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-4 rounded-[1.5rem] border border-glass-border bg-[rgba(249,249,255,0.9)] p-2 shadow-glass backdrop-blur md:hidden"
-      aria-label="Traveler workspace mobile"
-    >
-      {travelerNavItems.map((item, index) => {
-        const Icon = item.icon;
-        const isDefaultActive = index === 0;
-
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={isDefaultActive ? "page" : undefined}
-            className={cn(
-              "flex min-w-0 flex-col items-center gap-1 rounded-[1rem] px-2 py-2 text-center text-[11px] font-medium transition-colors",
-              isDefaultActive
-                ? "bg-brand-light font-semibold text-brand"
-                : "text-ink-2",
-            )}
-          >
-            <Icon className="size-4" strokeWidth={1.9} />
-            <span className="truncate">{item.mobileLabel}</span>
-          </Link>
-        );
-      })}
-    </nav>
   );
 }
 
