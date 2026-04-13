@@ -91,15 +91,22 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
           {formatLabel ? <li>Формат: {formatLabel}</li> : null}
           <li>Группа до {listing.max_group_size} чел.</li>
         </ul>
+        <ul className="space-y-1.5 text-sm text-muted-foreground">
+          <li>Отправьте запрос — гид пришлёт предложение с ценой и деталями</li>
+          <li>Оплата напрямую гиду при встрече. 0% комиссии.</li>
+          <li>Контакты гида откроются после принятия предложения</li>
+        </ul>
         {listing.instant_booking ? (
           <Badge variant="secondary">Мгновенное бронирование</Badge>
         ) : null}
         <div className="flex flex-col gap-2">
           <Button asChild className="w-full">
-            <Link href={`/listings/${listing.id}/book`}>Заказать</Link>
+            <Link href={`/traveler/requests/new${guide?.user_id ? `?guide=${guide.user_id}` : ""}`}>
+              Запросить у этого гида
+            </Link>
           </Button>
-          <Button asChild variant="outline" className="w-full">
-            <Link href={`/listings/${listing.id}/book?tab=question`}>Задать вопрос</Link>
+          <Button asChild variant="ghost" className="w-full text-sm">
+            <Link href={`/traveler/requests/new`}>Задать вопрос гиду</Link>
           </Button>
         </div>
       </CardContent>
@@ -188,7 +195,9 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
         <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-[clamp(12px,3vw,24px)]">
           <p className="text-lg font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
           <Button asChild className="shrink-0">
-            <Link href={`/listings/${listing.id}/book`}>Заказать</Link>
+            <Link href={`/traveler/requests/new${guide?.user_id ? `?guide=${guide.user_id}` : ""}`}>
+              Запросить
+            </Link>
           </Button>
         </div>
       </div>
