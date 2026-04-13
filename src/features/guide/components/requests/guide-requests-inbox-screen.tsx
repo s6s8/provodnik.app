@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
+import { BidFormPanel } from "./bid-form-panel";
+
 function formatDateTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
@@ -36,6 +38,9 @@ type RequestsFilter = "all" | "no-offer" | "offered";
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
+  const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
+    null,
+  );
   const [filter, setFilter] = React.useState<RequestsFilter>("no-offer");
   const [didAutoSelect, setDidAutoSelect] = React.useState(false);
 
@@ -93,6 +98,10 @@ export function GuideRequestsInboxScreen() {
     }
     return items;
   }, [filter, items, offeredIds]);
+
+  const panelRequest = panelRequestId
+    ? items.find((i) => i.id === panelRequestId)
+    : null;
 
   const tabs: Array<{ key: RequestsFilter; label: string; count: number }> = [
     { key: "all", label: "Все", count: items.length },
@@ -285,10 +294,11 @@ export function GuideRequestsInboxScreen() {
                             ✓ Предложение отправлено
                           </span>
                         ) : (
-                          <Button asChild size="sm">
-                            <Link href={`/guide/inbox/${item.id}/offer`}>
-                              Предложить цену
-                            </Link>
+                          <Button
+                            size="sm"
+                            onClick={() => setPanelRequestId(item.id)}
+                          >
+                            Предложить цену
                           </Button>
                         )}
                       </div>
@@ -303,6 +313,19 @@ export function GuideRequestsInboxScreen() {
           )}
         </CardContent>
       </Card>
+
+      {panelRequestId && panelRequest ? (
+        <BidFormPanel
+          requestId={panelRequestId}
+          request={panelRequest}
+          onClose={() => setPanelRequestId(null)}
+          onSuccess={() => {
+            // Mark as offered optimistically
+            setPanelRequestId(null);
+            setOfferedIds((prev) => new Set([...prev, panelRequestId]));
+          }}
+        />
+      ) : null}
     </div>
   );
 }
