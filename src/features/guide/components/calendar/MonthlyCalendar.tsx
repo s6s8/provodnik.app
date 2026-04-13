@@ -1,19 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import * as React from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import type {
   ListingScheduleExtraRow,
   ListingScheduleRow,
   ListingTourDepartureRow,
 } from "@/lib/supabase/types";
+import { DayPanel } from "./day-panel";
 
 const LISTING_DOT_CLASSES = [
   "bg-sky-500",
@@ -67,16 +62,18 @@ export function MonthlyCalendar({
   departures,
   listings,
 }: MonthlyCalendarProps) {
-  const [monthOffset, setMonthOffset] = useState(0);
-  const [dialogDate, setDialogDate] = useState<Date | null>(null);
+  const [monthOffset, setMonthOffset] = React.useState(0);
+  const [selectedListingId, setSelectedListingId] = React.useState<string>("all");
+  const [localExtras, setLocalExtras] = React.useState<ListingScheduleExtraRow[]>(extras);
+  const [dayPanelDate, setDayPanelDate] = React.useState<string | null>(null);
 
-  const titleByListingId = useMemo(() => {
+  const titleByListingId = React.useMemo(() => {
     const m = new Map<string, string>();
     for (const l of listings) m.set(l.id, l.title);
     return m;
   }, [listings]);
 
-  const listingColorClass = useMemo(() => {
+  const listingColorClass = React.useMemo(() => {
     const m = new Map<string, string>();
     listings.forEach((l, i) => {
       m.set(l.id, LISTING_DOT_CLASSES[i % LISTING_DOT_CLASSES.length]!);
@@ -84,7 +81,7 @@ export function MonthlyCalendar({
     return m;
   }, [listings]);
 
-  const visibleMonth = useMemo(() => {
+  const visibleMonth = React.useMemo(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + monthOffset);
     d.setDate(1);
@@ -92,7 +89,7 @@ export function MonthlyCalendar({
     return d;
   }, [monthOffset]);
 
-  const monthTitle = useMemo(
+  const monthTitle = React.useMemo(
     () =>
       visibleMonth.toLocaleDateString("ru-RU", {
         month: "long",
@@ -101,7 +98,7 @@ export function MonthlyCalendar({
     [visibleMonth],
   );
 
-  const gridCells = useMemo(() => {
+  const gridCells = React.useMemo(() => {
     const year = visibleMonth.getFullYear();
     const month = visibleMonth.getMonth();
     const first = new Date(year, month, 1);
@@ -121,21 +118,22 @@ export function MonthlyCalendar({
     return cells.slice(0, 42);
   }, [visibleMonth]);
 
-  const dialogIso = dialogDate ? formatDateOnlyLocal(dialogDate) : null;
-
-  const dialogContent = useMemo(() => {
-    if (!dialogDate || !dialogIso) return null;
-
-    const dbWeekday = jsDayToDbWeekday(dialogDate);
-    const weeklySlots = schedules.filter((s) => s.weekday === dbWeekday);
-    const dayExtras = extras.filter((e) => e.date === dialogIso);
-    const dayDepartures = departures.filter((d) => d.start_date === dialogIso);
-
-    return { weeklySlots, dayExtras, dayDepartures };
-  }, [dialogDate, dialogIso, schedules, extras, departures]);
 
   return (
     <div className="space-y-4">
+      {listings.length > 1 && (
+        <select
+          value={selectedListingId}
+          onChange={(e) => setSelectedListingId(e.target.value)}
+          className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+        >
+          <option value="all">Все предложения</option>
+          {listings.map((l) => (
+            <option key={l.id} value={l.id}>{l.title}</option>
+          ))}
+        </select>
+      )}
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium text-foreground">{monthTitle}</p>
         <div className="flex flex-wrap gap-2">
@@ -184,7 +182,7 @@ export function MonthlyCalendar({
           for (const s of schedules) {
             if (s.weekday === dbWeekday) listingIdsWithSlot.add(s.listing_id);
           }
-          for (const e of extras) {
+          for (const e of localExtras) {
             if (e.date === iso) listingIdsWithSlot.add(e.listing_id);
           }
 
@@ -194,7 +192,7 @@ export function MonthlyCalendar({
             <button
               key={iso}
               type="button"
-              onClick={() => setDialogDate(cell.date)}
+              onClick={() => setDayPanelDate(formatDateOnlyLocal(cell.date!))}
               className="flex min-h-[4.5rem] flex-col items-center gap-1 rounded-lg border border-border/60 bg-background/60 p-1.5 text-left transition hover:border-border hover:bg-muted/30"
             >
               <span className="text-sm font-semibold tabular-nums text-foreground">
@@ -220,68 +218,32 @@ export function MonthlyCalendar({
         })}
       </div>
 
-      <Dialog open={dialogDate !== null} onOpenChange={(o) => !o && setDialogDate(null)}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>
-              {dialogDate
-                ? dialogDate.toLocaleDateString("ru-RU", {
-                    weekday: "long",
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })
-                : ""}
-            </DialogTitle>
-          </DialogHeader>
-          {dialogContent ? (
-            <ul className="space-y-3 text-sm">
-              {dialogContent.weeklySlots.map((s) => (
-                <li key={s.id}>
-                  <span className="font-medium text-foreground">
-                    {titleByListingId.get(s.listing_id) ?? "Тур"}
-                  </span>
-                  <p className="text-muted-foreground">
-                    Еженедельно · {formatTime(s.time_start)}–{formatTime(s.time_end)}
-                  </p>
-                </li>
-              ))}
-              {dialogContent.dayExtras.map((e) => (
-                <li key={e.id}>
-                  <span className="font-medium text-foreground">
-                    {titleByListingId.get(e.listing_id) ?? "Тур"}
-                  </span>
-                  <p className="text-muted-foreground">
-                    Особая дата ·{" "}
-                    {e.time_start && e.time_end
-                      ? `${formatTime(e.time_start)}–${formatTime(e.time_end)}`
-                      : "время не задано"}
-                  </p>
-                </li>
-              ))}
-              {dialogContent.dayDepartures.map((dep) => {
-                const cur = dep.currency === "RUB" ? "₽" : dep.currency;
-                return (
-                  <li key={dep.id}>
-                    <span className="font-medium text-foreground">
-                      {titleByListingId.get(dep.listing_id) ?? "Тур"}
-                    </span>
-                    <p className="text-violet-600 dark:text-violet-400">
-                      Отправление · от {formatRub(dep.price_minor)} {cur} ·{" "}
-                      {departureStatusLabel(dep.status)}
-                    </p>
-                  </li>
-                );
-              })}
-              {dialogContent.weeklySlots.length === 0 &&
-              dialogContent.dayExtras.length === 0 &&
-              dialogContent.dayDepartures.length === 0 ? (
-                <p className="text-muted-foreground">Нет слотов в этот день.</p>
-              ) : null}
-            </ul>
-          ) : null}
-        </DialogContent>
-      </Dialog>
+      {dayPanelDate && (
+        <DayPanel
+          date={dayPanelDate}
+          dateLabel={new Date(dayPanelDate + "T00:00:00").toLocaleDateString("ru-RU", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+          })}
+          listingId={selectedListingId === "all" ? (listings[0]?.id ?? "") : selectedListingId}
+          listingTitle={
+            selectedListingId === "all"
+              ? (listings[0]?.title ?? "Тур")
+              : (listings.find((l) => l.id === selectedListingId)?.title ?? "Тур")
+          }
+          extras={localExtras}
+          onClose={() => setDayPanelDate(null)}
+          onExtrasChange={(_date, newExtras) => {
+            if (newExtras.length === 0) {
+              // blockDay was called — close panel, data will reload on next page visit
+              setDayPanelDate(null);
+            } else {
+              setLocalExtras(newExtras);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }
