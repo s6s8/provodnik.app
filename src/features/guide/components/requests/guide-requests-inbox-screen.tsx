@@ -33,16 +33,23 @@ async function fetchOfferedRequestIds(guideId: string): Promise<Set<string>> {
   return new Set(data.map((row) => row.request_id as string));
 }
 
-type RequestsFilter = "all" | "no-offer" | "offered";
+type RequestsFilter = "new" | "my-offers" | "accepted";
 
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
+  const [acceptedOfferIds, setAcceptedOfferIds] = React.useState<Set<string>>(
+    new Set(),
+  );
   const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
     null,
   );
-  const [filter, setFilter] = React.useState<RequestsFilter>("no-offer");
+  const [filter, setFilter] = React.useState<RequestsFilter>("new");
   const [didAutoSelect, setDidAutoSelect] = React.useState(false);
+  const [cityFilter, setCityFilter] = React.useState<string>("all");
+  const [sortKey, setSortKey] = React.useState<"newest" | "date" | "size">(
+    "newest",
+  );
 
   React.useEffect(() => {
     let ignore = false;
@@ -60,6 +67,18 @@ export function GuideRequestsInboxScreen() {
         if (!ignore && session?.user?.id) {
           const ids = await fetchOfferedRequestIds(session.user.id);
           if (!ignore) setOfferedIds(ids);
+
+          // Fetch accepted offer request IDs
+          const { data: acceptedOffers } = await supabase
+            .from("guide_offers")
+            .select("request_id")
+            .eq("guide_id", session.user.id)
+            .eq("status", "accepted");
+          if (!ignore && acceptedOffers) {
+            setAcceptedOfferIds(
+              new Set(acceptedOffers.map((o) => o.request_id as string)),
+            );
+          }
         }
       } catch {
         // leave empty
@@ -77,37 +96,83 @@ export function GuideRequestsInboxScreen() {
     highBudget: items.filter((item) => item.budgetRub >= 15000).length,
   };
 
-  const noOfferCount = items.filter((item) => !offeredIds.has(item.id)).length;
-  const offeredCount = items.length - noOfferCount;
+  const uniqueCities = React.useMemo(() => {
+    const cities = items
+      .map((item) => item.destination.split(",")[0].trim())
+      .filter(Boolean);
+    return [...new Set(cities)].sort();
+  }, [items]);
+
+  const newCount = items.filter(
+    (item) => !offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+  ).length;
+  const myOffersCount = items.filter(
+    (item) => offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+  ).length;
+  const acceptedCount = acceptedOfferIds.size;
 
   React.useEffect(() => {
     if (didAutoSelect) return;
     if (items.length === 0) return;
-    if (noOfferCount === 0) {
-      setFilter("all");
+    if (newCount === 0 && myOffersCount > 0) {
+      setFilter("my-offers");
     }
     setDidAutoSelect(true);
-  }, [didAutoSelect, items.length, noOfferCount]);
+  }, [didAutoSelect, items.length, newCount, myOffersCount]);
 
   const filteredItems = React.useMemo(() => {
-    if (filter === "no-offer") {
-      return items.filter((item) => !offeredIds.has(item.id));
+    let filtered = items;
+
+    // Tab filter
+    if (filter === "new") {
+      filtered = filtered.filter(
+        (item) => !offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+      );
+    } else if (filter === "my-offers") {
+      filtered = filtered.filter(
+        (item) => offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+      );
+    } else if (filter === "accepted") {
+      filtered = filtered.filter((item) => acceptedOfferIds.has(item.id));
     }
-    if (filter === "offered") {
-      return items.filter((item) => offeredIds.has(item.id));
+
+    // City filter
+    if (cityFilter !== "all") {
+      filtered = filtered.filter(
+        (item) => item.destination.split(",")[0].trim() === cityFilter,
+      );
     }
-    return items;
-  }, [filter, items, offeredIds]);
+
+    // Sort
+    if (sortKey === "newest") {
+      filtered = [...filtered].sort((a, b) =>
+        b.createdAt.localeCompare(a.createdAt),
+      );
+    } else if (sortKey === "date") {
+      filtered = [...filtered].sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
+    } else if (sortKey === "size") {
+      filtered = [...filtered].sort((a, b) => b.groupSize - a.groupSize);
+    }
+
+    return filtered;
+  }, [filter, items, offeredIds, acceptedOfferIds, cityFilter, sortKey]);
 
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
     : null;
 
   const tabs: Array<{ key: RequestsFilter; label: string; count: number }> = [
-    { key: "all", label: "Все", count: items.length },
-    { key: "no-offer", label: "Без моего предложения", count: noOfferCount },
-    { key: "offered", label: "С моим предложением", count: offeredCount },
+    { key: "new", label: "Новые", count: newCount },
+    { key: "my-offers", label: "Мои предложения", count: myOffersCount },
+    { key: "accepted", label: "Принятые", count: acceptedCount },
   ];
+
+  const emptyText =
+    filter === "new"
+      ? "Новых запросов пока нет. Путешественники публикуют запросы каждый день."
+      : filter === "my-offers"
+        ? "У вас нет активных предложений."
+        : "Принятых предложений пока нет.";
 
   return (
     <div className="space-y-6">
@@ -179,7 +244,7 @@ export function GuideRequestsInboxScreen() {
         <CardContent className="space-y-4">
           {items.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Пока нет новых запросов от путешественников.
+              {emptyText}
             </p>
           ) : (
             <>
@@ -217,98 +282,130 @@ export function GuideRequestsInboxScreen() {
                   );
                 })}
               </div>
-            <div className="space-y-3">
-              {filteredItems.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground">
-                  Нет запросов в этой категории
-                </p>
+              {/* City filter + sort */}
+              {items.length > 0 ? (
+                <div className="flex flex-wrap items-center gap-3">
+                  {uniqueCities.length > 1 ? (
+                    <select
+                      value={cityFilter}
+                      onChange={(e) => setCityFilter(e.target.value)}
+                      className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+                      aria-label="Фильтр по городу"
+                    >
+                      <option value="all">Все города</option>
+                      {uniqueCities.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                  ) : null}
+                  <select
+                    value={sortKey}
+                    onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+                    className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+                    aria-label="Сортировка"
+                  >
+                    <option value="newest">Новые сначала</option>
+                    <option value="date">По дате поездки</option>
+                    <option value="size">По размеру группы</option>
+                  </select>
+                </div>
               ) : null}
-              {filteredItems.map((item, index) => {
-                const alreadyOffered = offeredIds.has(item.id);
-                return (
-                  <div key={item.id} className="space-y-3">
-                    <div className="rounded-xl border border-border/70 bg-background/60 p-4">
-                      {/* Card header */}
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="space-y-1">
-                          <p className="text-sm font-semibold text-foreground">
-                            {item.requesterName}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {item.format} в{" "}
-                            <span className="font-medium text-foreground">
-                              {item.destination}
-                            </span>
+
+              <div className="space-y-3">
+                {filteredItems.length === 0 ? (
+                  <p className="text-center text-sm text-muted-foreground">
+                    {emptyText}
+                  </p>
+                ) : null}
+                {filteredItems.map((item, index) => {
+                  const alreadyOffered = offeredIds.has(item.id);
+                  return (
+                    <div key={item.id} className="space-y-3">
+                      <div className="rounded-xl border border-border/70 bg-background/60 p-4">
+                        {/* Card header */}
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold text-foreground">
+                              {item.requesterName}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {item.format} в{" "}
+                              <span className="font-medium text-foreground">
+                                {item.destination}
+                              </span>
+                            </p>
+                          </div>
+                          <p className="text-xs text-muted-foreground shrink-0">
+                            {formatDateTime(item.createdAt)}
                           </p>
                         </div>
-                        <p className="text-xs text-muted-foreground shrink-0">
-                          {formatDateTime(item.createdAt)}
-                        </p>
-                      </div>
 
-                      {/* Meta */}
-                      <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-                        <p>
-                          <span className="font-medium text-foreground">
-                            Даты:
-                          </span>{" "}
-                          {item.dateLabel}
-                        </p>
-                        <p>
-                          <span className="font-medium text-foreground">
-                            Группа:
-                          </span>{" "}
-                          {item.groupSize} чел.
-                        </p>
-                        <p className="sm:col-span-2">
-                          <span className="font-medium text-foreground">
-                            Бюджет:
-                          </span>{" "}
-                          {item.budgetLabel}
-                        </p>
-                      </div>
+                        {/* Meta */}
+                        <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                          <p>
+                            <span className="font-medium text-foreground">
+                              Даты:
+                            </span>{" "}
+                            {item.dateLabel}
+                          </p>
+                          <p>
+                            <span className="font-medium text-foreground">
+                              Группа:
+                            </span>{" "}
+                            {item.groupSize} чел.
+                          </p>
+                          <p className="sm:col-span-2">
+                            <span className="font-medium text-foreground">
+                              Бюджет:
+                            </span>{" "}
+                            {item.budgetLabel}
+                          </p>
+                        </div>
 
-                      {item.description ? (
-                        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-                          {item.description}
-                        </p>
-                      ) : null}
+                        {item.description ? (
+                          <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                            {item.description}
+                          </p>
+                        ) : null}
 
-                      {/* Actions */}
-                      <div className="mt-4 flex flex-wrap items-center gap-3">
-                        <Button
-                          asChild
-                          variant="ghost"
-                          size="sm"
-                          className="px-3"
-                        >
-                          <Link href={`/guide/inbox/${item.id}`}>
-                            Подробнее
-                          </Link>
-                        </Button>
-                        {alreadyOffered ? (
-                          <span
-                            className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary"
-                            aria-label="Вы уже отправили предложение на этот запрос"
-                          >
-                            ✓ Предложение отправлено
-                          </span>
-                        ) : (
+                        {/* Actions */}
+                        <div className="mt-4 flex flex-wrap items-center gap-3">
                           <Button
+                            asChild
+                            variant="ghost"
                             size="sm"
-                            onClick={() => setPanelRequestId(item.id)}
+                            className="px-3"
                           >
-                            Предложить цену
+                            <Link href={`/guide/inbox/${item.id}`}>
+                              Подробнее
+                            </Link>
                           </Button>
-                        )}
+                          {acceptedOfferIds.has(item.id) ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3.5 py-1.5 text-xs font-semibold text-green-700">
+                              ✓ Предложение принято
+                            </span>
+                          ) : alreadyOffered ? (
+                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                              ✓ Предложение отправлено
+                            </span>
+                          ) : (
+                            <Button
+                              size="sm"
+                              onClick={() => setPanelRequestId(item.id)}
+                            >
+                              Предложить цену
+                            </Button>
+                          )}
+                        </div>
                       </div>
-                    </div>
 
-                    {index < filteredItems.length - 1 ? <Separator /> : null}
-                  </div>
-                );
-              })}
-            </div>
+                      {index < filteredItems.length - 1 ? <Separator /> : null}
+                    </div>
+                  );
+                })}
+              </div>
             </>
           )}
         </CardContent>
