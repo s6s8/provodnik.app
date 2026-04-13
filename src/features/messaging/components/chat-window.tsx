@@ -111,23 +111,15 @@ export function ChatWindow({
 
   return (
     <div className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto">
-      {renderedMessages.map((message) => {
-        const isOwn = message.sender_id === currentUserId;
-
-        return (
-          <MessageBubble
-            key={message.id}
-            body={message.body}
-            senderName={formatSenderName(message)}
-            senderAvatar={message.sender_profile?.avatar_url ?? null}
-            timestamp={message.created_at}
-            isOwn={isOwn}
-            metadata={message.metadata}
-            senderId={message.sender_id}
-            currentUserId={currentUserId}
-          />
-        );
-      })}
+      {renderedMessages.map((message) => (
+        <MessageBubble
+          key={message.id}
+          message={message}
+          currentUserId={currentUserId}
+          senderName={formatSenderName(message)}
+          senderAvatar={message.sender_profile?.avatar_url ?? null}
+        />
+      ))}
       <div ref={scrollRef} />
     </div>
   );
