@@ -43,7 +43,7 @@ function toListItem(raw: RawReview, guideId: string): ReviewRow & {
 }
 
 export default async function GuideReviewsPage() {
-  if (!flags.FEATURE_TRIPSTER_REPUTATION) {
+  if (!flags.FEATURE_TR_REPUTATION) {
     notFound();
   }
 

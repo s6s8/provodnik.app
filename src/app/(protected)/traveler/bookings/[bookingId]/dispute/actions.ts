@@ -14,7 +14,7 @@ const disputeFormSchema = z.object({
 });
 
 export async function submitDispute(bookingId: string, formData: FormData) {
-  if (!flags.FEATURE_TRIPSTER_DISPUTES) {
+  if (!flags.FEATURE_TR_DISPUTES) {
     redirect(`/traveler/bookings/${bookingId}`);
   }
 

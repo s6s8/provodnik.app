@@ -226,7 +226,7 @@ export default async function TravelerBookingDetailPage({
                 <Button type="submit">Написать гиду</Button>
               </form>
 
-              {flags.FEATURE_TRIPSTER_DISPUTES &&
+              {flags.FEATURE_TR_DISPUTES &&
               booking.status !== "disputed" &&
               canOpenDispute ? (
                 <OpenDisputeButton bookingId={booking.id} />

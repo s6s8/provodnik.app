@@ -19,7 +19,7 @@ const TRIPSTER_HOME_REGIONS = [
 ] as const;
 
 export default async function HomePage() {
-  if (flags.FEATURE_TRIPSTER_V1) {
+  if (flags.FEATURE_TR_V1) {
     let featured: FeaturedGridListing[] = [];
 
     try {

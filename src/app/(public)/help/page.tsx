@@ -105,7 +105,7 @@ function articlesForCategory(articles: HelpArticleRow[], category: string): Help
 }
 
 export default async function HelpPage() {
-  if (!flags.FEATURE_TRIPSTER_HELP) {
+  if (!flags.FEATURE_TR_HELP) {
     notFound();
   }
 

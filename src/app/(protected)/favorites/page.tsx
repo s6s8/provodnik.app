@@ -6,7 +6,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { FavoritesFolderRow, FavoritesItemRow } from "@/lib/supabase/types";
 
 export default async function FavoritesPage() {
-  if (!flags.FEATURE_TRIPSTER_FAVORITES) notFound();
+  if (!flags.FEATURE_TR_FAVORITES) notFound();
 
   const supabase = await createSupabaseServerClient();
   const {

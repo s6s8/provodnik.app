@@ -76,7 +76,7 @@ export default async function ListingDetailPage({
 
 
   if (listing.exp_type === "tour") {
-    if (flags.FEATURE_TRIPSTER_TOURS) {
+    if (flags.FEATURE_TR_TOURS) {
       const [daysRes, mealsRes, departuresRes] = await Promise.all([
         supabase.from("listing_days").select("*").eq("listing_id", id).order("day_number"),
         supabase.from("listing_meals").select("*").eq("listing_id", id),

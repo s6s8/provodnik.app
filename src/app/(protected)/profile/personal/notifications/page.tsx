@@ -12,7 +12,7 @@ import { updatePersonalSettings } from "@/features/profile/actions/updatePersona
 import { flags } from "@/lib/flags";
 
 // Gate: feature flag check
-if (!flags.FEATURE_TRIPSTER_NOTIFICATIONS) {
+if (!flags.FEATURE_TR_NOTIFICATIONS) {
   notFound();
 }
 

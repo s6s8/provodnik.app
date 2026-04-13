@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PartnerCabinetPage() {
-  if (!flags.FEATURE_TRIPSTER_PARTNER) notFound();
+  if (!flags.FEATURE_TR_PARTNER) notFound();
 
   const supabase = await createSupabaseServerClient();
   const {

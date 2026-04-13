@@ -121,7 +121,7 @@ export function SiteHeader({
               {role ? roleLabels[role] : null}
             </Link>
           ) : null}
-          {flags.FEATURE_TRIPSTER_NOTIFICATIONS && isAuthenticated && userId ? (
+          {flags.FEATURE_TR_NOTIFICATIONS && isAuthenticated && userId ? (
             <NotificationBell userId={userId} />
           ) : null}
           {isAuthenticated ? (

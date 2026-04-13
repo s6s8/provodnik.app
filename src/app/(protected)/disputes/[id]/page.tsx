@@ -14,7 +14,7 @@ export default async function DisputeDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if (!flags.FEATURE_TRIPSTER_DISPUTES) notFound();
+  if (!flags.FEATURE_TR_DISPUTES) notFound();
 
   const { id } = await params;
   const supabase = await createSupabaseServerClient();

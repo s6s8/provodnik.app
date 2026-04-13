@@ -8,6 +8,6 @@ export async function resolveDisputeThreadAction(
   adminId: string,
   resolutionSummary: string,
 ) {
-  if (!flags.FEATURE_TRIPSTER_DISPUTES) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_DISPUTES) throw new Error("Feature disabled");
   await resolveDispute(disputeId, adminId, resolutionSummary.trim());
 }

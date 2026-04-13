@@ -4,7 +4,7 @@ import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function createFolder(name: string) {
-  if (!flags.FEATURE_TRIPSTER_FAVORITES) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_FAVORITES) throw new Error("Feature disabled");
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -22,7 +22,7 @@ export async function createFolder(name: string) {
 }
 
 export async function deleteFolder(folderId: string) {
-  if (!flags.FEATURE_TRIPSTER_FAVORITES) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_FAVORITES) throw new Error("Feature disabled");
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -33,7 +33,7 @@ export async function deleteFolder(folderId: string) {
 }
 
 export async function addToFolder(folderId: string, listingId: string) {
-  if (!flags.FEATURE_TRIPSTER_FAVORITES) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_FAVORITES) throw new Error("Feature disabled");
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -44,7 +44,7 @@ export async function addToFolder(folderId: string, listingId: string) {
 }
 
 export async function removeFromFolder(folderId: string, listingId: string) {
-  if (!flags.FEATURE_TRIPSTER_FAVORITES) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_FAVORITES) throw new Error("Feature disabled");
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

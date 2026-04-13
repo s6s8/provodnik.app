@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function GuideListingNewPage() {
-  if (flags.FEATURE_TRIPSTER_V1) {
+  if (flags.FEATURE_TR_V1) {
     const { default: PageV1 } = await import("./page-v1");
     return <PageV1 />;
   }

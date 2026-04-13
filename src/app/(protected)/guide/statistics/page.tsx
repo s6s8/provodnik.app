@@ -76,7 +76,7 @@ export default async function GuideStatisticsPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  if (!flags.FEATURE_TRIPSTER_KPI) notFound();
+  if (!flags.FEATURE_TR_KPI) notFound();
 
   const params = await searchParams;
   const { preset: rangePreset, days: rangeDays } = parseRange(params.range);

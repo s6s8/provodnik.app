@@ -6,7 +6,7 @@ import { notifyDisputeOpened } from "@/lib/notifications/triggers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function openDispute(bookingId: string, reason: string) {
-  if (!flags.FEATURE_TRIPSTER_DISPUTES) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_DISPUTES) throw new Error("Feature disabled");
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

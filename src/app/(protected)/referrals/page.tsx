@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ReferralsPage() {
-  if (!flags.FEATURE_TRIPSTER_REFERRALS) notFound();
+  if (!flags.FEATURE_TR_REFERRALS) notFound();
 
   if (!hasSupabaseEnv()) {
     return (

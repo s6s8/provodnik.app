@@ -44,7 +44,7 @@ export default async function TravelerBookingDisputePage({
   const resolvedSearchParams = (await searchParams) ?? {};
   const error = resolveSearchValue(resolvedSearchParams.error);
 
-  if (!flags.FEATURE_TRIPSTER_DISPUTES) notFound();
+  if (!flags.FEATURE_TR_DISPUTES) notFound();
 
   const supabase = await createSupabaseServerClient();
   const {

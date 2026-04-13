@@ -54,7 +54,7 @@ export default async function TransferListingPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  if (!flags.FEATURE_TRIPSTER_V1) notFound();
+  if (!flags.FEATURE_TR_V1) notFound();
 
   const { id } = await params;
   const supabase = await createSupabaseServerClient();

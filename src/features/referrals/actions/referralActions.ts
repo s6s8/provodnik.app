@@ -6,7 +6,7 @@ import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function generateReferralCode() {
-  if (!flags.FEATURE_TRIPSTER_REFERRALS) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_REFERRALS) throw new Error("Feature disabled");
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -35,7 +35,7 @@ export async function generateReferralCode() {
 }
 
 export async function redeemReferralCode(code: string) {
-  if (!flags.FEATURE_TRIPSTER_REFERRALS) throw new Error("Feature disabled");
+  if (!flags.FEATURE_TR_REFERRALS) throw new Error("Feature disabled");
 
   const supabase = await createSupabaseServerClient();
   const {

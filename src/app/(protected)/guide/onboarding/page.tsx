@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function GuideOnboardingPage() {
-  if (!flags.FEATURE_TRIPSTER_QUIZ) notFound();
+  if (!flags.FEATURE_TR_QUIZ) notFound();
 
   if (hasSupabaseEnv()) {
     try {
