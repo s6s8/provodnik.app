@@ -4,7 +4,7 @@ import { loginAs } from "../helpers";
 test("guide sends offer on request", async ({ page }) => {
   await loginAs(page, "guide1@provodnik.test", "testpass123");
 
-  await page.goto("/guide/requests");
+  await page.goto("/guide/inbox");
   const firstRequest = page.locator('[data-testid="request-item"]').first();
   const isVisible = await firstRequest.isVisible().catch(() => false);
   if (!isVisible) {

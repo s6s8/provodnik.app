@@ -119,7 +119,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
               </Link>
             </Button>
             <Button asChild>
-              <Link href="/guide/requests">Во входящие запросы</Link>
+              <Link href="/guide/inbox">Во входящие запросы</Link>
             </Button>
           </CardContent>
         </Card>

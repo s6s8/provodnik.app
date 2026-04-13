@@ -415,7 +415,7 @@ export function GuideListingsManagerScreen({ auth }: GuideListingsManagerScreenP
           </div>
           <div className="flex flex-col gap-2 sm:flex-row">
             <Button asChild variant="secondary">
-              <Link href="/guide/requests">Входящие запросы</Link>
+              <Link href="/guide/inbox">Входящие запросы</Link>
             </Button>
             <Button asChild variant="outline">
               <Link href="/guide/bookings">Бронирования</Link>

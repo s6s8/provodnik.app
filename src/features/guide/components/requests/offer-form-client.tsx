@@ -9,7 +9,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import type { RequestRecord } from "@/data/supabase/queries";
-import { submitOfferAction } from "@/app/(protected)/guide/requests/[requestId]/offer/actions";
+import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
 
 // ---------------------------------------------------------------------------
 // Local Zod schema for the client form (mirrors server schema)
@@ -113,7 +113,7 @@ export function OfferFormClient({
     <div className="mx-auto w-full max-w-[640px] px-[clamp(20px,4vw,48px)] py-sec-pad">
       {/* Back link */}
       <Link
-        href={`/guide/requests/${requestId}`}
+        href={`/guide/inbox/${requestId}`}
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-8"
         aria-label="Вернуться к запросу"
       >

@@ -104,7 +104,7 @@ export function GuideRequestDetailScreen({
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-3">
         <Button asChild variant="ghost" className="-ml-3 px-3">
-          <Link href="/guide/requests">
+          <Link href="/guide/inbox">
             <ArrowLeft className="size-4" />
             Входящие запросы
           </Link>

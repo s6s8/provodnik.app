@@ -31,7 +31,7 @@ function formatBudget(minor: number, currency: string): string {
 
 export function RequestCard({ request }: { request: TravelerRequestRow }) {
   const notesPreview = maskPii(request.notes);
-  const threadHref = `/guide/requests/${request.id}`;
+  const threadHref = `/guide/inbox/${request.id}`;
 
   return (
     <Card className="border-border/70 bg-card/90">

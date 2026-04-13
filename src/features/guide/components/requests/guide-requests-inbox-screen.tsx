@@ -273,7 +273,7 @@ export function GuideRequestsInboxScreen() {
                           size="sm"
                           className="px-3"
                         >
-                          <Link href={`/guide/requests/${item.id}`}>
+                          <Link href={`/guide/inbox/${item.id}`}>
                             Подробнее
                           </Link>
                         </Button>
@@ -286,7 +286,7 @@ export function GuideRequestsInboxScreen() {
                           </span>
                         ) : (
                           <Button asChild size="sm">
-                            <Link href={`/guide/requests/${item.id}/offer`}>
+                            <Link href={`/guide/inbox/${item.id}/offer`}>
                               Предложить цену
                             </Link>
                           </Button>

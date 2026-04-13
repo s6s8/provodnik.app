@@ -82,7 +82,7 @@ export function GuideBookingsScreen() {
         </div>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button asChild variant="secondary">
-            <Link href="/guide/requests">Входящие запросы</Link>
+            <Link href="/guide/inbox">Входящие запросы</Link>
           </Button>
           <Button asChild variant="outline">
             <Link href="/guide/listings">Мои программы</Link>
@@ -137,7 +137,7 @@ export function GuideBookingsScreen() {
             </CardHeader>
             <CardContent>
               <Button asChild variant="secondary">
-                <Link href="/guide/requests">
+                <Link href="/guide/inbox">
                   Перейти во входящие запросы
                   <ArrowRight className="size-4" />
                 </Link>
