@@ -4,18 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
-import { joinRequestAction } from "@/app/(site)/requests/[requestId]/actions";
-
-function JoinGroupForm({ requestId }: { requestId: string }) {
-  const action = joinRequestAction.bind(null, requestId);
-  return (
-    <form action={action}>
-      <Button type="submit" className="w-full justify-center">
-        Присоединиться к группе
-      </Button>
-    </form>
-  );
-}
+import { JoinGroupButton } from "@/features/requests/components/join-group-button";
 
 type GuideOffer = {
   id: string;
@@ -347,7 +336,7 @@ export function PublicRequestDetailScreen({
                     Вы участник ✓
                   </span>
                 ) : showJoinButton ? (
-                  <JoinGroupForm requestId={request.id} />
+                  <JoinGroupButton requestId={request.id} className="w-full" />
                 ) : !currentUserId ? (
                   <Button asChild className="w-full justify-center">
                     <Link href={`/auth?next=/requests/${request.id}`}>
