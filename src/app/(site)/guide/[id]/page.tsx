@@ -3,8 +3,11 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import Link from "next/link";
+
 import { TourCard } from "@/components/shared/tour-card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { PublicGuideTrustMarkers } from "@/features/guide/components/public/public-guide-trust-markers";
 import { PublicReviewsSection, type PublicReviewItem } from "@/features/reviews/components/public/public-reviews-section";
@@ -234,6 +237,13 @@ export default async function GuidePage({
                   </Badge>
                 ))}
               </div>
+
+              {/* Primary CTA */}
+              <Button asChild size="lg" className="w-fit">
+                <Link href={`/traveler/requests/new?guide=${guideProfile?.user_id ?? id}`}>
+                  Написать запрос
+                </Link>
+              </Button>
             </div>
           </div>
         </section>
@@ -266,6 +276,26 @@ export default async function GuidePage({
               summary={guide.reviewsSummary}
               emptyText="Пока отзывов нет. Первый отзыв появится после завершённой поездки."
             />
+          </div>
+        </section>
+
+        {/* Trust signals */}
+        <section className="border-t border-border/40 py-8">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+              {verificationStatus === "approved" ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="flex size-5 items-center justify-center rounded-full bg-green-500 text-white text-[0.625rem] font-bold">✓</span>
+                  Верификация пройдена
+                </span>
+              ) : null}
+              {guideProfile?.years_experience ? (
+                <span>На платформе с {new Date().getFullYear() - (guideProfile.years_experience as number)} г.</span>
+              ) : null}
+              {completedTours > 0 ? (
+                <span>{completedTours} завершённых поездок</span>
+              ) : null}
+            </div>
           </div>
         </section>
       </main>
