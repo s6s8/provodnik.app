@@ -9,7 +9,7 @@ const RATE_LIMIT_KEY_PREFIX = "rate-limit";
 
 function hasUpstashRedisEnv() {
   return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN,
+    process.env.STORAGE_KV_REST_API_URL && process.env.STORAGE_KV_REST_API_TOKEN,
   );
 }
 
