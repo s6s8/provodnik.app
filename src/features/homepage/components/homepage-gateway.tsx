@@ -71,16 +71,19 @@ export function HomePageGateway({ requests }: Props) {
       aria-labelledby="gateway-title"
     >
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        <div className="mb-8 text-center">
-          <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Для кого Provodnik
-          </p>
+        <div className="mb-8 flex items-center justify-between">
           <h2
             id="gateway-title"
             className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]"
           >
-            Выберите свою роль
+            Путешественники ищут прямо сейчас
           </h2>
+          <Link
+            href="/requests"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            Все запросы →
+          </Link>
         </div>
 
         <div className="mb-7 flex justify-center">

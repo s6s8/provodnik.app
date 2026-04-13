@@ -23,25 +23,23 @@ export function HomePageHero() {
       />
 
       <div className="relative z-[2] mx-auto w-full max-w-[860px] px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
-        <p className="mb-5 inline-flex items-center rounded-full border border-white/[0.22] bg-white/[0.14] px-4 py-[5px] text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-white/[0.82] backdrop-blur-[12px]">
-          Маршруты с локальными проводниками
-        </p>
-
-        <h1 className="mb-8 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.06] text-on-surface">
-          Путешествуйте по России
-          <br />
-          с теми, кто знает каждый камень
+        <h1 className="mb-5 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.06] text-on-surface">
+          Опишите экскурсию мечты — гиды сами предложат варианты
         </h1>
+
+        <p className="mx-auto mb-8 max-w-[46rem] text-base leading-[1.6] text-[var(--on-surface-muted)] md:text-lg">
+          Не ищите среди сотен предложений. Скажите, что хотите. Лучшие гиды ответят вам.
+        </p>
 
         <div className="flex flex-wrap items-center justify-center gap-6 max-md:gap-4">
           <Button asChild className="text-white">
-            <Link href="/requests/new">Создать запрос</Link>
+            <Link href="/traveler/requests/new">Создать запрос</Link>
           </Button>
           <Link
             href="/requests"
             className="text-sm font-medium text-white/[0.78] transition-colors hover:text-white"
           >
-            Найти группу →
+            Смотреть открытые запросы →
           </Link>
         </div>
       </div>
