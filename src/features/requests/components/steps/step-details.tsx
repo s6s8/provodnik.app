@@ -148,6 +148,13 @@ export function StepDetails({
               <span className="rounded-full border px-3 py-1 text-xs font-medium text-foreground">
                 {getBudgetLabel(data.budgetKey)}
               </span>
+              <span className="rounded-full border px-3 py-1 text-xs font-medium text-foreground">
+                {data.formatPref === "private"
+                  ? "Индивидуально"
+                  : data.formatPref === "group"
+                    ? "Готов к группе"
+                    : "Формат: любой"}
+              </span>
             </div>
 
             <div className="flex flex-wrap gap-2">

@@ -89,6 +89,10 @@ export function RequestWizard() {
     fd.set("allowGuideSuggestionsOutsideConstraints", "true");
     fd.set("budgetPerPersonRub", String(budgetPerPersonRub));
     fd.set("notes", data.notes ?? "");
+    // Append interests for server-side use (future schema extension)
+    for (const interest of data.interests) {
+      fd.append("interests[]", interest);
+    }
 
     startTransition(async () => {
       const result = await createRequestAction({ error: null }, fd);
