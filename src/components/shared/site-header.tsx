@@ -17,6 +17,7 @@ import {
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
+import { COPY } from "@/lib/copy";
 import { flags } from "@/lib/flags";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
@@ -26,6 +27,19 @@ const navLinks = [
   { href: "/requests", label: "Запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
+] as const;
+
+const guideNavLinks = [
+  { href: "/guide/inbox", label: "Входящие" },
+  { href: "/guide/orders", label: "Заказы" },
+  { href: "/guide/listings", label: "Предложения" },
+  { href: "/guide/calendar", label: "Календарь" },
+  { href: "/guide/stats", label: "Статистика" },
+] as const;
+
+const unauthNavLinks = [
+  { href: "/how-it-works", label: COPY.nav.howItWorks },
+  { href: "/for-guides", label: COPY.nav.becomeGuide },
 ] as const;
 
 const roleLabels: Record<AppRole, string> = {
@@ -70,8 +84,8 @@ export function SiteHeader({
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const avatarInitial = email ? email[0].toUpperCase() : "?";
   const dashboardLabel = role ? roleLabels[role] : "Кабинет";
-  const primaryCtaHref = role === "guide" ? "/requests" : "/requests/new";
-  const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
+  const primaryCtaHref = !isAuthenticated ? "/traveler/requests/new" : role === "guide" ? "/requests" : "/requests/new";
+  const primaryCtaLabel = !isAuthenticated ? COPY.createRequest : role === "guide" ? "Смотреть запросы" : "Создать запрос";
   const showPrimaryCta = role !== "admin";
 
   return (
@@ -85,9 +99,8 @@ export function SiteHeader({
         </Link>
 
         <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden" role="list">
-          {navLinks
-            .filter((link) => !(role === "guide" && link.href === "/requests"))
-            .map((link) => {
+          {(isAuthenticated && role === "guide" ? guideNavLinks : isAuthenticated ? navLinks : unauthNavLinks).map(
+            (link) => {
               const isHashLink = link.href.includes("#");
               const isActive = isHashLink ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`);
 
@@ -105,7 +118,8 @@ export function SiteHeader({
                   </Link>
                 </li>
               );
-            })}
+            },
+          )}
         </ul>
 
         <div className="flex items-center justify-self-end gap-2">
@@ -152,7 +166,7 @@ export function SiteHeader({
           ) : null}
           {!isAuthenticated && (
             <Button variant="outline" asChild>
-              <Link href="/auth">Войти</Link>
+              <Link href="/auth">{COPY.nav.signIn}</Link>
             </Button>
           )}
           {role === "admin" ? null : role === "guide" ? (
@@ -161,7 +175,7 @@ export function SiteHeader({
             </Button>
           ) : (
             <Button asChild>
-              <Link href="/requests/new">Создать запрос</Link>
+              <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
             </Button>
           )}
 
@@ -184,7 +198,7 @@ export function SiteHeader({
                 <SheetTitle>Меню</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Мобильная навигация">
-                {navLinks.map((link) => {
+                {(isAuthenticated && role === "guide" ? guideNavLinks : isAuthenticated ? navLinks : unauthNavLinks).map((link) => {
                   const isHashLink = link.href.includes("#");
                   const isActive = isHashLink
                     ? pathname === "/"
@@ -253,7 +267,7 @@ export function SiteHeader({
                         href="/auth"
                         className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
                       >
-                        Войти
+                        {COPY.nav.signIn}
                       </Link>
                     </SheetClose>
                     {showPrimaryCta ? (
