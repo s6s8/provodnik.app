@@ -2,13 +2,14 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { ReqCard } from "@/components/shared/req-card";
-import { TourCard } from "@/components/shared/tour-card";
 import { Button } from "@/components/ui/button";
 import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
 import { PublicGuideCard } from "@/features/guide/components/public/public-guide-card";
 import { pluralize } from "@/lib/utils";
+
+import { ListingsFilter } from "./listings-filter";
 
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
@@ -198,25 +199,44 @@ export function DestinationDetailScreen({
             </Link>
           </div>
 
-          {listings.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {listings.slice(0, 3).map((listing) => (
-                <TourCard
-                  key={listing.id}
-                  href={`/listings/${listing.slug}`}
-                  imageUrl={listing.imageUrl}
-                  title={listing.title}
-                  guide={listing.guideName}
-                  rating={listing.rating}
-                  price={`от ${new Intl.NumberFormat("ru-RU").format(Math.round(listing.priceRub / 1000))} тыс. ₽`}
-                />
-              ))}
+          <ListingsFilter listings={listings} />
+        </div>
+      </section>
+
+      {/* Open requests for this city */}
+      <section className="py-sec-pad" id="requests">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          <div className="mb-7 flex items-end justify-between gap-4">
+            <div>
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                Активные запросы
+              </p>
+              <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
+                Путешественники ищут гида в {destination.name}
+              </h2>
             </div>
-          ) : (
-            <p className="py-8 text-base text-muted-foreground">
-              Туры по этому направлению скоро появятся.
+            <Link
+              href={`/requests?city=${encodeURIComponent(destination.name)}`}
+              className="shrink-0 text-sm font-semibold text-primary"
+            >
+              Все запросы →
+            </Link>
+          </div>
+
+          <div className="flex flex-col gap-3">
+            <p className="text-sm text-muted-foreground">
+              Сейчас нет активных запросов по этому направлению.
             </p>
-          )}
+          </div>
+
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link
+              href={`/traveler/requests/new?destination=${encodeURIComponent(destination.name)}`}
+              className="inline-flex items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
+            >
+              Создать запрос
+            </Link>
+          </div>
         </div>
       </section>
 
