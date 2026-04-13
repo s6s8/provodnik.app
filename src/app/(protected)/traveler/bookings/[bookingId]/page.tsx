@@ -14,6 +14,9 @@ import { flags } from "@/lib/flags";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+import { BookingTicketTrigger } from "@/features/bookings/components/booking-ticket-trigger";
+import { SupportSidebar } from "@/features/bookings/components/support-sidebar";
+
 import { openBookingThreadAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -228,6 +231,16 @@ export default async function TravelerBookingDetailPage({
                 <Button type="submit">Написать гиду</Button>
               </form>
 
+              {(booking.status === "confirmed" || booking.status === "completed") ? (
+                <BookingTicketTrigger
+                  bookingId={booking.id}
+                  listingTitle={listingTitle}
+                  guideName={guideName}
+                  guidePhone={guidePhone}
+                  dateRange={dateRange}
+                />
+              ) : null}
+
               {flags.FEATURE_TR_DISPUTES &&
               booking.status !== "disputed" &&
               canOpenDispute ? (
@@ -248,6 +261,8 @@ export default async function TravelerBookingDetailPage({
           <p className="font-sans text-[0.8125rem] text-muted-foreground leading-[1.6] p-3.5 px-4 rounded-[12px] border border-glass-border bg-outline-variant/[0.08]">
             Итоговая стоимость и детали поездки обсуждаются с гидом напрямую
           </p>
+
+          <SupportSidebar bookingId={booking.id} />
 
           <Link
             href="/traveler/bookings"
