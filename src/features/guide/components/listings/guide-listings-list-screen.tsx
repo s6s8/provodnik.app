@@ -7,127 +7,22 @@ import { Plus, Map } from "lucide-react";
 
 import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
-import { RejectionCard } from "@/features/guide/components/listings/RejectionCard";
-
-// ---------------------------------------------------------------------------
-// Status chip
-// ---------------------------------------------------------------------------
-
-const STATUS_LABELS: Record<ListingStatusDb, string> = {
-  draft: "Черновик",
-  published: "Опубликован",
-  paused: "Приостановлен",
-  rejected: "Удалён",
-  pending_review: "На проверке",
-  active: "Активен",
-  archived: "В архиве",
-};
-
-const STATUS_VARIANT: Record<
-  ListingStatusDb,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  draft: "outline",
-  published: "secondary",
-  paused: "outline",
-  rejected: "destructive",
-  pending_review: "outline",
-  active: "secondary",
-  archived: "outline",
-};
-
-function StatusChip({ status }: { status: ListingStatusDb }) {
-  return (
-    <Badge variant={STATUS_VARIANT[status]}>{STATUS_LABELS[status]}</Badge>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Price formatter
-// ---------------------------------------------------------------------------
-
-function formatPrice(priceMinor: number): string {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    maximumFractionDigits: 0,
-  }).format(priceMinor / 100);
-}
-
-// ---------------------------------------------------------------------------
-// Action buttons
-// ---------------------------------------------------------------------------
-
-type ActionButtonsProps = {
-  listing: ListingRow;
-  onPublish: (id: string) => Promise<void>;
-  onPause: (id: string) => Promise<void>;
-  onDelete: (id: string) => Promise<void>;
-  pending: string | null;
-};
-
-function ActionButtons({
-  listing,
-  onPublish,
-  onPause,
-  onDelete,
-  pending,
-}: ActionButtonsProps) {
-  const busy = pending === listing.id;
-
-  return (
-    <div className="flex flex-wrap gap-2">
-      <Button asChild variant="outline" size="sm">
-        <Link href={`/guide/listings/${listing.id}/edit`}>Редактировать</Link>
-      </Button>
-
-      {(listing.status === "draft" || listing.status === "paused") && (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={busy}
-          onClick={() => void onPublish(listing.id)}
-        >
-          {busy ? "..." : "Опубликовать"}
-        </Button>
-      )}
-
-      {listing.status === "published" && (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={busy}
-          onClick={() => void onPause(listing.id)}
-        >
-          {busy ? "..." : "Приостановить"}
-        </Button>
-      )}
-
-      {listing.status !== "rejected" && (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={busy}
-          className="text-destructive hover:text-destructive"
-          onClick={() => {
-            if (window.confirm("Удалить тур? Это действие нельзя отменить.")) {
-              void onDelete(listing.id);
-            }
-          }}
-        >
-          {busy ? "..." : "Удалить"}
-        </Button>
-      )}
-    </div>
-  );
-}
+import { GuideListingCard } from "./guide-listing-card";
 
 // ---------------------------------------------------------------------------
 // Main screen
 // ---------------------------------------------------------------------------
+
+type ListingTypeTab = "all" | "excursion" | "tour" | "transfer";
+
+const TYPE_TABS: Array<{ key: ListingTypeTab; label: string }> = [
+  { key: "all", label: "Все" },
+  { key: "excursion", label: "Экскурсии" },
+  { key: "tour", label: "Туры" },
+  { key: "transfer", label: "Трансферы" },
+];
 
 type ServerActions = {
   publishAction: (id: string) => Promise<{ error?: string }>;
@@ -145,12 +40,32 @@ type GuideListingsListScreenProps = {
 export function GuideListingsListScreen({
   initialListings,
   actions,
-  showListingRejectionCard = false,
 }: GuideListingsListScreenProps) {
   const router = useRouter();
   const [listings, setListings] = React.useState<ListingRow[]>(initialListings);
   const [pending, setPending] = React.useState<string | null>(null);
   const [error, setError] = React.useState<string | null>(null);
+  const [typeTab, setTypeTab] = React.useState<ListingTypeTab>("all");
+
+  const filteredListings = React.useMemo(() => {
+    if (typeTab === "all") return listings;
+    if (typeTab === "excursion")
+      return listings.filter((l) => l.exp_type === "excursion");
+    if (typeTab === "tour") return listings.filter((l) => l.exp_type === "tour");
+    if (typeTab === "transfer")
+      return listings.filter((l) => l.exp_type === "transfer");
+    return listings;
+  }, [listings, typeTab]);
+
+  const tabCounts = React.useMemo(
+    () => ({
+      all: listings.length,
+      excursion: listings.filter((l) => l.exp_type === "excursion").length,
+      tour: listings.filter((l) => l.exp_type === "tour").length,
+      transfer: listings.filter((l) => l.exp_type === "transfer").length,
+    }),
+    [listings],
+  );
 
   const runAction = React.useCallback(
     async (
@@ -234,6 +149,40 @@ export function GuideListingsListScreen({
         </Button>
       </div>
 
+      {listings.length > 0 && (
+        <div className="flex flex-wrap gap-1 border-b border-border pb-3">
+          {TYPE_TABS.map((tab) => {
+            const count = tabCounts[tab.key];
+            const isActive = typeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setTypeTab(tab.key)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                {tab.label}
+                {count > 0 ? (
+                  <span
+                    className={`min-w-5 rounded-full px-1.5 text-center text-xs ${
+                      isActive
+                        ? "bg-background/20 text-background"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Error banner */}
       {error !== null && (
         <div
@@ -245,7 +194,7 @@ export function GuideListingsListScreen({
       )}
 
       {/* Empty state */}
-      {listings.length === 0 && (
+      {filteredListings.length === 0 && (
         <Card className="border-border/70 bg-card/90">
           <CardContent className="flex flex-col items-center gap-5 py-20 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-brand/10 text-brand">
@@ -275,51 +224,17 @@ export function GuideListingsListScreen({
       )}
 
       {/* Listing cards */}
-      {listings.length > 0 && (
+      {filteredListings.length > 0 && (
         <div className="grid gap-4">
-          {listings.map((listing) => (
-            <React.Fragment key={listing.id}>
-              <Card className="border-border/70 bg-card/90 transition-all hover:-translate-y-0.5">
-                <CardHeader className="pb-2">
-                  <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="space-y-1">
-                      <CardTitle className="text-base">
-                        <Link
-                          href={`/guide/listings/${listing.id}`}
-                          className="transition-colors hover:text-primary"
-                        >
-                          {listing.title}
-                        </Link>
-                      </CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {listing.region}
-                        {listing.duration_minutes !== null
-                          ? ` · ${Math.round(listing.duration_minutes / 60 / 24)} дн.`
-                          : null}
-                        {` · до ${listing.max_group_size} чел.`}
-                      </p>
-                    </div>
-                    <StatusChip status={listing.status} />
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="text-sm font-semibold text-foreground">
-                    {formatPrice(listing.price_from_minor)}{" "}
-                    <span className="font-normal text-muted-foreground">/ чел.</span>
-                  </p>
-                  <ActionButtons
-                    listing={listing}
-                    onPublish={handlePublish}
-                    onPause={handlePause}
-                    onDelete={handleDelete}
-                    pending={pending}
-                  />
-                </CardContent>
-              </Card>
-              {showListingRejectionCard && listing.status === "rejected" && (
-                <RejectionCard listing={listing} />
-              )}
-            </React.Fragment>
+          {filteredListings.map((listing) => (
+            <GuideListingCard
+              key={listing.id}
+              listing={listing}
+              onPublish={(id) => void handlePublish(id)}
+              onPause={(id) => void handlePause(id)}
+              onDelete={(id) => void handleDelete(id)}
+              pending={pending}
+            />
           ))}
         </div>
       )}
