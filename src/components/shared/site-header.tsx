@@ -169,11 +169,7 @@ export function SiteHeader({
               <Link href="/auth">{COPY.nav.signIn}</Link>
             </Button>
           )}
-          {role === "admin" ? null : role === "guide" ? (
-            <Button asChild>
-              <Link href="/requests">Смотреть запросы</Link>
-            </Button>
-          ) : (
+          {role === "admin" || role === "guide" ? null : (
             <Button asChild>
               <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
             </Button>
