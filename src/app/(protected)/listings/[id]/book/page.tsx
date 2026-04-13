@@ -1,7 +1,13 @@
+import type { Metadata } from "next";
+
 import { notFound, redirect } from "next/navigation";
 
 import { BookingFormTabs } from "@/features/booking/components/BookingFormTabs";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: "Оформление бронирования",
+};
 
 export default async function BookingPage({
   params,

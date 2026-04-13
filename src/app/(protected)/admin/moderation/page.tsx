@@ -1,6 +1,12 @@
+import type { Metadata } from "next";
+
 import { Badge } from "@/components/ui/badge";
 import { ModerationQueueList } from "@/features/admin/components/ModerationQueueItem";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: "Очередь модерации",
+};
 
 export default async function ModerationQueuePage() {
   const supabase = await createSupabaseServerClient();
