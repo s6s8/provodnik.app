@@ -309,7 +309,6 @@ export type ListingRow = {
   instant_booking: boolean;
   average_rating: number;
   review_count: number;
-  image_url: string | null;
 };
 
 export type StorageAssetKindDb =

@@ -67,10 +67,12 @@ function toStateMachineStatus(s: string) {
 
 const BOOKING_HEADINGS: Record<BookingStatus, string> = {
   pending: "Бронирование ожидает подтверждения",
+  awaiting_guide_confirmation: "Ожидает подтверждения гида",
   confirmed: "Бронирование подтверждено",
   completed: "Поездка завершена",
   cancelled: "Бронирование отменено",
   disputed: "Открыт спор по бронированию",
+  no_show: "Гость не явился",
 };
 
 function resolveSearchValue(value: string | string[] | undefined) {

@@ -59,9 +59,12 @@ export default async function GuideCalendarPage() {
       .eq("guide_id", guideId)
       .eq("status", "active");
 
-    listings = (listingsRaw ?? []) as {
+    listings = (listingsRaw ?? []).map((l) => ({
+      ...l,
+      title: l.title ?? "",
+    })) as {
       id: string;
-      title: string | null;
+      title: string;
       exp_type: string | null;
     }[];
 

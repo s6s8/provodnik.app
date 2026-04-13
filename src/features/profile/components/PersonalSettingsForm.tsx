@@ -197,7 +197,7 @@ export function PersonalSettingsForm({
             />
             {errors.notificationPrefs ? (
               <p className="text-sm text-destructive">
-                {errors.notificationPrefs.message}
+                {String(errors.notificationPrefs.message ?? "Ошибка настроек уведомлений")}
               </p>
             ) : null}
           </div>

@@ -66,7 +66,7 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
       try {
         const res = await redeemReferralCode(redeemInput);
         if ("error" in res) {
-          setMessage({ type: "err", text: res.error });
+          setMessage({ type: "err", text: res.error ?? "Ошибка при применении кода" });
           return;
         }
         setMessage({ type: "ok", text: "Код применён, бонусы начислены." });
