@@ -177,7 +177,7 @@ export function HomePageGateway({ requests }: Props) {
             )}
             <div className="flex justify-center">
               <Button asChild>
-                <Link href="/requests/new">Создать запрос</Link>
+                <Link href="/traveler/requests/new">Создать запрос</Link>
               </Button>
             </div>
           </div>
