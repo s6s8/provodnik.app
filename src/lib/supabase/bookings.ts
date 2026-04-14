@@ -99,13 +99,16 @@ export async function createBooking(
 /**
  * Fetch a single booking by ID with joined guide_profiles, traveler_requests, and guide_offers.
  * Returns null if not found.
+ *
+ * Note: bookings.guide_id has a FK to profiles.id, NOT to guide_profiles.user_id, so
+ * PostgREST cannot resolve the join in a single query. We do sequential queries instead.
  */
 export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
   const supabase = await createSupabaseServerClient();
 
-  const { data, error } = await supabase
+  const { data: booking, error } = await supabase
     .from("bookings")
-    .select(BOOKING_WITH_DETAILS_SELECT)
+    .select(BOOKING_SELECT)
     .eq("id", id)
     .maybeSingle();
 
@@ -113,8 +116,38 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     if (error.code === "PGRST116") return null;
     throw error;
   }
+  if (!booking) return null;
 
-  return (data as BookingWithDetails | null) ?? null;
+  const [guideProfileRes, travelerRequestRes, guideOfferRes] = await Promise.all([
+    supabase
+      .from("guide_profiles")
+      .select(
+        "user_id, display_name, bio, rating, completed_tours, is_available, regions, languages, specialties, specialization, attestation_status, verification_status, verification_notes, payout_account_label, years_experience, slug, created_at, updated_at, profile:profiles!guide_profiles_user_id_fkey(full_name, phone, avatar_url)",
+      )
+      .eq("user_id", booking.guide_id)
+      .maybeSingle(),
+    booking.request_id
+      ? supabase
+          .from("traveler_requests")
+          .select("destination, starts_on, ends_on, participants_count")
+          .eq("id", booking.request_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+    booking.offer_id
+      ? supabase
+          .from("guide_offers")
+          .select("price_minor, currency, message")
+          .eq("id", booking.offer_id)
+          .maybeSingle()
+      : Promise.resolve({ data: null, error: null }),
+  ]);
+
+  return {
+    ...booking,
+    guide_profile: (guideProfileRes.data as BookingWithDetails["guide_profile"]) ?? null,
+    traveler_request: (travelerRequestRes.data as BookingWithDetails["traveler_request"]) ?? null,
+    guide_offer: (guideOfferRes.data as BookingWithDetails["guide_offer"]) ?? null,
+  };
 }
 
 /**
