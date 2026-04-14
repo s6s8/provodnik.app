@@ -15,7 +15,7 @@ async function TransferCrossSell({ listing }: { listing: ListingRow }) {
   const { data: related } = await supabase
     .from("listings")
     .select("id, title, price_from_minor, image_url, average_rating")
-    .eq("status", "active")
+    .eq("status", "published")
     .eq("region", listing.region)
     .in("exp_type", ["excursion", "waterwalk", "masterclass"])
     .neq("id", listing.id)
@@ -62,7 +62,7 @@ export default async function TransferListingPage({
     .from("listings")
     .select("*")
     .eq("id", id)
-    .eq("status", "active")
+    .eq("status", "published")
     .single();
 
   if (!listing || listing.exp_type !== "transfer") notFound();

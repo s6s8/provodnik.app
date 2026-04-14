@@ -11,7 +11,7 @@ export async function TransferCrossSellWidget({ region, currentListingId }: Prop
   const { data: transfers } = await supabase
     .from("listings")
     .select("id, title, price_from_minor, image_url, vehicle_type, max_group_size")
-    .eq("status", "active")
+    .eq("status", "published")
     .eq("exp_type", "transfer")
     .eq("region", region)
     .neq("id", currentListingId)

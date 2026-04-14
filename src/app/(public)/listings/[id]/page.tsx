@@ -21,7 +21,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id: ref } = await params;
   const supabase = await createSupabaseServerClient();
-  const base = supabase.from("listings").select("title, description").eq("status", "active");
+  const base = supabase.from("listings").select("title, description").eq("status", "published");
   const { data } = listingRefIsUuid(ref)
     ? await base.eq("id", ref).maybeSingle()
     : await base.eq("slug", ref).maybeSingle();
@@ -43,7 +43,7 @@ export default async function ListingDetailPage({
   const supabase = await createSupabaseServerClient();
   const auth = await readAuthContextFromServer();
 
-  const listingQuery = supabase.from("listings").select("*").eq("status", "active");
+  const listingQuery = supabase.from("listings").select("*").eq("status", "published");
   const { data: listingRaw } = listingRefIsUuid(ref)
     ? await listingQuery.eq("id", ref).maybeSingle()
     : await listingQuery.eq("slug", ref).maybeSingle();
