@@ -86,9 +86,11 @@ export async function submitOfferAction(
     ) {
       throw err;
     }
-    return {
-      error: err instanceof Error ? err.message : "Не удалось отправить предложение.",
-    };
+    const msg =
+      typeof (err as { message?: unknown }).message === "string"
+        ? (err as { message: string }).message
+        : "Не удалось отправить предложение.";
+    return { error: msg };
   }
 
   redirect(`/guide/inbox/${requestId}?offered=1`);

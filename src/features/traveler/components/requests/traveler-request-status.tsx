@@ -18,17 +18,17 @@ export function TravelerRequestStatusBadge({
 function formatStatusLabel(status: TravelerRequestStatus) {
   switch (status) {
     case "draft":
-      return "Draft";
+      return "Черновик";
     case "submitted":
-      return "Submitted";
+      return "Отправлен";
     case "offers_received":
-      return "Offers received";
+      return "Есть предложения";
     case "shortlisted":
-      return "Shortlisted";
+      return "Рассматривается";
     case "booked":
-      return "Booked";
+      return "Забронировано";
     case "closed":
-      return "Closed";
+      return "Закрыт";
     default: {
       const exhaustive: never = status;
       return exhaustive;

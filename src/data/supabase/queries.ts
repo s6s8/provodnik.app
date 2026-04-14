@@ -270,6 +270,26 @@ function parseNotesJson(notes: string | null | undefined): Record<string, unknow
   try { return JSON.parse(notes) as Record<string, unknown>; } catch { return {}; }
 }
 
+function formatCategory(cat: string): string {
+  switch (cat) {
+    case "city": return "Городская экскурсия";
+    case "nature": return "Природный маршрут";
+    case "culture": return "Культурный маршрут";
+    case "food": return "Гастрономический тур";
+    case "adventure": return "Активный отдых";
+    case "relax": return "Отдых";
+    default: return cat;
+  }
+}
+
+function formatFormatPreference(pref: string): string {
+  switch (pref) {
+    case "group": return "Групповой формат";
+    case "private": return "Частный формат";
+    default: return "";
+  }
+}
+
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
   const budgetMinor = (row.budget_minor as number) ?? 0;
@@ -292,8 +312,8 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     budgetLabel: budgetMinor ? `${formatRub(budgetRub)} / чел.` : "По договорённости",
     requesterName,
     requesterInitials,
-    description: (row.format_preference as string) ?? (row.category as string) ?? "",
-    format: (row.category as string) ?? "",
+    description: formatFormatPreference((row.format_preference as string) ?? "") || formatCategory((row.category as string) ?? ""),
+    format: formatCategory((row.category as string) ?? ""),
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
     offerCount: 0,

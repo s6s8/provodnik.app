@@ -167,7 +167,7 @@ export function TravelerRequestDetailScreen({
         </CardHeader>
         <CardContent className="space-y-3">
           {timeline.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No events yet.</p>
+            <p className="text-sm text-muted-foreground">Событий пока нет.</p>
           ) : (
             <div className="space-y-3">
               {timeline.map((event, index) => (
