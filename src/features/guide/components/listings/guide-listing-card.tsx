@@ -64,98 +64,120 @@ export function GuideListingCard({
   const busy = pending === listing.id;
 
   return (
-    <Card className="border-border/70 bg-card/90 transition-all hover:-translate-y-0.5">
-      {listing.image_url ? (
-        <div className="relative h-36 w-full overflow-hidden rounded-t-xl bg-muted">
-          <Image
-            src={listing.image_url}
-            alt={listing.title}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        </div>
-      ) : null}
-
-      <CardHeader className="pb-2 pt-3">
-        <div className="flex flex-wrap items-start justify-between gap-2">
-          <div className="min-w-0 space-y-1">
-            <Link
-              href={`/guide/listings/${listing.id}`}
-              className="line-clamp-2 text-base font-semibold text-foreground transition-colors hover:text-primary"
-            >
-              {listing.title}
-            </Link>
-            <p className="text-sm text-muted-foreground">
-              {listing.region}
-              {listing.city ? `, ${listing.city}` : ""}
-              {listing.duration_minutes !== null
-                ? ` · ${Math.round(listing.duration_minutes / 60 / 24)} дн.`
-                : null}
-              {` · до ${listing.max_group_size} чел.`}
-            </p>
+    <Link
+      href={`/guide/listings/${listing.id}`}
+      className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl"
+    >
+      <Card className="border-border/70 bg-card/90 transition-all hover:-translate-y-0.5 hover:shadow-md">
+        {listing.image_url ? (
+          <div className="relative h-36 w-full overflow-hidden rounded-t-xl bg-muted">
+            <Image
+              src={listing.image_url}
+              alt={listing.title}
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
           </div>
-          <StatusBadge status={listing.status} />
-        </div>
-      </CardHeader>
-
-      <CardContent className="space-y-3">
-        {listing.status === "rejected" && listing.rejection_reason ? (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
-            Причина: {listing.rejection_reason}
-          </p>
         ) : null}
 
-        <p className="text-sm font-semibold text-foreground">
-          {formatPrice(listing.price_from_minor)}{" "}
-          <span className="font-normal text-muted-foreground">/ чел.</span>
-        </p>
+        <CardHeader className="pb-2 pt-3">
+          <div className="flex flex-wrap items-start justify-between gap-2">
+            <div className="min-w-0 space-y-1">
+              <p className="line-clamp-2 text-base font-semibold text-foreground">
+                {listing.title}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {listing.region}
+                {listing.city ? `, ${listing.city}` : ""}
+                {listing.duration_minutes !== null
+                  ? ` · ${Math.round(listing.duration_minutes / 60 / 24)} дн.`
+                  : null}
+                {` · до ${listing.max_group_size} чел.`}
+              </p>
+            </div>
+            <StatusBadge status={listing.status} />
+          </div>
+        </CardHeader>
 
-        <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline" size="sm">
-            <Link href={`/guide/listings/${listing.id}/edit`}>Редактировать</Link>
-          </Button>
+        <CardContent className="space-y-3">
+          {listing.status === "rejected" && listing.rejection_reason ? (
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+              Причина: {listing.rejection_reason}
+            </p>
+          ) : null}
 
-          {(listing.status === "draft" || listing.status === "paused") && (
+          <p className="text-sm font-semibold text-foreground">
+            {formatPrice(listing.price_from_minor)}{" "}
+            <span className="font-normal text-muted-foreground">/ чел.</span>
+          </p>
+
+          <div className="flex flex-wrap gap-2">
             <Button
+              asChild
               variant="outline"
               size="sm"
-              disabled={busy}
-              onClick={() => onPublish(listing.id)}
+              onClick={(e) => e.stopPropagation()}
             >
-              {busy ? "..." : "Опубликовать"}
+              <Link
+                href={`/guide/listings/${listing.id}/edit`}
+                onClick={(e) => e.stopPropagation()}
+              >
+                Редактировать
+              </Link>
             </Button>
-          )}
 
-          {(listing.status === "published" || listing.status === "active") && (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={busy}
-              onClick={() => onPause(listing.id)}
-            >
-              {busy ? "..." : "Приостановить"}
-            </Button>
-          )}
+            {(listing.status === "draft" || listing.status === "paused") && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onPublish(listing.id);
+                }}
+              >
+                {busy ? "..." : "Опубликовать"}
+              </Button>
+            )}
 
-          {listing.status !== "rejected" && listing.status !== "archived" && (
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={busy}
-              className="text-destructive hover:text-destructive"
-              onClick={() => {
-                if (window.confirm("Удалить тур? Это действие нельзя отменить.")) {
-                  onDelete(listing.id);
-                }
-              }}
-            >
-              {busy ? "..." : "Удалить"}
-            </Button>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+            {(listing.status === "published" || listing.status === "active") && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onPause(listing.id);
+                }}
+              >
+                {busy ? "..." : "Приостановить"}
+              </Button>
+            )}
+
+            {listing.status !== "rejected" && listing.status !== "archived" && (
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={busy}
+                className="text-destructive hover:text-destructive"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (window.confirm("Удалить тур? Это действие нельзя отменить.")) {
+                    onDelete(listing.id);
+                  }
+                }}
+              >
+                {busy ? "..." : "Удалить"}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
