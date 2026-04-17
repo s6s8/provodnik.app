@@ -5,6 +5,7 @@ import { HomePageGateway } from "@/features/homepage/components/homepage-gateway
 import { HomePageGuideAcquisition } from "@/features/homepage/components/homepage-guide-acquisition";
 import { HomePageHero } from "@/features/homepage/components/homepage-hero";
 import { HomePageProcess } from "@/features/homepage/components/homepage-process";
+import { HomePageTwoWays } from "@/features/homepage/components/homepage-two-ways";
 import { HomePageTrust } from "@/features/homepage/components/homepage-trust";
 
 interface Props {
@@ -16,6 +17,7 @@ export function HomePageShell({ destinations, requests }: Props) {
   return (
     <>
       <HomePageHero />
+      <HomePageTwoWays />
       <HomePageGateway requests={requests} />
       <HomePageDestinations destinations={destinations} />
       <HomePageProcess />
