@@ -18,6 +18,7 @@ type WizardData = {
   // Step 2
   interests: string[]; // multi-select, at least 1 required
   budgetKey: "under2k" | "under5k" | "under10k" | "unlimited"; // default 'under5k'
+  budgetPerPerson: boolean; // true = per person (default), false = total group
   formatPref: "private" | "group" | "any"; // default 'any'
 
   // Step 3
@@ -33,6 +34,7 @@ const defaultData: WizardData = {
   groupSize: 2,
   interests: [],
   budgetKey: "under5k",
+  budgetPerPerson: true,
   formatPref: "any",
   notes: "",
 };
@@ -88,6 +90,7 @@ export function RequestWizard() {
     fd.set("openToJoiningOthers", String(openToJoiningOthers));
     fd.set("allowGuideSuggestionsOutsideConstraints", "true");
     fd.set("budgetPerPersonRub", String(budgetPerPersonRub));
+    fd.set("budgetPerPerson", String(data.budgetPerPerson));
     fd.set("notes", data.notes ?? "");
     // Append interests for server-side use (future schema extension)
     for (const interest of data.interests) {
@@ -139,6 +142,7 @@ export function RequestWizard() {
           data={{
             interests: data.interests,
             budgetKey: data.budgetKey,
+            budgetPerPerson: data.budgetPerPerson,
             formatPref: data.formatPref,
           }}
           onChange={patchData}

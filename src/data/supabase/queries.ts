@@ -1,5 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+import { kopecksToRub } from "@/data/money";
+
 export type QueryResult<T> = { data: T | null; error: Error | null };
 export type DestinationCategory = "city" | "nature" | "culture";
 
@@ -293,7 +295,7 @@ function formatFormatPreference(pref: string): string {
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
   const budgetMinor = (row.budget_minor as number) ?? 0;
-  const budgetRub = Math.round(budgetMinor / 100);
+  const budgetRub = kopecksToRub(budgetMinor);
   const meta = parseNotesJson(row.notes as string);
   const imageUrl = (meta.imageUrl as string) ?? fallbackHeroImage;
   const dateRangeLabel = (meta.dateRangeLabel as string) ?? formatDateLabel((row.starts_on as string) ?? "", row.ends_on as string | null);

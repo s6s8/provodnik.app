@@ -12,6 +12,7 @@ type WizardData = {
   groupSize: number;
   interests: string[];
   budgetKey: "under2k" | "under5k" | "under10k" | "unlimited";
+  budgetPerPerson: boolean;
   formatPref: "private" | "group" | "any";
   notes: string;
 };
@@ -43,7 +44,7 @@ const FORMAT_OPTIONS = [
 ] as const;
 
 interface StepInterestsProps {
-  data: Pick<WizardData, "interests" | "budgetKey" | "formatPref">;
+  data: Pick<WizardData, "interests" | "budgetKey" | "budgetPerPerson" | "formatPref">;
   onChange: (patch: Partial<WizardData>) => void;
   onNext: () => void;
   onBack: () => void;
@@ -124,7 +125,35 @@ export function StepInterests({
         </div>
 
         <div className="grid gap-3">
-          <p className="text-sm font-medium text-foreground">Бюджет на человека</p>
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-medium text-foreground">Бюджет</p>
+            <div className="flex items-center gap-1 rounded-full border bg-muted p-0.5 text-xs">
+              <button
+                type="button"
+                onClick={() => onChange({ budgetPerPerson: true })}
+                className={cn(
+                  "rounded-full px-3 py-1 transition-colors",
+                  data.budgetPerPerson
+                    ? "bg-background font-medium text-foreground shadow-sm"
+                    : "text-muted-foreground",
+                )}
+              >
+                за человека
+              </button>
+              <button
+                type="button"
+                onClick={() => onChange({ budgetPerPerson: false })}
+                className={cn(
+                  "rounded-full px-3 py-1 transition-colors",
+                  !data.budgetPerPerson
+                    ? "bg-background font-medium text-foreground shadow-sm"
+                    : "text-muted-foreground",
+                )}
+              >
+                за группу
+              </button>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-2">
             {BUDGET_OPTIONS.map((option) => (
               <ChipButton

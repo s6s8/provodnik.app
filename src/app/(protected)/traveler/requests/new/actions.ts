@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { travelerRequestSchema } from "@/data/traveler-request/schema";
+import { rubToKopecks } from "@/data/money";
 import { createTravelerRequest } from "@/lib/supabase/requests";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/env";
@@ -77,7 +78,7 @@ export async function createRequestAction(
         category: input.experienceType,
         starts_on: input.startDate,
         ends_on: input.endDate,
-        budget_minor: input.budgetPerPersonRub,
+        budget_minor: rubToKopecks(input.budgetPerPersonRub),
         participants_count: input.groupSize,
         format_preference: input.groupPreference,
         notes: input.notes || null,
