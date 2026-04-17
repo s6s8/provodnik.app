@@ -372,16 +372,6 @@ export function GuideRequestsInboxScreen() {
 
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
-                          <Button
-                            asChild
-                            variant="ghost"
-                            size="sm"
-                            className="px-3"
-                          >
-                            <Link href={`/guide/inbox/${item.id}`}>
-                              Подробнее
-                            </Link>
-                          </Button>
                           {acceptedOfferIds.has(item.id) ? (
                             <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3.5 py-1.5 text-xs font-semibold text-green-700">
                               ✓ Предложение принято
@@ -392,12 +382,23 @@ export function GuideRequestsInboxScreen() {
                             </span>
                           ) : (
                             <Button
+                              variant="default"
                               size="sm"
                               onClick={() => setPanelRequestId(item.id)}
                             >
                               Предложить цену
                             </Button>
                           )}
+                          <Button
+                            asChild
+                            variant="ghost"
+                            size="sm"
+                            className="px-3"
+                          >
+                            <Link href={`/guide/inbox/${item.id}`}>
+                              Подробнее
+                            </Link>
+                          </Button>
                         </div>
                       </div>
 
