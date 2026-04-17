@@ -174,7 +174,7 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                   const badge = statusBadge(status);
                   const offers: number = 0;
                   const budget = request.budgetPerPersonRub;
-                  const priceLabel = `от ${(budget * 0.8).toLocaleString("ru-RU")} ₽`;
+                  const priceLabel = `от ${budget.toLocaleString("ru-RU")} ₽ / чел.`;
                   const startFmt = new Date(request.startDate).toLocaleDateString(
                     "ru-RU",
                     { day: "numeric", month: "short" }
