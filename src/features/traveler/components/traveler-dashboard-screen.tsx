@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { ReqCard } from "@/components/shared/req-card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { AuthContext } from "@/lib/auth/types";
 import { cn } from "@/lib/utils";
 import { listTravelerRequestsFromSupabase } from "@/data/traveler-request/supabase-client";
@@ -87,6 +88,7 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
   }, [requests]);
 
   const items = requests ?? loaded;
+  const loading = !requests && loaded.length === 0;
 
   // stats
   const activeCount = items.filter(
@@ -168,53 +170,57 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {items.map((record) => {
-                  const { request, id, status } = record;
-                  const badge = statusBadge(status);
-                  const offers: number = 0;
-                  const budget = request.budgetPerPersonRub;
-                  const priceLabel = `от ${budget.toLocaleString("ru-RU")} ₽ / чел.`;
-                  const startFmt = new Date(request.startDate).toLocaleDateString(
-                    "ru-RU",
-                    { day: "numeric", month: "short" }
-                  );
-                  const endFmt = new Date(request.endDate).toLocaleDateString(
-                    "ru-RU",
-                    { day: "numeric", month: "short" }
-                  );
-                  const spotsLabel = `${request.groupSize} чел.`;
+              {loading ? (
+                <DashboardSkeleton />
+              ) : items.length === 0 ? null : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  {items.map((record) => {
+                    const { request, id, status } = record;
+                    const badge = statusBadge(status);
+                    const offers: number = 0;
+                    const budget = request.budgetPerPersonRub;
+                    const priceLabel = `от ${budget.toLocaleString("ru-RU")} ₽ / чел.`;
+                    const startFmt = new Date(request.startDate).toLocaleDateString(
+                      "ru-RU",
+                      { day: "numeric", month: "short" }
+                    );
+                    const endFmt = new Date(request.endDate).toLocaleDateString(
+                      "ru-RU",
+                      { day: "numeric", month: "short" }
+                    );
+                    const spotsLabel = `${request.groupSize} чел.`;
 
-                  const fillMap: Record<string, number> = {
-                    draft: 10,
-                    submitted: 30,
-                    offers_received: 65,
-                    shortlisted: 80,
-                    booked: 100,
-                    closed: 100,
-                  };
-                  const fillPct = fillMap[status] ?? 30;
+                    const fillMap: Record<string, number> = {
+                      draft: 10,
+                      submitted: 30,
+                      offers_received: 65,
+                      shortlisted: 80,
+                      booked: 100,
+                      closed: 100,
+                    };
+                    const fillPct = fillMap[status] ?? 30;
 
-                  return (
-                    <div key={id} className="relative">
-                      <span className={cn("pointer-events-none absolute top-4 right-4 z-[1]", badge.cls)}>
-                        {badge.label}
-                      </span>
+                    return (
+                      <div key={id} className="relative">
+                        <span className={cn("pointer-events-none absolute top-4 right-4 z-[1]", badge.cls)}>
+                          {badge.label}
+                        </span>
 
-                      <ReqCard
-                        href={`/requests/${id}`}
-                        location={request.destination}
-                        spotsLabel={spotsLabel}
-                        title={`${request.destination} · ${startFmt}–${endFmt}`}
-                        date={`${request.groupSize} чел. · ${offers} ${offers === 1 ? "оффер" : offers >= 2 && offers <= 4 ? "оффера" : "офферов"}`}
-                        desc={request.notes ?? undefined}
-                        fillPct={fillPct}
-                        price={priceLabel}
-                      />
-                    </div>
-                  );
-                })}
-              </div>
+                        <ReqCard
+                          href={`/requests/${id}`}
+                          location={request.destination}
+                          spotsLabel={spotsLabel}
+                          title={`${request.destination} · ${startFmt}–${endFmt}`}
+                          date={`${request.groupSize} чел. · ${offers} ${offers === 1 ? "оффер" : offers >= 2 && offers <= 4 ? "оффера" : "офферов"}`}
+                          desc={request.notes ?? undefined}
+                          fillPct={fillPct}
+                          price={priceLabel}
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
 
               <div className="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {[
@@ -238,5 +244,28 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
         </div>
       </section>
     </>
+  );
+}
+
+// ─── skeleton ────────────────────────────────────────────────────────────────
+
+function DashboardSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="bg-surface-high rounded-card p-5 shadow-card space-y-4"
+        >
+          <Skeleton className="h-5 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <div className="flex items-center gap-3 pt-2">
+            <Skeleton className="h-4 w-16" />
+            <Skeleton className="h-4 w-20" />
+          </div>
+          <Skeleton className="h-2 w-full rounded-full" />
+        </div>
+      ))}
+    </div>
   );
 }
