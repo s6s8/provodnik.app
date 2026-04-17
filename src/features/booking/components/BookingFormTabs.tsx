@@ -40,7 +40,7 @@ function buildOrderSchema(maxGroupSize: number) {
       notes: z.string().max(2000).optional(),
     })
     .superRefine((data, ctx) => {
-      const today = todayLocalISODate();
+      const today = todayMoscowISODate();
       if (data.starts_on < today) {
         ctx.addIssue({
           code: "custom",
@@ -73,16 +73,33 @@ export interface BookingFormTabsProps {
     | "max_group_size"
     | "format"
     | "category"
-  >;
+  > &
+    Partial<Pick<ListingRow, "meeting_point" | "duration_minutes">>;
   initialTab?: "order" | "question";
 }
 
-function todayLocalISODate() {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+function todayMoscowISODate(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Moscow",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function userMessageForError(code: string | undefined): string {
+  switch (code) {
+    case "auth_expired":
+      return "Сессия истекла. Войдите снова и повторите.";
+    case "listing_unavailable":
+      return "Это предложение больше недоступно.";
+    case "listing_no_price":
+      return "У этого тура ещё не указана цена.";
+    case "validation":
+      return "Проверьте заполненные поля и попробуйте снова.";
+    default:
+      return "Не удалось отправить заявку. Попробуйте через минуту.";
+  }
 }
 
 function isNextRedirectError(value: unknown): boolean {
@@ -152,8 +169,8 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
         if (isNextRedirectError(err)) {
           throw err;
         }
-        const message = err instanceof Error ? err.message : "Не удалось отправить заявку";
-        setActionError(message);
+        const code = err instanceof Error ? err.message : undefined;
+        setActionError(userMessageForError(code));
       });
     });
   });
@@ -168,20 +185,20 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
         destination: listing.title,
         region: listing.region,
         category: listing.category,
-        startsOn: todayLocalISODate(),
+        startsOn: todayMoscowISODate(),
         participantsCount: 1,
         notes: values.notes.trim(),
       }).catch((err: unknown) => {
         if (isNextRedirectError(err)) {
           throw err;
         }
-        const message = err instanceof Error ? err.message : "Не удалось отправить вопрос";
-        setActionError(message);
+        const code = err instanceof Error ? err.message : undefined;
+        setActionError(userMessageForError(code));
       });
     });
   });
 
-  const todayStr = todayLocalISODate();
+  const todayStr = todayMoscowISODate();
 
   return (
     <div className="grid gap-6">
@@ -270,6 +287,19 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
                 )}
               />
             </div>
+
+            {listing.duration_minutes != null ? (
+              <div className="text-sm text-muted-foreground">
+                Продолжительность: {listing.duration_minutes} мин.
+              </div>
+            ) : null}
+
+            {"meeting_point" in listing ? (
+              <div className="text-sm text-muted-foreground">
+                Место встречи:{" "}
+                {listing.meeting_point ? listing.meeting_point : "уточняется"}
+              </div>
+            ) : null}
 
             <div className="grid gap-2">
               <Label htmlFor="booking-notes">Пожелания, вопросы, особые потребности</Label>
