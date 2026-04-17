@@ -101,12 +101,10 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
         ) : null}
         <div className="flex flex-col gap-2">
           <Button asChild className="w-full">
-            <Link href={`/traveler/requests/new${guide?.user_id ? `?guide=${guide.user_id}` : ""}`}>
-              Запросить у этого гида
-            </Link>
+            <Link href={`/listings/${listing.id}/book`}>Заказать</Link>
           </Button>
           <Button asChild variant="ghost" className="w-full text-sm">
-            <Link href={`/traveler/requests/new`}>Задать вопрос гиду</Link>
+            <Link href={`/listings/${listing.id}/book?tab=question`}>Задать вопрос</Link>
           </Button>
         </div>
       </CardContent>
