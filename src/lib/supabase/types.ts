@@ -568,3 +568,16 @@ export type DisputeEventRow = {
   created_at: string;
 };
 
+/** Listing snapshot attached to a direct-booking card (fetched separately). */
+export type ListingSnippet = {
+  id: Uuid;
+  title: string;
+  region: string;
+  price_from_minor: number;
+};
+
+/** BookingRow enriched with optional listing data for direct-booking (Трипстер) mode. */
+export type BookingWithListing = BookingRow & {
+  listing?: ListingSnippet | null;
+};
+

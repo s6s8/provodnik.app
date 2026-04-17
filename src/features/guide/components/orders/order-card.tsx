@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import { confirmOrderAction } from "@/app/(protected)/guide/orders/actions";
-import type { BookingRow } from "@/lib/supabase/types";
+import type { BookingWithListing } from "@/lib/supabase/types";
 
 function formatWhen(startsAt: string | null): string {
   if (!startsAt) return "Дата уточняется";
@@ -33,7 +33,7 @@ function formatPrice(minor: number, currency: string): string {
 }
 
 function statusLabel(
-  status: BookingRow["status"],
+  status: BookingWithListing["status"],
 ): { text: string; className: string } {
   switch (status) {
     case "awaiting_guide_confirmation":
@@ -54,7 +54,7 @@ function statusLabel(
 }
 
 interface OrderCardProps {
-  booking: BookingRow;
+  booking: BookingWithListing;
   onConfirmed?: (id: string) => void;
 }
 
@@ -62,7 +62,7 @@ export function OrderCard({ booking, onConfirmed }: OrderCardProps) {
   const [isPending, startTransition] = React.useTransition();
   const [error, setError] = React.useState<string | null>(null);
   const [optimisticStatus, setOptimisticStatus] = React.useState<
-    BookingRow["status"] | null
+    BookingWithListing["status"] | null
   >(null);
 
   const currentStatus = optimisticStatus ?? booking.status;
@@ -82,11 +82,23 @@ export function OrderCard({ booking, onConfirmed }: OrderCardProps) {
     });
   };
 
+  const isDirectBooking = booking.request_id === null && booking.listing_id !== null;
+
   return (
     <div className="space-y-3 rounded-xl border border-border/70 bg-card p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <p className="truncate text-sm font-semibold text-foreground">
+          {isDirectBooking && booking.listing ? (
+            <>
+              <p className="truncate text-sm font-semibold text-foreground">
+                {booking.listing.title}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {booking.listing.region}
+              </p>
+            </>
+          ) : null}
+          <p className="truncate text-sm font-medium text-foreground">
             {formatWhen(booking.starts_at)}
           </p>
           <p className="text-sm text-muted-foreground">

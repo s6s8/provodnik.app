@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { BookingRow } from "@/lib/supabase/types";
+import type { BookingWithListing } from "@/lib/supabase/types";
 import { OrderCard } from "./order-card";
 
 type TabKey =
@@ -25,11 +25,11 @@ const TABS: Array<{ key: TabKey; label: string }> = [
 
 type ViewMode = "events" | "orders";
 
-function isCancelledLike(status: BookingRow["status"]): boolean {
+function isCancelledLike(status: BookingWithListing["status"]): boolean {
   return status === "cancelled" || status === "no_show";
 }
 
-function filterByTab(bookings: BookingRow[], tab: TabKey): BookingRow[] {
+function filterByTab(bookings: BookingWithListing[], tab: TabKey): BookingWithListing[] {
   switch (tab) {
     case "pending":
       return bookings.filter((b) => b.status === "pending");
@@ -49,7 +49,7 @@ function filterByTab(bookings: BookingRow[], tab: TabKey): BookingRow[] {
   }
 }
 
-function sortByStartsAtDesc(a: BookingRow, b: BookingRow): number {
+function sortByStartsAtDesc(a: BookingWithListing, b: BookingWithListing): number {
   const aKey = a.starts_at ?? "";
   const bKey = b.starts_at ?? "";
   if (aKey === bKey) return a.created_at < b.created_at ? 1 : -1;
@@ -59,9 +59,9 @@ function sortByStartsAtDesc(a: BookingRow, b: BookingRow): number {
 }
 
 function groupByDate(
-  bookings: BookingRow[],
-): Array<{ date: string; label: string; items: BookingRow[] }> {
-  const map = new Map<string, BookingRow[]>();
+  bookings: BookingWithListing[],
+): Array<{ date: string; label: string; items: BookingWithListing[] }> {
+  const map = new Map<string, BookingWithListing[]>();
   for (const b of bookings) {
     const key = b.starts_at ? b.starts_at.slice(0, 10) : "no-date";
     const existing = map.get(key) ?? [];
@@ -92,11 +92,11 @@ function groupByDate(
 }
 
 interface OrdersInboxProps {
-  initialBookings: BookingRow[];
+  initialBookings: BookingWithListing[];
 }
 
 export function OrdersInbox({ initialBookings }: OrdersInboxProps) {
-  const [bookings, setBookings] = React.useState<BookingRow[]>(initialBookings);
+  const [bookings, setBookings] = React.useState<BookingWithListing[]>(initialBookings);
   const [activeTab, setActiveTab] = React.useState<TabKey>("awaiting");
   const [viewMode, setViewMode] = React.useState<ViewMode>("orders");
 
@@ -127,7 +127,9 @@ export function OrdersInbox({ initialBookings }: OrdersInboxProps) {
 
   const handleConfirmed = React.useCallback((id: string) => {
     setBookings((prev) =>
-      prev.map((b) => (b.id === id ? { ...b, status: "confirmed" as const } : b)),
+      prev.map((b): BookingWithListing =>
+        b.id === id ? { ...b, status: "confirmed" as const } : b,
+      ),
     );
   }, []);
 
