@@ -40,7 +40,7 @@ export default async function GuideOrdersPage() {
       ),
     ];
 
-    let listingMap = new Map<string, ListingSnippet>();
+    const listingMap = new Map<string, ListingSnippet>();
     if (listingIds.length > 0) {
       const { data: listingsData } = await supabase
         .from("listings")
