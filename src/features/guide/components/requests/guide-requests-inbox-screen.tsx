@@ -53,41 +53,58 @@ export function GuideRequestsInboxScreen() {
 
   React.useEffect(() => {
     let ignore = false;
+    const supabase = createSupabaseBrowserClient();
 
-    async function load() {
+    async function loadOffersForGuide(guideId: string) {
+      const ids = await fetchOfferedRequestIds(guideId);
+      if (ignore) return;
+      setOfferedIds(ids);
+
+      const { data: acceptedOffers, error } = await supabase
+        .from("guide_offers")
+        .select("request_id")
+        .eq("guide_id", guideId)
+        .eq("status", "accepted");
+      if (ignore) return;
+      if (error) {
+        console.warn("[inbox] failed to load accepted offers:", error.message);
+        return;
+      }
+      if (acceptedOffers) {
+        setAcceptedOfferIds(
+          new Set(acceptedOffers.map((o) => o.request_id as string)),
+        );
+      }
+    }
+
+    async function loadInitial() {
       try {
-        const supabase = createSupabaseBrowserClient();
         const { data } = await getOpenRequests(supabase);
         if (!ignore && data) setItems(data);
 
-        // Fetch current user's guide_id to check offered requests
         const {
           data: { session },
         } = await supabase.auth.getSession();
         if (!ignore && session?.user?.id) {
-          const ids = await fetchOfferedRequestIds(session.user.id);
-          if (!ignore) setOfferedIds(ids);
-
-          // Fetch accepted offer request IDs
-          const { data: acceptedOffers } = await supabase
-            .from("guide_offers")
-            .select("request_id")
-            .eq("guide_id", session.user.id)
-            .eq("status", "accepted");
-          if (!ignore && acceptedOffers) {
-            setAcceptedOfferIds(
-              new Set(acceptedOffers.map((o) => o.request_id as string)),
-            );
-          }
+          await loadOffersForGuide(session.user.id);
         }
-      } catch {
-        // leave empty
+      } catch (err) {
+        console.warn("[inbox] initial load failed:", err);
       }
     }
 
-    void load();
+    void loadInitial();
+
+    const { data: authSub } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (ignore) return;
+        if (session?.user?.id) void loadOffersForGuide(session.user.id);
+      },
+    );
+
     return () => {
       ignore = true;
+      authSub.subscription.unsubscribe();
     };
   }, []);
 
