@@ -179,6 +179,10 @@ export async function publishListing(
     throw new Error("Листинг не найден или у вас нет прав.");
   }
 
+  if (existing.price_from_minor == null || existing.price_from_minor <= 0) {
+    throw new Error("Укажите цену тура перед публикацией.");
+  }
+
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase

@@ -15,12 +15,29 @@ export async function submitRequest(formData: {
   participantsCount: number;
   formatPreference?: string;
   notes?: string;
+  mode?: "order" | "question";
 }) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  if (!user) throw new Error("auth_expired");
+
+  const { data: listing, error: listingErr } = await supabase
+    .from("listings")
+    .select("id, status, price_from_minor")
+    .eq("id", formData.listingId)
+    .single();
+
+  if (listingErr || !listing) {
+    throw new Error("listing_unavailable");
+  }
+  if (listing.status !== "published") {
+    throw new Error("listing_unavailable");
+  }
+  if (formData.mode !== "question" && listing.price_from_minor == null) {
+    throw new Error("listing_no_price");
+  }
 
   const endsOn =
     formData.endsOn && formData.endsOn.trim() !== "" ? formData.endsOn.trim() : undefined;

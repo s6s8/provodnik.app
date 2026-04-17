@@ -165,6 +165,7 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
         participantsCount: values.participants_count,
         formatPreference,
         notes: values.notes?.trim() ? values.notes.trim() : undefined,
+        mode: "order",
       }).catch((err: unknown) => {
         if (isNextRedirectError(err)) {
           throw err;
@@ -188,6 +189,7 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
         startsOn: todayMoscowISODate(),
         participantsCount: 1,
         notes: values.notes.trim(),
+        mode: "question",
       }).catch((err: unknown) => {
         if (isNextRedirectError(err)) {
           throw err;
