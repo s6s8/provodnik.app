@@ -12,6 +12,7 @@ import {
 import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
 import type { DestinationSummary } from "@/data/destinations/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { serializeJsonLd } from "@/lib/seo/json-ld";
 
 const getDestinationPageData = cache(async (slug: string) => {
   const supabase = await createSupabaseServerClient();
@@ -32,9 +33,6 @@ const getDestinationPageData = cache(async (slug: string) => {
   };
 });
 
-function serializeJsonLd(jsonLd: Record<string, unknown>) {
-  return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
-}
 
 export async function generateMetadata({
   params,

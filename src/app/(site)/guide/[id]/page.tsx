@@ -15,6 +15,7 @@ import { getGuideBySlug, getListingsByGuide } from "@/data/supabase/queries";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { getReviewsForGuide } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { serializeJsonLd } from "@/lib/seo/json-ld";
 
 const getGuidePageData = cache(async (id: string) => {
   const supabase = await createSupabaseServerClient();
@@ -49,9 +50,6 @@ const getGuidePageData = cache(async (id: string) => {
   };
 });
 
-function serializeJsonLd(jsonLd: Record<string, unknown>) {
-  return JSON.stringify(jsonLd).replace(/</g, "\\u003c");
-}
 
 export async function generateMetadata({
   params,
