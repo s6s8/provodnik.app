@@ -1,22 +1,21 @@
-import { beforeEach, describe, expect, mock, test } from "bun:test";
+import { beforeEach, describe, expect, test, vi } from "vitest";
+import { rateLimit } from "../rate-limit";
 
-const redisMock = {
-  zremrangebyscore: mock(async () => 0),
-  zcard: mock(async () => 0),
-  zadd: mock(async () => 1),
-  expire: mock(async () => 1),
-};
+const redisMock = vi.hoisted(() => ({
+  zremrangebyscore: vi.fn(),
+  zcard: vi.fn(),
+  zadd: vi.fn(),
+  expire: vi.fn(),
+}));
 
-mock.module("../upstash/redis", () => ({
+vi.mock("@/lib/upstash/redis", () => ({
   redis: redisMock,
 }));
 
-const { rateLimit } = await import("../rate-limit");
-
 describe("rateLimit", () => {
   beforeEach(() => {
-    process.env.UPSTASH_REDIS_REST_URL = "https://example.upstash.io";
-    process.env.UPSTASH_REDIS_REST_TOKEN = "token";
+    process.env.STORAGE_KV_REST_API_URL = "https://example.upstash.io";
+    process.env.STORAGE_KV_REST_API_TOKEN = "token";
     redisMock.zremrangebyscore.mockClear();
     redisMock.zcard.mockClear();
     redisMock.zadd.mockClear();

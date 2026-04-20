@@ -18,7 +18,8 @@
     "types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts",
     "types:remote": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
     "playwright": "playwright test",
-    "playwright:e2e": "playwright test tests/e2e/tripster-v1/"
+    "playwright:e2e": "playwright test tests/e2e/tripster-v1/",
+    "postinstall": "sh scripts/install-hooks.sh"
   },
   "dependencies": {
     "@fontsource-variable/inter": "^5.2.8",
