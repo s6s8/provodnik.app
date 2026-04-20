@@ -32,7 +32,7 @@ export const createRequestInputSchema = z
       .number()
       .int("Используйте целое число.")
       .min(1_000, "Бюджет должен быть не менее 1 000 ₽.")
-      .max(2_000_000, "Бюджет слишком велик для MVP.")
+      .max(200_000_000, "Бюджет слишком велик для MVP.")
       .nullable()
       .optional(),
     participants_count: z

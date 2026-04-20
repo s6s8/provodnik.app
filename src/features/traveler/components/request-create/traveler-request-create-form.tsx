@@ -58,8 +58,14 @@ export function TravelerRequestCreateForm() {
   } = form;
 
   const mode = useWatch({ control, name: "mode" });
+  const budget = useWatch({ control, name: "budgetPerPersonRub" });
+  const groupSize = useWatch({ control, name: "groupSize" });
+  const groupSizeCurrent = useWatch({ control, name: "groupSizeCurrent" });
   const isAssembly = mode === "assembly";
   const isLoading = isSubmitting || isPending;
+
+  const participants = isAssembly ? (groupSizeCurrent ?? 1) : (groupSize ?? 1);
+  const totalRub = Number.isFinite(budget) && Number.isFinite(participants) ? budget * participants : null;
 
   const onSubmit = React.useCallback(
     (values: RequestFormValues) => {
@@ -284,6 +290,14 @@ export function TravelerRequestCreateForm() {
         />
         <FieldHint>Верхняя граница бюджета помогает гидам предлагать реалистичные программы.</FieldHint>
         <FieldError id="budgetPerPersonRub-error" message={errors.budgetPerPersonRub?.message} />
+        {totalRub !== null && totalRub > 0 && (
+          <p className="text-sm font-medium text-foreground">
+            Итого: {totalRub.toLocaleString("ru-RU")} ₽{" "}
+            <span className="font-normal text-muted-foreground">
+              ({participants} чел. × {budget.toLocaleString("ru-RU")} ₽)
+            </span>
+          </p>
+        )}
       </div>
 
       {/* Allow guide suggestions */}
