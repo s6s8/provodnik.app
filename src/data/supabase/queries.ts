@@ -75,6 +75,8 @@ export type RequestRecord = {
   destinationRegion: string;
   title: string;
   dateLabel: string;
+  startTime?: string | null;
+  endTime?: string | null;
   groupSize: number;
   capacity: number;
   budgetRub: number;
@@ -308,6 +310,8 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "Россия",
     title: `${destinationLabel} — маршрут под группу`,
     dateLabel: dateRangeLabel,
+    startTime: (row.start_time as string | null) ?? null,
+    endTime: (row.end_time as string | null) ?? null,
     groupSize: (row.participants_count as number) ?? 1,
     capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
     budgetRub,

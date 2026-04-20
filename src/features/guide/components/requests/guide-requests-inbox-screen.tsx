@@ -366,6 +366,7 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
+                            {item.startTime ? ` · ${item.startTime}${item.endTime ? `–${item.endTime}` : ""}` : ""}
                           </p>
                           <p>
                             <span className="font-medium text-foreground">

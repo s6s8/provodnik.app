@@ -131,6 +131,11 @@ export function GuideRequestDetailScreen({
               <Badge variant="outline">
                 {inboxItem.dateLabel}
               </Badge>
+              {inboxItem.startTime ? (
+                <Badge variant="outline">
+                  {inboxItem.startTime}{inboxItem.endTime ? `–${inboxItem.endTime}` : ""}
+                </Badge>
+              ) : null}
               <Badge variant="outline">
                 Группа {inboxItem.groupSize} чел.
               </Badge>
