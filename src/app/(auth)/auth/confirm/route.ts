@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
 import { clientEnv, hasSupabaseEnv } from "@/lib/env";
+import { safeRedirectPath } from "@/lib/auth/safe-redirect";
 
 type VerifyType = "email" | "recovery" | "invite";
 
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const tokenHash = searchParams.get("token_hash");
   const type = searchParams.get("type") as VerifyType | null;
-  const next = searchParams.get("next") ?? "/";
+  const next = safeRedirectPath(searchParams.get("next"));
 
   if (!hasSupabaseEnv()) {
     return NextResponse.redirect(new URL("/auth?error=invalid_link", origin));
