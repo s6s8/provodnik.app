@@ -16,12 +16,10 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  getDashboardPathForRole,
-  isAppRole,
-} from "@/lib/auth/role-routing";
-import { getSiteUrl, hasSupabaseEnv } from "@/lib/env";
+import { getDashboardPathForRole, isAppRole } from "@/lib/auth/role-routing";
+import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { signUpAction } from "@/features/auth/actions/signUpAction";
 
 const hasEnv = hasSupabaseEnv();
 
@@ -31,77 +29,33 @@ const roles = [
   { value: "admin", label: "Оператор" },
 ] as const;
 
-const profileLookupDelays = [0, 150, 400, 900] as const;
-const missingRoleMessage =
-  "Аккаунт авторизован, но роль профиля не определена. Вернитесь на страницу входа позже или обратитесь в поддержку.";
-
 type AuthFormMode = "sign-in" | "sign-up";
 type RoleValue = (typeof roles)[number]["value"];
-type ProfileRoleQuery = {
-  data: { role: string | null } | null;
-  error: { message: string } | null;
-};
 
-function sleep(delayMs: number) {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, delayMs);
-  });
-}
+function getFriendlyAuthError(code: string): string {
+  switch (code) {
+    case "already_registered":
+      return "Этот email уже зарегистрирован. Войдите в существующий аккаунт или используйте другой адрес.";
+    case "internal":
+      return "Что-то пошло не так. Попробуйте ещё раз.";
+  }
 
-function getFriendlyAuthError(message: string) {
-  const normalized = message.toLowerCase();
+  const normalized = code.toLowerCase();
 
   if (normalized.includes("invalid login credentials")) {
     return "Неверный email или пароль.";
   }
-
   if (normalized.includes("user already registered")) {
     return "Этот email уже зарегистрирован. Войдите в существующий аккаунт или используйте другой адрес.";
   }
-
   if (normalized.includes("email not confirmed")) {
     return "Подтвердите email по письму и попробуйте снова.";
   }
-
-  if (normalized.includes("sending confirmation email") || normalized.includes("error sending")) {
-    return "Не удалось отправить письмо с подтверждением. Попробуйте ещё раз.";
-  }
-
-  if (
-    normalized.includes("password should be at least") ||
-    normalized.includes("password must be at least")
-  ) {
+  if (normalized.includes("password should be at least") || normalized.includes("password must be at least")) {
     return "Пароль слишком короткий. Используйте не менее 6 символов.";
   }
 
-  return message;
-}
-
-async function resolveDashboardPathForUser(
-  supabase: ReturnType<typeof createSupabaseBrowserClient>,
-  userId: string,
-) {
-  for (const delayMs of profileLookupDelays) {
-    if (delayMs > 0) {
-      await sleep(delayMs);
-    }
-
-    const { data: profile, error } = (await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", userId)
-      .maybeSingle()) as ProfileRoleQuery;
-
-    if (error) {
-      throw new Error(error.message);
-    }
-
-    if (isAppRole(profile?.role)) {
-      return getDashboardPathForRole(profile.role);
-    }
-  }
-
-  return null;
+  return "Что-то пошло не так. Попробуйте ещё раз.";
 }
 
 export function AuthEntryScreen() {
@@ -139,12 +93,10 @@ export function AuthEntryScreen() {
       setError("Введите email, чтобы продолжить.");
       return;
     }
-
     if (!password) {
       setError("Введите пароль, чтобы продолжить.");
       return;
     }
-
     if (mode === "sign-up" && !trimmedFullName) {
       setError("Укажите имя, которое нужно сохранить в профиле.");
       return;
@@ -153,33 +105,25 @@ export function AuthEntryScreen() {
     setIsSubmitting(true);
 
     try {
-      const supabase = createSupabaseBrowserClient();
-
       if (mode === "sign-in") {
-        const { data, error: signInError } =
-          await supabase.auth.signInWithPassword({
-            email: trimmedEmail,
-            password,
-          });
+        const supabase = createSupabaseBrowserClient();
+        const { data, error: signInError } = await supabase.auth.signInWithPassword({
+          email: trimmedEmail,
+          password,
+        });
 
         if (signInError) {
           setError(getFriendlyAuthError(signInError.message));
           return;
         }
 
-        if (!data.user) {
-          setError("Не удалось получить данные аккаунта после входа.");
-          return;
-        }
-
-        const dashboardPath = await resolveDashboardPathForUser(
-          supabase,
-          data.user.id,
-        );
+        const userRole = data.user?.app_metadata?.role;
+        const dashboardPath = isAppRole(userRole)
+          ? getDashboardPathForRole(userRole)
+          : null;
 
         if (!dashboardPath) {
-          await supabase.auth.signOut();
-          setError(missingRoleMessage);
+          window.location.href = "/api/auth/signout";
           return;
         }
 
@@ -188,60 +132,23 @@ export function AuthEntryScreen() {
         return;
       }
 
-      const { data, error: signUpError } = await supabase.auth.signUp({
+      // Sign-up: server action creates user + profile + sets app_metadata atomically
+      const result = await signUpAction({
         email: trimmedEmail,
         password,
-        options: {
-          emailRedirectTo: `${getSiteUrl()}/auth/confirm`,
-          data: {
-            full_name: trimmedFullName,
-            role,
-          },
-        },
+        role,
+        fullName: trimmedFullName,
       });
 
-      if (signUpError) {
-        setError(getFriendlyAuthError(signUpError.message));
+      if (!result.ok) {
+        setError(getFriendlyAuthError(result.error));
         return;
       }
 
-      if (!data.session) {
-        setPassword("");
-        setMode("sign-in");
-        setSuccess(
-          "Аккаунт создан. Проверьте почту, подтвердите адрес и затем войдите с email и паролем.",
-        );
-        return;
-      }
-
-      if (!data.user) {
-        setError(
-          "Аккаунт создан, но данные пользователя пока недоступны. Попробуйте войти снова.",
-        );
-        return;
-      }
-
-      const dashboardPath = await resolveDashboardPathForUser(
-        supabase,
-        data.user.id,
-      );
-
-      if (!dashboardPath) {
-        await supabase.auth.signOut();
-        setError(
-          "Аккаунт создан, но роль профиля пока не определилась. Подтвердите email, затем попробуйте войти снова.",
-        );
-        return;
-      }
-
-      router.replace(dashboardPath);
+      router.replace(result.dashboardPath);
       router.refresh();
-    } catch (submitError) {
-      setError(
-        submitError instanceof Error
-          ? getFriendlyAuthError(submitError.message)
-          : "Не удалось выполнить авторизацию. Попробуйте еще раз.",
-      );
+    } catch {
+      setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");
     } finally {
       setIsSubmitting(false);
     }
@@ -345,9 +252,7 @@ export function AuthEntryScreen() {
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete={isSignUp ? "new-password" : "current-password"}
-                placeholder={
-                  isSignUp ? "Минимум 6 символов" : "Введите пароль"
-                }
+                placeholder={isSignUp ? "Минимум 6 символов" : "Введите пароль"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
                 className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
@@ -356,9 +261,7 @@ export function AuthEntryScreen() {
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
                 className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
-                aria-label={
-                  showPassword ? "Скрыть пароль" : "Показать пароль"
-                }
+                aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                 aria-pressed={showPassword}
               >
                 {showPassword ? (
@@ -391,7 +294,6 @@ export function AuthEntryScreen() {
                   .filter((option) => option.value !== "admin")
                   .map((option) => {
                     const isActive = role === option.value;
-
                     return (
                       <button
                         key={option.value}

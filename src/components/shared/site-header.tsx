@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Menu, MessageSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,6 @@ import { NotificationBell } from "@/features/notifications/components/Notificati
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { COPY } from "@/lib/copy";
 import { flags } from "@/lib/flags";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -70,15 +69,11 @@ export function SiteHeader({
   userId = null,
 }: SiteHeaderProps) {
   const pathname = usePathname();
-  const router = useRouter();
   const { unreadCount } = useUnreadCount(isAuthenticated);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  async function handleLogout() {
-    const supabase = createSupabaseBrowserClient();
-    await supabase.auth.signOut();
-    router.refresh();
-    router.push("/");
+  function handleLogout() {
+    window.location.href = "/api/auth/signout";
   }
 
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
