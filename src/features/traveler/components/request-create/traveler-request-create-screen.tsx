@@ -1,4 +1,4 @@
-import { RequestWizard } from "@/features/requests/components/request-wizard";
+import { TravelerRequestCreateForm } from "@/features/traveler/components/request-create/traveler-request-create-form";
 
 export function TravelerRequestCreateScreen() {
   return (
@@ -6,7 +6,7 @@ export function TravelerRequestCreateScreen() {
       <h1 className="mb-8 font-display text-[clamp(1.5rem,3vw,2rem)] font-semibold text-foreground">
         Новый запрос
       </h1>
-      <RequestWizard />
+      <TravelerRequestCreateForm />
     </div>
   );
 }
