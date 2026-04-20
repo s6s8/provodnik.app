@@ -25,7 +25,7 @@ export const createRequestInputSchema = z
       .trim()
       .min(2, "Укажите направление (минимум 2 символа).")
       .max(80, "Направление не должно превышать 80 символов."),
-    category: z.enum(["city", "nature", "culture", "food", "adventure", "relax"]),
+    category: z.enum(["city", "nature", "culture", "food", "adventure", "relax", "religion"]),
     starts_on: z.string().min(1, "Укажите дату начала."),
     ends_on: z.string().min(1, "Укажите дату окончания."),
     budget_minor: z
@@ -57,6 +57,16 @@ export const createRequestInputSchema = z
       .nullable()
       .optional(),
     region: z.string().trim().max(80).nullable().optional(),
+    start_time: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
+      .nullable()
+      .optional(),
+    end_time: z
+      .string()
+      .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
+      .nullable()
+      .optional(),
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.starts_on);
@@ -102,7 +112,7 @@ export type TravelerRequest = TravelerRequestRow;
 // ---------------------------------------------------------------------------
 
 const SELECT_COLS =
-  "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
+  "id, traveler_id, destination, region, category, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -136,6 +146,8 @@ export async function createTravelerRequest(
       open_to_join: input.open_to_join,
       allow_guide_suggestions: input.allow_guide_suggestions,
       group_capacity: input.group_capacity ?? null,
+      start_time: input.start_time ?? null,
+      end_time: input.end_time ?? null,
     })
     .select(SELECT_COLS)
     .single();

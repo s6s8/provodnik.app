@@ -7,12 +7,16 @@ export const travelerExperienceTypes = [
   "food",
   "adventure",
   "relax",
+  "religion",
 ] as const;
 
-export const travelerGroupPreferences = ["private", "group"] as const;
+export const travelerRequestModes = ["assembly", "private"] as const;
+
+const timeRegex = /^\d{2}:\d{2}$/;
 
 export const travelerRequestSchema = z
   .object({
+    mode: z.enum(travelerRequestModes),
     experienceType: z.enum(travelerExperienceTypes),
     destination: z
       .string()
@@ -20,14 +24,36 @@ export const travelerRequestSchema = z
       .min(2, "Tell us where you want to go.")
       .max(80, "Keep it under 80 characters."),
     startDate: z.string().min(1, "Pick a start date."),
-    endDate: z.string().min(1, "Pick an end date."),
+    startTime: z
+      .string()
+      .regex(timeRegex, "Формат времени: ЧЧ:ММ")
+      .optional()
+      .or(z.literal("")),
+    endTime: z
+      .string()
+      .regex(timeRegex, "Формат времени: ЧЧ:ММ")
+      .optional()
+      .or(z.literal("")),
+    // assembly mode counters
+    groupSizeCurrent: z
+      .number()
+      .int("Use a whole number.")
+      .min(1, "Minimum 1 traveler.")
+      .max(20, "For MVP, cap group size at 20.")
+      .optional(),
+    groupMax: z
+      .number()
+      .int("Use a whole number.")
+      .min(1, "Minimum 1.")
+      .max(50, "Maximum 50.")
+      .optional(),
+    // private mode counter
     groupSize: z
       .number()
       .int("Use a whole number.")
       .min(1, "Minimum 1 traveler.")
-      .max(20, "For MVP, cap group size at 20."),
-    groupPreference: z.enum(travelerGroupPreferences),
-    openToJoiningOthers: z.boolean(),
+      .max(20, "For MVP, cap group size at 20.")
+      .optional(),
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
     budgetPerPersonRub: z
       .number()
@@ -43,7 +69,6 @@ export const travelerRequestSchema = z
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.startDate);
-    const end = new Date(value.endDate);
 
     if (Number.isNaN(start.getTime())) {
       ctx.addIssue({
@@ -53,30 +78,24 @@ export const travelerRequestSchema = z
       });
     }
 
-    if (Number.isNaN(end.getTime())) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["endDate"],
-        message: "End date is not valid.",
-      });
-    }
-
-    if (!Number.isNaN(start.getTime()) && !Number.isNaN(end.getTime())) {
-      if (end.getTime() < start.getTime()) {
+    if (value.mode === "assembly") {
+      if (!value.groupSizeCurrent) {
         ctx.addIssue({
           code: "custom",
-          path: ["endDate"],
-          message: "End date must be on or after the start date.",
+          path: ["groupSizeCurrent"],
+          message: "Укажите текущее количество участников.",
         });
       }
     }
 
-    if (value.groupPreference === "private" && value.openToJoiningOthers) {
-      ctx.addIssue({
-        code: "custom",
-        path: ["openToJoiningOthers"],
-        message: "Private requests cannot be open to joining others.",
-      });
+    if (value.mode === "private") {
+      if (!value.groupSize) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["groupSize"],
+          message: "Укажите количество участников.",
+        });
+      }
     }
   });
 

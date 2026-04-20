@@ -41,7 +41,8 @@ function mapCategoryToExperienceType(
     category === "culture" ||
     category === "food" ||
     category === "adventure" ||
-    category === "relax"
+    category === "relax" ||
+    category === "religion"
   ) {
     return category;
   }
@@ -50,8 +51,7 @@ function mapCategoryToExperienceType(
 }
 
 function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
-  const startsOn = row.starts_on;
-  const endsOn = row.ends_on ?? row.starts_on;
+  const mode = row.format_preference === "group" ? "assembly" : "private";
 
   return {
     id: row.id,
@@ -59,13 +59,13 @@ function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     request: {
+      mode,
       experienceType: mapCategoryToExperienceType(row.category),
       destination: row.destination,
-      startDate: startsOn,
-      endDate: endsOn,
-      groupSize: row.participants_count,
-      groupPreference: row.format_preference === "group" ? "group" : "private",
-      openToJoiningOthers: row.open_to_join,
+      startDate: row.starts_on,
+      ...(mode === "assembly"
+        ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
+        : { groupSize: row.participants_count }),
       allowGuideSuggestionsOutsideConstraints: row.allow_guide_suggestions,
       budgetPerPersonRub: row.budget_minor ?? 0,
       notes: row.notes ?? undefined,
@@ -129,21 +129,22 @@ export async function createTravelerRequestInSupabase(
     throw new Error("User must be authenticated to create a traveler request.");
   }
 
+  const isAssembly = input.mode === "assembly";
   const payload = {
     traveler_id: user.id,
     destination: input.destination.trim(),
     region: null as string | null,
     category: input.experienceType,
     starts_on: input.startDate,
-    ends_on: input.endDate,
+    ends_on: input.startDate,
     budget_minor: input.budgetPerPersonRub,
     currency: "RUB",
-    participants_count: input.groupSize,
-    format_preference: input.groupPreference,
+    participants_count: isAssembly ? (input.groupSizeCurrent ?? 1) : (input.groupSize ?? 1),
+    format_preference: isAssembly ? "group" : "private",
     notes: input.notes?.trim() || null,
-    open_to_join: input.openToJoiningOthers,
+    open_to_join: isAssembly,
     allow_guide_suggestions: input.allowGuideSuggestionsOutsideConstraints,
-    group_capacity: input.groupPreference === "group" ? input.groupSize : null,
+    group_capacity: isAssembly ? (input.groupMax ?? null) : null,
   };
 
   const { data, error } = await supabase

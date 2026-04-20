@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import {
   travelerExperienceTypes,
@@ -17,28 +17,15 @@ import { cn } from "@/lib/utils";
 
 type RequestFormValues = TravelerRequest;
 
-function formatExperienceType(
-  value: TravelerRequest["experienceType"],
-): string {
-  switch (value) {
-    case "city":
-      return "Город";
-    case "nature":
-      return "Природа";
-    case "culture":
-      return "Культура";
-    case "food":
-      return "Еда";
-    case "adventure":
-      return "Приключение";
-    case "relax":
-      return "Отдых";
-    default: {
-      const exhaustive: never = value;
-      return exhaustive;
-    }
-  }
-}
+const EXPERIENCE_LABELS: Record<TravelerRequest["experienceType"], string> = {
+  city: "Город",
+  nature: "Природа",
+  culture: "Культура",
+  food: "Еда",
+  adventure: "Приключение",
+  relax: "Отдых",
+  religion: "Религия",
+};
 
 export function TravelerRequestCreateForm() {
   const [serverError, setServerError] = React.useState<string | null>(null);
@@ -47,13 +34,15 @@ export function TravelerRequestCreateForm() {
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
+      mode: "private",
       experienceType: "city",
       destination: "",
       startDate: "",
-      endDate: "",
+      startTime: "",
+      endTime: "",
       groupSize: 2,
-      groupPreference: "private",
-      openToJoiningOthers: false,
+      groupSizeCurrent: 1,
+      groupMax: undefined,
       allowGuideSuggestionsOutsideConstraints: true,
       budgetPerPersonRub: 80_000,
       notes: "",
@@ -64,9 +53,12 @@ export function TravelerRequestCreateForm() {
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors, isSubmitting },
   } = form;
 
+  const mode = useWatch({ control, name: "mode" });
+  const isAssembly = mode === "assembly";
   const isLoading = isSubmitting || isPending;
 
   const onSubmit = React.useCallback(
@@ -74,13 +66,20 @@ export function TravelerRequestCreateForm() {
       setServerError(null);
 
       const fd = new FormData();
+      fd.set("mode", values.mode);
       fd.set("experienceType", values.experienceType);
       fd.set("destination", values.destination);
       fd.set("startDate", values.startDate);
-      fd.set("endDate", values.endDate);
-      fd.set("groupSize", String(values.groupSize));
-      fd.set("groupPreference", values.groupPreference);
-      fd.set("openToJoiningOthers", String(values.openToJoiningOthers));
+      fd.set("startTime", values.startTime ?? "");
+      fd.set("endTime", values.endTime ?? "");
+
+      if (values.mode === "assembly") {
+        fd.set("groupSizeCurrent", String(values.groupSizeCurrent ?? 1));
+        if (values.groupMax) fd.set("groupMax", String(values.groupMax));
+      } else {
+        fd.set("groupSize", String(values.groupSize ?? 1));
+      }
+
       fd.set(
         "allowGuideSuggestionsOutsideConstraints",
         String(values.allowGuideSuggestionsOutsideConstraints),
@@ -93,7 +92,6 @@ export function TravelerRequestCreateForm() {
         if (result?.error) {
           setServerError(result.error);
         }
-        // On success the action calls redirect() — no further handling needed here
       });
     },
     [],
@@ -114,6 +112,40 @@ export function TravelerRequestCreateForm() {
         </div>
       ) : null}
 
+      {/* Mode toggle */}
+      <div className="grid gap-2">
+        <FieldLabel>Формат поездки</FieldLabel>
+        <div className="flex gap-2">
+          {(["private", "assembly"] as const).map((m) => (
+            <label
+              key={m}
+              className={cn(
+                "flex flex-1 cursor-pointer flex-col gap-0.5 rounded-md border px-3 py-2.5 text-sm transition-colors",
+                mode === m
+                  ? "border-primary bg-primary/8 text-foreground"
+                  : "border-input bg-background text-muted-foreground hover:bg-muted/40",
+              )}
+            >
+              <input
+                type="radio"
+                value={m}
+                className="sr-only"
+                {...register("mode")}
+              />
+              <span className="font-medium">
+                {m === "private" ? "Своя компания" : "Сборная"}
+              </span>
+              <span className="text-xs">
+                {m === "private"
+                  ? "Только ваша группа, без чужих"
+                  : "Готовы собрать группу с другими"}
+              </span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Category */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="experienceType">Категория поездки</FieldLabel>
         <select
@@ -131,17 +163,14 @@ export function TravelerRequestCreateForm() {
         >
           {travelerExperienceTypes.map((option) => (
             <option key={option} value={option}>
-              {formatExperienceType(option)}
+              {EXPERIENCE_LABELS[option]}
             </option>
           ))}
         </select>
-        <FieldHint>Выберите основной формат, который вам ближе.</FieldHint>
-        <FieldError
-          id="experienceType-error"
-          message={errors.experienceType?.message}
-        />
+        <FieldError id="experienceType-error" message={errors.experienceType?.message} />
       </div>
 
+      {/* Destination */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="destination">Куда хотите поехать?</FieldLabel>
         <Input
@@ -152,47 +181,79 @@ export function TravelerRequestCreateForm() {
           aria-describedby={errors.destination ? "destination-error" : undefined}
           {...register("destination")}
         />
-        <FieldHint>
-          Город, регион или примерное направление — для начала достаточно.
-        </FieldHint>
+        <FieldHint>Город, регион или примерное направление.</FieldHint>
         <FieldError id="destination-error" message={errors.destination?.message} />
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      {/* Date + time */}
+      <div className="grid gap-5 sm:grid-cols-3">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startDate">Дата начала</FieldLabel>
+          <FieldLabel htmlFor="startDate">Дата</FieldLabel>
           <Input
             id="startDate"
             type="date"
             min={new Date().toISOString().slice(0, 10)}
             aria-invalid={Boolean(errors.startDate)}
-            aria-describedby={errors.startDate ? "startDate-error" : "startDate-hint"}
+            aria-describedby={errors.startDate ? "startDate-error" : undefined}
             {...register("startDate")}
           />
-          <FieldHint id="startDate-hint">
-            Кликните по полю, чтобы открыть календарь.
-          </FieldHint>
           <FieldError id="startDate-error" message={errors.startDate?.message} />
         </div>
-
         <div className="grid gap-2">
-          <FieldLabel htmlFor="endDate">Дата окончания</FieldLabel>
+          <FieldLabel htmlFor="startTime">Начало (ЧЧ:ММ)</FieldLabel>
           <Input
-            id="endDate"
-            type="date"
-            min={new Date().toISOString().slice(0, 10)}
-            aria-invalid={Boolean(errors.endDate)}
-            aria-describedby={errors.endDate ? "endDate-error" : "endDate-hint"}
-            {...register("endDate")}
+            id="startTime"
+            type="time"
+            aria-invalid={Boolean(errors.startTime)}
+            {...register("startTime")}
           />
-          <FieldHint id="endDate-hint">
-            Или оставьте пустым, если даты плавающие.
-          </FieldHint>
-          <FieldError id="endDate-error" message={errors.endDate?.message} />
+          <FieldError id="startTime-error" message={errors.startTime?.message} />
+        </div>
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="endTime">Конец (ЧЧ:ММ)</FieldLabel>
+          <Input
+            id="endTime"
+            type="time"
+            aria-invalid={Boolean(errors.endTime)}
+            {...register("endTime")}
+          />
+          <FieldError id="endTime-error" message={errors.endTime?.message} />
         </div>
       </div>
 
-      <div className="grid gap-5 sm:grid-cols-2">
+      {/* Group counters — conditional on mode */}
+      {isAssembly ? (
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupSizeCurrent">Сейчас в группе</FieldLabel>
+            <Input
+              id="groupSizeCurrent"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={20}
+              aria-invalid={Boolean(errors.groupSizeCurrent)}
+              {...register("groupSizeCurrent", { valueAsNumber: true })}
+            />
+            <FieldHint>Сколько человек уже есть в вашей компании.</FieldHint>
+            <FieldError id="groupSizeCurrent-error" message={errors.groupSizeCurrent?.message} />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupMax">Максимум в группе</FieldLabel>
+            <Input
+              id="groupMax"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              aria-invalid={Boolean(errors.groupMax)}
+              {...register("groupMax", { valueAsNumber: true })}
+            />
+            <FieldHint>Комфортный максимум участников.</FieldHint>
+            <FieldError id="groupMax-error" message={errors.groupMax?.message} />
+          </div>
+        </div>
+      ) : (
         <div className="grid gap-2">
           <FieldLabel htmlFor="groupSize">Сколько вас поедет?</FieldLabel>
           <Input
@@ -202,102 +263,30 @@ export function TravelerRequestCreateForm() {
             min={1}
             max={20}
             aria-invalid={Boolean(errors.groupSize)}
-            aria-describedby={errors.groupSize ? "groupSize-error" : undefined}
             {...register("groupSize", { valueAsNumber: true })}
           />
-          <FieldHint>Укажите количество человек в вашей компании.</FieldHint>
+          <FieldHint>Количество человек в вашей компании.</FieldHint>
           <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
+      )}
 
-        <div className="grid gap-2">
-          <FieldLabel>Формат поездки</FieldLabel>
-          <fieldset className="grid gap-2" aria-label="Формат группы">
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="radio"
-                value="private"
-                className="mt-1"
-                {...register("groupPreference")}
-              />
-              <span>
-                <span className="font-medium text-foreground">
-                  Только ваша компания
-                </span>
-                <span className="block text-xs text-muted-foreground">
-                  Без присоединения других путешественников к вашей компании.
-                </span>
-              </span>
-            </label>
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="radio"
-                value="group"
-                className="mt-1"
-                {...register("groupPreference")}
-              />
-              <span>
-                <span className="font-medium text-foreground">Группа</span>
-                <span className="block text-xs text-muted-foreground">
-                  Готовы к общей поездке с другими путешественниками.
-                </span>
-              </span>
-            </label>
-          </fieldset>
-          <FieldError
-            id="groupPreference-error"
-            message={errors.groupPreference?.message}
-          />
-        </div>
-
-        <div className="grid gap-2">
-          <FieldLabel htmlFor="budgetPerPersonRub">
-            Бюджет на человека (₽)
-          </FieldLabel>
-          <Input
-            id="budgetPerPersonRub"
-            type="number"
-            inputMode="numeric"
-            min={1000}
-            max={2000000}
-            aria-invalid={Boolean(errors.budgetPerPersonRub)}
-            aria-describedby={
-              errors.budgetPerPersonRub ? "budgetPerPersonRub-error" : undefined
-            }
-            {...register("budgetPerPersonRub", { valueAsNumber: true })}
-          />
-          <FieldHint>
-            Верхняя граница бюджета помогает гидам предлагать реалистичные программы.
-          </FieldHint>
-          <FieldError
-            id="budgetPerPersonRub-error"
-            message={errors.budgetPerPersonRub?.message}
-          />
-        </div>
-      </div>
-
+      {/* Budget */}
       <div className="grid gap-2">
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="mt-1"
-            {...register("openToJoiningOthers")}
-          />
-          <span>
-            <span className="font-medium text-foreground">
-              Готовы присоединиться к другим путешественникам
-            </span>
-            <span className="block text-xs text-muted-foreground">
-              Если выберете формат «группа», гиды смогут предложить подходящую
-              существующую группу.
-            </span>
-          </span>
-        </label>
-        <FieldError
-          id="openToJoiningOthers-error"
-          message={errors.openToJoiningOthers?.message}
+        <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
+        <Input
+          id="budgetPerPersonRub"
+          type="number"
+          inputMode="numeric"
+          min={1000}
+          max={2000000}
+          aria-invalid={Boolean(errors.budgetPerPersonRub)}
+          {...register("budgetPerPersonRub", { valueAsNumber: true })}
         />
+        <FieldHint>Верхняя граница бюджета помогает гидам предлагать реалистичные программы.</FieldHint>
+        <FieldError id="budgetPerPersonRub-error" message={errors.budgetPerPersonRub?.message} />
       </div>
 
+      {/* Allow guide suggestions */}
       <div className="grid gap-2">
         <label className="flex items-start gap-2 text-sm">
           <input
@@ -310,25 +299,22 @@ export function TravelerRequestCreateForm() {
               Разрешить предлагать варианты вне заданных рамок
             </span>
             <span className="block text-xs text-muted-foreground">
-              Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или
-              другой темп, если объяснят, зачем это нужно.
+              Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп.
             </span>
           </span>
         </label>
       </div>
 
+      {/* Notes */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
         <Textarea
           id="notes"
           placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха…"
           aria-invalid={Boolean(errors.notes)}
-          aria-describedby={errors.notes ? "notes-error" : undefined}
           {...register("notes")}
         />
-        <FieldHint>
-          Пишите коротко — детали можно будет уточнить после первых откликов.
-        </FieldHint>
+        <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
         <FieldError id="notes-error" message={errors.notes?.message} />
       </div>
 

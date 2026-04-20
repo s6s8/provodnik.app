@@ -184,11 +184,9 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                       "ru-RU",
                       { day: "numeric", month: "short" }
                     );
-                    const endFmt = new Date(request.endDate).toLocaleDateString(
-                      "ru-RU",
-                      { day: "numeric", month: "short" }
-                    );
-                    const spotsLabel = `${request.groupSize} чел.`;
+                    const spotsLabel = request.mode === "assembly"
+                      ? `${request.groupSizeCurrent ?? 1} чел.`
+                      : `${request.groupSize ?? 1} чел.`;
 
                     const fillMap: Record<string, number> = {
                       draft: 10,
@@ -210,7 +208,7 @@ export function TravelerDashboardScreen({ auth, requests }: Props) {
                           href={`/requests/${id}`}
                           location={request.destination}
                           spotsLabel={spotsLabel}
-                          title={`${request.destination} · ${startFmt}–${endFmt}`}
+                          title={`${request.destination} · ${startFmt}`}
                           date={`${request.groupSize} чел. · ${offers} ${offers === 1 ? "оффер" : offers >= 2 && offers <= 4 ? "оффера" : "офферов"}`}
                           desc={request.notes ?? undefined}
                           fillPct={fillPct}

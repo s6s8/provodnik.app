@@ -39,7 +39,7 @@ export function TravelerRequestDetailScreen({
 }) {
   const offers: TravelerOffer[] = [];
   const timeline: TravelerRequestTimelineEvent[] = [];
-  const dateLabel = `${record.request.startDate} to ${record.request.endDate}`;
+  const dateLabel = record.request.startDate;
 
   return (
     <div className="space-y-8">
@@ -68,8 +68,9 @@ export function TravelerRequestDetailScreen({
             </span>
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
-              {record.request.groupSize} traveler
-              {record.request.groupSize === 1 ? "" : "s"}
+              {record.request.mode === "assembly"
+                ? `${record.request.groupSizeCurrent ?? 1} чел. (сборная)`
+                : `${record.request.groupSize ?? 1} чел.`}
             </span>
           </div>
         </div>
@@ -90,18 +91,11 @@ export function TravelerRequestDetailScreen({
           <div className="flex flex-wrap gap-2">
             <Badge variant="secondary">{record.request.experienceType}</Badge>
             <Badge variant="outline">
-              {record.request.groupPreference === "private"
-                ? "\u0422\u043e\u043b\u044c\u043a\u043e \u0432\u0430\u0448\u0430 \u043a\u043e\u043c\u043f\u0430\u043d\u0438\u044f"
-                : "\u0413\u043e\u0442\u043e\u0432\u044b \u043a \u0433\u0440\u0443\u043f\u043f\u0435"}
+              {record.request.mode === "private" ? "Только ваша компания" : "Сборная группа"}
             </Badge>
             <Badge variant="outline">
-              {"\u0411\u044e\u0434\u0436\u0435\u0442"} {formatRub(record.request.budgetPerPersonRub)}{" "}
-              {"\u043d\u0430 \u0447\u0435\u043b\u043e\u0432\u0435\u043a\u0430"}
-            </Badge>
-            <Badge variant="outline">
-              {record.request.openToJoiningOthers
-                ? "\u041c\u043e\u0436\u043d\u043e \u043f\u0440\u0438\u0441\u043e\u0435\u0434\u0438\u043d\u0438\u0442\u044c\u0441\u044f \u043a \u0434\u0440\u0443\u0433\u043e\u0439 \u0433\u0440\u0443\u043f\u043f\u0435"
-                : "\u0422\u043e\u043b\u044c\u043a\u043e \u043e\u0442\u0434\u0435\u043b\u044c\u043d\u0430\u044f \u0433\u0440\u0443\u043f\u043f\u0430"}
+              {"Бюджет"} {formatRub(record.request.budgetPerPersonRub)}{" "}
+              {"на человека"}
             </Badge>
           </div>
 

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 const travelerRequestSelect =
-  "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
+  "id, traveler_id, destination, region, category, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
 
 function mapRequestStatus(status: RequestStatus): TravelerRequestStatus {
   switch (status) {
@@ -52,7 +52,8 @@ function mapCategoryToExperienceType(
     category === "culture" ||
     category === "food" ||
     category === "adventure" ||
-    category === "relax"
+    category === "relax" ||
+    category === "religion"
   ) {
     return category;
   }
@@ -61,8 +62,7 @@ function mapCategoryToExperienceType(
 }
 
 function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
-  const startsOn = row.starts_on;
-  const endsOn = row.ends_on ?? row.starts_on;
+  const mode = row.format_preference === "group" ? "assembly" : "private";
 
   return {
     id: row.id,
@@ -70,13 +70,13 @@ function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     request: {
+      mode,
       experienceType: mapCategoryToExperienceType(row.category),
       destination: row.destination,
-      startDate: startsOn,
-      endDate: endsOn,
-      groupSize: row.participants_count,
-      groupPreference: row.format_preference === "group" ? "group" : "private",
-      openToJoiningOthers: row.open_to_join,
+      startDate: row.starts_on,
+      ...(mode === "assembly"
+        ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
+        : { groupSize: row.participants_count }),
       allowGuideSuggestionsOutsideConstraints: row.allow_guide_suggestions,
       budgetPerPersonRub: row.budget_minor ?? 0,
       notes: row.notes ?? undefined,
@@ -200,10 +200,15 @@ function OffersSection({
 
 export default async function TravelerRequestDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ requestId: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { requestId } = await params;
+  const sp = await searchParams;
+  const justCreated = sp.created === "1";
+  const createdMode = typeof sp.mode === "string" ? sp.mode : null;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -258,6 +263,13 @@ export default async function TravelerRequestDetailPage({
 
     return (
       <div className="flex flex-col gap-8">
+        {justCreated ? (
+          <div className="rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400">
+            {createdMode === "assembly"
+              ? "Сборная экскурсия опубликована — гиды увидят ваш запрос и смогут присоединиться."
+              : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}
+          </div>
+        ) : null}
         <TravelerRequestDetailScreen
           record={mapTravelerRequestRow(requestRow)}
         />
