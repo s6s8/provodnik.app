@@ -58,7 +58,7 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   }
 
   // 4. Stamp app_metadata.role so custom_access_token_hook always finds it
-  await admin.auth.admin.updateUser(userId, {
+  await admin.auth.admin.updateUserById(userId, {
     app_metadata: { role: safeRole },
   });
 
