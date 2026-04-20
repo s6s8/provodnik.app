@@ -11,6 +11,7 @@ import {
   EyeOff,
   LockKeyhole,
   Mail,
+  Phone,
   UserRound,
 } from "lucide-react";
 
@@ -68,6 +69,7 @@ export function AuthEntryScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [role, setRole] = useState<RoleValue>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -138,6 +140,7 @@ export function AuthEntryScreen() {
         password,
         role,
         fullName: trimmedFullName,
+        phone: phone.trim() || undefined,
       });
 
       if (!result.ok) {
@@ -205,23 +208,42 @@ export function AuthEntryScreen() {
 
         <form onSubmit={handleSubmit} className="mt-8 space-y-5">
           {isSignUp ? (
-            <div className="grid gap-2.5">
-              <label htmlFor="full-name" className="text-sm font-medium text-foreground">
-                Как к вам обращаться
-              </label>
-              <div className="relative">
-                <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="full-name"
-                  type="text"
-                  autoComplete="name"
-                  placeholder="Например, Анна Смирнова"
-                  value={fullName}
-                  onChange={(event) => setFullName(event.target.value)}
-                  className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
-                />
+            <>
+              <div className="grid gap-2.5">
+                <label htmlFor="full-name" className="text-sm font-medium text-foreground">
+                  Как к вам обращаться
+                </label>
+                <div className="relative">
+                  <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="full-name"
+                    type="text"
+                    autoComplete="name"
+                    placeholder="Например, Анна Смирнова"
+                    value={fullName}
+                    onChange={(event) => setFullName(event.target.value)}
+                    className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                  />
+                </div>
               </div>
-            </div>
+              <div className="grid gap-2.5">
+                <label htmlFor="phone" className="text-sm font-medium text-foreground">
+                  Телефон (необязательно)
+                </label>
+                <div className="relative">
+                  <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    placeholder="+7 900 123-45-67"
+                    value={phone}
+                    onChange={(event) => setPhone(event.target.value)}
+                    className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                  />
+                </div>
+              </div>
+            </>
           ) : null}
 
           <div className="grid gap-2.5">

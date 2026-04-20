@@ -9,6 +9,7 @@ type SignUpInput = {
   password: string;
   role: string;
   fullName: string;
+  phone?: string;
 };
 
 type SignUpResult =
@@ -16,7 +17,7 @@ type SignUpResult =
   | { ok: false; error: string };
 
 export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
-  const { email, password, role, fullName } = input;
+  const { email, password, role, fullName, phone } = input;
   const safeRole = isAppRole(role) ? role : "traveler";
 
   const admin = createSupabaseAdminClient();
@@ -46,6 +47,7 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     role: safeRole,
     email,
     full_name: fullName,
+    ...(phone ? { phone } : {}),
   });
 
   // 3. If guide, upsert guide_profiles too
