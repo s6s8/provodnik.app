@@ -20,7 +20,7 @@ import {
   getDashboardPathForRole,
   isAppRole,
 } from "@/lib/auth/role-routing";
-import { hasSupabaseEnv } from "@/lib/env";
+import { getSiteUrl, hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const hasEnv = hasSupabaseEnv();
@@ -61,6 +61,10 @@ function getFriendlyAuthError(message: string) {
 
   if (normalized.includes("email not confirmed")) {
     return "Подтвердите email по письму и попробуйте снова.";
+  }
+
+  if (normalized.includes("sending confirmation email") || normalized.includes("error sending")) {
+    return "Не удалось отправить письмо с подтверждением. Попробуйте ещё раз.";
   }
 
   if (
@@ -188,6 +192,7 @@ export function AuthEntryScreen() {
         email: trimmedEmail,
         password,
         options: {
+          emailRedirectTo: `${getSiteUrl()}/auth/confirm`,
           data: {
             full_name: trimmedFullName,
             role,
