@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import type { ConfirmedBookingSummary } from '@/lib/supabase/traveler-requests'
@@ -14,6 +17,7 @@ function formatDate(dateStr: string): string {
 }
 
 export function ConfirmedBookingCard({ booking }: { booking: ConfirmedBookingSummary }) {
+  const router = useRouter()
   return (
     <Link
       href={`/traveler/bookings/${booking.booking_id}`}
@@ -34,8 +38,13 @@ export function ConfirmedBookingCard({ booking }: { booking: ConfirmedBookingSum
       </div>
 
       {booking.booking_thread_id && (
-        <Button asChild variant="outline" size="sm" className="mt-3 w-full" onClick={(e) => e.stopPropagation()}>
-          <Link href={`/traveler/chat/${booking.booking_thread_id}`}>Написать гиду</Link>
+        <Button
+          variant="outline"
+          size="sm"
+          className="mt-3 w-full"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/traveler/chat/${booking.booking_thread_id!}`) }}
+        >
+          Написать гиду
         </Button>
       )}
     </Link>
