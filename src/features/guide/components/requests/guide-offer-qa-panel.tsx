@@ -17,7 +17,6 @@ export function GuideOfferQaPanel({ offerId }: Props) {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
     getQaPanelDataAction(offerId).then((result) => {
       if (cancelled) return
       if (result) {

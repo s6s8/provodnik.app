@@ -56,3 +56,6 @@ supabase/.temp/
 
 # Sentry Config File
 .env.sentry-build-plugin
+
+# Local orchestration scripts — may contain tokens
+.claude/

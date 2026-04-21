@@ -436,7 +436,7 @@ export function GuideRequestsInboxScreen() {
                         {/* Q&A panel — shown when guide has sent an offer */}
                         {showQaPanel ? (
                           <div className="mt-4 pt-4 border-t border-border/50">
-                              <GuideOfferQaPanel offerId={offerId} />
+                              <GuideOfferQaPanel key={offerId} offerId={offerId} />
                           </div>
                         ) : null}
                       </div>

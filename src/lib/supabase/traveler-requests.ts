@@ -73,7 +73,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
 
   const guideIds = [...new Set((offers ?? []).map((o) => o.guide_id))]
 
-  let profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
+  const profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
   if (guideIds.length > 0) {
     const { data: profiles } = await supabase
       .from('profiles')
