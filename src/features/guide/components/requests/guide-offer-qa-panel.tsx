@@ -1,5 +1,8 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getQaMessages } from '@/lib/supabase/qa-threads'
+'use client'
+
+import { useEffect, useState } from 'react'
+import { type QaThread } from '@/lib/supabase/qa-threads'
+import { getQaPanelDataAction } from '../../actions/send-qa-reply'
 import { sendQaReplyAction } from '../../actions/send-qa-reply'
 import { GuideQaReplyForm } from './guide-qa-reply-form'
 
@@ -7,25 +10,35 @@ interface Props {
   offerId: string
 }
 
-export async function GuideOfferQaPanel({ offerId }: Props) {
-  const supabase = await createSupabaseServerClient()
+export function GuideOfferQaPanel({ offerId }: Props) {
+  const [threadId, setThreadId] = useState<string | null>(null)
+  const [qa, setQa] = useState<QaThread | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // subject_type = 'offer' — this is the correct enum value for Q&A threads
-  // There is NO 'qa' value in the thread_subject enum
-  const { data: thread } = await supabase
-    .from('conversation_threads')
-    .select('id')
-    .eq('offer_id', offerId)
-    .eq('subject_type', 'offer')
-    .maybeSingle()
+  useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    getQaPanelDataAction(offerId).then((result) => {
+      if (cancelled) return
+      if (result) {
+        setThreadId(result.threadId)
+        setQa(result.qa)
+      } else {
+        setThreadId(null)
+        setQa(null)
+      }
+      setLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [offerId])
 
-  if (!thread) {
-    return (
-      <p className="text-sm text-muted-foreground py-2">Вопросов пока нет</p>
-    )
+  if (loading) {
+    return <p className="text-xs text-muted-foreground py-2">Загрузка вопросов...</p>
   }
 
-  const qa = await getQaMessages(thread.id)
+  if (!threadId || !qa) {
+    return <p className="text-sm text-muted-foreground py-2">Вопросов пока нет</p>
+  }
 
   return (
     <div className="space-y-2">
@@ -59,7 +72,7 @@ export async function GuideOfferQaPanel({ offerId }: Props) {
         <p className="text-xs text-muted-foreground">Лимит сообщений достигнут (8)</p>
       ) : (
         <GuideQaReplyForm
-          threadId={thread.id}
+          threadId={threadId}
           offerId={offerId}
           onReply={sendQaReplyAction}
         />
