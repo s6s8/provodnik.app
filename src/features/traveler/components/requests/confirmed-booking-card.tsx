@@ -15,7 +15,10 @@ function formatDate(dateStr: string): string {
 
 export function ConfirmedBookingCard({ booking }: { booking: ConfirmedBookingSummary }) {
   return (
-    <div className="rounded-xl border bg-card p-4">
+    <Link
+      href={`/traveler/bookings/${booking.booking_id}`}
+      className="block rounded-xl border bg-card p-4 hover:bg-accent/50 transition-colors"
+    >
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
           <AvatarImage src={booking.guide_avatar_url ?? undefined} alt={booking.guide_name ?? 'Гид'} />
@@ -31,10 +34,10 @@ export function ConfirmedBookingCard({ booking }: { booking: ConfirmedBookingSum
       </div>
 
       {booking.booking_thread_id && (
-        <Button asChild variant="outline" size="sm" className="mt-3 w-full">
+        <Button asChild variant="outline" size="sm" className="mt-3 w-full" onClick={(e) => e.stopPropagation()}>
           <Link href={`/traveler/chat/${booking.booking_thread_id}`}>Написать гиду</Link>
         </Button>
       )}
-    </div>
+    </Link>
   )
 }
