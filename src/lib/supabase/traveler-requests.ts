@@ -124,7 +124,7 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
     .from('bookings')
     .select('id, offer_id, request_id, subtotal_minor, currency, guide_id, created_at')
     .eq('traveler_id', travelerId)
-    .eq('status', 'pending')
+    .in('status', ['awaiting_guide_confirmation', 'confirmed'])
     .order('created_at', { ascending: true })
 
   if (error) throw error
