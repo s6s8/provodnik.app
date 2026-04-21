@@ -1,12 +1,31 @@
-import type { Metadata } from "next";
-import { TravelerDashboardScreen } from "@/features/traveler/components/traveler-dashboard-screen";
-import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { redirect } from 'next/navigation'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getActiveRequests, getConfirmedBookings } from '@/lib/supabase/traveler-requests'
+import { TravelerRequestsScreen } from '@/features/traveler/components/requests/traveler-requests-screen'
 
-export const metadata: Metadata = {
-  title: "Мои запросы",
-};
+export const metadata = { title: 'Мои запросы' }
 
 export default async function TravelerRequestsPage() {
-  const auth = await readAuthContextFromServer();
-  return <TravelerDashboardScreen auth={auth} />;
+  const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('full_name')
+    .eq('id', user.id)
+    .single()
+
+  const [activeRequests, confirmedBookings] = await Promise.all([
+    getActiveRequests(user.id),
+    getConfirmedBookings(user.id),
+  ])
+
+  return (
+    <TravelerRequestsScreen
+      activeRequests={activeRequests}
+      confirmedBookings={confirmedBookings}
+      userName={profile?.full_name ?? ''}
+    />
+  )
 }
