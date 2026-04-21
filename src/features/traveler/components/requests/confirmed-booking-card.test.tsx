@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { ConfirmedBookingCard } from './confirmed-booking-card'
 import type { ConfirmedBookingSummary } from '@/lib/supabase/traveler-requests'
@@ -25,6 +26,6 @@ describe('ConfirmedBookingCard', () => {
   it('shows guide name and price', () => {
     render(<ConfirmedBookingCard booking={booking} />)
     expect(screen.getByText('Демо Гид')).toBeInTheDocument()
-    expect(screen.getByText(/24 500/)).toBeInTheDocument()
+    expect(screen.getByText(/24[\s ]500/)).toBeInTheDocument()
   })
 })
