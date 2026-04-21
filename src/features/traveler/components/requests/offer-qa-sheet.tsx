@@ -11,6 +11,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { QA_MESSAGE_LIMIT } from "@/lib/supabase/qa-threads";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 
 interface Props {
@@ -57,7 +58,7 @@ export function OfferQaSheet({
             thread_id: threadId!,
             messages,
             message_count: messages.length,
-            at_limit: messages.length >= 8,
+            at_limit: messages.length >= QA_MESSAGE_LIMIT,
           };
         });
       } catch (e) {

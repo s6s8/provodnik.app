@@ -15,7 +15,7 @@ export interface QaThread {
   at_limit: boolean;
 }
 
-const QA_MESSAGE_LIMIT = 8;
+export const QA_MESSAGE_LIMIT = 8;
 
 /**
  * Get or create an offer Q&A thread.
@@ -80,21 +80,18 @@ export async function sendQaMessage(
 ): Promise<void> {
   const supabase = await createSupabaseServerClient();
 
-  const { count } = await supabase
-    .from("messages")
-    .select("id", { count: "exact", head: true })
-    .eq("thread_id", threadId);
-
-  if ((count ?? 0) >= QA_MESSAGE_LIMIT) {
-    throw new Error("qa_thread_at_limit");
-  }
-
-  const { error } = await supabase.from("messages").insert({
-    thread_id: threadId,
-    sender_id: senderId,
-    sender_role: senderRole,
-    body: body.trim(),
+  // Atomically enforces 8-message limit via Postgres RPC — no TOCTOU
+  const { error } = await supabase.rpc("send_qa_message", {
+    p_thread_id: threadId,
+    p_sender_id: senderId,
+    p_sender_role: senderRole,
+    p_body: body.trim(),
   });
 
-  if (error) throw error;
+  if (error) {
+    if (error.message.includes("qa_thread_at_limit")) {
+      throw new Error("qa_thread_at_limit");
+    }
+    throw error;
+  }
 }

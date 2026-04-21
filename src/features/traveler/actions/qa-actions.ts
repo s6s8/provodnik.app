@@ -29,6 +29,12 @@ export async function sendQaMessageAction(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
-  await sendQaMessage(threadId, user.id, "traveler", body);
+  try {
+    await sendQaMessage(threadId, user.id, "traveler", body);
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg === "qa_thread_at_limit") throw new Error("Достигнут лимит сообщений (8). Примите предложение, чтобы продолжить.")
+    throw new Error("Не удалось отправить сообщение. Попробуйте ещё раз.")
+  }
   revalidatePath(`/traveler/requests/${requestId}`);
 }
