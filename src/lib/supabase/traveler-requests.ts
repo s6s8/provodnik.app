@@ -63,11 +63,12 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
   if (!requests || requests.length === 0) return []
 
   const ids = requests.map((r) => r.id)
-  const { data: offers } = await supabase
+  const { data: offers, error: offersError } = await supabase
     .from('guide_offers')
     .select('request_id, guide_id')
     .in('request_id', ids)
     .in('status', ['pending', 'accepted'])
+  if (offersError) throw offersError
 
   const guideIds = [...new Set((offers ?? []).map((o) => o.guide_id))]
 
@@ -174,7 +175,7 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
     const req = b.request_id ? requestMap.get(b.request_id) : null
     const profile = profileMap.get(b.guide_id) ?? { full_name: null, avatar_url: null }
     return {
-      request_id: b.offer_id ?? b.id,
+      request_id: b.request_id ?? b.id,
       destination: req?.destination ?? '—',
       starts_on: req?.starts_on ?? '',
       price_minor: b.subtotal_minor ?? 0,
