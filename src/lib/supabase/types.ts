@@ -154,7 +154,7 @@ export type TravelerRequestRow = {
   traveler_id: Uuid;
   destination: string;
   region: string | null;
-  category: string;
+  interests: string[];
   starts_on: string;
   ends_on: string | null;
   budget_minor: number | null;

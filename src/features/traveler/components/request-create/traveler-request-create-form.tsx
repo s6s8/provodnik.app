@@ -2,10 +2,9 @@
 
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useWatch } from "react-hook-form";
+import { useForm, useWatch, useController } from "react-hook-form";
 
 import {
-  travelerExperienceTypes,
   travelerRequestSchema,
   type TravelerRequest,
 } from "@/data/traveler-request/schema";
@@ -17,15 +16,18 @@ import { cn } from "@/lib/utils";
 
 type RequestFormValues = TravelerRequest;
 
-const EXPERIENCE_LABELS: Record<TravelerRequest["experienceType"], string> = {
-  city: "Город",
-  nature: "Природа",
-  culture: "Культура",
-  food: "Еда",
-  adventure: "Приключение",
-  relax: "Отдых",
-  religion: "Религия",
-};
+const INTEREST_OPTIONS = [
+  { slug: "history", label: "История" },
+  { slug: "architecture", label: "Архитектура" },
+  { slug: "nature", label: "Природа" },
+  { slug: "food", label: "Гастрономия" },
+  { slug: "art", label: "Искусство" },
+  { slug: "active", label: "Активный отдых" },
+  { slug: "religion", label: "Религия" },
+  { slug: "kids", label: "Для детей" },
+  { slug: "unusual", label: "Необычное" },
+  { slug: "nightlife", label: "Ночная жизнь" },
+];
 
 export function TravelerRequestCreateForm() {
   const [serverError, setServerError] = React.useState<string | null>(null);
@@ -35,7 +37,7 @@ export function TravelerRequestCreateForm() {
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
       mode: "private",
-      experienceType: "city",
+      interests: [] as string[],
       destination: "",
       startDate: "",
       startTime: "",
@@ -44,7 +46,7 @@ export function TravelerRequestCreateForm() {
       groupSizeCurrent: 1,
       groupMax: undefined,
       allowGuideSuggestionsOutsideConstraints: true,
-      budgetPerPersonRub: 80_000,
+      budgetPerPersonRub: 5_000,
       notes: "",
     },
     mode: "onTouched",
@@ -57,6 +59,8 @@ export function TravelerRequestCreateForm() {
     formState: { errors, isSubmitting },
   } = form;
 
+  const { field: interestsField } = useController({ control, name: "interests" });
+
   const mode = useWatch({ control, name: "mode" });
   const budget = useWatch({ control, name: "budgetPerPersonRub" });
   const groupSize = useWatch({ control, name: "groupSize" });
@@ -65,7 +69,8 @@ export function TravelerRequestCreateForm() {
   const isLoading = isSubmitting || isPending;
 
   const participants = isAssembly ? (groupSizeCurrent ?? 1) : (groupSize ?? 1);
-  const totalRub = Number.isFinite(budget) && Number.isFinite(participants) ? budget * participants : null;
+  const validBudget = Number.isFinite(budget) && budget > 0 ? budget : null;
+  const totalRub = validBudget !== null ? validBudget * (participants ?? 1) : null;
 
   const onSubmit = React.useCallback(
     (values: RequestFormValues) => {
@@ -73,7 +78,7 @@ export function TravelerRequestCreateForm() {
 
       const fd = new FormData();
       fd.set("mode", values.mode);
-      fd.set("experienceType", values.experienceType);
+      for (const i of values.interests) { fd.append("interests[]", i); }
       fd.set("destination", values.destination);
       fd.set("startDate", values.startDate);
       fd.set("startTime", values.startTime ?? "");
@@ -139,7 +144,7 @@ export function TravelerRequestCreateForm() {
                 {...register("mode")}
               />
               <span className="font-medium">
-                {m === "private" ? "Своя компания" : "Сборная"}
+                {m === "private" ? "Своя группа" : "Сборная группа"}
               </span>
               <span className="text-xs">
                 {m === "private"
@@ -151,29 +156,37 @@ export function TravelerRequestCreateForm() {
         </div>
       </div>
 
-      {/* Category */}
+      {/* Interests */}
       <div className="grid gap-2">
-        <FieldLabel htmlFor="experienceType">Категория поездки</FieldLabel>
-        <select
-          id="experienceType"
-          aria-invalid={Boolean(errors.experienceType)}
-          aria-describedby={
-            errors.experienceType ? "experienceType-error" : undefined
-          }
-          className={cn(
-            "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-            "disabled:cursor-not-allowed disabled:opacity-50",
-          )}
-          {...register("experienceType")}
-        >
-          {travelerExperienceTypes.map((option) => (
-            <option key={option} value={option}>
-              {EXPERIENCE_LABELS[option]}
-            </option>
-          ))}
-        </select>
-        <FieldError id="experienceType-error" message={errors.experienceType?.message} />
+        <FieldLabel>Интересы поездки</FieldLabel>
+        <div className="flex flex-wrap gap-2">
+          {INTEREST_OPTIONS.map((opt) => {
+            const selected = interestsField.value.includes(opt.slug);
+            return (
+              <button
+                key={opt.slug}
+                type="button"
+                onClick={() => {
+                  const next = selected
+                    ? interestsField.value.filter((s: string) => s !== opt.slug)
+                    : [...interestsField.value, opt.slug];
+                  interestsField.onChange(next);
+                }}
+                className={cn(
+                  "rounded-full border px-3 py-1.5 text-sm transition-colors",
+                  selected
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-input bg-background text-muted-foreground hover:bg-muted/40",
+                )}
+              >
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+        {errors.interests && (
+          <p className="text-xs font-medium text-destructive">{errors.interests.message}</p>
+        )}
       </div>
 
       {/* Destination */}
@@ -290,14 +303,14 @@ export function TravelerRequestCreateForm() {
         />
         <FieldHint>Верхняя граница бюджета помогает гидам предлагать реалистичные программы.</FieldHint>
         <FieldError id="budgetPerPersonRub-error" message={errors.budgetPerPersonRub?.message} />
-        {totalRub !== null && totalRub > 0 && (
-          <p className="text-sm font-medium text-foreground">
-            Итого: {totalRub.toLocaleString("ru-RU")} ₽{" "}
-            <span className="font-normal text-muted-foreground">
-              ({participants} чел. × {budget.toLocaleString("ru-RU")} ₽)
-            </span>
-          </p>
-        )}
+        <div className="flex items-center justify-between rounded-md border border-input bg-muted/30 px-3 py-2 text-sm">
+          <span className="text-muted-foreground">Цена за группу</span>
+          <span className="font-semibold text-foreground">
+            {totalRub !== null
+              ? `${totalRub.toLocaleString("ru-RU")} ₽`
+              : "—"}
+          </span>
+        </div>
       </div>
 
       {/* Allow guide suggestions */}

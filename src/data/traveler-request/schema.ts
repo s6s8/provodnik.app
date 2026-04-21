@@ -1,15 +1,5 @@
 import { z } from "zod";
 
-export const travelerExperienceTypes = [
-  "city",
-  "nature",
-  "culture",
-  "food",
-  "adventure",
-  "relax",
-  "religion",
-] as const;
-
 export const travelerRequestModes = ["assembly", "private"] as const;
 
 const timeRegex = /^\d{2}:\d{2}$/;
@@ -17,7 +7,7 @@ const timeRegex = /^\d{2}:\d{2}$/;
 export const travelerRequestSchema = z
   .object({
     mode: z.enum(travelerRequestModes),
-    experienceType: z.enum(travelerExperienceTypes),
+    interests: z.array(z.string()).min(1, "Выберите хотя бы одну категорию"),
     destination: z
       .string()
       .trim()

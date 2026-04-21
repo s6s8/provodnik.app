@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import type { TravelerRequest } from "@/data/traveler-request/schema";
 import type {
   TravelerRequestRecord,
   TravelerRequestStatus,
@@ -25,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 const travelerRequestSelect =
-  "id, traveler_id, destination, region, category, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
+  "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
 
 function mapRequestStatus(status: RequestStatus): TravelerRequestStatus {
   switch (status) {
@@ -43,24 +42,6 @@ function mapRequestStatus(status: RequestStatus): TravelerRequestStatus {
   }
 }
 
-function mapCategoryToExperienceType(
-  category: string,
-): TravelerRequest["experienceType"] {
-  if (
-    category === "city" ||
-    category === "nature" ||
-    category === "culture" ||
-    category === "food" ||
-    category === "adventure" ||
-    category === "relax" ||
-    category === "religion"
-  ) {
-    return category;
-  }
-
-  return "city";
-}
-
 function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
   const mode = row.format_preference === "group" ? "assembly" : "private";
 
@@ -71,7 +52,7 @@ function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
     updatedAt: row.updated_at,
     request: {
       mode,
-      experienceType: mapCategoryToExperienceType(row.category),
+      interests: Array.isArray(row.interests) ? row.interests : [],
       destination: row.destination,
       startDate: row.starts_on,
       ...(mode === "assembly"

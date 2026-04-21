@@ -74,7 +74,7 @@ function mapTravelerRequestRowToOpenRequestRecord(
     dateRangeLabel: formatDateRange(row.starts_on, row.ends_on),
     budgetPerPersonRub: row.budget_minor ?? undefined,
     highlights: [
-      row.category,
+      (row.interests ?? [])[0] ?? "",
       row.format_preference === "group" ? "Group" : "Private",
       row.open_to_join ? "Open to joining" : "Closed",
     ],
@@ -126,7 +126,7 @@ export async function listOpenRequestsFromSupabase(): Promise<
   const { data: requests, error: requestsError } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
     )
     .eq("open_to_join", true)
     .eq("status", "open")
@@ -255,7 +255,7 @@ export async function getOpenRequestDetailFromSupabase(
   const { data: request, error: requestError } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
     )
     .eq("id", openRequestId)
     .maybeSingle();

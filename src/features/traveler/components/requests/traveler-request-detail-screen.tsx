@@ -1,6 +1,19 @@
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, Users } from "lucide-react";
 
+const INTEREST_LABELS: Record<string, string> = {
+  history: "История",
+  architecture: "Архитектура",
+  nature: "Природа",
+  food: "Гастрономия",
+  art: "Искусство",
+  active: "Активный отдых",
+  religion: "Религия",
+  kids: "Для детей",
+  unusual: "Необычное",
+  nightlife: "Ночная жизнь",
+};
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -89,9 +102,11 @@ export function TravelerRequestDetailScreen({
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary">{record.request.experienceType}</Badge>
+            {(record.request.interests ?? []).map((slug) => (
+              <Badge key={slug} variant="secondary">{INTEREST_LABELS[slug] ?? slug}</Badge>
+            ))}
             <Badge variant="outline">
-              {record.request.mode === "private" ? "Только ваша компания" : "Сборная группа"}
+              {record.request.mode === "private" ? "Своя группа" : "Сборная группа"}
             </Badge>
             <Badge variant="outline">
               {"Бюджет"} {formatRub(record.request.budgetPerPersonRub)}{" "}

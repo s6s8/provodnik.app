@@ -199,7 +199,7 @@ export interface Database {
         Pick<ListingLicenseRow, "listing_id" | "license_id"> & Partial<Pick<ListingLicenseRow, "scope">>,
         Partial<Pick<ListingLicenseRow, "scope">>
       >;
-      traveler_requests: TableDefinition<TravelerRequestRow, Partial<TravelerRequestRow> & Pick<TravelerRequestRow, "traveler_id" | "destination" | "category" | "starts_on">>;
+      traveler_requests: TableDefinition<TravelerRequestRow, Partial<TravelerRequestRow> & Pick<TravelerRequestRow, "traveler_id" | "destination" | "interests" | "starts_on">>;
       open_request_members: TableDefinition<OpenRequestMemberRow, Partial<OpenRequestMemberRow> & Pick<OpenRequestMemberRow, "request_id" | "traveler_id">>;
       guide_offers: TableDefinition<GuideOfferRow, Partial<GuideOfferRow> & Pick<GuideOfferRow, "request_id" | "guide_id" | "price_minor">>;
       bookings: TableDefinition<BookingRow, Partial<BookingRow> & Pick<BookingRow, "traveler_id" | "guide_id">>;

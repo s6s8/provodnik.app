@@ -6,11 +6,11 @@ import type {
   RequestStatus,
   Uuid,
 } from "@/lib/supabase/types";
+import type { TravelerRequest } from "@/data/traveler-request/schema";
 import type {
   TravelerRequestRecord,
   TravelerRequestStatus,
 } from "@/data/traveler-request/types";
-import type { TravelerRequest } from "@/data/traveler-request/schema";
 
 function getSupabaseClient() {
   return createSupabaseBrowserClient();
@@ -32,24 +32,6 @@ function mapRequestStatus(status: RequestStatus): TravelerRequestStatus {
   }
 }
 
-function mapCategoryToExperienceType(
-  category: string,
-): TravelerRequest["experienceType"] {
-  if (
-    category === "city" ||
-    category === "nature" ||
-    category === "culture" ||
-    category === "food" ||
-    category === "adventure" ||
-    category === "relax" ||
-    category === "religion"
-  ) {
-    return category;
-  }
-
-  return "city";
-}
-
 function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
   const mode = row.format_preference === "group" ? "assembly" : "private";
 
@@ -60,7 +42,7 @@ function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
     updatedAt: row.updated_at,
     request: {
       mode,
-      experienceType: mapCategoryToExperienceType(row.category),
+      interests: Array.isArray(row.interests) ? row.interests : [],
       destination: row.destination,
       startDate: row.starts_on,
       ...(mode === "assembly"
@@ -80,7 +62,7 @@ export async function listTravelerRequestsFromSupabase(): Promise<
   const { data, error } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
     )
     .order("updated_at", { ascending: false });
 
@@ -98,7 +80,7 @@ export async function getTravelerRequestByIdFromSupabase(
   const { data, error } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
     )
     .eq("id", id)
     .maybeSingle();
@@ -134,7 +116,7 @@ export async function createTravelerRequestInSupabase(
     traveler_id: user.id,
     destination: input.destination.trim(),
     region: null as string | null,
-    category: input.experienceType,
+    interests: input.interests,
     starts_on: input.startDate,
     ends_on: input.startDate,
     budget_minor: input.budgetPerPersonRub,
@@ -151,7 +133,7 @@ export async function createTravelerRequestInSupabase(
     .from("traveler_requests")
     .insert(payload)
     .select(
-      "id, traveler_id, destination, region, category, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
     )
     .single();
 

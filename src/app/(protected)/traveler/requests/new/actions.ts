@@ -22,7 +22,7 @@ export async function createRequestAction(
 
   const raw = {
     mode,
-    experienceType: formData.get("experienceType") as string,
+    interests: formData.getAll("interests[]").map(String),
     destination: (formData.get("destination") as string) ?? "",
     startDate: (formData.get("startDate") as string) ?? "",
     startTime: (formData.get("startTime") as string) || undefined,
@@ -81,7 +81,7 @@ export async function createRequestAction(
     const record = await createTravelerRequest(
       {
         destination: input.destination,
-        category: input.experienceType,
+        interests: input.interests,
         starts_on: input.startDate,
         ends_on: input.startDate,
         start_time: input.startTime || null,
