@@ -31,7 +31,7 @@ export { listingInputSchema, type ListingInput };
 function generateSlug(title: string, guideId: string): string {
   const base = title
     .toLowerCase()
-    .replace(/[^a-z0-9а-яёa-z\s-]/gi, "")
+    .replace(/[^a-z0-9а-яё\s-]/gi, "")
     .replace(/\s+/g, "-")
     .slice(0, 40);
   const suffix = guideId.slice(0, 8);
