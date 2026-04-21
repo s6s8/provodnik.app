@@ -8,6 +8,7 @@
 
 import { z } from "zod";
 
+import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideOfferRow, Uuid } from "@/lib/supabase/types";
 
@@ -99,7 +100,10 @@ export async function getOffersForRequest(
     .order("created_at", { ascending: false });
 
   if (error) throw error;
-  return (data as GuideOffer[]) ?? [];
+  return ((data as GuideOffer[]) ?? []).map((row) => ({
+    ...row,
+    message: maskPii(row.message),
+  }));
 }
 
 /**
