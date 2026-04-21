@@ -436,15 +436,7 @@ export function GuideRequestsInboxScreen() {
                         {/* Q&A panel — shown when guide has sent an offer */}
                         {showQaPanel ? (
                           <div className="mt-4 pt-4 border-t border-border/50">
-                            <React.Suspense
-                              fallback={
-                                <p className="text-xs text-muted-foreground">
-                                  Загрузка вопросов...
-                                </p>
-                              }
-                            >
                               <GuideOfferQaPanel offerId={offerId} />
-                            </React.Suspense>
                           </div>
                         ) : null}
                       </div>
