@@ -41,8 +41,25 @@ export function OfferQaSheet({
         if (!threadId) {
           threadId = await onGetOrCreate(offerId);
         }
-        await onSend(threadId, body.trim());
+        const sentBody = body.trim();
+        await onSend(threadId, sentBody);
         setBody("");
+        // Optimistic update — append the sent message immediately
+        setThread((prev) => {
+          const newMsg = {
+            id: crypto.randomUUID(),
+            sender_role: "traveler" as const,
+            body: sentBody,
+            created_at: new Date().toISOString(),
+          };
+          const messages = [...(prev?.messages ?? []), newMsg];
+          return {
+            thread_id: threadId!,
+            messages,
+            message_count: messages.length,
+            at_limit: messages.length >= 8,
+          };
+        });
       } catch (e) {
         const msg = e instanceof Error ? e.message : "Ошибка отправки";
         if (msg === "qa_thread_at_limit") {
