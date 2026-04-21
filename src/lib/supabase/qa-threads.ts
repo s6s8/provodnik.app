@@ -1,21 +1,10 @@
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import type { QaMessage, QaThread } from "@/lib/supabase/qa-threads-types";
+import { QA_MESSAGE_LIMIT } from "@/lib/supabase/qa-threads-types";
 
-export interface QaMessage {
-  id: string;
-  sender_role: "traveler" | "guide" | "system" | "admin";
-  body: string;
-  created_at: string;
-}
-
-export interface QaThread {
-  thread_id: string;
-  messages: QaMessage[];
-  message_count: number;
-  at_limit: boolean;
-}
-
-export const QA_MESSAGE_LIMIT = 8;
+export type { QaMessage, QaThread };
+export { QA_MESSAGE_LIMIT };
 
 /**
  * Get or create an offer Q&A thread.
