@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { BidFormPanel } from "./bid-form-panel";
+import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
@@ -23,14 +24,23 @@ function formatDateTime(value: string): string {
   });
 }
 
-async function fetchOfferedRequestIds(guideId: string): Promise<Set<string>> {
+interface OffersByRequest {
+  offeredIds: Set<string>;
+  offerIdByRequestId: Map<string, string>;
+}
+
+async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest> {
   const supabase = createSupabaseBrowserClient();
   const { data } = await supabase
     .from("guide_offers")
-    .select("request_id")
+    .select("id, request_id")
     .eq("guide_id", guideId);
-  if (!data) return new Set();
-  return new Set(data.map((row) => row.request_id as string));
+  if (!data) return { offeredIds: new Set(), offerIdByRequestId: new Map() };
+  const offeredIds = new Set(data.map((row) => row.request_id as string));
+  const offerIdByRequestId = new Map(
+    data.map((row) => [row.request_id as string, row.id as string]),
+  );
+  return { offeredIds, offerIdByRequestId };
 }
 
 type RequestsFilter = "new" | "my-offers" | "accepted";
@@ -38,6 +48,7 @@ type RequestsFilter = "new" | "my-offers" | "accepted";
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
+  const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, string>>(new Map());
   const [acceptedOfferIds, setAcceptedOfferIds] = React.useState<Set<string>>(
     new Set(),
   );
@@ -56,9 +67,10 @@ export function GuideRequestsInboxScreen() {
     const supabase = createSupabaseBrowserClient();
 
     async function loadOffersForGuide(guideId: string) {
-      const ids = await fetchOfferedRequestIds(guideId);
+      const { offeredIds: ids, offerIdByRequestId: offerMap } = await fetchOfferedRequestIds(guideId);
       if (ignore) return;
       setOfferedIds(ids);
+      setOfferIdByRequestId(offerMap);
 
       const { data: acceptedOffers, error } = await supabase
         .from("guide_offers")
@@ -338,6 +350,8 @@ export function GuideRequestsInboxScreen() {
                 ) : null}
                 {filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
+                  const offerId = offerIdByRequestId.get(item.id);
+                  const showQaPanel = (alreadyOffered || acceptedOfferIds.has(item.id)) && !!offerId;
                   return (
                     <div key={item.id} className="space-y-3">
                       <div className="rounded-xl border border-border/70 bg-background/60 p-4">
@@ -418,6 +432,21 @@ export function GuideRequestsInboxScreen() {
                             </Link>
                           </Button>
                         </div>
+
+                        {/* Q&A panel — shown when guide has sent an offer */}
+                        {showQaPanel ? (
+                          <div className="mt-4 pt-4 border-t border-border/50">
+                            <React.Suspense
+                              fallback={
+                                <p className="text-xs text-muted-foreground">
+                                  Загрузка вопросов...
+                                </p>
+                              }
+                            >
+                              <GuideOfferQaPanel offerId={offerId} />
+                            </React.Suspense>
+                          </div>
+                        ) : null}
                       </div>
 
                       {index < filteredItems.length - 1 ? <Separator /> : null}
