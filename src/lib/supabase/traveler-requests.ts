@@ -30,6 +30,7 @@ export interface TravelerRequestSummary {
 }
 
 export interface ConfirmedBookingSummary {
+  booking_id: string
   request_id: string
   destination: string
   starts_on: string
@@ -175,6 +176,7 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
     const req = b.request_id ? requestMap.get(b.request_id) : null
     const profile = profileMap.get(b.guide_id) ?? { full_name: null, avatar_url: null }
     return {
+      booking_id: b.id,
       request_id: b.request_id ?? b.id,
       destination: req?.destination ?? '—',
       starts_on: req?.starts_on ?? '',

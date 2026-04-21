@@ -42,7 +42,7 @@ describe('TravelerRequestSummary type', () => {
 describe('ConfirmedBookingSummary type', () => {
   it('holds required fields', () => {
     const booking: ConfirmedBookingSummary = {
-      request_id: 'uuid1', destination: 'Астрахань', starts_on: '2026-07-10',
+      booking_id: 'uuid0', request_id: 'uuid1', destination: 'Астрахань', starts_on: '2026-07-10',
       price_minor: 15000, currency: 'RUB', guide_id: 'uuid2',
       guide_name: 'Иван', guide_avatar_url: null, booking_thread_id: null,
     }
