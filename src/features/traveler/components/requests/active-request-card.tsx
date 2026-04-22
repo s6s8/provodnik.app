@@ -23,7 +23,7 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">{request.destination}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(request.starts_on)}{request.start_time ? ` · ${request.start_time}` : ''}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(request.starts_on)}{request.start_time ? ` · ${request.start_time.slice(0, 5)}` : ''}</p>
         </div>
         <TravelerRequestStatusBadge status={request.status} />
       </div>
