@@ -62,7 +62,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
         </div>
 
         <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h1 className="text-3xl font-semibold text-foreground">
             {record.request.destination}
           </h1>
           <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
@@ -83,14 +83,14 @@ export function TravelerRequestDetailScreen({ record }: Props) {
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2">
           {(record.request.interests ?? []).map((slug) => (
-            <Badge key={slug} variant="secondary" className="normal-case tracking-normal">
+            <Badge key={slug} variant="secondary" className="normal-case tracking-normal text-xs font-medium">
               {INTEREST_LABELS[slug] ?? slug}
             </Badge>
           ))}
-          <Badge variant="outline" className="normal-case tracking-normal">
+          <Badge variant="outline" className="normal-case tracking-normal text-xs font-medium">
             {record.request.mode === "private" ? "Своя группа" : "Сборная группа"}
           </Badge>
-          <Badge variant="outline" className="normal-case tracking-normal">
+          <Badge variant="outline" className="normal-case tracking-normal text-xs font-medium">
             {formatRub(record.request.budgetPerPersonRub)} {"на чел."}
           </Badge>
         </div>
