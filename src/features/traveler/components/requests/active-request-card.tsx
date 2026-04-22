@@ -23,7 +23,7 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="font-medium truncate">{request.destination}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(request.starts_on)}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{formatDate(request.starts_on)}{request.start_time ? ` · ${request.start_time}` : ''}</p>
         </div>
         <TravelerRequestStatusBadge status={request.status} />
       </div>
@@ -35,6 +35,16 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
           <span className="text-amber-600 font-medium">{request.offer_count} предл.</span>
         )}
       </div>
+
+      {request.interests.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {request.interests.slice(0, 2).map((interest) => (
+            <span key={interest} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
+              {interest}
+            </span>
+          ))}
+        </div>
+      )}
 
       {request.guide_avatars.length > 0 && (
         <div className="mt-3 flex items-center gap-1">
