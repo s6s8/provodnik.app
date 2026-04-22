@@ -106,7 +106,7 @@ function OffersSection({
   return (
     <section className="flex flex-col gap-4">
       <div className="flex items-center gap-3">
-        <h2 className="text-xl font-semibold text-foreground">
+        <h2 className="text-xl font-semibold leading-none text-foreground">
           Предложения гидов
         </h2>
         <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
