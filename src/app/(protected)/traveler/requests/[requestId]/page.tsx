@@ -55,8 +55,8 @@ function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
       interests: Array.isArray(row.interests) ? row.interests : [],
       destination: row.destination,
       startDate: row.starts_on,
-      startTime: row.start_time ?? undefined,
-      endTime: row.end_time ?? undefined,
+      startTime: row.start_time ? row.start_time.slice(0, 5) : undefined,
+      endTime: row.end_time ? row.end_time.slice(0, 5) : undefined,
       ...(mode === "assembly"
         ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
         : { groupSize: row.participants_count }),
