@@ -135,6 +135,12 @@ export type ListingFilters = { destination?: string; duration?: string; priceRan
 export type RequestFilters = { destination?: string; status?: string };
 export type GuideFilters = { destination?: string };
 
+export type DestinationOption = {
+  name: string;
+  region: string;
+  guideCount: number;
+};
+
 // ---------------------------------------------------------------------------
 // Admin client for public reads (bypasses RLS)
 // ---------------------------------------------------------------------------
@@ -875,6 +881,108 @@ export async function getGuideReviews(_client: SupabaseClient, guideSlug: string
       })),
       error: null,
     };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Homepage2 — Диалог concept queries
+// ---------------------------------------------------------------------------
+
+export async function getActiveGuideDestinations(
+  client: SupabaseClient,
+): Promise<QueryResult<DestinationOption[]>> {
+  try {
+    const { data, error } = await client
+      .from("listings")
+      .select("city, region, guide_id")
+      .eq("status", "published")
+      .not("city", "is", null);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return { data: [], error: null };
+
+    const map = new Map<string, { name: string; region: string; guides: Set<string> }>();
+    for (const row of data) {
+      const key = `${row.city}|${row.region}`;
+      if (!map.has(key)) {
+        map.set(key, { name: row.city as string, region: (row.region as string) ?? "", guides: new Set() });
+      }
+      map.get(key)!.guides.add(row.guide_id as string);
+    }
+
+    const result: DestinationOption[] = Array.from(map.values())
+      .map(({ name, region, guides }) => ({ name, region, guideCount: guides.size }))
+      .sort((a, b) => b.guideCount - a.guideCount)
+      .slice(0, 50);
+
+    return { data: result, error: null };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
+export async function getHomepageRequests(
+  client: SupabaseClient,
+): Promise<QueryResult<RequestRecord[]>> {
+  try {
+    const { data: rows, error } = await client
+      .from("traveler_requests")
+      .select("*")
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(3);
+
+    if (error) throw error;
+    if (!rows || rows.length === 0) return { data: [], error: null };
+
+    const ids = rows.map((r) => r.id as string);
+
+    const { data: offerRows } = await client
+      .from("guide_offers")
+      .select("request_id")
+      .in("request_id", ids);
+
+    const countMap: Record<string, number> = {};
+    for (const row of offerRows ?? []) {
+      countMap[row.request_id as string] = (countMap[row.request_id as string] ?? 0) + 1;
+    }
+
+    const records = rows.map((row) => {
+      const rec = mapRequestRow(row);
+      rec.offerCount = countMap[rec.id] ?? 0;
+      return rec;
+    });
+
+    return { data: records, error: null };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
+export async function getSimilarRequests(
+  client: SupabaseClient,
+  destinationSlug: string,
+  excludeId: string,
+): Promise<QueryResult<RequestRecord[]>> {
+  try {
+    const { data, error } = await client
+      .from("traveler_requests")
+      .select("*")
+      .eq("status", "open")
+      .neq("id", excludeId)
+      .order("created_at", { ascending: false })
+      .limit(10);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return { data: [], error: null };
+
+    const records = data.map((row) => mapRequestRow(row));
+    const sameSlug = records.filter((r) => r.destinationSlug === destinationSlug);
+    const result = sameSlug.length >= 2 ? sameSlug.slice(0, 3) : records.slice(0, 2);
+
+    return { data: result, error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
