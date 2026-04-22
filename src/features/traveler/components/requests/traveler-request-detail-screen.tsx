@@ -31,7 +31,8 @@ function formatRub(amount: number) {
 function formatDate(iso: string) {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  const monthDay = d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+  return `${monthDay} ${d.getFullYear()}`;
 }
 
 interface Props {
@@ -81,14 +82,14 @@ export function TravelerRequestDetailScreen({ record }: Props) {
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2">
           {(record.request.interests ?? []).map((slug) => (
-            <Badge key={slug} variant="secondary">
+            <Badge key={slug} variant="secondary" className="normal-case tracking-normal">
               {INTEREST_LABELS[slug] ?? slug}
             </Badge>
           ))}
-          <Badge variant="outline">
+          <Badge variant="outline" className="normal-case tracking-normal">
             {record.request.mode === "private" ? "Своя группа" : "Сборная группа"}
           </Badge>
-          <Badge variant="outline">
+          <Badge variant="outline" className="normal-case tracking-normal">
             {formatRub(record.request.budgetPerPersonRub)} {"на чел."}
           </Badge>
         </div>
