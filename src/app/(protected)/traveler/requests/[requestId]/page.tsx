@@ -1,23 +1,25 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import type {
   TravelerRequestRecord,
   TravelerRequestStatus,
 } from "@/data/traveler-request/types";
-import { AcceptOfferButton } from "@/features/traveler/components/requests/accept-offer-button";
+import {
+  getOrCreateQaThreadAction,
+  sendQaMessageAction,
+} from "@/features/traveler/actions/qa-actions";
+import { OfferCard } from "@/features/traveler/components/requests/offer-card";
 import { TravelerRequestDetailScreen } from "@/features/traveler/components/requests/traveler-request-detail-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOffersForRequest } from "@/lib/supabase/offers";
+import type { QaThread } from "@/lib/supabase/qa-threads";
+import { getQaMessages } from "@/lib/supabase/qa-threads";
 import type {
   GuideOfferRow,
   RequestStatus,
   TravelerRequestRow,
 } from "@/lib/supabase/types";
-
-import { openOfferThreadAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "Запрос",
@@ -67,119 +69,6 @@ function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
   };
 }
 
-function formatRub(minorUnits: number) {
-  const rub = Math.round(minorUnits / 100);
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-  }).format(rub);
-}
-
-function formatDate(iso: string | null) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("ru-RU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-}
-
-interface OffersSectionProps {
-  offers: GuideOfferRow[];
-  requestId: string;
-  canAccept: boolean;
-  guideNames: Record<string, string | null>;
-}
-
-function OffersSection({
-  offers,
-  requestId,
-  canAccept,
-  guideNames,
-}: OffersSectionProps) {
-  const pendingOffers = offers.filter((o) => o.status === "pending");
-
-  return (
-    <section className="flex flex-col gap-4">
-      <div className="flex items-center gap-3">
-        <h2 className="text-xl font-semibold leading-none text-foreground">
-          Предложения гидов
-        </h2>
-        <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
-          {pendingOffers.length}
-        </span>
-      </div>
-
-      {pendingOffers.length === 0 ? (
-        <div className="rounded-glass border border-glass-border bg-glass p-6 shadow-glass backdrop-blur-[20px]">
-          <p className="font-sans text-sm leading-[1.6] text-muted-foreground">
-            Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее
-            время.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {pendingOffers.map((offer) => (
-            <article
-              key={offer.id}
-              className="flex flex-col gap-4 rounded-glass border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]"
-            >
-              <div className="flex items-center gap-3">
-                <Avatar className="size-11 border-2 border-glass-border">
-                  <AvatarFallback className="bg-surface-low text-sm font-semibold text-primary">
-                    {(guideNames[offer.guide_id] ?? "Г")
-                      .charAt(0)
-                      .toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-sans text-[0.9375rem] font-semibold text-foreground">
-                    {guideNames[offer.guide_id] ?? "Гид"}
-                  </p>
-                  {offer.expires_at ? (
-                    <p className="mt-0.5 font-sans text-xs text-muted-foreground">
-                      До {formatDate(offer.expires_at)}
-                    </p>
-                  ) : null}
-                </div>
-                <p className="shrink-0 whitespace-nowrap font-sans text-[1.0625rem] font-semibold text-foreground">
-                  {formatRub(offer.price_minor)}
-                </p>
-              </div>
-
-              {offer.message ? (
-                <p className="rounded-[12px] border border-glass-border bg-surface/50 p-3 font-sans text-sm leading-[1.6] text-muted-foreground">
-                  {offer.message}
-                </p>
-              ) : null}
-
-              <div className="flex flex-wrap items-center gap-3">
-                {canAccept ? (
-                  <AcceptOfferButton
-                    offerId={offer.id}
-                    requestId={requestId}
-                    guideId={offer.guide_id}
-                    priceMinor={offer.price_minor}
-                  />
-                ) : null}
-                <form action={openOfferThreadAction}>
-                  <input type="hidden" name="offer_id" value={offer.id} />
-                  <Button type="submit" variant="outline">
-                    Написать гиду
-                  </Button>
-                </form>
-              </div>
-            </article>
-          ))}
-        </div>
-      )}
-    </section>
-  );
-}
 
 export default async function TravelerRequestDetailPage({
   params,
@@ -192,6 +81,16 @@ export default async function TravelerRequestDetailPage({
   const sp = await searchParams;
   const justCreated = sp.created === "1";
   const createdMode = typeof sp.mode === "string" ? sp.mode : null;
+
+  async function sendQa(threadId: string, body: string) {
+    "use server";
+    await sendQaMessageAction(threadId, body, requestId);
+  }
+
+  async function getOrCreateThread(offerId: string) {
+    "use server";
+    return getOrCreateQaThreadAction(offerId);
+  }
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -216,13 +115,13 @@ export default async function TravelerRequestDetailPage({
     if (!data) notFound();
 
     const requestRow = data as TravelerRequestRow;
-    const isOwner = requestRow.traveler_id === user.id;
-    const isOpen = requestRow.status === "open";
-    const canAccept = isOwner && isOpen;
 
-    // Fetch offers in parallel
     let offers: GuideOfferRow[] = [];
-    const guideNames: Record<string, string | null> = {};
+    const guideInfoMap = new Map<
+      string,
+      { guide_id: string; full_name: string | null; avatar_url: string | null }
+    >();
+    const qaThreadMap = new Map<string, QaThread | null>();
 
     try {
       offers = await getOffersForRequest(requestId);
@@ -231,12 +130,40 @@ export default async function TravelerRequestDetailPage({
         const guideIds = [...new Set(offers.map((o) => o.guide_id))];
         const { data: profiles } = await supabase
           .from("profiles")
-          .select("id, full_name")
+          .select("id, full_name, avatar_url")
           .in("id", guideIds);
 
-        if (profiles) {
-          for (const p of profiles) {
-            guideNames[p.id] = p.full_name;
+        for (const p of profiles ?? []) {
+          guideInfoMap.set(p.id, {
+            guide_id: p.id,
+            full_name: p.full_name,
+            avatar_url: p.avatar_url ?? null,
+          });
+        }
+
+        const pendingOfferIds = offers
+          .filter((o) => o.status === "pending")
+          .map((o) => o.id);
+
+        if (pendingOfferIds.length > 0) {
+          const { data: threads } = await supabase
+            .from("conversation_threads")
+            .select("id, offer_id")
+            .in("offer_id", pendingOfferIds)
+            .eq("subject_type", "offer");
+
+          for (const offerId of pendingOfferIds) {
+            const thread = (threads ?? []).find((t) => t.offer_id === offerId);
+            if (thread) {
+              try {
+                const qaThread = await getQaMessages(thread.id);
+                qaThreadMap.set(offerId, qaThread);
+              } catch {
+                qaThreadMap.set(offerId, null);
+              }
+            } else {
+              qaThreadMap.set(offerId, null);
+            }
           }
         }
       }
@@ -256,15 +183,45 @@ export default async function TravelerRequestDetailPage({
         <TravelerRequestDetailScreen
           record={mapTravelerRequestRow(requestRow)}
         />
-        <OffersSection
-          offers={offers}
-          requestId={requestId}
-          canAccept={canAccept}
-          guideNames={guideNames}
-        />
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold leading-none text-foreground">
+              Предложения гидов
+            </h2>
+            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
+              {offers.filter((o) => o.status === "pending").length}
+            </span>
+          </div>
+
+          {offers.filter((o) => o.status === "pending").length === 0 ? (
+            <div className="rounded-xl border bg-card p-6">
+              <p className="text-sm text-muted-foreground">
+                Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {offers
+                .filter((o) => o.status === "pending")
+                .map((offer) => (
+                  <OfferCard
+                    key={offer.id}
+                    offer={offer}
+                    guideInfo={guideInfoMap.get(offer.guide_id) ?? null}
+                    qaThread={qaThreadMap.get(offer.id) ?? null}
+                    requestId={requestId}
+                    requestStatus={requestRow.status}
+                    onSendQa={sendQa}
+                    onGetOrCreateQaThread={getOrCreateThread}
+                  />
+                ))}
+            </div>
+          )}
+        </section>
       </div>
     );
   } catch {
     notFound();
   }
 }
+
