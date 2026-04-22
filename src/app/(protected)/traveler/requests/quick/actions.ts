@@ -87,7 +87,7 @@ export async function createQuickRequestAction(
         ends_on,
         start_time: null,
         end_time: null,
-        budget_minor: 0,
+        budget_minor: null,
         participants_count: companionConfig.participants_count,
         format_preference: companionConfig.format_preference,
         notes: null,
