@@ -16,12 +16,8 @@ const INTEREST_LABELS: Record<string, string> = {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import type {
-  TravelerRequestRecord,
-  TravelerRequestTimelineEvent,
-} from "@/data/traveler-request/types";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
 import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -34,17 +30,6 @@ function formatRub(amount: number) {
     currencyDisplay: "code",
     maximumFractionDigits: 0,
   }).format(amount);
-}
-
-function formatTimelineDate(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("en-GB", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 interface GuideInfo {
@@ -72,7 +57,6 @@ export function TravelerRequestDetailScreen({
   onSendQa,
   onGetOrCreateQaThread,
 }: Props) {
-  const timeline: TravelerRequestTimelineEvent[] = [];
   const dateLabel = record.request.startDate;
 
   // Map TravelerRequestStatus back to DB status for canAccept check
@@ -92,7 +76,6 @@ export function TravelerRequestDetailScreen({
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">{"Кабинет путешественника"}</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             {record.request.destination}
           </h1>
@@ -111,39 +94,24 @@ export function TravelerRequestDetailScreen({
         </div>
       </div>
 
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-          <CardTitle>{"Кратко о запросе"}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {"Структурированное описание, чтобы сравнивать предложения гидов."}
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap gap-2">
-            {(record.request.interests ?? []).map((slug) => (
-              <Badge key={slug} variant="secondary">
-                {INTEREST_LABELS[slug] ?? slug}
-              </Badge>
-            ))}
-            <Badge variant="outline">
-              {record.request.mode === "private" ? "Своя группа" : "Сборная группа"}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2">
+          {(record.request.interests ?? []).map((slug) => (
+            <Badge key={slug} variant="secondary">
+              {INTEREST_LABELS[slug] ?? slug}
             </Badge>
-            <Badge variant="outline">
-              {"Бюджет"} {formatRub(record.request.budgetPerPersonRub)}{" "}
-              {"на человека"}
-            </Badge>
-          </div>
-
-          {record.request.notes ? (
-            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">{"Комментарии"}</p>
-              <p className="mt-1 text-sm text-foreground">
-                {record.request.notes}
-              </p>
-            </div>
-          ) : null}
-        </CardContent>
-      </Card>
+          ))}
+          <Badge variant="outline">
+            {record.request.mode === "private" ? "Своя группа" : "Сборная группа"}
+          </Badge>
+          <Badge variant="outline">
+            {formatRub(record.request.budgetPerPersonRub)} {"на чел."}
+          </Badge>
+        </div>
+        {record.request.notes ? (
+          <p className="text-sm text-muted-foreground">{record.request.notes}</p>
+        ) : null}
+      </div>
 
       <div className="grid gap-3">
         <div className="flex items-end justify-between gap-3">
@@ -189,53 +157,6 @@ export function TravelerRequestDetailScreen({
         )}
       </div>
 
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-          <CardTitle>{"Хронология"}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {"Что происходило с этим запросом по шагам."}
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {timeline.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Событий пока нет.</p>
-          ) : (
-            <div className="space-y-3">
-              {timeline.map((event, index) => (
-                <TimelineRow
-                  key={event.id}
-                  event={event}
-                  isFirst={index === 0}
-                />
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function TimelineRow({
-  event,
-  isFirst,
-}: {
-  event: TravelerRequestTimelineEvent;
-  isFirst: boolean;
-}) {
-  return (
-    <div className="grid gap-2 rounded-lg border border-border/70 bg-background/60 p-3">
-      <div className="flex items-start justify-between gap-3">
-        <div className="space-y-1">
-          <p className="text-sm font-medium text-foreground">{event.title}</p>
-          {event.description ? (
-            <p className="text-sm text-muted-foreground">{event.description}</p>
-          ) : null}
-        </div>
-        <Badge variant={isFirst ? "secondary" : "outline"}>
-          {formatTimelineDate(event.at)}
-        </Badge>
-      </div>
     </div>
   );
 }
