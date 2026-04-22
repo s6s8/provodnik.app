@@ -3,6 +3,20 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { TravelerRequestStatusBadge } from './traveler-request-status'
 import type { TravelerRequestSummary } from '@/lib/supabase/traveler-requests'
 
+const INTEREST_LABELS: Record<string, string> = {
+  history: "История",
+  architecture: "Архитектура",
+  nature: "Природа",
+  food: "Гастрономия",
+  art: "Искусство",
+  active: "Активный отдых",
+  adventure: "Активный отдых",
+  religion: "Религия",
+  kids: "Для детей",
+  unusual: "Необычное",
+  nightlife: "Ночная жизнь",
+}
+
 function formatBudget(minor: number | null): string {
   if (!minor) return '—'
   return new Intl.NumberFormat('ru-RU', {
@@ -40,7 +54,7 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
         <div className="mt-2 flex flex-wrap gap-1">
           {request.interests.slice(0, 2).map((interest) => (
             <span key={interest} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-              {interest}
+              {INTEREST_LABELS[interest] ?? interest}
             </span>
           ))}
         </div>

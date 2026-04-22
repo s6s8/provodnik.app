@@ -10,12 +10,6 @@ export default async function TravelerRequestsPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name')
-    .eq('id', user.id)
-    .single()
-
   const [activeRequests, confirmedBookings] = await Promise.all([
     getActiveRequests(user.id),
     getConfirmedBookings(user.id),
@@ -25,7 +19,6 @@ export default async function TravelerRequestsPage() {
     <TravelerRequestsScreen
       activeRequests={activeRequests}
       confirmedBookings={confirmedBookings}
-      userName={profile?.full_name ?? ''}
     />
   )
 }

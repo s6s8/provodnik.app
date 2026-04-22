@@ -8,17 +8,11 @@ import type { TravelerRequestSummary, ConfirmedBookingSummary } from '@/lib/supa
 interface Props {
   activeRequests: TravelerRequestSummary[]
   confirmedBookings: ConfirmedBookingSummary[]
-  userName: string
 }
 
-export function TravelerRequestsScreen({ activeRequests, confirmedBookings, userName }: Props) {
+export function TravelerRequestsScreen({ activeRequests, confirmedBookings }: Props) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Кабинет путешественника</h1>
-        {userName && <p className="text-muted-foreground mt-1">{userName}</p>}
-      </div>
-
       <Tabs defaultValue="active">
         <TabsList className="mb-4 w-full grid grid-cols-2 bg-muted/60 backdrop-blur-none shadow-none border-border">
           <TabsTrigger value="active">
