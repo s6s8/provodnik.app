@@ -8,6 +8,7 @@ const INTEREST_LABELS: Record<string, string> = {
   food: "Гастрономия",
   art: "Искусство",
   active: "Активный отдых",
+  adventure: "Активный отдых",
   religion: "Религия",
   kids: "Для детей",
   unusual: "Необычное",
@@ -23,7 +24,7 @@ function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "RUB",
-    currencyDisplay: "code",
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
   }).format(amount);
 }
