@@ -22,14 +22,12 @@ import { flags } from "@/lib/flags";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "/listings", label: "Туры" },
   { href: "/requests", label: "Запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
 ] as const;
 
 const travelerNavLinks = [
-  { href: "/listings", label: "Туры" },
   { href: "/traveler/requests", label: "Мои запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
