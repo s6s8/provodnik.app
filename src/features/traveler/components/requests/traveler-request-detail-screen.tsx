@@ -28,12 +28,23 @@ function formatRub(amount: number) {
   }).format(amount);
 }
 
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+}
+
 interface Props {
   record: TravelerRequestRecord;
 }
 
 export function TravelerRequestDetailScreen({ record }: Props) {
-  const dateLabel = record.request.startDate;
+  const dateLabel = formatDate(record.request.startDate);
+  const timeLabel = record.request.startTime
+    ? record.request.endTime
+      ? `${record.request.startTime} – ${record.request.endTime}`
+      : record.request.startTime
+    : null;
 
   return (
     <div className="space-y-8">
@@ -55,7 +66,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
           <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="size-4 text-muted-foreground" />
-              {dateLabel}
+              {dateLabel}{timeLabel ? ` · ${timeLabel}` : ""}
             </span>
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
