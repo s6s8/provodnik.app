@@ -20,11 +20,11 @@ export function TravelerRequestsScreen({ activeRequests, confirmedBookings, user
       </div>
 
       <Tabs defaultValue="active">
-        <TabsList className="mb-4 w-full grid grid-cols-2">
-          <TabsTrigger value="active">
+        <TabsList className="mb-4 w-full grid grid-cols-2 bg-muted/60 border-border backdrop-blur-none shadow-none">
+          <TabsTrigger value="active" className="text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm">
             Активные{activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
           </TabsTrigger>
-          <TabsTrigger value="confirmed">
+          <TabsTrigger value="confirmed" className="text-muted-foreground data-[state=active]:text-foreground data-[state=active]:bg-background data-[state=active]:shadow-sm">
             Подтверждённые{confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
           </TabsTrigger>
         </TabsList>
