@@ -13,7 +13,7 @@ export default async function TravelerLayout({
   const auth = await readAuthContextFromServer();
 
   if (!auth.isAuthenticated) {
-    redirect("/auth?next=/traveler/dashboard");
+    redirect("/auth?next=/traveler/requests");
   }
 
   if (auth.role && auth.role !== "traveler") {
@@ -21,7 +21,7 @@ export default async function TravelerLayout({
   }
 
   return (
-    <div className="pb-24 md:pb-0">
+    <div>
       <main className="w-full">{children}</main>
       <TravelerMobileTabs />
     </div>

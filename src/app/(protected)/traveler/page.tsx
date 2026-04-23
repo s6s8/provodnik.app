@@ -6,5 +6,5 @@ export const metadata: Metadata = {
 };
 
 export default function TravelerPage() {
-  redirect("/traveler/dashboard");
+  redirect("/traveler/requests");
 }

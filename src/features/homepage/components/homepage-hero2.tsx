@@ -4,7 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import * as React from "react";
 
-import { createQuickRequestAction, type QuickRequestState } from "@/app/(protected)/traveler/requests/quick/actions";
 import { Button } from "@/components/ui/button";
 import type { DestinationOption } from "@/data/supabase/queries";
 import { cn } from "@/lib/utils";
@@ -29,8 +28,6 @@ const COMPANION_LABELS: Record<CompanionKey, string> = {
   group: "группой",
 };
 
-const initialState: QuickRequestState = { error: null };
-
 interface Props {
   destinations: DestinationOption[];
 }
@@ -44,11 +41,6 @@ export function HomePageHero2({ destinations }: Props) {
   const [customStart, setCustomStart] = React.useState("");
   const [customEnd, setCustomEnd] = React.useState("");
   const [isAuthed, setIsAuthed] = React.useState<boolean | null>(null);
-
-  const [state, dispatch, isPending] = React.useActionState(
-    createQuickRequestAction,
-    initialState,
-  );
 
   React.useEffect(() => {
     import("@/lib/supabase/client").then(({ createSupabaseBrowserClient }) => {
@@ -84,23 +76,18 @@ export function HomePageHero2({ destinations }: Props) {
   function handleSubmit() {
     if (!destination) return;
 
+    const params = new URLSearchParams({ destination });
+    if (duration) params.set("duration", duration);
+    if (companion) params.set("companion", companion);
+    if (customStart) params.set("customStart", customStart);
+    if (customEnd) params.set("customEnd", customEnd);
+
     if (!isAuthed) {
-      const params = new URLSearchParams({ destination });
-      if (duration) params.set("duration", duration);
-      if (companion) params.set("companion", companion);
-      if (customStart) params.set("customStart", customStart);
-      if (customEnd) params.set("customEnd", customEnd);
-      window.location.href = `/auth?redirect=/traveler/requests/quick?${params.toString()}`;
+      window.location.href = `/auth?redirect=/traveler/requests?${params.toString()}`;
       return;
     }
 
-    const fd = new FormData();
-    fd.set("destination", destination);
-    if (duration) fd.set("duration", duration);
-    if (companion) fd.set("companion", companion);
-    if (customStart) fd.set("customStart", customStart);
-    if (customEnd) fd.set("customEnd", customEnd);
-    dispatch(fd);
+    window.location.href = `/traveler/requests?${params.toString()}`;
   }
 
   return (
@@ -198,18 +185,14 @@ export function HomePageHero2({ destinations }: Props) {
           />
         )}
 
-        {state.error && (
-          <p role="alert" className="mb-4 text-sm text-red-300">{state.error}</p>
-        )}
-
         <div className="flex flex-wrap items-center justify-center gap-4">
           <Button
             onClick={handleSubmit}
-            disabled={!destination || isPending}
+            disabled={!destination}
             size="lg"
             className="min-w-[200px] bg-primary text-white hover:bg-primary/90 disabled:opacity-50"
           >
-            {isPending ? "Отправляем..." : "→ Отправить гидам"}
+            → Отправить гидам
           </Button>
           <Link
             href="/listings"
