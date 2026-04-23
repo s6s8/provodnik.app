@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
+
+import { BirjhaScreen } from "@/features/guide/components/birjha/birjha-screen";
 
 export const metadata: Metadata = {
-  title: "Кабинет гида",
+  title: "Биржа",
 };
 
-export default function GuidePage() {
-  redirect("/guide/dashboard");
+export default async function GuidePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const tab = params.tab === "bookings" ? "bookings" : "inbox";
+  return <BirjhaScreen initialTab={tab} />;
 }

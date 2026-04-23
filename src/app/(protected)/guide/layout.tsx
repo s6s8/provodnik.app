@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 
 import { redirect } from "next/navigation";
 
-import { GuideKpiStrip } from "@/components/layout/guide-kpi-strip";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 
 export default async function GuideLayout({
@@ -20,10 +19,5 @@ export default async function GuideLayout({
     redirect(auth.canonicalRedirectTo ?? "/");
   }
 
-  return (
-    <>
-      <GuideKpiStrip guideId={auth.userId ?? ""} />
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
