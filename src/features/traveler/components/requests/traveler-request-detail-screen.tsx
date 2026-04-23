@@ -73,7 +73,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             <span className="inline-flex items-center gap-2">
               <Users className="size-4 text-muted-foreground" />
               {record.request.mode === "assembly"
-                ? `${record.request.groupSizeCurrent ?? 1} чел. (сборная)`
+                ? `Сборная группа · сейчас ${record.request.groupSizeCurrent ?? 1}${record.request.groupMax ? ` из ${record.request.groupMax}` : ''} чел.`
                 : `${record.request.groupSize ?? 1} чел.`}
             </span>
           </div>

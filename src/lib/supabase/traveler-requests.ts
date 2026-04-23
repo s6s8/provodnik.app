@@ -27,6 +27,8 @@ export interface TravelerRequestSummary {
   created_at: string
   offer_count: number
   guide_avatars: Array<{ guide_id: string; avatar_url: string | null; full_name: string | null }>
+  mode: 'assembly' | 'private'
+  group_max: number | null
 }
 
 export interface ConfirmedBookingSummary {
@@ -55,7 +57,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
 
   const { data: requests, error } = await supabase
     .from('traveler_requests')
-    .select('id, destination, region, interests, starts_on, ends_on, start_time, budget_minor, participants_count, status, created_at')
+    .select('id, destination, region, interests, starts_on, ends_on, start_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity')
     .eq('traveler_id', travelerId)
     .in('status', ['open', 'expired', 'cancelled'])
     .order('created_at', { ascending: false })
@@ -111,6 +113,8 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
         guide_id: o.guide_id,
         ...(profileMap.get(o.guide_id) ?? { full_name: null, avatar_url: null }),
       })),
+      mode: ((r as any).format_preference === 'group' ? 'assembly' : 'private') as 'assembly' | 'private',
+      group_max: (r as any).group_capacity ?? null,
     }
   })
 })

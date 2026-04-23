@@ -60,6 +60,12 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
         </div>
       )}
 
+      {request.mode === 'assembly' && (
+        <p className="mt-2 text-xs text-muted-foreground">
+          {request.participants_count}{request.group_max ? ` из ${request.group_max}` : ''} · сборная группа
+        </p>
+      )}
+
       {request.guide_avatars.length > 0 && (
         <div className="mt-3 flex items-center gap-1">
           {request.guide_avatars.map((g) => (
