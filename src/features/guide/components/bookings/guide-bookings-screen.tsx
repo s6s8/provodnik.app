@@ -68,28 +68,6 @@ export function GuideBookingsScreen() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <Badge variant="outline">Кабинет гида</Badge>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Бронирования
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground">
-            Операционный экран по турам: подтверждайте поездки, следите за статусом групп
-            и ориентировочным доходом. В этой версии данные хранятся локально на
-            устройстве.
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button asChild variant="secondary">
-            <Link href="/guide/inbox">Входящие запросы</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/guide/listings">Мои программы</Link>
-          </Button>
-        </div>
-      </div>
-
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
           <CardTitle>Итоги по бронированиям</CardTitle>

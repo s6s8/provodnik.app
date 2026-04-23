@@ -29,6 +29,10 @@ function formatDate(dateStr: string): string {
 }
 
 export function ActiveRequestCard({ request }: { request: TravelerRequestSummary }) {
+  const knownInterests = request.interests
+    .filter((i) => i in INTEREST_LABELS)
+    .slice(0, 2);
+
   return (
     <Link
       href={`/traveler/requests/${request.id}`}
@@ -42,29 +46,27 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
         <TravelerRequestStatusBadge status={request.status} />
       </div>
 
-      <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-        <span>{request.participants_count} чел.</span>
-        {request.budget_minor ? <span>{formatBudget(request.budget_minor)}/чел.</span> : null}
-        {request.offer_count > 0 && (
-          <span className="text-amber-600 font-medium">{request.offer_count} предл.</span>
-        )}
-      </div>
-
-      {request.interests.length > 0 && (
+      {knownInterests.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {request.interests.slice(0, 2).map((interest) => (
+          {knownInterests.map((interest) => (
             <span key={interest} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-              {INTEREST_LABELS[interest] ?? interest}
+              {INTEREST_LABELS[interest]}
             </span>
           ))}
         </div>
       )}
 
-      {request.mode === 'assembly' && (
-        <p className="mt-2 text-xs text-muted-foreground">
-          {request.participants_count}{request.group_max ? ` из ${request.group_max}` : ''} · сборная группа
-        </p>
-      )}
+      <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+        {request.mode === 'assembly' ? (
+          <span>{request.participants_count}{request.group_max ? ` из ${request.group_max}` : ''} · сборная группа</span>
+        ) : (
+          <span>{request.participants_count} чел.</span>
+        )}
+        {request.budget_minor ? <span>{formatBudget(request.budget_minor)}/чел.</span> : null}
+        {request.offer_count > 0 && (
+          <span className="text-amber-600 font-medium">{request.offer_count} предл.</span>
+        )}
+      </div>
 
       {request.guide_avatars.length > 0 && (
         <div className="mt-3 flex items-center gap-1">

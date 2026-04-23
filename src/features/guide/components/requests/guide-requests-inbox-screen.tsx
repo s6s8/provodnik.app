@@ -5,7 +5,6 @@ import Link from "next/link";
 
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -138,7 +137,6 @@ export function GuideRequestsInboxScreen() {
   const myOffersCount = items.filter(
     (item) => offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
   ).length;
-  const acceptedCount = acceptedOfferIds.size;
 
   React.useEffect(() => {
     if (didAutoSelect) return;
@@ -193,7 +191,6 @@ export function GuideRequestsInboxScreen() {
   const tabs: Array<{ key: RequestsFilter; label: string; count: number }> = [
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои предложения", count: myOffersCount },
-    { key: "accepted", label: "Принятые", count: acceptedCount },
   ];
 
   const emptyText =
@@ -205,28 +202,6 @@ export function GuideRequestsInboxScreen() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-3">
-        <Badge variant="outline">Кабинет гида</Badge>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Входящие запросы
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground">
-            Здесь появляются запросы путешественников. Открывайте карточку
-            запроса, чтобы разобрать задачу и собрать предложение под бюджет
-            гостя.
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <Button asChild variant="secondary">
-            <Link href="/guide/bookings">Бронирования</Link>
-          </Button>
-          <Button asChild variant="outline">
-            <Link href="/guide/listings">Мои программы</Link>
-          </Button>
-        </div>
-      </div>
-
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
           <CardTitle>Сводка по запросам</CardTitle>

@@ -4,8 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MonthlyCalendar } from "@/features/guide/components/calendar/MonthlyCalendar";
 import { WeeklyCalendar } from "@/features/guide/components/calendar/WeeklyCalendar";
+import {
+  DateRangePicker,
+  type DateRangePreset,
+} from "@/features/guide/components/statistics/DateRangePicker";
+import { StatsChart } from "@/features/guide/components/statistics/StatsChart";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
+  BookingRow,
   ListingScheduleExtraRow,
   ListingScheduleRow,
   ListingTourDepartureRow,
@@ -22,11 +28,40 @@ function formatDateOnlyLocal(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-export default async function GuideCalendarPage() {
+function rangeStartDate(range: DateRangePreset): Date {
+  const d = new Date();
+  if (range === "7d") d.setDate(d.getDate() - 7);
+  else if (range === "90d") d.setDate(d.getDate() - 90);
+  else d.setDate(d.getDate() - 30);
+  return d;
+}
+
+function groupByDay(rows: BookingRow[]): { date: string; value: number }[] {
+  const map: Record<string, number> = {};
+  for (const row of rows) {
+    const day = row.created_at.slice(0, 10);
+    map[day] = (map[day] ?? 0) + 1;
+  }
+  return Object.entries(map)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([date, value]) => ({ date, value }));
+}
+
+export default async function GuideCalendarPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   let schedules: ListingScheduleRow[] = [];
   let extras: ListingScheduleExtraRow[] = [];
   let departures: ListingTourDepartureRow[] = [];
   let listings: { id: string; title: string; exp_type: string | null }[] = [];
+  let bookings: BookingRow[] = [];
+
+  const resolvedParams = await searchParams;
+  const rawRange = resolvedParams.range;
+  const range: DateRangePreset =
+    rawRange === "7d" || rawRange === "90d" ? rawRange : "30d";
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -74,39 +109,69 @@ export default async function GuideCalendarPage() {
     const todayStr = formatDateOnlyLocal(today);
     const twoMonthsOut = new Date(today.getFullYear(), today.getMonth() + 2, 1);
     const twoMonthsOutStr = formatDateOnlyLocal(twoMonthsOut);
+    const rangeStart = formatDateOnlyLocal(rangeStartDate(range));
+
+    const bookingsQuery = supabase
+      .from("bookings")
+      .select("*")
+      .eq("guide_id", guideId)
+      .gte("created_at", rangeStart);
 
     if (listingIds.length > 0) {
-      const [{ data: schedulesRaw }, { data: extrasRaw }, { data: departuresRaw }] =
-        await Promise.all([
-          supabase.from("listing_schedule").select("*").in("listing_id", listingIds),
-          supabase
-            .from("listing_schedule_extras")
-            .select("*")
-            .in("listing_id", listingIds)
-            .gte("date", todayStr)
-            .lte("date", twoMonthsOutStr),
-          supabase
-            .from("listing_tour_departures")
-            .select("*")
-            .in("listing_id", listingIds)
-            .gte("start_date", todayStr),
-        ]);
+      const [
+        { data: schedulesRaw },
+        { data: extrasRaw },
+        { data: departuresRaw },
+        { data: bookingsRaw },
+      ] = await Promise.all([
+        supabase.from("listing_schedule").select("*").in("listing_id", listingIds),
+        supabase
+          .from("listing_schedule_extras")
+          .select("*")
+          .in("listing_id", listingIds)
+          .gte("date", todayStr)
+          .lte("date", twoMonthsOutStr),
+        supabase
+          .from("listing_tour_departures")
+          .select("*")
+          .in("listing_id", listingIds)
+          .gte("start_date", todayStr),
+        bookingsQuery,
+      ]);
 
       schedules = (schedulesRaw ?? []) as ListingScheduleRow[];
       extras = (extrasRaw ?? []) as ListingScheduleExtraRow[];
       departures = (departuresRaw ?? []) as ListingTourDepartureRow[];
+      bookings = (bookingsRaw ?? []) as BookingRow[];
+    } else {
+      const { data: bookingsRaw } = await bookingsQuery;
+      bookings = (bookingsRaw ?? []) as BookingRow[];
     }
   } catch {
     schedules = [];
     extras = [];
     departures = [];
     listings = [];
+    bookings = [];
   }
 
   const listingSummaries = listings.map((l) => ({
     id: l.id,
     title: l.title?.trim() ? l.title : "Без названия",
   }));
+
+  const activeBookings = bookings.filter(
+    (b) =>
+      b.status === "pending" ||
+      b.status === "awaiting_guide_confirmation" ||
+      b.status === "confirmed",
+  );
+  const completedBookings = bookings.filter((b) => b.status === "completed");
+  const totalRevenue = completedBookings.reduce(
+    (sum, b) => sum + Math.round(b.subtotal_minor / 100),
+    0,
+  );
+  const chartData = groupByDay(bookings);
 
   return (
     <div className="space-y-6">
@@ -142,6 +207,50 @@ export default async function GuideCalendarPage() {
           </Tabs>
         </CardContent>
       </Card>
+
+      <section id="stats">
+        <Card className="border-border/70 bg-card/90">
+          <CardHeader>
+            <CardTitle className="text-xl">Статистика</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Бронирования и оборот за выбранный период.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <DateRangePicker value={range} />
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Всего бронирований</p>
+                <p className="mt-1 text-base font-semibold">{bookings.length}</p>
+              </div>
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Активных</p>
+                <p className="mt-1 text-base font-semibold">{activeBookings.length}</p>
+              </div>
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Оборот (завершённые, RUB)</p>
+                <p className="mt-1 text-base font-semibold">
+                  {totalRevenue > 0
+                    ? new Intl.NumberFormat("ru-RU", {
+                        style: "currency",
+                        currency: "RUB",
+                        currencyDisplay: "code",
+                        maximumFractionDigits: 0,
+                      }).format(totalRevenue)
+                    : "—"}
+                </p>
+              </div>
+            </div>
+            {chartData.length > 0 ? (
+              <StatsChart data={chartData} label="Бронирований в день" />
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Нет данных за выбранный период.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </section>
     </div>
   );
 }
