@@ -30,7 +30,6 @@ const navLinks = [
 const travelerNavLinks = [
   { href: "/traveler/requests", label: "Мои запросы" },
   { href: "/destinations", label: "Направления" },
-  { href: "/guides", label: "Гиды" },
 ] as const;
 
 const guideNavLinks = [
@@ -53,7 +52,7 @@ const roleLabels: Record<AppRole, string> = {
 };
 
 const roleDashboards: Record<AppRole, AuthRedirectTarget> = {
-  traveler: "/traveler/dashboard",
+  traveler: "/traveler/requests",
   guide: "/guide/dashboard",
   admin: "/admin/dashboard",
 };

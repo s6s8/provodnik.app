@@ -1,7 +1,7 @@
 import type { AppRole } from "@/lib/auth/types";
 
 export const ROLE_DASHBOARD_PATHS = {
-  traveler: "/traveler/dashboard",
+  traveler: "/traveler/requests",
   guide: "/guide/dashboard",
   admin: "/admin/dashboard",
 } as const satisfies Record<AppRole, string>;

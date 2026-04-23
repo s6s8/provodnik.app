@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils";
 const roles = [
   {
     role: "traveler",
-    href: getDashboardPathForRole("traveler") ?? "/traveler/dashboard",
+    href: getDashboardPathForRole("traveler") ?? "/traveler/requests",
     workspacePrefix: getWorkspacePrefixForRole("traveler") ?? "/traveler",
     label: "Путешественник",
     description: "Заявки, общение с гидом и бронирование",

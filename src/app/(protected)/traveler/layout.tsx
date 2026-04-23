@@ -3,7 +3,6 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
-import { TravelerMobileTabs } from "@/app/(protected)/traveler/traveler-mobile-tabs";
 
 export default async function TravelerLayout({
   children,
@@ -23,7 +22,6 @@ export default async function TravelerLayout({
   return (
     <div>
       <main className="w-full">{children}</main>
-      <TravelerMobileTabs />
     </div>
   );
 }
