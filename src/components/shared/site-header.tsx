@@ -33,11 +33,9 @@ const travelerNavLinks = [
 ] as const;
 
 const guideNavLinks = [
-  { href: "/guide/inbox", label: "Входящие" },
-  { href: "/guide/orders", label: "Заказы" },
-  { href: "/guide/listings", label: "Предложения" },
+  { href: "/guide", label: "Биржа" },
   { href: "/guide/calendar", label: "Календарь" },
-  { href: "/guide/stats", label: "Статистика" },
+  { href: "/guide/profile", label: "Профиль" },
 ] as const;
 
 const unauthNavLinks = [
@@ -53,7 +51,7 @@ const roleLabels: Record<AppRole, string> = {
 
 const roleDashboards: Record<AppRole, AuthRedirectTarget> = {
   traveler: "/traveler/requests",
-  guide: "/guide/dashboard",
+  guide: "/guide",
   admin: "/admin/dashboard",
 };
 
@@ -98,10 +96,25 @@ export function SiteHeader({
         </Link>
 
         <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden" role="list">
-          {(isAuthenticated && role === "guide" ? guideNavLinks : isAuthenticated && role === "traveler" ? travelerNavLinks : isAuthenticated ? navLinks : unauthNavLinks).map(
+          {(isAuthenticated && role === "guide"
+            ? guideNavLinks
+            : isAuthenticated && role === "traveler"
+              ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
+              : isAuthenticated
+                ? navLinks
+                : unauthNavLinks).map(
             (link) => {
               const isHashLink = link.href.includes("#");
-              const isActive = isHashLink ? pathname === "/" : pathname === link.href || pathname.startsWith(`${link.href}/`);
+              let isActive: boolean;
+              if (link.href === "/guide") {
+                isActive = pathname === "/guide" ||
+                  pathname.startsWith("/guide/inbox") ||
+                  pathname.startsWith("/guide/bookings");
+              } else if (isHashLink) {
+                isActive = pathname === "/";
+              } else {
+                isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              }
 
               return (
                 <li key={link.href}>
@@ -193,11 +206,24 @@ export function SiteHeader({
                 <SheetTitle>Меню</SheetTitle>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Мобильная навигация">
-                {(isAuthenticated && role === "guide" ? guideNavLinks : isAuthenticated && role === "traveler" ? travelerNavLinks : isAuthenticated ? navLinks : unauthNavLinks).map((link) => {
+                {(isAuthenticated && role === "guide"
+                ? guideNavLinks
+                : isAuthenticated && role === "traveler"
+                  ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
+                  : isAuthenticated
+                    ? navLinks
+                    : unauthNavLinks).map((link) => {
                   const isHashLink = link.href.includes("#");
-                  const isActive = isHashLink
-                    ? pathname === "/"
-                    : pathname === link.href || pathname.startsWith(`${link.href}/`);
+                  let isActive: boolean;
+                  if (link.href === "/guide") {
+                    isActive = pathname === "/guide" ||
+                      pathname.startsWith("/guide/inbox") ||
+                      pathname.startsWith("/guide/bookings");
+                  } else if (isHashLink) {
+                    isActive = pathname === "/";
+                  } else {
+                    isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+                  }
 
                   return (
                     <SheetClose asChild key={link.href}>

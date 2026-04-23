@@ -4,7 +4,7 @@ export type AuthSource = "supabase" | "demo" | "none";
 
 export type AuthRedirectTarget =
   | "/traveler/requests"
-  | "/guide/dashboard"
+  | "/guide"
   | "/admin/dashboard";
 
 export type AuthRecoveryTarget = "/auth?error=missing-role";
