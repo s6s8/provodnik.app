@@ -7,7 +7,7 @@ describe('TravelerRequestSummary type', () => {
       id: 'uuid', destination: 'Элиста', region: null, interests: ['История'],
       start_time: null, starts_on: '2026-06-01', ends_on: null, budget_minor: 10000,
       participants_count: 2, status: 'open', created_at: '2026-04-21T00:00:00Z',
-      offer_count: 0, guide_avatars: [],
+      offer_count: 0, guide_avatars: [], mode: 'private', group_max: null,
     }
     expect(req.status).toBe('open')
   })
@@ -17,7 +17,7 @@ describe('TravelerRequestSummary type', () => {
       id: 'uuid2', destination: 'Волгоград', region: null, interests: ['Природа'],
       start_time: null, starts_on: '2026-01-01', ends_on: null, budget_minor: null,
       participants_count: 1, status: 'expired', created_at: '2026-01-01T00:00:00Z',
-      offer_count: 0, guide_avatars: [],
+      offer_count: 0, guide_avatars: [], mode: 'private', group_max: null,
     }
     expect(req.status).toBe('expired')
   })
@@ -31,8 +31,8 @@ describe('TravelerRequestSummary type', () => {
     const req: TravelerRequestSummary = {
       id: 'uuid', destination: 'X', region: null, interests: ['X'],
       start_time: null, starts_on: '2026-06-01', ends_on: null, budget_minor: null,
-      participants_count: 1, status: 'open', created_at: '2026-04-21T00:00:00Z',
-      offer_count: 5, guide_avatars: avatars,
+      participants_count: 3, status: 'open', created_at: '2026-04-21T00:00:00Z',
+      offer_count: 5, guide_avatars: avatars, mode: 'assembly', group_max: 10,
     }
     expect(req.guide_avatars).toHaveLength(3)
     expect(req.offer_count).toBe(5)

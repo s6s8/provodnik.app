@@ -93,7 +93,13 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
     byRequest.set(o.request_id, list)
   }
 
-  return requests.map((r) => {
+  type RequestRow = (typeof requests)[number] & {
+    start_time: string | null
+    format_preference: string | null
+    group_capacity: number | null
+  }
+
+  return (requests as RequestRow[]).map((r) => {
     const offerList = byRequest.get(r.id) ?? []
     const interests = (r.interests as string[] | null) ?? []
     return {
@@ -102,7 +108,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
       region: r.region,
       interests,
       starts_on: r.starts_on,
-      start_time: (r as any).start_time ?? null,
+      start_time: r.start_time,
       ends_on: r.ends_on,
       budget_minor: r.budget_minor,
       participants_count: r.participants_count,
@@ -113,8 +119,8 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
         guide_id: o.guide_id,
         ...(profileMap.get(o.guide_id) ?? { full_name: null, avatar_url: null }),
       })),
-      mode: ((r as any).format_preference === 'group' ? 'assembly' : 'private') as 'assembly' | 'private',
-      group_max: (r as any).group_capacity ?? null,
+      mode: (r.format_preference === 'group' ? 'assembly' : 'private') as 'assembly' | 'private',
+      group_max: r.group_capacity,
     }
   })
 })
