@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { kopecksToRub } from "@/data/money";
+import { formatRussianDateRange } from "@/lib/dates";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
 export type DestinationCategory = "city" | "nature" | "culture";
@@ -84,6 +85,8 @@ export type RequestRecord = {
   requesterName: string;
   requesterInitials: string;
   description: string;
+  interests: string[];
+  mode: "private" | "assembly";
   format: string;
   status: "open" | "booked" | "cancelled" | "expired";
   createdAt: string;
@@ -292,13 +295,10 @@ function formatCategory(cat: string): string {
   }
 }
 
-function formatFormatPreference(pref: string): string {
-  switch (pref) {
-    case "group": return "Групповой формат";
-    case "private": return "Частный формат";
-    default: return "";
-  }
-}
+const VALID_INTEREST_SLUGS = [
+  "history", "architecture", "nature", "food", "art",
+  "active", "adventure", "religion", "kids", "unusual", "nightlife",
+] as const;
 
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
@@ -306,7 +306,6 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
   const budgetRub = kopecksToRub(budgetMinor);
   const meta = parseNotesJson(row.notes as string);
   const imageUrl = (meta.imageUrl as string) ?? fallbackHeroImage;
-  const dateRangeLabel = (meta.dateRangeLabel as string) ?? formatDateLabel((row.starts_on as string) ?? "", row.ends_on as string | null);
   const destinationLabel = (meta.destinationLabel as string) ?? dest;
 
   return {
@@ -315,16 +314,23 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     destinationSlug: normalizeSlug(dest),
     destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "Россия",
     title: `${destinationLabel} — маршрут под группу`,
-    dateLabel: dateRangeLabel,
-    startTime: (row.start_time as string | null) ?? null,
-    endTime: (row.end_time as string | null) ?? null,
+    dateLabel: (meta.dateRangeLabel as string | null) ?? formatRussianDateRange(
+      (row.starts_on as string) ?? "",
+      (row.ends_on as string | null) ?? null,
+    ),
+    startTime: row.start_time ? (row.start_time as string).slice(0, 5) : null,
+    endTime: row.end_time ? (row.end_time as string).slice(0, 5) : null,
     groupSize: (row.participants_count as number) ?? 1,
     capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
     budgetRub,
-    budgetLabel: budgetMinor ? `${formatRub(budgetRub)} / чел.` : "По договорённости",
+    budgetLabel: `${formatRub(budgetRub)} / чел.`,
     requesterName,
     requesterInitials,
-    description: formatFormatPreference((row.format_preference as string) ?? "") || formatCategory((row.category as string) ?? ""),
+    description: (meta.description as string | null) ?? (row.description as string | null) ?? "",
+    interests: Array.isArray(row.interests)
+      ? (row.interests as string[]).filter((s) => (VALID_INTEREST_SLUGS as readonly string[]).includes(s))
+      : [],
+    mode: (row.open_to_join as boolean) === true ? "assembly" : "private",
     format: formatCategory((row.category as string) ?? ""),
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
