@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import { getGuideBySlug, getListingsByGuide, getGuideReviews } from "@/data/supabase/queries";
+import { getGuideBySlug, getListingsByGuide, getGuideReviews, getGuideLocationPhotos } from "@/data/supabase/queries";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -16,18 +16,27 @@ const getGuidePageData = cache(async (slug: string) => {
       guideResult,
       listingRecords: [],
       reviewRecords: [],
+      photos: [],
     };
   }
 
-  const [listingsResult, reviewsResult] = await Promise.all([
+  const [listingsResult, reviewsResult, photosResult] = await Promise.all([
     getListingsByGuide(supabase, guideResult.data.id),
     getGuideReviews(supabase, slug),
+    getGuideLocationPhotos(supabase, guideResult.data.id),
   ]);
+
+  const photos = (photosResult.data ?? []).map((p) => ({
+    id: p.id,
+    locationName: p.location_name,
+    imageUrl: supabase.storage.from("guide-media").getPublicUrl(p.object_path).data.publicUrl,
+  }));
 
   return {
     guideResult,
     listingRecords: listingsResult.data ?? [],
     reviewRecords: reviewsResult.data ?? [],
+    photos,
   };
 });
 
@@ -57,7 +66,7 @@ export default async function PublicGuideProfilePage({
 }) {
   const { slug } = await params;
 
-  const { guideResult, listingRecords, reviewRecords } = await getGuidePageData(slug);
+  const { guideResult, listingRecords, reviewRecords, photos } = await getGuidePageData(slug);
   if (!guideResult.data) notFound();
 
   const g = guideResult.data;
@@ -134,7 +143,7 @@ export default async function PublicGuideProfilePage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
       />
-      <GuideProfileScreen guide={guide} listings={listings} reviews={reviews} />
+      <GuideProfileScreen guide={guide} listings={listings} reviews={reviews} photos={photos} />
     </>
   );
 }

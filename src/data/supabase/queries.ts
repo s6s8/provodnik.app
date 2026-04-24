@@ -681,6 +681,43 @@ export async function getGuideBySlug(
   }
 }
 
+export async function getGuideLocationPhotos(
+  _client: SupabaseClient,
+  guideId: string,
+): Promise<QueryResult<{ id: string; location_name: string; object_path: string; sort_order: number }[]>> {
+  try {
+    const db = getPublicClient();
+    const { data, error } = await db
+      .from("guide_location_photos")
+      .select("id, location_name, sort_order, storage_assets!inner(object_path)")
+      .eq("guide_id", guideId)
+      .order("sort_order", { ascending: true });
+
+    if (error) throw error;
+
+    const rows = (data ?? []) as Array<{
+      id: string;
+      location_name: string;
+      sort_order: number;
+      storage_assets: { object_path: string } | { object_path: string }[];
+    }>;
+
+    const mapped = rows.map(row => {
+      const sa = Array.isArray(row.storage_assets) ? row.storage_assets[0] : row.storage_assets;
+      return {
+        id: row.id,
+        location_name: row.location_name,
+        sort_order: row.sort_order,
+        object_path: sa?.object_path ?? "",
+      };
+    }).filter(r => r.object_path !== "");
+
+    return { data: mapped, error: null };
+  } catch (error) {
+    return { data: null, error: makeError(error) };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Offers (public.guide_offers)
 // ---------------------------------------------------------------------------

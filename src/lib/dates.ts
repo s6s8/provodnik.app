@@ -52,3 +52,12 @@ export function formatTimeRange(startTime?: string | null, endTime?: string | nu
 export function todayMoscowISODate(): string {
   return Intl.DateTimeFormat("en-CA", { timeZone: MOSCOW_TZ }).format(new Date());
 }
+
+export function formatDurationMinutes(minutes: number): string {
+  if (minutes <= 0) return "";
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m} мин`;
+  if (m === 0) return `${h} ч`;
+  return `${h} ч ${m} мин`;
+}

@@ -72,6 +72,8 @@ export type GuideOfferRow = {
   status: OfferStatus;
   created_at: string;
   updated_at: string;
+  route_stops: unknown[];
+  route_duration_minutes: number | null;
 };
 
 export type BookingRow = {
@@ -318,7 +320,8 @@ export type StorageAssetKindDb =
   | "guide-document"
   | "listing-cover"
   | "listing-gallery"
-  | "dispute-evidence";
+  | "dispute-evidence"
+  | "guide-portfolio";
 
 export type StorageAssetRow = {
   id: Uuid;
@@ -328,6 +331,15 @@ export type StorageAssetRow = {
   asset_kind: StorageAssetKindDb;
   mime_type: string | null;
   byte_size: number | null;
+  created_at: string;
+};
+
+export type GuideLocationPhotoRow = {
+  id: Uuid;
+  guide_id: Uuid;
+  storage_asset_id: Uuid;
+  location_name: string;
+  sort_order: number;
   created_at: string;
 };
 

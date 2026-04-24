@@ -1,6 +1,7 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type {
   GuideDocumentRow,
+  GuideLocationPhotoRow,
   GuideVerificationStatusDb,
   ListingMediaRow,
   StorageAssetKindDb,
@@ -241,6 +242,110 @@ export async function ensureListingCoverReservation(
     isCover: media.is_cover,
     createdAt: media.created_at,
   };
+}
+
+export async function listGuideLocationPhotos(
+  guideId: Uuid,
+): Promise<(GuideLocationPhotoRow & { object_path: string })[]> {
+  const supabase = getSupabaseClient();
+  const { data, error } = await supabase
+    .from("guide_location_photos")
+    .select(
+      "id, guide_id, storage_asset_id, location_name, sort_order, created_at, storage_assets!inner(object_path)",
+    )
+    .eq("guide_id", guideId)
+    .order("sort_order", { ascending: true });
+
+  if (error) {
+    throw error;
+  }
+
+  const result: (GuideLocationPhotoRow & { object_path: string })[] = [];
+
+  for (const row of (data ?? []) as Array<
+    GuideLocationPhotoRow & {
+      storage_assets: { object_path: string }[] | { object_path: string };
+    }
+  >) {
+    const storageAsset = firstRelation(row.storage_assets);
+    if (!storageAsset) continue;
+    result.push({ ...row, object_path: storageAsset.object_path });
+  }
+
+  return result;
+}
+
+export async function uploadPortfolioPhoto(input: {
+  guideId: Uuid;
+  file: File;
+  locationName: string;
+  sortOrder: number;
+}): Promise<GuideLocationPhotoRow & { object_path: string }> {
+  const supabase = getSupabaseClient();
+  const objectPath = `${input.guideId}/portfolio/${Date.now()}-${input.file.name.replace(/[^a-z0-9.]/gi, "-")}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("guide-media")
+    .upload(objectPath, input.file, { upsert: false });
+
+  if (uploadError) {
+    throw uploadError;
+  }
+
+  const asset = await upsertStorageAsset({
+    ownerId: input.guideId,
+    bucketId: "guide-media",
+    objectPath,
+    assetKind: "guide-portfolio",
+    mimeType: input.file.type,
+    byteSize: input.file.size,
+  });
+
+  const { data: photoRow, error: insertError } = await supabase
+    .from("guide_location_photos")
+    .insert({
+      guide_id: input.guideId,
+      storage_asset_id: asset.id,
+      location_name: input.locationName,
+      sort_order: input.sortOrder,
+    })
+    .select("id, guide_id, storage_asset_id, location_name, sort_order, created_at")
+    .single();
+
+  if (insertError) {
+    throw insertError;
+  }
+
+  return { ...(photoRow as GuideLocationPhotoRow), object_path: objectPath };
+}
+
+export async function deleteGuideLocationPhoto(photoId: Uuid): Promise<void> {
+  const supabase = getSupabaseClient();
+  const { error } = await supabase
+    .from("guide_location_photos")
+    .delete()
+    .eq("id", photoId);
+
+  if (error) {
+    throw error;
+  }
+}
+
+export async function updateGuideLocationPhotoOrders(
+  updates: { id: Uuid; sort_order: number }[],
+): Promise<void> {
+  const supabase = getSupabaseClient();
+
+  for (const u of updates) {
+    const { error } = await supabase
+      .from("guide_location_photos")
+      .update({ sort_order: u.sort_order })
+      .eq("id", u.id);
+
+    if (error) {
+      throw error;
+    }
+  }
 }
 
 export async function listListingMediaReservationsForGuide(
