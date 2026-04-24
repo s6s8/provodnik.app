@@ -35,6 +35,7 @@ const travelerNavLinks = [
 const guideNavLinks = [
   { href: "/guide", label: "Биржа" },
   { href: "/guide/calendar", label: "Календарь" },
+  { href: "/guide/portfolio", label: "Портфолио" },
   { href: "/guide/profile", label: "Профиль" },
 ] as const;
 
