@@ -8,6 +8,7 @@
 
 import { z } from "zod";
 
+import { rubToKopecks } from "@/data/money";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideOfferRow, Uuid } from "@/lib/supabase/types";
@@ -85,7 +86,7 @@ export async function createGuideOffer(
     .insert({
       request_id: input.request_id,
       guide_id: guideId,
-      price_minor: input.price_total * 100,
+      price_minor: rubToKopecks(input.price_total),
       message: input.message,
       expires_at: new Date(input.valid_until).toISOString(),
       currency: "RUB",

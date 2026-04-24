@@ -69,7 +69,7 @@ function formatRub(amount: number | undefined): string {
 function getDefaultValidUntil(): string {
   const d = new Date();
   d.setDate(d.getDate() + 7);
-  return d.toISOString().slice(0, 10);
+  return Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Moscow" }).format(d);
 }
 
 interface BidFormPanelProps {
