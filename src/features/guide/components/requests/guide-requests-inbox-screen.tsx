@@ -42,15 +42,12 @@ async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest>
   return { offeredIds, offerIdByRequestId };
 }
 
-type RequestsFilter = "new" | "my-offers" | "accepted";
+type RequestsFilter = "new" | "my-offers";
 
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
   const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, string>>(new Map());
-  const [acceptedOfferIds, setAcceptedOfferIds] = React.useState<Set<string>>(
-    new Set(),
-  );
   const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
     null,
   );
@@ -70,22 +67,6 @@ export function GuideRequestsInboxScreen() {
       if (ignore) return;
       setOfferedIds(ids);
       setOfferIdByRequestId(offerMap);
-
-      const { data: acceptedOffers, error } = await supabase
-        .from("guide_offers")
-        .select("request_id")
-        .eq("guide_id", guideId)
-        .eq("status", "accepted");
-      if (ignore) return;
-      if (error) {
-        console.warn("[inbox] failed to load accepted offers:", error.message);
-        return;
-      }
-      if (acceptedOffers) {
-        setAcceptedOfferIds(
-          new Set(acceptedOffers.map((o) => o.request_id as string)),
-        );
-      }
     }
 
     async function loadInitial() {
@@ -132,10 +113,10 @@ export function GuideRequestsInboxScreen() {
   }, [items]);
 
   const newCount = items.filter(
-    (item) => !offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+    (item) => !offeredIds.has(item.id),
   ).length;
   const myOffersCount = items.filter(
-    (item) => offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+    (item) => offeredIds.has(item.id),
   ).length;
 
   React.useEffect(() => {
@@ -153,14 +134,12 @@ export function GuideRequestsInboxScreen() {
     // Tab filter
     if (filter === "new") {
       filtered = filtered.filter(
-        (item) => !offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+        (item) => !offeredIds.has(item.id),
       );
     } else if (filter === "my-offers") {
       filtered = filtered.filter(
-        (item) => offeredIds.has(item.id) && !acceptedOfferIds.has(item.id),
+        (item) => offeredIds.has(item.id),
       );
-    } else if (filter === "accepted") {
-      filtered = filtered.filter((item) => acceptedOfferIds.has(item.id));
     }
 
     // City filter
@@ -182,7 +161,7 @@ export function GuideRequestsInboxScreen() {
     }
 
     return filtered;
-  }, [filter, items, offeredIds, acceptedOfferIds, cityFilter, sortKey]);
+  }, [filter, items, offeredIds, cityFilter, sortKey]);
 
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
@@ -326,7 +305,7 @@ export function GuideRequestsInboxScreen() {
                 {filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
                   const offerId = offerIdByRequestId.get(item.id);
-                  const showQaPanel = (alreadyOffered || acceptedOfferIds.has(item.id)) && !!offerId;
+                  const showQaPanel = alreadyOffered && !!offerId;
                   return (
                     <div key={item.id} className="space-y-3">
                       <div className="rounded-xl border border-border/70 bg-background/60 p-4">
@@ -379,11 +358,7 @@ export function GuideRequestsInboxScreen() {
 
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
-                          {acceptedOfferIds.has(item.id) ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-full bg-green-100 px-3.5 py-1.5 text-xs font-semibold text-green-700">
-                              ✓ Предложение принято
-                            </span>
-                          ) : alreadyOffered ? (
+                          {alreadyOffered ? (
                             <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
                               ✓ Предложение отправлено
                             </span>
