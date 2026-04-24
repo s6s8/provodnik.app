@@ -95,11 +95,10 @@ export function BidFormPanel({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const photos = await listGuideLocationPhotos(user.id as Uuid);
-      const supabaseClient = createSupabaseBrowserClient();
       setGuidePhotos(photos.map(p => ({
         id: p.id,
         location_name: p.location_name,
-        photoUrl: supabaseClient.storage.from("guide-media").getPublicUrl(p.object_path).data.publicUrl,
+        photoUrl: supabase.storage.from("guide-media").getPublicUrl(p.object_path).data.publicUrl,
       })));
     }
     void load();
