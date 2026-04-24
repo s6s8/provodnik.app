@@ -1,16 +1,30 @@
 "use client";
 
 import * as React from "react";
-import Link from "next/link";
 
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { formatTimeRange } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { BidFormPanel } from "./bid-form-panel";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
+
+const INTEREST_LABELS: Record<string, string> = {
+  history: "История",
+  architecture: "Архитектура",
+  nature: "Природа",
+  food: "Гастрономия",
+  art: "Искусство",
+  active: "Активный отдых",
+  adventure: "Активный отдых",
+  religion: "Религия",
+  kids: "Для детей",
+  unusual: "Необычное",
+  nightlife: "Ночная жизнь",
+};
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
@@ -100,11 +114,6 @@ export function GuideRequestsInboxScreen() {
     };
   }, []);
 
-  const summary = {
-    total: items.length,
-    highBudget: items.filter((item) => item.budgetRub >= 15000).length,
-  };
-
   const uniqueCities = React.useMemo(() => {
     const cities = items
       .map((item) => item.destination.split(",")[0].trim())
@@ -183,36 +192,6 @@ export function GuideRequestsInboxScreen() {
     <div className="space-y-6">
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Сводка по запросам</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Сколько запросов сейчас в очереди и сколько из них с высоким
-            бюджетом.
-          </p>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-3">
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Всего запросов</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.total}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Бюджет от 15 000 ₽</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.highBudget}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Готовы к разбору</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.total}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
           <CardTitle>Входящие запросы</CardTitle>
           <p className="text-sm text-muted-foreground">
             {items.length} запрос
@@ -275,7 +254,7 @@ export function GuideRequestsInboxScreen() {
                       className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
                       aria-label="Фильтр по городу"
                     >
-                      <option value="all">Все города</option>
+                      <option value="all">Все направления</option>
                       {uniqueCities.map((city) => (
                         <option key={city} value={city}>
                           {city}
@@ -327,6 +306,18 @@ export function GuideRequestsInboxScreen() {
                           </p>
                         </div>
 
+                        <div className="mt-2">
+                          {item.mode === "assembly" ? (
+                            <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-500">
+                              Сборная группа
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                              Своя группа
+                            </span>
+                          )}
+                        </div>
+
                         {/* Meta */}
                         <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
                           <p>
@@ -334,13 +325,21 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
-                            {item.startTime ? ` · ${item.startTime}${item.endTime ? `–${item.endTime}` : ""}` : ""}
                           </p>
+                          {formatTimeRange(item.startTime, item.endTime) && (
+                            <div className="flex items-center gap-1.5">
+                              <span className="font-medium text-foreground">Время:</span>{" "}
+                              {formatTimeRange(item.startTime, item.endTime)}
+                            </div>
+                          )}
                           <p>
                             <span className="font-medium text-foreground">
                               Группа:
                             </span>{" "}
-                            {item.groupSize} чел.
+                            {item.mode === "assembly"
+                              ? `${item.groupSize} из ${item.capacity} чел.`
+                              : `${item.groupSize} чел.`
+                            }
                           </p>
                           <p className="sm:col-span-2">
                             <span className="font-medium text-foreground">
@@ -349,6 +348,12 @@ export function GuideRequestsInboxScreen() {
                             {item.budgetLabel}
                           </p>
                         </div>
+
+                        {item.interests.length > 0 ? (
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            {item.interests.map((s) => INTEREST_LABELS[s] ?? s).join(" · ")}
+                          </p>
+                        ) : null}
 
                         {item.description ? (
                           <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
@@ -371,16 +376,6 @@ export function GuideRequestsInboxScreen() {
                               Предложить цену
                             </Button>
                           )}
-                          <Button
-                            asChild
-                            variant="ghost"
-                            size="sm"
-                            className="px-3"
-                          >
-                            <Link href={`/guide/inbox/${item.id}`}>
-                              Подробнее
-                            </Link>
-                          </Button>
                         </div>
 
                         {/* Q&A panel — shown when guide has sent an offer */}
