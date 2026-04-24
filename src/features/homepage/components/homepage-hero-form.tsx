@@ -8,7 +8,7 @@ interface Props {
 
 export function HomepageHeroForm({ destinations }: Props) {
   return (
-    <section aria-label="Создать запрос" className="py-16">
+    <section className="py-16">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <div className="mx-auto max-w-2xl">
           <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
