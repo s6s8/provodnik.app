@@ -10,6 +10,20 @@ import { Button } from "@/components/ui/button";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
 
+const INTEREST_LABELS: Record<string, string> = {
+  history: "История",
+  architecture: "Архитектура",
+  nature: "Природа",
+  food: "Гастрономия",
+  art: "Искусство",
+  active: "Активный отдых",
+  adventure: "Активный отдых",
+  religion: "Религия",
+  kids: "Для детей",
+  unusual: "Необычное",
+  nightlife: "Ночная жизнь",
+};
+
 const offerFormSchema = z.object({
   price_total: z
     .number()
@@ -139,6 +153,31 @@ export function BidFormPanel({
           >
             <X className="size-4" />
           </button>
+        </div>
+
+        {/* Request context */}
+        <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {request.mode === "assembly" ? (
+              <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-500">
+                Сборная группа
+              </span>
+            ) : (
+              <span className="inline-flex items-center rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                Своя группа
+              </span>
+            )}
+            {request.interests.length > 0 ? (
+              <span className="text-xs text-muted-foreground">
+                {request.interests.map((s) => INTEREST_LABELS[s] ?? s).join(" · ")}
+              </span>
+            ) : null}
+          </div>
+          {request.description ? (
+            <p className="whitespace-pre-line text-sm text-muted-foreground">{request.description}</p>
+          ) : (
+            <p className="text-sm italic text-muted-foreground/60">Описание не указано</p>
+          )}
         </div>
 
         {/* Success state */}
