@@ -3,7 +3,7 @@ import type { DestinationOption, RequestRecord } from "@/data/supabase/queries";
 
 import { HomePageDiscovery } from "./homepage-discovery";
 import { HomePageGuideAcquisition } from "./homepage-guide-acquisition";
-import { HomePageHero2 } from "./homepage-hero2";
+import { HomepageHeroForm } from "./homepage-hero-form";
 
 interface Props {
   destinations: DestinationOption[];
@@ -13,7 +13,7 @@ interface Props {
 export function HomePageShell2({ destinations, requests }: Props) {
   return (
     <>
-      <HomePageHero2 destinations={destinations} />
+      <HomepageHeroForm destinations={destinations} />
       <HomePageDiscovery requests={requests} />
       <HomePageGuideAcquisition />
       <SiteFooter />

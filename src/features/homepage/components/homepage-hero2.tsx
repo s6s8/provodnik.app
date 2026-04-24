@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
@@ -194,12 +193,6 @@ export function HomePageHero2({ destinations }: Props) {
           >
             → Отправить гидам
           </Button>
-          <Link
-            href="/listings"
-            className="text-sm font-medium text-white/70 transition-colors hover:text-white"
-          >
-            Смотреть готовые туры →
-          </Link>
         </div>
         <p className="mt-3 text-xs text-white/50">обычно 4–7 предложений за 24 часа</p>
       </div>
