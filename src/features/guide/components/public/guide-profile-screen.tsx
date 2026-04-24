@@ -5,6 +5,7 @@ import { ReqCard } from "@/components/shared/req-card";
 import { TourCard } from "@/components/shared/tour-card";
 import { Button } from "@/components/ui/button";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
+import { GuidePhotoGrid } from "./guide-photo-grid";
 
 interface GuideListing {
   slug?: string;
@@ -41,6 +42,7 @@ interface Props {
   listings?: GuideListing[];
   offers?: GuideOffer[];
   reviews?: GuideReview[];
+  photos?: { id: string; locationName: string; imageUrl: string }[];
 }
 
 function getInitials(name: string, fallback?: string): string {
@@ -144,7 +146,7 @@ const fallbackReviews = [
   },
 ];
 
-export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) {
+export function GuideProfileScreen({ guide, listings, offers, reviews, photos = [] }: Props) {
   const initials = getInitials(guide.displayName, guide.avatarInitials);
   const rating = guide.reviewsSummary.averageRating;
   const totalReviews = guide.reviewsSummary.totalReviews;
@@ -265,6 +267,14 @@ export function GuideProfileScreen({ guide, listings, offers, reviews }: Props) 
           </div>
         </div>
       </section>
+
+      {photos.length > 0 && (
+        <section className="py-sec-pad">
+          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+            <GuidePhotoGrid photos={photos} />
+          </div>
+        </section>
+      )}
 
       <section className="bg-surface-low py-sec-pad">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
