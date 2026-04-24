@@ -35,6 +35,25 @@ export const createOfferInputSchema = z.object({
       const d = new Date(v);
       return !Number.isNaN(d.getTime()) && d > new Date();
     }, "Expiry date must be in the future."),
+  route_stops: z
+    .array(
+      z.object({
+        photoId: z.string(),
+        locationName: z.string().min(1),
+        photoUrl: z.string(),
+        sortOrder: z.number().int(),
+      })
+    )
+    .default([]),
+  route_duration_minutes: z
+    .number()
+    .int()
+    .min(5, "Minimum 5 minutes.")
+    .max(1440, "Maximum 24 hours.")
+    .nullable()
+    .optional(),
+  starts_at: z.string().optional().nullable(),
+  ends_at: z.string().optional().nullable(),
 });
 
 export type CreateOfferInput = z.infer<typeof createOfferInputSchema>;
@@ -73,6 +92,10 @@ export async function createGuideOffer(
       capacity: 1, // default; may be extended later
       inclusions: [],
       status: "pending",
+      route_stops: input.route_stops,
+      route_duration_minutes: input.route_duration_minutes ?? null,
+      starts_at: input.starts_at ?? null,
+      ends_at: input.ends_at ?? null,
     })
     .select("*")
     .single();

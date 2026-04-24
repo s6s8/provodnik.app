@@ -41,11 +41,30 @@ export async function submitOfferAction(
       redirect(`/guide/inbox/${requestId}?offered=1`);
     }
 
+    let route_stops: unknown[] = [];
+    try {
+      const routeStopsRaw = formData.get("route_stops");
+      if (routeStopsRaw && typeof routeStopsRaw === "string") route_stops = JSON.parse(routeStopsRaw) as unknown[];
+    } catch {
+      // malformed JSON — treat as empty
+    }
+    const durationRaw = formData.get("route_duration_minutes");
+    const route_duration_minutes = durationRaw && String(durationRaw) !== "" ? Number(durationRaw) : undefined;
+
+    const startsAtRaw = formData.get("starts_at");
+    const endsAtRaw = formData.get("ends_at");
+    const starts_at = startsAtRaw && typeof startsAtRaw === "string" ? startsAtRaw : undefined;
+    const ends_at = endsAtRaw && typeof endsAtRaw === "string" ? endsAtRaw : undefined;
+
     const raw = {
       request_id: requestId,
       price_total: Number(formData.get("price_total")),
       message: String(formData.get("message") ?? ""),
       valid_until: String(formData.get("valid_until") ?? ""),
+      route_stops,
+      route_duration_minutes,
+      starts_at,
+      ends_at,
     };
 
     const parsed = createOfferInputSchema.safeParse(raw);
