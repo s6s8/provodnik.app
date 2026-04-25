@@ -21,20 +21,25 @@ export function useUnreadCount(enabled = true) {
       return;
     }
 
-    const response = await fetch("/api/messages/unread-count", {
-      method: "GET",
-      cache: "no-store",
-    });
+    try {
+      const response = await fetch("/api/messages/unread-count", {
+        method: "GET",
+        cache: "no-store",
+      });
 
-    if (!response.ok) {
+      if (!response.ok) {
+        setUnreadCount(0);
+        setUserId(null);
+        return;
+      }
+
+      const payload = (await response.json()) as UnreadCountResponse;
+      setUnreadCount(payload.unreadCount);
+      setUserId(payload.userId);
+    } catch {
       setUnreadCount(0);
       setUserId(null);
-      return;
     }
-
-    const payload = (await response.json()) as UnreadCountResponse;
-    setUnreadCount(payload.unreadCount);
-    setUserId(payload.userId);
   }, [enabled]);
 
   useEffect(() => {
