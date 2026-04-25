@@ -130,23 +130,23 @@ export function HomepageRequestForm({ destinations }: Props) {
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
     fd.set("notes", values.notes ?? "");
 
-  try {
-    const supabase = createSupabaseBrowserClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-    if (user) {
-      await submitWithFormData(fd);
-    } else {
+      if (user) {
+        await submitWithFormData(fd);
+      } else {
+        setPendingFormData(fd);
+        setAuthGateOpen(true);
+      }
+    } catch {
       setPendingFormData(fd);
       setAuthGateOpen(true);
     }
-  } catch {
-    setPendingFormData(fd);
-    setAuthGateOpen(true);
-  }
-};
+  };
 
   const handleAuthSuccess = async () => {
     setAuthGateOpen(false);
