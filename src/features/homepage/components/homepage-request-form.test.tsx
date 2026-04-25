@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, beforeEach, expect, it, vi } from "vitest";
 
 const mockGetUser = vi.fn();
 
@@ -42,6 +42,10 @@ function fillMinimalForm() {
 }
 
 describe("HomepageRequestForm onSubmit", () => {
+  beforeEach(() => {
+    mockGetUser.mockReset();
+  });
+
   it("opens auth gate when getUser throws a network error", async () => {
     mockGetUser.mockRejectedValueOnce(new TypeError("Failed to fetch"));
     render(<HomepageRequestForm destinations={[]} />);

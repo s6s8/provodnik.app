@@ -31,6 +31,11 @@ vi.mock("@/lib/env", () => ({
 import { NotificationBell } from "./NotificationBell";
 
 describe("NotificationBell", () => {
+  beforeEach(() => {
+    mockSubscribe.mockClear();
+    mockOn.mockClear();
+  });
+
   it("passes an error callback to .subscribe()", () => {
     render(<NotificationBell userId="user-123" />);
     expect(mockSubscribe).toHaveBeenCalledWith(expect.any(Function));
