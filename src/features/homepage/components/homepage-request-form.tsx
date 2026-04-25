@@ -130,6 +130,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
     fd.set("notes", values.notes ?? "");
 
+  try {
     const supabase = createSupabaseBrowserClient();
     const {
       data: { user },
@@ -141,7 +142,11 @@ export function HomepageRequestForm({ destinations }: Props) {
       setPendingFormData(fd);
       setAuthGateOpen(true);
     }
-  };
+  } catch {
+    setPendingFormData(fd);
+    setAuthGateOpen(true);
+  }
+};
 
   const handleAuthSuccess = async () => {
     setAuthGateOpen(false);
