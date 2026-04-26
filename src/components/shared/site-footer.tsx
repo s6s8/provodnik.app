@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ChevronDown } from "lucide-react";
 
 const VK_ICON = (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -33,10 +34,50 @@ const socialLinks = [
   { href: "https://t.me", label: "Telegram", icon: TG_ICON },
 ] as const;
 
+const faqItems = [
+  {
+    q: "Могу ли я присоединиться к чужой группе?",
+    a: "Да. Выберите тип Сборная группа при создании запроса — или загляните в раздел Открытых запросов и присоединяйтесь к чужому, если он подходит по датам и интересам.",
+  },
+  {
+    q: "Как долго ждать предложения?",
+    a: "Зависит от направления и сезона. Активные гиды обычно откликаются в течение нескольких часов или дня.",
+  },
+  {
+    q: "Что если гид не ответит?",
+    a: "Вы видите все предложения вместе — можно выбрать любое или отменить запрос в любой момент. Обязательств до принятия предложения нет.",
+  },
+] as const;
+
 export function SiteFooter() {
   return (
     <footer className="bg-footer-bg pb-8 pt-14" role="contentinfo">
       <div className="mx-auto max-w-page px-[clamp(20px,4vw,48px)]">
+        <section aria-label="Частые вопросы" className="mb-10 border-b border-white/10 pb-10">
+          <p className="mb-5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/[0.68]">
+            Частые вопросы
+          </p>
+          <div className="flex flex-col gap-2">
+            {faqItems.map((item) => (
+              <details
+                key={item.q}
+                className="group rounded-md border border-white/10 bg-white/[0.02] px-4 py-3 transition-colors hover:bg-white/[0.04]"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-white/80 [&::-webkit-details-marker]:hidden">
+                  <span>{item.q}</span>
+                  <ChevronDown
+                    className="size-4 shrink-0 text-white/40 transition-transform duration-150 group-open:rotate-180"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <p className="mt-3 text-sm leading-relaxed text-white/60">
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        </section>
+
         <div className="mb-7 grid grid-cols-1 gap-7 pb-14 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
           <nav aria-label="О проекте">
             <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-white/[0.68]">
