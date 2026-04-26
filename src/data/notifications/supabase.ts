@@ -9,6 +9,7 @@ const NOTIFICATION_SEVERITY_BY_KIND: Record<
   NotificationKindDb,
   NotificationSeverity
 > = {
+  new_request: "info",
   new_offer: "info",
   offer_expiring: "warning",
   booking_created: "info",
