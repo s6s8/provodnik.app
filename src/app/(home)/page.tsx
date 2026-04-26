@@ -5,7 +5,7 @@ import { HomePageShell2 } from "@/features/homepage/components/homepage-shell2";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Проводник — Биржа экскурсий с местными гидами",
+  title: "Проводник — Биржа экскурсий по запросу",
 };
 
 export default async function HomePage() {

@@ -2,7 +2,6 @@ import { SiteFooter } from "@/components/shared/site-footer";
 import type { DestinationRecord, RequestRecord } from "@/data/supabase/queries";
 import { HomePageDestinations } from "@/features/homepage/components/homepage-destinations";
 import { HomePageGateway } from "@/features/homepage/components/homepage-gateway";
-import { HomePageGuideAcquisition } from "@/features/homepage/components/homepage-guide-acquisition";
 import { HomePageHero } from "@/features/homepage/components/homepage-hero";
 import { HomePageProcess } from "@/features/homepage/components/homepage-process";
 import { HomePageTwoWays } from "@/features/homepage/components/homepage-two-ways";
@@ -22,7 +21,6 @@ export function HomePageShell({ destinations, requests }: Props) {
       <HomePageDestinations destinations={destinations} />
       <HomePageProcess />
       <HomePageTrust />
-      <HomePageGuideAcquisition />
       <SiteFooter />
     </>
   );

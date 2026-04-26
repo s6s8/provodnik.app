@@ -46,7 +46,6 @@ export const COPY = {
     openRequests: 'Открытые запросы',
     myTrips: 'Поездки',
     favorites: 'Избранное',
-    howItWorks: 'Как это работает',
     becomeGuide: 'Стать гидом',
     signIn: 'Войти',
     notifications: 'Уведомления',
@@ -76,7 +75,4 @@ export const COPY = {
       `Как прошла поездка с ${guideName}?`,
   },
 
-  // Commission
-  zeroCommission: '0% комиссия — вы получаете всё',
-  zeroCommissionShort: '0% комиссия ✓',
 } as const

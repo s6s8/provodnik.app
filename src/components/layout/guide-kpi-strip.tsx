@@ -1,5 +1,4 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { COPY } from "@/lib/copy";
 
 interface KpiTile {
   label: string;
@@ -25,7 +24,6 @@ async function fetchGuideKpi(guideId: string): Promise<KpiTile[]> {
       { label: "Конверсия", value: "—" },
       { label: "Заказов", value: "—" },
       { label: "Заработали", value: "—" },
-      { label: COPY.zeroCommissionShort, value: "", highlight: true },
     ];
   }
 
@@ -35,7 +33,6 @@ async function fetchGuideKpi(guideId: string): Promise<KpiTile[]> {
     { label: "Конверсия", value: stats.conversion_rate ? `${Math.round(stats.conversion_rate * 100)}%` : "—" },
     { label: "Заказов", value: stats.total_orders?.toString() ?? "—" },
     { label: "Заработали", value: stats.total_earned ? `${stats.total_earned.toLocaleString("ru")} ₽` : "—" },
-    { label: COPY.zeroCommissionShort, value: "", highlight: true },
   ];
 }
 
@@ -51,7 +48,6 @@ export async function GuideKpiStrip({ guideId }: { guideId: string }) {
       { label: "Конверсия", value: "—" },
       { label: "Заказов", value: "—" },
       { label: "Заработали", value: "—" },
-      { label: COPY.zeroCommissionShort, value: "", highlight: true },
     ];
   }
 
