@@ -23,9 +23,9 @@ export function HomePageDiscovery({ requests }: Props) {
     <section aria-label="Открытые запросы путешественников" className="bg-surface py-14">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          вот что сейчас обсуждают другие
+          Запросы путешественников
         </p>
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           {requests.map((req) => (
             <Link
               key={req.id}
