@@ -441,7 +441,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* Sticky submit button */}
       <div className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-2">
         <Button type="submit" disabled={isLoading} className="w-full">
-          {isLoading ? "Отправляем…" : "Найти гида"}
+          {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
       </div>
     </form>
