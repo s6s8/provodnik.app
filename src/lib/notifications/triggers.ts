@@ -195,3 +195,60 @@ export async function notifyDisputeOpened(disputeId: string): Promise<void> {
     ),
   );
 }
+
+export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
+  const parsedRequestId = uuidSchema.parse(requestId);
+  const supabase = await createSupabaseServerClient();
+
+  const { data: request, error: requestError } = await supabase
+    .from("traveler_requests")
+    .select("id, destination, interests, participants_count")
+    .eq("id", parsedRequestId)
+    .single();
+
+  if (requestError) throw requestError;
+  if (!request.destination?.trim()) return;
+
+  let query = supabase
+    .from("guide_profiles")
+    .select("user_id, specialties, max_group_size")
+    .eq("is_available", true)
+    .eq("verification_status", "approved")
+    .ilike("base_city", request.destination.trim());
+
+  if (request.participants_count && request.participants_count > 0) {
+    query = query.or(
+      `max_group_size.is.null,max_group_size.gte.${request.participants_count}`,
+    );
+  }
+
+  const { data: candidates, error: guidesError } = await query;
+  if (guidesError) throw guidesError;
+  if (!candidates?.length) return;
+
+  const requestInterests: string[] = Array.isArray(request.interests)
+    ? request.interests
+    : [];
+
+  const matchingGuides = candidates.filter((guide) => {
+    const guideSpecialties: string[] = Array.isArray(guide.specialties)
+      ? guide.specialties
+      : [];
+    if (guideSpecialties.length === 0) return true;
+    if (requestInterests.length === 0) return true;
+    return guideSpecialties.some((s) => requestInterests.includes(s));
+  });
+
+  if (!matchingGuides.length) return;
+
+  await Promise.allSettled(
+    matchingGuides.map((guide) =>
+      createNotificationForUser({
+        userId: guide.user_id,
+        kind: "new_request",
+        title: `Новый запрос: ${request.destination}`,
+        href: `/guide/inbox`,
+      }),
+    ),
+  );
+}
