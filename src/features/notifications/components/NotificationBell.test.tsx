@@ -1,5 +1,5 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it, vi, type Mock } from "vitest";
+import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 
 const mockSubscribe = vi.fn().mockReturnValue({});
 const mockOn = vi.fn().mockReturnThis();
