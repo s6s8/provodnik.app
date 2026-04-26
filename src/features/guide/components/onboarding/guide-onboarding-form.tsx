@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { ensureGuideDocumentReservations } from "@/data/guide-assets/supabase-client";
@@ -169,6 +170,8 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       const verificationStatus: GuideVerificationStatusDb =
         values.consentBackgroundCheck && values.attestTruthful ? "submitted" : "draft";
       const primarySpecialization = values.specialties[0] ?? null;
+      const baseCityTrimmed = values.currentBaseCity?.trim();
+      const groupSizeMaxNum = Number(values.groupSizeMax);
       const payload: GuideProfileUpsert = {
         user_id: user.id,
         display_name: values.displayName,
@@ -187,6 +190,8 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           `Частные туры: ${values.acceptsPrivateTours ? "да" : "нет"}`,
           `Групповые туры: ${values.acceptsGroupTours ? "да" : "нет"}`,
         ].join(" | "),
+        base_city: baseCityTrimmed && baseCityTrimmed.length > 0 ? baseCityTrimmed : null,
+        max_group_size: !isNaN(groupSizeMaxNum) && groupSizeMaxNum > 0 ? Math.floor(groupSizeMaxNum) : null,
       };
 
       const { error: upsertError } = await supabase
@@ -290,7 +295,21 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         </div>
         <TextField id="yearsExperience" label="Лет опыта" placeholder="0" type="number" error={errors.yearsExperience?.message} register={register("yearsExperience", { valueAsNumber: true })} />
         <TextField id="currentBaseCity" label="Базовый город" placeholder="Санкт-Петербург" error={errors.currentBaseCity?.message} register={register("currentBaseCity")} />
-        <TextField id="groupSizeMax" label="Максимальный размер группы" placeholder="6" type="number" error={errors.groupSizeMax?.message} register={register("groupSizeMax", { valueAsNumber: true })} />
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="groupSizeMax" className="flex items-center gap-1">
+            Вместимость группы
+            <Popover>
+              <PopoverTrigger asChild>
+                <button type="button" className="inline-flex items-center justify-center rounded-full w-4 h-4 text-xs bg-muted text-muted-foreground hover:bg-muted/80">?</button>
+              </PopoverTrigger>
+              <PopoverContent className="text-sm max-w-xs">
+                Запросы с группой больше этого числа вам приходить не будут
+              </PopoverContent>
+            </Popover>
+          </FieldLabel>
+          <Input id="groupSizeMax" type="number" placeholder="6" aria-invalid={Boolean(errors.groupSizeMax?.message)} aria-describedby={errors.groupSizeMax?.message ? "groupSizeMax-error" : undefined} {...register("groupSizeMax", { valueAsNumber: true })} />
+          <FieldError id="groupSizeMax-error" message={errors.groupSizeMax?.message} />
+        </div>
       </div>
       <CheckboxField label="Готов(а) принимать новые заявки" description="Этот статус будет сохранён в профиле и использован на маркетплейсных поверхностях." register={register("isAvailable")} />
       <CheckboxField label="Есть курс первой помощи" description="Покажите гостям, что вы готовы к выездным маршрутам." register={register("hasFirstAidTraining")} />

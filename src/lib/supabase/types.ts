@@ -259,6 +259,8 @@ export type GuideProfileUpsert = Pick<
   | "is_available"
   | "verification_status"
   | "verification_notes"
+  | "base_city"
+  | "max_group_size"
 >;
 
 export type ListingRow = {
