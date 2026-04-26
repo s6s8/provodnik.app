@@ -39,10 +39,6 @@ const guideNavLinks = [
   { href: "/guide/profile", label: "Профиль" },
 ] as const;
 
-const unauthNavLinks = [
-  { href: "/how-it-works", label: COPY.nav.howItWorks },
-  { href: "/for-guides", label: COPY.nav.becomeGuide },
-] as const;
 
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
@@ -82,9 +78,8 @@ export function SiteHeader({
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const avatarInitial = email ? email[0].toUpperCase() : "?";
   const dashboardLabel = role ? roleLabels[role] : "Кабинет";
-  const primaryCtaHref = !isAuthenticated ? "/traveler/requests/new" : role === "guide" ? "/requests" : "/requests/new";
-  const primaryCtaLabel = !isAuthenticated ? COPY.createRequest : role === "guide" ? "Смотреть запросы" : "Создать запрос";
-  const showPrimaryCta = role !== "admin";
+  const primaryCtaHref = role === "guide" ? "/requests" : "/requests/new";
+  const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
 
   return (
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
@@ -103,7 +98,7 @@ export function SiteHeader({
               ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
               : isAuthenticated
                 ? navLinks
-                : unauthNavLinks).map(
+                : ([] as const)).map(
             (link) => {
               const isHashLink = link.href.includes("#");
               let isActive: boolean;
@@ -178,11 +173,16 @@ export function SiteHeader({
             </Button>
           ) : null}
           {!isAuthenticated && (
-            <Button variant="outline" asChild>
-              <Link href="/auth">{COPY.nav.signIn}</Link>
-            </Button>
+            <>
+              <Button variant="outline" asChild>
+                <Link href="/auth?role=guide">{COPY.nav.becomeGuide}</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/auth">{COPY.nav.signIn}</Link>
+              </Button>
+            </>
           )}
-          {role === "admin" || role === "guide" ? null : (
+          {isAuthenticated && role !== "admin" && role !== "guide" && (
             <Button asChild>
               <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
             </Button>
@@ -213,7 +213,7 @@ export function SiteHeader({
                   ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
                   : isAuthenticated
                     ? navLinks
-                    : unauthNavLinks).map((link) => {
+                    : ([] as const)).map((link) => {
                   const isHashLink = link.href.includes("#");
                   let isActive: boolean;
                   if (link.href === "/guide") {
@@ -286,22 +286,20 @@ export function SiteHeader({
                   <>
                     <SheetClose asChild>
                       <Link
-                        href="/auth"
+                        href="/auth?role=guide"
                         className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
+                      >
+                        {COPY.nav.becomeGuide}
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/auth"
+                        className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                       >
                         {COPY.nav.signIn}
                       </Link>
                     </SheetClose>
-                    {showPrimaryCta ? (
-                      <SheetClose asChild>
-                        <Link
-                          href={primaryCtaHref}
-                          className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                        >
-                          {primaryCtaLabel}
-                        </Link>
-                      </SheetClose>
-                    ) : null}
                   </>
                 )}
               </nav>
