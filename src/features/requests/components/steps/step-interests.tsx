@@ -4,6 +4,7 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { INTEREST_CHIPS } from "@/data/interests";
 
 type WizardData = {
   destination: string;
@@ -17,18 +18,6 @@ type WizardData = {
   notes: string;
 };
 
-const INTEREST_CHIPS = [
-  { id: "history", label: "История" },
-  { id: "architecture", label: "Архитектура" },
-  { id: "nature", label: "Природа" },
-  { id: "food", label: "Гастрономия" },
-  { id: "art", label: "Искусство" },
-  { id: "adventure", label: "Активный отдых" },
-  { id: "photo", label: "Фото" },
-  { id: "kids", label: "Для детей" },
-  { id: "unusual", label: "Необычное" },
-  { id: "nightlife", label: "Ночная жизнь" },
-] as const;
 
 const BUDGET_OPTIONS = [
   { id: "under2k", label: "До 2 000 ₽" },

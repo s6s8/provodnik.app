@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import type { RequestRecord } from "@/data/supabase/queries";
-import { INTEREST_CHIPS } from "@/features/requests/components/steps/step-interests";
+import { INTEREST_CHIPS } from "@/data/interests";
 
 function formatGroupLabel(req: RequestRecord): string {
   if (req.mode === "assembly") {
