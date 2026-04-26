@@ -7,6 +7,7 @@ import { rubToKopecks } from "@/data/money";
 import { createTravelerRequest } from "@/lib/supabase/requests";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/env";
+import { notifyGuidesNewRequest } from "@/lib/notifications/triggers";
 
 export type CreateRequestState = {
   error: string | null;
@@ -102,6 +103,12 @@ export async function createRequestAction(
     const message =
       err instanceof Error ? err.message : "Неизвестная ошибка при сохранении.";
     return { error: `Не удалось сохранить запрос: ${message}` };
+  }
+
+  try {
+    await notifyGuidesNewRequest(requestId);
+  } catch {
+    // notification errors are non-fatal — traveler redirect proceeds
   }
 
   redirect(`/traveler/requests/${requestId}?created=1&mode=${input.mode}`);
