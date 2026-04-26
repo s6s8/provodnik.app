@@ -38,7 +38,8 @@ export type NotificationKindDb =
   | "booking_completed"
   | "dispute_opened"
   | "review_requested"
-  | "admin_alert";
+  | "admin_alert"
+  | "new_request";
 
 export type ThreadSubject = "request" | "offer" | "booking" | "dispute";
 
@@ -231,6 +232,8 @@ export type GuideProfileRow = {
   locale: string;
   preferred_currency: string;
   notification_prefs: Record<string, unknown>;
+  base_city: string | null;
+  max_group_size: number | null;
 };
 
 export type GuideProfileOnboardingPersistenceRow = Pick<

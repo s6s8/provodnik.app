@@ -16,6 +16,7 @@ const notificationKindSchema = z.enum([
   "dispute_opened",
   "review_requested",
   "admin_alert",
+  "new_request",
 ]);
 
 const createNotificationInputSchema = z.object({
