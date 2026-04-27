@@ -158,10 +158,6 @@ export function AuthEntryScreen() {
   }
 
   const isSignUp = mode === "sign-up";
-  const title = isSignUp ? "Новый профиль" : "С возвращением";
-  const subtitle = isSignUp
-    ? "Создайте доступ и выберите формат кабинета."
-    : "Войдите по email и паролю, чтобы открыть свой кабинет.";
   const ctaLabel = isSignUp ? "Создать профиль" : "Войти";
   const toggleLabel = isSignUp
     ? "Уже есть аккаунт? Войти"
@@ -178,17 +174,6 @@ export function AuthEntryScreen() {
             >
               Provodnik
             </Link>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-                {isSignUp ? "Регистрация" : "Вход"}
-              </p>
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-                {title}
-              </h1>
-              <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-                {subtitle}
-              </p>
-            </div>
           </div>
         </div>
       </div>
