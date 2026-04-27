@@ -7,7 +7,7 @@ import { PublicListingDiscoveryScreen } from "@/features/listings/components/pub
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Готовые туры",
+    title: "Готовые экскурсии",
     description: "Экскурсии и туры от проверенных гидов",
   };
 }

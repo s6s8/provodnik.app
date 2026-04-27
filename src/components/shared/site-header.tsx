@@ -39,6 +39,12 @@ const guideNavLinks = [
   { href: "/guide/profile", label: "Профиль" },
 ] as const;
 
+const publicNavLinks = [
+  { href: "/listings", label: "Экскурсии" },
+  { href: "/guides", label: "Гиды" },
+  { href: "/how-it-works", label: "Как это работает" },
+] as const;
+
 
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
@@ -98,7 +104,7 @@ export function SiteHeader({
               ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
               : isAuthenticated
                 ? navLinks
-                : ([] as const)).map(
+                : publicNavLinks).map(
             (link) => {
               const isHashLink = link.href.includes("#");
               let isActive: boolean;
@@ -213,7 +219,7 @@ export function SiteHeader({
                   ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
                   : isAuthenticated
                     ? navLinks
-                    : ([] as const)).map((link) => {
+                    : publicNavLinks).map((link) => {
                   const isHashLink = link.href.includes("#");
                   let isActive: boolean;
                   if (link.href === "/guide") {
