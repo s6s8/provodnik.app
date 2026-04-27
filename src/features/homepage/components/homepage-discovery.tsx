@@ -36,7 +36,8 @@ export function HomePageDiscovery({ requests }: Props) {
 
   return (
     <section aria-label="Открытые запросы путешественников" className="bg-surface py-14">
-      <div className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)]">
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+        <div className="mx-auto max-w-2xl">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Запросы путешественников
         </p>
@@ -70,6 +71,7 @@ export function HomePageDiscovery({ requests }: Props) {
               </Link>
             );
           })}
+        </div>
         </div>
       </div>
     </section>

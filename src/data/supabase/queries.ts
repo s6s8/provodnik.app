@@ -974,8 +974,9 @@ export async function getHomepageRequests(
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
+      .gt("budget_minor", 0)
       .order("created_at", { ascending: false })
-      .limit(3);
+      .limit(4);
 
     if (error) throw error;
     if (!rows || rows.length === 0) return { data: [], error: null };
