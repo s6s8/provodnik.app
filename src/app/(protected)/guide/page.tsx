@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { BirjhaScreen } from "@/features/guide/components/birjha/birjha-screen";
 
 export const metadata: Metadata = {
-  title: "Биржа",
+  title: "Запросы",
 };
 
 export default async function GuidePage({

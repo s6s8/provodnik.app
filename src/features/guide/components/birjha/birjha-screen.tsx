@@ -13,7 +13,7 @@ interface Props {
 export function BirjhaScreen({ initialTab }: Props) {
   return (
     <div className="space-y-6">
-      <div role="tablist" aria-label="Биржа" className="flex flex-wrap gap-2">
+      <div role="tablist" aria-label="Запросы" className="flex flex-wrap gap-2">
         <Link
           href="/guide"
           role="tab"

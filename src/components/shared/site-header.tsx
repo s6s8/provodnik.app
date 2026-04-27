@@ -33,7 +33,7 @@ const travelerNavLinks = [
 ] as const;
 
 const guideNavLinks = [
-  { href: "/guide", label: "Биржа" },
+  { href: "/guide", label: "Запросы" },
   { href: "/guide/calendar", label: "Календарь" },
   { href: "/guide/portfolio", label: "Портфолио" },
   { href: "/guide/profile", label: "Профиль" },
@@ -175,7 +175,7 @@ export function SiteHeader({
           {!isAuthenticated && (
             <>
               <Button variant="outline" asChild>
-                <Link href="/auth?role=guide">{COPY.nav.becomeGuide}</Link>
+                <Link href="/become-a-guide">{COPY.nav.becomeGuide}</Link>
               </Button>
               <Button asChild>
                 <Link href="/auth">{COPY.nav.signIn}</Link>
@@ -286,7 +286,7 @@ export function SiteHeader({
                   <>
                     <SheetClose asChild>
                       <Link
-                        href="/auth?role=guide"
+                        href="/become-a-guide"
                         className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
                       >
                         {COPY.nav.becomeGuide}

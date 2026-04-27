@@ -57,7 +57,7 @@ export default async function GuidesPage() {
               Присоединяйтесь к Provodnik — показывайте свои маршруты путешественникам со всей России.
             </p>
             <Button asChild className="mt-6">
-              <Link href="/auth?role=guide">Стать гидом</Link>
+              <Link href="/become-a-guide">Стать гидом</Link>
             </Button>
           </section>
         )}
