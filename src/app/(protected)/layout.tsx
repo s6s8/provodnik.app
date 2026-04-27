@@ -19,8 +19,10 @@ export default async function ProtectedLayout({
         canonicalRedirectTo={auth.canonicalRedirectTo}
         userId={auth.userId}
       />
-      <main className="mx-auto w-full max-w-7xl px-6 py-8 md:py-10">
-        <Suspense>{children}</Suspense>
+      <main className="w-full px-[clamp(20px,4vw,48px)] py-8 md:py-10">
+        <div className="mx-auto w-full max-w-page">
+          <Suspense>{children}</Suspense>
+        </div>
       </main>
     </div>
   );
