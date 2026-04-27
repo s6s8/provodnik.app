@@ -26,6 +26,7 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [locationName, setLocationName] = useState("");
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     listGuideLocationPhotos(guideId as Uuid)
@@ -36,6 +37,7 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
   async function handleUpload(file: File | undefined) {
     if (!file || !locationName.trim()) return;
     setUploading(true);
+    setUploadError(null);
     try {
       const result = await uploadPortfolioPhoto({
         guideId: guideId as Uuid,
@@ -45,6 +47,10 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
       });
       setPhotos((prev) => [...prev, result]);
       setLocationName("");
+    } catch (err) {
+      setUploadError(
+        err instanceof Error ? err.message : "Не удалось загрузить фото. Попробуйте ещё раз."
+      );
     } finally {
       setUploading(false);
     }
@@ -68,7 +74,13 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
           onChange={(e) => setLocationName(e.target.value)}
           className="mb-3 w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-primary"
         />
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90">
+        <label
+          className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity ${
+            !locationName.trim() || uploading
+              ? "cursor-not-allowed bg-primary opacity-50"
+              : "cursor-pointer bg-primary hover:bg-primary/90"
+          }`}
+        >
           <input
             type="file"
             accept="image/*"
@@ -78,6 +90,14 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
           />
           {uploading ? "Загружается…" : "Выбрать фото"}
         </label>
+        {!locationName.trim() && !uploading && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Введите название места, чтобы загрузить фото
+          </p>
+        )}
+        {uploadError && (
+          <p className="mt-2 text-xs text-destructive">{uploadError}</p>
+        )}
       </div>
 
       {loading ? (
