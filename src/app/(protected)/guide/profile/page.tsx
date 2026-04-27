@@ -18,7 +18,7 @@ import {
   submitForVerification,
 } from "@/app/(protected)/guide/verification/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
+import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -77,94 +77,112 @@ export default async function GuideProfilePage() {
 
   const guideId = user.id;
 
-  const [profileRes, licenseRes, listingRes, documentRes] = await Promise.all([
-    supabase
-      .from("guide_profiles")
-      .select(
-        "bio, languages, years_experience, regions, legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number, verification_status, verification_notes",
-      )
-      .eq("user_id", guideId)
-      .maybeSingle(),
-    supabase
-      .from("guide_licenses")
-      .select("id, license_type, license_number, issued_by, valid_until, scope_mode")
-      .eq("guide_id", guideId)
-      .order("created_at", { ascending: false }),
-    supabase
-      .from("listings")
-      .select("id, title")
-      .eq("guide_id", guideId)
-      .in("status", SCOPABLE_LISTING_STATUSES)
-      .order("title", { ascending: true }),
-    supabase
-      .from("guide_documents")
-      .select("id, document_type, status, storage_assets!inner(id, object_path)")
-      .eq("guide_id", guideId)
-      .order("created_at", { ascending: false }),
-  ]);
-
-  const profile = profileRes.data;
-  const verificationStatus = (profile?.verification_status ?? "draft") as GuideVerificationStatusDb;
-  const verificationNotes = profile?.verification_notes ?? null;
-
-  const listings: GuideListingOption[] =
-    listingRes.data?.map((l) => ({ id: l.id, title: l.title })) ?? [];
-
-  const licenseIds = (licenseRes.data ?? []).map((r) => r.id);
-  const titleById = new Map(listings.map((l) => [l.id, l.title] as const));
-
-  let links: { license_id: string; listing_id: string }[] = [];
-  if (licenseIds.length > 0) {
-    const { data: linkRows } = await supabase
-      .from("listing_licenses")
-      .select("license_id, listing_id")
-      .in("license_id", licenseIds);
-    links = linkRows ?? [];
-  }
-
-  const titlesByLicense = new Map<string, string[]>();
-  for (const row of links) {
-    const title = titleById.get(row.listing_id);
-    if (!title) continue;
-    const arr = titlesByLicense.get(row.license_id) ?? [];
-    arr.push(title);
-    titlesByLicense.set(row.license_id, arr);
-  }
-
-  const licenses: GuideLicenseView[] =
-    (licenseRes.data ?? []).map((row) => ({
-      id: row.id,
-      licenseType: row.license_type,
-      licenseNumber: row.license_number,
-      issuedBy: row.issued_by,
-      validUntil: row.valid_until,
-      scopeMode: row.scope_mode === "all" ? "all" : "selected",
-      listingTitles: titlesByLicense.get(row.id) ?? [],
-    }));
-
-  const documents = (
-    (documentRes.data ?? []) as GuideVerificationDocumentRow[]
-  )
-    .map((row) => {
-      const asset = getStorageAsset(row.storage_assets);
-      if (!asset) return null;
-      return {
-        assetId: asset.id,
-        documentType: row.document_type,
-        objectPath: asset.object_path,
-        fileName: asset.object_path.split("/").at(-1) ?? asset.object_path,
-        status: row.status,
-      };
-    })
-    .filter((item): item is UploadedGuideDocument => Boolean(item));
-
-  const legalInitialData = {
-    legalStatus: profile?.legal_status ?? null,
-    inn: profile?.inn ?? null,
-    documentCountry: profile?.document_country ?? null,
-    isTourOperator: profile?.is_tour_operator ?? false,
-    tourOperatorRegistryNumber: profile?.tour_operator_registry_number ?? null,
+  let profile: Partial<GuideProfileRow> | null = null;
+  let verificationStatus: GuideVerificationStatusDb = "draft";
+  let verificationNotes: string | null = null;
+  let listings: GuideListingOption[] = [];
+  let licenses: GuideLicenseView[] = [];
+  let documents: UploadedGuideDocument[] = [];
+  let legalInitialData = {
+    legalStatus: null as string | null,
+    inn: null as string | null,
+    documentCountry: null as string | null,
+    isTourOperator: false,
+    tourOperatorRegistryNumber: null as string | null,
   };
+
+  try {
+    const [profileRes, licenseRes, listingRes, documentRes] = await Promise.all([
+      supabase
+        .from("guide_profiles")
+        .select(
+          "bio, languages, years_experience, regions, legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number, verification_status, verification_notes",
+        )
+        .eq("user_id", guideId)
+        .maybeSingle(),
+      supabase
+        .from("guide_licenses")
+        .select("id, license_type, license_number, issued_by, valid_until, scope_mode")
+        .eq("guide_id", guideId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("listings")
+        .select("id, title")
+        .eq("guide_id", guideId)
+        .in("status", SCOPABLE_LISTING_STATUSES)
+        .order("title", { ascending: true }),
+      supabase
+        .from("guide_documents")
+        .select("id, document_type, status, storage_assets!inner(id, object_path)")
+        .eq("guide_id", guideId)
+        .order("created_at", { ascending: false }),
+    ]);
+
+    profile = profileRes.data;
+    verificationStatus = (profile?.verification_status ?? "draft") as GuideVerificationStatusDb;
+    verificationNotes = profile?.verification_notes ?? null;
+
+    listings =
+      listingRes.data?.map((l) => ({ id: l.id, title: l.title })) ?? [];
+
+    const licenseIds = (licenseRes.data ?? []).map((r) => r.id);
+    const titleById = new Map(listings.map((l) => [l.id, l.title] as const));
+
+    let links: { license_id: string; listing_id: string }[] = [];
+    if (licenseIds.length > 0) {
+      const { data: linkRows } = await supabase
+        .from("listing_licenses")
+        .select("license_id, listing_id")
+        .in("license_id", licenseIds);
+      links = linkRows ?? [];
+    }
+
+    const titlesByLicense = new Map<string, string[]>();
+    for (const row of links) {
+      const title = titleById.get(row.listing_id);
+      if (!title) continue;
+      const arr = titlesByLicense.get(row.license_id) ?? [];
+      arr.push(title);
+      titlesByLicense.set(row.license_id, arr);
+    }
+
+    licenses =
+      (licenseRes.data ?? []).map((row) => ({
+        id: row.id,
+        licenseType: row.license_type,
+        licenseNumber: row.license_number,
+        issuedBy: row.issued_by,
+        validUntil: row.valid_until,
+        scopeMode: row.scope_mode === "all" ? "all" : "selected",
+        listingTitles: titlesByLicense.get(row.id) ?? [],
+      }));
+
+    documents = (
+      (documentRes.data ?? []) as GuideVerificationDocumentRow[]
+    )
+      .map((row) => {
+        const asset = getStorageAsset(row.storage_assets);
+        if (!asset) return null;
+        return {
+          assetId: asset.id,
+          documentType: row.document_type,
+          objectPath: asset.object_path,
+          fileName: asset.object_path.split("/").at(-1) ?? asset.object_path,
+          status: row.status,
+        };
+      })
+      .filter((item): item is UploadedGuideDocument => Boolean(item));
+
+    legalInitialData = {
+      legalStatus: profile?.legal_status ?? null,
+      inn: profile?.inn ?? null,
+      documentCountry: profile?.document_country ?? null,
+      isTourOperator: profile?.is_tour_operator ?? false,
+      tourOperatorRegistryNumber: profile?.tour_operator_registry_number ?? null,
+    };
+  } catch (err) {
+    console.error("[GuideProfilePage] data fetch failed:", err);
+  }
 
   return (
     <div className="space-y-10">
