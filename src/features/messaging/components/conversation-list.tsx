@@ -59,7 +59,7 @@ export function ConversationList({
       <div className="p-[clamp(1.5rem,4vw,2.25rem)] bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
         <p className="text-base font-semibold text-foreground">У вас пока нет сообщений</p>
         <p className="mt-2 text-[0.9375rem] leading-[1.6] text-muted-foreground">
-          Когда вы начнёте диалог с гидом, он появится здесь.
+          Когда вы начнёте диалог, он появится здесь.
         </p>
       </div>
     );
