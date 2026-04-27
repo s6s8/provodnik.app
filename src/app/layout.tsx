@@ -1,20 +1,14 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, DM_Sans, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Rubik } from "next/font/google";
 import { AppProviders } from "@/components/providers/app-providers";
 
 import "./globals.css";
 
-const dmSans = DM_Sans({
+const rubik = Rubik({
+  subsets: ["latin", "cyrillic"],
+  weight: "300 900",
   display: "swap",
-  subsets: ["latin"],
-  variable: "--font-dm-sans",
-});
-
-const cormorantGaramond = Cormorant_Garamond({
-  display: "swap",
-  subsets: ["latin"],
-  variable: "--font-cormorant-garamond",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-rubik",
 });
 
 const geistMono = Geist_Mono({
@@ -54,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`${dmSans.variable} ${cormorantGaramond.variable} ${geistMono.variable}`}>
+    <html lang="ru" className={`${rubik.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased">
         <AppProviders>{children}</AppProviders>
       </body>
