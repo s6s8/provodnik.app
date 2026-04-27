@@ -18,6 +18,7 @@ import {
   submitForVerification,
 } from "@/app/(protected)/guide/verification/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
@@ -67,15 +68,11 @@ function verificationStatusLabel(status: GuideVerificationStatusDb): string {
 
 export default async function GuideProfilePage() {
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const auth = await readAuthContextFromServer();
+  if (!auth.isAuthenticated || !auth.userId) {
     redirect("/auth?next=/guide/profile");
   }
-
-  const guideId = user.id;
+  const guideId = auth.userId;
 
   let profile: Partial<GuideProfileRow> | null = null;
   let verificationStatus: GuideVerificationStatusDb = "draft";
