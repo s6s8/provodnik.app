@@ -29,7 +29,7 @@ const getGuidePageData = cache(async (slug: string) => {
   const photos = (photosResult.data ?? []).map((p) => ({
     id: p.id,
     locationName: p.location_name,
-    imageUrl: supabase.storage.from("guide-media").getPublicUrl(p.object_path).data.publicUrl,
+    imageUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data.publicUrl,
   }));
 
   return {

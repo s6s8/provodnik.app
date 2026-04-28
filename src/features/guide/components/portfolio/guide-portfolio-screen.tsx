@@ -17,7 +17,7 @@ type PhotoWithPath = GuideLocationPhotoRow & { object_path: string };
 
 function getPublicUrl(objectPath: string): string {
   return createSupabaseBrowserClient()
-    .storage.from("guide-media")
+    .storage.from("guide-portfolio")
     .getPublicUrl(objectPath).data.publicUrl;
 }
 

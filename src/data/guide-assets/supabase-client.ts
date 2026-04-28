@@ -285,7 +285,7 @@ export async function uploadPortfolioPhoto(input: {
   const objectPath = `${input.guideId}/portfolio/${Date.now()}-${input.file.name.replace(/[^a-z0-9.]/gi, "-")}`;
 
   const { error: uploadError } = await supabase.storage
-    .from("guide-media")
+    .from("guide-portfolio")
     .upload(objectPath, input.file, { upsert: false });
 
   if (uploadError) {
@@ -294,7 +294,7 @@ export async function uploadPortfolioPhoto(input: {
 
   const asset = await upsertStorageAsset({
     ownerId: input.guideId,
-    bucketId: "guide-media",
+    bucketId: "guide-portfolio",
     objectPath,
     assetKind: "guide-portfolio",
     mimeType: input.file.type,
