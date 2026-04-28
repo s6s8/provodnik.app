@@ -98,7 +98,7 @@ export function BidFormPanel({
       setGuidePhotos(photos.map(p => ({
         id: p.id,
         location_name: p.location_name,
-        photoUrl: supabase.storage.from("guide-media").getPublicUrl(p.object_path).data.publicUrl,
+        photoUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data.publicUrl,
       })));
     }
     void load();
