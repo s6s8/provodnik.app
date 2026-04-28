@@ -67,7 +67,6 @@ function verificationStatusLabel(status: GuideVerificationStatusDb): string {
 }
 
 export default async function GuideProfilePage() {
-  const supabase = await createSupabaseServerClient();
   const auth = await readAuthContextFromServer();
   if (!auth.isAuthenticated || !auth.userId) {
     redirect("/auth?next=/guide/profile");
@@ -89,6 +88,7 @@ export default async function GuideProfilePage() {
   };
 
   try {
+    const supabase = await createSupabaseServerClient();
     const [profileRes, licenseRes, listingRes, documentRes] = await Promise.all([
       supabase
         .from("guide_profiles")
