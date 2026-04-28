@@ -166,7 +166,7 @@ export function HomepageRequestForm({ destinations }: Props) {
             <label
               key={m}
               className={cn(
-                "flex flex-1 cursor-pointer flex-col gap-0.5 rounded-md border px-3 py-2.5 text-sm transition-colors",
+                "relative flex flex-1 cursor-pointer flex-col gap-1 rounded-xl border px-4 py-4 text-sm transition-colors",
                 mode === m
                   ? "border-primary bg-primary/8 text-foreground"
                   : "border-input bg-background text-muted-foreground hover:bg-muted/40",
@@ -178,6 +178,11 @@ export function HomepageRequestForm({ destinations }: Props) {
                 className="sr-only"
                 {...register("mode")}
               />
+              {m === "assembly" && (
+                <span className="absolute right-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
+                  Популярно
+                </span>
+              )}
               <span className="font-medium">
                 {m === "private" ? "Своя группа" : "Сборная группа"}
               </span>
