@@ -30,5 +30,5 @@ export async function acceptOfferAction(
 
   revalidatePath(`/traveler/requests/${requestId}`);
   revalidatePath("/traveler/requests");
-  redirect(`/traveler/chat/${threadId}`);
+  redirect(`/messages/${threadId}`);
 }
