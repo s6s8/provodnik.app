@@ -15,8 +15,6 @@ import {
   Baby,
   Sparkles,
   Moon,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 
 import {
@@ -57,8 +55,6 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [expanded, setExpanded] = React.useState(false);
-
   const form = useForm<FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
@@ -247,178 +243,153 @@ export function HomepageRequestForm({ destinations }: Props) {
         />
       </div>
 
-      {/* Expand button */}
-      {!expanded && (
-        <button
-          type="button"
-          onClick={() => setExpanded(true)}
-          className="flex items-center gap-1 text-sm font-medium text-primary hover:underline"
-        >
-          Уточнить запрос <ChevronDown className="h-4 w-4" />
-        </button>
+      {/* Interests — 3-col grid with icon tiles */}
+      <div className="grid gap-2">
+        <FieldLabel>Интересы поездки</FieldLabel>
+        <div className="grid grid-cols-3 gap-2">
+          {INTEREST_OPTIONS.map((opt) => {
+            const selected = (interestsField.value as string[]).includes(opt.slug);
+            return (
+              <button
+                key={opt.slug}
+                type="button"
+                onClick={() => {
+                  const current = interestsField.value as string[];
+                  const next = selected
+                    ? current.filter((s) => s !== opt.slug)
+                    : [...current, opt.slug];
+                  interestsField.onChange(next);
+                }}
+                className={cn(
+                  "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center text-xs transition-colors",
+                  selected
+                    ? "border-primary bg-primary/8 text-primary"
+                    : "border-input bg-background text-muted-foreground hover:bg-muted/40",
+                )}
+              >
+                <opt.Icon className="h-5 w-5 shrink-0" />
+                <span>{opt.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Start time + end time */}
+      <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="startTime">Начало (ЧЧ:ММ)</FieldLabel>
+          <Input
+            id="startTime"
+            type="time"
+            aria-invalid={Boolean(errors.startTime)}
+            {...register("startTime")}
+          />
+          <FieldError id="startTime-error" message={errors.startTime?.message} />
+        </div>
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="endTime">Конец (ЧЧ:ММ)</FieldLabel>
+          <Input
+            id="endTime"
+            type="time"
+            aria-invalid={Boolean(errors.endTime)}
+            {...register("endTime")}
+          />
+          <FieldError id="endTime-error" message={errors.endTime?.message} />
+        </div>
+      </div>
+
+      {/* Group size — conditional on mode */}
+      {isAssembly ? (
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupSizeCurrent">Сейчас в группе</FieldLabel>
+            <Input
+              id="groupSizeCurrent"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={20}
+              aria-invalid={Boolean(errors.groupSizeCurrent)}
+              {...register("groupSizeCurrent", { valueAsNumber: true })}
+            />
+            <FieldHint>Сколько человек уже есть в вашей компании.</FieldHint>
+            <FieldError
+              id="groupSizeCurrent-error"
+              message={errors.groupSizeCurrent?.message}
+            />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupMax">Максимум в группе</FieldLabel>
+            <Input
+              id="groupMax"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              aria-invalid={Boolean(errors.groupMax)}
+              {...register("groupMax", { valueAsNumber: true })}
+            />
+            <FieldHint>Комфортный максимум участников.</FieldHint>
+            <FieldError id="groupMax-error" message={errors.groupMax?.message} />
+          </div>
+        </div>
+      ) : (
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="groupSize">Сколько вас поедет?</FieldLabel>
+          <Input
+            id="groupSize"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={20}
+            aria-invalid={Boolean(errors.groupSize)}
+            {...register("groupSize", { valueAsNumber: true })}
+          />
+          <FieldHint>Количество человек в вашей компании.</FieldHint>
+          <FieldError id="groupSize-error" message={errors.groupSize?.message} />
+        </div>
       )}
 
-      {/* Expanded section */}
-      {expanded && (
-        <div className="grid gap-5">
-          {/* Interests — 3-col grid with icon tiles */}
-          <div className="grid gap-2">
-            <FieldLabel>Интересы поездки</FieldLabel>
-            <div className="grid grid-cols-3 gap-2">
-              {INTEREST_OPTIONS.map((opt) => {
-                const selected = (interestsField.value as string[]).includes(opt.slug);
-                return (
-                  <button
-                    key={opt.slug}
-                    type="button"
-                    onClick={() => {
-                      const current = interestsField.value as string[];
-                      const next = selected
-                        ? current.filter((s) => s !== opt.slug)
-                        : [...current, opt.slug];
-                      interestsField.onChange(next);
-                    }}
-                    className={cn(
-                      "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center text-xs transition-colors",
-                      selected
-                        ? "border-primary bg-primary/8 text-primary"
-                        : "border-input bg-background text-muted-foreground hover:bg-muted/40",
-                    )}
-                  >
-                    <opt.Icon className="h-5 w-5 shrink-0" />
-                    <span>{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+      {/* Allow guide suggestions */}
+      <div className="grid gap-2">
+        <label className="flex items-start gap-2 text-sm">
+          <input
+            type="checkbox"
+            className="mt-1"
+            {...register("allowGuideSuggestionsOutsideConstraints")}
+          />
+          <span>
+            <span className="font-medium text-foreground">
+              Разрешить предлагать варианты вне заданных рамок
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп.
+            </span>
+          </span>
+        </label>
+      </div>
 
-          {/* Start time + end time */}
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div className="grid gap-2">
-              <FieldLabel htmlFor="startTime">Начало (ЧЧ:ММ)</FieldLabel>
-              <Input
-                id="startTime"
-                type="time"
-                aria-invalid={Boolean(errors.startTime)}
-                {...register("startTime")}
-              />
-              <FieldError id="startTime-error" message={errors.startTime?.message} />
-            </div>
-            <div className="grid gap-2">
-              <FieldLabel htmlFor="endTime">Конец (ЧЧ:ММ)</FieldLabel>
-              <Input
-                id="endTime"
-                type="time"
-                aria-invalid={Boolean(errors.endTime)}
-                {...register("endTime")}
-              />
-              <FieldError id="endTime-error" message={errors.endTime?.message} />
-            </div>
-          </div>
+      {/* Notes */}
+      <div className="grid gap-2">
+        <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
+        <Textarea
+          id="notes"
+          placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха…"
+          aria-invalid={Boolean(errors.notes)}
+          {...register("notes")}
+        />
+        <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
+        <FieldError id="notes-error" message={errors.notes?.message} />
+      </div>
 
-          {/* Group size — conditional on mode */}
-          {isAssembly ? (
-            <div className="grid gap-5 sm:grid-cols-2">
-              <div className="grid gap-2">
-                <FieldLabel htmlFor="groupSizeCurrent">Сейчас в группе</FieldLabel>
-                <Input
-                  id="groupSizeCurrent"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={20}
-                  aria-invalid={Boolean(errors.groupSizeCurrent)}
-                  {...register("groupSizeCurrent", { valueAsNumber: true })}
-                />
-                <FieldHint>Сколько человек уже есть в вашей компании.</FieldHint>
-                <FieldError
-                  id="groupSizeCurrent-error"
-                  message={errors.groupSizeCurrent?.message}
-                />
-              </div>
-              <div className="grid gap-2">
-                <FieldLabel htmlFor="groupMax">Максимум в группе</FieldLabel>
-                <Input
-                  id="groupMax"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={50}
-                  aria-invalid={Boolean(errors.groupMax)}
-                  {...register("groupMax", { valueAsNumber: true })}
-                />
-                <FieldHint>Комфортный максимум участников.</FieldHint>
-                <FieldError id="groupMax-error" message={errors.groupMax?.message} />
-              </div>
-            </div>
-          ) : (
-            <div className="grid gap-2">
-              <FieldLabel htmlFor="groupSize">Сколько вас поедет?</FieldLabel>
-              <Input
-                id="groupSize"
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={20}
-                aria-invalid={Boolean(errors.groupSize)}
-                {...register("groupSize", { valueAsNumber: true })}
-              />
-              <FieldHint>Количество человек в вашей компании.</FieldHint>
-              <FieldError id="groupSize-error" message={errors.groupSize?.message} />
-            </div>
-          )}
-
-          {/* Allow guide suggestions */}
-          <div className="grid gap-2">
-            <label className="flex items-start gap-2 text-sm">
-              <input
-                type="checkbox"
-                className="mt-1"
-                {...register("allowGuideSuggestionsOutsideConstraints")}
-              />
-              <span>
-                <span className="font-medium text-foreground">
-                  Разрешить предлагать варианты вне заданных рамок
-                </span>
-                <span className="block text-xs text-muted-foreground">
-                  Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп.
-                </span>
-              </span>
-            </label>
-          </div>
-
-          {/* Notes */}
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
-            <Textarea
-              id="notes"
-              placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха…"
-              aria-invalid={Boolean(errors.notes)}
-              {...register("notes")}
-            />
-            <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
-            <FieldError id="notes-error" message={errors.notes?.message} />
-          </div>
-
-          {/* Budget total display */}
-          {totalRub !== null && (
-            <div className="flex items-center justify-between rounded-md border border-input bg-muted/30 px-3 py-2 text-sm">
-              <span className="text-muted-foreground">Цена за группу</span>
-              <span className="font-semibold text-foreground">
-                {totalRub.toLocaleString("ru-RU")} ₽
-              </span>
-            </div>
-          )}
-
-          {/* Collapse button */}
-          <button
-            type="button"
-            onClick={() => setExpanded(false)}
-            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <ChevronUp className="h-4 w-4" /> Скрыть
-          </button>
+      {/* Budget total display */}
+      {totalRub !== null && (
+        <div className="flex items-center justify-between rounded-md border border-input bg-muted/30 px-3 py-2 text-sm">
+          <span className="text-muted-foreground">Цена за группу</span>
+          <span className="font-semibold text-foreground">
+            {totalRub.toLocaleString("ru-RU")} ₽
+          </span>
         </div>
       )}
 
