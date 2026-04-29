@@ -24,14 +24,19 @@ const CATEGORY_LABELS: Record<string, string> = {
   account: "Аккаунт и профиль",
 };
 
-const CATEGORY_ORDER = [
+const ALL_CATEGORIES = [
   "for_travelers",
   "booking",
   "payment",
   "for_guides",
   "moderation",
   "account",
-];
+] as const;
+
+const CATEGORY_ORDER: string[] = ALL_CATEGORIES.filter((category) => {
+  if (category === "payment" && !flags.FEATURE_TR_PAYMENT) return false;
+  return true;
+});
 
 const FALLBACK_ARTICLES: HelpArticleRow[] = [
   {
