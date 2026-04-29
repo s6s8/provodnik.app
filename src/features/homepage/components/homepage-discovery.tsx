@@ -56,15 +56,13 @@ export function HomePageDiscovery({ requests }: Props) {
               <Link
                 key={req.id}
                 href={`/requests/${req.id}`}
-                className="block rounded-lg border border-foreground/[0.12] bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+                className="flex h-full flex-col rounded-lg border border-foreground/[0.12] bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
               >
                 <p className="mb-1 font-display text-[1.125rem] font-semibold leading-snug text-foreground">
                   {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}
                 </p>
                 <p className="mb-1 text-sm text-muted-foreground">{formatGroupLabel(req)}</p>
-                {interestText && (
-                  <p className="mb-1 text-sm text-muted-foreground">{interestText}</p>
-                )}
+                <p className="mb-1 text-sm text-muted-foreground">{interestText ?? " "}</p>
                 <p className="mb-3 text-sm text-muted-foreground">
                   {req.budgetRub.toLocaleString("ru-RU")} ₽/чел. · {formatOfferCount(req.offerCount)}
                 </p>
