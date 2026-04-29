@@ -104,11 +104,6 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               </p>
 
               <div className="mb-6 flex flex-wrap gap-2">
-                {guide.trustMarkers.identityVerified && (
-                  <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/[0.08] px-3 py-1.5 text-[0.8125rem] font-semibold text-primary">
-                    ✓ Верифицирован
-                  </span>
-                )}
                 <span className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground">
                   {rating.toFixed(1)} / 5 · {totalReviews} отзывов
                 </span>

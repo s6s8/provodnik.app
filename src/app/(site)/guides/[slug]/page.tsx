@@ -85,7 +85,6 @@ export default async function PublicGuideProfilePage({
     languages: [],
     specialties: [],
     bio: g.bio,
-    trustMarkers: { emailVerified: false, phoneVerified: false, identityVerified: false, backgroundCheck: false, references: false },
     reviewsSummary: {
       averageRating: g.rating,
       totalReviews: g.reviewCount,

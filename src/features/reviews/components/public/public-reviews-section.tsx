@@ -78,7 +78,7 @@ export function PublicReviewsSection({
           </Badge>
         </CardTitle>
         <p className="text-sm text-muted-foreground">
-          Последний отзыв: {formatDate(totalSummary.lastReviewAt)} · Проверенные отзывы от путешественников.
+          Последний отзыв: {formatDate(totalSummary.lastReviewAt)} · Отзывы от путешественников.
         </p>
       </CardHeader>
       <CardContent className="grid gap-3">

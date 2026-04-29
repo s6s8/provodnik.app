@@ -193,7 +193,7 @@ export function StepDetails({
             {isSubmitting ? "Публикуем…" : "Опубликовать запрос"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            Ваш запрос увидят проверенные гиды и смогут предложить условия
+            Ваш запрос увидят местные гиды и смогут предложить условия
           </p>
 
           <Button type="button" variant="ghost" className={cn("h-11 w-full")} onClick={onBack}>

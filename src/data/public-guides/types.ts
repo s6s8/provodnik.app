@@ -1,10 +1,3 @@
-export type PublicGuideTrustMarkerKey =
-  | "emailVerified"
-  | "phoneVerified"
-  | "identityVerified"
-  | "backgroundCheck"
-  | "references";
-
 export type PublicGuideReviewsSummary = {
   averageRating: number;
   totalReviews: number;
@@ -25,7 +18,6 @@ export type PublicGuideProfile = {
   languages: readonly string[];
   specialties: readonly string[];
   bio: string;
-  trustMarkers: Record<PublicGuideTrustMarkerKey, boolean>;
   reviewsSummary: PublicGuideReviewsSummary;
 };
 
