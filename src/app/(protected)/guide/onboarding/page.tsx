@@ -38,7 +38,7 @@ export default async function GuideOnboardingPage() {
           typeof completedAt === "string" &&
           completedAt.length > 0
         ) {
-          redirect("/guide/dashboard");
+          redirect("/guide");
         }
       }
     } catch {

@@ -77,7 +77,7 @@ export default async function PersonalSettingsPage() {
       profile.notification_prefs as GuideProfileRow["notification_prefs"],
     );
   } catch {
-    redirect("/guide/dashboard");
+    redirect("/guide");
   }
 
   return (

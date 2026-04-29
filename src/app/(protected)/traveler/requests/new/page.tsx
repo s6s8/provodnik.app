@@ -12,7 +12,7 @@ export default async function TravelerRequestNewPage() {
   const auth = await readAuthContextFromServer();
 
   if (auth.role === "guide") {
-    redirect("/guide/dashboard");
+    redirect("/guide");
   }
 
   return <TravelerRequestCreateScreen />;

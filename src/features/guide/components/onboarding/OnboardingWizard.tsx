@@ -240,7 +240,7 @@ export function OnboardingWizard({
                   startTransition(async () => {
                     try {
                       await markOnboardingComplete();
-                      router.push("/guide/dashboard");
+                      router.push("/guide");
                     } catch (e) {
                       setError(
                         e instanceof Error ? e.message : "Не удалось завершить",

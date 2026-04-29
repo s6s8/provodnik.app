@@ -31,7 +31,7 @@ const roles = [
   },
   {
     role: "guide",
-    href: getDashboardPathForRole("guide") ?? "/guide/dashboard",
+    href: getDashboardPathForRole("guide") ?? "/guide",
     workspacePrefix: getWorkspacePrefixForRole("guide") ?? "/guide",
     label: "Гид",
     description: "Публикации, ответы на запросы, маршруты",

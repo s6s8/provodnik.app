@@ -212,7 +212,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         }))
       );
       setPersistedToBackend(true);
-      window.location.assign("/guide/dashboard");
+      window.location.assign("/guide");
     } catch (error) {
       const normalizedError =
         error instanceof Error ? { message: error.message } : { message: "unknown" };
@@ -371,7 +371,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-muted-foreground">
           {canPersistToSupabase
-            ? "Успешное сохранение обновит guide_profiles и переведёт вас на /guide/dashboard."
+            ? "Успешное сохранение обновит guide_profiles и переведёт вас на /guide."
             : "Без Supabase или активной сессии анкета завершается в локальном режиме."}
         </p>
         <Button type="submit" disabled={isSubmitting}>
