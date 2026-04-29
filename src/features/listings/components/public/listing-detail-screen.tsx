@@ -47,30 +47,6 @@ const galleryThumbs = [
 
 const defaultExclusions = ["Авиабилеты", "Личные расходы", "Страховка"];
 
-const fallbackReviews = [
-  {
-    id: "r1",
-    initials: "АМ",
-    name: "Анна Миронова",
-    rating: 4.9,
-    body: "Понравилось, что даже на сложном маршруте было ощущение собранности и контроля. Никакой суеты между точками, всё объяснено заранее.",
-  },
-  {
-    id: "r2",
-    initials: "РК",
-    name: "Роман Котов",
-    rating: 4.9,
-    body: "Сильнейший момент — маршрут реально держит контраст и не превращается в хаотичный набор вау-остановок.",
-  },
-  {
-    id: "r3",
-    initials: "ТС",
-    name: "Татьяна Соколова",
-    rating: 4.8,
-    body: "Неожиданно комфортный темп. Было понятно, где усилие, а где отдых, и это сделало поездку очень ровной по ощущениям.",
-  },
-];
-
 function getGuideInitials(guide: ListingGuide | undefined | null): string {
   if (!guide) return "ГД";
   if (guide.avatarInitials) return guide.avatarInitials;
@@ -91,11 +67,11 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
   const priceFormatted = new Intl.NumberFormat("ru-RU").format(
     listing.priceFromRub,
   );
-  const reviewCards = reviews && reviews.length > 0 ? reviews : fallbackReviews;
+  const reviewCards = reviews ?? [];
 
   const guideInitials = getGuideInitials(guide);
   const guideName = guide?.displayName || guide?.name || "Местный гид";
-  const guideRating = guide?.reviewsSummary?.averageRating?.toFixed(1) ?? "4.9";
+  const guideRating = guide?.reviewsSummary?.averageRating?.toFixed(1) ?? null;
   const guideSlug = guide?.slug ?? "#";
   const guideRegion = guide?.homeBase ?? listing.region;
 
@@ -290,7 +266,8 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
                   <div>
                     <strong className="block text-[0.9375rem]">{guideName}</strong>
                     <span className="text-[0.8125rem] text-muted-foreground">
-                      {guideRegion} · {guideRating} ★
+                      {guideRegion}
+                      {guideRating ? ` · ${guideRating} ★` : ""}
                     </span>
                   </div>
                 </div>
@@ -310,6 +287,7 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
         </div>
       </section>
 
+      {reviewCards.length > 0 ? (
       <section className="bg-surface-low py-sec-pad">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
@@ -356,6 +334,7 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
           </div>
         </div>
       </section>
+      ) : null}
     </main>
   );
 }
