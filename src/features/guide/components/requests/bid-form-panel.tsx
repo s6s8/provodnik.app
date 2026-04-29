@@ -202,7 +202,7 @@ export function BidFormPanel({
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
             <h2 className="font-sans text-[1.0625rem] font-semibold text-foreground">
-              Предложить цену
+              Сделать предложение
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {request.destination} · {request.dateLabel} · {request.groupSize}{" "}

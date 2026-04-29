@@ -289,19 +289,25 @@ export function GuideRequestsInboxScreen() {
                     <div key={item.id} className="space-y-3">
                       <div className="rounded-xl border border-border/70 bg-background/60 p-4">
                         {/* Card header */}
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <p className="text-sm font-semibold text-foreground">
+                        <div className="flex items-start gap-3">
+                          <div
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary text-sm font-bold"
+                            aria-hidden="true"
+                          >
+                            {item.requesterInitials}
+                          </div>
+                          <div className="flex-1 min-w-0 space-y-1">
+                            <p className="text-sm font-semibold text-foreground truncate">
                               {item.requesterName}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {item.format} в{" "}
+                              {item.format ? item.format : "Поездка"} в{" "}
                               <span className="font-medium text-foreground">
                                 {item.destination}
                               </span>
                             </p>
                           </div>
-                          <p className="text-xs text-muted-foreground shrink-0">
+                          <p className="text-xs text-muted-foreground shrink-0 pt-0.5">
                             {formatDateTime(item.createdAt)}
                           </p>
                         </div>
@@ -332,15 +338,21 @@ export function GuideRequestsInboxScreen() {
                               {formatTimeRange(item.startTime, item.endTime)}
                             </div>
                           )}
-                          <p>
-                            <span className="font-medium text-foreground">
-                              Группа:
-                            </span>{" "}
-                            {item.mode === "assembly"
-                              ? `${item.groupSize} из ${item.capacity} чел.`
-                              : `${item.groupSize} чел.`
-                            }
-                          </p>
+                          {item.mode === "assembly" ? (
+                            <p>
+                              <span className="font-medium text-foreground">
+                                Свободно мест:
+                              </span>{" "}
+                              {Math.max(item.capacity - item.groupSize, 0)} из {item.capacity}
+                            </p>
+                          ) : (
+                            <p>
+                              <span className="font-medium text-foreground">
+                                Группа:
+                              </span>{" "}
+                              {item.groupSize} чел.
+                            </p>
+                          )}
                           <p className="sm:col-span-2">
                             <span className="font-medium text-foreground">
                               Бюджет:
@@ -373,7 +385,7 @@ export function GuideRequestsInboxScreen() {
                               size="sm"
                               onClick={() => setPanelRequestId(item.id)}
                             >
-                              Предложить цену
+                              Сделать предложение
                             </Button>
                           )}
                         </div>

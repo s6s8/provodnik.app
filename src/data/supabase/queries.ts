@@ -302,8 +302,13 @@ const VALID_INTEREST_SLUGS = [
 
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
-  const budgetMinor = (row.budget_minor as number) ?? 0;
+  const rawBudget = row.budget_minor as number | null | undefined;
+  const budgetMinor = rawBudget ?? 0;
   const budgetRub = kopecksToRub(budgetMinor);
+  const budgetLabel =
+    rawBudget == null || rawBudget === 0
+      ? "не указан"
+      : `${formatRub(budgetRub)} / чел.`;
   const meta = parseNotesJson(row.notes as string);
   const imageUrl = (meta.imageUrl as string) ?? fallbackHeroImage;
   const destinationLabel = (meta.destinationLabel as string) ?? dest;
@@ -323,7 +328,7 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     groupSize: (row.participants_count as number) ?? 1,
     capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
     budgetRub,
-    budgetLabel: `${formatRub(budgetRub)} / чел.`,
+    budgetLabel,
     requesterName,
     requesterInitials,
     description: (meta.description as string | null) ?? (row.description as string | null) ?? "",

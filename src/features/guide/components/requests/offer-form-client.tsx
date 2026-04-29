@@ -126,7 +126,7 @@ export function OfferFormClient({
         Кабинет гида
       </p>
       <h1 className="mb-2 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
-        Предложить цену
+        Сделать предложение
       </h1>
       <p className="text-sm text-muted-foreground mb-8">
         Запрос:{" "}
