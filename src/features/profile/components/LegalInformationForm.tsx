@@ -17,6 +17,8 @@ import { Separator } from "@/components/ui/separator";
 import { COUNTRIES } from "@/lib/data/countries";
 import { updateLegalInformation } from "@/features/profile/actions/updateLegalInformation";
 
+const NONE_VALUE = "__none__";
+
 interface Props {
   initialData: {
     legalStatus: string | null;
@@ -29,11 +31,11 @@ interface Props {
 
 export function LegalInformationForm({ initialData }: Props) {
   const [legalStatus, setLegalStatus] = useState<string>(
-    initialData.legalStatus ?? ""
+    initialData.legalStatus ?? NONE_VALUE
   );
   const [inn, setInn] = useState<string>(initialData.inn ?? "");
   const [documentCountry, setDocumentCountry] = useState<string>(
-    initialData.documentCountry ?? ""
+    initialData.documentCountry ?? NONE_VALUE
   );
   const [isTourOperator, setIsTourOperator] = useState<boolean>(
     initialData.isTourOperator
@@ -53,9 +55,9 @@ export function LegalInformationForm({ initialData }: Props) {
     startTransition(async () => {
       try {
         await updateLegalInformation({
-          legalStatus: legalStatus || null,
+          legalStatus: legalStatus === NONE_VALUE ? null : (legalStatus || null),
           inn: inn.trim() || null,
-          documentCountry: documentCountry || null,
+          documentCountry: documentCountry === NONE_VALUE ? null : (documentCountry || null),
           isTourOperator,
           tourOperatorRegistryNumber: isTourOperator
             ? tourOperatorRegistryNumber.trim() || null
@@ -79,7 +81,7 @@ export function LegalInformationForm({ initialData }: Props) {
               <SelectValue placeholder="Не указано" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Не указано</SelectItem>
+              <SelectItem value={NONE_VALUE}>Не указано</SelectItem>
               <SelectItem value="self_employed">Самозанятый</SelectItem>
               <SelectItem value="individual">ИП</SelectItem>
               <SelectItem value="company">Юридическое лицо</SelectItem>
@@ -107,7 +109,7 @@ export function LegalInformationForm({ initialData }: Props) {
               <SelectValue placeholder="Выберите страну" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Не выбрано</SelectItem>
+              <SelectItem value={NONE_VALUE}>Не выбрано</SelectItem>
               {COUNTRIES.map((c) => (
                 <SelectItem key={c.code} value={c.code}>
                   {c.name}
