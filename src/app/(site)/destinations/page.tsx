@@ -32,7 +32,7 @@ export default async function DestinationsPage() {
           Куда поедем?
         </h1>
         <p className="max-w-[46rem] text-base leading-[1.65] text-on-surface-muted">
-          Города и регионы России с проверенными маршрутами и локальными гидами.
+          Города и регионы России с локальными гидами.
         </p>
 
         {destinations.length === 0 ? (

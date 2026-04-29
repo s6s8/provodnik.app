@@ -35,7 +35,7 @@ export default async function GuidesPage() {
           Местные знатоки
         </h1>
         <p className="max-w-[46rem] mb-12 text-base leading-[1.7] text-on-surface-muted">
-          Гиды, которые превращают маршрут в историю. Каждый проверен и имеет живые отзывы путешественников.
+          Местные гиды, которые превращают маршрут в историю.
         </p>
 
         {guides.length === 0 ? (
@@ -43,9 +43,9 @@ export default async function GuidesPage() {
             <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
               <Users className="size-6" strokeWidth={1.9} />
             </span>
-            <h2 className="mt-5 text-[1.35rem] font-semibold text-ink">Гиды скоро появятся</h2>
+            <h2 className="mt-5 text-[1.35rem] font-semibold text-ink">Пока нет гидов</h2>
             <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-ink-2">
-              Мы подбираем лучших местных знатоков. Совсем скоро здесь появятся проверенные гиды с живыми отзывами.
+              В этом разделе пока пусто. Если вы гид — добавьте свой профиль, и путешественники найдут вас.
             </p>
           </div>
         ) : (
