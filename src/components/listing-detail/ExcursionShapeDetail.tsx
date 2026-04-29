@@ -122,9 +122,11 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
               {expLabel ? <Badge variant="outline">{expLabel}</Badge> : null}
               {formatLabel ? <Badge variant="secondary">{formatLabel}</Badge> : null}
               {durationLabel ? <Badge variant="outline">{durationLabel}</Badge> : null}
-              <span className="text-sm text-muted-foreground">
-                ★ {listing.average_rating.toFixed(1)} · {listing.review_count} отзывов
-              </span>
+              {listing.review_count > 0 ? (
+                <span className="text-sm text-muted-foreground">
+                  ★ {listing.average_rating.toFixed(1)} · {listing.review_count} отзывов
+                </span>
+              ) : null}
             </div>
             <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{listing.title}</h1>
           </header>

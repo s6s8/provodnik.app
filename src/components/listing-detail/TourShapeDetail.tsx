@@ -114,9 +114,11 @@ export function TourShapeDetail({
             Туроператор
           </Badge>
         ) : null}
-        <span className="text-sm text-muted-foreground">
-          ★ {listing.average_rating.toFixed(1)} · {listing.review_count} отзывов
-        </span>
+        {listing.review_count > 0 ? (
+          <span className="text-sm text-muted-foreground">
+            ★ {listing.average_rating.toFixed(1)} · {listing.review_count} отзывов
+          </span>
+        ) : null}
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">

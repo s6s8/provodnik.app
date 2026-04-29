@@ -38,9 +38,11 @@ export function GuideCard({
         </Avatar>
         <div className="min-w-0 flex-1 space-y-1">
           <p className="font-medium leading-tight">{guide.display_name ?? "Гид"}</p>
-          <p className="text-sm text-muted-foreground">
-            ★ {guide.average_rating.toFixed(1)} · {guide.review_count} отзывов
-          </p>
+          {guide.review_count > 0 ? (
+            <p className="text-sm text-muted-foreground">
+              ★ {guide.average_rating.toFixed(1)} · {guide.review_count} отзывов
+            </p>
+          ) : null}
           {bio ? (
             <p className="line-clamp-2 text-sm text-muted-foreground">{bio}</p>
           ) : null}
