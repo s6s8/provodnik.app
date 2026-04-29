@@ -34,6 +34,7 @@ interface Props {
 export function HomePageDiscovery({ requests }: Props) {
   if (requests.length === 0) return null;
 
+  // Vertical-gap balance: hero py-16 + discovery pt-12 = 7rem above; discovery pb-14 + footer pt-14 = 7rem below. Keep token sums in sync if any padding changes.
   return (
     <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-14">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
