@@ -41,7 +41,7 @@ function mapListing(listing: PublicListing): ListingRecord {
     guideSlug: listing.guideSlug,
     guideName: "Локальный гид",
     guideHomeBase: listing.city,
-    rating: 4.8,
+    rating: 0,
     reviewCount: 0,
     status: "active",
   };

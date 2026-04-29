@@ -31,7 +31,9 @@ export function PublicGuideCard({
   guide: PublicGuideCardGuide;
   className?: string;
 }) {
-  const ratingLabel = guide.rating.toFixed(1);
+  const hasRating = guide.rating > 0;
+  const hasTours = guide.tourCount > 0;
+  const ratingLabel = hasRating ? guide.rating.toFixed(1) : "";
 
   return (
     <Link
@@ -58,12 +60,16 @@ export function PublicGuideCard({
           <span className="text-base font-semibold text-foreground">
             {guide.name}
           </span>
-          <span className="text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
-            ★ {ratingLabel}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            {guide.tourCount} {toursWord(guide.tourCount)}
-          </span>
+          {hasRating ? (
+            <span className="text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
+              ★ {ratingLabel}
+            </span>
+          ) : null}
+          {hasTours ? (
+            <span className="text-xs text-muted-foreground">
+              {guide.tourCount} {toursWord(guide.tourCount)}
+            </span>
+          ) : null}
         </div>
 
         {guide.specialties.length > 0 ? (

@@ -272,7 +272,7 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
     guideName: "Локальный гид",
     guideAvatarUrl: undefined,
     guideHomeBase: city || region,
-    rating: 4.8,
+    rating: 0,
     reviewCount: 0,
     status: "active",
   };
@@ -389,7 +389,7 @@ function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknow
     bio: (gp.bio as string) ?? "Проводник по локальным маршрутам.",
     destinations: regions,
     destinationSlugs: regions.map(normalizeSlug),
-    rating: 4.8,
+    rating: 0,
     reviewCount: 0,
     topListingTitle: undefined,
     experienceYears: (gp.years_experience as number) ?? 5,
