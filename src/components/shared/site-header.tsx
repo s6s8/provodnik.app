@@ -20,6 +20,7 @@ import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { COPY } from "@/lib/copy";
 import { flags } from "@/lib/flags";
 import { cn } from "@/lib/utils";
+import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
 
 const navLinks = [
   { href: "/requests", label: "Запросы" },
@@ -76,6 +77,7 @@ export function SiteHeader({
   const pathname = usePathname();
   const { unreadCount } = useUnreadCount(isAuthenticated);
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   function handleLogout() {
     window.location.href = "/api/auth/signout";
@@ -88,6 +90,7 @@ export function SiteHeader({
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
 
   return (
+    <>
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
       <nav
         className="mx-auto grid max-w-page grid-cols-[auto_1fr_auto] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-6 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
@@ -140,7 +143,7 @@ export function SiteHeader({
           {isAuthenticated && dashboardPath ? (
             <Link
               href={dashboardPath}
-              className="bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
+              className="max-md:hidden bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
               aria-label="Личный кабинет"
             >
               <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-semibold flex items-center justify-center">
@@ -156,7 +159,7 @@ export function SiteHeader({
             <Link
               href="/messages"
               className={cn(
-                "relative inline-flex items-center gap-2 rounded-full border border-glass-border bg-surface-high/72 px-4 py-2.5 text-sm font-medium text-foreground transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:bg-[color-mix(in_srgb,var(--primary)_8%,var(--surface-high))] hover:text-primary",
+                "max-md:hidden relative inline-flex items-center gap-2 rounded-full border border-glass-border bg-surface-high/72 px-4 py-2.5 text-sm font-medium text-foreground transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:bg-[color-mix(in_srgb,var(--primary)_8%,var(--surface-high))] hover:text-primary",
                 (pathname === "/messages" || pathname.startsWith("/messages/")) && "border-primary/24 text-primary",
               )}
               aria-label="Сообщения"
@@ -174,27 +177,39 @@ export function SiteHeader({
             </Link>
           ) : null}
           {isAuthenticated ? (
-            <Button variant="ghost" size="sm" onClick={handleLogout}>
+            <Button variant="ghost" size="sm" onClick={handleLogout} className="max-md:hidden">
               Выйти
             </Button>
           ) : null}
           {!isAuthenticated && (
-            <>
+            <div className="max-md:hidden flex items-center gap-2">
               <Button variant="outline" asChild>
                 <Link href="/become-a-guide">{COPY.nav.becomeGuide}</Link>
               </Button>
               <Button asChild>
                 <Link href="/auth">{COPY.nav.signIn}</Link>
               </Button>
-            </>
+            </div>
           )}
           {isAuthenticated && role !== "admin" && role !== "guide" && (
-            <Button asChild>
+            <Button asChild className="max-md:hidden">
               <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
             </Button>
           )}
 
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Личное меню"
+              aria-haspopup="dialog"
+              className="md:hidden w-11 h-11 rounded-full bg-primary/15 text-primary border-2 border-primary font-bold text-sm flex items-center justify-center"
+            >
+              {avatarInitial}
+            </button>
+          )}
+
+          {!isAuthenticated && <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
@@ -310,9 +325,16 @@ export function SiteHeader({
                 )}
               </nav>
             </SheetContent>
-          </Sheet>
+          </Sheet>}
         </div>
       </nav>
     </header>
+    <UserAccountDrawer
+      open={drawerOpen}
+      onOpenChange={setDrawerOpen}
+      email={email}
+      role={role ?? null}
+    />
+    </>
   );
 }
