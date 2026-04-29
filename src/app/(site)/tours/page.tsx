@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { flags } from "@/lib/flags";
@@ -9,7 +10,9 @@ export const metadata: Metadata = {
   title: "Туры",
 };
 
-export default function ToursPage() {
+export default async function ToursPage() {
+  await headers();
+
   if (!flags.FEATURE_TR_TOURS) {
     notFound();
   }
