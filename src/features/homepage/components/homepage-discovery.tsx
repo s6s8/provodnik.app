@@ -2,15 +2,7 @@ import Link from "next/link";
 
 import type { RequestRecord } from "@/data/supabase/queries";
 import { INTEREST_CHIPS } from "@/data/interests";
-
-function formatGroupLabel(req: RequestRecord): string {
-  if (req.mode === "assembly") {
-    return req.capacity > 0
-      ? `Сборная группа · до ${req.capacity} чел.`
-      : "Сборная группа";
-  }
-  return `Своя группа · ${req.groupSize} чел.`;
-}
+import { formatGroupLine } from "@/data/requests-format";
 
 function formatOfferCount(count: number): string {
   if (count === 0) return "Нет ответов ещё";
@@ -61,7 +53,7 @@ export function HomePageDiscovery({ requests }: Props) {
                 <p className="mb-1 font-display text-[1.125rem] font-semibold leading-snug text-foreground">
                   {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}
                 </p>
-                <p className="mb-1 text-sm text-muted-foreground">{formatGroupLabel(req)}</p>
+                <p className="mb-1 text-sm text-muted-foreground">{formatGroupLine(req)}</p>
                 <p className="mb-1 text-sm text-muted-foreground">{interestText ?? " "}</p>
                 <p className="mb-3 text-sm text-muted-foreground">
                   {req.budgetRub.toLocaleString("ru-RU")} ₽/чел. · {formatOfferCount(req.offerCount)}

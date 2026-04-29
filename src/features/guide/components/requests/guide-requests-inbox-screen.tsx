@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
+import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
@@ -312,17 +313,7 @@ export function GuideRequestsInboxScreen() {
                           </p>
                         </div>
 
-                        <div className="mt-2">
-                          {item.mode === "assembly" ? (
-                            <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-500">
-                              Сборная группа
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                              Своя группа
-                            </span>
-                          )}
-                        </div>
+                        <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
 
                         {/* Meta */}
                         <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
@@ -337,21 +328,6 @@ export function GuideRequestsInboxScreen() {
                               <span className="font-medium text-foreground">Время:</span>{" "}
                               {formatTimeRange(item.startTime, item.endTime)}
                             </div>
-                          )}
-                          {item.mode === "assembly" ? (
-                            <p>
-                              <span className="font-medium text-foreground">
-                                Свободно мест:
-                              </span>{" "}
-                              {Math.max(item.capacity - item.groupSize, 0)} из {item.capacity}
-                            </p>
-                          ) : (
-                            <p>
-                              <span className="font-medium text-foreground">
-                                Группа:
-                              </span>{" "}
-                              {item.groupSize} чел.
-                            </p>
                           )}
                           <p className="sm:col-span-2">
                             <span className="font-medium text-foreground">
