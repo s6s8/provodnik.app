@@ -39,14 +39,6 @@ interface Props {
 const fallbackCover =
   "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1800&q=80";
 
-const galleryThumbs = [
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80&crop=top",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80&crop=center",
-  "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80&crop=bottom",
-];
-
-const defaultExclusions = ["Авиабилеты", "Личные расходы", "Страховка"];
-
 function getGuideInitials(guide: ListingGuide | undefined | null): string {
   if (!guide) return "ГД";
   if (guide.avatarInitials) return guide.avatarInitials;
@@ -133,22 +125,6 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  {galleryThumbs.map((src, i) => (
-                    <div
-                      key={i}
-                      className="relative aspect-[16/11] overflow-hidden rounded-[18px]"
-                    >
-                      <Image
-                        src={src}
-                        alt={`${listing.title} — фото ${i + 2}`}
-                        fill
-                        sizes="(max-width: 1023px) 33vw, 22vw"
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
               </div>
 
               <section>
@@ -193,33 +169,17 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
                 <h2 className="mb-[18px] font-display text-[1.875rem] leading-[1.08]">
                   Что включено
                 </h2>
-                <div className="grid gap-3 md:grid-cols-2">
-                  <ul className="grid gap-2.5">
-                    {listing.inclusions.map((item) => (
-                      <li
-                        key={item}
-                        className="flex gap-2 text-[0.9375rem] leading-[1.6] text-muted-foreground"
-                      >
-                        <span className="shrink-0 font-semibold text-primary">✓</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <ul className="grid gap-2.5">
-                    {defaultExclusions.map((item) => (
-                      <li
-                        key={item}
-                        className="flex gap-2 text-[0.9375rem] leading-[1.6] text-muted-foreground"
-                      >
-                        <span className="shrink-0 font-semibold text-muted-foreground">
-                          ✗
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                <ul className="grid gap-2.5">
+                  {listing.inclusions.map((item) => (
+                    <li
+                      key={item}
+                      className="flex gap-2 text-[0.9375rem] leading-[1.6] text-muted-foreground"
+                    >
+                      <span className="shrink-0 font-semibold text-primary">✓</span>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
               </section>
             </div>
 
@@ -280,7 +240,7 @@ export function ListingDetailScreen({ listing, guide, reviews }: Props) {
               </div>
 
               <p className="mt-[14px] text-[0.8125rem] text-muted-foreground">
-                Оплата после подтверждения состава группы и дат.
+                Условия поездки согласуются в чате с гидом.
               </p>
             </aside>
           </div>
