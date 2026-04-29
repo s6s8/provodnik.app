@@ -32,8 +32,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     buildEntry("/guides", 0.9, "weekly"),
     buildEntry("/requests", 0.8, "daily"),
     buildEntry("/trust", 0.5, "monthly"),
-    buildEntry("/policies/cancellation", 0.3, "monthly"),
-    buildEntry("/policies/refunds", 0.3, "monthly"),
   ];
 
   if (!hasSupabaseAdminEnv()) {
