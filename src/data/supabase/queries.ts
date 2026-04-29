@@ -1004,7 +1004,19 @@ export async function getHomepageRequests(
       return rec;
     });
 
-    return { data: records, error: null };
+    const filtered = records.filter((rec) => {
+      if (rec.mode !== "assembly") return true;
+      const remaining = rec.capacity - rec.groupSize;
+      return remaining > 0 || rec.offerCount > 0;
+    });
+
+    filtered.sort(
+      (a, b) =>
+        (b.offerCount > 0 ? 1 : 0) - (a.offerCount > 0 ? 1 : 0) ||
+        b.createdAt.localeCompare(a.createdAt),
+    );
+
+    return { data: filtered, error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
