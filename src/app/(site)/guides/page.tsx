@@ -18,12 +18,14 @@ export function generateMetadata(): Metadata {
 export default async function GuidesPage() {
   let guides: GuideRecord[] = [];
 
-  const [supabase, auth] = await Promise.all([
-    createSupabaseServerClient(),
-    readAuthContextFromServer(),
-  ]);
-  const result = await getGuides(supabase);
-  if (result.data) guides = result.data;
+  const auth = await readAuthContextFromServer();
+  try {
+    const supabase = await createSupabaseServerClient();
+    const result = await getGuides(supabase);
+    if (result.data) guides = result.data;
+  } catch {
+    // guides stays []
+  }
 
   return (
     <section className="bg-surface pt-[110px] pb-20">

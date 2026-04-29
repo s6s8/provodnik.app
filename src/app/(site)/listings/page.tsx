@@ -43,10 +43,14 @@ export default async function PublicListingsPage({
 }) {
   let listings: PublicListing[] = [];
 
-  const supabase = await createSupabaseServerClient();
-  const result = await getActiveListings(supabase);
-  if (result.data && result.data.length > 0) {
-    listings = result.data.map((listing) => mapToPublicListing(listing));
+  try {
+    const supabase = await createSupabaseServerClient();
+    const result = await getActiveListings(supabase);
+    if (result.data && result.data.length > 0) {
+      listings = result.data.map((listing) => mapToPublicListing(listing));
+    }
+  } catch {
+    // listings stays []
   }
 
   const params = await searchParams;

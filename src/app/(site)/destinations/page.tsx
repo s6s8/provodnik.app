@@ -14,9 +14,13 @@ export function generateMetadata(): Metadata {
 export default async function DestinationsPage() {
   let destinations: DestinationRecord[] = [];
 
-  const supabase = await createSupabaseServerClient();
-  const result = await getDestinations(supabase);
-  if (result.data) destinations = result.data;
+  try {
+    const supabase = await createSupabaseServerClient();
+    const result = await getDestinations(supabase);
+    if (result.data) destinations = result.data;
+  } catch {
+    // destinations stays []
+  }
 
   return (
     <section className="bg-surface pt-24 pb-20">
