@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { flags } from "@/lib/flags";
-
-export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Туры",
 };
 
-export default async function ToursPage() {
-  await headers();
-
+export default function ToursPage() {
   if (!flags.FEATURE_TR_TOURS) {
     notFound();
   }
