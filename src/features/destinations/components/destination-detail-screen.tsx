@@ -259,6 +259,7 @@ export function DestinationDetailScreen({
                     key={guide.id}
                     guide={{
                       id: guide.id,
+                      slug: guide.slug,
                       name: guide.fullName,
                       avatarUrl: guide.avatarUrl ?? "",
                       rating: guide.rating,

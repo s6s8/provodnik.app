@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 export type PublicGuideCardGuide = {
   id: string;
+  slug: string;
   name: string;
   avatarUrl: string;
   rating: number;
@@ -34,7 +35,7 @@ export function PublicGuideCard({
 
   return (
     <Link
-      href={`/guide/${guide.id}`}
+      href={`/guides/${guide.slug}`}
       className={cn(
         "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex gap-4 rounded-[1.5rem] p-4 transition-all duration-300",
         "items-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
