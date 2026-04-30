@@ -31,24 +31,6 @@ function jsDayToDbWeekday(date: Date): number {
   return js === 0 ? 6 : js - 1;
 }
 
-function formatTime(t: string | null): string {
-  if (!t) return "—";
-  const parts = t.split(":");
-  if (parts.length >= 2) return `${parts[0]}:${parts[1]}`;
-  return t;
-}
-
-function formatRub(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(minor / 100));
-}
-
-function departureStatusLabel(status: string): string {
-  if (status === "active") return "Активно";
-  if (status === "sold_out") return "Мест нет";
-  if (status === "cancelled") return "Отменено";
-  return status;
-}
-
 export type MonthlyCalendarProps = {
   schedules: ListingScheduleRow[];
   extras: ListingScheduleExtraRow[];

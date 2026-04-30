@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -275,7 +276,7 @@ export function BidFormPanel({
                   <div className="flex flex-col gap-2">
                     {routeStops.map((stop, idx) => (
                       <div key={stop.photoId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-high p-2">
-                        <img src={stop.photoUrl} alt={stop.locationName} className="size-10 rounded-lg object-cover" />
+                        <Image src={stop.photoUrl} alt={stop.locationName} width={40} height={40} className="size-10 rounded-lg object-cover" />
                         <span className="flex-1 text-sm">{stop.locationName}</span>
                         <button type="button" onClick={() => setRouteStops(prev => prev.filter((_, i) => i !== idx))}
                           className="text-muted-foreground hover:text-destructive text-xs">✕</button>
@@ -295,7 +296,7 @@ export function BidFormPanel({
                         onClick={() => setRouteStops(prev => [...prev, { photoId: photo.id, locationName: photo.location_name, photoUrl: photo.photoUrl, sortOrder: prev.length }])}
                         className="relative flex-shrink-0 overflow-hidden rounded-xl"
                       >
-                        <img src={photo.photoUrl} alt={photo.location_name} className="size-16 object-cover" />
+                        <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
                         <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
                           <p className="truncate text-[10px] text-white">{photo.location_name}</p>
                         </div>

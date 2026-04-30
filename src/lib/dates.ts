@@ -19,7 +19,7 @@ const MONTH_NAMES_RU = [
  */
 export function formatRussianDateRange(startsOn: string, endsOn?: string | null): string {
   if (!startsOn) return "";
-  const [sy, sm, sd] = startsOn.split("-").map(Number);
+  const [, sm, sd] = startsOn.split("-").map(Number);
   const startMonth = MONTH_NAMES_RU[(sm ?? 1) - 1] ?? "";
   if (!endsOn || endsOn === startsOn) {
     return `${sd} ${startMonth}`;

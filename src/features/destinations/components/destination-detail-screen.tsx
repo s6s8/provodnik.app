@@ -43,7 +43,7 @@ export function DestinationDetailScreen({
     : null;
 
   return (
-    <main>
+    <div>
       <section className="-mt-nav-h relative flex min-h-[520px] items-end overflow-hidden pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
         <Image
           src={heroImage}
@@ -278,6 +278,6 @@ export function DestinationDetailScreen({
           </div>
         </section>
       ) : null}
-    </main>
+    </div>
   );
 }

@@ -59,7 +59,7 @@ export default async function AdminLayout({
           </div>
         </aside>
 
-        <main className="min-w-0">{children}</main>
+        <section className="min-w-0">{children}</section>
       </div>
       <AdminMobileTabs counts={counts} />
     </div>

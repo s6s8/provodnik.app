@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <main className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] space-y-8 py-8 lg:py-12">
+    <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] space-y-8 py-8 lg:py-12">
       <section className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass overflow-hidden p-5 sm:p-7">
         <div className="space-y-4">
           <Skeleton className="h-4 w-28" />
@@ -44,6 +44,6 @@ export default function Loading() {
           ))}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -1,4 +1,7 @@
+import Image from "next/image";
+
 import { Badge } from "@/components/ui/badge";
+import { kopecksToRub } from "@/data/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Props = {
@@ -30,7 +33,15 @@ export async function TransferCrossSellWidget({ region, currentListingId }: Prop
             className="block rounded-glass border border-border hover:shadow-glass transition-shadow overflow-hidden"
           >
             {t.image_url && (
-              <img src={t.image_url} alt={t.title} className="w-full aspect-video object-cover" />
+              <div className="relative aspect-video w-full">
+                <Image
+                  src={t.image_url}
+                  alt={t.title}
+                  fill
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                  className="object-cover"
+                />
+              </div>
             )}
             <div className="p-3 flex flex-col gap-1">
               <p className="text-sm font-medium line-clamp-2">{t.title}</p>
@@ -40,7 +51,7 @@ export async function TransferCrossSellWidget({ region, currentListingId }: Prop
                 </Badge>
               )}
               <p className="text-sm text-muted-foreground">
-                от {Math.round(t.price_from_minor / 100)} ₽
+                от {kopecksToRub(t.price_from_minor)} ₽
               </p>
             </div>
           </a>

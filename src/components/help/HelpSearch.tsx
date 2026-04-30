@@ -77,7 +77,7 @@ export function HelpSearch({ articles }: { articles: HelpArticleRow[] }) {
           ) : (
             <ul className="py-1">
               {results.map((a) => (
-                <li key={a.id} role="option">
+                <li key={a.id} role="option" aria-selected={false}>
                   <button
                     type="button"
                     className="w-full px-3 py-2 text-left text-sm hover:bg-muted"

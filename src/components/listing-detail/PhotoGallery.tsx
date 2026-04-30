@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import type { ListingPhotoRow } from "@/lib/supabase/types";
 
 function buildGalleryUrls(coverUrl: string | null, photos: ListingPhotoRow[]): string[] {
@@ -30,8 +32,8 @@ export function PhotoGallery({
 
   if (urls.length === 1) {
     return (
-      <div className="aspect-video w-full overflow-hidden rounded-xl">
-        <img src={urls[0]} alt="" className="h-full w-full object-cover" />
+      <div className="relative aspect-video w-full overflow-hidden rounded-xl">
+        <Image src={urls[0]} alt="" fill sizes="(max-width: 768px) 100vw, 720px" className="object-cover" />
       </div>
     );
   }
@@ -40,8 +42,8 @@ export function PhotoGallery({
     return (
       <div className="grid grid-cols-2 gap-2">
         {urls.map((url) => (
-          <div key={url} className="aspect-video overflow-hidden rounded-xl">
-            <img src={url} alt="" className="h-full w-full object-cover" />
+          <div key={url} className="relative aspect-video overflow-hidden rounded-xl">
+            <Image src={url} alt="" fill sizes="(max-width: 768px) 50vw, 360px" className="object-cover" />
           </div>
         ))}
       </div>
@@ -55,18 +57,18 @@ export function PhotoGallery({
     <>
       <div className="hidden max-h-[min(50vh,28rem)] gap-2 md:grid md:grid-cols-5 md:grid-rows-2">
         <div className="relative col-span-3 row-span-2 min-h-0 overflow-hidden rounded-xl">
-          <img src={main} alt="" className="h-full w-full object-cover" />
+          <Image src={main} alt="" fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
         </div>
         {thumbs.map((url) => (
           <div key={url} className="relative min-h-0 overflow-hidden rounded-xl">
-            <img src={url} alt="" className="h-full w-full object-cover" />
+            <Image src={url} alt="" fill sizes="(min-width: 768px) 20vw, 50vw" className="object-cover" />
           </div>
         ))}
       </div>
       <div className="flex max-h-[70vh] flex-col gap-2 overflow-y-auto md:hidden">
         {urls.map((url) => (
-          <div key={url} className="aspect-video w-full shrink-0 overflow-hidden rounded-xl">
-            <img src={url} alt="" className="h-full w-full object-cover" />
+          <div key={url} className="relative aspect-video w-full shrink-0 overflow-hidden rounded-xl">
+            <Image src={url} alt="" fill sizes="100vw" className="object-cover" />
           </div>
         ))}
       </div>

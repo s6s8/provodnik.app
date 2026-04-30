@@ -76,7 +76,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   }, [initialData, activeCategory, searchQuery]);
 
   return (
-    <main>
+    <div>
       {/* Page header */}
       <section className="bg-surface-low pb-12 pt-[100px] text-center">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
@@ -191,6 +191,6 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
           </Button>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

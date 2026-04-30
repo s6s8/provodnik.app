@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -235,11 +236,12 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
                     Фото недоступно
                   </div>
                 ) : (
-                  <img
+                  <Image
                     src={photo.publicUrl}
                     alt={photo.location_name}
-                    loading="lazy"
-                    className="size-full object-cover"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
+                    className="object-cover"
                     onError={() =>
                       setBrokenIds((prev) => {
                         if (prev.has(photo.id)) return prev;

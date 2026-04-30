@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
@@ -6,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { kopecksToRub } from "@/data/money";
 import { flags } from "@/lib/flags";
 import type { ListingRow } from "@/lib/supabase/types";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -32,15 +34,19 @@ async function TransferCrossSell({ listing }: { listing: ListingRow }) {
             className="block rounded-glass border border-border hover:shadow-glass transition-shadow"
           >
             {r.image_url && (
-              <img
-                src={r.image_url}
-                alt={r.title}
-                className="w-full aspect-video object-cover rounded-t-glass"
-              />
+              <div className="relative aspect-video w-full overflow-hidden rounded-t-glass">
+                <Image
+                  src={r.image_url}
+                  alt={r.title}
+                  fill
+                  sizes="(max-width: 640px) 50vw, 25vw"
+                  className="object-cover"
+                />
+              </div>
             )}
             <div className="p-2">
               <p className="text-sm font-medium line-clamp-2">{r.title}</p>
-              <p className="text-xs text-muted-foreground">от {Math.round(r.price_from_minor / 100)} ₽</p>
+              <p className="text-xs text-muted-foreground">от {kopecksToRub(r.price_from_minor)} ₽</p>
             </div>
           </a>
         ))}
@@ -68,15 +74,22 @@ export default async function TransferListingPage({
   if (!listing || listing.exp_type !== "transfer") notFound();
 
   const row = listing as ListingRow;
-  const priceRub = Math.round(row.price_from_minor / 100);
+  const priceRub = kopecksToRub(row.price_from_minor);
   const locationLabel = [row.region, row.city].filter(Boolean).join(" · ");
 
   return (
-    <main className="mx-auto w-full max-w-page space-y-8 px-[clamp(20px,4vw,48px)] pb-16 pt-8">
+    <section className="mx-auto w-full max-w-page space-y-8 px-[clamp(20px,4vw,48px)] pb-16 pt-8">
       <section className="space-y-4">
         <div className="relative aspect-[21/9] w-full overflow-hidden rounded-glass border border-border bg-muted">
           {row.image_url ? (
-            <img src={row.image_url} alt={row.title} className="h-full w-full object-cover" />
+            <Image
+              src={row.image_url}
+              alt={row.title}
+              fill
+              sizes="100vw"
+              priority
+              className="object-cover"
+            />
           ) : null}
         </div>
         <div className="flex flex-wrap items-start justify-between gap-3">
@@ -141,6 +154,6 @@ export default async function TransferListingPage({
       <Separator />
 
       <TransferCrossSell listing={row} />
-    </main>
+    </section>
   );
 }

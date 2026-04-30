@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 interface GuidePhotoGridProps {
   photos: { id: string; locationName: string; imageUrl: string }[];
 }
@@ -10,11 +12,13 @@ export function GuidePhotoGrid({ photos }: GuidePhotoGridProps) {
       <h2 className="mb-4 text-lg font-semibold">Локации</h2>
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {photos.map(photo => (
-          <div key={photo.id} className="relative overflow-hidden rounded-xl">
-            <img
+          <div key={photo.id} className="relative aspect-square overflow-hidden rounded-xl">
+            <Image
               src={photo.imageUrl}
               alt={photo.locationName}
-              className="aspect-square w-full object-cover"
+              fill
+              sizes="(max-width: 640px) 50vw, 33vw"
+              className="object-cover"
             />
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-2">
               <p className="text-xs font-medium text-white">{photo.locationName}</p>

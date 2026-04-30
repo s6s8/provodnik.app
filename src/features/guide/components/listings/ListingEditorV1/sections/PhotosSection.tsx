@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -100,10 +101,12 @@ export function PhotosSection({
         {photos.map((photo) => (
           <Card key={photo.id} size="sm" className="overflow-hidden p-0">
             <div className="relative aspect-video w-full bg-muted">
-              <img
+              <Image
                 src={photo.url}
                 alt={photo.alt_text ?? ""}
-                className="size-full object-cover"
+                fill
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                className="object-cover"
               />
             </div>
             <div className="flex flex-col gap-2 p-3">

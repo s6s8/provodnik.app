@@ -69,7 +69,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
   const reviewCards: GuideReview[] = reviews && reviews.length > 0 ? reviews : [];
 
   return (
-    <main>
+    <div>
       <section className="bg-surface pt-[110px] pb-16">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-14">
@@ -260,6 +260,6 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
           )}
         </div>
       </section>
-    </main>
+    </div>
   );
 }

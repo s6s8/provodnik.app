@@ -47,7 +47,7 @@ const CATALOG_STEPS = [
 
 export default function HowItWorksPage() {
   return (
-    <main className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
       <h1 className="mb-3 font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-[1.2] text-foreground">
         Как это работает
       </h1>
@@ -120,6 +120,6 @@ export default function HowItWorksPage() {
           </Link>
         </div>
       </section>
-    </main>
+    </article>
   );
 }

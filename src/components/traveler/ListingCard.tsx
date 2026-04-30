@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -63,10 +64,12 @@ export function ListingCard({ listing }: Props) {
           )}
         >
           {listing.image_url ? (
-            <img
+            <Image
               alt=""
-              className="size-full object-cover"
+              className="object-cover"
               src={listing.image_url}
+              fill
+              sizes="(max-width: 768px) 100vw, (max-width: 1280px) 33vw, 360px"
             />
           ) : null}
         </div>

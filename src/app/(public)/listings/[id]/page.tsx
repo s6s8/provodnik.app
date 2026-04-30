@@ -3,9 +3,6 @@ import { notFound } from "next/navigation";
 
 import { ExcursionShapeDetail, type ListingDetailRow } from "@/components/listing-detail/ExcursionShapeDetail";
 import { TourShapeDetail } from "@/components/listing-detail/TourShapeDetail";
-import { SiteFooter } from "@/components/shared/site-footer";
-import { SiteHeader } from "@/components/shared/site-header";
-import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { flags } from "@/lib/flags";
@@ -41,7 +38,6 @@ export default async function ListingDetailPage({
 }) {
   const { id: ref } = await params;
   const supabase = await createSupabaseServerClient();
-  const auth = await readAuthContextFromServer();
 
   const listingQuery = supabase.from("listings").select("*").eq("status", "published");
   const { data: listingRaw } = listingRefIsUuid(ref)
@@ -89,26 +85,15 @@ export default async function ListingDetailPage({
       ]);
 
       return (
-        <div className="min-h-screen bg-surface text-on-surface">
-          <SiteHeader
-            isAuthenticated={auth.isAuthenticated}
-            role={auth.role}
-            email={auth.email}
-            canonicalRedirectTo={auth.canonicalRedirectTo}
-          />
-          <main className="pt-nav-h">
-            <TourShapeDetail
-              listing={listing}
-              photos={photos}
-              tariffs={tariffs}
-              days={daysRes.data ?? []}
-              meals={mealsRes.data ?? []}
-              departures={departuresRes.data ?? []}
-              guide={guide}
-            />
-          </main>
-          <SiteFooter />
-        </div>
+        <TourShapeDetail
+          listing={listing}
+          photos={photos}
+          tariffs={tariffs}
+          days={daysRes.data ?? []}
+          meals={mealsRes.data ?? []}
+          departures={departuresRes.data ?? []}
+          guide={guide}
+        />
       );
     }
     // Flag off — fall through to excursion template below
@@ -116,23 +101,12 @@ export default async function ListingDetailPage({
 
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface">
-      <SiteHeader
-        isAuthenticated={auth.isAuthenticated}
-        role={auth.role}
-        email={auth.email}
-        canonicalRedirectTo={auth.canonicalRedirectTo}
-      />
-      <main className="pt-nav-h">
-        <ExcursionShapeDetail
-          listing={listing}
-          photos={photos}
-          schedule={schedule}
-          tariffs={tariffs}
-          guide={guide}
-        />
-      </main>
-      <SiteFooter />
-    </div>
+    <ExcursionShapeDetail
+      listing={listing}
+      photos={photos}
+      schedule={schedule}
+      tariffs={tariffs}
+      guide={guide}
+    />
   );
 }

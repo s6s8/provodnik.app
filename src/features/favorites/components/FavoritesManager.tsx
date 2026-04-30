@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { createFolder, deleteFolder, removeFromFolder } from "@/features/favorites/actions/favoritesActions";
@@ -154,10 +155,12 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
                   )}
                 >
                   {item.listing.image_url ? (
-                    <img
+                    <Image
                       alt=""
-                      className="size-full object-cover"
+                      className="object-cover"
                       src={item.listing.image_url}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   ) : null}
                 </div>

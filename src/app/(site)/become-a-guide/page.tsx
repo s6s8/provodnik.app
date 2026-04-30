@@ -22,7 +22,7 @@ const VALUE_PROPS = [
 
 export default function BecomeAGuidePage() {
   return (
-    <main className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
       <h1 className="mb-4 font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-[1.2] text-foreground">
         Станьте гидом на Проводнике
       </h1>
@@ -56,6 +56,6 @@ export default function BecomeAGuidePage() {
           Уже есть аккаунт? Войти
         </Link>
       </div>
-    </main>
+    </article>
   );
 }

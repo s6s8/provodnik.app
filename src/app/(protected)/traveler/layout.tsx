@@ -19,9 +19,5 @@ export default async function TravelerLayout({
     redirect(auth.canonicalRedirectTo ?? "/");
   }
 
-  return (
-    <div>
-      <main className="w-full">{children}</main>
-    </div>
-  );
+  return <div className="w-full">{children}</div>;
 }

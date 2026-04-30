@@ -1,10 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import type {
-  TravelerRequestRecord,
-  TravelerRequestStatus,
-} from "@/data/traveler-request/types";
+import { mapTravelerRequestRow } from "@/data/traveler-request/map";
 import {
   getOrCreateQaThreadAction,
   sendQaMessageAction,
@@ -17,7 +14,6 @@ import type { QaThread } from "@/lib/supabase/qa-threads";
 import { getQaMessages } from "@/lib/supabase/qa-threads";
 import type {
   GuideOfferRow,
-  RequestStatus,
   TravelerRequestRow,
 } from "@/lib/supabase/types";
 
@@ -27,47 +23,6 @@ export const metadata: Metadata = {
 
 const travelerRequestSelect =
   "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
-
-function mapRequestStatus(status: RequestStatus): TravelerRequestStatus {
-  switch (status) {
-    case "open":
-      return "submitted";
-    case "booked":
-      return "booked";
-    case "cancelled":
-    case "expired":
-      return "closed";
-    default: {
-      const exhaustive: never = status;
-      return exhaustive;
-    }
-  }
-}
-
-function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestRecord {
-  const mode = row.format_preference === "group" ? "assembly" : "private";
-
-  return {
-    id: row.id,
-    status: mapRequestStatus(row.status),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    request: {
-      mode,
-      interests: Array.isArray(row.interests) ? row.interests : [],
-      destination: row.destination,
-      startDate: row.starts_on,
-      startTime: row.start_time ? row.start_time.slice(0, 5) : undefined,
-      endTime: row.end_time ? row.end_time.slice(0, 5) : undefined,
-      ...(mode === "assembly"
-        ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
-        : { groupSize: row.participants_count }),
-      allowGuideSuggestionsOutsideConstraints: row.allow_guide_suggestions,
-      budgetPerPersonRub: row.budget_minor ?? 0,
-      notes: row.notes ?? undefined,
-    },
-  };
-}
 
 
 export default async function TravelerRequestDetailPage({

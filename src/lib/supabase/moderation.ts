@@ -200,7 +200,6 @@ async function requireAdminSession() {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function _firstRelation<T>(value: T | T[] | null | undefined): T | null {
   if (Array.isArray(value)) {
     return value[0] ?? null;

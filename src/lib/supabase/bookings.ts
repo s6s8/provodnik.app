@@ -47,23 +47,6 @@ export type BookingWithDetails = BookingRow & {
 const BOOKING_SELECT =
   "id, traveler_id, guide_id, request_id, offer_id, listing_id, status, party_size, starts_at, ends_at, subtotal_minor, deposit_minor, remainder_minor, currency, cancellation_policy_snapshot, meeting_point, created_at, updated_at";
 
-const BOOKING_WITH_DETAILS_SELECT = `
-  ${BOOKING_SELECT},
-  guide_profile:guide_profiles!guide_id(
-    user_id, display_name, bio, rating, completed_tours, is_available,
-    regions, languages, specialties, specialization, attestation_status,
-    verification_status, verification_notes, payout_account_label,
-    years_experience, slug, created_at, updated_at,
-    profile:profiles!user_id(full_name, phone, avatar_url)
-  ),
-  traveler_request:traveler_requests!request_id(
-    destination, starts_on, ends_on, participants_count
-  ),
-  guide_offer:guide_offers!offer_id(
-    price_minor, currency, message
-  )
-`;
-
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------

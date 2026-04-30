@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
+
+export const metadata: Metadata = {
+  title: "Портфолио — Provodnik",
+};
 
 export default async function GuidePortfolioPage() {
   const supabase = await createSupabaseServerClient();

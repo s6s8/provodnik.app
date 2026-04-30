@@ -136,7 +136,7 @@ export function PublicRequestDetailScreen({
       : null;
 
   return (
-    <main>
+    <div>
       {/* Hero */}
       <section className="relative -mt-nav-h flex min-h-[480px] items-end overflow-hidden [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
         {/* Background image */}
@@ -404,6 +404,6 @@ export function PublicRequestDetailScreen({
           </div>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 
+import { kopecksToRub } from "@/data/money";
 import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -43,7 +44,27 @@ function formatPrice(priceMinor: number): string {
     style: "currency",
     currency: "RUB",
     maximumFractionDigits: 0,
-  }).format(priceMinor / 100);
+  }).format(kopecksToRub(priceMinor));
+}
+
+function formatDuration(minutes: number | null): string | null {
+  if (minutes === null || minutes <= 0) return null;
+  const hours = minutes / 60;
+  if (hours < 24) {
+    const rounded = Math.round(hours);
+    return `${rounded} ч`;
+  }
+  const days = Math.round(hours / 24);
+  return `${days} дн.`;
+}
+
+function formatLocation(region: string | null, city: string | null): string {
+  const trimmedRegion = region?.trim();
+  const trimmedCity = city?.trim();
+  if (!trimmedRegion && !trimmedCity) return "";
+  if (!trimmedCity || trimmedCity === trimmedRegion) return trimmedRegion ?? "";
+  if (!trimmedRegion) return trimmedCity;
+  return `${trimmedRegion}, ${trimmedCity}`;
 }
 
 type GuideListingCardProps = {
@@ -88,11 +109,11 @@ export function GuideListingCard({
                 {listing.title}
               </p>
               <p className="text-sm text-muted-foreground">
-                {listing.region}
-                {listing.city ? `, ${listing.city}` : ""}
-                {listing.duration_minutes !== null
-                  ? ` · ${Math.round(listing.duration_minutes / 60 / 24)} дн.`
-                  : null}
+                {formatLocation(listing.region, listing.city)}
+                {(() => {
+                  const duration = formatDuration(listing.duration_minutes);
+                  return duration ? ` · ${duration}` : null;
+                })()}
                 {` · до ${listing.max_group_size} чел.`}
               </p>
             </div>

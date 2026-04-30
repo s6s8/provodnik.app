@@ -129,7 +129,6 @@ export const guideOnboardingSchema = z.object({
 });
 
 export type GuideOnboardingValues = z.infer<typeof guideOnboardingSchema>;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 type _GuideOnboardingShapeCheck =
   GuideOnboardingValues extends GuideOnboardingData
     ? GuideOnboardingData extends GuideOnboardingValues

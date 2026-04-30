@@ -30,7 +30,7 @@ const INTEREST_LABELS: Record<string, string> = {
 function formatDateTime(value: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString("ru-RU", {
     month: "short",
     day: "2-digit",
     hour: "2-digit",

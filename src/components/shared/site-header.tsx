@@ -104,7 +104,7 @@ export function SiteHeader({
           {(isAuthenticated && role === "guide"
             ? guideNavLinks
             : isAuthenticated && role === "traveler"
-              ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
+              ? travelerNavLinks
               : isAuthenticated
                 ? navLinks
                 : publicNavLinks).map(
@@ -231,7 +231,7 @@ export function SiteHeader({
                 {(isAuthenticated && role === "guide"
                 ? guideNavLinks
                 : isAuthenticated && role === "traveler"
-                  ? (pathname.startsWith("/traveler") ? travelerNavLinks : navLinks)
+                  ? travelerNavLinks
                   : isAuthenticated
                     ? navLinks
                     : publicNavLinks).map((link) => {
