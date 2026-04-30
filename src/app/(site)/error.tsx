@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { unstable_rethrow } from "next/navigation";
 import { useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,8 @@ type SiteErrorProps = {
 };
 
 export default function SiteError({ error, reset }: SiteErrorProps) {
+  unstable_rethrow(error);
+
   useEffect(() => {
     console.error(error);
   }, [error]);
