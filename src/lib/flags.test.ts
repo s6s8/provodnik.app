@@ -2,10 +2,6 @@ import { describe, it, expect } from "vitest";
 import { flags, isEnabled, type FlagName } from "./flags";
 
 describe("flags registry", () => {
-  it("FEATURE_TR_V1 defaults to false", () => {
-    expect(flags.FEATURE_TR_V1).toBe(false);
-  });
-
   it("exposes all 12 sub-flags", () => {
     const subs: FlagName[] = [
       "FEATURE_TR_TOURS",
@@ -28,6 +24,6 @@ describe("flags registry", () => {
   });
 
   it("isEnabled returns the flag value", () => {
-    expect(isEnabled("FEATURE_TR_V1")).toBe(false);
+    expect(isEnabled("FEATURE_TR_TOURS")).toBe(false);
   });
 });

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getGuideListing } from "@/lib/supabase/listings";
 import { GuideListingEditPageClient } from "@/features/guide/components/listings/guide-listing-edit-page-client";
@@ -22,11 +21,6 @@ type Props = {
 };
 
 export default async function GuideListingEditPage({ params }: Props) {
-  if (flags.FEATURE_TR_V1) {
-    const { default: PageV1 } = await import("./page-v1");
-    return <PageV1 params={params} />;
-  }
-
   const { id } = await params;
 
   let defaultValues = {};

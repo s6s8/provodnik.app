@@ -4,7 +4,6 @@ const env = (k: string, d = "0"): string =>
 const bool = (k: string): boolean => env(k, "0") === "1";
 
 export const flags = {
-  FEATURE_TR_V1: bool("FEATURE_TR_V1"),
   FEATURE_TR_TOURS: bool("FEATURE_TR_TOURS"),
   FEATURE_TR_KPI: bool("FEATURE_TR_KPI"),
   FEATURE_TR_NOTIFICATIONS: bool("FEATURE_TR_NOTIFICATIONS"),

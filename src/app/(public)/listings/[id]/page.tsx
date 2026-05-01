@@ -49,10 +49,7 @@ export default async function ListingDetailPage({
   const listing = listingRaw as ListingDetailRow;
   const id = listing.id;
 
-  if (listing.exp_type === "transfer") {
-    const { default: TransferPage } = await import("./transfer/page");
-    return <TransferPage params={params} />;
-  }
+  if (listing.exp_type === "transfer") notFound();
 
   const [photosRes, scheduleRes, tariffsRes, guideRes] = await Promise.all([
     supabase.from("listing_photos").select("*").eq("listing_id", id).order("position"),
