@@ -23,12 +23,9 @@ const INTEREST_LABELS: Record<string, string> = {
   nature: "Природа",
   food: "Гастрономия",
   art: "Искусство",
-  active: "Активный отдых",
-  adventure: "Активный отдых",
   religion: "Религия",
   kids: "Для детей",
   unusual: "Необычное",
-  nightlife: "Ночная жизнь",
 };
 
 const offerFormSchema = z.object({

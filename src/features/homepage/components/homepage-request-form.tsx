@@ -10,11 +10,9 @@ import {
   Leaf,
   Utensils,
   Palette,
-  Zap,
   Church,
   Baby,
   Sparkles,
-  Moon,
 } from "lucide-react";
 
 import {
@@ -39,11 +37,9 @@ const INTEREST_OPTIONS: { slug: string; label: string; Icon: LucideIcon }[] = [
   { slug: "nature", label: "Природа", Icon: Leaf },
   { slug: "food", label: "Гастрономия", Icon: Utensils },
   { slug: "art", label: "Искусство", Icon: Palette },
-  { slug: "active", label: "Активный отдых", Icon: Zap },
   { slug: "religion", label: "Религия", Icon: Church },
   { slug: "kids", label: "Для детей", Icon: Baby },
   { slug: "unusual", label: "Необычное", Icon: Sparkles },
-  { slug: "nightlife", label: "Ночная жизнь", Icon: Moon },
 ];
 
 interface Props {
@@ -248,10 +244,10 @@ export function HomepageRequestForm({ destinations }: Props) {
         />
       </div>
 
-      {/* Interests — 3-col grid with icon tiles */}
+      {/* Interests */}
       <div className="grid gap-2">
-        <FieldLabel>Интересы поездки</FieldLabel>
-        <div className="grid grid-cols-3 gap-2">
+        <FieldLabel>Интересы</FieldLabel>
+        <div className="grid grid-cols-2 gap-2">
           {INTEREST_OPTIONS.map((opt) => {
             const selected = (interestsField.value as string[]).includes(opt.slug);
             return (
@@ -266,7 +262,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                   interestsField.onChange(next);
                 }}
                 className={cn(
-                  "flex flex-col items-center gap-1.5 rounded-xl border p-3 text-center text-xs transition-colors",
+                  "flex flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
                   selected
                     ? "border-primary bg-primary/8 text-primary"
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",
@@ -415,7 +411,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       />
 
       {/* Sticky submit button */}
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-2">
+      <div className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-8">
         <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
