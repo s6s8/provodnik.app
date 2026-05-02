@@ -149,7 +149,7 @@ export function TravelerRequestCreateForm() {
       {/* Interests */}
       <div className="grid gap-2">
         <FieldLabel>Интересы поездки</FieldLabel>
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {INTEREST_CHIPS.map((opt) => {
             const selected = interestsField.value.includes(opt.id);
             return (

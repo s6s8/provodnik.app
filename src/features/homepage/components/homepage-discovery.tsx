@@ -24,9 +24,8 @@ interface Props {
 }
 
 export function HomePageDiscovery({ requests }: Props) {
-  // Vertical-gap balance: hero py-16 + discovery pt-12 = 7rem above; discovery pb-24 + footer pt-14 = ~9.5rem below. Asymmetric on purpose — bottom transitions into a colour-contrast footer and needs more breathing room. Keep token sums in sync if any padding changes.
   return (
-    <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-24">
+    <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-14">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <div className="mx-auto max-w-2xl">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
