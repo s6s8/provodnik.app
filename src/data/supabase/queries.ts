@@ -298,7 +298,7 @@ function formatCategory(cat: string): string {
 
 const VALID_INTEREST_SLUGS = [
   "history", "architecture", "nature", "food", "art",
-  "active", "adventure", "religion", "kids", "unusual", "nightlife",
+  "photo", "kids", "unusual", "nightlife",
 ] as const;
 
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
