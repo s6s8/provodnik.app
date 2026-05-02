@@ -30,13 +30,9 @@ export default async function GuidesPage() {
   return (
     <section className="bg-surface pt-[110px] pb-20">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">Проводники</p>
-        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.05] text-on-surface mb-4">
-          Местные знатоки
+        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.05] text-on-surface mb-12">
+          Гиды
         </h1>
-        <p className="max-w-[46rem] mb-12 text-base leading-[1.7] text-on-surface-muted">
-          Местные гиды, которые превращают маршрут в историю.
-        </p>
 
         {guides.length === 0 ? (
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
