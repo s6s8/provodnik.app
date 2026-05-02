@@ -1,8 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
 
 import { TourCard } from "@/components/shared/tour-card";
-import { Button } from "@/components/ui/button";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { GuidePhotoGrid } from "./guide-photo-grid";
 
@@ -156,9 +154,6 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                 ))}
               </div>
 
-              <Button asChild>
-                <Link href={`/requests/new?guide=${guide.slug}`}>Связаться с гидом</Link>
-              </Button>
             </div>
           </div>
         </div>
@@ -174,11 +169,8 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
       <section className="bg-surface-low py-sec-pad">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
-            Туры гида
-          </p>
           <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
-            {(() => { const n = guide.displayName.split(" ")[0]; return `Авторские маршруты ${n.endsWith("й") ? n.slice(0, -1) + "я" : n + "а"}`; })()}
+            Готовые экскурсии
           </h2>
           {tourCards ? (
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
