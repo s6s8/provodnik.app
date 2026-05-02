@@ -24,44 +24,53 @@ interface Props {
 }
 
 export function HomePageDiscovery({ requests }: Props) {
-  if (requests.length === 0) return null;
-
-  // Vertical-gap balance: hero py-16 + discovery pt-12 = 7rem above; discovery pb-14 + footer pt-14 = 7rem below. Keep token sums in sync if any padding changes.
+  // Vertical-gap balance: hero py-16 + discovery pt-12 = 7rem above; discovery pb-24 + footer pt-14 = ~9.5rem below. Asymmetric on purpose — bottom transitions into a colour-contrast footer and needs more breathing room. Keep token sums in sync if any padding changes.
   return (
-    <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-14">
+    <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-24">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <div className="mx-auto max-w-2xl">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           Запросы путешественников
         </p>
         <div className="grid gap-4 md:grid-cols-2">
-          {requests.map((req) => {
-            const interestLabels = resolveInterestLabels(req.interests);
-            const visibleLabels = interestLabels.slice(0, 4);
-            const overflow = interestLabels.length - visibleLabels.length;
-            const interestText =
-              visibleLabels.length > 0
-                ? visibleLabels.join(" · ") + (overflow > 0 ? ` +${overflow}` : "")
-                : null;
+          {requests.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-foreground/[0.12] bg-white p-4 md:px-6 md:py-5 shadow-sm md:col-span-2 text-center">
+              <p className="font-display text-[1.125rem] font-semibold leading-snug text-foreground">
+                Здесь появляются запросы путешественников
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Будьте первыми — отправьте запрос в форме выше
+              </p>
+            </div>
+          ) : (
+            requests.map((req) => {
+              const interestLabels = resolveInterestLabels(req.interests);
+              const visibleLabels = interestLabels.slice(0, 4);
+              const overflow = interestLabels.length - visibleLabels.length;
+              const interestText =
+                visibleLabels.length > 0
+                  ? visibleLabels.join(" · ") + (overflow > 0 ? ` +${overflow}` : "")
+                  : null;
 
-            return (
-              <Link
-                key={req.id}
-                href={`/requests/${req.id}`}
-                className="flex h-full flex-col rounded-lg border border-foreground/[0.12] bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
-              >
-                <p className="mb-1 font-display text-[1.125rem] font-semibold leading-snug text-foreground">
-                  {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}
-                </p>
-                <p className="mb-1 text-sm text-muted-foreground">{formatGroupLine(req)}</p>
-                <p className="mb-1 text-sm text-muted-foreground">{interestText ?? " "}</p>
-                <p className="mb-3 text-sm text-muted-foreground">
-                  {req.budgetRub.toLocaleString("ru-RU")} ₽/чел. · {formatOfferCount(req.offerCount)}
-                </p>
-                <p className="text-xs font-semibold text-primary">открыть →</p>
-              </Link>
-            );
-          })}
+              return (
+                <Link
+                  key={req.id}
+                  href={`/requests/${req.id}`}
+                  className="flex h-full flex-col gap-3 rounded-lg border border-foreground/[0.12] bg-white p-4 md:px-6 md:py-5 shadow-sm transition-shadow hover:shadow-md"
+                >
+                  <p className="font-display text-[1.125rem] font-semibold leading-snug text-foreground">
+                    {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}
+                  </p>
+                  <p className="text-sm text-muted-foreground">{formatGroupLine(req)}</p>
+                  <p className="text-sm text-muted-foreground">{interestText ?? " "}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {req.budgetRub.toLocaleString("ru-RU")} ₽/чел. · {formatOfferCount(req.offerCount)}
+                  </p>
+                  <p className="text-xs font-semibold text-primary">открыть →</p>
+                </Link>
+              );
+            })
+          )}
         </div>
         </div>
       </div>
