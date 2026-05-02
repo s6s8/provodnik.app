@@ -60,6 +60,7 @@ export type GuideRecord = {
   reviewCount: number;
   topListingTitle?: string;
   experienceYears: number;
+  listingCount?: number;
 };
 
 export type RequestMember = {
@@ -626,9 +627,28 @@ export async function getGuides(
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
+    const guideIds = data.map((row) => row.user_id as string);
+
+    const { data: listingRows } = await db
+      .from("listings")
+      .select("guide_id")
+      .eq("status", "published")
+      .in("guide_id", guideIds);
+
+    const countMap: Record<string, number> = {};
+    for (const row of listingRows ?? []) {
+      const gid = row.guide_id as string;
+      countMap[gid] = (countMap[gid] ?? 0) + 1;
+    }
+
+    const filtered = data.filter((row) => (countMap[row.user_id as string] ?? 0) > 0);
+
     return {
       data: applyGuideFilters(
-        data.map((row) => mapGuideRow(row, row.profiles as Record<string, unknown> | null)),
+        filtered.map((row) => ({
+          ...mapGuideRow(row, row.profiles as Record<string, unknown> | null),
+          listingCount: countMap[row.user_id as string] ?? 0,
+        })),
         filters,
       ),
       error: null,

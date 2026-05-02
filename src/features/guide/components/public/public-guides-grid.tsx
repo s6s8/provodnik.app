@@ -8,6 +8,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import type { GuideRecord } from "@/data/supabase/queries";
 
+function pluralizeExcursions(n: number): string {
+  const mod100 = n % 100;
+  const mod10 = n % 10;
+  if (mod100 >= 11 && mod100 <= 14) return `${n} экскурсий`;
+  if (mod10 === 1) return `${n} экскурсия`;
+  if (mod10 >= 2 && mod10 <= 4) return `${n} экскурсии`;
+  return `${n} экскурсий`;
+}
+
 function normalize(value: string) {
   return value.trim().toLowerCase();
 }
@@ -40,7 +49,7 @@ export function PublicGuidesGrid({ guides }: { guides: GuideRecord[] }) {
             type="search"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Поиск по имени, региону или специализации"
+            placeholder="Поиск по имени или региону"
             className="pl-9"
           />
         </div>
@@ -78,6 +87,11 @@ export function PublicGuidesGrid({ guides }: { guides: GuideRecord[] }) {
               <p className="text-[0.8125rem] text-on-surface-muted">
                 <span className="text-amber-500">★</span> {guide.rating} · {guide.reviewCount} отзывов
               </p>
+              {guide.listingCount != null && (
+                <p className="text-[0.8125rem] text-on-surface-muted">
+                  {pluralizeExcursions(guide.listingCount)}
+                </p>
+              )}
             </Link>
           ))}
         </div>
