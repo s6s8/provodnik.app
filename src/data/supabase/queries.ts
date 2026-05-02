@@ -94,6 +94,7 @@ export type RequestRecord = {
   offerCount: number;
   imageUrl: string;
   members: RequestMember[];
+  dateFlexibility?: 'exact' | 'few_days' | 'week';
 };
 
 export type OfferRecord = {
@@ -343,6 +344,7 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     offerCount: 0,
     imageUrl,
     members: [],
+    dateFlexibility: (row.date_flexibility as 'exact' | 'few_days' | 'week') ?? 'exact',
   };
 }
 

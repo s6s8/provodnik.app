@@ -19,9 +19,10 @@ const INTEREST_LABELS: Record<string, string> = {
   nature: "Природа",
   food: "Гастрономия",
   art: "Искусство",
-  religion: "Религия",
+  photo: "Фотопрогулки",
   kids: "Для детей",
   unusual: "Необычное",
+  nightlife: "Ночная жизнь",
 };
 
 function formatDateTime(value: string): string {
@@ -319,6 +320,11 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
+                            {item.dateFlexibility && item.dateFlexibility !== 'exact' && (
+                              <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                                {item.dateFlexibility === 'few_days' ? '±пара дней' : '±неделя'}
+                              </span>
+                            )}
                           </p>
                           {formatTimeRange(item.startTime, item.endTime) && (
                             <div className="flex items-center gap-1.5">
