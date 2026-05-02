@@ -26,6 +26,7 @@ export async function createRequestAction(
     interests: formData.getAll("interests[]").map(String),
     destination: (formData.get("destination") as string) ?? "",
     startDate: (formData.get("startDate") as string) ?? "",
+    dateFlexibility: (formData.get("dateFlexibility") as string) || "exact",
     startTime: (formData.get("startTime") as string) || undefined,
     endTime: (formData.get("endTime") as string) || undefined,
     ...(isAssembly
@@ -85,6 +86,7 @@ export async function createRequestAction(
         interests: input.interests,
         starts_on: input.startDate,
         ends_on: input.startDate,
+        date_flexibility: input.dateFlexibility ?? 'exact',
         start_time: input.startTime || null,
         end_time: input.endTime || null,
         budget_minor: rubToKopecks(input.budgetPerPersonRub),

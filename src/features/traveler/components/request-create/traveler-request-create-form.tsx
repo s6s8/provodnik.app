@@ -13,21 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { INTEREST_CHIPS } from "@/data/interests";
 
 type RequestFormValues = TravelerRequest;
-
-const INTEREST_OPTIONS = [
-  { slug: "history", label: "История" },
-  { slug: "architecture", label: "Архитектура" },
-  { slug: "nature", label: "Природа" },
-  { slug: "food", label: "Гастрономия" },
-  { slug: "art", label: "Искусство" },
-  { slug: "active", label: "Активный отдых" },
-  { slug: "religion", label: "Религия" },
-  { slug: "kids", label: "Для детей" },
-  { slug: "unusual", label: "Необычное" },
-  { slug: "nightlife", label: "Ночная жизнь" },
-];
 
 export function TravelerRequestCreateForm() {
   const [serverError, setServerError] = React.useState<string | null>(null);
@@ -40,6 +28,7 @@ export function TravelerRequestCreateForm() {
       interests: [] as string[],
       destination: "",
       startDate: "",
+      dateFlexibility: 'exact' as const,
       startTime: "",
       endTime: "",
       groupSize: 2,
@@ -81,6 +70,7 @@ export function TravelerRequestCreateForm() {
       for (const i of values.interests) { fd.append("interests[]", i); }
       fd.set("destination", values.destination);
       fd.set("startDate", values.startDate);
+      fd.set("dateFlexibility", values.dateFlexibility ?? "exact");
       fd.set("startTime", values.startTime ?? "");
       fd.set("endTime", values.endTime ?? "");
 
@@ -160,16 +150,16 @@ export function TravelerRequestCreateForm() {
       <div className="grid gap-2">
         <FieldLabel>Интересы поездки</FieldLabel>
         <div className="flex flex-wrap gap-2">
-          {INTEREST_OPTIONS.map((opt) => {
-            const selected = interestsField.value.includes(opt.slug);
+          {INTEREST_CHIPS.map((opt) => {
+            const selected = interestsField.value.includes(opt.id);
             return (
               <button
-                key={opt.slug}
+                key={opt.id}
                 type="button"
                 onClick={() => {
                   const next = selected
-                    ? interestsField.value.filter((s: string) => s !== opt.slug)
-                    : [...interestsField.value, opt.slug];
+                    ? interestsField.value.filter((s: string) => s !== opt.id)
+                    : [...interestsField.value, opt.id];
                   interestsField.onChange(next);
                 }}
                 className={cn(
@@ -237,6 +227,37 @@ export function TravelerRequestCreateForm() {
             {...register("endTime")}
           />
           <FieldError id="endTime-error" message={errors.endTime?.message} />
+        </div>
+      </div>
+
+      {/* Date flexibility */}
+      <div className="grid gap-2">
+        <FieldLabel>Гибкость дат</FieldLabel>
+        <div className="flex gap-2">
+          {(
+            [
+              { value: 'exact', label: 'Точная дата' },
+              { value: 'few_days', label: '±пара дней' },
+              { value: 'week', label: '±неделя' },
+            ] as const
+          ).map(({ value, label }) => {
+            const current = form.watch('dateFlexibility');
+            return (
+              <button
+                key={value}
+                type="button"
+                onClick={() => form.setValue('dateFlexibility', value)}
+                className={cn(
+                  "flex-1 rounded-md border px-3 py-2 text-sm transition-colors",
+                  current === value
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-input bg-background hover:bg-muted"
+                )}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

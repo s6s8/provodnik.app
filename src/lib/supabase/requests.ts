@@ -67,6 +67,7 @@ export const createRequestInputSchema = z
       .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
       .nullable()
       .optional(),
+    date_flexibility: z.enum(['exact', 'few_days', 'week']).default('exact'),
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.starts_on);
@@ -148,6 +149,7 @@ export async function createTravelerRequest(
       group_capacity: input.group_capacity ?? null,
       start_time: input.start_time ?? null,
       end_time: input.end_time ?? null,
+      date_flexibility: input.date_flexibility,
     })
     .select(SELECT_COLS)
     .single();
