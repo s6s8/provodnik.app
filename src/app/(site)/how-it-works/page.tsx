@@ -5,65 +5,49 @@ export const metadata: Metadata = {
   title: "Как это работает",
 };
 
-const BIRJA_STEPS = [
+const REQUEST_STEPS = [
   {
     step: "1",
-    title: "Опишите поездку",
-    description:
-      "Укажите город, даты, интересы и бюджет. Форма занимает минуту.",
+    text: "Укажите город, даты, формат группы (своя или сборная) и желаемый бюджет.",
   },
   {
     step: "2",
-    title: "Получите предложения от гидов",
-    description:
-      "Местные гиды видят ваш запрос и откликаются с программой и ценой.",
+    text: "Гиды откликнутся с программой и ценой — сравните и выберите.",
   },
   {
     step: "3",
-    title: "Выберите подходящее",
-    description:
-      "Сравните предложения, задайте вопросы прямо в чате и подтвердите поездку.",
+    text: "Подтвердите бронирование в чате.",
   },
 ] as const;
 
 const CATALOG_STEPS = [
   {
     step: "1",
-    title: "Просмотрите каталог",
-    description:
-      "Готовые экскурсии от местных гидов с фиксированной ценой и расписанием.",
+    text: "Выберите маршрут из каталога с фиксированной ценой и расписанием.",
   },
   {
     step: "2",
-    title: "Выберите дату",
-    description: "Найдите свободное место и выберите удобное время.",
+    text: "Найдите свободное место на удобную дату.",
   },
   {
     step: "3",
-    title: "Забронируйте",
-    description: "Подтвердите бронь — гид получит уведомление и свяжется с вами.",
+    text: "Оплатите — подтверждение придёт автоматически.",
   },
 ] as const;
 
 export default function HowItWorksPage() {
   return (
     <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
-      <h1 className="mb-3 font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-[1.2] text-foreground">
+      <h1 className="mb-12 font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-[1.2] text-foreground">
         Как это работает
       </h1>
-      <p className="mb-12 text-base text-muted-foreground">
-        Два способа организовать экскурсию — на ваш выбор.
-      </p>
 
       <section className="mb-12">
-        <h2 className="mb-1 text-lg font-semibold text-foreground">
-          Биржа — под ваш запрос
+        <h2 className="mb-6 text-lg font-semibold text-foreground">
+          Запрос гидам
         </h2>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Опишите поездку — гиды откликнутся с индивидуальной программой и ценой.
-        </p>
         <div className="space-y-3">
-          {BIRJA_STEPS.map((item) => (
+          {REQUEST_STEPS.map((item) => (
             <div
               key={item.step}
               className="flex gap-4 rounded-xl border border-border/70 bg-card/90 p-5"
@@ -71,10 +55,7 @@ export default function HowItWorksPage() {
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                 {item.step}
               </span>
-              <div>
-                <p className="mb-0.5 text-sm font-semibold text-foreground">{item.title}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </div>
+              <p className="text-sm text-foreground">{item.text}</p>
             </div>
           ))}
         </div>
@@ -89,12 +70,9 @@ export default function HowItWorksPage() {
       </section>
 
       <section>
-        <h2 className="mb-1 text-lg font-semibold text-foreground">
-          Готовые экскурсии — выбор из каталога
+        <h2 className="mb-6 text-lg font-semibold text-foreground">
+          Готовые экскурсии
         </h2>
-        <p className="mb-6 text-sm text-muted-foreground">
-          Фиксированная цена, готовый маршрут — просто найдите удобное время.
-        </p>
         <div className="space-y-3">
           {CATALOG_STEPS.map((item) => (
             <div
@@ -104,10 +82,7 @@ export default function HowItWorksPage() {
               <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                 {item.step}
               </span>
-              <div>
-                <p className="mb-0.5 text-sm font-semibold text-foreground">{item.title}</p>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
-              </div>
+              <p className="text-sm text-foreground">{item.text}</p>
             </div>
           ))}
         </div>
