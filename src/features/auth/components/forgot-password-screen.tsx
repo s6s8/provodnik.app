@@ -7,10 +7,10 @@ import { AlertCircle, ArrowLeft, CheckCircle2, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { hasSupabaseAdminEnv } from "@/lib/env";
+import { hasSupabaseEnv } from "@/lib/env";
 import { sendPasswordResetEmail } from "@/app/(auth)/auth/forgot-password/actions";
 
-const hasEnv = hasSupabaseAdminEnv();
+const hasEnv = hasSupabaseEnv();
 
 export function ForgotPasswordScreen() {
   const [email, setEmail] = useState("");
