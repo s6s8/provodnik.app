@@ -93,7 +93,7 @@ export default async function GuideProfilePage() {
       supabase
         .from("guide_profiles")
         .select(
-          "bio, languages, years_experience, regions, legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number, verification_status, verification_notes",
+          "bio, languages, specializations, years_experience, regions, legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number, verification_status, verification_notes",
         )
         .eq("user_id", guideId)
         .maybeSingle(),
@@ -195,6 +195,7 @@ export default async function GuideProfilePage() {
             <GuideAboutForm
               initialBio={profile?.bio ?? ""}
               initialLanguages={profile?.languages ?? []}
+              initialSpecializations={profile?.specializations ?? []}
               initialYearsExperience={profile?.years_experience ?? null}
             />
           </CardContent>

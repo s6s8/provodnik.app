@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { InterestChipGroup } from "@/features/shared/components/interest-chip-group";
 import { saveGuideAboutAction } from "./actions";
 
 const LANGUAGES = [
@@ -29,16 +30,19 @@ const LANGUAGES = [
 interface GuideAboutFormProps {
   initialBio: string;
   initialLanguages: string[];
+  initialSpecializations: string[];
   initialYearsExperience: number | null;
 }
 
 export function GuideAboutForm({
   initialBio,
   initialLanguages,
+  initialSpecializations,
   initialYearsExperience,
 }: GuideAboutFormProps) {
   const [status, setStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = React.useState("");
+  const [specializations, setSpecializations] = React.useState<string[]>(initialSpecializations);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -108,6 +112,19 @@ export function GuideAboutForm({
             </label>
           ))}
         </div>
+      </fieldset>
+
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-foreground">Темы экскурсий</legend>
+        <p className="text-xs text-muted-foreground">
+          Отметьте темы, по которым вы готовы вести экскурсии. Запросы по этим темам будут показаны в верху вашей ленты. Остальные запросы по-прежнему видны.
+        </p>
+        <InterestChipGroup
+          name="specializations"
+          selected={specializations}
+          onChange={setSpecializations}
+          ariaLabel="Темы экскурсий"
+        />
       </fieldset>
 
       {/* Submit */}

@@ -15,11 +15,14 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   const bio = formData.get("bio") as string | null;
   const yearsExperience = formData.get("years_experience");
   const languagesRaw = formData.getAll("languages") as string[];
+  const specializationsRaw = formData.getAll("specializations") as string[];
 
   const update: Record<string, unknown> = {
     bio: bio ?? "",
     languages: languagesRaw.filter(Boolean),
   };
+
+  update.specializations = specializationsRaw.filter(Boolean);
 
   if (yearsExperience && !isNaN(Number(yearsExperience))) {
     update.years_experience = Number(yearsExperience);
