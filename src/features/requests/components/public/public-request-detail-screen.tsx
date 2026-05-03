@@ -336,7 +336,11 @@ export function PublicRequestDetailScreen({
                     Вы участник ✓
                   </span>
                 ) : showJoinButton ? (
-                  <JoinGroupButton requestId={request.id} className="w-full" />
+                  <JoinGroupButton
+                    requestId={request.id}
+                    className="w-full"
+                    disabled={request.group.sizeCurrent >= request.group.sizeTarget}
+                  />
                 ) : !currentUserId ? (
                   <Button asChild className="w-full justify-center">
                     <Link href={`/auth?next=/requests/${request.id}`}>

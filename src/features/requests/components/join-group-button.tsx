@@ -9,9 +9,10 @@ import { joinRequestAction } from "@/app/(protected)/traveler/requests/join-acti
 interface JoinGroupButtonProps {
   requestId: string;
   className?: string;
+  disabled?: boolean;
 }
 
-export function JoinGroupButton({ requestId, className }: JoinGroupButtonProps) {
+export function JoinGroupButton({ requestId, className, disabled }: JoinGroupButtonProps) {
   const [status, setStatus] = React.useState<
     "idle" | "loading" | "joined" | "error"
   >("idle");
@@ -60,7 +61,7 @@ export function JoinGroupButton({ requestId, className }: JoinGroupButtonProps) 
     <div className="flex flex-col gap-1">
       <Button
         onClick={handleJoin}
-        disabled={isPending || status === "loading"}
+        disabled={isPending || status === "loading" || !!disabled}
         variant="outline"
         size="sm"
         className={className}
