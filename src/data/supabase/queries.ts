@@ -138,7 +138,7 @@ export type ReviewRecord = {
 
 export type ListingFilters = { destination?: string; duration?: string; priceRange?: string; format?: string };
 export type RequestFilters = { destination?: string; status?: string };
-export type GuideFilters = { destination?: string };
+export type GuideFilters = { destination?: string; specializations?: string[] };
 
 export type DestinationOption = {
   name: string;
@@ -621,10 +621,14 @@ export async function getGuides(
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
     const db = getPublicClient();
-    const { data, error } = await db
+    let query = db
       .from("guide_profiles")
       .select("*, profiles:user_id(id, full_name, avatar_url)")
       .eq("verification_status", "approved");
+    if (filters?.specializations && filters.specializations.length > 0) {
+      query = query.overlaps("specializations", filters.specializations);
+    }
+    const { data, error } = await query;
 
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };

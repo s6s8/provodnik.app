@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { PublicGuidesGrid } from "@/features/guide/components/public/public-guides-grid";
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
+import { INTEREST_CHIPS } from "@/data/interests";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -15,13 +16,24 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default async function GuidesPage() {
+export default async function GuidesPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ spec?: string }>;
+}) {
+  const sp = await searchParams;
+  const validSpecs = new Set<string>(INTEREST_CHIPS.map((c) => c.id));
+  const activeSpecs = (sp?.spec ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0 && validSpecs.has(s));
+
   let guides: GuideRecord[] = [];
 
   const auth = await readAuthContextFromServer();
   try {
     const supabase = await createSupabaseServerClient();
-    const result = await getGuides(supabase);
+    const result = await getGuides(supabase, { specializations: activeSpecs });
     if (result.data) guides = result.data;
   } catch {
     // guides stays []
@@ -34,7 +46,7 @@ export default async function GuidesPage() {
           Гиды
         </h1>
 
-        {guides.length === 0 ? (
+        {guides.length === 0 && activeSpecs.length === 0 ? (
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
               <Users className="size-6" strokeWidth={1.9} />
@@ -45,7 +57,7 @@ export default async function GuidesPage() {
             </p>
           </div>
         ) : (
-          <PublicGuidesGrid guides={guides} />
+          <PublicGuidesGrid guides={guides} activeSpecs={activeSpecs} />
         )}
 
         {auth.role !== "guide" && (
