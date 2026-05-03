@@ -193,8 +193,14 @@ function formatRub(value: number) {
 }
 
 function formatDateLabel(start: string, end?: string | null) {
-  if (!end || end === start) return start;
-  return `${start} - ${end}`;
+  const fmt = (iso: string) => {
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return iso;
+    return d.toLocaleString("ru-RU", { day: "numeric", month: "long", year: "numeric", hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+  };
+  const s = fmt(start);
+  if (!end || end === start) return s;
+  return `${s} – ${fmt(end)}`;
 }
 
 function daysLabel(days: number): string {
