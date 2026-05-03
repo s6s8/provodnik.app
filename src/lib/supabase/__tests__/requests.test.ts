@@ -6,7 +6,6 @@ describe('createRequestInputSchema', () => {
   it('accepts valid input and applies defaults', () => {
     const parsed = createRequestInputSchema.parse({
       destination: '  Москва  ',
-      category: 'culture',
       starts_on: '2026-05-10',
       ends_on: '2026-05-12',
       budget_minor: 150000,
@@ -16,7 +15,6 @@ describe('createRequestInputSchema', () => {
 
     expect(parsed).toMatchObject({
       destination: 'Москва',
-      category: 'culture',
       starts_on: '2026-05-10',
       ends_on: '2026-05-12',
       budget_minor: 150000,
@@ -31,7 +29,6 @@ describe('createRequestInputSchema', () => {
   it('rejects an invalid date range with the expected message', () => {
     const result = createRequestInputSchema.safeParse({
       destination: 'Казань',
-      category: 'food',
       starts_on: '2026-06-03',
       ends_on: '2026-06-01',
       participants_count: 2,
@@ -50,7 +47,6 @@ describe('createRequestInputSchema', () => {
   it('rejects invalid field values with the expected messages', () => {
     const result = createRequestInputSchema.safeParse({
       destination: 'A',
-      category: 'city',
       starts_on: 'bad-date',
       ends_on: '',
       budget_minor: 999,
