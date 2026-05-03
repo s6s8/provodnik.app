@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { OnboardingWizard } from "@/features/guide/components/onboarding/OnboardingWizard";
 import { flags } from "@/lib/flags";
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function GuideOnboardingPage() {
-  if (!flags.FEATURE_TR_QUIZ) notFound();
+  if (!flags.FEATURE_TR_QUIZ) redirect("/guide");
 
   if (hasSupabaseEnv()) {
     try {
