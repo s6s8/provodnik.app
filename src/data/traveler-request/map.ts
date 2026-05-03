@@ -34,6 +34,7 @@ export function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestR
       interests: Array.isArray(row.interests) ? row.interests : [],
       destination: row.destination,
       startDate: row.starts_on,
+      dateFlexibility: row.date_flexibility,
       startTime: row.start_time ? row.start_time.slice(0, 5) : undefined,
       endTime: row.end_time ? row.end_time.slice(0, 5) : undefined,
       ...(mode === "assembly"

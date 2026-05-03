@@ -54,6 +54,7 @@ export function TravelerRequestCreateForm() {
   const budget = useWatch({ control, name: "budgetPerPersonRub" });
   const groupSize = useWatch({ control, name: "groupSize" });
   const groupSizeCurrent = useWatch({ control, name: "groupSizeCurrent" });
+  const dateFlexibility = useWatch({ control, name: "dateFlexibility" });
   const isAssembly = mode === "assembly";
   const isLoading = isSubmitting || isPending;
 
@@ -240,24 +241,21 @@ export function TravelerRequestCreateForm() {
               { value: 'few_days', label: '±пара дней' },
               { value: 'week', label: '±неделя' },
             ] as const
-          ).map(({ value, label }) => {
-            const current = form.watch('dateFlexibility');
-            return (
-              <button
-                key={value}
-                type="button"
-                onClick={() => form.setValue('dateFlexibility', value)}
-                className={cn(
-                  "flex-1 rounded-md border px-3 py-2 text-sm transition-colors",
-                  current === value
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-input bg-background hover:bg-muted"
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
+          ).map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => form.setValue('dateFlexibility', value)}
+              className={cn(
+                "flex-1 rounded-md border px-3 py-2 text-sm transition-colors",
+                dateFlexibility === value
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-input bg-background hover:bg-muted"
+              )}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 

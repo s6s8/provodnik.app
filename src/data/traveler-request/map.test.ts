@@ -24,6 +24,7 @@ const baseRow: TravelerRequestRow = {
   status: "open",
   created_at: "2026-04-22T22:45:00.000Z",
   updated_at: "2026-04-22T22:45:00.000Z",
+  date_flexibility: "exact",
 } as TravelerRequestRow;
 
 describe("mapTravelerRequestRow — budget conversion", () => {

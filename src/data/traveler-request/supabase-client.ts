@@ -45,6 +45,7 @@ function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
       interests: Array.isArray(row.interests) ? row.interests : [],
       destination: row.destination,
       startDate: row.starts_on,
+      dateFlexibility: row.date_flexibility,
       ...(mode === "assembly"
         ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
         : { groupSize: row.participants_count }),
@@ -62,7 +63,7 @@ export async function listTravelerRequestsFromSupabase(): Promise<
   const { data, error } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
     )
     .order("updated_at", { ascending: false });
 
@@ -80,7 +81,7 @@ export async function getTravelerRequestByIdFromSupabase(
   const { data, error } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
     )
     .eq("id", id)
     .maybeSingle();
@@ -127,13 +128,14 @@ export async function createTravelerRequestInSupabase(
     open_to_join: isAssembly,
     allow_guide_suggestions: input.allowGuideSuggestionsOutsideConstraints,
     group_capacity: isAssembly ? (input.groupMax ?? null) : null,
+    date_flexibility: input.dateFlexibility,
   };
 
   const { data, error } = await supabase
     .from("traveler_requests")
     .insert(payload)
     .select(
-      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at",
+      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
     )
     .single();
 
