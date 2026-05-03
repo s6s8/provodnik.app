@@ -102,8 +102,8 @@ export async function createRequestAction(
     );
     requestId = record.id;
   } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Неизвестная ошибка при сохранении.";
+    const pg = err as { message?: string; code?: string };
+    const message = pg?.message ?? "Неизвестная ошибка при сохранении.";
     return { error: `Не удалось сохранить запрос: ${message}` };
   }
 
