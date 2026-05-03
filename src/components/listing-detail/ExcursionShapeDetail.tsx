@@ -195,8 +195,8 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
         <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-[clamp(12px,3vw,24px)]">
           <p className="text-lg font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
           <Button asChild className="shrink-0">
-            <Link href={`/traveler/requests/new${guide?.user_id ? `?guide=${guide.user_id}` : ""}`}>
-              Запросить
+            <Link href={`/listings/${listing.id}/book`}>
+              Заказать
             </Link>
           </Button>
         </div>
