@@ -23,7 +23,7 @@ export default async function DisputeDetailPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/login");
+    redirect("/auth");
   }
 
   const { data: profile } = await supabase
