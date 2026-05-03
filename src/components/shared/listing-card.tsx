@@ -28,6 +28,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
         alt={listing.title}
         fill
         priority={priority}
+        fetchPriority={priority ? "high" : "auto"}
         sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
       />

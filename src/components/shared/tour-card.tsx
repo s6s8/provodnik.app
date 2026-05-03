@@ -28,6 +28,7 @@ export function TourCard({
         alt={title}
         fill
         priority={priority}
+        fetchPriority={priority ? "high" : "auto"}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="object-cover"
       />

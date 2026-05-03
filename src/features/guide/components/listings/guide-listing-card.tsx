@@ -99,6 +99,7 @@ export function GuideListingCard({
               alt={listing.title}
               fill
               priority
+              fetchPriority="high"
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
