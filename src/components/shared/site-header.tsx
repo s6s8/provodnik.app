@@ -18,7 +18,6 @@ import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { COPY } from "@/lib/copy";
-import { flags } from "@/lib/flags";
 import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
 
@@ -65,6 +64,7 @@ interface SiteHeaderProps {
   email?: string | null;
   canonicalRedirectTo?: AuthRedirectTarget | null;
   userId?: string | null;
+  notificationsEnabled?: boolean;
 }
 
 export function SiteHeader({
@@ -73,6 +73,7 @@ export function SiteHeader({
   email = null,
   canonicalRedirectTo = null,
   userId = null,
+  notificationsEnabled = false,
 }: SiteHeaderProps) {
   const pathname = usePathname();
   const { unreadCount } = useUnreadCount(isAuthenticated);
@@ -152,7 +153,7 @@ export function SiteHeader({
               {role ? roleLabels[role] : null}
             </Link>
           ) : null}
-          {flags.FEATURE_TR_NOTIFICATIONS && isAuthenticated && userId ? (
+          {notificationsEnabled && isAuthenticated && userId ? (
             <NotificationBell userId={userId} />
           ) : null}
           {isAuthenticated ? (

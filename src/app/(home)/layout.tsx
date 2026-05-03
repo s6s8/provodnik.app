@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { SiteHeader } from "@/components/shared/site-header";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { flags } from "@/lib/flags";
 
 export default async function HomeLayout({ children }: { children: ReactNode }) {
   const auth = await readAuthContextFromServer();
@@ -14,6 +15,7 @@ export default async function HomeLayout({ children }: { children: ReactNode }) 
         email={auth.email}
         canonicalRedirectTo={auth.canonicalRedirectTo}
         userId={auth.userId}
+        notificationsEnabled={flags.FEATURE_TR_NOTIFICATIONS}
       />
       <main className="pt-nav-h">{children}</main>
     </>
