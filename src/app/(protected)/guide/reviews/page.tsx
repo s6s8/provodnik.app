@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { ReviewsList } from "@/features/reviews/components/ReviewsList";
@@ -44,7 +44,7 @@ function toListItem(raw: RawReview, guideId: string): ReviewRow & {
 
 export default async function GuideReviewsPage() {
   if (!flags.FEATURE_TR_REPUTATION) {
-    notFound();
+    redirect("/guide");
   }
 
   let items: (ReviewRow & {
