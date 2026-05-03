@@ -35,8 +35,6 @@ function fillMinimalForm() {
   fireEvent.change(screen.getByLabelText(/дата/i), {
     target: { value: "2026-06-01" },
   });
-  // Expand the form to access interest buttons
-  fireEvent.click(screen.getByRole("button", { name: /уточнить запрос/i }));
   // Select one interest to satisfy the min(1) schema requirement
   fireEvent.click(screen.getByRole("button", { name: /история/i }));
 }
@@ -50,7 +48,7 @@ describe("HomepageRequestForm onSubmit", () => {
     mockGetUser.mockRejectedValueOnce(new TypeError("Failed to fetch"));
     render(<HomepageRequestForm destinations={[]} />);
     fillMinimalForm();
-    fireEvent.click(screen.getByRole("button", { name: /найти гида/i }));
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
     await waitFor(() => {
       expect(screen.getByTestId("auth-gate-open")).toBeInTheDocument();
     });
@@ -60,7 +58,7 @@ describe("HomepageRequestForm onSubmit", () => {
     mockGetUser.mockResolvedValueOnce({ data: { user: null }, error: null });
     render(<HomepageRequestForm destinations={[]} />);
     fillMinimalForm();
-    fireEvent.click(screen.getByRole("button", { name: /найти гида/i }));
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
     await waitFor(() => {
       expect(screen.getByTestId("auth-gate-open")).toBeInTheDocument();
     });
