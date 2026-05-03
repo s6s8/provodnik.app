@@ -2244,31 +2244,40 @@ export type Database = {
       notifications: {
         Row: {
           body: string | null
+          channel: string
           created_at: string
           href: string | null
           id: string
           is_read: boolean
           kind: Database["public"]["Enums"]["notification_kind"]
+          read_at: string | null
+          status: string
           title: string
           user_id: string
         }
         Insert: {
           body?: string | null
+          channel?: string
           created_at?: string
           href?: string | null
           id?: string
           is_read?: boolean
           kind: Database["public"]["Enums"]["notification_kind"]
+          read_at?: string | null
+          status?: string
           title: string
           user_id: string
         }
         Update: {
           body?: string | null
+          channel?: string
           created_at?: string
           href?: string | null
           id?: string
           is_read?: boolean
           kind?: Database["public"]["Enums"]["notification_kind"]
+          read_at?: string | null
+          status?: string
           title?: string
           user_id?: string
         }
@@ -3066,6 +3075,10 @@ export type Database = {
       fn_refresh_listing_rating: {
         Args: { p_listing_id: string }
         Returns: undefined
+      }
+      guide_offer_exists_for_counter: {
+        Args: { p_guide_id: string; p_request_id: string }
+        Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
       is_guide: { Args: never; Returns: boolean }
