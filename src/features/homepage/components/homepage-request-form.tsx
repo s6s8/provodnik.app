@@ -58,6 +58,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       interests: [] as string[],
       destination: "",
       startDate: "",
+      dateFlexibility: "exact",
       startTime: "",
       endTime: "",
       groupSize: 2,
