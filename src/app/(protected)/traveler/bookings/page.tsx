@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getConfirmedBookings } from "@/lib/supabase/traveler-requests";
 
 export const metadata: Metadata = {
-  title: "Мои бронирования — Provodnik",
+  title: "Мои бронирования",
 };
 
 export default async function TravelerBookingsIndexPage() {
