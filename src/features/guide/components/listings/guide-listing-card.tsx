@@ -98,6 +98,7 @@ export function GuideListingCard({
               src={listing.image_url}
               alt={listing.title}
               fill
+              priority
               className="object-cover"
               sizes="(max-width: 768px) 100vw, 50vw"
             />
