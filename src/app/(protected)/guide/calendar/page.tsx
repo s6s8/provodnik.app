@@ -228,13 +228,13 @@ export default async function GuideCalendarPage({
                 <p className="mt-1 text-base font-semibold">{activeBookings.length}</p>
               </div>
               <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Оборот (завершённые, RUB)</p>
+                <p className="text-xs text-muted-foreground">Оборот (завершённые)</p>
                 <p className="mt-1 text-base font-semibold">
                   {totalRevenue > 0
                     ? new Intl.NumberFormat("ru-RU", {
                         style: "currency",
                         currency: "RUB",
-                        currencyDisplay: "code",
+                        currencyDisplay: "symbol",
                         maximumFractionDigits: 0,
                       }).format(totalRevenue)
                     : "—"}

@@ -95,7 +95,7 @@ export function GuideBookingsScreen() {
             </p>
           </div>
           <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Сумма по турам (RUB)</p>
+            <p className="text-xs text-muted-foreground">Сумма по турам</p>
             <p className="mt-1 text-base font-semibold text-foreground">
               {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
             </p>
@@ -174,7 +174,7 @@ function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "RUB",
-    currencyDisplay: "code",
+    currencyDisplay: "symbol",
     maximumFractionDigits: 0,
   }).format(amount);
 }

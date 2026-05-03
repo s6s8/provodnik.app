@@ -253,7 +253,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
             />
             <StatCard
               label="Статус"
-              value={record.status}
+              value={formatStatusLabelForSummary(mapDbStatusToGuideStatus(record.status))}
               helper={record.title}
             />
           </div>
@@ -320,7 +320,7 @@ function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency: "RUB",
-    currencyDisplay: "code",
+    currencyDisplay: "symbol",
     maximumFractionDigits: 0,
   }).format(amount);
 }
