@@ -20,7 +20,7 @@ async function main() {
 
   const { data, error } = await supabase
     .from('guide_profiles')
-    .select('id, user_id, display_name, home_base, biography, specializations')
+    .select('user_id, display_name, base_city, bio, specializations')
     .eq('verification_status', 'approved')
     .order('created_at');
 
@@ -28,23 +28,23 @@ async function main() {
 
   const rows = ['guide_id,user_id,display_name,home_base,proposed,source_keywords'];
   for (const g of data ?? []) {
-    const bio = (g.biography ?? '').toLowerCase();
+    const bio = (g.bio ?? '').toLowerCase();
     const found: { spec: string; kw: string }[] = [];
     for (const [spec, kws] of Object.entries(KEYWORDS)) {
       const hit = kws.find((kw) => bio.includes(kw));
       if (hit) found.push({ spec, kw: hit });
     }
     rows.push([
-      g.id,
+      g.user_id,
       g.user_id,
       JSON.stringify(g.display_name ?? ''),
-      JSON.stringify(g.home_base ?? ''),
+      JSON.stringify(g.base_city ?? ''),
       `"${found.map((f) => f.spec).join(',')}"`,
       `"${found.map((f) => f.kw).join('|')}"`,
     ].join(','));
   }
 
-  await writeFile('.bek/data/specializations-proposal.csv', rows.join('\n'), 'utf-8');
+  await writeFile('../.bek/data/specializations-proposal.csv', rows.join('\n'), 'utf-8');
   console.log(`Wrote ${rows.length - 1} guide proposals.`);
 }
 
