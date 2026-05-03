@@ -65,6 +65,7 @@ type RequestsFilter = "new" | "my-offers";
 
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
   const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, string>>(new Map());
   const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
@@ -113,6 +114,8 @@ export function GuideRequestsInboxScreen() {
         }
       } catch (err) {
         console.warn("[inbox] initial load failed:", err);
+      } finally {
+        if (!ignore) setIsLoading(false);
       }
     }
 
@@ -152,12 +155,13 @@ export function GuideRequestsInboxScreen() {
 
   React.useEffect(() => {
     if (didAutoSelect) return;
+    if (isLoading) return;
     if (items.length === 0) return;
     if (newCount === 0 && myOffersCount > 0) {
       setFilter("my-offers");
     }
     setDidAutoSelect(true);
-  }, [didAutoSelect, items.length, newCount, myOffersCount]);
+  }, [didAutoSelect, isLoading, items.length, newCount, myOffersCount]);
 
   const filteredItems = React.useMemo(() => {
     let filtered = items;
@@ -226,18 +230,22 @@ export function GuideRequestsInboxScreen() {
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
           <CardTitle>Входящие запросы</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {items.length} запрос
-            {items.length === 1
-              ? ""
-              : items.length > 1 && items.length < 5
-                ? "а"
-                : "ов"}
-            .
-          </p>
+          {!isLoading && (
+            <p className="text-sm text-muted-foreground">
+              {items.length} запрос
+              {items.length === 1
+                ? ""
+                : items.length > 1 && items.length < 5
+                  ? "а"
+                  : "ов"}
+              .
+            </p>
+          )}
         </CardHeader>
         <CardContent className="space-y-4">
-          {items.length === 0 ? (
+          {isLoading ? (
+            <p className="text-sm text-muted-foreground">Загрузка запросов…</p>
+          ) : items.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               {emptyText}
             </p>
