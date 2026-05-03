@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 import { kopecksToRub } from "@/data/money";
 import type { ListingRow, ListingStatusDb } from "@/lib/supabase/types";
@@ -83,6 +84,7 @@ export function GuideListingCard({
   pending,
 }: GuideListingCardProps) {
   const busy = pending === listing.id;
+  const router = useRouter();
 
   return (
     <Link
@@ -135,17 +137,15 @@ export function GuideListingCard({
 
           <div className="flex flex-wrap gap-2">
             <Button
-              asChild
               variant="outline"
               size="sm"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                router.push(`/guide/listings/${listing.id}/edit`);
+              }}
             >
-              <Link
-                href={`/guide/listings/${listing.id}/edit`}
-                onClick={(e) => e.stopPropagation()}
-              >
-                Редактировать
-              </Link>
+              Редактировать
             </Button>
 
             {(listing.status === "draft" || listing.status === "paused") && (
