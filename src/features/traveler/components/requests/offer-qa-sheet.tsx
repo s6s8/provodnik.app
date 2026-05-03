@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -84,6 +85,7 @@ export function OfferQaSheet({
       <SheetContent side="bottom" className="flex h-[70vh] flex-col">
         <SheetHeader>
           <SheetTitle>Вопрос гиду</SheetTitle>
+          <SheetDescription>Задайте вопрос гиду</SheetDescription>
         </SheetHeader>
 
         <div className="flex-1 space-y-3 overflow-y-auto py-4">
