@@ -8,6 +8,7 @@ interface TourCardProps {
   guide: string;
   rating?: number;
   price: string;
+  priority?: boolean;
 }
 
 export function TourCard({
@@ -17,6 +18,7 @@ export function TourCard({
   guide,
   rating,
   price,
+  priority,
 }: TourCardProps) {
   return (
     <Link href={href} className="relative flex min-h-[260px] items-end overflow-hidden rounded-card no-underline text-inherit transition-transform hover:-translate-y-[3px]">
@@ -25,6 +27,7 @@ export function TourCard({
         src={imageUrl}
         alt={title}
         fill
+        priority={priority}
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="object-cover"
       />

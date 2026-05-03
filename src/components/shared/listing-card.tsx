@@ -12,9 +12,10 @@ function getFormatLabel(format: string): string {
 
 type ListingCardProps = {
   listing: ListingRecord;
+  priority?: boolean;
 };
 
-export function ListingCard({ listing }: ListingCardProps) {
+export function ListingCard({ listing, priority }: ListingCardProps) {
   const fmtLabel = getFormatLabel(listing.format);
 
   return (
@@ -26,6 +27,7 @@ export function ListingCard({ listing }: ListingCardProps) {
         src={listing.imageUrl}
         alt={listing.title}
         fill
+        priority={priority}
         sizes="(max-width: 767px) 100vw, (max-width: 1279px) 50vw, 33vw"
         className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
       />
