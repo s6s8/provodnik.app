@@ -121,13 +121,6 @@ export function DestinationDetailScreen({
               <span className="text-sm text-muted-foreground">бюджет от</span>
             </div>
 
-            <div>
-              <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
-                4.9 ★
-              </strong>
-              <span className="text-sm text-muted-foreground">рейтинг гидов</span>
-            </div>
-
             {formingGroupCount > 0 ? (
               <div>
                 <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
