@@ -36,6 +36,12 @@ function formatDateTime(value: string): string {
   });
 }
 
+function isMatchedRequest(req: { interests: string[] }, specs: string[]): boolean {
+  if (specs.length === 0) return false;
+  for (const i of req.interests) if (specs.includes(i)) return true;
+  return false;
+}
+
 interface OffersByRequest {
   offeredIds: Set<string>;
   offerIdByRequestId: Map<string, string>;
@@ -70,6 +76,7 @@ export function GuideRequestsInboxScreen() {
   const [sortKey, setSortKey] = React.useState<"newest" | "date" | "size">(
     "newest",
   );
+  const [specializations, setSpecializations] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     let ignore = false;
@@ -82,6 +89,16 @@ export function GuideRequestsInboxScreen() {
       setOfferIdByRequestId(offerMap);
     }
 
+    async function loadGuideProfileForGuide(guideId: string) {
+      const { data } = await supabase
+        .from("guide_profiles")
+        .select("specializations")
+        .eq("user_id", guideId)
+        .maybeSingle();
+      if (ignore) return;
+      setSpecializations(Array.isArray(data?.specializations) ? data.specializations : []);
+    }
+
     async function loadInitial() {
       try {
         const { data } = await getOpenRequests(supabase);
@@ -92,6 +109,7 @@ export function GuideRequestsInboxScreen() {
         } = await supabase.auth.getSession();
         if (!ignore && session?.user?.id) {
           await loadOffersForGuide(session.user.id);
+          await loadGuideProfileForGuide(session.user.id);
         }
       } catch (err) {
         console.warn("[inbox] initial load failed:", err);
@@ -103,7 +121,12 @@ export function GuideRequestsInboxScreen() {
     const { data: authSub } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (ignore) return;
-        if (session?.user?.id) void loadOffersForGuide(session.user.id);
+        if (session?.user?.id) {
+          void (async () => {
+            await loadOffersForGuide(session.user.id);
+            await loadGuideProfileForGuide(session.user.id);
+          })();
+        }
       },
     );
 
@@ -168,8 +191,19 @@ export function GuideRequestsInboxScreen() {
       filtered = [...filtered].sort((a, b) => b.groupSize - a.groupSize);
     }
 
+    // Plan 50 T3 — soft sort: matched first, unmatched second; in-tier order preserved
+    if (specializations.length > 0) {
+      const matched = filtered.filter((r: RequestRecord) =>
+        isMatchedRequest(r, specializations),
+      );
+      const unmatched = filtered.filter(
+        (r: RequestRecord) => !isMatchedRequest(r, specializations),
+      );
+      filtered = [...matched, ...unmatched];
+    }
+
     return filtered;
-  }, [filter, items, offeredIds, cityFilter, sortKey]);
+  }, [filter, items, offeredIds, cityFilter, sortKey, specializations]);
 
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
@@ -282,6 +316,7 @@ export function GuideRequestsInboxScreen() {
                 ) : null}
                 {filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
+                  const matched = isMatchedRequest(item, specializations);
                   const offerId = offerIdByRequestId.get(item.id);
                   const showQaPanel = alreadyOffered && !!offerId;
                   return (
@@ -306,9 +341,16 @@ export function GuideRequestsInboxScreen() {
                               </span>
                             </p>
                           </div>
-                          <p className="text-xs text-muted-foreground shrink-0 pt-0.5">
-                            {formatDateTime(item.createdAt)}
-                          </p>
+                          <div className="flex flex-wrap items-center justify-end gap-2 shrink-0 pt-0.5">
+                            <p className="text-xs text-muted-foreground">
+                              {formatDateTime(item.createdAt)}
+                            </p>
+                            {matched ? (
+                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary">
+                                Соответствует вашим темам
+                              </span>
+                            ) : null}
+                          </div>
                         </div>
 
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
