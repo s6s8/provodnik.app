@@ -214,6 +214,7 @@ export type GuideProfileRow = {
   regions: string[];
   languages: string[];
   specialties: string[];
+  specializations: string[];
   attestation_status: string | null;
   verification_status: GuideVerificationStatusDb;
   verification_notes: string | null;

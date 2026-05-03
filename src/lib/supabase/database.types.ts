@@ -1,324 +1,3325 @@
-import type {
-  AppRoleDb,
-  BonusLedgerRow,
-  BookingRow,
-  BookingStatus,
-  ConversationThreadRow,
-  EventScope,
-  GuideDocumentRow,
-  GuideOfferRow,
-  GuideLicenseRow,
-  GuideDashboardKpiViewRow,
-  GuideProfileRow,
-  GuideProfileUpsert,
-  GuideVerificationStatusDb,
-  ListingLicenseRow,
-  ListingMediaRow,
-  ListingRow,
-  ListingStatusDb,
-  MarketplaceEventRow,
-  MemberStatus,
-  MessageRow,
-  MessageSenderRole,
-  NotificationKindDb,
-  NotificationRow,
-  OfferStatus,
-  OpenRequestMemberRow,
-  PartnerAccountRow,
-  PartnerPayoutsLedgerRow,
-  ReferralCodeRow,
-  ReferralRedemptionRow,
-  RequestStatus,
-  ReviewRatingsBreakdownRow,
-  StorageAssetKindDb,
-  StorageAssetRow,
-  ThreadParticipantRow,
-  ThreadSubject,
-  TravelerRequestRow,
-  Uuid,
-} from "@/lib/supabase/types";
-
 export type Json =
   | string
   | number
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
+  | Json[]
 
-type TableDefinition<Row, Insert = Partial<Row>, Update = Partial<Row>> = {
-  Row: Row;
-  Insert: Insert;
-  Update: Update;
-  Relationships: {
-    foreignKeyName: string;
-    columns: string[];
-    referencedRelation: string;
-    referencedColumns: string[];
-  }[];
-};
-
-type ProfileRow = {
-  id: Uuid;
-  role: AppRoleDb;
-  email: string | null;
-  full_name: string | null;
-  phone: string | null;
-  avatar_url: string | null;
-  created_at: string;
-  updated_at: string;
-};
-
-type FavoriteRow = {
-  id: Uuid;
-  user_id: Uuid;
-  subject: "listing" | "guide";
-  listing_id: Uuid | null;
-  guide_id: Uuid | null;
-  created_at: string;
-};
-
-type ReviewRow = {
-  id: Uuid;
-  booking_id: Uuid;
-  traveler_id: Uuid;
-  guide_id: Uuid | null;
-  listing_id: Uuid | null;
-  rating: number;
-  title: string | null;
-  body: string | null;
-  status: "published" | "flagged" | "hidden";
-  created_at: string;
-  updated_at: string;
-};
-
-type DisputeRow = {
-  id: Uuid;
-  booking_id: Uuid;
-  opened_by: Uuid;
-  assigned_admin_id: Uuid | null;
-  status: "open" | "under_review" | "resolved" | "closed";
-  reason: string;
-  summary: string | null;
-  requested_outcome: string | null;
-  payout_frozen: boolean;
-  resolution_summary: string | null;
-  created_at: string;
-  updated_at: string;
-  resolved_at: string | null;
-};
-
-type DisputeNoteRow = {
-  id: Uuid;
-  dispute_id: Uuid;
-  author_id: Uuid;
-  note: string;
-  internal_only: boolean;
-  created_at: string;
-};
-
-type NotificationDeliveryRow = {
-  id: Uuid;
-  notification_id: Uuid;
-  channel: string;
-  status: string;
-  provider_message_id: string | null;
-  attempted_at: string | null;
-  delivered_at: string | null;
-  error_message: string | null;
-  created_at: string;
-};
-
-type ModerationCaseRow = {
-  id: Uuid;
-  subject_type: "guide_profile" | "listing" | "review";
-  guide_id: Uuid | null;
-  listing_id: Uuid | null;
-  review_id: Uuid | null;
-  opened_by: Uuid | null;
-  assigned_admin_id: Uuid | null;
-  status: string;
-  queue_reason: string;
-  risk_flags: string[];
-  created_at: string;
-  updated_at: string;
-};
-
-type ModerationActionRow = {
-  id: Uuid;
-  case_id: Uuid;
-  admin_id: Uuid | null;
-  decision: "approve" | "reject" | "request_changes" | "hide" | "restore";
-  note: string | null;
-  created_at: string;
-};
-
-type DestinationRow = {
-  id: Uuid;
-  slug: string;
-  name: string;
-  region: string | null;
-  category: string | null;
-  description: string | null;
-  hero_image_url: string | null;
-  listing_count: number | null;
-  guides_count: number | null;
-  rating: number | null;
-  created_at: string | null;
-};
-
-type QualitySnapshotRow = {
-  id: Uuid;
-  run_label: string;
-  subject_type: string;
-  subject_id: string;
-  metric_key: string;
-  metric_value: Json;
-  created_at: string;
-};
-
-export interface Database {
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.4"
+  }
   public: {
     Tables: {
-      profiles: TableDefinition<ProfileRow>;
-      guide_profiles: TableDefinition<GuideProfileRow, GuideProfileUpsert, Partial<GuideProfileUpsert>>;
-      guide_licenses: TableDefinition<
-        GuideLicenseRow,
-        Pick<GuideLicenseRow, "guide_id" | "license_type" | "license_number" | "issued_by"> &
-          Partial<Pick<GuideLicenseRow, "valid_until" | "scope_mode">>,
-        Partial<
-          Pick<
-            GuideLicenseRow,
-            "license_type" | "license_number" | "issued_by" | "valid_until" | "scope_mode" | "updated_at"
-          >
-        >
-      >;
-      listings: TableDefinition<ListingRow, Partial<ListingRow> & Pick<ListingRow, "guide_id" | "slug" | "title" | "region" | "category" | "price_from_minor">>;
-      listing_licenses: TableDefinition<
-        ListingLicenseRow,
-        Pick<ListingLicenseRow, "listing_id" | "license_id"> & Partial<Pick<ListingLicenseRow, "scope">>,
-        Partial<Pick<ListingLicenseRow, "scope">>
-      >;
-      traveler_requests: TableDefinition<TravelerRequestRow, Partial<TravelerRequestRow> & Pick<TravelerRequestRow, "traveler_id" | "destination" | "interests" | "starts_on">>;
-      open_request_members: TableDefinition<OpenRequestMemberRow, Partial<OpenRequestMemberRow> & Pick<OpenRequestMemberRow, "request_id" | "traveler_id">>;
-      guide_offers: TableDefinition<GuideOfferRow, Partial<GuideOfferRow> & Pick<GuideOfferRow, "request_id" | "guide_id" | "price_minor">>;
-      bookings: TableDefinition<BookingRow, Partial<BookingRow> & Pick<BookingRow, "traveler_id" | "guide_id">>;
-      favorites: TableDefinition<FavoriteRow>;
-      notifications: TableDefinition<NotificationRow, Partial<NotificationRow> & Pick<NotificationRow, "user_id" | "kind" | "title">>;
-      reviews: TableDefinition<ReviewRow, Partial<ReviewRow> & Pick<ReviewRow, "booking_id" | "traveler_id" | "rating">>;
-      review_ratings_breakdown: TableDefinition<
-        ReviewRatingsBreakdownRow,
-        ReviewRatingsBreakdownRow,
-        Partial<ReviewRatingsBreakdownRow>
-      >;
-      disputes: TableDefinition<DisputeRow, Partial<DisputeRow> & Pick<DisputeRow, "booking_id" | "opened_by" | "reason">>;
-      dispute_notes: TableDefinition<DisputeNoteRow, Partial<DisputeNoteRow> & Pick<DisputeNoteRow, "dispute_id" | "author_id" | "note">>;
-      conversation_threads: TableDefinition<ConversationThreadRow, Partial<ConversationThreadRow> & Pick<ConversationThreadRow, "subject_type">>;
-      thread_participants: TableDefinition<ThreadParticipantRow, Partial<ThreadParticipantRow> & Pick<ThreadParticipantRow, "thread_id" | "user_id">>;
-      messages: TableDefinition<MessageRow, Partial<MessageRow> & Pick<MessageRow, "thread_id" | "sender_role" | "body">>;
-      marketplace_events: TableDefinition<MarketplaceEventRow, Partial<MarketplaceEventRow> & Pick<MarketplaceEventRow, "scope" | "event_type" | "summary">>;
-      notification_deliveries: TableDefinition<NotificationDeliveryRow, Partial<NotificationDeliveryRow> & Pick<NotificationDeliveryRow, "notification_id" | "channel">>;
-      storage_assets: TableDefinition<StorageAssetRow, Partial<StorageAssetRow> & Pick<StorageAssetRow, "owner_id" | "bucket_id" | "object_path" | "asset_kind">>;
-      guide_documents: TableDefinition<GuideDocumentRow, Partial<GuideDocumentRow> & Pick<GuideDocumentRow, "guide_id" | "asset_id" | "document_type">>;
-      listing_media: TableDefinition<ListingMediaRow, Partial<ListingMediaRow> & Pick<ListingMediaRow, "listing_id" | "asset_id">>;
-      moderation_cases: TableDefinition<ModerationCaseRow>;
-      moderation_actions: TableDefinition<ModerationActionRow>;
-      quality_snapshots: TableDefinition<QualitySnapshotRow>;
-      destinations: TableDefinition<DestinationRow>;
-      partner_accounts: TableDefinition<
-        PartnerAccountRow,
-        Pick<PartnerAccountRow, "user_id" | "api_token_hash">,
-        Partial<Pick<PartnerAccountRow, "api_token_hash">>
-      >;
-      partner_payouts_ledger: TableDefinition<PartnerPayoutsLedgerRow>;
-      referral_codes: TableDefinition<
-        ReferralCodeRow,
-        Pick<ReferralCodeRow, "user_id" | "code">
-      >;
-      referral_redemptions: TableDefinition<
-        ReferralRedemptionRow,
-        Pick<ReferralRedemptionRow, "code_id" | "redeemed_by">
-      >;
-      bonus_ledger: TableDefinition<
-        BonusLedgerRow,
-        Pick<BonusLedgerRow, "user_id" | "delta" | "reason" | "ref_id">
-      >;
-    };
+      bonus_ledger: {
+        Row: {
+          created_at: string | null
+          delta: number
+          id: string
+          reason: string | null
+          ref_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          delta: number
+          id?: string
+          reason?: string | null
+          ref_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          delta?: number
+          id?: string
+          reason?: string | null
+          ref_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      bookings: {
+        Row: {
+          cancellation_policy_snapshot: Json
+          created_at: string
+          currency: string
+          deposit_minor: number
+          ends_at: string | null
+          guide_id: string
+          id: string
+          listing_id: string | null
+          meeting_point: string | null
+          offer_id: string | null
+          party_size: number
+          remainder_minor: number
+          request_id: string | null
+          starts_at: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          subtotal_minor: number
+          traveler_id: string
+          updated_at: string
+        }
+        Insert: {
+          cancellation_policy_snapshot?: Json
+          created_at?: string
+          currency?: string
+          deposit_minor?: number
+          ends_at?: string | null
+          guide_id: string
+          id?: string
+          listing_id?: string | null
+          meeting_point?: string | null
+          offer_id?: string | null
+          party_size?: number
+          remainder_minor?: number
+          request_id?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          subtotal_minor?: number
+          traveler_id: string
+          updated_at?: string
+        }
+        Update: {
+          cancellation_policy_snapshot?: Json
+          created_at?: string
+          currency?: string
+          deposit_minor?: number
+          ends_at?: string | null
+          guide_id?: string
+          id?: string
+          listing_id?: string | null
+          meeting_point?: string | null
+          offer_id?: string | null
+          party_size?: number
+          remainder_minor?: number
+          request_id?: string | null
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          subtotal_minor?: number
+          traveler_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "guide_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_traveler_id_fkey"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversation_threads: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          created_by: string | null
+          dispute_id: string | null
+          id: string
+          offer_id: string | null
+          request_id: string | null
+          subject_type: Database["public"]["Enums"]["thread_subject"]
+          updated_at: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dispute_id?: string | null
+          id?: string
+          offer_id?: string | null
+          request_id?: string | null
+          subject_type: Database["public"]["Enums"]["thread_subject"]
+          updated_at?: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          dispute_id?: string | null
+          id?: string
+          offer_id?: string | null
+          request_id?: string | null
+          subject_type?: Database["public"]["Enums"]["thread_subject"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversation_threads_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_threads_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_threads_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_threads_offer_id_fkey"
+            columns: ["offer_id"]
+            isOneToOne: false
+            referencedRelation: "guide_offers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_threads_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      destinations: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          guides_count: number
+          hero_image_url: string | null
+          id: string
+          listing_count: number
+          name: string
+          rating: number | null
+          region: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          guides_count?: number
+          hero_image_url?: string | null
+          id?: string
+          listing_count?: number
+          name: string
+          rating?: number | null
+          region: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          guides_count?: number
+          hero_image_url?: string | null
+          id?: string
+          listing_count?: number
+          name?: string
+          rating?: number | null
+          region?: string
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      dispute_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string | null
+          dispute_id: string
+          event_type: string | null
+          id: string
+          payload: Json | null
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string | null
+          dispute_id: string
+          event_type?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string | null
+          dispute_id?: string
+          event_type?: string | null
+          id?: string
+          payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_events_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_evidence: {
+        Row: {
+          asset_id: string
+          created_at: string
+          dispute_id: string
+          id: string
+          label: string | null
+          uploaded_by: string
+        }
+        Insert: {
+          asset_id: string
+          created_at?: string
+          dispute_id: string
+          id?: string
+          label?: string | null
+          uploaded_by: string
+        }
+        Update: {
+          asset_id?: string
+          created_at?: string
+          dispute_id?: string
+          id?: string
+          label?: string | null
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_evidence_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "storage_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_evidence_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_evidence_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dispute_notes: {
+        Row: {
+          author_id: string
+          created_at: string
+          dispute_id: string
+          id: string
+          internal_only: boolean
+          note: string
+        }
+        Insert: {
+          author_id: string
+          created_at?: string
+          dispute_id: string
+          id?: string
+          internal_only?: boolean
+          note: string
+        }
+        Update: {
+          author_id?: string
+          created_at?: string
+          dispute_id?: string
+          id?: string
+          internal_only?: boolean
+          note?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dispute_notes_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dispute_notes_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      disputes: {
+        Row: {
+          assigned_admin_id: string | null
+          booking_id: string
+          created_at: string
+          id: string
+          opened_by: string
+          payout_frozen: boolean
+          reason: string
+          requested_outcome: string | null
+          resolution_summary: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["dispute_status"]
+          summary: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          booking_id: string
+          created_at?: string
+          id?: string
+          opened_by: string
+          payout_frozen?: boolean
+          reason: string
+          requested_outcome?: string | null
+          resolution_summary?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"]
+          summary?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          booking_id?: string
+          created_at?: string
+          id?: string
+          opened_by?: string
+          payout_frozen?: boolean
+          reason?: string
+          requested_outcome?: string | null
+          resolution_summary?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["dispute_status"]
+          summary?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "disputes_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites: {
+        Row: {
+          created_at: string
+          guide_id: string | null
+          id: string
+          listing_id: string | null
+          subject: Database["public"]["Enums"]["favorite_subject"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guide_id?: string | null
+          id?: string
+          listing_id?: string | null
+          subject: Database["public"]["Enums"]["favorite_subject"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string | null
+          id?: string
+          listing_id?: string | null
+          subject?: Database["public"]["Enums"]["favorite_subject"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      favorites_folders: {
+        Row: {
+          id: string
+          name: string
+          position: number | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          position?: number | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          position?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      favorites_items: {
+        Row: {
+          added_at: string | null
+          folder_id: string
+          listing_id: string
+        }
+        Insert: {
+          added_at?: string | null
+          folder_id: string
+          listing_id: string
+        }
+        Update: {
+          added_at?: string | null
+          folder_id?: string
+          listing_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "favorites_items_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "favorites_folders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "favorites_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "favorites_items_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_documents: {
+        Row: {
+          admin_note: string | null
+          asset_id: string
+          created_at: string
+          document_type: string
+          guide_id: string
+          id: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["guide_verification_status"]
+        }
+        Insert: {
+          admin_note?: string | null
+          asset_id: string
+          created_at?: string
+          document_type: string
+          guide_id: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["guide_verification_status"]
+        }
+        Update: {
+          admin_note?: string | null
+          asset_id?: string
+          created_at?: string
+          document_type?: string
+          guide_id?: string
+          id?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["guide_verification_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_documents_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "storage_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_documents_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_documents_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_licenses: {
+        Row: {
+          created_at: string
+          guide_id: string
+          id: string
+          issued_by: string
+          license_number: string
+          license_type: string
+          scope_mode: string
+          updated_at: string
+          valid_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          guide_id: string
+          id?: string
+          issued_by: string
+          license_number: string
+          license_type: string
+          scope_mode?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string
+          id?: string
+          issued_by?: string
+          license_number?: string
+          license_type?: string
+          scope_mode?: string
+          updated_at?: string
+          valid_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_licenses_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_location_photos: {
+        Row: {
+          created_at: string
+          guide_id: string
+          id: string
+          location_name: string
+          sort_order: number
+          storage_asset_id: string
+        }
+        Insert: {
+          created_at?: string
+          guide_id: string
+          id?: string
+          location_name: string
+          sort_order?: number
+          storage_asset_id: string
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string
+          id?: string
+          location_name?: string
+          sort_order?: number
+          storage_asset_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_location_photos_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_location_photos_storage_asset_id_fkey"
+            columns: ["storage_asset_id"]
+            isOneToOne: false
+            referencedRelation: "storage_assets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_offers: {
+        Row: {
+          capacity: number
+          created_at: string
+          currency: string
+          ends_at: string | null
+          expires_at: string | null
+          guide_id: string
+          id: string
+          inclusions: string[]
+          listing_id: string | null
+          message: string | null
+          price_minor: number
+          request_id: string
+          route_duration_minutes: number | null
+          route_stops: Json
+          starts_at: string | null
+          status: Database["public"]["Enums"]["offer_status"]
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          capacity?: number
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          expires_at?: string | null
+          guide_id: string
+          id?: string
+          inclusions?: string[]
+          listing_id?: string | null
+          message?: string | null
+          price_minor: number
+          request_id: string
+          route_duration_minutes?: number | null
+          route_stops?: Json
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          capacity?: number
+          created_at?: string
+          currency?: string
+          ends_at?: string | null
+          expires_at?: string | null
+          guide_id?: string
+          id?: string
+          inclusions?: string[]
+          listing_id?: string | null
+          message?: string | null
+          price_minor?: number
+          request_id?: string
+          route_duration_minutes?: number | null
+          route_stops?: Json
+          starts_at?: string | null
+          status?: Database["public"]["Enums"]["offer_status"]
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_offers_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "guide_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guide_profiles: {
+        Row: {
+          attestation_status: string | null
+          average_rating: number | null
+          base_city: string | null
+          bio: string | null
+          completed_tours: number
+          contact_visibility_unlocked: boolean | null
+          created_at: string
+          display_name: string | null
+          document_country: string | null
+          inn: string | null
+          is_available: boolean
+          is_tour_operator: boolean | null
+          languages: string[]
+          legal_status: string | null
+          locale: string | null
+          max_group_size: number | null
+          notification_prefs: Json | null
+          payout_account_label: string | null
+          preferred_currency: string | null
+          rating: number
+          regions: string[]
+          response_rate: number | null
+          review_count: number | null
+          slug: string | null
+          specialization: string | null
+          specializations: string[]
+          specialties: string[]
+          tour_operator_registry_number: string | null
+          updated_at: string
+          user_id: string
+          verification_notes: string | null
+          verification_status: Database["public"]["Enums"]["guide_verification_status"]
+          years_experience: number | null
+        }
+        Insert: {
+          attestation_status?: string | null
+          average_rating?: number | null
+          base_city?: string | null
+          bio?: string | null
+          completed_tours?: number
+          contact_visibility_unlocked?: boolean | null
+          created_at?: string
+          display_name?: string | null
+          document_country?: string | null
+          inn?: string | null
+          is_available?: boolean
+          is_tour_operator?: boolean | null
+          languages?: string[]
+          legal_status?: string | null
+          locale?: string | null
+          max_group_size?: number | null
+          notification_prefs?: Json | null
+          payout_account_label?: string | null
+          preferred_currency?: string | null
+          rating?: number
+          regions?: string[]
+          response_rate?: number | null
+          review_count?: number | null
+          slug?: string | null
+          specialization?: string | null
+          specializations?: string[]
+          specialties?: string[]
+          tour_operator_registry_number?: string | null
+          updated_at?: string
+          user_id: string
+          verification_notes?: string | null
+          verification_status?: Database["public"]["Enums"]["guide_verification_status"]
+          years_experience?: number | null
+        }
+        Update: {
+          attestation_status?: string | null
+          average_rating?: number | null
+          base_city?: string | null
+          bio?: string | null
+          completed_tours?: number
+          contact_visibility_unlocked?: boolean | null
+          created_at?: string
+          display_name?: string | null
+          document_country?: string | null
+          inn?: string | null
+          is_available?: boolean
+          is_tour_operator?: boolean | null
+          languages?: string[]
+          legal_status?: string | null
+          locale?: string | null
+          max_group_size?: number | null
+          notification_prefs?: Json | null
+          payout_account_label?: string | null
+          preferred_currency?: string | null
+          rating?: number
+          regions?: string[]
+          response_rate?: number | null
+          review_count?: number | null
+          slug?: string | null
+          specialization?: string | null
+          specializations?: string[]
+          specialties?: string[]
+          tour_operator_registry_number?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_notes?: string | null
+          verification_status?: Database["public"]["Enums"]["guide_verification_status"]
+          years_experience?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      help_articles: {
+        Row: {
+          body_md: string
+          category: string | null
+          id: string
+          position: number | null
+          slug: string
+          title: string
+        }
+        Insert: {
+          body_md: string
+          category?: string | null
+          id?: string
+          position?: number | null
+          slug: string
+          title: string
+        }
+        Update: {
+          body_md?: string
+          category?: string | null
+          id?: string
+          position?: number | null
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      listing_days: {
+        Row: {
+          body: string | null
+          date_override: string | null
+          day_number: number
+          listing_id: string
+          title: string | null
+        }
+        Insert: {
+          body?: string | null
+          date_override?: string | null
+          day_number: number
+          listing_id: string
+          title?: string | null
+        }
+        Update: {
+          body?: string | null
+          date_override?: string | null
+          day_number?: number
+          listing_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_days_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_days_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_days_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_days_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_days_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_licenses: {
+        Row: {
+          license_id: string
+          listing_id: string
+          scope: string | null
+        }
+        Insert: {
+          license_id: string
+          listing_id: string
+          scope?: string | null
+        }
+        Update: {
+          license_id?: string
+          listing_id?: string
+          scope?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_licenses_license_id_fkey"
+            columns: ["license_id"]
+            isOneToOne: false
+            referencedRelation: "guide_licenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_licenses_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_licenses_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_licenses_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_licenses_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_licenses_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_meals: {
+        Row: {
+          day_number: number
+          listing_id: string
+          meal_type: string
+          note: string | null
+          status: string
+        }
+        Insert: {
+          day_number: number
+          listing_id: string
+          meal_type: string
+          note?: string | null
+          status: string
+        }
+        Update: {
+          day_number?: number
+          listing_id?: string
+          meal_type?: string
+          note?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_meals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_meals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_meals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_meals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_meals_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_media: {
+        Row: {
+          alt_text: string | null
+          asset_id: string
+          created_at: string
+          id: string
+          is_cover: boolean
+          listing_id: string
+          sort_order: number
+        }
+        Insert: {
+          alt_text?: string | null
+          asset_id: string
+          created_at?: string
+          id?: string
+          is_cover?: boolean
+          listing_id: string
+          sort_order?: number
+        }
+        Update: {
+          alt_text?: string | null
+          asset_id?: string
+          created_at?: string
+          id?: string
+          is_cover?: boolean
+          listing_id?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_media_asset_id_fkey"
+            columns: ["asset_id"]
+            isOneToOne: true
+            referencedRelation: "storage_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_media_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_media_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_media_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_media_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_media_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_moderation_events: {
+        Row: {
+          actor_id: string | null
+          created_at: string | null
+          from_status: string
+          id: string
+          listing_id: string
+          reason: string | null
+          to_status: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string | null
+          from_status: string
+          id?: string
+          listing_id: string
+          reason?: string | null
+          to_status: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string | null
+          from_status?: string
+          id?: string
+          listing_id?: string
+          reason?: string | null
+          to_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_moderation_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_moderation_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_moderation_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_moderation_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_moderation_events_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_photos: {
+        Row: {
+          alt_text: string | null
+          id: string
+          listing_id: string
+          position: number | null
+          url: string
+        }
+        Insert: {
+          alt_text?: string | null
+          id?: string
+          listing_id: string
+          position?: number | null
+          url: string
+        }
+        Update: {
+          alt_text?: string | null
+          id?: string
+          listing_id?: string
+          position?: number | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_photos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_schedule: {
+        Row: {
+          id: string
+          listing_id: string
+          time_end: string
+          time_start: string
+          weekday: number | null
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          time_end: string
+          time_start: string
+          weekday?: number | null
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          time_end?: string
+          time_start?: string
+          weekday?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_schedule_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_schedule_extras: {
+        Row: {
+          date: string
+          id: string
+          listing_id: string
+          time_end: string | null
+          time_start: string | null
+        }
+        Insert: {
+          date: string
+          id?: string
+          listing_id: string
+          time_end?: string | null
+          time_start?: string | null
+        }
+        Update: {
+          date?: string
+          id?: string
+          listing_id?: string
+          time_end?: string | null
+          time_start?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_schedule_extras_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_extras_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_extras_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_extras_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_schedule_extras_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_tariffs: {
+        Row: {
+          currency: string | null
+          id: string
+          label: string
+          listing_id: string
+          max_persons: number | null
+          min_persons: number | null
+          price_minor: number
+        }
+        Insert: {
+          currency?: string | null
+          id?: string
+          label: string
+          listing_id: string
+          max_persons?: number | null
+          min_persons?: number | null
+          price_minor: number
+        }
+        Update: {
+          currency?: string | null
+          id?: string
+          label?: string
+          listing_id?: string
+          max_persons?: number | null
+          min_persons?: number | null
+          price_minor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_tariffs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tariffs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_tariffs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tariffs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tariffs_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_tour_departures: {
+        Row: {
+          currency: string
+          end_date: string
+          id: string
+          listing_id: string
+          max_persons: number
+          price_minor: number
+          start_date: string
+          status: string
+        }
+        Insert: {
+          currency?: string
+          end_date: string
+          id?: string
+          listing_id: string
+          max_persons: number
+          price_minor: number
+          start_date: string
+          status?: string
+        }
+        Update: {
+          currency?: string
+          end_date?: string
+          id?: string
+          listing_id?: string
+          max_persons?: number
+          price_minor?: number
+          start_date?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_tour_departures_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tour_departures_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_tour_departures_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tour_departures_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_tour_departures_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_videos: {
+        Row: {
+          id: string
+          listing_id: string
+          position: number | null
+          poster_url: string | null
+          url: string
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          position?: number | null
+          poster_url?: string | null
+          url: string
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          position?: number | null
+          poster_url?: string | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_videos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_videos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_videos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_videos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_videos_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          accommodation: Json | null
+          audience: string | null
+          average_rating: number | null
+          baggage_allowance: string | null
+          booking_cutoff_hours: number | null
+          cancellation_policy_key: string
+          category: string
+          city: string | null
+          created_at: string
+          currencies: string[] | null
+          currency: string
+          deposit_rate: number | null
+          description: string | null
+          difficulty_level: string | null
+          dropoff_point_text: string | null
+          duration_minutes: number | null
+          event_span_hours: number | null
+          exclusions: string[]
+          exp_type: string | null
+          facts: string | null
+          featured_rank: number | null
+          format: string | null
+          group_available: boolean
+          guide_id: string
+          id: string
+          idea: string | null
+          image_url: string | null
+          included: string[] | null
+          inclusions: string[]
+          instant_book: boolean
+          instant_booking: boolean | null
+          languages: string[] | null
+          max_group_size: number
+          meeting_point: string | null
+          movement_type: string | null
+          not_included: string[] | null
+          org_details: Json | null
+          pickup_point_text: string | null
+          pii_gate_rate: number | null
+          price_from_minor: number
+          private_available: boolean
+          region: string
+          review_count: number | null
+          route: string | null
+          route_summary: string | null
+          slug: string
+          status: Database["public"]["Enums"]["listing_status"]
+          theme: string | null
+          title: string
+          updated_at: string
+          vehicle_type: string | null
+        }
+        Insert: {
+          accommodation?: Json | null
+          audience?: string | null
+          average_rating?: number | null
+          baggage_allowance?: string | null
+          booking_cutoff_hours?: number | null
+          cancellation_policy_key?: string
+          category: string
+          city?: string | null
+          created_at?: string
+          currencies?: string[] | null
+          currency?: string
+          deposit_rate?: number | null
+          description?: string | null
+          difficulty_level?: string | null
+          dropoff_point_text?: string | null
+          duration_minutes?: number | null
+          event_span_hours?: number | null
+          exclusions?: string[]
+          exp_type?: string | null
+          facts?: string | null
+          featured_rank?: number | null
+          format?: string | null
+          group_available?: boolean
+          guide_id: string
+          id?: string
+          idea?: string | null
+          image_url?: string | null
+          included?: string[] | null
+          inclusions?: string[]
+          instant_book?: boolean
+          instant_booking?: boolean | null
+          languages?: string[] | null
+          max_group_size?: number
+          meeting_point?: string | null
+          movement_type?: string | null
+          not_included?: string[] | null
+          org_details?: Json | null
+          pickup_point_text?: string | null
+          pii_gate_rate?: number | null
+          price_from_minor: number
+          private_available?: boolean
+          region: string
+          review_count?: number | null
+          route?: string | null
+          route_summary?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          theme?: string | null
+          title: string
+          updated_at?: string
+          vehicle_type?: string | null
+        }
+        Update: {
+          accommodation?: Json | null
+          audience?: string | null
+          average_rating?: number | null
+          baggage_allowance?: string | null
+          booking_cutoff_hours?: number | null
+          cancellation_policy_key?: string
+          category?: string
+          city?: string | null
+          created_at?: string
+          currencies?: string[] | null
+          currency?: string
+          deposit_rate?: number | null
+          description?: string | null
+          difficulty_level?: string | null
+          dropoff_point_text?: string | null
+          duration_minutes?: number | null
+          event_span_hours?: number | null
+          exclusions?: string[]
+          exp_type?: string | null
+          facts?: string | null
+          featured_rank?: number | null
+          format?: string | null
+          group_available?: boolean
+          guide_id?: string
+          id?: string
+          idea?: string | null
+          image_url?: string | null
+          included?: string[] | null
+          inclusions?: string[]
+          instant_book?: boolean
+          instant_booking?: boolean | null
+          languages?: string[] | null
+          max_group_size?: number
+          meeting_point?: string | null
+          movement_type?: string | null
+          not_included?: string[] | null
+          org_details?: Json | null
+          pickup_point_text?: string | null
+          pii_gate_rate?: number | null
+          price_from_minor?: number
+          private_available?: boolean
+          region?: string
+          review_count?: number | null
+          route?: string | null
+          route_summary?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          theme?: string | null
+          title?: string
+          updated_at?: string
+          vehicle_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listings_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      marketplace_events: {
+        Row: {
+          actor_id: string | null
+          booking_id: string | null
+          created_at: string
+          detail: string | null
+          dispute_id: string | null
+          event_type: string
+          id: string
+          payload: Json
+          request_id: string | null
+          scope: Database["public"]["Enums"]["event_scope"]
+          summary: string
+        }
+        Insert: {
+          actor_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          detail?: string | null
+          dispute_id?: string | null
+          event_type: string
+          id?: string
+          payload?: Json
+          request_id?: string | null
+          scope: Database["public"]["Enums"]["event_scope"]
+          summary: string
+        }
+        Update: {
+          actor_id?: string | null
+          booking_id?: string | null
+          created_at?: string
+          detail?: string | null
+          dispute_id?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json
+          request_id?: string | null
+          scope?: Database["public"]["Enums"]["event_scope"]
+          summary?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_events_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_events_dispute_id_fkey"
+            columns: ["dispute_id"]
+            isOneToOne: false
+            referencedRelation: "disputes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketplace_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          metadata: Json
+          sender_id: string | null
+          sender_role: Database["public"]["Enums"]["message_sender_role"]
+          thread_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          sender_id?: string | null
+          sender_role: Database["public"]["Enums"]["message_sender_role"]
+          thread_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          sender_id?: string | null
+          sender_role?: Database["public"]["Enums"]["message_sender_role"]
+          thread_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_actions: {
+        Row: {
+          admin_id: string
+          case_id: string
+          created_at: string
+          decision: Database["public"]["Enums"]["moderation_decision"]
+          id: string
+          note: string | null
+        }
+        Insert: {
+          admin_id: string
+          case_id: string
+          created_at?: string
+          decision: Database["public"]["Enums"]["moderation_decision"]
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          admin_id?: string
+          case_id?: string
+          created_at?: string
+          decision?: Database["public"]["Enums"]["moderation_decision"]
+          id?: string
+          note?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_actions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_actions_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "moderation_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_cases: {
+        Row: {
+          assigned_admin_id: string | null
+          created_at: string
+          guide_id: string | null
+          id: string
+          listing_id: string | null
+          opened_by: string | null
+          queue_reason: string
+          review_id: string | null
+          risk_flags: string[]
+          status: string
+          subject_type: Database["public"]["Enums"]["moderation_subject"]
+          updated_at: string
+        }
+        Insert: {
+          assigned_admin_id?: string | null
+          created_at?: string
+          guide_id?: string | null
+          id?: string
+          listing_id?: string | null
+          opened_by?: string | null
+          queue_reason: string
+          review_id?: string | null
+          risk_flags?: string[]
+          status?: string
+          subject_type: Database["public"]["Enums"]["moderation_subject"]
+          updated_at?: string
+        }
+        Update: {
+          assigned_admin_id?: string | null
+          created_at?: string
+          guide_id?: string | null
+          id?: string
+          listing_id?: string | null
+          opened_by?: string | null
+          queue_reason?: string
+          review_id?: string | null
+          risk_flags?: string[]
+          status?: string
+          subject_type?: Database["public"]["Enums"]["moderation_subject"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_cases_assigned_admin_id_fkey"
+            columns: ["assigned_admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_opened_by_fkey"
+            columns: ["opened_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_deliveries: {
+        Row: {
+          attempted_at: string | null
+          channel: string
+          created_at: string
+          delivered_at: string | null
+          error_message: string | null
+          id: string
+          notification_id: string
+          provider_message_id: string | null
+          status: string
+        }
+        Insert: {
+          attempted_at?: string | null
+          channel: string
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          notification_id: string
+          provider_message_id?: string | null
+          status?: string
+        }
+        Update: {
+          attempted_at?: string | null
+          channel?: string
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          id?: string
+          notification_id?: string
+          provider_message_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_deliveries_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          href: string | null
+          id: string
+          is_read: boolean
+          kind: Database["public"]["Enums"]["notification_kind"]
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          is_read?: boolean
+          kind: Database["public"]["Enums"]["notification_kind"]
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          href?: string | null
+          id?: string
+          is_read?: boolean
+          kind?: Database["public"]["Enums"]["notification_kind"]
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      open_request_members: {
+        Row: {
+          joined_at: string
+          left_at: string | null
+          request_id: string
+          status: Database["public"]["Enums"]["member_status"]
+          traveler_id: string
+        }
+        Insert: {
+          joined_at?: string
+          left_at?: string | null
+          request_id: string
+          status?: Database["public"]["Enums"]["member_status"]
+          traveler_id: string
+        }
+        Update: {
+          joined_at?: string
+          left_at?: string | null
+          request_id?: string
+          status?: Database["public"]["Enums"]["member_status"]
+          traveler_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "open_request_members_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "open_request_members_traveler_id_fkey"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      partner_accounts: {
+        Row: {
+          api_token_hash: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          api_token_hash: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          api_token_hash?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      partner_payouts_ledger: {
+        Row: {
+          created_at: string | null
+          delta: number
+          id: string
+          partner_id: string
+          ref_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          delta: number
+          id?: string
+          partner_id: string
+          ref_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          delta?: number
+          id?: string
+          partner_id?: string
+          ref_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_payouts_ledger_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      quality_snapshots: {
+        Row: {
+          completion_rate: number | null
+          rating_avg: number | null
+          response_time_hours: number | null
+          review_count: number
+          subject_slug: string
+          subject_type: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          completion_rate?: number | null
+          rating_avg?: number | null
+          response_time_hours?: number | null
+          review_count?: number
+          subject_slug: string
+          subject_type: string
+          tier?: string
+          updated_at?: string
+        }
+        Update: {
+          completion_rate?: number | null
+          rating_avg?: number | null
+          response_time_hours?: number | null
+          review_count?: number
+          subject_slug?: string
+          subject_type?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      referral_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      referral_redemptions: {
+        Row: {
+          code_id: string
+          redeemed_at: string | null
+          redeemed_by: string
+        }
+        Insert: {
+          code_id: string
+          redeemed_at?: string | null
+          redeemed_by: string
+        }
+        Update: {
+          code_id?: string
+          redeemed_at?: string | null
+          redeemed_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_redemptions_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "referral_codes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_ratings_breakdown: {
+        Row: {
+          axis: string
+          review_id: string
+          score: number
+        }
+        Insert: {
+          axis: string
+          review_id: string
+          score: number
+        }
+        Update: {
+          axis?: string
+          review_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_ratings_breakdown_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_replies: {
+        Row: {
+          body: string
+          guide_id: string
+          id: string
+          published_at: string | null
+          review_id: string
+          status: string | null
+          submitted_at: string | null
+        }
+        Insert: {
+          body: string
+          guide_id: string
+          id?: string
+          published_at?: string | null
+          review_id: string
+          status?: string | null
+          submitted_at?: string | null
+        }
+        Update: {
+          body?: string
+          guide_id?: string
+          id?: string
+          published_at?: string | null
+          review_id?: string
+          status?: string | null
+          submitted_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_replies_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          body: string | null
+          booking_id: string
+          created_at: string
+          guide_id: string | null
+          id: string
+          listing_id: string | null
+          rating: number
+          status: Database["public"]["Enums"]["review_status"]
+          title: string | null
+          traveler_id: string
+          updated_at: string
+        }
+        Insert: {
+          body?: string | null
+          booking_id: string
+          created_at?: string
+          guide_id?: string | null
+          id?: string
+          listing_id?: string | null
+          rating: number
+          status?: Database["public"]["Enums"]["review_status"]
+          title?: string | null
+          traveler_id: string
+          updated_at?: string
+        }
+        Update: {
+          body?: string | null
+          booking_id?: string
+          created_at?: string
+          guide_id?: string | null
+          id?: string
+          listing_id?: string | null
+          rating?: number
+          status?: Database["public"]["Enums"]["review_status"]
+          title?: string | null
+          traveler_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_traveler_id_fkey"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      storage_assets: {
+        Row: {
+          asset_kind: Database["public"]["Enums"]["storage_asset_kind"]
+          bucket_id: string
+          byte_size: number | null
+          created_at: string
+          id: string
+          mime_type: string | null
+          object_path: string
+          owner_id: string
+        }
+        Insert: {
+          asset_kind: Database["public"]["Enums"]["storage_asset_kind"]
+          bucket_id: string
+          byte_size?: number | null
+          created_at?: string
+          id?: string
+          mime_type?: string | null
+          object_path: string
+          owner_id: string
+        }
+        Update: {
+          asset_kind?: Database["public"]["Enums"]["storage_asset_kind"]
+          bucket_id?: string
+          byte_size?: number | null
+          created_at?: string
+          id?: string
+          mime_type?: string | null
+          object_path?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "storage_assets_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thread_participants: {
+        Row: {
+          joined_at: string
+          last_read_at: string | null
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          joined_at?: string
+          last_read_at?: string | null
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          joined_at?: string
+          last_read_at?: string | null
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "thread_participants_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "conversation_threads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "thread_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      traveler_requests: {
+        Row: {
+          allow_guide_suggestions: boolean
+          budget_minor: number | null
+          created_at: string
+          currency: string
+          destination: string
+          end_time: string | null
+          ends_on: string | null
+          format_preference: string | null
+          group_capacity: number | null
+          id: string
+          interests: string[]
+          notes: string | null
+          open_to_join: boolean
+          participants_count: number
+          region: string | null
+          start_time: string | null
+          starts_on: string
+          status: Database["public"]["Enums"]["request_status"]
+          traveler_id: string
+          updated_at: string
+        }
+        Insert: {
+          allow_guide_suggestions?: boolean
+          budget_minor?: number | null
+          created_at?: string
+          currency?: string
+          destination: string
+          end_time?: string | null
+          ends_on?: string | null
+          format_preference?: string | null
+          group_capacity?: number | null
+          id?: string
+          interests?: string[]
+          notes?: string | null
+          open_to_join?: boolean
+          participants_count?: number
+          region?: string | null
+          start_time?: string | null
+          starts_on: string
+          status?: Database["public"]["Enums"]["request_status"]
+          traveler_id: string
+          updated_at?: string
+        }
+        Update: {
+          allow_guide_suggestions?: boolean
+          budget_minor?: number | null
+          created_at?: string
+          currency?: string
+          destination?: string
+          end_time?: string | null
+          ends_on?: string | null
+          format_preference?: string | null
+          group_capacity?: number | null
+          id?: string
+          interests?: string[]
+          notes?: string | null
+          open_to_join?: boolean
+          participants_count?: number
+          region?: string | null
+          start_time?: string | null
+          starts_on?: string
+          status?: Database["public"]["Enums"]["request_status"]
+          traveler_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "traveler_requests_traveler_id_fkey"
+            columns: ["traveler_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
     Views: {
+      public_guide_stats: {
+        Row: {
+          active_bookings_count: number | null
+          average_rating: number | null
+          cancelled_bookings_count: number | null
+          completed_bookings_count: number | null
+          guide_id: string | null
+          reviews_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_profiles_user_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      public_listing_stats: {
+        Row: {
+          average_rating: number | null
+          completed_bookings_count: number | null
+          listing_id: string | null
+          reviews_count: number | null
+        }
+        Relationships: []
+      }
       v_guide_dashboard_kpi: {
-        Row: GuideDashboardKpiViewRow;
-        Relationships: [];
-      };
-    };
+        Row: {
+          active_bookings: number | null
+          average_rating: number | null
+          completed_bookings: number | null
+          guide_id: string | null
+          listing_count: number | null
+          open_requests: number | null
+          response_rate: number | null
+          review_count: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_profiles_user_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_guide_public_profile: {
+        Row: {
+          average_rating: number | null
+          bio: string | null
+          contact_visibility_unlocked: boolean | null
+          display_name: string | null
+          is_available: boolean | null
+          languages: string[] | null
+          locale: string | null
+          preferred_currency: string | null
+          regions: string[] | null
+          response_rate: number | null
+          review_count: number | null
+          slug: string | null
+          specialties: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          bio?: string | null
+          contact_visibility_unlocked?: boolean | null
+          display_name?: string | null
+          is_available?: boolean | null
+          languages?: string[] | null
+          locale?: string | null
+          preferred_currency?: string | null
+          regions?: string[] | null
+          response_rate?: number | null
+          review_count?: number | null
+          slug?: string | null
+          specialties?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          bio?: string | null
+          contact_visibility_unlocked?: boolean | null
+          display_name?: string | null
+          is_available?: boolean | null
+          languages?: string[] | null
+          locale?: string | null
+          preferred_currency?: string | null
+          regions?: string[] | null
+          response_rate?: number | null
+          review_count?: number | null
+          slug?: string | null
+          specialties?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_profiles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_listing_card: {
+        Row: {
+          average_rating: number | null
+          exp_type: string | null
+          format: string | null
+          id: string | null
+          image_url: string | null
+          languages: string[] | null
+          price: number | null
+          review_count: number | null
+          title: string | null
+        }
+        Insert: {
+          average_rating?: number | null
+          exp_type?: string | null
+          format?: string | null
+          id?: string | null
+          image_url?: string | null
+          languages?: string[] | null
+          price?: number | null
+          review_count?: number | null
+          title?: string | null
+        }
+        Update: {
+          average_rating?: number | null
+          exp_type?: string | null
+          format?: string | null
+          id?: string | null
+          image_url?: string | null
+          languages?: string[] | null
+          price?: number | null
+          review_count?: number | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      v_listing_detail_excursion: {
+        Row: {
+          average_rating: number | null
+          booking_cutoff_hours: number | null
+          currency: string | null
+          description: string | null
+          duration_minutes: number | null
+          exp_type: string | null
+          format: string | null
+          id: string | null
+          included: string[] | null
+          instant_booking: boolean | null
+          languages: string[] | null
+          meeting_point: string | null
+          not_included: string[] | null
+          photos: Json | null
+          pii_gate_rate: number | null
+          price_from_minor: number | null
+          review_count: number | null
+          schedule: Json | null
+          tariffs: Json | null
+          title: string | null
+        }
+        Relationships: []
+      }
+      v_listing_detail_tour: {
+        Row: {
+          accommodation: Json | null
+          average_rating: number | null
+          booking_cutoff_hours: number | null
+          currency: string | null
+          days: Json | null
+          departures: Json | null
+          description: string | null
+          difficulty_level: string | null
+          exp_type: string | null
+          format: string | null
+          id: string | null
+          included: string[] | null
+          instant_booking: boolean | null
+          languages: string[] | null
+          meals: Json | null
+          not_included: string[] | null
+          photos: Json | null
+          pii_gate_rate: number | null
+          price_from_minor: number | null
+          review_count: number | null
+          title: string | null
+        }
+        Relationships: []
+      }
+    }
     Functions: {
+      accept_offer: {
+        Args: { p_offer_id: string; p_traveler_id: string }
+        Returns: string
+      }
       can_access_booking_thread: {
-        Args: { target_booking_id: string; target_user_id?: string };
-        Returns: boolean;
-      };
+        Args: { target_booking_id: string; target_user_id?: string }
+        Returns: boolean
+      }
       can_access_conversation_thread: {
-        Args: { target_thread_id: string; target_user_id?: string };
-        Returns: boolean;
-      };
+        Args: { target_thread_id: string; target_user_id?: string }
+        Returns: boolean
+      }
       can_access_dispute_thread: {
-        Args: { target_dispute_id: string; target_user_id?: string };
-        Returns: boolean;
-      };
+        Args: { target_dispute_id: string; target_user_id?: string }
+        Returns: boolean
+      }
       can_access_offer_thread: {
-        Args: { target_offer_id: string; target_user_id?: string };
-        Returns: boolean;
-      };
+        Args: { target_offer_id: string; target_user_id?: string }
+        Returns: boolean
+      }
       can_access_request_thread: {
-        Args: { target_request_id: string; target_user_id?: string };
-        Returns: boolean;
-      };
+        Args: { target_request_id: string; target_user_id?: string }
+        Returns: boolean
+      }
       can_create_conversation_thread: {
         Args: {
-          target_subject_type: ThreadSubject;
-          target_request_id: string | null;
-          target_offer_id: string | null;
-          target_booking_id: string | null;
-          target_dispute_id: string | null;
-          target_user_id?: string;
-        };
-        Returns: boolean;
-      };
-      clean_text_array: {
-        Args: { input_array: string[] | null };
-        Returns: string[];
-      };
+          target_booking_id: string
+          target_dispute_id: string
+          target_offer_id: string
+          target_request_id: string
+          target_subject_type: Database["public"]["Enums"]["thread_subject"]
+          target_user_id?: string
+        }
+        Returns: boolean
+      }
+      clean_text_array: { Args: { input_array: string[] }; Returns: string[] }
       current_profile_role: {
-        Args: Record<PropertyKey, never>;
-        Returns: AppRoleDb | null;
-      };
-      is_admin: {
-        Args: Record<PropertyKey, never>;
-        Returns: boolean;
-      };
-      is_guide: {
-        Args: Record<PropertyKey, never>;
-        Returns: boolean;
-      };
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      custom_access_token_hook: { Args: { event: Json }; Returns: Json }
+      fn_batch_refresh_all_ratings: { Args: never; Returns: undefined }
+      fn_deliver_pending_notifications: { Args: never; Returns: undefined }
+      fn_notify_user: {
+        Args: {
+          p_event_type: string
+          p_notification_prefs?: Json
+          p_payload: Json
+          p_user_id: string
+        }
+        Returns: undefined
+      }
+      fn_refresh_contact_visibility: {
+        Args: { p_guide_id: string }
+        Returns: undefined
+      }
+      fn_refresh_guide_rating: {
+        Args: { p_guide_id: string }
+        Returns: undefined
+      }
+      fn_refresh_listing_rating: {
+        Args: { p_listing_id: string }
+        Returns: undefined
+      }
+      is_admin: { Args: never; Returns: boolean }
+      is_guide: { Args: never; Returns: boolean }
+      is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
+      send_qa_message: {
+        Args: {
+          p_body: string
+          p_sender_id: string
+          p_sender_role: Database["public"]["Enums"]["message_sender_role"]
+          p_thread_id: string
+        }
+        Returns: undefined
+      }
       user_has_role: {
-        Args: { target_user_id: string; expected_role: AppRoleDb };
-        Returns: boolean;
-      };
-    };
+        Args: {
+          expected_role: Database["public"]["Enums"]["app_role"]
+          target_user_id: string
+        }
+        Returns: boolean
+      }
+    }
     Enums: {
-      app_role: AppRoleDb;
-      booking_status: BookingStatus;
-      event_scope: EventScope;
-      guide_verification_status: GuideVerificationStatusDb;
-      listing_status: ListingStatusDb;
-      member_status: MemberStatus;
-      message_sender_role: MessageSenderRole;
-      notification_kind: NotificationKindDb;
-      offer_status: OfferStatus;
-      request_status: RequestStatus;
-      storage_asset_kind: StorageAssetKindDb;
-      thread_subject: ThreadSubject;
-    };
+      app_role: "traveler" | "guide" | "admin"
+      booking_status:
+        | "pending"
+        | "awaiting_guide_confirmation"
+        | "confirmed"
+        | "cancelled"
+        | "completed"
+        | "disputed"
+        | "no_show"
+      dispute_status: "open" | "under_review" | "resolved" | "closed"
+      event_scope: "request" | "booking" | "dispute" | "moderation"
+      favorite_subject: "listing" | "guide"
+      guide_verification_status: "draft" | "submitted" | "approved" | "rejected"
+      listing_status:
+        | "draft"
+        | "published"
+        | "paused"
+        | "rejected"
+        | "pending_review"
+        | "active"
+        | "archived"
+      member_status: "joined" | "left"
+      message_sender_role: "traveler" | "guide" | "admin" | "system"
+      moderation_decision:
+        | "approve"
+        | "reject"
+        | "request_changes"
+        | "hide"
+        | "restore"
+      moderation_subject: "guide_profile" | "listing" | "review"
+      notification_kind:
+        | "new_offer"
+        | "offer_expiring"
+        | "booking_created"
+        | "booking_confirmed"
+        | "booking_cancelled"
+        | "booking_completed"
+        | "dispute_opened"
+        | "review_requested"
+        | "admin_alert"
+        | "new_request"
+      offer_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "expired"
+        | "withdrawn"
+        | "bid_sent"
+        | "confirmed"
+        | "active"
+        | "completed"
+        | "counter_offered"
+      request_status: "open" | "booked" | "cancelled" | "expired"
+      review_status: "published" | "flagged" | "hidden" | "draft" | "submitted"
+      storage_asset_kind:
+        | "guide-avatar"
+        | "guide-document"
+        | "listing-cover"
+        | "listing-gallery"
+        | "dispute-evidence"
+        | "guide-portfolio"
+      thread_subject: "request" | "offer" | "booking" | "dispute"
+    }
     CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
+      [_ in never]: never
+    }
+  }
 }
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      app_role: ["traveler", "guide", "admin"],
+      booking_status: [
+        "pending",
+        "awaiting_guide_confirmation",
+        "confirmed",
+        "cancelled",
+        "completed",
+        "disputed",
+        "no_show",
+      ],
+      dispute_status: ["open", "under_review", "resolved", "closed"],
+      event_scope: ["request", "booking", "dispute", "moderation"],
+      favorite_subject: ["listing", "guide"],
+      guide_verification_status: ["draft", "submitted", "approved", "rejected"],
+      listing_status: [
+        "draft",
+        "published",
+        "paused",
+        "rejected",
+        "pending_review",
+        "active",
+        "archived",
+      ],
+      member_status: ["joined", "left"],
+      message_sender_role: ["traveler", "guide", "admin", "system"],
+      moderation_decision: [
+        "approve",
+        "reject",
+        "request_changes",
+        "hide",
+        "restore",
+      ],
+      moderation_subject: ["guide_profile", "listing", "review"],
+      notification_kind: [
+        "new_offer",
+        "offer_expiring",
+        "booking_created",
+        "booking_confirmed",
+        "booking_cancelled",
+        "booking_completed",
+        "dispute_opened",
+        "review_requested",
+        "admin_alert",
+        "new_request",
+      ],
+      offer_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "expired",
+        "withdrawn",
+        "bid_sent",
+        "confirmed",
+        "active",
+        "completed",
+        "counter_offered",
+      ],
+      request_status: ["open", "booked", "cancelled", "expired"],
+      review_status: ["published", "flagged", "hidden", "draft", "submitted"],
+      storage_asset_kind: [
+        "guide-avatar",
+        "guide-document",
+        "listing-cover",
+        "listing-gallery",
+        "dispute-evidence",
+        "guide-portfolio",
+      ],
+      thread_subject: ["request", "offer", "booking", "dispute"],
+    },
+  },
+} as const
