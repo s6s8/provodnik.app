@@ -44,7 +44,7 @@ async function main() {
     ].join(','));
   }
 
-  await writeFile('../.bek/data/specializations-proposal.csv', rows.join('\n'), 'utf-8');
+  await writeFile('tmp/specializations-proposal.csv', rows.join('\n'), 'utf-8');
   console.log(`Wrote ${rows.length - 1} guide proposals.`);
 }
 

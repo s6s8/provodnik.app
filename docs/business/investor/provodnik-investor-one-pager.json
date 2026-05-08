@@ -1,0 +1,89 @@
+{
+  "meta": {
+    "title": "Provodnik Investor One-Pager",
+    "kicker": "Investor Brief · Research Basis March 12, 2026",
+    "brand": "PROVODNIK",
+    "subtitle": "A lower-take marketplace for Russia's fragmented tours and excursions market.",
+    "hero_copy": "Provodnik is built for the part of the category incumbents do not organize well enough: <strong>custom traveler demand</strong>, <strong>budget-led group formation</strong>, and <strong>regional supply still selling through manual channels</strong>. The model combines listings with request-driven booking, structured guide offers, trust controls, and a target commission of <strong>10% to 15%</strong>."
+  },
+  "proof_items": [
+    {
+      "value": "955 / 120",
+      "copy": "Tripster footprint documented in research: 955 cities across 120 countries."
+    },
+    {
+      "value": "1006 / 110 / 24,060",
+      "copy": "Sputnik8 footprint documented in research: cities, countries, and guide base."
+    },
+    {
+      "value": "24%+ vs 10-15%",
+      "copy": "Sputnik8 public commission versus Provodnik target take rate."
+    }
+  ],
+  "strip_cards": [
+    {
+      "label": "Market Failure",
+      "value": "Fragmented",
+      "copy": "Discovery, trust, and group assembly still happen across Telegram, phone calls, social media, and referrals."
+    },
+    {
+      "label": "Wedge",
+      "value": "Request First",
+      "copy": "Travelers create demand directly, guides respond with structured offers, and groups form around dates and budget."
+    },
+    {
+      "label": "Launch Logic",
+      "value": "1-3 Regions",
+      "copy": "Start with trusted local supply and low-liability formats until request-to-booking liquidity becomes repeatable."
+    }
+  ],
+  "thesis": {
+    "title": "Executive Thesis",
+    "body": "<strong>Problem:</strong> travelers struggle to find the right excursion for budget, dates, format, and trust; guides rely on expensive aggregators or fragmented offline channels.<br /><br /><strong>Wedge:</strong> Provodnik is not another catalog. It is a <strong>request-first marketplace</strong> where travelers can create demand, join others into groups, and receive structured offers from verified guides.<br /><br /><strong>Why this can win:</strong> lower commission matters only when paired with new demand capture. Provodnik competes on liquidity for <strong>custom and budget-sensitive demand</strong>, not on listing breadth alone."
+  },
+  "signals": [
+    {
+      "label": "Market Structure",
+      "title": "Incumbents validate the category",
+      "copy": "Large platforms already prove demand, booking behavior, reviews, response-time discipline, and trust mechanics."
+    },
+    {
+      "label": "Underserved Segment",
+      "title": "The fragmented tail is still open",
+      "copy": "Custom requests, group assembly, and regional long-tail supply remain poorly digitized and operationally messy."
+    },
+    {
+      "label": "Commercial Opening",
+      "title": "Lower take becomes meaningful",
+      "copy": "Research shows competitor guide economics leave room for a more attractive channel if demand quality is real."
+    }
+  ],
+  "why_now": [
+    "Incumbents prove the market, but they optimize primarily for listing-first behavior.",
+    "Provodnik targets the less organized motion: traveler requests, budget-led group economics, and local guide supply outside polished catalog systems.",
+    "The MVP is transaction-complete: listings, requests, group joins, guide offers, deposits, reviews, moderation, and refunds.",
+    "Go-to-market is disciplined: launch with 1 to 3 regions, low-liability categories, and trusted local supply until liquidity repeats."
+  ],
+  "bottom_cards": [
+    {
+      "tag": "Model",
+      "tag_style": "slate",
+      "title": "Business Model",
+      "body": "<strong>Revenue:</strong> commission on completed bookings.<br /><br /><strong>Positioning:</strong> target take rate of <strong>10% to 15%</strong> against higher documented incumbent economics.<br /><br /><strong>Expansion:</strong> featured placement, professional tools, and analytics can layer on later."
+    },
+    {
+      "tag": "Launch",
+      "tag_style": "slate",
+      "title": "Go-to-Market",
+      "body": "<strong>Start narrow:</strong> 1 to 3 regions with year-round demand and credible guide supply.<br /><br /><strong>Prioritize:</strong> city tours, nature day trips, family-friendly small-group formats.<br /><br /><strong>Avoid at launch:</strong> high-risk adventures, complex expeditions, and unclear regulatory segments."
+    },
+    {
+      "tag": "Milestone",
+      "tag_style": "accent",
+      "title": "What Investors Should Watch",
+      "body": "<strong>Core milestone:</strong> repeatable liquidity in a narrow wedge, not broad traffic.<br /><br /><strong>Key signals:</strong> approved guides, traveler requests, time to first offer, request-to-booking conversion, cancellation and dispute rate.<br /><br /><strong>Defensibility:</strong> more trusted guides, reviews, and grouped demand strengthen marketplace density."
+    }
+  ],
+  "footer": "Source basis: <strong>PRD.md</strong>, <strong>MVP.md</strong>, <strong>MARKET_RESEARCH.md</strong>, <strong>README.md</strong>, and <strong>APP_STACK.md</strong>. All statements are derived from repo documentation and the March 12, 2026 research snapshot.",
+  "footer_mark": "Provodnik · Executive Investor Summary"
+}

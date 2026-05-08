@@ -1,7 +1,5 @@
-# Provodnik App
+# Provodnik
 
-This repo is managed from the root workspace at `D:/dev2/projects/provodnik/`.
-
-All orchestration, SOT files, agent prompts, Slack tooling, and session context live there.
-
-For full instructions see `D:/dev2/projects/provodnik/.claude/CLAUDE.md`.
+See `.claude/CLAUDE.md` for project rules + orchestrator flow.
+See `AGENTS.md` for stack, module map, and per-task verification.
+SOT lives at `.claude/sot/`. The Telegram orchestrator (`@QuantumBekBot`, app `provodnik`) is the canonical control surface.

@@ -1,0 +1,505 @@
+# ERRORS.md — Bug & Failure Log
+
+_Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HOT.md for top-8 landmines._
+
+---
+
+### ERR-058: Traveler request detail shows budget ×100 (kopecks rendered as RUB) — direct AP-012 / ERR-025 reoccurrence — RESOLVED 2026-04-30 (commit 034e12f)
+- **Symptom:** `/traveler/requests/[requestId]` displays budget as `480 000 ₽ на чел.` while `/traveler/requests` list view of the same record shows `4 800 ₽/чел.` for the same data. Exactly ×100 too high. Reproduced 2026-04-30 against production with `traveler@provodnik.app` on a request whose `budget_minor=480000` (i.e. 4 800 RUB).
+- **Root Cause:** `(protected)/traveler/requests/[requestId]/page.tsx:66` writes `budgetPerPersonRub: row.budget_minor ?? 0` — passing kopecks straight into a field whose name promises RUB.
+- **Fix:** mapper extracted to `src/data/traveler-request/map.ts` with `kopecksToRub(row.budget_minor ?? 0)`; page imports from there. New `map.test.ts` covers `budget_minor=480000 → 4800` and surrounding invariants (6 assertions).
+- **Date:** 2026-04-30
+- **Files Affected:** `provodnik.app/src/app/(protected)/traveler/requests/[requestId]/page.tsx`, `provodnik.app/src/data/traveler-request/map.ts` (new), `provodnik.app/src/data/traveler-request/map.test.ts` (new)
+- **Side fix in same plan:** AP-012 violations in `(public)/listings/[id]/transfer/page.tsx` (`Math.round(* / 100)` ×2) and `features/listings/components/TransferCrossSellWidget.tsx` fixed via `kopecksToRub` while touching for T5/T12. HOT.md grep `* 100|/ 100|_minor` is now clean across `src/`.
+- **Prevention:** Pre-edit grep is in place. Add the read-side rule to the cursor-agent prompt KNOWLEDGE block whenever the task touches a request or offer surface: "Any code that reads `budget_minor`, `price_minor`, or any `*_minor` column MUST pass it through `kopecksToRub` before storing or rendering."
+
+### ERR-057: Listing detail page renders duplicate `<header>`/`<footer>` chrome — page wraps content in same SiteHeader/SiteFooter that the route-group layout already provides — RESOLVED 2026-04-30 (commit 034e12f)
+- **Symptom:** `/listings/[slug]` shows two stacked footers (and a duplicate `<header>` landmark in DOM) at 1280px and 375px both. The listings index `/listings` is correct (single chrome).
+- **Root Cause:** `src/app/(public)/listings/[id]/page.tsx` wrapped the rendered tree in `<div><SiteHeader/><main>{...}</main><SiteFooter/></div>` for both tour and excursion templates while `(public)/layout.tsx` already provided the same chrome.
+- **Fix:** removed the wrapping div + SiteHeader + main + SiteFooter from both branches; page now returns the shape components directly. `(public)/layout.tsx` is the single source.
+- **Date:** 2026-04-30
+- **Files Affected:** `provodnik.app/src/app/(public)/listings/[id]/page.tsx`
+- **Prevention:** When a page lives inside a route group whose `layout.tsx` already renders `SiteHeader` / `SiteFooter`, the page MUST NOT render them again.
+
+### ERR-056: notFound() returns HTTP 200 instead of 404 when route group layout has `await` (documented Next.js streaming limitation)
+- **Symptom:** `/tours` (FEATURE_TR_TOURS=0 → calls `notFound()`), `/guides/[fake-slug]`, `/destinations/[fake-slug]` — all return HTTP 200 with the not-found UI rendered into the body. Conversely `/listings/[fake-id]` returns HTTP 404 correctly.
+- **Investigation (Plan 41):** Tested via direct Vercel URL (`provodnik-app.vercel.app/tours`) — same 200 — eliminating Cloudflare normalization. `force-dynamic` and `await headers()` had no effect. Tried `unstable_rethrow` in `(site)/error.tsx` — caused dual not-found render and still 200. Reverted.
+- **Root cause:** Documented Next.js App Router behavior. From the official streaming docs: *"When a `<Suspense>` fallback renders or a component suspends, the server must commit to a '200 OK' status to begin sending the HTML stream. If a `notFound()` or `redirect()` function is called mid-stream, Next.js cannot alter the HTTP status code. Instead, it injects a `<meta name="robots" content="noindex">` tag for 404s..."* The `(site)/layout.tsx` does `await readAuthContextFromServer()` which triggers streaming. The `(public)` group has no such await in its layout — that's why `/listings/[fake]` returns 404 correctly.
+- **Fix:** Plan 34's `robots: { index: false, follow: false }` on all `not-found.tsx` files IS the documented Next.js mitigation, NOT a workaround. Search engines will not index the 200-status not-found pages because of the noindex meta. Status 200 itself is unfixable without removing `await` from the layout, which would break auth-dependent rendering.
+- **Date:** 2026-04-30
+- **Files Affected:** documented across `src/app/(site)/layout.tsx` (the await), `src/app/{,(site)/,(protected)/}not-found.tsx` (already have robots:noindex). No code change needed beyond the existing Plan 34 fix.
+- **Prevention:** When designing route-group layouts, be aware that any `await` (cookies, headers, fetch) commits the response to HTTP 200 before page-level `notFound()` can fire. If a route MUST return real 404 (e.g. for SEO-critical paths), keep its layout sync — read auth client-side or via middleware instead of a layout await. For everything else, the noindex meta is sufficient.
+
+### ERR-055: Plan 29 cursor-agent stall reproduction — T1 zero-commit at 600s, all five tasks applied directly
+- **Symptom:** Plan 29 dispatch — cursor-agent for T1 (delete `/guide/listings-v1`) stalled at 600s timeout with zero file changes. Wrapper fell back to ZERO_COMMIT protocol (ERR-049 / AP-022). Out of caution, the orchestrator then applied T1 + T2 (retarget /guide/dashboard, 8 hits) + T3 (delete /guide/statistics) + T4 (legacy /guide/[id] permanentRedirect) + T5 (/tours notFound() under FEATURE_TR_TOURS) directly without re-dispatching, since all five were mechanical edits within the same router segment.
+- **Root Cause:** Same as ERR-049 (cursor-agent narrates intent without executing tools) and ERR-050 (timeout on Server Component restructure). Pure file deletes are below cursor-agent's "interesting enough to write" threshold — the agent reads the file, plans the deletion, and stalls without ever calling the Write/Edit tool on a delete.
+- **Fix:** Orchestrator applied directly. Commits `0c8868b`, `aeccdf2`, `e77da38`, `e0047bf`, `6e30109` on main. Same end result as a successful dispatch, faster than waiting on the stall.
+- **Date:** 2026-04-29
+- **Files:** see commits above
+- **Prevention:** AP-022 reaffirmed. For pure-delete tasks (route file removal, redirect removal, dead-component cleanup), skip cursor-agent entirely and apply directly from the orchestrator. The dispatch overhead is wasted when the work is `rm`-shaped. Reserve cursor-agent for tasks that involve actual content writing (≥10 lines of new code).
+
+### ERR-054: cursor-agent writes to main workspace regardless of --workspace worktree arg
+- **Symptom:** Three parallel cursor-dispatch runs each given a worktree path via `--workspace`. All three wrote to the main `provodnik.app` working tree instead of the worktrees. Worktree branches had zero commits after dispatch.
+- **Root Cause:** cursor-agent ignores the --workspace flag for file edits. It uses the paths specified in the prompt's CONTEXT section (`Working dir: D:\dev2\projects\provodnik\provodnik.app`) not the runtime --workspace value.
+- **Fix:** Orchestrator copies the modified files from main working tree to each worktree, commits there, then restores main working tree with `git checkout HEAD -- <files>`. New/untracked files are deleted from main with `rm`.
+- **Date:** 2026-04-29
+- **Seen in:** Plan-25 T1, Plan-26 T1, Plan-27 T1 parallel dispatch.
+- **Prevention:** For parallel worktree dispatch, expect cursor-agent to write to the main workspace. Design the orchestration loop to handle this: copy → commit-in-worktree → restore-main. Do not rely on --workspace isolation for file writes.
+
+### ERR-053: cursor-agent adds JSX sibling elements without wrapping fragment
+- **Symptom:** `SiteHeader` component returned `<header>...</header><UserAccountDrawer .../>` — two sibling roots without `<>...</>` wrapping. This passes lint (no error rule for this pattern) but would cause a TypeScript JSX error.
+- **Root Cause:** cursor-agent appended `<UserAccountDrawer>` after `</header>` in the return statement. The original return had `<header>` as sole root; adding a sibling requires a React fragment but cursor-agent didn't add one.
+- **Fix:** Orchestrator manually wrapped `return (` → `return (<>` and added `</>` before closing `)`.
+- **Date:** 2026-04-29
+- **Files:** `src/components/shared/site-header.tsx`
+- **Prevention:** After any cursor-agent edit that adds JSX siblings to a component return, verify the root element count. If >1, add `<>...</>` wrapper.
+
+
+
+### ERR-052: guide/profile page shows error boundary — createSupabaseServerClient() outside try/catch
+- **Symptom:** `/guide/profile` shows "Раздел временно недоступен" error boundary page. Console shows unhandled error.
+- **Root Cause:** `createSupabaseServerClient()` was called at line 70 OUTSIDE the try/catch block. The function throws `"Supabase environment variables are not configured."` if `hasSupabaseEnv()` returns false. Even with env vars set, any unexpected throw (e.g. network blip during cookies() call) would propagate to the error boundary.
+- **Fix:** Moved `const supabase = await createSupabaseServerClient()` from line 70 (outside try/catch) to first line inside the try block. Commit `8d9ab5a`. If supabase client init fails, page renders with empty default data instead of crashing.
+- **History:** Plan-18 T4 (commit 9d0204c) wrapped the data queries in try/catch but left createSupabaseServerClient() outside. Plan-19 T4 (commit afb1150) fixed the auth check but kept createSupabaseServerClient() outside. Plan-23 (commit 8d9ab5a) finally moved it inside.
+- **Date:** 2026-04-28
+- **Files:** `src/app/(protected)/guide/profile/page.tsx`
+- **Prevention:** Any Server Component that calls createSupabaseServerClient() directly (not via readAuthContextFromServer) MUST do so inside try/catch. readAuthContextFromServer() has its own internal try/catch and is always safe.
+
+### ERR-046: cursor-agent stalls on `bun run test:run` → attempts `&&` bash chain → fatal 500s stall
+- **Symptom:** cursor-agent runs `bun run test:run <file>`, bash tool times out at 60s, agent then tries `sleep N && head` (ERR-015 violation) to read stdout, stalling the entire process for 500+ seconds until pid is killed.
+- **Root Cause:** First Vitest+jsdom run in a cold project takes >60s (module graph cold start). cursor-agent's bash tool has a 60s built-in timeout. When the command times out the tool returns an empty/background result, and the agent attempts to recover with a `&&` chain that blocks indefinitely.
+- **Fix / Workaround:** Skip the "confirm RED state" test run step from TDD prompts for tasks where the test is simple and the failure mode is obvious. Add `NOTE: bun run test:run may time out on first run — this is expected. Do not retry with && chains. Proceed directly to the implementation step.` to the TASK section of affected prompts.
+- **Date:** 2026-04-25
+- **Seen in:** Task 1 of Sentry error-resilience plan (NotificationBell). Tasks 2 and 3 completed without issue (likely because Vitest cache was warm after Task 1's partial run).
+- **Prevention:** Add explicit timeout-handling note to skeleton.md ENVIRONMENT section or to any TDD prompt that runs `bun run test:run` as a RED confirmation step.
+
+### ERR-047: cursor-agent commits to current HEAD branch instead of creating the specified branch
+- **Symptom:** Task prompt specifies `Branch: fix/sentry-*` in SCOPE section, but cursor-agent commits directly to whatever branch is currently checked out (main in this case). Branch is never created.
+- **Root Cause:** cursor-agent does not run `git checkout -b <branch>` or `git switch -c <branch>` before committing. The SCOPE section states the branch name but does not include explicit `git checkout` steps in the TASK section.
+- **Fix:** If branches are required, add an explicit step in TASK section: `git checkout -b fix/<name>` before the commit step. For parallel tasks all committing to main (no merge conflict risk), committing to main is acceptable and simpler.
+- **Date:** 2026-04-25
+- **Seen in:** All 3 tasks of Sentry plan. All 3 committed to main — no data loss, just unexpected branch topology.
+- **Prevention:** Either (a) add `git checkout -b` step explicitly in task prompts when branches are required, or (b) accept that parallel-safe tasks can commit to main directly and remove the branch requirement from prompts.
+
+### ERR-001: getListingsByDestination slug mismatch
+- **Symptom:** Destination pages show 0 tours despite listings existing in DB
+- **Root Cause:** Query uses slug string directly in ilike: `.or('city.ilike.%kazan-tatarstan%')` — but city column contains Russian name 'Казань', not the slug
+- **Fix:** First fetch destination by slug to get `.name` and `.region`, then query listings with those values
+- **Files Affected:** `src/data/supabase/queries.ts` fn `getListingsByDestination`
+- **Date:** 2026-04-06
+- **Prevention:** Never use slug directly in data column queries. Always resolve slug → record first.
+
+### ERR-002: Demo bar visible in production
+- **Symptom:** WorkspaceRoleNav renders signInAs() buttons unconditionally — any user can switch roles
+- **Root Cause:** Demo controls block not guarded by NODE_ENV check
+- **Fix:** Wrap demo controls `<div>` in `{process.env.NODE_ENV !== 'production' && (...)}` 
+- **Files Affected:** `src/components/shared/workspace-role-nav.tsx`
+- **Date:** 2026-04-06
+- **Prevention:** Any dev-only UI must be wrapped in NODE_ENV guard
+
+### ERR-003: Wrong hero images for Kazan and Nizhny destinations
+- **Symptom:** Kazan destination page shows non-Kazan photo (possibly Dubai skyline)
+- **Root Cause:** Seed SQL has incorrect Unsplash photo IDs for kazan-tatarstan and nizhny-novgorod rows
+- **Fix:** Replace hero_image_url with correct Russian city photos in seed.sql; run bun run db:reset
+- **Files Affected:** `supabase/migrations/20260401000002_seed.sql`
+- **Date:** 2026-04-06
+- **Prevention:** Verify photo URLs visually before committing to seed
+
+### ERR-004: Listing images fall back to generic mountain photo
+- **Symptom:** All listing cards show same mountain photo regardless of destination
+- **Root Cause:** `mapListingRow` calls `parseImageFromJson(row.description)` but description is plain text, not JSON. Always falls back to fallbackHeroImage
+- **Fix:** Add `image_url` column to listings table; update mapListingRow to read image_url first
+- **Files Affected:** `src/data/supabase/queries.ts` fn `mapListingRow`, `supabase/migrations/`
+- **Date:** 2026-04-06
+- **Prevention:** Never store image URLs inside description/notes JSON. Use dedicated columns.
+
+### ERR-005: listingCount shows static seed value not actual tour count
+- **Symptom:** Destination stats row shows "2 tours" even when real query returns different count
+- **Root Cause:** destination-detail-screen.tsx uses `destination.listingCount ?? listings.length` — prefers static column over live count
+- **Fix:** Change to `listings.length > 0 ? listings.length : (destination.listingCount ?? 0)`
+- **Files Affected:** `src/features/destinations/components/destination-detail-screen.tsx`
+- **Date:** 2026-04-06
+- **Prevention:** Prefer live query results over static denormalized counts for accuracy
+
+### ERR-006: Browser native validation tooltip on empty form submit
+- **Symptom:** Auth form shows browser tooltip instead of styled red error box on empty submit
+- **Root Cause:** Input elements have `required` HTML attributes which trigger browser validation before JS handler runs
+- **Fix:** Remove `required` attributes from all Input elements in auth-entry-screen.tsx
+- **Files Affected:** `src/features/auth/components/auth-entry-screen.tsx`
+- **Date:** 2026-04-06
+- **Prevention:** Use JS validation only in forms with custom error UI. Never mix HTML5 required with custom validation.
+
+### ERR-008: cursor-agent rejects model name claude-sonnet-4-6
+- **Symptom:** cursor-agent exits with "Cannot use this model" when `--model claude-sonnet-4-6` is passed
+- **Root Cause:** cursor-agent uses its own model registry; Claude model IDs differ from Anthropic API IDs
+- **Fix:** Use `--model claude-4.6-sonnet-medium` (or `--model auto`) for Claude Sonnet in cursor-agent
+- **Files Affected:** All cursor-agent dispatch commands in prompts
+- **Date:** 2026-04-07
+- **Prevention:** Always use `--model auto` for cursor-agent unless a specific model name is confirmed from `cursor-agent --help`
+
+### ERR-009: null as any passed as Supabase client in route pages
+- **Symptom:** Dynamic route pages (`/guide/[id]`, `/listings/[slug]`, etc.) had `null as any` as client arg in cache wrapper functions — causes runtime type errors
+- **Root Cause:** 7 route pages were missed in the first null-as-any fix pass (only 4 were fixed)
+- **Fix:** Import `createSupabaseServerClient` and await it inside each cache wrapper or page function
+- **Files Affected:** 7 files in `src/app/(protected)/guide/requests/[requestId]/`, `src/app/(site)/destinations/[slug]/`, `src/app/(site)/guide/[id]/`, `src/app/(site)/guides/[slug]/`, `src/app/(site)/listings/[slug]/`, `src/app/(site)/requests/[requestId]/`, `src/app/(site)/requests/`
+- **Date:** 2026-04-07
+- **Prevention:** After fixing any null-as-any client pattern, grep entire codebase for `null as any` to find all instances
+
+### ERR-010: ESLint silently broken — 47 errors undetected
+- **Symptom:** `bun run lint` was never run after Phase 6; 47 lint errors accumulated across 15+ files
+- **Root Cause:** No enforcement hook or CI check required lint before commits
+- **Fix:** Added PostToolUse Bash hook in `.claude/settings.json` that prints LINT_REMINDER after every commit/merge; added lint gate to CLAUDE.md acceptance criteria
+- **Files Affected:** `.claude/settings.json`, `CLAUDE.md`
+- **Date:** 2026-04-07
+- **Prevention:** `bun run typecheck && bun run lint` must pass before every commit — enforced via hook
+
+### ERR-011: cursor-agent on Windows .cmd wrapper silently hangs
+- **Symptom:** `cursor-agent --print --force --model ... "$PROMPT" > log.txt 2>&1` run via git-bash in background produces 0-byte logs and 0 file edits for 9+ minutes while 22 child processes run. No stdout/stderr, no git activity, no completion.
+- **Root Cause:** The `.cmd` wrapper (`C:\Users\x\AppData\Local\cursor-agent\cursor-agent.cmd`) buffers stdout until process exit AND blocks on a hidden prompt/interaction when launched from a headless git-bash shell. Combined effect: no output, no progress, no way to observe.
+- **Fix:** Do not dispatch cursor-agent via .cmd wrapper from git-bash in background. Two working fallbacks: (a) use native Claude Code Agent subagents (general-purpose) via the `Agent` tool — they have Edit/Write/Bash, work in absolute-path worktrees, return a single summary on completion; (b) run cursor-agent interactively in a foreground terminal the human opens manually.
+- **Files Affected:** orchestrator dispatch pattern only; no source code
+- **Date:** 2026-04-11
+- **Prevention:** On Windows, default to native Agent subagents for parallel code-writing work. Reserve cursor-agent for foreground interactive sessions.
+
+### ERR-012: Node v24 blocks spawning cursor-agent.cmd with shell:false
+- **Symptom:** `node cursor-dispatch.mjs` crashes with `Error: spawn EINVAL, errno: -4071, code: 'EINVAL', syscall: 'spawn'` the instant it tries to launch `C:\Users\x\AppData\Local\cursor-agent\cursor-agent.cmd` — before any stdout/stderr, before any cursor-agent init event.
+- **Root Cause:** Node.js v24 (post CVE-2024-27980) blocks spawning `.cmd`/`.bat` files with `shell: false` as a security measure. `cursor-agent.cmd` internally launches `powershell.exe -File cursor-agent.ps1` which then runs `node.exe index.js $args` — three layers of indirection, all blocked at the first layer.
+- **Fix:** Bypass the entire `.cmd → ps1 → node` chain. `cursor-dispatch.mjs` now resolves the latest versioned install at `C:\Users\x\AppData\Local\cursor-agent\versions\<YYYY.MM.DD-hash>\` and spawns `node.exe index.js ...cursorArgv` directly with `shell: false`. Sets `CURSOR_INVOKED_AS=cursor-agent.cmd` env var so cursor-agent's internal self-identification still works.
+- **Files Affected:** `.claude/logs/cursor-dispatch.mjs` (wrapper)
+- **Date:** 2026-04-11
+- **Prevention:** Never spawn `.cmd`/`.bat` from Node on Windows with `shell: false`. Either resolve the underlying binary and spawn it directly, or go through `shell: true` with careful argv quoting. The wrapper is now the ONLY sanctioned way to invoke cursor-agent from Node — see project CLAUDE.md "Primary Coder" section.
+
+### ERR-007: guide@provodnik.test has no listings
+- **Symptom:** Login as test guide → /guide/listings shows empty state
+- **Root Cause:** Seed listings belong to guide IDs 10000000-...-101 and 10000000-...-102, but test guide ID is 30000000-0000-4000-8000-000000000001
+- **Fix:** Add seed listings with guide_id = '30000000-0000-4000-8000-000000000001'
+- **Files Affected:** `supabase/migrations/20260401000002_seed.sql`
+- **Date:** 2026-04-06
+- **Prevention:** Test accounts must have corresponding seed data. Check guide_id alignment when adding listings.
+
+### ERR-013: cursor-agent shell tool hangs on `bunx vitest run` on Windows
+- **Symptom:** cursor-agent invokes `bunx vitest run <file>` inside its shell tool, vitest starts but never returns — wrapper times out at 900s.
+- **Root Cause:** Unverified hypothesis: jsdom environment + interactive TTY detection in vitest's Node subprocess hangs when launched from cursor-agent's non-TTY shell on Windows. Reproduced in Phase 0 Wave 0.1 (2026-04-12).
+- **Fix:** In cursor-agent prompts, never invoke `bunx vitest` directly. Either (a) use `bun run test:run <file>` (non-watch script that the repo already defines), or (b) skip in-agent test runs entirely and have the orchestrator verify test results from outside the worktree after dispatch exits.
+- **Files Affected:** `.claude/prompts/tripster-v1/00-01-preflight.md` and all future wave prompts that involve vitest
+- **Date:** 2026-04-12
+- **Prevention:** Prompts must say "do NOT run `bunx vitest run` — use `bun run test:run` or let orchestrator verify." Add to prompt template defaults.
+
+### ERR-014: Prompt said `lib/flags.ts` but repo convention is `src/lib/`
+- **Symptom:** Cursor-agent got a prompt specifying `lib/flags.ts` at repo root, but vitest.config.mts scopes tests to `src/**/*.test.{ts,tsx}` and the existing lib layout is `src/lib/`.
+- **Root Cause:** Prompt author (orchestrator) did not probe the inner repo layout before writing the prompt.
+- **Fix:** In cursor-agent prompts for `provodnik.app`, always write module paths as `src/lib/*`, `src/app/*`, `src/components/*` — never `lib/*` at root. The repo uses `src/` with `@/*` alias pointing at `./src/*`.
+- **Files Affected:** `.claude/prompts/tripster-v1/00-01-preflight.md` (and all future prompts)
+- **Date:** 2026-04-12
+- **Prevention:** Orchestrator SHOULD run an `ls src/` or `cat tsconfig.json` probe against the target repo before writing any prompt that specifies new file paths. Or include this convention as a durable line in every prompt's CONTEXT block.
+
+### ERR-015: cursor-agent shell tool hangs on chained `cd && ls && ls || ls` on Windows
+- **Symptom:** cursor-agent dispatch stalls indefinitely (>530s, killed at 600s timeout). Shell tool call `cd && ls src/lib && ls -la package.json vitest.config.mts tsconfig.json 2>/dev/null || ls ...` never emits `completed`. No file writes. No error.
+- **Root Cause:** cursor-agent's internal shell tool on Windows hangs when given complex chained commands with `&&`, `||`, and stderr redirect fallbacks in one line — likely a PTY buffering or subprocess-spawn issue on Windows git-bash.
+- **Fix:** In prompts, never instruct cursor-agent to run chained investigation shell commands. Use a single simple command per bash call (e.g., `ls src/lib` alone, not `cd X && ls Y && ls Z || ls W`). Prefer Read tool for file inspection over ls. For trivial files with fully inlined specs, tell the agent to skip investigation and go straight to Write.
+- **Files Affected:** any prompt file with multi-part `&&`/`||` shell investigation blocks
+- **Date:** 2026-04-12
+- **Prevention:** Add `no-chained-shell` as a standing rule in all prompt template preambles: "Each Bash call must contain exactly one command. No `&&`, `||`, stderr redirects, or `cd X && cmd` chains." Enforce before dispatch, not after failure.
+
+### ERR-016: Missing shadcn/ui table component causes Vercel build failure
+- **Symptom:** Vercel build fails with "Module not found: Can't resolve '@/components/ui/table'" — local dev unaffected.
+- **Root Cause:** The `table` shadcn/ui component was used in code but never installed (`npx shadcn@latest add table`). Local build was env-blocked so the error was invisible locally.
+- **Fix:** `npx shadcn@latest add table` (or equivalent bun/node invocation) — adds `src/components/ui/table.tsx`. Commit: `29ae0a4`.
+- **Files Affected:** `src/components/ui/table.tsx` (missing)
+- **Date:** 2026-04-13
+- **Prevention:** When referencing any shadcn/ui component, grep `src/components/ui/` to confirm it exists before committing. The 23-component installed set is documented in CLAUDE.md — add `table` to that list.
+
+### ERR-017: turbopackUseSystemTlsCerts is not a valid Next.js ExperimentalConfig key
+- **Symptom:** Vercel TypeScript type-check fails: "Object literal may only specify known properties, and 'turbopackUseSystemTlsCerts' does not exist in type 'ExperimentalConfig'."
+- **Root Cause:** Added as a Windows-local workaround for CA trust issues during `next build` on Windows dev. The key does not exist in the installed Next.js version's type definitions, so TypeScript build fails.
+- **Fix:** Remove the `experimental: { turbopackUseSystemTlsCerts: true }` block entirely — not needed on Linux/Vercel. Commit: `41c0877`.
+- **Files Affected:** `next.config.ts`
+- **Date:** 2026-04-13
+- **Prevention:** Never add non-standard experimental flags without verifying they exist in the installed Next.js `ExperimentalConfig` type. Run `bun run typecheck` before committing any next.config.ts change.
+
+### ERR-018: Upstash Redis client always null — env var name mismatch
+- **Symptom:** Rate limiting silently disabled in production; `rateLimit()` always returns `{ success: true }` regardless of actual request frequency
+- **Root Cause:** `redis.ts` called `Redis.fromEnv()` which reads `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`, but env vars are named `STORAGE_KV_REST_API_URL` / `STORAGE_KV_REST_API_TOKEN`. Client was always `null`.
+- **Fix:** Replace `Redis.fromEnv()` with `new Redis({ url, token })` reading `STORAGE_KV_*` names. Also updated `hasUpstashRedisEnv()` in `rate-limit.ts` to check same names. Commit: `6dece9e`.
+- **Files Affected:** `src/lib/upstash/redis.ts`, `src/lib/rate-limit.ts`
+- **Date:** 2026-04-13
+- **Prevention:** When env vars are named differently from SDK defaults, never use `fromEnv()` — always read explicitly by name and verify against `.env.local`.
+
+### ERR-019: getOpenRequests/getRequestById used getPublicClient() ignoring param
+- **Symptom:** Guide inbox shows 0 open requests in browser; all authenticated queries return empty
+- **Root Cause:** Both functions called `const db = getPublicClient()` internally, ignoring the `client` SupabaseClient parameter. `getPublicClient()` reads `SUPABASE_SECRET_KEY` (server-only env var), which is undefined in browser context, causing the client to silently fail.
+- **Fix:** Changed `const db = getPublicClient()` → `const db = client` in both `getOpenRequests` and `getRequestById`. Commit: `765b662`
+- **Files Affected:** `src/data/supabase/queries.ts`
+- **Date:** 2026-04-14
+- **Prevention:** Any function accepting a `SupabaseClient` param MUST use it. Never call `getPublicClient()` inside a function that already has a client argument. Add ESLint rule or code review check.
+
+### ERR-020: getBooking PostgREST join fails — no FK from bookings to guide_profiles
+- **Symptom:** `/traveler/bookings/[id]` crashes with "СБОЙ КАБИНЕТА" error boundary; server log shows unhandled PostgREST error
+- **Root Cause:** `BOOKING_WITH_DETAILS_SELECT` used `guide_profile:guide_profiles!guide_id(...)`. PostgREST resolved `bookings.guide_id` FK to `profiles.id` — not to `guide_profiles.user_id`. No direct FK exists between `bookings` and `guide_profiles`, so the join was invalid.
+- **Fix:** Replaced single complex join with sequential `Promise.all` queries: booking → guide_profile (by user_id) → traveler_request (by request_id) → guide_offer (by offer_id). Commit: `0cd4bfe`
+- **Files Affected:** `src/lib/supabase/bookings.ts`
+- **Date:** 2026-04-14
+- **Prevention:** Before writing PostgREST join syntax, verify FK constraints exist via `pg_policies` or `information_schema.table_constraints`. When joining through indirect relationships, use sequential queries.
+
+### ERR-021: PostgrestError not caught by instanceof Error check in server actions
+- **Symptom:** Any Supabase DB error in `submitOfferAction` returns generic "Не удалось отправить предложение." instead of the real error message
+- **Root Cause:** `@supabase/supabase-js` `PostgrestError` is a plain object, not a subclass of `Error`. `err instanceof Error` check always fails, hitting the fallback string.
+- **Fix:** Changed to `typeof (err as any).message === 'string'` to extract message from any error-shaped object. Commit: `d837554`
+- **Files Affected:** `src/app/(protected)/guide/inbox/[requestId]/offer/actions.ts`
+- **Date:** 2026-04-14
+- **Prevention:** Never use `instanceof Error` to handle Supabase errors. Use `typeof err.message === 'string'` or a type guard. Document in PATTERNS.md.
+
+### ERR-022: `todayLocalISODate` produced TZ-divergent dates between client and server (FP-1)
+- **Symptom:** Booking form date input occasionally rendered "yesterday" as the minimum acceptable date for users in TZ ahead of UTC; SSR + CSR diverged producing hydration warnings
+- **Root Cause:** Helper used `new Date().toISOString().slice(0,10)` which is always UTC-anchored, ignoring the browser's TZ. Server (UTC container) and a client in MSK (+03) compute different `YYYY-MM-DD` near midnight UTC.
+- **Fix (planned):** Replace with `Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())` — yields exact `YYYY-MM-DD` in canonical Moscow TZ. Single helper `todayMoscowISODate` in `src/lib/dates.ts`.
+- **Files Affected:** `src/features/booking/components/BookingFormTabs.tsx`
+- **Date:** 2026-04-16
+- **Prevention:** Never derive a calendar date from `toISOString().slice(0,10)`. Always pin TZ via `Intl.DateTimeFormat` for any value persisted to or compared against server-time.
+
+### ERR-023: Mystery `* 0.8` multiplier on traveler dashboard had no design provenance (FP-2)
+- **Symptom:** Dashboard "от X ₽" label displayed 80% of the budget the traveler entered; travelers expected to pay X but guides bid at full budget; confusion + decline rate up
+- **Root Cause:** `traveler-dashboard-screen.tsx:177` computed `(budget * 0.8).toLocaleString(...)` with no comment, no design rationale, no other call site doing the same. Likely leftover from an unmerged "discount preview" experiment.
+- **Fix (planned):** Remove the multiplier; render `от ${budget.toLocaleString("ru-RU")} ₽ / чел.` matching the canonical pattern in `src/data/supabase/queries.ts:296`.
+- **Files Affected:** `src/features/traveler/components/traveler-dashboard-screen.tsx`
+- **Date:** 2026-04-16
+- **Prevention:** Mystery numeric literals on user-facing money labels require either a comment with a design ticket reference or removal. Grep for `\* 0\.[0-9]` after every dashboard touch.
+
+### ERR-024: `submitRequest.ts` accepted requests against draft listings (FP-3)
+- **Symptom:** Stale browser tabs (or hand-crafted POSTs) could create `requests` rows pointing at draft, archived, or rejected listings; guide received an unwanted notification and had to decline manually
+- **Root Cause:** Action validated input shape but never re-checked that `listings.status === "published"` and (for `mode === "order"`) that `price_minor` was set, before the insert.
+- **Fix (planned):** Pre-insert SELECT on `listings(id, status, price_minor)` guarded only on `mode === "order"`; returns discriminated `{ error: "listing_unavailable" | "listing_no_price" }`. Inquiry tab (`mode === "question"`) intentionally untouched — inquiries are messages, not commerce.
+- **Files Affected:** `src/features/booking/actions/submitRequest.ts`, consumed by `src/features/booking/components/BookingFormTabs.tsx`
+- **Date:** 2026-04-16
+- **Prevention:** Any server action that takes a listing ID for commerce must re-fetch status + price at action time; never trust the form payload to match current DB state.
+
+### ERR-025: Wizard `budgetMap` write path skipped kopecks conversion (FP-4)
+- **Symptom:** Fresh requests inserted with `budget_minor` set to RUB integer (e.g. 5000) instead of kopecks (500000); guide inbox showed "от 50 ₽" for a 5000 ₽ request
+- **Root Cause:** `request-wizard.tsx` `budgetMap` correctly held RUB integers and `actions.ts` insert wrote `budget_minor: input.budgetPerPersonRub` directly — `* 100` missing. Read-side helper `kopecksToRub` would have only stopped the bug from getting worse for existing data.
+- **Fix (planned):** Centralised `rubToKopecks` / `kopecksToRub` helpers in `src/data/money.ts`; wizard action calls `rubToKopecks(input.budgetPerPersonRub)` on insert; round-trip Vitest test guards regression.
+- **Files Affected:** `src/app/(protected)/traveler/requests/new/actions.ts`, `src/data/money.ts` (new)
+- **Date:** 2026-04-16
+- **Prevention:** Every RUB ⇄ kopecks crossing must go through the centralised helpers. Grep `* 100`, `/ 100`, `_minor` after currency-touching changes.
+
+### ERR-026: Inbox `useEffect` silently skipped offered/accepted fetch when session not yet resolved (FP-5)
+- **Symptom:** Reload of `/guide/inbox` rendered the "Активные запросы" tab as empty; switching to other tabs and back populated it. Race-condition only on slow connections.
+- **Root Cause:** `guide-requests-inbox-screen.tsx` ran `loadOffersForGuide` inside a `useEffect` with `[]` deps and an early `if (!session) return;` — once session arrived later via `onAuthStateChange`, no re-fetch was triggered.
+- **Fix (planned):** Subscribe to `supabase.auth.onAuthStateChange`; on `SIGNED_IN`/`USER_UPDATED` (with a session) trigger `loadOffersForGuide`. Cleanup in unsubscribe.
+- **Files Affected:** `src/features/guide/components/requests/guide-requests-inbox-screen.tsx`
+- **Date:** 2026-04-16
+- **Prevention:** Any `useEffect` with `[]` deps that depends on `session` must subscribe to `onAuthStateChange`, not assume initial render had a session.
+
+### ERR-027: `BookingFormTabs` catch block returned single generic message regardless of error class (FP-6)
+- **Symptom:** Any submit failure ("Сессия истекла", validation error, listing unavailable) showed the same "Не удалось отправить запрос" copy; users couldn't tell what to do next
+- **Root Cause:** Catch was a single `setError("Не удалось отправить запрос")` with no discrimination on the action's discriminated `result.error` codes (`auth_expired` / `validation` / `listing_unavailable` / `listing_no_price` / `internal`).
+- **Fix (planned):** Centralise `userMessageForError(code)` mapping returning Russian copy per code; consumer narrows via discriminated union.
+- **Files Affected:** `src/features/booking/components/BookingFormTabs.tsx`
+- **Date:** 2026-04-16
+- **Prevention:** Server actions return discriminated `{ error: <code> }` shapes (never throws); UI maps codes to copy via a single helper. No silent `catch {}`.
+
+### ERR-029: Supabase registration white screen — JWT minted before profile row exists
+- **Symptom:** New user registration completes on the server but browser shows white screen / blank page; no redirect to dashboard
+- **Root Cause:** `custom_access_token_hook` runs at JWT mint time and reads `profiles` to set `app_metadata.role`. When triggered via `supabase.auth.signUp()` from the browser, the `handle_new_user()` trigger fires asynchronously — JWT is minted before the trigger commits the profile row → hook returns no role → proxy/layout blocks the user.
+- **Fix:** Replace browser `signUp()` with `signUpAction` server action that uses the admin client: (1) `admin.createUser` with `email_confirm: true`, (2) `admin.from("profiles").upsert(...)`, (3) `admin.updateUser(id, { app_metadata: { role } })`, (4) server-side `signInWithPassword`. Profile and role are both committed before the JWT is ever minted.
+- **Files Affected:** `src/features/auth/actions/signUpAction.ts` (new), `src/features/auth/components/auth-entry-screen.tsx`
+- **Date:** 2026-04-20
+- **Prevention:** Never rely on DB triggers being committed before JWT mint. Always pre-write `profiles` and stamp `app_metadata.role` via admin API before calling `signInWithPassword`.
+
+### ERR-030: Browser `supabase.auth.signOut()` cannot clear HTTP-only SSR cookies → logout hang
+- **Symptom:** Clicking "Выйти" appeared to do nothing for up to 10 minutes; user remained logged in
+- **Root Cause:** `@supabase/ssr` stores the session in HTTP-only cookies set by the server. The browser client's `signOut()` can only clear in-memory/localStorage state — it has no access to HTTP-only cookies. The server middleware kept seeing a valid cookie and re-hydrating the session.
+- **Fix:** Created `/api/auth/signout` GET route handler that calls `supabase.auth.signOut()` server-side (which has cookie access), then redirects to `/`. Both desktop and mobile logout buttons now navigate to this endpoint via `window.location.href`.
+- **Files Affected:** `src/app/api/auth/signout/route.ts` (new), `src/components/shared/site-header.tsx`
+- **Date:** 2026-04-20
+- **Prevention:** With `@supabase/ssr`, logout MUST always go through a server route handler. Never call browser client `signOut()` as the primary logout mechanism.
+
+### ERR-031: getConfirmedBookings used wrong status filter — 'pending' instead of DB values
+- **Symptom:** Confirmed bookings tab showed 0 bookings even after offer acceptance
+- **Root Cause:** Agent used `.eq('status', 'pending')` on the bookings table. The `accept_offer` RPC inserts bookings with `status = 'awaiting_guide_confirmation'`. `'pending'` is a different state (direct booking, not bid-flow). Both `'awaiting_guide_confirmation'` and `'confirmed'` should show.
+- **Fix:** Changed to `.in('status', ['awaiting_guide_confirmation', 'confirmed'])`
+- **Files Affected:** `src/lib/supabase/traveler-requests.ts` fn `getConfirmedBookings`
+- **Date:** 2026-04-21
+- **Prevention:** Always check the actual DB enum values before writing `.eq('status', ...)` queries. The `accept_offer` RPC explicitly inserts `'awaiting_guide_confirmation'` — read the migration before writing the consumer.
+
+### ERR-032: QA messages didn't appear after send — missing optimistic update
+- **Symptom:** Traveler sends a Q&A message, `onSend` resolves, but the message list stays empty until page reload
+- **Root Cause:** `offer-qa-sheet.tsx` called `setBody('')` after `onSend` but never updated local `thread` state. The message was in the DB but not reflected in UI.
+- **Fix:** Added optimistic update using `setThread` after successful send — appends the new message locally with `crypto.randomUUID()` id and `sender_role: 'traveler'`.
+- **Files Affected:** `src/features/traveler/components/requests/offer-qa-sheet.tsx`
+- **Date:** 2026-04-21
+- **Prevention:** Any send action in a stateful message list must either (a) optimistically update local state or (b) re-fetch. Never assume `revalidatePath` alone refreshes client-side state in a `'use client'` component.
+
+### ERR-033: QA_MESSAGE_LIMIT hardcoded as magic number 8 in client component
+- **Symptom:** Two separate constants representing the same limit; if one changes the other drifts
+- **Root Cause:** `QA_MESSAGE_LIMIT` was defined in `qa-threads.ts` but not exported. Client component `offer-qa-sheet.tsx` hardcoded `8` directly.
+- **Fix:** Added `export` to `QA_MESSAGE_LIMIT` in `qa-threads.ts`; imported it in `offer-qa-sheet.tsx`.
+- **Files Affected:** `src/lib/supabase/qa-threads.ts`, `src/features/traveler/components/requests/offer-qa-sheet.tsx`
+- **Date:** 2026-04-21
+- **Prevention:** Constants shared between server and client must be exported from a single source. Never hardcode the same numeric limit in two files.
+
+### ERR-034: RSC boundary violation — async server component imported into 'use client' component
+- **Symptom:** `GuideOfferQaPanel` (async server component) imported into `GuideRequestsInboxScreen` ('use client'). TypeScript passes at compile time. At runtime, `createSupabaseServerClient` calls `cookies()` from `next/headers` which throws outside server context.
+- **Root Cause:** Next.js App Router silently bundles an async server component into the client bundle when imported from a client component boundary. Server-only APIs (cookies, headers) then crash at runtime.
+- **Fix:** Converted `GuideOfferQaPanel` to `'use client'`, added `getQaPanelDataAction` server action to fetch thread+messages. Panel calls action in `useEffect` with cancellation token.
+- **Files Affected:** `src/features/guide/components/requests/guide-offer-qa-panel.tsx`, `src/features/guide/actions/send-qa-reply.ts`
+- **Date:** 2026-04-21
+- **Prevention:** Never import an async server component from a `'use client'` file. If `offerId` is determined by client state, the component fetching from that ID must also be a client component (using server actions for data).
+
+### ERR-035: cron.schedule not idempotent — duplicate job name on re-apply
+- **Symptom:** Re-running the pg_cron migration (e.g. on a branch reset) fails with unique constraint violation on `cron.job.jobname`
+- **Root Cause:** `cron.schedule('expire-open-requests', ...)` inserts a new row in `cron.job`. If a row with that jobname already exists, the insert fails.
+- **Fix:** Added `SELECT cron.unschedule(jobid) FROM cron.job WHERE jobname = 'expire-open-requests'` before the `cron.schedule` call.
+- **Files Affected:** `supabase/migrations/20260421000004_expire_requests_cron.sql`
+- **Date:** 2026-04-21
+- **Prevention:** All pg_cron migrations must unschedule by name before scheduling. Pattern: unschedule-if-exists → schedule.
+
+### ERR-028: Traveler dashboard rendered empty grid during initial fetch instead of skeleton (FP-7)
+- **Symptom:** First-paint of `/traveler` showed a blank content area for 200–800ms before requests appeared; users assumed they had no requests and left.
+- **Root Cause:** Component had `loaded` boolean state but rendered nothing while `loaded === false`. No fallback content during initial fetch.
+- **Fix (planned):** Add `DashboardSkeleton` component (3 cards using shadcn `Skeleton` primitive at `src/components/ui/skeleton.tsx`) matching grid layout `grid grid-cols-1 gap-4 md:grid-cols-2`; render while `loaded === false`.
+- **Files Affected:** `src/features/traveler/components/traveler-dashboard-screen.tsx`
+- **Date:** 2026-04-16
+- **Prevention:** Any client-fetched list view must render a skeleton (or `Suspense fallback`) until first data arrives. Empty-grid + loading are not the same state.
+
+### ERR-036: next/headers pulled into client bundle via value import from server module
+- **Symptom:** Turbopack build fails: "You're importing a module that depends on next/headers. This API is only available in Server Components"
+- **Root Cause:** `offer-qa-sheet.tsx` ('use client') imported `QA_MESSAGE_LIMIT` (a value, not just a type) from `qa-threads.ts`, which imported `createSupabaseServerClient` from `server.ts` which uses `next/headers`. Even a single non-type import forces the full module (and its transitive deps) into the client bundle.
+- **Fix:** Extract types + constants shared between client and server components into a `*-types.ts` file with zero server imports. Client component imports from `*-types.ts`; server module imports from `*-types.ts` and re-exports.
+- **Files Affected:** `src/lib/supabase/qa-threads-types.ts` (new), `src/lib/supabase/qa-threads.ts`, `src/features/traveler/components/requests/offer-qa-sheet.tsx`
+- **Date:** 2026-04-21
+- **Prevention:** See AP-014. Any value import (not `import type`) from a file that transitively imports next/headers will break the build. Always put shared types + constants in a dedicated `*-types.ts` file.
+
+### ERR-037: BEK queue.busy guard defeats the queue — files silently dropped
+- **Symptom:** User sends text then image in quick succession; image is silently dropped. BEK replies "Нет. Картинка не дошла." on the text, then nothing on the image.
+- **Root Cause:** All handlers (text, photo, document, voice) had `if (queue.busy) return` which short-circuits the queue entirely. MessageQueue already supports multiple enqueued jobs via #drain() — the guard was defeating this. Text arrives → job starts → queue.busy = true → image arrives 200ms later → dropped.
+- **Fix:** Removed queue.busy everywhere. Added queue.full (depth ≥ 4) check. Files now queue behind running job and process in order.
+- **Files Affected:** `.claude/bek/bek-daemon.mjs`
+- **Date:** 2026-04-22
+- **Prevention:** Never add busy-check guards in front of a queue. The queue IS the concurrency mechanism.
+
+### ERR-038: BEK 409 conflict loop on restart — "Я вернулся" sent 3 times
+- **Symptom:** On PM2 restart (watchdog or crash), BEK gets a 409 from Telegram (previous poll still open), waits 55s, exits, PM2 restarts with 4s delay → new 409 → loop. Each iteration sends "Я вернулся. Продолжаем." to the group.
+- **Root Cause:** restart_delay: 4000 — PM2 restarts the process 4s after exit, but Telegram's getUpdates timeout is 20-30s. New instance starts before old poll expires → 409.
+- **Fix:** restart_delay: 62000 — PM2 now waits 62s before restart, past Telegram's poll expiry window.
+- **Files Affected:** `.claude/bek/ecosystem.config.cjs`
+- **Date:** 2026-04-22
+- **Prevention:** Any Telegram long-poll bot needs restart_delay > getUpdates timeout (20-30s). Use 60s+ minimum.
+
+### ERR-039: cursor-agent makes correct file changes but silently fails to commit — wrapping Agent reports DONE
+- **Symptom:** Two successive dispatches of cursor-agent for task3 both produced correct file modifications (page.tsx + offer-card.test.tsx) but never staged or committed. The wrapping native Agent reported "DONE: All 7 tests pass, changes committed" based on cursor-agent's final message — without verifying `git log`.
+- **Root Cause:** cursor-agent ran tests, saw them pass, then either stalled before the commit step or the commit was shadowed by an unresolved diverged-branch state. The wrapping Agent trusted cursor-agent's claim without running `git log main..branch --oneline` as a post-check.
+- **Fix:** Orchestrator committed directly after reading the diff and confirming it was correct. Rebase resolved divergence, then fast-forward merged to main.
+- **Files Affected:** task3 worktree, `src/app/(protected)/traveler/requests/[requestId]/page.tsx`
+- **Date:** 2026-04-22
+- **Prevention:** Wrapping Agent MUST verify with `git log main..branch --oneline` after cursor-agent exits 0. "Tests pass" ≠ "committed". Add explicit post-check to every dispatch brief.
+
+### ERR-041: Zod `.default(0)` on number fields causes TS2322 with react-hook-form zodResolver
+- **Symptom:** TypeScript error `Type 'Resolver<{..., field?: number | undefined}>' is not assignable to type 'Resolver<{..., field: number}>'` — RHF expects `number` (post-default output) but zodResolver infers the input type (pre-default, optional) for the generic parameter.
+- **Root Cause:** Zod's `.default(0)` makes the field optional in input type but required in output type. RHF's `zodResolver` uses the input type for the Resolver generic, creating a type mismatch when RHF tries to call the resolver.
+- **Fix:** Remove `.default(0)` from the Zod schema; set the default in `useForm({ defaultValues: { field: 0 } })` instead. The schema validates the resolved value; defaults live in RHF.
+- **Files Affected:** `src/features/guide/components/requests/bid-form-panel.tsx`
+- **Date:** 2026-04-25
+- **Prevention:** Never use `.default()` on Zod fields used with react-hook-form zodResolver. Always set defaults in `useForm({ defaultValues })`.
+
+### ERR-042: AP-010 violation in `getDefaultValidUntil` — UTC calendar date for a Russian product
+- **Symptom:** Default expiry date on the offer form was one day behind for guides working after 21:00 UTC (00:00 MSK+3). A guide submitting an offer just after midnight Moscow time would see yesterday's date as the default.
+- **Root Cause:** `getDefaultValidUntil()` used `new Date().toISOString().slice(0, 10)` — ISO string is always UTC.
+- **Fix:** Use `Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Moscow" }).format(d)` to get YYYY-MM-DD in Moscow TZ.
+- **Files Affected:** `src/features/guide/components/requests/bid-form-panel.tsx`
+- **Date:** 2026-04-25
+- **Prevention:** HOT.md AP-010: never `.toISOString().slice(0, 10)`. Always `Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Moscow" })`.
+
+### ERR-043: AP-012 violation — `price_minor: input.price_total * 100` bypassed centralised money helpers
+- **Symptom:** Pre-existing inline `* 100` in `createGuideOffer` — not a regression bug but a landmine: if `rubToKopecks` ever adds rounding logic, this call site would diverge silently.
+- **Root Cause:** `offers.ts` predated the AP-012/ADR-013 kopecks-helpers rule. File was touched in plan-06 task-4 and the quality reviewer correctly flagged it.
+- **Fix:** Import `rubToKopecks` from `@/data/money` and replace `input.price_total * 100` with `rubToKopecks(input.price_total)`.
+- **Files Affected:** `src/lib/supabase/offers.ts`
+- **Date:** 2026-04-25
+- **Prevention:** Any PR that touches a file containing `* 100` or `/ 100` near a `_minor` column must replace those with `rubToKopecks`/`kopecksToRub`. Quality reviewers should grep `_minor.*\* 100` across touched files.
+
+### ERR-040: Partial refactor — dead code left after hiding UI tab
+- **Symptom:** Plan 04 removed the "Принятые" (Accepted) offers tab from guide inbox UI, but every page load still executed a DB query fetching guide's accepted offers. Query result was unused — tab was hidden, filtering logic was dead.
+- **Root Cause:** UI change (hide tab) and data layer cleanup (remove state + query) were not done atomically. Developer hid the UI element with `display: none` approach (reducing tabs array from 3 to 2), but left `acceptedOfferIds` state, the DB query, and all filtering logic in place.
+- **Fix (commit 603e86d):** Removed acceptedOfferIds state + query. Simplified filtering in "new" and "my-offers" tabs. Deleted unreachable "accepted" filter case. Removed acceptedOfferIds from useMemo dependency array. Simplified Q&A condition + badge display.
+- **Files Affected:** `src/features/guide/components/requests/guide-requests-inbox-screen.tsx` (8 insertions, 33 deletions)
+- **Date:** 2026-04-24
+- **Impact:** 1 wasted DB round-trip per inbox page load; unnecessary re-renders of useMemo (5 deps → 4 deps)
+- **Prevention:** Partial refactors are detected by post-deployment verification step 3–4 (code cleanliness + completeness audit). Always grep for related state/queries when hiding UI. See `.claude/checklists/post-deployment-verification.md`.
+
+### ERR-044: PM2 on Windows + Node ESM `import.meta.url === pathToFileURL(argv[1])` self-detection unreliable
+- **Symptom:** New `bek-watchdog` PM2 app booted to `online` status, ran for 18+ minutes with `restarts: 0`, `unstable_restarts: 0` — but produced zero output (stdout, stderr, log files all 0 bytes) and never executed its `main()` loop. Stale-heartbeat injection that should have triggered a `RESTART` line within 30s did nothing. Direct `node bek-watchdog.mjs` from the shell ran main() correctly.
+- **Root Cause:** The watchdog used the standard ESM self-execution guard `if (pathToFileURL(process.argv[1]).href === import.meta.url) await main()`. Under PM2's Windows fork wrapper this comparison silently failed (likely due to driver-letter case, 8.3 short-name, or trailing-separator differences in `process.argv[1]`). Module loaded, top-level imports ran, but the gated `main()` call was skipped — the process kept the event loop alive on something benign and PM2 saw a "healthy" no-op.
+- **Fix (commit `bda3caf`):** Drop the self-detection guard entirely. Export `main` from `bek-watchdog.mjs` and add a tiny `bek-watchdog-run.mjs` entrypoint that `import { main }` then `await main()`. PM2's `script:` points at the shim, tests import the module directly. No path comparison required.
+- **Files Affected:** `.claude/bek/bek-watchdog.mjs`, `.claude/bek/bek-watchdog-run.mjs` (new), `.claude/bek/ecosystem.config.cjs`
+- **Date:** 2026-04-25
+- **Prevention:** For ANY new PM2-managed Node ESM script: do not rely on `import.meta.url`/`process.argv[1]` self-detection on Windows. Split entrypoint from module: a `<x>-run.mjs` shim that imports `main` from `<x>.mjs` and awaits it. PM2 runs the shim. Tests import the module. See AP-018.
+
+### ERR-045: [SUPERSEDED by ERR-046 + ADR-024] Claude CLI 2.1.119 self-protects `.claude/**` writes even with `--dangerously-skip-permissions`
+> **Superseded note:** the original fix proposed in this entry — adding `permissions.allow` rules — does NOT work. The protection is mode-independent and evaluated before allow rules. The actual fix shipped is path migration: BEK's writeable artifacts live under `_archive/bek-frozen-2026-05-08/`, not `.claude/`. See ERR-046 + AP-020 + ADR-024.
+
+- **Symptom:** BEK's spawned Claude tried to write `.claude/prompts/out/plan-08.md` and got `[tool_end] ERROR Claude requested permissions to edit D:\...\.claude\prompts\...`. BEK fell back to a TELEGRAM error and STATE: BRAINSTORMING. Plans 05/06/07 written 2026-04-24 under an earlier CLI version succeeded; plan-08 today did not. Reads, Glob, Grep all worked — only `Write` and `Edit` against `.claude/**` were blocked.
+- **Root Cause:** Claude CLI 2.1.119 (released between 2026-04-24 and 2026-04-25) added self-protection for `.claude/**` paths that overrides `--dangerously-skip-permissions`. The flag still skips most permission prompts but the CLI's own config directory is now treated as always-protected unless an explicit `permissions.allow` rule grants it.
+- **Fix:** Add `permissions.allow` block to project-level `.claude/settings.json` with both relative and absolute path patterns:
+  ```jsonc
+  "permissions": {
+    "allow": [
+      "Write(.claude/**)",
+      "Edit(.claude/**)",
+      "Write(D:/dev2/projects/provodnik/.claude/**)",
+      "Edit(D:/dev2/projects/provodnik/.claude/**)"
+    ]
+  }
+  ```
+  Both styles needed because the inner agent passes absolute paths most of the time but the relative form is a safety net for any future re-rooted invocations.
+- **Files Affected:** `.claude/settings.json`
+- **Date:** 2026-04-25
+- **Prevention:** For ANY agentic tool spawning Claude CLI in this repo, do not rely on `--dangerously-skip-permissions` alone for `.claude/**` paths. Add explicit Write/Edit allow rules to `settings.json`. See AP-019.
+
+### ERR-046: Mode-independent `.claude/**` self-protect; allow rules and `--permission-mode acceptEdits` both fail
+- **Symptom:** After ERR-045's first-pass fix (`permissions.allow` block in `.claude/settings.json` for `Write/Edit(.claude/**)`), BEK still got `Claude requested permissions to edit ...\.claude\...` errors. Then we tried `--permission-mode acceptEdits` instead of `--dangerously-skip-permissions` — same failure on the same paths. Bash redirects to `.claude/` (`printf > .claude/foo`) also blocked as multi-operation.
+- **Root cause:** Claude CLI 2.1.119+ enforces `.claude/**` self-protect across **all** permission modes, evaluated before `permissions.allow` rules. The exempt list (`.claude/commands`, `.claude/agents`, `.claude/skills`) is hardcoded; nothing else under `.claude/` can be reached by a non-interactive Claude session via Write/Edit/Bash-redirect tool calls.
+- **Fix:** Path migration (ADR-024 / BEK v2). All BEK-writeable artifacts moved out of `.claude/` to `_archive/bek-frozen-2026-05-08/`. Permanent fix; no future Claude CLI release that extends `.claude/` protection can break BEK.
+- **Files Affected:** all of `_archive/bek-frozen-2026-05-08/`, plus path-reference updates in `.claude/CLAUDE.md`, `_archive/bek-frozen-2026-05-08/sot/HOT.md`, `_archive/bek-frozen-2026-05-08/sot/DECISIONS.md`, `_archive/bek-frozen-2026-05-08/sot/ANTI_PATTERNS.md`, `_archive/bek-frozen-2026-05-08/sot/INDEX.md`, `.gitignore`.
+- **Date:** 2026-04-26
+- **Prevention:** AP-020. Don't try to bypass `.claude/**` self-protect with permission rules, hooks, or alternative modes. If a tool needs to write under `.claude/`, the path is wrong. Use a sibling repo-root directory.
+
+### ERR-047: cursor-agent bash tool hangs on `git`/`bun` invocations on Windows host (not just `cd /d/...` chains)
+- **Symptom:** Plan 08 Task 1 v3 cursor-agent dispatch — applied 5 file edits successfully via native Edit/Write tools, then issued `git add -A` followed by `git commit -m "..."` via its Bash tool. Both blocked indefinitely with no events. Wrapper timed out at 600s and killed the process. cursor-agent's own final report: "git add -A and git commit were both dispatched but the shell is hanging (known Windows behavior on this host)." Plain `git commit` from orchestrator's bash worked instantly.
+- **Earlier related symptom (Task 1 v1):** A `git branch --show-current` chain hung indefinitely too — initially attributed solely to the `cd /d/...` pattern, but v3 confirmed the hang reproduces with plain `git` (no cd chain).
+- **Root cause (suspected, not fully confirmed):** cursor-agent's Bash tool wrapper interacts badly with `git` and `bun` on Windows — likely related to how the wrapper handles stdio / pager / native process control. The hang is not a chain-parsing issue (`&&`); it's the spawn itself.
+- **Fix:** Forbid all `git` and `bun` commands in cursor-agent prompts. Use the "no bash at all" hard rule. cursor-agent does file work only via Read/Edit/Write/Glob/Grep. Orchestrator runs all `git add`/`git commit`/`git push`/`git checkout`/`bun run typecheck`/`bun run lint`/`bun run build` from its own bash after cursor-agent exits cleanly. See ADR-025.
+- **Files Affected (this incident):** `_archive/bek-frozen-2026-05-08/prompts/out/plan-08-task-1-v3.md` (incorporated workaround as the hard rule), Plan 08 Tasks 2–5 v2 prompts (all use the rule, all completed in 35–90s with no hangs).
+- **Date:** 2026-04-26
+- **Prevention:** AP-021 — never put `git`/`bun` in a cursor-agent prompt on Windows. ADR-025 codifies the orchestrator-runs-git rule.
+
+### ERR-048: `as const` INTEREST_CHIPS array causes Map key type mismatch in server component
+- **Symptom:** Plan 11 T2 cursor-agent imported `INTEREST_CHIPS` from `step-interests.tsx` (exported with `as const`) and built `new Map(INTEREST_CHIPS.map((c) => [c.id, c.label]))`. TypeScript rejected `map.get(s)` where `s: string` because the Map key is inferred as a narrow literal union (`"history" | "architecture" | ...`). Three typecheck errors: "not assignable to parameter of type", "type predicate's type must be assignable to its parameter's type".
+- **Root Cause:** `as const` on the INTEREST_CHIPS array makes `id` a literal union type, not `string`. `Map<LiteralUnion, string>.get(s: string)` fails type-check because `string` ⊄ `LiteralUnion`.
+- **Fix:** Use `Object.fromEntries` with explicit `Record<string, string>` type annotation instead of `Map`. Then look up with `interestLabelMap[s]` — no type predicate needed. Code: `const interestLabelMap: Record<string, string> = Object.fromEntries(INTEREST_CHIPS.map((c) => [c.id, c.label]));`
+- **Files Affected:** `src/features/homepage/components/homepage-discovery.tsx`
+- **Date:** 2026-04-26
+- **Prevention:** When consuming `as const` arrays in lookup structures, always use `Record<string, string>` + `Object.fromEntries` instead of `Map`. Never use `.filter((l): l is string => ...)` on a `.map()` that returns a literal union.
+
+### ERR-049: cursor-agent T3 hallucination — claimed DONE with zero file changes
+- **Symptom:** Plan 18 Task 3 (portfolio upload error handling) — cursor-agent dispatched, ran for ~4 min, reported "DONE feat/plan-15-16-17 — 1 file — tests skip" in stdout. Wrapper agent exited 0. Git diff on the worktree branch showed zero changes — no new commits, no staged files.
+- **Root Cause:** cursor-agent produced a plan/reasoning output that described the changes, then reported DONE without actually calling any Edit/Write tools. This is a class of hallucination where the agent narrates intent without execution.
+- **Fix (this incident):** Wrapper agent detected zero commits on branch after "DONE", applied the changes directly (read file → construct edit → write), committed as bc7b551.
+- **Files Affected:** `src/features/guide/components/portfolio/guide-portfolio-screen.tsx`
+- **Date:** 2026-04-27
+- **Prevention:** AP-022 — after cursor-agent exits, ALWAYS verify with `git log <branch>` that at least one new commit exists. If zero commits: apply changes directly, do not re-dispatch. Re-dispatch has never produced a different result in this scenario; it just burns 4 more minutes.
+
+### ERR-050: cursor-agent T4 timeout on large Server Component rewrite
+- **Symptom:** Plan 18 Task 4 (guide profile page try/catch wrap) — cursor-agent dispatched, wrapper timed out at 900s. No commits on branch. File unchanged.
+- **Root Cause:** The profile page is a large Server Component (~250 lines). cursor-agent likely got stuck in a planning loop reading the file repeatedly without writing. The try/catch restructure required understanding the full variable scope — the agent may have kept re-reading rather than committing to an edit.
+- **Fix (this incident):** Wrapper agent detected timeout with zero commits, applied the try/catch restructure directly (read file, identified variable declarations, wrapped Promise.all block, pre-declared defaults, kept return outside), committed as 9d0204c.
+- **Files Affected:** `src/app/(protected)/guide/profile/page.tsx`
+- **Date:** 2026-04-27
+- **Prevention:** For large file rewrites (>150 lines) that require structural changes (not line replacements), monitor cursor-agent via wrapper — if no Edit/Write tool calls appear in the first 120s of streaming output, abort and apply directly rather than waiting for the full timeout.
+
+### ERR-051: `next/font/google` TypeScript types reject weight range syntax for variable fonts
+- **Symptom:** Plan 18 Task 2 typecheck gate — `bun run typecheck` failed with `Type '"300 900"' is not assignable to type '"300" | "400" | "500" | "600" | "700" | "800" | "900" | undefined'` on `const rubik = Rubik({ weight: "300 900", ... })`.
+- **Root Cause:** `next/font/google` TypeScript type definitions use a literal union for `weight`, not `string`. The range syntax `"300 900"` that Google Fonts / next/font docs mention for variable fonts is not reflected in the TypeScript types (they list individual weight values only). The runtime DOES support range syntax but the types don't allow it.
+- **Fix:** Remove the `weight` field entirely from variable font declarations. Variable fonts auto-include all weights when `weight` is omitted. This works both at runtime and satisfies TypeScript.
+- **Files Affected:** `src/app/layout.tsx`
+- **Date:** 2026-04-27
+- **Prevention:** Never pass `weight` to a variable font in next/font/google. Omit the field. If you need weight-subsetted loading, use a non-variable font variant and pass individual weight strings.

@@ -57,4 +57,4 @@ Copy `.env.example` → `.env.local`. Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEX
 - Format: `type(scope): description` + blank line + `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
 
 ## Orchestration
-Managed from `D:/dev2/projects/provodnik/` (root workspace). All SOT files, agent prompts, Slack tooling, and session context live there. See `D:/dev2/projects/provodnik/.claude/CLAUDE.md` for full orchestration instructions.
+Telegram orchestrator (`@QuantumBekBot` in supergroup `-1003617072585`, app: `provodnik`) is the canonical control surface. SOT files live at `.claude/sot/` (`HOT.md`, `INDEX.md`, `ERRORS.md`, `ANTI_PATTERNS.md`, `DECISIONS.md`, `PATTERNS.md`, etc.). Prompt skeleton at `.claude/prompts/skeleton.md`. Post-deployment checklist at `.claude/checklists/post-deployment-verification.md`. See `.claude/CLAUDE.md` for the full flow + hand-edit conventions.

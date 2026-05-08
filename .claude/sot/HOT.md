@@ -1,0 +1,92 @@
+# SOT HOT
+
+_Top 8 landmines orchestrator must never forget. Include the relevant one inline in every cursor-agent prompt that touches the affected area. Full entries in ERRORS.md / ANTI_PATTERNS.md / DECISIONS.md._
+
+---
+
+### AP-010 — TZ-naive calendar dates (server/client divergence)
+**Never** compute a calendar date with `new Date().toISOString().slice(0,10)`. It's UTC-anchored; SSR (UTC container) and CSR in MSK diverge near midnight UTC → hydration mismatch + "yesterday" as min date.
+**Always** pin TZ: `Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Moscow' }).format(new Date())`. Use the single helper `todayMoscowISODate` in `src/lib/dates.ts`.
+
+---
+
+### AP-012 / ADR-013 — Currency crosses go through `src/data/money.ts`
+**Never** inline `* 100` / `/ 100` or write `_minor` columns directly in feature code. A missed conversion made the entire wizard write path 100× too small (ERR-025).
+**Always** use `rubToKopecks(rub)` / `kopecksToRub(kopecks)`. `grep '\* 100\|/ 100\|_minor'` should return zero hits outside `src/data/money.ts` and its direct consumers. Round-trip Vitest test guards the invariant.
+
+---
+
+### AP-014 / ERR-034 / ERR-036 — Client/server import boundary
+**Never** import an async server component, or any **value** (not just type) from a server-only module, into a `'use client'` file. A single value import pulls the whole transitive module — including `next/headers` → 5-deploy Turbopack failure streak.
+**Always** split shared constants/types into `*-types.ts` with zero server imports. Client imports from `*-types.ts`; server module imports + re-exports from `*-types.ts`. Pattern: `qa-threads-types.ts` (client-safe) + `qa-threads.ts` (server-only).
+
+---
+
+### ERR-025 — Wizard write paths must convert RUB → kopecks
+**Never** write `budget_minor: input.budgetPerPersonRub` (or any `_minor` field) without calling `rubToKopecks`. Symptom: "от 50 ₽" on a 5000 ₽ request. See ADR-013.
+**Always** run `rubToKopecks(input.budgetPerPersonRub)` on insert. Read side uses `kopecksToRub` for display.
+
+---
+
+### ADR-014 / ERR-029 — Registration is server-only via `signUpAction`
+**Never** call browser `supabase.auth.signUp()` anywhere. Race: JWT mints before `handle_new_user()` trigger commits → `custom_access_token_hook` sees no role → white screen.
+**Always** register via `signUpAction` (admin client): `createUser({ email_confirm: true })` → upsert `profiles` → stamp `app_metadata.role` → `signInWithPassword` — all server-side, all before JWT is returned.
+
+---
+
+### ADR-015 / ERR-030 — Logout goes through `/api/auth/signout`
+**Never** call browser `supabase.auth.signOut()` as the primary logout. `@supabase/ssr` stores session in HTTP-only cookies; browser client can't clear them; middleware re-hydrates the session → logout appears to hang for minutes.
+**Always** navigate to `/api/auth/signout` (GET route handler calls server-side `signOut()` + redirect). Use `window.location.href = '/api/auth/signout'`.
+
+---
+
+### ADR-010 — cursor-agent dispatch is ONLY via `cursor-dispatch.mjs`
+**Never** spawn `cursor-agent.cmd` directly from Node or a subagent (Node v24 throws `spawn EINVAL`; see ERR-011, ERR-012). Never `cmd //c "cursor-agent.cmd ..."`.
+**Always** dispatch via `node .claude/logs/cursor-dispatch.mjs <prompt-file.md> --workspace "D:\\dev2\\projects\\provodnik\\provodnik.app"`. The wrapper resolves `node.exe` + `index.js` from `cursor-agent\versions\<latest>` and streams `[init] → [tool_call] → [assistant] → [result]` live.
+
+---
+
+### ADR-011 — Slack dev-notes ONLY via `slack-devnote.mjs`
+**Never** call `chat.postMessage` / `chat.update` directly, and never use deprecated `slack-post.mjs` / `slack-update.mjs` for dev-notes. Freeform composition drifts under load (jargon, wrong emojis, missing footer).
+**Always** `node .claude/logs/slack-devnote.mjs <items.json> [--dry] [--force-new] [--ts=<ts>] [--manifest=<path>]`. The wrapper enforces forbidden-jargon blacklist, emoji whitelist, same-day merge, hours from git, block structure, footer. Use `--dry` first.
+
+---
+
+### ADR-022 — `bek-restart.flag` is a contract, not a debug toggle
+**Never** manually create or `del` the file `.claude/logs/bek-restart.flag` while the BEK daemon is processing a message. The flag is the watchdog → daemon restart channel. Manual creation tells the daemon to exit on its next 5s poll, and PM2 then waits 62s (ERR-038) before restart — dropping in-flight work for no reason. Manual deletion mid-poll is harmless but pointless: the daemon deletes the flag itself before exiting, and the watchdog re-creates it via idempotent `writeFile('')`.
+**Always** for a manual restart: `pm2 restart quantumbek` (or `pm2 restart bek-watchdog` to reset the watchdog's circuit breaker after a `GIVING_UP` line). The flag is internal plumbing — leave it alone.
+
+---
+
+### ADR-025 / ERR-047 — cursor-agent prompts: no `git`/`bun`, ever
+**Never** put `git`, `bun run`, or any shell command in a cursor-agent prompt on Windows. Even plain `git add` / `git commit` (no `cd` chain) hangs the whole agent loop until wrapper timeout. Plan 08 Task 1 v3 burned 600s on `git add -A && git commit -m "..."` after the agent had already finished its 5 file edits cleanly via native tools.
+**Always** use the "no bash at all" hard rule in every prompt: cursor-agent uses only Read/Edit/Write/Glob/Grep. Orchestrator runs all git ops (branch, add, commit, push, merge) and all verification (typecheck, lint, build) from its own bash after the dispatch returns. Final commit message goes in the prompt for the orchestrator to copy-paste. cursor-agent's DONE report lists files edited + unexpected findings, never a commit SHA.
+
+---
+
+### HOT-NEW / Ревизия Бека — pre-DONE browser test (mandatory for any UI work)
+**Never** declare a UI task DONE on the basis of `bun run typecheck` + `bun run lint` alone. A green build does not prove the page renders, the form submits, the spacing matches the spec, or the role-correct nav shows up. Plan 28-precursor (homepage spacing, 2026-04-29) was reported DONE while the actual gap on disk had only changed by a couple of pixels — Alex flagged the false report and recorded this rule.
+**Always** before reporting DONE on any task that touches a live page or component:
+1. Open the affected URL in a browser at **1280px** under the role that uses it (guest / traveler / guide / admin).
+2. Open the same URL at **375px** when the page has any responsive behaviour.
+3. For any form change: fill → save → reload → verify the persisted state.
+4. Confirm console is clean (no red errors, no warnings tied to your edit).
+5. Measure spacing/typography against the spec when the task is layout-related — DevTools Inspector or rule-based pixel measurement, not eyeballing.
+
+If any check fails, the task is not DONE. No exceptions for "the typecheck is green" / "the lint is clean" / "the cursor-agent reported success." Green build ≠ working feature. The report register is **honest**: write what's broken, don't flatter yourself.
+
+---
+
+### HOT-NEW / SOS Бек — stuck protocol (mandatory when blocked)
+**Never** silently work around a blocker, hack the spec, or report DONE while a block is unresolved. Hidden hacks compound; spec drift turns into product drift. If something inside Ревизия Бека fails and the cause is unknown or beyond your access, raise an SOS instead of pushing through.
+**Always** when stuck on any task:
+1. Post in the working chat: ping `@CarbonS8 + @six` together.
+2. Use the four-line format:
+   - **Что должен был сделать:** one sentence
+   - **Что попробовал:** one sentence (every approach attempted)
+   - **Где упёрся:** one sentence (the exact symptom + where it surfaces)
+   - **Что нужно для разблокировки:** one sentence (named tool / access / decision)
+3. Wait for a response. Do NOT report DONE while waiting. Do NOT substitute hacks. Do NOT widen scope to "fix" the blocker if the fix isn't in your authorisation.
+4. After unblock, fold the resolution back into Ревизия Бека and verify in browser before DONE.
+
+The SOS is a feature, not a failure. Better to ask once than to ship a hack three times.

@@ -2,24 +2,19 @@
 
 Mobile-first marketplace for tours and excursions in Russia.
 
-## Workspace
-
-- **App repo:** `D:/dev2/projects/provodnik/provodnik.app/` ← you are here
-- **Root workspace:** `D:/dev2/projects/provodnik/` — SOT files, docs, scripts, agent tooling
-
 ## Stack
 
 - Next.js 15 (App Router) + React 19 + TypeScript
 - Tailwind CSS v4 + shadcn/ui
 - Supabase (PostgreSQL + RLS + Auth)
 - TanStack Query · React Hook Form · Zod
-- Package manager: bun
+- Package manager: `bun`
 
 ## Quick start
 
 ```bash
 bun install
-cp .env.example .env.local   # fill in Supabase credentials
+cp .env.example .env.local   # fill in Supabase + Sentry credentials
 bun dev                      # http://localhost:3000
 ```
 
@@ -28,25 +23,30 @@ bun dev                      # http://localhost:3000
 ```bash
 bun run build        # production build
 bun run check        # typecheck + lint
+bun run typecheck    # TS only
+bun run lint         # ESLint only
+bun run test:run     # vitest unit tests
+bun run playwright   # e2e suite
 bun run db:reset     # reset local Supabase + all migrations + seed
 bun run types        # regenerate src/types/supabase.ts
 ```
 
+## Layout
+
+- `src/app/` — routes + layouts (App Router)
+- `src/features/` — feature UI per role (home, listings, traveler, guide, admin)
+- `src/components/{ui,shared}/` — shadcn primitives + shared chrome
+- `src/data/` — service layer (typed Supabase client, server+client)
+- `src/lib/` — env, utils, Supabase clients, feature flags
+- `supabase/migrations/` — schema migrations (apply via `bun run db:reset` locally; via Supabase CLI in prod)
+- `tests/` — vitest unit + Playwright e2e
+- `docs/` — product, architecture, business, design, qa, superpowers (specs + plans)
+- `.claude/` — orchestrator SOT, prompt skeleton, checklists
+
+## Orchestration
+
+Telegram (`@QuantumBekBot`, app `provodnik`) is the canonical control surface. See `.claude/CLAUDE.md` for the full ticket flow and hand-edit conventions.
+
 ## Status
 
-Tripster V1 complete — all 42 waves merged, DB migrated, Vercel build green.
-
-Remaining soft-launch items (tracked in root SOT):
-- Set Vercel env vars
-- Onboard 3–5 real guides
-- Domain/DNS and Supabase daily backups
-
-## Docs
-
-All product, architecture, and business docs live in the root workspace:
-
-- `D:/dev2/projects/provodnik/docs/product/` — MVP, PRD, market research
-- `D:/dev2/projects/provodnik/docs/architecture/` — ADRs, module map
-- `D:/dev2/projects/provodnik/docs/business/` — investor materials
-
-For agent/orchestration instructions see `AGENTS.md` in this directory.
+Tripster V1 shipped. Pre-launch tasks tracked in `.claude/sot/NEXT_PLAN.md`.

@@ -1,0 +1,13 @@
+node_modules/
+.next/
+dist/
+build/
+.git/
+coverage/
+.vercel/
+.turbo/
+*.log
+.claude/prompts/out/
+.claude/worktrees/
+_archive/
+public/

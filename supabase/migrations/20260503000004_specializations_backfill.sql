@@ -1,4 +1,4 @@
--- Data backfill: assign specializations to approved guides per .bek/data/specializations-proposal.csv
+-- Data backfill: assign specializations to approved guides per scripts/generate-specializations-proposal.ts output (CSV archived 2026-05-08).
 -- Rows 103 and 106 have no proposed values and are left unchanged.
 
 UPDATE guide_profiles SET specializations = '{history}'::text[]

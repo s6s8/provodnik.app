@@ -57,5 +57,9 @@ supabase/.temp/
 # Sentry Config File
 .env.sentry-build-plugin
 
-# Local orchestration scripts — may contain tokens
-.claude/
+# Local orchestration artifacts
+.claude/prompts/out/
+.claude/worktrees/
+
+# Migration archives (kept on disk, not committed; see _archive/README or migration log)
+_archive/

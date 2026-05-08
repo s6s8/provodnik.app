@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Provodnik Investor RU</title>
+    <style>
+      :root {
+        --bg: #f2eee7;
+        --paper: #fffdf9;
+        --ink: #13212b;
+        --muted: #5c6770;
+        --line: #dad4ca;
+        --navy: #1d3447;
+        --accent: #0f766e;
+        --accent-soft: #e1f0eb;
+        --slate-soft: #e9eef3;
+        --sand: #efe6d7;
+      }
+
+      * { box-sizing: border-box; }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      body {
+        width: 210mm;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        position: relative;
+        overflow: hidden;
+        margin: 0 auto;
+        background:
+          radial-gradient(circle at top right, rgba(15, 118, 110, 0.10), transparent 26%),
+          linear-gradient(180deg, #f8f5ef 0%, #f2eee7 100%);
+        page-break-after: always;
+        break-after: page;
+      }
+
+      .page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      .page::before {
+        content: "";
+        position: absolute;
+        inset: 14mm;
+        border: 1px solid rgba(29, 52, 71, 0.08);
+        pointer-events: none;
+      }
+
+      .inner {
+        padding: 15mm 15mm 11mm;
+        position: relative;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.45fr 0.95fr;
+        gap: 5mm;
+        margin-bottom: 4mm;
+      }
+
+      .hero-main {
+        min-height: 61mm;
+        padding: 7.5mm 7.2mm 7mm;
+        border-radius: 6mm;
+        color: #f8fbfc;
+        background: linear-gradient(180deg, #22384a 0%, #152430 100%);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-main::after {
+        content: "";
+        position: absolute;
+        right: -18mm;
+        bottom: -18mm;
+        width: 54mm;
+        height: 54mm;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(15, 118, 110, 0.58), rgba(15, 118, 110, 0.08) 68%, transparent 72%);
+      }
+
+      .kicker {
+        margin-bottom: 3.4mm;
+        font-size: 8.3px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: rgba(248, 251, 252, 0.72);
+      }
+
+      .brand {
+        margin: 0 0 1.5mm;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 27px;
+        line-height: 1;
+        letter-spacing: 0.06em;
+      }
+
+      .subtitle {
+        margin: 0 0 2.5mm;
+        max-width: 110mm;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 16px;
+        line-height: 1.18;
+      }
+
+      .hero-copy {
+        max-width: 112mm;
+        font-size: 10px;
+        line-height: 1.42;
+        color: rgba(248, 251, 252, 0.92);
+      }
+
+      .proof {
+        min-height: 61mm;
+        padding: 6mm 5.8mm;
+        border-radius: 6mm;
+        border: 1px solid rgba(19, 33, 43, 0.08);
+        background: rgba(255, 253, 249, 0.84);
+      }
+
+      .proof-label {
+        margin-bottom: 2.2mm;
+        font-size: 8.2px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+
+      .proof-list {
+        display: grid;
+        gap: 2.1mm;
+      }
+
+      .proof-item strong {
+        display: block;
+        margin-bottom: 0.6mm;
+        font-size: 16px;
+        line-height: 1;
+        color: var(--navy);
+      }
+
+      .proof-item span {
+        display: block;
+        font-size: 9.1px;
+        line-height: 1.28;
+        color: var(--muted);
+      }
+
+      .mini-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3mm;
+        margin-bottom: 4mm;
+      }
+
+      .mini-card {
+        padding: 4.2mm 4mm;
+        border-radius: 5mm;
+        border: 1px solid var(--line);
+        background: rgba(255, 253, 249, 0.82);
+      }
+
+      .mini-label {
+        margin-bottom: 1.6mm;
+        font-size: 7.8px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: #9a7b3f;
+      }
+
+      .mini-card h3 {
+        margin: 0 0 1.4mm;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 16px;
+        line-height: 1.1;
+        color: var(--navy);
+      }
+
+      .mini-card p {
+        margin: 0;
+        font-size: 8.9px;
+        line-height: 1.35;
+        color: var(--muted);
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 1.18fr 0.82fr;
+        gap: 3mm;
+        margin-bottom: 3mm;
+      }
+
+      .panel {
+        padding: 4.8mm;
+        border-radius: 5.8mm;
+        border: 1px solid var(--line);
+        background: var(--paper);
+      }
+
+      .panel.soft {
+        background: linear-gradient(180deg, rgba(225, 240, 235, 0.95), rgba(255, 253, 249, 0.94));
+      }
+
+      .tag {
+        display: inline-block;
+        margin-bottom: 2.2mm;
+        padding: 1.3mm 3mm;
+        border-radius: 999px;
+        font-size: 7.7px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      .tag.accent {
+        background: var(--accent);
+        color: #f7fffd;
+      }
+
+      .tag.slate {
+        background: var(--slate-soft);
+        color: var(--navy);
+      }
+
+      h2 {
+        margin: 0 0 2.2mm;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 17px;
+        line-height: 1.08;
+        color: var(--navy);
+      }
+
+      .body {
+        font-size: 9.2px;
+        line-height: 1.38;
+      }
+
+      .body strong, .list li strong {
+        color: var(--navy);
+      }
+
+      .investor-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 2mm;
+      }
+
+      .investor-list li {
+        position: relative;
+        padding-left: 4.3mm;
+        font-size: 8.9px;
+        line-height: 1.32;
+        color: var(--ink);
+      }
+
+      .investor-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 1.35mm;
+        width: 2.1mm;
+        height: 2.1mm;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      .headline {
+        margin: 0 0 2.6mm;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 24px;
+        line-height: 1.06;
+        color: var(--navy);
+      }
+
+      .intro {
+        margin: 0 0 4mm;
+        max-width: 170mm;
+        font-size: 10.1px;
+        line-height: 1.46;
+        color: var(--ink);
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 3mm;
+        margin-bottom: 3mm;
+      }
+
+      .list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 1.8mm;
+      }
+
+      .list li {
+        position: relative;
+        padding-left: 4.6mm;
+        font-size: 8.8px;
+        line-height: 1.32;
+      }
+
+      .list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 1.2mm;
+        width: 2.3mm;
+        height: 2.3mm;
+        border-radius: 50%;
+        background: var(--navy);
+      }
+
+      .bottom-grid {
+        display: grid;
+        grid-template-columns: 0.9fr 1.1fr;
+        gap: 3mm;
+      }
+
+      .stack-list, .milestone-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 1.9mm;
+      }
+
+      .stack-list li, .milestone-list li {
+        position: relative;
+        padding-left: 4.2mm;
+        font-size: 8.8px;
+        line-height: 1.32;
+      }
+
+      .stack-list li::before, .milestone-list li::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 1.2mm;
+        width: 2.1mm;
+        height: 2.1mm;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+
+      .footer {
+        position: absolute;
+        left: 15mm;
+        right: 15mm;
+        bottom: 10mm;
+        padding-top: 2.2mm;
+        display: flex;
+        justify-content: space-between;
+        gap: 4mm;
+        border-top: 1px solid rgba(29, 52, 71, 0.18);
+      }
+
+      .footer-note {
+        max-width: 130mm;
+        font-size: 7.2px;
+        line-height: 1.3;
+        color: var(--muted);
+      }
+
+      .footer-mark {
+        white-space: nowrap;
+        font-size: 7.8px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <section class="page">
+      <div class="inner">
+        <div class="hero">
+          <div class="hero-main">
+            <div class="kicker">Основано на документации репозитория и research snapshot от 12 марта 2026</div>
+            <h1 class="brand">PROVODNIK</h1>
+            <p class="subtitle">Инвесторский обзор проекта, рынка и текущего состояния продукта</p>
+            <div class="hero-copy">Provodnik — мобильный маркетплейс экскурсий и туров по России, который закрывает ту часть рынка, где спрос и предложение до сих пор плохо оцифрованы: Telegram-чаты, звонки, личные договоренности, ручной сбор групп и дорогие агрегаторы с высоким take rate.</div>
+          </div>
+          <aside class="proof">
+            <div class="proof-label">Research snapshot</div>
+            <div class="proof-list">
+              <div class="proof-item"><strong>955 / 120</strong><span>По research: Tripster работает в 955 городах и 120 странах.</span></div>
+<div class="proof-item"><strong>1006 / 110 / 24 060</strong><span>По research: Sputnik8 заявляет 1006 городов, 110 стран и 24 060 гидов.</span></div>
+<div class="proof-item"><strong>24%+ vs 10-15%</strong><span>Публичная комиссия Sputnik8 — 24% и выше. Целевой take rate Provodnik — 10–15%.</span></div>
+            </div>
+          </aside>
+        </div>
+
+        <div class="mini-grid">
+          <article class="mini-card"><div class="mini-label">Проблема рынка</div><h3>Рынок фрагментирован</h3><p>Поиск, доверие, коммуникация и сбор групп все еще распределены между неструктурированными каналами.</p></article>
+<article class="mini-card"><div class="mini-label">Окно входа</div><h3>Не просто каталог</h3><p>Мы идем не в head-to-head с каталогами, а в request-first сценарий: запрос, отклик, сбор группы, бронирование.</p></article>
+<article class="mini-card"><div class="mini-label">Экономика</div><h3>Ниже комиссия</h3><p>Низкая комиссия имеет смысл только в связке с новым спросом и лучшей квалификацией лидов для гидов.</p></article>
+        </div>
+
+        <div class="split">
+          <article class="panel">
+            <div class="tag accent">Investment Thesis</div>
+            <h2>Почему проект может работать</h2>
+            <div class="body"><strong>1. Спрос подтвержден рынком.</strong> Крупные игроки уже доказали наличие спроса, доверительных механизмов и готовности пользователей платить за бронирование экскурсий онлайн.<br /><br /><strong>2. У incumbents есть слабое место.</strong> Они сильны в listing-first логике, но заметно слабее в custom demand, бюджетных сценариях и user-led group formation.<br /><br /><strong>3. Wedge Provodnik понятен.</strong> Пользователь создает запрос по датам, бюджету и формату, другие путешественники могут присоединиться, а гиды отвечают структурированными офферами.<br /><br /><strong>4. GTM дисциплинированный.</strong> Запуск с 1–3 регионов и низкорисковых категорий позволяет сначала доказать ликвидность, а не размывать операционную фокусировку.</div>
+          </article>
+          <article class="panel soft">
+            <div class="tag slate">Investor Lens</div>
+            <h2>Ключевые выводы для инвестора</h2>
+            <ul class="investor-list">
+              <li class="investor-item">Ниша — это не «еще один агрегатор», а цифровизация слабо структурированного хвоста рынка.</li>
+<li class="investor-item">Драйвер для гидов — lower take rate и дополнительный канал продаж вне крупных порталов.</li>
+<li class="investor-item">Драйвер для traveler-side — более низкая цена через сбор группы, гибкие запросы и лучшая прозрачность.</li>
+<li class="investor-item">Риски известны заранее: доверие, модерация, отмены, возвраты, anti-circumvention, скорость ответа.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="footer">
+          <div class="footer-note">Источники: PRD.md, MVP.md, MARKET_RESEARCH.md, README.md, APP_STACK.md, AGENTS.md, docs/process/mvp-orchestration-roadmap.md.</div>
+          <div class="footer-mark">Provodnik · Investor RU PDF</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page">
+      <div class="inner">
+        <h1 class="headline">Что уже сделано в приложении и что делаем дальше</h1>
+        <p class="intro">Проект уже находится не на стадии идеи, а на стадии рабочей MVP-базы: публичный shell, protected workspaces, локальные data contracts, базовые marketplace flows и validated execution queue для следующих релизов.</p>
+
+        <div class="status-grid">
+          <article class="panel">
+            <div class="tag accent">Done</div>
+            <h2>Что уже сделано</h2>
+            <ul class="list">
+              <li class="done-item">Собран public marketing shell и baseline маршрутизация на Next.js 16 App Router.</li>
+<li class="done-item">Подняты protected workspace shell и role navigation для traveler, guide и admin.</li>
+<li class="done-item">Реализованы traveler request form, локальное хранение запросов, detail flow и comparison офферов.</li>
+<li class="done-item">Реализованы guide onboarding, verification intake, request inbox и structured offer composer.</li>
+<li class="done-item">Добавлены public guide profile, trust markers, listing discovery, listing detail и booking detail scaffold.</li>
+<li class="done-item">Собраны admin queues для проверки гидов и модерации листингов.</li>
+<li class="done-item">На main проходят bun run lint, bun run typecheck и bun run build.</li>
+            </ul>
+          </article>
+          <article class="panel soft">
+            <div class="tag slate">Now / Next</div>
+            <h2>Что делаем сейчас</h2>
+            <ul class="list">
+              <li class="now-item">Переходим из Release 1 Transaction Foundation в Release 2 Marketplace Quality.</li>
+<li class="now-item">Следующий слой ценности: open group joining, favorites, reviews, notifications, disputes и refunds.</li>
+<li class="now-item">Усиливаем trust loop: review system, ranking signals, notification center и dispute handling.</li>
+<li class="now-item">Готовим почву для marketplace analytics, featured supply controls и anti-circumvention surfaces.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="bottom-grid">
+          <article class="panel">
+            <div class="tag slate">App Stack</div>
+            <h2>Текущий app stack</h2>
+            <ul class="stack-list">
+              <li class="stack-item">Next.js 16, React 19, TypeScript</li>
+<li class="stack-item">Tailwind CSS v4 + shadcn/ui</li>
+<li class="stack-item">TanStack Query, React Hook Form, Zod</li>
+<li class="stack-item">Supabase SSR/client helpers</li>
+<li class="stack-item">Архитектура: public shell + protected traveler/guide/admin areas</li>
+            </ul>
+          </article>
+          <article class="panel">
+            <div class="tag accent">Milestones</div>
+            <h2>На что смотреть инвестору</h2>
+            <ul class="milestone-list">
+              <li class="milestone-item">Переход от baseline к repeatable liquidity в узком launch wedge.</li>
+<li class="milestone-item">Скорость до первого отклика гида и конверсия request-to-booking.</li>
+<li class="milestone-item">Количество активных гидов в launch-регионах и плотность предложений.</li>
+<li class="milestone-item">Cancellation, dispute и off-platform leakage rate по мере появления транзакций.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="footer">
+          <div class="footer-note">Источники: PRD.md, MVP.md, MARKET_RESEARCH.md, README.md, APP_STACK.md, AGENTS.md, docs/process/mvp-orchestration-roadmap.md.</div>
+          <div class="footer-mark">Provodnik · Investor RU PDF</div>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
