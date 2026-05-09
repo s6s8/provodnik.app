@@ -2,8 +2,8 @@ import { test } from "@playwright/test";
 
 test("guide creates an excursion listing", async ({ page }) => {
   await page.goto("/auth");
-  await page.fill('[name="email"]', "guide1@provodnik.test");
-  await page.fill('[name="password"]', "testpass123");
+  await page.fill("#email", "guide1@provodnik.test");
+  await page.fill("#password", "testpass123");
   await page.click('[type="submit"]');
   await page.waitForURL("/guide/dashboard");
 
