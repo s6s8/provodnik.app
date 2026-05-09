@@ -55,6 +55,7 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - ERR-056 — notFound() returns HTTP 200 when route-group layout has `await` (Next.js streaming commits to 200 before page eval); robots:noindex meta is the documented mitigation
 - ERR-057 — `/listings/[slug]` page renders duplicate `<header>`/`<footer>` because page wraps content in same `SiteHeader`/`SiteFooter` that `(public)/layout.tsx` already provides — RESOLVED 034e12f
 - ERR-058 — Traveler request detail shows budget ×100 (kopecks rendered as RUB) — direct AP-012 / ERR-025 reoccurrence in `(protected)/traveler/requests/[requestId]/page.tsx:66` — RESOLVED 034e12f
+- ERR-059 — tripster-v1 e2e specs hard-code seed users (`traveler1@/guide1@`, password `testpass123`) that never existed; real seed is `traveler@/guide@/admin@` with `Travel1234!/Guide1234!/Admin1234!`. All 6 specs `test.skip`-gated 2026-05-10. Bek ticket: `docs/qa/2026-05-10-e2e-spec-rot-fix.md`. OPEN
 
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
