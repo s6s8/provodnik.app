@@ -32,6 +32,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Local orchestration artefacts — not application code
     ".claude/**",
+    // Phase 1 archived bek-era artefacts (gitignored, kept on local disk only)
+    "_archive/**",
   ]),
 ]);
 
