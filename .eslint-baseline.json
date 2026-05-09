@@ -1,0 +1,18 @@
+{
+  "generatedAt": "2026-05-09T18:02:21.874Z",
+  "eslintVersion": "9.39.4",
+  "totals": {
+    "errors": 0,
+    "warnings": 2
+  },
+  "byFile": {
+    "src/features/booking/components/BookingFormTabs.tsx": {
+      "errors": 0,
+      "warnings": 1
+    },
+    "src/features/profile/components/PersonalSettingsForm.tsx": {
+      "errors": 0,
+      "warnings": 1
+    }
+  }
+}
