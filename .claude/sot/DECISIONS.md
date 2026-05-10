@@ -444,3 +444,56 @@ must instruct the auditor to verify both `user_metadata.role` AND `app_metadata.
 `"guide"` before testing role-gated routes. Tracked here so the next time someone reads
 `SeedPass1!` in a row body they know the credentials are stale, not the product.
 Date: 2026-05-04
+
+## ADR-059 — Hybrid codebase-awareness in orchestrator RESEARCH (Phase 7, 2026-05-11)
+
+**Context.** Pre-Phase-7 RESEARCH passed only HOT.md + CLAUDE.md + ticket text to the model.
+Any moderately specific ticket ("test the homepage", "add a comment to the homepage entry")
+escalated for missing source paths the stage never provided. ERR-060 made every real ticket
+a manual file-paste exercise for the submitter, defeating mission asymmetry #2 (codified taste,
+applied infinitely).
+
+**Decision.** Hybrid architecture:
+
+1. **PROJECT_MAP + PATTERNS-SUMMARY inlined.** The RESEARCH user prompt embeds the project's
+   `.claude/sot/PROJECT_MAP.md` plus a ≤2 KB distillation of `.claude/sot/PATTERNS.md` produced
+   by `summarizePatterns()` (H2 heading + first non-code-fence prose line of each pattern).
+   PROJECT_MAP is the curated **codified taste**: owner-maintained tree of where things live.
+   PATTERNS-SUMMARY is the **interpretation defaults** index.
+
+2. **Tool access via `--allowed-tools` + `--add-dir`.** The claude CLI runs with
+   `--allowed-tools "Read,Grep,Glob" --add-dir <projectPath>` for RESEARCH (only). The model
+   can self-discover files that PROJECT_MAP didn't curate, or whose path drifted since the map
+   was last edited. Feasibility verified by `orchestrator/scripts/spike-claude-tools.mjs` —
+   sentinel test wrote a random value 5s before the call; the CLI returned the exact value
+   from `structured_output`, proving real Read happened (no hallucination).
+
+3. **Escalation kind split.** `ResearchOutSchema.kind` is optional `'missing_info' | 'ambiguous_ticket'`.
+   `missing_info` means the model lacked source context the orchestrator can recover by retrying
+   with a tool-use directive; the driver routes this to `RESEARCH_RETRY` (new self-loop on the
+   state machine, capped by `RETRY_MAX`). `ambiguous_ticket` means submitter intent is unclear
+   and only the human can resolve; escalate immediately to the clarification topic. No `kind`
+   set ⇒ legacy "escalate" behaviour preserved.
+
+**Alternatives considered.**
+
+- *REPO_MAP-only* (no tools). Cheap and predictable but stays stale; PROJECT_MAP drift caught
+  the validation session — actual homepage is at `src/app/(home)/page.tsx`, the map said `(site)/`.
+  Without tools, RESEARCH would have escalated.
+- *Tool-only* (no map). Forces the model to Glob from zero on every ticket. Costs more, slower,
+  loses the owner's curation pass.
+- *Hybrid (chosen).* PROJECT_MAP encodes taste, tools deliver coverage. Best-of-both.
+
+**Cost.** Spike: ~$0.06/call on a single small-file Read. Production session
+`20260510-add-one-line-top-pdpr` total RESEARCH stage cost stayed under $0.10 (cache reads
+dominate the input-token side). Acceptable for the leverage gained.
+
+**Drawbacks.** (a) PROJECT_MAP path drift can mislead the model into a wasted tool call before
+it self-corrects — refresh discipline matters. (b) Per-stage cost rises ~$0.05 per tool-enabled
+RESEARCH. (c) Adds a new FSM self-loop (RESEARCH → RESEARCH) — covered by tests but it's the
+first non-gate state with self-retry.
+
+**Closes:** ERR-060.
+**Related:** Phase 7 plan `docs/superpowers/plans/2026-05-11-phase-7-codebase-aware.md`,
+ERR-061/062/063 closures, AP-021 (cursor-agent still does no git/bun).
+**Date:** 2026-05-11
