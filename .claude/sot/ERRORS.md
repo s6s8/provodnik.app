@@ -4,6 +4,25 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 
 ---
 
+### ERR-064 → RESOLVED 2026-05-11 (Phase 8.1 — quantumbek eab344e)
+- **Symptom:** Every clean ticket reached SHIP_GATE and reported `Shipped <stub-sha>` while no real ff-merge happened — `provodnik.app/main` did not advance and Vercel did not redeploy. `/devnote draft <sid>` always returned `Session <sid> has no shippedSha recorded.` blocking the mission asymmetry-#1 success signal (audit log of shipped work). Caught in Phase 7 GATE closure but deferred as a "limitation" to Phase 8.
+- **Root Cause (two adjacent gaps in `bot/pipeline/driver.mjs`):**
+  1. **DISPATCH propagation:** `runDispatch` returned `{worktreePath, worktreeBranch, commitSha, ...}` in the StageOut object. Driver's generic artifact-persist saved the whole shape to `session.artifacts.dispatch` but never copied the fields to session top-level. SHIP runner at `driver.mjs:223` gated on `session.worktreePath` and silently fell through to `stubShip` because the top-level field was the empty-string default set at intake.
+  2. **SHIP propagation:** `runShip` returned `{sha}` on PASS but nothing set `session.shippedSha`. The SessionSchema declared the field as optional, but no code path ever wrote to it. `bot.mjs:616` (and the /resume approve branch at :523) read it and bailed with "no shippedSha recorded."
+- **Fix:** After the artifact-persist block in `driver.mjs`, propagate stage-specific top-level fields:
+  ```js
+  if (session.state === 'DISPATCH' && out.worktreePath) {
+    session = { ...session, worktreePath: out.worktreePath, worktreeBranch: out.worktreeBranch,
+                ...(out.commitSha ? { dispatchCommitSha: out.commitSha } : {}) };
+  }
+  if (session.state === 'SHIP' && out.sha) {
+    session = { ...session, shippedSha: out.sha };
+  }
+  ```
+  `SessionSchema` gains optional `dispatchCommitSha` (Zod silent-strip avoidance per `feedback_zod_session_schema_strip.md`). SHIP runner gets `execFn: gitExecFn` injected so unit tests can mock `shipWorktree`'s git calls.
+- **Files changed:** `bot/pipeline/driver.mjs`, `bot/pipeline/state/session-schema.mjs`, `tests/pipeline/driver.test.mjs` (M4 extended with 4 propagation assertions). Suite 263/263. RED→GREEN verified.
+- **Production validation:** session `20260510-add-one-line-top-47hq` (ticket: "add a one-line top-of-file comment to playwright.config.ts describing the file's role"). Session JSON post-DISPATCH shows `worktreePath`, `worktreeBranch`, `dispatchCommitSha=793054e4…` populated. After Ship: `provodnik.app/main` advanced `6759c6e → 793054e`, `shippedSha=793054e…` populated. `/devnote draft 20260510-add-one-line-top-47hq` rendered theme/items/hours/cost; click Send → `✓ Devnote sent: ts=1778453759.448479 hours=4 cost=$600 (git=4 commits)` landed in `#provodnik-dev-notes`. GATE-7 criterion #7 (devnote round-trip on real ship) closes.
+
 ### ERR-060 → RESOLVED 2026-05-11 (Phase 7 — quantumbek 1bc8299)
 - **Closure:** Hybrid codebase-awareness shipped per ADR-059. RESEARCH stage now reads PROJECT_MAP.md + PATTERNS.md (via `summarizePatterns` distilling to ≤2 KB index) on every invocation and passes `--allowed-tools "Read,Grep,Glob"` + `--add-dir <projectPath>` to the claude CLI. Phase 7.8 split the escalation kind: `missing_info` retries RESEARCH (bot self-recovers via tools, capped at RETRY_MAX=2); `ambiguous_ticket` escalates to submitter clarification immediately.
 - **Feasibility spike:** `orchestrator/scripts/spike-claude-tools.mjs` confirmed claude CLI 2.1.132 honors all three flags under our `--setting-sources ''` invocation. Sentinel test wrote a fresh random value to `/tmp/spike/secret.txt` 5 seconds before the call; CLI returned the exact value in structured output — cannot be hallucinated. ~$0.06/call on small file; per-stage tool runs estimate $0.10–0.30/ticket.
