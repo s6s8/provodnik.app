@@ -52,9 +52,9 @@ _Top 8 landmines orchestrator must never forget. Include the relevant one inline
 
 ---
 
-### ADR-022 — `bek-restart.flag` is a contract, not a debug toggle
-**Never** manually create or `del` the file `.claude/logs/bek-restart.flag` while the BEK daemon is processing a message. The flag is the watchdog → daemon restart channel. Manual creation tells the daemon to exit on its next 5s poll, and PM2 then waits 62s (ERR-038) before restart — dropping in-flight work for no reason. Manual deletion mid-poll is harmless but pointless: the daemon deletes the flag itself before exiting, and the watchdog re-creates it via idempotent `writeFile('')`.
-**Always** for a manual restart: `pm2 restart quantumbek` (or `pm2 restart bek-watchdog` to reset the watchdog's circuit breaker after a `GIVING_UP` line). The flag is internal plumbing — leave it alone.
+### ADR-022 — `bek-restart.flag` is archived, not a debug toggle
+**Never** manually create or `del` the file `_archive/bek-frozen-2026-05-08/logs/restart.flag`. The bek daemon is retired (Phase 1, 2026-05-08) — the flag's only consumer is gone, but the path is referenced by archived bek code that should never be reactivated. Manual touches are noise at best, footguns at worst.
+**Always** for a manual restart of the orchestrator on macmini: `ssh sshm "pm2 restart orch-provodnik"`. The bek-watchdog process is dead pm2 — replaced by the macmini orchestrator's pm2 entry (Phase 6.2, 2026-05-10). If you find yourself wanting to manually create or delete the flag: stop, the system you're thinking of is the orchestrator, not bek.
 
 ---
 

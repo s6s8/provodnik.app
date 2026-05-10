@@ -160,6 +160,9 @@ _Append-only. Format: ADR-NNN. See INDEX.md for lookup; HOT.md for top-8 landmin
 - **Date:** 2026-04-25
 
 ### ADR-024: BEK v2 — `_archive/bek-frozen-2026-05-08/` repo-root + retry wrapper + structured incidents
+
+> **ARCHIVED 2026-05-10** — superseded by macmini Telegram orchestrator (`@QuantumBekBot` in supergroup `-1003617072585`). Session ledger now lives at `quantumbek/orchestrator/apps/provodnik/.sessions/` (per-machine). Body retained for archaeology — do NOT reactivate the bek runtime; the path constants below all point at archived code. Restart of the live system uses `pm2 restart orch-provodnik` on macmini.
+
 - **Context:** Two pressures converged: (1) Claude CLI 2.1.119 added hardcoded `.claude/**` self-protect (ERR-045) that overrode `permissions.allow` rules, blocking BEK from writing plans + sessions + SOT updates; and (2) BEK's transient-error handling was a single try-catch — one ECONNRESET to api.telegram.org surfaced as ❌ with no retry.
 - **Decision:** Three changes shipped together as BEK v2:
   - **Path migration:** all BEK-writeable artifacts moved out of `.claude/` to a new repo-root `_archive/bek-frozen-2026-05-08/` directory. Source at `_archive/bek-frozen-2026-05-08/src/`, sessions at `_archive/bek-frozen-2026-05-08/sessions/`, prompts at `_archive/bek-frozen-2026-05-08/prompts/`, SOT at `_archive/bek-frozen-2026-05-08/sot/`, logs at `_archive/bek-frozen-2026-05-08/logs/`, devnotes at `_archive/bek-frozen-2026-05-08/logs/devnotes/`. `.claude/` retains only Claude Code platform config (settings.json, CLAUDE.md, skills/, commands/, agents/, hooks).
