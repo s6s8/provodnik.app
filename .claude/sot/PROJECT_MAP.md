@@ -1,6 +1,6 @@
 # PROJECT_MAP.md — Provodnik Project Structure
 
-_Generated: 2026-04-06 | Updated: 2026-04-13 (tripster-v1-complete)_
+_Generated: 2026-04-06 | Updated: 2026-05-11 (Phase 7 — orchestrator runtime path canonicalised)_
 
 ## Status
 - **Tripster V1:** COMPLETE — all 42 waves merged, DB migrated, Vercel build green
@@ -18,7 +18,11 @@ _Generated: 2026-04-06 | Updated: 2026-04-13 (tripster-v1-complete)_
 - **Package manager:** bun (NEVER npm/yarn)
 
 ## App Root
-`/mnt/rhhd/projects/provodnik/provodnik.app/`
+- **Mini (orchestrator runtime, canonical):** `/Users/idev/projects/provodnik.app/`
+- **Win (developer mirror):** `D:/dev2/projects/provodnik.app/`
+
+When the orchestrator passes this map to a stage, it injects the Mini path
+since cursor-agent and tool-access (`--add-dir`) run on the Mac mini.
 
 ## Build Commands
 ```
