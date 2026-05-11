@@ -22,7 +22,6 @@ const INTEREST_LABELS: Record<string, string> = {
   photo: "Фотопрогулки",
   kids: "Для детей",
   unusual: "Необычное",
-  nightlife: "Ночная жизнь",
 };
 
 function formatDateTime(value: string): string {

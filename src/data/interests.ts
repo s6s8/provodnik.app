@@ -7,5 +7,4 @@ export const INTEREST_CHIPS = [
   { id: "photo", label: "Фотопрогулки" },
   { id: "kids", label: "Для детей" },
   { id: "unusual", label: "Необычное" },
-  { id: "nightlife", label: "Ночная жизнь" },
 ] as const;
