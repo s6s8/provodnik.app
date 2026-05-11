@@ -4,6 +4,14 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 
 ---
 
+### ERR-068 → RESOLVED 2026-05-11 (provodnik 4d299c1)
+- **Symptom:** Two consecutive Vercel production deploys failed with: *"There was a permanent problem cloning the repo. The git provider returned an HTTP 500 error."* Stuck production at the previous good build (15h-old) — commits `5d6cd72` (nightlife-chip ship) and `9ff5044` (ADR-060 SOT closure) did not propagate to prod.
+- **Root Cause:** Transient GitHub git-hosting hiccup. Not a code issue — local `bun run typecheck && lint:ratchet && vitest` all green; the failure was at the Vercel-side clone step before any build began.
+- **Fix:** Pushed empty commit `4d299c1` ("chore(ci): retrigger Vercel build after transient GitHub HTTP 500") to refire the webhook. Subsequent build succeeded — `provodnik-6kji0tj8t` ● Ready in 1m, production now serves `4d299c1`.
+- **Prevention / future workaround:** When Vercel reports clone-step HTTP 500, do `git commit --allow-empty -m "chore(ci): retrigger"` + `git push`. Don't chase phantom code bugs first. The error message itself is honest about being a "temporary issue with the git hosting service" — trust it.
+- **Files Affected:** none (infra).
+- **Date opened/closed:** 2026-05-11.
+
 ### ERR-067 → OPEN (filed 2026-05-11)
 - **Symptom:** After a session completes (state=DONE), the orchestrator's POST_WORK stage writes new content to `.claude/sot/PATTERNS.md` but does **not** `git add`/commit the file. The main checkout is left with uncommitted changes. Caught on session `20260510-fix-err-059-layer-euk5` (ERR-059 Layer 1 ship): cursor-agent's commit `10b0e5a` correctly contained only the 7 in-scope files; the +33 line `PATTERNS.md` addition surfaced via `git status` after DONE.
 - **Risk:** Next ticket's ff-merge runs in projectPath which has the dirty file. Git will allow the merge to proceed if the merge doesn't touch `PATTERNS.md` (typical), but the dirty state accumulates over sessions and any future ticket that DOES touch `PATTERNS.md` (e.g., to add another pattern from the same surface) will fail with "Your local changes would be overwritten by merge."
