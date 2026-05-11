@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { SEED_USERS } from "../fixtures";
 import { loginAs } from "../helpers";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
@@ -6,7 +7,7 @@ import { loginAs } from "../helpers";
 // with password Travel1234!. Several data-testids unverified. Bek's first post-handover ticket
 // fixes this end-to-end.
 test.skip("traveler accepts offer and confirms booking", async ({ page }) => {
-  await loginAs(page, "traveler1@provodnik.test", "testpass123");
+  await loginAs(page, SEED_USERS.traveler.email, SEED_USERS.traveler.password);
 
   // Navigate to traveler requests / offers
   await page.goto("/requests");

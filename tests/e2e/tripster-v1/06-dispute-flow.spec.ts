@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { SEED_USERS } from "../fixtures";
 import { loginAs } from "../helpers";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
@@ -7,7 +8,7 @@ import { loginAs } from "../helpers";
 // are also unverified. Bek's first post-handover ticket fixes this end-to-end.
 test.skip("traveler opens dispute and admin resolves it", async ({ page }) => {
   // Step 1: Traveler opens dispute
-  await loginAs(page, "traveler1@provodnik.test", "testpass123");
+  await loginAs(page, SEED_USERS.traveler.email, SEED_USERS.traveler.password);
 
   await page.goto("/bookings");
   const firstBooking = page.locator('[data-testid="booking-item"]').first();
@@ -39,7 +40,7 @@ test.skip("traveler opens dispute and admin resolves it", async ({ page }) => {
   await page.screenshot({ path: "tests/screenshots/06a-dispute-opened.png" });
 
   // Step 2: Admin resolves dispute
-  await loginAs(page, "admin@provodnik.test", "testpass123");
+  await loginAs(page, SEED_USERS.admin.email, SEED_USERS.admin.password);
 
   await page.goto("/admin/disputes");
   const firstDispute = page.locator('[data-testid="dispute-item"]').first();

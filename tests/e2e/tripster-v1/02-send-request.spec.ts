@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { SEED_USERS } from "../fixtures";
 import { loginAs } from "../helpers";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
@@ -7,7 +8,7 @@ import { loginAs } from "../helpers";
 // also unverified. Bek's first post-handover ticket fixes this end-to-end.
 test.skip("traveler sends booking request", async ({ page }) => {
   // Login as traveler
-  await loginAs(page, "traveler1@provodnik.test", "testpass123");
+  await loginAs(page, SEED_USERS.traveler.email, SEED_USERS.traveler.password);
 
   // Find an active listing
   await page.goto("/search");

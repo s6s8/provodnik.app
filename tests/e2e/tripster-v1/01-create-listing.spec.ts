@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { SEED_USERS } from "../fixtures";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
 // Spec hard-codes guide1@provodnik.test / testpass123 but seed creates guide@provodnik.test
@@ -6,8 +7,8 @@ import { test } from "@playwright/test";
 // data-testids are also unverified. Bek's first post-handover ticket fixes this end-to-end.
 test.skip("guide creates an excursion listing", async ({ page }) => {
   await page.goto("/auth");
-  await page.fill("#email", "guide1@provodnik.test");
-  await page.fill("#password", "testpass123");
+  await page.fill("#email", SEED_USERS.guide.email);
+  await page.fill("#password", SEED_USERS.guide.password);
   await page.click('[type="submit"]');
   await page.waitForURL("/guide/dashboard");
 
