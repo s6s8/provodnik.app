@@ -143,3 +143,36 @@ on conflict (id) do update set
 ```
 
 Always use `on conflict do update` or `on conflict do nothing` for idempotency.
+
+
+
+## E2E Seed Credential Fixture Pattern
+
+All e2e specs import seed user credentials from a single typed constant file. **Never** hardcode email/password strings in spec files.
+
+```typescript
+// tests/e2e/fixtures.ts — single source of truth, mirrors supabase/migrations/*_seed_accounts.sql
+type SeedUserCredentials = { email: string; password: string };
+
+export const SEED_USERS: {
+  admin: SeedUserCredentials;
+  traveler: SeedUserCredentials;
+  guide: SeedUserCredentials;
+} = {
+  admin:    { email: "admin@provodnik.test",    password: "Admin1234!"  },
+  traveler: { email: "traveler@provodnik.test", password: "Travel1234!" },
+  guide:    { email: "guide@provodnik.test",    password: "Guide1234!"  },
+};
+```
+
+Consumption in specs:
+
+```typescript
+import { SEED_USERS } from "../fixtures";
+
+await loginAs(page, SEED_USERS.guide.email, SEED_USERS.guide.password);
+await page.fill("#email", SEED_USERS.traveler.email);
+```
+
+**Rule:** Any change to the seed migration's credential values has exactly one update target: `tests/e2e/fixtures.ts`. This is how ERR-059 layer 1 (spec/seed identity mismatch) is prevented from recurring.
+
