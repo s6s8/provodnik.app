@@ -4,6 +4,14 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 
 ---
 
+### ERR-067 → OPEN (filed 2026-05-11)
+- **Symptom:** After a session completes (state=DONE), the orchestrator's POST_WORK stage writes new content to `.claude/sot/PATTERNS.md` but does **not** `git add`/commit the file. The main checkout is left with uncommitted changes. Caught on session `20260510-fix-err-059-layer-euk5` (ERR-059 Layer 1 ship): cursor-agent's commit `10b0e5a` correctly contained only the 7 in-scope files; the +33 line `PATTERNS.md` addition surfaced via `git status` after DONE.
+- **Risk:** Next ticket's ff-merge runs in projectPath which has the dirty file. Git will allow the merge to proceed if the merge doesn't touch `PATTERNS.md` (typical), but the dirty state accumulates over sessions and any future ticket that DOES touch `PATTERNS.md` (e.g., to add another pattern from the same surface) will fail with "Your local changes would be overwritten by merge."
+- **Workaround:** Orchestrator commits POST_WORK output manually after each ship with `chore(sot): codify <theme> pattern from session <sid>`. Done for session euk5 in commit `e49a605`.
+- **Fix shape (future):** Extend `bot/pipeline/stages/18-post-work.mjs` to `git add .claude/sot/PATTERNS.md` + `git commit -m "chore(sot): codify pattern from <sid>" --no-verify` in projectPath after writing the file. Should be idempotent: if `git status --porcelain` shows no change to PATTERNS.md, skip. Phase 8.7 candidate.
+- **Files Affected:** `bot/pipeline/stages/18-post-work.mjs` (no-commit gap).
+- **Date opened:** 2026-05-11.
+
 ### ERR-066 → RESOLVED 2026-05-11 (Phase 8.5 — quantumbek 8e5bed1)
 - **Symptom:** Sessions cancelled or aborted after DISPATCH left `.worktrees/task-<sid>/` directories and `task/<sid>` branches behind in the projectPath, accumulating on mini between sessions. Phase 8 entry handover flagged this as a Cancel-path TODO. The current `apps/provodnik/.sessions/` happens to be clean (all ABORTED sessions cancelled pre-DISPATCH; all DONE sessions had cleanup via `17-ship.mjs#runShip`'s `removeWorktree` on success) — but the gap would bite on the first cancel-after-dispatch event.
 - **Root Cause:** `17-ship.mjs` cleans up on a successful ship; no cleanup hook existed for ABORTED/ABANDONED transitions. `12-dispatch.mjs` explicitly preserves the worktree on ESCALATE for owner inspection (lines 41-48 / 67-77). Manual abort paths in `bot.mjs` (`/override <sid> abort`, `/resume <sid> abort`) just wrote terminal state and replied — no `continuePipeline`, no cleanup. Gate-button cancels reach the FSM loop's terminal exit but the driver had no post-loop cleanup branch.
