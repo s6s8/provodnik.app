@@ -3,7 +3,7 @@
 import { useState } from "react";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   CheckCircle2,
@@ -24,14 +24,7 @@ import { signUpAction } from "@/features/auth/actions/signUpAction";
 
 const hasEnv = hasSupabaseEnv();
 
-const roles = [
-  { value: "traveler", label: "Путешественник" },
-  { value: "guide", label: "Гид" },
-  { value: "admin", label: "Оператор" },
-] as const;
-
 type AuthFormMode = "sign-in" | "sign-up";
-type RoleValue = (typeof roles)[number]["value"];
 
 function getFriendlyAuthError(code: string): string {
   switch (code) {
@@ -61,16 +54,12 @@ function getFriendlyAuthError(code: string): string {
 
 export function AuthEntryScreen() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialRole: RoleValue =
-    searchParams.get("role") === "guide" ? "guide" : "traveler";
 
   const [mode, setMode] = useState<AuthFormMode>("sign-in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState<RoleValue>(initialRole);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -134,11 +123,12 @@ export function AuthEntryScreen() {
         return;
       }
 
-      // Sign-up: server action creates user + profile + sets app_metadata atomically
+      // Sign-up: server action creates user + profile + sets app_metadata atomically.
+      // Public signup is traveler-only — guide onboarding is invite-only / admin-verified.
       const result = await signUpAction({
         email: trimmedEmail,
         password,
-        role,
+        role: "traveler",
         fullName: trimmedFullName,
         phone: phone.trim() || undefined,
       });
@@ -288,36 +278,6 @@ export function AuthEntryScreen() {
               >
                 Забыли пароль?
               </Link>
-            </div>
-          ) : null}
-
-          {isSignUp ? (
-            <div className="grid gap-2.5">
-              <span className="text-sm font-medium text-foreground">
-                Выберите роль
-              </span>
-              <div className="grid grid-cols-2 gap-3">
-                {roles
-                  .filter((option) => option.value !== "admin")
-                  .map((option) => {
-                    const isActive = role === option.value;
-                    return (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => setRole(option.value)}
-                        className={`rounded-full border px-4 py-3 text-sm font-medium transition ${
-                          isActive
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-transparent text-foreground hover:border-primary/50 hover:text-foreground"
-                        }`}
-                        aria-pressed={isActive}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-              </div>
             </div>
           ) : null}
 
