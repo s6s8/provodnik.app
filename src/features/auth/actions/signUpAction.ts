@@ -17,6 +17,14 @@ type SignUpResult =
   | { ok: false; error: string };
 
 export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
+  // Anti-dezintermediation guard: public signup is traveler-only.
+  // Guide/admin roles are provisioned by invite or admin verification, never via
+  // an arbitrary client-supplied `role`. Must be the first executable statement —
+  // no Supabase calls, no guide_profiles upsert, no app_metadata mutation when rejected.
+  if (input.role !== "traveler") {
+    return { ok: false, error: "forbidden_role" };
+  }
+
   const { email, password, role, fullName, phone } = input;
   const safeRole = isAppRole(role) ? role : "traveler";
 
