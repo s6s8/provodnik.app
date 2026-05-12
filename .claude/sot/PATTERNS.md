@@ -250,3 +250,42 @@ The existing Audit Registry Pattern (Stage 1) produces: `guest.md`, `traveler.md
 The Fix-Queue Pattern (Stage 2 prep) consumes those files and produces: `RUBRIC.md`, `QUEUE.md`.
 Together they form the complete two-stage cycle: **Stage 1 → observe/register → Stage 2 prep → prioritize → Stage 2 → fix**.
 
+
+
+
+## Display-Layer Field Masking Pattern
+
+Apply sensitive-field transforms at the outermost render/API boundary, not in the DB query. Keep the data layer raw; mask only for output.
+
+```typescript
+// src/lib/pii/mask.ts
+/**
+ * Visual-only masking: replaces `body` via maskPii;
+ * all other fields shallow-copied unchanged.
+ */
+export function maskMessageBodies<T extends { body: string }>(messages: T[]): T[] {
+  return messages.map((m) => ({
+    ...m,
+    body: maskPii(m.body),
+  }));
+}
+```
+
+Consumption — apply immediately after the DB query, before returning to render or JSON:
+
+```typescript
+// Server Component (page.tsx)
+const displayMessages = maskMessageBodies(initialMessages);
+// pass displayMessages to the client component, NOT initialMessages
+
+// API route (route.ts)
+const messages = maskMessageBodies(await getThreadMessages(threadId));
+return NextResponse.json(messages, { headers: ... });
+```
+
+**Rules:**
+- The transform function must be generic over `T extends { body: string }` so TypeScript preserves all other fields.
+- Use spread (`...m`) + field override; never reconstruct the object by hand (fields will drift).
+- DB layer stays raw — never store the masked value, only output it.
+- Every new surface that outputs message rows (new route, new page, admin panel, export) MUST call the masking helper. See HOT.md PII-012.
+

@@ -109,3 +109,11 @@ The SOS is a feature, not a failure. Better to ask once than to ship a hack thre
 3. Unblock by deploying the seed migration to live, rotating passwords via Supabase admin API, or issuing self-issued test accounts with explicit role stamps (see PPFS Stage 2 QUEUE.md P0 row for open product question).
 Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated traveler flows where persona identity must come from a documented seed account.
 
+
+
+
+### PII-012 — Message body masking is VISUAL-ONLY; DB stores raw contact data
+**Never** render `messages.body` from any Supabase query directly to a user-facing surface (page, API response, realtime callback, export) without passing through `maskMessageBodies` from `src/lib/pii/mask.ts`.
+**Why it bites:** `maskMessageBodies` is applied at the display layer — the DB rows stay raw. Any new surface added after this ship (e.g. a new API route, a realtime subscription that renders messages, an admin panel, a PDF export) will leak phone numbers and emails unless the developer explicitly imports and calls `maskMessageBodies`. The function is generic (`<T extends { body: string }>`) so it works on any message-shaped array.
+**Always** when adding any new code path that reads message rows: (1) import `maskMessageBodies` from `@/lib/pii/mask`, (2) wrap the query result before passing to render/JSON, (3) verify with `grep -n 'maskMessageBodies' src/app/...` that every surface is covered.
+
