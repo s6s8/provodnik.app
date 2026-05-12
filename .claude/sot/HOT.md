@@ -98,3 +98,14 @@ The SOS is a feature, not a failure. Better to ask once than to ship a hack thre
 - **Telegram reactions are chat-specific** (ERR-076). `setMessageReaction` rejects with `REACTION_INVALID` for emoji outside the chat's allowed set. Universal-safe emoji: `👀 👍 👎 🔥 🎉 🤔`. ✅ ❌ work in some chats but NOT in provodnik's default config. Don't add new reactions without verifying against chat config — and never swallow setReaction errors silently (the helper now logs them).
 
 - **FSM session spawn requires continuePipeline** (ERR-071). Any new ticket-spawn surface (/new, /fire, future surfaces) MUST follow the contract: `runIntake → save → sendMessage → continuePipeline(child.sessionId)`. Missing the final kick produces a silent ROUTE-state orphan that never advances. Audit against bot.mjs:onNew when adding new spawn paths.
+
+
+
+### HOT-NEW / Live seed drift — audit-blocker class (P0)
+**Never** assume documented seed credentials still work on the live environment before dispatching a multi-persona audit or any cursor-agent task that requires role-based login. The PPFS Stage 1 machine pass (2026-05-12) found that all four documented seeds (`traveler@ / guide@ / admin@` + test passwords) rejected on live, blocking every `/guide/*` and `/admin/*` route row — 29+ findings deferred to a re-walk.
+**Always** before any audit or cursor-agent task requiring live login:
+1. Test each required seed credential via a quick `/auth` login — confirm redirect to kabinet, not a credential-error toast.
+2. If any seed rejects: raise SOS immediately (`@CarbonS8 + @six`). Do NOT proceed with a stale session or a non-SOT fallback account.
+3. Unblock by deploying the seed migration to live, rotating passwords via Supabase admin API, or issuing self-issued test accounts with explicit role stamps (see PPFS Stage 2 QUEUE.md P0 row for open product question).
+Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated traveler flows where persona identity must come from a documented seed account.
+

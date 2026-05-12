@@ -204,3 +204,49 @@ Column order is identical across all persona files:
 - Primary guide credential for local/seed walkthroughs: `dev+guide@rgx.ge`. `guide@provodnik.test` does **not** exist (ADR-058) — never use it for login attempts.
 - Role switch between personas: `window.location.href = '/api/auth/signout'` — never `supabase.auth.signOut()` (ADR-015 / HOT.md).
 
+
+
+
+## Audit Fix-Queue Pattern (RUBRIC.md + QUEUE.md)
+
+After a multi-persona audit registry is complete, produce exactly two artifacts to drive the fix pass:
+
+```
+audits/<YYYY-MM-DD>-<ticket>/
+  RUBRIC.md   ← four-tier taxonomy: audit criticality × epic position → queue tier
+  QUEUE.md    ← ordered queue covering 100% of registry rows + explicit exclusions + validation table
+```
+
+### RUBRIC.md structure
+
+| Tier | Name | When to use |
+| --- | --- | --- |
+| P0 | Blocker | Persona flow impossible; security/money/data loss; audit operability blocked |
+| P1 | High | Wrong user-visible data; broken secondary path; inconsistent model (silent data drop) |
+| P2 | Medium | Workaround exists; silent error states; stub/reality drift; seeding dependency |
+| P3 | Deferred | Cosmetic-only; PASS rows for traceability; epic-explicit backlog (К-tags) |
+
+Pinned К-tags (tech-debt/cosmetic backlog from the epic plan) stay at P3 regardless of audit criticality. Raising them above P3 requires explicit product sign-off and triggers a `CONCERN: cosmetic escalation attempt` annotation in QUEUE.md.
+
+### QUEUE.md structure
+
+- **Preamble** — viewport-coverage matrix (1280px / 375px × all personas) with explicit TODO sentinels for incomplete passes and tooling caveats.
+- **Explicit exclusions** — in-flight tickets already sequenced by the epic, listed separately so they don't inflate the orphan count.
+- **Ordered queue** — one row per finding or one consolidated row for multi-route P0/P1 clusters. Columns: `Finding-IDs | Criticality | Fact-or-Q-to-Product | Tier | Open-Product-Question | Concern-Annotation`.
+- **Validation table** — proves zero orphans: every registry `route` value maps to exactly one queue row or one exclusion entry.
+
+### Coverage invariant
+
+```
+Registry rows total == queue rows covered + explicit exclusions
+Orphaned registry route values == 0
+```
+
+Fail the queue document if orphan count > 0 — a missing row means a finding was silently dropped.
+
+### Relationship to Multi-Persona Audit Registry Pattern
+
+The existing Audit Registry Pattern (Stage 1) produces: `guest.md`, `traveler.md`, `guide.md`, `admin.md`, `LEGEND.md`, `screenshots/`.
+The Fix-Queue Pattern (Stage 2 prep) consumes those files and produces: `RUBRIC.md`, `QUEUE.md`.
+Together they form the complete two-stage cycle: **Stage 1 → observe/register → Stage 2 prep → prioritize → Stage 2 → fix**.
+
