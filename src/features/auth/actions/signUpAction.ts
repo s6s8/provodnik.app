@@ -2,7 +2,7 @@
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getDashboardPathForRole, isAppRole } from "@/lib/auth/role-routing";
+import { getDashboardPathForRole } from "@/lib/auth/role-routing";
 
 type SignUpInput = {
   email: string;
@@ -25,12 +25,11 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     return { ok: false, error: "forbidden_role" };
   }
 
-  const { email, password, role, fullName, phone } = input;
-  const safeRole = isAppRole(role) ? role : "traveler";
+  const { email, password, fullName, phone } = input;
+  const safeRole = "traveler" as const;
 
   const admin = createSupabaseAdminClient();
 
-  // 1. Create user — email_confirm: true skips confirmation email entirely
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
     password,
@@ -49,7 +48,6 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
 
   const userId = created.user.id;
 
-  // 2. Upsert profiles row explicitly — no race with trigger
   await admin.from("profiles").upsert({
     id: userId,
     role: safeRole,
@@ -58,21 +56,10 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     ...(phone ? { phone } : {}),
   });
 
-  // 3. If guide, upsert guide_profiles too
-  if (safeRole === "guide") {
-    await admin.from("guide_profiles").upsert({
-      user_id: userId,
-      display_name: fullName,
-      specialization: "",
-    });
-  }
-
-  // 4. Stamp app_metadata.role so custom_access_token_hook always finds it
   await admin.auth.admin.updateUserById(userId, {
     app_metadata: { role: safeRole },
   });
 
-  // 5. Sign in — JWT minted now, hook reads profiles row that definitely exists
   const supabase = await createSupabaseServerClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({
     email,

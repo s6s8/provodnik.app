@@ -113,7 +113,7 @@ describe('signUpAction — forbidden_role guard', () => {
     expect(signInWithPasswordMock).toHaveBeenCalledTimes(1)
 
     // guide_profiles must never be touched on the traveler path.
-    const tablesTouched = fromMock.mock.calls.map((call) => call[0])
+    const tablesTouched = (fromMock.mock.calls as unknown as Array<[string]>).map((call) => call[0])
     expect(tablesTouched).toContain('profiles')
     expect(tablesTouched).not.toContain('guide_profiles')
   })
