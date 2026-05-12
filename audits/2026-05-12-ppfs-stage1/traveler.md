@@ -1,19 +1,43 @@
 # PPFS Stage 1 — traveler audit registry
 
-Includes `src/app/(protected)/traveler/`, shared `messages`, and `notifications`. Authenticate as `traveler@provodnik.test` before the walk. See `LEGEND.md` for column meanings and role switch (`/api/auth/signout`).
+Walk completed 2026-05-12 with a freshly-registered traveler account (`dev+audit-traveler@rgx.ge`, created via `/auth → Создать профиль → Путешественник`) — the documented seed credentials (`traveler@provodnik.test / Travel1234!` and `traveler@provodnik.app / Demo1234!`) **do not authenticate against the live `provodnik.app` deployment** (see auth blocker row below). Viewport 1280×800.
 
 | route | row_type | steps | expected | actual | screenshot | fact-or-question-for-PM | criticality |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| /traveler | UX | — | — | — | — | — | — |
-| /traveler/requests | UX | — | — | — | — | — | — |
-| /traveler/requests/new | UX | — | — | — | — | — | — |
-| /traveler/requests/[requestId] | UX | — | — | — | — | — | — |
-| /traveler/requests/[requestId]/sent | UX | — | — | — | — | — | — |
-| /traveler/requests/[requestId]/accepted | UX | — | — | — | — | — | — |
-| /traveler/bookings | UX | — | — | — | — | — | — |
-| /traveler/bookings/[bookingId] | UX | — | — | — | — | — | — |
-| /traveler/bookings/[bookingId]/review | UX | — | — | — | — | — | — |
-| /traveler/bookings/[bookingId]/dispute | UX | — | — | — | — | — | — |
-| /messages | UX | — | — | — | — | — | — |
-| /messages/[threadId] | UX | — | — | — | — | — | — |
-| /notifications | UX | — | — | — | — | — | — |
+| /auth (login as documented seed) | SERVER-ERROR | 1. Open `/auth`. 2. Submit `traveler@provodnik.test` / `Travel1234!`. 3. Submit `traveler@provodnik.app` / `Demo1234!`. 4. Submit `dev+guide@rgx.ge` / `Guide1234!`. | All three documented seeds authenticate per LEGEND.md and codex-ops `supabase.yaml`. | All three reject with **«Неверный email или пароль.»**. The signin endpoint returns generic auth-failure for every documented seed — they appear not to exist (or have rotated passwords) on the live `provodnik.app` instance. Browser-cached cookies from a prior session let the previous in-flight tester appear "logged in" as a guide at session start, masking this. | N/A | **P0** for audit operability — the documented seed accounts cannot be used to walk traveler/guide/admin routes on the live site. Either deploy migration `20260401000002_seed.sql` to the live DB, or update the audit protocol to use a different mechanism (per-auditor self-registration / one-shot admin grant). | **P0** |
+| /auth/signup (new traveler) | UX | 1. Click "Нет аккаунта? Создать профиль". 2. Fill name/email/password + select role «Путешественник». 3. Submit. | Account created, logged in, redirected to traveler kabinet. | Works as expected; redirect lands at `/traveler/requests`. Note that the role selector exposes «Гид» button next to «Путешественник» — any visitor can self-register as a guide without verification. | N/A | Is self-registration as «Гид» intentional MVP behaviour, or should guide onboarding require vetting/invite? Currently the role is set via app_metadata at signup and never re-checked. | P1 |
+| /auth/signup (new guide) | UX | (Not exercised — implication only from the role toggle above.) | — | Possible vector: a malicious user self-creates a guide profile, populates listing rows, harvests inbound contact-disclosure attempts. Tied to anti-dez ticket #4 of the epic. | N/A | Same question — should guide signup be open? | P1 |
+| /traveler | UX | 1. Open `/traveler`. | Either a kabinet landing/home, OR an explicit redirect to a tab (`/traveler/requests` is the obvious default). | Server redirects to `/traveler/requests`. No `/traveler` index page; nav has no «Кабинет» link, just «Мои запросы». Acceptable behaviour but registry stub should annotate the redirect (no h1 on `/traveler` itself). | N/A | — | Cosmetic |
+| /traveler/requests | UX | 1. Open `/traveler/requests` as fresh traveler with no requests. | List of "Активные" + "Подтверждённые" tabs with empty state and CTA. | Renders correctly. Title "Мои запросы — Provodnik". Tabs "Активные / Подтверждённые". Empty state «У вас ещё нет запросов / Создать первый запрос». No `<h1>` on the page (heading only via tab labels). | N/A | Missing semantic h1 on `/traveler/requests`. Tabs aren't an h1 substitute. | Cosmetic |
+| /traveler/requests/new | UX | 1. Open `/traveler/requests/new`. 2. Inspect form fields. | Request creation form matching the homepage hero form structure. | Renders with H1 "Новый запрос". **Interest taxonomy differs from the homepage form:** here the chips are `История / Архитектура / Природа / Гастрономия / Искусство / Фотопрогулки / Для детей / Необычное`; the homepage shows `... / Искусство / Религия / Для детей / Необычное`. The kabinet form drops «Религия», adds «Фотопрогулки». Date-flexibility model also differs (here: «Точная дата / ±пара дней / ±неделя» as explicit chip; on home: a boolean checkbox «Разрешить предлагать варианты вне заданных рамок»). | N/A | Two different interest dictionaries + two flexibility models for the same conceptual form is a content-and-data-model divergence. Pick one source of truth and reconcile, otherwise downstream filtering will silently miss «Религия» requests from home and «Фотопрогулки» from kabinet. | **P1** |
+| /traveler/requests/[requestId] | UX | 1. Open `/traveler/requests/00000000-0000-0000-0000-000000000000` (non-existent uuid). | Kabinet-context 404 (not the public one). | Renders the kabinet 404: h1 "Страница кабинета не найдена", explanation text «Ссылка устарела, путь был изменён или у вас нет доступа к этому адресу», CTAs "К входу / На главную / Связаться с поддержкой". Distinct from the public-shell 404. Good. | N/A | — | — |
+| /traveler/requests/[requestId]/sent | UX | (Not exercised — requires a real seeded request.) | Status page after submission. | Deferred to Stage 2 with seeded data. | N/A | Need seeded request data with `sent` state for traveler. | — |
+| /traveler/requests/[requestId]/accepted | UX | (Not exercised — requires a real request with an accepted proposal.) | Confirmation page. | Deferred. | N/A | Need a seeded request/proposal pair. | — |
+| /traveler/bookings | UX | 1. Open `/traveler/bookings` with no bookings. | "Мои бронирования" with empty state. | Renders correctly. H1 "Мои бронирования". Empty state «Подтверждённых бронирований пока нет. Когда гид примет ваш запрос, поездка появится здесь.» Top-of-list CTA "К моим запросам". | N/A | — | — |
+| /traveler/bookings/[bookingId] | UX | (Not exercised — no booking exists for this account.) | Booking detail. | Deferred. | N/A | — | — |
+| /traveler/bookings/[bookingId]/review | UX | (Not exercised.) | Post-trip review form. | Deferred. | N/A | — | — |
+| /traveler/bookings/[bookingId]/dispute | UX | (Not exercised.) | Dispute filing UI. | Deferred. | N/A | — | — |
+| /traveler/profile | UX | 1. Open `/traveler/profile`. | Profile editor for traveler. | **Returns the public 404** (not the kabinet 404): h1 "Страница не найдена", standard 404 page, no kabinet chrome. The route in the registry stub does not exist as `/traveler/profile`. | N/A | Either the audit registry stub is wrong (no profile route exists yet for traveler), or it should exist (gap). The nav has a "D / Путешественник" avatar but no click target opens a profile editor. | P2 |
+| /traveler/wallet | UX | 1. Open `/traveler/wallet`. | Wallet/balance UI for traveler. | Returns the **public 404** with no kabinet chrome. Route does not exist. | N/A | Audit registry stub lists it; route is not implemented. Drop from stub or implement. | P2 |
+| /traveler/notifications | UX | (Use `/notifications` — see row below; `/traveler/notifications` is not a separate route.) | — | — | N/A | Registry stub should consolidate notifications under `/notifications` (shared route across roles). | Cosmetic |
+| /messages | UX | 1. Open `/messages`. | Threads list / messages inbox. | Renders. Title "Сообщения — Provodnik". Empty state «У вас пока нет сообщений / Когда вы начнёте диалог, он появится здесь». No `<h1>` on the page (semantic-heading gap). | N/A | Missing h1 again on `/messages` empty state. | Cosmetic |
+| /messages/[threadId] | UX | (Not exercised — no threads.) | Single thread view. | Deferred. | N/A | — | — |
+| /notifications | UX | 1. Open `/notifications`. | Notifications stream. | Renders correctly. Title "Уведомления — Provodnik". H1 "Уведомления". Tabs "Все 0 / Непрочитанные 0" + button "Прочитать всё". Empty state «Пока пусто / Новые события появятся здесь, когда в кабинете будут заявки, бронирования и сообщения.» | N/A | "Прочитать всё" CTA visible even when there are 0 unread — should be disabled or hidden in empty state. | Cosmetic |
+| (traveler console + network) | CONSOLE/SERVER-ERROR | 1. Walk every traveler route. 2. Inspect console + network panels. | No errors. | Clean across all walked routes. Sentry envelopes posted as expected. | N/A | — | — |
+
+## Cross-cutting / themed observations (traveler)
+
+- **Auth seed mismatch (P0 for audit):** All three documented seed credentials reject on the live deployment. Without freshly-issued credentials, no auditor can systematically walk guide and admin surfaces. This blocks Stage-1 traveler-of-record / guide-of-record / admin-of-record passes by anyone other than the original session-cookie holder.
+- **Form-model divergence (P1):** The homepage request form (guest, `/`) and the kabinet request form (`/traveler/requests/new`) disagree on (a) the interests taxonomy and (b) the flex-dates model. Either is a candidate source of truth; downstream filtering and inbox routing both depend on one consistent shape.
+- **Open guide self-signup (P1, anti-dez relevant):** The signup role toggle allows any visitor to self-register as «Гид». This is highly relevant to epic ticket #4 (anti-dez): an attacker can create a guide profile, then route off-platform via the bio or messaging until anti-dez controls are wired up.
+- **Public vs kabinet 404 (PASS, document):** The site has two distinct 404 templates depending on whether the URL is inside a protected layout. Both fire correctly. Behaviour is good, but the audit registry should be updated to call this out so future stubs use the right comparator.
+- **Semantic-heading gaps (Cosmetic, recurring):** `/traveler/requests`, `/messages` have no `<h1>`. Accessibility / SEO nit; consistent fix to add an off-screen h1 or convert the top tab/eyebrow to an h1.
+- **Stub-vs-reality drift (P2):** `/traveler/profile`, `/traveler/wallet`, `/traveler/notifications` are in the stub but not implemented. Drop from registry or implement.
+
+## Deferred to Stage 2
+
+- Full request-creation flow (submit, /sent, /accepted, lifecycle).
+- Booking detail / review / dispute pages.
+- Messages thread interactions, attachment behaviour.
+- 375 px responsive sweep across kabinet pages.
+- Walk with a "seeded" traveler that owns at least one request and one booking.
