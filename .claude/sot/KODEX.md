@@ -47,6 +47,20 @@ reformats raw captures into the canonical 1-line shape before append.
 
 ---
 
+## Workflow primitives (стабильно — справочно)
+
+- **Большая работа (feature, эпик)** открывается через `/epic <intent>` из
+  General. Командный центр (эпик-топик) живёт пока работа не закрыта;
+  Bek хранит дерево тикетов и репортит закрытия дочерних. Закрываем эпик
+  через `/epic-done`. Прервать — `/epic-abort <reason>`.
+- **Один тикет** (фикс, маленькое изменение) — `/new <description>` из General.
+- **Обсуждение без работы** (брейншторм) — `/think <slug>` (эквивалент
+  `/epic` с однотикетной декомпозицией в переходный период).
+- **Захват правила вживую** — `/kodex <rule>` или `+kodex` суффикс к
+  любому сообщению.
+
+---
+
 ## Project rules (numbered, edit deliberately)
 
 These predate the 2026-05-12 structural rewrite — preserved verbatim
