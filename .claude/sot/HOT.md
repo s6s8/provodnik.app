@@ -92,3 +92,9 @@ If any check fails, the task is not DONE. No exceptions for "the typecheck is gr
 The SOS is a feature, not a failure. Better to ask once than to ship a hack three times.
 
 - **grammY bot.command swallows hyphenated variants** (ERR-069 + ERR-070, hit twice). When registering bot.command("foo"), any sibling slash command like /foo-bar arrives as bot_command /foo + literal -bar. bot.command middleware does NOT bubble to bot.on(message) after the handler runs. Mitigation: re-dispatch the hyphenated variants through onTopicMessage at the TOP of the bot.command handler, before the main logic. Required for every multi-variant slash command prefix.
+
+- **Telegram parse_mode required** (ERR-077). sendMessage without `parse_mode: 'HTML'` or `'MarkdownV2'` displays raw `**`, `|`, `#`, `---` chars to the user. New send sites with model output MUST use `markdownToTelegramHTML(text)` from `bot/lib/format-telegram.mjs` and pass `parse_mode: 'HTML'`. /think had this latent bug from Phase 9.x — easy to miss because plain ack messages render fine without parse_mode.
+
+- **Telegram reactions are chat-specific** (ERR-076). `setMessageReaction` rejects with `REACTION_INVALID` for emoji outside the chat's allowed set. Universal-safe emoji: `👀 👍 👎 🔥 🎉 🤔`. ✅ ❌ work in some chats but NOT in provodnik's default config. Don't add new reactions without verifying against chat config — and never swallow setReaction errors silently (the helper now logs them).
+
+- **FSM session spawn requires continuePipeline** (ERR-071). Any new ticket-spawn surface (/new, /fire, future surfaces) MUST follow the contract: `runIntake → save → sendMessage → continuePipeline(child.sessionId)`. Missing the final kick produces a silent ROUTE-state orphan that never advances. Audit against bot.mjs:onNew when adding new spawn paths.

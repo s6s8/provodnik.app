@@ -69,6 +69,14 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 
 - ERR-070 — RESOLVED 2026-05-12 (qmtbek dfbed24) — grammY bot.command(epic) swallowed hyphenated /epic-{abort,done,pause,resume}; re-dispatch fix mirrors ERR-069/think-cancel; promoted to HOT.md
 
+- ERR-071 — RESOLVED 2026-05-12 (qmtbek a236f6a) — /fire never called continuePipeline; child FSM stuck in ROUTE
+- ERR-072 — OPEN — Cyrillic-only title → gibberish slug for child topic name (cosmetic, slugify ASCII-strip)
+- ERR-073 — OPEN — editMessageText 'message not modified' log noise (suppress this specific 400 in catch)
+- ERR-074 — OPEN — sanitize-reply substring substitution mangles paths mid-token (need word-boundary)
+- ERR-075 — OPEN — back-report dumps raw JSON ship artifact instead of clean one-line summary
+- ERR-076 — RESOLVED 2026-05-12 (qmtbek 5a58f2c) — ✅/❌ reactions REACTION_INVALID in provodnik chat; only 👀 used now
+- ERR-077 — RESOLVED 2026-05-12 (qmtbek 6b6d431) — Telegram messages displayed raw Markdown; fixed via parse_mode HTML + markdownToTelegramHTML converter
+
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
 - AP-001 — don't use slug directly in ilike data column queries; resolve slug → record first

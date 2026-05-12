@@ -596,3 +596,58 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 - **Surfaced by:** real-Telegram smoke test of Phase 10.A — /epic test ... /decompose succeeded (7-node tree), /epic-abort silently no-op'd.
 - **Files Affected:** `quantumbek/orchestrator/bot/bot.mjs`.
 - **Date opened/closed:** 2026-05-12.
+
+### ERR-071 → RESOLVED 2026-05-12 (quantumbek `a236f6a`)
+- **Symptom:** `/fire <n>` in an epic topic created a child FSM session but the session sat in `ROUTE` state forever. No log entries past intake; child topic spawned but never advanced. Discovered when Epic 393 ППФС first fire showed no FSM activity after 5 min.
+- **Root Cause:** `handleFireCommand` in `bot/lib/epic-handlers.mjs` called `runIntakeFn` to spawn the child session but never called `continuePipeline(child.sessionId)` to kick the driver. The `/new` flow (`bot.mjs:onNew`) calls `continuePipeline` after `runIntake` — `/fire` was copy-paste-missing this call.
+- **Fix:** Inject `continuePipelineFn` as a factory param to `handleFireCommand` (parallel to `runIntakeFn`). Call it after the back-report message. Same propagation through `onTicketInsideEpic`. Wired from `bot.mjs` at both `/fire` and `/ticket-inside-epic` call sites.
+- **Prevention:** When adding any new ticket-spawn surface, audit against `/new`'s contract: `runIntake → save → sendMessage → continuePipeline`. Missing the kick produces a silent failure with the session visible in `apps/<app>/.sessions/` but no pipeline activity.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/epic-handlers.mjs`, `quantumbek/orchestrator/bot/bot.mjs`.
+- **Surfaced by:** Epic 393 live execution 2026-05-12 — first fire stuck for ~5 min.
+- **Date opened/closed:** 2026-05-12.
+
+### ERR-072 → OPEN (filed 2026-05-12)
+- **Symptom:** Child topic name from `/fire <n>` is gibberish like `4-rationale-audit-only-o56s` when the tree-node title is Cyrillic-only.
+- **Root Cause:** `slugify` in `bot/pipeline/stages/01-intake.mjs` strips non-ASCII via `[^a-z0-9 ]+` and falls back to first ASCII words found in the description body. A Cyrillic title like "ППФС Этап 1 — сквозной аудит сайта под четырьмя ролями" strips to empty; the slug then picks "rationale audit only" from the rationale field.
+- **Fix candidate:** Either (a) transliterate Cyrillic before slugify (cyrillic-to-latin map), or (b) fall back to the parent epic's slug + ticket index when title-derived slug is empty.
+- **Severity:** Cosmetic. Topic functions normally; just the name is ugly.
+- **Files Affected:** `quantumbek/orchestrator/bot/pipeline/stages/01-intake.mjs`.
+- **Surfaced by:** Epic 393 #1 ППФС fire.
+
+### ERR-073 → OPEN (filed 2026-05-12)
+- **Symptom:** `pm2 logs` contains `tree-edit err Call to 'editMessageText' failed! (400: Bad Request: message is not modified)` after epic operations that don't actually change the pinned tree.
+- **Root Cause:** `bot/lib/epic-handlers.mjs:handleFireCommand` and the back-report path always call `editMessageText` after state changes, but if the rendered output is identical to the current pinned message (e.g. a tree node staying `in_flight` while only metadata changed), Telegram rejects with "message not modified". The existing try/catch logs the error but doesn't suppress this expected case.
+- **Fix candidate:** Detect the specific Telegram error code `400: message is not modified` and silently swallow it in the catch; log only other failure modes.
+- **Severity:** Log noise. No user-visible effect.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/epic-handlers.mjs`.
+
+### ERR-074 → OPEN (filed 2026-05-12)
+- **Symptom:** Submitter-facing message contains mangled path strings: `.claude/audits/2026-05-12-ppfs-stage1/` rendered as `правила проектаaudits/2026-05-12-ppfs-stage1/`.
+- **Root Cause:** `bot/lib/sanitize-reply.mjs` REPLACEMENTS table maps `.claude/` → `правила проекта` via plain string substitution, which substitutes inside a longer path token. The substitution doesn't respect path-segment boundaries.
+- **Fix candidate:** For path-prefix REPLACEMENTS (`.claude/`, `src/`, `bot/`, etc.), require a trailing word-boundary or path separator in the match, OR replace the *whole path* up to the next whitespace.
+- **Severity:** UX clarity — readable but ugly. The substitution does still hide the sensitive token.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/sanitize-reply.mjs`.
+
+### ERR-075 → OPEN (filed 2026-05-12)
+- **Symptom:** Back-report message in epic topic dumps raw FSM ship artifact JSON: `✅ #1 закрыт · d14c647 · {"status":"PASS","confidence":1,"summary":"shipped d14c647","concerns":[],"next":"post-work","sha":"..."}` instead of a clean one-line summary.
+- **Root Cause:** `bot/lib/epic-back-report.mjs` extracts the ship summary via `String(childSession.artifacts.ship).slice(0, 200)` — but the artifact value is a JSON-encoded string of the entire SHIP stage output, not a plain summary.
+- **Fix candidate:** Parse the artifact as JSON when it's an object/JSON-string and pluck `.summary` field; fall back to the string-slice only when the parse fails. Render as `✅ #N closed · sha · <summary>`.
+- **Severity:** Presentation — the operator can still parse it but it looks rough.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/epic-back-report.mjs`.
+
+### ERR-076 → RESOLVED 2026-05-12 (quantumbek `5a58f2c`)
+- **Symptom:** `/epic-pause`, `/epic-resume`, `/epic-done`, `/epic-abort`, `/new`, `/ticket` and similar handlers were silently failing to set `✅`/`❌` reactions on user messages. Only `👀` persisted (set at handler entry, never replaced).
+- **Root Cause:** Telegram's `setMessageReaction` API allows a CHAT-SPECIFIC reaction set. The provodnik supergroup default set excludes `✅` and `❌` — calls reject with `400: Bad Request: REACTION_INVALID`. The bot's `setReaction` helper swallowed all errors. The /think and /new flows have had this latent bug since Phase 9.U (2026-05-11) — nobody noticed because the FSM reply text was the real outcome signal.
+- **Fix:** (1) Removed all `✅`/`❌` reaction calls in epic-handlers — kept only `👀` (acknowledgement). The bot's reply message IS the success/failure signal (matches Slack/Discord bot convention). (2) `setReaction` now logs errors instead of swallowing them, so future emoji-set issues surface in pm2 logs.
+- **Prevention:** Telegram's allowed-everywhere reactions: `👀 👍 👎 🔥 🎉 🤔` (others depend on chat config). Don't pick reactions based on aesthetics — verify against `getAvailableReactions` chat property or stick to the universal subset.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/epic-handlers.mjs`, `quantumbek/orchestrator/bot/lib/telegram-feedback.mjs`. Same bug pattern lurks in `bot/bot.mjs` `/new` + `/ticket` paths (lines 562-852) — same fix should apply there; not yet done.
+- **Surfaced by:** Epic 393 live test 2026-05-12, /epic-pause msg 446 stayed 👀 instead of going ✅. Un-swallowed errors revealed `REACTION_INVALID`.
+
+### ERR-077 → RESOLVED 2026-05-12 (quantumbek `6b6d431`)
+- **Symptom:** Bot replies in /think and /epic topics displayed Markdown formatting (`**bold**`, `*italic*`, `` `code` ``, headers `#`, tables `|...|`, dividers `---`) as **literal characters** instead of rendered styling. User flagged via Telegram link to message 437 of epic 393.
+- **Root Cause:** `api.sendMessage(...)` calls in `bot/bot.mjs:handleThinkTurn` and `bot/lib/epic-handlers.mjs` (4 sites) did not include `parse_mode: 'HTML'` or `'MarkdownV2'`. Without parse_mode, Telegram displays the raw text. Bug has existed since /think launched in Phase 9.x.
+- **Fix:** New module `bot/lib/format-telegram.mjs` with `markdownToTelegramHTML(md)` converter — converts Markdown to Telegram-HTML-safe markup: `**` → `<b>`, `*` → `<i>`, `` ` `` → `<code>`, ``` ``` ``` → `<pre>`, headers → `<b>`, tables → `<pre>` (monospace keeps columns), `---` → blank line; HTML special chars (`< > &`) entity-escaped everywhere except inside emitted tags. Wired into 4 sendMessage sites in epic-handlers + 2 in bot.mjs handleThinkTurn, each gaining `parse_mode: 'HTML'` opt. 22 new unit tests.
+- **Prevention:** Any NEW sendMessage site with model output must use `markdownToTelegramHTML` + `parse_mode: 'HTML'`. The helper is idempotent for plain Cyrillic strings (HTML-escapes the few `< > &` that might appear).
+- **Surfaced by:** User flagged Telegram link to epic 393 msg 437 showing raw `**` and `|` chars.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/format-telegram.mjs` (new), `quantumbek/orchestrator/bot/lib/epic-handlers.mjs`, `quantumbek/orchestrator/bot/bot.mjs`. Still applies to bot.mjs's other sendMessage sites (welcome msgs, ack/abort/refine, devnote previews, ship gate prompts) — not yet wired, file as ERR-077 follow-up if any of those need markdown.
+- **Verification:** Live test 2026-05-12 — msg 453 in epic 393 came back with 11 MessageEntityBold entities; Telegram rendered `<b>` tags as actual bold. No raw `**` visible. No new errors in logs.
