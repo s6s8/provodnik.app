@@ -63,3 +63,6 @@ supabase/.temp/
 
 # Migration archives (kept on disk, not committed; see _archive/README or migration log)
 _archive/
+
+# Playwright run output — per-machine, ephemeral
+test-results/
