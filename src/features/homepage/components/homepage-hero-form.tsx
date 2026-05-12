@@ -11,7 +11,7 @@ export function HomepageHeroForm({ destinations }: Props) {
     <section className="py-16">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <div className="mx-auto max-w-2xl">
-          <h1 className="mb-8 font-display text-[clamp(1.5rem,2.5vw,1.875rem)] leading-[1.2] text-foreground">
+          <h1 className="mb-8 text-center font-display text-[clamp(1.5rem,2.5vw,1.875rem)] leading-[1.2] text-foreground">
             Опишите запрос — гиды откликнутся
           </h1>
           <HomepageRequestForm destinations={destinations} />
