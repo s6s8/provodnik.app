@@ -117,3 +117,12 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 **Why it bites:** `maskMessageBodies` is applied at the display layer — the DB rows stay raw. Any new surface added after this ship (e.g. a new API route, a realtime subscription that renders messages, an admin panel, a PDF export) will leak phone numbers and emails unless the developer explicitly imports and calls `maskMessageBodies`. The function is generic (`<T extends { body: string }>`) so it works on any message-shaped array.
 **Always** when adding any new code path that reads message rows: (1) import `maskMessageBodies` from `@/lib/pii/mask`, (2) wrap the query result before passing to render/JSON, (3) verify with `grep -n 'maskMessageBodies' src/app/...` that every surface is covered.
 
+
+
+
+### HOT-NEW — Unguarded demo payment UI on traveler booking detail page
+**Never** leave `<DemoModeBanner />` or `<MockPaymentButton />` in `src/app/(protected)/traveler/bookings/[bookingId]/page.tsx` without a `process.env.NODE_ENV !== 'production'` guard. Both components were shipped unconditionally (2026-05-13) and render in all environments, displaying «Это демо-режим. Транзакции имитируются, реальной оплаты нет.» and a fake payment button to real users. This is an ERR-002 redux in a financially sensitive flow.
+**Always** wrap demo/stub payment UI in `{process.env.NODE_ENV !== 'production' && (...)}` per the NODE_ENV Guard Pattern (PATTERNS.md). Additionally, verify that `MockPaymentButton` receives a real `onClick` prop wired to the actual payment action before any production payment integration — the current page.tsx call site passes no `onClick`, making the button silently inert beyond showing a toast.
+- **Files at risk:** `src/app/(protected)/traveler/bookings/[bookingId]/page.tsx`, `…/_components/demo-mode-banner.tsx`, `…/_components/mock-payment-button.tsx`
+- **Precedent:** ERR-002 (demo bar visible in production — same class, same fix).
+

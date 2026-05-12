@@ -289,3 +289,59 @@ return NextResponse.json(messages, { headers: ... });
 - DB layer stays raw — never store the masked value, only output it.
 - Every new surface that outputs message rows (new route, new page, admin panel, export) MUST call the masking helper. See HOT.md PII-012.
 
+
+
+
+## Self-Dismissing Inline Status Message Pattern
+
+For demo/stub action components that need transient inline feedback without pulling in a toast library:
+
+```tsx
+'use client';
+
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+
+type StubActionButtonProps = {
+  onClick?: () => void;
+};
+
+export function StubActionButton({ onClick: onClickProp }: StubActionButtonProps) {
+  const [statusMsg, setStatusMsg] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!statusMsg) return;
+    const t = window.setTimeout(() => setStatusMsg(null), 2400);
+    return () => window.clearTimeout(t);
+  }, [statusMsg]);
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <Button
+        type="button"
+        variant="outline"
+        className="w-fit text-muted-foreground"
+        onClick={() => {
+          onClickProp?.();
+          setStatusMsg("Действие выполнено (имитация)");
+        }}
+      >
+        Выполнить
+      </Button>
+      {statusMsg ? (
+        <p className="text-xs text-muted-foreground" role="status">
+          {statusMsg}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+```
+
+**Rules:**
+- `role="status"` on the feedback paragraph enables screen-reader announcement without focus movement.
+- Always return a cleanup function from `useEffect` to cancel the timer on unmount or when the message changes.
+- Use `window.setTimeout` (not bare `setTimeout`) to prevent SSR type errors in strict TypeScript.
+- The `onClick` passthrough must be optional (`onClick?: () => void`) and optional-chained (`onClickProp?.()`) so the component is usable both standalone and as a controlled stub.
+- **Guard requirement:** Any component of this class that exists for demo/staging purposes MUST be wrapped in `{process.env.NODE_ENV !== 'production' && (...)}` at the call site. See HOT.md — Unguarded demo payment UI landmine and ERR-002.
+
