@@ -51,3 +51,14 @@ export function hasPii(text: string | null | undefined): boolean {
   }
   return false;
 }
+
+/**
+ * Visual-only masking for chat message rows: replaces `body` via {@link maskPii};
+ * all other fields are shallow-copied unchanged (DB payloads stay raw elsewhere).
+ */
+export function maskMessageBodies<T extends { body: string }>(messages: T[]): T[] {
+  return messages.map((m) => ({
+    ...m,
+    body: maskPii(m.body),
+  }));
+}

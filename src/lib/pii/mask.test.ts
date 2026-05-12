@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { maskPii, hasPii } from "./mask";
+import { maskMessageBodies, maskPii, hasPii } from "./mask";
 
 const HIDDEN = "[контакт скрыт]";
 
@@ -72,4 +72,60 @@ describe("hasPii", () => {
   it("returns false for clean text", () =>
     expect(hasPii("Экскурсия по Москве 3 часа")).toBe(false));
   it("returns false for null", () => expect(hasPii(null)).toBe(false));
+});
+
+describe("maskMessageBodies", () => {
+  it("replaces phone in body with maskPii(phone), not a hardcoded literal", () => {
+    const phone = "+7 999 1234567";
+    const row = {
+      id: "00000000-0000-4000-8000-000000000001",
+      body: `Позвоните ${phone}`,
+      created_at: "2025-01-15T12:00:00.000Z",
+      metadata: { k: "v" },
+      sender_profile: { full_name: "Иван" },
+    };
+    const [out] = maskMessageBodies([row]);
+    expect(out.body).toBe(`Позвоните ${maskPii(phone)}`);
+    expect(out.body).toContain(maskPii(phone));
+  });
+
+  it("preserves non-body fields verbatim via spread (same nested references)", () => {
+    const sender_profile = { full_name: "Мария" };
+    const metadata = { x: 1 };
+    const row = {
+      id: "00000000-0000-4000-8000-000000000002",
+      thread_id: "00000000-0000-4000-8000-000000000003",
+      sender_id: "00000000-0000-4000-8000-000000000004",
+      sender_role: "guide" as const,
+      body: "+7 999 1234567",
+      metadata,
+      created_at: "2025-01-16T08:30:00.000Z",
+      sender_profile,
+    };
+    const [out] = maskMessageBodies([row]);
+    expect(out.id).toBe(row.id);
+    expect(out.thread_id).toBe(row.thread_id);
+    expect(out.sender_id).toBe(row.sender_id);
+    expect(out.sender_role).toBe(row.sender_role);
+    expect(out.created_at).toBe(row.created_at);
+    expect(out.metadata).toBe(metadata);
+    expect(out.sender_profile).toBe(sender_profile);
+  });
+
+  it("round-trips an empty array", () => {
+    expect(maskMessageBodies([])).toEqual([]);
+  });
+
+  it("leaves a row with clean body unchanged", () => {
+    const clean = "Только текст без контактов.";
+    const row = {
+      id: "00000000-0000-4000-8000-000000000005",
+      body: clean,
+      created_at: "2025-01-17T00:00:00.000Z",
+      metadata: {},
+      sender_profile: null as null,
+    };
+    const [out] = maskMessageBodies([row]);
+    expect(out.body).toBe(clean);
+  });
 });

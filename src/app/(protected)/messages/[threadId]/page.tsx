@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/features/messaging/components/chat-input";
 import { ChatWindow } from "@/features/messaging/components/chat-window";
 import { hasSupabaseEnv } from "@/lib/env";
+import { maskMessageBodies } from "@/lib/pii/mask";
 import { getThreadMessages, getUserThreads, markThreadRead } from "@/lib/supabase/conversations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -72,6 +73,8 @@ export default async function ThreadPage({
 
   await markThreadRead(threadId, user.id);
 
+  const displayMessages = maskMessageBodies(initialMessages);
+
   const participantTitle =
     currentThread.other_participant_names.join(", ") || "Диалог";
 
@@ -98,7 +101,7 @@ export default async function ThreadPage({
         <ChatWindow
           threadId={threadId}
           currentUserId={user.id}
-          initialMessages={initialMessages}
+          initialMessages={displayMessages}
           markReadAction={markReadAction}
         />
         <ChatInput threadId={threadId} sendMessageAction={sendMessageAction} />

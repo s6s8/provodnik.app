@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { hasSupabaseEnv } from "@/lib/env";
+import { maskMessageBodies } from "@/lib/pii/mask";
 import { rateLimit } from "@/lib/rate-limit";
 import { getThreadMessages } from "@/lib/supabase/conversations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -73,7 +74,7 @@ export async function GET(
     );
   }
 
-  const messages = await getThreadMessages(params.data.threadId);
+  const messages = maskMessageBodies(await getThreadMessages(params.data.threadId));
   return NextResponse.json(messages, {
     headers: withRateLimitHeaders(result.remaining),
   });
