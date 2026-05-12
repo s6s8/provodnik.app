@@ -90,3 +90,5 @@ If any check fails, the task is not DONE. No exceptions for "the typecheck is gr
 4. After unblock, fold the resolution back into Ревизия Бека and verify in browser before DONE.
 
 The SOS is a feature, not a failure. Better to ask once than to ship a hack three times.
+
+- **grammY bot.command swallows hyphenated variants** (ERR-069 + ERR-070, hit twice). When registering bot.command("foo"), any sibling slash command like /foo-bar arrives as bot_command /foo + literal -bar. bot.command middleware does NOT bubble to bot.on(message) after the handler runs. Mitigation: re-dispatch the hyphenated variants through onTopicMessage at the TOP of the bot.command handler, before the main logic. Required for every multi-variant slash command prefix.

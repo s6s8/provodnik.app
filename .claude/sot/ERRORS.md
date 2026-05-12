@@ -587,3 +587,12 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 - **Files Affected:** `src/app/layout.tsx`
 - **Date:** 2026-04-27
 - **Prevention:** Never pass `weight` to a variable font in next/font/google. Omit the field. If you need weight-subsetted loading, use a non-variable font variant and pass individual weight strings.
+
+### ERR-070 → RESOLVED 2026-05-12 (quantumbek `dfbed24`)
+- **Symptom:** `/epic-abort`, `/epic-done`, `/epic-pause`, `/epic-resume` sent inside an epic topic produced no bot response and no state transition. JSON state stayed DECOMPOSED, no log entry, message just sat in the topic.
+- **Root Cause:** ERR-069 redux. Telegram parses bot_command up to the first non-word char, so `/epic-abort` arrives as bot_command `/epic` + literal text `-abort ...`. grammY's `bot.command('epic')` middleware matches and routes to `onEpic`, which returns silently because the message_thread_id is not General. grammY does NOT bubble through to `bot.on('message')` after a `bot.command` handler runs — so the epic-detection branch in `onTopicMessage` (which has the actual `/epic-{abort,done,pause,resume}` regex routing) never fires.
+- **Fix:** Re-dispatch the four hyphenated variants through `onTopicMessage` before calling `onEpic`. Same pattern as the `/think-cancel` fix in `onThink`. Quantumbek `dfbed24` in `bot/bot.mjs`.
+- **Prevention:** Any future command prefix that gets `bot.command('foo')` registration AND has hyphenated variants like `/foo-bar` MUST add a re-dispatch line at the top of the handler. This is now the third time this exact bug has bitten — first `/think-cancel` (ERR-069), now `/epic-*` (ERR-070). Promote to HOT.md.
+- **Surfaced by:** real-Telegram smoke test of Phase 10.A — /epic test ... /decompose succeeded (7-node tree), /epic-abort silently no-op'd.
+- **Files Affected:** `quantumbek/orchestrator/bot/bot.mjs`.
+- **Date opened/closed:** 2026-05-12.
