@@ -176,3 +176,31 @@ await page.fill("#email", SEED_USERS.traveler.email);
 
 **Rule:** Any change to the seed migration's credential values has exactly one update target: `tests/e2e/fixtures.ts`. This is how ERR-059 layer 1 (spec/seed identity mismatch) is prevented from recurring.
 
+
+
+
+## Multi-Persona Audit Registry Pattern
+
+Structured observation-only audits use one directory per audit run, one file per persona, a shared LEGEND, and a dedicated `screenshots/` placeholder:
+
+```
+audits/<YYYY-MM-DD>-<ticket>/
+  LEGEND.md        ← column schema, criticality scale, viewport rules, seed roster, role-switch protocol
+  guest.md         ← unauthenticated routes
+  traveler.md      ← traveler-protected routes
+  guide.md         ← guide-protected routes (+ PRE-GATE row)
+  admin.md         ← admin-protected routes
+  screenshots/     ← 1280px primary; 375px when responsive reflow observed (.gitkeep until walk)
+```
+
+Column order is identical across all persona files:
+
+| route | row_type | steps | expected | actual | screenshot | fact-or-question-for-PM | criticality |
+
+- **row_type** — `UX` | `CONSOLE` | `SERVER-ERROR`
+- **criticality** — `P0` (blocker — feature unusable) | `P1` (serious — degrades flow) | `P2` (minor — workaround exists) | `Cosmetic`
+- Stub rows before the live walk use `—` in every column except `route` and `row_type`.
+- Guide persona always opens with a **PRE-GATE** row: confirm `user_metadata.role` and `app_metadata.role` are both `"guide"` in the stored Supabase session before navigating to any `/guide/*` route. If either is missing or wrong, log a P1 — do not silently fix metadata client-side.
+- Primary guide credential for local/seed walkthroughs: `dev+guide@rgx.ge`. `guide@provodnik.test` does **not** exist (ADR-058) — never use it for login attempts.
+- Role switch between personas: `window.location.href = '/api/auth/signout'` — never `supabase.auth.signOut()` (ADR-015 / HOT.md).
+
