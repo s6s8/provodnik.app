@@ -35,7 +35,7 @@ export function HomePageDiscovery({ requests }: Props) {
           {requests.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-foreground/[0.12] bg-white p-4 md:px-6 md:py-5 shadow-sm md:col-span-2 text-center">
               <p className="font-display text-[1.125rem] font-semibold leading-snug text-foreground">
-                Здесь появляются запросы путешественников
+                Пока пусто
               </p>
               <p className="text-sm text-muted-foreground">
                 Будьте первыми — отправьте запрос в форме выше

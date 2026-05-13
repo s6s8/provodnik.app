@@ -180,7 +180,7 @@ export function HomepageRequestForm({ destinations }: Props) {
               </span>
               <span className="text-xs">
                 {m === "private"
-                  ? "Только ваша группа, без чужих"
+                  ? "Только вы и ваши спутники"
                   : "Готовы собрать группу с другими"}
               </span>
             </label>
@@ -275,7 +275,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* Start time + end time */}
       <div className="grid gap-5 sm:grid-cols-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startTime">Начало (ЧЧ:ММ)</FieldLabel>
+          <FieldLabel htmlFor="startTime">Начало</FieldLabel>
           <Input
             id="startTime"
             type="time"
@@ -285,7 +285,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldError id="startTime-error" message={errors.startTime?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="endTime">Конец (ЧЧ:ММ)</FieldLabel>
+          <FieldLabel htmlFor="endTime">Конец</FieldLabel>
           <Input
             id="endTime"
             type="time"
@@ -310,7 +310,6 @@ export function HomepageRequestForm({ destinations }: Props) {
               aria-invalid={Boolean(errors.groupSizeCurrent)}
               {...register("groupSizeCurrent", { valueAsNumber: true })}
             />
-            <FieldHint>Сколько человек уже есть в вашей компании.</FieldHint>
             <FieldError
               id="groupSizeCurrent-error"
               message={errors.groupSizeCurrent?.message}
@@ -327,7 +326,6 @@ export function HomepageRequestForm({ destinations }: Props) {
               aria-invalid={Boolean(errors.groupMax)}
               {...register("groupMax", { valueAsNumber: true })}
             />
-            <FieldHint>Комфортный максимум участников.</FieldHint>
             <FieldError id="groupMax-error" message={errors.groupMax?.message} />
           </div>
         </div>
@@ -343,7 +341,6 @@ export function HomepageRequestForm({ destinations }: Props) {
             aria-invalid={Boolean(errors.groupSize)}
             {...register("groupSize", { valueAsNumber: true })}
           />
-          <FieldHint>Количество человек в вашей компании.</FieldHint>
           <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
       )}
@@ -372,7 +369,6 @@ export function HomepageRequestForm({ destinations }: Props) {
         <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
         <Textarea
           id="notes"
-          placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха…"
           aria-invalid={Boolean(errors.notes)}
           {...register("notes")}
         />
