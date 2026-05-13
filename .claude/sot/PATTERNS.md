@@ -345,3 +345,45 @@ export function StubActionButton({ onClick: onClickProp }: StubActionButtonProps
 - The `onClick` passthrough must be optional (`onClick?: () => void`) and optional-chained (`onClickProp?.()`) so the component is usable both standalone and as a controlled stub.
 - **Guard requirement:** Any component of this class that exists for demo/staging purposes MUST be wrapped in `{process.env.NODE_ENV !== 'production' && (...)}` at the call site. See HOT.md — Unguarded demo payment UI landmine and ERR-002.
 
+
+
+
+
+## Responsive CSS Property Assertion Pattern (Playwright E2E)
+
+Verify that responsive Tailwind utility classes produce correct computed values at specific viewport widths using `element.evaluate` + `getComputedStyle`:
+
+```typescript
+import { test, expect } from "@playwright/test";
+import { mkdirSync } from "node:fs";
+import { join } from "node:path";
+
+// Ensure screenshot output directory exists before all tests
+test.beforeAll(() => {
+  mkdirSync(join(process.cwd(), "test-results"), { recursive: true });
+});
+
+test("section padding-bottom at 375px", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto("/");
+  const section = page.locator('[aria-label="Section name"]');
+  await expect(section).toBeVisible();
+  const paddingBottom = await section.evaluate(
+    (el) => getComputedStyle(el).paddingBottom,
+  );
+  expect(paddingBottom).toBe("64px"); // pb-16 = 4rem = 64px at default root font size
+  await page.screenshot({
+    path: join(process.cwd(), "test-results", "my-section-375.png"),
+    fullPage: true,
+  });
+});
+```
+
+**Rules:**
+- Use `element.evaluate((el) => getComputedStyle(el).cssProperty)` to read computed style values — Playwright's DOM locator API does not expose computed Tailwind class resolution directly.
+- Always call `mkdirSync(..., { recursive: true })` in `test.beforeAll` for any screenshot output directory — Playwright does not auto-create parent directories, and the test run will throw on the `page.screenshot` call if the path does not exist.
+- Assert the **pixel value** that corresponds to the Tailwind token at the default root font size (1rem = 16px): `pb-16` → `64px`, `pb-24` → `96px`, `pb-14` → `56px`, etc.
+- Run one test per breakpoint when a component uses responsive modifiers (`xl:`, `md:`, `lg:`). Canonical viewports: `375×812` (mobile) and `1280×800` (desktop).
+- Prefer `aria-label` or `data-testid` selectors for section targeting over structural selectors (`section:nth-child(...)`) which are fragile to layout reordering.
+- Spec file lives at `tests/e2e/<feature>-spacing.spec.ts`; screenshots land in `test-results/` (already in `.gitignore`).
+- First introduced in `tests/e2e/homepage-spacing.spec.ts` (2026-05-13).
