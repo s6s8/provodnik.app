@@ -76,6 +76,7 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - ERR-075 — OPEN — back-report dumps raw JSON ship artifact instead of clean one-line summary
 - ERR-076 — RESOLVED 2026-05-12 (qmtbek 5a58f2c) — ✅/❌ reactions REACTION_INVALID in provodnik chat; only 👀 used now
 - ERR-077 — RESOLVED 2026-05-12 (qmtbek 6b6d431) — Telegram messages displayed raw Markdown; fixed via parse_mode HTML + markdownToTelegramHTML converter
+- ERR-078 — RESOLVED 2026-05-13 (qmtbek 36dec2c) — bot stopped polling silently under pm2 on stale answerCallbackQuery 400 (no bot.catch + no try/catch); fixed via ackCb helper + bot.catch registration
 
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
@@ -97,6 +98,7 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - AP-021 — don't include `git`/`bun` commands in cursor-agent prompts on Windows; orchestrator runs all git + verification (see ERR-047 + ADR-025)
 - AP-022 — don't author plans without first running a fresh `grep -rn` for every COPY key / symbol being removed; missed callers force emergency scope expansion mid-execution
 - AP-023 — when deleting a route file, grep for BOTH static `from "<path>"` AND dynamic `import("<path>")` references; static grep misses Next.js feature-flag dispatchers (Plan 45 transfer/page)
+- AP-024 — every Telegram api.answerCallbackQuery call must be try/catch wrapped (stale-callback 400 is normal); every grammY bot must register bot.catch before bot.start() — otherwise polling stops silently under pm2 (ERR-078 lesson)
 
 ## Decisions (see DECISIONS.md)
 

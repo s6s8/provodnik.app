@@ -126,3 +126,9 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 - **Files at risk:** `src/app/(protected)/traveler/bookings/[bookingId]/page.tsx`, `…/_components/demo-mode-banner.tsx`, `…/_components/mock-payment-button.tsx`
 - **Precedent:** ERR-002 (demo bar visible in production — same class, same fix).
 
+
+---
+
+### AP-024 / ERR-078 — Telegram callback handlers + grammY error net
+**Never** call `api.answerCallbackQuery(cb.id, ...)` without try/catch. Telegram callback_query objects expire ~15 min; tapping a stale gate button after a long PLAN/DISPATCH/VERIFY cycle produces a `400: query is too old and response timeout expired` that throws as `GrammyError`. **Never** run a grammY bot without registering `bot.catch` before `bot.start()`. Without `bot.catch`, the default behaviour on any unhandled throw is `Stopping bot` — polling halts but the Node process keeps running, so pm2 sees a healthy entry and never restarts. On 2026-05-13 orch-provodnik sat silent for 3h 26min on exactly this pattern.
+**Always** wrap every `answerCallbackQuery` (and any other Telegram mutator that can 400 on stale state — `editMessageText`, `setMessageReaction`, `pinChatMessage`, `closeForumTopic`) in a small helper that try/catches and logs. **Always** register `bot.catch((err) => console.error('[bot.catch]', err))` before `bot.start()` as belt-and-suspenders. For pm2-hosted bots, consider `process.exit(1)` from `bot.catch` only on truly unrecoverable errors so pm2 restarts; silent-stop under pm2 is the worst failure mode.
