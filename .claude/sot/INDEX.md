@@ -101,6 +101,9 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - AP-023 — when deleting a route file, grep for BOTH static `from "<path>"` AND dynamic `import("<path>")` references; static grep misses Next.js feature-flag dispatchers (Plan 45 transfer/page)
 - AP-024 — every Telegram api.answerCallbackQuery call must be try/catch wrapped (stale-callback 400 is normal); every grammY bot must register bot.catch before bot.start() — otherwise polling stops silently under pm2 (ERR-078 lesson)
 - AP-025 — every terminal session transition (ABORTED/ABANDONED) must produce a worker-visible message in session.topicId; route writes through continuePipeline so driver.mjs ERR-079 block fires; new optional session fields must be declared in SessionSchema Zod or safeParse silent-strips on load (ADR-061)
+- AP-026 — gate button taps must produce a visible message edit (stamp + remove keyboard); answerCallbackQuery toast alone is invisible on mobile and drives repeat taps + stale-callback errors (F1 / Alex 2026-05-13 lesson)
+- AP-027 — single-backtick `inline code` for short paste-and-run commands; reserve ```triple-backtick``` for multi-line code only — mobile Telegram copies inline code cleanly, triple-backtick can copy as image on Android (F2 / Alex 2026-05-13 lesson)
+- AP-028 — bot allocates a worker-facing short ID (T-NN sessions, E-NN epics) at intake via monotonic per-app counter; long sessionIds (20260513-160-px-96-px-g00m) are unworkable in conversation, workers invent parallel numbering otherwise (F4 / Alex 2026-05-13 lesson)
 
 ## Decisions (see DECISIONS.md)
 
