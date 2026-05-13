@@ -175,11 +175,6 @@ export function HomepageRequestForm({ destinations }: Props) {
                 className="sr-only"
                 {...register("mode")}
               />
-              {m === "assembly" && (
-                <span className="absolute right-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold leading-none text-primary-foreground">
-                  Популярно
-                </span>
-              )}
               <span className="font-medium">
                 {m === "private" ? "Своя группа" : "Сборная группа"}
               </span>
