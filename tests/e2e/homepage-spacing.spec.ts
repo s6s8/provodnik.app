@@ -23,7 +23,7 @@ test("guest home at 375×812: discovery section padding-bottom 64px", async ({
   const paddingBottom = await section.evaluate(
     (el) => getComputedStyle(el).paddingBottom,
   );
-  expect(paddingBottom).toBe("64px");
+  expect(paddingBottom).toBe("96px");
   await page.screenshot({
     path: screenshotPath("homepage-spacing-375.png"),
     fullPage: true,
@@ -40,7 +40,7 @@ test("guest home at 1280×800: discovery section padding-bottom 96px", async ({
   const paddingBottom = await section.evaluate(
     (el) => getComputedStyle(el).paddingBottom,
   );
-  expect(paddingBottom).toBe("96px");
+  expect(paddingBottom).toBe("160px");
   await page.screenshot({
     path: screenshotPath("homepage-spacing-1280.png"),
     fullPage: true,

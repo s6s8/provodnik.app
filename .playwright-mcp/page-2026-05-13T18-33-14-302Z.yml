@@ -1,0 +1,165 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation "Основная навигация" [ref=e3]:
+      - link "Provodnik" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - list [ref=e5]:
+        - listitem [ref=e6]:
+          - link "Экскурсии" [ref=e7] [cursor=pointer]:
+            - /url: /listings
+        - listitem [ref=e8]:
+          - link "Гиды" [ref=e9] [cursor=pointer]:
+            - /url: /guides
+        - listitem [ref=e10]:
+          - link "Как это работает" [ref=e11] [cursor=pointer]:
+            - /url: /how-it-works
+      - generic [ref=e13]:
+        - link "Стать гидом" [ref=e14] [cursor=pointer]:
+          - /url: /become-a-guide
+        - link "Войти" [ref=e15] [cursor=pointer]:
+          - /url: /auth
+  - main [ref=e16]:
+    - generic [ref=e19]:
+      - heading "Опишите запрос — гиды откликнутся" [level=1] [ref=e20]
+      - form "Создать запрос" [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]: Формат поездки
+          - generic [ref=e24]:
+            - generic [ref=e25] [cursor=pointer]:
+              - radio "Своя группа Только ваша группа, без чужих" [checked] [ref=e26]
+              - generic [ref=e27]: Своя группа
+              - generic [ref=e28]: Только ваша группа, без чужих
+            - generic [ref=e29] [cursor=pointer]:
+              - radio "Сборная группа Готовы собрать группу с другими" [ref=e30]
+              - generic [ref=e31]: Сборная группа
+              - generic [ref=e32]: Готовы собрать группу с другими
+        - generic [ref=e33]:
+          - generic [ref=e34]: Город
+          - combobox "Город" [ref=e35]
+        - generic [ref=e36]:
+          - generic [ref=e37]: Дата
+          - textbox "Дата" [ref=e38]
+        - generic [ref=e39]:
+          - generic [ref=e40]: Бюджет на человека (₽)
+          - spinbutton "Бюджет на человека (₽)" [ref=e41]: "5000"
+        - generic [ref=e42]:
+          - generic [ref=e43]: Интересы
+          - generic [ref=e44]:
+            - button "История" [ref=e45]:
+              - img [ref=e46]
+              - generic [ref=e49]: История
+            - button "Архитектура" [ref=e50]:
+              - img [ref=e51]
+              - generic [ref=e55]: Архитектура
+            - button "Природа" [ref=e56]:
+              - img [ref=e57]
+              - generic [ref=e60]: Природа
+            - button "Гастрономия" [ref=e61]:
+              - img [ref=e62]
+              - generic [ref=e65]: Гастрономия
+            - button "Искусство" [ref=e66]:
+              - img [ref=e67]
+              - generic [ref=e73]: Искусство
+            - button "Религия" [ref=e74]:
+              - img [ref=e75]
+              - generic [ref=e79]: Религия
+            - button "Для детей" [ref=e80]:
+              - img [ref=e81]
+              - generic [ref=e84]: Для детей
+            - button "Необычное" [ref=e85]:
+              - img [ref=e86]
+              - generic [ref=e89]: Необычное
+        - generic [ref=e90]:
+          - generic [ref=e91]:
+            - generic [ref=e92]: Начало (ЧЧ:ММ)
+            - textbox "Начало (ЧЧ:ММ)" [ref=e93]
+          - generic [ref=e94]:
+            - generic [ref=e95]: Конец (ЧЧ:ММ)
+            - textbox "Конец (ЧЧ:ММ)" [ref=e96]
+        - generic [ref=e97]:
+          - generic [ref=e98]: Сколько вас поедет?
+          - spinbutton "Сколько вас поедет?" [ref=e99]: "2"
+          - paragraph [ref=e100]: Количество человек в вашей компании.
+        - generic [ref=e102]:
+          - checkbox "Разрешить предлагать варианты вне заданных рамок Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп." [checked] [ref=e103]
+          - generic [ref=e104]:
+            - text: Разрешить предлагать варианты вне заданных рамок
+            - generic [ref=e105]: Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп.
+        - generic [ref=e106]:
+          - generic [ref=e107]: Пожелания (необязательно)
+          - textbox "Пожелания (необязательно)" [ref=e108]:
+            - /placeholder: Темп поездки, интересы, ограничения по здоровью, стиль отдыха…
+          - paragraph [ref=e109]: Пишите коротко — детали можно уточнить после первых откликов.
+        - generic [ref=e110]:
+          - generic [ref=e111]: Цена за группу
+          - generic [ref=e112]: 10 000 ₽
+        - button "Отправить запрос гидам" [ref=e114]
+    - region "Открытые запросы путешественников" [ref=e115]:
+      - generic [ref=e117]:
+        - paragraph [ref=e118]: Запросы путешественников
+        - generic [ref=e120]:
+          - paragraph [ref=e121]: Здесь появляются запросы путешественников
+          - paragraph [ref=e122]: Будьте первыми — отправьте запрос в форме выше
+    - contentinfo [ref=e123]:
+      - generic [ref=e124]:
+        - region "Частые вопросы" [ref=e125]:
+          - paragraph [ref=e126]: Частые вопросы
+          - generic [ref=e127]:
+            - group [ref=e128]:
+              - generic "Могу ли я присоединиться к чужой группе?" [ref=e129] [cursor=pointer]:
+                - generic [ref=e130]: Могу ли я присоединиться к чужой группе?
+                - img [ref=e131]
+            - group [ref=e133]:
+              - generic "Как долго ждать предложения?" [ref=e134] [cursor=pointer]:
+                - generic [ref=e135]: Как долго ждать предложения?
+                - img [ref=e136]
+            - group [ref=e138]:
+              - generic "Что если гид не ответит?" [ref=e139] [cursor=pointer]:
+                - generic [ref=e140]: Что если гид не ответит?
+                - img [ref=e141]
+        - generic [ref=e143]:
+          - navigation "О проекте" [ref=e144]:
+            - paragraph [ref=e145]: О проекте
+            - list [ref=e146]:
+              - listitem [ref=e147]:
+                - link "О нас" [ref=e148] [cursor=pointer]:
+                  - /url: /trust
+              - listitem [ref=e149]:
+                - link "Для гидов" [ref=e150] [cursor=pointer]:
+                  - /url: /guides
+          - navigation "Поддержка" [ref=e151]:
+            - paragraph [ref=e152]: Поддержка
+            - list [ref=e153]:
+              - listitem [ref=e154]:
+                - link "Доверие и безопасность" [ref=e155] [cursor=pointer]:
+                  - /url: /trust
+              - listitem [ref=e156]:
+                - link "Связаться с нами" [ref=e157] [cursor=pointer]:
+                  - /url: mailto:support@provodnik.app
+          - generic [ref=e158]:
+            - navigation "Правила" [ref=e159]:
+              - paragraph [ref=e160]: Правила
+              - list [ref=e161]:
+                - listitem [ref=e162]:
+                  - link "Условия использования" [ref=e163] [cursor=pointer]:
+                    - /url: /policies/terms
+                - listitem [ref=e164]:
+                  - link "Конфиденциальность" [ref=e165] [cursor=pointer]:
+                    - /url: /policies/privacy
+                - listitem [ref=e166]:
+                  - link "Cookies" [ref=e167] [cursor=pointer]:
+                    - /url: /policies/cookies
+            - generic [ref=e168]:
+              - paragraph [ref=e169]: Мы в сети
+              - generic [ref=e170]:
+                - link "ВКонтакте" [ref=e171] [cursor=pointer]:
+                  - /url: https://vk.com
+                  - img [ref=e172]
+                - link "Telegram" [ref=e174] [cursor=pointer]:
+                  - /url: https://t.me
+                  - img [ref=e175]
+        - generic [ref=e177]:
+          - paragraph [ref=e178]: © 2026 Provodnik. Все права защищены.
+          - link "Поддержка" [ref=e179] [cursor=pointer]:
+            - /url: mailto:support@provodnik.app
+  - alert [ref=e180]

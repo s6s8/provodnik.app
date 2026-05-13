@@ -25,7 +25,7 @@ interface Props {
 
 export function HomePageDiscovery({ requests }: Props) {
   return (
-    <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-16 xl:pb-24">
+    <section aria-label="Открытые запросы путешественников" className="bg-surface pt-12 pb-24 xl:pb-40">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <div className="mx-auto max-w-2xl">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
