@@ -78,6 +78,8 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - ERR-077 — RESOLVED 2026-05-12 (qmtbek 6b6d431) — Telegram messages displayed raw Markdown; fixed via parse_mode HTML + markdownToTelegramHTML converter
 - ERR-078 — RESOLVED 2026-05-13 (qmtbek 36dec2c) — bot stopped polling silently under pm2 on stale answerCallbackQuery 400 (no bot.catch + no try/catch); fixed via ackCb helper + bot.catch registration
 - ERR-079 — RESOLVED 2026-05-13 (qmtbek 14f6370) — orphan session ABORTED transitioned silently in its own forum topic (back-report skipped when no parentEpicId); fixed via new terminal-notify block in driver.mjs + abortReason capture in /override and /resume
+- ERR-080 — RESOLVED 2026-05-14 (qmtbek 3dbb9ec) — kodex-capture test hardcoded 2026-05-12 date; fixed by importing todayMoscowISODate and computing TODAY at module-load
+- ERR-081 — RESOLVED 2026-05-14 (qmtbek pending) — operator-level scripts and one-off curl sendMessage bypassed sanitize+format pipeline, leaked stage names + cursor-agent + owner name to worker-visible chat (msg 849); fixed via new bot/lib/worker-comms.mjs helper
 
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
@@ -104,6 +106,7 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - AP-026 — gate button taps must produce a visible message edit (stamp + remove keyboard); answerCallbackQuery toast alone is invisible on mobile and drives repeat taps + stale-callback errors (F1 / Alex 2026-05-13 lesson)
 - AP-027 — single-backtick `inline code` for short paste-and-run commands; reserve ```triple-backtick``` for multi-line code only — mobile Telegram copies inline code cleanly, triple-backtick can copy as image on Android (F2 / Alex 2026-05-13 lesson)
 - AP-028 — bot allocates a worker-facing short ID (T-NN sessions, E-NN epics) at intake via monotonic per-app counter; long sessionIds (20260513-160-px-96-px-g00m) are unworkable in conversation, workers invent parallel numbering otherwise (F4 / Alex 2026-05-13 lesson)
+- AP-029 — operator-level scripts must use bot/lib/worker-comms.mjs (sendWorkerMessage / editWorkerMessage) for any worker- or owner-facing Telegram send; raw api.sendMessage from scripts/* bypasses sanitize+format and leaks internal jargon (ERR-081 lesson)
 
 ## Decisions (see DECISIONS.md)
 
