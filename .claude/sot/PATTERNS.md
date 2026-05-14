@@ -387,3 +387,81 @@ test("section padding-bottom at 375px", async ({ page }) => {
 - Prefer `aria-label` or `data-testid` selectors for section targeting over structural selectors (`section:nth-child(...)`) which are fragile to layout reordering.
 - Spec file lives at `tests/e2e/<feature>-spacing.spec.ts`; screenshots land in `test-results/` (already in `.gitignore`).
 - First introduced in `tests/e2e/homepage-spacing.spec.ts` (2026-05-13).
+
+
+
+## Canonical Vocabulary Module Pattern
+
+When a domain vocabulary (slugs, labels, icons) is shared across multiple surfaces, extract it into a single `src/data/<domain>.ts` module. Downstream modules derive their data via `.map()` + `satisfies` rather than maintaining parallel inline arrays. Introduced in `src/data/themes.ts` (2026-05-14).
+
+### Canonical module shape
+
+```typescript
+// src/data/themes.ts
+import type { LucideIcon } from "lucide-react";
+import { Landmark, Building2, /* ... */ } from "lucide-react";
+
+// 1. Slug union — the authoritative type for all theme identifiers
+export type ThemeSlug =
+  | "history"
+  | "architecture"
+  | "nature"
+  | "food"
+  | "art"
+  | "photo"
+  | "kids"
+  | "unusual";
+
+// 2. Record type — full shape including UI assets
+export type Theme = {
+  slug: ThemeSlug;
+  label: string;
+  Icon: LucideIcon;
+};
+
+// 3. Data array — `as const` preserves literal types; `satisfies` enforces the record shape
+export const THEMES = [
+  { slug: "history", label: "История", Icon: Landmark },
+  // ...
+] as const satisfies readonly Theme[];
+
+// 4. Typed lookup helper — avoids ad-hoc Array.find at call sites
+export function getTheme(slug: string): Theme | undefined {
+  return THEMES.find((t) => t.slug === slug);
+}
+```
+
+### Deriving a downstream constant
+
+```typescript
+// src/data/interests.ts
+import { THEMES, type ThemeSlug } from "./themes";
+
+// satisfies (not `as const`) keeps the result a plain ReadonlyArray
+// while typing `id` as ThemeSlug rather than string
+export const INTEREST_CHIPS = THEMES.map(({ slug, label }) => ({
+  id: slug,
+  label,
+})) satisfies ReadonlyArray<{ id: ThemeSlug; label: string }>;
+```
+
+### Building an inline label map from the derived constant
+
+```typescript
+// Any component that needs a slug → label lookup
+import { INTEREST_CHIPS } from "@/data/interests";
+
+const interestLabel: Record<string, string> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+);
+// interestLabel["history"] → "История"
+```
+
+**Rules:**
+- `as const satisfies readonly T[]` on the canonical array: `as const` preserves literal slug types; `satisfies` enforces the record shape without widening to `T[]`.
+- Downstream derivations use `.map()` + `satisfies` (not `as const`) so the result is a plain `ReadonlyArray<{...}>` compatible with `string`-keyed lookups.
+- The canonical module owns the **slug union type**. Every surface that renders, stores, or filters by theme must import from here — never declare a parallel slug list or inline label map (see HOT.md — Interest-vocabulary drift).
+- Inline label maps at call sites must be derived via `Object.fromEntries(INTEREST_CHIPS.map(...))`, typed as `Record<string, string>` to avoid the `as const` key-narrowing issue (see ERR-048).
+- A new theme slug is added in **exactly one place**: `THEMES` in the canonical module. `INTEREST_CHIPS` and all derived constants update automatically. DB constraints and migrations must be kept in sync manually.
+- Expose a typed lookup helper (`getTheme`) in the canonical module; prefer it over bare `Array.find` at call sites.
+

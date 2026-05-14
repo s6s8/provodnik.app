@@ -172,3 +172,13 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 `public.guide_profiles` has two columns: `specialties text[]` (free-text, written by `guide-onboarding-form.tsx:172-199`) and `specializations text[]` (canonical chips, written by about-settings `guide-about-form.tsx:122-127` + `actions.ts:18-34`). The auto-sync trigger `sync_guide_profiles_onboarding_fields` pre-dates the `specializations` column and **never touches it**. A guide who completes only the onboarding wizard therefore has `specializations = '{}'` and will **never** appear under any `?spec=` filter on `/guides` (the filter queries `.overlaps("specializations", ...)` — `src/data/supabase/queries.ts:634-636`).  
 **Never** write a new guide-onboarding surface that writes only to `specialties`. Any onboarding path must also populate `specializations` with the canonicalized chip slugs from `INTEREST_CHIPS`, or a follow-up migration must backfill the column. Until reconciled, treat `specializations` as the authoritative column for all filter/search logic and `specialties` as legacy free-text display only.
 
+
+
+
+### HOT-UPDATE — Canonical theme source is now `src/data/themes.ts`; `INTEREST_CHIPS` is a derived view
+**Context:** The 2026-05-14 vocabulary-drift HOT entry named `INTEREST_CHIPS` as the canonical slug set. That entry remains valid, but its internal pointer is now stale. `src/data/themes.ts` was introduced (same date, follow-up ship) as the true upstream: `THEMES` carries the `ThemeSlug` union type, labels, and Lucide icons; `INTEREST_CHIPS` in `src/data/interests.ts` is now derived from it via `.map() satisfies`.
+
+**Never** add a theme slug to `INTEREST_CHIPS`, any inline `INTEREST_OPTIONS`/`INTEREST_LABELS` map, or the DB `guide_specializations_valid` CHECK constraint WITHOUT first adding it to `THEMES` in `src/data/themes.ts`. The TypeScript `ThemeSlug` union lives there; a slug absent from that file is a ghost slug even if it exists elsewhere.
+
+**Always** make `src/data/themes.ts` the single point of change for new themes. `INTEREST_CHIPS` updates automatically (derived). Downstream surfaces that still carry inline maps (the four flagged in the prior HOT entry) should import `INTEREST_CHIPS` and derive via `Object.fromEntries(INTEREST_CHIPS.map(({ id, label }) => [id, label]))` — not by copying the `THEMES` array directly.
+
