@@ -152,3 +152,23 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 ### AP-029 / ERR-081 — Operator scripts must route through the sanitize+format helper
 **Never** call `api.sendMessage` / `api.editMessageText` directly from an operator-level script (`scripts/*.mjs`) or a one-off `curl sendMessage` for worker- or owner-facing content. The bot's privacy and persona rules are enforced in two layers (model-time system prompt + deterministic post-process `sanitizeReply`) — both run ONLY on FSM model replies. Operator scripts that skip the helper skip both layers and leak internal jargon (stage names, `cursor-agent`, error IDs, owner identifiers) into worker-visible chat. Owner caught msg 849 in Alex board on 2026-05-14 with all of these.
 **Always** `import { sendWorkerMessage, editWorkerMessage } from '../bot/lib/worker-comms.mjs'` and use those. Internally they apply `sanitizeReply` (audience-aware) → `markdownToTelegramHTML` → api with `parse_mode: 'HTML'`. Single chokepoint. Skipping = regression. Bot's own FSM stages (`19-notify`, `epic-handlers`, gate prompts) are exempt because they already compose `markdownToTelegramHTML` inline; the helper is for everything OUTSIDE the FSM.
+
+
+
+---
+
+### HOT-NEW — Interest-vocabulary drift: `religion` ghost slug, `Гастрономия`/`Еда` listing-theme mismatch, and `specialties`/`specializations` sync gap
+**Source:** 2026-05-14 theme-vocabularies-and-guide-specializations audit (`docs/audits/theme-vocabularies-and-guide-specializations.md`). Three related landmines — all silent, all produce wrong UI or empty filter results rather than crashes.
+
+**1. `religion` ghost slug in 4 of 5 interest dictionaries**  
+`homepage-request-form.tsx:40`, `traveler-request-detail-screen.tsx:4-13`, `active-request-card.tsx:6-14`, and `bid-form-panel.tsx:20-29` all carry `religion` in their inline `INTEREST_OPTIONS`/`INTEREST_LABELS` maps. `religion` is **not** in `INTEREST_CHIPS` (`src/data/interests.ts`) and **not** in the DB `guide_specializations_valid` CHECK constraint — it is a ghost slug.  
+**Never** copy any of these four dictionaries as a reference. The canonical slug set is `INTEREST_CHIPS`; the only correct inline map is `guide-requests-inbox-screen.tsx:16-25`. Any new interest-display surface must derive its map via `Object.fromEntries(INTEREST_CHIPS.map(...))` — not by copying an existing dict.
+
+**2. `Гастрономия` DB category vs `Еда` TypeScript `PublicListingTheme` union**  
+`src/data/public-listings/types.ts:4-9` declares `PublicListingTheme` with member `"Еда"`. The reseed migration `supabase/migrations/20260504000002_reseed_listings.sql:127` writes `category = 'Гастрономия'` for at least one listing. `src/app/(site)/listings/page.tsx:25` casts the DB `category` column to `PublicListingTheme` — any row whose `category` is `Гастрономия` becomes an invalid theme token at runtime and the listing may render incorrectly or be silently excluded from theme filters.  
+**Never** add a new listing category to the DB seed without first adding the exact same string to the `PublicListingTheme` union (and vice versa). Run `grep -n 'Гастрономия\|PublicListingTheme' src/ supabase/` and verify parity before any listing-surface change.
+
+**3. `specialties` vs `specializations` sync gap — guide filter silently returns empty results**  
+`public.guide_profiles` has two columns: `specialties text[]` (free-text, written by `guide-onboarding-form.tsx:172-199`) and `specializations text[]` (canonical chips, written by about-settings `guide-about-form.tsx:122-127` + `actions.ts:18-34`). The auto-sync trigger `sync_guide_profiles_onboarding_fields` pre-dates the `specializations` column and **never touches it**. A guide who completes only the onboarding wizard therefore has `specializations = '{}'` and will **never** appear under any `?spec=` filter on `/guides` (the filter queries `.overlaps("specializations", ...)` — `src/data/supabase/queries.ts:634-636`).  
+**Never** write a new guide-onboarding surface that writes only to `specialties`. Any onboarding path must also populate `specializations` with the canonicalized chip slugs from `INTEREST_CHIPS`, or a follow-up migration must backfill the column. Until reconciled, treat `specializations` as the authoritative column for all filter/search logic and `specialties` as legacy free-text display only.
+
