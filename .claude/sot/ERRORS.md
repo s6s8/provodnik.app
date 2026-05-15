@@ -718,3 +718,27 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 - ERR-075 (raw JSON ship artifact): `epic-back-report.mjs` `JSON.parse`s `artifacts.ship` and plucks `.summary`; falls back to `slice(0,200)` for legacy plain-string shape.
 
 New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mjs` (5), plus 3 cases appended to `sanitize-reply.test.mjs` and 2 to `epic-back-report.test.mjs`.
+
+### ERR-085: epic decomposition hallucinated every fileScope path
+- **Symptom:** E-10 "accounts" epic decomposed into a structurally-sound 5-ticket tree, but every path in every node's fileScope was wrong — `src/components/home/RequestForm.tsx`, `src/app/actions/requests.ts`, `src/components/guide/OnboardingForm.tsx` etc. The repo actually uses `src/features/<domain>/components/...` and route-groups `src/app/(site)/` + `src/app/(protected)/`. All 6 sampled paths confirmed missing.
+- **Root Cause:** `synthesizeDecomposition` in `bot/lib/epic-runner.mjs` called `client.messages.parse` WITHOUT `allowedTools` / `addDirs` — unlike `runEpicTurn`, which has them. With no codebase access the model invented plausible-looking Next.js paths from its training prior instead of greping the actual tree.
+- **Fix:** Thread `projectPath` through `handleDecomposeCommand` / `handleEpicRefine` / `onTicketInsideEpic` (none had it as a param) into `synthesizeDecomposition`, which now passes `allowedTools: ['Read','Grep','Glob']` + `addDirs: [projectPath]`. Decomposition system prompt gained a hard rule: every fileScope path MUST be grep-verified to exist; leave fileScope empty rather than invent.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/epic-runner.mjs`, `bot/lib/epic-handlers.mjs`, `bot/bot.mjs`.
+- **Date:** 2026-05-16
+- **Prevention:** Any model call that emits file paths MUST have codebase tools. The per-ticket PLAN stage (which DOES have codebase access) re-derives fileScope, so a hallucinated decomposition hint is recoverable — but a wrong hint still misleads PLAN. Mid-incident workaround for the in-flight E-10: blanked the hallucinated fileScope arrays + pointed each node's rationale at the real audit doc.
+
+### ERR-086: createWorktree not idempotent — verify-retry re-dispatch escalated spuriously
+- **Symptom:** E-10 T1's first DISPATCH succeeded (cursor-agent committed work). Verify found one typecheck error → verify-decide correctly said RETRY → FSM routed VERIFY_RETRY → DISPATCH. The retry's `git worktree add /path -b task/<sid> main` then failed: `fatal: a branch named 'task/<sid>' already exists` → session ESCALATED from DISPATCH even though the real problem was a 1-line type error.
+- **Root Cause:** `createWorktree` in `bot/lib/git-ops.mjs` always ran `git worktree add <path> -b <branch> <base>`. On any DISPATCH re-entry for the same sessionId the branch (and usually the worktree) already exist from the first attempt, and `-b` refuses to recreate an existing branch.
+- **Fix:** `createWorktree` is now idempotent — three cases: (a) worktree already registered for the session (`git worktree list --porcelain`, slash-normalized for Windows/macOS) → reuse it; (b) branch exists without a worktree → `git worktree add <path> <branch>` (attach, no `-b`); (c) neither → fresh `-b`. Returns `{ worktreePath, branch, reused }`.
+- **Files Affected:** `quantumbek/orchestrator/bot/lib/git-ops.mjs`.
+- **Date:** 2026-05-16
+- **Prevention:** Every FSM stage that does filesystem/git side-effects must be idempotent on re-entry — a retry re-runs the same stage. Tests: `tests/lib/git-ops.test.mjs` (reuse-registered-worktree, re-attach-after-removal).
+
+### ERR-087: verify-retry feedback never reached the re-dispatch prompt
+- **Symptom:** Even with ERR-086 fixed, a VERIFY_RETRY → DISPATCH re-run would re-run cursor-agent against the IDENTICAL static prompt — the verify failure details (e.g. "TS2345 at active-request-card.tsx:25, narrow string to ThemeSlug") were never given to cursor, so it would just reproduce the same mistake. The verify→retry→dispatch loop had effectively never worked end-to-end.
+- **Root Cause:** The driver fires `reduce(session, { type: 'VERIFY_RETRY', payload: { feedback: out.concerns } })`, but `reduce()` in `bot/pipeline/pipeline.mjs` never read `payload.feedback` — it was silently dropped. `runDispatch` re-ran with the original `promptBuild.promptPath` unchanged.
+- **Fix:** `reduce()` now stores `session.retryFeedback` (new optional schema field) on VERIFY_RETRY, clears it on DISPATCH_DONE. `runDispatch` (`12-dispatch.mjs`) reads `session.retryFeedback`; when present it builds an effective prompt = base prompt + a "## RETRY — fix these specific issues" section listing the verify-decide concerns, writes it to `<sid>-retry.md`, and dispatches cursor against that.
+- **Files Affected:** `quantumbek/orchestrator/bot/pipeline/pipeline.mjs`, `bot/pipeline/stages/12-dispatch.mjs`, `bot/pipeline/state/session-schema.mjs`.
+- **Date:** 2026-05-16
+- **Prevention:** When a retry event carries a payload, the reducer must persist it and the retried stage must consume it — a retry without the failure context is just a re-run. Tests: `tests/pipeline/dispatch-retry-feedback.test.mjs` (reduce storage + clear, buildEffectivePrompt).

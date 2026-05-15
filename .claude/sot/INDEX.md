@@ -161,3 +161,6 @@ _Auto-extended (Phase 10.B) after each `/epic-done`. Captures empirical decompos
 - **AP-032** Auto-shipping a verify-green ticket with confidence=1 / concerns=[] when fileScope touches a high-stakes path → ANTI_PATTERNS.md + HOT.md (2026-05-15)
 - **AP-033** Operator scripts that bypass FSM gates without an audit trail → ANTI_PATTERNS.md (2026-05-15)
 - **AP-034** Cron job for bot-internal housekeeping → ANTI_PATTERNS.md + HOT.md (2026-05-15)
+- **ERR-085** epic decomposition hallucinated fileScope paths (no codebase access) -> ERRORS.md (2026-05-16)
+- **ERR-086** createWorktree not idempotent — verify-retry re-dispatch escalated -> ERRORS.md (2026-05-16)
+- **ERR-087** verify-retry feedback never reached the re-dispatch prompt -> ERRORS.md (2026-05-16)
