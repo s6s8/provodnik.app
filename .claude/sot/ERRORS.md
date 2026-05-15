@@ -707,3 +707,14 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 - **Files Affected:** quantumbek/orchestrator/bot/lib/stall-sweeper.mjs (new), bot/bot.mjs (setInterval wiring), bot/pipeline/pipeline.mjs (gateOpenedAt set/clear in reduce), bot/pipeline/state/{session-schema,epic-schema}.mjs (added fields), bot/lib/epic-back-report.mjs (mirrorAllLiveStates helper). Deleted: scripts/nudge-session.mjs.
 - **Date:** 2026-05-15
 - **Prevention:** AP-034 (no-cron-for-bot-internal-housekeeping), AP-033 (operator-script-bypass anti-pattern). Tests: tests/lib/stall-sweeper.test.mjs (12 cases), tests/pipeline/driver-gate-opened-at.test.mjs (8 cases), tests/lib/epic-back-report-live-state.test.mjs (7 cases).
+
+
+---
+
+**ERR-072..075 status update (2026-05-15):** All four closed in the orch-handoff-stalls Phase 10.A.1 cleanup batch. quantumbek master commit `8e32f76`. Fixes:
+- ERR-072 (Cyrillic slug): new `bot/lib/slugify.mjs` with BGN/PCGN Russian→Latin transliteration; replaces 3 inline implementations.
+- ERR-073 (message-not-modified noise): new `bot/lib/telegram-errors.mjs::isMessageNotModifiedError()` helper; wired into `epic-back-report.mjs` + `epic-handlers.mjs` tree-edit catch blocks.
+- ERR-074 (sanitize mid-substring mangle): `bot/lib/sanitize-reply.mjs` REPLACEMENTS loop now wraps bare-identifier keys (`/^[A-Za-z][A-Za-z0-9_]*$/`) in `\b` word-boundary regex.
+- ERR-075 (raw JSON ship artifact): `epic-back-report.mjs` `JSON.parse`s `artifacts.ship` and plucks `.summary`; falls back to `slice(0,200)` for legacy plain-string shape.
+
+New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mjs` (5), plus 3 cases appended to `sanitize-reply.test.mjs` and 2 to `epic-back-report.test.mjs`.
