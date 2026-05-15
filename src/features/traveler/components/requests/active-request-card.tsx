@@ -4,7 +4,7 @@ import { INTEREST_CHIPS } from '@/data/interests'
 import { TravelerRequestStatusBadge } from './traveler-request-status'
 import type { TravelerRequestSummary } from '@/lib/supabase/traveler-requests'
 
-const KNOWN_INTEREST_IDS = new Set(INTEREST_CHIPS.map((c) => c.id))
+const KNOWN_INTEREST_IDS = new Set<string>(INTEREST_CHIPS.map((c) => c.id))
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 )
