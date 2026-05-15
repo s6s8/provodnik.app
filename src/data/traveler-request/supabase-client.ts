@@ -42,7 +42,7 @@ function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
     updatedAt: row.updated_at,
     request: {
       mode,
-      interests: Array.isArray(row.interests) ? row.interests : [],
+      interests: (Array.isArray(row.interests) ? row.interests : []) as TravelerRequest["interests"],
       destination: row.destination,
       startDate: row.starts_on,
       dateFlexibility: row.date_flexibility,

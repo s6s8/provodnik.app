@@ -25,7 +25,7 @@ export function TravelerRequestCreateForm() {
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
       mode: "private",
-      interests: [] as string[],
+      interests: [] as TravelerRequest["interests"],
       destination: "",
       startDate: "",
       dateFlexibility: 'exact' as const,
@@ -159,7 +159,7 @@ export function TravelerRequestCreateForm() {
                 type="button"
                 onClick={() => {
                   const next = selected
-                    ? interestsField.value.filter((s: string) => s !== opt.id)
+                    ? interestsField.value.filter((s) => s !== opt.id)
                     : [...interestsField.value, opt.id];
                   interestsField.onChange(next);
                 }}

@@ -34,7 +34,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
       mode: "private",
-      interests: [] as string[],
+      interests: [] as TravelerRequest["interests"],
       destination: "",
       startDate: "",
       dateFlexibility: "exact",
@@ -224,14 +224,14 @@ export function HomepageRequestForm({ destinations }: Props) {
         <FieldLabel>Темы</FieldLabel>
         <div className="grid grid-cols-2 gap-2">
           {THEMES.map((theme) => {
-            const selected = (interestsField.value as string[]).includes(theme.slug);
+            const selected = interestsField.value.includes(theme.slug);
             const Icon = theme.Icon;
             return (
               <button
                 key={theme.slug}
                 type="button"
                 onClick={() => {
-                  const current = interestsField.value as string[];
+                  const current = interestsField.value;
                   const next = selected
                     ? current.filter((s) => s !== theme.slug)
                     : [...current, theme.slug];
