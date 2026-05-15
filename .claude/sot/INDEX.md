@@ -152,3 +152,12 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 _Auto-extended (Phase 10.B) after each `/epic-done`. Captures empirical decomposition rules per project — which feature shapes split into which trees._
 
 - ADR-063 — Epic primitive (Phase 10.A, quantumbek `b8eb19e`). New first-class long-lived topic above per-ticket FSM. Director opens `/epic <intent>`; Bek decomposes into tree-of-tickets; `/fire <n>` spawns child FSM sessions with parentEpicId linkage; driver back-reports terminal states to parent epic topic (✅ #N closed · sha + summary); pinned tree message updates live. `/think` continues as a single-node Epic shim for 30-day deprecation. Scaffold-template-first: `templates/app-sot/DECOMPOSITION.md.template` + `templates/app-config/config.json.template`; second app inherits Epic natively. Suite 380 → 470 (+90). Triggered 2026-05-12 by Alex feedback: multi-ticket plans collapsed into one ticket on `/ticket`; planning room force-closed; big-picture lost. Mission: asymmetry #1 (flat owner effort per epic, not per ticket).
+
+- **ERR-082** canon ticket shipped against the audit it was supposed to operationalize → ERRORS.md (orch-handoff-stalls 2026-05-15)
+- **ERR-083** General-topic Telegram commands silently dropped (thread_id undefined) → ERRORS.md (2026-05-15)
+- **ERR-084** silent gate stalls — owner-tap dependency had no compensating behaviour → ERRORS.md (2026-05-15)
+- **AP-030** Comparing inbound Telegram message_thread_id without ?? 0 normalization → ANTI_PATTERNS.md (2026-05-15)
+- **AP-031** Decomposing an epic with specifics baked into titles before the audit/research dep has run → ANTI_PATTERNS.md + HOT.md (2026-05-15)
+- **AP-032** Auto-shipping a verify-green ticket with confidence=1 / concerns=[] when fileScope touches a high-stakes path → ANTI_PATTERNS.md + HOT.md (2026-05-15)
+- **AP-033** Operator scripts that bypass FSM gates without an audit trail → ANTI_PATTERNS.md (2026-05-15)
+- **AP-034** Cron job for bot-internal housekeeping → ANTI_PATTERNS.md + HOT.md (2026-05-15)
