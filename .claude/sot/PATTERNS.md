@@ -465,3 +465,61 @@ const interestLabel: Record<string, string> = Object.fromEntries(
 - A new theme slug is added in **exactly one place**: `THEMES` in the canonical module. `INTEREST_CHIPS` and all derived constants update automatically. DB constraints and migrations must be kept in sync manually.
 - Expose a typed lookup helper (`getTheme`) in the canonical module; prefer it over bare `Array.find` at call sites.
 
+
+
+
+
+## Canonical Vocabulary — Zod Validation & Form Typing
+
+Extension of the Canonical Vocabulary Module Pattern covering how to wire the canonical slug type through the Zod validation layer and React Hook Form `defaultValues`. Introduced when the traveler-request schema was tightened from `z.array(z.string())` to an enum-validated array (2026-05-16).
+
+### Zod enum from canonical vocabulary
+
+`z.enum()` requires a non-empty tuple `[string, ...string[]]`. Cast from the `.map()` result using the slug union type:
+
+```typescript
+import { THEMES, type ThemeSlug } from "@/data/themes";
+
+// In a Zod schema object:
+interests: z
+  .array(
+    z.enum(THEMES.map((t) => t.slug) as [ThemeSlug, ...ThemeSlug[]]),
+  )
+  .min(1, { message: "Выберите хотя бы одну категорию" }),
+```
+
+This ensures Zod rejects any ghost slug at validation time (unknown string → enum parse error) without maintaining a separate allow-list.
+
+### Derived query-layer allow-list with `satisfies`
+
+When a query function needs its own slug allow-list (e.g. for input sanitisation before a DB call), derive it with `satisfies` so the type is enforced without widening:
+
+```typescript
+// Stays in sync with THEMES automatically; TypeScript enforces the shape
+const VALID_INTEREST_SLUGS = THEMES.map((t) => t.slug) satisfies readonly ThemeSlug[];
+```
+
+### React Hook Form `defaultValues` typed to schema output
+
+Use the schema's inferred output type for `defaultValues` instead of a wider primitive. This removes every `as string[]` cast from field callbacks (`filter`, `includes`, spread):
+
+```typescript
+import type { TravelerRequest } from "@/data/traveler-request/schema";
+// z.infer<typeof travelerRequestSchema> produces TravelerRequest
+
+useForm<TravelerRequest>({
+  resolver: zodResolver(travelerRequestSchema),
+  defaultValues: {
+    interests: [] as TravelerRequest["interests"], // ThemeSlug[], not string[]
+    // ...
+  },
+});
+
+// Field callbacks now infer the correct element type — no manual cast needed:
+const next = selected
+  ? interestsField.value.filter((s) => s !== theme.slug) // s: ThemeSlug
+  : [...interestsField.value, theme.slug];
+```
+
+**Rule:** The canonical vocabulary module (`src/data/themes.ts`) is the single point of change for any new slug. The Zod enum, query allow-list, and RHF types all derive from it — no slug list is maintained separately anywhere in the stack.
+
