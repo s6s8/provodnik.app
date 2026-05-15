@@ -3,22 +3,12 @@
 import * as React from "react";
 import { useForm, useController, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { LucideIcon } from "lucide-react";
-import {
-  Clock,
-  Building2,
-  Leaf,
-  Utensils,
-  Palette,
-  Church,
-  Baby,
-  Sparkles,
-} from "lucide-react";
 
 import {
   travelerRequestSchema,
   type TravelerRequest,
 } from "@/data/traveler-request/schema";
+import { THEMES } from "@/data/themes";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,17 +20,6 @@ import type { DestinationOption } from "@/data/supabase/queries";
 import { HomepageAuthGate } from "./homepage-auth-gate";
 
 type FormValues = TravelerRequest;
-
-const INTEREST_OPTIONS: { slug: string; label: string; Icon: LucideIcon }[] = [
-  { slug: "history", label: "История", Icon: Clock },
-  { slug: "architecture", label: "Архитектура", Icon: Building2 },
-  { slug: "nature", label: "Природа", Icon: Leaf },
-  { slug: "food", label: "Гастрономия", Icon: Utensils },
-  { slug: "art", label: "Искусство", Icon: Palette },
-  { slug: "religion", label: "Религия", Icon: Church },
-  { slug: "kids", label: "Для детей", Icon: Baby },
-  { slug: "unusual", label: "Необычное", Icon: Sparkles },
-];
 
 interface Props {
   destinations: DestinationOption[];
@@ -240,21 +219,22 @@ export function HomepageRequestForm({ destinations }: Props) {
         />
       </div>
 
-      {/* Interests */}
+      {/* Themes (canonical slugs from THEMES) */}
       <div className="grid gap-2">
-        <FieldLabel>Интересы</FieldLabel>
+        <FieldLabel>Темы</FieldLabel>
         <div className="grid grid-cols-2 gap-2">
-          {INTEREST_OPTIONS.map((opt) => {
-            const selected = (interestsField.value as string[]).includes(opt.slug);
+          {THEMES.map((theme) => {
+            const selected = (interestsField.value as string[]).includes(theme.slug);
+            const Icon = theme.Icon;
             return (
               <button
-                key={opt.slug}
+                key={theme.slug}
                 type="button"
                 onClick={() => {
                   const current = interestsField.value as string[];
                   const next = selected
-                    ? current.filter((s) => s !== opt.slug)
-                    : [...current, opt.slug];
+                    ? current.filter((s) => s !== theme.slug)
+                    : [...current, theme.slug];
                   interestsField.onChange(next);
                 }}
                 className={cn(
@@ -264,8 +244,8 @@ export function HomepageRequestForm({ destinations }: Props) {
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",
                 )}
               >
-                <opt.Icon className="h-5 w-5 shrink-0" />
-                <span>{opt.label}</span>
+                <Icon className="h-5 w-5 shrink-0" />
+                <span>{theme.label}</span>
               </button>
             );
           })}

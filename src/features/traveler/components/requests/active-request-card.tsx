@@ -1,18 +1,13 @@
 import Link from 'next/link'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { INTEREST_CHIPS } from '@/data/interests'
 import { TravelerRequestStatusBadge } from './traveler-request-status'
 import type { TravelerRequestSummary } from '@/lib/supabase/traveler-requests'
 
-const INTEREST_LABELS: Record<string, string> = {
-  history: "История",
-  architecture: "Архитектура",
-  nature: "Природа",
-  food: "Гастрономия",
-  art: "Искусство",
-  religion: "Религия",
-  kids: "Для детей",
-  unusual: "Необычное",
-}
+const KNOWN_INTEREST_IDS = new Set(INTEREST_CHIPS.map((c) => c.id))
+const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+)
 
 function formatBudget(minor: number | null): string {
   if (!minor) return '—'
@@ -27,7 +22,7 @@ function formatDate(dateStr: string): string {
 
 export function ActiveRequestCard({ request }: { request: TravelerRequestSummary }) {
   const knownInterests = request.interests
-    .filter((i) => i in INTEREST_LABELS)
+    .filter((i) => KNOWN_INTEREST_IDS.has(i))
     .slice(0, 2);
 
   return (
@@ -47,7 +42,7 @@ export function ActiveRequestCard({ request }: { request: TravelerRequestSummary
         <div className="mt-2 flex flex-wrap gap-1">
           {knownInterests.map((interest) => (
             <span key={interest} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-              {INTEREST_LABELS[interest]}
+              {INTEREST_LABEL_BY_ID[interest]}
             </span>
           ))}
         </div>

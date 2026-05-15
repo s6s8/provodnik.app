@@ -1,21 +1,15 @@
 import Link from "next/link";
 import { ArrowLeft, CalendarDays, Users } from "lucide-react";
 
-const INTEREST_LABELS: Record<string, string> = {
-  history: "История",
-  architecture: "Архитектура",
-  nature: "Природа",
-  food: "Гастрономия",
-  art: "Искусство",
-  religion: "Религия",
-  kids: "Для детей",
-  unusual: "Необычное",
-};
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { INTEREST_CHIPS } from "@/data/interests";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
+
+const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+);
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -81,7 +75,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
         <div className="flex flex-wrap gap-2">
           {(record.request.interests ?? []).map((slug) => (
             <Badge key={slug} variant="secondary" className="normal-case tracking-normal text-xs font-medium">
-              {INTEREST_LABELS[slug] ?? slug}
+              {INTEREST_LABEL_BY_ID[slug] ?? slug}
             </Badge>
           ))}
           <Badge variant="outline" className="normal-case tracking-normal text-xs font-medium">

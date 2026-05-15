@@ -8,6 +8,7 @@ import { z } from "zod";
 import { X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
 import { formatDurationMinutes } from "@/lib/dates";
@@ -17,16 +18,9 @@ import type { Uuid } from "@/lib/supabase/types";
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
 
-const INTEREST_LABELS: Record<string, string> = {
-  history: "История",
-  architecture: "Архитектура",
-  nature: "Природа",
-  food: "Гастрономия",
-  art: "Искусство",
-  religion: "Религия",
-  kids: "Для детей",
-  unusual: "Необычное",
-};
+const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+);
 
 const offerFormSchema = z.object({
   price_total: z
@@ -231,7 +225,7 @@ export function BidFormPanel({
             )}
             {request.interests.length > 0 ? (
               <span className="text-xs text-muted-foreground">
-                {request.interests.map((s) => INTEREST_LABELS[s] ?? s).join(" · ")}
+                {request.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
               </span>
             ) : null}
           </div>

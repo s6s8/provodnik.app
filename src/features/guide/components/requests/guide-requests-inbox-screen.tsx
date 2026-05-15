@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { INTEREST_CHIPS } from "@/data/interests";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -13,16 +14,9 @@ import { Separator } from "@/components/ui/separator";
 import { BidFormPanel } from "./bid-form-panel";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 
-const INTEREST_LABELS: Record<string, string> = {
-  history: "История",
-  architecture: "Архитектура",
-  nature: "Природа",
-  food: "Гастрономия",
-  art: "Искусство",
-  photo: "Фотопрогулки",
-  kids: "Для детей",
-  unusual: "Необычное",
-};
+const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+);
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
@@ -391,7 +385,7 @@ export function GuideRequestsInboxScreen() {
 
                         {item.interests.length > 0 ? (
                           <p className="mt-2 text-xs text-muted-foreground">
-                            {item.interests.map((s) => INTEREST_LABELS[s] ?? s).join(" · ")}
+                            {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
                           </p>
                         ) : null}
 
