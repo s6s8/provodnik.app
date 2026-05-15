@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { THEMES, type ThemeSlug } from "@/data/themes";
+
 export const travelerRequestModes = ["assembly", "private"] as const;
 
 const timeRegex = /^\d{2}:\d{2}$/;
@@ -7,7 +9,11 @@ const timeRegex = /^\d{2}:\d{2}$/;
 export const travelerRequestSchema = z
   .object({
     mode: z.enum(travelerRequestModes),
-    interests: z.array(z.string()).min(1, "Выберите хотя бы одну категорию"),
+    interests: z
+      .array(
+        z.enum(THEMES.map((t) => t.slug) as [ThemeSlug, ...ThemeSlug[]]),
+      )
+      .min(1, { message: "Выберите хотя бы одну категорию" }),
     destination: z
       .string()
       .trim()

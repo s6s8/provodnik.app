@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { kopecksToRub } from "@/data/money";
+import { THEMES, type ThemeSlug } from "@/data/themes";
 import { formatRussianDateRange } from "@/lib/dates";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
@@ -303,10 +304,7 @@ function formatCategory(cat: string): string {
   }
 }
 
-const VALID_INTEREST_SLUGS = [
-  "history", "architecture", "nature", "food", "art",
-  "photo", "kids", "unusual",
-] as const;
+const VALID_INTEREST_SLUGS = THEMES.map((t) => t.slug) satisfies readonly ThemeSlug[];
 
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
