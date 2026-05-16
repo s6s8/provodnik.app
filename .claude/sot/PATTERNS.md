@@ -523,3 +523,73 @@ const next = selected
 
 **Rule:** The canonical vocabulary module (`src/data/themes.ts`) is the single point of change for any new slug. The Zod enum, query allow-list, and RHF types all derive from it — no slug list is maintained separately anywhere in the stack.
 
+
+
+
+
+## DB Category → Canonical Slug Mapper Pattern
+
+When a DB column stores legacy display strings (Russian labels, old enum values, pre-migration free text) that need to map to a canonical slug vocabulary, extract the mapping into a dedicated `mapper.ts` file alongside the domain's types. The public function returns `ThemeSlug | null` — never casts unknowns, never throws. Consumers decide the fallback. Introduced in `src/data/public-listings/mapper.ts` (2026-05-16).
+
+### Mapper module shape
+
+```typescript
+// src/data/<domain>/mapper.ts
+import type { ThemeSlug } from "@/data/themes";
+
+// 1. Canonical slug set — for fast "already-a-slug" pass-through check
+//    Keep in sync with THEMES; duplicate rather than import THEMES to
+//    avoid pulling Lucide icons into the server query path.
+const THEME_SLUGS: readonly ThemeSlug[] = [
+  "history", "architecture", "nature", "food",
+  "art", "photo", "kids", "unusual",
+];
+
+// 2. Legacy display string → canonical slug
+//    Multiple legacy strings may map to the same slug.
+//    Include BOTH Cyrillic ё/е variants for any word that uses them.
+const LEGACY_CATEGORY_TO_SLUG: Record<string, ThemeSlug> = {
+  "История": "history",
+  "Природа": "nature",
+  "Гастрономия": "food",
+  "Еда": "food",
+  "Фотография": "photo",
+  "Фотопрогулки": "photo",
+  "С семьей": "kids",    // е variant
+  "С семьёй": "kids",   // ё variant — must list both
+  "Для детей": "kids",
+  "Архитектура": "architecture",
+  "Искусство": "art",
+  "Необычное": "unusual",
+};
+
+// 3. Public mapper — null for unknowns, never throws
+export function mapDbCategoryToThemeSlug(raw: string): ThemeSlug | null {
+  const trimmed = raw.trim();
+  if (!trimmed) return null;
+  // Pass-through: rows already storing canonical slugs work without a lookup entry
+  if ((THEME_SLUGS as readonly string[]).includes(trimmed)) {
+    return trimmed as ThemeSlug;
+  }
+  return LEGACY_CATEGORY_TO_SLUG[trimmed] ?? null;
+}
+```
+
+### Consumption at the data/row-mapper layer
+
+```typescript
+// In a row-mapper (page.tsx or queries.ts):
+themes: (() => {
+  const slug = mapDbCategoryToThemeSlug(listing.format);
+  return slug != null ? ([slug] as const) : [];
+})(),
+```
+
+**Rules:**
+- Return `ThemeSlug | null`, never widen to `string` or cast unknowns. The caller (row-mapper) decides the fallback; `themes: []` is the conventional choice — the listing stays visible under "Все" but is excluded from per-theme filters, making the gap obvious during QA.
+- The pass-through check (`THEME_SLUGS.includes`) keeps the mapper forward-compatible: new slugs added to `THEMES` (and mirrored into `THEME_SLUGS`) work without touching `LEGACY_CATEGORY_TO_SLUG`.
+- Keep `THEME_SLUGS` and `LEGACY_CATEGORY_TO_SLUG` private; export only the mapper function.
+- Cyrillic ё/е: always add both variants (`С семьей` / `С семьёй`) — DB clients, Telegram, and some migration scripts normalize differently.
+- When a new DB seed category is introduced, add it to `LEGACY_CATEGORY_TO_SLUG` in the same commit. Missing entries are detectable (listing has `themes: []`) but silent at runtime; add a grep check to code review: `grep -n 'category' supabase/migrations/ | grep -v '#'` should have a matching entry in the mapper.
+- New canonical themes are added to `THEMES` in `src/data/themes.ts` only. The `THEME_SLUGS` array in the mapper must be kept in manual sync (deliberate: avoids pulling Lucide icons into query-layer imports).
+
