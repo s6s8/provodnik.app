@@ -204,3 +204,21 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 - **Always** use `specializations` (canonical slugs) as the authoritative column for all filter/search logic; `specialties` is legacy free-text display only and must not be read for filtering.
 - **Never** write a new guide-edit surface that touches only `specialties` — any write path must populate `specializations` with validated `ThemeSlug` values.
 
+
+
+
+
+---
+
+### HOT-NEW — `search_guides("")` fetches all guides; post-RPC JS filters do not scale
+
+`getGuides` (empty or absent query) and `getGuidesByDestination` both call `db.rpc("search_guides", { q: "" })`, which returns **every** approved + available `guide_profiles` row. Specialization filtering (`filterGuidesBySpecializations`) and region filtering + sort + `.slice(0, 6)` run in JS after the full payload arrives. Previously, `.overlaps("specializations", ...)`, `.contains("regions", ...)`, `.order("years_experience", ...)`, and `.limit(6)` ran in Postgres before network transfer.
+
+**Never** add a new guide-listing surface that calls `search_guides("")` and relies on JS-side filtering when the guide roster is expected to exceed ~500 rows.
+
+**Always** when the roster approaches this threshold: extend the RPC signature with additional filter parameters (`p_specializations text[]`, `p_region text`, `p_limit int`) so Postgres enforces them before returning rows. The current `filterGuidesBySpecializations` and the anonymous region+sort+slice block in `getGuidesByDestination` are the exact logic to push down.
+
+**Affected functions:** `src/data/supabase/queries.ts` — `getGuides` and `getGuidesByDestination`.
+
+**Monitoring:** Until the push-down ships, log or Supabase-dashboard-watch the row count returned by `search_guides("")` in production. A sudden jump (new batch of guide onboardings) can silently inflate page load time and memory.
+

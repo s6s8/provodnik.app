@@ -680,3 +680,76 @@ if (filters?.q) {
 - Applies to any `.ilike.` or `.like.` filter added in `src/data/supabase/queries.ts`. Single-column filters follow the same two-layer rule as multi-column `.or(...)` strings.
 - First introduced in `src/data/supabase/queries.ts` + `src/app/(site)/guides/page.tsx` (guide search, 2026-05-16).
 
+
+
+
+
+
+## RPC-based Comma-Token Search with AND / OR Fallback + `isPartialMatch` Signal
+
+When a search surface needs multi-field, multi-token matching with graceful degradation to partial results, push the search logic into a Postgres RPC function and return an `is_partial_match` boolean alongside each result row. Avoids PostgREST filter-string quoting pitfalls entirely. Introduced in `public.search_guides` (migration `20260516000001_search_guides_rpc.sql`).
+
+### RPC contract (plpgsql)
+
+```sql
+create or replace function public.search_guides(q text)
+returns setof public.guide_search_result_row   -- view that adds is_partial_match boolean
+language plpgsql stable security definer
+set search_path = public
+as $$
+declare tokens text[];
+begin
+  -- 1. Return all approved+available rows when q is blank (is_partial_match = false)
+  -- 2. Split q on commas; validate each token via character whitelist
+  -- 3. AND pass: every token must match at least one searchable field per row
+  -- 4. If AND count = 0 → OR pass: any token matches (is_partial_match = true)
+  -- 5. Return AND results when count > 0; else OR results
+end;
+$$;
+
+revoke all on function public.search_guides(text) from public;
+grant execute on function public.search_guides(text) to anon, authenticated, service_role;
+```
+
+### TypeScript data-layer consumption
+
+```typescript
+// Call RPC instead of query builder with .ilike. filters
+const { data: searchRows, error } = await db.rpc("search_guides", {
+  q: filters?.q ?? "",
+});
+if (error) throw error;
+
+let rows = searchRows as Record<string, unknown>[];
+
+// Post-RPC categorical filters (keep small — see HOT.md scale note)
+if (filters?.specializations?.length) {
+  rows = filterGuidesBySpecializations(rows, filters.specializations);
+}
+
+// Map to typed records — surface the partial-match signal
+isPartialMatch: (gp.is_partial_match as boolean) ?? false,
+```
+
+### UI partial-match notice
+
+```tsx
+const showPartialMatchNotice =
+  guides.length > 0 && guides.some((g) => g.isPartialMatch);
+
+{showPartialMatchNotice && (
+  <p className="mb-4 rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-on-surface-muted">
+    Точных совпадений нет, показываем близкие
+  </p>
+)}
+```
+
+**Rules:**
+- Token character whitelist (`^[a-zA-Zа-яА-ЯёЁ0-9 -]+$`) replaces LIKE-wildcard escaping — tokens containing `%`, `_`, quotes are silently discarded before any DB operation.
+- Comma tokenisation lets users express multi-intent queries (`"Иван, Казань, английский"`).
+- `is_partial_match = true` means the AND pass returned 0 rows; results are OR-matched with lower precision. **Always** surface this in the UI.
+- Use `security definer` + explicit `set search_path = public` to prevent privilege escalation.
+- When this pattern replaces a PostgREST `.ilike.` query, remove both escaping layers (`%`/`_` escaping at the caller AND `escapePostgrestFilterQuotedInner` at the data layer) — they are no longer needed.
+- Post-RPC JS filters (specialization, region) are acceptable only while the guide roster is small (< ~500 rows). See HOT.md — `search_guides("")` scale landmine for the push-down plan.
+- First introduced: `src/data/supabase/queries.ts` + `supabase/migrations/20260516000001_search_guides_rpc.sql` (2026-05-16).
+
