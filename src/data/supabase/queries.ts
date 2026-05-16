@@ -173,6 +173,11 @@ function normalizeSlug(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
 }
 
+/** `\` + `"` for values inside PostgREST double-quoted filter literals (`.ilike."…"`). */
+function escapePostgrestFilterQuotedInner(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
 function getInitials(value: string) {
   return value
     .split(/\s+/)
@@ -633,8 +638,8 @@ export async function getGuides(
       query = query.overlaps("specializations", filters.specializations);
     }
     if (filters?.q) {
-      const pattern = `%${filters.q}%`;
-      query = query.or(`display_name.ilike.${pattern},bio.ilike.${pattern}`);
+      const v = escapePostgrestFilterQuotedInner(filters.q);
+      query = query.or(`display_name.ilike."%${v}%",bio.ilike."%${v}%"`);
     }
     const { data, error } = await query;
 
