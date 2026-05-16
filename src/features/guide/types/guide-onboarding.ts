@@ -1,3 +1,4 @@
+import type { ThemeSlug } from "@/data/themes";
 import type {
   GuideProfileRow,
   GuideVerificationStatusDb,
@@ -16,7 +17,7 @@ export type GuideOnboardingPersistedProfile = Pick<
   | "specialization"
   | "regions"
   | "languages"
-  | "specialties"
+  | "specializations"
   | "is_available"
   | "verification_status"
   | "verification_notes"
@@ -35,7 +36,7 @@ export type GuideOnboardingData = {
   bio: string;
   regions: string[];
   languages: string[];
-  specialties: string[];
+  specializations: ThemeSlug[];
   isAvailable: boolean;
   experienceLevel: GuideExperienceLevel;
   yearsExperience: number;

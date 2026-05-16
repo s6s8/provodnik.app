@@ -1,6 +1,17 @@
 "use server";
 
+import type { ThemeSlug } from "@/data/themes";
+import { THEMES } from "@/data/themes";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const canonThemeSlugs = new Set<string>(THEMES.map((t) => t.slug));
+
+export type GuideProfileUpdatePayload = {
+  bio: string;
+  languages: string[];
+  specializations: ThemeSlug[];
+  years_experience?: number;
+};
 
 export type SaveAboutResult = { ok: true } | { ok: false; error: string };
 
@@ -17,12 +28,15 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   const languagesRaw = formData.getAll("languages") as string[];
   const specializationsRaw = formData.getAll("specializations") as string[];
 
-  const update: Record<string, unknown> = {
+  const specializations = specializationsRaw.filter((s): s is ThemeSlug =>
+    canonThemeSlugs.has(s)
+  );
+
+  const update: GuideProfileUpdatePayload = {
     bio: bio ?? "",
     languages: languagesRaw.filter(Boolean),
+    specializations,
   };
-
-  update.specializations = specializationsRaw.filter(Boolean);
 
   if (yearsExperience && !isNaN(Number(yearsExperience))) {
     update.years_experience = Number(yearsExperience);

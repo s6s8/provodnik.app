@@ -1,6 +1,12 @@
 import { z } from "zod";
 
+import type { ThemeSlug } from "@/data/themes";
+import { THEMES } from "@/data/themes";
 import type { GuideOnboardingData } from "@/features/guide/types/guide-onboarding";
+
+const themeSlugZodEnum = z.enum(
+  THEMES.map((t) => t.slug) as [ThemeSlug, ...ThemeSlug[]]
+);
 
 export const guideGovIdTypes = [
   "passport",
@@ -36,9 +42,9 @@ export const guideOnboardingSchema = z.object({
   languages: z
     .array(z.string().min(1))
     .min(1, "Выберите хотя бы один язык."),
-  specialties: z
-    .array(z.string().min(1))
-    .min(1, "Укажите хотя бы одну специализацию."),
+  specializations: z
+    .array(themeSlugZodEnum)
+    .min(1, "Выберите хотя бы одну тему."),
   isAvailable: z.boolean(),
   experienceLevel: z.enum(guideExperienceLevels),
   yearsExperience: z

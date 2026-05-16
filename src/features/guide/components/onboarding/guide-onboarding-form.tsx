@@ -3,7 +3,10 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
+
+import { INTEREST_CHIPS } from "@/data/interests";
+import { getTheme } from "@/data/themes";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,6 +23,7 @@ import type {
   GuideVerificationStatusDb,
 } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
+import { InterestChipGroup } from "@/features/shared/components/interest-chip-group";
 import {
   guideExperienceLevels,
   guideGovIdTypes,
@@ -65,6 +69,11 @@ const selectClassName = cn(
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
   "disabled:cursor-not-allowed disabled:opacity-50"
 );
+
+type GuideOnboardingProfileUpsertPayload = Omit<
+  GuideProfileUpsert,
+  "specialties"
+> & { specializations: string[] };
 
 const verificationFields = [
   ["legalName", "Юридическое имя", "Как в паспорте или ID-карте", "name"],
@@ -112,7 +121,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       bio: "",
       regions: [],
       languages: [],
-      specialties: [],
+      specializations: [],
       isAvailable: true,
       experienceLevel: "starter",
       yearsExperience: 0,
@@ -143,7 +152,6 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
   const regions = useWatch({ control, name: "regions" }) ?? [];
   const languages = useWatch({ control, name: "languages" }) ?? [];
-  const specialties = useWatch({ control, name: "specialties" }) ?? [];
 
   const onSubmit = React.useCallback(async (values: GuideOnboardingValues) => {
     setBackendError(null);
@@ -169,23 +177,25 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
 
       const verificationStatus: GuideVerificationStatusDb =
         values.consentBackgroundCheck && values.attestTruthful ? "submitted" : "draft";
-      const primarySpecialization = values.specialties[0] ?? null;
+      const primaryThemeSlug = values.specializations[0] ?? null;
+      const primaryThemeLabel =
+        (primaryThemeSlug ? getTheme(primaryThemeSlug)?.label : null) ?? primaryThemeSlug ?? "-";
       const baseCityTrimmed = values.currentBaseCity?.trim();
       const groupSizeMaxNum = Number(values.groupSizeMax);
-      const payload: GuideProfileUpsert = {
+      const payload: GuideOnboardingProfileUpsertPayload = {
         user_id: user.id,
         display_name: values.displayName,
         bio: values.bio,
         years_experience: values.yearsExperience,
-        specialization: primarySpecialization,
+        specialization: primaryThemeSlug,
         regions: values.regions,
         languages: values.languages,
-        specialties: values.specialties,
+        specializations: values.specializations,
         is_available: values.isAvailable,
         verification_status: verificationStatus,
         verification_notes: [
           `Базовый город: ${values.currentBaseCity}`,
-          `Основная специализация: ${primarySpecialization ?? "-"}`,
+          `Основная тема: ${primaryThemeLabel}`,
           `Готов принимать новые заявки: ${values.isAvailable ? "да" : "нет"}`,
           `Частные туры: ${values.acceptsPrivateTours ? "да" : "нет"}`,
           `Групповые туры: ${values.acceptsGroupTours ? "да" : "нет"}`,
@@ -250,7 +260,14 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
             <SummaryRow label="О себе" value={submitted.bio} />
             <SummaryRow label="Регионы" value={submitted.regions.join(", ")} />
             <SummaryRow label="Языки" value={submitted.languages.join(", ")} />
-            <SummaryRow label="Специализации" value={submitted.specialties.join(", ")} />
+            <SummaryRow
+              label="Темы"
+              value={submitted.specializations
+                .map(
+                  (id) => INTEREST_CHIPS.find((chip) => chip.id === id)?.label ?? id
+                )
+                .join(", ")}
+            />
             <SummaryRow
               label="Доступность"
               value={submitted.isAvailable ? "Принимаю новые заявки" : "Временно недоступен(на)"}
@@ -280,7 +297,25 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <TextAreaField id="bio" label="О себе" placeholder="Опишите, как вы ведёте туры и что показываете." error={errors.bio?.message} register={register("bio")} />
       <CommaField id="regions" label="Регионы" value={regions} error={errors.regions?.message} onChange={(value) => setValue("regions", splitCommaList(value), { shouldTouch: true, shouldValidate: true })} />
       <CommaField id="languages" label="Языки" value={languages} error={errors.languages?.message} onChange={(value) => setValue("languages", splitCommaList(value), { shouldTouch: true, shouldValidate: true })} />
-      <CommaField id="specialties" label="Специализации" value={specialties} error={errors.specialties?.message} onChange={(value) => setValue("specialties", splitCommaList(value), { shouldTouch: true, shouldValidate: true })} hint="Первая специализация станет основным направлением профиля." />
+      <div className="grid gap-2">
+        <FieldLabel id="specializations-label">Темы</FieldLabel>
+        <Controller
+          name="specializations"
+          control={control}
+          render={({ field }) => (
+            <>
+              <InterestChipGroup
+                name="specializations"
+                selected={field.value}
+                onChange={field.onChange}
+                ariaLabel="Темы экскурсий"
+              />
+              <FieldHint>Первая выбранная тема станет основным направлением профиля.</FieldHint>
+            </>
+          )}
+        />
+        <FieldError id="specializations-error" message={errors.specializations?.message} />
+      </div>
 
       <Separator className="my-1" />
       <SectionHeader badge="Операции" title="Как вы ведёте туры" description="Опыт, размер групп и доступность для новых заявок." />
