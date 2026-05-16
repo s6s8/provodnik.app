@@ -193,3 +193,14 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 
 ### AP-034 / ERR-084 — no cron for bot-internal housekeeping
 **Never** add a `crontab -e` entry for stall detection, state sweeps, or any work that only matters when the bot is running. Cron is invisible (no version control, no tests, no observability), requires SSH to change, and re-instantiates the bot's whole dependency bootstrap per script (~30 LOC of scaffolding — exactly the source of ERR-081 jargon leaks). In-bot setInterval shares auth, api instance, sanitize+format, audit-log; changes ship via one-file edit + pm2 restart. bot/lib/stall-sweeper.mjs is the template. The two pre-existing legitimate cron entries (scripts/owner-digest.mjs daily 20:00, scripts/sweep-idle-epics.mjs 14-day abort) stay; don't add a third.
+
+
+
+### HOT-UPDATE — Onboarding wizard now writes `specializations` directly; pre-fix guide backfill still pending
+**Context:** Vocabulary-drift landmine #3 (specialties/specializations sync gap) flagged that guides completing the onboarding wizard ended up with `specializations = '{}'` because the form wrote only to the `specialties` free-text column. That **onboarding path gap is now closed** (2026-05-16): `guide-onboarding-form.tsx` field renamed `specialties → specializations`, `CommaField` replaced with `InterestChipGroup`, Zod schema tightened to `z.array(themeSlugZodEnum)`, and `about/actions.ts` now sanitises submitted slugs via a module-level `Set<string>` before writing. See ERR-090.
+
+**Remaining gap — pre-fix guides invisible to `?spec=` filter:** Any guide who completed the onboarding wizard BEFORE this fix still has `specializations = '{}'` in `guide_profiles`. These guides are excluded from every `/guides?spec=<slug>` filter (which queries `.overlaps("specializations", ...)`). A targeted backfill migration is required. Until it ships:
+- **Never** assume an existing guide has a populated `specializations` array — always check `array_length(specializations, 1) IS NOT NULL`.
+- **Always** use `specializations` (canonical slugs) as the authoritative column for all filter/search logic; `specialties` is legacy free-text display only and must not be read for filtering.
+- **Never** write a new guide-edit surface that touches only `specialties` — any write path must populate `specializations` with validated `ThemeSlug` values.
+

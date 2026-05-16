@@ -593,3 +593,37 @@ themes: (() => {
 - When a new DB seed category is introduced, add it to `LEGACY_CATEGORY_TO_SLUG` in the same commit. Missing entries are detectable (listing has `themes: []`) but silent at runtime; add a grep check to code review: `grep -n 'category' supabase/migrations/ | grep -v '#'` should have a matching entry in the mapper.
 - New canonical themes are added to `THEMES` in `src/data/themes.ts` only. The `THEME_SLUGS` array in the mapper must be kept in manual sync (deliberate: avoids pulling Lucide icons into query-layer imports).
 
+
+
+
+
+## Server-Action Ghost-Slug Defense Pattern
+
+When a server action receives a `string[]` of user-supplied vocabulary slugs (from `formData.getAll()`), sanitise them against the canonical vocabulary at the **server action layer** using a module-level `Set<string>` + type-predicate filter. This adds a silent defense-in-depth layer on top of the Zod enum validation that runs at parse time. Introduced in `src/app/(protected)/profile/guide/about/actions.ts` (2026-05-16).
+
+```typescript
+import type { ThemeSlug } from "@/data/themes";
+import { THEMES } from "@/data/themes";
+
+// Constructed once at module load — O(1) per lookup, never per request
+const canonThemeSlugs = new Set<string>(THEMES.map((t) => t.slug));
+
+export async function saveGuideAboutAction(formData: FormData): Promise<SaveResult> {
+  const specializationsRaw = formData.getAll("specializations") as string[];
+
+  // Type-predicate filter: strips ghost slugs AND narrows TypeScript type to ThemeSlug[]
+  const specializations = specializationsRaw.filter(
+    (s): s is ThemeSlug => canonThemeSlugs.has(s)
+  );
+
+  await db.from("guide_profiles").update({ specializations }).eq("user_id", userId);
+}
+```
+
+**Rules:**
+- Declare the `Set` at **module scope** (outside the action function) so it is constructed once per module load, not on every request invocation.
+- Use a **type predicate** (`(s): s is ThemeSlug => canonThemeSlugs.has(s)`) to simultaneously strip invalid values and narrow the TypeScript type — avoids an `as ThemeSlug[]` cast and keeps the array type honest.
+- This pattern **complements** (does not replace) Zod enum validation. Zod runs at parse time and surfaces a validation error to the form; the Set filter is the server-side safety net for values that bypass the form layer (direct `FormData` POST, stale client caches, future API consumers).
+- **Never** hardcode the allowed slug list inline — always derive from `THEMES` in `src/data/themes.ts`. See Canonical Vocabulary Module Pattern and HOT.md HOT-UPDATE.
+- If the filtered array is empty and the field is required, the action should return `{ ok: false, error: '...' }` rather than writing an empty array to the DB.
+
