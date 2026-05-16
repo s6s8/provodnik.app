@@ -20,57 +20,69 @@ function pluralizeExcursions(n: number): string {
   return `${n} экскурсий`;
 }
 
-function normalize(value: string) {
-  return value.trim().toLowerCase();
+function buildGuidesSearch(activeSpecs: string[], q: string): string {
+  const params = new URLSearchParams();
+  if (activeSpecs.length > 0) {
+    params.set("spec", activeSpecs.join(","));
+  }
+  const trimmed = q.trim();
+  if (trimmed.length > 0) {
+    params.set("q", trimmed);
+  }
+  const qs = params.toString();
+  return qs.length > 0 ? `?${qs}` : "";
 }
 
 export function PublicGuidesGrid({
   guides,
   activeSpecs,
+  initialQ,
 }: {
   guides: GuideRecord[];
   activeSpecs: string[];
+  initialQ?: string;
 }) {
   const router = useRouter();
-  const [query, setQuery] = React.useState("");
+  const [query, setQuery] = React.useState(initialQ ?? "");
+
+  function pushGuides(active: string[], qValue: string) {
+    router.push(`/guides${buildGuidesSearch(active, qValue)}`);
+  }
 
   function toggleSpec(id: string) {
     const next = activeSpecs.includes(id)
       ? activeSpecs.filter((s) => s !== id)
       : [...activeSpecs, id];
-    const qs = next.length > 0 ? `?spec=${next.join(",")}` : "";
-    router.push(`/guides${qs}`);
+    pushGuides(next, query);
   }
 
-  const filtered = React.useMemo(() => {
-    const q = normalize(query);
-    if (!q) return guides;
-    return guides.filter((guide) => {
-      const haystack = `${guide.fullName} ${guide.homeBase} ${guide.bio} ${guide.destinations.join(" ")}`.toLowerCase();
-      return haystack.includes(q);
-    });
-  }, [guides, query]);
+  function onSearchSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    pushGuides(activeSpecs, query);
+  }
 
   return (
     <>
       <div className="mb-8 max-w-xl">
-        <label htmlFor="guide-search" className="sr-only">
-          Поиск гида
-        </label>
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
-          <Input
-            id="guide-search"
-            type="search"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Поиск по имени или региону"
-            className="pl-9"
-          />
-        </div>
+        <form onSubmit={onSearchSubmit}>
+          <label htmlFor="guide-search" className="sr-only">
+            Поиск гида
+          </label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="guide-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Поиск по имени и тексту «о себе»"
+              className="pl-9"
+            />
+          </div>
+        </form>
       </div>
 
       <div className="mb-8">
@@ -110,13 +122,14 @@ export function PublicGuidesGrid({
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {guides.length === 0 ? (
         <p className="text-on-surface-muted">
-          Ничего не найдено. Попробуйте другой запрос.
+          Ничего не найдено. Если вы выбрали темы — попробуйте их сбросить: часть гидов ещё не заполнила
+          специализации в профиле и видна только при поиске по имени.
         </p>
       ) : (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((guide) => (
+          {guides.map((guide) => (
             <Link
               key={guide.slug}
               href={`/guides/${guide.slug}`}
