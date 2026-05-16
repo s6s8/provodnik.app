@@ -627,3 +627,56 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveResu
 - **Never** hardcode the allowed slug list inline — always derive from `THEMES` in `src/data/themes.ts`. See Canonical Vocabulary Module Pattern and HOT.md HOT-UPDATE.
 - If the filtered array is empty and the field is required, the action should return `{ ok: false, error: '...' }` rather than writing an empty array to the DB.
 
+
+
+
+
+## PostgREST ilike Full-Text Search Pattern
+
+When a user-supplied search string reaches a PostgREST `.ilike.` filter, **two separate escaping layers** are required. Missing either layer produces silently wrong results (user input acts as SQL wildcards) or a malformed PostgREST filter string.
+
+### Layer 1 — LIKE wildcard escaping (caller / page layer)
+
+Apply before passing the value to the data layer.
+
+```typescript
+// src/app/(site)/guides/page.tsx — exemplar
+const trimmedQ = (sp.q ?? "").trim();
+const rawQ = trimmedQ.length === 0 ? undefined : trimmedQ;
+const cappedForFilter = rawQ ? rawQ.slice(0, 80) : undefined; // hard length cap FIRST
+const sanitizedQ = cappedForFilter
+  ? cappedForFilter.replace(/%/g, "\\%").replace(/_/g, "\\_")
+  : undefined;
+```
+
+- **Cap before escaping** — prevents pathologically long DB patterns.
+- Escape `%` → `\%` and `_` → `\_` so the user cannot inject LIKE wildcards.
+
+### Layer 2 — PostgREST quoted-filter escaping (data layer)
+
+Apply immediately before interpolating into the filter string.
+
+```typescript
+// src/data/supabase/queries.ts
+/** `\` + `"` for values inside PostgREST double-quoted filter literals (`.ilike."…"`). */
+function escapePostgrestFilterQuotedInner(value: string): string {
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+// In the query builder:
+if (filters?.q) {
+  const v = escapePostgrestFilterQuotedInner(filters.q);
+  query = query.or(`display_name.ilike."%${v}%",bio.ilike."%${v}%"`);
+}
+```
+
+- PostgREST double-quoted filter values treat `\` and `"` as special characters; both must be escaped.
+- Apply **after** Layer 1 so the `\%` / `\_` sequences are preserved through the PostgREST parser — not re-interpreted as literal characters.
+
+**Rules:**
+- Keep the two escaping steps in separate, named functions — never collapse them into one anonymous substitution chain.
+- The data-layer helper (Layer 2) must receive an already-wildcard-escaped string from the caller, not the raw user input.
+- Always impose a character cap (e.g. 80) **before** escaping to bound query cost.
+- Applies to any `.ilike.` or `.like.` filter added in `src/data/supabase/queries.ts`. Single-column filters follow the same two-layer rule as multi-column `.or(...)` strings.
+- First introduced in `src/data/supabase/queries.ts` + `src/app/(site)/guides/page.tsx` (guide search, 2026-05-16).
+
