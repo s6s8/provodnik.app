@@ -167,3 +167,5 @@ _Auto-extended (Phase 10.B) after each `/epic-done`. Captures empirical decompos
 - **ERR-088** escalatedReason object corrupted the session file -> ERRORS.md (2026-05-16)
 - **ERR-089** critique-retry loops could not converge — re-run stage never saw the critique -> ERRORS.md (2026-05-16)
 - **ERR-090** SHIP_GATE/clarification button taps no-op (deferred, diagnosed) -> ERRORS.md (2026-05-16)
+- **ERR-091** canonical theme list built from the wrong vocabulary (photo vs religion) -> ERRORS.md (2026-05-16)
+- **AP-035** propagating an inherited canon/constant without examining whether it is correct -> ANTI_PATTERNS.md (2026-05-16)
