@@ -778,3 +778,26 @@ New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mj
 - **Remaining gap:** Guides who completed the wizard BEFORE this fix still have `specializations = '{}'`. A SQL backfill migration is needed to canonicalise any overlap between the free-text `specialties` column and valid `ThemeSlug` values, then write results to `specializations`. Pre-fix guides remain invisible to `?spec=` filtering until backfill runs.
 - **Prevention:** Any form that submits guide specializations must target the `specializations` column and validate against the canonical `ThemeSlug` enum. Server actions must include the module-level `Set<string>` ghost-slug sanitisation layer (see PATTERNS.md — Server-Action Ghost-Slug Defense Pattern). See also HOT.md HOT-UPDATE — Onboarding wizard now writes `specializations` directly.
 
+
+### ERR-088: escalatedReason written as an object corrupted the session file
+- **Symptom:** Sessions that escalated from a critique stage (clarification escalations) got `escalatedReason` written as a structured `{ task, reason }` object. SessionSchema declared `escalatedReason: z.string()`, so the next `safeParse` on load failed and JsonStore renamed the whole session file to `.corrupt-<ts>` — losing the session until manually repaired. Hit during E-10 T2/T4.
+- **Root Cause:** Some escalation paths (critique-stage clarification escalations) pass an object as the reason; the schema only allowed a plain string. There is no single write-site to fix — the object leaks in from model-shaped output.
+- **Fix:** `escalatedReason` is now `z.preprocess((v) => v && typeof v === 'object' ? (v.reason ?? JSON.stringify(v)) : v, z.string().nullable().optional())`. Any shape — object, null, string — is coerced to a string at the schema boundary on load, so no escalation shape can corrupt a session again. `.nullable()` also added (override-recovery writes null).
+- **Files Affected:** `quantumbek/orchestrator/bot/pipeline/state/session-schema.mjs`.
+- **Date:** 2026-05-16
+- **Prevention:** Schema fields that receive model-shaped or multi-path values should normalize defensively with `z.preprocess` rather than assume one writer. Tests: `tests/pipeline/schema-additions.test.mjs` (object→string coercion, null, json fallback).
+
+### ERR-089: critique-retry loops could not converge — re-run stage never saw the critique
+- **Symptom:** E-10 T4 ground PLAN ↔ PLAN_CRITIQUE three times (confidence stuck ~0.62) then escalated; the SPEC_CRITIQUE loop only "converged" by model variance (barely cleared 0.70 on the 3rd attempt). ~25 min of model time burned per stuck ticket.
+- **Root Cause:** `08-plan.mjs` (runPlan) read `session.artifacts['spec-critique']` but never `plan-critique`; `05-brainstorm.mjs` (runBrainstorm) read `research` but never `spec-critique`. On a `PLAN_CRITIQUE_RETRY` / `SPEC_CRITIQUE_RETRY` the FSM re-runs PLAN / BRAINSTORM — but the re-run never saw what the critique had just rejected, so it re-produced a near-identical artifact, the critique re-rejected, and the loop exhausted all retries → escalate. Sibling of ERR-087 (retry feedback not plumbed) which had only been fixed for the `VERIFY_RETRY → DISPATCH` path.
+- **Fix:** `08-plan.mjs` now reads `session.artifacts['plan-critique']` and prepends a "PRIOR PLAN REJECTED — resolve EVERY concern" block when present; `05-brainstorm.mjs` does the same with `spec-critique`. The retry now addresses the actual rejection. Verified live: E-10 T4's PLAN_CRITIQUE went `0.61 stuck → PASS 0.76` on the first post-fix run.
+- **Files Affected:** `quantumbek/orchestrator/bot/pipeline/stages/08-plan.mjs`, `bot/pipeline/stages/05-brainstorm.mjs`.
+- **Date:** 2026-05-16
+- **Prevention:** Every FSM re-entry path (retry, refine, escalate-recover) must carry the rejecting stage's feedback forward to the stage being re-run. Audit all `*_RETRY` events: the retried stage must read the critique artifact whose RETRY routed it there. Tests: `tests/pipeline/08-plan.test.mjs` +2, `tests/pipeline/05-brainstorm.test.mjs` +1.
+
+### ERR-090: SHIP_GATE / clarification inline-button taps no-op (DEFERRED — diagnosed, not fixed)
+- **Symptom:** Tapping the SHIP_GATE or clarification "Refine" inline button (via tg-cli) returns an empty callback ack and does not advance the FSM. SPEC_GATE / PLAN_GATE taps earlier in the same session worked. `/override <sid> proceed` (the command path) advances every gate reliably.
+- **Root Cause:** Not yet pinned. The callback handler (`bot.mjs` ~512-529) doesn't verify the HMAC token and doesn't read `session.callbackTokens`; `parseShipGateCallback` ([SVX] prefixes) looks correct. An empty ack means `ackCb(cb.id)` with no text — i.e. the callback parsed to null or produced no FSM event. Pinning it needs a live capture of the actual inbound `callback_data` for a SHIP_GATE button.
+- **Status:** DEFERRED. `/override` is a complete working substitute for every gate, so this is a UX papercut, not a blocker. Not fixed to keep the 2026-05-16 retry/re-entry repair pass bounded.
+- **Date:** 2026-05-16
+- **Next:** Capture a real SHIP_GATE `callback_data` payload from a live tap, compare against `parseShipGateCallback`'s regex, fix the mismatch.

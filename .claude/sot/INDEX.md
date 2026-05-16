@@ -164,3 +164,6 @@ _Auto-extended (Phase 10.B) after each `/epic-done`. Captures empirical decompos
 - **ERR-085** epic decomposition hallucinated fileScope paths (no codebase access) -> ERRORS.md (2026-05-16)
 - **ERR-086** createWorktree not idempotent — verify-retry re-dispatch escalated -> ERRORS.md (2026-05-16)
 - **ERR-087** verify-retry feedback never reached the re-dispatch prompt -> ERRORS.md (2026-05-16)
+- **ERR-088** escalatedReason object corrupted the session file -> ERRORS.md (2026-05-16)
+- **ERR-089** critique-retry loops could not converge — re-run stage never saw the critique -> ERRORS.md (2026-05-16)
+- **ERR-090** SHIP_GATE/clarification button taps no-op (deferred, diagnosed) -> ERRORS.md (2026-05-16)
