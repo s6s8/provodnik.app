@@ -22,8 +22,8 @@
 
 /MVP.md @provodnik/agent-foundation
 /PRD.md @provodnik/agent-foundation
-/WORKSTREAMS.md @provodnik/agent-foundation
+/docs/_stale/WORKSTREAMS.md @provodnik/agent-foundation
 /AGENTS.md @provodnik/agent-foundation
-/PROVODNIK-REPO-MEMORY.md @provodnik/agent-foundation
+/docs/_stale/PROVODNIK-REPO-MEMORY.md @provodnik/agent-foundation
 /docs/architecture/ @provodnik/agent-foundation
 /docs/adr/ @provodnik/agent-foundation

@@ -1,3 +1,5 @@
+> STALE — pre-orchestrator workflow. Kept for history only. Current model: .claude/sot/PRODUCT.md + .claude/CLAUDE.md.
+
 # PROVODNIK-REPO-MEMORY.md
 
 ## Purpose

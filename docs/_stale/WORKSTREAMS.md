@@ -1,3 +1,5 @@
+> STALE — pre-orchestrator workflow. Kept for history only. Current model: .claude/sot/PRODUCT.md + .claude/CLAUDE.md.
+
 # Workstreams
 
 These worktrees are intended for parallel MVP implementation from the shared baseline commit.
