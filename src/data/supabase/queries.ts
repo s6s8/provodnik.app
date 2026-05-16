@@ -62,6 +62,7 @@ export type GuideRecord = {
   topListingTitle?: string;
   experienceYears: number;
   listingCount?: number;
+  isPartialMatch: boolean;
 };
 
 export type RequestMember = {
@@ -171,11 +172,6 @@ function makeError(error: unknown) {
 
 function normalizeSlug(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
-}
-
-/** `\` + `"` for values inside PostgREST double-quoted filter literals (`.ilike."…"`). */
-function escapePostgrestFilterQuotedInner(value: string): string {
-  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
 }
 
 function getInitials(value: string) {
@@ -405,7 +401,35 @@ function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknow
     reviewCount: 0,
     topListingTitle: undefined,
     experienceYears: (gp.years_experience as number) ?? 5,
+    isPartialMatch: (gp.is_partial_match as boolean) ?? false,
   };
+}
+
+function filterGuidesBySpecializations(
+  rows: Record<string, unknown>[],
+  specializations: string[],
+): Record<string, unknown>[] {
+  const wanted = new Set(specializations);
+  return rows.filter((row) => {
+    const specs = (row.specializations as string[]) ?? [];
+    return specs.some((slug) => wanted.has(slug));
+  });
+}
+
+async function fetchProfilesByUserIds(
+  db: SupabaseClient,
+  userIds: string[],
+): Promise<Map<string, Record<string, unknown>>> {
+  const map = new Map<string, Record<string, unknown>>();
+  if (userIds.length === 0) return map;
+
+  const { data, error } = await db.from("profiles").select("id, full_name, avatar_url").in("id", userIds);
+  if (error) throw error;
+
+  for (const profile of data ?? []) {
+    map.set(profile.id as string, profile as Record<string, unknown>);
+  }
+  return map;
 }
 
 // ---------------------------------------------------------------------------
@@ -630,23 +654,21 @@ export async function getGuides(
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
     const db = getPublicClient();
-    let query = db
-      .from("guide_profiles")
-      .select("*, profiles:user_id(id, full_name, avatar_url)")
-      .eq("verification_status", "approved");
-    if (filters?.specializations && filters.specializations.length > 0) {
-      query = query.overlaps("specializations", filters.specializations);
-    }
-    if (filters?.q) {
-      const v = escapePostgrestFilterQuotedInner(filters.q);
-      query = query.or(`display_name.ilike."%${v}%",bio.ilike."%${v}%"`);
-    }
-    const { data, error } = await query;
+    const { data: searchRows, error } = await db.rpc("search_guides", {
+      q: filters?.q ?? "",
+    });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
+    if (!searchRows || searchRows.length === 0) return { data: [], error: null };
 
-    const guideIds = data.map((row) => row.user_id as string);
+    let rows = searchRows as Record<string, unknown>[];
+    if (filters?.specializations && filters.specializations.length > 0) {
+      rows = filterGuidesBySpecializations(rows, filters.specializations);
+    }
+    if (rows.length === 0) return { data: [], error: null };
+
+    const guideIds = rows.map((row) => row.user_id as string);
+    const profileMap = await fetchProfilesByUserIds(db, guideIds);
 
     const { data: listingRows } = await db
       .from("listings")
@@ -660,12 +682,12 @@ export async function getGuides(
       countMap[gid] = (countMap[gid] ?? 0) + 1;
     }
 
-    const filtered = data.filter((row) => (countMap[row.user_id as string] ?? 0) > 0);
+    const filtered = rows.filter((row) => (countMap[row.user_id as string] ?? 0) > 0);
 
     return {
       data: applyGuideFilters(
         filtered.map((row) => ({
-          ...mapGuideRow(row, row.profiles as Record<string, unknown> | null),
+          ...mapGuideRow(row, profileMap.get(row.user_id as string) ?? null),
           listingCount: countMap[row.user_id as string] ?? 0,
         })),
         filters,
@@ -683,19 +705,25 @@ export async function getGuidesByDestination(
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
     const db = getPublicClient();
-    const { data, error } = await db
-      .from("guide_profiles")
-      .select("*, profiles:user_id(id, full_name, avatar_url)")
-      .eq("verification_status", "approved")
-      .contains("regions", [region])
-      .order("years_experience", { ascending: false })
-      .limit(6);
+    const { data: searchRows, error } = await db.rpc("search_guides", { q: "" });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
+    if (!searchRows || searchRows.length === 0) return { data: [], error: null };
+
+    const rows = (searchRows as Record<string, unknown>[])
+      .filter((row) => ((row.regions as string[]) ?? []).includes(region))
+      .sort((a, b) => ((b.years_experience as number) ?? 0) - ((a.years_experience as number) ?? 0))
+      .slice(0, 6);
+
+    if (rows.length === 0) return { data: [], error: null };
+
+    const profileMap = await fetchProfilesByUserIds(
+      db,
+      rows.map((row) => row.user_id as string),
+    );
 
     return {
-      data: data.map((row) => mapGuideRow(row, row.profiles as Record<string, unknown> | null)),
+      data: rows.map((row) => mapGuideRow(row, profileMap.get(row.user_id as string) ?? null)),
       error: null,
     };
   } catch (error) {

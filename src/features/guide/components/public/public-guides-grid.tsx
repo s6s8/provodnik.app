@@ -44,6 +44,7 @@ export function PublicGuidesGrid({
 }) {
   const router = useRouter();
   const [query, setQuery] = React.useState(initialQ ?? "");
+  const showPartialMatchNotice = guides.length > 0 && guides.some((guide) => guide.isPartialMatch);
 
   function pushGuides(active: string[], qValue: string) {
     router.push(`/guides${buildGuidesSearch(active, qValue)}`);
@@ -78,7 +79,7 @@ export function PublicGuidesGrid({
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Поиск по имени и тексту «о себе»"
+              placeholder="Иван, Казань, английский"
               className="pl-9"
             />
           </div>
@@ -128,41 +129,48 @@ export function PublicGuidesGrid({
           специализации в профиле и видна только при поиске по имени.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {guides.map((guide) => (
-            <Link
-              key={guide.slug}
-              href={`/guides/${guide.slug}`}
-              className="block rounded-card bg-surface-high p-6 text-inherit no-underline shadow-card transition-transform hover:-translate-y-[3px]"
-            >
-              <div className="mb-4 flex items-center gap-4">
-                <Avatar className="size-14">
-                  <AvatarImage src={guide.avatarUrl ?? undefined} alt={guide.fullName} />
-                  <AvatarFallback className="bg-surface-low text-base font-semibold text-primary">
-                    {guide.initials}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="text-base font-semibold text-on-surface">{guide.fullName}</p>
-                  <p className="text-[0.8125rem] text-on-surface-muted">{guide.homeBase}</p>
+        <>
+          {showPartialMatchNotice && (
+            <p className="mb-4 rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-on-surface-muted">
+              Точных совпадений нет, показываем близкие
+            </p>
+          )}
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {guides.map((guide) => (
+              <Link
+                key={guide.slug}
+                href={`/guides/${guide.slug}`}
+                className="block rounded-card bg-surface-high p-6 text-inherit no-underline shadow-card transition-transform hover:-translate-y-[3px]"
+              >
+                <div className="mb-4 flex items-center gap-4">
+                  <Avatar className="size-14">
+                    <AvatarImage src={guide.avatarUrl ?? undefined} alt={guide.fullName} />
+                    <AvatarFallback className="bg-surface-low text-base font-semibold text-primary">
+                      {guide.initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-base font-semibold text-on-surface">{guide.fullName}</p>
+                    <p className="text-[0.8125rem] text-on-surface-muted">{guide.homeBase}</p>
+                  </div>
                 </div>
-              </div>
 
-              <p className="mb-4 line-clamp-2 text-[0.875rem] leading-[1.55] text-on-surface-muted">
-                {guide.bio}
-              </p>
-
-              <p className="text-[0.8125rem] text-on-surface-muted">
-                <span className="text-amber-500">★</span> {guide.rating} · {guide.reviewCount} отзывов
-              </p>
-              {guide.listingCount != null && (
-                <p className="text-[0.8125rem] text-on-surface-muted">
-                  {pluralizeExcursions(guide.listingCount)}
+                <p className="mb-4 line-clamp-2 text-[0.875rem] leading-[1.55] text-on-surface-muted">
+                  {guide.bio}
                 </p>
-              )}
-            </Link>
-          ))}
-        </div>
+
+                <p className="text-[0.8125rem] text-on-surface-muted">
+                  <span className="text-amber-500">★</span> {guide.rating} · {guide.reviewCount} отзывов
+                </p>
+                {guide.listingCount != null && (
+                  <p className="text-[0.8125rem] text-on-surface-muted">
+                    {pluralizeExcursions(guide.listingCount)}
+                  </p>
+                )}
+              </Link>
+            ))}
+          </div>
+        </>
       )}
     </>
   );

@@ -31,9 +31,6 @@ export default async function GuidesPage({
   const trimmedQ = (sp.q ?? "").trim();
   const rawQ = trimmedQ.length === 0 ? undefined : trimmedQ;
   const cappedForFilter = rawQ ? rawQ.slice(0, 80) : undefined;
-  const sanitizedQ = cappedForFilter
-    ? cappedForFilter.replace(/%/g, "\\%").replace(/_/g, "\\_")
-    : undefined;
 
   let guides: GuideRecord[] = [];
 
@@ -42,7 +39,7 @@ export default async function GuidesPage({
     const supabase = await createSupabaseServerClient();
     const result = await getGuides(supabase, {
       specializations: activeSpecs,
-      ...(sanitizedQ ? { q: sanitizedQ } : {}),
+      ...(cappedForFilter ? { q: cappedForFilter } : {}),
     });
     if (result.data) guides = result.data;
   } catch {
