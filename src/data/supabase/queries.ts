@@ -139,7 +139,7 @@ export type ReviewRecord = {
 
 export type ListingFilters = { destination?: string; duration?: string; priceRange?: string; format?: string };
 export type RequestFilters = { destination?: string; status?: string };
-export type GuideFilters = { destination?: string; specializations?: string[] };
+export type GuideFilters = { destination?: string; specializations?: string[]; q?: string };
 
 export type DestinationOption = {
   name: string;
@@ -631,6 +631,10 @@ export async function getGuides(
       .eq("verification_status", "approved");
     if (filters?.specializations && filters.specializations.length > 0) {
       query = query.overlaps("specializations", filters.specializations);
+    }
+    if (filters?.q) {
+      const pattern = `%${filters.q}%`;
+      query = query.or(`display_name.ilike.${pattern},bio.ilike.${pattern}`);
     }
     const { data, error } = await query;
 

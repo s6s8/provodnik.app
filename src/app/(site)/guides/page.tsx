@@ -19,7 +19,7 @@ export function generateMetadata(): Metadata {
 export default async function GuidesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ spec?: string }>;
+  searchParams: Promise<{ spec?: string; q?: string }>;
 }) {
   const sp = await searchParams;
   const validSpecs = new Set<string>(INTEREST_CHIPS.map((c) => c.id));
@@ -28,12 +28,22 @@ export default async function GuidesPage({
     .map((s) => s.trim())
     .filter((s) => s.length > 0 && validSpecs.has(s));
 
+  const trimmedQ = (sp.q ?? "").trim();
+  const rawQ = trimmedQ.length === 0 ? undefined : trimmedQ;
+  const cappedForFilter = rawQ ? rawQ.slice(0, 80) : undefined;
+  const sanitizedQ = cappedForFilter
+    ? cappedForFilter.replace(/%/g, "\\%").replace(/_/g, "\\_")
+    : undefined;
+
   let guides: GuideRecord[] = [];
 
   const auth = await readAuthContextFromServer();
   try {
     const supabase = await createSupabaseServerClient();
-    const result = await getGuides(supabase, { specializations: activeSpecs });
+    const result = await getGuides(supabase, {
+      specializations: activeSpecs,
+      ...(sanitizedQ ? { q: sanitizedQ } : {}),
+    });
     if (result.data) guides = result.data;
   } catch {
     // guides stays []
@@ -46,7 +56,7 @@ export default async function GuidesPage({
           Гиды
         </h1>
 
-        {guides.length === 0 && activeSpecs.length === 0 ? (
+        {guides.length === 0 && activeSpecs.length === 0 && !rawQ ? (
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
               <Users className="size-6" strokeWidth={1.9} />
@@ -57,7 +67,11 @@ export default async function GuidesPage({
             </p>
           </div>
         ) : (
-          <PublicGuidesGrid guides={guides} activeSpecs={activeSpecs} />
+          <PublicGuidesGrid
+            guides={guides}
+            activeSpecs={activeSpecs}
+            initialQ={sp.q?.trim() ?? ""}
+          />
         )}
 
         {auth.role !== "guide" && (
