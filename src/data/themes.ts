@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   Baby,
   Building2,
-  Camera,
+  Church,
   Landmark,
   Leaf,
   Palette,
@@ -16,7 +16,7 @@ export type ThemeSlug =
   | "nature"
   | "food"
   | "art"
-  | "photo"
+  | "religion"
   | "kids"
   | "unusual";
 
@@ -32,7 +32,7 @@ export const THEMES = [
   { slug: "nature", label: "Природа", Icon: Leaf },
   { slug: "food", label: "Гастрономия", Icon: Utensils },
   { slug: "art", label: "Искусство", Icon: Palette },
-  { slug: "photo", label: "Фотопрогулки", Icon: Camera },
+  { slug: "religion", label: "Религия", Icon: Church },
   { slug: "kids", label: "Для детей", Icon: Baby },
   { slug: "unusual", label: "Необычное", Icon: Sparkles },
 ] as const satisfies readonly Theme[];

@@ -1,29 +1,22 @@
-import type { ThemeSlug } from "@/data/themes";
+import { THEMES, type ThemeSlug } from "@/data/themes";
 
-const THEME_SLUGS: readonly ThemeSlug[] = [
-  "history",
-  "architecture",
-  "nature",
-  "food",
-  "art",
-  "photo",
-  "kids",
-  "unusual",
-];
+// Derived from the canon (not a hand-copied list) so it can never drift from
+// themes.ts again — that drift is exactly what put `photo` here instead of
+// `religion` (ERR-091).
+const THEME_SLUGS: readonly ThemeSlug[] = THEMES.map((t) => t.slug);
 
-/** DB `listings.category` and legacy display strings → canonical `ThemeSlug`. */
+/** DB `listings.category` and legacy display strings -> canonical `ThemeSlug`. */
 const LEGACY_CATEGORY_TO_SLUG: Record<string, ThemeSlug> = {
   История: "history",
   Природа: "nature",
   Гастрономия: "food",
   Еда: "food",
-  Фотография: "photo",
   "С семьей": "kids",
   "С семьёй": "kids",
   Архитектура: "architecture",
   Искусство: "art",
   Необычное: "unusual",
-  Фотопрогулки: "photo",
+  Религия: "religion",
   "Для детей": "kids",
 };
 
