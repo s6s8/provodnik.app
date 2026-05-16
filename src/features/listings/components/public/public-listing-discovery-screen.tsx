@@ -7,15 +7,8 @@ import { Compass } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ListingCard } from "@/components/shared/listing-card";
 import type { ListingRecord } from "@/data/supabase/queries";
-import type { PublicListing, PublicListingTheme } from "@/data/public-listings/types";
-
-const filters = ["Все", "Природа", "История", "С семьёй", "Фотография"] as const;
-const filterThemeMap: Partial<Record<(typeof filters)[number], PublicListingTheme>> = {
-  Природа: "Природа",
-  История: "История",
-  "С семьёй": "С семьей",
-  Фотография: "Фотография",
-};
+import type { PublicListing } from "@/data/public-listings/types";
+import { THEMES, type ThemeSlug } from "@/data/themes";
 
 function mapListing(listing: PublicListing): ListingRecord {
   return {
@@ -54,18 +47,14 @@ export function PublicListingDiscoveryScreen({
   listings: readonly PublicListing[];
   initialSearch?: string;
 }) {
-  const [activeFilter, setActiveFilter] = useState<(typeof filters)[number]>("Все");
+  const [activeFilter, setActiveFilter] = useState<"all" | ThemeSlug>("all");
   const [search, setSearch] = useState(initialSearch);
 
   const filteredListings = useMemo(() => {
     const themeFiltered =
-      activeFilter === "Все"
+      activeFilter === "all"
         ? listings
-        : (() => {
-            const theme = filterThemeMap[activeFilter];
-            if (!theme) return listings;
-            return listings.filter((listing) => listing.themes.includes(theme));
-          })();
+        : listings.filter((listing) => listing.themes.includes(activeFilter));
 
     const query = search.trim().toLowerCase();
     if (!query) return themeFiltered;
@@ -108,18 +97,31 @@ export function PublicListingDiscoveryScreen({
       </div>
 
       <div className="flex flex-wrap gap-3">
-        {filters.map((filter) => (
+        <button
+          key="all"
+          type="button"
+          onClick={() => setActiveFilter("all")}
+          className={
+            activeFilter === "all"
+              ? "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
+              : "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2 transition-colors hover:bg-brand/10 hover:text-brand"
+          }
+        >
+          Все
+        </button>
+        {THEMES.map(({ slug, label, Icon }) => (
           <button
-            key={filter}
+            key={slug}
             type="button"
-            onClick={() => setActiveFilter(filter)}
+            onClick={() => setActiveFilter(slug)}
             className={
-              activeFilter === filter
-                ? "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
-                : "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2 transition-colors hover:bg-brand/10 hover:text-brand"
+              activeFilter === slug
+                ? "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
+                : "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2 transition-colors hover:bg-brand/10 hover:text-brand"
             }
           >
-            {filter}
+            <Icon className="size-4 shrink-0" aria-hidden />
+            {label}
           </button>
         ))}
       </div>

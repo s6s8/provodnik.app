@@ -1,12 +1,7 @@
 import type { PublicGuideProfile } from "@/data/public-guides/types";
+import type { ThemeSlug } from "@/data/themes";
 
-export type PublicListingTheme =
-  | "Еда"
-  | "История"
-  | "Природа"
-  | "Фотография"
-  | "С семьей"
-  | "Несезон";
+export type PublicListingTheme = ThemeSlug;
 
 export type PublicListingInclusion =
   | "Работа гида"

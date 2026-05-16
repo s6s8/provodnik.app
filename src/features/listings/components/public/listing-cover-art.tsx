@@ -4,6 +4,7 @@ import { MapPin, Sparkles, Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import type { PublicListing } from "@/data/public-listings/types";
+import { getTheme } from "@/data/themes";
 import { cn } from "@/lib/utils";
 
 const paletteBySlug: Record<string, string> = {
@@ -15,9 +16,8 @@ const paletteBySlug: Record<string, string> = {
     "from-[#7b3f18] via-[#cc6d32] to-[#f1c788]",
 };
 
-function heroTags(listing: PublicListing) {
-  return [listing.city, ...listing.themes.slice(0, 2)];
-}
+const pillClassName =
+  "rounded-full border border-white/16 bg-white/10 px-3 py-1 text-xs font-medium text-white/92 backdrop-blur";
 
 export function ListingCoverArt({
   listing,
@@ -61,14 +61,23 @@ export function ListingCoverArt({
 
         <div className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            {heroTags(listing).map((item) => (
-              <span
-                key={item}
-                className="rounded-full border border-white/16 bg-white/10 px-3 py-1 text-xs font-medium text-white/92 backdrop-blur"
-              >
-                {item}
-              </span>
-            ))}
+            <span className={pillClassName}>
+              {listing.city}
+            </span>
+            {listing.themes.slice(0, 2).map((slug) => {
+              const theme = getTheme(slug);
+              if (!theme) return null;
+              const { Icon, label } = theme;
+              return (
+                <span
+                  key={slug}
+                  className={cn(pillClassName, "inline-flex items-center gap-1.5")}
+                >
+                  <Icon className="size-3 shrink-0" aria-hidden />
+                  {label}
+                </span>
+              );
+            })}
           </div>
 
           <div className="max-w-xl space-y-2">

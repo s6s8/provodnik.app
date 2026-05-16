@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { mapDbCategoryToThemeSlug } from "@/data/public-listings/mapper";
 import type { PublicListing } from "@/data/public-listings/types";
 import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -22,7 +23,10 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
     durationDays: Math.min(3, Math.max(1, listing.durationDays)) as PublicListing["durationDays"],
     priceFromRub: listing.priceRub,
     groupSizeMax: listing.groupSize,
-    themes: [listing.format as PublicListing["themes"][number]],
+    themes: (() => {
+      const slug = mapDbCategoryToThemeSlug(listing.format);
+      return slug != null ? ([slug] as const) : [];
+    })(),
     highlights: listing.description ? [listing.description] : [listing.title],
     itinerary: [
       {
