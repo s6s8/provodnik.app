@@ -35,17 +35,4 @@ MVP model-1, «Биржа»→«запросы», the `[verification]` rule.
   ссылки Telegram, нужен вставленный текст. Прекращён. Если надо разобрать,
   почему T-8 застрял на проверке — переоткрыть с полным текстом отказа в теле.
 
-## Open product questions — 2026-05-17 (from the PRODUCT.md → KODEX merge)
-
-These terms surfaced in product/planning discussion but have **no pinned
-definition** in any source document — listed, not guessed. Alex to define,
-then capture via `/kodex`:
-
-- **флагман** — нет подтверждённого определения в источниках.
-- **лента** — нет подтверждённого определения.
-- **первая волна** — нет подтверждённого определения.
-- **достроить сборную** — нет определения; возможно глагольная форма над
-  каноническим термином «сборная группа» — уточнить у Alex.
-- **Модели 2 и 3 Проводника** — модель 1 (кастомизированные запросы на
-  сборные группы) зафиксирована в `KODEX.md` §Product canon. Модели 2 и 3
-  не названы — продуктовый слой памяти неполон до их фиксации.
+> Open product questions moved to `.claude/sot/ROADMAP.md` (2026-05-18).
