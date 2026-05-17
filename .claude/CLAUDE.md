@@ -23,7 +23,7 @@ The macmini Telegram orchestrator (`@QuantumBekBot` in supergroup `-100361707258
 | `.claude/sot/API_REFERENCE.md` | Library/API gotchas |
 | `.claude/sot/DEPENDENCY_GRAPH.md` | Module relationships |
 | `.claude/sot/PROJECT_MAP.md` | Codebase tour |
-| `.claude/sot/KODEX.md` | Кодекс «Протуберанец» — behavioural code (process, communication, verification) |
+| `.claude/sot/KODEX.md` | Кодекс «Протуберанец» — the canonical memory file: product canon (model, MVP, glossary, flow) + behavioural code (process, communication, verification). Captured rules append via `/kodex` |
 | `.claude/sot/METRICS.md` | Tracked metrics |
 | `.claude/sot/NEXT_PLAN.md` | Pending work queue |
 | `.claude/sot/_archive/` | Historical SOT (findings, screenshots, retired specs) — gitignored, kept on local disk only |
