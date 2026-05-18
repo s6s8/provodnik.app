@@ -13,6 +13,7 @@
 (no planned epics recorded yet — auto-harvest appends here as the owner names them)
 
 ## Open questions
+- Message [0] is a question ('How many profiles and bookings are currently in the database?'), not a decision. No extractable decisions found. (harvest think 20260518-think-dbprobe-azcq)
 - Message [0] is a question ('How many open epics are there and what are they?'), not a decision statement. No decisions to extract. (harvest think 20260518-think-gc6probe-byx7)
 
 - **[bot-derived] Модели 2 и 3 Проводника** — модель 1 (кастомизированные запросы на сборные
