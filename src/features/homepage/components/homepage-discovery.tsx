@@ -29,7 +29,7 @@ export function HomePageDiscovery({ requests }: Props) {
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
         <div className="mx-auto max-w-2xl">
         <p className="mb-7 text-center text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Запросы путешественников
+          Что ищут путешественники прямо сейчас
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           {requests.length === 0 ? (
