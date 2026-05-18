@@ -18,10 +18,12 @@ import type {
 } from "@/lib/supabase/types";
 import { maskPii } from "@/lib/pii/mask";
 
+import { formatExcursionPriceFrom } from "./excursion-price";
+
 export type ListingDetailRow = ListingRow & { image_url?: string | null };
 
 const EXP_TYPE_LABELS: Record<string, string> = {
-  excursion: "Экскурсия",
+  excursion: "Классическая экскурсия",
   waterwalk: "Прогулка на воде",
   masterclass: "Мастер-класс",
   photosession: "Фотосессия",
@@ -43,10 +45,6 @@ function formatDuration(minutes: number | null): string {
   const m = minutes % 60;
   if (m === 0) return `${h} ч`;
   return `${h} ч ${m} мин`;
-}
-
-function formatRubMinor(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(minor / 100));
 }
 
 interface Props {
@@ -84,7 +82,9 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
     <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
       <CardContent className="space-y-4 p-5">
         <div>
-          <p className="text-3xl font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
+          <p className="text-3xl font-semibold">
+            {formatExcursionPriceFrom(listing.price_from_minor, listing.format)}
+          </p>
         </div>
         <ul className="space-y-1 text-sm text-muted-foreground">
           {durationLabel ? <li>Длительность: {durationLabel}</li> : null}
@@ -133,7 +133,6 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
 
           {description ? (
             <section className="space-y-2">
-              <h2 className="text-lg font-semibold tracking-tight">Описание</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{description}</p>
             </section>
           ) : null}
@@ -193,7 +192,9 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur-md md:hidden">
         <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-[clamp(12px,3vw,24px)]">
-          <p className="text-lg font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
+          <p className="text-lg font-semibold">
+            {formatExcursionPriceFrom(listing.price_from_minor, listing.format)}
+          </p>
           <Button asChild className="shrink-0">
             <Link href={`/listings/${listing.id}/book`}>
               Заказать

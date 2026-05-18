@@ -7,7 +7,7 @@ import type { ListingRow } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
 const EXP_TYPE_LABELS: Record<NonNullable<ListingRow["exp_type"]>, string> = {
-  excursion: "Экскурсия",
+  excursion: "Классическая экскурсия",
   waterwalk: "Прогулка на воде",
   masterclass: "Мастер-класс",
   photosession: "Фотосессия",
