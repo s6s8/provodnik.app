@@ -40,7 +40,7 @@ const guideNavLinks = [
 ] as const;
 
 const publicNavLinks = [
-  { href: "/listings", label: "Экскурсии" },
+  { href: "/listings", label: "Готовые экскурсии" },
   { href: "/guides", label: "Гиды" },
   { href: "/how-it-works", label: "Как это работает" },
 ] as const;

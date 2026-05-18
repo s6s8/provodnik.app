@@ -74,16 +74,10 @@ export function PublicListingDiscoveryScreen({
 
   return (
     <div className="space-y-10">
-      <section className="space-y-4">
-        <p className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
-          Экскурсии
-        </p>
+      <section>
         <h1 className="text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] text-ink">
-          Маршруты с локальными гидами
+          Готовые экскурсии
         </h1>
-        <p className="max-w-[48rem] text-[1rem] leading-[1.65] text-ink-2">
-          Подборка авторских маршрутов по городам и природным направлениям России с понятным темпом, стоимостью и форматом группы.
-        </p>
       </section>
 
       <div className="max-w-[32rem]">
@@ -92,7 +86,7 @@ export function PublicListingDiscoveryScreen({
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Поиск по названию, описанию или направлению…"
-          aria-label="Поиск по турам"
+          aria-label="Поиск по экскурсиям"
         />
       </div>
 
