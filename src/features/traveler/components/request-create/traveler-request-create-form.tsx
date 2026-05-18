@@ -24,7 +24,7 @@ export function TravelerRequestCreateForm() {
   const form = useForm<RequestFormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
-      mode: "private",
+      mode: "assembly",
       interests: [] as TravelerRequest["interests"],
       destination: "",
       startDate: "",
@@ -118,7 +118,7 @@ export function TravelerRequestCreateForm() {
       <div className="grid gap-2">
         <FieldLabel>Формат поездки</FieldLabel>
         <div className="flex gap-2">
-          {(["private", "assembly"] as const).map((m) => (
+          {(["assembly", "private"] as const).map((m) => (
             <label
               key={m}
               className={cn(
@@ -149,7 +149,7 @@ export function TravelerRequestCreateForm() {
 
       {/* Interests */}
       <div className="grid gap-2">
-        <FieldLabel>Интересы поездки</FieldLabel>
+        <FieldLabel>Темы поездки</FieldLabel>
         <div className="grid grid-cols-3 gap-2">
           {INTEREST_CHIPS.map((opt) => {
             const selected = interestsField.value.includes(opt.id);
