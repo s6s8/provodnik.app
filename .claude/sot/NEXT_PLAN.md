@@ -13,30 +13,26 @@
 
 > STATUS (2026-05-04): **launch-readiness finale — shipped Phase 8–11, PRODUCT_READY_2026-05-04.md written, ~7 commits since cc2007b.** Brain ran the second overnight loop iteration off the Phase 8 audit findings. T071-GATE took the all-pass branch after T071.1 + T071.2 each returned zero P0/P1 findings. Plans 58/59/60/61 all closed: Plan 58 traveler/guide audit fixes, Plan 59 notifications schema + LCP priority + История chip + listing-detail hero, Plan 60 explicit fetchPriority for Next.js 16 priority Image (4 files) + production listings re-seed (10 rows, 6 categories), Plan 61 dead Unsplash URL replacement (2 photo IDs across 4 rows). 5 deferral ADRs landed (ADR-054 priority-on-listing-detail, ADR-055 broken-Unsplash-seed-images, ADR-056 listings-search-id-name, ADR-057 inbox-empty-state-copy, ADR-058 stale-test-credentials). Single open finding: nightlife chip in `interests.ts` — T001 partial regression (adventure removed correctly, nightlife survived a post-T001 edit) — P2 cosmetic, not a launch blocker. Slack patch_42 ts=`1777856565.358759`, Telegram message_id=3536, hours=15 (cumulative loop). Cumulative across both overnight runs (2026-05-02→2026-05-04): ~42 commits, 94 ledger rows ticked, 17 findings files, 11 phase gates closed, 9 ADRs added. Next: launch.
 
-## Live queue — 2026-05-17 (orchestrator harvest)
+## Live queue — 2026-05-18 (orchestrator refresh)
 
-Harvested from the open Telegram topics + the 2026-05-17 bible-discussion
-(think topic 1622). Product memory captured this session into `KODEX.md`:
-MVP model-1, «Биржа»→«запросы», the `[verification]` rule.
+Эпики и сессии прошлых недель консолидированы в один рабочий эпик
+(Telegram-топик 1757, «Provodnik — командный центр»).
 
-- **[owner-verified] E-16 «Готовые экскурсии» (epic, EXECUTING).** 5-node tree; node 1
-  (поиск гидов: индексация + разбор ввода по запятой) shipped. Nodes 2–5
-  planned, not fired: #2 каталог — H1 «Готовые экскурсии» + переименование
-  навигации; #3 главная — надстрочник блока запросов «Что ищут путешественники
-  прямо сейчас»; #4 карточка экскурсии — бейдж типа, подписи секций, формат
-  цены; #5 браузер-проверка изменённых поверхностей под гостем и путешественником
-  на 1280px и 375px. Action: `/fire 2` → 3 → 4 → 5, или `/epic-policy autoFire on`
-  в топике E-16.
-- **[bot-derived] Три модели Проводника — пробел.** Модель 1 (кастомизированные запросы на
-  сборные группы) зафиксирована в `KODEX.md` 2026-05-17. Модели 2 и 3 не названы —
-  Alex назвать, закрепить через `/kodex`. Без этого продуктовый слой памяти неполон.
-- **[owner-verified] E-5 kodex-update (epic).** Правило `[verification]` из обсуждения теперь в
-  `KODEX.md`. Эпик можно закрывать.
-- **[owner-verified] T-3 «аккаунты» (session, был ESCALATED).** Оказался операционным вопросом
-  («сколько аккаунтов на сайте сейчас»), не тикетом — сессия прекращена. Если
-  число аккаунтов всё ещё нужно — это запрос к БД, не задача для пайплайна.
-- **[owner-verified] E-9 t-8-add-structure (epic).** Тупиковое обсуждение — бот не открывает
-  ссылки Telegram, нужен вставленный текст. Прекращён. Если надо разобрать,
-  почему T-8 застрял на проверке — переоткрыть с полным текстом отказа в теле.
-
-> Open product questions moved to `.claude/sot/ROADMAP.md` (2026-05-18).
+- **[owner-verified] E-19 «командный центр» (epic, DECOMPOSED, топик 1757).**
+  Единый рабочий эпик; дерево — 5 задач, ни одна не запущена: #1 каталог
+  «Готовые экскурсии» (H1 + навигация); #2 главная — надзаголовок блока
+  запросов; #3 карточка экскурсии (бейдж типа, секции, цена); #4 браузер-
+  проверка изменённых поверхностей; #5 страница запроса — «Сборная группа»
+  слева и по умолчанию. Action: /fire 1..5 из топика 1757.
+- **[owner-verified] Три модели продукта — зафиксированы.** Модель 1 «Сборная
+  группа», модель 2 «Своя группа», модель 3 «Готовые экскурсии» — записаны в
+  `KODEX.md` §«Три модели продукта» (2026-05-18). Комиссия 15% / 15% / 25%,
+  оплата вне платформы до платёжного шлюза.
+- **[owner-verified] Закрыты:** E-5 kodex-update (правило [verification] уже в
+  KODEX), E-9 t-8-add-structure, T-3 «аккаунты», E-16 «Готовые экскурсии» —
+  консолидированы или прерваны; остаточная работа перенесена в дерево E-19.
+- **[owner-verified] Запуск по волнам** — флаги `FEATURE_TR_*` в Vercel, см.
+  `docs/product/tripster-v1-rollout.md`. Сейчас конфиг pre-launch; волны 2–3
+  гейтятся на 5+ активных листингов и 3+ завершённые брони.
+- **[owner-verified] Платёжный шлюз — v2.** Пока оплата и комиссия идут вне
+  платформы (`FEATURE_DEPOSITS=0`).

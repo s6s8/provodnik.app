@@ -13,14 +13,13 @@
 (no planned epics recorded yet — auto-harvest appends here as the owner names them)
 
 ## Open questions
-- Message [0] is a question ('How many profiles and bookings are currently in the database?'), not a decision. No extractable decisions found. (harvest think 20260518-think-dbprobe-azcq)
-- Message [0] is a question ('How many open epics are there and what are they?'), not a decision statement. No decisions to extract. (harvest think 20260518-think-gc6probe-byx7)
 
-- **[bot-derived] Модели 2 и 3 Проводника** — модель 1 (кастомизированные запросы на сборные
-  группы) зафиксирована в `KODEX.md` §Product canon; модели 2 и 3 не названы.
-  Продуктовый слой памяти неполон до их фиксации.
-- **[bot-derived] флагман** — нет подтверждённого определения в источниках.
-- **[bot-derived] лента** — нет подтверждённого определения.
-- **[bot-derived] первая волна** — нет подтверждённого определения.
-- **[bot-derived] достроить сборную** — нет определения; возможно глагольная форма над
-  каноническим термином «сборная группа» — уточнить у Alex.
+(нет открытых вопросов)
+
+Прошлые записи сняты 2026-05-18:
+- Модели 2 и 3 — определены и зафиксированы в `KODEX.md` §«Три модели
+  продукта».
+- «флагман», «лента», «первая волна», «достроить сборную» — подтверждено в
+  think «all-memory», что это выдумка бота, а не термины продукта; удалены.
+- harvest-артефакты think-dbprobe / think-gc6probe — это были вопросы, не
+  решения; удалены как шум.
