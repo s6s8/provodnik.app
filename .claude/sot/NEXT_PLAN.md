@@ -4,6 +4,10 @@
 > entries 2026-04-06 -> 2026-05-03) is archived to
 > `.claude/sot/_archive/NEXT_PLAN-history-pre-2026-05-17.md` — local-disk only,
 > the SOT `_archive/` subdir is gitignored. Last reviewed: 2026-05-17.
+>
+> Provenance tags on the live queue: `[owner-verified]` = a real epic/session
+> in the store, or a decision Alex confirmed; `[bot-derived]` = an observation
+> the orchestrator inferred — treat as open, never as established fact.
 
 ## Current status — newest STATUS entry
 
@@ -15,7 +19,7 @@ Harvested from the open Telegram topics + the 2026-05-17 bible-discussion
 (think topic 1622). Product memory captured this session into `KODEX.md`:
 MVP model-1, «Биржа»→«запросы», the `[verification]` rule.
 
-- **E-16 «Готовые экскурсии» (epic, EXECUTING).** 5-node tree; node 1
+- **[owner-verified] E-16 «Готовые экскурсии» (epic, EXECUTING).** 5-node tree; node 1
   (поиск гидов: индексация + разбор ввода по запятой) shipped. Nodes 2–5
   planned, not fired: #2 каталог — H1 «Готовые экскурсии» + переименование
   навигации; #3 главная — надстрочник блока запросов «Что ищут путешественники
@@ -23,15 +27,15 @@ MVP model-1, «Биржа»→«запросы», the `[verification]` rule.
   цены; #5 браузер-проверка изменённых поверхностей под гостем и путешественником
   на 1280px и 375px. Action: `/fire 2` → 3 → 4 → 5, или `/epic-policy autoFire on`
   в топике E-16.
-- **Три модели Проводника — пробел.** Модель 1 (кастомизированные запросы на
+- **[bot-derived] Три модели Проводника — пробел.** Модель 1 (кастомизированные запросы на
   сборные группы) зафиксирована в `KODEX.md` 2026-05-17. Модели 2 и 3 не названы —
   Alex назвать, закрепить через `/kodex`. Без этого продуктовый слой памяти неполон.
-- **E-5 kodex-update (epic).** Правило `[verification]` из обсуждения теперь в
+- **[owner-verified] E-5 kodex-update (epic).** Правило `[verification]` из обсуждения теперь в
   `KODEX.md`. Эпик можно закрывать.
-- **T-3 «аккаунты» (session, был ESCALATED).** Оказался операционным вопросом
+- **[owner-verified] T-3 «аккаунты» (session, был ESCALATED).** Оказался операционным вопросом
   («сколько аккаунтов на сайте сейчас»), не тикетом — сессия прекращена. Если
   число аккаунтов всё ещё нужно — это запрос к БД, не задача для пайплайна.
-- **E-9 t-8-add-structure (epic).** Тупиковое обсуждение — бот не открывает
+- **[owner-verified] E-9 t-8-add-structure (epic).** Тупиковое обсуждение — бот не открывает
   ссылки Telegram, нужен вставленный текст. Прекращён. Если надо разобрать,
   почему T-8 застрял на проверке — переоткрыть с полным текстом отказа в теле.
 
