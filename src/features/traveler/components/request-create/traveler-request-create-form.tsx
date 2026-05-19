@@ -285,7 +285,9 @@ export function TravelerRequestCreateForm() {
               min={1}
               max={50}
               aria-invalid={Boolean(errors.groupMax)}
-              {...register("groupMax", { valueAsNumber: true })}
+              {...register("groupMax", {
+                setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
+              })}
             />
             <FieldHint>Комфортный максимум участников.</FieldHint>
             <FieldError id="groupMax-error" message={errors.groupMax?.message} />

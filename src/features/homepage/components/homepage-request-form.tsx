@@ -33,7 +33,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
-      mode: "private",
+      mode: "assembly",
       interests: [] as TravelerRequest["interests"],
       destination: "",
       startDate: "",
@@ -138,7 +138,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       <div className="grid gap-2">
         <FieldLabel>Формат поездки</FieldLabel>
         <div className="flex gap-2">
-          {(["private", "assembly"] as const).map((m) => (
+          {(["assembly", "private"] as const).map((m) => (
             <label
               key={m}
               className={cn(
@@ -304,7 +304,9 @@ export function HomepageRequestForm({ destinations }: Props) {
               min={1}
               max={50}
               aria-invalid={Boolean(errors.groupMax)}
-              {...register("groupMax", { valueAsNumber: true })}
+              {...register("groupMax", {
+                setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
+              })}
             />
             <FieldError id="groupMax-error" message={errors.groupMax?.message} />
           </div>
