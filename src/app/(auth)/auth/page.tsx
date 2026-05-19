@@ -3,7 +3,24 @@ import { redirect } from "next/navigation";
 import { AuthEntryScreen } from "@/features/auth/components/auth-entry-screen";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 
-export default async function AuthPage() {
+type AuthPageProps = {
+  searchParams: Promise<{ role?: string | string[] }>;
+};
+
+function resolveSignupRole(
+  raw: string | string[] | undefined,
+): "traveler" | "guide" {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (value === "traveler" || value === "guide") {
+    return value;
+  }
+  return "traveler";
+}
+
+export default async function AuthPage({ searchParams }: AuthPageProps) {
+  const params = await searchParams;
+  const signupRole = resolveSignupRole(params.role);
+
   const authContext = await readAuthContextFromServer();
 
   if (authContext.missingRoleRecoveryTo) {
@@ -20,7 +37,7 @@ export default async function AuthPage() {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1f3c] to-[#0a1628]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(0,88,190,0.22),transparent)]" />
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[rgba(0,88,190,0.08)] to-transparent" />
-      <AuthEntryScreen />
+      <AuthEntryScreen role={signupRole} />
     </section>
   );
 }

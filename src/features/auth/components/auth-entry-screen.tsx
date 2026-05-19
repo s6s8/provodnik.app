@@ -52,7 +52,11 @@ function getFriendlyAuthError(code: string): string {
   return "Что-то пошло не так. Попробуйте ещё раз.";
 }
 
-export function AuthEntryScreen() {
+type AuthEntryScreenProps = {
+  role?: "traveler" | "guide";
+};
+
+export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
   const router = useRouter();
 
   const [mode, setMode] = useState<AuthFormMode>("sign-in");
@@ -124,11 +128,10 @@ export function AuthEntryScreen() {
       }
 
       // Sign-up: server action creates user + profile + sets app_metadata atomically.
-      // Public signup is traveler-only — guide onboarding is invite-only / admin-verified.
       const result = await signUpAction({
         email: trimmedEmail,
         password,
-        role: "traveler",
+        role,
         fullName: trimmedFullName,
         phone: phone.trim() || undefined,
       });

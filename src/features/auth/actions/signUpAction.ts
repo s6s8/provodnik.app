@@ -17,16 +17,14 @@ type SignUpResult =
   | { ok: false; error: string };
 
 export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
-  // Anti-dezintermediation guard: public signup is traveler-only.
-  // Guide/admin roles are provisioned by invite or admin verification, never via
-  // an arbitrary client-supplied `role`. Must be the first executable statement —
-  // no Supabase calls, no guide_profiles upsert, no app_metadata mutation when rejected.
-  if (input.role !== "traveler") {
+  // Public signup allowlist: traveler and guide only. Admin and arbitrary roles
+  // are rejected before any Supabase call — must be the first executable statement.
+  if (input.role !== "traveler" && input.role !== "guide") {
     return { ok: false, error: "forbidden_role" };
   }
 
   const { email, password, fullName, phone } = input;
-  const safeRole = "traveler" as const;
+  const safeRole = input.role;
 
   const admin = createSupabaseAdminClient();
 
