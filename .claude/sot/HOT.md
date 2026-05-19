@@ -212,6 +212,8 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 
 ### HOT-NEW — `search_guides("")` fetches all guides; post-RPC JS filters do not scale
 
+**2026-05-19 correction (ERR-092):** the `search_guides` RPC was never applied to the live DB until 2026-05-19 — until then guide search returned **nothing** in production, not "all guides". The scaling concern below is real but only became live the day the migration was finally applied.
+
 `getGuides` (empty or absent query) and `getGuidesByDestination` both call `db.rpc("search_guides", { q: "" })`, which returns **every** approved + available `guide_profiles` row. Specialization filtering (`filterGuidesBySpecializations`) and region filtering + sort + `.slice(0, 6)` run in JS after the full payload arrives. Previously, `.overlaps("specializations", ...)`, `.contains("regions", ...)`, `.order("years_experience", ...)`, and `.limit(6)` ran in Postgres before network transfer.
 
 **Never** add a new guide-listing surface that calls `search_guides("")` and relies on JS-side filtering when the guide roster is expected to exceed ~500 rows.
@@ -221,4 +223,10 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 **Affected functions:** `src/data/supabase/queries.ts` — `getGuides` and `getGuidesByDestination`.
 
 **Monitoring:** Until the push-down ships, log or Supabase-dashboard-watch the row count returned by `search_guides("")` in production. A sudden jump (new batch of guide onboardings) can silently inflate page load time and memory.
+
+---
+
+### HOT-NEW — Migration drift: repo migration files ≠ what is applied on the live DB
+**Never** assume a file in `supabase/migrations/` has been applied to the live DB, and **never** trust the `supabase_migrations` tracking table (`list_migrations`) to tell you what is applied. On this project migrations were applied ad-hoc (SQL editor / dashboard) outside `supabase db push` — the tracking table both under-reports and its version numbers do not match repo filenames. On 2026-05-19 two migrations were found never-applied with two production flows silently dead: `add_date_flexibility` (traveler request creation, Postgres 42703) and `search_guides_rpc` (guide search). 200 green tests caught neither — only a live browser walk did. See ERR-092.
+**Always** when work depends on a schema object (column, table, RPC, index, policy): introspect the **actual** live schema — `information_schema.columns`, `pg_proc`, `pg_indexes`, `pg_policies` — never the migration list. After writing a new migration, confirm it ran on the live DB (a runtime `42703` / "does not exist" is the symptom of a skipped migration). Data migrations (`reseed_*`, `*_backfill`, seed) must NOT be blind-re-run — they overwrite live data. Re-baselining the tracking table needs `supabase migration repair` (CLI); raw INSERTs into the production `supabase_migrations` table are unsafe.
 

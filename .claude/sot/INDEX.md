@@ -169,3 +169,5 @@ _Auto-extended (Phase 10.B) after each `/epic-done`. Captures empirical decompos
 - **ERR-090** SHIP_GATE/clarification button taps no-op (deferred, diagnosed) -> ERRORS.md (2026-05-16)
 - **ERR-091** canonical theme list built from the wrong vocabulary (photo vs religion) -> ERRORS.md (2026-05-16)
 - **AP-035** propagating an inherited canon/constant without examining whether it is correct -> ANTI_PATTERNS.md (2026-05-16)
+- **ERR-092** migration files in repo never applied to live DB (date_flexibility + search_guides_rpc); request creation + guide search were dead; supabase_migrations table unreliable -> ERRORS.md (2026-05-19)
+- **AP-036** valueAsNumber:true on an OPTIONAL react-hook-form numeric field — empty input → NaN → z.number().optional() rejects → submit silently blocked; use setValueAs -> ANTI_PATTERNS.md (2026-05-19)
