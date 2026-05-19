@@ -7,10 +7,6 @@ export const metadata: Metadata = {
 
 const VALUE_PROPS = [
   {
-    title: "Нулевая комиссия",
-    description: "Вы устанавливаете цену и забираете её полностью. Мы не берём процент.",
-  },
-  {
     title: "Свободный график",
     description: "Принимайте только те запросы, которые вам интересны, в удобное время.",
   },
@@ -27,7 +23,7 @@ export default function BecomeAGuidePage() {
         Станьте гидом на Проводнике
       </h1>
       <p className="mb-10 text-base text-muted-foreground">
-        Принимайте запросы от путешественников и проводите экскурсии на своих условиях.
+        Размещайте свои экскурсии, отвечайте на запросы путешественников и работайте в удобном вам ритме.
       </p>
 
       <div className="mb-10 space-y-4">
@@ -42,18 +38,12 @@ export default function BecomeAGuidePage() {
         ))}
       </div>
 
-      <div className="flex flex-col items-start gap-3">
+      <div className="flex flex-col items-center gap-3">
         <Link
           href="/auth?role=guide"
           className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
-          Зарегистрироваться — займёт 2 минуты
-        </Link>
-        <Link
-          href="/auth"
-          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-        >
-          Уже есть аккаунт? Войти
+          Зарегистрироваться
         </Link>
       </div>
     </article>
