@@ -32,6 +32,13 @@ function getFriendlyAuthError(code: string): string {
       return "Этот email уже зарегистрирован. Войдите в существующий аккаунт или используйте другой адрес.";
     case "internal":
       return "Что-то пошло не так. Попробуйте ещё раз.";
+    case "profile_failed":
+    case "role_failed":
+      return "Не удалось завершить регистрацию. Попробуйте ещё раз.";
+    case "signin_after_signup_failed":
+      return "Аккаунт создан. Войдите по своему email и паролю.";
+    case "forbidden_role":
+      return "Регистрация для этой роли недоступна.";
   }
 
   const normalized = code.toLowerCase();
@@ -59,7 +66,9 @@ type AuthEntryScreenProps = {
 export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
   const router = useRouter();
 
-  const [mode, setMode] = useState<AuthFormMode>("sign-in");
+  const [mode, setMode] = useState<AuthFormMode>(
+    role === "guide" ? "sign-up" : "sign-in",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");

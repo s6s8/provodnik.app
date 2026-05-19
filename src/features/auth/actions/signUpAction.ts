@@ -46,7 +46,11 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
 
   const userId = created.user.id;
 
-  await admin.from("profiles").upsert({
+  // The profiles upsert and the app_metadata update were previously unchecked:
+  // a failure left an auth user with no usable profile or role claim behind a
+  // single generic error. Both are now checked and roll the auth user back, so
+  // no orphaned account remains and the caller learns the real cause.
+  const { error: profileError } = await admin.from("profiles").upsert({
     id: userId,
     role: safeRole,
     email,
@@ -54,9 +58,19 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     ...(phone ? { phone } : {}),
   });
 
-  await admin.auth.admin.updateUserById(userId, {
+  if (profileError) {
+    await admin.auth.admin.deleteUser(userId);
+    return { ok: false, error: "profile_failed" };
+  }
+
+  const { error: roleError } = await admin.auth.admin.updateUserById(userId, {
     app_metadata: { role: safeRole },
   });
+
+  if (roleError) {
+    await admin.auth.admin.deleteUser(userId);
+    return { ok: false, error: "role_failed" };
+  }
 
   const supabase = await createSupabaseServerClient();
   const { error: signInError } = await supabase.auth.signInWithPassword({
@@ -65,7 +79,9 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   });
 
   if (signInError) {
-    return { ok: false, error: "internal" };
+    // The account is fully provisioned — only the immediate session failed.
+    // No orphan: the user can sign in directly with the same credentials.
+    return { ok: false, error: "signin_after_signup_failed" };
   }
 
   const dashboardPath = getDashboardPathForRole(safeRole) ?? "/";

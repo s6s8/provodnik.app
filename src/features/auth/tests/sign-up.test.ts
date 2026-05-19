@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const {
   createUserMock,
   updateUserByIdMock,
+  deleteUserMock,
   upsertMock,
   fromMock,
   signInWithPasswordMock,
@@ -11,6 +12,7 @@ const {
 } = vi.hoisted(() => {
   const createUserMock = vi.fn();
   const updateUserByIdMock = vi.fn();
+  const deleteUserMock = vi.fn();
   const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
   const fromMock = vi.fn(() => ({ upsert: upsertMock }));
   const signInWithPasswordMock = vi.fn();
@@ -20,6 +22,7 @@ const {
       admin: {
         createUser: createUserMock,
         updateUserById: updateUserByIdMock,
+        deleteUser: deleteUserMock,
       },
     },
     from: fromMock,
@@ -32,6 +35,7 @@ const {
   return {
     createUserMock,
     updateUserByIdMock,
+    deleteUserMock,
     upsertMock,
     fromMock,
     signInWithPasswordMock,
@@ -132,5 +136,45 @@ describe("signUpAction — public signup roles", () => {
     expect(updateUserByIdMock).toHaveBeenCalledWith("user-1", {
       app_metadata: { role: "traveler" },
     });
+  });
+});
+
+describe("signUpAction — failure rollback", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    upsertMock.mockResolvedValue({ data: null, error: null });
+  });
+
+  it("rolls the auth user back when the profiles upsert fails", async () => {
+    createUserMock.mockResolvedValue({ data: { user: { id: "user-9" } }, error: null });
+    upsertMock.mockResolvedValue({ data: null, error: { message: "upsert failed" } });
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "profile_failed" });
+    expect(deleteUserMock).toHaveBeenCalledWith("user-9");
+  });
+
+  it("rolls the auth user back when the app_metadata update fails", async () => {
+    createUserMock.mockResolvedValue({ data: { user: { id: "user-9" } }, error: null });
+    upsertMock.mockResolvedValue({ data: null, error: null });
+    updateUserByIdMock.mockResolvedValue({ data: null, error: { message: "role failed" } });
+
+    const result = await signUpAction({ ...baseInput, role: "guide" });
+
+    expect(result).toEqual({ ok: false, error: "role_failed" });
+    expect(deleteUserMock).toHaveBeenCalledWith("user-9");
+  });
+
+  it("reports signin_after_signup_failed and keeps the valid account", async () => {
+    createUserMock.mockResolvedValue({ data: { user: { id: "user-9" } }, error: null });
+    upsertMock.mockResolvedValue({ data: null, error: null });
+    updateUserByIdMock.mockResolvedValue({ data: null, error: null });
+    signInWithPasswordMock.mockResolvedValue({ data: {}, error: { message: "no session" } });
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "signin_after_signup_failed" });
+    expect(deleteUserMock).not.toHaveBeenCalled();
   });
 });
