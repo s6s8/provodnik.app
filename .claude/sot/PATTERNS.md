@@ -753,3 +753,47 @@ const showPartialMatchNotice =
 - Post-RPC JS filters (specialization, region) are acceptable only while the guide roster is small (< ~500 rows). See HOT.md — `search_guides("")` scale landmine for the push-down plan.
 - First introduced: `src/data/supabase/queries.ts` + `supabase/migrations/20260516000001_search_guides_rpc.sql` (2026-05-16).
 
+
+
+
+
+
+## Next.js App Router searchParams Role-Resolver Pattern
+
+When a page accepts an optional typed string-union value (role, mode, tab) via query params, normalize it through a dedicated resolver function before use. The resolver handles all three raw shapes produced by the Next.js App Router — `undefined`, `string`, and `string[]` (duplicate query key) — and returns a safe typed value without throwing. Introduced in `src/app/(auth)/auth/page.tsx` (2026-05-19).
+
+### Shape
+
+```typescript
+// src/app/(auth)/auth/page.tsx — exemplar
+type AuthPageProps = {
+  searchParams: Promise<{ role?: string | string[] }>;
+};
+
+function resolveSignupRole(
+  raw: string | string[] | undefined,
+): "traveler" | "guide" {
+  // Collapse array (duplicate ?role= keys) to first value
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  // Allowlist check — unknown values fall through to the safe default
+  if (value === "traveler" || value === "guide") {
+    return value;
+  }
+  return "traveler"; // safe default
+}
+
+export default async function AuthPage({ searchParams }: AuthPageProps) {
+  const params = await searchParams; // required await in Next.js 15 App Router
+  const signupRole = resolveSignupRole(params.role);
+  // pass signupRole to child components
+}
+```
+
+**Rules:**
+- Declare `searchParams` as `Promise<{...}>` — Next.js 15 App Router makes this prop async; omitting the `await` produces a stale reference.
+- The resolver must handle all three raw shapes: `undefined` (param absent), `string` (normal), `string[]` (same key repeated — take first).
+- Unknown or empty values must produce the **safe default** — never pass raw user input through unvalidated.
+- Use an explicit allowlist (`if value === 'a' || value === 'b'`) rather than a type cast — this doubles as runtime input validation and keeps the allowed set visible in one place.
+- Keep the resolver a **plain named function** outside the page component so it is independently unit-testable.
+- The resolver is the analogue of a one-field Zod schema for query params; for pages with many typed query params, a Zod `z.enum` parse on the raw value is equally valid.
+

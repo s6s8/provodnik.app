@@ -230,3 +230,17 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 **Never** assume a file in `supabase/migrations/` has been applied to the live DB, and **never** trust the `supabase_migrations` tracking table (`list_migrations`) to tell you what is applied. On this project migrations were applied ad-hoc (SQL editor / dashboard) outside `supabase db push` — the tracking table both under-reports and its version numbers do not match repo filenames. On 2026-05-19 two migrations were found never-applied with two production flows silently dead: `add_date_flexibility` (traveler request creation, Postgres 42703) and `search_guides_rpc` (guide search). 200 green tests caught neither — only a live browser walk did. See ERR-092.
 **Always** when work depends on a schema object (column, table, RPC, index, policy): introspect the **actual** live schema — `information_schema.columns`, `pg_proc`, `pg_indexes`, `pg_policies` — never the migration list. After writing a new migration, confirm it ran on the live DB (a runtime `42703` / "does not exist" is the symptom of a skipped migration). Data migrations (`reseed_*`, `*_backfill`, seed) must NOT be blind-re-run — they overwrite live data. Re-baselining the tracking table needs `supabase migration repair` (CLI); raw INSERTs into the production `supabase_migrations` table are unsafe.
 
+
+
+
+### HOT-UPDATE — Guide self-registration is now open; ADR-014/ERR-029 invite-only claim is stale
+**Context:** `ADR-014 / ERR-029` stated "Public signup is traveler-only — guide onboarding is invite-only / admin-verified." As of 2026-05-19 this is no longer accurate.
+
+`signUpAction` (`src/features/auth/actions/signUpAction.ts`) allowlist changed from `role === 'traveler'` to `role === 'traveler' || role === 'guide'`. The auth page now accepts `?role=guide` from the URL and pre-selects guide registration. `safeRole` is no longer hardcoded to `'traveler'` — it carries the caller-supplied value through to Supabase admin `createUser`, the `profiles` upsert, and `app_metadata`.
+
+**Never** add `admin` or any other role to the allowlist in `signUpAction` without a matching product decision and HOT entry — the guard must remain the first executable statement before any Supabase call.
+
+**Always** treat the `if (input.role !== 'traveler' && input.role !== 'guide')` block as the authoritative self-registration allowlist. Roles that require invite-only or admin-verified provisioning must stay off this list and be set only via the admin API path.
+
+**Downstream implication:** Newly self-registered guides go through the same `guide_profiles` upsert and `app_metadata.role = 'guide'` stamp as traveler signups. However, the `specializations = '{}'` gap (HOT-UPDATE — Onboarding wizard) still applies — new guides will be invisible to `?spec=` filters until they complete their profile settings.
+
