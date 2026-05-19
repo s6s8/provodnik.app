@@ -51,6 +51,10 @@ export function HomePageDiscovery({ requests }: Props) {
                   ? visibleLabels.join(" · ") + (overflow > 0 ? ` +${overflow}` : "")
                   : null;
 
+              const timeLabel = req.startTime
+                ? `${req.startTime}${req.endTime ? `–${req.endTime}` : ""}`
+                : null;
+
               return (
                 <Link
                   key={req.id}
@@ -58,7 +62,7 @@ export function HomePageDiscovery({ requests }: Props) {
                   className="flex h-full flex-col gap-3 rounded-lg border border-foreground/[0.12] bg-white p-4 md:px-6 md:py-5 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <p className="font-display text-[1.125rem] font-semibold leading-snug text-foreground">
-                    {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}
+                    {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}{timeLabel ? ` · ${timeLabel}` : ""}
                   </p>
                   <p className="text-sm text-muted-foreground">{formatGroupLine(req)}</p>
                   <p className="text-sm text-muted-foreground">{interestText ?? " "}</p>
