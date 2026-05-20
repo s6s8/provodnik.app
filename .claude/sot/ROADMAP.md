@@ -13,6 +13,7 @@
 (no planned epics recorded yet — auto-harvest appends here as the owner names them)
 
 ## Open questions
+- Message [0] contains no explicit decisions — it is a procedural prompt requesting a short response to end the session. (harvest epic E-28)
 - [6] Owner states migration 20260502000002_add_date_flexibility.sql was applied to production 'with owner's permission' — ambiguous whether this establishes a standing rule for applying unapplied migrations on discovery, or was a one-off authorisation. (harvest epic E-19)
 - [7] Owner asks 'is this epic tasks fully complete, and ready to close?' — no explicit decision issued; the question awaits agent confirmation before the owner can decide. (harvest epic E-19)
 
