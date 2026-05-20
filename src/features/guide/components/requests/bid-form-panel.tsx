@@ -180,7 +180,7 @@ export function BidFormPanel({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[2px]"
+        className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden
       />
@@ -190,7 +190,7 @@ export function BidFormPanel({
         role="dialog"
         aria-modal="true"
         aria-label="Отправить предложение"
-        className="fixed bottom-0 right-0 z-50 flex h-full w-full max-w-[480px] flex-col overflow-y-auto bg-surface shadow-xl max-md:max-w-full max-md:h-[90dvh] max-md:rounded-t-2xl md:top-0 md:bottom-auto"
+        className="fixed bottom-0 right-0 z-[120] flex h-full w-full max-w-[480px] flex-col overflow-y-auto bg-surface shadow-xl max-md:max-w-full max-md:h-[90dvh] max-md:rounded-t-2xl md:top-0 md:bottom-auto"
       >
         {/* Panel header */}
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
