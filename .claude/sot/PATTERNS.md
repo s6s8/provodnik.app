@@ -855,3 +855,41 @@ if ("ok" in result && result.ok === true) {
 - Discriminate with `"ok" in result` to check success; never rely on `result.error === undefined` — the optional-error shape is ambiguous and was the source of ERR-021 and ERR-093.
 - The `alreadyDone` / `alreadyOffered` optional flag on the `ok` branch lets callers distinguish idempotent success (no-op) from a fresh success without adding a second return type.
 
+
+
+
+
+## Project Z-Index Tier Pattern
+
+The layout contains fixed-position elements above the standard Tailwind z-50 ceiling. Overlay components (modals, drawers, bottom sheets) must use custom z-index values above this threshold. Codified when `BidFormPanel` was found obscured at z-50 (ERR-094, 2026-05-20).
+
+### Tier table
+
+| Layer | z-index value | Examples |
+|---|---|---|
+| Standard UI | Tailwind defaults (`z-10` … `z-50`) | Dropdowns, tooltips, sticky sub-headers, navigation chrome |
+| Overlay backdrop | `z-[110]` | Semi-transparent scrim behind any full-screen panel or modal |
+| Overlay panel / dialog | `z-[120]` | Slide-in drawers, modal dialogs, bottom sheets |
+
+### Implementation
+
+```tsx
+{/* Backdrop */}
+<div
+  className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[2px]"
+  onClick={onClose}
+  aria-hidden
+/>
+
+{/* Panel */}
+<div
+  className="fixed ... z-[120] ..."
+  role="dialog"
+  aria-modal="true"
+>
+  ...
+</div>
+```
+
+**Rule:** Never assign `z-40` or `z-50` to an overlay backdrop or panel — they will be obscured by fixed-position layout chrome sitting between z-50 and z-[110]. Reference implementation: `src/features/guide/components/requests/bid-form-panel.tsx`.
+

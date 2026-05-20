@@ -830,3 +830,14 @@ New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mj
 - **Files Affected:** `src/app/(protected)/guide/inbox/[requestId]/offer/actions.ts`, `src/app/(protected)/guide/inbox/[requestId]/offer/actions-types.ts` (new), `src/features/guide/components/requests/bid-form-panel.tsx`.
 - **Prevention:** Never call `redirect()` or `notFound()` inside a `try/catch` block without `unstable_rethrow(err)`. Prefer returning discriminated result objects from server actions called by client components — they compose naturally with error handling and require no try/catch exception plumbing. See PATTERNS.md — Server Action Discriminated Union Result Pattern.
 
+
+
+
+### ERR-094 → RESOLVED 2026-05-20
+- **Symptom:** `BidFormPanel` backdrop and slide-in drawer rendered beneath a fixed-position layout element, making the guide bid form partially or fully inaccessible when another chrome layer was present.
+- **Root Cause:** Backdrop used Tailwind `z-40` and the panel dialog used `z-50`. The layout contains one or more fixed-position elements whose z-index exceeds 50, causing the panel to stack behind them at standard Tailwind values.
+- **Fix:** Raised backdrop to `z-[110]` and panel dialog to `z-[120]`. Both values are derived from the project z-index tier (see PATTERNS.md).
+- **Files Affected:** `src/features/guide/components/requests/bid-form-panel.tsx`
+- **Date:** 2026-05-20
+- **Prevention:** Never use `z-40` / `z-50` for overlay backdrops or modal panels in this project. Use `z-[110]` for backdrops and `z-[120]` for panel elements. See HOT.md — Overlay z-index floor and PATTERNS.md — Project Z-Index Tier Pattern.
+

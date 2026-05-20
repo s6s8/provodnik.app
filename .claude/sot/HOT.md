@@ -244,3 +244,15 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 
 **Downstream implication:** Newly self-registered guides go through the same `guide_profiles` upsert and `app_metadata.role = 'guide'` stamp as traveler signups. However, the `specializations = '{}'` gap (HOT-UPDATE — Onboarding wizard) still applies — new guides will be invisible to `?spec=` filters until they complete their profile settings.
 
+
+
+
+
+### HOT-NEW — Overlay z-index floor: `z-40`/`z-50` are below layout chrome
+**Never** use standard Tailwind `z-40` / `z-50` for overlay backdrops or modal panels. The provodnik.app layout contains one or more fixed-position elements above `z-50`; any overlay at those values renders behind them — a silent visual bug with no console error. Caught in `BidFormPanel` (ERR-094, 2026-05-20).
+**Always** use the project z-index tier:
+- Overlay backdrop → `z-[110]`
+- Overlay panel / dialog → `z-[120]`
+
+Applies to any `position: fixed` element intended to cover the full page (modals, drawers, bottom sheets, lightboxes). Reference implementation: `src/features/guide/components/requests/bid-form-panel.tsx`. See also PATTERNS.md — Project Z-Index Tier Pattern.
+
