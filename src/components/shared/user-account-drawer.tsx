@@ -14,7 +14,7 @@ import type { AppRole } from "@/lib/auth/types";
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
   guide: "Гид",
-  admin: "Оператор",
+  admin: "Администратор",
 };
 
 type UserAccountDrawerProps = {

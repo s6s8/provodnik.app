@@ -5,7 +5,7 @@ import { getAdminDashboardStats } from "@/lib/supabase/moderation";
 import { Badge } from "@/components/ui/badge";
 
 export const metadata: Metadata = {
-  title: "Панель оператора",
+  title: "Панель администратора",
 };
 
 const statCards = [
@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div className="space-y-3">
-        <Badge variant="outline">Панель оператора</Badge>
+        <Badge variant="outline">Панель администратора</Badge>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">
           Обзор модерации
         </h1>

@@ -49,7 +49,7 @@ const publicNavLinks = [
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
   guide: "Гид",
-  admin: "Оператор",
+  admin: "Администратор",
 };
 
 const roleDashboards: Record<AppRole, AuthRedirectTarget> = {

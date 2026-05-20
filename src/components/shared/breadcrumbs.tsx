@@ -8,7 +8,7 @@ const SEGMENT_LABELS: Record<string, string | null> = {
   "": null,
   traveler: "Путешественник",
   guide: "Гид",
-  admin: "Оператор",
+  admin: "Администратор",
   messages: "Сообщения",
   notifications: "Уведомления",
   dashboard: "Кабинет",

@@ -50,7 +50,7 @@ export default async function AdminLayout({
                 {initials}
               </div>
               <div className="space-y-1">
-                <p className="font-medium text-ink">Панель оператора</p>
+                <p className="font-medium text-ink">Панель администратора</p>
                 <p className="text-sm text-ink-3">{email}</p>
               </div>
             </div>
