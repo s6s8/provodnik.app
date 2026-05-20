@@ -437,7 +437,6 @@ export function GuideRequestsInboxScreen() {
           onClose={() => setPanelRequestId(null)}
           onSuccess={() => {
             // Mark as offered optimistically
-            setPanelRequestId(null);
             setOfferedIds((prev) => new Set([...prev, panelRequestId]));
           }}
         />

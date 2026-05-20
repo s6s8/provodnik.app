@@ -1,7 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
-
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { notifyNewOffer } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
@@ -10,6 +8,9 @@ import {
   hasGuideOffered,
   createOfferInputSchema,
 } from "@/lib/supabase/offers";
+import type { SubmitOfferResult } from "./actions-types";
+
+export type { SubmitOfferResult } from "./actions-types";
 
 async function getCurrentUserId(): Promise<string> {
   const supabase = await createSupabaseServerClient();
@@ -24,10 +25,6 @@ async function getCurrentUserId(): Promise<string> {
   return session.user.id;
 }
 
-export type SubmitOfferResult = {
-  error?: string;
-};
-
 export async function submitOfferAction(
   requestId: string,
   formData: FormData,
@@ -38,7 +35,7 @@ export async function submitOfferAction(
     // Duplicate guard
     const alreadyOffered = await hasGuideOffered(guideId, requestId);
     if (alreadyOffered) {
-      redirect(`/guide/inbox/${requestId}?offered=1`);
+      return { ok: true, alreadyOffered: true };
     }
 
     let route_stops: unknown[] = [];
@@ -112,5 +109,5 @@ export async function submitOfferAction(
     return { error: msg };
   }
 
-  redirect(`/guide/inbox/${requestId}?offered=1`);
+  return { ok: true };
 }

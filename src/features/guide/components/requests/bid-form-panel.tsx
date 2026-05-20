@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
+import type { SubmitOfferResult } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions-types";
 import { formatDurationMinutes } from "@/lib/dates";
 import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -138,6 +139,7 @@ export function BidFormPanel({
 
   const onSubmit = React.useCallback(
     async (values: OfferFormValues) => {
+      if (submitted) return;
       setServerError(null);
       const fd = new FormData();
       fd.set("price_total", String(values.price_total));
@@ -163,15 +165,15 @@ export function BidFormPanel({
         fd.set("ends_at", endsAt.toISOString());
       }
 
-      const result = await submitOfferAction(requestId, fd);
-      if (result?.error) {
-        setServerError(result.error);
-      } else {
+      const result: SubmitOfferResult = await submitOfferAction(requestId, fd);
+      if (result?.ok === true) {
         setSubmitted(true);
         onSuccess?.();
+      } else if (result?.error) {
+        setServerError(result.error);
       }
     },
-    [requestId, onSuccess, routeStops],
+    [requestId, onSuccess, routeStops, submitted],
   );
 
   return (
@@ -236,27 +238,12 @@ export function BidFormPanel({
           )}
         </div>
 
-        {/* Success state */}
-        {submitted ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
-            <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-2xl">
-              ✓
-            </div>
-            <h3 className="font-semibold text-foreground">
-              Предложение отправлено!
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              Путешественник получил уведомление и скоро ответит.
-            </p>
-            <Button onClick={onClose}>Закрыть</Button>
-          </div>
-        ) : (
-          /* Form */
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-5 px-6 py-6"
-            noValidate
-          >
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-5 px-6 py-6"
+          noValidate
+        >
             {/* Route builder */}
             {guidePhotos.length > 0 && (
               <div className="grid gap-3">
@@ -269,7 +256,7 @@ export function BidFormPanel({
                       <div key={stop.photoId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-high p-2">
                         <Image src={stop.photoUrl} alt={stop.locationName} width={40} height={40} className="size-10 rounded-lg object-cover" />
                         <span className="flex-1 text-sm">{stop.locationName}</span>
-                        <button type="button" onClick={() => setRouteStops(prev => prev.filter((_, i) => i !== idx))}
+                        <button type="button" disabled={submitted} onClick={() => setRouteStops(prev => prev.filter((_, i) => i !== idx))}
                           className="text-muted-foreground hover:text-destructive text-xs">✕</button>
                       </div>
                     ))}
@@ -284,6 +271,7 @@ export function BidFormPanel({
                       <button
                         key={photo.id}
                         type="button"
+                        disabled={submitted}
                         onClick={() => setRouteStops(prev => [...prev, { photoId: photo.id, locationName: photo.location_name, photoUrl: photo.photoUrl, sortOrder: prev.length }])}
                         className="relative flex-shrink-0 overflow-hidden rounded-xl"
                       >
@@ -303,6 +291,7 @@ export function BidFormPanel({
               <div className="flex items-center gap-2">
                 <select
                   className="min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  disabled={submitted}
                   {...register("route_duration_hours", { valueAsNumber: true })}
                 >
                   {[0,1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
@@ -311,6 +300,7 @@ export function BidFormPanel({
                 </select>
                 <select
                   className="min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  disabled={submitted}
                   {...register("route_duration_minutes", { valueAsNumber: true })}
                 >
                   {[0,5,10,15,20,30,45].map(m => (
@@ -328,11 +318,13 @@ export function BidFormPanel({
                 <input
                   type="date"
                   className="flex-1 min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  disabled={submitted}
                   {...register("excursion_date")}
                 />
                 <input
                   type="time"
                   className="min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
+                  disabled={submitted}
                   {...register("excursion_start_time")}
                 />
               </div>
@@ -358,6 +350,7 @@ export function BidFormPanel({
                 min={1000}
                 className="min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
                 aria-invalid={Boolean(errors.price_total)}
+                disabled={submitted}
                 {...register("price_total", { valueAsNumber: true })}
               />
               {errors.price_total ? (
@@ -388,6 +381,7 @@ export function BidFormPanel({
                 className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
                 placeholder="Опишите, что входит в цену и почему стоит выбрать вас."
                 aria-invalid={Boolean(errors.message)}
+                disabled={submitted}
                 {...register("message")}
               />
               {errors.message ? (
@@ -410,6 +404,7 @@ export function BidFormPanel({
                 type="date"
                 className="min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
                 aria-invalid={Boolean(errors.valid_until)}
+                disabled={submitted}
                 {...register("valid_until")}
               />
               {errors.valid_until ? (
@@ -425,11 +420,18 @@ export function BidFormPanel({
               </p>
             ) : null}
 
-            <Button type="submit" disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Отправляем…" : "Отправить предложение"}
+            <Button
+              type="submit"
+              disabled={isSubmitting || submitted}
+              className={
+                submitted
+                  ? "border border-success/30 bg-success/10 text-success w-full"
+                  : "w-full"
+              }
+            >
+              {submitted ? "Отправлено" : isSubmitting ? "Отправляем…" : "Отправить предложение"}
             </Button>
-          </form>
-        )}
+        </form>
       </div>
     </>
   );
