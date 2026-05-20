@@ -166,10 +166,10 @@ export function BidFormPanel({
       }
 
       const result: SubmitOfferResult = await submitOfferAction(requestId, fd);
-      if (result?.ok === true) {
+      if ("ok" in result && result.ok === true) {
         setSubmitted(true);
         onSuccess?.();
-      } else if (result?.error) {
+      } else if ("error" in result && result.error) {
         setServerError(result.error);
       }
     },
