@@ -797,3 +797,61 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 - Keep the resolver a **plain named function** outside the page component so it is independently unit-testable.
 - The resolver is the analogue of a one-field Zod schema for query params; for pages with many typed query params, a Zod `z.enum` parse on the raw value is equally valid.
 
+
+
+
+
+## Server Action Discriminated Union Result Pattern
+
+Server actions called from client components should return a discriminated union `{ ok: true; ... } | { error: string }` rather than the ambiguous `{ error?: string }` shape. This prevents `redirect()` from being called inside try/catch (where it is swallowed — see ERR-093), enables precise TypeScript narrowing at the call site, and makes the success / failure contract explicit. Introduced when `submitOfferAction` was refactored (2026-05-20).
+
+### Type (in a sibling `*-types.ts` file — zero server imports)
+
+```typescript
+// actions-types.ts
+export type SubmitFooResult =
+  | { ok: true; alreadyDone?: boolean }  // success variants
+  | { error: string };                    // failure
+```
+
+### Server action
+
+```typescript
+// actions.ts — "use server"
+import type { SubmitFooResult } from "./actions-types";
+export type { SubmitFooResult } from "./actions-types"; // re-export for consumers
+
+export async function submitFooAction(
+  id: string,
+  fd: FormData,
+): Promise<SubmitFooResult> {
+  try {
+    const duplicate = await hasDuplicate(id);
+    if (duplicate) return { ok: true, alreadyDone: true }; // ← return, not redirect()
+    // ... main logic ...
+    return { ok: true };
+  } catch (err) {
+    const msg = typeof (err as any).message === "string" ? (err as any).message : "Ошибка";
+    return { error: msg };
+  }
+}
+```
+
+### Client consumption
+
+```typescript
+const result: SubmitFooResult = await submitFooAction(id, fd);
+if ("ok" in result && result.ok === true) {
+  setSubmitted(true);
+  onSuccess?.();
+} else if ("error" in result && result.error) {
+  setServerError(result.error);
+}
+```
+
+**Rules:**
+- The result type lives in a `*-types.ts` file with zero server imports (AP-014 / HOT.md client/server import boundary). The server module `import type`s it for the return annotation and re-exports it so consumers can import from either path.
+- **Never** call `redirect()` or `notFound()` inside a `try/catch` block in a server action — these functions throw special Next.js signals that must escape the call stack entirely. Return a discriminated result instead (ERR-093).
+- Discriminate with `"ok" in result` to check success; never rely on `result.error === undefined` — the optional-error shape is ambiguous and was the source of ERR-021 and ERR-093.
+- The `alreadyDone` / `alreadyOffered` optional flag on the `ok` branch lets callers distinguish idempotent success (no-op) from a fresh success without adding a second return type.
+

@@ -819,3 +819,14 @@ New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mj
 - **Date:** 2026-05-19
 - **Prevention:** HOT.md — Migration drift. Never trust `list_migrations` / the `supabase_migrations` table to know what is applied — introspect the actual schema (`information_schema`, `pg_proc`, `pg_policies`, `pg_indexes`). After writing a migration, confirm it ran on the live DB; a runtime `42703` / "does not exist" is the symptom of a skipped migration. Re-baselining the tracking table needs `supabase migration repair` (CLI) — raw INSERTs into the production migration table are unsafe.
 
+
+
+
+### ERR-093 → RESOLVED 2026-05-20
+- **Symptom:** When a guide had already submitted an offer and tried to submit again, the server action's duplicate-guard branch called `redirect()` inside the function's main `try` block. Next.js `redirect()` throws a `NEXT_REDIRECT` error that must escape the call stack; the surrounding `catch (err)` handler caught it, serialised the error message, and returned `{ error: <NEXT_REDIRECT details> }` to the client — the panel showed a server-error banner instead of redirecting or silently succeeding.
+- **Root Cause:** `submitOfferAction` in `src/app/(protected)/guide/inbox/[requestId]/offer/actions.ts` had two `redirect()` call sites. The one inside the duplicate guard (line ~37) sat inside the `try` block; the one at the bottom was outside. In Next.js 14+ App Router, `redirect()` (from `next/navigation`) throws a special `NEXT_REDIRECT` signal that **must not be caught** without calling `unstable_rethrow`. The duplicate-guard redirect was swallowed every time `alreadyOffered === true`, returning a spurious error to the caller.
+- **Fix:** Removed all `redirect()` calls from `submitOfferAction`. The result type changed from the ambiguous `{ error?: string }` to the discriminated union `{ ok: true; alreadyOffered?: boolean } | { error: string }` (extracted to `actions-types.ts` per AP-014). The duplicate guard returns `{ ok: true, alreadyOffered: true }`; the success path returns `{ ok: true }`. Client discriminates with `"ok" in result` / `"error" in result`.
+- **Date:** 2026-05-20
+- **Files Affected:** `src/app/(protected)/guide/inbox/[requestId]/offer/actions.ts`, `src/app/(protected)/guide/inbox/[requestId]/offer/actions-types.ts` (new), `src/features/guide/components/requests/bid-form-panel.tsx`.
+- **Prevention:** Never call `redirect()` or `notFound()` inside a `try/catch` block without `unstable_rethrow(err)`. Prefer returning discriminated result objects from server actions called by client components — they compose naturally with error handling and require no try/catch exception plumbing. See PATTERNS.md — Server Action Discriminated Union Result Pattern.
+
