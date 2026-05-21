@@ -29,6 +29,7 @@ const LANGUAGES = [
 
 interface GuideAboutFormProps {
   initialBio: string;
+  initialBaseCity: string;
   initialLanguages: string[];
   initialSpecializations: string[];
   initialYearsExperience: number | null;
@@ -36,18 +37,28 @@ interface GuideAboutFormProps {
 
 export function GuideAboutForm({
   initialBio,
+  initialBaseCity,
   initialLanguages,
   initialSpecializations,
   initialYearsExperience,
 }: GuideAboutFormProps) {
   const [status, setStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = React.useState("");
+  const [baseCity, setBaseCity] = React.useState(initialBaseCity);
   const [specializations, setSpecializations] = React.useState<string[]>(initialSpecializations);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setStatus("saving");
     const formData = new FormData(e.currentTarget);
+    const trimmedBaseCity = baseCity.trim();
+    if (trimmedBaseCity === "") {
+      setErrorMsg("Укажите базовый город");
+      setStatus("error");
+      return;
+    }
+
+    formData.set("base_city", trimmedBaseCity);
+    setStatus("saving");
     const result = await saveGuideAboutAction(formData);
     if (result.ok) {
       setStatus("saved");
@@ -76,6 +87,22 @@ export function GuideAboutForm({
         <p className="text-xs text-muted-foreground">
           Отображается на вашей публичной странице. Пишите честно и тепло — путешественники выбирают гида, а не резюме.
         </p>
+      </div>
+
+      {/* Base city */}
+      <div className="space-y-2">
+        <label htmlFor="base_city" className="text-sm font-medium text-foreground">
+          Базовый город
+        </label>
+        <input
+          id="base_city"
+          name="base_city"
+          type="text"
+          value={baseCity}
+          onChange={(e) => setBaseCity(e.target.value)}
+          placeholder="Санкт-Петербург"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+        />
       </div>
 
       {/* Years of experience */}

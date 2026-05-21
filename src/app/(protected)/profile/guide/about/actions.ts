@@ -8,6 +8,7 @@ const canonThemeSlugs = new Set<string>(THEMES.map((t) => t.slug));
 
 export type GuideProfileUpdatePayload = {
   bio: string;
+  base_city: string;
   languages: string[];
   specializations: ThemeSlug[];
   years_experience?: number;
@@ -24,9 +25,15 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   if (authError || !user) return { ok: false, error: "Требуется вход" };
 
   const bio = formData.get("bio") as string | null;
+  const baseCityRaw = formData.get("base_city");
   const yearsExperience = formData.get("years_experience");
   const languagesRaw = formData.getAll("languages") as string[];
   const specializationsRaw = formData.getAll("specializations") as string[];
+  const baseCity = typeof baseCityRaw === "string" ? baseCityRaw.trim() : "";
+
+  if (baseCity === "") {
+    return { ok: false, error: "Укажите базовый город" };
+  }
 
   const specializations = specializationsRaw.filter((s): s is ThemeSlug =>
     canonThemeSlugs.has(s)
@@ -34,6 +41,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
 
   const update: GuideProfileUpdatePayload = {
     bio: bio ?? "",
+    base_city: baseCity,
     languages: languagesRaw.filter(Boolean),
     specializations,
   };
