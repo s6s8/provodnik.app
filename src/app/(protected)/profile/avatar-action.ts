@@ -6,28 +6,16 @@ import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { StorageBucketId } from "@/lib/storage/buckets";
 import { assertMimeTypeAllowed } from "@/lib/storage/upload";
+import {
+  AVATAR_MESSAGES,
+  AdminRoleNotAllowedError,
+  type AvatarUploadResult,
+} from "@/app/(protected)/profile/avatar-errors";
 
-const AVATAR_SIZE_ERROR = "Файл больше 2 МБ — выбери поменьше";
-const AVATAR_MIME_ERROR = "Поддерживаются только JPG, PNG, WEBP";
-const AVATAR_SUCCESS = "Аватар обновлён";
-const AVATAR_GENERIC_ERROR = "Не удалось загрузить — попробуй ещё раз";
-
-export class AdminRoleNotAllowedError extends Error {
-  constructor() {
-    super("Admins do not get avatars.");
-    this.name = "AdminRoleNotAllowedError";
-  }
-}
-
-export type AvatarUploadResult =
-  | { ok: true; message: typeof AVATAR_SUCCESS }
-  | {
-      ok: false;
-      message:
-        | typeof AVATAR_SIZE_ERROR
-        | typeof AVATAR_MIME_ERROR
-        | typeof AVATAR_GENERIC_ERROR;
-    };
+const AVATAR_SIZE_ERROR = AVATAR_MESSAGES.SIZE_ERROR;
+const AVATAR_MIME_ERROR = AVATAR_MESSAGES.MIME_ERROR;
+const AVATAR_SUCCESS = AVATAR_MESSAGES.SUCCESS;
+const AVATAR_GENERIC_ERROR = AVATAR_MESSAGES.GENERIC_ERROR;
 
 function getAvatarFile(formData: FormData) {
   const file = formData.get("avatar") ?? formData.get("file");
