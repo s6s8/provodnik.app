@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatRussianDateRange, todayMoscowISODate } from "@/lib/dates";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
 import { approveGuide, rejectGuide, requestChanges } from "./actions";
@@ -67,6 +69,7 @@ export default async function AdminGuideDetailPage({
     detail.account?.full_name ||
     detail.account?.email ||
     "Без имени";
+  const today = todayMoscowISODate();
 
   return (
     <div className="space-y-8">
@@ -135,6 +138,91 @@ export default async function AdminGuideDetailPage({
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">
                 {detail.profile.bio ?? "Гид пока не добавил описание."}
               </p>
+            </div>
+          </div>
+
+          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
+            <div className="flex items-center justify-between gap-4">
+              <h2 className="text-lg font-semibold text-foreground">Лицензии</h2>
+              <span className="text-sm text-muted-foreground">
+                {detail.licenses.length} шт.
+              </span>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              {detail.licenses.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Пока нет добавленных лицензий.
+                </p>
+              ) : null}
+
+              {detail.licenses.map((license) => (
+                <div
+                  key={license.id}
+                  className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4"
+                >
+                  <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                    <div className="space-y-1">
+                      <div className="font-medium text-foreground">
+                        {license.licenseType}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        № {license.licenseNumber} · {license.issuedBy}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Выдано: {license.issuedBy}
+                      </div>
+                      {license.region ? (
+                        <div className="text-xs text-muted-foreground">
+                          Регион: {license.region}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                      {license.validUntil ? (
+                        <>
+                          <span>
+                            Действует до {formatRussianDateRange(license.validUntil)}
+                          </span>
+                          {license.validUntil < today ? (
+                            <Badge
+                              variant="outline"
+                              className="bg-destructive/10 text-destructive"
+                            >
+                              Просрочена
+                            </Badge>
+                          ) : null}
+                        </>
+                      ) : (
+                        <Badge
+                          variant="outline"
+                          className="bg-secondary/40 text-secondary-foreground"
+                        >
+                          Бессрочно
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      Область:
+                    </span>
+                    {license.scopeMode === "all" ? (
+                      <Badge variant="secondary">Все предложения</Badge>
+                    ) : license.listingTitles.length > 0 ? (
+                      license.listingTitles.map((title) => (
+                        <Badge key={title} variant="outline">
+                          {title}
+                        </Badge>
+                      ))
+                    ) : (
+                      <Badge variant="outline">Выбранные предложения</Badge>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 

@@ -62,6 +62,17 @@ export type GuideDocumentWithAsset = GuideDocumentRow & {
   signed_url: string | null;
 };
 
+export type GuideLicenseDetail = {
+  id: Uuid;
+  licenseType: string;
+  licenseNumber: string;
+  issuedBy: string;
+  region: string | null;
+  validUntil: string | null;
+  scopeMode: "all" | "selected";
+  listingTitles: string[];
+};
+
 export type GuideReviewQueueItem = {
   profile: GuideProfileRow;
   account: ProfileLite | null;
@@ -73,6 +84,7 @@ export type GuideReviewDetail = {
   profile: GuideProfileRow;
   account: ProfileLite | null;
   documents: GuideDocumentWithAsset[];
+  licenses: GuideLicenseDetail[];
   moderation_case: ModerationCaseDetail | null;
 };
 
@@ -118,6 +130,19 @@ type ReviewRow = {
   status: "published" | "flagged" | "hidden";
   created_at: string;
   updated_at: string;
+};
+
+type GuideLicenseQueryRow = {
+  id: Uuid;
+  license_type: string;
+  license_number: string;
+  issued_by: string;
+  region: string | null;
+  valid_until: string | null;
+  scope_mode: string | null;
+  listing_licenses: Array<{
+    listings: { title: string | null } | Array<{ title: string | null }> | null;
+  }> | null;
 };
 
 const moderationFiltersSchema = z.object({
@@ -715,7 +740,7 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
   if (!profile) return null;
 
   const typedProfile = profile as GuideProfileRow;
-  const [accounts, docsResult, casesResult] = await Promise.all([
+  const [accounts, docsResult, casesResult, licensesResult] = await Promise.all([
     getProfilesByIds(adminClient, [typedProfile.user_id]),
     adminClient
       .from("guide_documents")
@@ -734,12 +759,39 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
       .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle(),
+    adminClient
+      .from("guide_licenses")
+      .select(
+        "id, license_type, license_number, issued_by, region, valid_until, scope_mode, listing_licenses(listings(title))",
+      )
+      .eq("guide_id", typedProfile.user_id)
+      .order("created_at", { ascending: false }),
   ]);
 
   if (docsResult.error) throw docsResult.error;
   if (casesResult.error) throw casesResult.error;
+  if (licensesResult.error) throw licensesResult.error;
 
   const documents = (docsResult.data ?? []) as GuideDocumentRow[];
+  const licenses = ((licensesResult.data ?? []) as unknown as GuideLicenseQueryRow[]).map(
+    (license) => {
+      const listingTitles =
+        license.listing_licenses
+          ?.map((link) => _firstRelation(link.listings)?.title ?? null)
+          .filter((title): title is string => Boolean(title)) ?? [];
+
+      return {
+        id: license.id,
+        licenseType: license.license_type,
+        licenseNumber: license.license_number,
+        issuedBy: license.issued_by,
+        region: license.region,
+        validUntil: license.valid_until,
+        scopeMode: license.scope_mode === "all" ? "all" : "selected",
+        listingTitles,
+      } satisfies GuideLicenseDetail;
+    },
+  );
   const assetIds = documents.map((document) => document.asset_id);
   const { data: storageAssets, error: assetsError } = assetIds.length
     ? await adminClient
@@ -781,6 +833,7 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
     profile: typedProfile,
     account: accounts.get(typedProfile.user_id) ?? null,
     documents: documentsWithAssets,
+    licenses,
     moderation_case: casesResult.data
       ? await getModerationCase((casesResult.data as ModerationCaseRow).id)
       : null,
