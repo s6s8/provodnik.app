@@ -21,6 +21,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
+import { AvatarUploadBlock } from "@/app/(protected)/profile/_components/avatar-upload-block";
 
 export const metadata: Metadata = {
   title: "Профиль",
@@ -72,6 +73,25 @@ export default async function GuideProfilePage() {
     redirect("/auth?next=/guide/profile");
   }
   const guideId = auth.userId;
+
+  let avatarUrl: string | null = null;
+  let displayName: string = auth.email ?? "Гид";
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data: profileRow } = await supabase
+      .from("profiles")
+      .select("avatar_url, full_name")
+      .eq("id", guideId)
+      .maybeSingle();
+    if (profileRow) {
+      avatarUrl = (profileRow as { avatar_url?: string | null }).avatar_url ?? null;
+      const fullName = (profileRow as { full_name?: string | null }).full_name;
+      if (fullName) displayName = fullName;
+    }
+  } catch {
+    // fall back to defaults
+  }
+
 
   let profile: Partial<GuideProfileRow> | null = null;
   let verificationStatus: GuideVerificationStatusDb = "draft";
@@ -183,6 +203,10 @@ export default async function GuideProfilePage() {
 
   return (
     <div className="space-y-10">
+      <section id="avatar">
+        <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />
+      </section>
+
       <section id="about">
         <Card className="border-border/70 bg-card/90">
           <CardHeader>

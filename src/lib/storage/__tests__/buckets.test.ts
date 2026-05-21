@@ -12,6 +12,7 @@ describe('storage bucket configuration', () => {
   it('defines the expected bucket ids', () => {
     expect(storageBucketIds).toEqual([
       'guide-avatars',
+      'traveler-avatars',
       'guide-documents',
       'listing-media',
       'dispute-evidence',

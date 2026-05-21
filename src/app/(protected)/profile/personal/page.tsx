@@ -7,6 +7,7 @@ import { PersonalSettingsForm } from "@/features/profile/components/PersonalSett
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideProfileRow } from "@/lib/supabase/types";
+import { AvatarUploadBlock } from "@/app/(protected)/profile/_components/avatar-upload-block";
 
 export const metadata: Metadata = {
   title: "Личные настройки",
@@ -38,12 +39,33 @@ function normalizeNotificationPrefs(
   return {};
 }
 
+async function fetchAvatar(userId: string | null | undefined, fallbackName: string): Promise<{ url: string | null; name: string }> {
+  if (!userId) return { url: null, name: fallbackName };
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+      .from("profiles")
+      .select("avatar_url, full_name")
+      .eq("id", userId)
+      .maybeSingle();
+    const row = (data ?? null) as { avatar_url?: string | null; full_name?: string | null } | null;
+    return {
+      url: row?.avatar_url ?? null,
+      name: row?.full_name ?? fallbackName,
+    };
+  } catch {
+    return { url: null, name: fallbackName };
+  }
+}
+
 export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
 
   if (auth.role === "traveler") {
+    const avatar = await fetchAvatar(auth.userId, auth.email ?? "Путешественник");
     return (
       <div className="space-y-6">
+        <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
         <div className="space-y-2">
           <Badge variant="outline">Кабинет путешественника</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
@@ -90,11 +112,13 @@ export default async function PersonalSettingsPage() {
       // Render with defaults if Supabase access fails.
     }
 
+    const avatar = await fetchAvatar(auth.userId, auth.email ?? "Гид");
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 py-2">
         <h1 className="font-display text-2xl text-foreground md:text-3xl">
           Личные настройки
         </h1>
+        <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
         <PersonalSettingsForm
           initialLocale={locale}
           initialCurrency={preferredCurrency}
