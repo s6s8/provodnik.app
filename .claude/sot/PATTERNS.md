@@ -893,3 +893,43 @@ The layout contains fixed-position elements above the standard Tailwind z-50 cei
 
 **Rule:** Never assign `z-40` or `z-50` to an overlay backdrop or panel — they will be obscured by fixed-position layout chrome sitting between z-50 and z-[110]. Reference implementation: `src/features/guide/components/requests/bid-form-panel.tsx`.
 
+
+
+
+
+## Expiry State Badge Pattern (Date-Bounded Resources)
+
+For admin/review surfaces that display date-bounded resources (licenses, documents, offers), show expiry state with Badges using ISO string comparison against `todayMoscowISODate()`. Two cases: null/absent expiry → "Бессрочно" badge; past expiry → "Просрочена" destructive badge.
+
+```tsx
+import { Badge } from "@/components/ui/badge";
+import { todayMoscowISODate } from "@/lib/dates";
+
+// Compute once per render at the top of the Server Component — AP-010 compliant
+const today = todayMoscowISODate();
+
+// In JSX:
+{item.validUntil ? (
+  <>
+    <span>Действует до {formatRussianDateRange(item.validUntil)}</span>
+    {item.validUntil < today ? (
+      <Badge variant="outline" className="bg-destructive/10 text-destructive">
+        Просрочена
+      </Badge>
+    ) : null}
+  </>
+) : (
+  <Badge variant="outline" className="bg-secondary/40 text-secondary-foreground">
+    Бессрочно
+  </Badge>
+)}
+```
+
+**Rules:**
+- Always compute `today` via `todayMoscowISODate()` — **never** `new Date().toISOString().slice(0,10)` (AP-010 / HOT.md). SSR (UTC container) and CSR in MSK diverge near midnight.
+- ISO date string comparison (`item.validUntil < today`) is correct for `YYYY-MM-DD` strings — they sort lexicographically in date order. No `new Date()` parsing required or desired.
+- Use `bg-destructive/10 text-destructive` for expired state (visually salient without being alarmist).
+- Use `bg-secondary/40 text-secondary-foreground` for the perpetual / open-ended state ("Бессрочно").
+- `validUntil` should arrive as a `string | null` from the data layer — the null branch is the perpetual case; an empty string should be treated as null.
+- First introduced: `src/app/(protected)/admin/guides/[id]/page.tsx` (2026-05-21), admin guide review detail — licenses panel.
+
