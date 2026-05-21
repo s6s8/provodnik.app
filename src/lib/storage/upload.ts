@@ -66,7 +66,7 @@ function getFileExtension(fileName: string, mimeType: string) {
   throw new Error("Не удалось определить расширение файла.");
 }
 
-function assertMimeTypeAllowed(bucket: StorageBucketId, mimeType: string) {
+export function assertMimeTypeAllowed(bucket: StorageBucketId, mimeType: string) {
   const config = getStorageBucketConfig(bucket);
   if (!config.allowedMimeTypes.includes(mimeType as never)) {
     throw new Error("Недопустимый тип файла для выбранного бакета.");

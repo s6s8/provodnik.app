@@ -6,6 +6,11 @@ export const storageBucketConfig = {
     maxBytes: 2 * 1024 * 1024,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"] as const,
   },
+  "traveler-avatars": {
+    isPublic: true,
+    maxBytes: 2 * 1024 * 1024,
+    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"] as const,
+  },
   "guide-documents": {
     isPublic: false,
     maxBytes: 10 * 1024 * 1024,
