@@ -933,3 +933,159 @@ const today = todayMoscowISODate();
 - `validUntil` should arrive as a `string | null` from the data layer — the null branch is the perpetual case; an empty string should be treated as null.
 - First introduced: `src/app/(protected)/admin/guides/[id]/page.tsx` (2026-05-21), admin guide review detail — licenses panel.
 
+
+
+
+
+## Per-Field Negotiability Toggle (Lock / Flexible) Pattern
+
+When a form has parameters that the requester may want to hold exact OR leave open for counterparty negotiation, model each field with a companion boolean (`*Locked`) plus an optional constraint value (`dateWindow`, etc.). Use a `LockToggle` component — two emoji-icon buttons with `aria-pressed` — to drive the boolean. First introduced in `src/features/traveler/components/request-create/traveler-request-create-form.tsx` (2026-05-22).
+
+### Schema shape (Zod)
+
+```typescript
+// In the request schema
+dateLocked: z.boolean().default(true),
+timeLocked: z.boolean().default(true),
+countLocked: z.boolean().default(true),
+budgetLocked: z.boolean().default(true),
+dateWindow: z.enum(DATE_WINDOW_VALUES).default("week"),
+```
+
+Defaults `true` keeps the form behaving like the old fixed-value form for users who don't touch the toggles.
+
+### LockToggle component
+
+```tsx
+function LockToggle({
+  locked,
+  lockedLabel,
+  flexibleLabel,
+  onChange,
+}: {
+  locked: boolean;
+  lockedLabel: string;    // e.g. "Зафиксировать дату"
+  flexibleLabel: string;  // e.g. "Разрешить дату в окне"
+  onChange: (locked: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1" aria-label="Гибкость параметра">
+      <button
+        type="button"
+        aria-label={lockedLabel}
+        aria-pressed={locked}
+        onClick={() => { if (!locked) onChange(true); }}
+        className={cn(
+          "cursor-pointer rounded-md px-2 py-1 text-sm transition-colors",
+          locked ? "text-primary" : "text-muted-foreground",
+        )}
+      >
+        🔒
+      </button>
+      <button
+        type="button"
+        aria-label={flexibleLabel}
+        aria-pressed={!locked}
+        onClick={() => { if (locked) onChange(false); }}
+        className={cn(
+          "cursor-pointer rounded-md px-2 py-1 text-sm transition-colors",
+          locked ? "text-muted-foreground" : "text-primary",
+        )}
+      >
+        ↔️
+      </button>
+    </div>
+  );
+}
+```
+
+### FieldHeader wrapper
+
+```tsx
+function FieldHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      {...props}
+      className={cn("flex items-center justify-between gap-3", className)}
+    />
+  );
+}
+```
+
+Usage:
+
+```tsx
+<FieldHeader>
+  <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+  <LockToggle
+    locked={dateLocked}
+    lockedLabel="Зафиксировать дату"
+    flexibleLabel="Разрешить дату в окне"
+    onChange={(next) => form.setValue("dateLocked", next, { shouldDirty: true })}
+  />
+</FieldHeader>
+```
+
+### Dependent field value reset on toggle
+
+When unlocking reveals a field that should start populated (e.g. budget), pre-fill + validate. When locking hides it, clear to `undefined` so Zod does not require it:
+
+```typescript
+onChange={(next) => {
+  form.setValue("budgetLocked", next, { shouldDirty: true });
+  if (next) {
+    // Locking → user must re-enter; clear so validation doesn't fire on stale value
+    form.setValue(
+      "budgetPerPersonRub",
+      undefined as unknown as RequestFormValues["budgetPerPersonRub"],
+      { shouldDirty: true },
+    );
+  } else {
+    // Unlocking → seed a valid minimum so the input is not immediately errored
+    form.setValue("budgetPerPersonRub", 1000, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+    form.clearErrors("budgetPerPersonRub");
+  }
+}}
+```
+
+**Rules:**
+- Both buttons are `type="button"` — they must never submit the form.
+- Use `aria-pressed={locked}` / `aria-pressed={!locked}` on each button so screen readers announce the active state.
+- `LockToggle.onChange` receives the **new** `locked` boolean (not an event) — the parent calls `form.setValue` with `{ shouldDirty: true }` so RHF marks the field touched.
+- Conditionally rendered sub-controls (date window picker, budget input) must also have their values reset on hide so Zod validation on the hidden field does not block submit.
+- Companion hint text (`<p className="text-sm text-muted-foreground">`) should reflect the current state inline — no separate tooltip needed.
+
+
+
+
+
+## `setValueAs` for Optional Numeric RHF Fields
+
+When a numeric `<input type="number">` is conditionally required (present in the schema only when a companion boolean is true), use `register("field", { setValueAs })` instead of `{ valueAsNumber: true }`. `valueAsNumber: true` converts an empty input to `NaN`, which passes Zod's `z.number()` type check but fails `.positive()` / `.min()` refinements with a confusing message. `setValueAs` converts empty to `undefined` so Zod's `.optional()` or the parent's conditional logic handles it cleanly. First used in `traveler-request-create-form.tsx` for `budgetPerPersonRub` (2026-05-22).
+
+```typescript
+// In the register call — replaces { valueAsNumber: true }
+{...register("budgetPerPersonRub", {
+  setValueAs: (value) =>
+    value === "" || value == null ? undefined : Number(value),
+})}
+```
+
+**Rules:**
+- Use `setValueAs` whenever the field may legitimately be absent (hidden by a toggle, optional section). Reserve `{ valueAsNumber: true }` for always-required numeric fields.
+- The Zod schema field must be typed as optional (`z.number().optional()`) or guarded by a conditional refinement — `undefined` from `setValueAs` will fail a plain `z.number()` schema.
+- Pair with the companion lock boolean check in custom error display logic so the user gets a contextual hint rather than a raw Zod message when the field is unexpectedly empty:
+
+```typescript
+const budgetErrorMessage =
+  budgetLocked &&
+  errors.budgetPerPersonRub &&
+  (!Number.isFinite(budget) || budget == null || budget <= 0)
+    ? "Введите бюджет или переключитесь на ↔️"
+    : errors.budgetPerPersonRub?.message;
+```
+- See ERR-041 for the related anti-pattern: `.default(0)` on a Zod field used with `zodResolver` causes a type mismatch; defaults belong in `useForm({ defaultValues })`, not the schema.
+
