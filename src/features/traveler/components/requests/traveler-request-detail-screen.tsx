@@ -1,15 +1,18 @@
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Users } from "lucide-react";
+import { ArrowLeft, CalendarDays, Clock, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
+import { cn } from "@/lib/utils";
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 );
+
+const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -32,12 +35,33 @@ interface Props {
 }
 
 export function TravelerRequestDetailScreen({ record }: Props) {
-  const dateLabel = formatDate(record.request.startDate);
-  const timeLabel = record.request.startTime
-    ? record.request.endTime
-      ? `${record.request.startTime} – ${record.request.endTime}`
-      : record.request.startTime
-    : null;
+  const request = record.request;
+
+  const dateLabel = formatDate(request.startDate);
+  const timeLabel = request.startTime
+    ? request.endTime
+      ? `${request.startTime} – ${request.endTime}`
+      : request.startTime
+    : "—";
+
+  const isAssembly = request.mode === "assembly";
+  const capacity = isAssembly ? request.groupMax ?? null : null;
+  const current = isAssembly ? request.groupSizeCurrent ?? 1 : request.groupSize ?? 1;
+  const hasCapacity = capacity != null;
+  const countLabel = hasCapacity ? `${current} из ${capacity} чел.` : `${current} чел.`;
+  const countFull = hasCapacity && current >= capacity;
+  const countColor = !hasCapacity
+    ? ""
+    : countFull
+      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
+      : "border-amber-200 bg-amber-50 text-amber-700";
+
+  const budgetOpen = request.budgetLocked === false;
+  const budgetLabel = budgetOpen
+    ? "жду предложения"
+    : `${formatRub(request.budgetPerPersonRub)} на чел.`;
+
+  const interests = request.interests ?? [];
 
   return (
     <div className="space-y-8">
@@ -52,44 +76,50 @@ export function TravelerRequestDetailScreen({ record }: Props) {
           <TravelerRequestStatusBadge status={record.status} />
         </div>
 
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold text-foreground">
-            {record.request.destination}
-          </h1>
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
-            <span className="inline-flex items-center gap-2">
-              <CalendarDays className="size-4 text-muted-foreground" />
-              {dateLabel}{timeLabel ? ` · ${timeLabel}` : ""}
-            </span>
-            <span className="inline-flex items-center gap-2">
-              <Users className="size-4 text-muted-foreground" />
-              {record.request.mode === "assembly"
-                ? `Сборная группа · сейчас ${record.request.groupSizeCurrent ?? 1}${record.request.groupMax ? ` из ${record.request.groupMax}` : ''} чел.`
-                : `${record.request.groupSize ?? 1} чел.`}
-            </span>
-          </div>
-        </div>
+        <h1 className="text-3xl font-semibold text-foreground">
+          {request.destination}
+        </h1>
       </div>
 
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2">
-          {(record.request.interests ?? []).map((slug) => (
-            <Badge key={slug} variant="secondary" className="normal-case tracking-normal text-xs font-medium">
-              {INTEREST_LABEL_BY_ID[slug] ?? slug}
-            </Badge>
-          ))}
-          <Badge variant="outline" className="normal-case tracking-normal text-xs font-medium">
-            {record.request.mode === "private" ? "Своя группа" : "Сборная группа"}
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <CalendarDays className="size-3.5" />
+            {dateLabel}
           </Badge>
-          <Badge variant="outline" className="normal-case tracking-normal text-xs font-medium">
-            {formatRub(record.request.budgetPerPersonRub)} {"на чел."}
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <Clock className="size-3.5" />
+            {timeLabel}
+          </Badge>
+          <Badge variant="outline" className={cn(BADGE_CLASS, countColor)}>
+            <Users className="size-3.5" />
+            {countLabel}
+          </Badge>
+          <Badge
+            variant="outline"
+            className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-50 text-emerald-700")}
+          >
+            <Wallet className="size-3.5" />
+            {budgetLabel}
           </Badge>
         </div>
-        {record.request.notes ? (
-          <p className="text-sm text-muted-foreground">{record.request.notes}</p>
+
+        {interests.length > 0 ? (
+          <div className="flex flex-wrap gap-2">
+            {interests.map((slug) => (
+              <Badge key={slug} variant="secondary" className={BADGE_CLASS}>
+                {INTEREST_LABEL_BY_ID[slug] ?? slug}
+              </Badge>
+            ))}
+          </div>
+        ) : null}
+
+        {request.notes ? (
+          <div className="w-full max-w-[720px] whitespace-pre-line rounded-2xl border border-border/80 bg-[color-mix(in_srgb,var(--background)_76%,white_24%)] px-4 py-3 text-sm text-foreground">
+            {request.notes}
+          </div>
         ) : null}
       </div>
-
     </div>
   );
 }
