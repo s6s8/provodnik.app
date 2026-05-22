@@ -3,19 +3,30 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch, useController } from "react-hook-form";
+import type { z } from "zod";
 
 import {
+  DATE_WINDOW_VALUES,
   travelerRequestSchema,
-  type TravelerRequest,
+  type DateWindowValue,
 } from "@/data/traveler-request/schema";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { todayMoscowISODate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { INTEREST_CHIPS } from "@/data/interests";
 
-type RequestFormValues = TravelerRequest;
+type RequestFormValues = z.infer<typeof travelerRequestSchema>;
+
+const DATE_WINDOW_LABELS: Record<DateWindowValue, string> = {
+  one_day: "±1 день",
+  two_days: "±2 дня",
+  three_days: "±3 дня",
+  week: "±неделя",
+  two_weeks: "±2 недели",
+};
 
 export function TravelerRequestCreateForm() {
   const [serverError, setServerError] = React.useState<string | null>(null);
@@ -25,10 +36,15 @@ export function TravelerRequestCreateForm() {
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
       mode: "assembly",
-      interests: [] as TravelerRequest["interests"],
+      interests: [] as RequestFormValues["interests"],
       destination: "",
       startDate: "",
-      dateFlexibility: 'exact' as const,
+      dateFlexibility: "exact",
+      dateLocked: true,
+      timeLocked: true,
+      countLocked: true,
+      budgetLocked: true,
+      dateWindow: "week",
       startTime: "",
       endTime: "",
       groupSize: 2,
@@ -54,13 +70,23 @@ export function TravelerRequestCreateForm() {
   const budget = useWatch({ control, name: "budgetPerPersonRub" });
   const groupSize = useWatch({ control, name: "groupSize" });
   const groupSizeCurrent = useWatch({ control, name: "groupSizeCurrent" });
-  const dateFlexibility = useWatch({ control, name: "dateFlexibility" });
+  const dateLocked = useWatch({ control, name: "dateLocked" }) ?? true;
+  const timeLocked = useWatch({ control, name: "timeLocked" }) ?? true;
+  const countLocked = useWatch({ control, name: "countLocked" }) ?? true;
+  const budgetLocked = useWatch({ control, name: "budgetLocked" }) ?? true;
+  const dateWindow = useWatch({ control, name: "dateWindow" }) ?? "week";
   const isAssembly = mode === "assembly";
   const isLoading = isSubmitting || isPending;
 
   const participants = isAssembly ? (groupSizeCurrent ?? 1) : (groupSize ?? 1);
-  const validBudget = Number.isFinite(budget) && budget > 0 ? budget : null;
+  const validBudget = budgetLocked && Number.isFinite(budget) && budget > 0 ? budget : null;
   const totalRub = validBudget !== null ? validBudget * (participants ?? 1) : null;
+  const budgetErrorMessage =
+    budgetLocked &&
+    errors.budgetPerPersonRub &&
+    (!Number.isFinite(budget) || budget == null || budget <= 0)
+      ? "Введите бюджет или переключитесь на ↔️"
+      : errors.budgetPerPersonRub?.message;
 
   const onSubmit = React.useCallback(
     (values: RequestFormValues) => {
@@ -72,6 +98,11 @@ export function TravelerRequestCreateForm() {
       fd.set("destination", values.destination);
       fd.set("startDate", values.startDate);
       fd.set("dateFlexibility", values.dateFlexibility ?? "exact");
+      fd.set("dateLocked", String(values.dateLocked ?? true));
+      fd.set("timeLocked", String(values.timeLocked ?? true));
+      fd.set("countLocked", String(values.countLocked ?? true));
+      fd.set("budgetLocked", String(values.budgetLocked ?? true));
+      fd.set("dateWindow", values.dateWindow ?? "week");
       fd.set("startTime", values.startTime ?? "");
       fd.set("endTime", values.endTime ?? "");
 
@@ -198,25 +229,62 @@ export function TravelerRequestCreateForm() {
       {/* Date + time */}
       <div className="grid gap-5 sm:grid-cols-3">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+          <FieldHeader>
+            <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+            <LockToggle
+              locked={dateLocked}
+              lockedLabel="Зафиксировать дату"
+              flexibleLabel="Разрешить дату в окне"
+              onChange={(next) => form.setValue("dateLocked", next, { shouldDirty: true })}
+            />
+          </FieldHeader>
           <Input
             id="startDate"
             type="date"
-            min={new Date().toISOString().slice(0, 10)}
+            min={todayMoscowISODate()}
             aria-invalid={Boolean(errors.startDate)}
             aria-describedby={errors.startDate ? "startDate-error" : undefined}
             {...register("startDate")}
           />
+          {!dateLocked ? (
+            <select
+              className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-xs transition-colors focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
+              aria-label="Окно гибкости даты"
+              {...register("dateWindow")}
+            >
+              {DATE_WINDOW_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {DATE_WINDOW_LABELS[value]}
+                </option>
+              ))}
+            </select>
+          ) : null}
+          <p className="text-sm text-muted-foreground">
+            {dateLocked
+              ? "дата окончательная"
+              : `гид может предложить дату в пределах ${DATE_WINDOW_LABELS[dateWindow]}`}
+          </p>
           <FieldError id="startDate-error" message={errors.startDate?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startTime">Начало (ЧЧ:ММ)</FieldLabel>
+          <FieldHeader>
+            <FieldLabel htmlFor="startTime">Начало (ЧЧ:ММ)</FieldLabel>
+            <LockToggle
+              locked={timeLocked}
+              lockedLabel="Зафиксировать время"
+              flexibleLabel="Разрешить другое время"
+              onChange={(next) => form.setValue("timeLocked", next, { shouldDirty: true })}
+            />
+          </FieldHeader>
           <Input
             id="startTime"
             type="time"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
           />
+          <p className="text-sm text-muted-foreground">
+            {timeLocked ? "время окончательное" : "гид может предложить другое время"}
+          </p>
           <FieldError id="startTime-error" message={errors.startTime?.message} />
         </div>
         <div className="grid gap-2">
@@ -231,39 +299,19 @@ export function TravelerRequestCreateForm() {
         </div>
       </div>
 
-      {/* Date flexibility */}
-      <div className="grid gap-2">
-        <FieldLabel>Гибкость дат</FieldLabel>
-        <div className="flex gap-2">
-          {(
-            [
-              { value: 'exact', label: 'Точная дата' },
-              { value: 'few_days', label: '±пара дней' },
-              { value: 'week', label: '±неделя' },
-            ] as const
-          ).map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => form.setValue('dateFlexibility', value)}
-              className={cn(
-                "flex-1 rounded-md border px-3 py-2 text-sm transition-colors",
-                dateFlexibility === value
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-input bg-background hover:bg-muted"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       {/* Group counters — conditional on mode */}
       {isAssembly ? (
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="groupSizeCurrent">Сейчас в группе</FieldLabel>
+            <FieldHeader>
+              <FieldLabel htmlFor="groupSizeCurrent">Количество человек</FieldLabel>
+              <LockToggle
+                locked={countLocked}
+                lockedLabel="Зафиксировать количество"
+                flexibleLabel="Разрешить другое количество"
+                onChange={(next) => form.setValue("countLocked", next, { shouldDirty: true })}
+              />
+            </FieldHeader>
             <Input
               id="groupSizeCurrent"
               type="number"
@@ -273,7 +321,11 @@ export function TravelerRequestCreateForm() {
               aria-invalid={Boolean(errors.groupSizeCurrent)}
               {...register("groupSizeCurrent", { valueAsNumber: true })}
             />
-            <FieldHint>Сколько человек уже есть в вашей компании.</FieldHint>
+            <p className="text-sm text-muted-foreground">
+              {countLocked
+                ? "количество окончательное"
+                : "гид может предложить другое количество"}
+            </p>
             <FieldError id="groupSizeCurrent-error" message={errors.groupSizeCurrent?.message} />
           </div>
           <div className="grid gap-2">
@@ -295,7 +347,15 @@ export function TravelerRequestCreateForm() {
         </div>
       ) : (
         <div className="grid gap-2">
-          <FieldLabel htmlFor="groupSize">Сколько вас поедет?</FieldLabel>
+          <FieldHeader>
+            <FieldLabel htmlFor="groupSize">Количество человек</FieldLabel>
+            <LockToggle
+              locked={countLocked}
+              lockedLabel="Зафиксировать количество"
+              flexibleLabel="Разрешить другое количество"
+              onChange={(next) => form.setValue("countLocked", next, { shouldDirty: true })}
+            />
+          </FieldHeader>
           <Input
             id="groupSize"
             type="number"
@@ -305,25 +365,63 @@ export function TravelerRequestCreateForm() {
             aria-invalid={Boolean(errors.groupSize)}
             {...register("groupSize", { valueAsNumber: true })}
           />
-          <FieldHint>Количество человек в вашей компании.</FieldHint>
+          <p className="text-sm text-muted-foreground">
+            {countLocked
+              ? "количество окончательное"
+              : "гид может предложить другое количество"}
+          </p>
           <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
       )}
 
       {/* Budget */}
       <div className="grid gap-2">
-        <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
-        <Input
-          id="budgetPerPersonRub"
-          type="number"
-          inputMode="numeric"
-          min={1000}
-          max={2000000}
-          aria-invalid={Boolean(errors.budgetPerPersonRub)}
-          {...register("budgetPerPersonRub", { valueAsNumber: true })}
-        />
-        <FieldHint>Верхняя граница бюджета помогает гидам предлагать реалистичные программы.</FieldHint>
-        <FieldError id="budgetPerPersonRub-error" message={errors.budgetPerPersonRub?.message} />
+        <FieldHeader>
+          <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
+          <LockToggle
+            locked={budgetLocked}
+            lockedLabel="Зафиксировать бюджет"
+            flexibleLabel="Ждать предложения от гидов"
+            onChange={(next) => {
+              form.setValue("budgetLocked", next, { shouldDirty: true });
+              if (next) {
+                form.setValue(
+                  "budgetPerPersonRub",
+                  undefined as unknown as RequestFormValues["budgetPerPersonRub"],
+                  { shouldDirty: true },
+                );
+              } else {
+                form.setValue("budgetPerPersonRub", 1000, {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+                form.clearErrors("budgetPerPersonRub");
+              }
+            }}
+          />
+        </FieldHeader>
+        {budgetLocked ? (
+          <Input
+            id="budgetPerPersonRub"
+            type="number"
+            inputMode="numeric"
+            min={1000}
+            max={2000000}
+            aria-invalid={Boolean(errors.budgetPerPersonRub)}
+            {...register("budgetPerPersonRub", {
+              setValueAs: (value) =>
+                value === "" || value == null ? undefined : Number(value),
+            })}
+          />
+        ) : (
+          <p className="rounded-md border border-input bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+            Жду предложения от гидов
+          </p>
+        )}
+        <p className="text-sm text-muted-foreground">
+          {budgetLocked ? "окончательная цена" : "жду предложения от гидов"}
+        </p>
+        <FieldError id="budgetPerPersonRub-error" message={budgetErrorMessage} />
         <div className="flex items-center justify-between rounded-md border border-input bg-muted/30 px-3 py-2 text-sm">
           <span className="text-muted-foreground">Цена за группу</span>
           <span className="font-semibold text-foreground">
@@ -332,25 +430,6 @@ export function TravelerRequestCreateForm() {
               : "—"}
           </span>
         </div>
-      </div>
-
-      {/* Allow guide suggestions */}
-      <div className="grid gap-2">
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="mt-1"
-            {...register("allowGuideSuggestionsOutsideConstraints")}
-          />
-          <span>
-            <span className="font-medium text-foreground">
-              Разрешить предлагать варианты вне заданных рамок
-            </span>
-            <span className="block text-xs text-muted-foreground">
-              Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп.
-            </span>
-          </span>
-        </label>
       </div>
 
       {/* Notes */}
@@ -375,12 +454,66 @@ export function TravelerRequestCreateForm() {
   );
 }
 
+function FieldHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      {...props}
+      className={cn("flex items-center justify-between gap-3", className)}
+    />
+  );
+}
+
 function FieldLabel(props: React.ComponentProps<"label">) {
   return (
     <label
       {...props}
       className={cn("text-sm font-medium text-foreground", props.className)}
     />
+  );
+}
+
+function LockToggle({
+  locked,
+  lockedLabel,
+  flexibleLabel,
+  onChange,
+}: {
+  locked: boolean;
+  lockedLabel: string;
+  flexibleLabel: string;
+  onChange: (locked: boolean) => void;
+}) {
+  return (
+    <div className="flex items-center gap-1" aria-label="Гибкость параметра">
+      <button
+        type="button"
+        aria-label={lockedLabel}
+        aria-pressed={locked}
+        onClick={() => {
+          if (!locked) onChange(true);
+        }}
+        className={cn(
+          "cursor-pointer rounded-md px-2 py-1 text-sm transition-colors hover:bg-muted/50 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none",
+          locked ? "text-primary" : "text-muted-foreground",
+        )}
+      >
+        🔒
+      </button>
+      <button
+        type="button"
+        aria-label={flexibleLabel}
+        aria-pressed={!locked}
+        onClick={() => {
+          if (locked) onChange(false);
+        }}
+        className={cn(
+          "cursor-pointer rounded-md px-2 py-1 text-sm transition-colors hover:bg-muted/50 focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none",
+          locked ? "text-muted-foreground" : "text-primary",
+        )}
+      >
+        ↔️
+      </button>
+    </div>
   );
 }
 
