@@ -12,7 +12,6 @@ import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
 import type { SubmitOfferResult } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions-types";
-import { formatDurationMinutes } from "@/lib/dates";
 import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { Uuid } from "@/lib/supabase/types";
@@ -23,12 +22,21 @@ const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 );
 
+const DATE_WINDOW_LABEL: Record<string, string> = {
+  one_day: "±1 день",
+  two_days: "±2 дня",
+  three_days: "±3 дня",
+  week: "±неделя",
+  two_weeks: "±2 недели",
+};
+
 const offerFormSchema = z.object({
   price_total: z
     .number()
     .int("Используйте целое число.")
     .min(1_000, "Цена должна быть не менее 1 000 ₽.")
     .max(10_000_000, "Цена слишком высокая."),
+  price_per_person: z.number().int().min(1).max(10_000_000).optional(),
   message: z
     .string()
     .trim()
@@ -41,15 +49,15 @@ const offerFormSchema = z.object({
       const d = new Date(v);
       return !Number.isNaN(d.getTime()) && d > new Date();
     }, "Дата должна быть в будущем."),
-  route_duration_hours: z.number().int().min(0).max(12),
-  route_duration_minutes: z.number().int().min(0).max(45),
   excursion_date: z.string().optional(),
   excursion_start_time: z.string().optional(),
+  excursion_end_time: z.string().optional(),
+  headcount: z.number().int().min(1).max(50).optional(),
 });
 
 type OfferFormValues = z.infer<typeof offerFormSchema>;
 
-function formatRub(amount: number | undefined): string {
+function formatRub(amount: number | undefined | null): string {
   if (!amount || Number.isNaN(amount)) return "—";
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
@@ -63,6 +71,19 @@ function getDefaultValidUntil(): string {
   const d = new Date();
   d.setDate(d.getDate() + 7);
   return Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Moscow" }).format(d);
+}
+
+const FIELD_CLASS =
+  "min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary";
+const READONLY_CLASS =
+  "min-h-[2.75rem] flex items-center rounded-xl border border-border/60 bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground";
+
+function ProposedBadge() {
+  return (
+    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.7rem] font-medium text-primary">
+      ↔️ предложено
+    </span>
+  );
 }
 
 interface BidFormPanelProps {
@@ -82,13 +103,23 @@ export function BidFormPanel({
   const [submitted, setSubmitted] = React.useState(false);
   const [guidePhotos, setGuidePhotos] = React.useState<Array<{ id: string; location_name: string; photoUrl: string }>>([]);
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
+
+  const dateLocked = request.dateLocked !== false;
+  const timeLocked = request.timeLocked !== false;
+  const countLocked = request.countLocked !== false;
+  const budgetLocked = request.budgetLocked !== false;
+
+  const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
+  const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
+  const dateWindowLabel = DATE_WINDOW_LABEL[request.dateWindow ?? "week"] ?? "±неделя";
+
   React.useEffect(() => {
     async function load() {
       const supabase = createSupabaseBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const photos = await listGuideLocationPhotos(user.id as Uuid);
-      setGuidePhotos(photos.map(p => ({
+      setGuidePhotos(photos.map((p) => ({
         id: p.id,
         location_name: p.location_name,
         photoUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data.publicUrl,
@@ -101,41 +132,64 @@ export function BidFormPanel({
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<OfferFormValues>({
     resolver: zodResolver(offerFormSchema),
     defaultValues: {
-      price_total:
-        request.budgetRub > 0 ? request.budgetRub * request.groupSize : undefined,
+      price_total: budgetLocked && request.budgetRub > 0 ? request.budgetRub * travelerCount : undefined,
+      price_per_person: budgetLocked && request.budgetRub > 0 ? request.budgetRub : undefined,
       message: "",
       valid_until: getDefaultValidUntil(),
-      route_duration_hours: 0,
-      route_duration_minutes: 0,
-      excursion_date: undefined,
-      excursion_start_time: undefined,
+      excursion_date: travelerDate || undefined,
+      excursion_start_time: request.startTime ?? undefined,
+      excursion_end_time: request.endTime ?? undefined,
+      headcount: travelerCount,
     },
   });
 
-  const priceTotal = useWatch({ control, name: "price_total" });
-  const pricePerPerson =
-    priceTotal && request.groupSize > 0
-      ? Math.round(priceTotal / request.groupSize)
-      : null;
-
-  const routeDurationHours = useWatch({ control, name: "route_duration_hours" });
-  const routeDurationMinutesVal = useWatch({ control, name: "route_duration_minutes" });
+  const headcountVal = useWatch({ control, name: "headcount" });
+  const count = headcountVal && headcountVal > 0 ? headcountVal : travelerCount;
   const excursionDate = useWatch({ control, name: "excursion_date" });
-  const excursionStartTime = useWatch({ control, name: "excursion_start_time" });
+  const startTimeVal = useWatch({ control, name: "excursion_start_time" });
+  const endTimeVal = useWatch({ control, name: "excursion_end_time" });
 
-  const totalMins = (routeDurationHours ?? 0) * 60 + (routeDurationMinutesVal ?? 0);
-  const durationLabel = totalMins > 0 ? formatDurationMinutes(totalMins) : "Общая длительность экскурсии";
+  const dateShifted = !dateLocked && (excursionDate ?? "") !== travelerDate;
+  const timeShifted =
+    !timeLocked &&
+    ((startTimeVal ?? "") !== (request.startTime ?? "") || (endTimeVal ?? "") !== (request.endTime ?? ""));
+  const countShifted = !countLocked && count !== travelerCount;
 
-  const endTimeLabel = React.useMemo(() => {
-    if (!excursionDate || !excursionStartTime || totalMins === 0) return null;
-    const starts = new Date(`${excursionDate}T${excursionStartTime}:00+03:00`);
-    const ends = new Date(starts.getTime() + totalMins * 60_000);
-    return ends.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" });
-  }, [excursionDate, excursionStartTime, totalMins]);
+  const budgetCeilingPerPerson = request.budgetRub > 0 ? request.budgetRub : undefined;
+
+  // Two-sided price calculator: editing one field recomputes the other by current count.
+  const handleGroupChange = React.useCallback(
+    (raw: string) => {
+      const v = Number(raw);
+      if (!Number.isNaN(v) && count > 0) {
+        setValue("price_per_person", Math.round(v / count), { shouldValidate: false });
+      }
+    },
+    [count, setValue],
+  );
+  const handlePerPersonChange = React.useCallback(
+    (raw: string) => {
+      const v = Number(raw);
+      if (!Number.isNaN(v) && count > 0) {
+        setValue("price_total", v * count, { shouldValidate: true });
+      }
+    },
+    [count, setValue],
+  );
+
+  // When headcount changes, hold per-person fixed and recompute the group total.
+  const perPersonVal = useWatch({ control, name: "price_per_person" });
+  React.useEffect(() => {
+    if (perPersonVal != null && !Number.isNaN(perPersonVal) && count > 0) {
+      setValue("price_total", perPersonVal * count, { shouldValidate: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count]);
 
   const onSubmit = React.useCallback(
     async (values: OfferFormValues) => {
@@ -146,23 +200,30 @@ export function BidFormPanel({
       fd.set("message", values.message);
       fd.set("valid_until", values.valid_until);
 
-      fd.set("route_stops", JSON.stringify(routeStops.map((s, i) => ({
-        photoId: s.photoId,
-        locationName: s.locationName,
-        photoUrl: s.photoUrl,
-        sortOrder: i,
-      }))));
-
-      const durationMinutes = (values.route_duration_hours ?? 0) * 60 + (values.route_duration_minutes ?? 0);
-      fd.set("route_duration_minutes", durationMinutes > 0 ? String(durationMinutes) : "");
+      fd.set(
+        "route_stops",
+        JSON.stringify(
+          routeStops.map((s, i) => ({
+            photoId: s.photoId,
+            locationName: s.locationName,
+            photoUrl: s.photoUrl,
+            sortOrder: i,
+          })),
+        ),
+      );
 
       const date = values.excursion_date;
       const startTime = values.excursion_start_time;
+      const endTime = values.excursion_end_time;
       if (date && startTime) {
         const startsAt = new Date(`${date}T${startTime}:00+03:00`);
-        const endsAt = new Date(startsAt.getTime() + durationMinutes * 60_000);
         fd.set("starts_at", startsAt.toISOString());
-        fd.set("ends_at", endsAt.toISOString());
+        if (endTime) {
+          const endsAt = new Date(`${date}T${endTime}:00+03:00`);
+          fd.set("ends_at", endsAt.toISOString());
+          const durMin = Math.max(0, Math.round((endsAt.getTime() - startsAt.getTime()) / 60_000));
+          fd.set("route_duration_minutes", durMin > 0 ? String(durMin) : "");
+        }
       }
 
       const result: SubmitOfferResult = await submitOfferAction(requestId, fd);
@@ -178,29 +239,25 @@ export function BidFormPanel({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden
       />
 
-      {/* Panel */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label="Отправить предложение"
         className="fixed bottom-0 right-0 z-[120] flex h-full w-full max-w-[480px] flex-col overflow-y-auto bg-surface shadow-xl max-md:max-w-full max-md:h-[90dvh] max-md:rounded-t-2xl md:top-0 md:bottom-auto"
       >
-        {/* Panel header */}
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
             <h2 className="font-sans text-[1.0625rem] font-semibold text-foreground">
               Сделать предложение
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {request.destination} · {request.dateLabel} · {request.groupSize}{" "}
-              чел.
+              {request.destination} · {request.dateLabel} · {travelerCount} чел.
             </p>
           </div>
           <button
@@ -213,7 +270,7 @@ export function BidFormPanel({
           </button>
         </div>
 
-        {/* Request context */}
+        {/* Request context (readonly) */}
         <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             {request.mode === "assembly" ? (
@@ -238,202 +295,196 @@ export function BidFormPanel({
           )}
         </div>
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="flex flex-col gap-5 px-6 py-6"
-          noValidate
-        >
-            {/* Route builder */}
-            {guidePhotos.length > 0 && (
-              <div className="grid gap-3">
-                <p className="text-sm font-medium text-foreground">Маршрут</p>
-
-                {/* Selected stops */}
-                {routeStops.length > 0 && (
-                  <div className="flex flex-col gap-2">
-                    {routeStops.map((stop, idx) => (
-                      <div key={stop.photoId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-high p-2">
-                        <Image src={stop.photoUrl} alt={stop.locationName} width={40} height={40} className="size-10 rounded-lg object-cover" />
-                        <span className="flex-1 text-sm">{stop.locationName}</span>
-                        <button type="button" disabled={submitted} onClick={() => setRouteStops(prev => prev.filter((_, i) => i !== idx))}
-                          className="text-muted-foreground hover:text-destructive text-xs">✕</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Photo picker */}
-                <div className="flex gap-2 overflow-x-auto pb-1">
-                  {guidePhotos
-                    .filter(p => !routeStops.some(s => s.photoId === p.id))
-                    .map(photo => (
-                      <button
-                        key={photo.id}
-                        type="button"
-                        disabled={submitted}
-                        onClick={() => setRouteStops(prev => [...prev, { photoId: photo.id, locationName: photo.location_name, photoUrl: photo.photoUrl, sortOrder: prev.length }])}
-                        className="relative flex-shrink-0 overflow-hidden rounded-xl"
-                      >
-                        <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
-                        <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
-                          <p className="truncate text-[10px] text-white">{photo.location_name}</p>
-                        </div>
-                      </button>
-                    ))}
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 px-6 py-6" noValidate>
+          {/* Route builder */}
+          {guidePhotos.length > 0 && (
+            <div className="grid gap-3">
+              <p className="text-sm font-medium text-foreground">Маршрут</p>
+              {routeStops.length > 0 && (
+                <div className="flex flex-col gap-2">
+                  {routeStops.map((stop, idx) => (
+                    <div key={stop.photoId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-high p-2">
+                      <Image src={stop.photoUrl} alt={stop.locationName} width={40} height={40} className="size-10 rounded-lg object-cover" />
+                      <span className="flex-1 text-sm">{stop.locationName}</span>
+                      <button type="button" disabled={submitted} onClick={() => setRouteStops((prev) => prev.filter((_, i) => i !== idx))}
+                        className="text-muted-foreground hover:text-destructive text-xs">✕</button>
+                    </div>
+                  ))}
                 </div>
+              )}
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {guidePhotos
+                  .filter((p) => !routeStops.some((s) => s.photoId === p.id))
+                  .map((photo) => (
+                    <button
+                      key={photo.id}
+                      type="button"
+                      disabled={submitted}
+                      onClick={() => setRouteStops((prev) => [...prev, { photoId: photo.id, locationName: photo.location_name, photoUrl: photo.photoUrl, sortOrder: prev.length }])}
+                      className="relative flex-shrink-0 overflow-hidden rounded-xl"
+                    >
+                      <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
+                      <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
+                        <p className="truncate text-[10px] text-white">{photo.location_name}</p>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Когда: date */}
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-foreground">Дата</label>
+              {dateShifted ? <ProposedBadge /> : null}
+            </div>
+            {dateLocked ? (
+              <div className={READONLY_CLASS}>🔒 {request.dateLabel}</div>
+            ) : (
+              <>
+                <input type="date" className={FIELD_CLASS} disabled={submitted} {...register("excursion_date")} />
+                <p className="text-xs text-muted-foreground">Можно предложить дату в пределах {dateWindowLabel} от даты туриста.</p>
+              </>
+            )}
+          </div>
+
+          {/* Когда: time start → end */}
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-foreground">Время начала — конца</label>
+              {timeShifted ? <ProposedBadge /> : null}
+            </div>
+            {timeLocked ? (
+              <div className="flex items-center gap-2">
+                <div className={`${READONLY_CLASS} flex-1`}>🔒 {request.startTime ?? "—"}</div>
+                <div className={`${READONLY_CLASS} flex-1`}>🔒 {request.endTime ?? "—"}</div>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_start_time")} />
+                <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_end_time")} />
               </div>
             )}
+          </div>
 
-            {/* Total duration */}
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-foreground">Длительность маршрута</label>
-              <div className="flex items-center gap-2">
-                <select
-                  className="min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  disabled={submitted}
-                  {...register("route_duration_hours", { valueAsNumber: true })}
-                >
-                  {[0,1,2,3,4,5,6,7,8,9,10,11,12].map(h => (
-                    <option key={h} value={h}>{h} ч</option>
-                  ))}
-                </select>
-                <select
-                  className="min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  disabled={submitted}
-                  {...register("route_duration_minutes", { valueAsNumber: true })}
-                >
-                  {[0,5,10,15,20,30,45].map(m => (
-                    <option key={m} value={m}>{String(m).padStart(2, "0")} мин</option>
-                  ))}
-                </select>
-              </div>
-              <p className="text-xs text-muted-foreground">{durationLabel}</p>
+          {/* Количество человек */}
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2">
+              <label className="text-sm font-medium text-foreground">Количество человек</label>
+              {countShifted ? <ProposedBadge /> : null}
             </div>
-
-            {/* Date + start time */}
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-foreground">Дата и время начала</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="date"
-                  className="flex-1 min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  disabled={submitted}
-                  {...register("excursion_date")}
-                />
-                <input
-                  type="time"
-                  className="min-h-[2.75rem] rounded-xl border border-border bg-surface-high px-3 py-2 text-sm text-foreground outline-none focus:border-primary"
-                  disabled={submitted}
-                  {...register("excursion_start_time")}
-                />
-              </div>
-              {endTimeLabel && (
-                <p className="text-xs text-muted-foreground">
-                  Конец экскурсии: {endTimeLabel}
-                </p>
-              )}
-            </div>
-
-            {/* Price total */}
-            <div className="grid gap-2">
-              <label
-                htmlFor="panel-price_total"
-                className="text-sm font-medium text-foreground"
-              >
-                Итоговая цена, ₽
-              </label>
+            {countLocked ? (
+              <div className={READONLY_CLASS}>🔒 {travelerCount} чел.</div>
+            ) : (
               <input
-                id="panel-price_total"
                 type="number"
                 inputMode="numeric"
-                min={1000}
-                className="min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-                aria-invalid={Boolean(errors.price_total)}
+                min={1}
+                max={50}
+                className={FIELD_CLASS}
                 disabled={submitted}
-                {...register("price_total", { valueAsNumber: true })}
+                {...register("headcount", { valueAsNumber: true })}
               />
-              {errors.price_total ? (
-                <p className="text-xs text-destructive">
-                  {errors.price_total.message}
-                </p>
-              ) : (
-                <p className="text-xs text-muted-foreground">
-                  {pricePerPerson !== null
-                    ? `${formatRub(pricePerPerson)} за человека при ${
-                        request.groupSize
-                      } чел.`
-                    : "Полная сумма за всю группу."}
-                </p>
-              )}
-            </div>
+            )}
+          </div>
 
-            {/* Message */}
-            <div className="grid gap-2">
-              <label
-                htmlFor="panel-message"
-                className="text-sm font-medium text-foreground"
-              >
-                Сообщение гостю
-              </label>
-              <textarea
-                id="panel-message"
-                className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-                placeholder="Опишите, что входит в цену и почему стоит выбрать вас."
-                aria-invalid={Boolean(errors.message)}
-                disabled={submitted}
-                {...register("message")}
-              />
-              {errors.message ? (
-                <p className="text-xs text-destructive">
-                  {errors.message.message}
-                </p>
-              ) : null}
+          {/* Цена — двусторонний калькулятор */}
+          <div className="grid gap-2">
+            <label className="text-sm font-medium text-foreground">Цена</label>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1000}
+                  max={budgetLocked && budgetCeilingPerPerson ? budgetCeilingPerPerson * count : undefined}
+                  placeholder="За группу, ₽"
+                  className={FIELD_CLASS}
+                  aria-invalid={Boolean(errors.price_total)}
+                  disabled={submitted}
+                  {...register("price_total", {
+                    valueAsNumber: true,
+                    onChange: (e) => handleGroupChange(e.target.value),
+                  })}
+                />
+                <p className="mt-1 text-[0.7rem] text-muted-foreground">За группу, ₽</p>
+              </div>
+              <div className="flex-1">
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={budgetLocked && budgetCeilingPerPerson ? budgetCeilingPerPerson : undefined}
+                  placeholder="На человека, ₽"
+                  className={FIELD_CLASS}
+                  disabled={submitted}
+                  {...register("price_per_person", {
+                    valueAsNumber: true,
+                    onChange: (e) => handlePerPersonChange(e.target.value),
+                  })}
+                />
+                <p className="mt-1 text-[0.7rem] text-muted-foreground">На человека, ₽</p>
+              </div>
             </div>
-
-            {/* Valid until */}
-            <div className="grid gap-2">
-              <label
-                htmlFor="panel-valid_until"
-                className="text-sm font-medium text-foreground"
-              >
-                Действительно до
-              </label>
-              <input
-                id="panel-valid_until"
-                type="date"
-                className="min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-                aria-invalid={Boolean(errors.valid_until)}
-                disabled={submitted}
-                {...register("valid_until")}
-              />
-              {errors.valid_until ? (
-                <p className="text-xs text-destructive">
-                  {errors.valid_until.message}
-                </p>
-              ) : null}
-            </div>
-
-            {serverError ? (
-              <p className="text-sm font-semibold text-destructive" role="alert">
-                {serverError}
+            {errors.price_total ? (
+              <p className="text-xs text-destructive">{errors.price_total.message}</p>
+            ) : budgetLocked && budgetCeilingPerPerson ? (
+              <p className="text-xs text-muted-foreground">
+                Потолок туриста — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
               </p>
-            ) : null}
+            ) : (
+              <p className="text-xs text-muted-foreground">Турист открыт к предложениям — назовите свою цену.</p>
+            )}
+          </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting || submitted}
-              className={
-                submitted
-                  ? "border border-success/30 bg-success/10 text-success w-full"
-                  : "w-full"
-              }
-            >
-              {submitted ? "Отправлено" : isSubmitting ? "Отправляем…" : "Отправить предложение"}
-            </Button>
+          {/* Сообщение */}
+          <div className="grid gap-2">
+            <label htmlFor="panel-message" className="text-sm font-medium text-foreground">
+              Сообщение гостю
+            </label>
+            <textarea
+              id="panel-message"
+              className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              placeholder="Опишите, что входит в цену и почему стоит выбрать вас."
+              aria-invalid={Boolean(errors.message)}
+              disabled={submitted}
+              {...register("message")}
+            />
+            {errors.message ? <p className="text-xs text-destructive">{errors.message.message}</p> : null}
+          </div>
+
+          {/* Действительно до */}
+          <div className="grid gap-2">
+            <label htmlFor="panel-valid_until" className="text-sm font-medium text-foreground">
+              Действительно до
+            </label>
+            <input
+              id="panel-valid_until"
+              type="date"
+              className={FIELD_CLASS}
+              aria-invalid={Boolean(errors.valid_until)}
+              disabled={submitted}
+              {...register("valid_until")}
+            />
+            {errors.valid_until ? <p className="text-xs text-destructive">{errors.valid_until.message}</p> : null}
+          </div>
+
+          {serverError ? (
+            <p className="text-sm font-semibold text-destructive" role="alert">
+              {serverError}
+            </p>
+          ) : null}
+
+          <Button
+            type="submit"
+            disabled={isSubmitting || submitted}
+            className={submitted ? "border border-success/30 bg-success/10 text-success w-full" : "w-full"}
+          >
+            {submitted ? "Отправлено" : isSubmitting ? "Отправляем…" : "Отправить предложение"}
+          </Button>
         </form>
       </div>
     </>
   );
 }
-
