@@ -68,6 +68,11 @@ export const createRequestInputSchema = z
       .nullable()
       .optional(),
     date_flexibility: z.enum(['exact', 'few_days', 'week']).default('exact'),
+    date_locked: z.boolean().optional(),
+    time_locked: z.boolean().optional(),
+    count_locked: z.boolean().optional(),
+    budget_locked: z.boolean().optional(),
+    date_window: z.string().optional(),
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.starts_on);
@@ -113,7 +118,7 @@ export type TravelerRequest = TravelerRequestRow;
 // ---------------------------------------------------------------------------
 
 const SELECT_COLS =
-  "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
+  "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -150,6 +155,11 @@ export async function createTravelerRequest(
       start_time: input.start_time ?? null,
       end_time: input.end_time ?? null,
       date_flexibility: input.date_flexibility,
+      date_locked: input.date_locked ?? true,
+      time_locked: input.time_locked ?? true,
+      count_locked: input.count_locked ?? true,
+      budget_locked: input.budget_locked ?? true,
+      date_window: input.date_window ?? "week",
     })
     .select(SELECT_COLS)
     .single();

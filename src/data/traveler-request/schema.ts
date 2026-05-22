@@ -4,6 +4,9 @@ import { THEMES, type ThemeSlug } from "@/data/themes";
 
 export const travelerRequestModes = ["assembly", "private"] as const;
 
+export const DATE_WINDOW_VALUES = ["one_day", "two_days", "three_days", "week", "two_weeks"] as const;
+export type DateWindowValue = (typeof DATE_WINDOW_VALUES)[number];
+
 const timeRegex = /^\d{2}:\d{2}$/;
 
 export const travelerRequestSchema = z
@@ -52,6 +55,13 @@ export const travelerRequestSchema = z
       .max(20, "For MVP, cap group size at 20.")
       .optional(),
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
+    dateLocked: z.boolean().optional(),
+    timeLocked: z.boolean().optional(),
+    countLocked: z.boolean().optional(),
+    budgetLocked: z.boolean().optional(),
+    dateWindow: z
+      .enum([...DATE_WINDOW_VALUES] as [DateWindowValue, ...DateWindowValue[]])
+      .optional(),
     budgetPerPersonRub: z
       .number()
       .int("Use a whole number.")
