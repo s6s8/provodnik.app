@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 const travelerRequestSelect =
-  "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at";
+  "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window";
 
 
 export default async function TravelerRequestDetailPage({
@@ -168,6 +168,15 @@ export default async function TravelerRequestDetailPage({
                     requestStatus={requestRow.status}
                     onSendQa={sendQa}
                     onGetOrCreateQaThread={getOrCreateThread}
+                    travelerDateLocked={requestRow.date_locked ?? true}
+                    travelerTimeLocked={requestRow.time_locked ?? true}
+                    travelerCountLocked={requestRow.count_locked ?? true}
+                    travelerBudgetLocked={requestRow.budget_locked ?? true}
+                    travelerStartsOn={requestRow.starts_on ?? null}
+                    travelerStartTime={requestRow.start_time ?? null}
+                    travelerEndTime={requestRow.end_time ?? null}
+                    travelerCount={requestRow.participants_count ?? 1}
+                    travelerBudgetPerPersonRub={requestRow.budget_minor ? Math.round(requestRow.budget_minor / 100) : null}
                   />
                 ))}
             </div>

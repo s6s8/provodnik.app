@@ -1,5 +1,12 @@
+"use client";
+
+import * as React from "react";
+import Image from "next/image";
+import { CalendarDays, ChevronLeft, ChevronRight, Clock, Users, Wallet, X } from "lucide-react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 
@@ -12,6 +19,8 @@ interface GuideInfo {
   avatar_url: string | null;
 }
 
+type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
+
 interface Props {
   offer: GuideOfferRow;
   guideInfo: GuideInfo | null;
@@ -20,7 +29,18 @@ interface Props {
   requestStatus: string;
   onSendQa: (threadId: string, body: string) => Promise<void>;
   onGetOrCreateQaThread: (offerId: string) => Promise<string>;
+  travelerDateLocked?: boolean;
+  travelerTimeLocked?: boolean;
+  travelerCountLocked?: boolean;
+  travelerBudgetLocked?: boolean;
+  travelerStartsOn?: string | null;
+  travelerStartTime?: string | null;
+  travelerEndTime?: string | null;
+  travelerCount?: number;
+  travelerBudgetPerPersonRub?: number | null;
 }
+
+const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
 
 function formatPrice(minor: number, currency: string): string {
   return new Intl.NumberFormat("ru-RU", {
@@ -28,6 +48,29 @@ function formatPrice(minor: number, currency: string): string {
     currency,
     maximumFractionDigits: 0,
   }).format(minor / 100);
+}
+
+function formatRub(amount: number): string {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatDateRu(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+}
+
+function formatTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso.slice(0, 5);
+  return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" });
 }
 
 export function OfferCard({
@@ -38,32 +81,171 @@ export function OfferCard({
   requestStatus,
   onSendQa,
   onGetOrCreateQaThread,
+  travelerDateLocked,
+  travelerTimeLocked,
+  travelerCountLocked,
+  travelerBudgetLocked,
+  travelerStartsOn,
+  travelerStartTime,
+  travelerEndTime,
+  travelerCount,
+  travelerBudgetPerPersonRub,
 }: Props) {
   const guideName = guideInfo?.full_name ?? "Гид";
   const canAccept = requestStatus === "open" && offer.status === "pending";
+
+  const offerCount = offer.capacity > 0 ? offer.capacity : (travelerCount ?? 1);
+  const perPersonMinor = offerCount > 0 ? Math.round(offer.price_minor / offerCount) : offer.price_minor;
+  const priceGroupLabel = formatPrice(offer.price_minor, offer.currency);
+  const priceLabel = `${priceGroupLabel} за группу · ${formatPrice(perPersonMinor, offer.currency)} на чел.`;
+
+  const offerDateIso = offer.starts_at ? offer.starts_at.slice(0, 10) : null;
+  const dateBadgeLabel = formatDateRu(offer.starts_at);
+  const timeBadgeLabel = offer.starts_at && offer.ends_at
+    ? `${formatTime(offer.starts_at)} – ${formatTime(offer.ends_at)}`
+    : offer.starts_at
+      ? formatTime(offer.starts_at)
+      : "—";
+  const countBadgeLabel = `${offerCount} чел.`;
+
+  const dateDeviates =
+    travelerDateLocked === false && travelerStartsOn != null && offerDateIso != null && offerDateIso !== travelerStartsOn.slice(0, 10);
+  const timeDeviates =
+    travelerTimeLocked === false &&
+    (
+      (travelerStartTime != null && offer.starts_at != null && formatTime(offer.starts_at) !== travelerStartTime) ||
+      (travelerEndTime != null && offer.ends_at != null && formatTime(offer.ends_at) !== travelerEndTime)
+    );
+  const countDeviates =
+    travelerCountLocked === false && travelerCount != null && offerCount !== travelerCount;
+  const budgetDeviates =
+    travelerBudgetLocked === false &&
+    travelerBudgetPerPersonRub != null &&
+    Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub;
+
+  const routeStops = (Array.isArray(offer.route_stops) ? (offer.route_stops as RouteStop[]) : []).filter(
+    (s) => s && typeof s === "object" && typeof s.photoUrl === "string",
+  );
+  const hasRoute = routeStops.length > 0;
+
+  const [lightboxIndex, setLightboxIndex] = React.useState<number | null>(null);
+  const lightboxOpen = lightboxIndex != null;
+  const closeLightbox = React.useCallback(() => setLightboxIndex(null), []);
+  const showPrev = React.useCallback(() => {
+    setLightboxIndex((i) => (i == null ? null : (i - 1 + routeStops.length) % routeStops.length));
+  }, [routeStops.length]);
+  const showNext = React.useCallback(() => {
+    setLightboxIndex((i) => (i == null ? null : (i + 1) % routeStops.length));
+  }, [routeStops.length]);
+
+  React.useEffect(() => {
+    if (!lightboxOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") closeLightbox();
+      else if (e.key === "ArrowLeft") showPrev();
+      else if (e.key === "ArrowRight") showNext();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxOpen, closeLightbox, showPrev, showNext]);
+
+  const touchStartX = React.useRef<number | null>(null);
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchStartX.current;
+    const end = e.changedTouches[0]?.clientX ?? null;
+    if (start == null || end == null) return;
+    const dx = end - start;
+    if (Math.abs(dx) > 40) {
+      if (dx > 0) showPrev();
+      else showNext();
+    }
+    touchStartX.current = null;
+  };
 
   return (
     <div className="space-y-3 rounded-xl border bg-card p-4">
       {/* Guide header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
-          <AvatarImage
-            src={guideInfo?.avatar_url ?? undefined}
-            alt={guideName}
-          />
+          <AvatarImage src={guideInfo?.avatar_url ?? undefined} alt={guideName} />
           <AvatarFallback>{guideName.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{guideName}</p>
-          <p className="text-xs text-muted-foreground">
-            {formatPrice(offer.price_minor, offer.currency)}
-            {offer.capacity > 1 ? ` · до ${offer.capacity} чел.` : ""}
-          </p>
         </div>
         <Badge variant={offer.status === "accepted" ? "default" : "outline"}>
           {offer.status === "accepted" ? "Принято" : "Ожидает"}
         </Badge>
       </div>
+
+      {/* Badge strip */}
+      <div className="space-y-1">
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <CalendarDays className="size-3.5" />
+            {dateBadgeLabel}
+          </Badge>
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <Clock className="size-3.5" />
+            {timeBadgeLabel}
+          </Badge>
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <Users className="size-3.5" />
+            {countBadgeLabel}
+          </Badge>
+          <Badge
+            variant="outline"
+            className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-50 text-emerald-700")}
+          >
+            <Wallet className="size-3.5" />
+            {priceLabel}
+          </Badge>
+        </div>
+        {(dateDeviates || timeDeviates || countDeviates || budgetDeviates) ? (
+          <div className="flex flex-wrap gap-3 text-[0.7rem] text-muted-foreground">
+            {dateDeviates ? <span>гид предложил {dateBadgeLabel}</span> : null}
+            {timeDeviates ? <span>гид предложил {timeBadgeLabel}</span> : null}
+            {countDeviates ? <span>гид предложил {countBadgeLabel}</span> : null}
+            {budgetDeviates ? (
+              <span>
+                гид предложил {formatRub(Math.round(perPersonMinor / 100))} на чел.
+              </span>
+            ) : null}
+          </div>
+        ) : null}
+      </div>
+
+      {/* Route collage */}
+      {hasRoute ? (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-foreground">Маршрут</p>
+          <div className="flex gap-2 overflow-x-auto pb-1">
+            {routeStops.map((stop, idx) => (
+              <button
+                key={`${stop.photoId}-${idx}`}
+                type="button"
+                onClick={() => setLightboxIndex(idx)}
+                className="relative flex-shrink-0 overflow-hidden rounded-xl focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label={`Открыть фото: ${stop.locationName}`}
+              >
+                <Image
+                  src={stop.photoUrl}
+                  alt={stop.locationName}
+                  width={96}
+                  height={96}
+                  className="size-24 object-cover"
+                />
+                <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
+                  <p className="truncate text-[10px] text-white">{stop.locationName}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {/* PII disclosure banner */}
       <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2">
@@ -72,11 +254,11 @@ export function OfferCard({
         </p>
       </div>
 
-      {/* Offer message (already masked by getOffersForRequest) */}
+      {/* Offer message */}
       {offer.message ? (
         <div className="rounded-lg border bg-background/60 p-3">
           <p className="mb-1 text-xs text-muted-foreground">Сообщение гида</p>
-          <p className="text-sm">{offer.message}</p>
+          <p className="text-sm whitespace-pre-line">{offer.message}</p>
         </div>
       ) : null}
 
@@ -98,6 +280,76 @@ export function OfferCard({
           onGetOrCreate={onGetOrCreateQaThread}
         />
       </div>
+
+      {/* Lightbox */}
+      {lightboxOpen ? (
+        <>
+          <div
+            className="fixed inset-0 z-[130] bg-black/80"
+            onClick={closeLightbox}
+            aria-hidden
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Фото маршрута ${(lightboxIndex ?? 0) + 1} из ${routeStops.length}`}
+            className="fixed inset-0 z-[140] flex items-center justify-center"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                closeLightbox();
+              }}
+              aria-label="Закрыть"
+              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+            >
+              <X className="size-5" />
+            </button>
+            {routeStops.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showPrev();
+                  }}
+                  aria-label="Предыдущее"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+                >
+                  <ChevronLeft className="size-6" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    showNext();
+                  }}
+                  aria-label="Следующее"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+                >
+                  <ChevronRight className="size-6" />
+                </button>
+              </>
+            ) : null}
+            <div className="relative max-h-[88vh] max-w-[92vw]">
+              <Image
+                src={routeStops[lightboxIndex ?? 0].photoUrl}
+                alt={routeStops[lightboxIndex ?? 0].locationName}
+                width={1600}
+                height={1200}
+                className="max-h-[88vh] w-auto max-w-[92vw] object-contain"
+                unoptimized
+              />
+              <p className="absolute inset-x-0 bottom-2 text-center text-sm text-white drop-shadow">
+                {routeStops[lightboxIndex ?? 0].locationName}
+              </p>
+            </div>
+          </div>
+        </>
+      ) : null}
     </div>
   );
 }
