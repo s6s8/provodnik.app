@@ -79,6 +79,8 @@ export type RequestRecord = {
   destinationRegion: string;
   title: string;
   dateLabel: string;
+  startsOn?: string | null;
+  endsOn?: string | null;
   startTime?: string | null;
   endTime?: string | null;
   groupSize: number;
@@ -335,6 +337,8 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
       (row.starts_on as string) ?? "",
       (row.ends_on as string | null) ?? null,
     ),
+    startsOn: (row.starts_on as string | null) ?? null,
+    endsOn: (row.ends_on as string | null) ?? null,
     startTime: row.start_time ? (row.start_time as string).slice(0, 5) : null,
     endTime: row.end_time ? (row.end_time as string).slice(0, 5) : null,
     groupSize: (row.participants_count as number) ?? 1,
