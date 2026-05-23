@@ -87,7 +87,7 @@ export function SiteHeader({
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const avatarInitial = email ? email[0].toUpperCase() : "?";
   const dashboardLabel = role ? roleLabels[role] : "Кабинет";
-  const primaryCtaHref = role === "guide" ? "/requests" : "/requests/new";
+  const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
 
   return (
