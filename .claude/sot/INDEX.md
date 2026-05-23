@@ -81,6 +81,8 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - ERR-080 — RESOLVED 2026-05-14 (qmtbek 3dbb9ec) — kodex-capture test hardcoded 2026-05-12 date; fixed by importing todayMoscowISODate and computing TODAY at module-load
 - ERR-081 — RESOLVED 2026-05-14 (qmtbek pending) — operator-level scripts and one-off curl sendMessage bypassed sanitize+format pipeline, leaked stage names + cursor-agent + owner name to worker-visible chat (msg 849); fixed via new bot/lib/worker-comms.mjs helper
 
+- ERR-095 — AP-012 regex false-positive: `_minor` matched inside SELECT column strings (narrowed to require adjacent arithmetic operator) — see ERR-095 / AP-037
+
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
 - AP-001 — don't use slug directly in ilike data column queries; resolve slug → record first
@@ -107,6 +109,8 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - AP-027 — single-backtick `inline code` for short paste-and-run commands; reserve ```triple-backtick``` for multi-line code only — mobile Telegram copies inline code cleanly, triple-backtick can copy as image on Android (F2 / Alex 2026-05-13 lesson)
 - AP-028 — bot allocates a worker-facing short ID (T-NN sessions, E-NN epics) at intake via monotonic per-app counter; long sessionIds (20260513-160-px-96-px-g00m) are unworkable in conversation, workers invent parallel numbering otherwise (F4 / Alex 2026-05-13 lesson)
 - AP-029 — operator-level scripts must use bot/lib/worker-comms.mjs (sendWorkerMessage / editWorkerMessage) for any worker- or owner-facing Telegram send; raw api.sendMessage from scripts/* bypasses sanitize+format and leaks internal jargon (ERR-081 lesson)
+
+- AP-037 — consistency-rule regex matched symbol outside arithmetic context (operation-anchored vs symbol-anchored)
 
 ## Decisions (see DECISIONS.md)
 
