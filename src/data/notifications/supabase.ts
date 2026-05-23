@@ -43,12 +43,18 @@ export async function listNotificationsForCurrentUserFromSupabase(): Promise<
   NotificationRecord[]
 > {
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+  const userId = user.id;
 
   const { data, error } = await supabase
     .from("notifications")
     .select(
       "id, user_id, kind, title, body, href, is_read, created_at",
     )
+    .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
   if (error) {

@@ -59,8 +59,12 @@ export function getRedirectPathForRole(role: AppRole | null | undefined): string
   return getDashboardPathForRole(role);
 }
 
-const ROLE_RANK: Record<AppRole, number> = { traveler: 0, guide: 1, admin: 2 };
+// Strict role isolation: only exact match or admin (elevated) can access a route.
+// Previously guide (rank 1) could access traveler routes (rank 0) via >= comparison.
 
 export function roleHasAccess(userRole: AppRole, requiredRole: AppRole): boolean {
-  return ROLE_RANK[userRole] >= ROLE_RANK[requiredRole];
+  if (userRole === requiredRole) return true;
+  // Admin has elevated access to all routes
+  if (userRole === "admin") return true;
+  return false;
 }

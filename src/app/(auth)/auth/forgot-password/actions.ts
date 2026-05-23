@@ -3,6 +3,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getResendClient } from "@/lib/email/resend-client";
 import { getSiteUrl } from "@/lib/env";
+import { rateLimit } from "@/lib/rate-limit";
 
 export type ForgotPasswordResult =
   | { ok: true }
@@ -17,6 +18,13 @@ export async function sendPasswordResetEmail(
     return { ok: false, error: "Введите email." };
   }
 
+  // Rate limit: 5 attempts per IP per hour
+  const rl = await rateLimit(`forgot-password:${email}`, 5, 3600);
+  if (!rl.success) {
+    // Always return ok to avoid enumeration via rate limit error
+    return { ok: true };
+  }
+
   try {
     const admin = createSupabaseAdminClient();
 
@@ -28,16 +36,16 @@ export async function sendPasswordResetEmail(
       },
     });
 
+    // Always return ok — never reveal whether the email exists
     if (error) {
-      if (error.message.toLowerCase().includes("user not found")) {
-        return { ok: true };
-      }
-      return { ok: false, error: "Не удалось создать ссылку для сброса пароля." };
+      console.error("[forgot-password] generateLink error:", error.message);
+      return { ok: true };
     }
 
     const resetLink = data.properties?.action_link;
     if (!resetLink) {
-      return { ok: false, error: "Не удалось создать ссылку для сброса пароля." };
+      console.error("[forgot-password] No action_link in response");
+      return { ok: true };
     }
 
     const resend = getResendClient();
@@ -65,12 +73,14 @@ export async function sendPasswordResetEmail(
       `,
     });
 
+    // Always return ok — never reveal whether the email was sent
     if (emailError) {
-      return { ok: false, error: "Не удалось отправить письмо. Попробуйте позже." };
+      console.error("[forgot-password] Email send error:", emailError.message);
     }
 
     return { ok: true };
-  } catch {
-    return { ok: false, error: "Не удалось отправить письмо. Попробуйте позже." };
+  } catch (err) {
+    console.error("[forgot-password] Unexpected error:", err);
+    return { ok: true };
   }
 }

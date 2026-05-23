@@ -18,9 +18,9 @@ const AVATAR_SUCCESS = AVATAR_MESSAGES.SUCCESS;
 const AVATAR_GENERIC_ERROR = AVATAR_MESSAGES.GENERIC_ERROR;
 
 function getAvatarFile(formData: FormData) {
-  const file = formData.get("avatar") ?? formData.get("file");
+  const file = formData.get("avatar");
   if (!(file instanceof File)) {
-    throw new Error("Avatar file is required.");
+    throw new Error("Avatar file is required. Use FormData key \"avatar\".");
   }
 
   return file;

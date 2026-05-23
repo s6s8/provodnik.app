@@ -31,6 +31,18 @@ export async function openDispute(bookingId: string, reason: string) {
     throw new Error("Спор может открыть только участник бронирования.");
   }
 
+  // Transition booking FIRST — if this fails, no orphaned dispute is created
+  if (booking.status === "confirmed") {
+    await transitionBooking(booking.id, "disputed", user.id);
+  } else {
+    const { error: bookingUpdateError } = await supabase
+      .from("bookings")
+      .update({ status: "disputed" })
+      .eq("id", booking.id);
+    if (bookingUpdateError) throw bookingUpdateError;
+  }
+
+  // Now create the dispute record
   const { data, error } = await supabase
     .from("disputes")
     .insert({
@@ -44,16 +56,6 @@ export async function openDispute(bookingId: string, reason: string) {
     .single();
 
   if (error) throw error;
-
-  if (booking.status === "confirmed") {
-    await transitionBooking(booking.id, "disputed", user.id);
-  } else {
-    const { error: bookingUpdateError } = await supabase
-      .from("bookings")
-      .update({ status: "disputed" })
-      .eq("id", booking.id);
-    if (bookingUpdateError) throw bookingUpdateError;
-  }
 
   await notifyDisputeOpened(data.id);
 

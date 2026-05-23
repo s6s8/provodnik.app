@@ -82,7 +82,7 @@ export function ReplyComposer({ reviewId, existingReply }: ReplyComposerProps) {
         );
       }
       if (!replyId) throw new Error("Не удалось получить ID ответа");
-      await submitReplyForReview(replyId);
+      await submitReplyForReview(replyId, reviewId);
       setReply((prev) =>
         prev
           ? {

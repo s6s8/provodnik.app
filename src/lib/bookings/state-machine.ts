@@ -52,6 +52,7 @@ export async function transitionBooking(
     .from("bookings")
     .update({ status: to })
     .eq("id", bookingId)
+    .eq("status", from)
     .select("id, status")
     .single();
 

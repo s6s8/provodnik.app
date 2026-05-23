@@ -22,6 +22,7 @@ type SupabaseChain = {
   maybeSingle: ReturnType<typeof vi.fn>
   update: ReturnType<typeof vi.fn>
   updateEq: ReturnType<typeof vi.fn>
+  updateEq2: ReturnType<typeof vi.fn>
   updateSelect: ReturnType<typeof vi.fn>
   single: ReturnType<typeof vi.fn>
 }
@@ -39,7 +40,8 @@ function createBookingSupabase(fromStatus: BookingStatus, toStatus: BookingStatu
     error: null,
   })
   const updateSelect = vi.fn(() => ({ single }))
-  const updateEq = vi.fn(() => ({ select: updateSelect }))
+  const updateEq2 = vi.fn(() => ({ select: updateSelect }))
+  const updateEq = vi.fn(() => ({ eq: updateEq2 }))
   const update = vi.fn(() => ({ eq: updateEq }))
 
   const from = vi.fn(() => ({
@@ -47,7 +49,7 @@ function createBookingSupabase(fromStatus: BookingStatus, toStatus: BookingStatu
     update,
   }))
 
-  return { from, select, selectEq, maybeSingle, update, updateEq, updateSelect, single }
+  return { from, select, selectEq, maybeSingle, update, updateEq, updateEq2, updateSelect, single }
 }
 
 describe('BOOKING_TRANSITIONS', () => {

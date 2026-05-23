@@ -18,7 +18,7 @@ type Props = {
   disabled?: boolean;
 };
 
-export function DisputeAdminResolve({ disputeId, adminId, disabled }: Props) {
+export function DisputeAdminResolve({ disputeId, disabled }: Props) {
   const router = useRouter();
   const [resolution, setResolution] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function DisputeAdminResolve({ disputeId, adminId, disabled }: Props) {
     }
     startTransition(async () => {
       try {
-        await resolveDisputeThreadAction(disputeId, adminId, text);
+        await resolveDisputeThreadAction(disputeId, text);
         setResolution("");
         router.refresh();
       } catch (e) {

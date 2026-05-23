@@ -25,11 +25,16 @@ export async function submitRequest(formData: {
 
   const { data: listing, error: listingErr } = await supabase
     .from("listings")
-    .select("id, status, price_from_minor")
+    .select("id, status, price_from_minor, guide_id")
     .eq("id", formData.listingId)
     .single();
 
   if (listingErr || !listing) {
+    throw new Error("listing_unavailable");
+  }
+
+  // Verify the listing belongs to the specified guide
+  if (listing.guide_id !== formData.guideId) {
     throw new Error("listing_unavailable");
   }
   if (listing.status !== "published") {

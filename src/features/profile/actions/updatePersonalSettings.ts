@@ -13,7 +13,18 @@ export async function updatePersonalSettings(data: {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  await supabase
+  // Verify guide profile exists before updating
+  const { data: existingProfile } = await supabase
+    .from("guide_profiles")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!existingProfile) {
+    return { success: false, error: "Профиль гида не найден." };
+  }
+
+  const { error } = await supabase
     .from("guide_profiles")
     .update({
       locale: data.locale,
@@ -22,5 +33,6 @@ export async function updatePersonalSettings(data: {
     })
     .eq("user_id", user.id);
 
+  if (error) throw new Error(error.message);
   return { success: true };
 }

@@ -6,7 +6,6 @@ import {
   createNotification,
   type NotificationKind,
 } from "@/lib/notifications/create-notification";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const uuidSchema = z.string().uuid("Некорректный UUID.");
@@ -175,7 +174,7 @@ export async function notifyReviewRequested(bookingId: string): Promise<void> {
 
 export async function notifyDisputeOpened(disputeId: string): Promise<void> {
   const parsedDisputeId = uuidSchema.parse(disputeId);
-  const supabase = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
 
   const { data: admins, error } = await supabase
     .from("profiles")

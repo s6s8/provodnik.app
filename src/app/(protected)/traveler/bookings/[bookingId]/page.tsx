@@ -153,8 +153,8 @@ export default async function TravelerBookingDetailPage({
 
   return (
     <div className="space-y-6">
-      <DemoModeBanner />
-      <MockPaymentButton />
+      {process.env.NODE_ENV !== 'production' && <DemoModeBanner />}
+      {process.env.NODE_ENV !== 'production' && <MockPaymentButton />}
       {reviewStatus === "success" ? (
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">
@@ -228,7 +228,14 @@ export default async function TravelerBookingDetailPage({
 
             <div className="flex flex-col gap-2 sm:flex-row">
               <form
-                action={openBookingThreadAction}
+                action={async (formData: FormData) => {
+                  "use server";
+                  const result = await openBookingThreadAction(formData);
+                  if (result.error) {
+                    redirect("/messages");
+                  }
+                  redirect(`/messages/${result.threadId}`);
+                }}
                 className="flex"
               >
                 <input type="hidden" name="booking_id" value={booking.id} />

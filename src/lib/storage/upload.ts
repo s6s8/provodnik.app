@@ -124,7 +124,7 @@ export async function confirmUpload(data: {
         mime_type: input.mimeType,
         byte_size: input.byteSize,
       },
-      { onConflict: "bucket_id,object_path" },
+      { onConflict: "bucket_id,object_path,owner_id" },
     )
     .select(
       "id, owner_id, bucket_id, object_path, asset_kind, mime_type, byte_size, created_at",

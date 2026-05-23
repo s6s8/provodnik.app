@@ -4,6 +4,7 @@ const {
   createUserMock,
   updateUserByIdMock,
   deleteUserMock,
+  _getUserByIdMock,
   upsertMock,
   fromMock,
   signInWithPasswordMock,
@@ -13,6 +14,7 @@ const {
   const createUserMock = vi.fn();
   const updateUserByIdMock = vi.fn();
   const deleteUserMock = vi.fn();
+  const _getUserByIdMock = vi.fn().mockResolvedValue({ data: { user: { created_at: new Date().toISOString() } } });
   const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
   const fromMock = vi.fn(() => ({ upsert: upsertMock }));
   const signInWithPasswordMock = vi.fn();
@@ -23,6 +25,7 @@ const {
         createUser: createUserMock,
         updateUserById: updateUserByIdMock,
         deleteUser: deleteUserMock,
+        getUserById: _getUserByIdMock,
       },
     },
     from: fromMock,
@@ -36,6 +39,7 @@ const {
     createUserMock,
     updateUserByIdMock,
     deleteUserMock,
+    _getUserByIdMock,
     upsertMock,
     fromMock,
     signInWithPasswordMock,

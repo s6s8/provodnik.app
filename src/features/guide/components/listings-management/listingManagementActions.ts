@@ -11,12 +11,23 @@ export async function bulkSetStatus(
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
-  await supabase
+
+  const { count, error } = await supabase
     .from("listings")
     .update({ status })
     .in("id", listingIds)
     .eq("guide_id", user.id);
-  return { success: true };
+
+  if (error) throw new Error(error.message);
+
+  if (count !== listingIds.length) {
+    return {
+      success: false,
+      error: `Обновлено ${count} из ${listingIds.length} туров. Некоторые туры не найдены или не принадлежат вам.`,
+    };
+  }
+
+  return { success: true, count };
 }
 
 export async function quickEditTitle(listingId: string, title: string) {
@@ -25,10 +36,13 @@ export async function quickEditTitle(listingId: string, title: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
-  await supabase
+
+  const { error } = await supabase
     .from("listings")
     .update({ title: title.trim() })
     .eq("id", listingId)
     .eq("guide_id", user.id);
+
+  if (error) throw new Error(error.message);
   return { success: true };
 }

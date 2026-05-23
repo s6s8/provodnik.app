@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getOrCreateThread } from "@/lib/supabase/conversations";
@@ -16,7 +15,7 @@ export async function openBookingThreadAction(formData: FormData) {
   });
 
   if (!parsed.success) {
-    redirect("/messages");
+    return { error: "Некорректный идентификатор бронирования." };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -26,7 +25,7 @@ export async function openBookingThreadAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth");
+    return { error: "Требуется авторизация." };
   }
 
   const { data: booking, error } = await supabase
@@ -36,7 +35,7 @@ export async function openBookingThreadAction(formData: FormData) {
     .maybeSingle();
 
   if (error || !booking || booking.traveler_id !== user.id) {
-    redirect("/messages");
+    return { error: "Бронирование не найдено." };
   }
 
   const thread = await getOrCreateThread(
@@ -46,5 +45,5 @@ export async function openBookingThreadAction(formData: FormData) {
     [booking.guide_id],
   );
 
-  redirect(`/messages/${thread.id}`);
+  return { threadId: thread.id };
 }

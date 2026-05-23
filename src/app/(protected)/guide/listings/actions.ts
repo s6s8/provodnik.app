@@ -19,6 +19,29 @@ import {
   getPublicUrl,
 } from "@/lib/storage/upload";
 
+function userFriendlyError(err: unknown): string {
+  if (err instanceof Error) {
+    const msg = err.message;
+    // Map common Supabase error codes to user-friendly messages
+    if (msg.includes("duplicate key") || msg.includes("23505")) {
+      return "Такой тур уже существует.";
+    }
+    if (msg.includes("foreign key") || msg.includes("23503")) {
+      return "Связанные данные не найдены.";
+    }
+    if (msg.includes("violates not-null") || msg.includes("23502")) {
+      return "Заполните все обязательные поля.";
+    }
+    if (msg.includes("Не авторизован") || msg.includes("Unauthorized")) {
+      return "Необходимо войти в систему.";
+    }
+    // Default: return generic message, log full error server-side
+    console.error("[listing-actions]", msg);
+    return "Произошла ошибка. Попробуйте ещё раз.";
+  }
+  return "Произошла ошибка. Попробуйте ещё раз.";
+}
+
 async function getCurrentGuideId(): Promise<string> {
   const supabase = await createSupabaseServerClient();
   const {
@@ -53,9 +76,7 @@ export async function createListingAction(
     const listing = await createListing(data, guideId);
     return { id: listing.id };
   } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Ошибка создания тура.",
-    };
+    return { error: userFriendlyError(err) };
   }
 }
 
@@ -68,9 +89,7 @@ export async function updateListingAction(
     const listing = await updateListing(id, data, guideId);
     return { id: listing.id };
   } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Ошибка обновления тура.",
-    };
+    return { error: userFriendlyError(err) };
   }
 }
 
@@ -82,9 +101,7 @@ export async function publishListingAction(
     await publishListing(id, guideId);
     return {};
   } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Ошибка публикации тура.",
-    };
+    return { error: userFriendlyError(err) };
   }
 }
 
@@ -96,9 +113,7 @@ export async function pauseListingAction(
     await pauseListing(id, guideId);
     return {};
   } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Ошибка приостановки тура.",
-    };
+    return { error: userFriendlyError(err) };
   }
 }
 
@@ -110,9 +125,7 @@ export async function deleteListingAction(
     await softDeleteListing(id, guideId);
     return {};
   } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Ошибка удаления тура.",
-    };
+    return { error: userFriendlyError(err) };
   }
 }
 

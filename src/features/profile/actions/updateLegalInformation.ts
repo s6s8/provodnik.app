@@ -1,6 +1,15 @@
 "use server";
 
+import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+const legalInformationSchema = z.object({
+  legalStatus: z.enum(["self_employed", "individual", "company", "null"]).nullable().optional(),
+  inn: z.string().nullable().optional(),
+  documentCountry: z.string().nullable().optional(),
+  isTourOperator: z.boolean().optional(),
+  tourOperatorRegistryNumber: z.string().nullable().optional(),
+});
 
 export async function updateLegalInformation(data: {
   legalStatus: string | null;
@@ -9,6 +18,11 @@ export async function updateLegalInformation(data: {
   isTourOperator: boolean;
   tourOperatorRegistryNumber: string | null;
 }) {
+  const parsed = legalInformationSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error("Некорректные данные юридической информации.");
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -18,11 +32,11 @@ export async function updateLegalInformation(data: {
   const { error } = await supabase
     .from("guide_profiles")
     .update({
-      legal_status: data.legalStatus as "self_employed" | "individual" | "company" | null,
-      inn: data.inn,
-      document_country: data.documentCountry,
-      is_tour_operator: data.isTourOperator,
-      tour_operator_registry_number: data.tourOperatorRegistryNumber,
+      legal_status: (parsed.data.legalStatus === "null" ? null : parsed.data.legalStatus) as "self_employed" | "individual" | "company" | null,
+      inn: parsed.data.inn,
+      document_country: parsed.data.documentCountry,
+      is_tour_operator: parsed.data.isTourOperator,
+      tour_operator_registry_number: parsed.data.tourOperatorRegistryNumber,
     })
     .eq("user_id", user.id);
 

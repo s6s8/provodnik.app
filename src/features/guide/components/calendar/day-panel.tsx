@@ -109,14 +109,14 @@ export function DayPanel({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-40 bg-black/30" onClick={onClose} aria-hidden />
+      <div className="fixed inset-0 z-[110] bg-black/30" onClick={onClose} aria-hidden />
 
       {/* Panel */}
       <div
         role="dialog"
         aria-modal="true"
         aria-label={`День ${dateLabel}`}
-        className="fixed right-0 top-0 z-50 flex h-full w-full max-w-[360px] flex-col bg-surface shadow-xl max-md:max-w-full"
+        className="fixed right-0 top-0 z-[120] flex h-full w-full max-w-[360px] flex-col bg-surface shadow-xl max-md:max-w-full"
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-5 py-4">

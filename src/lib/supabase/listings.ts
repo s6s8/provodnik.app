@@ -14,6 +14,7 @@
  * public RLS reads (only the guide and admins can still read it).
  */
 
+import { rubToKopecks } from "@/data/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ListingRow, ListingStatusDb, Uuid } from "@/lib/supabase/types";
 import {
@@ -109,7 +110,7 @@ export async function createListing(
       description: input.description ?? null,
       region: input.destination,
       category: "general",
-      price_from_minor: input.price_per_person * 100,
+      price_from_minor: rubToKopecks(input.price_per_person),
       max_group_size: input.max_group_size,
       // duration_days mapped to duration_minutes
       duration_minutes: input.duration_days * 24 * 60,
@@ -150,7 +151,7 @@ export async function updateListing(
       title: input.title,
       description: input.description ?? null,
       region: input.destination,
-      price_from_minor: input.price_per_person * 100,
+      price_from_minor: rubToKopecks(input.price_per_person),
       max_group_size: input.max_group_size,
       duration_minutes: input.duration_days * 24 * 60,
       inclusions: parseInclusionsArray(input.included),

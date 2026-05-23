@@ -5,8 +5,12 @@ import { hasSupabaseEnv } from "@/lib/env";
 
 export async function GET(request: NextRequest) {
   if (hasSupabaseEnv()) {
-    const supabase = await createSupabaseServerClient();
-    await supabase.auth.signOut();
+    try {
+      const supabase = await createSupabaseServerClient();
+      await supabase.auth.signOut();
+    } catch {
+      // Sign out failed — still redirect to clear client state
+    }
   }
 
   return NextResponse.redirect(new URL("/", request.url));

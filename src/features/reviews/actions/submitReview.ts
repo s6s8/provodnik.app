@@ -73,12 +73,19 @@ export async function submitReview(data: {
 
   if (error || !review) throw new Error(error?.message ?? "Failed to submit review");
 
+  // Validate all axis scores are in 1-5 range
   const axes: Array<[string, number]> = [
     ["material", data.material],
     ["engagement", data.engagement],
     ["knowledge", data.knowledge],
     ["route", data.route],
   ];
+
+  for (const [axis, score] of axes) {
+    if (typeof score !== "number" || score < 1 || score > 5 || !Number.isInteger(score)) {
+      throw new Error(`Оценка "${axis}" должна быть целым числом от 1 до 5.`);
+    }
+  }
 
   const { error: breakdownError } = await supabase
     .from("review_ratings_breakdown")

@@ -59,7 +59,16 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   });
 
   if (profileError) {
-    await admin.auth.admin.deleteUser(userId);
+    // Idempotency guard: only delete if the user was created within the last 30 seconds
+    // to avoid deleting a legitimate user from a concurrent signup
+    const { data: checkUser } = await admin.auth.admin.getUserById(userId);
+    if (checkUser && checkUser.user) {
+      const createdAt = new Date(checkUser.user.created_at).getTime();
+      const now = Date.now();
+      if (now - createdAt < 30_000) {
+        await admin.auth.admin.deleteUser(userId);
+      }
+    }
     return { ok: false, error: "profile_failed" };
   }
 
@@ -68,7 +77,15 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   });
 
   if (roleError) {
-    await admin.auth.admin.deleteUser(userId);
+    // Idempotency guard: only delete if the user was created within the last 30 seconds
+    const { data: checkUser } = await admin.auth.admin.getUserById(userId);
+    if (checkUser && checkUser.user) {
+      const createdAt = new Date(checkUser.user.created_at).getTime();
+      const now = Date.now();
+      if (now - createdAt < 30_000) {
+        await admin.auth.admin.deleteUser(userId);
+      }
+    }
     return { ok: false, error: "role_failed" };
   }
 

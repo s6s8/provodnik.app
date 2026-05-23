@@ -38,7 +38,7 @@ export function BookingTicket({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+        className="fixed inset-0 z-[110] bg-black/50 backdrop-blur-sm"
         onClick={onClose}
         aria-hidden
       />
@@ -48,7 +48,7 @@ export function BookingTicket({
         role="dialog"
         aria-modal="true"
         aria-label="Билет на поездку"
-        className="fixed inset-x-4 top-1/2 z-50 -translate-y-1/2 max-w-lg mx-auto"
+        className="fixed inset-x-4 top-1/2 z-[120] -translate-y-1/2 max-w-lg mx-auto"
       >
         <div
           ref={ticketRef}

@@ -10,9 +10,8 @@ Sentry.init({
   // Define how likely traces are sampled. Adjust this value in production, or use tracesSampler for greater control.
   tracesSampleRate: 0.1,
 
-  // Enable sending user PII (Personally Identifiable Information)
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-  sendDefaultPii: true,
+  // Never send PII to Sentry — GDPR compliance for passport/INN/phone data
+  sendDefaultPii: false,
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;

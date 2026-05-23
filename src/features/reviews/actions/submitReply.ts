@@ -2,12 +2,43 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function submitReplyForReview(replyId: string) {
+export async function submitReplyForReview(replyId: string, reviewId: string) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+
+  // Verify the reply belongs to this guide AND this review
+  const { data: reply } = await supabase
+    .from("review_replies")
+    .select("id, guide_id, review_id")
+    .eq("id", replyId)
+    .maybeSingle();
+
+  if (!reply) throw new Error("Ответ не найден.");
+  if (reply.guide_id !== user.id) throw new Error("Нет доступа к этому ответу.");
+  if (reply.review_id !== reviewId) throw new Error("Ответ не относится к этому отзыву.");
+
+  // Verify the guide owns the booking linked to this review
+  const { data: review } = await supabase
+    .from("reviews")
+    .select("booking_id")
+    .eq("id", reviewId)
+    .maybeSingle();
+
+  if (review) {
+    const { data: booking } = await supabase
+      .from("bookings")
+      .select("guide_id")
+      .eq("id", review.booking_id)
+      .maybeSingle();
+
+    if (!booking || booking.guide_id !== user.id) {
+      throw new Error("Нет доступа к этому отзыву.");
+    }
+  }
+
   await supabase
     .from("review_replies")
     .update({
@@ -16,6 +47,7 @@ export async function submitReplyForReview(replyId: string) {
     })
     .eq("id", replyId)
     .eq("guide_id", user.id);
+
   return { success: true };
 }
 
@@ -25,6 +57,17 @@ export async function saveReplyDraft(reviewId: string, body: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+
+  // Verify the guide owns the booking linked to this review
+  const { data: review } = await supabase
+    .from("reviews")
+    .select("id, guide_id")
+    .eq("id", reviewId)
+    .maybeSingle();
+
+  if (!review) throw new Error("Отзыв не найден.");
+  if (review.guide_id !== user.id) throw new Error("Нет доступа к этому отзыву.");
+
   // Upsert draft reply
   const { data: existing } = await supabase
     .from("review_replies")
@@ -32,6 +75,7 @@ export async function saveReplyDraft(reviewId: string, body: string) {
     .eq("review_id", reviewId)
     .eq("guide_id", user.id)
     .single();
+
   if (existing) {
     await supabase
       .from("review_replies")
@@ -39,6 +83,7 @@ export async function saveReplyDraft(reviewId: string, body: string) {
       .eq("id", existing.id);
     return { id: existing.id };
   }
+
   const { data } = await supabase
     .from("review_replies")
     .insert({
@@ -49,5 +94,6 @@ export async function saveReplyDraft(reviewId: string, body: string) {
     })
     .select("id")
     .single();
+
   return { id: data!.id };
 }

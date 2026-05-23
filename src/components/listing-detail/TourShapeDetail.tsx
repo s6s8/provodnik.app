@@ -244,7 +244,7 @@ export function TourShapeDetail({
       </div>
 
       {/* Mobile sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 p-3 backdrop-blur-md md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-[110] border-t border-border bg-background/95 p-3 backdrop-blur-md md:hidden">
         <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-[clamp(12px,3vw,24px)]">
           <p className="text-lg font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
           <Button asChild className="shrink-0">
