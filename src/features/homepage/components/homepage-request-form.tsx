@@ -125,7 +125,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Создать запрос"
     >
-      {/* Mode toggle */}
+      {/* 1. Формат поездки */}
       <div className="grid gap-2">
         <FieldLabel>Формат поездки</FieldLabel>
         <div className="flex gap-2">
@@ -158,9 +158,9 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* Destination */}
+      {/* 2. Куда хотите поехать? */}
       <div className="grid gap-2">
-        <FieldLabel htmlFor="destination">Город</FieldLabel>
+        <FieldLabel htmlFor="destination">Куда хотите поехать?</FieldLabel>
         <Input
           id="destination"
           list="destination-options"
@@ -178,96 +178,45 @@ export function HomepageRequestForm({ destinations }: Props) {
         <FieldError id="destination-error" message={errors.destination?.message} />
       </div>
 
-      {/* Date */}
+      {/* 3. Когда — date + start time + end time */}
       <div className="grid gap-2">
-        <FieldLabel htmlFor="startDate">Дата</FieldLabel>
-        <Input
-          id="startDate"
-          type="date"
-          min={todayMoscowISODate()}
-          aria-invalid={Boolean(errors.startDate)}
-          aria-describedby={errors.startDate ? "startDate-error" : undefined}
-          {...register("startDate")}
-        />
-        <FieldError id="startDate-error" message={errors.startDate?.message} />
-      </div>
-
-      {/* Budget per person */}
-      <div className="grid gap-2">
-        <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
-        <Input
-          id="budgetPerPersonRub"
-          type="number"
-          inputMode="numeric"
-          min={1000}
-          max={2000000}
-          aria-invalid={Boolean(errors.budgetPerPersonRub)}
-          {...register("budgetPerPersonRub", { valueAsNumber: true })}
-        />
-        <FieldError
-          id="budgetPerPersonRub-error"
-          message={errors.budgetPerPersonRub?.message}
-        />
-      </div>
-
-      {/* Themes (canonical slugs from THEMES) */}
-      <div className="grid gap-2">
-        <FieldLabel>Темы</FieldLabel>
-        <div className="grid grid-cols-2 gap-2">
-          {THEMES.map((theme) => {
-            const selected = interestsField.value.includes(theme.slug);
-            const Icon = theme.Icon;
-            return (
-              <button
-                key={theme.slug}
-                type="button"
-                onClick={() => {
-                  const current = interestsField.value;
-                  const next = selected
-                    ? current.filter((s) => s !== theme.slug)
-                    : [...current, theme.slug];
-                  interestsField.onChange(next);
-                }}
-                className={cn(
-                  "flex flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
-                  selected
-                    ? "border-primary bg-primary/8 text-primary"
-                    : "border-input bg-background text-muted-foreground hover:bg-muted/40",
-                )}
-              >
-                <Icon className="h-5 w-5 shrink-0" />
-                <span>{theme.label}</span>
-              </button>
-            );
-          })}
+        <FieldLabel>Когда</FieldLabel>
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid gap-2">
+            <Input
+              id="startDate"
+              type="date"
+              min={todayMoscowISODate()}
+              aria-invalid={Boolean(errors.startDate)}
+              aria-describedby={errors.startDate ? "startDate-error" : undefined}
+              {...register("startDate")}
+            />
+            <FieldError id="startDate-error" message={errors.startDate?.message} />
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2">
+              <Input
+                id="startTime"
+                type="time"
+                aria-invalid={Boolean(errors.startTime)}
+                {...register("startTime")}
+              />
+              <FieldError id="startTime-error" message={errors.startTime?.message} />
+            </div>
+            <div className="grid gap-2">
+              <Input
+                id="endTime"
+                type="time"
+                aria-invalid={Boolean(errors.endTime)}
+                {...register("endTime")}
+              />
+              <FieldError id="endTime-error" message={errors.endTime?.message} />
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Start time + end time */}
-      <div className="grid gap-5 sm:grid-cols-2">
-        <div className="grid gap-2">
-          <FieldLabel htmlFor="startTime">Начало</FieldLabel>
-          <Input
-            id="startTime"
-            type="time"
-            aria-invalid={Boolean(errors.startTime)}
-            {...register("startTime")}
-          />
-          <FieldError id="startTime-error" message={errors.startTime?.message} />
-        </div>
-        <div className="grid gap-2">
-          <FieldLabel htmlFor="endTime">Конец</FieldLabel>
-          <Input
-            id="endTime"
-            type="time"
-            aria-invalid={Boolean(errors.endTime)}
-            {...register("endTime")}
-          />
-          <FieldError id="endTime-error" message={errors.endTime?.message} />
-        </div>
-      </div>
-
-      {/* Group size — conditional on mode */}
+      {/* 4. Сколько — group counters, conditional on mode */}
       {isAssembly ? (
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="grid gap-2">
@@ -319,7 +268,58 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       )}
 
-      {/* Notes */}
+      {/* 5. Бюджет на человека (₽) */}
+      <div className="grid gap-2">
+        <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
+        <Input
+          id="budgetPerPersonRub"
+          type="number"
+          inputMode="numeric"
+          min={1000}
+          max={2000000}
+          aria-invalid={Boolean(errors.budgetPerPersonRub)}
+          {...register("budgetPerPersonRub", { valueAsNumber: true })}
+        />
+        <FieldError
+          id="budgetPerPersonRub-error"
+          message={errors.budgetPerPersonRub?.message}
+        />
+      </div>
+
+      {/* 6. Темы */}
+      <div className="grid gap-2">
+        <FieldLabel>Темы</FieldLabel>
+        <div className="grid grid-cols-2 gap-2">
+          {THEMES.map((theme) => {
+            const selected = interestsField.value.includes(theme.slug);
+            const Icon = theme.Icon;
+            return (
+              <button
+                key={theme.slug}
+                type="button"
+                onClick={() => {
+                  const current = interestsField.value;
+                  const next = selected
+                    ? current.filter((s) => s !== theme.slug)
+                    : [...current, theme.slug];
+                  interestsField.onChange(next);
+                }}
+                className={cn(
+                  "flex flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
+                  selected
+                    ? "border-primary bg-primary/8 text-primary"
+                    : "border-input bg-background text-muted-foreground hover:bg-muted/40",
+                )}
+              >
+                <Icon className="h-5 w-5 shrink-0" />
+                <span>{theme.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 7. Пожелания */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
         <Textarea
@@ -347,7 +347,7 @@ export function HomepageRequestForm({ destinations }: Props) {
         onAuthSuccess={handleAuthSuccess}
       />
 
-      {/* Sticky submit button */}
+      {/* 8. Sticky submit button */}
       <div className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-8">
         <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
