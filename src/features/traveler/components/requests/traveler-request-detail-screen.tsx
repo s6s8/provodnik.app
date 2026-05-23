@@ -56,10 +56,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
       : "border-amber-200 bg-amber-50 text-amber-700";
 
-  const budgetOpen = request.budgetLocked === false;
-  const budgetLabel = budgetOpen
-    ? "жду предложения"
-    : `${formatRub(request.budgetPerPersonRub)} на чел.`;
+  const budgetLabel = `${formatRub(request.budgetPerPersonRub)} на чел.`;
 
   const interests = request.interests ?? [];
 

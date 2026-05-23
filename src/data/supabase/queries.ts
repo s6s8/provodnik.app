@@ -359,11 +359,6 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     imageUrl,
     members: [],
     dateFlexibility: (row.date_flexibility as 'exact' | 'few_days' | 'week') ?? 'exact',
-    dateLocked: (row.date_locked as boolean | null) ?? true,
-    timeLocked: (row.time_locked as boolean | null) ?? true,
-    countLocked: (row.count_locked as boolean | null) ?? true,
-    budgetLocked: (row.budget_locked as boolean | null) ?? true,
-    dateWindow: (row.date_window as RequestRecord['dateWindow']) ?? 'week',
   };
 }
 

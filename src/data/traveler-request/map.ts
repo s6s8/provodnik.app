@@ -1,5 +1,5 @@
 import { kopecksToRub } from "@/data/money";
-import type { TravelerRequest, DateWindowValue } from "@/data/traveler-request/schema";
+import type { TravelerRequest } from "@/data/traveler-request/schema";
 import type {
   TravelerRequestRecord,
   TravelerRequestStatus,
@@ -42,11 +42,6 @@ export function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestR
         ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
         : { groupSize: row.participants_count }),
       allowGuideSuggestionsOutsideConstraints: row.allow_guide_suggestions,
-      dateLocked: row.date_locked ?? true,
-      timeLocked: row.time_locked ?? true,
-      countLocked: row.count_locked ?? true,
-      budgetLocked: row.budget_locked ?? true,
-      dateWindow: (row.date_window ?? "week") as DateWindowValue,
       budgetPerPersonRub: kopecksToRub(row.budget_minor ?? 0),
       notes: row.notes ?? undefined,
     },
