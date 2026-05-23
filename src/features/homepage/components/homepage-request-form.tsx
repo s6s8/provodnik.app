@@ -195,6 +195,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           </div>
           <div className="grid grid-cols-2 gap-2">
             <div className="grid gap-2">
+              <FieldLabel htmlFor="startTime">Начало</FieldLabel>
               <Input
                 id="startTime"
                 type="time"
@@ -204,12 +205,14 @@ export function HomepageRequestForm({ destinations }: Props) {
               <FieldError id="startTime-error" message={errors.startTime?.message} />
             </div>
             <div className="grid gap-2">
+              <FieldLabel htmlFor="endTime">Конец</FieldLabel>
               <Input
                 id="endTime"
                 type="time"
                 aria-invalid={Boolean(errors.endTime)}
                 {...register("endTime")}
               />
+              <FieldHint>не обязательно</FieldHint>
               <FieldError id="endTime-error" message={errors.endTime?.message} />
             </div>
           </div>
