@@ -121,7 +121,22 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
           return;
         }
 
-        const userRole = data.user?.app_metadata?.role;
+        // Role lookup: app_metadata.role is the JWT-stamped fast path (set by
+        // signUpAction). Users created outside that path — admin tooling, seeds,
+        // direct DB inserts — may lack the JWT claim. Fall back to profiles.role,
+        // which is the server-side source of truth read by
+        // readAuthContextFromServer. Without this fallback, any non-signUpAction
+        // user signs in successfully and is then immediately signed out by the
+        // dashboardPath=null branch below.
+        let userRole: string | null | undefined = data.user?.app_metadata?.role;
+        if (!isAppRole(userRole) && data.user?.id) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", data.user.id)
+            .maybeSingle();
+          userRole = profile?.role ?? null;
+        }
         const dashboardPath = isAppRole(userRole)
           ? getDashboardPathForRole(userRole)
           : null;
