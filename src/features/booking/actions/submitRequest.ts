@@ -55,7 +55,6 @@ export async function submitRequest(formData: {
       format_preference: formData.formatPreference ?? null,
       notes: formData.notes ?? null,
       open_to_join: false,
-      allow_guide_suggestions: true,
       budget_minor: null,
       currency: "RUB",
       status: "open",

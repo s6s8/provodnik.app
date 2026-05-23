@@ -60,13 +60,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const { field: interestsField } = useController({ control, name: "interests" });
 
   const mode = useWatch({ control, name: "mode" });
-  const budget = useWatch({ control, name: "budgetPerPersonRub" });
-  const groupSize = useWatch({ control, name: "groupSize" });
-  const groupSizeCurrent = useWatch({ control, name: "groupSizeCurrent" });
   const isAssembly = mode === "assembly";
-  const participants = isAssembly ? (groupSizeCurrent ?? 1) : (groupSize ?? 1);
-  const validBudget = Number.isFinite(budget) && budget > 0 ? budget : null;
-  const totalRub = validBudget !== null ? validBudget * (participants ?? 1) : null;
 
   async function submitWithFormData(fd: FormData) {
     setIsLoading(true);
@@ -95,10 +89,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     } else {
       fd.set("groupSize", String(values.groupSize ?? 1));
     }
-    fd.set(
-      "allowGuideSuggestionsOutsideConstraints",
-      String(values.allowGuideSuggestionsOutsideConstraints),
-    );
+    fd.set("allowGuideSuggestionsOutsideConstraints", "true");
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
     fd.set("notes", values.notes ?? "");
 
@@ -308,6 +299,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                 setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
               })}
             />
+            <FieldHint>не обязательно</FieldHint>
             <FieldError id="groupMax-error" message={errors.groupMax?.message} />
           </div>
         </div>
@@ -327,25 +319,6 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       )}
 
-      {/* Allow guide suggestions */}
-      <div className="grid gap-2">
-        <label className="flex items-start gap-2 text-sm">
-          <input
-            type="checkbox"
-            className="mt-1"
-            {...register("allowGuideSuggestionsOutsideConstraints")}
-          />
-          <span>
-            <span className="font-medium text-foreground">
-              Разрешить предлагать варианты вне заданных рамок
-            </span>
-            <span className="block text-xs text-muted-foreground">
-              Гиды смогут предлагать близкие даты, небольшой сдвиг бюджета или другой темп.
-            </span>
-          </span>
-        </label>
-      </div>
-
       {/* Notes */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
@@ -357,16 +330,6 @@ export function HomepageRequestForm({ destinations }: Props) {
         <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
         <FieldError id="notes-error" message={errors.notes?.message} />
       </div>
-
-      {/* Budget total display */}
-      {totalRub !== null && (
-        <div className="flex items-center justify-between rounded-md border border-input bg-muted/30 px-3 py-2 text-sm">
-          <span className="text-muted-foreground">Цена за группу</span>
-          <span className="font-semibold text-foreground">
-            {totalRub.toLocaleString("ru-RU")} ₽
-          </span>
-        </div>
-      )}
 
       {/* Server error */}
       {serverError && (
