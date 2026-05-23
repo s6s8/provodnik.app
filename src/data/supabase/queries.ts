@@ -414,17 +414,6 @@ function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknow
   };
 }
 
-function filterGuidesBySpecializations(
-  rows: Record<string, unknown>[],
-  specializations: string[],
-): Record<string, unknown>[] {
-  const wanted = new Set(specializations);
-  return rows.filter((row) => {
-    const specs = (row.specializations as string[]) ?? [];
-    return specs.some((slug) => wanted.has(slug));
-  });
-}
-
 async function fetchProfilesByUserIds(
   db: SupabaseClient,
   userIds: string[],
@@ -663,19 +652,19 @@ export async function getGuides(
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
     const db = getPublicClient();
+    // OPT-001: Push specializations + has_listings filter server-side
     const { data: searchRows, error } = await db.rpc("search_guides", {
       q: filters?.q ?? "",
+      p_specializations: (filters?.specializations && filters.specializations.length > 0)
+        ? filters.specializations
+        : null,
+      p_has_listings: true,
     });
 
     if (error) throw error;
     if (!searchRows || searchRows.length === 0) return { data: [], error: null };
 
-    let rows = searchRows as Record<string, unknown>[];
-    if (filters?.specializations && filters.specializations.length > 0) {
-      rows = filterGuidesBySpecializations(rows, filters.specializations);
-    }
-    if (rows.length === 0) return { data: [], error: null };
-
+    const rows = searchRows as Record<string, unknown>[];
     const guideIds = rows.map((row) => row.user_id as string);
     const profileMap = await fetchProfilesByUserIds(db, guideIds);
 
@@ -691,11 +680,9 @@ export async function getGuides(
       countMap[gid] = (countMap[gid] ?? 0) + 1;
     }
 
-    const filtered = rows.filter((row) => (countMap[row.user_id as string] ?? 0) > 0);
-
     return {
       data: applyGuideFilters(
-        filtered.map((row) => ({
+        rows.map((row) => ({
           ...mapGuideRow(row, profileMap.get(row.user_id as string) ?? null),
           listingCount: countMap[row.user_id as string] ?? 0,
         })),
@@ -714,13 +701,18 @@ export async function getGuidesByDestination(
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
     const db = getPublicClient();
-    const { data: searchRows, error } = await db.rpc("search_guides", { q: "" });
+    // OPT-001: Push region filter + has_listings server-side
+    const { data: searchRows, error } = await db.rpc("search_guides", {
+      q: "",
+      p_region: region,
+      p_has_listings: true,
+    });
 
     if (error) throw error;
     if (!searchRows || searchRows.length === 0) return { data: [], error: null };
 
+    // Server-side filtering applied; just sort + limit client-side
     const rows = (searchRows as Record<string, unknown>[])
-      .filter((row) => ((row.regions as string[]) ?? []).includes(region))
       .sort((a, b) => ((b.years_experience as number) ?? 0) - ((a.years_experience as number) ?? 0))
       .slice(0, 6);
 

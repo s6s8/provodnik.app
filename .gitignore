@@ -66,3 +66,4 @@ _archive/
 
 # Playwright run output — per-machine, ephemeral
 test-results/
+package-lock.json

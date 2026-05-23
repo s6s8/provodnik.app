@@ -3202,7 +3202,7 @@ export type Database = {
       is_guide: { Args: never; Returns: boolean }
       is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
       search_guides: {
-        Args: { q: string }
+        Args: { q: string; p_specializations?: string[] | null; p_region?: string | null; p_has_listings?: boolean | null }
         Returns: {
           attestation_status: string | null
           average_rating: number | null

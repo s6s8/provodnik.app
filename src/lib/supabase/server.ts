@@ -5,6 +5,19 @@ import { clientEnv, hasSupabaseEnv } from "@/lib/env";
 
 export async function createSupabaseServerClient() {
   if (!hasSupabaseEnv()) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        "[supabase] Supabase env variables not configured. " +
+          "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY " +
+          "in .env.local for full functionality.",
+      );
+      return createServerClient("", "", {
+        cookies: {
+          getAll() { return []; },
+          setAll() {},
+        },
+      });
+    }
     throw new Error("Supabase environment variables are not configured.");
   }
 
