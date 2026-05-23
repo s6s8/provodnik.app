@@ -100,7 +100,7 @@ export function TravelerRequestCreateForm() {
       fd.set("dateFlexibility", values.dateFlexibility ?? "exact");
       fd.set("dateLocked", String(values.dateLocked ?? true));
       fd.set("timeLocked", String(values.timeLocked ?? true));
-      fd.set("countLocked", String(values.countLocked ?? true));
+      fd.set("countLocked", String(values.mode === "private" ? true : (values.countLocked ?? true)));
       fd.set("budgetLocked", String(values.budgetLocked ?? true));
       fd.set("dateWindow", values.dateWindow ?? "week");
       fd.set("startTime", values.startTime ?? "");
@@ -347,15 +347,7 @@ export function TravelerRequestCreateForm() {
         </div>
       ) : (
         <div className="grid gap-2">
-          <FieldHeader>
-            <FieldLabel htmlFor="groupSize">Количество человек</FieldLabel>
-            <LockToggle
-              locked={countLocked}
-              lockedLabel="Зафиксировать количество"
-              flexibleLabel="Разрешить другое количество"
-              onChange={(next) => form.setValue("countLocked", next, { shouldDirty: true })}
-            />
-          </FieldHeader>
+          <FieldLabel htmlFor="groupSize">Количество человек</FieldLabel>
           <Input
             id="groupSize"
             type="number"
@@ -366,9 +358,7 @@ export function TravelerRequestCreateForm() {
             {...register("groupSize", { valueAsNumber: true })}
           />
           <p className="text-sm text-muted-foreground">
-            {countLocked
-              ? "количество окончательное"
-              : "гид может предложить другое количество"}
+            количество окончательное
           </p>
           <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
