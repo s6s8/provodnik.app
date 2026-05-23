@@ -256,3 +256,8 @@ Affected surface: any ticket touching `/guide/*`, `/admin/*`, or authenticated t
 
 Applies to any `position: fixed` element intended to cover the full page (modals, drawers, bottom sheets, lightboxes). Reference implementation: `src/features/guide/components/requests/bid-form-panel.tsx`. See also PATTERNS.md — Project Z-Index Tier Pattern.
 
+
+
+### AP-038 — Role for an auth decision: profile fallback is mandatory
+**Never** gate an auth decision (proxy, server action, client redirect) on `session.user.app_metadata?.role` alone. The JWT claim is stamped by `signUpAction` but NOT by seed scripts, admin tooling, direct DB inserts. Users created any other way have a valid `profiles.role` row but no JWT claim — half of your auth check trusts the JWT (says "no role, bounce"), the other half reads profiles (says "role is X, send to dashboard") → ERR_TOO_MANY_REDIRECTS in the browser (ERR-096).
+**Always** follow the role-source-of-truth pattern from `src/lib/auth/server-auth.ts` (`readAuthContextFromServer`): try `app_metadata.role` first (synchronous fast path), fall back to a one-shot `profiles.role` lookup when the JWT claim is absent or invalid. Replicate this fallback in EVERY new auth touchpoint. Audit existing ones: `grep -rn "app_metadata?\.role\|app_metadata\.role" src/`.

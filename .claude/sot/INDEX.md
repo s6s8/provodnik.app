@@ -83,6 +83,10 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 
 - ERR-095 — AP-012 regex false-positive: `_minor` matched inside SELECT column strings (narrowed to require adjacent arithmetic operator) — see ERR-095 / AP-037
 
+- ERR-096 — auth role-source split between JWT `app_metadata.role` and `profiles.role` caused redirect loop on non-signUpAction users (BUG-2; fixed 5fcbfbe + 5eef6f3)
+- ERR-097 — /admin/guides/[id] returns generic error page for all guides — likely one of the parallel data lookups in getGuideReviewDetail throws on incomplete data (OPEN; blocks visual verify of E-33 T2 Лицензии)
+- ERR-098 — two listing rows in /listings catalogue render Russian text as `?????` — non-UTF-8 encoding on title + short_description columns (OPEN; needs canonical Russian titles)
+
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
 - AP-001 — don't use slug directly in ilike data column queries; resolve slug → record first
@@ -111,6 +115,9 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - AP-029 — operator-level scripts must use bot/lib/worker-comms.mjs (sendWorkerMessage / editWorkerMessage) for any worker- or owner-facing Telegram send; raw api.sendMessage from scripts/* bypasses sanitize+format and leaks internal jargon (ERR-081 lesson)
 
 - AP-037 — consistency-rule regex matched symbol outside arithmetic context (operation-anchored vs symbol-anchored)
+
+- AP-038 — reading auth role from JWT app_metadata.role alone without profiles.role fallback (proxy + client login were both bound to JWT-only — half the system disagreed with server-auth) — see ERR-096
+- AP-039 — verification clicks on react-hook-form controlled inputs via JS document-level click() do not propagate to RHF state — false-positive screenshots
 
 ## Decisions (see DECISIONS.md)
 
