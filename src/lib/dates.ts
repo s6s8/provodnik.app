@@ -53,6 +53,14 @@ export function todayMoscowISODate(): string {
   return Intl.DateTimeFormat("en-CA", { timeZone: MOSCOW_TZ }).format(new Date());
 }
 
+/**
+ * Format a duration in minutes as a human-readable Russian string.
+ * Examples:
+ *   formatDurationMinutes(0)  → ""
+ *   formatDurationMinutes(45) → "45 мин"
+ *   formatDurationMinutes(60) → "1 ч"
+ *   formatDurationMinutes(90) → "1 ч 30 мин"
+ */
 export function formatDurationMinutes(minutes: number): string {
   if (minutes <= 0) return "";
   const h = Math.floor(minutes / 60);
