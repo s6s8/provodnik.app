@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const envFlag = z.enum(["0", "1"]).default("0");
+const envFlag = z.enum(["0", "1"]).catch("0");
 
 const flagsSchema = z.object({
   FEATURE_TR_TOURS: envFlag,
