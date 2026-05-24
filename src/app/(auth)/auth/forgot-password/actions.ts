@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getResendClient } from "@/lib/email/resend-client";
 import { getSiteUrl } from "@/lib/env";
 import { rateLimit } from "@/lib/rate-limit";
+import { headers } from "next/headers";
 
 export type ForgotPasswordResult =
   | { ok: true }
@@ -22,6 +23,16 @@ export async function sendPasswordResetEmail(
   const rl = await rateLimit(`forgot-password:${email}`, 5, 3600);
   if (!rl.success) {
     // Always return ok to avoid enumeration via rate limit error
+    return { ok: true };
+  }
+
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    h.get("x-real-ip") ??
+    "unknown";
+  const rlIp = await rateLimit(`forgot-password:ip:${ip}`, 10, 3600);
+  if (!rlIp.success) {
     return { ok: true };
   }
 
