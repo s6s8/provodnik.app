@@ -5,20 +5,12 @@ import { clientEnv, hasSupabaseEnv } from "@/lib/env";
 
 export async function createSupabaseServerClient() {
   if (!hasSupabaseEnv()) {
-    if (process.env.NODE_ENV === "development") {
-      console.warn(
-        "[supabase] Supabase env variables not configured. " +
-          "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY " +
-          "in .env.local for full functionality.",
-      );
-      return createServerClient("", "", {
-        cookies: {
-          getAll() { return []; },
-          setAll() {},
-        },
-      });
-    }
-    throw new Error("Supabase environment variables are not configured.");
+    const msg =
+      "\n\x1b[31m\x1b[1m[supabase] FATAL: env not configured.\x1b[0m\n" +
+      "  NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY must be set in .env.local.\n" +
+      "  This used to return a silent stub in dev (DEF-005), which masked real auth bugs.\n" +
+      "  Run `vercel env pull .env.local` or copy from .env.example to fix.";
+    throw new Error(msg);
   }
 
   const cookieStore = await cookies();
