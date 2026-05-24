@@ -40,11 +40,9 @@ function formatEventLabel(eventType: string | null) {
 export async function DisputeThread({
   disputeId,
   adminView = false,
-  adminId,
 }: {
   disputeId: string;
   adminView?: boolean;
-  adminId?: string;
 }) {
   const supabase = await createSupabaseServerClient();
 
@@ -101,8 +99,8 @@ export async function DisputeThread({
         <Badge variant="outline" className={statusBadgeClass(status)}>
           {statusLabel}
         </Badge>
-        {adminView && adminId && !resolvedLike ? (
-          <DisputeAdminResolve disputeId={disputeId} adminId={adminId} />
+        {adminView && !resolvedLike ? (
+          <DisputeAdminResolve disputeId={disputeId} />
         ) : null}
       </div>
 

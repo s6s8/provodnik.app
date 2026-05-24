@@ -50,7 +50,6 @@ export default async function DisputeDetailPage({
     <DisputeThread
       disputeId={id}
       adminView={isAdmin}
-      adminId={isAdmin ? user.id : undefined}
     />
   );
 }

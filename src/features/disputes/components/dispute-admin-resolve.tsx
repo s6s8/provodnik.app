@@ -14,7 +14,6 @@ import { Textarea } from "@/components/ui/textarea";
 
 type Props = {
   disputeId: string;
-  adminId: string;
   disabled?: boolean;
 };
 
