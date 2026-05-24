@@ -29,10 +29,10 @@ vi.mock("./homepage-auth-gate", () => ({
 import { HomepageRequestForm } from "./homepage-request-form";
 
 function fillMinimalForm() {
-  fireEvent.change(screen.getByLabelText(/город/i), {
+  fireEvent.change(screen.getByLabelText(/куда хотите/i), {
     target: { value: "Москва" },
   });
-  fireEvent.change(screen.getByLabelText(/дата/i), {
+  fireEvent.change(document.getElementById("startDate")!, {
     target: { value: "2026-06-01" },
   });
   // Select one interest to satisfy the min(1) schema requirement
