@@ -740,7 +740,12 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
   if (!profile) return null;
 
   const typedProfile = profile as GuideProfileRow;
-  const [accounts, docsResult, casesResult, licensesResult] = await Promise.all([
+  const [
+    accountsResult,
+    docsResult,
+    casesResult,
+    licensesResult,
+  ] = await Promise.allSettled([
     getProfilesByIds(adminClient, [typedProfile.user_id]),
     adminClient
       .from("guide_documents")
@@ -768,30 +773,57 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
       .order("created_at", { ascending: false }),
   ]);
 
-  if (docsResult.error) throw docsResult.error;
-  if (casesResult.error) throw casesResult.error;
-  if (licensesResult.error) throw licensesResult.error;
+  const accounts =
+    accountsResult.status === "fulfilled"
+      ? accountsResult.value
+      : (console.error(
+          `getGuideReviewDetail: accounts query failed — ${accountsResult.status === "rejected" ? accountsResult.reason : "unknown"}`,
+        ),
+        new Map<Uuid, ProfileLite>());
 
-  const documents = (docsResult.data ?? []) as GuideDocumentRow[];
-  const licenses = ((licensesResult.data ?? []) as unknown as GuideLicenseQueryRow[]).map(
-    (license) => {
-      const listingTitles =
-        license.listing_licenses
-          ?.map((link) => _firstRelation(link.listings)?.title ?? null)
-          .filter((title): title is string => Boolean(title)) ?? [];
+  const documents =
+    docsResult.status === "rejected" || (docsResult.status === "fulfilled" && docsResult.value.error)
+      ? (console.error(
+          `getGuideReviewDetail: documents query failed — ${docsResult.status === "rejected" ? docsResult.reason : docsResult.status === "fulfilled" && docsResult.value.error?.message}`,
+        ),
+        [] as GuideDocumentRow[])
+      : ((docsResult.value.data ?? []) as GuideDocumentRow[]);
 
-      return {
-        id: license.id,
-        licenseType: license.license_type,
-        licenseNumber: license.license_number,
-        issuedBy: license.issued_by,
-        region: license.region,
-        validUntil: license.valid_until,
-        scopeMode: license.scope_mode === "all" ? "all" : "selected",
-        listingTitles,
-      } satisfies GuideLicenseDetail;
-    },
-  );
+  const cases =
+    casesResult.status === "rejected" || (casesResult.status === "fulfilled" && casesResult.value.error)
+      ? (console.error(
+          `getGuideReviewDetail: cases query failed — ${casesResult.status === "rejected" ? casesResult.reason : casesResult.status === "fulfilled" && casesResult.value.error?.message}`,
+        ),
+        null)
+      : casesResult.status === "fulfilled"
+        ? casesResult.value.data
+        : null;
+
+  const licensesRaw =
+    licensesResult.status === "rejected" || (licensesResult.status === "fulfilled" && licensesResult.value.error)
+      ? (console.error(
+          `getGuideReviewDetail: licenses query failed — ${licensesResult.status === "rejected" ? licensesResult.reason : licensesResult.status === "fulfilled" && licensesResult.value.error?.message}`,
+        ),
+        [] as GuideLicenseQueryRow[])
+      : ((licensesResult.value.data ?? []) as unknown as GuideLicenseQueryRow[]);
+
+  const licenses = licensesRaw.map((license) => {
+    const listingTitles =
+      license.listing_licenses
+        ?.map((link) => _firstRelation(link.listings)?.title ?? null)
+        .filter((title): title is string => Boolean(title)) ?? [];
+
+    return {
+      id: license.id,
+      licenseType: license.license_type,
+      licenseNumber: license.license_number,
+      issuedBy: license.issued_by,
+      region: license.region,
+      validUntil: license.valid_until,
+      scopeMode: license.scope_mode === "all" ? "all" : "selected",
+      listingTitles,
+    } satisfies GuideLicenseDetail;
+  });
   const assetIds = documents.map((document) => document.asset_id);
   const { data: storageAssets, error: assetsError } = assetIds.length
     ? await adminClient
@@ -834,8 +866,8 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
     account: accounts.get(typedProfile.user_id) ?? null,
     documents: documentsWithAssets,
     licenses,
-    moderation_case: casesResult.data
-      ? await getModerationCase((casesResult.data as ModerationCaseRow).id)
+    moderation_case: cases
+      ? await getModerationCase((cases as ModerationCaseRow).id)
       : null,
   };
 }
