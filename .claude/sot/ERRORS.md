@@ -860,18 +860,18 @@ New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mj
 - **Date:** 2026-05-23
 - **Prevention:** See AP-038. Any new code that reads user role for an auth decision must follow the role-source-of-truth pattern. Long-term improvement (deferred): install a Supabase `custom_access_token_hook` that copies `profiles.role` into JWT `app_metadata.role` on every sign-in and refresh — this would eliminate the fallback DB query entirely while keeping the JWT as the cached source of truth.
 
-### ERR-097 → OPEN
+### ERR-097 → RESOLVED 2026-05-24
 - **Symptom:** `/admin/guides/[id]` returns the generic «Раздел временно недоступен» error page for any guide UUID — verified on three different guide profiles (a `submitted`-status one with language/region data, a `draft`-status one with minimal data, and an `approved`-status one for a real account). The parent `/admin/guides` queue page renders correctly with all five guides; only the detail route is broken. Blocks visual verification of E-33 T2 «Лицензии» block (the licenses section lives on this detail page and is shipped in code as `d8cd673` on main).
 - **Root Cause:** Not yet investigated. Likely path: one of the parallel data lookups in `getGuideReviewDetail` (`src/lib/supabase/moderation.ts:730`) — guide_profiles, documents, moderation cases, guide_licenses, or storage_assets — throws on incomplete test data, and the page's error boundary catches it and renders the generic fallback. Candidates: a missing `guide_profiles` row for the test admin/traveler accounts, a license join failing, or a storage_assets lookup with a non-existent asset_id. Server logs on the route would identify which.
-- **Fix (planned):** Add a try/catch around each parallel lookup in `getGuideReviewDetail` so a single failed sub-query doesn't blank the whole page; render the available sections with placeholders for the failed ones. Alternative: identify the specific failure mode in production logs and patch only the throwing query.
+- **Fix:** Applied 2026-05-24 via commit `beef50b` — `getGuideReviewDetail` in `src/lib/supabase/moderation.ts` now uses `Promise.allSettled` to compose its parallel lookups, so a single failed sub-query no longer blanks the whole page. Verified via /admin/guides/[id] rendering for all 5 guide profiles after deploy.
 - **Files Affected (likely):** `src/lib/supabase/moderation.ts` (`getGuideReviewDetail`), `src/app/(protected)/admin/guides/[id]/page.tsx`
 - **Date:** 2026-05-23 (surfaced)
 - **Prevention:** Server actions and SSR data loaders that compose multiple lookups should not let one failed sub-query blank the whole page. Each parallel query should either be guarded individually or the composed result should fall back to a partial render.
 
-### ERR-098 → OPEN
+### ERR-098 → RESOLVED 2026-05-24
 - **Symptom:** Two listings on `/listings` catalogue render every Russian character of their title and route stops as `?`. Slugs: `moscow-boulevards-and-hidden-yards` and `moscow-hidden-history-tour`. Other 8 listings render Russian correctly. Image, price, slug, and link all work — only the text fields are mojibake. The `<img alt>` text matches the broken title, confirming the corrupted data is in the database, not in the renderer.
 - **Root Cause:** Not yet investigated. Likely path: `title` and `short_description` columns for these 2 rows were inserted with non-UTF-8 encoding during seed import (probably Latin-1 or cp1251 bytes interpreted as UTF-8). The renderer reads bytes as UTF-8 and emits `?` for unrepresentable sequences.
-- **Fix (planned):** Either re-seed the 2 rows with canonical Russian titles + short_descriptions, or run a targeted `UPDATE listings SET title = ..., short_description = ... WHERE slug IN (...)`. Canonical text must come from the owner — must not be fabricated per the global truthfulness rule.
+- **Fix:** Applied 2026-05-24 via commit `be0360d` — canonical Russian title + short_description restored for the 2 affected rows (slugs `moscow-boulevards-and-hidden-yards` and `moscow-hidden-history-tour`). Canonical text came from the owner (per the no-fabrication rule in CLAUDE.md §10). Verified by re-rendering /listings after the DB update.
 - **Files Affected:** `listings` table (2 rows) — `title` and `short_description` columns
 - **Date:** 2026-05-23 (surfaced)
 - **Prevention:** Seed scripts should declare encoding explicitly (UTF-8). After any bulk import, sanity-check a sample of rows by selecting and printing the values; mojibake on Russian text is visible at a glance.
