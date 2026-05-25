@@ -76,6 +76,19 @@ The strongest gap is:
 
 This is the part of the market that appears less directly owned by incumbents.
 
+## 4b. Target audiences
+
+Стратегический клин выше отвечает на «**почему рынок даёт нам место**». Тактический спутник — `TARGET_AUDIENCE.md` — отвечает на «**кто внутри этого клина — наш пользователь**».
+
+Краткая выжимка (полный документ: [`research/TARGET_AUDIENCE.md`](research/TARGET_AUDIENCE.md)):
+
+- Шесть сегментов на пересечении состав × мотивация × срочность × язык.
+- MVP-приоритет: **Tier 1** (соло-бюджетник, пара, компания 3+), **Tier 2** (семья с детьми, last-minute как архитектурное требование), **Tier 3** (диаспора/выезд).
+- Baseline данных: ВЦИОМ туризм-2025, АТОР, Яндекс.Путешествия лето-2025, Tripster help-center, Коммерсантъ.
+- Ключевые validated сигналы: 84% самоорганизуются, 63% через агрегаторы (Aviasales/Я.Путешествия/Островок/Tutu), only 3% через авторские туры; раннее бронирование рухнуло 16% → 8% за сезон; компании 3+ взрослых **+58% YoY**; Tripster использует ту же таксономию Индивидуальная / Групповая / Мини-группа, что валидирует Model 1/2/3 в каноне Provodnik.
+
+Утверждение TA-таргета — open question для product-owner; см. `TARGET_AUDIENCE.md §7`.
+
 ## 5. Why Provodnik can exist
 
 `Provodnik` has a viable reason to exist if it is built around a different market motion:
