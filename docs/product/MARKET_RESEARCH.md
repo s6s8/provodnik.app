@@ -83,11 +83,13 @@ This is the part of the market that appears less directly owned by incumbents.
 Краткая выжимка (полный документ: [`research/TARGET_AUDIENCE.md`](research/TARGET_AUDIENCE.md)):
 
 - Шесть сегментов на пересечении состав × мотивация × срочность × язык.
-- MVP-приоритет: **Tier 1** (соло-бюджетник, пара, компания 3+), **Tier 2** (семья с детьми, last-minute как архитектурное требование), **Tier 3** (диаспора/выезд).
+- Scale-mode (Phase B+): **Tier 1** (соло-бюджетник, пара, компания 3+), **Tier 2** (семья с детьми, last-minute как архитектурное требование), **Tier 3** (диаспора/выезд).
+- **Phase A — Элиста**: приоритеты другие (см. `TARGET_AUDIENCE.md §11`). Primary targets — **Пары и Семьи/Компании 3+**; Solo не таргетируется из-за малого абс. объёма (group formation не bootstrap'ится). Killer feature в Элисте — низкая комиссия + удобная форма для готовых групп, **не** group formation.
 - Baseline данных: ВЦИОМ туризм-2025, АТОР, Яндекс.Путешествия лето-2025, Tripster help-center, Коммерсантъ.
 - Ключевые validated сигналы: 84% самоорганизуются, 63% через агрегаторы (Aviasales/Я.Путешествия/Островок/Tutu), only 3% через авторские туры; раннее бронирование рухнуло 16% → 8% за сезон; компании 3+ взрослых **+58% YoY**; Tripster использует ту же таксономию Индивидуальная / Групповая / Мини-группа, что валидирует Model 1/2/3 в каноне Provodnik.
+- **Элиста как Phase A — данные**: +48% рост броней отелей 2024 (TOP-1 РФ с Крымом, [Интерфакс](https://www.interfax.ru/russia/998151)); +10% YoY турпоток 2024 (460k туристов + 1.8M однодневных, [РСТ](https://rst.ru/novosti/novosti-turizma/rst-turpotok-v-kalmykiyu-po-itogam-2024-godavyrosna10.html)); новый аэропорт май 2024 + рейсы в СПб/Казань/Екатеринбург/Улан-Удэ.
 
-Утверждение TA-таргета — open question для product-owner; см. `TARGET_AUDIENCE.md §7`.
+Утверждённые решения по 5 open questions — см. `research/STRATEGY_DECISIONS_2026-05-26.md`.
 
 ## 5. Why Provodnik can exist
 
