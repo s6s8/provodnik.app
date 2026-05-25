@@ -153,16 +153,28 @@
 
 ## 6. Concrete next steps (план на 4-6 недель)
 
-| # | Действие | Owner | Сроки | Зачем |
-|---|----------|-------|-------|--------|
-| 1 | Утвердить festival window (лотосовый июль-август 2026) как primary launch target | Алекс | 2026-05-30 | Якорит весь dev/marketing план |
-| 2 | Определить успех Phase A — сколько confirmed bookings, гидов, повторных пользователей | Алекс + Claude | 2026-06-02 | Success criteria документ (1 страница) |
-| 3 | Supply-onboarding pilot: список 20 гидов Элисты, контактирование 15 за 3 недели | Команда на месте | до 2026-06-15 | Без гидов не работает marketplace |
-| 4 | Доработать форму запроса: presets 1/2/3-4/5+ + per-person ценник | Dev (через GLM) | до 2026-06-20 | Tier 1 реализация |
-| 5 | SEO/landing-страница «Элиста для компаний» | Дизайн + копирайтинг | до 2026-06-25 | Маркетинг-message «для семьи и компании» |
-| 6 | Финализировать 8 пунктов UX-формы | Алекс + Claude | iterative | Блокирует §7 (маппинг) |
-| 7 | Создать `2026-MM-DD-form-epic-segment-mapping.md` | Claude | После #6 | Дерево тикетов UX-эпика |
-| 8 | Soft-launch beta на тюльпановый фестиваль 2026 (или 2027 если опаздываем) | Алекс + команда | конец апреля 2026 | Первый ground-truth |
+Статус owner-decisions от 2026-05-26 проставлен в колонке Status.
+
+| # | Действие | Owner | Сроки | Status | Артефакт |
+|---|----------|-------|-------|--------|----------|
+| 1 | Утвердить festival window (лотосовый июль-август 2026) как primary launch target | Алекс | 2026-05-30 | ✅ **APPROVED** 2026-05-26 | Зафиксировано в §1.3 |
+| 2 | Success criteria Phase A (1 страница) | Алекс + Claude | 2026-06-02 | ✅ **APPROVED** + **SHIPPED** 2026-05-26 | [`SUCCESS_CRITERIA_PHASE_A.md`](SUCCESS_CRITERIA_PHASE_A.md) |
+| 3 | Supply-onboarding pilot: список 20 гидов Элисты, контактирование 15 за 3 недели | Команда на месте | до 2026-06-15 | ✅ **APPROVED** + **research SHIPPED** 2026-05-26 | [`SUPPLY_ONBOARDING_ELISTA.md`](SUPPLY_ONBOARDING_ELISTA.md) — 20 supply entities verified; outreach ждёт Wave 1 (недели 1-2) |
+| 4 | Доработать форму запроса: presets 1/2/3-4/5+ + per-person ценник | Dev | до 2026-06-20 | ⏸ **DEFERRED** 2026-05-26 — вернуться к этому решению позже | — |
+| 5 | SEO/landing-страница «Элиста для компаний» | Дизайн + копирайтинг | до 2026-06-25 | ⏸ **DEFERRED** 2026-05-26 — вернуться к этому решению позже | — |
+| 6 | Финализировать 8 пунктов UX-формы | Алекс + Claude | iterative | 🔄 **IN PROGRESS** (брейнштoma в чате) | — |
+| 7 | Создать `2026-MM-DD-form-epic-segment-mapping.md` | Claude | После #6 | ⏸ Pending #6 | — |
+| 8 | Soft-launch beta на тюльпановый фестиваль 2026 (или 2027 если опаздываем) | Алекс + команда | конец апреля 2026 | 🔄 Зависит от #1 + #3 | — |
+
+### Wave 1 outreach (next 2 weeks) — supply onboarding priority
+
+Из утверждённого списка `SUPPLY_ONBOARDING_ELISTA.md` приоритет следующий:
+
+1. **Анна Новикова (5winds)** — прямой звонок +7 918 360 06 80 / Telegram @anna_5vetrov. Готовые группы 6-18 чел — идеальный fit для message «семья или компания».
+2. **ООО «Дестино тур»** — деловое предложение через +7 909 396-33-88 или touristdestino@yandex.ru. Крупнейший местный оператор, ожидать жёстких переговоров по commission.
+3. **Хурул «Золотая обитель Будды Шакьямуни»** — институциональный supply (in-house экскурсоводы). Партнёрство — multi-supply на постоянной основе.
+
+Wave 2 (недели 3-4): индивидуальные гиды с Tripster/Sputnik8 через локальную туркомьюнити Элисты.
 
 ---
 
@@ -196,7 +208,19 @@
 
 ## 10. Status
 
-- **Версия**: v2 (2026-05-26) — заменяет v1 от 2026-05-26
-- **Утверждено Алексом**: §1 (Элиста), §3 (interviews skip), §5 (mapping postpone)
+- **Версия**: v2.1 (2026-05-26) — добавлены owner-decisions по next-steps в §6
+- **Утверждено Алексом**:
+  - §1 — Элиста как Phase A regional wedge
+  - §3 — interviews skip
+  - §5 — form-mapping document postpone
+  - §6 #1 — лотосовый фестиваль июль-август 2026 как primary launch window
+  - §6 #2 — success criteria document
+  - §6 #3 — список 20 гидов Элисты для supply-onboarding
 - **Подтверждено Claude'ом и ожидает sign-off**: §2 (Пары + Группы 3+), §4 (Tier 1 для групп)
+- **Deferred Алексом**:
+  - §6 #4 — form rework (presets + per-person price)
+  - §6 #5 — SEO/landing «Элиста для компаний»
+- **Связанные shipped артефакты**:
+  - [`SUCCESS_CRITERIA_PHASE_A.md`](SUCCESS_CRITERIA_PHASE_A.md)
+  - [`SUPPLY_ONBOARDING_ELISTA.md`](SUPPLY_ONBOARDING_ELISTA.md)
 - **Следующая ревизия**: после первых 4 недель производственных данных Phase A, либо при изменении бизнес-обстоятельств
