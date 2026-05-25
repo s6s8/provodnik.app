@@ -4,6 +4,29 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 
 ---
 
+**Per-entry telemetry (S21, 2026-05-25):** for entries opened after this date, the body SHOULD include a single italic line at the top:
+*\<detectedAt> · resolved \<resolvedAt OR "open"> · burned \<hours> · recurrence \<count or "first">*
+This is the data we need to prioritize hardening. Backfill historical entries on a best-effort basis when re-touched.
+
+---
+
+### ERR-099 → RESOLVED 2026-05-25 (quantumbek 86a9605 + 6585123)
+*detectedAt 2026-05-25T08:30Z · resolvedAt 2026-05-25T16:00Z · burned ~6h · recurrence first (class)*
+- **Symptom:** Cascading quarantine — 6 owner DMs in a row from the bot's json-store, each renaming a live epic/session JSON file to .corrupt-\<ts>. Sessions halted mid-flight; T-65 ship cycle blocked for hours. DMs: ERR-NEW class, see audit topic msgs 3433/3449/3562/etc.
+- **Root cause (three drifts compounding):**
+  - SESSION_STATES enum missed ANALYZE — added by spec-kit cherry 2026-05-22 (1bf425b) to transitions.mjs + 10b-analyze.mjs but never to the zod enum. Every session reaching ANALYZE → safeParse fail → quarantine.
+  - EpicSchema childSessionId was .string().optional() — rejected null. JSON tooling + operator edits commonly emit null for absent; epic JSON requarantined every 30s after any tree-node reset that left childSessionId: null.
+  - sanitize-reply.mjs BLACKLIST file-extension pattern matched ANY *.ts/.tsx/.json/.md — T-65 spec contained 6 .ts files → session JSON quarantined on every PLAN_GATE callback.
+- **Fix:** 4 commits on quantumbek master.
+  - 86a9605 — SESSION_STATES + ANALYZE added; EpicTicketNodeSchema.childSessionId .nullable().optional(); regression tests + FSM↔SESSION_STATES cross-check.
+  - 6094ddf — sanitize-reply BLACKLIST scoped to internal paths only (bot/, orchestrator/, .claude/, tests/, docs/, .epics/, .sessions/, .ledger/). Product src/ paths now pass through.
+  - 6585123 — json-store.mjs soft-degrades on schema-invalid reads (was hard-quarantine renaming the file; now returns parsed data + fires onQuarantine with dest=null + preserves file). Hard-quarantine still applies for invalid-JSON / schema-version major mismatch.
+  - 5246cfc — extended FSM↔schema drift cross-check to EpicHistoryEntrySchema.kind, escalationKind, escalationClass, EPIC_STATES, EpicTicketNodeSchema.state. Catches the next ANALYZE-shape bug at CI not 3 days later.
+- **Prevention:** the drift cross-check test runs in CI and on pre-commit; soft-quarantine prevents single-field-mismatch from cascading; sanitize scope fix prevents product-path false-positive class.
+- **Files affected:** bot/pipeline/state/{session-schema,epic-schema}.mjs, bot/lib/{json-store,sanitize-reply}.mjs, tests/{lib,pipeline}/.
+- **Date opened/closed:** 2026-05-25 (one-day incident + fix).
+
+
 ### ERR-068 → RESOLVED 2026-05-11 (provodnik 4d299c1)
 - **Symptom:** Two consecutive Vercel production deploys failed with: *"There was a permanent problem cloning the repo. The git provider returned an HTTP 500 error."* Stuck production at the previous good build (15h-old) — commits `5d6cd72` (nightlife-chip ship) and `9ff5044` (ADR-060 SOT closure) did not propagate to prod.
 - **Root Cause:** Transient GitHub git-hosting hiccup. Not a code issue — local `bun run typecheck && lint:ratchet && vitest` all green; the failure was at the Vercel-side clone step before any build began.
