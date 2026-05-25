@@ -99,11 +99,6 @@ export type RequestRecord = {
   imageUrl: string;
   members: RequestMember[];
   dateFlexibility?: 'exact' | 'few_days' | 'week';
-  dateLocked?: boolean;
-  timeLocked?: boolean;
-  countLocked?: boolean;
-  budgetLocked?: boolean;
-  dateWindow?: 'one_day' | 'two_days' | 'three_days' | 'week' | 'two_weeks';
 };
 
 export type OfferRecord = {

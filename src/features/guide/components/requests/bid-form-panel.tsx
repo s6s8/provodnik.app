@@ -22,13 +22,6 @@ const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 );
 
-const DATE_WINDOW_LABEL: Record<string, string> = {
-  one_day: "±1 день",
-  two_days: "±2 дня",
-  three_days: "±3 дня",
-  week: "±неделя",
-  two_weeks: "±2 недели",
-};
 
 const offerFormSchema = z.object({
   price_total: z
@@ -75,8 +68,6 @@ function getDefaultValidUntil(): string {
 
 const FIELD_CLASS =
   "min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary";
-const READONLY_CLASS =
-  "min-h-[2.75rem] flex items-center rounded-xl border border-border/60 bg-muted/40 px-3.5 py-2.5 text-sm text-muted-foreground";
 
 function ProposedBadge() {
   return (
@@ -104,14 +95,8 @@ export function BidFormPanel({
   const [guidePhotos, setGuidePhotos] = React.useState<Array<{ id: string; location_name: string; photoUrl: string }>>([]);
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
 
-  const dateLocked = request.dateLocked !== false;
-  const timeLocked = request.timeLocked !== false;
-  const countLocked = request.countLocked !== false;
-  const budgetLocked = request.budgetLocked !== false;
-
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
-  const dateWindowLabel = DATE_WINDOW_LABEL[request.dateWindow ?? "week"] ?? "±неделя";
 
   React.useEffect(() => {
     async function load() {
@@ -137,8 +122,8 @@ export function BidFormPanel({
   } = useForm<OfferFormValues>({
     resolver: zodResolver(offerFormSchema),
     defaultValues: {
-      price_total: budgetLocked && request.budgetRub > 0 ? request.budgetRub * travelerCount : undefined,
-      price_per_person: budgetLocked && request.budgetRub > 0 ? request.budgetRub : undefined,
+      price_total: request.budgetRub > 0 ? request.budgetRub * travelerCount : undefined,
+      price_per_person: request.budgetRub > 0 ? request.budgetRub : undefined,
       message: "",
       valid_until: getDefaultValidUntil(),
       excursion_date: travelerDate || undefined,
@@ -154,11 +139,10 @@ export function BidFormPanel({
   const startTimeVal = useWatch({ control, name: "excursion_start_time" });
   const endTimeVal = useWatch({ control, name: "excursion_end_time" });
 
-  const dateShifted = !dateLocked && (excursionDate ?? "") !== travelerDate;
+  const dateShifted = (excursionDate ?? "") !== travelerDate;
   const timeShifted =
-    !timeLocked &&
     ((startTimeVal ?? "") !== (request.startTime ?? "") || (endTimeVal ?? "") !== (request.endTime ?? ""));
-  const countShifted = !countLocked && count !== travelerCount;
+  const countShifted = count !== travelerCount;
 
   const budgetCeilingPerPerson = request.budgetRub > 0 ? request.budgetRub : undefined;
 
@@ -339,14 +323,7 @@ export function BidFormPanel({
               <label className="text-sm font-medium text-foreground">Дата</label>
               {dateShifted ? <ProposedBadge /> : null}
             </div>
-            {dateLocked ? (
-              <div className={READONLY_CLASS}>🔒 {request.dateLabel}</div>
-            ) : (
-              <>
-                <input type="date" className={FIELD_CLASS} disabled={submitted} {...register("excursion_date")} />
-                <p className="text-xs text-muted-foreground">Можно предложить дату в пределах {dateWindowLabel} от даты туриста.</p>
-              </>
-            )}
+            <input type="date" className={FIELD_CLASS} disabled={submitted} {...register("excursion_date")} />
           </div>
 
           {/* Когда: time start → end */}
@@ -355,17 +332,10 @@ export function BidFormPanel({
               <label className="text-sm font-medium text-foreground">Время начала — конца</label>
               {timeShifted ? <ProposedBadge /> : null}
             </div>
-            {timeLocked ? (
-              <div className="flex items-center gap-2">
-                <div className={`${READONLY_CLASS} flex-1`}>🔒 {request.startTime ?? "—"}</div>
-                <div className={`${READONLY_CLASS} flex-1`}>🔒 {request.endTime ?? "—"}</div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_start_time")} />
-                <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_end_time")} />
-              </div>
-            )}
+            <div className="flex items-center gap-2">
+              <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_start_time")} />
+              <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_end_time")} />
+            </div>
           </div>
 
           {/* Количество человек */}
@@ -374,19 +344,15 @@ export function BidFormPanel({
               <label className="text-sm font-medium text-foreground">Количество человек</label>
               {countShifted ? <ProposedBadge /> : null}
             </div>
-            {countLocked ? (
-              <div className={READONLY_CLASS}>🔒 {travelerCount} чел.</div>
-            ) : (
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={50}
-                className={FIELD_CLASS}
-                disabled={submitted}
-                {...register("headcount", { valueAsNumber: true })}
-              />
-            )}
+            <input
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              className={FIELD_CLASS}
+              disabled={submitted}
+              {...register("headcount", { valueAsNumber: true })}
+            />
           </div>
 
           {/* Цена — двусторонний калькулятор */}
@@ -398,7 +364,7 @@ export function BidFormPanel({
                   type="number"
                   inputMode="numeric"
                   min={1000}
-                  max={budgetLocked && budgetCeilingPerPerson ? budgetCeilingPerPerson * count : undefined}
+                  max={budgetCeilingPerPerson ? budgetCeilingPerPerson * count : undefined}
                   placeholder="За группу, ₽"
                   className={FIELD_CLASS}
                   aria-invalid={Boolean(errors.price_total)}
@@ -415,7 +381,7 @@ export function BidFormPanel({
                   type="number"
                   inputMode="numeric"
                   min={1}
-                  max={budgetLocked && budgetCeilingPerPerson ? budgetCeilingPerPerson : undefined}
+                  max={budgetCeilingPerPerson ? budgetCeilingPerPerson : undefined}
                   placeholder="На человека, ₽"
                   className={FIELD_CLASS}
                   disabled={submitted}
@@ -429,7 +395,7 @@ export function BidFormPanel({
             </div>
             {errors.price_total ? (
               <p className="text-xs text-destructive">{errors.price_total.message}</p>
-            ) : budgetLocked && budgetCeilingPerPerson ? (
+            ) : budgetCeilingPerPerson ? (
               <p className="text-xs text-muted-foreground">
                 Потолок туриста — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
               </p>
