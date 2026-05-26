@@ -359,9 +359,15 @@ export function GuideRequestsInboxScreen() {
                             <p className="text-xs text-muted-foreground">
                               {formatDateTime(item.createdAt)}
                             </p>
-                            {matched ? (
-                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary">
-                                Соответствует вашим темам
+                            {item.interests.length > 0 ? (
+                              <span
+                                className={
+                                  matched
+                                    ? "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary"
+                                    : "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-muted px-2.5 py-1 font-sans text-[11px] font-medium tracking-[0.02em] text-muted-foreground"
+                                }
+                              >
+                                {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
                               </span>
                             ) : null}
                           </div>
@@ -395,12 +401,6 @@ export function GuideRequestsInboxScreen() {
                             {item.budgetLabel}
                           </p>
                         </div>
-
-                        {item.interests.length > 0 ? (
-                          <p className="mt-2 text-xs text-muted-foreground">
-                            {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
-                          </p>
-                        ) : null}
 
                         {item.description ? (
                           <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
