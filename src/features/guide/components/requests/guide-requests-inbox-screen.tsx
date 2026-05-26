@@ -316,7 +316,7 @@ export function GuideRequestsInboxScreen() {
                     aria-label="Сортировка"
                   >
                     <option value="newest">Новые сначала</option>
-                    <option value="date">По дате поездки</option>
+                    <option value="date">По дате запроса</option>
                     <option value="size">По размеру группы</option>
                   </select>
                 </div>
@@ -349,7 +349,7 @@ export function GuideRequestsInboxScreen() {
                               {item.requesterName}
                             </p>
                             <p className="text-sm text-muted-foreground">
-                              {item.format ? item.format : "Поездка"} в{" "}
+                              {item.format ? <>{item.format} </> : null}в{" "}
                               <span className="font-medium text-foreground">
                                 {item.destination}
                               </span>
