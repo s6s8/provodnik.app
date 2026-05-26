@@ -35,7 +35,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     defaultValues: {
       mode: "assembly",
       interests: [] as TravelerRequest["interests"],
-      destination: "",
+      destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Элиста",
       startDate: "",
       dateFlexibility: "exact",
       startTime: "",
