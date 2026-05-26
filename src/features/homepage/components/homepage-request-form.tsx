@@ -83,11 +83,13 @@ export function HomepageRequestForm({ destinations }: Props) {
     fd.set("startDate", values.startDate);
     fd.set("startTime", values.startTime ?? "");
     fd.set("endTime", values.endTime ?? "");
+    // Unified "Сколько вас" — write to groupSize always; when assembly,
+    // mirror into groupSizeCurrent so the action's schema sees a value there too.
+    const count = values.groupSize ?? 1;
+    fd.set("groupSize", String(count));
     if (values.mode === "assembly") {
-      fd.set("groupSizeCurrent", String(values.groupSizeCurrent ?? 1));
+      fd.set("groupSizeCurrent", String(count));
       if (values.groupMax) fd.set("groupMax", String(values.groupMax));
-    } else {
-      fd.set("groupSize", String(values.groupSize ?? 1));
     }
     fd.set("allowGuideSuggestionsOutsideConstraints", "true");
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
@@ -186,45 +188,10 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 4. Сколько — group counters, conditional on mode */}
-      {isAssembly ? (
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="groupSizeCurrent">Сейчас в группе</FieldLabel>
-            <Input
-              id="groupSizeCurrent"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={20}
-              aria-invalid={Boolean(errors.groupSizeCurrent)}
-              {...register("groupSizeCurrent", { valueAsNumber: true })}
-            />
-            <FieldError
-              id="groupSizeCurrent-error"
-              message={errors.groupSizeCurrent?.message}
-            />
-          </div>
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="groupMax">Максимум в группе</FieldLabel>
-            <Input
-              id="groupMax"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={50}
-              aria-invalid={Boolean(errors.groupMax)}
-              {...register("groupMax", {
-                setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
-              })}
-            />
-            <FieldHint>не обязательно</FieldHint>
-            <FieldError id="groupMax-error" message={errors.groupMax?.message} />
-          </div>
-        </div>
-      ) : (
+      {/* 4. Сколько вас + opt-in companions toggle */}
+      <div className="grid gap-3">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="groupSize">Сколько вас поедет?</FieldLabel>
+          <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
           <Input
             id="groupSize"
             type="number"
@@ -236,7 +203,48 @@ export function HomepageRequestForm({ destinations }: Props) {
           />
           <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
-      )}
+
+        <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-primary"
+            checked={isAssembly}
+            onChange={(e) =>
+              form.setValue("mode", e.target.checked ? "assembly" : "private", {
+                shouldValidate: false,
+                shouldDirty: true,
+              })
+            }
+          />
+          <span className="flex flex-col gap-0.5 text-sm">
+            <span className="font-medium text-foreground">
+              Беру попутчиков, чтобы разделить цену −10%
+            </span>
+            <span className="text-xs text-muted-foreground">
+              Гиды смогут предлагать близкие даты, небольшой сдвиг группы и другой темп.
+            </span>
+          </span>
+        </label>
+
+        {isAssembly && (
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupMax">До скольких готов добрать</FieldLabel>
+            <Input
+              id="groupMax"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={50}
+              placeholder="необязательно"
+              aria-invalid={Boolean(errors.groupMax)}
+              {...register("groupMax", {
+                setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
+              })}
+            />
+            <FieldError id="groupMax-error" message={errors.groupMax?.message} />
+          </div>
+        )}
+      </div>
 
       {/* 5. Бюджет на человека (₽) */}
       <div className="grid gap-2">
