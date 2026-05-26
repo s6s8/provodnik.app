@@ -115,10 +115,20 @@ export default async function AdminGuideDetailPage({
               </div>
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Специализация
+                  Специализации
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {detail.profile.specialization ?? "—"}
+                  {Array.isArray(detail.profile.specializations) && detail.profile.specializations.length > 0
+                    ? detail.profile.specializations.join(", ")
+                    : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Базовый город
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {detail.profile.base_city ?? "—"}
                 </dd>
               </div>
               <div>
@@ -140,6 +150,58 @@ export default async function AdminGuideDetailPage({
               </p>
             </div>
           </div>
+
+          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
+            <h2 className="text-lg font-semibold text-foreground">Юридические данные</h2>
+            <dl className="mt-4 grid gap-4 md:grid-cols-2">
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Правовой статус
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {detail.profile.legal_status ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  ИНН
+                </dt>
+                <dd className="mt-1 text-sm text-foreground font-mono">
+                  {detail.profile.inn ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Страна документа
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {detail.profile.document_country ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Туроператор
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {detail.profile.is_tour_operator ? "Да" : "Нет"}
+                  {detail.profile.is_tour_operator && detail.profile.tour_operator_registry_number ? (
+                    <span className="ml-2 text-muted-foreground font-mono">
+                      № {detail.profile.tour_operator_registry_number}
+                    </span>
+                  ) : null}
+                </dd>
+              </div>
+            </dl>
+          </div>
+
+          {detail.profile.verification_notes ? (
+            <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
+              <h2 className="text-lg font-semibold text-foreground">Заметки модератора</h2>
+              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
+                {detail.profile.verification_notes}
+              </p>
+            </div>
+          ) : null}
 
           <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <div className="flex items-center justify-between gap-4">
