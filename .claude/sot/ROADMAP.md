@@ -9,12 +9,18 @@
 > open, never as established fact.
 
 ## Planned
+- Admin card restructuring is deferred to Phase B Karelia; it is out of scope for the current cleanup epic. — «Реструктурирование — out of scope cleanup, может быть Phase B Карелия.» (harvest epic E-76 msg-18)
 - Track orchestrator gaps R1/R5, R7, and R8 as a separate future epic. — «Orchestrator gaps surfaced this cycle (worth a separate epic):» (harvest epic E-33 msg-7)
 - City arrays and base_city removal are deferred; do not implement now. — «Массив городов и убирание base_city — НЕ делаем сейчас.» (harvest epic E-33 msg-6)
 
 (no planned epics recorded yet — auto-harvest appends here as the owner names them)
 
 ## Open questions
+- Messages [22]–[27] mix owner instructions with what appear to be autonomous agent status reports (e.g., 'Что зашло', 'Что не зашло', ticket state lists). Which statements in those messages represent owner decisions versus bot-generated summaries is not always unambiguous. (harvest epic E-76)
+- Admin card audit C4 [18]: owner said to 'check at decomposition time' which specific fields (legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number) are missing — no final decision on the exact field list was stated. (harvest epic E-76)
+- Questions A (DB migration risk for existing mode=assembly requests), C (trust-strip: new component vs. existing; i18n vs. hardcode for Phase A), and F (ticket count estimate) from [14] were posed but never explicitly answered by the owner in any subsequent message. (harvest epic E-76)
+- Hero copy in [14] used Elista-specific text (H1: 'Частный гид по Элисте...', Sub: 'гиды Элисты ответят...'), explicitly overridden in [20]. It is unclear whether the original city-specific strings should be preserved for any purpose (e.g., Phase A admin notes, archived mockups) or are fully discarded. (harvest epic E-76)
+- Commission rate conflict raised in [24]: PRD §15 set 10% Phase A; KODEX 'Три модели' had 15%/25% model-dependent rates. Owner presented options а/б/в without resolving in msg [24]. Msg [25] reports 10% as 'fixed' but reads as an agent status report, not a clear owner directive — authorship of the resolution is ambiguous. (harvest epic E-76)
 - [8] No decision on which next-step option the director chooses: A (close epic at 3/6, defer T2/T4/T5 to new epic), B (manual cursor-dispatch for T2/T4/T5), or C (add 4th orch fix for SPEC_CRITIQUE perfectionism convergence first). (harvest epic E-33)
 - [0]+[6] The exact error text shown to Alex when the approve action failed is unknown, preventing definitive root-cause confirmation. (harvest epic E-33)
 - [6]+[7] Whether Alex's Supabase profile has profile.role=admin is unconfirmed; until checked, the root cause of Bug 1's approve-fail (data vs. code/RLS) cannot be determined. (harvest epic E-33)
