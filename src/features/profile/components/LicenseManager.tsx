@@ -102,7 +102,7 @@ export function LicenseManager({ licenses, listings }: Props) {
   }
 
   function handleDelete(id: string) {
-    if (!window.confirm("Удалить эту лицензию?")) return;
+    if (!window.confirm("Удалить этот аттестат?")) return;
     startTransition(async () => {
       try {
         await deleteLicense(id);
@@ -116,14 +116,14 @@ export function LicenseManager({ licenses, listings }: Props) {
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-xl text-foreground">Лицензии и документы</h2>
+        <h2 className="font-display text-xl text-foreground">Аттестаты и документы</h2>
         <Button type="button" onClick={() => setOpen(true)} disabled={pending}>
-          Добавить лицензию
+          Добавить аттестат
         </Button>
       </div>
 
       {licenses.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Пока нет добавленных лицензий.</p>
+        <p className="text-sm text-muted-foreground">Пока нет добавленных аттестатов.</p>
       ) : (
         <ul className="space-y-4">
           {licenses.map((lic) => (
@@ -180,7 +180,7 @@ export function LicenseManager({ licenses, listings }: Props) {
       >
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Новая лицензия</DialogTitle>
+            <DialogTitle>Новый аттестат</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-2">

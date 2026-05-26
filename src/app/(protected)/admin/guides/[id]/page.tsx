@@ -143,7 +143,7 @@ export default async function AdminGuideDetailPage({
 
           <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-foreground">Лицензии</h2>
+              <h2 className="text-lg font-semibold text-foreground">Аттестаты</h2>
               <span className="text-sm text-muted-foreground">
                 {detail.licenses.length} шт.
               </span>
@@ -152,7 +152,7 @@ export default async function AdminGuideDetailPage({
             <div className="mt-4 space-y-3">
               {detail.licenses.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Пока нет добавленных лицензий.
+                  Пока нет добавленных аттестатов.
                 </p>
               ) : null}
 

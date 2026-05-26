@@ -45,7 +45,7 @@ const verificationSlots = [
   },
   {
     documentType: "certificate" as const,
-    label: "Сертификат / лицензия",
+    label: "Сертификат / аттестат",
     required: false,
   },
 ];

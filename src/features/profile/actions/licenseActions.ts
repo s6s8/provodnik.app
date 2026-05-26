@@ -41,7 +41,7 @@ export async function addLicense(data: {
     .single();
 
   if (insertError || !inserted) {
-    throw new Error(insertError?.message ?? "Не удалось сохранить лицензию");
+    throw new Error(insertError?.message ?? "Не удалось сохранить аттестат");
   }
 
   const licenseId = inserted.id;

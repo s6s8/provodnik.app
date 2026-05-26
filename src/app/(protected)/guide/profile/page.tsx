@@ -244,7 +244,7 @@ export default async function GuideProfilePage() {
       <section id="license">
         <Card className="border-border/70 bg-card/90">
           <CardHeader>
-            <CardTitle className="text-xl">Лицензии</CardTitle>
+            <CardTitle className="text-xl">Аттестаты</CardTitle>
             <p className="text-sm text-muted-foreground">
               Документы и к каким экскурсиям они относятся.
             </p>
