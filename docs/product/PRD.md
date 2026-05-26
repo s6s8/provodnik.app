@@ -235,7 +235,7 @@ Target positioning:
 
 - `Sputnik8`: official public guide-facing rules state a commission of `24% and more` per ticket, with a minimum of `200 RUB` per ticket;
 - `Tripster`: public guide-facing materials confirm the platform takes a commission and instruct guides to present it to travelers as a prepayment, but a fixed public percentage was not verified in public official docs during research on March 12, 2026;
-- `Provodnik`: target `10% to 15%`.
+- `Provodnik` Phase A (Элиста + scale-pilot regions): **fixed at 10%** — pinned 2026-05-26 in form-эпик; lower rate is the marketing wedge against Sputnik8 24%+ and prevents the Tripster effective-prepayment pattern. Phase B/C may revisit if supply economics require, but the 10% figure is the canon reference for product code (COMMISSION_PCT in config/commission.ts).
 
 Potential later monetization:
 
