@@ -297,17 +297,23 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 7. Пожелания */}
-      <div className="grid gap-2">
-        <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
-        <Textarea
-          id="notes"
-          aria-invalid={Boolean(errors.notes)}
-          {...register("notes")}
-        />
-        <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
-        <FieldError id="notes-error" message={errors.notes?.message} />
-      </div>
+      {/* 7. Пожелания — expandable «+ Добавить детали», collapsed by default */}
+      <details className="group rounded-xl border border-input bg-background open:bg-muted/30">
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-foreground select-none [&::-webkit-details-marker]:hidden">
+          <span aria-hidden="true" className="text-base leading-none group-open:hidden">+</span>
+          <span aria-hidden="true" className="hidden text-base leading-none group-open:inline">−</span>
+          <span>Добавить детали</span>
+        </summary>
+        <div className="grid gap-2 px-3 pb-3 pt-1">
+          <Textarea
+            id="notes"
+            aria-invalid={Boolean(errors.notes)}
+            {...register("notes")}
+          />
+          <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
+          <FieldError id="notes-error" message={errors.notes?.message} />
+        </div>
+      </details>
 
       {/* Server error */}
       {serverError && (
