@@ -32,6 +32,22 @@ export async function submitOfferAction(
   try {
     const guideId = await getCurrentUserId();
 
+    // form-epic #7: verification gate. Block offer submission from
+    // non-verified guides. Read guide_profiles.verification_status —
+    // anything other than 'verified' / 'approved' is rejected.
+    const supabaseAuth = await createSupabaseServerClient();
+    const { data: guideProfile } = await supabaseAuth
+      .from("guide_profiles")
+      .select("verification_status")
+      .eq("user_id", guideId)
+      .maybeSingle();
+
+    const status = guideProfile?.verification_status as string | undefined;
+    const isVerified = status === "verified" || status === "approved";
+    if (!isVerified) {
+      return { error: "Доступно после верификации" };
+    }
+
     // Duplicate guard
     const alreadyOffered = await hasGuideOffered(guideId, requestId);
     if (alreadyOffered) {
