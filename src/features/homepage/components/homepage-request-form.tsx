@@ -33,7 +33,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const form = useForm<FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
-      mode: "assembly",
+      mode: "private",
       interests: [] as TravelerRequest["interests"],
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Элиста",
       startDate: "",
@@ -125,39 +125,6 @@ export function HomepageRequestForm({ destinations }: Props) {
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Создать запрос"
     >
-      {/* 1. Формат поездки */}
-      <div className="grid gap-2">
-        <FieldLabel>Формат поездки</FieldLabel>
-        <div className="flex gap-2">
-          {(["assembly", "private"] as const).map((m) => (
-            <label
-              key={m}
-              className={cn(
-                "relative flex flex-1 cursor-pointer flex-col gap-1 rounded-xl border px-4 py-4 text-sm transition-colors",
-                mode === m
-                  ? "border-primary bg-primary/8 text-foreground"
-                  : "border-input bg-background text-muted-foreground hover:bg-muted/40",
-              )}
-            >
-              <input
-                type="radio"
-                value={m}
-                className="sr-only"
-                {...register("mode")}
-              />
-              <span className="font-medium">
-                {m === "private" ? "Своя группа" : "Сборная группа"}
-              </span>
-              <span className="text-xs">
-                {m === "private"
-                  ? "Только вы и ваши спутники"
-                  : "Готовы собрать группу с другими"}
-              </span>
-            </label>
-          ))}
-        </div>
-      </div>
-
       {/* 2. Куда хотите поехать? */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="destination">Куда хотите поехать?</FieldLabel>
