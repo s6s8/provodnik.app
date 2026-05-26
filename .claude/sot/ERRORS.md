@@ -4,6 +4,21 @@ _Append-only. Never delete entries. Format: ERR-NNN. See INDEX.md for lookup; HO
 
 ---
 
+## Index of recently resolved errors (S18 pattern-setting pass, 2026-05-26)
+
+_As an error's fix lands, append a line here with the resolving commit SHA + a one-line note. When this section grows past ~30 entries, batch-move the oldest to a future `ERRORS-RESOLVED.md`. Full entry bodies stay where they are (append-only); this is a lookup table only._
+
+| Resolved | Commit | Note |
+|---|---|---|
+| R3 hardening cohort | `47f7914` | 6 process-hygiene shortfalls in `.bek/auto-loop/`: pidfile bypass A, tmux orphans B, concurrent worker race C, tee log dup D, child cleanup timing E, META trigger insensitivity F. Plus `_lib/` extraction. Spec: `docs/superpowers/specs/2026-05-26-orch-complete-r3-hardening-design.md`. |
+| Director-only authz regression | `5212b5f` | S7 epic-handlers split added a `\|\| ownerUserId` bypass to 7 director-checks; restored across `lifecycle.mjs`/`decompose.mjs`/`fire.mjs`. Surfaced by `handleEpicDone rejects non-director` test. |
+| TC_ERRORS double-zero in check-ground-truth.sh | `8437cb7` | `grep -cE pattern \|\| echo 0` emitted `0\n0` on zero matches → malformed ground-truth JSON. Fixed by parenthesized group + `tail -1` + regex guard. |
+| process-guard ssh-argv false-positive | `d0a7714` | Old regex `bash .*orch-complete/run.sh` matched ssh wrapper's zsh cmdline (contained the literal as a tmux arg). Tightened to require argv to start with `bash` + script path. |
+
+_Comprehensive resolved-vs-active split (separate `ERRORS-RESOLVED.md` + per-year `ERRORS-YYYY.md` files) deferred to a focused curation pass when this section saturates (~30 entries)._
+
+---
+
 **Per-entry telemetry (S21, 2026-05-25):** for entries opened after this date, the body SHOULD include a single italic line at the top:
 *\<detectedAt> · resolved \<resolvedAt OR "open"> · burned \<hours> · recurrence \<count or "first">*
 This is the data we need to prioritize hardening. Backfill historical entries on a best-effort basis when re-touched.

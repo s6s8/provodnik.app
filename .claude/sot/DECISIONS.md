@@ -4,6 +4,16 @@ _Append-only. Format: ADR-NNN. See INDEX.md for lookup; HOT.md for top-8 landmin
 
 ---
 
+## Index of currently SUPERSEDED ADRs
+
+_S19 pattern-setting pass (2026-05-26). Populate as supersessions are identified during regular review. Format: `ADR-NNN → superseded by ADR-MMM (date) — reason`. When a new ADR explicitly reverses or replaces an earlier one, add a line here AND prefix the superseded ADR's heading with `[SUPERSEDED by ADR-MMM]`._
+
+- **ADR-007** → superseded by **ADR-010** (2026-05-XX) — `cursor-agent` execution restored after the native-Claude-Code experiment surfaced compatibility issues. ADR-010 documents the reversal in detail.
+
+_If you supersede an ADR, append a line above + update the ADR heading. No mass curation expected; this index grows organically when the next ADR cites a predecessor._
+
+---
+
 ### ADR-062: Chat-reply sanitization — three-layer defense-in-depth (quantumbek 2026-05-12)
 - **Context:** Phase 9.7 introduced a SOUL.md two-channel rule that explicitly *allowed* file paths and ADR/ERR ids in `/think` replies ("team-collaborator channel"). Empirically wrong — production `/think` output leaked `.claude/sot/CODEX.md`, `ANTI_PATTERNS.md`, `DECISIONS.md`, `PATTERNS.md`, `cursor-agent`, `orchestrator`, `FSM`, `HARD_STOP`, `ambiguous_ticket`, `ADR-060`, `package.json`, `.env`, `supabase/migrations/`, `Read/Grep/Glob` into Russian user-facing text. The leak invited an architectural question: relying solely on a guidance prompt to keep the model honest is fragile under token pressure.
 - **Decision:** Three-layer defense-in-depth, none load-bearing alone. (1) SOUL.md (`provodnik.app e364ce9`) reverted to strict default for all channels — no team-collaborator carve-out — with an explicit blacklist and a vocabulary substitution table so the model has product-language ready, not just bans. (2) `think-runner.mjs` system-prompt framing (`quantumbek 814ecb6`) — privacy rule promoted from SOUL content into the system prompt itself; system-level constraints survive long-context pressure better than user-side text. Vocabulary substitutions inline. Slash commands explicitly allowed. (3) `bot/lib/sanitize-reply.mjs` — deterministic post-process. Length-descending REPLACEMENTS dict + BLACKLIST audit scan. Surviving leaks redacted with `[…]` for `submitter` audience, surfaced via `console.error '[sanitize] leak…'` for operator visibility. `auditInfo` audience logs but passes text through unchanged so owner can debug.
