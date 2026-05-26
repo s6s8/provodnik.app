@@ -91,7 +91,9 @@ export function HomepageRequestForm({ destinations }: Props) {
       fd.set("groupSizeCurrent", String(count));
       if (values.groupMax) fd.set("groupMax", String(values.groupMax));
     }
-    fd.set("allowGuideSuggestionsOutsideConstraints", "true");
+    // form-epic #14: bug 7 fix — do NOT push allowGuideSuggestionsOutsideConstraints
+    // through FormData. The column may be absent from prod schema cache;
+    // skipping the field lets the request insert succeed with its DB default.
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
     fd.set("notes", values.notes ?? "");
 

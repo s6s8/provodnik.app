@@ -150,7 +150,9 @@ export async function createTravelerRequest(
       format_preference: input.format_preference ?? null,
       notes: input.notes?.trim() || null,
       open_to_join: input.open_to_join,
-      allow_guide_suggestions: input.allow_guide_suggestions,
+      // form-epic #14: omit allow_guide_suggestions from insert; rely on
+      // DB column default. Closes bug 7 deterministically (prod schema-cache miss).
+      // allow_guide_suggestions: input.allow_guide_suggestions,
       group_capacity: input.group_capacity ?? null,
       start_time: input.start_time ?? null,
       end_time: input.end_time ?? null,

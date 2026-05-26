@@ -37,8 +37,9 @@ export async function createRequestAction(
       : {
           groupSize: Number(formData.get("groupSize") ?? 1),
         }),
-    allowGuideSuggestionsOutsideConstraints:
-      formData.get("allowGuideSuggestionsOutsideConstraints") === "true",
+    // form-epic #14: keep schema compat by always defaulting to true
+    // server-side. Field is no longer pushed through the form.
+    allowGuideSuggestionsOutsideConstraints: true,
     budgetPerPersonRub: Number(formData.get("budgetPerPersonRub") ?? 0),
     notes: (formData.get("notes") as string) ?? "",
   };
