@@ -71,6 +71,7 @@ export function GuideRequestsInboxScreen() {
     "newest",
   );
   const [specializations, setSpecializations] = React.useState<string[]>([]);
+  const [baseCity, setBaseCity] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let ignore = false;
@@ -86,11 +87,12 @@ export function GuideRequestsInboxScreen() {
     async function loadGuideProfileForGuide(guideId: string) {
       const { data } = await supabase
         .from("guide_profiles")
-        .select("specializations")
+        .select("specializations, base_city")
         .eq("user_id", guideId)
         .maybeSingle();
       if (ignore) return;
       setSpecializations(Array.isArray(data?.specializations) ? data.specializations : []);
+      setBaseCity(typeof data?.base_city === "string" && data.base_city.trim() !== "" ? data.base_city : null);
     }
 
     async function loadInitial() {
@@ -170,7 +172,18 @@ export function GuideRequestsInboxScreen() {
       );
     }
 
-    // City filter
+    // form-epic #8: baseCity filter (Phase A). If guide's base_city is set,
+    // restrict inbox to requests whose first destination segment matches
+    // (case-insensitive). If base_city is null, leave items untouched —
+    // empty-state with profile-fill hint is rendered downstream.
+    if (baseCity) {
+      const norm = baseCity.trim().toLowerCase();
+      filtered = filtered.filter(
+        (item) => item.destination.split(",")[0].trim().toLowerCase() === norm,
+      );
+    }
+
+    // City filter (user-driven dropdown, separate from baseCity Phase A scope)
     if (cityFilter !== "all") {
       filtered = filtered.filter(
         (item) => item.destination.split(",")[0].trim() === cityFilter,
@@ -200,7 +213,7 @@ export function GuideRequestsInboxScreen() {
     }
 
     return filtered;
-  }, [filter, items, offeredIds, cityFilter, sortKey, specializations]);
+  }, [filter, items, offeredIds, baseCity, cityFilter, sortKey, specializations]);
 
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
