@@ -542,6 +542,19 @@ export function BidFormPanel({
             </p>
           ) : null}
 
+          {submitted ? (
+            <div
+              role="status"
+              aria-live="polite"
+              className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success"
+            >
+              <p className="font-medium">Предложение отправлено</p>
+              <p className="mt-1 text-foreground/80">
+                Гость получил уведомление. Обычно туристы отвечают в течение 24 часов — ответ придёт в чат и в «Заявки».
+              </p>
+            </div>
+          ) : null}
+
           <Button
             type="submit"
             disabled={isSubmitting || submitted}
