@@ -23,6 +23,17 @@ const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
 );
 
 
+const INCLUSION_OPTIONS = [
+  "Транспорт",
+  "Входные билеты",
+  "Обед",
+  "Вода / напитки",
+  "Снаряжение",
+  "Фотосъёмка",
+  "Трансфер из отеля",
+  "Сувениры",
+] as const;
+
 const offerFormSchema = z.object({
   price_total: z
     .number()
@@ -94,6 +105,21 @@ export function BidFormPanel({
   const [submitted, setSubmitted] = React.useState(false);
   const [guidePhotos, setGuidePhotos] = React.useState<Array<{ id: string; location_name: string; photoUrl: string }>>([]);
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
+  const [inclusions, setInclusions] = React.useState<string[]>([]);
+  const [customInclusion, setCustomInclusion] = React.useState("");
+
+  const toggleInclusion = React.useCallback((label: string) => {
+    setInclusions((prev) =>
+      prev.includes(label) ? prev.filter((v) => v !== label) : [...prev, label],
+    );
+  }, []);
+
+  const addCustomInclusion = React.useCallback(() => {
+    const v = customInclusion.trim();
+    if (!v) return;
+    setInclusions((prev) => (prev.includes(v) ? prev : [...prev, v]));
+    setCustomInclusion("");
+  }, [customInclusion]);
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
@@ -183,6 +209,10 @@ export function BidFormPanel({
       fd.set("price_total", String(values.price_total));
       fd.set("message", values.message);
       fd.set("valid_until", values.valid_until);
+      fd.set("inclusions", JSON.stringify(inclusions));
+      if (values.headcount && values.headcount > 0) {
+        fd.set("capacity", String(values.headcount));
+      }
 
       fd.set(
         "route_stops",
@@ -218,7 +248,7 @@ export function BidFormPanel({
         setServerError(result.error);
       }
     },
-    [requestId, onSuccess, routeStops, submitted],
+    [requestId, onSuccess, routeStops, submitted, inclusions],
   );
 
   return (
@@ -404,6 +434,76 @@ export function BidFormPanel({
             )}
           </div>
 
+          {/* Что входит в цену */}
+          <div className="grid gap-2">
+            <label className="text-sm font-medium text-foreground">Что входит в цену</label>
+            <div className="flex flex-wrap gap-2">
+              {INCLUSION_OPTIONS.map((label) => {
+                const active = inclusions.includes(label);
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={submitted}
+                    aria-pressed={active}
+                    onClick={() => toggleInclusion(label)}
+                    className={
+                      active
+                        ? "min-h-[2.25rem] rounded-full border border-primary bg-primary/10 px-3 text-xs font-medium text-primary"
+                        : "min-h-[2.25rem] rounded-full border border-border bg-surface-high px-3 text-xs text-muted-foreground hover:border-primary/40"
+                    }
+                  >
+                    {active ? "✓ " : "+ "}
+                    {label}
+                  </button>
+                );
+              })}
+              {inclusions
+                .filter((v) => !INCLUSION_OPTIONS.includes(v as (typeof INCLUSION_OPTIONS)[number]))
+                .map((label) => (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={submitted}
+                    aria-pressed={true}
+                    onClick={() => toggleInclusion(label)}
+                    className="min-h-[2.25rem] rounded-full border border-primary bg-primary/10 px-3 text-xs font-medium text-primary"
+                  >
+                    ✓ {label}
+                  </button>
+                ))}
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={customInclusion}
+                onChange={(e) => setCustomInclusion(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addCustomInclusion();
+                  }
+                }}
+                placeholder="Добавить своё (например, аудиогид)"
+                disabled={submitted}
+                maxLength={80}
+                className={FIELD_CLASS}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addCustomInclusion}
+                disabled={submitted || customInclusion.trim().length === 0}
+                className="shrink-0"
+              >
+                Добавить
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Отметьте то, что не нужно оплачивать отдельно. Гость увидит этот список в карточке предложения.
+            </p>
+          </div>
+
           {/* Сообщение */}
           <div className="grid gap-2">
             <label htmlFor="panel-message" className="text-sm font-medium text-foreground">
@@ -412,7 +512,7 @@ export function BidFormPanel({
             <textarea
               id="panel-message"
               className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-              placeholder="Опишите, что входит в цену и почему стоит выбрать вас."
+              placeholder="Расскажите, почему стоит выбрать вас, и уточните нюансы маршрута."
               aria-invalid={Boolean(errors.message)}
               disabled={submitted}
               {...register("message")}

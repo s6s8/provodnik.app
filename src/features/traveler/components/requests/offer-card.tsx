@@ -247,6 +247,24 @@ export function OfferCard({
         </div>
       ) : null}
 
+      {/* Inclusions */}
+      {Array.isArray(offer.inclusions) && offer.inclusions.length > 0 ? (
+        <div className="space-y-2">
+          <p className="text-xs font-medium text-foreground">Что входит в цену</p>
+          <div className="flex flex-wrap gap-1.5">
+            {offer.inclusions.map((label, idx) => (
+              <Badge
+                key={`${label}-${idx}`}
+                variant="outline"
+                className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-50 text-emerald-700")}
+              >
+                ✓ {label}
+              </Badge>
+            ))}
+          </div>
+        </div>
+      ) : null}
+
       {/* PII disclosure banner */}
       <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2">
         <p className="text-xs text-amber-700">

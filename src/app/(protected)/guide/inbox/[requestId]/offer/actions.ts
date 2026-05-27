@@ -66,6 +66,26 @@ export async function submitOfferAction(
     const starts_at = startsAtRaw && typeof startsAtRaw === "string" ? startsAtRaw : undefined;
     const ends_at = endsAtRaw && typeof endsAtRaw === "string" ? endsAtRaw : undefined;
 
+    let inclusions: string[] = [];
+    try {
+      const inclusionsRaw = formData.get("inclusions");
+      if (inclusionsRaw && typeof inclusionsRaw === "string") {
+        const parsedInc = JSON.parse(inclusionsRaw) as unknown;
+        if (Array.isArray(parsedInc)) {
+          inclusions = parsedInc
+            .filter((v): v is string => typeof v === "string")
+            .map((v) => v.trim())
+            .filter((v) => v.length > 0);
+        }
+      }
+    } catch {
+      // malformed JSON — treat as empty
+    }
+
+    const capacityRaw = formData.get("capacity");
+    const capacity =
+      capacityRaw && String(capacityRaw) !== "" ? Number(capacityRaw) : undefined;
+
     const raw = {
       request_id: requestId,
       price_total: Number(formData.get("price_total")),
@@ -75,6 +95,8 @@ export async function submitOfferAction(
       route_duration_minutes,
       starts_at,
       ends_at,
+      inclusions,
+      capacity,
     };
 
     const parsed = createOfferInputSchema.safeParse(raw);

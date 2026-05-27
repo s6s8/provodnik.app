@@ -55,6 +55,13 @@ export const createOfferInputSchema = z.object({
     .optional(),
   starts_at: z.string().optional().nullable(),
   ends_at: z.string().optional().nullable(),
+  inclusions: z.array(z.string().min(1).max(80)).max(20).default([]),
+  capacity: z
+    .number()
+    .int()
+    .min(1, "Minimum 1 person.")
+    .max(50, "Maximum 50 people.")
+    .default(1),
 });
 
 export type CreateOfferInput = z.infer<typeof createOfferInputSchema>;
@@ -90,8 +97,8 @@ export async function createGuideOffer(
       message: input.message,
       expires_at: new Date(input.valid_until).toISOString(),
       currency: "RUB",
-      capacity: 1, // default; may be extended later
-      inclusions: [],
+      capacity: input.capacity,
+      inclusions: input.inclusions,
       status: "pending",
       route_stops: input.route_stops,
       route_duration_minutes: input.route_duration_minutes ?? null,
