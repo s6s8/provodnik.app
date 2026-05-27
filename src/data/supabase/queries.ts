@@ -310,31 +310,15 @@ function formatCategory(cat: string): string {
 const VALID_INTEREST_SLUGS = THEMES.map((t) => t.slug) satisfies readonly ThemeSlug[];
 
 /**
- * Reveal a traveler's real name on a RequestRecord — used by guide-side booking
- * detail pages after the booking transitions to a confirmed/accepted status.
- *
- * Phase A privacy rule (form-epic #9):
- * Until a booking is `confirmed` or `accepted`, the guide sees the request and
- * any associated chat with the traveler rendered as the anonymous default
- * «Путешественник» / «П». After the booking is confirmed, the real name and
- * initials are revealed on guide-facing booking-detail surfaces. Inbox list and
- * pre-booking chat stay anonymous regardless.
- *
- * Call this at the booking-detail surface only; do NOT use it on inbox lists.
+ * Reveal a traveler's real name on guide-side booking-detail surfaces only.
+ * Inbox lists and pre-confirmation booking states stay anonymous.
  */
 export function revealTravelerName(
-  record: RequestRecord,
+  name: string | null | undefined,
   bookingStatus: string | null | undefined,
-  realName: string | null,
-  realInitials: string | null,
-): RequestRecord {
-  const isConfirmed = bookingStatus === "confirmed" || bookingStatus === "accepted";
-  if (!isConfirmed || !realName) return record;
-  return {
-    ...record,
-    requesterName: realName,
-    requesterInitials: realInitials ?? realName.slice(0, 1),
-  };
+): string {
+  const trimmed = name?.trim();
+  return bookingStatus === "confirmed" && trimmed ? trimmed : "Путешественник";
 }
 
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {

@@ -17,12 +17,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { getGuideBookings, type BookingRecord } from "@/data/supabase/queries";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { BookingRecord } from "@/data/supabase/queries";
 import type { GuideBookingStatus } from "@/data/guide-booking/types";
 import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/guide-booking-status";
 import { cn } from "@/lib/utils";
-import { confirmBookingAction, completeBookingAction } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
+import {
+  confirmBookingAction,
+  completeBookingAction,
+  getGuideBookingDetailAction,
+} from "@/app/(protected)/guide/bookings/[bookingId]/actions";
 
 type GuideBookingAction = "confirm" | "complete" | "cancel" | "no_show";
 
@@ -41,13 +44,14 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
 
     async function load() {
       try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || ignore) return;
-        const { data } = await getGuideBookings(supabase, user.id);
+        const result = await getGuideBookingDetailAction(bookingId);
         if (ignore) return;
-        const match = data?.find((b) => b.id === bookingId) ?? null;
-        setRecord(match);
+        if (result.ok) {
+          setRecord(result.booking);
+          setErrorMessage(null);
+        } else {
+          setErrorMessage(result.error);
+        }
       } catch {
         // leave empty
       }
@@ -63,7 +67,10 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
     startTransition(async () => {
       const result = await confirmBookingAction(bookingId);
       if (result.ok) {
-        setRecord((prev) => (prev ? { ...prev, status: result.status } : prev));
+        const refreshed = await getGuideBookingDetailAction(bookingId);
+        setRecord((prev) =>
+          refreshed.ok ? refreshed.booking : prev ? { ...prev, status: result.status } : prev,
+        );
         setActionResult({ action: "confirm", nextStatus: "confirmed" });
         router.refresh();
       } else {
@@ -78,7 +85,10 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
     startTransition(async () => {
       const result = await completeBookingAction(bookingId);
       if (result.ok) {
-        setRecord((prev) => (prev ? { ...prev, status: result.status } : prev));
+        const refreshed = await getGuideBookingDetailAction(bookingId);
+        setRecord((prev) =>
+          refreshed.ok ? refreshed.booking : prev ? { ...prev, status: result.status } : prev,
+        );
         setActionResult({ action: "complete", nextStatus: "completed" });
         router.refresh();
       } else {
@@ -94,7 +104,11 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
       const nextStatus = nextStatusForAction(currentGuideStatus, action);
       if (!nextStatus) return;
 
-      setRecord({ ...record, status: nextStatus });
+      setRecord({
+        ...record,
+        status: nextStatus,
+        travelerName: nextStatus === "confirmed" ? record.travelerName : "Путешественник",
+      });
       setActionResult({ action, nextStatus });
     },
     [record],
@@ -255,6 +269,11 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
               label="Статус"
               value={formatStatusLabelForSummary(mapDbStatusToGuideStatus(record.status))}
               helper={record.title}
+            />
+            <StatCard
+              label="Путешественник"
+              value={record.travelerName ?? "Путешественник"}
+              helper="Имя раскрывается после подтверждения"
             />
           </div>
         </CardContent>

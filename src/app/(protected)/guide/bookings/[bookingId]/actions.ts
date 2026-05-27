@@ -1,10 +1,16 @@
 "use server";
 
+import { revealTravelerName, type BookingRecord } from "@/data/supabase/queries";
 import { transitionBooking, type BookingStatus } from "@/lib/bookings/state-machine";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type ConfirmBookingResult =
   | { ok: true; status: BookingStatus }
+  | { ok: false; error: string };
+
+export type GuideBookingDetailResult =
+  | { ok: true; booking: BookingRecord }
   | { ok: false; error: string };
 
 async function assertGuideOwns(
@@ -72,4 +78,60 @@ export async function declineBooking(
   bookingId: string,
 ): Promise<ConfirmBookingResult> {
   return transitionAction(bookingId, "cancelled", "Не удалось отклонить бронирование");
+}
+
+export async function getGuideBookingDetailAction(
+  bookingId: string,
+): Promise<GuideBookingDetailResult> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { ok: false, error: "Требуется вход в аккаунт" };
+  }
+
+  const { data: booking, error: bookingError } = await supabase
+    .from("bookings")
+    .select("id, traveler_id, guide_id, meeting_point, starts_at, ends_at, subtotal_minor, status")
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (bookingError) return { ok: false, error: bookingError.message };
+  if (!booking) return { ok: false, error: "Бронирование не найдено" };
+  if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
+
+  const admin = createSupabaseAdminClient();
+  const { data: traveler, error: travelerError } = await admin
+    .from("profiles")
+    .select("full_name")
+    .eq("id", booking.traveler_id)
+    .maybeSingle();
+
+  if (travelerError) return { ok: false, error: travelerError.message };
+
+  return {
+    ok: true,
+    booking: {
+      id: booking.id,
+      title: booking.meeting_point ?? "Бронирование",
+      destination: booking.meeting_point ?? "Маршрут",
+      dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
+      priceRub: Math.round((booking.subtotal_minor ?? 0) / 100),
+      travelerName: revealTravelerName(traveler?.full_name, booking.status),
+      status: booking.status,
+    },
+  };
+}
+
+function formatDateLabel(start: string, end?: string | null) {
+  if (!start) return "Дата уточняется";
+  const date = new Date(start);
+  const fmt = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" });
+  if (!end) return fmt.format(date);
+  const endDate = new Date(end);
+  if (Number.isNaN(endDate.getTime()) || endDate.toDateString() === date.toDateString()) return fmt.format(date);
+  return `${fmt.format(date)} — ${fmt.format(endDate)}`;
 }
