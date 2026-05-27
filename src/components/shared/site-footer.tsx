@@ -152,7 +152,31 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-7 max-md:flex-col max-md:items-start">
+        <div className="border-t border-white/10 pt-7">
+          <p className="text-[0.8125rem] leading-relaxed text-white/[0.55]">
+            <span className="font-medium text-white/75">Оператор персональных данных:</span>{" "}
+            команда проекта Provodnik. Контакт по вопросам обработки данных и
+            юридическим уведомлениям —{" "}
+            <a
+              href="mailto:support@provodnik.app"
+              className="underline underline-offset-4 transition-colors hover:text-white"
+            >
+              support@provodnik.app
+            </a>
+            . Provodnik находится на стадии запуска MVP; полные
+            регистрационные сведения оператора (ОГРНИП/ОГРН, ИНН,
+            юридический адрес) публикуются{" "}
+            <Link
+              href="/policies/privacy#operator"
+              className="underline underline-offset-4 transition-colors hover:text-white"
+            >
+              на странице «Конфиденциальность»
+            </Link>{" "}
+            и обновляются до запуска приёма платежей на платформе.
+          </p>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between gap-3 max-md:flex-col max-md:items-start">
           <p className="text-[0.8125rem] text-white/[0.35]">© 2026 Provodnik. Все права защищены.</p>
           <a
             href="mailto:support@provodnik.app"
