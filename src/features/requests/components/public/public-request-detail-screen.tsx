@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { JoinGroupButton } from "@/features/requests/components/join-group-button";
+import { PostJoinPanel } from "@/features/requests/components/post-join-panel";
 
 type GuideOffer = {
   id: string;
@@ -332,9 +333,7 @@ export function PublicRequestDetailScreen({
 
                 {/* Join / Member state */}
                 {isMember ? (
-                  <span className="inline-flex w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-full bg-success/10 px-3.5 py-1.5 text-[0.8125rem] font-semibold text-success">
-                    Вы участник ✓
-                  </span>
+                  <PostJoinPanel />
                 ) : showJoinButton ? (
                   <JoinGroupButton
                     requestId={request.id}
