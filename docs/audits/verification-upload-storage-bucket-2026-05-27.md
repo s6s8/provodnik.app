@@ -225,3 +225,64 @@ supabase db execute --file supabase/migrations/20260527000001_create_guide_docum
 убедиться что все 4 функции в `actions` являются модульными `'use server'` imports, а не closures с async wrapping.
 Текущий код выглядит корректно (прямые imports из `actions.ts`),
 но возможна регрессия в предыдущей версии страницы (проверить git blame / git log -- page.tsx).
+## 10. CORRECTION 2026-05-27 — verdict revised after live verification
+
+> The initial verdict in this audit ("bucket missing in prod") was incorrect.
+> Direct verification against production via `PROVODNIK_SUPABASE_SECRET_KEY`
+> shows the bucket exists and the upload flow works end-to-end.
+
+### What was actually verified against prod 2026-05-27T08:30Z
+
+GET `/storage/v1/bucket` returned 6 buckets including:
+
+```json
+{
+  "id": "guide-documents",
+  "name": "guide-documents",
+  "public": false,
+  "file_size_limit": 10485760,
+  "allowed_mime_types": ["image/jpeg", "image/png", "image/webp", "application/pdf"],
+  "created_at": "2026-04-04T00:57:51.690Z"
+}
+```
+
+Config exactly matches what migration `20260401200000_storage_buckets.sql` would have created. The bucket was provisioned in prod on 2026-04-04, presumably via a remote-only SQL operation (Dashboard manual apply or one of the remote-only `20260412*` migrations).
+
+### Signed-URL upload flow tested live
+
+| Step | Endpoint | Result |
+|---|---|---|
+| 1. createSignedUploadUrl | `POST /storage/v1/object/upload/sign/guide-documents/<uuid>/passport-test.jpg` | 200, returned token+url |
+| 2. PUT to signed URL | `PUT /storage/v1/object/upload/sign/...` | 200, `{"Key":"guide-documents/.../passport-test.jpg"}` |
+| 3. list confirms presence | `POST /storage/v1/object/list/guide-documents` | row visible with eTag |
+| 4. cleanup | `DELETE /storage/v1/object/guide-documents/...` | 200, `{"message":"Successfully deleted"}` |
+
+The backend upload pipeline (admin signs URL → client PUTs to signed URL) is fully functional in prod.
+
+### Revised verdict
+
+| Original (incorrect) | Corrected |
+|---|---|
+| Cause B: bucket missing in prod | **Bucket EXISTS in prod, correct config, upload tested** |
+| Fix: apply migration `20260527000001_create_guide_documents_bucket.sql` | **No migration needed** |
+
+### What this means for the actual upload error
+
+The user-observed "Server Components render error" upon clicking «Загрузить» in prod is **not caused by bucket/RLS** — those are healthy. Investigation should resume on the other candidates from `upload-error-2026-05-26.md`:
+
+- **Cause A (RSC async-prop):** verification-form receives `actions` prop. Static review (this session) shows `actions` is built from direct module imports of `'use server'` functions — looks correct. But a runtime regression could still produce a serialization error. Next step: reproduce in browser dev tools and read the actual error stack.
+- **Cause C (AP-014 inline closure):** static review of `document-upload-card.tsx` shows actions consumed via destructured props, not inline closures. Looks correct.
+
+Both A and C require **live browser repro** with a real guide account to confirm. Cannot conclude statically.
+
+### Migration history clarification
+
+The audit section 5 finding about local↔remote migration divergence remains true: most local 20260401-20260524 migrations were never applied to remote. However, the specific assertion "guide-documents bucket therefore doesn't exist" was wrong — the bucket was provisioned through a different path (the remote-only 20260412* migration set or Dashboard manual action).
+
+The diverged-migration situation is a separate operator concern (covered by Cleanup C6 / migration alignment epic) but it does NOT block the verification upload flow.
+
+### Remaining action items
+
+1. **Live browser repro** of the upload error (operator + guide test account). Cannot proceed statically.
+2. **Legacy reference at `src/data/guide-assets/supabase-client.ts:115`** — `bucketId: "guide-media"` should be `"guide-documents"` (separate fix, not audit scope).
+3. Migration-history alignment between local and remote → existing Cleanup C6 epic.
