@@ -1,148 +1,124 @@
 -- OPT-001: Optimize search_guides RPC — push specializations, region, and has_listings filters server-side.
 -- Replaces client-side array filtering with PostgreSQL-level WHERE clauses.
--- Backward-compatible: all new params default to NULL (no filter applied).
+-- Backward-compatible at the call site: all new params default to NULL (no filter applied).
+--
+-- 2026-05-27 self-heal: restored $function$ dollar-quote markers (previous revision
+-- of this file lacked them and so the migration could never apply). The 4-arg
+-- function was re-applied to prod via admin REST to recover from the empty /guides catalog.
 
-create or replace function public.search_guides(
-  q text default '',
-  p_specializations text[] default null,
-  p_region text default null,
-  p_has_listings boolean default null
+DROP FUNCTION IF EXISTS public.search_guides(text);
+
+CREATE OR REPLACE FUNCTION public.search_guides(
+  q text DEFAULT '',
+  p_specializations text[] DEFAULT NULL,
+  p_region text DEFAULT NULL,
+  p_has_listings boolean DEFAULT NULL
 )
-returns setof public.guide_search_result_row
-language plpgsql
-stable
-security definer
-set search_path = public
-as 
-declare
-  tokens text[] := array[]::text[];
+RETURNS SETOF public.guide_search_result_row
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $function$
+DECLARE
+  tokens text[] := ARRAY[]::text[];
   raw_part text;
   cleaned text;
-begin
-  if trim(coalesce(q, '')) = '' then
-    return query
-    select
-      g.*,
-      false::boolean as is_partial_match
-    from public.guide_profiles g
-    where g.verification_status = 'approved'
-      and g.is_available = true
-      and (p_specializations is null or g.specializations && p_specializations)
-      and (p_region is null or g.regions @> array[p_region])
-      and (p_has_listings is null or p_has_listings = false or exists (
-        select 1 from public.listings l
-        where l.guide_id = g.user_id and l.status = 'published'
+BEGIN
+  IF trim(coalesce(q, '')) = '' THEN
+    RETURN QUERY
+    SELECT g.*, false::boolean AS is_partial_match
+    FROM public.guide_profiles g
+    WHERE g.verification_status = 'approved'
+      AND g.is_available = true
+      AND (p_specializations IS NULL OR g.specializations && p_specializations)
+      AND (p_region IS NULL OR g.regions @> ARRAY[p_region])
+      AND (p_has_listings IS NULL OR p_has_listings = false OR EXISTS (
+        SELECT 1 FROM public.listings l
+        WHERE l.guide_id = g.user_id AND l.status = 'published'
       ))
-    order by g.created_at desc;
-    return;
-  end if;
+    ORDER BY g.created_at DESC;
+    RETURN;
+  END IF;
 
-  foreach raw_part in array string_to_array(q, ',')
-  loop
+  FOREACH raw_part IN ARRAY string_to_array(q, ',')
+  LOOP
     cleaned := lower(trim(raw_part));
-    if cleaned = '' then
-      continue;
-    end if;
-    if cleaned !~ '^[a-zA-Zа-яА-ЯёЁ0-9 -]+$' then
-      continue;
-    end if;
+    IF cleaned = '' THEN CONTINUE; END IF;
+    IF cleaned !~ '^[a-zA-Zа-яА-ЯёЁ0-9 -]+$' THEN CONTINUE; END IF;
     tokens := array_append(tokens, cleaned);
-  end loop;
+  END LOOP;
 
-  if coalesce(array_length(tokens, 1), 0) = 0 then
-    return query
-    select
-      g.*,
-      false::boolean as is_partial_match
-    from public.guide_profiles g
-    where g.verification_status = 'approved'
-      and g.is_available = true
-      and (p_specializations is null or g.specializations && p_specializations)
-      and (p_region is null or g.regions @> array[p_region])
-      and (p_has_listings is null or p_has_listings = false or exists (
-        select 1 from public.listings l
-        where l.guide_id = g.user_id and l.status = 'published'
+  IF coalesce(array_length(tokens, 1), 0) = 0 THEN
+    RETURN QUERY
+    SELECT g.*, false::boolean AS is_partial_match
+    FROM public.guide_profiles g
+    WHERE g.verification_status = 'approved'
+      AND g.is_available = true
+      AND (p_specializations IS NULL OR g.specializations && p_specializations)
+      AND (p_region IS NULL OR g.regions @> ARRAY[p_region])
+      AND (p_has_listings IS NULL OR p_has_listings = false OR EXISTS (
+        SELECT 1 FROM public.listings l
+        WHERE l.guide_id = g.user_id AND l.status = 'published'
       ))
-    order by g.created_at desc;
-    return;
-  end if;
+    ORDER BY g.created_at DESC;
+    RETURN;
+  END IF;
 
-  return query
-  with visible as (
-    select g.*
-    from public.guide_profiles g
-    where g.verification_status = 'approved'
-      and g.is_available = true
-      and (p_specializations is null or g.specializations && p_specializations)
-      and (p_region is null or g.regions @> array[p_region])
-      and (p_has_listings is null or p_has_listings = false or exists (
-        select 1 from public.listings l
-        where l.guide_id = g.user_id and l.status = 'published'
+  RETURN QUERY
+  WITH visible AS (
+    SELECT g.*
+    FROM public.guide_profiles g
+    WHERE g.verification_status = 'approved'
+      AND g.is_available = true
+      AND (p_specializations IS NULL OR g.specializations && p_specializations)
+      AND (p_region IS NULL OR g.regions @> ARRAY[p_region])
+      AND (p_has_listings IS NULL OR p_has_listings = false OR EXISTS (
+        SELECT 1 FROM public.listings l
+        WHERE l.guide_id = g.user_id AND l.status = 'published'
       ))
   ),
-  strict as (
-    select v.*
-    from visible v
-    where not exists (
-      select 1
-      from unnest(tokens) as tok(token)
-      where not (
-        v.display_name ilike '%' || tok.token || '%'
-        or v.bio ilike '%' || tok.token || '%'
-        or v.base_city ilike '%' || tok.token || '%'
-        or exists (
-          select 1
-          from unnest(v.languages) as lang(value)
-          where lower(lang.value) ilike '%' || tok.token || '%'
-        )
-        or exists (
-          select 1
-          from unnest(v.specializations) as spec(value)
-          where lower(spec.value) ilike '%' || tok.token || '%'
-        )
+  strict AS (
+    SELECT v.*
+    FROM visible v
+    WHERE NOT EXISTS (
+      SELECT 1 FROM unnest(tokens) AS tok(token)
+      WHERE NOT (
+        v.display_name ILIKE '%' || tok.token || '%'
+        OR v.bio ILIKE '%' || tok.token || '%'
+        OR v.base_city ILIKE '%' || tok.token || '%'
+        OR EXISTS (SELECT 1 FROM unnest(v.languages) AS lang(value) WHERE lower(lang.value) ILIKE '%' || tok.token || '%')
+        OR EXISTS (SELECT 1 FROM unnest(v.specializations) AS spec(value) WHERE lower(spec.value) ILIKE '%' || tok.token || '%')
       )
     )
   ),
-  strict_count as (
-    select count(*)::bigint as c from strict
-  ),
-  or_fallback as (
-    select v.*
-    from visible v
-    where exists (
-      select 1
-      from unnest(tokens) as tok(token)
-      where (
-        v.display_name ilike '%' || tok.token || '%'
-        or v.bio ilike '%' || tok.token || '%'
-        or v.base_city ilike '%' || tok.token || '%'
-        or exists (
-          select 1
-          from unnest(v.languages) as lang(value)
-          where lower(lang.value) ilike '%' || tok.token || '%'
-        )
-        or exists (
-          select 1
-          from unnest(v.specializations) as spec(value)
-          where lower(spec.value) ilike '%' || tok.token || '%'
-        )
+  strict_count AS (SELECT count(*)::bigint AS c FROM strict),
+  or_fallback AS (
+    SELECT v.*
+    FROM visible v
+    WHERE EXISTS (
+      SELECT 1 FROM unnest(tokens) AS tok(token)
+      WHERE (
+        v.display_name ILIKE '%' || tok.token || '%'
+        OR v.bio ILIKE '%' || tok.token || '%'
+        OR v.base_city ILIKE '%' || tok.token || '%'
+        OR EXISTS (SELECT 1 FROM unnest(v.languages) AS lang(value) WHERE lower(lang.value) ILIKE '%' || tok.token || '%')
+        OR EXISTS (SELECT 1 FROM unnest(v.specializations) AS spec(value) WHERE lower(spec.value) ILIKE '%' || tok.token || '%')
       )
     )
   ),
-  result as (
-    select s.*, false::boolean as is_partial_match
-    from strict s
-    where (select c from strict_count) > 0
-    union all
-    select o.*, true::boolean as is_partial_match
-    from or_fallback o
-    where (select c from strict_count) = 0
+  result AS (
+    SELECT s.*, false::boolean AS is_partial_match
+    FROM strict s
+    WHERE (SELECT c FROM strict_count) > 0
+    UNION ALL
+    SELECT o.*, true::boolean AS is_partial_match
+    FROM or_fallback o
+    WHERE (SELECT c FROM strict_count) = 0
   )
-  select r.*
-  from result r
-  order by r.created_at desc;
-end;
-;
+  SELECT r.* FROM result r ORDER BY r.created_at DESC;
+END;
+$function$;
 
-revoke all on function public.search_guides(text, text[], text, boolean) from public;
-grant execute on function public.search_guides(text, text[], text, boolean) to anon, authenticated, service_role;
+REVOKE ALL ON FUNCTION public.search_guides(text, text[], text, boolean) FROM public;
+GRANT EXECUTE ON FUNCTION public.search_guides(text, text[], text, boolean) TO anon, authenticated, service_role;
