@@ -237,6 +237,18 @@ Target positioning:
 - `Tripster`: public guide-facing materials confirm the platform takes a commission and instruct guides to present it to travelers as a prepayment, but a fixed public percentage was not verified in public official docs during research on March 12, 2026;
 - `Provodnik` Phase A (Элиста + scale-pilot regions): **fixed at 10%** — pinned 2026-05-26 in form-эпик; lower rate is the marketing wedge against Sputnik8 24%+ and prevents the Tripster effective-prepayment pattern. Phase B/C may revisit if supply economics require, but the 10% figure is the canon reference for product code (COMMISSION_PCT in config/commission.ts).
 
+### Commission ladder
+
+| Phase | Model 1 «Assembly group» | Model 2 «Private group» | Model 3 «Ready-made tours» | Revisit trigger |
+|---|---|---|---|---|
+| **Phase A** (Элиста + scale-pilot regions) | **10%** | **10%** | **10%** | ≥5 active listings **AND** ≥3 real completed bookings → start Phase B |
+| **Phase B+** | **15%** | **15%** | **25%** | After Phase A unit-economics proof and payment gateway launch |
+
+Source of truth for product code: `COMMISSION_PCT` in `src/config/commission.ts`.
+Phase A marketing wedge: 10% vs Sputnik8 24%+ and vs Tripster effective-prepayment framing.
+Phase B+ model 3 rate (25%) reflects that ready-made tour guides are contractually bound to Tripster pricing parity — the platform takes margin from the fixed price rather than undercutting.
+Commission and payment flow entirely off-platform until Phase B+ payment gateway ships.
+
 Potential later monetization:
 
 - featured placement for guides;
