@@ -2,7 +2,6 @@ import type { DestinationOption } from "@/data/supabase/queries";
 
 import { COMMISSION_PCT } from "@/config/commission";
 import { HomepageRequestForm } from "./homepage-request-form";
-import TrustStrip from "@/components/shared/TrustStrip";
 
 interface Props {
   destinations: DestinationOption[];
@@ -21,7 +20,6 @@ export function HomepageHeroForm({ destinations }: Props) {
             {COMMISSION_PCT}%, остальное идёт гиду напрямую.
           </p>
           <HomepageRequestForm destinations={destinations} />
-          <TrustStrip className="mt-6" />
         </div>
       </div>
     </section>

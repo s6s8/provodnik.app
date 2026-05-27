@@ -10,6 +10,7 @@ import {
 } from "@/data/traveler-request/schema";
 import { THEMES } from "@/data/themes";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
+import TrustStrip from "@/components/shared/TrustStrip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -339,6 +340,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
       </div>
+      <TrustStrip className="mt-6" />
     </form>
   );
 }
