@@ -309,11 +309,11 @@ export function TravelerRequestCreateForm() {
         <FieldLabel htmlFor="notes">Пожелания (необязательно)</FieldLabel>
         <Textarea
           id="notes"
-          placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха…"
+          placeholder="Темп поездки, интересы, ограничения по здоровью, стиль отдыха. Если оформляете от компании — укажите название юрлица, ИНН и нужны ли счёт/акт или оплата по реквизитам."
           aria-invalid={Boolean(errors.notes)}
           {...register("notes")}
         />
-        <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
+        <FieldHint>Пишите коротко — детали можно уточнить после первых откликов. Для заказа от юрлица добавьте сюда название компании, ИНН и тип документов.</FieldHint>
         <FieldError id="notes-error" message={errors.notes?.message} />
       </div>
 

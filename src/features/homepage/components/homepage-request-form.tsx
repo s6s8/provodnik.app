@@ -323,10 +323,11 @@ export function HomepageRequestForm({ destinations }: Props) {
         <div className="grid gap-2 px-3 pb-3 pt-1">
           <Textarea
             id="notes"
+            placeholder="Пожелания, ограничения, формат отчётных документов. Если оформляете от компании — укажите название юрлица, ИНН и нужны ли счёт/акт или оплата по реквизитам."
             aria-invalid={Boolean(errors.notes)}
             {...register("notes")}
           />
-          <FieldHint>Пишите коротко — детали можно уточнить после первых откликов.</FieldHint>
+          <FieldHint>Пишите коротко — детали можно уточнить после первых откликов. Для заказа от юрлица добавьте сюда название компании, ИНН и тип документов.</FieldHint>
           <FieldError id="notes-error" message={errors.notes?.message} />
         </div>
       </details>
