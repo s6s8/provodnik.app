@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { revalidatePath } from "next/cache";
 
-import { getGuideReviewQueue } from "@/lib/supabase/moderation";
+import { Button } from "@/components/ui/button";
+import {
+  ensureOpenModerationCase,
+  getGuideReviewQueue,
+  performModerationAction,
+  requireAdminSession,
+} from "@/lib/supabase/moderation";
 
 export const metadata: Metadata = {
   title: "Очередь верификации",
@@ -46,6 +53,38 @@ function verificationLabel(status: string) {
   }
 }
 
+async function approveGuideAction(guideId: string) {
+  "use server";
+
+  const { adminId } = await requireAdminSession();
+  const moderationCase = await ensureOpenModerationCase({
+    subjectType: "guide_profile",
+    guideId,
+    queueReason: "Проверка анкеты гида",
+  });
+
+  await performModerationAction(moderationCase.id, adminId, "approve");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/guides");
+  revalidatePath(`/admin/guides/${guideId}`);
+}
+
+async function rejectGuideAction(guideId: string) {
+  "use server";
+
+  const { adminId } = await requireAdminSession();
+  const moderationCase = await ensureOpenModerationCase({
+    subjectType: "guide_profile",
+    guideId,
+    queueReason: "Проверка анкеты гида",
+  });
+
+  await performModerationAction(moderationCase.id, adminId, "reject");
+  revalidatePath("/admin/dashboard");
+  revalidatePath("/admin/guides");
+  revalidatePath(`/admin/guides/${guideId}`);
+}
+
 export default async function AdminGuidesPage() {
   const guides = await getGuideReviewQueue();
 
@@ -71,7 +110,7 @@ export default async function AdminGuidesPage() {
                 <th className="px-4 py-3 font-medium">Регионы</th>
                 <th className="px-4 py-3 font-medium">Статус</th>
                 <th className="px-4 py-3 font-medium">Отправлено</th>
-                <th className="px-4 py-3 font-medium">Детали</th>
+                <th className="px-4 py-3 font-medium">Действия</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -120,12 +159,46 @@ export default async function AdminGuidesPage() {
                       {formatDateTime(item.profile.updated_at)}
                     </td>
                     <td className="px-4 py-4">
-                      <Link
-                        href={`/admin/guides/${item.profile.user_id}`}
-                        className="text-sm font-medium text-primary"
-                      >
-                        Просмотреть
-                      </Link>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/admin/guides/${item.profile.user_id}`}>
+                            Просмотреть
+                          </Link>
+                        </Button>
+                        {item.profile.verification_status === "submitted" ? (
+                          <>
+                            <form
+                              action={approveGuideAction.bind(
+                                null,
+                                item.profile.user_id,
+                              )}
+                            >
+                              <Button
+                                type="submit"
+                                variant="secondary"
+                                size="sm"
+                                className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+                              >
+                                Одобрить
+                              </Button>
+                            </form>
+                            <form
+                              action={rejectGuideAction.bind(
+                                null,
+                                item.profile.user_id,
+                              )}
+                            >
+                              <Button
+                                type="submit"
+                                variant="destructive"
+                                size="sm"
+                              >
+                                Отклонить
+                              </Button>
+                            </form>
+                          </>
+                        ) : null}
+                      </div>
                     </td>
                   </tr>
                 );
