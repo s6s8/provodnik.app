@@ -227,9 +227,27 @@ export function OnboardingWizard({
           <>
             <CardHeader>
               <CardTitle>Профиль настроен!</CardTitle>
+              <CardDescription>
+                Что дальше — модерация и публикация
+              </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
               <Progress value={100} className="h-2" />
+              <div className="flex flex-col gap-2 rounded-[1rem] border border-border/60 bg-muted/40 px-4 py-3 text-sm">
+                <p className="font-medium text-foreground">
+                  Проверка занимает 1–2 рабочих дня
+                </p>
+                <p className="text-muted-foreground">
+                  После одобрения профиль становится виден путешественникам,
+                  объявления выходят в публичный поиск и вы начинаете получать
+                  заявки. До этого можно подготовить объявления — они будут
+                  опубликованы автоматически после прохождения проверки.
+                </p>
+                <p className="text-muted-foreground">
+                  Документы для верификации загружаются в разделе «Профиль» —
+                  без них модерация не запустится.
+                </p>
+              </div>
             </CardContent>
             <CardFooter className="justify-end border-t-0 bg-transparent pt-0">
               <Button
