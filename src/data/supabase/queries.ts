@@ -340,6 +340,22 @@ export function revealTravelerName(
   return bookingStatus === "confirmed" && trimmed ? trimmed : "Путешественник";
 }
 
+/**
+ * Mask a traveler's full name to "First L." for guide-side request detail.
+ * Gives the guide enough signal to assess seriousness while keeping last name
+ * and avatar hidden until booking is confirmed.
+ */
+function maskRequesterIdentity(fullName: string): { displayName: string; initials: string } {
+  const trimmed = fullName.trim();
+  if (!trimmed) return { displayName: "Путешественник", initials: "П" };
+  const parts = trimmed.split(/\s+/).filter(Boolean);
+  const first = parts[0] ?? "";
+  const lastInitial = parts[1]?.[0]?.toUpperCase() ?? "";
+  const displayName = lastInitial ? `${first} ${lastInitial}.` : first;
+  const initials = (first[0]?.toUpperCase() ?? "П") + (lastInitial || "");
+  return { displayName, initials };
+}
+
 function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
   const rawBudget = row.budget_minor as number | null | undefined;
@@ -642,11 +658,22 @@ export async function getRequestById(
 ): Promise<QueryResult<RequestRecord>> {
   try {
     const db = client;
-    const { data, error } = await db.from("traveler_requests").select("*").eq("id", id).maybeSingle();
+    const { data, error } = await db
+      .from("traveler_requests")
+      .select("*, profiles:traveler_id(full_name)")
+      .eq("id", id)
+      .maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
-    const record = mapRequestRow(data);
+    const profileRaw = (data as Record<string, unknown>).profiles as unknown;
+    const profile = Array.isArray(profileRaw)
+      ? (profileRaw[0] as Record<string, unknown> | undefined)
+      : (profileRaw as Record<string, unknown> | null);
+    const fullName = (profile?.full_name as string | undefined)?.trim() ?? "";
+    const { displayName, initials } = maskRequesterIdentity(fullName);
+
+    const record = mapRequestRow(data, displayName, initials);
     const membersMap = await fetchMembersForRequests(db, [id]);
     record.members = membersMap.get(id) ?? [];
     if (record.members.length > 0) record.groupSize = record.members.length;
