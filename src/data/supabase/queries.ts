@@ -292,7 +292,26 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
 
 function parseNotesJson(notes: string | null | undefined): Record<string, unknown> {
   if (!notes) return {};
-  try { return JSON.parse(notes) as Record<string, unknown>; } catch { return {}; }
+  try {
+    const parsed = JSON.parse(notes) as unknown;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Record<string, unknown>;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function getNotesPlainText(notes: string | null | undefined): string | null {
+  if (!notes) return null;
+  try {
+    const parsed = JSON.parse(notes);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) return null;
+    return notes;
+  } catch {
+    return notes;
+  }
 }
 
 function formatCategory(cat: string): string {
@@ -354,7 +373,11 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     budgetLabel,
     requesterName,
     requesterInitials,
-    description: (meta.description as string | null) ?? (row.description as string | null) ?? "",
+    description:
+      (meta.description as string | null) ??
+      getNotesPlainText(row.notes as string | null) ??
+      (row.description as string | null) ??
+      "",
     interests: Array.isArray(row.interests)
       ? (row.interests as string[]).filter((s) => (VALID_INTEREST_SLUGS as readonly string[]).includes(s))
       : [],
