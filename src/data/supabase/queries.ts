@@ -1085,7 +1085,8 @@ export async function getHomepageRequests(
 
     const ids = rows.map((r) => r.id as string);
 
-    const { data: offerRows } = await client
+    const adminDb = getPublicClient();
+    const { data: offerRows } = await adminDb
       .from("guide_offers")
       .select("request_id")
       .in("request_id", ids);
