@@ -2,6 +2,18 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { describe, beforeEach, expect, it, vi } from "vitest";
 
 const mockGetUser = vi.fn();
+const mockRouterRefresh = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    refresh: mockRouterRefresh,
+    push: vi.fn(),
+    replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+  }),
+}));
 
 vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: () => ({
@@ -62,5 +74,24 @@ describe("HomepageRequestForm onSubmit", () => {
     await waitFor(() => {
       expect(screen.getByTestId("auth-gate-open")).toBeInTheDocument();
     });
+  });
+});
+
+describe("HomepageRequestForm UI affordances", () => {
+  it("topic chip exposes aria-pressed reflecting selection state (bug 3d58789e)", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const historyChip = screen.getByRole("button", { name: /история/i });
+    expect(historyChip).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(historyChip);
+    expect(historyChip).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("renders total-budget hint computed from budget × group size (bug 22f86d82)", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    // Default: groupSize=2, budgetPerPersonRub=5000 → 10 000 ₽
+    const hint = document.getElementById("budgetPerPersonRub-total");
+    expect(hint).not.toBeNull();
+    expect(hint!.textContent).toMatch(/Итого/);
+    expect(hint!.textContent?.replace(/\s/g, "")).toMatch(/10000₽/);
   });
 });

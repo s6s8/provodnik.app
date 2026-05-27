@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { useForm, useController, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -27,6 +28,7 @@ interface Props {
 }
 
 export function HomepageRequestForm({ destinations }: Props) {
+  const router = useRouter();
   const [authGateOpen, setAuthGateOpen] = React.useState(false);
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
@@ -62,6 +64,8 @@ export function HomepageRequestForm({ destinations }: Props) {
 
   const mode = useWatch({ control, name: "mode" });
   const isAssembly = mode === "assembly";
+  const watchedGroupSize = useWatch({ control, name: "groupSize" });
+  const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
 
   async function submitWithFormData(fd: FormData) {
     setIsLoading(true);
@@ -118,6 +122,10 @@ export function HomepageRequestForm({ destinations }: Props) {
 
   const handleAuthSuccess = async () => {
     setAuthGateOpen(false);
+    // Refresh server components (SiteHeader, layout) so they pick up the new
+    // auth state — without this, mobile hamburger drawer keeps showing "Войти"
+    // after a successful in-page login (bug 5bcc6c22).
+    router.refresh();
     if (pendingFormData) {
       await submitWithFormData(pendingFormData);
       setPendingFormData(null);
@@ -257,7 +265,13 @@ export function HomepageRequestForm({ destinations }: Props) {
           min={1000}
           max={2000000}
           aria-invalid={Boolean(errors.budgetPerPersonRub)}
+          aria-describedby="budgetPerPersonRub-total"
           {...register("budgetPerPersonRub", { valueAsNumber: true })}
+        />
+        <TotalBudgetHint
+          id="budgetPerPersonRub-total"
+          perPerson={watchedBudgetPerPerson}
+          groupSize={watchedGroupSize}
         />
         <FieldError
           id="budgetPerPersonRub-error"
@@ -276,6 +290,7 @@ export function HomepageRequestForm({ destinations }: Props) {
               <button
                 key={theme.slug}
                 type="button"
+                aria-pressed={selected}
                 onClick={() => {
                   const current = interestsField.value;
                   const next = selected
@@ -286,7 +301,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                 className={cn(
                   "flex flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
                   selected
-                    ? "border-primary bg-primary/8 text-primary"
+                    ? "border-primary bg-primary/8 text-primary ring-2 ring-primary/40"
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",
                 )}
               >
@@ -363,4 +378,49 @@ function FieldError({ id, message }: { id: string; message?: string }) {
       {message}
     </p>
   );
+}
+
+function TotalBudgetHint({
+  id,
+  perPerson,
+  groupSize,
+}: {
+  id: string;
+  perPerson: number | undefined;
+  groupSize: number | undefined;
+}) {
+  const safePer =
+    typeof perPerson === "number" && Number.isFinite(perPerson) && perPerson > 0
+      ? perPerson
+      : 0;
+  const safeCount =
+    typeof groupSize === "number" && Number.isFinite(groupSize) && groupSize > 0
+      ? Math.floor(groupSize)
+      : 0;
+  if (safePer === 0 || safeCount === 0) {
+    return (
+      <p id={id} className="text-xs text-muted-foreground">
+        Укажите бюджет и размер группы, чтобы увидеть итоговую сумму.
+      </p>
+    );
+  }
+  const total = safePer * safeCount;
+  return (
+    <p
+      id={id}
+      className="text-xs text-muted-foreground"
+      aria-live="polite"
+    >
+      Итого: <span className="font-medium text-foreground">{total.toLocaleString("ru-RU")} ₽</span>
+      {" "}за группу из {safeCount} {pluralizePeople(safeCount)}.
+    </p>
+  );
+}
+
+function pluralizePeople(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "человек";
+  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "человека";
+  return "человек";
 }

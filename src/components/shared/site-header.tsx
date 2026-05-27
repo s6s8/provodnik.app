@@ -29,6 +29,7 @@ const navLinks = [
 
 const travelerNavLinks = [
   { href: "/traveler/requests", label: "Мои запросы" },
+  { href: "/requests", label: "Открытые группы" },
   { href: "/destinations", label: "Направления" },
 ] as const;
 
@@ -40,6 +41,7 @@ const guideNavLinks = [
 ] as const;
 
 const publicNavLinks = [
+  { href: "/requests", label: "Открытые группы" },
   { href: "/listings", label: "Готовые экскурсии" },
   { href: "/guides", label: "Гиды" },
   { href: "/how-it-works", label: "Как это работает" },
