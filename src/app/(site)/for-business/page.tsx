@@ -72,7 +72,7 @@ export default function ForBusinessPage() {
           <Card className="border-border/70 bg-card/80">
             <CardHeader className="space-y-1">
               <CardTitle className="text-base">
-                Чего ещё нет в MVP (но скоро будет)
+                Чего ещё нет (но скоро будет)
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm text-muted-foreground">

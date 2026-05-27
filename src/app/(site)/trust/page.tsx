@@ -90,7 +90,7 @@ export default function TrustPage() {
 
       <Card className="border-border/70 bg-card/80">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-base">Границы ответственности (MVP)</CardTitle>
+          <CardTitle className="text-base">Границы ответственности</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4 text-sm text-muted-foreground">
           <ul className="grid gap-2">
