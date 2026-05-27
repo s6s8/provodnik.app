@@ -181,6 +181,7 @@ export function HomepageRequestForm({ destinations }: Props) {
               <Input
                 id="endTime"
                 type="time"
+                placeholder="необязательно"
                 aria-invalid={Boolean(errors.endTime)}
                 {...register("endTime")}
               />
