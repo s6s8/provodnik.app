@@ -339,7 +339,7 @@ export function GuideRequestsInboxScreen() {
                   const showQaPanel = alreadyOffered && !!offerId;
                   return (
                     <div key={item.id} className="space-y-3">
-                      <div className="rounded-xl border border-border/70 bg-background/60 p-4">
+                      <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
                         {/* Card header */}
                         <div className="flex items-start gap-3">
                           <div
@@ -439,6 +439,13 @@ export function GuideRequestsInboxScreen() {
                               </Link>
                             </div>
                           )}
+                          <Link
+                            href={`/guide/inbox/${item.id}`}
+                            className="ml-auto text-sm font-medium text-primary underline-offset-2 hover:underline"
+                            aria-label={`Открыть полный запрос: ${item.requesterName}, ${item.destination}`}
+                          >
+                            Подробнее →
+                          </Link>
                         </div>
 
                         {/* Q&A panel — shown when guide has sent an offer */}
