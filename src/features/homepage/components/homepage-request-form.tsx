@@ -155,6 +155,7 @@ export function HomepageRequestForm({ destinations }: Props) {
         <FieldLabel>Когда</FieldLabel>
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="grid gap-2">
+            <FieldLabel htmlFor="startDate">Дата</FieldLabel>
             <Input
               id="startDate"
               type="date"
