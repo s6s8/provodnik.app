@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 
 import { INTEREST_CHIPS } from "@/data/interests";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
@@ -72,6 +73,8 @@ export function GuideRequestsInboxScreen() {
   );
   const [specializations, setSpecializations] = React.useState<string[]>([]);
   const [baseCity, setBaseCity] = React.useState<string | null>(null);
+  const [verificationStatus, setVerificationStatus] = React.useState<string | null>(null);
+  const isApproved = verificationStatus === "approved";
 
   React.useEffect(() => {
     let ignore = false;
@@ -87,12 +90,13 @@ export function GuideRequestsInboxScreen() {
     async function loadGuideProfileForGuide(guideId: string) {
       const { data } = await supabase
         .from("guide_profiles")
-        .select("specializations, base_city")
+        .select("specializations, base_city, verification_status")
         .eq("user_id", guideId)
         .maybeSingle();
       if (ignore) return;
       setSpecializations(Array.isArray(data?.specializations) ? data.specializations : []);
       setBaseCity(typeof data?.base_city === "string" && data.base_city.trim() !== "" ? data.base_city : null);
+      setVerificationStatus(typeof data?.verification_status === "string" ? data.verification_status : null);
     }
 
     async function loadInitial() {
@@ -414,7 +418,7 @@ export function GuideRequestsInboxScreen() {
                             <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
                               ✓ Предложение отправлено
                             </span>
-                          ) : (
+                          ) : isApproved ? (
                             <Button
                               variant="default"
                               size="sm"
@@ -422,6 +426,18 @@ export function GuideRequestsInboxScreen() {
                             >
                               Сделать предложение
                             </Button>
+                          ) : (
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Button variant="default" size="sm" disabled>
+                                Доступно после верификации
+                              </Button>
+                              <Link
+                                href="/guide/verification"
+                                className="text-xs text-primary underline-offset-2 hover:underline"
+                              >
+                                Пройти верификацию →
+                              </Link>
+                            </div>
                           )}
                         </div>
 

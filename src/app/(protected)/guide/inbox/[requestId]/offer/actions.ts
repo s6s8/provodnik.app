@@ -32,9 +32,8 @@ export async function submitOfferAction(
   try {
     const guideId = await getCurrentUserId();
 
-    // form-epic #7: verification gate. Block offer submission from
-    // non-verified guides. Read guide_profiles.verification_status —
-    // anything other than 'verified' / 'approved' is rejected.
+    // Verification gate. The enum is draft|submitted|approved|rejected; only
+    // 'approved' may submit offers. Mirrored by RLS policy guide_offers_insert.
     const supabaseAuth = await createSupabaseServerClient();
     const { data: guideProfile } = await supabaseAuth
       .from("guide_profiles")
@@ -42,9 +41,7 @@ export async function submitOfferAction(
       .eq("user_id", guideId)
       .maybeSingle();
 
-    const status = guideProfile?.verification_status as string | undefined;
-    const isVerified = status === "verified" || status === "approved";
-    if (!isVerified) {
+    if (guideProfile?.verification_status !== "approved") {
       return { error: "Доступно после верификации" };
     }
 
