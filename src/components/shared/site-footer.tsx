@@ -15,7 +15,8 @@ const projectLinks = [
 
 const supportLinks = [
   { href: "/trust", label: "Доверие и безопасность" },
-  { href: "mailto:support@provodnik.app", label: "Связаться с нами" },
+  { href: "https://t.me/provodnik_help", label: "Telegram-поддержка", external: true },
+  { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app" },
 ] as const;
 
 const policyLinks = [
@@ -97,14 +98,30 @@ export function SiteFooter() {
               Поддержка
             </p>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-              {supportLinks.map((link) => (
-                <li key={link.label}>
-                  <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
+              {supportLinks.map((link) =>
+                "external" in link && link.external ? (
+                  <li key={link.label}>
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="block text-sm text-white/60 transition-colors hover:text-white"
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ) : (
+                  <li key={link.label}>
+                    <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                      {link.label}
+                    </Link>
+                  </li>
+                ),
+              )}
             </ul>
+            <p className="mt-3 text-xs leading-relaxed text-white/45">
+              Отвечаем ежедневно, обычно в течение нескольких часов (с 9:00 до 22:00 МСК).
+            </p>
           </nav>
 
           <div>
