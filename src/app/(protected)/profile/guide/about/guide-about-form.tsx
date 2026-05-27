@@ -127,13 +127,16 @@ export function GuideAboutForm({
         <legend className="text-sm font-medium text-foreground">Языки проведения экскурсий</legend>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {LANGUAGES.map((lang) => (
-            <label key={lang} className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
+            <label
+              key={lang}
+              className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground cursor-pointer hover:bg-muted/50 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+            >
               <input
                 type="checkbox"
                 name="languages"
                 value={lang}
                 defaultChecked={initialLanguages.includes(lang)}
-                className="size-4 rounded border-border accent-primary"
+                className="size-5 rounded border-border accent-primary"
               />
               {lang}
             </label>
