@@ -116,6 +116,12 @@ export type AdminDashboardStats = {
   pendingListingReviews: number;
   openDisputes: number;
   totalBookings: number;
+  weeklyDelta: {
+    pendingGuideApplications: number;
+    pendingListingReviews: number;
+    openDisputes: number;
+    totalBookings: number;
+  };
 };
 
 type ReviewRow = {
@@ -953,12 +959,19 @@ export async function getPendingListingReviews(): Promise<ListingModerationRow[]
 export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   const { adminClient } = await requireAdminSession();
 
+  const weekAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
   const [
     pendingGuides,
     draftListings,
     openListingCases,
     openDisputes,
     totalBookings,
+    pendingGuidesWeek,
+    draftListingsWeek,
+    openListingCasesWeek,
+    openDisputesWeek,
+    totalBookingsWeek,
   ] = await Promise.all([
     adminClient
       .from("guide_profiles")
@@ -978,6 +991,31 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .select("id", { count: "exact", head: true })
       .eq("status", "open"),
     adminClient.from("bookings").select("id", { count: "exact", head: true }),
+    adminClient
+      .from("guide_profiles")
+      .select("user_id", { count: "exact", head: true })
+      .eq("verification_status", "submitted")
+      .gte("created_at", weekAgoIso),
+    adminClient
+      .from("listings")
+      .select("id")
+      .eq("status", "draft")
+      .gte("created_at", weekAgoIso),
+    adminClient
+      .from("moderation_cases")
+      .select("listing_id")
+      .eq("subject_type", "listing")
+      .eq("status", "open")
+      .gte("created_at", weekAgoIso),
+    adminClient
+      .from("disputes")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "open")
+      .gte("created_at", weekAgoIso),
+    adminClient
+      .from("bookings")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", weekAgoIso),
   ]);
 
   const pendingListingReviews = new Set([
@@ -987,11 +1025,24 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .filter(Boolean),
   ]).size;
 
+  const pendingListingReviewsWeek = new Set([
+    ...((draftListingsWeek.data ?? []) as Array<{ id: Uuid }>).map((item) => item.id),
+    ...((openListingCasesWeek.data ?? []) as Array<{ listing_id: Uuid | null }>)
+      .map((item) => item.listing_id)
+      .filter(Boolean),
+  ]).size;
+
   return {
     pendingGuideApplications: pendingGuides.count ?? 0,
     pendingListingReviews,
     openDisputes: openDisputes.count ?? 0,
     totalBookings: totalBookings.count ?? 0,
+    weeklyDelta: {
+      pendingGuideApplications: pendingGuidesWeek.count ?? 0,
+      pendingListingReviews: pendingListingReviewsWeek,
+      openDisputes: openDisputesWeek.count ?? 0,
+      totalBookings: totalBookingsWeek.count ?? 0,
+    },
   };
 }
 

@@ -48,21 +48,27 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {statCards.map((card) => (
-          <Link
-            key={card.key}
-            href={card.href}
-            className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
-          >
-            <div className="text-sm text-muted-foreground">{card.label}</div>
-            <div className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
-              {stats[card.key]}
-            </div>
-            <div className="mt-4 text-sm font-medium text-primary">
-              Открыть раздел
-            </div>
-          </Link>
-        ))}
+        {statCards.map((card) => {
+          const delta = stats.weeklyDelta[card.key];
+          return (
+            <Link
+              key={card.key}
+              href={card.href}
+              className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
+            >
+              <div className="text-sm text-muted-foreground">{card.label}</div>
+              <div className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
+                {stats[card.key]}
+              </div>
+              <div className="mt-2 text-xs text-muted-foreground">
+                {delta > 0 ? `+${delta}` : delta} за неделю
+              </div>
+              <div className="mt-4 text-sm font-medium text-primary">
+                Открыть раздел
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
