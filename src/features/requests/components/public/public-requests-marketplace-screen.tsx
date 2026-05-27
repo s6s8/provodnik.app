@@ -17,6 +17,50 @@ const CATEGORY_PILLS = [
 ] as const;
 type CategoryPill = (typeof CATEGORY_PILLS)[number];
 
+const MONTHS_GENITIVE = [
+  "января",
+  "февраля",
+  "марта",
+  "апреля",
+  "мая",
+  "июня",
+  "июля",
+  "августа",
+  "сентября",
+  "октября",
+  "ноября",
+  "декабря",
+] as const;
+
+const MONTHS_NOMINATIVE = [
+  "Январь",
+  "Февраль",
+  "Март",
+  "Апрель",
+  "Май",
+  "Июнь",
+  "Июль",
+  "Август",
+  "Сентябрь",
+  "Октябрь",
+  "Ноябрь",
+  "Декабрь",
+] as const;
+
+function deriveCityFromDestination(label: string): string {
+  return label.split(",")[0].trim();
+}
+
+function deriveMonthsFromDateLabel(label: string): number[] {
+  if (!label) return [];
+  const lower = label.toLowerCase();
+  const matched: number[] = [];
+  MONTHS_GENITIVE.forEach((m, idx) => {
+    if (lower.includes(m)) matched.push(idx);
+  });
+  return matched;
+}
+
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
   return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
@@ -28,16 +72,45 @@ interface Props {
 
 export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const [activeCategory, setActiveCategory] = useState<CategoryPill>("Все");
+  const [activeCity, setActiveCity] = useState<string>("Все");
+  const [activeMonth, setActiveMonth] = useState<number | "all">("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const requests = useMemo(() => initialData ?? [], [initialData]);
+
+  const cityOptions = useMemo(() => {
+    const set = new Set<string>();
+    requests.forEach((r) => {
+      const city = deriveCityFromDestination(r.destinationLabel);
+      if (city) set.add(city);
+    });
+    return ["Все", ...Array.from(set).sort((a, b) => a.localeCompare(b, "ru"))];
+  }, [requests]);
+
+  const monthOptions = useMemo(() => {
+    const set = new Set<number>();
+    requests.forEach((r) => {
+      deriveMonthsFromDateLabel(r.dateRangeLabel).forEach((m) => set.add(m));
+    });
+    return Array.from(set).sort((a, b) => a - b);
+  }, [requests]);
+
   const filteredRequests = useMemo(() => {
-    const requests = initialData ?? [];
     return requests.filter((r) => {
       if (
         searchQuery &&
         !r.destinationLabel.toLowerCase().includes(searchQuery.toLowerCase())
       ) {
         return false;
+      }
+      if (activeCity !== "Все") {
+        if (deriveCityFromDestination(r.destinationLabel) !== activeCity) {
+          return false;
+        }
+      }
+      if (activeMonth !== "all") {
+        const months = deriveMonthsFromDateLabel(r.dateRangeLabel);
+        if (!months.includes(activeMonth)) return false;
       }
       // Category filtering: for demo, "Все" shows all; others filter by keywords in destinationLabel / highlights
       if (activeCategory !== "Все") {
@@ -73,7 +146,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       }
       return true;
     });
-  }, [initialData, activeCategory, searchQuery]);
+  }, [requests, activeCategory, activeCity, activeMonth, searchQuery]);
 
   return (
     <div>
@@ -122,22 +195,86 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
       {/* Filter pills */}
       <section className="bg-surface py-5">
-        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          <div className="flex flex-wrap justify-center gap-2.5">
-            {CATEGORY_PILLS.map((pill) => (
-              <button
-                key={pill}
-                type="button"
-                className={`inline-flex cursor-pointer items-center rounded-full border px-4 py-[7px] text-sm font-medium transition-all ${
-                  activeCategory === pill
-                    ? "border-primary bg-primary text-white"
-                    : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
-                }`}
-                onClick={() => setActiveCategory(pill)}
-              >
-                {pill}
-              </button>
-            ))}
+        <div className="mx-auto flex w-full max-w-page flex-col gap-3 px-[clamp(20px,4vw,48px)]">
+          {cityOptions.length > 1 && (
+            <div className="flex flex-col gap-1.5">
+              <p className="px-1 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Город
+              </p>
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
+                {cityOptions.map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
+                      activeCity === city
+                        ? "border-primary bg-primary text-white"
+                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                    }`}
+                    onClick={() => setActiveCity(city)}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {monthOptions.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <p className="px-1 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                Месяц
+              </p>
+              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
+                <button
+                  type="button"
+                  className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
+                    activeMonth === "all"
+                      ? "border-primary bg-primary text-white"
+                      : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                  }`}
+                  onClick={() => setActiveMonth("all")}
+                >
+                  Все
+                </button>
+                {monthOptions.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
+                      activeMonth === m
+                        ? "border-primary bg-primary text-white"
+                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                    }`}
+                    onClick={() => setActiveMonth(m)}
+                  >
+                    {MONTHS_NOMINATIVE[m]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-1.5">
+            <p className="px-1 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              Тематика
+            </p>
+            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:justify-center md:overflow-visible">
+              {CATEGORY_PILLS.map((pill) => (
+                <button
+                  key={pill}
+                  type="button"
+                  className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-4 py-[7px] text-sm font-medium transition-all ${
+                    activeCategory === pill
+                      ? "border-primary bg-primary text-white"
+                      : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                  }`}
+                  onClick={() => setActiveCategory(pill)}
+                >
+                  {pill}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </section>
