@@ -40,6 +40,8 @@ export function UserAccountDrawer({
 }: UserAccountDrawerProps) {
   const avatarInitial = email ? email[0].toUpperCase() : "?";
   const displayName = email ?? "Гость";
+  const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
+  const settingsHref = role === "guide" ? "/guide/settings" : "/profile/personal";
 
   function handleLogout() {
     window.location.href = "/api/auth/signout";
@@ -72,7 +74,7 @@ export function UserAccountDrawer({
 
         <nav className="flex flex-col px-3 pt-3 flex-1" aria-label="Меню аккаунта">
           <Link
-            href="/guide/profile"
+            href={profileHref}
             onClick={closeAndNavigate}
             className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
           >
@@ -80,7 +82,7 @@ export function UserAccountDrawer({
             Мой профиль
           </Link>
           <Link
-            href="/guide/profile"
+            href={settingsHref}
             onClick={closeAndNavigate}
             className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
           >
