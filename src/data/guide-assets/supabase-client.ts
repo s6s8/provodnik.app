@@ -115,7 +115,7 @@ export async function ensureGuideDocumentReservations(
 
     const asset = await upsertStorageAsset({
       ownerId: guideId,
-      bucketId: "guide-media",
+      bucketId: "guide-documents",
       objectPath: `${guideId}/${blueprint.suffix}`,
       assetKind: "guide-document",
     });
