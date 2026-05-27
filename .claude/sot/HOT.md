@@ -261,3 +261,16 @@ Applies to any `position: fixed` element intended to cover the full page (modals
 ### AP-038 — Role for an auth decision: profile fallback is mandatory
 **Never** gate an auth decision (proxy, server action, client redirect) on `session.user.app_metadata?.role` alone. The JWT claim is stamped by `signUpAction` but NOT by seed scripts, admin tooling, direct DB inserts. Users created any other way have a valid `profiles.role` row but no JWT claim — half of your auth check trusts the JWT (says "no role, bounce"), the other half reads profiles (says "role is X, send to dashboard") → ERR_TOO_MANY_REDIRECTS in the browser (ERR-096).
 **Always** follow the role-source-of-truth pattern from `src/lib/auth/server-auth.ts` (`readAuthContextFromServer`): try `app_metadata.role` first (synchronous fast path), fall back to a one-shot `profiles.role` lookup when the JWT claim is absent or invalid. Replicate this fallback in EVERY new auth touchpoint. Audit existing ones: `grep -rn "app_metadata?\.role\|app_metadata\.role" src/`.
+
+---
+
+### AP-040 / ERR-100 / ID-005 — Layout regressions: fix the constraint, not the symptom
+**Never** chase a CSS/layout misalignment by adjusting downstream classes (`items-end`, `whitespace-nowrap`, `min-h`, smaller `text-*`, character-shaving the copy) when a previous fix made the regression appear. The pattern is recognisable in the cadence: each push fixes one shape and surfaces another in the same row. That means every fix is downstream of the actual constraint and is moving the problem rather than resolving it. ERR-100 (homepage Когда-row, 2026-05-27) took THREE pushes before the source — a nested `sm:grid-cols-2 + grid-cols-2` that allocated each time cell to ~¼ form width — was named instead of patched around.
+**Always** when a layout regression appears immediately after a fix, treat «the previous fix moved the problem» as the working hypothesis. Three diagnostic questions before touching any class:
+1. What allocates the horizontal/vertical space for the misaligned element?
+2. Is that allocation appropriate for the content the element must hold (longest label, longest value, max-error text)?
+3. Could the symptom-class (wrap, overflow, height mismatch) recur for any sibling in the same allocation?
+
+If yes to (3), the fix is downstream of the source. Restructure the allocation. Defensive classes (`sm:items-end` for differing label heights, etc.) belong **after** the restructure — as a safety net for future content changes, never as the primary fix.
+
+**Concrete form-row rule (ID-005):** multi-field rows under a section header use a single flat `sm:grid-cols-N` grid, not nested grids that pre-allocate a half/third. Optional/required markers go INSIDE the `<label>` text per Yale/HSBC accessibility guidance — a sibling `FieldHint` below the input adds variable cell height and breaks row alignment. Mentally compute `(formWidth - (N-1)*gap) / N` and confirm the longest label fits comfortably at `text-sm`; if marginal, the row will wrap unpredictably.

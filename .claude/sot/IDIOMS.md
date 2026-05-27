@@ -91,3 +91,66 @@ const displayRub = priceKopecks / 100;
 ```
 
 **Source of pain:** prior incidents on the offer-creation flow (HOT.md AP-012). Rules block diff if reintroduced via 13-consistency landmine check.
+
+---
+
+## ID-005 — Multi-field form rows: flat N-column grid, optional marker in the label
+
+When a section header (e.g. «Когда») introduces multiple peer fields that belong together (date + start time + end time, first name + last name + middle name, etc.), render the fields as siblings inside a single `sm:grid-cols-N` grid — NOT as a nested layout that pre-allocates horizontal space (`sm:grid-cols-2` outer with `grid-cols-2` inner).
+
+Nested grids force each leaf cell into a fraction of a fraction of the form width; a label one character too long for that narrow cell will wrap, dropping its input below its siblings.
+
+Optional/required markers go INSIDE the `<label>` text — `«Конец (необязательно)»`, not a sibling `<FieldHint>` below the input. Anything below the input adds variable cell height and breaks row alignment.
+
+```tsx
+// CORRECT — three peer fields, one flat grid, marker in the label
+<div className="grid gap-2">
+  <FieldLabel>Когда</FieldLabel>
+  <div className="grid gap-3 sm:grid-cols-3 sm:items-end sm:gap-2">
+    <div className="grid gap-2">
+      <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+      <Input id="startDate" type="date" {...register("startDate")} />
+      <FieldError id="startDate-error" message={errors.startDate?.message} />
+    </div>
+    <div className="grid gap-2">
+      <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+      <Input id="startTime" type="time" {...register("startTime")} />
+      <FieldError id="startTime-error" message={errors.startTime?.message} />
+    </div>
+    <div className="grid gap-2">
+      <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
+      <Input id="endTime" type="time" {...register("endTime")} />
+      <FieldError id="endTime-error" message={errors.endTime?.message} />
+    </div>
+  </div>
+</div>
+
+// WRONG — nested grid pre-allocates each time cell to ~1/4 width;
+// "Конец (необязательно)" wraps; Конец input drops below Начало
+<div className="grid gap-5 sm:grid-cols-2">
+  <div className="grid gap-2">
+    <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+    <Input id="startDate" type="date" {...register("startDate")} />
+  </div>
+  <div className="grid grid-cols-2 gap-2">
+    <div className="grid gap-2">
+      <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+      <Input id="startTime" type="time" {...register("startTime")} />
+    </div>
+    <div className="grid gap-2">
+      <FieldLabel htmlFor="endTime">Конец</FieldLabel>
+      <Input id="endTime" type="time" placeholder="необязательно" {...register("endTime")} />
+      <FieldHint>не обязательно</FieldHint>      {/* extra height — drifts row */}
+    </div>
+  </div>
+</div>
+```
+
+**Rules:**
+- One flat `sm:grid-cols-N` per row of peer fields. Mobile (no `sm:`) stacks vertically — no alignment problem to solve there.
+- `sm:items-end` as defensive fallback: if any future label change (i18n, asterisk, new copy) pushes one cell to 2 lines, inputs still bottom-align across the row. Documented Tailwind pattern.
+- Optional/required markers are part of the label text. WCAG/HSBC/Yale Dynamic Forms guidance — a sibling `FieldHint` or trailing paragraph is visually disconnectable and adds row-height variance.
+- Each cell carries its own `<FieldError>` AFTER the input — error text adds height in only one cell at a time, the `items-end` keeps inputs aligned while the error renders below.
+- Container width matters: at the form's actual rendered width, the longest label must fit on one line at `text-sm` inside an `N`-th-of-container cell. Mentally compute: `(formWidth - (N-1)*gap) / N` should comfortably exceed the longest label's pixel width. If marginal, the row will wrap unpredictably across browsers / font rendering.
+
+**Source of pain:** ERR-100 — three pushes to fix the same Когда-row alignment, each fix moving the symptom to a new shape because the constraint (nested narrow cells) was never touched. See AP-040 for the meta-rule about diagnosing symptom-vs-source on layout regressions.

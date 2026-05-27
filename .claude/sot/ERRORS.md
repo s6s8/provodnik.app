@@ -913,3 +913,21 @@ New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mj
 - **Files Affected:** `listings` table (2 rows) — `title` and `short_description` columns
 - **Date:** 2026-05-23 (surfaced)
 - **Prevention:** Seed scripts should declare encoding explicitly (UTF-8). After any bulk import, sanity-check a sample of rows by selecting and printing the values; mojibake on Russian text is visible at a glance.
+
+
+### ERR-100 → RESOLVED 2026-05-27 (provodnik `2c7cc67`)
+*detectedAt 2026-05-27T12:30Z · resolvedAt 2026-05-27T13:05Z · burned ~35min · recurrence first (class)*
+- **Symptom:** Homepage request form, «Когда» row — three time-related fields (Дата, Начало, Конец) rendered with the input boxes on different vertical baselines. Each fix attempt moved the problem to a new shape rather than resolving it:
+  1. First report: Дата input sat above the Начало/Конец inputs because Дата had no inner label while the time fields had labels.
+  2. Fix attempt 1 (`0fd0962`): added a `Дата` `FieldLabel`. All three inputs now had labels — alignment looked correct.
+  3. Second report: the trailing `<FieldHint>не обязательно</FieldHint>` under Конец added a line below the input, making the right cell taller; the right column visually drifted relative to the left.
+  4. Fix attempt 2 (`264d14a`): folded the optional marker into the label as `«Конец (необязательно)»`, removed the FieldHint. The right column was now equal-height to the left column — but at the ¼-of-form-width that the nested grid allocates each time cell, the longer label wrapped to 2 lines and the Конец input dropped below Начало.
+  5. Third report: «текст сдвинул бокс вниз — fix the source, not the symptom».
+- **Root Cause:** Nested grid layout in `src/features/homepage/components/homepage-request-form.tsx:156–193` — outer `sm:grid-cols-2` allocated 50 % of the row to Дата and 50 % split between Начало + Конец via an inner `grid-cols-2`. Each time cell was therefore ~¼ of the 672 px form container (~150 px). The longest label string fit borderline at that width; any character added pushed it over and the cell wrapped. Every alignment attempt that adjusted classes downstream of this constraint chased a symptom — the constraint itself (artificially narrow cell) was the source.
+- **Fix:** `2c7cc67` — flattened the nested grid. Дата / Начало / Конец are now siblings inside one `sm:grid-cols-3 sm:items-end sm:gap-2`. Each field gets ~⅓ of the form width (~215 px), `«Конец (необязательно)»` fits on one line, all three input boxes share the same baseline. `sm:items-end` is defensive — if any future label change pushes one cell to two lines, inputs still align at the row baseline. Mobile (<sm) stacks vertically with `gap-3`. Design doc at `docs/superpowers/specs/2026-05-27-homepage-form-kogda-row-alignment-design.md`.
+- **Files Affected:** `src/features/homepage/components/homepage-request-form.tsx` (single file, structural diff).
+- **Prevention:**
+  - Recognise the symptom-vs-source pattern: when a CSS regression appears immediately after a fix, the previous fix likely moved the problem rather than resolving it. The next fix should ask «what constraint produces this visual?» before reaching for `items-end`, `whitespace-nowrap`, `min-h`, or character-shaving the copy. See AP-040.
+  - Multi-field rows under a single section label use a flat N-column grid, not nested grids that pre-allocate horizontal space. See ID-005.
+  - Optional/required markers belong inside the `<label>` text per Yale Dynamic Forms + HSBC Accessibility Hub guidance (WCAG-aligned). A separate hint sibling adds variable cell height and breaks row alignment.
+- **Research:** Tailwind docs via context7 (`/tailwindlabs/tailwindcss.com`) — `sm:grid-cols-N` canonical responsive equal-width; `items-end` documented utility for differing-label-height rows. NN/g (date-input UX) — three independent date+time fields is a recognised pattern.

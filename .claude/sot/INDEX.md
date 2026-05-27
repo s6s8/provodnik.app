@@ -86,6 +86,7 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - ERR-096 — auth role-source split between JWT `app_metadata.role` and `profiles.role` caused redirect loop on non-signUpAction users (BUG-2; fixed 5fcbfbe + 5eef6f3)
 - ERR-097 — /admin/guides/[id] returns generic error page for all guides — likely one of the parallel data lookups in getGuideReviewDetail throws on incomplete data (OPEN; blocks visual verify of E-33 T2 Лицензии)
 - ERR-098 — two listing rows in /listings catalogue render Russian text as `?????` — non-UTF-8 encoding on title + short_description columns (OPEN; needs canonical Russian titles)
+- ERR-100 — homepage Когда-row alignment chased through three pushes (label add → hint→label fold → flat-grid restructure); each fix moved the symptom because nested `sm:grid-cols-2 + grid-cols-2` artificially narrowed time cells (RESOLVED 2026-05-27 `2c7cc67`) — see AP-040 + ID-005
 
 ## Anti-patterns (see ANTI_PATTERNS.md)
 
@@ -118,6 +119,7 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 
 - AP-038 — reading auth role from JWT app_metadata.role alone without profiles.role fallback (proxy + client login were both bound to JWT-only — half the system disagreed with server-auth) — see ERR-096
 - AP-039 — verification clicks on react-hook-form controlled inputs via JS document-level click() do not propagate to RHF state — false-positive screenshots
+- AP-040 — symptom-fixing a layout regression by adjusting downstream classes (items-end, whitespace-nowrap, character-shaving) instead of naming the constraint that produces the visual; when a CSS regression appears right after a fix, treat the previous fix as having moved the problem — see ERR-100, ID-005
 
 ## Decisions (see DECISIONS.md)
 
@@ -182,3 +184,12 @@ _Auto-extended (Phase 10.B) after each `/epic-done`. Captures empirical decompos
 - **AP-035** propagating an inherited canon/constant without examining whether it is correct -> ANTI_PATTERNS.md (2026-05-16)
 - **ERR-092** migration files in repo never applied to live DB (date_flexibility + search_guides_rpc); request creation + guide search were dead; supabase_migrations table unreliable -> ERRORS.md (2026-05-19)
 - **AP-036** valueAsNumber:true on an OPTIONAL react-hook-form numeric field — empty input → NaN → z.number().optional() rejects → submit silently blocked; use setValueAs -> ANTI_PATTERNS.md (2026-05-19)
+- **ERR-100 / AP-040 / ID-005** homepage Когда-row alignment chased through three pushes; nested `sm:grid-cols-2 + grid-cols-2` artificially narrowed each time cell; «Конец (необязательно)» wrapped. Source fix: flat `sm:grid-cols-3 sm:items-end`. Meta-rule: when a CSS regression appears right after a fix, name the constraint instead of adjusting downstream classes. -> ERRORS.md + ANTI_PATTERNS.md + IDIOMS.md (2026-05-27)
+
+## Idioms (see IDIOMS.md)
+
+- ID-001 — Additive Zod field migrations: new field is .optional() — otherwise every existing construct site breaks
+- ID-002 — z.enum from an `as const` array: spread to mutable + cast to explicit tuple type
+- ID-003 — react-hook-form: never hand-type the resolver; let `z.infer<typeof schema>` propagate
+- ID-004 — Money: `rubToKopecks` / `kopecksToRub` from `src/data/money.ts`, never inline ×100/÷100 (see AP-012 / ERR-025)
+- ID-005 — Multi-field form rows under a section label: flat `sm:grid-cols-N` (not nested grids), optional marker inside the `<label>` text, `sm:items-end` defensive (see ERR-100 / AP-040)
