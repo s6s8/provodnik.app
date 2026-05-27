@@ -44,6 +44,23 @@ export interface ConfirmedBookingSummary {
   booking_thread_id: string | null
 }
 
+export interface JoinedGroupSummary {
+  id: string
+  destination: string
+  region: string | null
+  starts_on: string
+  start_time: string | null
+  ends_on: string | null
+  budget_minor: number | null
+  participants_count: number
+  group_max: number | null
+  status: 'open' | 'booked' | 'cancelled' | 'expired'
+  joined_at: string
+  owner_id: string
+  owner_name: string | null
+  owner_avatar_url: string | null
+}
+
 // ---------------------------------------------------------------------------
 // Queries
 // ---------------------------------------------------------------------------
@@ -199,4 +216,71 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
       booking_thread_id: threadMap.get(b.id) ?? null,
     }
   })
+})
+
+/**
+ * Fetch open-group requests the traveler joined (excluding requests they own).
+ * Returns groups sorted by joined_at descending.
+ */
+export const getJoinedRequests = cache(async (travelerId: string): Promise<JoinedGroupSummary[]> => {
+  const supabase = await createSupabaseServerClient()
+
+  const { data: memberships, error: memberError } = await supabase
+    .from('open_request_members')
+    .select('request_id, joined_at, left_at, status')
+    .eq('traveler_id', travelerId)
+    .eq('status', 'joined')
+    .is('left_at', null)
+    .order('joined_at', { ascending: false })
+
+  if (memberError) throw memberError
+  if (!memberships || memberships.length === 0) return []
+
+  const requestIds = memberships.map((m) => m.request_id)
+  const { data: requests, error: reqError } = await supabase
+    .from('traveler_requests')
+    .select('id, traveler_id, destination, region, starts_on, start_time, ends_on, budget_minor, participants_count, group_capacity, status')
+    .in('id', requestIds)
+    .neq('traveler_id', travelerId)
+
+  if (reqError) throw reqError
+  if (!requests || requests.length === 0) return []
+
+  const ownerIds = [...new Set(requests.map((r) => r.traveler_id))]
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, full_name, avatar_url')
+    .in('id', ownerIds)
+
+  const profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
+  for (const p of profiles ?? []) {
+    profileMap.set(p.id, { full_name: p.full_name, avatar_url: p.avatar_url })
+  }
+
+  const joinedAtMap = new Map<string, string>()
+  for (const m of memberships) {
+    joinedAtMap.set(m.request_id, m.joined_at)
+  }
+
+  return requests
+    .map((r) => {
+      const owner = profileMap.get(r.traveler_id) ?? { full_name: null, avatar_url: null }
+      return {
+        id: r.id,
+        destination: r.destination,
+        region: r.region,
+        starts_on: r.starts_on,
+        start_time: r.start_time,
+        ends_on: r.ends_on,
+        budget_minor: r.budget_minor,
+        participants_count: r.participants_count,
+        group_max: r.group_capacity,
+        status: r.status as JoinedGroupSummary['status'],
+        joined_at: joinedAtMap.get(r.id) ?? '',
+        owner_id: r.traveler_id,
+        owner_name: owner.full_name,
+        owner_avatar_url: owner.avatar_url,
+      }
+    })
+    .sort((a, b) => b.joined_at.localeCompare(a.joined_at))
 })
