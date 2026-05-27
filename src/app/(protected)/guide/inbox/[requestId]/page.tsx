@@ -61,12 +61,18 @@ export default async function GuideRequestDetailPage({
   const competingOffers =
     typeof competingOffersData === "number" ? competingOffersData : 0;
 
+  const { data: viewsData } = await supabase.rpc("record_request_view", {
+    p_request_id: requestId,
+  });
+  const viewsCount = typeof viewsData === "number" ? viewsData : 0;
+
   return (
     <GuideRequestDetailScreen
       request={result.data}
       isApproved={isApproved}
       existingOfferId={existingOfferId}
       competingOffers={competingOffers}
+      viewsCount={viewsCount}
     />
   );
 }

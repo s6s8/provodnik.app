@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft, Users } from "lucide-react";
+import { ArrowLeft, Eye, Users } from "lucide-react";
 
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -34,6 +34,18 @@ interface Props {
   isApproved: boolean;
   existingOfferId: string | null;
   competingOffers: number;
+  viewsCount: number;
+}
+
+function formatViewsLabel(count: number): string {
+  if (count <= 0) return "Вы первый, кто открыл этот запрос";
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  let noun = "гидов";
+  if (mod10 === 1 && mod100 !== 11) noun = "гид";
+  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) noun = "гида";
+  const verb = noun === "гид" ? "посмотрел" : "посмотрели";
+  return `${count} ${noun} ${verb} этот запрос`;
 }
 
 function formatCompetingOffersLabel(count: number, hasOwnOffer: boolean): string {
@@ -57,6 +69,7 @@ export function GuideRequestDetailScreen({
   isApproved,
   existingOfferId,
   competingOffers,
+  viewsCount,
 }: Props) {
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
@@ -153,11 +166,17 @@ export function GuideRequestDetailScreen({
           </div>
 
           <div
-            className="flex items-center gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground"
+            className="flex flex-col gap-1.5 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground"
             aria-live="polite"
           >
-            <Users className="size-4 shrink-0" aria-hidden="true" />
-            <span>{formatCompetingOffersLabel(competingOffers, offerId !== null)}</span>
+            <div className="flex items-center gap-2">
+              <Eye className="size-4 shrink-0" aria-hidden="true" />
+              <span>{formatViewsLabel(viewsCount)}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Users className="size-4 shrink-0" aria-hidden="true" />
+              <span>{formatCompetingOffersLabel(competingOffers, offerId !== null)}</span>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
