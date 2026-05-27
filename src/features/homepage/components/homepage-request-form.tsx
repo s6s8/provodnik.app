@@ -178,15 +178,13 @@ export function HomepageRequestForm({ destinations }: Props) {
               <FieldError id="startTime-error" message={errors.startTime?.message} />
             </div>
             <div className="grid gap-2">
-              <FieldLabel htmlFor="endTime">Конец</FieldLabel>
+              <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
               <Input
                 id="endTime"
                 type="time"
-                placeholder="необязательно"
                 aria-invalid={Boolean(errors.endTime)}
                 {...register("endTime")}
               />
-              <FieldHint>не обязательно</FieldHint>
               <FieldError id="endTime-error" message={errors.endTime?.message} />
             </div>
           </div>
