@@ -153,7 +153,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 3. Когда — date + start time + end time */}
       <div className="grid gap-2">
         <FieldLabel>Когда</FieldLabel>
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3 sm:items-end sm:gap-2">
           <div className="grid gap-2">
             <FieldLabel htmlFor="startDate">Дата</FieldLabel>
             <Input
@@ -166,27 +166,25 @@ export function HomepageRequestForm({ destinations }: Props) {
             />
             <FieldError id="startDate-error" message={errors.startDate?.message} />
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="grid gap-2">
-              <FieldLabel htmlFor="startTime">Начало</FieldLabel>
-              <Input
-                id="startTime"
-                type="time"
-                aria-invalid={Boolean(errors.startTime)}
-                {...register("startTime")}
-              />
-              <FieldError id="startTime-error" message={errors.startTime?.message} />
-            </div>
-            <div className="grid gap-2">
-              <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
-              <Input
-                id="endTime"
-                type="time"
-                aria-invalid={Boolean(errors.endTime)}
-                {...register("endTime")}
-              />
-              <FieldError id="endTime-error" message={errors.endTime?.message} />
-            </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+            <Input
+              id="startTime"
+              type="time"
+              aria-invalid={Boolean(errors.startTime)}
+              {...register("startTime")}
+            />
+            <FieldError id="startTime-error" message={errors.startTime?.message} />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
+            <Input
+              id="endTime"
+              type="time"
+              aria-invalid={Boolean(errors.endTime)}
+              {...register("endTime")}
+            />
+            <FieldError id="endTime-error" message={errors.endTime?.message} />
           </div>
         </div>
       </div>
