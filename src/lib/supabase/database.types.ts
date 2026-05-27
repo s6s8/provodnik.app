@@ -3166,6 +3166,10 @@ export type Database = {
         Returns: boolean
       }
       clean_text_array: { Args: { input_array: string[] }; Returns: string[] }
+      count_competing_offers: {
+        Args: { p_request_id: string }
+        Returns: number
+      }
       current_profile_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]

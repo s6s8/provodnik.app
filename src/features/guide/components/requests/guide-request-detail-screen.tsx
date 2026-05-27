@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Users } from "lucide-react";
 
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -33,12 +33,30 @@ interface Props {
   request: RequestRecord;
   isApproved: boolean;
   existingOfferId: string | null;
+  competingOffers: number;
+}
+
+function formatCompetingOffersLabel(count: number, hasOwnOffer: boolean): string {
+  const others = hasOwnOffer ? Math.max(0, count - 1) : count;
+  if (others <= 0) {
+    return hasOwnOffer
+      ? "Вы пока единственный гид"
+      : "Пока ни одного предложения";
+  }
+  const mod10 = others % 10;
+  const mod100 = others % 100;
+  let noun = "гидов";
+  if (mod10 === 1 && mod100 !== 11) noun = "гид";
+  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) noun = "гида";
+  const verb = noun === "гид" ? "уже отправил предложение" : "уже отправили предложения";
+  return `${others} ${noun} ${verb}`;
 }
 
 export function GuideRequestDetailScreen({
   request,
   isApproved,
   existingOfferId,
+  competingOffers,
 }: Props) {
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
@@ -132,6 +150,14 @@ export function GuideRequestDetailScreen({
                 чтобы составить предложение.
               </p>
             )}
+          </div>
+
+          <div
+            className="flex items-center gap-2 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground"
+            aria-live="polite"
+          >
+            <Users className="size-4 shrink-0" aria-hidden="true" />
+            <span>{formatCompetingOffersLabel(competingOffers, offerId !== null)}</span>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
