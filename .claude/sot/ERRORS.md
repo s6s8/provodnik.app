@@ -915,6 +915,29 @@ New tests: `tests/lib/slugify.test.mjs` (11), `tests/lib/telegram-errors.test.mj
 - **Prevention:** Seed scripts should declare encoding explicitly (UTF-8). After any bulk import, sanity-check a sample of rows by selecting and printing the values; mojibake on Russian text is visible at a glance.
 
 
+### ERR-101 → OPEN 2026-05-27 (investigation: codex-ops/state/handoffs/provodnik/ru-block-investigation-2026-05-27.md)
+*detectedAt 2026-05-27T10:00Z · resolvedAt open · burned ~2h · recurrence first (class)*
+- **Symptom:** Operator reports `provodnik.app` blocked on Russian consumer mobile carriers (MTS / МегаФон / Tele2 / Yota / Билайн). check-host.net Russian datacenter nodes (AS14576 / AS210644 / AS41925) report 200 OK on HTTP, clean TCP/ping/DNS — so the block is exclusively at mobile-carrier ASNs, not at TSPU / Roskomnadzor zone-wide DPI.
+- **Root cause (verified):** NOT in RKN reestr. Scanned all 20 `zapret-info/z-i` `dump-NN.csv` shards (~240 MB) + `nxdomain.txt` (419 k entries) — zero matches for `provodnik.app`. Cloudflare-side infra clean: no custom firewall rules, no country block, no challenge fire (CF analytics: 78 RU requests / 0 challenges / 0 threats in last 12h). Cloudflare proxy IS in front of Vercel; public DNS returns CF anycast IPs (104.21.x / 172.67.x / 188.114.x). Block must be carrier-side heuristic blocklist that extends the official RKN list — common pattern; no formal appeal channel.
+- **Reversible actions applied (Cloudflare + Vercel APIs via codex-ops creds):**
+  1. **Hygiene** — apex A `216.198.79.1` → CNAME `8bedfda87d4e9d89.vercel-dns-017.com` (Vercel project-specific dynamic; future-proof against Vercel IP rotation). `min_tls_version: 1.0 → 1.2`. `always_use_https: off → on`.
+  2. **Three diagnostic subdomains** — `m.provodnik.app`, `app.provodnik.app`, `ru.provodnik.app` added as CF DNS records (proxied) + Vercel project aliases. All three return 200 OK from RU datacenter nodes. Awaiting real-mobile-phone test on MTS / МегаФон / Tele2 to determine whether the block is exact-match on the apex (subdomains work as bypass) or zone-wide (subdomains also blocked).
+- **Alternative-mirror domain candidates** (WHOIS-verified):
+  - `provodnikapp.ru` — AVAILABLE
+  - `provodnik-app.ru` — AVAILABLE
+  - `provodnik.ru` — TAKEN (paid till 2027-07-23, on Beget)
+  - `provodnik.com` — TAKEN (until 2027-03-12, GoDaddy/Uniregistry)
+  - `gid-provodnik.ru` + `gidprovodnik.ru` — TAKEN but **expire 2026-07-03** (drop-catch candidates)
+  .ru TLD is RKN-jurisdictional which paradoxically makes carriers less likely to pre-block (RKN can act via the registrar directly).
+- **What does NOT work for this scenario:** Cloudflare ECH (blocked by RKN since 2024-11 on the cloudflare-ech.com outer-SNI pattern). Disabling CF proxy (exposes Vercel anycast which is also RKN-listed for collateral reasons). Switching CF IPs (CF anycast pool — we don't control which IP serves us). Country-level CF settings (already not the source — verified 0 challenges).
+- **Files / changes:** Cloudflare zone `0d1b7915cd6835771405517c25b56f57` (apex CNAME record id `e99f079b1d715a3bb31b826e71cc748b` + 3 subdomain records). Vercel project `prj_WBNvzwKSevjzBjxc6leMguThRdoe` (3 new domain aliases). Investigation artefacts: `D:\dev2\projects\quantumbek\tmp\ru-probe\` (RKN dump shards, check-host.net JSON responses, CF API outputs).
+- **Prevention notes for future:**
+  - When a Russian-audience product is on Vercel, put **Cloudflare proxy in front** (already done here) AND register a parallel `.ru` mirror from day one — `.ru` carries jurisdictional friction that consumer carriers handle differently from `.app` / `.com` / `.io`.
+  - The official `zapret-info/z-i` GitHub mirror is the authoritative public RKN reestr; scan it before assuming "we're blocked by RKN" — carrier-side blocks often look identical but have no formal appeal channel.
+  - When a forum post says "Vercel is blocked in Russia, change a setting" — verify the user's setup first. If Cloudflare is already in front, the Vercel-IP-block guidance is a category mismatch and doesn't apply.
+- **Date opened:** 2026-05-27. Pending real-mobile-phone verification.
+
+
 ### ERR-100 → RESOLVED 2026-05-27 (provodnik `2c7cc67`)
 *detectedAt 2026-05-27T12:30Z · resolvedAt 2026-05-27T13:05Z · burned ~35min · recurrence first (class)*
 - **Symptom:** Homepage request form, «Когда» row — three time-related fields (Дата, Начало, Конец) rendered with the input boxes on different vertical baselines. Each fix attempt moved the problem to a new shape rather than resolving it:
