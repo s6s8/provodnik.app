@@ -47,6 +47,9 @@ const nextConfig: NextConfig = {
     return [
       { source: "/policies/cancellation", destination: "/trust", permanent: false },
       { source: "/policies/refunds", destination: "/trust", permanent: false },
+      { source: "/login", destination: "/auth", permanent: true },
+      { source: "/signin", destination: "/auth", permanent: true },
+      { source: "/signup", destination: "/auth", permanent: true },
       { source: "/sign-in", destination: "/auth", permanent: true },
       { source: "/sign-up", destination: "/auth", permanent: true },
       { source: "/forgot-password", destination: "/auth/forgot-password", permanent: true },
