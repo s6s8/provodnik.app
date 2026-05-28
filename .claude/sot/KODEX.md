@@ -406,11 +406,11 @@ components. Внутри try{} блоков данных — Supabase client д�
 [scope] Leave all old/unused fields untouched in the form epic; drop them via a separate cleanup ticket after 1 week of prod stability.
 [scope] Do not delete group_capacity; the new form writes maxGroupSize into it when the travelers checkbox is enabled.
 [scope] Store commission rate as a product-config constant in config/commission.ts — not environment-specific.
-[scope] Use env NEXT_PUBLIC_PHASE_A_CITY=Элиста for city default; enables Phase A→B city switch without redeploy.
+[scope] Use env NEXT_PUBLIC_PHASE_A_CITY=Москва for city default; enables Phase A→B city switch without redeploy.
 [decomposition] Alex's cleanup items (1, 4, 5, 8) and bug 7 go into a separate cleanup epic, not the form epic.
 [scope] CommissionBadge text built from constant: '${100-COMMISSION_PCT}% идёт гиду · ${COMMISSION_PCT}% наша комиссия'.
 [scope] When travelers checkbox is unchecked: set group_capacity=null and format_preference=private.
-[scope] Read NEXT_PUBLIC_PHASE_A_CITY via a clientside helper; fallback to 'Элиста' if the variable is not set.
+[scope] Read NEXT_PUBLIC_PHASE_A_CITY via a clientside helper; fallback to 'Москва' if the variable is not set.
 [process] Ticket #3 has a soft dependency on #1 (imports COMMISSION_PCT); merge #1 first or ship both in the same PR.
 [verification] Browser-check for all tickets = existing Playwright plus manual smoke on preview deploy; do not add new test frameworks.
 [decomposition] Ticket #5 stays size M and must not be split — merge, toggle, and conditional input are one conceptual feature.

@@ -78,6 +78,12 @@ describe("HomepageRequestForm onSubmit", () => {
 });
 
 describe("HomepageRequestForm UI affordances", () => {
+  it("defaults the destination input to «Москва» on first render", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const input = screen.getByLabelText(/куда хотите/i) as HTMLInputElement;
+    expect(input.value).toBe("Москва");
+  });
+
   it("topic chip exposes aria-pressed reflecting selection state (bug 3d58789e)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const historyChip = screen.getByRole("button", { name: /история/i });
