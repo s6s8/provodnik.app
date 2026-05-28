@@ -1,3 +1,7 @@
+import {
+  EmptyCabinet,
+  type Inspiration,
+} from '../empty-cabinet/empty-cabinet'
 import { groupTripsByPhase } from '../trip-card/group-by-phase'
 import type { TripPhase } from '../trip-card/trip-card-types'
 import { CabinetSection } from './cabinet-section'
@@ -11,6 +15,7 @@ interface Props {
   activeRequests: TravelerRequestSummary[]
   confirmedBookings: ConfirmedBookingSummary[]
   joinedGroups?: JoinedGroupSummary[]
+  inspirations?: Inspiration[]
 }
 
 const phaseOrder: TripPhase[] = [
@@ -32,8 +37,14 @@ const phaseLabels: Record<TripPhase, string> = {
 export function TravelerRequestsScreen({
   activeRequests,
   confirmedBookings,
+  inspirations = [],
 }: Props) {
   const trips = groupTripsByPhase({ activeRequests, confirmedBookings })
+  const hasTrips = phaseOrder.some((phase) => trips[phase].length > 0)
+
+  if (!hasTrips) {
+    return <EmptyCabinet inspirations={inspirations} />
+  }
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
