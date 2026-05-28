@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { COMMISSION_PCT } from "@/config/commission";
-
 export const metadata: Metadata = {
   title: "Стать гидом",
 };
 
 const VALUE_PROPS = [
   {
-    title: `${100 - COMMISSION_PCT}% дохода вам — комиссия только ${COMMISSION_PCT}%`,
+    title: "Большая часть дохода остаётся вам",
     description:
       "Вы оставляете себе большую часть выручки. Никаких скрытых сборов и платных подписок.",
   },
