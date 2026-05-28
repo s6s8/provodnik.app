@@ -1,10 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 
+const { createSupabaseServerClientMock } = vi.hoisted(() => ({
+  createSupabaseServerClientMock: vi.fn(),
+}));
+
 vi.mock("@/lib/notifications/triggers", () => ({
   notifyNewOffer: vi.fn(),
 }));
 
-import { checkOfferAgainstLocks } from "./actions";
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: createSupabaseServerClientMock,
+}));
+
+import { checkOfferAgainstLocks, submitOfferAction } from "./actions";
 
 const baseRequest = {
   date_locked: true,
@@ -62,5 +70,31 @@ describe("checkOfferAgainstLocks", () => {
     });
 
     expect("ok" in result && result.ok).toBe(true);
+  });
+});
+
+describe("submitOfferAction", () => {
+  it("rejects unverified guide profiles before submitting an offer", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { verification_status: "draft" },
+    });
+    const eq = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ eq });
+    const from = vi.fn().mockReturnValue({ select });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getSession: vi.fn().mockResolvedValue({
+          data: { session: { user: { id: "guide-1" } } },
+        }),
+      },
+      from,
+    });
+
+    const result = await submitOfferAction("request-1", new FormData());
+
+    expect(result).toEqual({ error: "Доступно после верификации" });
+    expect(from).toHaveBeenCalledWith("guide_profiles");
+    expect(eq).toHaveBeenCalledWith("user_id", "guide-1");
   });
 });
