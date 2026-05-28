@@ -19,6 +19,7 @@ type ProfileLite = {
   id: Uuid;
   full_name: string | null;
   email: string | null;
+  avatar_url: string | null;
 };
 
 export type ModerationSubjectType = "guide_profile" | "listing" | "review";
@@ -212,7 +213,7 @@ async function requireAdminSession() {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, role, full_name, email")
+    .select("id, role, full_name, email, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -227,6 +228,7 @@ async function requireAdminSession() {
       id: profile.id as Uuid,
       full_name: profile.full_name ?? null,
       email: profile.email ?? null,
+      avatar_url: profile.avatar_url ?? null,
     } satisfies ProfileLite,
     adminClient: createSupabaseAdminClient(),
   };
@@ -261,7 +263,7 @@ async function getProfilesByIds(
 
   const { data, error } = await adminClient
     .from("profiles")
-    .select("id, full_name, email")
+    .select("id, full_name, email, avatar_url")
     .in("id", ids);
 
   if (error) throw error;

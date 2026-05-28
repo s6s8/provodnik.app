@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRussianDateRange, todayMoscowISODate } from "@/lib/dates";
@@ -70,24 +71,35 @@ export default async function AdminGuideDetailPage({
     detail.account?.email ||
     "Без имени";
   const today = todayMoscowISODate();
+  const avatarProfile = {
+    full_name: detail.account?.full_name ?? null,
+    avatar_url: detail.account?.avatar_url ?? null,
+  };
 
   return (
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="space-y-2">
-          <Link href="/admin/guides" className="text-sm font-medium text-primary">
-            Назад к очереди гидов
-          </Link>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            {displayName}
-          </h1>
-          <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-            <span>{detail.account?.email ?? "Email не указан"}</span>
-            <span>{detail.profile.regions.join(", ") || "Регионы не указаны"}</span>
-            <span>{detail.profile.languages.join(", ") || "Языки не указаны"}</span>
-            <span className={verificationBadgeClass(detail.profile.verification_status)}>
-              {verificationLabel(detail.profile.verification_status)}
-            </span>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+          <ProfileAvatar
+            profile={avatarProfile}
+            size={64}
+            className="border border-border/70 text-xl text-foreground shadow-card"
+          />
+          <div className="space-y-2">
+            <Link href="/admin/guides" className="text-sm font-medium text-primary">
+              Назад к очереди гидов
+            </Link>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
+              {displayName}
+            </h1>
+            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+              <span>{detail.account?.email ?? "Email не указан"}</span>
+              <span>{detail.profile.regions.join(", ") || "Регионы не указаны"}</span>
+              <span>{detail.profile.languages.join(", ") || "Языки не указаны"}</span>
+              <span className={verificationBadgeClass(detail.profile.verification_status)}>
+                {verificationLabel(detail.profile.verification_status)}
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -96,6 +108,15 @@ export default async function AdminGuideDetailPage({
         <section className="space-y-6">
           <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <h2 className="text-lg font-semibold text-foreground">Профиль</h2>
+            <div className="mt-4">
+              <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                Описание
+              </div>
+              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">
+                {detail.profile.bio ?? "Гид пока не добавил описание."}
+              </p>
+            </div>
+
             <dl className="mt-4 grid gap-4 md:grid-cols-2">
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -107,10 +128,28 @@ export default async function AdminGuideDetailPage({
               </div>
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Базовый город
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {detail.profile.base_city ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   Стаж
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
                   {detail.profile.years_experience ?? 0} лет
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Языки
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {Array.isArray(detail.profile.languages) && detail.profile.languages.length > 0
+                    ? detail.profile.languages.join(", ")
+                    : "—"}
                 </dd>
               </div>
               <div>
@@ -125,10 +164,12 @@ export default async function AdminGuideDetailPage({
               </div>
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                  Базовый город
+                  Регионы
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {detail.profile.base_city ?? "—"}
+                  {Array.isArray(detail.profile.regions) && detail.profile.regions.length > 0
+                    ? detail.profile.regions.join(", ")
+                    : "—"}
                 </dd>
               </div>
               <div>
@@ -140,15 +181,6 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
             </dl>
-
-            <div className="mt-6">
-              <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                Описание
-              </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">
-                {detail.profile.bio ?? "Гид пока не добавил описание."}
-              </p>
-            </div>
           </div>
 
           <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
