@@ -84,6 +84,14 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(input.value).toBe("Москва");
   });
 
+  it("defaults start and end time inputs to 12:00 (bk-task-03)", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const startTime = document.getElementById("startTime") as HTMLInputElement;
+    const endTime = document.getElementById("endTime") as HTMLInputElement;
+    expect(startTime.value).toBe("12:00");
+    expect(endTime.value).toBe("12:00");
+  });
+
   it("topic chip exposes aria-pressed reflecting selection state (bug 3d58789e)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const historyChip = screen.getByRole("button", { name: /история/i });
