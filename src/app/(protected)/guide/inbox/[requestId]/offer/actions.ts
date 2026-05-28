@@ -12,6 +12,54 @@ import type { SubmitOfferResult } from "./actions-types";
 
 export type { SubmitOfferResult } from "./actions-types";
 
+export type LockEnforcementRequest = {
+  date_locked?: boolean | null;
+  time_locked?: boolean | null;
+  starts_on: string;
+  start_time: string | null;
+  end_time: string | null;
+};
+
+type LockEnforcementResult = { ok: true } | { error: string };
+
+const MSK_OFFSET_MS = 3 * 60 * 60 * 1000;
+
+function toMoscowIsoParts(value: string | undefined) {
+  if (!value) return null;
+
+  const time = new Date(value).getTime();
+  if (Number.isNaN(time)) return null;
+
+  const moscowIso = new Date(time + MSK_OFFSET_MS).toISOString();
+  return {
+    date: moscowIso.slice(0, 10),
+    time: moscowIso.slice(11, 16),
+  };
+}
+
+export async function checkOfferAgainstLocks(args: {
+  startsAt: string | undefined;
+  endsAt: string | undefined;
+  request: LockEnforcementRequest;
+}): Promise<LockEnforcementResult> {
+  const startsAt = toMoscowIsoParts(args.startsAt);
+  const endsAt = toMoscowIsoParts(args.endsAt);
+
+  if (args.request.date_locked && startsAt?.date !== args.request.starts_on) {
+    return { error: "Турист просит строго эту дату." };
+  }
+
+  if (
+    args.request.time_locked &&
+    (startsAt?.time !== args.request.start_time?.slice(0, 5) ||
+      endsAt?.time !== args.request.end_time?.slice(0, 5))
+  ) {
+    return { error: "Турист просит строго это время." };
+  }
+
+  return { ok: true };
+}
+
 async function getCurrentUserId(): Promise<string> {
   const supabase = await createSupabaseServerClient();
   const {
@@ -105,6 +153,26 @@ export async function submitOfferAction(
       return { error: first?.message ?? "Ошибка валидации." };
     }
 
+    const { data: requestRow } = await supabaseAuth
+      .from("traveler_requests")
+      .select("traveler_id, date_locked, time_locked, starts_on, start_time, end_time")
+      .eq("id", requestId)
+      .maybeSingle();
+
+    if (!requestRow) {
+      return { error: "Заявка не найдена." };
+    }
+
+    const lockCheck = await checkOfferAgainstLocks({
+      startsAt: parsed.data.starts_at ?? undefined,
+      endsAt: parsed.data.ends_at ?? undefined,
+      request: requestRow,
+    });
+
+    if ("error" in lockCheck) {
+      return { error: lockCheck.error };
+    }
+
     const offer = await createGuideOffer(parsed.data, guideId);
 
     try {
@@ -114,13 +182,6 @@ export async function submitOfferAction(
     }
 
     try {
-      const supabase = await createSupabaseServerClient();
-      const { data: requestRow } = await supabase
-        .from("traveler_requests")
-        .select("traveler_id")
-        .eq("id", requestId)
-        .maybeSingle();
-
       if (requestRow?.traveler_id && requestRow.traveler_id !== guideId) {
         await getOrCreateThread("offer", offer.id, guideId, [
           requestRow.traveler_id as string,
