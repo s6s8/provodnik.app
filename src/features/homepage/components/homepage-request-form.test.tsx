@@ -94,4 +94,21 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(hint!.textContent).toMatch(/Итого/);
     expect(hint!.textContent?.replace(/\s/g, "")).toMatch(/10000₽/);
   });
+
+  it("renders the assembly checkbox with the new label and no explanation", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    expect(
+      screen.getByLabelText("Открыт к увеличению группы"),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/попутчиков/i)).toBeNull();
+    expect(screen.queryByText(/−10%/)).toBeNull();
+    expect(screen.queryByText(/сдвиг группы/i)).toBeNull();
+  });
+
+  it("does not render «До скольких готов добрать» field", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    // Toggle assembly checkbox on
+    fireEvent.click(screen.getByLabelText("Открыт к увеличению группы"));
+    expect(screen.queryByLabelText(/До скольких готов добрать/i)).toBeNull();
+  });
 });

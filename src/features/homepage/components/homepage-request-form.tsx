@@ -45,7 +45,6 @@ export function HomepageRequestForm({ destinations }: Props) {
       endTime: "",
       groupSize: 2,
       groupSizeCurrent: 1,
-      groupMax: undefined,
       allowGuideSuggestionsOutsideConstraints: true,
       budgetPerPersonRub: 5000,
       notes: "",
@@ -94,7 +93,6 @@ export function HomepageRequestForm({ destinations }: Props) {
     fd.set("groupSize", String(count));
     if (values.mode === "assembly") {
       fd.set("groupSizeCurrent", String(count));
-      if (values.groupMax) fd.set("groupMax", String(values.groupMax));
     }
     // form-epic #14: bug 7 fix — do NOT push allowGuideSuggestionsOutsideConstraints
     // through FormData. The column may be absent from prod schema cache;
@@ -227,32 +225,10 @@ export function HomepageRequestForm({ destinations }: Props) {
           />
           <span className="flex flex-col gap-0.5 text-sm">
             <span className="font-medium text-foreground">
-              Беру попутчиков, чтобы разделить цену −10%
-            </span>
-            <span className="text-xs text-muted-foreground">
-              Гиды смогут предлагать близкие даты, небольшой сдвиг группы и другой темп.
+              Открыт к увеличению группы
             </span>
           </span>
         </label>
-
-        {isAssembly && (
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="groupMax">До скольких готов добрать</FieldLabel>
-            <Input
-              id="groupMax"
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={50}
-              placeholder="необязательно"
-              aria-invalid={Boolean(errors.groupMax)}
-              {...register("groupMax", {
-                setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
-              })}
-            />
-            <FieldError id="groupMax-error" message={errors.groupMax?.message} />
-          </div>
-        )}
       </div>
 
       {/* 5. Бюджет на человека (₽) */}
