@@ -4,6 +4,10 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PersonalSettingsForm } from "@/features/profile/components/PersonalSettingsForm";
+import {
+  TravelerProfileForm,
+  type TravelerProfile,
+} from "@/features/profile/components/traveler-profile-form";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideProfileRow } from "@/lib/supabase/types";
@@ -63,19 +67,26 @@ export default async function PersonalSettingsPage() {
 
   if (auth.role === "traveler") {
     const avatar = await fetchAvatar(auth.userId, auth.email ?? "Путешественник");
+    const travelerProfile: TravelerProfile = {
+      full_name: avatar.name,
+      avatar_url: avatar.url,
+      bio: null,
+      home_city: null,
+      languages: null,
+      birth_year: null,
+    };
+
     return (
       <div className="space-y-6">
-        <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
         <div className="space-y-2">
           <Badge variant="outline">Кабинет путешественника</Badge>
           <h1 className="text-3xl font-semibold tracking-tight text-foreground">
             Профиль
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Редактирование профиля путешественника в разработке.
-          </p>
         </div>
-        <Button asChild>
+        <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
+        <TravelerProfileForm profile={travelerProfile} />
+        <Button asChild variant="outline">
           <Link href="/traveler/requests">Мои запросы</Link>
         </Button>
       </div>
