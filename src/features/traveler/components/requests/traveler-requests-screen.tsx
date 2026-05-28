@@ -1,6 +1,6 @@
-import { TripCard } from '../trip-card/trip-card'
 import { groupTripsByPhase } from '../trip-card/group-by-phase'
-import type { TripCardModel, TripPhase } from '../trip-card/trip-card-types'
+import type { TripPhase } from '../trip-card/trip-card-types'
+import { CabinetSection } from './cabinet-section'
 import type {
   TravelerRequestSummary,
   ConfirmedBookingSummary,
@@ -29,29 +29,6 @@ const phaseLabels: Record<TripPhase, string> = {
   completed: 'Завершённые',
 }
 
-function Section({
-  phase,
-  label,
-  trips,
-}: {
-  phase: TripPhase
-  label: string
-  trips: TripCardModel[]
-}) {
-  return (
-    <section className="space-y-3">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        {label}
-      </h2>
-      <div className="grid gap-3">
-        {trips.map((trip) => (
-          <TripCard key={trip.id} phase={phase} trip={trip} />
-        ))}
-      </div>
-    </section>
-  )
-}
-
 export function TravelerRequestsScreen({
   activeRequests,
   confirmedBookings,
@@ -65,7 +42,7 @@ export function TravelerRequestsScreen({
         if (phaseTrips.length === 0) return null
 
         return (
-          <Section
+          <CabinetSection
             key={phase}
             phase={phase}
             label={phaseLabels[phase]}
