@@ -95,9 +95,63 @@ export function TripCard({
     <article className="rounded-lg border bg-card p-4">
       <TripPhoto phase={phase} trip={trip} />
       <h3 className="text-lg font-medium">{trip.destination}</h3>
+      {!trip.isOwnRequest && trip.organizerName && (
+        <p className="text-sm">
+          Сборная группа · организатор: {trip.organizerName}
+        </p>
+      )}
       {shouldShowMeetingPoint(phase, trip.startsOn) && meetingPoint && (
         <p className="text-sm">{meetingPoint}</p>
       )}
+      {phase === "upcoming" &&
+        trip.routeStops &&
+        trip.routeStops.length >= 3 && (
+          <>
+            <div className="flex gap-1">
+              {trip.routeStops.slice(0, 3).map((stop, i) => (
+                <Image
+                  key={i}
+                  unoptimized
+                  src={stop.photoUrl}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="size-12 rounded object-cover"
+                />
+              ))}
+            </div>
+            {trip.inclusions && (
+              <p className="text-sm">
+                Что входит: {trip.inclusions.join(", ")}
+              </p>
+            )}
+            {trip.guideName && (
+              <div className="flex items-center gap-2">
+                {trip.guideAvatarUrl && (
+                  <Image
+                    unoptimized
+                    src={trip.guideAvatarUrl}
+                    alt=""
+                    width={32}
+                    height={32}
+                    className="size-8 rounded-full object-cover"
+                  />
+                )}
+                <span>{trip.guideName}</span>
+              </div>
+            )}
+            <button type="button">Написать гиду</button>
+            {trip.price && (
+              <p>{(trip.price.amount / 100).toLocaleString("ru-RU")} ₽</p>
+            )}
+          </>
+        )}
+      {phase === "completed" &&
+        (trip.hasReview ? (
+          <p>Ваш отзыв · ★ {trip.reviewRating}</p>
+        ) : (
+          <button type="button">Оставить отзыв</button>
+        ))}
     </article>
   );
 }

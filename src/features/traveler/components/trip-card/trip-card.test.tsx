@@ -138,4 +138,63 @@ describe("TripCard", () => {
     );
     expect(screen.getByText("ул. Ленина, 1")).toBeInTheDocument();
   });
+
+  it("renders 6 booking elements on 'upcoming' with a confirmed offer", () => {
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{
+          ...baseTrip,
+          routeStops: [
+            { photoUrl: "/r1.jpg" },
+            { photoUrl: "/r2.jpg" },
+            { photoUrl: "/r3.jpg" },
+          ],
+          inclusions: ["трансфер", "обед", "входные билеты"],
+          guideName: "Алдар Б.",
+          guideAvatarUrl: "/a/aldar.jpg",
+          price: { amount: 300000, currency: "RUB" },
+        }}
+      />,
+    );
+    expect(screen.getByText(/трансфер/)).toBeInTheDocument();
+    expect(screen.getByText("Алдар Б.")).toBeInTheDocument();
+    expect(screen.getByText(/Написать гиду/)).toBeInTheDocument();
+  });
+
+  it("shows organizer line for a joined-assembly card", () => {
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{
+          ...baseTrip,
+          isOwnRequest: false,
+          organizerName: "Мария К.",
+        }}
+      />,
+    );
+    expect(
+      screen.getByText("Сборная группа · организатор: Мария К."),
+    ).toBeInTheDocument();
+  });
+
+  it("shows «Оставить отзыв» for completed without review", () => {
+    render(
+      <TripCard
+        phase="completed"
+        trip={{ ...baseTrip, hasReview: false }}
+      />,
+    );
+    expect(screen.getByText("Оставить отзыв")).toBeInTheDocument();
+  });
+
+  it("shows «Ваш отзыв · ★ N» for completed with review", () => {
+    render(
+      <TripCard
+        phase="completed"
+        trip={{ ...baseTrip, hasReview: true, reviewRating: 5 }}
+      />,
+    );
+    expect(screen.getByText("Ваш отзыв · ★ 5")).toBeInTheDocument();
+  });
 });
