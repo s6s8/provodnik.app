@@ -84,6 +84,14 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(input.value).toBe("Москва");
   });
 
+  it("renders the language multi-select labelled «Языки экскурсии» (bk-task-05)", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    expect(screen.getByText(/Языки экскурсии/i)).toBeInTheDocument();
+    // canonical list — at minimum Russian + Hindi must be selectable
+    expect(screen.getByLabelText("Русский")).toBeInTheDocument();
+    expect(screen.getByLabelText("Хинди")).toBeInTheDocument();
+  });
+
   it("defaults start and end time inputs to 12:00 (bk-task-03)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const startTime = document.getElementById("startTime") as HTMLInputElement;

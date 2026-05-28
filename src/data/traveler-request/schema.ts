@@ -14,6 +14,7 @@ export const travelerRequestSchema = z
         z.enum(THEMES.map((t) => t.slug) as [ThemeSlug, ...ThemeSlug[]]),
       )
       .min(1, { message: "Выберите хотя бы одну категорию" }),
+    requestedLanguages: z.array(z.string()).default([]),
     destination: z
       .string()
       .trim()
@@ -97,3 +98,4 @@ export const travelerRequestSchema = z
   });
 
 export type TravelerRequest = z.infer<typeof travelerRequestSchema>;
+export type TravelerRequestInput = z.input<typeof travelerRequestSchema>;

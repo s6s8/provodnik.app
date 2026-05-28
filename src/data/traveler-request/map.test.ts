@@ -9,6 +9,7 @@ const baseRow: TravelerRequestRow = {
   destination: "Москва, Россия",
   region: "Россия",
   interests: [],
+  requested_languages: [],
   starts_on: "2026-07-20",
   ends_on: null,
   start_time: null,

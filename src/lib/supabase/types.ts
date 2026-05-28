@@ -158,6 +158,7 @@ export type TravelerRequestRow = {
   destination: string;
   region: string | null;
   interests: string[];
+  requested_languages: string[];
   starts_on: string;
   ends_on: string | null;
   budget_minor: number | null;

@@ -33,6 +33,9 @@ export function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestR
     request: {
       mode,
       interests: (Array.isArray(row.interests) ? row.interests : []) as TravelerRequest["interests"],
+      requestedLanguages: Array.isArray(row.requested_languages)
+        ? row.requested_languages
+        : [],
       destination: row.destination,
       startDate: row.starts_on,
       dateFlexibility: row.date_flexibility,

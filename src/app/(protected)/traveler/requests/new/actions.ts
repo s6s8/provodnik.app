@@ -24,6 +24,7 @@ export async function buildRequestInsertPayload(
   return {
     destination: input.destination,
     interests: input.interests,
+    requested_languages: input.requestedLanguages ?? [],
     starts_on: input.startDate,
     ends_on: input.startDate,
     date_flexibility: input.dateFlexibility ?? "exact",
@@ -50,6 +51,7 @@ export async function createRequestAction(
   const raw = {
     mode,
     interests: formData.getAll("interests[]").map(String),
+    requestedLanguages: formData.getAll("requested_languages[]").map(String),
     destination: (formData.get("destination") as string) ?? "",
     startDate: (formData.get("startDate") as string) ?? "",
     dateFlexibility: (formData.get("dateFlexibility") as string) || "exact",

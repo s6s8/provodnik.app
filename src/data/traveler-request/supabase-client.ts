@@ -43,6 +43,9 @@ function mapRowToRecord(row: TravelerRequestRow): TravelerRequestRecord {
     request: {
       mode,
       interests: (Array.isArray(row.interests) ? row.interests : []) as TravelerRequest["interests"],
+      requestedLanguages: Array.isArray(row.requested_languages)
+        ? row.requested_languages
+        : [],
       destination: row.destination,
       startDate: row.starts_on,
       dateFlexibility: row.date_flexibility,
@@ -63,7 +66,7 @@ export async function listTravelerRequestsFromSupabase(): Promise<
   const { data, error } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
+      "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
     )
     .order("updated_at", { ascending: false });
 
@@ -81,7 +84,7 @@ export async function getTravelerRequestByIdFromSupabase(
   const { data, error } = await supabase
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
+      "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_flexibility",
     )
     .eq("id", id)
     .maybeSingle();

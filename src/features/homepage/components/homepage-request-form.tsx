@@ -7,8 +7,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import {
   travelerRequestSchema,
+  type TravelerRequestInput,
   type TravelerRequest,
 } from "@/data/traveler-request/schema";
+import { LANGUAGES } from "@/data/languages";
 import { THEMES } from "@/data/themes";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 import TrustStrip from "@/components/shared/TrustStrip";
@@ -22,6 +24,7 @@ import type { DestinationOption } from "@/data/supabase/queries";
 import { HomepageAuthGate } from "./homepage-auth-gate";
 
 type FormValues = TravelerRequest;
+type FormInput = TravelerRequestInput;
 
 interface Props {
   destinations: DestinationOption[];
@@ -34,11 +37,12 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [allowGuideSuggestions, setAllowGuideSuggestions] = React.useState(false);
-  const form = useForm<FormValues>({
+  const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
       mode: "private",
       interests: [] as TravelerRequest["interests"],
+      requestedLanguages: [],
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
       startDate: "",
       dateFlexibility: "exact",
@@ -61,6 +65,10 @@ export function HomepageRequestForm({ destinations }: Props) {
   } = form;
 
   const { field: interestsField } = useController({ control, name: "interests" });
+  const { field: requestedLanguagesField } = useController({
+    control,
+    name: "requestedLanguages",
+  });
 
   const mode = useWatch({ control, name: "mode" });
   const isAssembly = mode === "assembly";
@@ -83,6 +91,9 @@ export function HomepageRequestForm({ destinations }: Props) {
     fd.set("mode", values.mode);
     for (const i of values.interests) {
       fd.append("interests[]", i);
+    }
+    for (const language of values.requestedLanguages) {
+      fd.append("requested_languages[]", language);
     }
     fd.set("destination", values.destination);
     fd.set("startDate", values.startDate);
@@ -243,7 +254,43 @@ export function HomepageRequestForm({ destinations }: Props) {
         </label>
       </div>
 
-      {/* 5. Бюджет на человека (₽) */}
+      {/* 5. Языки экскурсии */}
+      <fieldset className="grid gap-2">
+        <legend className="text-sm font-medium text-foreground">
+          Языки экскурсии (необязательно)
+        </legend>
+        <p className="text-xs text-muted-foreground">
+          Если важен конкретный язык — выберите. Иначе гиды любых языков смогут откликнуться.
+        </p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+          {LANGUAGES.map((language) => {
+            const requestedLanguages = requestedLanguagesField.value ?? [];
+            const selected = requestedLanguages.includes(language);
+            return (
+              <label
+                key={language}
+                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted/50 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+              >
+                <input
+                  type="checkbox"
+                  value={language}
+                  checked={selected}
+                  onChange={() => {
+                    const next = selected
+                      ? requestedLanguages.filter((item) => item !== language)
+                      : [...requestedLanguages, language];
+                    requestedLanguagesField.onChange(next);
+                  }}
+                  className="size-5 rounded border-border accent-primary"
+                />
+                {language}
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
+
+      {/* 6. Бюджет на человека (₽) */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
         <Input
@@ -267,7 +314,7 @@ export function HomepageRequestForm({ destinations }: Props) {
         />
       </div>
 
-      {/* 6. Темы */}
+      {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
         <div className="grid grid-cols-2 gap-2">
@@ -301,7 +348,7 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 7. Пожелания — expandable «+ Добавить детали», collapsed by default */}
+      {/* 8. Пожелания — expandable «+ Добавить детали», collapsed by default */}
       <details className="group rounded-xl border border-input bg-background open:bg-muted/30">
         <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-foreground select-none [&::-webkit-details-marker]:hidden">
           <span aria-hidden="true" className="text-base leading-none group-open:hidden">+</span>
@@ -336,7 +383,7 @@ export function HomepageRequestForm({ destinations }: Props) {
         onAuthSuccess={handleAuthSuccess}
       />
 
-      {/* 8. Sticky submit button */}
+      {/* 9. Sticky submit button */}
       <div className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-8">
         <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}

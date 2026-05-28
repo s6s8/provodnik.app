@@ -26,6 +26,7 @@ export const createRequestInputSchema = z
       .min(2, "Укажите направление (минимум 2 символа).")
       .max(80, "Направление не должно превышать 80 символов."),
     interests: z.array(z.string()).default([]),
+    requested_languages: z.array(z.string()).default([]),
     starts_on: z.string().min(1, "Укажите дату начала."),
     ends_on: z.string().min(1, "Укажите дату окончания."),
     budget_minor: z
@@ -118,7 +119,7 @@ export type TravelerRequest = TravelerRequestRow;
 // ---------------------------------------------------------------------------
 
 const SELECT_COLS =
-  "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window";
+  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -142,6 +143,7 @@ export async function createTravelerRequest(
       destination: input.destination,
       region: input.region ?? null,
       interests: input.interests,
+      requested_languages: input.requested_languages ?? [],
       starts_on: input.starts_on,
       ends_on: input.ends_on,
       budget_minor: input.budget_minor ?? null,

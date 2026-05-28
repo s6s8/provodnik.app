@@ -6,6 +6,7 @@ import { useForm, useWatch, useController } from "react-hook-form";
 import type { z } from "zod";
 
 import { travelerRequestSchema } from "@/data/traveler-request/schema";
+import type { TravelerRequest } from "@/data/traveler-request/schema";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,17 +15,19 @@ import { todayMoscowISODate } from "@/lib/dates";
 import { cn } from "@/lib/utils";
 import { INTEREST_CHIPS } from "@/data/interests";
 
-type RequestFormValues = z.infer<typeof travelerRequestSchema>;
+type RequestFormInput = z.input<typeof travelerRequestSchema>;
+type RequestFormValues = TravelerRequest;
 
 export function TravelerRequestCreateForm() {
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isPending, startTransition] = React.useTransition();
 
-  const form = useForm<RequestFormValues>({
+  const form = useForm<RequestFormInput, unknown, RequestFormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
       mode: "assembly",
       interests: [] as RequestFormValues["interests"],
+      requestedLanguages: [],
       destination: "",
       startDate: "",
       dateFlexibility: "exact",
@@ -67,6 +70,9 @@ export function TravelerRequestCreateForm() {
       const fd = new FormData();
       fd.set("mode", values.mode);
       for (const i of values.interests) { fd.append("interests[]", i); }
+      for (const language of values.requestedLanguages) {
+        fd.append("requested_languages[]", language);
+      }
       fd.set("destination", values.destination);
       fd.set("startDate", values.startDate);
       fd.set("dateFlexibility", values.dateFlexibility ?? "exact");

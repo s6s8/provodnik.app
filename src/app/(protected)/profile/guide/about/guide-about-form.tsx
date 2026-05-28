@@ -2,31 +2,9 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
+import { LANGUAGES } from "@/data/languages";
 import { InterestChipGroup } from "@/features/shared/components/interest-chip-group";
 import { saveGuideAboutAction } from "./actions";
-
-const LANGUAGES = [
-  "Русский",
-  "Английский",
-  "Немецкий",
-  "Французский",
-  "Испанский",
-  "Итальянский",
-  "Китайский",
-  "Японский",
-  "Арабский",
-  "Португальский",
-  "Польский",
-  "Чешский",
-  "Финский",
-  "Шведский",
-  "Норвежский",
-  "Датский",
-  "Нидерландский",
-  "Турецкий",
-  "Корейский",
-  "Хинди",
-] as const;
 
 interface GuideAboutFormProps {
   initialBio: string;

@@ -21,6 +21,7 @@ const baseInput: TravelerRequest = {
   groupMax: undefined,
   allowGuideSuggestionsOutsideConstraints: true,
   budgetPerPersonRub: 5000,
+  requestedLanguages: [],
   notes: "",
 };
 
@@ -67,5 +68,18 @@ describe("buildRequestInsertPayload", () => {
     );
 
     expect(payload.budget_minor).toBe(500_000);
+  });
+
+  it("passes requested_languages through to the insert payload", async () => {
+    const payload = await buildRequestInsertPayload(
+      { ...baseInput, requestedLanguages: ["Хинди", "Английский"] },
+      { allowGuideSuggestions: true },
+    );
+    expect(payload.requested_languages).toEqual(["Хинди", "Английский"]);
+  });
+
+  it("defaults requested_languages to [] when omitted", async () => {
+    const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
+    expect(payload.requested_languages).toEqual([]);
   });
 });

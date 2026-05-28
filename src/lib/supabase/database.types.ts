@@ -2759,6 +2759,7 @@ export type Database = {
           open_to_join: boolean
           participants_count: number
           region: string | null
+          requested_languages: string[]
           start_time: string | null
           starts_on: string
           status: Database["public"]["Enums"]["request_status"]
@@ -2787,6 +2788,7 @@ export type Database = {
           open_to_join?: boolean
           participants_count?: number
           region?: string | null
+          requested_languages?: string[]
           start_time?: string | null
           starts_on: string
           status?: Database["public"]["Enums"]["request_status"]
@@ -2815,6 +2817,7 @@ export type Database = {
           open_to_join?: boolean
           participants_count?: number
           region?: string | null
+          requested_languages?: string[]
           start_time?: string | null
           starts_on?: string
           status?: Database["public"]["Enums"]["request_status"]
