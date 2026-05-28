@@ -171,7 +171,6 @@ export function BidFormPanel({
   const dateShifted = (excursionDate ?? "") !== travelerDate;
   const timeShifted =
     ((startTimeVal ?? "") !== (request.startTime ?? "") || (endTimeVal ?? "") !== (request.endTime ?? ""));
-  const countShifted = count !== travelerCount;
 
   const budgetCeilingPerPerson = request.budgetRub > 0 ? request.budgetRub : undefined;
 
@@ -423,10 +422,7 @@ export function BidFormPanel({
 
           {/* Количество человек */}
           <div className="grid gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-foreground">Количество человек</label>
-              {countShifted ? <ProposedBadge /> : null}
-            </div>
+            <label className="text-sm font-medium text-foreground">Количество человек</label>
             <input
               type="number"
               inputMode="numeric"

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -105,5 +105,23 @@ describe("BidFormPanel — date/time locks", () => {
     expect(
       screen.getByText("турист открыт к близким датам и времени"),
     ).toBeInTheDocument();
+  });
+});
+
+describe("BidFormPanel — headcount field", () => {
+  it("does not render the «предложено» badge when headcount changes", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, groupSize: 4 }}
+        onClose={() => {}}
+      />,
+    );
+
+    fireEvent.change(screen.getAllByRole("spinbutton")[0], {
+      target: { value: "5" },
+    });
+
+    expect(screen.queryByText(/предложено/i)).toBeNull();
   });
 });
