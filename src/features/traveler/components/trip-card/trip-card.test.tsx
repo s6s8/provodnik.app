@@ -26,4 +26,67 @@ describe("TripCard", () => {
     render(<TripCard phase={phase} trip={baseTrip} />);
     expect(screen.getByText("Элиста")).toBeInTheDocument();
   });
+
+  it("renders the accepted-offer route photo for phase 'upcoming'", () => {
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{
+          ...baseTrip,
+          routeStops: [{ photoUrl: "/photos/route1.jpg" }],
+        }}
+      />,
+    );
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/photos/route1.jpg",
+    );
+  });
+
+  it("renders mosaic of 3 thumbs for phase 'awaiting_decision'", () => {
+    render(
+      <TripCard
+        phase="awaiting_decision"
+        trip={{
+          ...baseTrip,
+          topOffersPhotos: ["/o1.jpg", "/o2.jpg", "/o3.jpg"],
+        }}
+      />,
+    );
+    expect(screen.getAllByRole("img")).toHaveLength(3);
+  });
+
+  it("fills mosaic with greyed placeholders when fewer offers", () => {
+    render(
+      <TripCard
+        phase="awaiting_decision"
+        trip={{ ...baseTrip, topOffersPhotos: ["/o1.jpg"] }}
+      />,
+    );
+    expect(screen.getAllByTestId(/photo-slot/)).toHaveLength(3);
+  });
+
+  it("renders destination city photo for phase 'waiting_offers'", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{ ...baseTrip, destinationCityPhotoUrl: "/cities/elista.jpg" }}
+      />,
+    );
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/cities/elista.jpg",
+    );
+  });
+
+  it("falls back to a grey block when waiting_offers has no city photo", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{ ...baseTrip, destinationCityPhotoUrl: null }}
+      />,
+    );
+    expect(screen.queryByRole("img")).toBeNull();
+    expect(screen.getByTestId("photo-fallback")).toBeInTheDocument();
+  });
 });
