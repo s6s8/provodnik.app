@@ -287,15 +287,11 @@ export function BidFormPanel({
         {/* Request context (readonly) */}
         <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            {request.mode === "assembly" ? (
-              <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-500">
-                Сборная группа
-              </span>
-            ) : (
-              <span className="inline-flex items-center rounded-full bg-muted/60 px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                Своя группа
-              </span>
-            )}
+            <p className="text-sm text-muted-foreground">
+              {request.mode === "assembly"
+                ? "К запросу могут присоединяться другие путешественники"
+                : `Группа закрытая — только ${request.groupSize} человек`}
+            </p>
             {request.interests.length > 0 ? (
               <span className="text-xs text-muted-foreground">
                 {request.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
