@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Input } from "@/components/ui/input";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
@@ -143,12 +143,10 @@ export function PublicGuidesGrid({
                 className="block rounded-card bg-surface-high p-6 text-inherit no-underline shadow-card transition-transform hover:-translate-y-[3px]"
               >
                 <div className="mb-4 flex items-center gap-4">
-                  <Avatar className="size-14">
-                    <AvatarImage src={guide.avatarUrl ?? undefined} alt={guide.fullName} />
-                    <AvatarFallback className="bg-surface-low text-base font-semibold text-primary">
-                      {guide.initials}
-                    </AvatarFallback>
-                  </Avatar>
+                  <ProfileAvatar
+                    profile={{ full_name: guide.fullName, avatar_url: guide.avatarUrl ?? null }}
+                    size={56}
+                  />
                   <div>
                     <p className="text-base font-semibold text-on-surface">{guide.fullName}</p>
                     <p className="text-[0.8125rem] text-on-surface-muted">{guide.homeBase}</p>
