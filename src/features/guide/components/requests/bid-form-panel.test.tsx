@@ -77,3 +77,33 @@ describe("BidFormPanel — mode line", () => {
     expect(screen.queryByText(/^Своя группа$/)).toBeNull();
   });
 });
+
+describe("BidFormPanel — date/time locks", () => {
+  it("disables date and time fields when date_locked/time_locked are true", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, date_locked: true, time_locked: true }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(screen.getByLabelText(/Дата/)).toBeDisabled();
+    expect(screen.getByLabelText(/Время начала/)).toBeDisabled();
+    expect(screen.getByText("турист просит строго эту дату")).toBeInTheDocument();
+  });
+
+  it("shows hint above date when both locks are off", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, date_locked: false, time_locked: false }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(
+      screen.getByText("турист открыт к близким датам и времени"),
+    ).toBeInTheDocument();
+  });
+});

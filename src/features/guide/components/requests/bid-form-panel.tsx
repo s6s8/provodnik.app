@@ -5,7 +5,7 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { X } from "lucide-react";
+import { Lock, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
@@ -123,6 +123,9 @@ export function BidFormPanel({
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
+  const dateLocked = request.date_locked ?? true;
+  const timeLocked = request.time_locked ?? true;
+  const bothOpen = !dateLocked && !timeLocked;
 
   React.useEffect(() => {
     async function load() {
@@ -343,13 +346,36 @@ export function BidFormPanel({
             </div>
           )}
 
+          {bothOpen ? (
+            <p className="mb-1 text-sm text-muted-foreground">
+              турист открыт к близким датам и времени
+            </p>
+          ) : null}
+
           {/* Когда: date */}
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium text-foreground">Дата</label>
               {dateShifted ? <ProposedBadge /> : null}
             </div>
-            <input type="date" className={FIELD_CLASS} disabled={submitted} {...register("excursion_date")} />
+            <div className="relative">
+              <input
+                type="date"
+                aria-label="Дата"
+                className={`${FIELD_CLASS} pr-10`}
+                disabled={submitted || dateLocked}
+                {...register("excursion_date")}
+              />
+              {dateLocked ? (
+                <Lock
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                />
+              ) : null}
+            </div>
+            {dateLocked ? (
+              <p className="text-xs text-muted-foreground">турист просит строго эту дату</p>
+            ) : null}
           </div>
 
           {/* Когда: time start → end */}
@@ -359,9 +385,40 @@ export function BidFormPanel({
               {timeShifted ? <ProposedBadge /> : null}
             </div>
             <div className="flex items-center gap-2">
-              <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_start_time")} />
-              <input type="time" className={`${FIELD_CLASS} flex-1`} disabled={submitted} {...register("excursion_end_time")} />
+              <div className="relative flex-1">
+                <input
+                  type="time"
+                  aria-label="Время начала"
+                  className={`${FIELD_CLASS} pr-10`}
+                  disabled={submitted || timeLocked}
+                  {...register("excursion_start_time")}
+                />
+                {timeLocked ? (
+                  <Lock
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  />
+                ) : null}
+              </div>
+              <div className="relative flex-1">
+                <input
+                  type="time"
+                  aria-label="Время окончания"
+                  className={`${FIELD_CLASS} pr-10`}
+                  disabled={submitted || timeLocked}
+                  {...register("excursion_end_time")}
+                />
+                {timeLocked ? (
+                  <Lock
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  />
+                ) : null}
+              </div>
             </div>
+            {timeLocked ? (
+              <p className="text-xs text-muted-foreground">турист просит строго это время</p>
+            ) : null}
           </div>
 
           {/* Количество человек */}

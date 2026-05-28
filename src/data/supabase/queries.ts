@@ -83,6 +83,8 @@ export type RequestRecord = {
   endsOn?: string | null;
   startTime?: string | null;
   endTime?: string | null;
+  date_locked?: boolean;
+  time_locked?: boolean;
   groupSize: number;
   capacity: number;
   budgetRub: number;
@@ -383,6 +385,8 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     endsOn: (row.ends_on as string | null) ?? null,
     startTime: row.start_time ? (row.start_time as string).slice(0, 5) : null,
     endTime: row.end_time ? (row.end_time as string).slice(0, 5) : null,
+    date_locked: (row.date_locked as boolean | null) ?? undefined,
+    time_locked: (row.time_locked as boolean | null) ?? undefined,
     groupSize: (row.participants_count as number) ?? 1,
     capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
     budgetRub,
