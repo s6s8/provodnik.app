@@ -6,6 +6,7 @@ import {
   getConfirmedBookings,
   getJoinedRequests,
 } from '@/lib/supabase/traveler-requests'
+import { pinElistaInspirations } from '@/features/traveler/components/empty-cabinet/pin-elista'
 import { TravelerRequestsScreen } from '@/features/traveler/components/requests/traveler-requests-screen'
 
 export const metadata = { title: 'Мои запросы' }
@@ -21,11 +22,7 @@ export default async function TravelerRequestsPage() {
     getJoinedRequests(user.id),
     getDestinations(supabase),
   ])
-  const inspirations = (destinations.data ?? []).slice(0, 3).map((d) => ({
-    slug: d.slug,
-    label: d.name,
-    imageUrl: d.heroImageUrl,
-  }))
+  const inspirations = pinElistaInspirations(destinations.data ?? [])
 
   return (
     <TravelerRequestsScreen
