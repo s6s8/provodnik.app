@@ -1,7 +1,9 @@
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
 import type { RequestRecord } from "@/data/supabase/queries";
 
+import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import { filterInbox } from "./guide-requests-inbox-filter";
 
 const baseRequest: RequestRecord = {
@@ -20,6 +22,7 @@ const baseRequest: RequestRecord = {
   budgetRub: 0,
   budgetLabel: "—",
   requesterName: "Тест",
+  requesterAvatarUrl: null,
   requesterInitials: "Т",
   description: "",
   interests: [],
@@ -71,5 +74,69 @@ describe("filterInbox", () => {
     });
 
     expect(filtered).toEqual([]);
+  });
+});
+
+describe("GuideInboxCardHeader", () => {
+  it("renders «Путешественник» (not real name) on the guide inbox card", () => {
+    render(
+      <GuideInboxCardHeader
+        item={request({
+          id: "r1",
+          requesterName: "Анна Петрова",
+          destination: "Элиста",
+          interests: ["nature", "history"],
+        })}
+        matched={false}
+      />,
+    );
+
+    expect(screen.queryByText("Анна Петрова")).toBeNull();
+    expect(screen.getByText("Путешественник")).toBeInTheDocument();
+  });
+
+  it("renders a ProfileAvatar (not initials) for the traveler row", () => {
+    render(
+      <GuideInboxCardHeader
+        item={request({
+          id: "r1",
+          requesterName: "Анна",
+          requesterAvatarUrl: "/avatars/anna.jpg",
+          destination: "Элиста",
+        })}
+        matched={false}
+      />,
+    );
+
+    expect(screen.getByRole("img")).toHaveAttribute("src", "/avatars/anna.jpg");
+  });
+
+  it("does not render the word «Поездка» as a card title prefix", () => {
+    render(
+      <GuideInboxCardHeader
+        item={request({ id: "r1", destination: "Элиста", interests: [] })}
+        matched={false}
+      />,
+    );
+
+    expect(screen.queryByText(/^Поездка/)).toBeNull();
+  });
+
+  it("renders the actual themes in the top-right (not the «Соответствует» phrase)", () => {
+    render(
+      <GuideInboxCardHeader
+        item={request({
+          id: "r1",
+          destination: "Элиста",
+          interests: ["nature", "history"],
+        })}
+        matched={false}
+      />,
+    );
+
+    expect(screen.queryByText(/Соответствует/)).toBeNull();
+    expect(
+      screen.getByText(/природа.*история|история.*природа/i),
+    ).toBeInTheDocument();
   });
 });

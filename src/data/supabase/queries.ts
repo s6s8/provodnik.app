@@ -91,6 +91,7 @@ export type RequestRecord = {
   budgetRub: number;
   budgetLabel: string;
   requesterName: string;
+  requesterAvatarUrl?: string | null;
   requesterInitials: string;
   description: string;
   interests: string[];
@@ -359,7 +360,12 @@ function maskRequesterIdentity(fullName: string): { displayName: string; initial
   return { displayName, initials };
 }
 
-function mapRequestRow(row: Record<string, unknown>, requesterName = "Путешественник", requesterInitials = "П"): RequestRecord {
+function mapRequestRow(
+  row: Record<string, unknown>,
+  requesterName = "Путешественник",
+  requesterInitials = "П",
+  requesterAvatarUrl: string | null = null,
+): RequestRecord {
   const dest = (row.destination as string) ?? "Маршрут";
   const rawBudget = row.budget_minor as number | null | undefined;
   const budgetMinor = rawBudget ?? 0;
@@ -393,6 +399,7 @@ function mapRequestRow(row: Record<string, unknown>, requesterName = "Путеш
     budgetRub,
     budgetLabel,
     requesterName,
+    requesterAvatarUrl,
     requesterInitials,
     description:
       (meta.description as string | null) ??
@@ -637,14 +644,27 @@ export async function getOpenRequests(
     const db = client;
     const { data, error } = await db
       .from("traveler_requests")
-      .select("*")
+      .select("*, profiles:traveler_id(full_name, avatar_url)")
       .eq("status", "open")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
-    const records = data.map((row) => mapRequestRow(row));
+    const records = data.map((row) => {
+      const profileRaw = (row as Record<string, unknown>).profiles as unknown;
+      const profile = Array.isArray(profileRaw)
+        ? (profileRaw[0] as Record<string, unknown> | undefined)
+        : (profileRaw as Record<string, unknown> | null);
+      const fullName =
+        (profile?.full_name as string | undefined)?.trim() || "Путешественник";
+      return mapRequestRow(
+        row,
+        fullName,
+        getInitials(fullName),
+        (profile?.avatar_url as string | null) ?? null,
+      );
+    });
     const membersMap = await fetchMembersForRequests(db, records.map((r) => r.id));
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];

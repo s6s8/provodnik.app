@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { INTEREST_CHIPS } from "@/data/interests";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -13,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { BidFormPanel } from "./bid-form-panel";
+import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import {
   filterInbox,
   isMatchedRequest,
@@ -20,21 +20,6 @@ import {
   type GuideRequestsSortKey,
 } from "./guide-requests-inbox-filter";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
-
-const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
-  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
-);
-
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString("ru-RU", {
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 interface OffersByRequest {
   offeredIds: Set<string>;
@@ -293,41 +278,7 @@ export function GuideRequestsInboxScreen() {
                     <div key={item.id} className="space-y-3">
                       <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
                         {/* Card header */}
-                        <div className="flex items-start gap-3">
-                          <div
-                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary text-sm font-bold"
-                            aria-hidden="true"
-                          >
-                            {item.requesterInitials}
-                          </div>
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <p className="text-sm font-semibold text-foreground truncate">
-                              {item.requesterName}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {item.format ? <>{item.format} </> : null}в{" "}
-                              <span className="font-medium text-foreground">
-                                {item.destination}
-                              </span>
-                            </p>
-                          </div>
-                          <div className="flex flex-wrap items-center justify-end gap-2 shrink-0 pt-0.5">
-                            <p className="text-xs text-muted-foreground">
-                              {formatDateTime(item.createdAt)}
-                            </p>
-                            {item.interests.length > 0 ? (
-                              <span
-                                className={
-                                  matched
-                                    ? "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary"
-                                    : "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-muted px-2.5 py-1 font-sans text-[11px] font-medium tracking-[0.02em] text-muted-foreground"
-                                }
-                              >
-                                {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
-                              </span>
-                            ) : null}
-                          </div>
-                        </div>
+                        <GuideInboxCardHeader item={item} matched={matched} />
 
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
 
@@ -394,7 +345,7 @@ export function GuideRequestsInboxScreen() {
                           <Link
                             href={`/guide/inbox/${item.id}`}
                             className="ml-auto text-sm font-medium text-primary underline-offset-2 hover:underline"
-                            aria-label={`Открыть полный запрос: ${item.requesterName}, ${item.destination}`}
+                            aria-label={`Открыть полный запрос: ${item.destination}`}
                           >
                             Подробнее →
                           </Link>
