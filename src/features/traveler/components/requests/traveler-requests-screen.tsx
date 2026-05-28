@@ -1,8 +1,12 @@
 import Link from 'next/link'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
-import { ActiveRequestCard } from './active-request-card'
-import { ConfirmedBookingCard } from './confirmed-booking-card'
+import { TripCard } from '../trip-card/trip-card'
+import {
+  mapBookingToTrip,
+  mapRequestToPhase,
+  mapRequestToTrip,
+} from '../trip-card/trip-card-mappers'
 import { JoinedGroupCard } from './joined-group-card'
 import type {
   TravelerRequestSummary,
@@ -50,7 +54,11 @@ export function TravelerRequestsScreen({
           ) : (
             <div className="grid gap-3 sm:grid-cols-2">
               {activeRequests.map((req) => (
-                <ActiveRequestCard key={req.id} request={req} />
+                <TripCard
+                  key={req.id}
+                  phase={mapRequestToPhase(req)}
+                  trip={mapRequestToTrip(req)}
+                />
               ))}
             </div>
           )}
@@ -81,7 +89,11 @@ export function TravelerRequestsScreen({
           ) : (
             <div className="grid gap-3">
               {confirmedBookings.map((b) => (
-                <ConfirmedBookingCard key={b.request_id} booking={b} />
+                <TripCard
+                  key={b.request_id}
+                  phase="upcoming"
+                  trip={mapBookingToTrip(b)}
+                />
               ))}
             </div>
           )}

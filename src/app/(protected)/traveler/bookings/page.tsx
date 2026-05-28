@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { ConfirmedBookingCard } from "@/features/traveler/components/requests/confirmed-booking-card";
+import { TripCard } from "@/features/traveler/components/trip-card/trip-card";
+import { mapBookingToTrip } from "@/features/traveler/components/trip-card/trip-card-mappers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getConfirmedBookings } from "@/lib/supabase/traveler-requests";
 
@@ -40,7 +41,11 @@ export default async function TravelerBookingsIndexPage() {
       ) : (
         <div className="flex flex-col gap-3">
           {bookings.map((booking) => (
-            <ConfirmedBookingCard key={booking.booking_id} booking={booking} />
+            <TripCard
+              key={booking.booking_id}
+              phase="upcoming"
+              trip={mapBookingToTrip(booking)}
+            />
           ))}
         </div>
       )}
