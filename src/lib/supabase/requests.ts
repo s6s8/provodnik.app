@@ -105,7 +105,7 @@ export const createRequestInputSchema = z
     }
   });
 
-export type CreateRequestInput = z.infer<typeof createRequestInputSchema>;
+export type CreateRequestInput = z.input<typeof createRequestInputSchema>;
 
 // ---------------------------------------------------------------------------
 // Return type (mirrors TravelerRequestRow)

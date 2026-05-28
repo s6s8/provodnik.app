@@ -95,10 +95,8 @@ export function HomepageRequestForm({ destinations }: Props) {
     if (values.mode === "assembly") {
       fd.set("groupSizeCurrent", String(count));
     }
-    // form-epic #14: bug 7 fix — do NOT push allowGuideSuggestionsOutsideConstraints
-    // through FormData. The column may be absent from prod schema cache;
-    // skipping the field lets the request insert succeed with its DB default.
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
+    fd.set("allowGuideSuggestions", allowGuideSuggestions ? "true" : "false");
     fd.set("notes", values.notes ?? "");
 
     try {

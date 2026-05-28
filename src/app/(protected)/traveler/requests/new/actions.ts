@@ -2,9 +2,10 @@
 
 import { redirect } from "next/navigation";
 
-import { travelerRequestSchema } from "@/data/traveler-request/schema";
 import { rubToKopecks } from "@/data/money";
-import { createTravelerRequest } from "@/lib/supabase/requests";
+import { travelerRequestSchema } from "@/data/traveler-request/schema";
+import type { TravelerRequest } from "@/data/traveler-request/schema";
+import { createTravelerRequest, type CreateRequestInput } from "@/lib/supabase/requests";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/env";
 import { notifyGuidesNewRequest } from "@/lib/notifications/triggers";
@@ -13,6 +14,31 @@ export type CreateRequestState = {
   error: string | null;
   fieldErrors?: Partial<Record<string, string[]>>;
 };
+
+export async function buildRequestInsertPayload(
+  input: TravelerRequest,
+  opts: { allowGuideSuggestions: boolean },
+): Promise<CreateRequestInput> {
+  const isAss = input.mode === "assembly";
+
+  return {
+    destination: input.destination,
+    interests: input.interests,
+    starts_on: input.startDate,
+    ends_on: input.startDate,
+    date_flexibility: input.dateFlexibility ?? "exact",
+    start_time: input.startTime || null,
+    end_time: input.endTime || null,
+    budget_minor: rubToKopecks(input.budgetPerPersonRub),
+    participants_count: isAss ? (input.groupSizeCurrent ?? 1) : (input.groupSize ?? 1),
+    format_preference: isAss ? "group" : "private",
+    notes: input.notes || null,
+    open_to_join: isAss,
+    date_locked: !opts.allowGuideSuggestions,
+    time_locked: !opts.allowGuideSuggestions,
+    region: null,
+  };
+}
 
 export async function createRequestAction(
   _prev: CreateRequestState,
@@ -80,25 +106,9 @@ export async function createRequestAction(
 
   let requestId: string;
   try {
-    const isAss = input.mode === "assembly";
+    const allowGuideSuggestions = formData.get("allowGuideSuggestions") === "true";
     const record = await createTravelerRequest(
-      {
-        destination: input.destination,
-        interests: input.interests,
-        starts_on: input.startDate,
-        ends_on: input.startDate,
-        date_flexibility: input.dateFlexibility ?? 'exact',
-        start_time: input.startTime || null,
-        end_time: input.endTime || null,
-        budget_minor: rubToKopecks(input.budgetPerPersonRub),
-        participants_count: isAss ? (input.groupSizeCurrent ?? 1) : (input.groupSize ?? 1),
-        format_preference: isAss ? "group" : "private",
-        notes: input.notes || null,
-        open_to_join: isAss,
-        allow_guide_suggestions: input.allowGuideSuggestionsOutsideConstraints,
-        group_capacity: isAss ? (input.groupMax ?? null) : null,
-        region: null,
-      },
+      await buildRequestInsertPayload(input, { allowGuideSuggestions }),
       travelerId,
     );
     requestId = record.id;
