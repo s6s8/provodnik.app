@@ -52,19 +52,17 @@ export function GuideAboutForm({
     <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6 max-w-xl">
       {/* Bio */}
       <div className="space-y-2">
-        <label htmlFor="bio" className="text-sm font-medium text-foreground">
-          Биография
-        </label>
         <textarea
           id="bio"
           name="bio"
+          aria-label="О себе"
           defaultValue={initialBio}
           rows={6}
           placeholder="Расскажите о себе: опыт, специализация, что вас вдохновляет..."
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none resize-y"
         />
         <p className="text-xs text-muted-foreground">
-          Отображается на вашей публичной странице. Пишите честно и тепло — путешественники выбирают гида, а не резюме.
+          Пишите честно и тепло — путешественники выбирают гида, а не резюме. Текст увидят все посетители вашей публичной страницы.
         </p>
       </div>
 

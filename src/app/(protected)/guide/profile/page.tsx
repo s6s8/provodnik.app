@@ -212,9 +212,6 @@ export default async function GuideProfilePage() {
         <Card className="border-border/70 bg-card/90">
           <CardHeader>
             <CardTitle className="text-xl">О себе</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Эта информация отображается на вашей публичной странице.
-            </p>
           </CardHeader>
           <CardContent>
             <GuideAboutForm
