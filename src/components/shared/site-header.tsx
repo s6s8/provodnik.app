@@ -7,6 +7,12 @@ import { Menu, MessageSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Sheet,
   SheetClose,
   SheetContent,
@@ -88,7 +94,8 @@ export function SiteHeader({
 
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const avatarInitial = email ? email[0].toUpperCase() : "?";
-  const dashboardLabel = role ? roleLabels[role] : "Кабинет";
+  const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
+  const settingsHref = role === "guide" ? "/guide/settings" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
 
@@ -144,16 +151,34 @@ export function SiteHeader({
 
         <div className="flex items-center justify-self-end gap-2">
           {isAuthenticated && dashboardPath ? (
-            <Link
-              href={dashboardPath}
-              className="max-md:hidden bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
-              aria-label="Личный кабинет"
-            >
-              <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-semibold flex items-center justify-center">
-                {avatarInitial}
-              </span>
-              {role ? roleLabels[role] : null}
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Меню аккаунта"
+                  className="max-md:hidden bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
+                >
+                  <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-semibold flex items-center justify-center">
+                    {avatarInitial}
+                  </span>
+                  {role ? roleLabels[role] : null}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={profileHref}>Мой профиль</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={settingsHref}>Настройки</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/help">Помощь</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onSelect={handleLogout}>
+                  Выйти
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : null}
           {notificationsEnabled && isAuthenticated && userId ? (
             <NotificationBell userId={userId} />
@@ -178,11 +203,6 @@ export function SiteHeader({
                 </span>
               ) : null}
             </Link>
-          ) : null}
-          {isAuthenticated ? (
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="max-md:hidden">
-              Выйти
-            </Button>
           ) : null}
           {!isAuthenticated && (
             <div className="max-md:hidden flex items-center gap-2">
@@ -268,64 +288,22 @@ export function SiteHeader({
 
                 <div className="mt-2 h-px bg-border" role="separator" />
 
-                {isAuthenticated ? (
-                  <>
-                    {dashboardPath ? (
-                      <SheetClose asChild>
-                        <Link
-                          href={dashboardPath}
-                          className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
-                        >
-                          {dashboardLabel}
-                        </Link>
-                      </SheetClose>
-                    ) : null}
-                    <SheetClose asChild>
-                      <Link
-                        href="/messages"
-                        className="flex w-full items-center justify-between rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <MessageSquare className="size-4" aria-hidden="true" />
-                          Сообщения
-                        </span>
-                        {unreadCount > 0 ? (
-                          <span className="inline-flex h-[1.35rem] min-w-[1.35rem] items-center justify-center rounded-full bg-primary px-[0.35rem] text-[0.6875rem] font-bold leading-none text-white">
-                            {unreadCount > 99 ? "99+" : unreadCount}
-                          </span>
-                        ) : null}
-                      </Link>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Button
-                        variant="ghost"
-                        className="mt-1 w-full justify-start px-3 py-3 text-base font-medium"
-                        onClick={handleLogout}
-                      >
-                        Выйти
-                      </Button>
-                    </SheetClose>
-                  </>
-                ) : (
-                  <>
-                    <SheetClose asChild>
-                      <Link
-                        href="/become-a-guide"
-                        className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
-                      >
-                        {COPY.nav.becomeGuide}
-                      </Link>
-                    </SheetClose>
-                    <SheetClose asChild>
-                      <Link
-                        href="/auth"
-                        className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                      >
-                        {COPY.nav.signIn}
-                      </Link>
-                    </SheetClose>
-                  </>
-                )}
+                <SheetClose asChild>
+                  <Link
+                    href="/become-a-guide"
+                    className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
+                  >
+                    {COPY.nav.becomeGuide}
+                  </Link>
+                </SheetClose>
+                <SheetClose asChild>
+                  <Link
+                    href="/auth"
+                    className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                  >
+                    {COPY.nav.signIn}
+                  </Link>
+                </SheetClose>
               </nav>
             </SheetContent>
           </Sheet>}
