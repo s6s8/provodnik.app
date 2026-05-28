@@ -111,4 +111,24 @@ describe("HomepageRequestForm UI affordances", () => {
     fireEvent.click(screen.getByLabelText("Открыт к увеличению группы"));
     expect(screen.queryByLabelText(/До скольких готов добрать/i)).toBeNull();
   });
+
+  it("renders the flexibility checkbox, default unchecked", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const flex = screen.getByLabelText(
+      "Разрешаю гидам предлагать близкие даты и время",
+    );
+    expect(flex).toBeInTheDocument();
+    expect(flex).not.toBeChecked();
+  });
+
+  it("flexibility checkbox does not expand any extra field on toggle", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const flex = screen.getByLabelText(
+      "Разрешаю гидам предлагать близкие даты и время",
+    );
+    const before = document.querySelectorAll("input,select").length;
+    fireEvent.click(flex);
+    const after = document.querySelectorAll("input,select").length;
+    expect(after).toBe(before);
+  });
 });

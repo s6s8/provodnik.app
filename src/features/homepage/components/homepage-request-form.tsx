@@ -33,6 +33,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [allowGuideSuggestions, setAllowGuideSuggestions] = React.useState(false);
   const form = useForm<FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
@@ -226,6 +227,19 @@ export function HomepageRequestForm({ destinations }: Props) {
           <span className="flex flex-col gap-0.5 text-sm">
             <span className="font-medium text-foreground">
               Открыт к увеличению группы
+            </span>
+          </span>
+        </label>
+        <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
+          <input
+            type="checkbox"
+            className="mt-0.5 h-4 w-4 accent-primary"
+            checked={allowGuideSuggestions}
+            onChange={(e) => setAllowGuideSuggestions(e.target.checked)}
+          />
+          <span className="flex flex-col gap-0.5 text-sm">
+            <span className="font-medium text-foreground">
+              Разрешаю гидам предлагать близкие даты и время
             </span>
           </span>
         </label>
