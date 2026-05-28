@@ -160,7 +160,12 @@ export default async function AdminGuidesPage() {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <Button asChild variant="outline" size="sm">
+                        <Button
+                          asChild
+                          variant="outline"
+                          size="sm"
+                          className="min-w-[120px]"
+                        >
                           <Link href={`/admin/guides/${item.profile.user_id}`}>
                             Просмотреть
                           </Link>
@@ -177,7 +182,7 @@ export default async function AdminGuidesPage() {
                                 type="submit"
                                 variant="secondary"
                                 size="sm"
-                                className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+                                className="min-w-[120px] border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
                               >
                                 Одобрить
                               </Button>
@@ -192,6 +197,7 @@ export default async function AdminGuidesPage() {
                                 type="submit"
                                 variant="destructive"
                                 size="sm"
+                                className="min-w-[120px]"
                               >
                                 Отклонить
                               </Button>
