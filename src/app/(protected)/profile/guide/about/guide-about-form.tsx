@@ -25,6 +25,7 @@ const LANGUAGES = [
   "Нидерландский",
   "Турецкий",
   "Корейский",
+  "Хинди",
 ] as const;
 
 interface GuideAboutFormProps {
