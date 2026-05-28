@@ -3,12 +3,11 @@ import { cn } from "@/lib/utils";
 /**
  * Trust signals strip rendered under the homepage form CTA.
  *
- * Three hardcoded items in Russian (no i18n yet — Phase A is ru-only).
+ * Two hardcoded items in Russian (no i18n yet — Phase A is ru-only).
  * Each item is preceded by a checkmark glyph. Visually compact.
  */
 const ITEMS = [
   "Гиды проверены",
-  "Без предоплаты",
   "Отмена за 24ч",
 ] as const;
 
