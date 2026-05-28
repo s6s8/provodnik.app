@@ -3,7 +3,6 @@ import { Users } from "lucide-react";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import CommissionBadge from "@/components/shared/CommissionBadge";
 import { PublicGuidesGrid } from "@/features/guide/components/public/public-guides-grid";
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
 import { INTEREST_CHIPS } from "@/data/interests";
@@ -78,9 +77,6 @@ export default async function GuidesPage({
             <p className="mt-2 mx-auto max-w-xl text-base text-muted-foreground">
               Присоединяйтесь к Provodnik — показывайте свои маршруты путешественникам со всей России.
             </p>
-            <div className="mt-4 flex justify-center">
-              <CommissionBadge />
-            </div>
             <Button asChild className="mt-6">
               <Link href="/become-a-guide">Стать гидом</Link>
             </Button>
