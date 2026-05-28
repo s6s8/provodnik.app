@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
@@ -114,6 +117,27 @@ describe("getInboxTabCounts", () => {
     expect(
       filterInbox(items, { ...scopeOptions, filter: "my-offers" }).length,
     ).toBe(myOffersCount);
+  });
+});
+
+describe("GuideRequestsInboxScreen meta layout", () => {
+  it("keeps the request time inline with the date meta row", () => {
+    const source = readFileSync(
+      join(
+        process.cwd(),
+        "src/features/guide/components/requests/guide-requests-inbox-screen.tsx",
+      ),
+      "utf8",
+    );
+    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{item\.description/)?.[1];
+
+    expect(metaBlock).toContain(
+      'className="mt-3 space-y-1 text-xs text-muted-foreground"',
+    );
+    expect(metaBlock).not.toContain("sm:grid-cols-2");
+    expect(metaBlock).toMatch(
+      /<p>[\s\S]*Даты:[\s\S]*formatTimeRange\(item\.startTime, item\.endTime\)[\s\S]*Время:[\s\S]*<\/p>/,
+    );
   });
 });
 

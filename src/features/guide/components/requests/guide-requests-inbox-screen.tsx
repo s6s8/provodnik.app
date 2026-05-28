@@ -289,7 +289,7 @@ export function GuideRequestsInboxScreen() {
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
 
                         {/* Meta */}
-                        <div className="mt-3 grid gap-2 text-xs text-muted-foreground sm:grid-cols-2">
+                        <div className="mt-3 space-y-1 text-xs text-muted-foreground">
                           <p>
                             <span className="font-medium text-foreground">
                               Даты:
@@ -300,14 +300,15 @@ export function GuideRequestsInboxScreen() {
                                 {item.dateFlexibility === 'few_days' ? '±пара дней' : '±неделя'}
                               </span>
                             )}
+                            {formatTimeRange(item.startTime, item.endTime) && (
+                              <>
+                                {" · "}
+                                <span className="font-medium text-foreground">Время:</span>{" "}
+                                {formatTimeRange(item.startTime, item.endTime)}
+                              </>
+                            )}
                           </p>
-                          {formatTimeRange(item.startTime, item.endTime) && (
-                            <div className="flex items-center gap-1.5">
-                              <span className="font-medium text-foreground">Время:</span>{" "}
-                              {formatTimeRange(item.startTime, item.endTime)}
-                            </div>
-                          )}
-                          <p className="sm:col-span-2">
+                          <p>
                             <span className="font-medium text-foreground">
                               Бюджет:
                             </span>{" "}
