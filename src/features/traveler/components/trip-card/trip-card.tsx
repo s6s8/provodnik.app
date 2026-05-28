@@ -73,6 +73,15 @@ function TripPhoto({
   );
 }
 
+function shouldShowMeetingPoint(phase: TripPhase, startsOn: string): boolean {
+  if (phase === "today") return true;
+  if (phase !== "upcoming") return false;
+
+  const start = new Date(startsOn).getTime();
+  const fortyEightHours = 48 * 3600 * 1000;
+  return start - Date.now() <= fortyEightHours;
+}
+
 export function TripCard({
   phase,
   trip,
@@ -80,10 +89,15 @@ export function TripCard({
   phase: TripPhase;
   trip: TripCardModel;
 }) {
+  const meetingPoint = trip.routeStops?.[0]?.address;
+
   return (
     <article className="rounded-lg border bg-card p-4">
       <TripPhoto phase={phase} trip={trip} />
       <h3 className="text-lg font-medium">{trip.destination}</h3>
+      {shouldShowMeetingPoint(phase, trip.startsOn) && meetingPoint && (
+        <p className="text-sm">{meetingPoint}</p>
+      )}
     </article>
   );
 }

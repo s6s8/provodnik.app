@@ -89,4 +89,53 @@ describe("TripCard", () => {
     expect(screen.queryByRole("img")).toBeNull();
     expect(screen.getByTestId("photo-fallback")).toBeInTheDocument();
   });
+
+  it("does NOT render meeting point on 'upcoming' if more than 48h away", () => {
+    const farFuture = new Date(Date.now() + 72 * 3600 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{
+          ...baseTrip,
+          startsOn: farFuture,
+          routeStops: [{ photoUrl: "/r.jpg", address: "ул. Ленина, 1" }],
+        }}
+      />,
+    );
+    expect(screen.queryByText("ул. Ленина, 1")).toBeNull();
+  });
+
+  it("renders meeting point on 'upcoming' within 48h window", () => {
+    const soon = new Date(Date.now() + 24 * 3600 * 1000)
+      .toISOString()
+      .slice(0, 10);
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{
+          ...baseTrip,
+          startsOn: soon,
+          routeStops: [{ photoUrl: "/r.jpg", address: "ул. Ленина, 1" }],
+        }}
+      />,
+    );
+    expect(screen.getByText("ул. Ленина, 1")).toBeInTheDocument();
+  });
+
+  it("always renders meeting point on 'today'", () => {
+    const today = new Date().toISOString().slice(0, 10);
+    render(
+      <TripCard
+        phase="today"
+        trip={{
+          ...baseTrip,
+          startsOn: today,
+          routeStops: [{ photoUrl: "/r.jpg", address: "ул. Ленина, 1" }],
+        }}
+      />,
+    );
+    expect(screen.getByText("ул. Ленина, 1")).toBeInTheDocument();
+  });
 });
