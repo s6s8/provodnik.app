@@ -112,7 +112,7 @@ export default async function TravelerBookingDetailPage({
 
   if (!booking) notFound();
   if (booking.traveler_id !== user.id) {
-    redirect("/traveler/bookings");
+    redirect("/traveler/requests");
   }
 
   const guideProfile = booking.guide_profile;
@@ -276,10 +276,10 @@ export default async function TravelerBookingDetailPage({
           <SupportSidebar bookingId={booking.id} />
 
           <Link
-            href="/traveler/bookings"
+            href="/traveler/requests"
             className="font-sans text-sm font-medium text-primary no-underline inline-flex items-center gap-1 hover:underline"
           >
-            ← Мои бронирования
+            ← К моим поездкам
           </Link>
         </div>
       </div>
