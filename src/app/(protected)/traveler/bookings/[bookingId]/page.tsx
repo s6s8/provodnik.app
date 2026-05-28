@@ -129,7 +129,7 @@ export default async function TravelerBookingDetailPage({
   const canOpenDispute =
     booking.status === "confirmed" || booking.status === "completed";
 
-  let listingTitle = "Поездка";
+  let listingTitle = dateRange ? `${destination}, ${dateRange}` : destination;
   if (booking.listing_id) {
     const { data: listingRow } = await supabase
       .from("listings")
