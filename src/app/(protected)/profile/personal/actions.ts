@@ -1,8 +1,17 @@
 "use server";
 
-// Step A scaffold — real validation lands in Task 14.
+import { findContactInBio } from "@/features/profile/validation/anti-contact";
+
 export async function updateTravelerProfile(
-  _formData: FormData,
+  formData: FormData,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
+  const bio = formData.get("bio")?.toString() ?? "";
+  const contact = findContactInBio(bio);
+  if (contact) {
+    return {
+      ok: false,
+      error: `Контактные данные в «О себе» запрещены (${contact.kind}).`,
+    };
+  }
   return { ok: true };
 }

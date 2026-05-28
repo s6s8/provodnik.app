@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
+import { findContactInBio } from "../validation/anti-contact";
+
 export type TravelerProfile = {
   full_name: string | null;
   avatar_url: string | null;
@@ -27,6 +29,7 @@ const languageOptions = [
 export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
   const [bio, setBio] = useState(profile.bio ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [bioError, setBioError] = useState<string | null>(null);
 
   async function onSubmit(formData: FormData) {
     setError(null);
@@ -65,8 +68,20 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
               name="bio"
               maxLength={200}
               value={bio}
-              onChange={(event) => setBio(event.target.value.slice(0, 200))}
+              onChange={(event) => {
+                const next = event.target.value.slice(0, 200);
+                setBio(next);
+                const contact = findContactInBio(next);
+                setBioError(
+                  contact
+                    ? `Контактные данные не допускаются (${contact.kind})`
+                    : null,
+                );
+              }}
             />
+            {bioError ? (
+              <p className="text-sm text-destructive">{bioError}</p>
+            ) : null}
           </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
