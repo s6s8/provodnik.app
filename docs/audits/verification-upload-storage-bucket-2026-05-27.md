@@ -286,3 +286,16 @@ The diverged-migration situation is a separate operator concern (covered by Clea
 1. **Live browser repro** of the upload error (operator + guide test account). Cannot proceed statically.
 2. **Legacy reference at `src/data/guide-assets/supabase-client.ts:115`** — `bucketId: "guide-media"` should be `"guide-documents"` (separate fix, not audit scope).
 3. Migration-history alignment between local and remote → existing Cleanup C6 epic.
+
+## 11. ADDENDUM 2026-05-28 — backlog #4 local re-check
+
+HEAD checked: `68a2e5b1ab86e700e1cbf78a9cd515b8c8656738`.
+
+- **RSC handoff ok:** `src/features/guide/components/verification/verification-upload-form.tsx` and `document-upload-card.tsx` are client components, and the profile page passes direct module imports from `src/app/(protected)/guide/verification/actions.ts`.
+- **Bucket ok:** `guide-documents` remains the only bucket used by the verification upload flow, and `src/lib/storage/buckets.ts` still matches the 2026-05-27 live-prod bucket config.
+- **Serialization ok:** the four server actions are module-scope exports from a `"use server"` file and return plain object payloads with primitive fields.
+- **Closure ok:** the upload card receives destructured action props; no inline server-action closure is introduced in the client component path.
+
+Remaining caveat: live browser reproduction still needs an authenticated, non-verified guide test account to capture browser console and Network response details. This local check cannot exercise that session-bound path.
+
+Conclusion: backlog #4 not reproducible on local 2026-05-28; possibly env-specific. Reopen if it reappears on prod.
