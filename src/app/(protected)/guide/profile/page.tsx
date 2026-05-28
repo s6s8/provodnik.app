@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import CommissionBadge from "@/components/shared/CommissionBadge";
 import { GuideAboutForm } from "@/app/(protected)/profile/guide/about/guide-about-form";
 import { LegalInformationForm } from "@/features/profile/components/LegalInformationForm";
 import {
@@ -206,10 +205,6 @@ export default async function GuideProfilePage() {
     <div className="space-y-10">
       <section id="avatar">
         <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />
-      </section>
-
-      <section id="commission" aria-label="Комиссия платформы">
-        <CommissionBadge />
       </section>
 
       <section id="about">
