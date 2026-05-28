@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { createNotification } from "@/lib/notifications/create-notification";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
@@ -241,11 +242,10 @@ function _firstRelation<T>(value: T | T[] | null | undefined): T | null {
 
 function formatGuideName(
   profile: ProfileLite | null | undefined,
-  guideProfile: GuideProfileRow | null | undefined,
+  _guideProfile: GuideProfileRow | null | undefined,
 ) {
   return (
-    guideProfile?.display_name?.trim() ||
-    profile?.full_name?.trim() ||
+    resolveDisplayName("guide", { full_name: profile?.full_name }) ||
     profile?.email?.trim() ||
     null
   );

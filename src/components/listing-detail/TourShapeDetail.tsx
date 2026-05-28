@@ -48,13 +48,12 @@ type GuidePickProps = Pick<
   GuideProfileRow,
   | "user_id"
   | "slug"
-  | "display_name"
   | "bio"
   | "average_rating"
   | "review_count"
   | "contact_visibility_unlocked"
   | "is_tour_operator"
-> | null;
+> & { full_name?: string | null } | null;
 
 interface Props {
   listing: ListingRow & { image_url?: string | null };

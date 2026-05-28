@@ -56,12 +56,11 @@ interface Props {
     GuideProfileRow,
     | "user_id"
     | "slug"
-    | "display_name"
     | "bio"
     | "average_rating"
     | "review_count"
     | "contact_visibility_unlocked"
-  > | null;
+  > & { full_name?: string | null } | null;
 }
 
 export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide }: Props) {

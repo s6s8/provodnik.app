@@ -706,6 +706,7 @@ export type Database = {
           issued_by: string
           license_number: string
           license_type: string
+          region: string | null
           scope_mode: string
           updated_at: string
           valid_until: string | null
@@ -717,6 +718,7 @@ export type Database = {
           issued_by: string
           license_number: string
           license_type: string
+          region?: string | null
           scope_mode?: string
           updated_at?: string
           valid_until?: string | null
@@ -728,6 +730,7 @@ export type Database = {
           issued_by?: string
           license_number?: string
           license_type?: string
+          region?: string | null
           scope_mode?: string
           updated_at?: string
           valid_until?: string | null
@@ -906,7 +909,6 @@ export type Database = {
           completed_tours: number
           contact_visibility_unlocked: boolean | null
           created_at: string
-          display_name: string | null
           document_country: string | null
           inn: string | null
           is_available: boolean
@@ -941,7 +943,6 @@ export type Database = {
           completed_tours?: number
           contact_visibility_unlocked?: boolean | null
           created_at?: string
-          display_name?: string | null
           document_country?: string | null
           inn?: string | null
           is_available?: boolean
@@ -976,7 +977,6 @@ export type Database = {
           completed_tours?: number
           contact_visibility_unlocked?: boolean | null
           created_at?: string
-          display_name?: string | null
           document_country?: string | null
           inn?: string | null
           is_available?: boolean
@@ -2471,6 +2471,32 @@ export type Database = {
           },
         ]
       }
+      request_views: {
+        Row: {
+          guide_id: string
+          request_id: string
+          viewed_at: string
+        }
+        Insert: {
+          guide_id: string
+          request_id: string
+          viewed_at?: string
+        }
+        Update: {
+          guide_id?: string
+          request_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "request_views_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       review_ratings_breakdown: {
         Row: {
           axis: string
@@ -2817,7 +2843,6 @@ export type Database = {
           completed_tours: number | null
           contact_visibility_unlocked: boolean | null
           created_at: string | null
-          display_name: string | null
           document_country: string | null
           inn: string | null
           is_available: boolean | null
@@ -2855,7 +2880,6 @@ export type Database = {
           completed_tours?: number | null
           contact_visibility_unlocked?: boolean | null
           created_at?: string | null
-          display_name?: string | null
           document_country?: string | null
           inn?: string | null
           is_available?: boolean | null
@@ -2893,7 +2917,6 @@ export type Database = {
           completed_tours?: number | null
           contact_visibility_unlocked?: boolean | null
           created_at?: string | null
-          display_name?: string | null
           document_country?: string | null
           inn?: string | null
           is_available?: boolean | null
@@ -2987,7 +3010,7 @@ export type Database = {
           average_rating: number | null
           bio: string | null
           contact_visibility_unlocked: boolean | null
-          display_name: string | null
+          full_name: string | null
           is_available: boolean | null
           languages: string[] | null
           locale: string | null
@@ -2998,38 +3021,6 @@ export type Database = {
           slug: string | null
           specialties: string[] | null
           user_id: string | null
-        }
-        Insert: {
-          average_rating?: number | null
-          bio?: string | null
-          contact_visibility_unlocked?: boolean | null
-          display_name?: string | null
-          is_available?: boolean | null
-          languages?: string[] | null
-          locale?: string | null
-          preferred_currency?: string | null
-          regions?: string[] | null
-          response_rate?: number | null
-          review_count?: number | null
-          slug?: string | null
-          specialties?: string[] | null
-          user_id?: string | null
-        }
-        Update: {
-          average_rating?: number | null
-          bio?: string | null
-          contact_visibility_unlocked?: boolean | null
-          display_name?: string | null
-          is_available?: boolean | null
-          languages?: string[] | null
-          locale?: string | null
-          preferred_currency?: string | null
-          regions?: string[] | null
-          response_rate?: number | null
-          review_count?: number | null
-          slug?: string | null
-          specialties?: string[] | null
-          user_id?: string | null
         }
         Relationships: [
           {
@@ -3205,8 +3196,14 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_guide: { Args: never; Returns: boolean }
       is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
+      record_request_view: { Args: { p_request_id: string }; Returns: number }
       search_guides: {
-        Args: { q: string; p_specializations?: string[] | null; p_region?: string | null; p_has_listings?: boolean | null }
+        Args: {
+          p_has_listings?: boolean
+          p_region?: string
+          p_specializations?: string[]
+          q?: string
+        }
         Returns: {
           attestation_status: string | null
           average_rating: number | null
@@ -3215,7 +3212,6 @@ export type Database = {
           completed_tours: number | null
           contact_visibility_unlocked: boolean | null
           created_at: string | null
-          display_name: string | null
           document_country: string | null
           inn: string | null
           is_available: boolean | null

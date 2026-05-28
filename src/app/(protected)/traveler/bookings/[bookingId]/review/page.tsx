@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { TravelerBookingReviewScreen } from "@/features/traveler/components/reviews/traveler-booking-review-screen";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getBooking } from "@/lib/supabase/bookings";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -72,10 +73,9 @@ export default async function TravelerBookingReviewPage({
           booking.traveler_request?.starts_on ?? booking.starts_at ?? null,
           booking.traveler_request?.ends_on ?? booking.ends_at ?? null,
         ),
-        guideName:
-          booking.guide_profile?.profile?.full_name ??
-          booking.guide_profile?.display_name ??
-          "Гид",
+        guideName: resolveDisplayName("guide", {
+          full_name: booking.guide_profile?.profile?.full_name,
+        }),
         guideAvatarUrl: booking.guide_profile?.profile?.avatar_url ?? null,
         guideVerified: booking.guide_profile?.verification_status === "approved",
       }}

@@ -57,7 +57,7 @@ export default async function ListingDetailPage({
     supabase.from("listing_tariffs").select("*").eq("listing_id", id),
     supabase
       .from("guide_profiles")
-      .select("user_id, slug, display_name, bio, average_rating, review_count, contact_visibility_unlocked, is_tour_operator")
+      .select("user_id, slug, bio, average_rating, review_count, contact_visibility_unlocked, is_tour_operator, profile:profiles!guide_profiles_user_id_fkey(full_name)")
       .eq("user_id", listing.guide_id)
       .maybeSingle(),
   ]);
@@ -65,7 +65,20 @@ export default async function ListingDetailPage({
   const photos = photosRes.data ?? [];
   const schedule = scheduleRes.data ?? [];
   const tariffs = tariffsRes.data ?? [];
-  const guide = guideRes.data;
+  const guideRaw = guideRes.data as
+    | (NonNullable<typeof guideRes.data> & {
+        profile?: { full_name?: string | null } | Array<{ full_name?: string | null }> | null;
+      })
+    | null;
+  const guideProfile = Array.isArray(guideRaw?.profile)
+    ? guideRaw.profile[0]
+    : guideRaw?.profile;
+  const guide = guideRaw
+    ? {
+        ...guideRaw,
+        full_name: guideProfile?.full_name ?? null,
+      }
+    : null;
 
 
   if (listing.exp_type === "tour") {

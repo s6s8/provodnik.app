@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import type { GuideProfileRow } from "@/lib/supabase/types";
 import { maskPii } from "@/lib/pii/mask";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 function initials(name: string | null | undefined): string {
   if (!name?.trim()) return "?";
@@ -18,26 +19,26 @@ export function GuideCard({
     GuideProfileRow,
     | "user_id"
     | "slug"
-    | "display_name"
     | "bio"
     | "average_rating"
     | "review_count"
     | "contact_visibility_unlocked"
-  > | null;
+  > & { full_name?: string | null } | null;
 }) {
   if (!guide) return null;
 
   const bio = maskPii(guide.bio);
+  const guideName = resolveDisplayName("guide", { full_name: guide.full_name });
 
   return (
     <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
       <CardContent className="flex gap-4 p-4">
         <Avatar className="h-14 w-14 shrink-0 rounded-full">
           <AvatarImage src={undefined} alt="" />
-          <AvatarFallback>{initials(guide.display_name)}</AvatarFallback>
+          <AvatarFallback>{initials(guideName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="font-medium leading-tight">{guide.display_name ?? "Гид"}</p>
+          <p className="font-medium leading-tight">{guideName}</p>
           {guide.review_count > 0 ? (
             <p className="text-sm text-muted-foreground">
               ★ {guide.average_rating.toFixed(1)} · {guide.review_count} отзывов

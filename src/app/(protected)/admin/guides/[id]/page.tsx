@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRussianDateRange, todayMoscowISODate } from "@/lib/dates";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
 import { approveGuide, rejectGuide, requestChanges } from "./actions";
@@ -65,8 +66,7 @@ export default async function AdminGuideDetailPage({
   }
 
   const displayName =
-    detail.profile.display_name ||
-    detail.account?.full_name ||
+    resolveDisplayName("guide", { full_name: detail.account?.full_name }) ||
     detail.account?.email ||
     "Без имени";
   const today = todayMoscowISODate();
@@ -102,7 +102,7 @@ export default async function AdminGuideDetailPage({
                   Имя в профиле
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {detail.profile.display_name ?? "—"}
+                  {detail.account?.full_name ?? "—"}
                 </dd>
               </div>
               <div>

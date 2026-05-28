@@ -25,6 +25,7 @@ import type {
   ListingRow,
   Uuid,
 } from "@/lib/supabase/types";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export type GuideReviewStateRecord = {
   decision: GuideApplicationDecision;
@@ -231,29 +232,6 @@ function outcomeLabel(outcome: DisputeDecisionOutcome | "unset") {
   }
 }
 
-function isReadableDisplayName(value: string | null | undefined): value is string {
-  if (!value) return false;
-
-  const normalized = value.trim();
-  if (!normalized) return false;
-  if (/^[?\s.]+$/.test(normalized)) return false;
-  if (/�/.test(normalized)) return false;
-
-  return /\p{L}/u.test(normalized);
-}
-
-function getCanonicalGuideDisplayName(
-  fullName: string | null | undefined,
-  guideDisplayName: string | null | undefined,
-  email: string | null | undefined,
-): string {
-  if (isReadableDisplayName(fullName)) return fullName.trim();
-  if (isReadableDisplayName(guideDisplayName)) return guideDisplayName.trim();
-  if (isReadableDisplayName(email)) return email.trim();
-
-  return "Guide";
-}
-
 async function currentAdminUserId(): Promise<Uuid> {
   const supabase = createSupabaseBrowserClient();
   const {
@@ -325,7 +303,7 @@ export async function listGuideApplicationsForAdminFromSupabase(): Promise<
     await Promise.all([
       supabase
         .from("guide_profiles")
-        .select("user_id, slug, display_name, bio, years_experience, regions, languages, specialties, attestation_status, verification_status, verification_notes, payout_account_label, created_at, updated_at")
+        .select("user_id, slug, bio, years_experience, regions, languages, specialties, attestation_status, verification_status, verification_notes, payout_account_label, created_at, updated_at")
         .order("updated_at", { ascending: false }),
       supabase.from("profiles").select("id, full_name, email, phone"),
       supabase
@@ -404,11 +382,10 @@ export async function listGuideApplicationsForAdminFromSupabase(): Promise<
       id: profile.user_id,
       submittedAt: profile.updated_at,
       applicant: {
-        displayName: getCanonicalGuideDisplayName(
-          account.full_name as string | null,
-          profile.display_name,
-          account.email as string | null,
-        ),
+        displayName:
+          resolveDisplayName("guide", { full_name: account.full_name as string | null }) ||
+          (account.email as string | null) ||
+          "Без имени",
         homeBase: profile.regions[0] ?? "Unknown",
         languages: profile.languages,
         yearsExperience: profile.years_experience ?? 0,
@@ -504,7 +481,7 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
         .from("listings")
         .select("id, guide_id, slug, title, region, city, category, route_summary, description, duration_minutes, max_group_size, price_from_minor, currency, private_available, group_available, instant_book, meeting_point, inclusions, exclusions, cancellation_policy_key, status, featured_rank, created_at, updated_at")
         .order("updated_at", { ascending: false }),
-      supabase.from("guide_profiles").select("user_id, display_name, languages"),
+      supabase.from("guide_profiles").select("user_id, languages"),
       supabase.from("profiles").select("id, full_name, email"),
       supabase.from("listing_media").select("listing_id"),
       supabase
@@ -527,7 +504,7 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
   const guidesById = new Map(
     (guideProfiles ?? []).map((row) => [
       row.user_id as string,
-      row as { display_name?: string | null; languages?: string[] | null },
+      row as { languages?: string[] | null },
     ]),
   );
   const profileById = new Map(
@@ -578,11 +555,10 @@ export async function listModerationListingsForAdminFromSupabase(): Promise<
           amount: Math.round(listing.price_from_minor / 100),
           currency: listing.currency as "USD" | "EUR" | "GEL",
         },
-        sellerDisplayName: getCanonicalGuideDisplayName(
-          profile.full_name as string | null,
-          guide.display_name as string | null,
-          profile.email as string | null,
-        ),
+        sellerDisplayName:
+          resolveDisplayName("guide", { full_name: profile.full_name as string | null }) ||
+          (profile.email as string | null) ||
+          "Без имени",
       },
       visibility,
       riskSignals: {

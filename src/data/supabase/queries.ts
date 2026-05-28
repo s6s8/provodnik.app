@@ -3,6 +3,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 import { formatRussianDateRange } from "@/lib/dates";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
 export type DestinationCategory = "city" | "nature" | "culture";
@@ -444,7 +445,7 @@ async function fetchMembersForRequests(db: SupabaseClient, requestIds: string[])
 }
 
 function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknown> | null): GuideRecord {
-  const fullName = (profile?.full_name as string) ?? (gp.display_name as string) ?? "Локальный гид";
+  const fullName = resolveDisplayName("guide", { full_name: profile?.full_name as string | null | undefined });
   const regions = (gp.regions as string[]) ?? [];
   return {
     id: gp.user_id as string,

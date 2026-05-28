@@ -9,6 +9,7 @@ import {
   performModerationAction,
   requireAdminSession,
 } from "@/lib/supabase/moderation";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export const metadata: Metadata = {
   title: "Туры на проверке",
@@ -121,8 +122,7 @@ export default async function AdminListingsPage() {
 
               {rows.map((row) => {
                 const guideName =
-                  row.guide_profile?.display_name ||
-                  row.guide_account?.full_name ||
+                  resolveDisplayName("guide", { full_name: row.guide_account?.full_name }) ||
                   row.guide_account?.email ||
                   "Без имени";
                 const currentStatus = row.moderation_case?.status ?? row.listing.status;

@@ -6,6 +6,7 @@ import {
   createNotification,
   type NotificationKind,
 } from "@/lib/notifications/create-notification";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const uuidSchema = z.string().uuid("Некорректный UUID.");
@@ -14,20 +15,13 @@ const cancelledByRoleSchema = z.enum(["traveler", "guide", "admin"]);
 async function getGuideDisplayName(guideId: string): Promise<string> {
   const supabase = await createSupabaseServerClient();
 
-  const [{ data: guideProfile }, { data: profile }] = await Promise.all([
-    supabase
-      .from("guide_profiles")
-      .select("display_name")
-      .eq("user_id", guideId)
-      .maybeSingle(),
-    supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", guideId)
-      .maybeSingle(),
-  ]);
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("full_name")
+    .eq("id", guideId)
+    .maybeSingle();
 
-  return guideProfile?.display_name?.trim() || profile?.full_name?.trim() || "гида";
+  return resolveDisplayName("guide", { full_name: profile?.full_name });
 }
 
 async function createNotificationForUser(data: {

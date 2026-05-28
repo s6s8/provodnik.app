@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { flags } from "@/lib/flags";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getBooking } from "@/lib/supabase/bookings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -65,10 +66,9 @@ export default async function TravelerBookingDisputePage({
     redirect(`/traveler/bookings/${bookingId}`);
   }
 
-  const guideName =
-    booking.guide_profile?.profile?.full_name ??
-    booking.guide_profile?.display_name ??
-    "Гид";
+  const guideName = resolveDisplayName("guide", {
+    full_name: booking.guide_profile?.profile?.full_name,
+  });
   const dateLabel = formatDateRange(
     booking.traveler_request?.starts_on ?? booking.starts_at ?? null,
     booking.traveler_request?.ends_on ?? booking.ends_at ?? null,

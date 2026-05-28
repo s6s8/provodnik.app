@@ -11,7 +11,6 @@ export type GuideExperienceLevel = "starter" | "intermediate" | "expert";
 export type GuideOnboardingPersistedProfile = Pick<
   GuideProfileRow,
   | "user_id"
-  | "display_name"
   | "bio"
   | "years_experience"
   | "specialization"

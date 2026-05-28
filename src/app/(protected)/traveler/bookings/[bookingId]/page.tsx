@@ -11,6 +11,7 @@ import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReview
 import { getBooking } from "@/lib/supabase/bookings";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
 import { flags } from "@/lib/flags";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -117,8 +118,7 @@ export default async function TravelerBookingDetailPage({
 
   const guideProfile = booking.guide_profile;
   const guideProfileData = guideProfile?.profile ?? null;
-  const guideName =
-    guideProfileData?.full_name ?? guideProfile?.display_name ?? "Гид";
+  const guideName = resolveDisplayName("guide", { full_name: guideProfileData?.full_name });
   const guidePhone = guideProfileData?.phone ?? null;
   const guideAvatarUrl = guideProfileData?.avatar_url ?? null;
   const isVerified = guideProfile?.verification_status === "approved";

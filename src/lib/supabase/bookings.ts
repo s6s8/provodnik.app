@@ -105,7 +105,7 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     supabase
       .from("guide_profiles")
       .select(
-        "user_id, display_name, bio, rating, completed_tours, is_available, regions, languages, specialties, specialization, attestation_status, verification_status, verification_notes, payout_account_label, years_experience, slug, created_at, updated_at, profile:profiles!guide_profiles_user_id_fkey(full_name, phone, avatar_url)",
+        "user_id, bio, rating, completed_tours, is_available, regions, languages, specialties, specialization, attestation_status, verification_status, verification_notes, payout_account_label, years_experience, slug, created_at, updated_at, profile:profiles!guide_profiles_user_id_fkey(full_name, phone, avatar_url)",
       )
       .eq("user_id", booking.guide_id)
       .maybeSingle(),

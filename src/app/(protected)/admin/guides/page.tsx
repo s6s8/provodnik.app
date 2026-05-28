@@ -9,6 +9,7 @@ import {
   performModerationAction,
   requireAdminSession,
 } from "@/lib/supabase/moderation";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export const metadata: Metadata = {
   title: "Очередь верификации",
@@ -127,8 +128,7 @@ export default async function AdminGuidesPage() {
 
               {guides.map((item) => {
                 const displayName =
-                  item.profile.display_name ||
-                  item.account?.full_name ||
+                  resolveDisplayName("guide", { full_name: item.account?.full_name }) ||
                   item.account?.email ||
                   "Без имени";
 

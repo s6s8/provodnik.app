@@ -184,7 +184,6 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       const groupSizeMaxNum = Number(values.groupSizeMax);
       const payload: GuideOnboardingProfileUpsertPayload = {
         user_id: user.id,
-        display_name: values.displayName,
         bio: values.bio,
         years_experience: values.yearsExperience,
         specialization: primaryThemeSlug,
@@ -203,6 +202,16 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
         base_city: baseCityTrimmed && baseCityTrimmed.length > 0 ? baseCityTrimmed : null,
         max_group_size: !isNaN(groupSizeMaxNum) && groupSizeMaxNum > 0 ? Math.floor(groupSizeMaxNum) : null,
       };
+
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ full_name: values.displayName })
+        .eq("id", user.id);
+
+      if (profileError) {
+        setBackendError(getBackendFailureMessage(profileError));
+        return;
+      }
 
       const { error: upsertError } = await supabase
         .from("guide_profiles")

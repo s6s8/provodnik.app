@@ -209,7 +209,6 @@ export type GuideDashboardKpiViewRow = {
 export type GuideProfileRow = {
   user_id: Uuid;
   slug: string | null;
-  display_name: string | null;
   bio: string | null;
   years_experience: number | null;
   specialization: string | null;
@@ -256,7 +255,6 @@ export type GuideProfileOnboardingPersistenceRow = Pick<
 export type GuideProfileUpsert = Pick<
   GuideProfileRow,
   | "user_id"
-  | "display_name"
   | "bio"
   | "years_experience"
   | "specialization"
