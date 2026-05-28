@@ -2,6 +2,8 @@
 
 > Архив решений по позиционированию главной страницы. Хронология: Элиста-специфичный → универсальный.
 
+> **Важно:** ставки и проценты ниже — исторические снимки того, что было опубликовано или предложено на указанные даты. Текущая каноническая политика комиссии описана в `docs/product/PRD.md` §15 и KODEX «Три модели продукта»; ставка комиссии не выводится в публичном UI.
+
 ---
 
 ## Оригинальный Элиста-специфичный hero (до 2026-05-26)
@@ -57,7 +59,9 @@
 
 **Решение:** убрать город из H1 headline полностью, оставить только в поле «Куда» с env-default.
 
-### Итоговый universal copy (действует с 2026-05-26)
+### Итоговый universal copy (действовал с 2026-05-26; шаблон retired)
+
+> Шаблон subtitle с публичным процентом retired 2026-05-27, когда ставка комиссии стала внутренней информацией и перестала выводиться в публичном UI.
 
 **H1:**
 ```
@@ -69,7 +73,7 @@
 Опишите запрос — местные гиды ответят за пару часов.
 Мы берём {COMMISSION_PCT}%, остальное идёт гиду напрямую.
 ```
-_(COMMISSION_PCT = 10, из `src/config/commission.ts`)_
+_(историческая интерполяция; текущий канон комиссии см. в `docs/product/PRD.md` §15 и KODEX «Три модели продукта»)_
 
 **Поле «Куда» (default):**
 ```
@@ -103,5 +107,4 @@ NEXT_PUBLIC_PHASE_A_CITY env → fallback «Элиста»
 - `research/TARGET_AUDIENCE.md` — сегменты и Phase A overrides
 - `src/features/homepage/components/homepage-hero-form.tsx` — текущий code
 - `src/features/homepage/components/homepage-request-form.tsx` — env-default для поля «Куда»
-- `src/config/commission.ts` — `COMMISSION_PCT` (interpolated в subtitle)
 - `KODEX.md` §Product canon — env `NEXT_PUBLIC_PHASE_A_CITY` scope rules
