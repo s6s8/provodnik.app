@@ -89,7 +89,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <CardTitle className="text-lg">
-                          {booking?.travelerName ?? "Путешественник"} vs {booking?.guideName ?? "Гид"}
+                          {booking?.travelerName ?? "Путешественник"} vs {booking?.guideName ?? "Локальный гид"}
                         </CardTitle>
                         <Badge variant={badge.variant}>
                           <badge.Icon className="mr-1 size-3.5" />

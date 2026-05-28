@@ -6,6 +6,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Clock, Users, Wallet, X } from
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -91,7 +92,7 @@ export function OfferCard({
   travelerCount,
   travelerBudgetPerPersonRub,
 }: Props) {
-  const guideName = guideInfo?.full_name ?? "Гид";
+  const guideName = resolveDisplayName("guide", { full_name: guideInfo?.full_name ?? null });
   const canAccept = requestStatus === "open" && offer.status === "pending";
 
   const offerCount = offer.capacity > 0 ? offer.capacity : (travelerCount ?? 1);

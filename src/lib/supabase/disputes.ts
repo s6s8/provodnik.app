@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import { transitionBooking } from "@/lib/bookings/state-machine";
 import { notifyDisputeOpened } from "@/lib/notifications/triggers";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BookingRow, Uuid } from "@/lib/supabase/types";
 
@@ -168,7 +169,7 @@ function normalizeBooking(row: BookingJoinRow | BookingJoinRow[] | null): Disput
     travelerName: traveler?.full_name?.trim() || "Путешественник",
     travelerAvatarUrl: traveler?.avatar_url ?? null,
     guideId: booking.guide_id,
-    guideName: guide?.full_name?.trim() || "Гид",
+    guideName: resolveDisplayName("guide", { full_name: guide?.full_name ?? null }),
     guideAvatarUrl: guide?.avatar_url ?? null,
     destination: request?.destination?.trim() || "Маршрут",
     listingTitle: listing?.title?.trim() || null,

@@ -81,7 +81,7 @@ export function DisputeCaseDetail({
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div className="space-y-2">
               <CardTitle className="text-lg">
-                {booking?.travelerName ?? "Путешественник"} vs {booking?.guideName ?? "Гид"}
+                {booking?.travelerName ?? "Путешественник"} vs {booking?.guideName ?? "Локальный гид"}
               </CardTitle>
               <CardDescription className="flex flex-wrap gap-x-2 gap-y-1">
                 <span>Бронь {booking?.id ?? dispute.bookingId}</span>

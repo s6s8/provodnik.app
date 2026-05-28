@@ -19,6 +19,7 @@ import {
 } from "@/app/(protected)/guide/verification/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 import { AvatarUploadBlock } from "@/app/(protected)/profile/_components/avatar-upload-block";
@@ -75,7 +76,7 @@ export default async function GuideProfilePage() {
   const guideId = auth.userId;
 
   let avatarUrl: string | null = null;
-  let displayName: string = auth.email ?? "Гид";
+  let displayName: string = resolveDisplayName("guide", { full_name: auth.email ?? null });
   try {
     const supabase = await createSupabaseServerClient();
     const { data: profileRow } = await supabase
@@ -86,7 +87,7 @@ export default async function GuideProfilePage() {
     if (profileRow) {
       avatarUrl = (profileRow as { avatar_url?: string | null }).avatar_url ?? null;
       const fullName = (profileRow as { full_name?: string | null }).full_name;
-      if (fullName) displayName = fullName;
+      displayName = resolveDisplayName("guide", { full_name: fullName ?? auth.email ?? null });
     }
   } catch {
     // fall back to defaults
