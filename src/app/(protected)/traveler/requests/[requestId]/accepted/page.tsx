@@ -3,8 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -53,8 +54,10 @@ export default async function TravelerRequestAcceptedPage({
     redirect("/traveler/requests");
   }
 
-  let guideName = "Гид";
-  let guideAvatarUrl: string | null = null;
+  let guideProfile: { full_name: string | null; avatar_url: string | null } = {
+    full_name: null,
+    avatar_url: null,
+  };
 
   if (guide_id) {
     const { data: profile } = await supabase
@@ -62,9 +65,17 @@ export default async function TravelerRequestAcceptedPage({
       .select("id, full_name, avatar_url")
       .eq("id", guide_id)
       .maybeSingle();
-    if (profile?.full_name) guideName = profile.full_name;
-    if (profile?.avatar_url) guideAvatarUrl = profile.avatar_url;
+    if (profile) {
+      guideProfile = {
+        full_name: profile.full_name,
+        avatar_url: profile.avatar_url,
+      };
+    }
   }
+
+  const guideName = resolveDisplayName("guide", {
+    full_name: guideProfile.full_name,
+  });
 
   const { data: request } = await supabase
     .from("traveler_requests")
@@ -73,12 +84,6 @@ export default async function TravelerRequestAcceptedPage({
     .maybeSingle();
 
   const tripDateLabel = request?.starts_on ? formatDate(request.starts_on) : null;
-
-  const guideInitials = guideName
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w.charAt(0).toUpperCase())
-    .join("");
 
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-16">
@@ -98,14 +103,11 @@ export default async function TravelerRequestAcceptedPage({
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          <Avatar className="size-20 border-2 border-green-200">
-            {guideAvatarUrl ? (
-              <AvatarImage src={guideAvatarUrl} alt={guideName} />
-            ) : null}
-            <AvatarFallback className="bg-green-50 text-lg font-semibold text-green-700">
-              {guideInitials}
-            </AvatarFallback>
-          </Avatar>
+          <ProfileAvatar
+            profile={guideProfile}
+            size={80}
+            className="border-2 border-green-200"
+          />
           <p className="text-sm font-semibold text-foreground">{guideName}</p>
         </div>
 

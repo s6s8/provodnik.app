@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Star } from "lucide-react";
 
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,15 +19,6 @@ type BookingReviewDetails = {
   guideAvatarUrl: string | null;
   guideVerified: boolean;
 };
-
-function getInitials(name: string) {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
 
 export function TravelerBookingReviewScreen({
   booking,
@@ -77,18 +69,13 @@ export function TravelerBookingReviewScreen({
         </CardHeader>
         <CardContent>
           <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-background/70 p-4">
-            <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-primary/10 text-primary">
-              {booking.guideAvatarUrl ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={booking.guideAvatarUrl}
-                  alt={booking.guideName}
-                  className="size-full object-cover"
-                />
-              ) : (
-                <span className="text-sm font-semibold">{getInitials(booking.guideName)}</span>
-              )}
-            </div>
+            <ProfileAvatar
+              profile={{
+                full_name: booking.guideName,
+                avatar_url: booking.guideAvatarUrl,
+              }}
+              size={48}
+            />
             <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-medium text-foreground">{booking.guideName}</p>

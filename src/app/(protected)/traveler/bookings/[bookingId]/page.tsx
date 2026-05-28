@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { OpenDisputeButton } from "@/features/disputes/components/open-dispute-button";
@@ -46,16 +46,6 @@ function formatDateRange(startsOn: string | null, endsOn: string | null) {
     });
   if (!endsOn || endsOn === startsOn) return fmt(startsOn);
   return `${fmt(startsOn)} — ${fmt(endsOn)}`;
-}
-
-function getInitials(name: string | null) {
-  if (!name) return "Г";
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
 }
 
 function toStateMachineStatus(s: string) {
@@ -194,12 +184,14 @@ export default async function TravelerBookingDetailPage({
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass p-5 px-6 flex flex-col gap-3.5">
             <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
             <div className="flex items-center gap-3.5">
-              <Avatar className="size-13 border-2 border-glass-border">
-                <AvatarImage src={guideAvatarUrl ?? undefined} alt={guideName} className="object-cover" />
-                <AvatarFallback className="font-display text-xl font-semibold text-primary">
-                  {getInitials(guideName)}
-                </AvatarFallback>
-              </Avatar>
+              <ProfileAvatar
+                profile={{
+                  full_name: guideProfileData?.full_name ?? null,
+                  avatar_url: guideAvatarUrl,
+                }}
+                size={52}
+                className="border-2 border-glass-border"
+              />
               <div className="flex-1 min-w-0 flex flex-col gap-[0.3rem]">
                 <p className="font-sans text-base font-semibold text-foreground flex items-center gap-1.5">
                   {guideName}
