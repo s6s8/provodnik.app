@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import type { RequestRecord } from "@/data/supabase/queries";
 
 import { GuideInboxCardHeader } from "./guide-inbox-card-header";
-import { filterInbox } from "./guide-requests-inbox-filter";
+import { filterInbox, getInboxTabCounts } from "./guide-requests-inbox-filter";
 
 const baseRequest: RequestRecord = {
   id: "req-1",
@@ -74,6 +74,46 @@ describe("filterInbox", () => {
     });
 
     expect(filtered).toEqual([]);
+  });
+});
+
+describe("getInboxTabCounts", () => {
+  const scopeOptions = {
+    baseCity: "Элиста",
+    cityFilter: "all",
+    offeredIds: new Set(["elista-b", "karelia-c"]),
+    sortKey: "newest" as const,
+    specializations: [] as string[],
+  };
+
+  it("counts «Новые» only for unanswered requests in the guide base city", () => {
+    const items = [
+      request({ id: "elista-a", destination: "Элиста, центр" }),
+      request({ id: "elista-b", destination: "Элиста, музеи" }),
+      request({ id: "karelia-c", destination: "Карелия, Рускеала" }),
+    ];
+
+    const { newCount } = getInboxTabCounts(items, scopeOptions);
+
+    expect(newCount).toBe(1);
+    expect(
+      filterInbox(items, { ...scopeOptions, filter: "new" }).length,
+    ).toBe(newCount);
+  });
+
+  it("counts «Мои предложения» only for offers in the guide base city", () => {
+    const items = [
+      request({ id: "elista-a", destination: "Элиста, центр" }),
+      request({ id: "elista-b", destination: "Элиста, музеи" }),
+      request({ id: "karelia-c", destination: "Карелия, Рускеала" }),
+    ];
+
+    const { myOffersCount } = getInboxTabCounts(items, scopeOptions);
+
+    expect(myOffersCount).toBe(1);
+    expect(
+      filterInbox(items, { ...scopeOptions, filter: "my-offers" }).length,
+    ).toBe(myOffersCount);
   });
 });
 

@@ -15,6 +15,7 @@ import { BidFormPanel } from "./bid-form-panel";
 import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import {
   filterInbox,
+  getInboxTabCounts,
   isMatchedRequest,
   type GuideRequestsFilter,
   type GuideRequestsSortKey,
@@ -128,12 +129,17 @@ export function GuideRequestsInboxScreen() {
     return [...new Set(cities)].sort();
   }, [items]);
 
-  const newCount = items.filter(
-    (item) => !offeredIds.has(item.id),
-  ).length;
-  const myOffersCount = items.filter(
-    (item) => offeredIds.has(item.id),
-  ).length;
+  const { newCount, myOffersCount } = React.useMemo(
+    () =>
+      getInboxTabCounts(items, {
+        baseCity,
+        cityFilter,
+        offeredIds,
+        sortKey,
+        specializations,
+      }),
+    [items, offeredIds, baseCity, cityFilter, sortKey, specializations],
+  );
 
   React.useEffect(() => {
     if (didAutoSelect) return;

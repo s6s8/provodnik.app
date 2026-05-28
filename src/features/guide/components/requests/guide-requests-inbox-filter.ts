@@ -84,3 +84,15 @@ export function filterInbox(
 
   return filtered;
 }
+
+type InboxScopeOptions = Omit<FilterInboxOptions, "filter">;
+
+export function getInboxTabCounts(
+  items: RequestRecord[],
+  options: InboxScopeOptions,
+): { newCount: number; myOffersCount: number } {
+  return {
+    newCount: filterInbox(items, { ...options, filter: "new" }).length,
+    myOffersCount: filterInbox(items, { ...options, filter: "my-offers" }).length,
+  };
+}
