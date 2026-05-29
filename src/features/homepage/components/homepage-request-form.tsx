@@ -14,6 +14,7 @@ import { LANGUAGES } from "@/data/languages";
 import { THEMES } from "@/data/themes";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 import TrustStrip from "@/components/shared/TrustStrip";
+import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -252,40 +253,17 @@ export function HomepageRequestForm({ destinations }: Props) {
       </div>
 
       {/* 5. Языки экскурсии */}
-      <fieldset className="grid gap-2">
-        <legend className="text-sm font-medium text-foreground">
-          Языки экскурсии (необязательно)
-        </legend>
+      <div className="grid gap-2">
+        <FieldLabel>Языки экскурсии (необязательно)</FieldLabel>
         <p className="text-xs text-muted-foreground">
           Если важен конкретный язык — выберите. Иначе гиды любых языков смогут откликнуться.
         </p>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {LANGUAGES.map((language) => {
-            const requestedLanguages = requestedLanguagesField.value ?? [];
-            const selected = requestedLanguages.includes(language);
-            return (
-              <label
-                key={language}
-                className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground hover:bg-muted/50 has-[:checked]:border-primary has-[:checked]:bg-primary/5"
-              >
-                <input
-                  type="checkbox"
-                  value={language}
-                  checked={selected}
-                  onChange={() => {
-                    const next = selected
-                      ? requestedLanguages.filter((item) => item !== language)
-                      : [...requestedLanguages, language];
-                    requestedLanguagesField.onChange(next);
-                  }}
-                  className="size-5 rounded border-border accent-primary"
-                />
-                {language}
-              </label>
-            );
-          })}
-        </div>
-      </fieldset>
+        <LanguageMultiSelect
+          options={LANGUAGES}
+          value={requestedLanguagesField.value ?? []}
+          onChange={requestedLanguagesField.onChange}
+        />
+      </div>
 
       {/* 6. Бюджет на человека (₽) */}
       <div className="grid gap-2">

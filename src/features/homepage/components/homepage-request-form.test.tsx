@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { describe, beforeEach, expect, it, vi } from "vitest";
+import { describe, beforeAll, beforeEach, expect, it, vi } from "vitest";
 
 const mockGetUser = vi.fn();
 const mockRouterRefresh = vi.fn();
@@ -39,6 +39,18 @@ vi.mock("./homepage-auth-gate", () => ({
 }));
 
 import { HomepageRequestForm } from "./homepage-request-form";
+import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
+
+beforeAll(() => {
+  class ResizeObserverMock {
+    observe = vi.fn();
+    unobserve = vi.fn();
+    disconnect = vi.fn();
+  }
+
+  globalThis.ResizeObserver = ResizeObserverMock;
+  Element.prototype.scrollIntoView = vi.fn();
+});
 
 function fillMinimalForm() {
   fireEvent.change(screen.getByLabelText(/куда хотите/i), {
@@ -54,6 +66,8 @@ function fillMinimalForm() {
 describe("HomepageRequestForm onSubmit", () => {
   beforeEach(() => {
     mockGetUser.mockReset();
+    vi.mocked(createRequestAction).mockClear();
+    vi.mocked(createRequestAction).mockResolvedValue({ error: null });
   });
 
   it("opens auth gate when getUser throws a network error", async () => {
@@ -75,6 +89,30 @@ describe("HomepageRequestForm onSubmit", () => {
       expect(screen.getByTestId("auth-gate-open")).toBeInTheDocument();
     });
   });
+
+  it("submits selected languages as requested_languages[]", async () => {
+    mockGetUser.mockResolvedValueOnce({
+      data: { user: { id: "user-1" } },
+      error: null,
+    });
+    render(<HomepageRequestForm destinations={[]} />);
+    fillMinimalForm();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Выбрать языки экскурсии" }),
+    );
+    fireEvent.click(screen.getByText("Английский"));
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
+
+    await waitFor(() => {
+      expect(createRequestAction).toHaveBeenCalled();
+    });
+
+    const submittedFormData = vi.mocked(createRequestAction).mock.calls[0][1] as FormData;
+    expect(submittedFormData.getAll("requested_languages[]")).toEqual([
+      "Английский",
+    ]);
+  });
 });
 
 describe("HomepageRequestForm UI affordances", () => {
@@ -95,9 +133,15 @@ describe("HomepageRequestForm UI affordances", () => {
   it("renders the language multi-select labelled «Языки экскурсии» (bk-task-05)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     expect(screen.getByText(/Языки экскурсии/i)).toBeInTheDocument();
+    expect(screen.getByText("Любой язык")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", { name: "Выбрать языки экскурсии" }),
+    );
+
     // canonical list — at minimum Russian + Hindi must be selectable
-    expect(screen.getByLabelText("Русский")).toBeInTheDocument();
-    expect(screen.getByLabelText("Хинди")).toBeInTheDocument();
+    expect(screen.getByText("Русский")).toBeInTheDocument();
+    expect(screen.getByText("Хинди")).toBeInTheDocument();
   });
 
   it("defaults start and end time inputs to 12:00 (bk-task-03)", () => {
