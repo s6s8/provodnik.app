@@ -82,6 +82,31 @@ function shouldShowMeetingPoint(phase: TripPhase, startsOn: string): boolean {
   return start - Date.now() <= fortyEightHours;
 }
 
+function FlexPills({
+  openToJoin,
+  datesFlexible,
+}: {
+  openToJoin?: boolean;
+  datesFlexible?: boolean;
+}) {
+  if (!openToJoin && !datesFlexible) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {openToJoin ? (
+        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+          + к группе
+        </span>
+      ) : null}
+      {datesFlexible ? (
+        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+          ± даты
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 export function TripCard({
   phase,
   trip,
@@ -95,6 +120,10 @@ export function TripCard({
     <article className="rounded-lg border bg-card p-4">
       <TripPhoto phase={phase} trip={trip} />
       <h3 className="text-lg font-medium">{trip.destination}</h3>
+      <FlexPills
+        openToJoin={trip.openToJoin}
+        datesFlexible={trip.datesFlexible}
+      />
       {!trip.isOwnRequest && trip.organizerName && (
         <p className="text-sm">
           Сборная группа · организатор: {trip.organizerName}

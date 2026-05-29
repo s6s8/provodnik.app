@@ -10,6 +10,10 @@ export type TripCardModel = {
   destination: string;
   startsOn: string; // ISO date
   isOwnRequest: boolean;
+  /** «Открыт к увеличению группы» — render «+ к группе» pill */
+  openToJoin?: boolean;
+  /** dates flexible (date_locked === false) — render «± даты» pill */
+  datesFlexible?: boolean;
   guideName: string | null;
   guideAvatarUrl: string | null;
   organizerName: string | null;

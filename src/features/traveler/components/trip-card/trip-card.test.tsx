@@ -90,6 +90,48 @@ describe("TripCard", () => {
     expect(screen.getByTestId("photo-fallback")).toBeInTheDocument();
   });
 
+  it("renders «+ к группе» and «± даты» pills for a waiting_offers own request with both flags", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{
+          id: "r1",
+          destination: "Москва",
+          startsOn: "2026-07-01",
+          isOwnRequest: true,
+          guideName: null,
+          guideAvatarUrl: null,
+          organizerName: null,
+          openToJoin: true,
+          datesFlexible: true,
+        }}
+      />,
+    );
+    expect(screen.getByText("+ к группе")).toBeInTheDocument();
+    expect(screen.getByText("± даты")).toBeInTheDocument();
+  });
+
+  it("renders no flex pills when both flags are false", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{
+          id: "r2",
+          destination: "Казань",
+          startsOn: "2026-07-01",
+          isOwnRequest: true,
+          guideName: null,
+          guideAvatarUrl: null,
+          organizerName: null,
+          openToJoin: false,
+          datesFlexible: false,
+        }}
+      />,
+    );
+    expect(screen.queryByText("+ к группе")).not.toBeInTheDocument();
+    expect(screen.queryByText("± даты")).not.toBeInTheDocument();
+  });
+
   it("does NOT render meeting point on 'upcoming' if more than 48h away", () => {
     const farFuture = new Date(Date.now() + 72 * 3600 * 1000)
       .toISOString()

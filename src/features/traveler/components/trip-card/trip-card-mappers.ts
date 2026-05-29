@@ -18,11 +18,18 @@ export function mapRequestToPhase(
 export function mapRequestToTrip(
   request: TravelerRequestSummary,
 ): TripCardModel {
+  const requestWithFlexFlags = request as TravelerRequestSummary & {
+    open_to_join?: boolean | null;
+    date_locked?: boolean | null;
+  };
+
   return {
     id: request.id,
     destination: request.destination,
     startsOn: request.starts_on,
     isOwnRequest: true,
+    openToJoin: requestWithFlexFlags.open_to_join ?? false,
+    datesFlexible: requestWithFlexFlags.date_locked === false,
     guideName: null,
     guideAvatarUrl: null,
     organizerName: null,
