@@ -95,7 +95,6 @@ export function SiteHeader({
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const avatarInitial = email ? email[0].toUpperCase() : "?";
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
-  const settingsHref = role === "guide" ? "/guide/settings" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
 
@@ -168,11 +167,6 @@ export function SiteHeader({
                 <DropdownMenuItem asChild>
                   <Link href={profileHref}>Мой профиль</Link>
                 </DropdownMenuItem>
-                {role === "guide" ? (
-                  <DropdownMenuItem asChild>
-                    <Link href={settingsHref}>Настройки</Link>
-                  </DropdownMenuItem>
-                ) : null}
                 <DropdownMenuItem asChild>
                   <Link href="/help">Помощь</Link>
                 </DropdownMenuItem>

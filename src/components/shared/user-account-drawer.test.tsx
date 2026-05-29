@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { UserAccountDrawer } from "./user-account-drawer";
 
 describe("UserAccountDrawer", () => {
-  it("hides «Настройки» for travellers", () => {
+  it("hides «Настройки» for travellers (settings merged into profile)", () => {
     render(
       <UserAccountDrawer
         open
@@ -18,7 +18,7 @@ describe("UserAccountDrawer", () => {
     expect(screen.getByText("Мой профиль")).toBeInTheDocument();
   });
 
-  it("shows «Настройки» for guides", () => {
+  it("hides «Настройки» for guides too (settings merged into profile)", () => {
     render(
       <UserAccountDrawer
         open
@@ -28,6 +28,7 @@ describe("UserAccountDrawer", () => {
       />,
     );
 
-    expect(screen.getByText("Настройки")).toBeInTheDocument();
+    expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
+    expect(screen.getByText("Мой профиль")).toBeInTheDocument();
   });
 });

@@ -54,7 +54,7 @@ describe("SiteHeader desktop account menu", () => {
     expect(screen.getByText("Выйти")).toBeInTheDocument();
   });
 
-  it("hides «Настройки» in the desktop header dropdown for travellers, shows it for guides", async () => {
+  it("hides «Настройки» in the desktop header dropdown for both travellers and guides (settings merged into profile)", async () => {
     const { unmount } = renderAuthenticatedHeader("traveler");
 
     await openAccountMenu();
@@ -67,7 +67,8 @@ describe("SiteHeader desktop account menu", () => {
 
     await openAccountMenu();
 
-    expect(await screen.findByText("Настройки")).toBeInTheDocument();
+    expect(await screen.findByText("Мой профиль")).toBeInTheDocument();
+    expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
   });
 
   it("«Мой профиль» for traveler links to /profile/personal", async () => {
