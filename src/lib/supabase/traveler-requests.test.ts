@@ -1,5 +1,19 @@
-import { describe, it, expect } from 'vitest'
+import { beforeEach, describe, it, expect, vi } from 'vitest'
+
+const { createSupabaseServerClient } = vi.hoisted(() => ({
+  createSupabaseServerClient: vi.fn(),
+}))
+
+vi.mock('@/lib/supabase/server', () => ({
+  createSupabaseServerClient,
+}))
+
+import { getActiveRequests } from './traveler-requests'
 import type { TravelerRequestSummary, ConfirmedBookingSummary } from './traveler-requests'
+
+beforeEach(() => {
+  createSupabaseServerClient.mockReset()
+})
 
 describe('TravelerRequestSummary type', () => {
   it('accepts open status', () => {
@@ -8,6 +22,7 @@ describe('TravelerRequestSummary type', () => {
       start_time: null, starts_on: '2026-06-01', ends_on: null, budget_minor: 10000,
       participants_count: 2, status: 'open', created_at: '2026-04-21T00:00:00Z',
       offer_count: 0, guide_avatars: [], mode: 'private', group_max: null,
+      open_to_join: false, date_locked: true,
     }
     expect(req.status).toBe('open')
   })
@@ -18,6 +33,7 @@ describe('TravelerRequestSummary type', () => {
       start_time: null, starts_on: '2026-01-01', ends_on: null, budget_minor: null,
       participants_count: 1, status: 'expired', created_at: '2026-01-01T00:00:00Z',
       offer_count: 0, guide_avatars: [], mode: 'private', group_max: null,
+      open_to_join: false, date_locked: true,
     }
     expect(req.status).toBe('expired')
   })
@@ -33,6 +49,7 @@ describe('TravelerRequestSummary type', () => {
       start_time: null, starts_on: '2026-06-01', ends_on: null, budget_minor: null,
       participants_count: 3, status: 'open', created_at: '2026-04-21T00:00:00Z',
       offer_count: 5, guide_avatars: avatars, mode: 'assembly', group_max: 10,
+      open_to_join: true, date_locked: false,
     }
     expect(req.guide_avatars).toHaveLength(3)
     expect(req.offer_count).toBe(5)
@@ -47,5 +64,54 @@ describe('ConfirmedBookingSummary type', () => {
       guide_name: 'Иван', guide_avatar_url: null, booking_thread_id: null,
     }
     expect(booking.price_minor).toBeGreaterThan(0)
+  })
+})
+
+describe('getActiveRequests', () => {
+  it('returns open_to_join and date_locked flags', async () => {
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'request-1',
+          destination: 'Элиста',
+          region: null,
+          interests: ['История'],
+          starts_on: '2026-06-01',
+          ends_on: null,
+          start_time: null,
+          budget_minor: 10000,
+          participants_count: 2,
+          status: 'open',
+          created_at: '2026-04-21T00:00:00Z',
+          format_preference: 'group',
+          group_capacity: 8,
+          open_to_join: true,
+          date_locked: false,
+        }],
+        error: null,
+      }),
+    }
+    const offersQuery: { select: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn(),
+    }
+    offersQuery.in
+      .mockReturnValueOnce(offersQuery)
+      .mockResolvedValueOnce({ data: [], error: null })
+    const from = vi.fn((table: string) => {
+      if (table === 'traveler_requests') return requestQuery
+      if (table === 'guide_offers') return offersQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    const [summary] = await getActiveRequests('traveler-1')
+
+    expect(summary.open_to_join).toBe(true)
+    expect(summary.date_locked).toBe(false)
   })
 })

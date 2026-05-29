@@ -29,6 +29,8 @@ export interface TravelerRequestSummary {
   guide_avatars: Array<{ guide_id: string; avatar_url: string | null; full_name: string | null }>
   mode: 'assembly' | 'private'
   group_max: number | null
+  open_to_join?: boolean
+  date_locked?: boolean
 }
 
 export interface ConfirmedBookingSummary {
@@ -74,7 +76,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
 
   const { data: requests, error } = await supabase
     .from('traveler_requests')
-    .select('id, destination, region, interests, starts_on, ends_on, start_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity')
+    .select('id, destination, region, interests, starts_on, ends_on, start_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked')
     .eq('traveler_id', travelerId)
     .in('status', ['open', 'expired', 'cancelled'])
     .order('created_at', { ascending: false })
@@ -114,6 +116,8 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
     start_time: string | null
     format_preference: string | null
     group_capacity: number | null
+    open_to_join: boolean
+    date_locked: boolean
   }
 
   return (requests as RequestRow[]).map((r) => {
@@ -131,6 +135,8 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
       participants_count: r.participants_count,
       status: r.status as TravelerRequestSummary['status'],
       created_at: r.created_at,
+      open_to_join: r.open_to_join,
+      date_locked: r.date_locked,
       offer_count: offerList.length,
       guide_avatars: offerList.slice(0, 3).map((o) => ({
         guide_id: o.guide_id,
