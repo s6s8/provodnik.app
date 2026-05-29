@@ -35,27 +35,7 @@ function TripPhoto({
   }
 
   if (phase === "waiting_offers") {
-    if (!trip.destinationCityPhotoUrl) {
-      return (
-        <div
-          data-testid="photo-fallback"
-          className="flex aspect-video items-center justify-center bg-muted"
-        >
-          <span className="text-muted-foreground">фото скоро</span>
-        </div>
-      );
-    }
-
-    return (
-      <Image
-        unoptimized
-        src={trip.destinationCityPhotoUrl}
-        alt={trip.destination}
-        width={1200}
-        height={675}
-        className="aspect-video w-full object-cover"
-      />
-    );
+    return null; // requests have no «фото места»; card is text-first (city + meta)
   }
 
   const stop = trip.routeStops?.[0];

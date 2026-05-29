@@ -66,28 +66,25 @@ describe("TripCard", () => {
     expect(screen.getAllByTestId(/photo-slot/)).toHaveLength(3);
   });
 
-  it("renders destination city photo for phase 'waiting_offers'", () => {
+  it("does not render any photo block on the waiting_offers phase", () => {
     render(
       <TripCard
         phase="waiting_offers"
-        trip={{ ...baseTrip, destinationCityPhotoUrl: "/cities/elista.jpg" }}
+        trip={{
+          id: "r3",
+          destination: "Элиста",
+          startsOn: "2026-07-01",
+          isOwnRequest: true,
+          guideName: null,
+          guideAvatarUrl: null,
+          organizerName: null,
+          destinationCityPhotoUrl: null,
+        }}
       />,
     );
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      "/cities/elista.jpg",
-    );
-  });
-
-  it("falls back to a grey block when waiting_offers has no city photo", () => {
-    render(
-      <TripCard
-        phase="waiting_offers"
-        trip={{ ...baseTrip, destinationCityPhotoUrl: null }}
-      />,
-    );
-    expect(screen.queryByRole("img")).toBeNull();
-    expect(screen.getByTestId("photo-fallback")).toBeInTheDocument();
+    expect(screen.queryByText("фото скоро")).not.toBeInTheDocument();
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.getByText("Элиста")).toBeInTheDocument();
   });
 
   it("renders «+ к группе» and «± даты» pills for a waiting_offers own request with both flags", () => {
