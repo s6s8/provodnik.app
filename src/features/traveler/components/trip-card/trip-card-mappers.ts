@@ -27,6 +27,14 @@ export function mapRequestToTrip(
     id: request.id,
     destination: request.destination,
     startsOn: request.starts_on,
+    endsOn: request.ends_on,
+    startTime: request.start_time,
+    participantsCount: request.participants_count,
+    budget:
+      request.budget_minor == null
+        ? null
+        : { amount: request.budget_minor, currency: "RUB" },
+    offerCount: request.offer_count,
     isOwnRequest: true,
     openToJoin: requestWithFlexFlags.open_to_join ?? false,
     datesFlexible: requestWithFlexFlags.date_locked === false,

@@ -108,6 +108,46 @@ describe("TripCard", () => {
     expect(screen.getByText("± даты")).toBeInTheDocument();
   });
 
+  it("renders request facts and links a waiting_offers card to the request detail page", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{
+          id: "request-42",
+          destination: "Липецк",
+          startsOn: "2026-07-01",
+          endsOn: "2026-07-03",
+          budget: { amount: 1250000, currency: "RUB" },
+          participantsCount: 5,
+          isOwnRequest: true,
+          guideName: null,
+          guideAvatarUrl: null,
+          organizerName: null,
+          openToJoin: true,
+          datesFlexible: true,
+        }}
+      />,
+    );
+
+    const cardLink = screen.getByRole("link", { name: /Липецк/ });
+    expect(cardLink).toHaveAttribute("href", "/traveler/requests/request-42");
+    expect(screen.getByText("1 июля 2026 – 3 июля 2026")).toBeInTheDocument();
+    const budgetLabel = new Intl.NumberFormat("ru-RU", {
+      style: "currency",
+      currency: "RUB",
+      currencyDisplay: "narrowSymbol",
+      maximumFractionDigits: 0,
+    }).format(12500);
+    expect(
+      screen.getByText((_, element) =>
+        Boolean(element?.textContent === budgetLabel),
+      ),
+    ).toBeInTheDocument();
+    expect(screen.getByText("5 человек")).toBeInTheDocument();
+    expect(screen.getByText("+ к группе")).toBeInTheDocument();
+    expect(screen.getByText("± даты")).toBeInTheDocument();
+  });
+
   it("renders no flex pills when both flags are false", () => {
     render(
       <TripCard

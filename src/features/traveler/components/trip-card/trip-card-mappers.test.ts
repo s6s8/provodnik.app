@@ -56,10 +56,25 @@ describe("trip card mappers", () => {
   });
 
   it("maps a traveler request summary to a TripCardModel", () => {
-    expect(mapRequestToTrip(baseRequest)).toMatchObject({
+    expect(
+      mapRequestToTrip({
+        ...baseRequest,
+        starts_on: "2026-09-10",
+        ends_on: "2026-09-12",
+        start_time: "09:30",
+        budget_minor: 2450000,
+        participants_count: 4,
+        offer_count: 3,
+      }),
+    ).toMatchObject({
       id: "request-1",
       destination: "Элиста",
       startsOn: "2026-09-10",
+      endsOn: "2026-09-12",
+      startTime: "09:30",
+      budget: { amount: 2450000, currency: "RUB" },
+      participantsCount: 4,
+      offerCount: 3,
       isOwnRequest: true,
       guideName: null,
       guideAvatarUrl: null,

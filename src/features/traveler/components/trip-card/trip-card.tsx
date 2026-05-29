@@ -1,6 +1,49 @@
 import Image from "next/image";
+import Link from "next/link";
+import { CalendarDays, Clock, Users, Wallet } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 import type { TripCardModel, TripPhase } from "./trip-card-types";
+
+const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
+
+function formatRub(amount: number) {
+  return new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    currencyDisplay: "narrowSymbol",
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  const monthDay = d.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+  });
+  return `${monthDay} ${d.getFullYear()}`;
+}
+
+function formatDateRange(startsOn: string, endsOn?: string | null) {
+  if (!endsOn || endsOn === startsOn) return formatDate(startsOn);
+  return `${formatDate(startsOn)} – ${formatDate(endsOn)}`;
+}
+
+function formatPeople(count: number) {
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  const noun =
+    mod10 === 1 && mod100 !== 11
+      ? "человек"
+      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+        ? "человека"
+        : "человек";
+  return `${count} ${noun}`;
+}
 
 function TripPhoto({
   phase,
@@ -87,7 +130,53 @@ function FlexPills({
   );
 }
 
-export function TripCard({
+function RequestFacts({ trip }: { trip: TripCardModel }) {
+  const budgetRub = trip.budget ? trip.budget.amount / 100 : null;
+  const participantsCount = trip.participantsCount;
+  const shouldShowParticipants =
+    participantsCount != null && participantsCount > 0;
+
+  return (
+    <div className="flex flex-wrap gap-2">
+      <Badge variant="outline" className={BADGE_CLASS}>
+        <CalendarDays className="size-3.5" />
+        {formatDateRange(trip.startsOn, trip.endsOn)}
+      </Badge>
+      {trip.startTime ? (
+        <Badge variant="outline" className={BADGE_CLASS}>
+          <Clock className="size-3.5" />
+          {trip.startTime}
+        </Badge>
+      ) : null}
+      {shouldShowParticipants ? (
+        <Badge variant="outline" className={BADGE_CLASS}>
+          <Users className="size-3.5" />
+          {formatPeople(participantsCount)}
+        </Badge>
+      ) : null}
+      {budgetRub != null ? (
+        <Badge
+          variant="outline"
+          className={cn(
+            BADGE_CLASS,
+            "border-emerald-200 bg-emerald-50 text-emerald-700",
+          )}
+        >
+          <Wallet className="size-3.5" />
+          {formatRub(budgetRub)}
+        </Badge>
+      ) : null}
+    </div>
+  );
+}
+
+function OfferCount({ count }: { count?: number }) {
+  if (!count || count <= 0) return null;
+
+  return <p className="text-sm text-muted-foreground">{count} откликов</p>;
+}
+
+function TripCardContent({
   phase,
   trip,
 }: {
@@ -95,15 +184,30 @@ export function TripCard({
   trip: TripCardModel;
 }) {
   const meetingPoint = trip.routeStops?.[0]?.address;
+  const isRequestBacked =
+    phase === "waiting_offers" || phase === "awaiting_decision";
 
   return (
-    <article className="rounded-lg border bg-card p-4">
+    <>
       <TripPhoto phase={phase} trip={trip} />
       <h3 className="text-lg font-medium">{trip.destination}</h3>
-      <FlexPills
-        openToJoin={trip.openToJoin}
-        datesFlexible={trip.datesFlexible}
-      />
+      {isRequestBacked ? (
+        <>
+          <RequestFacts trip={trip} />
+          <FlexPills
+            openToJoin={trip.openToJoin}
+            datesFlexible={trip.datesFlexible}
+          />
+          {phase === "awaiting_decision" ? (
+            <OfferCount count={trip.offerCount} />
+          ) : null}
+        </>
+      ) : (
+        <FlexPills
+          openToJoin={trip.openToJoin}
+          datesFlexible={trip.datesFlexible}
+        />
+      )}
       {!trip.isOwnRequest && trip.organizerName && (
         <p className="text-sm">
           Сборная группа · организатор: {trip.organizerName}
@@ -161,6 +265,36 @@ export function TripCard({
         ) : (
           <button type="button">Оставить отзыв</button>
         ))}
+    </>
+  );
+}
+
+export function TripCard({
+  phase,
+  trip,
+}: {
+  phase: TripPhase;
+  trip: TripCardModel;
+}) {
+  const isRequestBacked =
+    phase === "waiting_offers" || phase === "awaiting_decision";
+
+  if (isRequestBacked) {
+    return (
+      <Link
+        href={`/traveler/requests/${trip.id}`}
+        className="block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      >
+        <article className="space-y-3">
+          <TripCardContent phase={phase} trip={trip} />
+        </article>
+      </Link>
+    );
+  }
+
+  return (
+    <article className="rounded-lg border bg-card p-4">
+      <TripCardContent phase={phase} trip={trip} />
     </article>
   );
 }

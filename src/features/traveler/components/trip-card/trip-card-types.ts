@@ -9,6 +9,11 @@ export type TripCardModel = {
   id: string;
   destination: string;
   startsOn: string; // ISO date
+  endsOn?: string | null;
+  startTime?: string | null;
+  participantsCount?: number | null;
+  budget?: { amount: number; currency: string } | null;
+  offerCount?: number;
   isOwnRequest: boolean;
   /** «Открыт к увеличению группы» — render «+ к группе» pill */
   openToJoin?: boolean;
