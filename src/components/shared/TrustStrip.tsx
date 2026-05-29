@@ -3,12 +3,11 @@ import { cn } from "@/lib/utils";
 /**
  * Trust signals strip rendered under the homepage form CTA.
  *
- * Two hardcoded items in Russian (no i18n yet — Phase A is ru-only).
- * Each item is preceded by a checkmark glyph. Visually compact.
+ * Hardcoded trust item in Russian (no i18n yet — Phase A is ru-only).
+ * The item is preceded by a checkmark glyph. Visually compact.
  */
 const ITEMS = [
   "Гиды проверены",
-  "Отмена за 24ч",
 ] as const;
 
 export default function TrustStrip({ className }: { className?: string }) {
