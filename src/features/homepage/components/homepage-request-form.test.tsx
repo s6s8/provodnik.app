@@ -84,6 +84,14 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(input.value).toBe("Москва");
   });
 
+  it("does not render the umbrella «Когда» label above the date/time fields", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    expect(screen.queryByText("Когда")).not.toBeInTheDocument();
+    expect(screen.getByText("Дата")).toBeInTheDocument();
+    expect(screen.getByText("Начало")).toBeInTheDocument();
+    expect(screen.getByText("Конец (необязательно)")).toBeInTheDocument();
+  });
+
   it("renders the language multi-select labelled «Языки экскурсии» (bk-task-05)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     expect(screen.getByText(/Языки экскурсии/i)).toBeInTheDocument();
