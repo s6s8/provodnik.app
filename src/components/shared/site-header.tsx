@@ -168,9 +168,11 @@ export function SiteHeader({
                 <DropdownMenuItem asChild>
                   <Link href={profileHref}>Мой профиль</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href={settingsHref}>Настройки</Link>
-                </DropdownMenuItem>
+                {role === "guide" ? (
+                  <DropdownMenuItem asChild>
+                    <Link href={settingsHref}>Настройки</Link>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem asChild>
                   <Link href="/help">Помощь</Link>
                 </DropdownMenuItem>

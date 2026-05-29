@@ -15,7 +15,7 @@ vi.mock("@/features/messaging/hooks/use-unread-count", () => ({
 import { SiteHeader } from "./site-header";
 
 function renderAuthenticatedHeader(role: "traveler" | "guide") {
-  render(
+  return render(
     <SiteHeader
       isAuthenticated
       role={role}
@@ -44,15 +44,30 @@ describe("SiteHeader desktop account menu", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders four menu items in the avatar dropdown", async () => {
+  it("renders traveler menu items in the avatar dropdown", async () => {
     renderAuthenticatedHeader("traveler");
 
     await openAccountMenu();
 
     expect(await screen.findByText("Мой профиль")).toBeInTheDocument();
-    expect(screen.getByText("Настройки")).toBeInTheDocument();
     expect(screen.getByText("Помощь")).toBeInTheDocument();
     expect(screen.getByText("Выйти")).toBeInTheDocument();
+  });
+
+  it("hides «Настройки» in the desktop header dropdown for travellers, shows it for guides", async () => {
+    const { unmount } = renderAuthenticatedHeader("traveler");
+
+    await openAccountMenu();
+
+    expect(await screen.findByText("Мой профиль")).toBeInTheDocument();
+    expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
+
+    unmount();
+    renderAuthenticatedHeader("guide");
+
+    await openAccountMenu();
+
+    expect(await screen.findByText("Настройки")).toBeInTheDocument();
   });
 
   it("«Мой профиль» for traveler links to /profile/personal", async () => {
