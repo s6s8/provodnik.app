@@ -1,0 +1,10 @@
+---
+description: Commit message + worktree conventions for cursor-agent / SDK runs
+alwaysApply: true
+---
+
+- Commit messages read as written by a human engineer. Format: `type(scope): description` only.
+- NEVER add `Co-Authored-By:` / `Co-authored-by: Cursor` / any AI or tool attribution trailer to commits or PRs. (Attribution is disabled in ~/.cursor/cli-config.json; do not reintroduce it.)
+- Never mention AI tools (cursor, claude, opus, GLM, MCP, SDK) in commit messages or PR bodies.
+- NEVER `git push` — commit only on the current branch, report the hash, wait for the orchestrator to push. No `git merge`, no branch switching during a task.
+- When run inside an isolated worktree, stay within it; touch only the files named in your task.

@@ -49,12 +49,12 @@ Copy `.env.example` → `.env.local`. Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEX
 2. `bun run lint` → 0 errors
 3. No custom CSS classes added
 4. No inline `style={{}}` for layout
-5. Commit exists with Co-Authored-By line
+5. Commit exists; message reads as written by a human engineer (NO AI/tool co-author or attribution trailers)
 
 ## Git Rules
 - **NEVER `git push`** — commit only, report hash, wait for push instruction
 - Pushing to `origin/main` triggers immediate Vercel production deploy
-- Format: `type(scope): description` + blank line + `Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>`
+- Format: `type(scope): description` only. NO `Co-Authored-By:` / `Co-authored-by: Cursor` / any AI/tool attribution trailer — commits read as human-written (cursor attribution disabled in ~/.cursor/cli-config.json)
 
 ## Orchestration
 Telegram orchestrator (`@QuantumBekBot` in supergroup `-1003617072585`, app: `provodnik`) is the canonical control surface. SOT files live at `.claude/sot/` (`HOT.md`, `INDEX.md`, `ERRORS.md`, `ANTI_PATTERNS.md`, `DECISIONS.md`, `PATTERNS.md`, etc.). Prompt skeleton at `.claude/prompts/skeleton.md`. Post-deployment checklist at `.claude/checklists/post-deployment-verification.md`. See `.claude/CLAUDE.md` for the full flow + hand-edit conventions.
