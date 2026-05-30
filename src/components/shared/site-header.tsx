@@ -106,7 +106,7 @@ export function SiteHeader({
         className="mx-auto grid max-w-page grid-cols-[auto_1fr_auto] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-6 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
         aria-label="Основная навигация"
       >
-        <Link href="/" prefetch={false} className="font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
+        <Link href="/" prefetch={false} className="inline-flex min-h-11 items-center font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
           Provodnik
         </Link>
 
@@ -234,7 +234,7 @@ export function SiteHeader({
               <Button
                 variant="ghost"
                 size="icon-sm"
-                className="md:hidden"
+                className="md:hidden min-h-11 min-w-11"
                 aria-label="Открыть меню"
               >
                 <Menu className="size-5" aria-hidden="true" />

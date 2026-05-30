@@ -85,7 +85,7 @@ export function SiteFooter() {
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
               {projectLinks.map((link) => (
                 <li key={link.label}>
-                  <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                  <Link href={link.href} className="flex min-h-11 items-center text-sm text-white/60 transition-colors hover:text-white md:min-h-0">
                     {link.label}
                   </Link>
                 </li>
@@ -105,14 +105,14 @@ export function SiteFooter() {
                       href={link.href}
                       target="_blank"
                       rel="noreferrer"
-                      className="block text-sm text-white/60 transition-colors hover:text-white"
+                      className="flex min-h-11 items-center text-sm text-white/60 transition-colors hover:text-white md:min-h-0"
                     >
                       {link.label}
                     </a>
                   </li>
                 ) : (
                   <li key={link.label}>
-                    <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                    <Link href={link.href} className="flex min-h-11 items-center text-sm text-white/60 transition-colors hover:text-white md:min-h-0">
                       {link.label}
                     </Link>
                   </li>
@@ -132,7 +132,7 @@ export function SiteFooter() {
               <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
                 {policyLinks.map((link) => (
                   <li key={link.label}>
-                    <Link href={link.href} className="block text-sm text-white/60 transition-colors hover:text-white">
+                    <Link href={link.href} className="flex min-h-11 items-center text-sm text-white/60 transition-colors hover:text-white md:min-h-0">
                       {link.label}
                     </Link>
                   </li>
@@ -150,7 +150,7 @@ export function SiteFooter() {
                     key={social.label}
                     href={social.href}
                     aria-label={social.label}
-                    className="flex size-[38px] items-center justify-center rounded-full border border-white/12 text-white/55 transition-[border-color,color] duration-150 hover:border-white/[0.38] hover:text-white"
+                    className="flex size-11 items-center justify-center rounded-full border border-white/12 text-white/55 transition-[border-color,color] duration-150 hover:border-white/[0.38] hover:text-white"
                     target="_blank"
                     rel="noreferrer"
                   >
@@ -190,7 +190,7 @@ export function SiteFooter() {
           <p className="text-[0.8125rem] text-white/[0.35]">© 2026 Provodnik. Все права защищены.</p>
           <a
             href="mailto:support@provodnik.app"
-            className="text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70"
+            className="inline-flex min-h-11 items-center text-[0.8125rem] text-white/[0.35] transition-colors hover:text-white/70 md:min-h-0"
           >
             Поддержка
           </a>

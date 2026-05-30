@@ -204,6 +204,24 @@ export default async function GuideProfilePage() {
 
   return (
     <div className="space-y-10">
+      <nav aria-label="Разделы профиля" className="flex flex-wrap gap-2">
+        {[
+          ["#avatar", "Фото"],
+          ["#about", "О себе"],
+          ["#legal", "Юридические данные"],
+          ["#license", "Аттестаты"],
+          ["#verification", "Верификация"],
+        ].map(([href, label]) => (
+          <a
+            key={href}
+            href={href}
+            className="inline-flex h-9 items-center rounded-md border border-border/70 bg-background px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          >
+            {label}
+          </a>
+        ))}
+      </nav>
+
       <section id="avatar">
         <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />
       </section>
