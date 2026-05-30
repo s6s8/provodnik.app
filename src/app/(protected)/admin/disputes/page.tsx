@@ -15,7 +15,7 @@ export default async function AdminDisputesPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth/login");
+  if (!user) redirect("/auth?next=/admin/disputes");
 
   const { data: profile } = await supabase
     .from("profiles")

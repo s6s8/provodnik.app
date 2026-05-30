@@ -31,7 +31,7 @@ export async function submitReview(bookingId: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth/login");
+    redirect("/auth?next=/traveler/bookings");
   }
 
   const booking = await getBooking(bookingId);

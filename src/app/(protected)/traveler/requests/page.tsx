@@ -14,7 +14,7 @@ export const metadata = { title: 'Мои запросы' }
 export default async function TravelerRequestsPage() {
   const supabase = await createSupabaseServerClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) redirect('/login')
+  if (!user) redirect("/auth?next=/traveler/requests")
 
   const [activeRequests, confirmedBookings, joinedGroups, destinations] = await Promise.all([
     getActiveRequests(user.id),
