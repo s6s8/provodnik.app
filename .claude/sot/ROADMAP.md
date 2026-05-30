@@ -16,6 +16,7 @@
 (no planned epics recorded yet — auto-harvest appends here as the owner names them)
 
 ## Open questions
+- Message [1] is a routing/connectivity test ('ping — это тест маршрутизации, ответь одним словом') with no extractable decision — skipped. (harvest epic E-137)
 - Message [1] asks a process question ('how do i mark epic done?') — this is a question, not a stated decision. (harvest epic E-136)
 - Message [0] asks for a grounded explanation of existing code behavior — this is a research/investigation request, not a decision. (harvest epic E-136)
 - Message [0] contains no decisions — it is a directive to investigate and explain existing behavior before making changes. No terminology fixes, scope/MVP decisions, do/don't rules, process rules, or roadmap items are stated. (harvest epic E-135)
