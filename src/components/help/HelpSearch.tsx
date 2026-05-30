@@ -58,6 +58,7 @@ export function HelpSearch({ articles }: { articles: HelpArticleRow[] }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Поиск по справке..."
+        aria-label="Поиск по справке"
         className="w-full max-w-md"
         aria-autocomplete="list"
         aria-controls="help-search-results"

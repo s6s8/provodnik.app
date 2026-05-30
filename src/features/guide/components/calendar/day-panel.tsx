@@ -127,6 +127,7 @@ export function DayPanel({
           <button
             type="button"
             onClick={onClose}
+            aria-label="Закрыть"
             className="flex size-8 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <X className="size-4" />
