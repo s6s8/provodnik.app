@@ -158,7 +158,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         <Separator />
         <div className="px-4 py-3">
           <Button variant="link" className="h-auto p-0 text-sm" asChild>
-            <Link href="/profile/notifications">Все уведомления</Link>
+            <Link href="/notifications">Все уведомления</Link>
           </Button>
         </div>
       </PopoverContent>
