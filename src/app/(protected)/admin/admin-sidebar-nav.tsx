@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { BarChart3, CalendarCheck, ClipboardList, Flag, ScrollText, UserCheck } from "lucide-react";
+import { BarChart3, CalendarCheck, ClipboardList, Flag, ScrollText, ShieldCheck, UserCheck } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -33,6 +33,13 @@ const adminNavItems = [
     mobileLabel: "Листинги",
     icon: ClipboardList,
     countKey: "listings",
+  },
+  {
+    href: "/admin/moderation",
+    label: "Модерация",
+    mobileLabel: "Модерация",
+    icon: ShieldCheck,
+    countKey: null,
   },
   {
     href: "/admin/disputes",
@@ -125,7 +132,7 @@ export function AdminMobileTabs({
 
   return (
     <nav
-      className="fixed inset-x-3 bottom-3 z-[110] grid grid-cols-6 rounded-[1.5rem] border border-glass-border bg-[rgba(249,249,255,0.9)] p-1.5 shadow-glass backdrop-blur md:hidden"
+      className="fixed inset-x-3 bottom-3 z-[110] grid grid-cols-7 rounded-[1.5rem] border border-glass-border bg-[rgba(249,249,255,0.9)] p-1.5 shadow-glass backdrop-blur md:hidden"
       aria-label="Admin workspace mobile"
     >
       {adminNavItems.map((item) => {

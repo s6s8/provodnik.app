@@ -41,6 +41,7 @@ const travelerNavLinks = [
 
 const guideNavLinks = [
   { href: "/guide", label: "Запросы" },
+  { href: "/guide/listings", label: "Мои объявления" },
   { href: "/guide/calendar", label: "Календарь" },
   { href: "/guide/portfolio", label: "Портфолио" },
   { href: "/guide/profile", label: "Профиль" },
@@ -228,7 +229,7 @@ export function SiteHeader({
             </button>
           )}
 
-          {!isAuthenticated && <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
@@ -282,27 +283,31 @@ export function SiteHeader({
                   );
                 })}
 
-                <div className="mt-2 h-px bg-border" role="separator" />
+                {!isAuthenticated ? (
+                  <>
+                    <div className="mt-2 h-px bg-border" role="separator" />
 
-                <SheetClose asChild>
-                  <Link
-                    href="/become-a-guide"
-                    className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
-                  >
-                    {COPY.nav.becomeGuide}
-                  </Link>
-                </SheetClose>
-                <SheetClose asChild>
-                  <Link
-                    href="/auth"
-                    className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-                  >
-                    {COPY.nav.signIn}
-                  </Link>
-                </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/become-a-guide"
+                        className="w-full rounded-md px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-surface-high hover:text-primary"
+                      >
+                        {COPY.nav.becomeGuide}
+                      </Link>
+                    </SheetClose>
+                    <SheetClose asChild>
+                      <Link
+                        href="/auth"
+                        className="mt-1 w-full rounded-md bg-primary px-3 py-3 text-center text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                      >
+                        {COPY.nav.signIn}
+                      </Link>
+                    </SheetClose>
+                  </>
+                ) : null}
               </nav>
             </SheetContent>
-          </Sheet>}
+          </Sheet>
         </div>
       </nav>
     </header>

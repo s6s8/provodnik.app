@@ -2,11 +2,13 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { Inbox } from "lucide-react";
 
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -199,9 +201,11 @@ export function GuideRequestsInboxScreen() {
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Загрузка запросов…</p>
           ) : items.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              {emptyText}
-            </p>
+            <EmptyState
+              icon={<Inbox className="size-7" strokeWidth={1.5} />}
+              title="Запросов пока нет"
+              description="Путешественники публикуют новые запросы каждый день — скоро здесь появятся подходящие заявки."
+            />
           ) : (
             <>
               <div

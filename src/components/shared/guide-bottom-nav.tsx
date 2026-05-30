@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, FileText, Image, MessageSquare, User } from "lucide-react";
+import { Calendar, ClipboardList, FileText, Image, MessageSquare, User } from "lucide-react";
 
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/guide", label: "Запросы", Icon: FileText },
+  { href: "/guide/listings", label: "Мои объявления", Icon: ClipboardList },
   { href: "/guide/calendar", label: "Календарь", Icon: Calendar },
   { href: "/messages", label: "Сообщения", Icon: MessageSquare, badge: true },
   { href: "/guide/portfolio", label: "Портфолио", Icon: Image },
@@ -24,7 +25,7 @@ export function GuideBottomNav() {
       className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-background/92 backdrop-blur-xl backdrop-saturate-150 border-t border-border"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="h-16 grid grid-cols-5">
+      <div className="h-16 grid grid-cols-6">
         {items.map((item) => {
           let isActive: boolean;
           if (item.href === "/guide") {
