@@ -1,5 +1,6 @@
 import { kopecksToRub } from "@/data/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { EmptyState } from "@/components/shared/empty-state";
 
 import { confirmPaymentAction } from "./actions";
 
@@ -30,7 +31,10 @@ export default async function BookingsPage() {
       <h1 className="text-xl font-semibold text-ink">Бронирования</h1>
 
       {!bookings || bookings.length === 0 ? (
-        <p className="text-sm text-ink-2">Бронирований пока нет.</p>
+        <EmptyState
+          title="Бронирований пока нет"
+          description="Новые бронирования появятся здесь после оформления."
+        />
       ) : (
         <ul className="space-y-3">
           {bookings.map((booking) => {

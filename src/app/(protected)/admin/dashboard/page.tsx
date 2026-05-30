@@ -27,7 +27,7 @@ const statCards = [
   {
     key: "totalBookings",
     label: "Всего бронирований",
-    href: "/admin/disputes",
+    href: "/admin/bookings",
   },
 ] as const;
 
