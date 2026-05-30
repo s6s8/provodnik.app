@@ -71,7 +71,7 @@ export async function markNotificationReadInSupabase(
 
   const { error } = await supabase
     .from("notifications")
-    .update({ is_read: true })
+    .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
     .eq("id", notificationId);
 
   if (error) {

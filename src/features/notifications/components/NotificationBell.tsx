@@ -31,7 +31,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     const supabase = createSupabaseBrowserClient();
     await supabase
       .from("notifications")
-      .update({ status: "read", read_at: new Date().toISOString() })
+      .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
       .eq("id", id);
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
@@ -41,7 +41,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     const supabase = createSupabaseBrowserClient();
     await supabase
       .from("notifications")
-      .update({ status: "read", read_at: new Date().toISOString() })
+      .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
       .eq("user_id", userId)
       .neq("status", "read");
     setNotifications([]);
