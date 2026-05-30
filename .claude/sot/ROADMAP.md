@@ -16,6 +16,8 @@
 (no planned epics recorded yet — auto-harvest appends here as the owner names them)
 
 ## Open questions
+- Message [1] asks a process question ('how do i mark epic done?') — this is a question, not a stated decision. (harvest epic E-136)
+- Message [0] asks for a grounded explanation of existing code behavior — this is a research/investigation request, not a decision. (harvest epic E-136)
 - Message [0] contains no decisions — it is a directive to investigate and explain existing behavior before making changes. No terminology fixes, scope/MVP decisions, do/don't rules, process rules, or roadmap items are stated. (harvest epic E-135)
 - Messages [22]–[27] mix owner instructions with what appear to be autonomous agent status reports (e.g., 'Что зашло', 'Что не зашло', ticket state lists). Which statements in those messages represent owner decisions versus bot-generated summaries is not always unambiguous. (harvest epic E-76)
 - Admin card audit C4 [18]: owner said to 'check at decomposition time' which specific fields (legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number) are missing — no final decision on the exact field list was stated. (harvest epic E-76)
