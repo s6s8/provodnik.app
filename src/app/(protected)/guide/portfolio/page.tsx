@@ -13,7 +13,10 @@ export default async function GuidePortfolioPage() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth?next=/guide/portfolio");
-  if (user.app_metadata?.role !== "guide") redirect("/");
+  const isGuide =
+    user.app_metadata?.role === "guide" ||
+    (await supabase.from("profiles").select("role").eq("id", user.id).single()).data?.role === "guide";
+  if (!isGuide) redirect("/");
 
   return <GuidePortfolioScreen guideId={user.id} />;
 }
