@@ -97,4 +97,58 @@ describe("AdminGuideDetailPage", () => {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
   });
+
+  it("localizes legal status and avoids duplicate qualification document details", async () => {
+    getGuideReviewDetailMock.mockResolvedValueOnce({
+      ...guideDetail,
+      documents: [
+        {
+          id: "doc-1",
+          guide_id: "g1",
+          document_type: "passport",
+          status: "submitted",
+          asset_id: "asset-1",
+          created_at: "2026-05-03T10:00:00.000Z",
+          updated_at: "2026-05-03T10:00:00.000Z",
+          storage_asset: {
+            id: "asset-1",
+            bucket_id: "guide-documents",
+            object_path: "g1/private/passport.pdf",
+            signed_url: null,
+          },
+          signed_url: "https://storage.example/passport.pdf",
+        },
+      ],
+      licenses: [
+        {
+          id: "license-1",
+          guideId: "g1",
+          licenseType: "Аттестат",
+          licenseNumber: "77-123",
+          issuedBy: "Министерством Туризма Республики",
+          validUntil: null,
+          region: null,
+          scopeMode: "all",
+          listingTitles: [],
+        },
+      ],
+    } as unknown as GuideReviewDetail);
+
+    const ui = await AdminGuideDetailPage({
+      params: Promise.resolve({ id: "g1" }),
+    });
+    render(ui);
+
+    expect(screen.getByText("Самозанятый")).toBeInTheDocument();
+    expect(screen.queryByText("self_employed")).not.toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Документ о квалификации" })).toBeInTheDocument();
+    expect(screen.getAllByText("Аттестат")).toHaveLength(1);
+    expect(screen.getAllByText(/Министерством Туризма Республики/)).toHaveLength(1);
+    expect(screen.getByText("passport")).toBeInTheDocument();
+    expect(screen.queryByText("guide-documents/g1/private/passport.pdf")).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Скачать" })).toHaveAttribute(
+      "href",
+      "https://storage.example/passport.pdf",
+    );
+  });
 });

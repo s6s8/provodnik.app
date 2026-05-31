@@ -54,6 +54,22 @@ function verificationLabel(status: string) {
   }
 }
 
+function legalStatusLabel(status: string | null) {
+  switch (status) {
+    case "self_employed":
+    case "self-employed":
+      return "Самозанятый";
+    case "individual_entrepreneur":
+    case "ip":
+      return "ИП";
+    case "company":
+    case "legal_entity":
+      return "Юрлицо";
+    default:
+      return status ?? "—";
+  }
+}
+
 export default async function AdminGuideDetailPage({
   params,
 }: {
@@ -191,7 +207,7 @@ export default async function AdminGuideDetailPage({
                   Правовой статус
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {detail.profile.legal_status ?? "—"}
+                  {legalStatusLabel(detail.profile.legal_status)}
                 </dd>
               </div>
               <div>
@@ -237,7 +253,9 @@ export default async function AdminGuideDetailPage({
 
           <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
             <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-foreground">Аттестаты</h2>
+              <h2 className="text-lg font-semibold text-foreground">
+                Документ о квалификации
+              </h2>
               <span className="text-sm text-muted-foreground">
                 {detail.licenses.length} шт.
               </span>
@@ -246,7 +264,7 @@ export default async function AdminGuideDetailPage({
             <div className="mt-4 space-y-3">
               {detail.licenses.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Пока нет добавленных аттестатов.
+                  Пока нет добавленных документов о квалификации.
                 </p>
               ) : null}
 
@@ -261,7 +279,7 @@ export default async function AdminGuideDetailPage({
                         {license.licenseType}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        № {license.licenseNumber} · {license.issuedBy}
+                        № {license.licenseNumber}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Выдано: {license.issuedBy}
@@ -348,11 +366,6 @@ export default async function AdminGuideDetailPage({
                       Статус: {verificationLabel(document.status)} · Загружен{" "}
                       {formatDateTime(document.created_at)}
                     </div>
-                    {document.storage_asset ? (
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {document.storage_asset.bucket_id}/{document.storage_asset.object_path}
-                      </div>
-                    ) : null}
                   </div>
 
                   {document.signed_url ? (

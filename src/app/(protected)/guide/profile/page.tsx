@@ -210,7 +210,7 @@ export default async function GuideProfilePage() {
           ["#avatar", "Фото"],
           ["#about", "О себе"],
           ["#legal", "Юридические данные"],
-          ["#license", "Аттестаты"],
+          ["#license", "Документ о квалификации"],
           ["#verification", "Верификация"],
         ].map(([href, label]) => (
           <a
@@ -262,13 +262,13 @@ export default async function GuideProfilePage() {
         )}
       </GuideProfileSectionBoundary>
 
-      <GuideProfileSectionBoundary id="license" title="Аттестаты">
+      <GuideProfileSectionBoundary id="license" title="Документ о квалификации">
         {() => (
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
-              <CardTitle className="text-xl">Аттестаты</CardTitle>
+              <CardTitle className="text-xl">Документ о квалификации</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Документы и к каким экскурсиям они относятся.
+                Укажите документ и к каким экскурсиям он относится.
               </p>
             </CardHeader>
             <CardContent>
