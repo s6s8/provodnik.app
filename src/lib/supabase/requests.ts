@@ -208,19 +208,3 @@ export async function getTravelerRequests(travelerId: Uuid): Promise<TravelerReq
   if (error) throw error;
   return (data as TravelerRequest[]) ?? [];
 }
-
-/**
- * Fetch all open requests — used by the guide inbox in Wave 2.
- */
-export async function getOpenRequests(): Promise<TravelerRequest[]> {
-  const supabase = await createSupabaseServerClient();
-
-  const { data, error } = await supabase
-    .from("traveler_requests")
-    .select(SELECT_COLS)
-    .eq("status", "open")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return (data as TravelerRequest[]) ?? [];
-}
