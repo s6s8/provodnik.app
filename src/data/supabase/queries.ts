@@ -571,22 +571,6 @@ export async function getActiveListings(
   }
 }
 
-export async function getListingBySlug(
-  _client: SupabaseClient,
-  slug: string,
-): Promise<QueryResult<ListingRecord>> {
-  try {
-    const db = getPublicClient();
-    const { data, error } = await db.from("listings").select("*").eq("slug", slug).maybeSingle();
-    if (error) throw error;
-    if (!data) return { data: null, error: null };
-
-    return { data: mapListingRow(data), error: null };
-  } catch (error) {
-    return { data: null, error: makeError(error) };
-  }
-}
-
 export async function getListingsByDestination(
   _client: SupabaseClient,
   slug: string,

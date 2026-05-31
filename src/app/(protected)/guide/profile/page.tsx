@@ -10,6 +10,7 @@ import {
   type GuideListingOption,
 } from "@/features/profile/components/LicenseManager";
 import { VerificationUploadForm } from "@/features/guide/components/verification/verification-upload-form";
+import { GuideProfileSectionBoundary } from "@/features/guide/components/verification/guide-profile-section-boundary";
 import type { UploadedGuideDocument } from "@/features/guide/components/verification/verification-types";
 import {
   confirmDocumentUpload,
@@ -222,116 +223,124 @@ export default async function GuideProfilePage() {
         ))}
       </nav>
 
-      <section id="avatar">
-        <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />
-      </section>
+      <GuideProfileSectionBoundary id="avatar" title="Фото">
+        {() => <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />}
+      </GuideProfileSectionBoundary>
 
-      <section id="about">
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader>
-            <CardTitle className="text-xl">О себе</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <GuideAboutForm
-              initialBio={profile?.bio ?? ""}
-              initialBaseCity={profile?.base_city ?? ""}
-              initialLanguages={profile?.languages ?? []}
-              initialSpecializations={profile?.specializations ?? []}
-              initialYearsExperience={profile?.years_experience ?? null}
-            />
-          </CardContent>
-        </Card>
-      </section>
+      <GuideProfileSectionBoundary id="about" title="О себе">
+        {() => (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader>
+              <CardTitle className="text-xl">О себе</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <GuideAboutForm
+                initialBio={profile?.bio ?? ""}
+                initialBaseCity={profile?.base_city ?? ""}
+                initialLanguages={profile?.languages ?? []}
+                initialSpecializations={profile?.specializations ?? []}
+                initialYearsExperience={profile?.years_experience ?? null}
+              />
+            </CardContent>
+          </Card>
+        )}
+      </GuideProfileSectionBoundary>
 
-      <section id="legal">
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader>
-            <CardTitle className="text-xl">Юридические данные</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              ИНН, статус, страна документа.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <LegalInformationForm initialData={legalInitialData} />
-          </CardContent>
-        </Card>
-      </section>
-
-      <section id="license">
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader>
-            <CardTitle className="text-xl">Аттестаты</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Документы и к каким экскурсиям они относятся.
-            </p>
-          </CardHeader>
-          <CardContent>
-            <LicenseManager licenses={licenses} listings={listings} />
-          </CardContent>
-        </Card>
-      </section>
-
-      <section id="verification">
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <CardTitle className="text-xl">Верификация</CardTitle>
-              <span className={getStatusBadgeClass(verificationStatus)}>
-                {verificationStatusLabel(verificationStatus)}
-              </span>
-            </div>
-            <p className="text-sm text-muted-foreground">
-              Загрузите обязательные документы для проверки аккаунта.
-            </p>
-          </CardHeader>
-          <CardContent>
-            {verificationStatus === "approved" ? (
+      <GuideProfileSectionBoundary id="legal" title="Юридические данные">
+        {() => (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader>
+              <CardTitle className="text-xl">Юридические данные</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Профиль прошёл проверку. Путешественники видят, что вы подтвердили документы.
+                ИНН, статус, страна документа.
               </p>
-            ) : verificationStatus === "submitted" ? (
-              <div className="space-y-4">
+            </CardHeader>
+            <CardContent>
+              <LegalInformationForm initialData={legalInitialData} />
+            </CardContent>
+          </Card>
+        )}
+      </GuideProfileSectionBoundary>
+
+      <GuideProfileSectionBoundary id="license" title="Аттестаты">
+        {() => (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader>
+              <CardTitle className="text-xl">Аттестаты</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Документы и к каким экскурсиям они относятся.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <LicenseManager licenses={licenses} listings={listings} />
+            </CardContent>
+          </Card>
+        )}
+      </GuideProfileSectionBoundary>
+
+      <GuideProfileSectionBoundary id="verification" title="Верификация">
+        {() => (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <CardTitle className="text-xl">Верификация</CardTitle>
+                <span className={getStatusBadgeClass(verificationStatus)}>
+                  {verificationStatusLabel(verificationStatus)}
+                </span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Загрузите обязательные документы для проверки аккаунта.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {verificationStatus === "approved" ? (
                 <p className="text-sm text-muted-foreground">
-                  Документы отправлены. Проверка обычно занимает 1–2 рабочих дня.
+                  Профиль прошёл проверку. Путешественники видят, что вы подтвердили документы.
                 </p>
-                {documents.length > 0 ? (
-                  <ul className="space-y-2">
-                    {documents.map((doc) => (
-                      <li
-                        key={doc.documentType}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/60 px-4 py-3"
-                      >
-                        <span className="text-sm">{doc.fileName}</span>
-                        <span className={getStatusBadgeClass(doc.status)}>
-                          {doc.status === "submitted" ? "Отправлено" : doc.status}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {verificationStatus === "rejected" ? (
-                  <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                    <strong className="block text-foreground">Проверка отклонена.</strong>
-                    {verificationNotes ?? "Исправьте документы и отправьте их снова."}
-                  </div>
-                ) : null}
-                <VerificationUploadForm
-                  initialDocuments={documents}
-                  actions={{
-                    getUploadUrl,
-                    confirmGuideAssetUpload,
-                    confirmDocumentUpload,
-                    submitForVerification,
-                  }}
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </section>
+              ) : verificationStatus === "submitted" ? (
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    Документы отправлены. Проверка обычно занимает 1–2 рабочих дня.
+                  </p>
+                  {documents.length > 0 ? (
+                    <ul className="space-y-2">
+                      {documents.map((doc) => (
+                        <li
+                          key={doc.documentType}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/60 px-4 py-3"
+                        >
+                          <span className="text-sm">{doc.fileName}</span>
+                          <span className={getStatusBadgeClass(doc.status)}>
+                            {doc.status === "submitted" ? "Отправлено" : doc.status}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {verificationStatus === "rejected" ? (
+                    <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                      <strong className="block text-foreground">Проверка отклонена.</strong>
+                      {verificationNotes ?? "Исправьте документы и отправьте их снова."}
+                    </div>
+                  ) : null}
+                  <VerificationUploadForm
+                    initialDocuments={documents}
+                    actions={{
+                      getUploadUrl,
+                      confirmGuideAssetUpload,
+                      confirmDocumentUpload,
+                      submitForVerification,
+                    }}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+      </GuideProfileSectionBoundary>
     </div>
   );
 }
