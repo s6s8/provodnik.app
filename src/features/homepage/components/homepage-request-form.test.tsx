@@ -146,6 +146,11 @@ describe("HomepageRequestForm UI affordances", () => {
     render(<HomepageRequestForm destinations={[]} />);
     expect(screen.getByText(/Языки экскурсии/i)).toBeInTheDocument();
     expect(screen.getByText("Любой язык")).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        "Если важен конкретный язык — выберите. Иначе гиды любых языков смогут откликнуться.",
+      ),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole("button", { name: "Выбрать языки экскурсии" }),

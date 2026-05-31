@@ -256,9 +256,6 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 5. Языки экскурсии */}
       <div className="grid gap-2">
         <FieldLabel>Языки экскурсии (необязательно)</FieldLabel>
-        <p className="text-xs text-muted-foreground">
-          Если важен конкретный язык — выберите. Иначе гиды любых языков смогут откликнуться.
-        </p>
         <LanguageMultiSelect
           options={LANGUAGES}
           value={requestedLanguagesField.value ?? []}
