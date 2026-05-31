@@ -13,6 +13,11 @@ import { getStorageBucketConfig } from "@/lib/storage/buckets";
 import { uploadFileToSignedUrl } from "@/lib/storage/client-upload";
 import type { GuideVerificationStatusDb } from "@/lib/supabase/types";
 import type {
+  VerificationAssetConfirmResult,
+  VerificationDocumentLinkResult,
+  VerificationUploadUrlResult,
+} from "@/app/(protected)/guide/verification/actions-types";
+import type {
   GuideVerificationDocumentType,
   UploadedGuideDocument,
 } from "./verification-types";
@@ -27,23 +32,18 @@ type DocumentUploadCardProps = {
     bucket: "guide-documents",
     fileName: string,
     mimeType: string,
-  ) => Promise<{ path: string; token: string; signedUrl: string }>;
+  ) => Promise<VerificationUploadUrlResult>;
   onConfirmAsset: (data: {
     bucketId: "guide-documents";
     objectPath: string;
     assetKind: "guide-document";
     mimeType: string;
     byteSize: number;
-  }) => Promise<{ id: string; objectPath: string }>;
+  }) => Promise<VerificationAssetConfirmResult>;
   onLinkDocument: (
     assetId: string,
     documentType: GuideVerificationDocumentType,
-  ) => Promise<{
-    id: string;
-    status: GuideVerificationStatusDb;
-    assetId: string;
-    objectPath: string;
-  }>;
+  ) => Promise<VerificationDocumentLinkResult>;
 };
 
 type UploadState = {
@@ -130,35 +130,48 @@ export function DocumentUploadCard({
       }));
 
       try {
-        const uploadUrl = await onRequestUploadUrl(
+        const uploadUrlResult = await onRequestUploadUrl(
           "guide-documents",
           file.name,
           file.type,
         );
 
+        if ("error" in uploadUrlResult) {
+          throw new Error(uploadUrlResult.error);
+        }
+
         await uploadFileToSignedUrl({
-          signedUrl: uploadUrl.signedUrl,
+          signedUrl: uploadUrlResult.signedUrl,
           file,
           onProgress: (progress) => {
             setState((current) => ({ ...current, progress }));
           },
         });
 
-        const asset = await onConfirmAsset({
+        const assetResult = await onConfirmAsset({
           bucketId: "guide-documents",
-          objectPath: uploadUrl.path,
+          objectPath: uploadUrlResult.path,
           assetKind: "guide-document",
           mimeType: file.type,
           byteSize: file.size,
         });
 
-        const document = await onLinkDocument(asset.id, documentType);
+        if ("error" in assetResult) {
+          throw new Error(assetResult.error);
+        }
+
+        const documentResult = await onLinkDocument(assetResult.id, documentType);
+
+        if ("error" in documentResult) {
+          throw new Error(documentResult.error);
+        }
+
         const uploadedDocument: UploadedGuideDocument = {
-          assetId: document.assetId,
+          assetId: documentResult.assetId,
           documentType,
-          objectPath: document.objectPath,
+          objectPath: documentResult.objectPath,
           fileName: file.name,
-          status: document.status,
+          status: documentResult.status as GuideVerificationStatusDb,
         };
 
         setState((current) => ({

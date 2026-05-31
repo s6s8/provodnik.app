@@ -10,10 +10,15 @@ vi.mock("next/navigation", () => ({
 }));
 
 const actions = {
-  getUploadUrl: vi.fn(),
+  getUploadUrl: vi.fn().mockResolvedValue({
+    ok: true,
+    path: "guide/file.jpg",
+    token: "token",
+    signedUrl: "https://example.com/upload",
+  }),
   confirmGuideAssetUpload: vi.fn(),
   confirmDocumentUpload: vi.fn(),
-  submitForVerification: vi.fn(),
+  submitForVerification: vi.fn().mockResolvedValue({ ok: true, status: "submitted" as const }),
 };
 
 describe("VerificationUploadForm", () => {

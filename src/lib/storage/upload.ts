@@ -25,6 +25,9 @@ const uploadPathInputSchema = z.object({
   userId: z.string().uuid(),
 });
 
+/** Matches `storage_assets` unique constraint `(bucket_id, object_path)`. */
+export const STORAGE_ASSET_UPSERT_ON_CONFLICT = "bucket_id,object_path" as const;
+
 const confirmUploadSchema = z.object({
   ownerId: z.string().uuid(),
   bucketId: storageBucketSchema,
@@ -124,7 +127,7 @@ export async function confirmUpload(data: {
         mime_type: input.mimeType,
         byte_size: input.byteSize,
       },
-      { onConflict: "bucket_id,object_path,owner_id" },
+      { onConflict: STORAGE_ASSET_UPSERT_ON_CONFLICT },
     )
     .select(
       "id, owner_id, bucket_id, object_path, asset_kind, mime_type, byte_size, created_at",

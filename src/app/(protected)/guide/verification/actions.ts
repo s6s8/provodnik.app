@@ -7,6 +7,19 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { confirmUpload, getPresignedUploadUrl } from "@/lib/storage/upload";
 import { guideVerificationDocumentTypes } from "@/features/guide/components/verification/verification-types";
 import type { GuideDocumentRow, StorageAssetRow } from "@/lib/supabase/types";
+import type {
+  SubmitVerificationResult,
+  VerificationAssetConfirmResult,
+  VerificationDocumentLinkResult,
+  VerificationUploadUrlResult,
+} from "./actions-types";
+
+export type {
+  SubmitVerificationResult,
+  VerificationAssetConfirmResult,
+  VerificationDocumentLinkResult,
+  VerificationUploadUrlResult,
+} from "./actions-types";
 
 const guideDocumentTypeSchema = z.enum(guideVerificationDocumentTypes);
 
@@ -28,6 +41,40 @@ const confirmDocumentSchema = z.object({
   assetId: z.string().uuid(),
   documentType: guideDocumentTypeSchema,
 });
+
+function verificationActionError(err: unknown): string {
+  if (err instanceof z.ZodError) {
+    return "Проверьте тип и размер файла (JPG, PNG, WEBP или PDF до 10 МБ).";
+  }
+
+  if (err instanceof Error) {
+    const msg = err.message;
+    if (msg.includes("Не авторизован") || msg.includes("Unauthorized")) {
+      return "Необходимо войти в систему.";
+    }
+    if (msg.includes("invalid") && msg.includes("uuid")) {
+      return "Некорректный идентификатор файла. Загрузите документ снова.";
+    }
+    if (
+      msg.includes("there is no unique or exclusion constraint") ||
+      msg.includes("ON CONFLICT")
+    ) {
+      console.error("[verification-actions] storage_assets upsert conflict:", msg);
+      return "Не удалось сохранить файл. Попробуйте ещё раз.";
+    }
+    if (msg.includes("Недопустимый тип файла")) {
+      return msg;
+    }
+    if (msg.includes("Не удалось")) {
+      return msg;
+    }
+    console.error("[verification-actions]", msg);
+    return "Произошла ошибка. Попробуйте ещё раз.";
+  }
+
+  console.error("[verification-actions]", err);
+  return "Произошла ошибка. Попробуйте ещё раз.";
+}
 
 async function getCurrentGuideId() {
   const supabase = await createSupabaseServerClient();
@@ -64,16 +111,21 @@ export async function getUploadUrl(
   bucket: string,
   fileName: string,
   mimeType: string,
-) {
-  const input = uploadUrlSchema.parse({ bucket, fileName, mimeType });
-  const guideId = await getCurrentGuideId();
+): Promise<VerificationUploadUrlResult> {
+  try {
+    const input = uploadUrlSchema.parse({ bucket, fileName, mimeType });
+    const guideId = await getCurrentGuideId();
+    const result = await getPresignedUploadUrl(
+      input.bucket,
+      input.fileName,
+      input.mimeType,
+      guideId,
+    );
 
-  return getPresignedUploadUrl(
-    input.bucket,
-    input.fileName,
-    input.mimeType,
-    guideId,
-  );
+    return { ok: true, ...result };
+  } catch (err) {
+    return { error: verificationActionError(err) };
+  }
 }
 
 export async function confirmGuideAssetUpload(data: {
@@ -82,154 +134,170 @@ export async function confirmGuideAssetUpload(data: {
   assetKind: "guide-document";
   mimeType: string;
   byteSize: number;
-}) {
-  const input = confirmGuideAssetSchema.parse(data);
-  const guideId = await getCurrentGuideId();
-  const asset = await confirmUpload({
-    ownerId: guideId,
-    bucketId: input.bucketId,
-    objectPath: input.objectPath,
-    assetKind: input.assetKind,
-    mimeType: input.mimeType,
-    byteSize: input.byteSize,
-  });
+}): Promise<VerificationAssetConfirmResult> {
+  try {
+    const input = confirmGuideAssetSchema.parse(data);
+    const guideId = await getCurrentGuideId();
+    const asset = await confirmUpload({
+      ownerId: guideId,
+      bucketId: input.bucketId,
+      objectPath: input.objectPath,
+      assetKind: input.assetKind,
+      mimeType: input.mimeType,
+      byteSize: input.byteSize,
+    });
 
-  return {
-    id: asset.id,
-    objectPath: asset.object_path,
-    mimeType: asset.mime_type,
-    byteSize: asset.byte_size,
-  };
+    return {
+      ok: true,
+      id: asset.id,
+      objectPath: asset.object_path,
+      mimeType: asset.mime_type ?? input.mimeType,
+      byteSize: asset.byte_size ?? input.byteSize,
+    };
+  } catch (err) {
+    return { error: verificationActionError(err) };
+  }
 }
 
 export async function confirmDocumentUpload(
   assetId: string,
   documentType: string,
-) {
-  const input = confirmDocumentSchema.parse({ assetId, documentType });
-  const guideId = await getCurrentGuideId();
-  const supabase = await createSupabaseServerClient();
-  const asset = await getOwnedAsset(input.assetId, guideId);
+): Promise<VerificationDocumentLinkResult> {
+  try {
+    const input = confirmDocumentSchema.parse({ assetId, documentType });
+    const guideId = await getCurrentGuideId();
+    const supabase = await createSupabaseServerClient();
+    const asset = await getOwnedAsset(input.assetId, guideId);
 
-  const { data: existing } = await supabase
-    .from("guide_documents")
-    .select("id")
-    .eq("guide_id", guideId)
-    .eq("document_type", input.documentType)
-    .order("created_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  let documentRow: GuideDocumentRow | null = null;
-
-  if (existing?.id) {
-    const { data, error } = await supabase
+    const { data: existing } = await supabase
       .from("guide_documents")
-      .update({
-        asset_id: asset.id,
-        status: "draft",
-        admin_note: null,
-        reviewed_by: null,
-        reviewed_at: null,
-      })
-      .eq("id", existing.id)
-      .select(
-        "id, guide_id, asset_id, document_type, status, admin_note, reviewed_by, reviewed_at, created_at",
-      )
-      .single();
+      .select("id")
+      .eq("guide_id", guideId)
+      .eq("document_type", input.documentType)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
 
-    if (error || !data) {
-      throw error ?? new Error("Не удалось привязать документ к профилю гида.");
+    let documentRow: GuideDocumentRow | null = null;
+
+    if (existing?.id) {
+      const { data, error } = await supabase
+        .from("guide_documents")
+        .update({
+          asset_id: asset.id,
+          status: "draft",
+          admin_note: null,
+          reviewed_by: null,
+          reviewed_at: null,
+        })
+        .eq("id", existing.id)
+        .select(
+          "id, guide_id, asset_id, document_type, status, admin_note, reviewed_by, reviewed_at, created_at",
+        )
+        .single();
+
+      if (error || !data) {
+        throw error ?? new Error("Не удалось привязать документ к профилю гида.");
+      }
+
+      documentRow = data as GuideDocumentRow;
+    } else {
+      const { data, error } = await supabase
+        .from("guide_documents")
+        .insert({
+          guide_id: guideId,
+          asset_id: asset.id,
+          document_type: input.documentType,
+          status: "draft",
+        })
+        .select(
+          "id, guide_id, asset_id, document_type, status, admin_note, reviewed_by, reviewed_at, created_at",
+        )
+        .single();
+
+      if (error || !data) {
+        throw error ?? new Error("Не удалось сохранить документ для верификации.");
+      }
+
+      documentRow = data as GuideDocumentRow;
     }
 
-    documentRow = data as GuideDocumentRow;
-  } else {
-    const { data, error } = await supabase
-      .from("guide_documents")
-      .insert({
-        guide_id: guideId,
-        asset_id: asset.id,
-        document_type: input.documentType,
-        status: "draft",
-      })
-      .select(
-        "id, guide_id, asset_id, document_type, status, admin_note, reviewed_by, reviewed_at, created_at",
-      )
-      .single();
+    revalidatePath("/guide/profile");
 
-    if (error || !data) {
-      throw error ?? new Error("Не удалось сохранить документ для верификации.");
-    }
-
-    documentRow = data as GuideDocumentRow;
+    return {
+      ok: true,
+      id: documentRow.id,
+      documentType: documentRow.document_type,
+      status: documentRow.status,
+      assetId: documentRow.asset_id,
+      objectPath: asset.object_path,
+    };
+  } catch (err) {
+    return { error: verificationActionError(err) };
   }
-
-  revalidatePath("/guide/verification");
-
-  return {
-    id: documentRow.id,
-    documentType: documentRow.document_type,
-    status: documentRow.status,
-    assetId: documentRow.asset_id,
-    objectPath: asset.object_path,
-  };
 }
 
-export async function submitForVerification() {
-  const guideId = await getCurrentGuideId();
-  const supabase = await createSupabaseServerClient();
+export async function submitForVerification(): Promise<SubmitVerificationResult> {
+  try {
+    const guideId = await getCurrentGuideId();
+    const supabase = await createSupabaseServerClient();
 
-  const { data: requiredDocuments, error: documentsError } = await supabase
-    .from("guide_documents")
-    .select("document_type")
-    .eq("guide_id", guideId)
-    .in("document_type", ["passport", "selfie"]);
+    const { data: requiredDocuments, error: documentsError } = await supabase
+      .from("guide_documents")
+      .select("document_type")
+      .eq("guide_id", guideId)
+      .in("document_type", ["passport", "selfie"]);
 
-  if (documentsError) {
-    throw documentsError;
+    if (documentsError) {
+      throw documentsError;
+    }
+
+    const uploadedTypes = new Set(
+      (requiredDocuments ?? []).map((item) => item.document_type),
+    );
+
+    if (!uploadedTypes.has("passport") || !uploadedTypes.has("selfie")) {
+      return {
+        error: "Загрузите паспорт и селфи с документом перед отправкой.",
+      };
+    }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("guide_profiles")
+      .select("user_id")
+      .eq("user_id", guideId)
+      .maybeSingle();
+
+    if (profileError) {
+      throw profileError;
+    }
+
+    if (!profile) {
+      return { error: "Сначала заполните профиль гида." };
+    }
+
+    const { error: guideError } = await supabase
+      .from("guide_profiles")
+      .update({ verification_status: "submitted" })
+      .eq("user_id", guideId);
+
+    if (guideError) {
+      throw guideError;
+    }
+
+    const { error: documentsUpdateError } = await supabase
+      .from("guide_documents")
+      .update({ status: "submitted" })
+      .eq("guide_id", guideId);
+
+    if (documentsUpdateError) {
+      throw documentsUpdateError;
+    }
+
+    revalidatePath("/guide/profile");
+
+    return { ok: true, status: "submitted" };
+  } catch (err) {
+    return { error: verificationActionError(err) };
   }
-
-  const uploadedTypes = new Set(
-    (requiredDocuments ?? []).map((item) => item.document_type),
-  );
-
-  if (!uploadedTypes.has("passport") || !uploadedTypes.has("selfie")) {
-    throw new Error("Загрузите паспорт и селфи с документом перед отправкой.");
-  }
-
-  const { data: profile, error: profileError } = await supabase
-    .from("guide_profiles")
-    .select("user_id")
-    .eq("user_id", guideId)
-    .maybeSingle();
-
-  if (profileError) {
-    throw profileError;
-  }
-
-  if (!profile) {
-    throw new Error("Сначала заполните профиль гида.");
-  }
-
-  const { error: guideError } = await supabase
-    .from("guide_profiles")
-    .update({ verification_status: "submitted" })
-    .eq("user_id", guideId);
-
-  if (guideError) {
-    throw guideError;
-  }
-
-  const { error: documentsUpdateError } = await supabase
-    .from("guide_documents")
-    .update({ status: "submitted" })
-    .eq("guide_id", guideId);
-
-  if (documentsUpdateError) {
-    throw documentsUpdateError;
-  }
-
-  revalidatePath("/guide/verification");
-
-  return { status: "submitted" as const };
 }

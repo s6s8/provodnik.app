@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, Clock3, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import type {
+  SubmitVerificationResult,
+  VerificationAssetConfirmResult,
+  VerificationDocumentLinkResult,
+  VerificationUploadUrlResult,
+} from "@/app/(protected)/guide/verification/actions-types";
 import { DocumentUploadCard } from "./document-upload-card";
 import type { UploadedGuideDocument } from "./verification-types";
 
@@ -15,24 +21,19 @@ type VerificationUploadFormProps = {
       bucket: string,
       fileName: string,
       mimeType: string,
-    ) => Promise<{ path: string; token: string; signedUrl: string }>;
+    ) => Promise<VerificationUploadUrlResult>;
     confirmGuideAssetUpload: (data: {
       bucketId: string;
       objectPath: string;
       assetKind: "guide-document";
       mimeType: string;
       byteSize: number;
-    }) => Promise<{ id: string; objectPath: string }>;
+    }) => Promise<VerificationAssetConfirmResult>;
     confirmDocumentUpload: (
       assetId: string,
       documentType: "passport" | "selfie" | "certificate",
-    ) => Promise<{
-      id: string;
-      status: "draft" | "submitted" | "approved" | "rejected";
-      assetId: string;
-      objectPath: string;
-    }>;
-    submitForVerification: () => Promise<{ status: "submitted" }>;
+    ) => Promise<VerificationDocumentLinkResult>;
+    submitForVerification: () => Promise<SubmitVerificationResult>;
   };
 };
 
@@ -79,7 +80,11 @@ export function VerificationUploadForm({
     setIsSubmitting(true);
 
     try {
-      await actions.submitForVerification();
+      const result = await actions.submitForVerification();
+      if ("error" in result) {
+        setSubmitError(result.error);
+        return;
+      }
       router.refresh();
     } catch (error) {
       setSubmitError(
@@ -119,9 +124,7 @@ export function VerificationUploadForm({
             documentType={slot.documentType}
             initialDocument={documents.get(slot.documentType) ?? null}
             onUploadComplete={handleUploadComplete}
-            onRequestUploadUrl={
-              actions.getUploadUrl as VerificationUploadFormProps["actions"]["getUploadUrl"]
-            }
+            onRequestUploadUrl={actions.getUploadUrl}
             onConfirmAsset={actions.confirmGuideAssetUpload}
             onLinkDocument={actions.confirmDocumentUpload}
           />
