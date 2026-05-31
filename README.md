@@ -4,7 +4,7 @@ Mobile-first marketplace for tours and excursions in Russia.
 
 ## Stack
 
-- Next.js 15 (App Router) + React 19 + TypeScript
+- Next.js 16 (App Router) + React 19 + TypeScript
 - Tailwind CSS v4 + shadcn/ui
 - Supabase (PostgreSQL + RLS + Auth)
 - TanStack Query · React Hook Form · Zod
@@ -41,11 +41,11 @@ bun run types        # regenerate src/types/supabase.ts
 - `supabase/migrations/` — schema migrations (apply via `bun run db:reset` locally; via Supabase CLI in prod)
 - `tests/` — vitest unit + Playwright e2e
 - `docs/` — product, architecture, business, design, qa, superpowers (specs + plans)
-- `.claude/` — orchestrator SOT, prompt skeleton, checklists
+- `.claude/` — SOT, prompt skeleton, checklists
 
 ## Orchestration
 
-Telegram (`@QuantumBekBot`, app `provodnik`) is the canonical control surface. See `.claude/CLAUDE.md` for the full ticket flow and hand-edit conventions.
+Hermes/Quantumbek in Telegram topics is the current coordination surface for Provodnik at `/Users/idev/provodnik`. Quantumbek owns thinking, planning, review, and verification without mutating product code. QuantumHands is the only executor for product-code edits. See `.claude/CLAUDE.md` for active operating rules.
 
 ## Status
 

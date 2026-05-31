@@ -78,7 +78,7 @@ export default async function GuideReviewsPage() {
         <Badge variant="outline">Кабинет гида</Badge>
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Отзывы</h1>
         <p className="text-sm text-muted-foreground">
-          Данные недоступны без настроенного Supabase. Проверьте переменные окружения.
+          Раздел временно недоступен. Напишите в поддержку.
         </p>
       </div>
     );

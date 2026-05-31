@@ -3,7 +3,7 @@
 import * as React from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CheckCircle2 } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { updatePersonalSettings } from "@/features/profile/actions/updatePersonalSettings";
@@ -58,12 +58,11 @@ export function PersonalSettingsForm({
   const {
     control,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = form;
 
-  const notificationPrefs = watch("notificationPrefs");
+  const notificationPrefs = useWatch({ control, name: "notificationPrefs" });
   const isLoading = isSubmitting || isPending;
 
   const onSubmit = React.useCallback(

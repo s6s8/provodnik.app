@@ -16,6 +16,7 @@ import {
   Sheet,
   SheetClose,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -246,6 +247,9 @@ export function SiteHeader({
             >
               <SheetHeader>
                 <SheetTitle>Меню</SheetTitle>
+                <SheetDescription className="sr-only">
+                  Навигация по разделам Provodnik.
+                </SheetDescription>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Мобильная навигация">
                 {(isAuthenticated && role === "guide"

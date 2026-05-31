@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+const hasSentryAuthToken = Boolean(process.env.SENTRY_AUTH_TOKEN);
+
 const nextConfig: NextConfig = {
   reactCompiler: true,
   images: {
@@ -68,8 +70,13 @@ export default withSentryConfig(nextConfig, {
 
   project: "javascript-nextjs",
 
-  // Only print logs for uploading source maps in CI
-  silent: false, // Always log Sentry upload status for debugging
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // Local builds usually run without release credentials; avoid noisy upload warnings.
+  silent: !process.env.CI,
+  sourcemaps: {
+    disable: !hasSentryAuthToken,
+  },
 
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/

@@ -347,7 +347,7 @@ export function BidFormPanel({
 
           {bothOpen ? (
             <p className="mb-1 text-sm text-muted-foreground">
-              турист открыт к близким датам и времени
+              путешественник открыт к близким датам и времени
             </p>
           ) : null}
 
@@ -373,7 +373,7 @@ export function BidFormPanel({
               ) : null}
             </div>
             {dateLocked ? (
-              <p className="text-xs text-muted-foreground">турист просит строго эту дату</p>
+              <p className="text-xs text-muted-foreground">путешественник просит строго эту дату</p>
             ) : null}
           </div>
 
@@ -416,7 +416,7 @@ export function BidFormPanel({
               </div>
             </div>
             {timeLocked ? (
-              <p className="text-xs text-muted-foreground">турист просит строго это время</p>
+              <p className="text-xs text-muted-foreground">путешественник просит строго это время</p>
             ) : null}
           </div>
 
@@ -476,10 +476,10 @@ export function BidFormPanel({
               <p className="text-xs text-destructive">{errors.price_total.message}</p>
             ) : budgetCeilingPerPerson ? (
               <p className="text-xs text-muted-foreground">
-                Потолок туриста — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
+                Потолок путешественника — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
               </p>
             ) : (
-              <p className="text-xs text-muted-foreground">Турист открыт к предложениям — назовите свою цену.</p>
+              <p className="text-xs text-muted-foreground">Путешественник открыт к предложениям — назовите свою цену.</p>
             )}
           </div>
 
@@ -599,7 +599,7 @@ export function BidFormPanel({
             >
               <p className="font-medium">Предложение отправлено</p>
               <p className="mt-1 text-foreground/80">
-                Гость получил уведомление. Обычно туристы отвечают в течение 24 часов — ответ придёт в чат и в «Заявки».
+                Гость получил уведомление. Обычно путешественники отвечают в течение 24 часов — ответ придёт в чат и в «Заявки».
               </p>
             </div>
           ) : null}

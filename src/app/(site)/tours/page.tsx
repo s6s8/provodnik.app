@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { flags } from "@/lib/flags";
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function ToursPage() {
   if (!flags.FEATURE_TR_TOURS) {
-    notFound();
+    redirect("/listings");
   }
 
   return (

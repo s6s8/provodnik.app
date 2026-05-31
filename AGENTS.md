@@ -1,7 +1,7 @@
-# Provodnik App — Agent Instructions
+# Provodnik App — Project Instructions
 
 ## Stack
-- Next.js 15, React 19, TypeScript
+- Next.js 16, React 19, TypeScript
 - Tailwind CSS v4 + shadcn/ui (23 components in `src/components/ui/`)
 - Supabase (PostgreSQL + RLS + Auth)
 - TanStack Query, React Hook Form + Zod
@@ -26,7 +26,7 @@ bun run types              # regenerate src/types/supabase.ts
 - `src/components/shared` — shared app chrome (nav, footer, providers)
 - `src/data` — service layer functions (accept typed Supabase client, work server+client)
 - `src/lib` — env, utils, Supabase clients, flag registry (`src/lib/flags.ts`)
-- `src/types/supabase.ts` — generated DB types (run `bun run types` after schema changes)
+- `src/lib/supabase/database.types.ts` — generated DB types (run `bun run types` after schema changes)
 
 ## CSS Rules
 - Tailwind utilities + shadcn/ui only — no custom CSS classes, no `<style>` blocks
@@ -49,12 +49,12 @@ Copy `.env.example` → `.env.local`. Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEX
 2. `bun run lint` → 0 errors
 3. No custom CSS classes added
 4. No inline `style={{}}` for layout
-5. Commit exists; message reads as written by a human engineer (NO AI/tool co-author or attribution trailers)
+5. Commit exists; message reads as written by a human engineer (NO automation co-author or attribution trailers)
 
 ## Git Rules
 - **NEVER `git push`** — commit only, report hash, wait for push instruction
 - Pushing to `origin/main` triggers immediate Vercel production deploy
-- Format: `type(scope): description` only. NO `Co-Authored-By:` / `Co-authored-by: Cursor` / any AI/tool attribution trailer — commits read as human-written (cursor attribution disabled in ~/.cursor/cli-config.json)
+- Format: `type(scope): description` only. NO `Co-Authored-By:` / any automation attribution trailer — commits read as human-written.
 
 ## Orchestration
-Telegram orchestrator (`@QuantumBekBot` in supergroup `-1003617072585`, app: `provodnik`) is the canonical control surface. SOT files live at `.claude/sot/` (`HOT.md`, `INDEX.md`, `ERRORS.md`, `ANTI_PATTERNS.md`, `DECISIONS.md`, `PATTERNS.md`, etc.). Prompt skeleton at `.claude/prompts/skeleton.md`. Post-deployment checklist at `.claude/checklists/post-deployment-verification.md`. See `.claude/CLAUDE.md` for the full flow + hand-edit conventions.
+Provodnik is isolated at `/Users/idev/provodnik`. Hermes/Quantumbek in Telegram topics owns coordination. Quantumbek is the thinking, planning, review, and verification layer and must not mutate product code. QuantumHands is the only product-code executor for code edits. SOT files live at `.claude/sot/` (`HOT.md`, `INDEX.md`, `ERRORS.md`, `ANTI_PATTERNS.md`, `DECISIONS.md`, `PATTERNS.md`, etc.). Prompt skeleton at `.claude/prompts/skeleton.md`. Post-deployment checklist at `.claude/checklists/post-deployment-verification.md`. See `.claude/CLAUDE.md` for the full flow + hand-edit conventions.

@@ -18,9 +18,9 @@ export const travelerRequestSchema = z
     destination: z
       .string()
       .trim()
-      .min(2, "Tell us where you want to go.")
-      .max(80, "Keep it under 80 characters."),
-    startDate: z.string().min(1, "Pick a start date."),
+      .min(2, "Укажите город или направление.")
+      .max(80, "Не больше 80 символов."),
+    startDate: z.string().min(1, "Укажите дату начала."),
     dateFlexibility: z.enum(['exact', 'few_days', 'week']),
     startTime: z
       .string()
@@ -35,33 +35,33 @@ export const travelerRequestSchema = z
     // assembly mode counters
     groupSizeCurrent: z
       .number()
-      .int("Use a whole number.")
-      .min(1, "Minimum 1 traveler.")
-      .max(20, "For MVP, cap group size at 20.")
+      .int("Укажите целое число.")
+      .min(1, "Минимум 1 путешественник.")
+      .max(20, "Максимум 20 путешественников.")
       .optional(),
     groupMax: z
       .number()
-      .int("Use a whole number.")
-      .min(1, "Minimum 1.")
-      .max(50, "Maximum 50.")
+      .int("Укажите целое число.")
+      .min(1, "Минимум 1.")
+      .max(50, "Максимум 50.")
       .optional(),
     // private mode counter
     groupSize: z
       .number()
-      .int("Use a whole number.")
-      .min(1, "Minimum 1 traveler.")
-      .max(20, "For MVP, cap group size at 20.")
+      .int("Укажите целое число.")
+      .min(1, "Минимум 1 путешественник.")
+      .max(20, "Максимум 20 путешественников.")
       .optional(),
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
     budgetPerPersonRub: z
       .number()
-      .int("Use a whole number.")
-      .min(1_000, "Budget should be at least RUB 1,000.")
-      .max(2_000_000, "Budget looks too high for MVP."),
+      .int("Укажите целое число.")
+      .min(1_000, "Бюджет должен быть не меньше 1 000 ₽.")
+      .max(2_000_000, "Бюджет выглядит слишком высоким."),
     notes: z
       .string()
       .trim()
-      .max(800, "Keep notes under 800 characters.")
+      .max(800, "Не больше 800 символов.")
       .optional()
       .or(z.literal("")),
   })
@@ -72,7 +72,7 @@ export const travelerRequestSchema = z
       ctx.addIssue({
         code: "custom",
         path: ["startDate"],
-        message: "Start date is not valid.",
+        message: "Дата начала указана неверно.",
       });
     }
 

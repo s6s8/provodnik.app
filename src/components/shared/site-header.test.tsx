@@ -93,3 +93,15 @@ describe("SiteHeader desktop account menu", () => {
     );
   });
 });
+
+describe("SiteHeader mobile menu", () => {
+  it("renders an accessible sheet description", () => {
+    render(<SiteHeader />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Открыть меню" }));
+
+    expect(
+      screen.getByText("Навигация по разделам Provodnik."),
+    ).toBeInTheDocument();
+  });
+});

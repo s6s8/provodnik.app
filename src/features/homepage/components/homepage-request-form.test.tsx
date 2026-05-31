@@ -116,6 +116,18 @@ describe("HomepageRequestForm onSubmit", () => {
 });
 
 describe("HomepageRequestForm UI affordances", () => {
+  it("shows Russian controlled validation instead of English native messages", async () => {
+    vi.mocked(createRequestAction).mockClear();
+    render(<HomepageRequestForm destinations={[]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
+
+    expect(await screen.findByText("Укажите дату начала.")).toBeInTheDocument();
+    expect(screen.getByText("Выберите хотя бы одну категорию")).toBeInTheDocument();
+    expect(screen.queryByText(/Pick a start date/i)).not.toBeInTheDocument();
+    expect(createRequestAction).not.toHaveBeenCalled();
+  });
+
   it("defaults the destination input to «Москва» on first render", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const input = screen.getByLabelText(/куда хотите/i) as HTMLInputElement;

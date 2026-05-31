@@ -4,7 +4,7 @@ import * as React from "react";
 import { Suspense } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSearchParams } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
 import { submitRequest } from "@/features/booking/actions/submitRequest";
@@ -143,7 +143,10 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
     mode: "onTouched",
   });
 
-  const startsOnWatch = orderForm.watch("starts_on");
+  const startsOnWatch = useWatch({
+    control: orderForm.control,
+    name: "starts_on",
+  });
 
   const onSubmitOrder = orderForm.handleSubmit((values) => {
     setActionError(null);

@@ -86,7 +86,7 @@ export async function createRequestAction(
 
   if (!hasSupabaseEnv()) {
     return {
-      error: "Supabase не настроен. Добавьте переменные окружения NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+      error: "Отправка запроса временно недоступна. Напишите в поддержку.",
     };
   }
 

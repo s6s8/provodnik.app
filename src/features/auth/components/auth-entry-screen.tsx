@@ -200,10 +200,7 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
           <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
             <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
-              В этой среде вход пока недоступен. Проверьте значения{" "}
-              <code>NEXT_PUBLIC_SUPABASE_URL</code> и{" "}
-              <code>NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY</code> в{" "}
-              <code>.env.local</code>.
+              Вход временно недоступен. Напишите в поддержку.
             </p>
           </div>
         ) : null}

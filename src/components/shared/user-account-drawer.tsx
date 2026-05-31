@@ -6,6 +6,7 @@ import { HelpCircle, LogOut, User } from "lucide-react";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
@@ -55,6 +56,9 @@ export function UserAccountDrawer({
       <SheetContent side="right" className="w-[300px] bg-background text-foreground border-l border-border flex flex-col p-0">
         <SheetHeader className="px-5 pt-6 pb-4 border-b border-border">
           <SheetTitle className="sr-only">Личное меню</SheetTitle>
+          <SheetDescription className="sr-only">
+            Профиль, помощь и выход из аккаунта.
+          </SheetDescription>
           <div className="flex items-center gap-3">
             <AvatarCircle initial={avatarInitial} />
             <div className="min-w-0 flex flex-col gap-1">

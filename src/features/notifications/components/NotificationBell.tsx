@@ -88,9 +88,9 @@ export function NotificationBell({ userId }: NotificationBellProps) {
           });
         },
       )
-      .subscribe((status, err) => {
+      .subscribe((status) => {
         if (status === "CHANNEL_ERROR") {
-          console.error("[NotificationBell] realtime error:", err);
+          return;
         }
       });
 

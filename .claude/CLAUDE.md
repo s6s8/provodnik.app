@@ -1,20 +1,21 @@
-# Provodnik project rules — orchestrator-driven
+# Provodnik project rules
 
-This file is the per-project canonical for `provodnik.app`. Read it before any non-trivial change.
+This file is the per-project canonical for Provodnik at `/Users/idev/provodnik`. Read it before any non-trivial change.
 
 ## Control surface
 
-The macmini Telegram orchestrator (`@QuantumBekBot` in supergroup `-1003617072585`, app slug `provodnik`) is the **sole control surface** for product changes. Every ticket — research → spec → plan → dispatch → consistency → verify → ship → post-work → devnote — flows through Telegram.
+Hermes/Quantumbek in Telegram topics owns coordination for product changes. The legacy Quantumbek orchestrator, FSM, and Atelier surface are decommissioned from active use.
 
-- **General topic (id 1):** submitter `/new <description>` to start a ticket; tap `Proceed` / `Refine` / `Cancel` on the per-session topic gates.
-- **Audit topic (id 3):** owner-only commands (`/override`, `/audit`, `/sessions`, `/freeze`, `/git status`, `/vercel deploys`, `/devnote draft <sid>`, `/devnote send <sid>`).
-- **Hand-edits** via Windows IDE are allowed but **discouraged** — they bypass SOT discipline and consistency gates. If you must, commit + push to `main` so the orchestrator picks up the new state.
+- **Hermes/Quantumbek:** coordinate tasks, ownership, and release state in Telegram topics.
+- **Quantumbek:** think, plan, review, and verify. It must not mutate product code.
+- **QuantumHands:** execute all product-code edits.
+- **Hand-edits:** keep them explicit, scoped, and reflected in git/SOT when they change durable workflow.
 
 ## SOT layout
 
 | Path | Role |
 |---|---|
-| `.claude/sot/HOT.md` | Top landmines — orchestrator inlines these into every cursor-agent prompt |
+| `.claude/sot/HOT.md` | Top landmines — include in every QuantumHands prompt |
 | `.claude/sot/INDEX.md` | One-line lookup of all SOT IDs (ERR-NNN, AP-NNN, ADR-NNN, PP-NNN) |
 | `.claude/sot/ERRORS.md` | Error post-mortems |
 | `.claude/sot/ANTI_PATTERNS.md` | Banned patterns |
@@ -28,7 +29,7 @@ The macmini Telegram orchestrator (`@QuantumBekBot` in supergroup `-100361707258
 | `.claude/sot/NEXT_PLAN.md` | Pending work queue |
 | `.claude/sot/_archive/` | Historical SOT (findings, screenshots, retired specs) — gitignored, kept on local disk only |
 | `.claude/checklists/` | Active checklists (post-deployment-verification, discipline-traps, codex-protuberanets-sweep) |
-| `.claude/prompts/skeleton.md` | Cursor-agent prompt template the orchestrator composes from |
+| `.claude/prompts/skeleton.md` | QuantumHands prompt template |
 
 ## Stack and conventions
 
@@ -44,21 +45,22 @@ See `AGENTS.md` for stack details, module map, CSS rules, architecture rules, en
 
 | Author | Hooks | Push allowed |
 |---|---|---|
-| Hand-edits via Windows IDE | pre-commit hook runs (typecheck/lint snapshot) | yes, after explicit user approval |
-| Orchestrator commits | `--no-verify` (orchestrator's verify-runner already ran the full chain) | yes, only after SHIP_GATE clicked |
+| QuantumHands edits | pre-commit hook runs (typecheck/lint snapshot) | no; commit only and wait for operator push |
+| Operator hand-edits | pre-commit hook runs (typecheck/lint snapshot) | yes, after explicit approval |
 
-`--no-verify` is the **only** hook bypass allowed. The orchestrator gate runs the full verify chain before ship; the pre-commit hook would just duplicate work.
+Do not bypass hooks unless the operator explicitly approves it for a verified emergency.
 
 ## SHIP_GATE checklist (Ревизия Бека — canonical four-step gate)
 
-Inlined in `.claude/checklists/post-deployment-verification.md` and posted by the orchestrator at SHIP_GATE. The gate URL is the Vercel preview deploy. **Both 1280px AND 375px viewports must pass before clicking Ship.**
+Inlined in `.claude/checklists/post-deployment-verification.md` and used at release verification. The gate URL is the Vercel preview deploy. **Both 1280px AND 375px viewports must pass before shipping.**
 
 ## Migration history
 
-- **2026-05-08:** collapsed the bek-era Windows daemon workflow into orchestrator-native paths. Outer workspace at `D:/dev2/projects/provodnik/` retired; canonical macmini path is `/Users/idev/projects/provodnik.app/`. Historical bek runtime archived at `_archive/bek-frozen-2026-05-08/` (gitignored, on local disk only). See:
+- **2026-05-08:** collapsed the bek-era Windows daemon workflow into orchestrator-native paths. Outer workspace at `D:/dev2/projects/provodnik/` retired. Historical bek runtime archived at `_archive/bek-frozen-2026-05-08/` (gitignored, on local disk only). See:
   - Spec: `docs/superpowers/specs/2026-05-08-provodnik-into-orchestrator-design.md` (in `quantumbek/` repo, not here)
   - Plan: `docs/superpowers/plans/2026-05-08-provodnik-into-orchestrator-plan.md`
   - Runbook: `docs/superpowers/plans/2026-05-08-provodnik-tasks.md`
+- **2026-05-31:** Provodnik is isolated at `/Users/idev/provodnik`. The legacy Quantumbek orchestrator/FSM/Atelier surface is decommissioned from active use. Hermes/Quantumbek in Telegram topics coordinates; Quantumbek plans/reviews/verifies without product-code mutation; QuantumHands executes product-code edits.
 
 ## When you must hand-edit
 
@@ -67,6 +69,5 @@ Inlined in `.claude/checklists/post-deployment-verification.md` and posted by th
 3. Run `bun run typecheck && bun run lint` before push.
 4. Push the branch; Vercel preview will build.
 5. Open a quick PR or merge yourself if the change is trivial.
-6. After merge, the orchestrator picks up `main` on its next ticket.
 
-If you're tempted to push straight to `main` — don't. The orchestrator can't `/freeze` a hand-push fast enough, and a bad commit takes the live site down.
+If you're tempted to push straight to `main`, don't. A bad commit takes the live site down.

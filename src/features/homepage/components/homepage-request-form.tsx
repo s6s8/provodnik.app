@@ -146,6 +146,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       className="grid gap-5 pb-24 sm:pb-0"
       onSubmit={handleSubmit(onSubmit)}
       aria-label="Создать запрос"
+      noValidate
     >
       {/* 2. Куда хотите поехать? */}
       <div className="grid gap-2">
@@ -321,6 +322,7 @@ export function HomepageRequestForm({ destinations }: Props) {
             );
           })}
         </div>
+        <FieldError id="interests-error" message={errors.interests?.message} />
       </div>
 
       {/* 8. Пожелания — expandable «+ Добавить детали», collapsed by default */}

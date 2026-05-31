@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Для бизнеса и корпоративных клиентов",
+    title: "Для бизнеса и корпоративных групп",
     description:
       "Корпоративные экскурсии и тимбилдинг через Provodnik: что доступно сейчас, как оформить безналичную оплату, договор с юрлицом, счёт, акт и закрывающие документы.",
   };

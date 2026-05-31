@@ -90,7 +90,7 @@ describe("BidFormPanel — date/time locks", () => {
 
     expect(screen.getByLabelText(/Дата/)).toBeDisabled();
     expect(screen.getByLabelText(/Время начала/)).toBeDisabled();
-    expect(screen.getByText("турист просит строго эту дату")).toBeInTheDocument();
+    expect(screen.getByText("путешественник просит строго эту дату")).toBeInTheDocument();
   });
 
   it("shows hint above date when both locks are off", () => {
@@ -103,7 +103,7 @@ describe("BidFormPanel — date/time locks", () => {
     );
 
     expect(
-      screen.getByText("турист открыт к близким датам и времени"),
+      screen.getByText("путешественник открыт к близким датам и времени"),
     ).toBeInTheDocument();
   });
 });
