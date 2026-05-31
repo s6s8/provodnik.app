@@ -82,6 +82,8 @@ export type GuideReviewQueueItem = {
   latest_action: ModerationActionRow | null;
 };
 
+export type GuideReviewQueueView = "all" | "drafts";
+
 export type GuideReviewDetail = {
   profile: GuideProfileRow;
   account: ProfileLite | null;
@@ -156,6 +158,10 @@ type GuideLicenseQueryRow = {
 const moderationFiltersSchema = z.object({
   status: z.string().trim().min(1).optional(),
   subjectType: z.enum(["guide_profile", "listing", "review"]).optional(),
+});
+
+const guideReviewQueueFiltersSchema = z.object({
+  view: z.enum(["all", "drafts"]).default("all"),
 });
 
 const createModerationCaseSchema = z
@@ -679,28 +685,45 @@ export async function performModerationAction(
   return action as ModerationActionRow;
 }
 
-export async function getGuideReviewQueue(): Promise<GuideReviewQueueItem[]> {
+export async function getGuideReviewQueue(filters?: {
+  view?: GuideReviewQueueView;
+}): Promise<GuideReviewQueueItem[]> {
+  const input = guideReviewQueueFiltersSchema.parse(filters ?? {});
   const { adminClient } = await requireAdminSession();
 
-  const { data: profiles, error } = await adminClient
+  let profilesQuery = adminClient
     .from("guide_profiles")
-    .select("*")
-    .order("updated_at", { ascending: false });
+    .select("*");
+
+  profilesQuery =
+    input.view === "drafts"
+      ? profilesQuery.eq("verification_status", "draft")
+      : profilesQuery.neq("verification_status", "draft");
+
+  const { data: profiles, error } = await profilesQuery.order("updated_at", {
+    ascending: false,
+  });
 
   if (error) throw error;
 
-  const guideProfiles = (profiles ?? []) as GuideProfileRow[];
+  const guideProfiles = ((profiles ?? []) as GuideProfileRow[]).filter((profile) =>
+    input.view === "drafts"
+      ? profile.verification_status === "draft"
+      : profile.verification_status !== "draft",
+  );
   const guideIds = guideProfiles.map((profile) => profile.user_id);
   const [accounts, casesResult] = await Promise.all([
     getProfilesByIds(adminClient, guideIds),
-    adminClient
-      .from("moderation_cases")
-      .select(
-        "id, subject_type, guide_id, listing_id, review_id, opened_by, assigned_admin_id, status, queue_reason, risk_flags, created_at, updated_at",
-      )
-      .eq("subject_type", "guide_profile")
-      .in("guide_id", guideIds)
-      .order("created_at", { ascending: false }),
+    guideIds.length
+      ? adminClient
+          .from("moderation_cases")
+          .select(
+            "id, subject_type, guide_id, listing_id, review_id, opened_by, assigned_admin_id, status, queue_reason, risk_flags, created_at, updated_at",
+          )
+          .eq("subject_type", "guide_profile")
+          .in("guide_id", guideIds)
+          .order("created_at", { ascending: false })
+      : Promise.resolve({ data: [], error: null }),
   ]);
 
   if (casesResult.error) throw casesResult.error;

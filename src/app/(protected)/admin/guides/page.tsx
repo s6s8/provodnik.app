@@ -9,6 +9,7 @@ import {
   performModerationAction,
   requireAdminSession,
 } from "@/lib/supabase/moderation";
+import type { GuideReviewQueueView } from "@/lib/supabase/moderation";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export const metadata: Metadata = {
@@ -54,6 +55,14 @@ function verificationLabel(status: string) {
   }
 }
 
+function resolveSearchValue(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function resolveQueueView(value: string | string[] | undefined): GuideReviewQueueView {
+  return resolveSearchValue(value) === "drafts" ? "drafts" : "all";
+}
+
 async function approveGuideAction(guideId: string) {
   "use server";
 
@@ -86,8 +95,25 @@ async function rejectGuideAction(guideId: string) {
   revalidatePath(`/admin/guides/${guideId}`);
 }
 
-export default async function AdminGuidesPage() {
-  const guides = await getGuideReviewQueue();
+export default async function AdminGuidesPage({
+  searchParams,
+}: {
+  searchParams?:
+    | Promise<Record<string, string | string[] | undefined>>
+    | Record<string, string | string[] | undefined>;
+}) {
+  const resolvedSearchParams = (await searchParams) ?? {};
+  const view = resolveQueueView(resolvedSearchParams.view);
+  const guides = await getGuideReviewQueue({ view });
+  const emptyState =
+    view === "drafts"
+      ? "Нет черновиков анкет гидов."
+      : "Нет анкет в очереди верификации.";
+  const filterBaseClass =
+    "rounded-full px-4 py-2 text-sm font-medium transition-colors";
+  const filterInactiveClass =
+    "border border-border/70 text-muted-foreground hover:bg-surface-low hover:text-foreground";
+  const filterActiveClass = "bg-primary text-primary-foreground shadow-sm";
 
   return (
     <div className="space-y-8">
@@ -96,9 +122,30 @@ export default async function AdminGuidesPage() {
           Проверка гидов
         </h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Сначала показаны анкеты со статусом «submitted», затем все остальные
-          профили для повторной проверки и истории решений.
+          Черновики скрыты из основной очереди V1. Для админской диагностики
+          откройте отдельный фильтр «Черновики».
         </p>
+      </div>
+
+      <div className="flex flex-wrap gap-2" aria-label="Фильтр очереди гидов">
+        <Link
+          href="/admin/guides"
+          aria-current={view === "all" ? "page" : undefined}
+          className={`${filterBaseClass} ${
+            view === "all" ? filterActiveClass : filterInactiveClass
+          }`}
+        >
+          Все
+        </Link>
+        <Link
+          href="/admin/guides?view=drafts"
+          aria-current={view === "drafts" ? "page" : undefined}
+          className={`${filterBaseClass} ${
+            view === "drafts" ? filterActiveClass : filterInactiveClass
+          }`}
+        >
+          Черновики
+        </Link>
       </div>
 
       <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-card">
@@ -121,7 +168,7 @@ export default async function AdminGuidesPage() {
                     colSpan={6}
                     className="px-4 py-8 text-center text-sm text-muted-foreground"
                   >
-                    Нет анкет для проверки.
+                    {emptyState}
                   </td>
                 </tr>
               ) : null}

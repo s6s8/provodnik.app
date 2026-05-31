@@ -2,7 +2,12 @@ import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 
 export default defineConfig({
-  resolve: { tsconfigPaths: true },
+  resolve: {
+    alias: {
+      'server-only': new URL('./src/test/server-only.ts', import.meta.url).pathname,
+    },
+    tsconfigPaths: true,
+  },
   plugins: [react()],
   test: {
     environment: 'jsdom',
