@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { THEMES, type ThemeSlug } from "@/data/themes";
+import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
 export const travelerRequestModes = ["assembly", "private"] as const;
 
@@ -17,9 +18,15 @@ export const travelerRequestSchema = z
     requestedLanguages: z.array(z.string()).default([]),
     destination: z
       .string()
-      .trim()
-      .min(2, "Укажите город или направление.")
-      .max(80, "Не больше 80 символов."),
+      .transform((value) =>
+        sanitizeTravelerRequestDestinationLabel(value, { fallback: false }),
+      )
+      .pipe(
+        z
+          .string()
+          .min(2, "Укажите город или направление.")
+          .max(80, "Не больше 80 символов."),
+      ),
     startDate: z.string().min(1, "Укажите дату начала."),
     dateFlexibility: z.enum(['exact', 'few_days', 'week']),
     startTime: z

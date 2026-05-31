@@ -4,6 +4,7 @@ import { kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 import { formatRussianDateRange } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
 export type DestinationCategory = "city" | "nature" | "culture";
@@ -360,13 +361,13 @@ function maskRequesterIdentity(fullName: string): { displayName: string; initial
   return { displayName, initials };
 }
 
-function mapRequestRow(
+export function mapRequestRow(
   row: Record<string, unknown>,
   requesterName = "Путешественник",
   requesterInitials = "П",
   requesterAvatarUrl: string | null = null,
 ): RequestRecord {
-  const dest = (row.destination as string) ?? "Маршрут";
+  const dest = sanitizeTravelerRequestDestinationLabel(row.destination);
   const rawBudget = row.budget_minor as number | null | undefined;
   const budgetMinor = rawBudget ?? 0;
   const budgetRub = kopecksToRub(budgetMinor);
@@ -376,7 +377,9 @@ function mapRequestRow(
       : `${formatRub(budgetRub)} / чел.`;
   const meta = parseNotesJson(row.notes as string);
   const imageUrl = (meta.imageUrl as string) ?? fallbackHeroImage;
-  const destinationLabel = (meta.destinationLabel as string) ?? dest;
+  const destinationLabel = sanitizeTravelerRequestDestinationLabel(
+    (meta.destinationLabel as string | undefined) ?? dest,
+  );
 
   return {
     id: row.id as string,

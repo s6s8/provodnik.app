@@ -26,6 +26,35 @@ describe('createRequestInputSchema', () => {
     })
   })
 
+  it('sanitizes polluted destination labels before insert validation', () => {
+    const parsed = createRequestInputSchema.parse({
+      destination: 'МоскваМосква placeholder=Москва autocomplete=list',
+      starts_on: '2026-05-10',
+      ends_on: '2026-05-12',
+      budget_minor: 150000,
+    })
+
+    expect(parsed.destination).toBe('Москва')
+  })
+
+  it('keeps empty destinations invalid after sanitizing leaked attributes', () => {
+    const result = createRequestInputSchema.safeParse({
+      destination: 'placeholder=Москва autocomplete=list',
+      starts_on: '2026-05-10',
+      ends_on: '2026-05-12',
+      budget_minor: 150000,
+    })
+
+    expect(result.success).toBe(false)
+    if (result.success) {
+      throw new Error('Expected schema validation to fail')
+    }
+
+    expect(result.error.flatten().fieldErrors.destination).toContain(
+      'Укажите направление (минимум 2 символа).',
+    )
+  })
+
   it('rejects an invalid date range with the expected message', () => {
     const result = createRequestInputSchema.safeParse({
       destination: 'Казань',

@@ -13,6 +13,7 @@ import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { TravelerRequestRow, Uuid } from "@/lib/supabase/types";
+import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
 // ---------------------------------------------------------------------------
 // Input schema (server-side validation)
@@ -22,9 +23,15 @@ export const createRequestInputSchema = z
   .object({
     destination: z
       .string()
-      .trim()
-      .min(2, "Укажите направление (минимум 2 символа).")
-      .max(80, "Направление не должно превышать 80 символов."),
+      .transform((value) =>
+        sanitizeTravelerRequestDestinationLabel(value, { fallback: false }),
+      )
+      .pipe(
+        z
+          .string()
+          .min(2, "Укажите направление (минимум 2 символа).")
+          .max(80, "Направление не должно превышать 80 символов."),
+      ),
     interests: z.array(z.string()).default([]),
     requested_languages: z.array(z.string()).default([]),
     starts_on: z.string().min(1, "Укажите дату начала."),

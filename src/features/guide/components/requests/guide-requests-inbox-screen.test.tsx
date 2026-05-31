@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import type { RequestRecord } from "@/data/supabase/queries";
+import { mapRequestRow, type RequestRecord } from "@/data/supabase/queries";
 
 import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import { filterInbox, getInboxTabCounts } from "./guide-requests-inbox-filter";
@@ -202,5 +202,27 @@ describe("GuideInboxCardHeader", () => {
     expect(
       screen.getByText(/природа.*история|история.*природа/i),
     ).toBeInTheDocument();
+  });
+
+  it("renders a cleaned mapped destination instead of polluted text", () => {
+    const item = mapRequestRow({
+      id: "r1",
+      destination: "МоскваМосква",
+      notes: JSON.stringify({
+        destinationLabel:
+          "Москва, Санкт-Петербург… placeholder=Москва, Санкт-Петербург… autocomplete=list",
+      }),
+      starts_on: "2026-06-10",
+      ends_on: "2026-06-10",
+      participants_count: 2,
+      category: "city",
+      status: "open",
+      created_at: "2026-01-01T00:00:00Z",
+    });
+
+    render(<GuideInboxCardHeader item={item} matched={false} />);
+
+    expect(screen.getByText("Москва, Санкт-Петербург…")).toBeInTheDocument();
+    expect(screen.queryByText(/placeholder|autocomplete/i)).toBeNull();
   });
 });
