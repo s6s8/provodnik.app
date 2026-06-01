@@ -14,6 +14,8 @@ export default async function PublicSiteLayout({ children }: { children: ReactNo
         isAuthenticated={auth.isAuthenticated}
         role={auth.role}
         email={auth.email}
+        fullName={auth.fullName}
+        avatarUrl={auth.avatarUrl}
         canonicalRedirectTo={auth.canonicalRedirectTo}
         userId={auth.userId}
         notificationsEnabled={flags.FEATURE_TR_NOTIFICATIONS}
