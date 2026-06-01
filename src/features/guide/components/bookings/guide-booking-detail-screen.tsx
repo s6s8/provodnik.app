@@ -170,10 +170,12 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
               <CalendarDays className="size-4 text-muted-foreground" />
               {record.dateLabel}
             </span>
-            <span className="inline-flex items-center gap-2">
-              <MapPin className="size-4 text-muted-foreground" />
-              Модель выплат и залога — демо, без реальных списаний
-            </span>
+            {process.env.NODE_ENV !== "production" && (
+              <span className="inline-flex items-center gap-2">
+                <MapPin className="size-4 text-muted-foreground" />
+                Модель выплат и залога — демо, без реальных списаний
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -237,17 +239,21 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
             />
           </div>
 
-          <Separator />
+          {process.env.NODE_ENV !== "production" && (
+            <>
+              <Separator />
 
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <Button className="w-full sm:w-auto" disabled>
-              <CreditCard className="size-4" />
-              Взять залог (демо)
-            </Button>
-            <Button className="w-full sm:w-auto" variant="secondary" disabled>
-              Выплата гиду (демо)
-            </Button>
-          </div>
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <Button className="w-full sm:w-auto" disabled>
+                  <CreditCard className="size-4" />
+                  Взять залог (демо)
+                </Button>
+                <Button className="w-full sm:w-auto" variant="secondary" disabled>
+                  Выплата гиду (демо)
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

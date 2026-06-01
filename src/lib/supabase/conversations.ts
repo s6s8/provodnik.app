@@ -12,6 +12,7 @@
 import { z } from "zod";
 
 import type { Database } from "@/lib/supabase/database.types";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   ConversationThreadRow,
@@ -315,10 +316,11 @@ export async function getOrCreateThread(
         user_id: userId,
       }),
     );
-    const supabase = await createSupabaseServerClient();
-    await supabase
+    const admin = createSupabaseAdminClient();
+    const { error: backfillError } = await admin
       .from("thread_participants")
       .upsert(participantRows, { onConflict: "thread_id,user_id" });
+    if (backfillError) throw backfillError;
     return hydrateThread(existingThread);
   }
 
@@ -362,7 +364,8 @@ export async function getOrCreateThread(
     }),
   );
 
-  const { error: participantsError } = await supabase
+  const participantsAdmin = createSupabaseAdminClient();
+  const { error: participantsError } = await participantsAdmin
     .from("thread_participants")
     .upsert(participantRows, { onConflict: "thread_id,user_id" });
 
