@@ -25,9 +25,10 @@ export type GuideListingOption = {
 
 type Props = {
   licenses: GuideLicenseView[];
+  isLocked?: boolean;
 };
 
-export function LicenseManager({ licenses }: Props) {
+export function LicenseManager({ licenses, isLocked = false }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -70,7 +71,7 @@ export function LicenseManager({ licenses }: Props) {
                 type="button"
                 variant="destructive"
                 size="sm"
-                disabled={pending}
+                disabled={pending || isLocked}
                 onClick={() => handleDelete(lic.id)}
               >
                 Удалить

@@ -29,14 +29,21 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
 
   const { data: statusRow } = await supabase
     .from("guide_profiles")
-    .select("verification_status")
+    .select("verification_status, regions")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (statusRow?.verification_status === "approved") {
-    return { ok: false, error: "Профиль одобрен — для изменения основных данных обратитесь к администраторам" };
-  }
 
   const bio = formData.get("bio") as string | null;
+  if (statusRow?.verification_status === "approved") {
+    const { error } = await supabase
+      .from("guide_profiles")
+      .update({ bio: bio ?? "" })
+      .eq("user_id", user.id);
+
+    if (error) return { ok: false, error: error.message };
+    return { ok: true, regions: statusRow.regions ?? [] };
+  }
+
   const baseCityRaw = formData.get("base_city");
   const yearsExperience = formData.get("years_experience");
   const languagesRaw = formData.getAll("languages") as string[];

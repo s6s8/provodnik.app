@@ -11,6 +11,9 @@ const SCOPABLE_LISTING_STATUSES: ListingStatusDb[] = [
   "active",
 ];
 
+const APPROVED_PROFILE_LOCK_ERROR =
+  "Профиль одобрен — для изменения документов обратитесь к администраторам";
+
 export async function addLicense(data: {
   licenseType: string;
   licenseNumber: string;
@@ -23,6 +26,15 @@ export async function addLicense(data: {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+
+  const { data: statusRow } = await supabase
+    .from("guide_profiles")
+    .select("verification_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (statusRow?.verification_status === "approved") {
+    throw new Error(APPROVED_PROFILE_LOCK_ERROR);
+  }
 
   const applyAll = data.scope === "all";
   const scopeMode = applyAll ? "all" : "selected";
@@ -109,6 +121,15 @@ export async function deleteLicense(licenseId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+
+  const { data: statusRow } = await supabase
+    .from("guide_profiles")
+    .select("verification_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (statusRow?.verification_status === "approved") {
+    throw new Error(APPROVED_PROFILE_LOCK_ERROR);
+  }
 
   const { error } = await supabase
     .from("guide_licenses")

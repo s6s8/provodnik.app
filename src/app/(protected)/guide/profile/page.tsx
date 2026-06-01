@@ -216,6 +216,8 @@ export default async function GuideProfilePage() {
     console.error("[GuideProfilePage] data fetch failed:", err);
   }
 
+  const isVerifiedDataLocked = verificationStatus === "approved";
+
   return (
     <div className="space-y-10">
       <nav aria-label="Разделы профиля" className="flex flex-wrap gap-2">
@@ -254,7 +256,7 @@ export default async function GuideProfilePage() {
                 initialSpecializations={profile?.specializations ?? []}
                 initialYearsExperience={profile?.years_experience ?? null}
                 initialRegions={profile?.regions ?? []}
-                isLocked={verificationStatus === "approved"}
+                isLocked={isVerifiedDataLocked}
               />
             </CardContent>
           </Card>
@@ -271,7 +273,7 @@ export default async function GuideProfilePage() {
               </p>
             </CardHeader>
             <CardContent>
-              <LegalInformationForm initialData={legalInitialData} isLocked={verificationStatus === "approved"} />
+              <LegalInformationForm initialData={legalInitialData} isLocked={isVerifiedDataLocked} />
             </CardContent>
           </Card>
         )}
@@ -285,12 +287,17 @@ export default async function GuideProfilePage() {
               <CardDescription>
                 Укажите документ и к каким видам экскурсиям он относится.
               </CardDescription>
+              {isVerifiedDataLocked ? (
+                <p className="text-sm text-muted-foreground">
+                  Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.
+                </p>
+              ) : null}
               <CardAction>
-                <LicenseAddButton listings={listings} />
+                <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
               </CardAction>
             </CardHeader>
             <CardContent>
-              <LicenseManager licenses={licenses} />
+              <LicenseManager licenses={licenses} isLocked={isVerifiedDataLocked} />
             </CardContent>
           </Card>
         )}

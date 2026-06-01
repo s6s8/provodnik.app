@@ -19,9 +19,10 @@ import type { GuideListingOption } from "./LicenseManager";
 
 type Props = {
   listings: GuideListingOption[];
+  isLocked?: boolean;
 };
 
-export function LicenseAddButton({ listings }: Props) {
+export function LicenseAddButton({ listings, isLocked = false }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
@@ -87,7 +88,7 @@ export function LicenseAddButton({ listings }: Props) {
   return (
     <>
       <div className="pt-1">
-        <Button type="button" onClick={() => setOpen(true)} disabled={pending}>
+        <Button type="button" onClick={() => setOpen(true)} disabled={pending || isLocked}>
           Добавить документ
         </Button>
       </div>

@@ -24,11 +24,15 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 vi.mock("@/app/(protected)/profile/guide/about/guide-about-form", () => ({
-  GuideAboutForm: () => <form aria-label="О себе" />,
+  GuideAboutForm: ({ isLocked }: { isLocked?: boolean }) => (
+    <form aria-label="О себе" data-locked={String(Boolean(isLocked))} />
+  ),
 }));
 
 vi.mock("@/features/profile/components/LegalInformationForm", () => ({
-  LegalInformationForm: () => <form aria-label="Юридические данные" />,
+  LegalInformationForm: ({ isLocked }: { isLocked?: boolean }) => (
+    <form aria-label="Юридические данные" data-locked={String(Boolean(isLocked))} />
+  ),
 }));
 
 vi.mock("@/features/guide/components/verification/verification-upload-form", () => ({
@@ -40,7 +44,9 @@ vi.mock("@/app/(protected)/profile/_components/avatar-upload-block", () => ({
 }));
 
 vi.mock("@/features/profile/components/LicenseAddButton", () => ({
-  LicenseAddButton: () => <button type="button">Добавить документ</button>,
+  LicenseAddButton: ({ isLocked }: { isLocked?: boolean }) => (
+    <button type="button" disabled={isLocked}>Добавить документ</button>
+  ),
 }));
 
 vi.mock("@/app/(protected)/guide/verification/actions", () => ({
@@ -52,7 +58,7 @@ vi.mock("@/app/(protected)/guide/verification/actions", () => ({
 
 import GuideProfilePage from "./page";
 
-function makeSupabaseClient() {
+function makeSupabaseClient(verificationStatus = "draft") {
   return {
     from: (table: string) => ({
       select: () => ({
@@ -80,7 +86,7 @@ function makeSupabaseClient() {
                   document_country: null,
                   is_tour_operator: false,
                   tour_operator_registry_number: null,
-                  verification_status: "draft",
+                  verification_status: verificationStatus,
                   verification_notes: null,
                 },
               }),
@@ -170,5 +176,28 @@ describe("GuideProfilePage", () => {
         "Укажите документ и к каким видам экскурсиям он относится.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it("keeps the editor available for an approved guide while locking verified sections", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce({
+      isAuthenticated: true,
+      userId: "g1",
+      role: "guide",
+      email: "irina@example.com",
+    });
+    createSupabaseServerClientMock.mockImplementation(() => makeSupabaseClient("approved"));
+
+    const ui = await GuideProfilePage();
+    render(ui);
+
+    expect(screen.getByLabelText("О себе")).toHaveAttribute("data-locked", "true");
+    expect(screen.getByLabelText("Юридические данные")).toHaveAttribute("data-locked", "true");
+    expect(screen.getByRole("button", { name: "Добавить документ" })).toBeDisabled();
+    expect(
+      screen.getByText(
+        "Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.",
+      ),
+    ).toBeInTheDocument();
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 });

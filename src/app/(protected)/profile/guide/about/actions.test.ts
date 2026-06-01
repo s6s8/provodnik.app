@@ -99,4 +99,27 @@ describe("saveGuideAboutAction", () => {
       }),
     );
   });
+
+  it("updates only bio for an approved guide profile", async () => {
+    mockMaybeSingle.mockReset();
+    mockMaybeSingle.mockResolvedValueOnce({
+      data: {
+        verification_status: "approved",
+        regions: ["Карелия"],
+      },
+    });
+    const eqAfterUpdate = vi.fn().mockResolvedValue({ error: null });
+    mockUpdate.mockReturnValue({ eq: eqAfterUpdate });
+
+    const formData = makeFormData();
+    formData.set("bio", "Новый публичный текст");
+    formData.set("base_city", "Москва");
+
+    const result = await saveGuideAboutAction(formData);
+
+    expect(result).toEqual({ ok: true, regions: ["Карелия"] });
+    expect(mockUpdate).toHaveBeenCalledWith({ bio: "Новый публичный текст" });
+    expect(eqAfterUpdate).toHaveBeenCalledWith("user_id", "g-guide-1");
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
 });
