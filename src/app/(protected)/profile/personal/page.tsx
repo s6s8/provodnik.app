@@ -67,15 +67,45 @@ export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
 
   if (auth.role === "traveler") {
-    const avatar = await fetchAvatar(auth.userId, auth.email ?? "Путешественник");
-    const travelerProfile: TravelerProfile = {
-      full_name: avatar.name,
-      avatar_url: avatar.url,
+    let travelerProfile: TravelerProfile = {
+      full_name: auth.email ?? "Путешественник",
+      avatar_url: null,
       bio: null,
       home_city: null,
       languages: null,
       birth_year: null,
     };
+
+    if (auth.userId) {
+      try {
+        const supabase = await createSupabaseServerClient();
+        const { data } = await supabase
+          .from("profiles")
+          .select("avatar_url, full_name, bio, home_city, languages, birth_year")
+          .eq("id", auth.userId)
+          .maybeSingle();
+        if (data) {
+          const row = data as {
+            avatar_url?: string | null;
+            full_name?: string | null;
+            bio?: string | null;
+            home_city?: string | null;
+            languages?: string[] | null;
+            birth_year?: number | null;
+          };
+          travelerProfile = {
+            full_name: row.full_name?.trim() || (auth.email ?? "Путешественник"),
+            avatar_url: row.avatar_url ?? null,
+            bio: row.bio ?? null,
+            home_city: row.home_city ?? null,
+            languages: row.languages?.length ? row.languages : null,
+            birth_year: row.birth_year ?? null,
+          };
+        }
+      } catch {
+        // render with defaults
+      }
+    }
 
     return (
       <div className="space-y-6">
@@ -85,7 +115,7 @@ export default async function PersonalSettingsPage() {
             Профиль
           </h1>
         </div>
-        <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
+        <AvatarUploadBlock avatarUrl={travelerProfile.avatar_url} displayName={travelerProfile.full_name ?? ""} />
         <TravelerProfileForm profile={travelerProfile} />
         <Button asChild variant="outline">
           <Link href="/traveler/requests">Мои запросы</Link>
