@@ -1,13 +1,15 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClientMock, readAuthContextFromServerMock } = vi.hoisted(() => ({
-  createSupabaseServerClientMock: vi.fn(),
-  readAuthContextFromServerMock: vi.fn(),
-}));
+const { createSupabaseServerClientMock, readAuthContextFromServerMock, redirectMock } =
+  vi.hoisted(() => ({
+    createSupabaseServerClientMock: vi.fn(),
+    readAuthContextFromServerMock: vi.fn(),
+    redirectMock: vi.fn(),
+  }));
 
 vi.mock("next/navigation", () => ({
-  redirect: vi.fn(),
+  redirect: redirectMock,
   useRouter: () => ({
     refresh: vi.fn(),
   }),
@@ -98,7 +100,13 @@ function makeSupabaseClient() {
 }
 
 describe("GuideProfilePage", () => {
-  it("renders the about section for an authenticated guide", async () => {
+  beforeEach(() => {
+    createSupabaseServerClientMock.mockReset();
+    readAuthContextFromServerMock.mockReset();
+    redirectMock.mockReset();
+  });
+
+  it("renders the checklist editor for an authenticated guide", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce({
       isAuthenticated: true,
       userId: "g1",
@@ -111,12 +119,17 @@ describe("GuideProfilePage", () => {
     render(ui);
 
     expect(screen.getByLabelText("О себе")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Документ о квалификации" }),
+    ).toBeInTheDocument();
+    expect(redirectMock).not.toHaveBeenCalled();
   });
 
   it("uses the qualification document wording instead of the attestation cluster", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce({
       isAuthenticated: true,
       userId: "g1",
+      role: "guide",
       email: "irina@example.com",
     });
     createSupabaseServerClientMock.mockImplementation(makeSupabaseClient);
@@ -132,5 +145,30 @@ describe("GuideProfilePage", () => {
     expect(screen.queryByText("Аттестаты")).not.toBeInTheDocument();
     expect(screen.queryByText("Аттестаты и документы")).not.toBeInTheDocument();
     expect(screen.queryByText("Документы и к каким экскурсиям они относятся.")).not.toBeInTheDocument();
+  });
+
+  it("renders the license add action in the section header action slot", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce({
+      isAuthenticated: true,
+      userId: "g1",
+      role: "guide",
+      email: "irina@example.com",
+    });
+    createSupabaseServerClientMock.mockImplementation(makeSupabaseClient);
+
+    const ui = await GuideProfilePage();
+    render(ui);
+
+    const addButton = screen.getByRole("button", { name: "Добавить документ" });
+    const action = addButton.closest('[data-slot="card-action"]');
+    const header = addButton.closest('[data-slot="card-header"]');
+
+    expect(action).toBeInTheDocument();
+    expect(header).toBeInTheDocument();
+    expect(
+      within(header as HTMLElement).getByText(
+        "Укажите документ и к каким видам экскурсиям он относится.",
+      ),
+    ).toBeInTheDocument();
   });
 });

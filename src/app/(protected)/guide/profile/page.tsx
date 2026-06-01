@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { GuideAboutForm } from "@/app/(protected)/profile/guide/about/guide-about-form";
 import { LegalInformationForm } from "@/features/profile/components/LegalInformationForm";
 import {
@@ -74,6 +81,11 @@ export default async function GuideProfilePage() {
   const auth = await readAuthContextFromServer();
   if (!auth.isAuthenticated || !auth.userId) {
     redirect("/auth?next=/guide/profile");
+  }
+  if (auth.role !== "guide") {
+    redirect(
+      auth.canonicalRedirectTo ?? auth.missingRoleRecoveryTo ?? "/auth?next=/guide/profile",
+    );
   }
   const guideId = auth.userId;
 
@@ -270,10 +282,12 @@ export default async function GuideProfilePage() {
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
               <CardTitle className="text-xl">Документ о квалификации</CardTitle>
-              <p className="text-sm text-muted-foreground">
+              <CardDescription>
                 Укажите документ и к каким видам экскурсиям он относится.
-              </p>
-              <LicenseAddButton listings={listings} />
+              </CardDescription>
+              <CardAction>
+                <LicenseAddButton listings={listings} />
+              </CardAction>
             </CardHeader>
             <CardContent>
               <LicenseManager licenses={licenses} />

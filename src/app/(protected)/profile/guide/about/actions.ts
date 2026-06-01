@@ -15,7 +15,9 @@ export type GuideProfileUpdatePayload = {
   regions?: string[];
 };
 
-export type SaveAboutResult = { ok: true } | { ok: false; error: string };
+export type SaveAboutResult =
+  | { ok: true; regions: string[] }
+  | { ok: false; error: string };
 
 export async function saveGuideAboutAction(formData: FormData): Promise<SaveAboutResult> {
   const supabase = await createSupabaseServerClient();
@@ -50,23 +52,43 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
     canonThemeSlugs.has(s)
   );
 
+  const regions = regionsRaw.filter(Boolean);
+
   const update: GuideProfileUpdatePayload = {
     bio: bio ?? "",
     base_city: baseCity,
     languages: languagesRaw.filter(Boolean),
     specializations,
-    regions: regionsRaw.filter(Boolean),
+    regions,
   };
 
   if (yearsExperience && !isNaN(Number(yearsExperience))) {
     update.years_experience = Number(yearsExperience);
   }
 
-  const { error } = await supabase
+  const { data: updatedRow, error } = await supabase
     .from("guide_profiles")
     .update(update)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("user_id")
+    .maybeSingle();
 
   if (error) return { ok: false, error: error.message };
-  return { ok: true };
+
+  if (!updatedRow) {
+    const { data: insertedRow, error: insertError } = await supabase
+      .from("guide_profiles")
+      .insert({ user_id: user.id, ...update })
+      .select("user_id")
+      .maybeSingle();
+
+    if (insertError || !insertedRow) {
+      return {
+        ok: false,
+        error: insertError?.message ?? "Не удалось сохранить профиль гида.",
+      };
+    }
+  }
+
+  return { ok: true, regions };
 }

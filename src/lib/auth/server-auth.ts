@@ -2,7 +2,7 @@ import { cookies } from "next/headers";
 
 import {
   getDashboardPathForRole,
-  isAppRole,
+  resolveCanonicalRole,
 } from "@/lib/auth/role-routing";
 import { hasSupabaseEnv } from "@/lib/env";
 import { DEMO_SESSION_COOKIE, parseDemoSessionCookieValue } from "@/lib/demo-session";
@@ -55,7 +55,10 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     .eq("id", session.user.id)
     .maybeSingle();
 
-  const profileRole = isAppRole(profile?.role) ? profile.role : null;
+  const profileRole = resolveCanonicalRole({
+    profileRole: profile?.role,
+    appMetadataRole: session.user.app_metadata?.role as string | undefined,
+  });
 
   if (!profileRole) {
     return {
