@@ -22,7 +22,7 @@ describe("EmptyCabinet", () => {
       screen.getByText("Опишите поездку — местные гиды пришлют предложения"),
     ).toBeInTheDocument();
     const cta = screen.getByRole("link", { name: "Создать запрос" });
-    expect(cta).toHaveAttribute("href", "/traveler/requests/new");
+    expect(cta).toHaveAttribute("href", "/");
     expect(screen.getByText("Элиста")).toBeInTheDocument();
   });
 });

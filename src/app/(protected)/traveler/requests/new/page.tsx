@@ -1,11 +1,5 @@
-import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
-import { TravelerRequestCreateScreen } from "@/features/traveler/components/request-create/traveler-request-create-screen";
-
-export const metadata: Metadata = {
-  title: "Новый запрос",
-};
-
-export default async function TravelerRequestNewPage() {
-  return <TravelerRequestCreateScreen />;
+export default function TravelerRequestNewPage() {
+  redirect("/");
 }
