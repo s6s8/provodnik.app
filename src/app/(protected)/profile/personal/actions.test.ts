@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
 const mockGetUser = vi.fn();
 const mockUpdate = vi.fn();
 const mockEq = vi.fn();

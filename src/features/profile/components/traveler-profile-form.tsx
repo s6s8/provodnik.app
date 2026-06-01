@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 import { findContactInBio } from "../validation/anti-contact";
+import { useRouter } from "next/navigation";
 
 export type TravelerProfile = {
   full_name: string | null;
@@ -27,14 +28,23 @@ const languageOptions = [
 ];
 
 export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
+  const router = useRouter();
+  const [name, setName] = useState(profile.full_name ?? "");
+  const [homeCity, setHomeCity] = useState(profile.home_city ?? "");
   const [bio, setBio] = useState(profile.bio ?? "");
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(profile.languages ?? []);
+  const [birthYear, setBirthYear] = useState(profile.birth_year?.toString() ?? "");
   const [error, setError] = useState<string | null>(null);
   const [bioError, setBioError] = useState<string | null>(null);
 
   async function onSubmit(formData: FormData) {
     setError(null);
     const result = await updateTravelerProfile(formData);
-    if (!result.ok) setError(result.error);
+    if (!result.ok) {
+      setError(result.error);
+    } else {
+      router.refresh();
+    }
   }
 
   return (
@@ -47,7 +57,8 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
               <Input
                 id="name"
                 name="name"
-                defaultValue={profile.full_name ?? ""}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
               />
             </div>
 
@@ -56,7 +67,8 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
               <Input
                 id="homeCity"
                 name="homeCity"
-                defaultValue={profile.home_city ?? ""}
+                value={homeCity}
+                onChange={(e) => setHomeCity(e.target.value)}
               />
             </div>
           </div>
@@ -91,7 +103,11 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
                 id="languages"
                 name="languages"
                 multiple
-                defaultValue={profile.languages ?? []}
+                value={selectedLanguages}
+                onChange={(e) => {
+                  const options = Array.from(e.target.options);
+                  setSelectedLanguages(options.filter((o) => o.selected).map((o) => o.value));
+                }}
                 className="min-h-28 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
               >
                 {languageOptions.map((language) => (
@@ -110,7 +126,8 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
                 type="number"
                 min="1900"
                 max={new Date().getFullYear()}
-                defaultValue={profile.birth_year ?? ""}
+                value={birthYear}
+                onChange={(e) => setBirthYear(e.target.value)}
               />
             </div>
           </div>

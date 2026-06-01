@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { findContactInBio } from "@/features/profile/validation/anti-contact";
 
@@ -41,5 +43,6 @@ export async function updateTravelerProfile(
     .eq("id", user.id);
 
   if (error) return { ok: false, error: error.message };
+  revalidatePath("/profile/personal");
   return { ok: true };
 }
