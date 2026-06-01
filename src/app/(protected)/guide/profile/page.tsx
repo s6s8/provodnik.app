@@ -9,6 +9,7 @@ import {
   type GuideLicenseView,
   type GuideListingOption,
 } from "@/features/profile/components/LicenseManager";
+import { LicenseAddButton } from "@/features/profile/components/LicenseAddButton";
 import { VerificationUploadForm } from "@/features/guide/components/verification/verification-upload-form";
 import { GuideProfileSectionBoundary } from "@/features/guide/components/verification/guide-profile-section-boundary";
 import type { UploadedGuideDocument } from "@/features/guide/components/verification/verification-types";
@@ -270,9 +271,10 @@ export default async function GuideProfilePage() {
               <p className="text-sm text-muted-foreground">
                 Укажите документ и к каким видам экскурсиям он относится.
               </p>
+              <LicenseAddButton listings={listings} />
             </CardHeader>
             <CardContent>
-              <LicenseManager licenses={licenses} listings={listings} />
+              <LicenseManager licenses={licenses} />
             </CardContent>
           </Card>
         )}
