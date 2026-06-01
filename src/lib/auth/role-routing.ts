@@ -1,3 +1,4 @@
+import { hasAdminRole } from "@/lib/auth/admin-access";
 import type { AppRole } from "@/lib/auth/types";
 
 export const ROLE_DASHBOARD_PATHS = {
@@ -69,12 +70,15 @@ export function roleHasAccess(userRole: AppRole, requiredRole: AppRole): boolean
   return false;
 }
 
-/** profiles.role is canonical; JWT app_metadata.role is a signup fast-path cache only. */
+/** profiles.role is canonical for traveler/guide; admin may be granted by profile or JWT (AP-038). */
 export function resolveCanonicalRole(input: {
   profileRole: string | null | undefined;
   appMetadataRole: string | null | undefined;
+  userMetadataRole?: string | null | undefined;
 }): AppRole | null {
+  if (hasAdminRole(input)) return "admin";
   if (isAppRole(input.profileRole)) return input.profileRole;
   if (isAppRole(input.appMetadataRole)) return input.appMetadataRole;
+  if (isAppRole(input.userMetadataRole)) return input.userMetadataRole;
   return null;
 }

@@ -62,6 +62,7 @@ export async function proxy(request: NextRequest) {
   const role: AppRole | null = resolveCanonicalRole({
     profileRole: profile?.role,
     appMetadataRole: session.user.app_metadata?.role as string | undefined,
+    userMetadataRole: session.user.user_metadata?.role as string | undefined,
   });
 
   if (!role) {

@@ -128,6 +128,7 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
         const userRole = resolveCanonicalRole({
           profileRole: profile?.role,
           appMetadataRole: data.user?.app_metadata?.role as string | undefined,
+          userMetadataRole: data.user?.user_metadata?.role as string | undefined,
         });
         const dashboardPath = userRole ? getDashboardPathForRole(userRole) : null;
 

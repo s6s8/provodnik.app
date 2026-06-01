@@ -24,6 +24,16 @@ describe("resolveCanonicalRole", () => {
       }),
     ).toBe("guide");
   });
+
+  it("falls back to user_metadata when profile and app_metadata are missing", () => {
+    expect(
+      resolveCanonicalRole({
+        profileRole: null,
+        appMetadataRole: null,
+        userMetadataRole: "admin",
+      }),
+    ).toBe("admin");
+  });
 });
 
 describe("roleHasAccess", () => {

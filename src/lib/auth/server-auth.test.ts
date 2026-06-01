@@ -85,4 +85,15 @@ describe("readAuthContextFromServer", () => {
     expect(auth.canonicalRedirectTo).toBe("/guide");
     expect(auth.missingRoleRecoveryTo).toBeNull();
   });
+
+  it("routes to admin dashboard when profile.role is admin", async () => {
+    createSupabaseServerClientMock.mockResolvedValue(
+      makeSupabaseClient("admin", "guide"),
+    );
+
+    const auth = await readAuthContextFromServer();
+
+    expect(auth.role).toBe("admin");
+    expect(auth.canonicalRedirectTo).toBe("/admin/dashboard");
+  });
 });

@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { isAdminAuthUser, readJwtRole } from "@/lib/auth/admin-access";
 import { createNotification } from "@/lib/notifications/create-notification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -224,17 +225,19 @@ async function requireAdminSession() {
     .maybeSingle();
 
   if (profileError) throw profileError;
-  if (!profile || profile.role !== "admin") {
+
+  const jwtRole = readJwtRole(user);
+  if (!isAdminAuthUser({ profileRole: profile?.role, jwtRole })) {
     throw new Error("Доступ только для администраторов.");
   }
 
   return {
     adminId: user.id as Uuid,
     adminProfile: {
-      id: profile.id as Uuid,
-      full_name: profile.full_name ?? null,
-      email: profile.email ?? null,
-      avatar_url: profile.avatar_url ?? null,
+      id: (profile?.id ?? user.id) as Uuid,
+      full_name: profile?.full_name ?? null,
+      email: profile?.email ?? user.email ?? null,
+      avatar_url: profile?.avatar_url ?? null,
     } satisfies ProfileLite,
     adminClient: createSupabaseAdminClient(),
   };
