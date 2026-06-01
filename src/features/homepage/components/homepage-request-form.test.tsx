@@ -110,6 +110,7 @@ describe("HomepageRequestForm onSubmit", () => {
 
     const submittedFormData = vi.mocked(createRequestAction).mock.calls[0][1] as FormData;
     expect(submittedFormData.getAll("requested_languages[]")).toEqual([
+      "Русский",
       "Английский",
     ]);
   });
@@ -145,7 +146,7 @@ describe("HomepageRequestForm UI affordances", () => {
   it("renders the language multi-select labelled «Языки экскурсии» (bk-task-05)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     expect(screen.getByText(/Языки экскурсии/i)).toBeInTheDocument();
-    expect(screen.getByText("Любой язык")).toBeInTheDocument();
+    expect(screen.getByText("Русский")).toBeInTheDocument();
     expect(
       screen.queryByText(
         "Если важен конкретный язык — выберите. Иначе гиды любых языков смогут откликнуться.",
@@ -157,7 +158,7 @@ describe("HomepageRequestForm UI affordances", () => {
     );
 
     // canonical list — at minimum Russian + Hindi must be selectable
-    expect(screen.getByText("Русский")).toBeInTheDocument();
+    expect(screen.getAllByText("Русский").length).toBeGreaterThan(0);
     expect(screen.getByText("Хинди")).toBeInTheDocument();
   });
 

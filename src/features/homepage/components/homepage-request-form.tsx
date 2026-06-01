@@ -43,7 +43,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     defaultValues: {
       mode: "private",
       interests: [] as TravelerRequest["interests"],
-      requestedLanguages: [],
+      requestedLanguages: ["Русский"],
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
       startDate: "",
       dateFlexibility: "exact",
