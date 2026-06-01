@@ -115,8 +115,7 @@ export function LicenseManager({ licenses, listings }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-display text-xl text-foreground">Документ о квалификации</h2>
+      <div className="flex justify-end">
         <Button type="button" onClick={() => setOpen(true)} disabled={pending}>
           Добавить документ
         </Button>
