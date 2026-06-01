@@ -73,7 +73,7 @@ export function HomePageDiscovery({ requests }: Props) {
                         </span>
                       )}
                       {req.date_locked === false && (
-                        <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
                           Гибкие даты
                         </span>
                       )}

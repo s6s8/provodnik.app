@@ -133,7 +133,7 @@ export function GuideRequestDetailScreen({
               <span className="font-medium text-foreground">Даты:</span>{" "}
               {request.dateLabel}
               {request.date_locked === false && (
-                <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                <span className="ml-1 rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
                   гибкие даты
                 </span>
               )}
