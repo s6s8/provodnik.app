@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
@@ -22,6 +23,30 @@ function getInitials(email: string | null) {
     .join("");
 }
 
+function AdminAccessDenied({ returnTo }: { returnTo: string | null | undefined }) {
+  return (
+    <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-destructive/30 bg-destructive/10 p-6 shadow-card">
+      <div className="space-y-3">
+        <p className="text-sm font-semibold text-destructive">Админка недоступна</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          Нужны права администратора
+        </h1>
+        <p className="text-sm leading-6 text-muted-foreground">
+          Этот раздел доступен только администраторам Provodnik. Войдите под
+          админским аккаунтом или обратитесь к владельцу доступа.
+        </p>
+      </div>
+
+      <Link
+        href={returnTo ?? "/auth"}
+        className="mt-5 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+      >
+        {returnTo ? "Вернуться в свой кабинет" : "Войти в аккаунт"}
+      </Link>
+    </div>
+  );
+}
+
 export default async function AdminLayout({
   children,
 }: {
@@ -33,7 +58,7 @@ export default async function AdminLayout({
   }
 
   if (auth.role !== "admin") {
-    redirect(auth.canonicalRedirectTo ?? "/auth");
+    return <AdminAccessDenied returnTo={auth.canonicalRedirectTo} />;
   }
 
   const counts = await getAdminNavCounts();
