@@ -17,7 +17,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getDashboardPathForRole, isAppRole } from "@/lib/auth/role-routing";
+import { getDashboardPathForRole, resolveCanonicalRole } from "@/lib/auth/role-routing";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
@@ -121,25 +121,15 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
           return;
         }
 
-        // Role lookup: app_metadata.role is the JWT-stamped fast path (set by
-        // signUpAction). Users created outside that path — admin tooling, seeds,
-        // direct DB inserts — may lack the JWT claim. Fall back to profiles.role,
-        // which is the server-side source of truth read by
-        // readAuthContextFromServer. Without this fallback, any non-signUpAction
-        // user signs in successfully and is then immediately signed out by the
-        // dashboardPath=null branch below.
-        let userRole: string | null | undefined = data.user?.app_metadata?.role;
-        if (!isAppRole(userRole) && data.user?.id) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("role")
-            .eq("id", data.user.id)
-            .maybeSingle();
-          userRole = profile?.role ?? null;
-        }
-        const dashboardPath = isAppRole(userRole)
-          ? getDashboardPathForRole(userRole)
-          : null;
+        const { data: profile } = data.user?.id
+          ? await supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
+          : { data: null };
+
+        const userRole = resolveCanonicalRole({
+          profileRole: profile?.role,
+          appMetadataRole: data.user?.app_metadata?.role as string | undefined,
+        });
+        const dashboardPath = userRole ? getDashboardPathForRole(userRole) : null;
 
         if (!dashboardPath) {
           window.location.href = "/api/auth/signout";

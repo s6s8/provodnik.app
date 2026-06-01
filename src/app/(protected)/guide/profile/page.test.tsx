@@ -37,6 +37,10 @@ vi.mock("@/app/(protected)/profile/_components/avatar-upload-block", () => ({
   AvatarUploadBlock: () => <div>Фото профиля</div>,
 }));
 
+vi.mock("@/features/profile/components/LicenseAddButton", () => ({
+  LicenseAddButton: () => <button type="button">Добавить документ</button>,
+}));
+
 vi.mock("@/app/(protected)/guide/verification/actions", () => ({
   confirmDocumentUpload: vi.fn(),
   confirmGuideAssetUpload: vi.fn(),
@@ -94,6 +98,21 @@ function makeSupabaseClient() {
 }
 
 describe("GuideProfilePage", () => {
+  it("renders the about section for an authenticated guide", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce({
+      isAuthenticated: true,
+      userId: "g1",
+      role: "guide",
+      email: "irina@example.com",
+    });
+    createSupabaseServerClientMock.mockImplementation(makeSupabaseClient);
+
+    const ui = await GuideProfilePage();
+    render(ui);
+
+    expect(screen.getByLabelText("О себе")).toBeInTheDocument();
+  });
+
   it("uses the qualification document wording instead of the attestation cluster", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce({
       isAuthenticated: true,
@@ -105,7 +124,11 @@ describe("GuideProfilePage", () => {
     const ui = await GuideProfilePage();
     render(ui);
 
-    expect(screen.getAllByText("Документ о квалификации").length).toBeGreaterThan(0);
+    expect(screen.getByRole("link", { name: "Квалификация" })).toHaveAttribute("href", "#license");
+    expect(
+      screen.getByRole("heading", { name: /^Документ о квалификации$/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Документ о квалификации", { exact: true })).toBeInTheDocument();
     expect(screen.queryByText("Аттестаты")).not.toBeInTheDocument();
     expect(screen.queryByText("Аттестаты и документы")).not.toBeInTheDocument();
     expect(screen.queryByText("Документы и к каким экскурсиям они относятся.")).not.toBeInTheDocument();

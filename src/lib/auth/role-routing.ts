@@ -68,3 +68,13 @@ export function roleHasAccess(userRole: AppRole, requiredRole: AppRole): boolean
   if (userRole === "admin") return true;
   return false;
 }
+
+/** profiles.role is canonical; JWT app_metadata.role is a signup fast-path cache only. */
+export function resolveCanonicalRole(input: {
+  profileRole: string | null | undefined;
+  appMetadataRole: string | null | undefined;
+}): AppRole | null {
+  if (isAppRole(input.profileRole)) return input.profileRole;
+  if (isAppRole(input.appMetadataRole)) return input.appMetadataRole;
+  return null;
+}

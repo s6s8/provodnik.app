@@ -1,0 +1,44 @@
+import { describe, expect, it } from "vitest";
+
+import {
+  getRequiredRoleForPathname,
+  resolveCanonicalRole,
+  roleHasAccess,
+} from "./role-routing";
+
+describe("resolveCanonicalRole", () => {
+  it("prefers profiles.role over a stale JWT app_metadata role", () => {
+    expect(
+      resolveCanonicalRole({
+        profileRole: "guide",
+        appMetadataRole: "traveler",
+      }),
+    ).toBe("guide");
+  });
+
+  it("falls back to app_metadata when profile role is missing", () => {
+    expect(
+      resolveCanonicalRole({
+        profileRole: null,
+        appMetadataRole: "guide",
+      }),
+    ).toBe("guide");
+  });
+});
+
+describe("roleHasAccess", () => {
+  it("allows guides into the guide workspace", () => {
+    expect(roleHasAccess("guide", "guide")).toBe(true);
+  });
+
+  it("denies travelers access to guide-only routes", () => {
+    expect(roleHasAccess("traveler", "guide")).toBe(false);
+  });
+});
+
+describe("getRequiredRoleForPathname", () => {
+  it("requires guide role for the guide profile editor", () => {
+    expect(getRequiredRoleForPathname("/guide/profile")).toBe("guide");
+    expect(getRequiredRoleForPathname("/profile/guide/about")).toBe("guide");
+  });
+});

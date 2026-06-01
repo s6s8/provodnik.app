@@ -211,7 +211,7 @@ export default async function GuideProfilePage() {
           ["#avatar", "Фото"],
           ["#about", "О себе"],
           ["#legal", "Юридические данные"],
-          ["#license", "Документ о квалификации"],
+          ["#license", "Квалификация"],
           ["#verification", "Верификация"],
         ].map(([href, label]) => (
           <a

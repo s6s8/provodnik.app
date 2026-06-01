@@ -3,7 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   getDashboardPathForRole,
   getRequiredRoleForPathname,
-  isAppRole,
+  resolveCanonicalRole,
   roleHasAccess,
 } from "@/lib/auth/role-routing";
 import type { AppRole } from "@/lib/auth/types";
@@ -50,28 +50,19 @@ export async function proxy(request: NextRequest) {
     return applyCookies(redirectTo(request, "/auth"));
   }
 
-  // Role lookup matches server-auth.ts (the SSR side): JWT app_metadata.role
-  // is the fast path stamped by signUpAction, profiles.role is the canonical
-  // source for any user created outside that path. Without the fallback the
-  // proxy and the auth page disagreed — proxy bounced JWT-no-role users to
-  // /auth?error=missing-role, auth page read profile.role and bounced them
-  // back to their dashboard — infinite redirect loop. Cost: one DB query
-  // per protected route for users without the JWT claim; canonical
-  // signUpAction users still hit the synchronous JWT path.
-  let role: AppRole | null = isAppRole(session.user.app_metadata?.role)
-    ? (session.user.app_metadata.role as AppRole)
-    : null;
+  // Role lookup matches server-auth.ts: profiles.role is canonical.
+  // JWT app_metadata.role is a signup cache and may be stale when profile.role
+  // was updated without refreshing the claim (see AP-038).
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", session.user.id)
+    .maybeSingle();
 
-  if (!role) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", session.user.id)
-      .maybeSingle();
-    if (isAppRole(profile?.role)) {
-      role = profile.role;
-    }
-  }
+  const role: AppRole | null = resolveCanonicalRole({
+    profileRole: profile?.role,
+    appMetadataRole: session.user.app_metadata?.role as string | undefined,
+  });
 
   if (!role) {
     return applyCookies(redirectTo(request, "/auth?error=missing-role"));
