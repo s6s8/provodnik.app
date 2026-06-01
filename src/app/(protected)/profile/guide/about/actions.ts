@@ -25,6 +25,15 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   } = await supabase.auth.getUser();
   if (authError || !user) return { ok: false, error: "Требуется вход" };
 
+  const { data: statusRow } = await supabase
+    .from("guide_profiles")
+    .select("verification_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (statusRow?.verification_status === "approved") {
+    return { ok: false, error: "Профиль одобрен — для изменения основных данных обратитесь к администраторам" };
+  }
+
   const bio = formData.get("bio") as string | null;
   const baseCityRaw = formData.get("base_city");
   const yearsExperience = formData.get("years_experience");

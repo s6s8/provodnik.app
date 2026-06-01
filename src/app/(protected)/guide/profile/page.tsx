@@ -242,6 +242,7 @@ export default async function GuideProfilePage() {
                 initialSpecializations={profile?.specializations ?? []}
                 initialYearsExperience={profile?.years_experience ?? null}
                 initialRegions={profile?.regions ?? []}
+                isLocked={verificationStatus === "approved"}
               />
             </CardContent>
           </Card>
@@ -258,7 +259,7 @@ export default async function GuideProfilePage() {
               </p>
             </CardHeader>
             <CardContent>
-              <LegalInformationForm initialData={legalInitialData} />
+              <LegalInformationForm initialData={legalInitialData} isLocked={verificationStatus === "approved"} />
             </CardContent>
           </Card>
         )}

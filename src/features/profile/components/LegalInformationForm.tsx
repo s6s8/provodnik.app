@@ -27,9 +27,10 @@ interface Props {
     isTourOperator: boolean;
     tourOperatorRegistryNumber: string | null;
   };
+  isLocked?: boolean;
 }
 
-export function LegalInformationForm({ initialData }: Props) {
+export function LegalInformationForm({ initialData, isLocked = false }: Props) {
   const [legalStatus, setLegalStatus] = useState<string>(
     initialData.legalStatus ?? NONE_VALUE
   );
@@ -49,6 +50,7 @@ export function LegalInformationForm({ initialData }: Props) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isLocked) return;
     setSaved(false);
     setErrorMsg(null);
 
@@ -72,7 +74,12 @@ export function LegalInformationForm({ initialData }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
+      {isLocked && (
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+          Профиль одобрен. Юридические данные недоступны для редактирования — для изменений напишите администраторам.
+        </p>
+      )}
+      <fieldset disabled={isLocked} className="space-y-4 border-0 p-0 m-0">
         {/* Legal status */}
         <div className="space-y-2">
           <Label htmlFor="legal-status">Правовой статус</Label>
@@ -150,7 +157,7 @@ export function LegalInformationForm({ initialData }: Props) {
             />
           </div>
         )}
-      </div>
+      </fieldset>
 
       {saved && (
         <Alert className="border-green-500 text-green-700 bg-green-50">
@@ -163,9 +170,11 @@ export function LegalInformationForm({ initialData }: Props) {
         </Alert>
       )}
 
-      <Button type="submit" disabled={isPending}>
-        {isPending ? "Сохранение…" : "Сохранить"}
-      </Button>
+      {!isLocked && (
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Сохранение…" : "Сохранить"}
+        </Button>
+      )}
     </form>
   );
 }

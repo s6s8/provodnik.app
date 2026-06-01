@@ -13,6 +13,7 @@ interface GuideAboutFormProps {
   initialSpecializations: string[];
   initialYearsExperience: number | null;
   initialRegions: string[];
+  isLocked?: boolean;
 }
 
 export function GuideAboutForm({
@@ -22,6 +23,7 @@ export function GuideAboutForm({
   initialSpecializations,
   initialYearsExperience,
   initialRegions,
+  isLocked = false,
 }: GuideAboutFormProps) {
   const [status, setStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = React.useState("");
@@ -31,6 +33,7 @@ export function GuideAboutForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (isLocked) return;
     const formData = new FormData(e.currentTarget);
     const trimmedBaseCity = baseCity.trim();
     if (trimmedBaseCity === "") {
@@ -52,7 +55,13 @@ export function GuideAboutForm({
   };
 
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-6 max-w-xl">
+    <form onSubmit={(e) => void handleSubmit(e)} className="max-w-xl">
+      {isLocked && (
+        <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+          Профиль одобрен. Основные данные недоступны для редактирования — для изменений напишите администраторам.
+        </p>
+      )}
+      <fieldset disabled={isLocked} className="space-y-6 border-0 p-0 m-0">
       {/* Bio */}
       <div className="space-y-2">
         <textarea
@@ -156,18 +165,20 @@ export function GuideAboutForm({
         />
       </fieldset>
 
-      {/* Submit */}
-      <div className="flex items-center gap-3">
-        <Button type="submit" disabled={status === "saving"}>
-          {status === "saving" ? "Сохраняем…" : "Сохранить"}
-        </Button>
-        {status === "saved" ? (
-          <p className="text-sm text-green-600">Сохранено</p>
-        ) : null}
-        {status === "error" ? (
-          <p className="text-sm text-destructive">{errorMsg}</p>
-        ) : null}
-      </div>
+      {!isLocked && (
+        <div className="flex items-center gap-3">
+          <Button type="submit" disabled={status === "saving"}>
+            {status === "saving" ? "Сохраняем…" : "Сохранить"}
+          </Button>
+          {status === "saved" ? (
+            <p className="text-sm text-green-600">Сохранено</p>
+          ) : null}
+          {status === "error" ? (
+            <p className="text-sm text-destructive">{errorMsg}</p>
+          ) : null}
+        </div>
+      )}
+      </fieldset>
     </form>
   );
 }

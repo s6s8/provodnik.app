@@ -39,6 +39,10 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
 
   async function onSubmit(formData: FormData) {
     setError(null);
+    if (!name.trim()) {
+      setError("Укажите имя");
+      return;
+    }
     const result = await updateTravelerProfile(formData);
     if (!result.ok) {
       setError(result.error);

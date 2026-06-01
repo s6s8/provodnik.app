@@ -25,6 +25,8 @@ export async function updateTravelerProfile(
   if (authError || !user) return { ok: false, error: "Требуется вход" };
 
   const fullName = formData.get("name")?.toString().trim() ?? "";
+  if (!fullName) return { ok: false, error: "Укажите имя" };
+
   const homeCity = formData.get("homeCity")?.toString().trim() ?? "";
   const languages = (formData.getAll("languages") as string[]).filter(Boolean);
   const birthYearRaw = formData.get("birthYear")?.toString();
@@ -34,7 +36,7 @@ export async function updateTravelerProfile(
   const { error } = await supabase
     .from("profiles")
     .update({
-      full_name: fullName || null,
+      full_name: fullName,
       bio: bio || null,
       home_city: homeCity || null,
       languages,

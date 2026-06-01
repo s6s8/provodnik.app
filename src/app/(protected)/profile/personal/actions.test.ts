@@ -39,8 +39,20 @@ describe("updateTravelerProfile", () => {
 
   it("accepts a clean bio and saves to db", async () => {
     const fd = new FormData();
+    fd.set("name", "Алексей Иванов");
     fd.set("bio", "Люблю горы и море");
     const result = await updateTravelerProfile(fd);
     expect(result.ok).toBe(true);
+  });
+
+  it("rejects empty name", async () => {
+    const fd = new FormData();
+    fd.set("name", "");
+    fd.set("bio", "Люблю горы и море");
+    const result = await updateTravelerProfile(fd);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toMatch(/Укажите имя/);
+    }
   });
 });

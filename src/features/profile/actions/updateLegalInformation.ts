@@ -29,6 +29,15 @@ export async function updateLegalInformation(data: {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
+  const { data: statusRow } = await supabase
+    .from("guide_profiles")
+    .select("verification_status")
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (statusRow?.verification_status === "approved") {
+    throw new Error("Профиль одобрен — для изменения данных обратитесь к администраторам");
+  }
+
   const { error } = await supabase
     .from("guide_profiles")
     .update({
