@@ -624,11 +624,11 @@ export async function getListingsByGuide(
 // ---------------------------------------------------------------------------
 
 export async function getOpenRequests(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   filters?: RequestFilters,
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
-    const db = getPublicClient();
+    const db = client;
     const { data, error } = await db
       .from("traveler_requests")
       .select("*, profiles:traveler_id(full_name, avatar_url)")
@@ -665,11 +665,11 @@ export async function getOpenRequests(
 }
 
 export async function getRequestById(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   id: string,
 ): Promise<QueryResult<RequestRecord>> {
   try {
-    const db = getPublicClient();
+    const db = client;
     const { data, error } = await db
       .from("traveler_requests")
       .select("*, profiles:traveler_id(full_name, avatar_url)")
