@@ -8,59 +8,85 @@ import {
   requireAdminSession,
 } from "@/lib/supabase/moderation";
 
+export type ActionState = { error: string | null; success?: boolean };
+
 function readNote(formData: FormData) {
   const value = formData.get("note");
   return typeof value === "string" ? value.trim() : "";
 }
 
-export async function approveGuide(guideId: string) {
-  const { adminId } = await requireAdminSession();
-  const moderationCase = await ensureOpenModerationCase({
-    subjectType: "guide_profile",
-    guideId,
-    queueReason: "Проверка анкеты гида",
-  });
-
-  await performModerationAction(moderationCase.id, adminId, "approve");
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/guides");
-  revalidatePath(`/admin/guides/${guideId}`);
+export async function approveGuide(
+  guideId: string,
+  _prevState: ActionState,
+  _formData: FormData,
+): Promise<ActionState> {
+  try {
+    const { adminId } = await requireAdminSession();
+    const moderationCase = await ensureOpenModerationCase({
+      subjectType: "guide_profile",
+      guideId,
+      queueReason: "Проверка анкеты гида",
+    });
+    await performModerationAction(moderationCase.id, adminId, "approve");
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/guides");
+    revalidatePath(`/admin/guides/${guideId}`);
+    return { error: null, success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при одобрении" };
+  }
 }
 
-export async function rejectGuide(guideId: string, formData: FormData) {
-  const { adminId } = await requireAdminSession();
-  const moderationCase = await ensureOpenModerationCase({
-    subjectType: "guide_profile",
-    guideId,
-    queueReason: "Проверка анкеты гида",
-  });
-
-  await performModerationAction(
-    moderationCase.id,
-    adminId,
-    "reject",
-    readNote(formData),
-  );
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/guides");
-  revalidatePath(`/admin/guides/${guideId}`);
+export async function rejectGuide(
+  guideId: string,
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const { adminId } = await requireAdminSession();
+    const moderationCase = await ensureOpenModerationCase({
+      subjectType: "guide_profile",
+      guideId,
+      queueReason: "Проверка анкеты гида",
+    });
+    await performModerationAction(
+      moderationCase.id,
+      adminId,
+      "reject",
+      readNote(formData),
+    );
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/guides");
+    revalidatePath(`/admin/guides/${guideId}`);
+    return { error: null, success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при отклонении" };
+  }
 }
 
-export async function requestChanges(guideId: string, formData: FormData) {
-  const { adminId } = await requireAdminSession();
-  const moderationCase = await ensureOpenModerationCase({
-    subjectType: "guide_profile",
-    guideId,
-    queueReason: "Проверка анкеты гида",
-  });
-
-  await performModerationAction(
-    moderationCase.id,
-    adminId,
-    "request_changes",
-    readNote(formData),
-  );
-  revalidatePath("/admin/dashboard");
-  revalidatePath("/admin/guides");
-  revalidatePath(`/admin/guides/${guideId}`);
+export async function requestChanges(
+  guideId: string,
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  try {
+    const { adminId } = await requireAdminSession();
+    const moderationCase = await ensureOpenModerationCase({
+      subjectType: "guide_profile",
+      guideId,
+      queueReason: "Проверка анкеты гида",
+    });
+    await performModerationAction(
+      moderationCase.id,
+      adminId,
+      "request_changes",
+      readNote(formData),
+    );
+    revalidatePath("/admin/dashboard");
+    revalidatePath("/admin/guides");
+    revalidatePath(`/admin/guides/${guideId}`);
+    return { error: null, success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при запросе изменений" };
+  }
 }

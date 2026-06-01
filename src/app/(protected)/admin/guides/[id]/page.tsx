@@ -9,7 +9,7 @@ import { formatRussianDateRange, todayMoscowISODate } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
-import { approveGuide, rejectGuide, requestChanges } from "./actions";
+import { GuideApprovalForm } from "./guide-approval-form";
 
 export const metadata: Metadata = {
   title: "Верификация гида",
@@ -393,39 +393,7 @@ export default async function AdminGuideDetailPage({
               документов можно добавить комментарий.
             </p>
 
-            <form className="mt-4 space-y-4">
-              <textarea
-                name="note"
-                rows={6}
-                className="w-full rounded-[1.25rem] border border-input bg-surface-lowest px-4 py-3 text-sm text-foreground outline-none focus:border-primary"
-                placeholder="Комментарий для гида или внутренней истории модерации"
-              />
-
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  formAction={approveGuide.bind(null, id)}
-                  type="submit"
-                  variant="secondary"
-                  className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
-                >
-                  Одобрить гида
-                </Button>
-                <Button
-                  formAction={requestChanges.bind(null, id)}
-                  type="submit"
-                  variant="secondary"
-                >
-                  Запросить доп. документы
-                </Button>
-                <Button
-                  formAction={rejectGuide.bind(null, id)}
-                  type="submit"
-                  variant="destructive"
-                >
-                  Отклонить
-                </Button>
-              </div>
-            </form>
+            <GuideApprovalForm guideId={id} />
           </div>
 
           <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
