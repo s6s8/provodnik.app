@@ -6,6 +6,7 @@ import {
   createNotification,
   type NotificationKind,
 } from "@/lib/notifications/create-notification";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSiteUrl } from "@/lib/env";
@@ -31,11 +32,9 @@ async function getGuideDisplayName(guideId: string): Promise<string> {
   return resolveDisplayName("guide", { full_name: profile?.full_name });
 }
 
-async function getUserEmail(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  userId: string,
-): Promise<string | null> {
-  const { data } = await supabase
+async function getUserEmail(userId: string): Promise<string | null> {
+  const admin = createSupabaseAdminClient();
+  const { data } = await admin
     .from("profiles")
     .select("email")
     .eq("id", userId)
@@ -44,11 +43,11 @@ async function getUserEmail(
 }
 
 async function guideEmailDisabled(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
   guideUserId: string,
   eventKey: string,
 ): Promise<boolean> {
-  const { data } = await supabase
+  const admin = createSupabaseAdminClient();
+  const { data } = await admin
     .from("guide_profiles")
     .select("notification_prefs")
     .eq("user_id", guideUserId)
@@ -105,7 +104,7 @@ export async function notifyNewOffer(
   });
 
   try {
-    const to = await getUserEmail(supabase, requestRow.traveler_id);
+    const to = await getUserEmail(requestRow.traveler_id);
     if (to) {
       const { subject, html } = renderNewOfferEmail({
         guideName,
@@ -144,8 +143,8 @@ export async function notifyBookingCreated(bookingId: string): Promise<void> {
   });
 
   try {
-    if (!(await guideEmailDisabled(supabase, bookingRow.guide_id, "booking_status"))) {
-      const to = await getUserEmail(supabase, bookingRow.guide_id);
+    if (!(await guideEmailDisabled(bookingRow.guide_id, "booking_status"))) {
+      const to = await getUserEmail(bookingRow.guide_id);
       if (to) {
         const { subject, html } = renderBookingCreatedEmail({
           bookingUrl: `${getSiteUrl()}/guide/bookings/${bookingRow.id}`,
@@ -222,7 +221,7 @@ export async function notifyBookingCancelled(
 
   for (const userId of recipientIds) {
     try {
-      const to = await getUserEmail(supabase, userId);
+      const to = await getUserEmail(userId);
       if (!to) continue;
       const { subject, html } = renderBookingCancelledEmail({
         bookingUrl: `${getSiteUrl()}/traveler/bookings/${bookingRow.id}`,
