@@ -65,6 +65,20 @@ export function HomePageDiscovery({ requests }: Props) {
                     {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}{timeLabel ? ` · ${timeLabel}` : ""}
                   </p>
                   <p className="text-sm text-muted-foreground">{formatGroupLine(req)}</p>
+                  {(req.mode === "assembly" || req.date_locked === false) && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {req.mode === "assembly" && (
+                        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
+                          Открытая группа
+                        </span>
+                      )}
+                      {req.date_locked === false && (
+                        <span className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                          Гибкие даты
+                        </span>
+                      )}
+                    </div>
+                  )}
                   <p className="text-sm text-muted-foreground">{interestText ?? " "}</p>
                   <p className="text-sm text-muted-foreground">
                     {req.budgetRub.toLocaleString("ru-RU")} ₽/чел. · {formatOfferCount(req.offerCount)}
