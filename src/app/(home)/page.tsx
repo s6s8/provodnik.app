@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
 
 import { getActiveGuideDestinations, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
-import { SiteHeader } from "@/components/shared/site-header";
-import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { SiteHeaderServer } from "@/components/shared/site-header-server";
 import { HomePageShell2 } from "@/features/homepage/components/homepage-shell2";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { flags } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Проводник",
 };
 
 export default async function HomePage() {
-  const auth = await readAuthContextFromServer();
-
   let destinations: DestinationOption[] = [];
   let requests: RequestRecord[] = [];
   try {
@@ -30,16 +26,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <SiteHeader
-        isAuthenticated={auth.isAuthenticated}
-        role={auth.role}
-        email={auth.email}
-        fullName={auth.fullName}
-        avatarUrl={auth.avatarUrl}
-        canonicalRedirectTo={auth.canonicalRedirectTo}
-        userId={auth.userId}
-        notificationsEnabled={flags.FEATURE_TR_NOTIFICATIONS}
-      />
+      <SiteHeaderServer />
       <main className="pt-nav-h">
         <HomePageShell2 destinations={destinations} requests={requests} />
       </main>
