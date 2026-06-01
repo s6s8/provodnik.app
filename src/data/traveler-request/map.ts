@@ -30,6 +30,7 @@ export function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestR
     status: mapRequestStatus(row.status),
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    dateLocked: row.date_locked,
     request: {
       mode,
       interests: (Array.isArray(row.interests) ? row.interests : []) as TravelerRequest["interests"],

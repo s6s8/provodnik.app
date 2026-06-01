@@ -1,4 +1,4 @@
-# Cursor-agent task — Provodnik
+# Cursor SDK task — Provodnik
 
 ## Session
 

@@ -33,17 +33,18 @@ merge.
    ```
    If the worktree path already exists from a prior failed iteration:
    `git worktree remove --force D:/dev2/worktrees/<name>`, then create.
-9. Dispatch via the wrapper. Use the Bash tool (PowerShell-compatible
-   command):
+9. Dispatch via the Cursor SDK wrapper. Never launch Cursor directly and
+   never use the legacy `cursor-dispatch.mjs` path. Use the Bash tool:
    ```
-   node D:/dev2/projects/provodnik/.claude/logs/cursor-dispatch.mjs \
-     D:/dev2/projects/provodnik/_archive/bek-frozen-2026-05-08/prompts/out/<task>-overnight-iter<N>.md \
-     --workspace "D:\\dev2\\worktrees\\<name>\\provodnik.app" \
-     --timeout 900
+   node /Users/idev/quantumbek/tools/dispatch-cursor.mjs \
+     --prompt-file /Users/idev/provodnik/.claude/prompts/out/<task>-overnight-iter<N>.md \
+     --workspace /Users/idev/provodnik \
+     --model auto
    ```
-   The wrapper streams `[init] → [tool_call] → [assistant] → [result]`
-   events. Wait for it to exit. Read the dispatch log at
-   `_archive/bek-frozen-2026-05-08/logs/cursor-dispatch-*.log` (latest).
+   This wrapper forwards to `/Users/idev/cursor-sdk/dispatch.mjs` and
+   authenticates via `CURSOR_API_KEY` without the macOS keychain. Wait for it
+   to exit. Do not use `Cursor.app`, `open -a Cursor`, bare `cursor`,
+   `cursor-agent`, tmux Cursor launchers, or remote-cli `cursor`.
 10. Verify cursor-agent committed:
     ```
     git -C D:/dev2/worktrees/<name> log main..HEAD --oneline

@@ -4,6 +4,9 @@ export function formatGroupLine(req: Pick<RequestRecord, "mode" | "groupSize" | 
   if (req.mode === "private") {
     return `Своя группа · ${req.groupSize} чел.`;
   }
+  if (req.capacity == null) {
+    return `Сборная группа · ${req.groupSize} чел.`;
+  }
   const remaining = req.capacity - req.groupSize;
   if (remaining <= 0) {
     return "Группа набрана";

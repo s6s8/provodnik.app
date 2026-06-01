@@ -27,20 +27,22 @@ The cluster is one of:
 4. Spawn N native Agent subagents in ONE batched message via the Agent
    tool, with `run_in_background: true`. Each Agent's brief:
    ```
-   You are dispatching cursor-agent for one task in a parallel cluster.
+   You are dispatching one task through the Cursor SDK wrapper. Never launch
+   Cursor directly and never use the legacy `cursor-dispatch.mjs` path.
 
    Worktree:    <absolute path>
    Branch:      <branch>
    Prompt file: <absolute path>
 
    Run via Bash:
-     node D:/dev2/projects/provodnik/.claude/logs/cursor-dispatch.mjs \
-       <prompt-file> \
-       --workspace "<worktree>\\provodnik.app" \
-       --timeout 900
+     node /Users/idev/quantumbek/tools/dispatch-cursor.mjs \
+       --prompt-file <prompt-file> \
+       --workspace /Users/idev/provodnik \
+       --model auto
 
-   Tail via Monitor. Report DONE only when wrapper exits 0 AND the [result]
-   event shows success. Before reporting DONE, run inside the worktree:
+   The wrapper forwards to /Users/idev/cursor-sdk/dispatch.mjs and uses
+   CURSOR_API_KEY, not the macOS keychain. Tail via Monitor. Report DONE only
+   when wrapper exits 0. Before reporting DONE, run inside the workspace:
      git -C <worktree> log main..HEAD --oneline
    Must show ≥1 commit. If 0, report ZERO_COMMIT — orchestrator handles.
    ```

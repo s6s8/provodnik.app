@@ -152,7 +152,7 @@ Zero errors. If there are `@ts-ignore` comments, they must have a reason (commen
 
 **If any check fails:**
 1. Document in `.claude/sot/ERRORS.md` (what was found, why it matters)
-2. Decide: fix now (dispatch cursor-agent) or defer (add to next plan as T0)
+2. Decide: fix now (dispatch through the Cursor SDK wrapper) or defer (add to next plan as T0)
 3. Update this checklist with the pattern you found (prevent repeat)
 
 ---
@@ -185,6 +185,6 @@ git diff main..branch | grep -E "(console\.|TODO|FIXME|debugger)"  # Debris
 
 **Orchestrator** (before marking tasks DONE): Runs checks 1–4 on all modified code.
 
-**cursor-agent** (during implementation): Responsible for passing checks 3–4; orchestrator spot-checks during review.
+**QuantumHands / Cursor SDK executor** (during implementation): Responsible for passing checks 3–4; orchestrator spot-checks during review. Dispatch only via `/Users/idev/quantumbek/tools/dispatch-cursor.mjs` → `/Users/idev/cursor-sdk/dispatch.mjs`; never launch Cursor directly.
 
 **Optional: Automation** — Could be a GitHub action pre-merge, but manual verification is more reliable for now.

@@ -22,7 +22,7 @@ _Generated: 2026-04-06 | Updated: 2026-05-11 (Phase 7 — orchestrator runtime p
 - **Win (developer mirror):** `D:/dev2/projects/provodnik.app/`
 
 When the orchestrator passes this map to a stage, it injects the Mini path
-since cursor-agent and tool-access (`--add-dir`) run on the Mac mini.
+because the Cursor SDK wrapper and tool-access (`--add-dir`) run on the Mac mini.
 
 ## Build Commands
 ```

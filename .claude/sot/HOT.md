@@ -40,9 +40,9 @@ _Top 8 landmines orchestrator must never forget. Include the relevant one inline
 
 ---
 
-### ADR-010 — cursor-agent dispatch is ONLY via `cursor-dispatch.mjs`
-**Never** spawn `cursor-agent.cmd` directly from Node or a subagent (Node v24 throws `spawn EINVAL`; see ERR-011, ERR-012). Never `cmd //c "cursor-agent.cmd ..."`.
-**Always** dispatch via `node .claude/logs/cursor-dispatch.mjs <prompt-file.md> --workspace "D:\\dev2\\projects\\provodnik\\provodnik.app"`. The wrapper resolves `node.exe` + `index.js` from `cursor-agent\versions\<latest>` and streams `[init] → [tool_call] → [assistant] → [result]` live.
+### ADR-010 — Cursor execution is ONLY via the SDK dispatch wrapper
+**Never** invoke Cursor directly by any path: no `Cursor.app`, no `open -a Cursor`, no bare `cursor` / `cursor-agent` CLI, no `cursor-agent.cmd`, no `cmd //c "cursor-agent.cmd ..."`, no tmux Cursor launcher, no remote-cli `cursor`, and no legacy `cursor-dispatch.mjs`. Direct invocation hits the locked macOS login keychain and fails; do not unlock the keychain as a workaround. The old Windows path also threw `spawn EINVAL` (see ERR-011, ERR-012).
+**Always** dispatch through the Cursor SDK route: `node /Users/idev/quantumbek/tools/dispatch-cursor.mjs --prompt-file <prompt.md> --workspace /Users/idev/provodnik [--name <id>] [--model auto] [--mcp context7] [--skills]`. That wrapper forwards to `/Users/idev/cursor-sdk/dispatch.mjs`, which authenticates via `CURSOR_API_KEY` and does not use the macOS keychain. Those two files are the only allowed Cursor executors.
 
 ---
 

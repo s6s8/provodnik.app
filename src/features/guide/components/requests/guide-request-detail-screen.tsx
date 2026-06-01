@@ -124,16 +124,17 @@ export function GuideRequestDetailScreen({
           <p className="text-sm text-muted-foreground">
             {formatGroupLine(request)}
           </p>
+          {request.mode === "assembly" && (
+            <p className="text-xs font-medium text-primary">Открытая группа — набор продолжается</p>
+          )}
 
           <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
             <p>
               <span className="font-medium text-foreground">Даты:</span>{" "}
               {request.dateLabel}
-              {request.dateFlexibility && request.dateFlexibility !== "exact" && (
+              {request.date_locked === false && (
                 <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                  {request.dateFlexibility === "few_days"
-                    ? "±пара дней"
-                    : "±неделя"}
+                  гибкие даты
                 </span>
               )}
             </p>

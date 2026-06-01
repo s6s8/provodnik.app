@@ -291,6 +291,9 @@ export function GuideRequestsInboxScreen() {
                         <GuideInboxCardHeader item={item} matched={matched} />
 
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
+                        {item.mode === "assembly" && (
+                          <p className="mt-0.5 text-xs font-medium text-primary">Открытая группа — набор продолжается</p>
+                        )}
 
                         {/* Meta */}
                         <div className="mt-3 space-y-1 text-xs text-muted-foreground">
@@ -299,9 +302,9 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
-                            {item.dateFlexibility && item.dateFlexibility !== 'exact' && (
+                            {item.date_locked === false && (
                               <span className="ml-1 rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-                                {item.dateFlexibility === 'few_days' ? '±пара дней' : '±неделя'}
+                                гибкие даты
                               </span>
                             )}
                             {formatTimeRange(item.startTime, item.endTime) && (

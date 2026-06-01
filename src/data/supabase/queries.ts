@@ -88,7 +88,7 @@ export type RequestRecord = {
   date_locked?: boolean;
   time_locked?: boolean;
   groupSize: number;
-  capacity: number;
+  capacity: number | null;
   budgetRub: number;
   budgetLabel: string;
   requesterName: string;
@@ -398,7 +398,7 @@ export function mapRequestRow(
     date_locked: (row.date_locked as boolean | null) ?? undefined,
     time_locked: (row.time_locked as boolean | null) ?? undefined,
     groupSize: (row.participants_count as number) ?? 1,
-    capacity: (row.group_capacity as number) ?? (row.participants_count as number) ?? 1,
+    capacity: (row.group_capacity as number | null) ?? null,
     budgetRub,
     budgetLabel,
     requesterName,
@@ -1143,6 +1143,7 @@ export async function getHomepageRequests(
 
     const filtered = records.filter((rec) => {
       if (rec.mode !== "assembly") return true;
+      if (rec.capacity == null) return true;
       const remaining = rec.capacity - rec.groupSize;
       return remaining > 0 || rec.offerCount > 0;
     });

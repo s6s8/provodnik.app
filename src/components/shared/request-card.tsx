@@ -16,7 +16,9 @@ export function RequestCard({
   href = `/requests/${request.id}`,
 }: RequestCardProps) {
   const progress =
-    request.capacity > 0 ? Math.min(100, Math.round((request.groupSize / request.capacity) * 100)) : 0;
+    request.capacity != null && request.capacity > 0
+      ? Math.min(100, Math.round((request.groupSize / request.capacity) * 100))
+      : 0;
 
   return (
     <GlassCard className="flex h-full flex-col gap-4 p-6">
@@ -31,7 +33,7 @@ export function RequestCard({
       </div>
 
       <p className="text-sm text-ink-2">
-        {request.dateLabel} · {request.groupSize} из {request.capacity} мест
+        {request.dateLabel} · {request.capacity != null ? `${request.groupSize} из ${request.capacity} мест` : `${request.groupSize} чел.`}
       </p>
       <p className="text-sm leading-7 text-ink-2">{request.description}</p>
 

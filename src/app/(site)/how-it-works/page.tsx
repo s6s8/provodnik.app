@@ -61,7 +61,7 @@ export default function HowItWorksPage() {
         </div>
         <div className="mt-6">
           <Link
-            href="/requests/new"
+            href="/"
             className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Создать запрос

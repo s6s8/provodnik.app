@@ -1,22 +1,25 @@
 # .claude/prompts
 
-Prompt composition for cursor-agent under orchestrator v7.
+Prompt composition for QuantumHands / Cursor SDK dispatch.
 
 ## Rule
 
-The orchestrator (Claude) composes every cursor-agent prompt by hand:
+The orchestrator (Claude) composes every implementation prompt by hand:
 
 1. Copy `skeleton.md` → `out/<task>.md`
 2. Fill every `{{placeholder}}` inline.
 3. Paste the relevant HOT.md entries verbatim into section 3.
 4. Add any other SOT IDs from INDEX.md that apply (ERR-NNN / AP-NNN / ADR-NNN), with bodies pasted from source.
-5. Dispatch via `cursor-dispatch.mjs`:
+5. Dispatch via the Cursor SDK wrapper (the only sanctioned executor — never launch Cursor directly, never use the legacy `cursor-dispatch.mjs`):
 
 ```bash
-node D:/dev2/projects/provodnik/.claude/logs/cursor-dispatch.mjs \
-  .claude/prompts/out/<task>.md \
-  --workspace "D:\\dev2\\projects\\provodnik\\provodnik.app"
+node /Users/idev/quantumbek/tools/dispatch-cursor.mjs \
+  --prompt-file .claude/prompts/out/<task>.md \
+  --workspace /Users/idev/provodnik \
+  --model auto
 ```
+
+This wrapper forwards to `/Users/idev/cursor-sdk/dispatch.mjs`, which authenticates via `CURSOR_API_KEY` without the macOS keychain. Direct `Cursor.app` / `open -a Cursor` / bare `cursor` / `cursor-agent` invocation is forbidden because it hits the locked keychain and fails.
 
 ## Directories
 

@@ -41,9 +41,11 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
     updatedAt: request.createdAt,
     travelerRequestId: request.id,
     group: {
-      sizeTarget: request.capacity,
+      sizeTarget: request.capacity ?? request.groupSize,
       sizeCurrent: request.groupSize,
-      openToMoreMembers: request.groupSize < request.capacity,
+      openToMoreMembers: request.capacity != null
+        ? request.groupSize < request.capacity
+        : request.mode === "assembly",
     },
     destinationLabel: request.destination,
     imageUrl: request.imageUrl,

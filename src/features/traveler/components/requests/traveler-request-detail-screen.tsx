@@ -99,6 +99,21 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             <Wallet className="size-3.5" />
             {budgetLabel}
           </Badge>
+          {isAssembly && (
+            <Badge variant="outline" className={cn(BADGE_CLASS, "border-blue-200 bg-blue-50 text-blue-700")}>
+              Открытая группа
+            </Badge>
+          )}
+          {request.dateFlexibility && request.dateFlexibility !== "exact" && (
+            <Badge variant="outline" className={BADGE_CLASS}>
+              {request.dateFlexibility === "few_days" ? "±пара дней" : "±неделя"}
+            </Badge>
+          )}
+          {record.dateLocked === false && (
+            <Badge variant="outline" className={BADGE_CLASS}>
+              Гид может предлагать даты
+            </Badge>
+          )}
         </div>
 
         {interests.length > 0 ? (

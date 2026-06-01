@@ -14,6 +14,7 @@ export type TravelerRequestRecord = {
   createdAt: string;
   updatedAt: string;
   request: TravelerRequest;
+  dateLocked?: boolean;
 };
 
 export type TravelerOfferStatus = "new" | "shortlisted" | "declined" | "accepted";

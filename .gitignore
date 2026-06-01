@@ -60,6 +60,7 @@ supabase/.temp/
 # Local orchestration artifacts
 .claude/prompts/out/
 .claude/worktrees/
+.qbk/
 
 # Migration archives (kept on disk, not committed; see _archive/README or migration log)
 _archive/

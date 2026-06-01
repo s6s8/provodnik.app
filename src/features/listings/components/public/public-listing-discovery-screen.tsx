@@ -140,7 +140,7 @@ export function PublicListingDiscoveryScreen({
             Попробуйте другой фильтр или создайте запрос на индивидуальный маршрут.
           </p>
           <Link
-            href="/requests/new"
+            href="/"
             className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
           >
             Создать запрос

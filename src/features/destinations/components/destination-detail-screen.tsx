@@ -88,7 +88,7 @@ export function DestinationDetailScreen({
 
             <div className="mt-5 flex flex-wrap gap-2.5">
               <Button asChild>
-                <Link href="/requests/new">Найти гида</Link>
+                <Link href="/">Найти гида</Link>
               </Button>
               <Button
                 variant="outline"
@@ -224,7 +224,7 @@ export function DestinationDetailScreen({
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href={`/traveler/requests/new?destination=${encodeURIComponent(destination.name)}`}
+              href={`/?destination=${encodeURIComponent(destination.name)}`}
               className="inline-flex items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
             >
               Создать запрос
