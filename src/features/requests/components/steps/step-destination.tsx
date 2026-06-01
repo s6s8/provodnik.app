@@ -5,6 +5,7 @@ import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { todayMoscowISODate } from "@/lib/dates";
 
 type WizardData = {
   destination: string;
@@ -23,10 +24,6 @@ interface StepDestinationProps {
   onNext: () => void;
 }
 
-function toIsoDate(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
-
 function clampInt(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, Math.trunc(value)));
@@ -39,7 +36,7 @@ function groupSizeLabel(groupSize: number): string {
 }
 
 export function StepDestination({ data, onChange, onNext }: StepDestinationProps) {
-  const todayIso = React.useMemo(() => toIsoDate(new Date()), []);
+  const todayIso = React.useMemo(() => todayMoscowISODate(), []);
   const minEndDate = data.startDate || todayIso;
 
   const canContinue = data.destination.trim().length >= 2 && data.startDate !== "";

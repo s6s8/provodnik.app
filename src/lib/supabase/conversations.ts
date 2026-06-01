@@ -305,6 +305,20 @@ export async function getOrCreateThread(
 
   const existingThread = await getThreadBySubject(input.subjectType, input.subjectId);
   if (existingThread) {
+    const normalizedParticipantIds = dedupeParticipantIds(
+      input.createdByUserId,
+      input.participantIds,
+    );
+    const participantRows: ThreadParticipantInsert[] = normalizedParticipantIds.map(
+      (userId) => ({
+        thread_id: existingThread.id,
+        user_id: userId,
+      }),
+    );
+    const supabase = await createSupabaseServerClient();
+    await supabase
+      .from("thread_participants")
+      .upsert(participantRows, { onConflict: "thread_id,user_id" });
     return hydrateThread(existingThread);
   }
 

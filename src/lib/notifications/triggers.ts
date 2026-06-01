@@ -8,6 +8,13 @@ import {
 } from "@/lib/notifications/create-notification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getSiteUrl } from "@/lib/env";
+import { sendNotificationEmail } from "@/lib/email/send-notification-email";
+import {
+  renderNewOfferEmail,
+  renderBookingCreatedEmail,
+  renderBookingCancelledEmail,
+} from "@/lib/email/templates/notification-emails";
 
 const uuidSchema = z.string().uuid("Некорректный UUID.");
 const cancelledByRoleSchema = z.enum(["traveler", "guide", "admin"]);
@@ -22,6 +29,32 @@ async function getGuideDisplayName(guideId: string): Promise<string> {
     .maybeSingle();
 
   return resolveDisplayName("guide", { full_name: profile?.full_name });
+}
+
+async function getUserEmail(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  userId: string,
+): Promise<string | null> {
+  const { data } = await supabase
+    .from("profiles")
+    .select("email")
+    .eq("id", userId)
+    .maybeSingle();
+  return data?.email ?? null;
+}
+
+async function guideEmailDisabled(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  guideUserId: string,
+  eventKey: string,
+): Promise<boolean> {
+  const { data } = await supabase
+    .from("guide_profiles")
+    .select("notification_prefs")
+    .eq("user_id", guideUserId)
+    .maybeSingle();
+  const prefs = (data?.notification_prefs ?? {}) as Record<string, unknown>;
+  return prefs[`guide.${eventKey}.email`] === false;
 }
 
 async function createNotificationForUser(data: {
@@ -70,6 +103,25 @@ export async function notifyNewOffer(
     title: `Новое предложение от ${guideName}`,
     href: `/traveler/requests/${requestRow.id}`,
   });
+
+  try {
+    const to = await getUserEmail(supabase, requestRow.traveler_id);
+    if (to) {
+      const { subject, html } = renderNewOfferEmail({
+        guideName,
+        requestUrl: `${getSiteUrl()}/traveler/requests/${requestRow.id}`,
+      });
+      await sendNotificationEmail({
+        kind: "new_offer",
+        entityId: parsedOfferId,
+        to,
+        subject,
+        html,
+      });
+    }
+  } catch (e) {
+    console.error("[notifyNewOffer] email skipped:", e instanceof Error ? e.message : e);
+  }
 }
 
 export async function notifyBookingCreated(bookingId: string): Promise<void> {
@@ -90,6 +142,29 @@ export async function notifyBookingCreated(bookingId: string): Promise<void> {
     title: "Новое бронирование",
     href: `/guide/bookings/${bookingRow.id}`,
   });
+
+  try {
+    if (!(await guideEmailDisabled(supabase, bookingRow.guide_id, "booking_status"))) {
+      const to = await getUserEmail(supabase, bookingRow.guide_id);
+      if (to) {
+        const { subject, html } = renderBookingCreatedEmail({
+          bookingUrl: `${getSiteUrl()}/guide/bookings/${bookingRow.id}`,
+        });
+        await sendNotificationEmail({
+          kind: "booking_created",
+          entityId: parsedBookingId,
+          to,
+          subject,
+          html,
+        });
+      }
+    }
+  } catch (e) {
+    console.error(
+      "[notifyBookingCreated] email skipped:",
+      e instanceof Error ? e.message : e,
+    );
+  }
 }
 
 export async function notifyBookingConfirmed(bookingId: string): Promise<void> {
@@ -144,6 +219,28 @@ export async function notifyBookingCancelled(
       }),
     ),
   );
+
+  for (const userId of recipientIds) {
+    try {
+      const to = await getUserEmail(supabase, userId);
+      if (!to) continue;
+      const { subject, html } = renderBookingCancelledEmail({
+        bookingUrl: `${getSiteUrl()}/traveler/bookings/${bookingRow.id}`,
+      });
+      await sendNotificationEmail({
+        kind: "booking_cancelled",
+        entityId: `${parsedBookingId}:${userId}`,
+        to,
+        subject,
+        html,
+      });
+    } catch (e) {
+      console.error(
+        "[notifyBookingCancelled] email skipped:",
+        e instanceof Error ? e.message : e,
+      );
+    }
+  }
 }
 
 export async function notifyReviewRequested(bookingId: string): Promise<void> {
