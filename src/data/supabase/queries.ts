@@ -624,11 +624,11 @@ export async function getListingsByGuide(
 // ---------------------------------------------------------------------------
 
 export async function getOpenRequests(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   filters?: RequestFilters,
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
-    const db = client;
+    const db = getPublicClient();
     const { data, error } = await db
       .from("traveler_requests")
       .select("*, profiles:traveler_id(full_name, avatar_url)")
@@ -665,14 +665,14 @@ export async function getOpenRequests(
 }
 
 export async function getRequestById(
-  client: SupabaseClient,
+  _client: SupabaseClient,
   id: string,
 ): Promise<QueryResult<RequestRecord>> {
   try {
-    const db = client;
+    const db = getPublicClient();
     const { data, error } = await db
       .from("traveler_requests")
-      .select("*, profiles:traveler_id(full_name)")
+      .select("*, profiles:traveler_id(full_name, avatar_url)")
       .eq("id", id)
       .maybeSingle();
     if (error) throw error;
@@ -685,7 +685,12 @@ export async function getRequestById(
     const fullName = (profile?.full_name as string | undefined)?.trim() ?? "";
     const { displayName, initials } = maskRequesterIdentity(fullName);
 
-    const record = mapRequestRow(data, displayName, initials);
+    const record = mapRequestRow(
+      data,
+      displayName,
+      initials,
+      (profile?.avatar_url as string | null) ?? null,
+    );
     const membersMap = await fetchMembersForRequests(db, [id]);
     record.members = membersMap.get(id) ?? [];
     if (record.members.length > 0) record.groupSize = record.members.length;

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/sheet";
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { COPY } from "@/lib/copy";
 import { cn } from "@/lib/utils";
@@ -72,6 +73,8 @@ interface SiteHeaderProps {
   isAuthenticated?: boolean;
   role?: AppRole | null;
   email?: string | null;
+  fullName?: string | null;
+  avatarUrl?: string | null;
   canonicalRedirectTo?: AuthRedirectTarget | null;
   userId?: string | null;
   notificationsEnabled?: boolean;
@@ -81,6 +84,8 @@ export function SiteHeader({
   isAuthenticated = false,
   role = null,
   email = null,
+  fullName = null,
+  avatarUrl = null,
   canonicalRedirectTo = null,
   userId = null,
   notificationsEnabled = false,
@@ -95,7 +100,6 @@ export function SiteHeader({
   }
 
   const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
-  const avatarInitial = email ? email[0].toUpperCase() : "?";
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
@@ -159,9 +163,11 @@ export function SiteHeader({
                   aria-label="Меню аккаунта"
                   className="max-md:hidden bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
                 >
-                  <span className="w-7 h-7 rounded-full bg-primary/20 text-primary text-xs font-semibold flex items-center justify-center">
-                    {avatarInitial}
-                  </span>
+                  <ProfileAvatar
+                    profile={{ full_name: fullName, avatar_url: avatarUrl }}
+                    size={28}
+                    className="shrink-0"
+                  />
                   {role ? roleLabels[role] : null}
                 </button>
               </DropdownMenuTrigger>
@@ -226,7 +232,11 @@ export function SiteHeader({
               aria-haspopup="dialog"
               className="md:hidden w-11 h-11 rounded-full bg-primary/15 text-primary border-2 border-primary font-bold text-sm flex items-center justify-center"
             >
-              {avatarInitial}
+              <ProfileAvatar
+                profile={{ full_name: fullName, avatar_url: avatarUrl }}
+                size={44}
+                className="shrink-0"
+              />
             </button>
           )}
 
@@ -319,6 +329,8 @@ export function SiteHeader({
       open={drawerOpen}
       onOpenChange={setDrawerOpen}
       email={email}
+      fullName={fullName}
+      avatarUrl={avatarUrl}
       role={role ?? null}
     />
     </>

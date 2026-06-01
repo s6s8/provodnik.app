@@ -17,6 +17,8 @@ export default async function ProtectedLayout({
         isAuthenticated={auth.isAuthenticated}
         role={auth.role}
         email={auth.email}
+        fullName={auth.fullName}
+        avatarUrl={auth.avatarUrl}
         canonicalRedirectTo={auth.canonicalRedirectTo}
         userId={auth.userId}
         notificationsEnabled={flags.FEATURE_TR_NOTIFICATIONS}

@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import type { AppRole } from "@/lib/auth/types";
 
 const roleLabels: Record<AppRole, string> = {
@@ -22,25 +23,20 @@ type UserAccountDrawerProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   email: string | null;
+  fullName?: string | null;
+  avatarUrl?: string | null;
   role: AppRole | null;
 };
-
-function AvatarCircle({ initial }: { initial: string }) {
-  return (
-    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-primary bg-primary/15 text-lg font-bold text-primary">
-      {initial}
-    </span>
-  );
-}
 
 export function UserAccountDrawer({
   open,
   onOpenChange,
   email,
+  fullName,
+  avatarUrl,
   role,
 }: UserAccountDrawerProps) {
-  const avatarInitial = email ? email[0].toUpperCase() : "?";
-  const displayName = email ?? "Гость";
+  const displayName = fullName?.trim() || email || "Гость";
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
 
   function handleLogout() {
@@ -60,7 +56,11 @@ export function UserAccountDrawer({
             Профиль, помощь и выход из аккаунта.
           </SheetDescription>
           <div className="flex items-center gap-3">
-            <AvatarCircle initial={avatarInitial} />
+            <ProfileAvatar
+              profile={{ full_name: fullName ?? null, avatar_url: avatarUrl ?? null }}
+              size={48}
+              className="shrink-0 border-2 border-primary"
+            />
             <div className="min-w-0 flex flex-col gap-1">
               <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
               {role ? (

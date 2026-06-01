@@ -28,6 +28,8 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     source: demoSession ? "demo" : "none",
     role: demoSession?.role ?? null,
     email: null,
+    fullName: null,
+    avatarUrl: null,
     userId: null,
     canonicalRedirectTo: getCanonicalRedirect(demoSession?.role ?? null),
     missingRoleRecoveryTo: null,
@@ -49,7 +51,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("id, role")
+    .select("id, role, full_name, avatar_url")
     .eq("id", session.user.id)
     .maybeSingle();
 
@@ -62,6 +64,8 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
       source: "supabase",
       role: null,
       email: session.user.email ?? null,
+      fullName: null,
+      avatarUrl: null,
       userId: session.user.id,
       canonicalRedirectTo: null,
       missingRoleRecoveryTo: MISSING_ROLE_RECOVERY_TO,
@@ -74,6 +78,8 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     source: "supabase",
     role: profileRole,
     email: session.user.email ?? null,
+    fullName: (profile?.full_name as string | null) ?? null,
+    avatarUrl: (profile?.avatar_url as string | null) ?? null,
     userId: session.user.id,
     canonicalRedirectTo: getCanonicalRedirect(profileRole),
     missingRoleRecoveryTo: null,
