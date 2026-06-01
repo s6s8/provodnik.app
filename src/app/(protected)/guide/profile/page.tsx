@@ -266,9 +266,8 @@ export default async function GuideProfilePage() {
         {() => (
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
-              <CardTitle className="text-xl">Документ о квалификации</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Укажите документ и к каким экскурсиям он относится.
+                Укажите документ и к каким видам экскурсиям он относится.
               </p>
             </CardHeader>
             <CardContent>
