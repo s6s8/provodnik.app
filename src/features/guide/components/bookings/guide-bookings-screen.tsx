@@ -72,7 +72,7 @@ export function GuideBookingsScreen() {
         <CardHeader className="space-y-1">
           <CardTitle>Итоги по бронированиям</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Быстрый взгляд на загрузку, выполненные туры и ориентировочный оборот.
+            Быстрый взгляд на загрузку, выполненные экскурсии и ориентировочный оборот.
           </p>
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-4">
@@ -95,7 +95,7 @@ export function GuideBookingsScreen() {
             </p>
           </div>
           <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Сумма по турам</p>
+            <p className="text-xs text-muted-foreground">Сумма по экскурсиям</p>
             <p className="mt-1 text-base font-semibold text-foreground">
               {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
             </p>

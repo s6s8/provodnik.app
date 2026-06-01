@@ -24,7 +24,7 @@ function userFriendlyError(err: unknown): string {
     const msg = err.message;
     // Map common Supabase error codes to user-friendly messages
     if (msg.includes("duplicate key") || msg.includes("23505")) {
-      return "Такой тур уже существует.";
+      return "Такая экскурсия уже существует.";
     }
     if (msg.includes("foreign key") || msg.includes("23503")) {
       return "Связанные данные не найдены.";
@@ -157,7 +157,7 @@ export async function confirmListingPhotoUpload(data: {
   const listing = await getGuideListing(input.listingId, guideId);
 
   if (!listing) {
-    throw new Error("Тур не найден или недоступен для редактирования.");
+    throw new Error("Экскурсия не найдена или недоступна для редактирования.");
   }
 
   const { count, error: countError } = await supabase
@@ -192,7 +192,7 @@ export async function confirmListingPhotoUpload(data: {
     .single();
 
   if (error || !media) {
-    throw error ?? new Error("Не удалось привязать фото к туру.");
+    throw error ?? new Error("Не удалось привязать фото к экскурсии.");
   }
 
   const storageRelation = Array.isArray(media.storage_assets)

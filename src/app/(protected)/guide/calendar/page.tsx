@@ -179,7 +179,7 @@ export default async function GuideCalendarPage({
         <CardHeader>
           <CardTitle className="text-xl">Календарь</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Расписание слотов и даты отправлений по вашим активным турам.
+            Расписание слотов и даты отправлений по вашим активным экскурсиям.
           </p>
         </CardHeader>
         <CardContent>

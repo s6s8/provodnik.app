@@ -33,7 +33,7 @@ export function GuideListingNewPageClient({
     async (data: ListingInput): Promise<string> => {
       const result = await createAction(data);
       if (result.error) throw new Error(result.error);
-      if (!result.id) throw new Error("Не удалось получить ID тура.");
+      if (!result.id) throw new Error("Не удалось получить ID экскурсии.");
       return result.id;
     },
     [createAction],

@@ -211,8 +211,8 @@ export function MonthlyCalendar({
           listingId={selectedListingId === "all" ? (listings[0]?.id ?? "") : selectedListingId}
           listingTitle={
             selectedListingId === "all"
-              ? (listings[0]?.title ?? "Тур")
-              : (listings.find((l) => l.id === selectedListingId)?.title ?? "Тур")
+              ? (listings[0]?.title ?? "Экскурсия")
+              : (listings.find((l) => l.id === selectedListingId)?.title ?? "Экскурсия")
           }
           extras={localExtras}
           onClose={() => setDayPanelDate(null)}

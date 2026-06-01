@@ -111,7 +111,7 @@ export function GuideListingDetailScreen({
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link href="/guide/listings">
           <ChevronLeft className="size-4" />
-          Мои туры
+          Мои экскурсии
         </Link>
       </Button>
 
@@ -167,7 +167,7 @@ export function GuideListingDetailScreen({
               className="text-destructive hover:text-destructive"
               onClick={() => {
                 if (
-                  window.confirm("Удалить тур? Это действие нельзя отменить.")
+                  window.confirm("Удалить экскурсию? Это действие нельзя отменить.")
                 ) {
                   void run("delete", actions.deleteAction);
                 }

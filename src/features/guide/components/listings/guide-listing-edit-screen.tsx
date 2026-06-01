@@ -46,7 +46,7 @@ export function GuideListingEditScreen({
         <Button asChild variant="ghost" size="sm" className="-ml-2">
           <Link href="/guide/listings">
             <ChevronLeft className="size-4" />
-            Мои туры
+            Мои экскурсии
           </Link>
         </Button>
         <Button asChild variant="ghost" size="sm">
@@ -59,13 +59,13 @@ export function GuideListingEditScreen({
           Кабинет гида
         </p>
         <h1 className="font-serif text-3xl font-semibold text-foreground">
-          Редактировать тур
+          Редактировать экскурсию
         </h1>
       </div>
 
       <Card className="max-w-2xl border-border/70 bg-card/90">
         <CardHeader>
-          <CardTitle>Данные тура</CardTitle>
+          <CardTitle>Данные экскурсии</CardTitle>
         </CardHeader>
         <CardContent>
           <ListingForm

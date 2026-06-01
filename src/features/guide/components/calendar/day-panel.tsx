@@ -96,7 +96,7 @@ export function DayPanel({
   };
 
   const handleBlockDay = async () => {
-    if (!window.confirm(`Закрыть весь день ${dateLabel} для тура "${listingTitle}"?`)) return;
+    if (!window.confirm(`Закрыть весь день ${dateLabel} для экскурсии "${listingTitle}"?`)) return;
     setBlockingDay(true);
     const result = await blockDayAction(listingId, date);
     if (result.ok) {

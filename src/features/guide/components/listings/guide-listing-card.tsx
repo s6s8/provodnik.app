@@ -189,7 +189,7 @@ export function GuideListingCard({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (window.confirm("Удалить тур? Это действие нельзя отменить.")) {
+                  if (window.confirm("Удалить экскурсию? Это действие нельзя отменить.")) {
                     onDelete(listing.id);
                   }
                 }}

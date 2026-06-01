@@ -23,7 +23,7 @@ export async function bulkSetStatus(
   if (count !== listingIds.length) {
     return {
       success: false,
-      error: `Обновлено ${count} из ${listingIds.length} туров. Некоторые туры не найдены или не принадлежат вам.`,
+      error: `Обновлено ${count} из ${listingIds.length} экскурсий. Некоторые экскурсии не найдены или не принадлежат вам.`,
     };
   }
 

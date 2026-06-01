@@ -18,10 +18,10 @@ export type PublicGuideCardGuide = {
 function toursWord(n: number) {
   const mod10 = n % 10;
   const mod100 = n % 100;
-  if (mod100 >= 11 && mod100 <= 14) return "туров";
-  if (mod10 === 1) return "тур";
-  if (mod10 >= 2 && mod10 <= 4) return "тура";
-  return "туров";
+  if (mod100 >= 11 && mod100 <= 14) return "экскурсий";
+  if (mod10 === 1) return "экскурсия";
+  if (mod10 >= 2 && mod10 <= 4) return "экскурсии";
+  return "экскурсий";
 }
 
 export function PublicGuideCard({

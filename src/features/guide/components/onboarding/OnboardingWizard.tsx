@@ -27,7 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 const ACTIVITY_OPTIONS = [
   { value: "excursions", label: "Я провожу экскурсии" },
-  { value: "tours", label: "Я организую туры" },
+  { value: "tours", label: "Я организую экскурсии" },
   { value: "transfers", label: "Предлагаю трансферы" },
   { value: "all", label: "Всё перечисленное" },
 ] as const;

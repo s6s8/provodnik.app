@@ -13,7 +13,7 @@ import {
 } from "../../actions";
 
 export const metadata: Metadata = {
-  title: "Редактировать тур",
+  title: "Редактировать экскурсию",
 };
 
 type Props = {

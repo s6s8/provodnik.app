@@ -202,21 +202,21 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
         <CardHeader className="space-y-1">
           <CardTitle>Операции по бронированию</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Фиксируйте, как идёт тур: подтверждение, завершение, отмены и неявки.
+            Фиксируйте, как идёт экскурсия: подтверждение, завершение, отмены и неявки.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <ActionButton
               label={isPending ? "Подтверждаю…" : "Подтвердить"}
-              description="Закрепить тур и ожидать гостей."
+              description="Закрепить экскурсию и ожидать гостей."
               icon={<CheckCircle2 className="size-4" />}
               disabled={!canConfirm || isPending}
               onClick={handleConfirm}
             />
             <ActionButton
               label={isPending ? "Завершаю…" : "Завершить"}
-              description="Отметить тур как проведённый."
+              description="Отметить экскурсию как проведённую."
               icon={<CheckCircle2 className="size-4" />}
               disabled={!canComplete || isPending}
               onClick={handleComplete}
@@ -230,7 +230,7 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
             />
             <ActionButton
               label="Неявка"
-              description="Гости не пришли к старту тура."
+              description="Гости не пришли к старту экскурсии."
               icon={<ShieldAlert className="size-4" />}
               disabled={!canNoShow || isPending}
               onClick={() => performLocalAction("no_show")}
@@ -255,13 +255,13 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
         <CardHeader className="space-y-1">
           <CardTitle>Деньги</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Ориентировочная экономика тура. В этой версии нет реальных платежей.
+            Ориентировочная экономика экскурсии. В этой версии нет реальных платежей.
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 sm:grid-cols-2">
             <StatCard
-              label="Сумма по туру"
+              label="Сумма по экскурсии"
               value={formatRub(record.priceRub)}
               helper="Ориентировочная стоимость"
             />

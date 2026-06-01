@@ -24,7 +24,7 @@ export async function blockSlotAction(
     .eq("id", listingId)
     .maybeSingle();
   if (!listing || listing.guide_id !== user.id)
-    return { ok: false, error: "Нет доступа к этому туру" };
+    return { ok: false, error: "Нет доступа к этой экскурсии" };
 
   const { data, error } = await supabase
     .from("listing_schedule_extras")
@@ -71,7 +71,7 @@ export async function blockDayAction(
     .eq("id", listingId)
     .maybeSingle();
   if (!listing || listing.guide_id !== user.id)
-    return { ok: false, error: "Нет доступа к этому туру" };
+    return { ok: false, error: "Нет доступа к этой экскурсии" };
 
   const slots: Array<{
     listing_id: string;

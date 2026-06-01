@@ -8,7 +8,7 @@ import {
 } from "../actions";
 
 export const metadata: Metadata = {
-  title: "Новый тур",
+  title: "Новая экскурсия",
 };
 
 export default async function GuideListingNewPage() {

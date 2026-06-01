@@ -196,8 +196,8 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
           `Базовый город: ${values.currentBaseCity}`,
           `Основная тема: ${primaryThemeLabel}`,
           `Готов принимать новые заявки: ${values.isAvailable ? "да" : "нет"}`,
-          `Частные туры: ${values.acceptsPrivateTours ? "да" : "нет"}`,
-          `Групповые туры: ${values.acceptsGroupTours ? "да" : "нет"}`,
+          `Частные экскурсии: ${values.acceptsPrivateTours ? "да" : "нет"}`,
+          `Групповые экскурсии: ${values.acceptsGroupTours ? "да" : "нет"}`,
         ].join(" | "),
         base_city: baseCityTrimmed && baseCityTrimmed.length > 0 ? baseCityTrimmed : null,
         max_group_size: !isNaN(groupSizeMaxNum) && groupSizeMaxNum > 0 ? Math.floor(groupSizeMaxNum) : null,
@@ -303,7 +303,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       <SectionHeader badge="Профиль" title="Публичный профиль" description="Поля, которые попадут в guide_profiles и публичную карточку." />
       <TextField id="displayName" label="Имя в профиле" placeholder="Амина К." error={errors.displayName?.message} register={register("displayName")} />
       <TextField id="tagline" label="Слоган" placeholder="Спокойные прогулки и скрытые кафе" error={errors.tagline?.message} register={register("tagline")} />
-      <TextAreaField id="bio" label="О себе" placeholder="Опишите, как вы ведёте туры и что показываете." error={errors.bio?.message} register={register("bio")} />
+      <TextAreaField id="bio" label="О себе" placeholder="Опишите, как вы проводите экскурсии и что показываете." error={errors.bio?.message} register={register("bio")} />
       <CommaField id="regions" label="Регионы" value={regions} error={errors.regions?.message} onChange={(value) => setValue("regions", splitCommaList(value), { shouldTouch: true, shouldValidate: true })} />
       <CommaField id="languages" label="Языки" value={languages} error={errors.languages?.message} onChange={(value) => setValue("languages", splitCommaList(value), { shouldTouch: true, shouldValidate: true })} />
       <div className="grid gap-2">
@@ -327,7 +327,7 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       </div>
 
       <Separator className="my-1" />
-      <SectionHeader badge="Операции" title="Как вы ведёте туры" description="Опыт, размер групп и доступность для новых заявок." />
+      <SectionHeader badge="Операции" title="Как вы проводите экскурсии" description="Опыт, размер групп и доступность для новых заявок." />
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-2">
           <FieldLabel htmlFor="experienceLevel">Уровень опыта</FieldLabel>
@@ -357,8 +357,8 @@ export function GuideOnboardingForm({ auth }: GuideOnboardingFormProps) {
       </div>
       <CheckboxField label="Готов(а) принимать новые заявки" description="Этот статус будет сохранён в профиле и использован на маркетплейсных поверхностях." register={register("isAvailable")} />
       <CheckboxField label="Есть курс первой помощи" description="Покажите гостям, что вы готовы к выездным маршрутам." register={register("hasFirstAidTraining")} />
-      <CheckboxField label="Принимаю частные туры" description="Готов(а) работать с одной компанией за раз." register={register("acceptsPrivateTours")} />
-      <CheckboxField label="Принимаю групповые туры" description="Готов(а) объединять путешественников в одну группу." register={register("acceptsGroupTours")} />
+      <CheckboxField label="Принимаю частные экскурсии" description="Готов(а) работать с одной компанией за раз." register={register("acceptsPrivateTours")} />
+      <CheckboxField label="Принимаю групповые экскурсии" description="Готов(а) объединять путешественников в одну группу." register={register("acceptsGroupTours")} />
 
       <Separator className="my-1" />
       <SectionHeader badge="Проверка" title="Данные для верификации" description="При активной сессии этот блок сохраняется вместе с профилем. В демо-режиме он остаётся локальным." />

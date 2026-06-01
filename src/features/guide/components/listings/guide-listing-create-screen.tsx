@@ -52,7 +52,7 @@ export function GuideListingCreateScreen({
       <Button asChild variant="ghost" size="sm" className="-ml-2">
         <Link href="/guide/listings">
           <ChevronLeft className="size-4" />
-          Мои туры
+          Мои экскурсии
         </Link>
       </Button>
 
@@ -61,7 +61,7 @@ export function GuideListingCreateScreen({
           Кабинет гида
         </p>
         <h1 className="font-serif text-3xl font-semibold text-foreground">
-          Новый тур
+          Новая экскурсия
         </h1>
         <p className="text-sm text-muted-foreground">
           Заполните основные данные. После создания можно сразу добавить фото.
@@ -71,16 +71,16 @@ export function GuideListingCreateScreen({
       {!listingId ? (
         <Card className="max-w-2xl border-border/70 bg-card/90">
           <CardHeader>
-            <CardTitle>Данные тура</CardTitle>
+            <CardTitle>Данные экскурсии</CardTitle>
           </CardHeader>
           <CardContent>
-            <ListingForm onSubmit={handleSubmit} submitLabel="Создать тур" />
+            <ListingForm onSubmit={handleSubmit} submitLabel="Создать экскурсию" />
           </CardContent>
         </Card>
       ) : (
         <Card className="max-w-2xl border-border/70 bg-card/90">
           <CardHeader>
-            <CardTitle>Тур создан</CardTitle>
+            <CardTitle>Экскурсия создана</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
@@ -92,7 +92,7 @@ export function GuideListingCreateScreen({
                 variant="outline"
                 onClick={() => router.push(`/guide/listings/${listingId}`)}
               >
-                Перейти к туру
+                Перейти к экскурсии
               </Button>
               <Button
                 type="button"

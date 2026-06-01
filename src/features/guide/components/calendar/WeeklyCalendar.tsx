@@ -152,7 +152,7 @@ export function WeeklyCalendar({
                 {weeklySlots.map((s) => (
                   <li key={s.id} className="text-foreground">
                     <span className="font-medium">
-                      {titleByListingId.get(s.listing_id) ?? "Тур"}
+                      {titleByListingId.get(s.listing_id) ?? "Экскурсия"}
                     </span>
                     <span className="block text-muted-foreground">
                       Еженедельно · {formatTime(s.time_start)}–{formatTime(s.time_end)}
@@ -162,7 +162,7 @@ export function WeeklyCalendar({
                 {dayExtras.map((e) => (
                   <li key={e.id} className="text-foreground">
                     <span className="font-medium">
-                      {titleByListingId.get(e.listing_id) ?? "Тур"}
+                      {titleByListingId.get(e.listing_id) ?? "Экскурсия"}
                     </span>
                     <span className="block text-muted-foreground">
                       Особая дата ·{" "}
@@ -177,7 +177,7 @@ export function WeeklyCalendar({
                   return (
                     <li key={dep.id} className="text-foreground">
                       <span className="font-medium">
-                        {titleByListingId.get(dep.listing_id) ?? "Тур"}
+                        {titleByListingId.get(dep.listing_id) ?? "Экскурсия"}
                       </span>
                       <span className="block text-violet-600 dark:text-violet-400">
                         Отправление · от {formatRub(dep.price_minor)} {cur} ·{" "}

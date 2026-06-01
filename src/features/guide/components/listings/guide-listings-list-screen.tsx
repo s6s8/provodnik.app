@@ -20,7 +20,7 @@ type ListingTypeTab = "all" | "excursion" | "tour" | "transfer";
 const TYPE_TABS: Array<{ key: ListingTypeTab; label: string }> = [
   { key: "all", label: "Все" },
   { key: "excursion", label: "Экскурсии" },
-  { key: "tour", label: "Туры" },
+  { key: "tour", label: "Экскурсии (расш.)" },
   { key: "transfer", label: "Трансферы" },
 ];
 
@@ -138,13 +138,13 @@ export function GuideListingsListScreen({
             Кабинет гида
           </p>
           <h1 className="font-serif text-3xl font-semibold text-foreground">
-            Мои туры
+            Мои экскурсии
           </h1>
         </div>
         <Button asChild>
           <Link href="/guide/listings/new">
             <Plus className="size-4" />
-            Создать тур
+            Создать экскурсию
           </Link>
         </Button>
       </div>
@@ -202,7 +202,7 @@ export function GuideListingsListScreen({
             </span>
             <div className="space-y-1.5">
               <p className="text-base font-semibold text-foreground">
-                У вас пока нет туров
+                У вас пока нет экскурсий
               </p>
               <p className="max-w-xs text-sm text-muted-foreground">
                 Создайте первый маршрут, чтобы путешественники могли найти вас
@@ -212,7 +212,7 @@ export function GuideListingsListScreen({
               <Button asChild>
                 <Link href="/guide/listings/new">
                   <Plus className="size-4" />
-                  Создать тур
+                  Создать экскурсию
                 </Link>
               </Button>
               <Button asChild variant="outline">

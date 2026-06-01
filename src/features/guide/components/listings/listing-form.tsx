@@ -86,7 +86,7 @@ export function ListingForm({
       ) : null}
 
       <div className="grid gap-2">
-        <FieldLabel htmlFor="title">Название тура</FieldLabel>
+        <FieldLabel htmlFor="title">Название экскурсии</FieldLabel>
         <Input
           id="title"
           placeholder="Например, Байкальский поход на 3 дня"

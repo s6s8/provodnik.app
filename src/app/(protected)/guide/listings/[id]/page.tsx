@@ -11,7 +11,7 @@ import {
 } from "../actions";
 
 export const metadata: Metadata = {
-  title: "Тур",
+  title: "Экскурсия",
 };
 
 type Props = {

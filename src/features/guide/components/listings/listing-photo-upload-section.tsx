@@ -125,7 +125,7 @@ export function ListingPhotoUploadSection({
       <div className="flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
         <div>
           <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-muted-foreground">
-            Фото тура
+            Фото экскурсии
           </p>
           <h2 className="flex flex-wrap items-center gap-2 font-sans text-base font-semibold text-foreground">
             Добавить фото
@@ -148,7 +148,7 @@ export function ListingPhotoUploadSection({
       {!listingId ? (
         <div className="flex items-start gap-3 rounded-[1rem] bg-surface-low/[0.82] px-4 py-3.5 text-muted-foreground">
           <AlertCircle size={18} />
-          <span>Сначала сохраните тур, чтобы привязать фотографии.</span>
+          <span>Сначала сохраните экскурсию, чтобы привязать фотографии.</span>
         </div>
       ) : null}
 
@@ -187,7 +187,7 @@ export function ListingPhotoUploadSection({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={photo.publicUrl}
-                alt={photo.isCover ? "Обложка тура" : "Фотография тура"}
+                alt={photo.isCover ? "Обложка экскурсии" : "Фотография экскурсии"}
                 className="block aspect-[4/3] w-full object-cover"
               />
               <div className="flex items-center justify-between gap-3 px-4 py-3.5 text-[0.8125rem] text-muted-foreground">

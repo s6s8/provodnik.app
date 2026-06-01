@@ -10,7 +10,7 @@ import {
 } from "./actions";
 
 export const metadata: Metadata = {
-  title: "Мои туры",
+  title: "Мои экскурсии",
 };
 
 export default async function GuideListingsPage() {
