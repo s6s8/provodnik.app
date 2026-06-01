@@ -241,6 +241,7 @@ export default async function GuideProfilePage() {
                 initialLanguages={profile?.languages ?? []}
                 initialSpecializations={profile?.specializations ?? []}
                 initialYearsExperience={profile?.years_experience ?? null}
+                initialRegions={profile?.regions ?? []}
               />
             </CardContent>
           </Card>

@@ -12,6 +12,7 @@ interface GuideAboutFormProps {
   initialLanguages: string[];
   initialSpecializations: string[];
   initialYearsExperience: number | null;
+  initialRegions: string[];
 }
 
 export function GuideAboutForm({
@@ -20,10 +21,12 @@ export function GuideAboutForm({
   initialLanguages,
   initialSpecializations,
   initialYearsExperience,
+  initialRegions,
 }: GuideAboutFormProps) {
   const [status, setStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
   const [errorMsg, setErrorMsg] = React.useState("");
   const [baseCity, setBaseCity] = React.useState(initialBaseCity);
+  const [regions, setRegions] = React.useState<string[]>(initialRegions);
   const [specializations, setSpecializations] = React.useState<string[]>(initialSpecializations);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -80,6 +83,27 @@ export function GuideAboutForm({
           placeholder="Санкт-Петербург"
           className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
         />
+      </div>
+
+      {/* Regions */}
+      <div className="space-y-2">
+        <label htmlFor="regions" className="text-sm font-medium text-foreground">
+          Регионы
+        </label>
+        <input
+          id="regions"
+          type="text"
+          value={regions.join(", ")}
+          onChange={(e) =>
+            setRegions(e.target.value.split(",").map((r) => r.trim()).filter(Boolean))
+          }
+          placeholder="Санкт-Петербург, Карелия"
+          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+        />
+        <p className="text-xs text-muted-foreground">Через запятую — регионы, где вы проводите экскурсии.</p>
+        {regions.map((r, i) => (
+          <input key={i} type="hidden" name="regions" value={r} />
+        ))}
       </div>
 
       {/* Years of experience */}

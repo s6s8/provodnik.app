@@ -12,6 +12,7 @@ export type GuideProfileUpdatePayload = {
   languages: string[];
   specializations: ThemeSlug[];
   years_experience?: number;
+  regions?: string[];
 };
 
 export type SaveAboutResult = { ok: true } | { ok: false; error: string };
@@ -29,6 +30,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   const yearsExperience = formData.get("years_experience");
   const languagesRaw = formData.getAll("languages") as string[];
   const specializationsRaw = formData.getAll("specializations") as string[];
+  const regionsRaw = formData.getAll("regions") as string[];
   const baseCity = typeof baseCityRaw === "string" ? baseCityRaw.trim() : "";
 
   if (baseCity === "") {
@@ -44,6 +46,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
     base_city: baseCity,
     languages: languagesRaw.filter(Boolean),
     specializations,
+    regions: regionsRaw.filter(Boolean),
   };
 
   if (yearsExperience && !isNaN(Number(yearsExperience))) {
