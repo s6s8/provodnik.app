@@ -7,7 +7,7 @@ import {
 } from "./extraction";
 
 const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
-const DEFAULT_MODEL = "google/gemini-3.5-flash";
+const DEFAULT_MODEL = "deepseek/deepseek-v4-flash";
 const TIMEOUT_MS = 15_000;
 
 function buildSystemPrompt(todayMoscow: string): string {
