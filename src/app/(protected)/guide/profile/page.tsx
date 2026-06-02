@@ -27,6 +27,7 @@ import {
   submitForVerification,
 } from "@/app/(protected)/guide/verification/actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { roleHasAccess } from "@/lib/auth/role-routing";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
@@ -82,7 +83,7 @@ export default async function GuideProfilePage() {
   if (!auth.isAuthenticated || !auth.userId) {
     redirect("/auth?next=/guide/profile");
   }
-  if (auth.role !== "guide") {
+  if (!auth.role || !roleHasAccess(auth.role, "guide")) {
     redirect(
       auth.canonicalRedirectTo ?? auth.missingRoleRecoveryTo ?? "/auth?next=/guide/profile",
     );
@@ -220,6 +221,13 @@ export default async function GuideProfilePage() {
 
   return (
     <div className="space-y-10">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Профиль гида</h1>
+        <p className="text-sm text-muted-foreground">
+          Заполните разделы ниже — переходы ведут к блокам анкеты.
+        </p>
+      </header>
+
       <nav aria-label="Разделы профиля" className="flex flex-wrap gap-2">
         {[
           ["#avatar", "Фото"],
@@ -287,16 +295,16 @@ export default async function GuideProfilePage() {
               <CardDescription>
                 Укажите документ и к каким видам экскурсиям он относится.
               </CardDescription>
+              <CardAction>
+                <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
+              </CardAction>
+            </CardHeader>
+            <CardContent className="space-y-4">
               {isVerifiedDataLocked ? (
                 <p className="text-sm text-muted-foreground">
                   Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.
                 </p>
               ) : null}
-              <CardAction>
-                <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
-              </CardAction>
-            </CardHeader>
-            <CardContent>
               <LicenseManager licenses={licenses} isLocked={isVerifiedDataLocked} />
             </CardContent>
           </Card>

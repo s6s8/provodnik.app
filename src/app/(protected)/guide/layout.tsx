@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import { GuideBottomNav } from "@/components/shared/guide-bottom-nav";
+import { roleHasAccess } from "@/lib/auth/role-routing";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 
 export default async function GuideLayout({
@@ -16,7 +17,7 @@ export default async function GuideLayout({
     redirect("/auth?next=/guide/inbox");
   }
 
-  if (auth.role && auth.role !== "guide") {
+  if (auth.role && !roleHasAccess(auth.role, "guide")) {
     redirect(auth.canonicalRedirectTo ?? "/");
   }
 

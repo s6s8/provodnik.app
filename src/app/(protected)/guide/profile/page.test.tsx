@@ -124,10 +124,17 @@ describe("GuideProfilePage", () => {
     const ui = await GuideProfilePage();
     render(ui);
 
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Профиль гида" }),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText("О себе")).toBeInTheDocument();
+    expect(screen.getByLabelText("Разделы профиля")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Документ о квалификации" }),
     ).toBeInTheDocument();
+    expect(document.getElementById("license")).toHaveClass(
+      "scroll-mt-[calc(var(--nav-h)+1rem)]",
+    );
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
@@ -176,6 +183,11 @@ describe("GuideProfilePage", () => {
         "Укажите документ и к каким видам экскурсиям он относится.",
       ),
     ).toBeInTheDocument();
+    expect(
+      within(header as HTMLElement).queryByText(
+        "Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.",
+      ),
+    ).not.toBeInTheDocument();
   });
 
   it("redirects non-guide roles away from the profile editor", async () => {
@@ -208,11 +220,11 @@ describe("GuideProfilePage", () => {
     expect(screen.getByLabelText("О себе")).toHaveAttribute("data-locked", "true");
     expect(screen.getByLabelText("Юридические данные")).toHaveAttribute("data-locked", "true");
     expect(screen.getByRole("button", { name: "Добавить документ" })).toBeDisabled();
-    expect(
-      screen.getByText(
-        "Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.",
-      ),
-    ).toBeInTheDocument();
+    const lockNotice = screen.getByText(
+      "Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.",
+    );
+    expect(lockNotice.closest('[data-slot="card-content"]')).toBeInTheDocument();
+    expect(lockNotice.closest('[data-slot="card-header"]')).not.toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 });

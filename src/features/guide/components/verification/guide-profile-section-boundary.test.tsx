@@ -28,6 +28,9 @@ describe("GuideProfileSectionBoundary", () => {
     );
 
     expect(screen.getByText("Блок о гиде доступен")).toBeInTheDocument();
+    expect(document.getElementById("about")).toHaveClass(
+      "scroll-mt-[calc(var(--nav-h)+1rem)]",
+    );
     expect(
       screen.getByRole("button", { name: "Отправить на проверку" }),
     ).toBeInTheDocument();
