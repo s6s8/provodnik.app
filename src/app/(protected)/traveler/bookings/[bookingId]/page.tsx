@@ -18,8 +18,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BookingTicketTrigger } from "@/features/bookings/components/booking-ticket-trigger";
 import { SupportSidebar } from "@/features/bookings/components/support-sidebar";
 
-import { DemoModeBanner } from "./_components/demo-mode-banner";
-import { MockPaymentButton } from "./_components/mock-payment-button";
 import { openBookingThreadAction } from "./actions";
 
 export const metadata: Metadata = {
@@ -143,8 +141,6 @@ export default async function TravelerBookingDetailPage({
 
   return (
     <div className="space-y-6">
-      {process.env.NODE_ENV !== 'production' && <DemoModeBanner />}
-      {process.env.NODE_ENV !== 'production' && <MockPaymentButton />}
       {reviewStatus === "success" ? (
         <Card className="border-border/70 bg-card/90">
           <CardHeader className="space-y-1">

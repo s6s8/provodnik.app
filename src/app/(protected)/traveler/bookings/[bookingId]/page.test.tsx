@@ -57,14 +57,6 @@ vi.mock("@/features/reviews/components/FourAxisReviewForm", () => ({
   FourAxisReviewForm: () => <form />,
 }));
 
-vi.mock("./_components/demo-mode-banner", () => ({
-  DemoModeBanner: () => null,
-}));
-
-vi.mock("./_components/mock-payment-button", () => ({
-  MockPaymentButton: () => null,
-}));
-
 vi.mock("./actions", () => ({
   openBookingThreadAction: vi.fn(),
 }));
@@ -130,6 +122,8 @@ describe("TravelerBookingDetailPage", () => {
     render(ui);
 
     expect(screen.queryByText("Поездка")).toBeNull();
+    expect(screen.queryByText(/имитац/i)).toBeNull();
+    expect(screen.queryByText(/демо-режим/i)).toBeNull();
     expect(screen.getByTestId("ticket-listing-title")).toHaveTextContent(
       "Карелия, 10 июня 2026 г.",
     );

@@ -46,7 +46,7 @@ export default async function TravelerRequestAcceptedPage({
 
   const { data: booking } = await supabase
     .from("bookings")
-    .select("id, guide_id, starts_at, total_price_minor, status")
+    .select("id, guide_id, starts_at, subtotal_minor, status")
     .eq("id", booking_id)
     .maybeSingle();
 

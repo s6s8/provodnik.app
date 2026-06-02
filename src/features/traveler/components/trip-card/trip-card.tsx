@@ -253,7 +253,7 @@ function TripCardContent({
                 <span>{trip.guideName}</span>
               </div>
             )}
-            <button type="button">Написать гиду</button>
+            <span className="text-sm font-medium text-primary">Написать гиду</span>
             {trip.price && (
               <p>{(trip.price.amount / 100).toLocaleString("ru-RU")} ₽</p>
             )}
@@ -263,7 +263,7 @@ function TripCardContent({
         (trip.hasReview ? (
           <p>Ваш отзыв · ★ {trip.reviewRating}</p>
         ) : (
-          <button type="button">Оставить отзыв</button>
+          <span className="text-sm font-medium text-primary">Оставить отзыв</span>
         ))}
     </>
   );
@@ -279,12 +279,12 @@ export function TripCard({
   const isRequestBacked =
     phase === "waiting_offers" || phase === "awaiting_decision";
 
+  const cardClassName =
+    "block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+
   if (isRequestBacked) {
     return (
-      <Link
-        href={`/traveler/requests/${trip.id}`}
-        className="block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      >
+      <Link href={`/traveler/requests/${trip.id}`} className={cardClassName}>
         <article className="space-y-3">
           <TripCardContent phase={phase} trip={trip} />
         </article>
@@ -293,8 +293,10 @@ export function TripCard({
   }
 
   return (
-    <article className="rounded-lg border bg-card p-4">
-      <TripCardContent phase={phase} trip={trip} />
-    </article>
+    <Link href={`/traveler/bookings/${trip.id}`} className={cardClassName}>
+      <article className="space-y-3">
+        <TripCardContent phase={phase} trip={trip} />
+      </article>
+    </Link>
   );
 }

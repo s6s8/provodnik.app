@@ -218,6 +218,29 @@ describe("TripCard", () => {
     expect(screen.getByText("ул. Ленина, 1")).toBeInTheDocument();
   });
 
+  it("links confirmed booking phases to the traveler booking detail route", () => {
+    render(<TripCard phase="upcoming" trip={{ ...baseTrip, id: "booking-42" }} />);
+
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "href",
+      "/traveler/bookings/booking-42",
+    );
+  });
+
+  it("links request phases to the traveler request detail route", () => {
+    render(
+      <TripCard
+        phase="awaiting_decision"
+        trip={{ ...baseTrip, id: "request-7", offerCount: 2 }}
+      />,
+    );
+
+    expect(screen.getByRole("link")).toHaveAttribute(
+      "href",
+      "/traveler/requests/request-7",
+    );
+  });
+
   it("renders 6 booking elements on 'upcoming' with a confirmed offer", () => {
     render(
       <TripCard
