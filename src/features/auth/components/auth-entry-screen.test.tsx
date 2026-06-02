@@ -152,6 +152,68 @@ describe("AuthEntryScreen traveler sign-in", () => {
     });
   });
 
+  it("redirects admins to the admin dashboard when profiles.role is admin", async () => {
+    signInWithPasswordMock.mockResolvedValue({
+      data: {
+        user: {
+          id: "10000000-0000-4000-8000-000000000001",
+          app_metadata: { role: "guide" },
+          user_metadata: { role: "guide" },
+        },
+      },
+      error: null,
+    });
+    maybeSingleMock.mockResolvedValue({
+      data: { role: "admin" },
+      error: null,
+    });
+
+    render(<AuthEntryScreen role="traveler" />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "admin@provodnik.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Пароль"), {
+      target: { value: "Admin1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Войти" }));
+
+    await waitFor(() => {
+      expect(assignMock).toHaveBeenCalledWith("/admin/dashboard");
+    });
+  });
+
+  it("redirects admins using JWT metadata when the profile role read fails", async () => {
+    signInWithPasswordMock.mockResolvedValue({
+      data: {
+        user: {
+          id: "00000000-0000-4000-8000-000000000001",
+          app_metadata: {},
+          user_metadata: { role: "admin" },
+        },
+      },
+      error: null,
+    });
+    maybeSingleMock.mockResolvedValue({
+      data: null,
+      error: { message: "temporary read failure" },
+    });
+
+    render(<AuthEntryScreen role="traveler" />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "admin@provodnik.app" },
+    });
+    fireEvent.change(screen.getByLabelText("Пароль"), {
+      target: { value: "Demo1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Войти" }));
+
+    await waitFor(() => {
+      expect(assignMock).toHaveBeenCalledWith("/admin/dashboard");
+    });
+  });
+
   it("falls back to JWT metadata when the profile role read fails", async () => {
     signInWithPasswordMock.mockResolvedValue({
       data: {
