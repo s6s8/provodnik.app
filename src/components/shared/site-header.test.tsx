@@ -47,16 +47,26 @@ describe("SiteHeader desktop account menu", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides the account trigger on public marketplace routes", () => {
-    mockPathname = "/requests";
-    renderAuthenticatedHeader("traveler");
+  it.each(["/requests", "/destinations", "/how-it-works"])(
+    "shows the account trigger on public route %s when authenticated",
+    (pathname) => {
+      mockPathname = pathname;
+      renderAuthenticatedHeader("traveler");
+
+      expect(
+        screen.getByRole("button", { name: "Меню аккаунта" }),
+      ).toBeInTheDocument();
+    },
+  );
+
+  it("hides the account trigger for guests on public routes", () => {
+    mockPathname = "/destinations";
+    render(<SiteHeader />);
 
     expect(
       screen.queryByRole("button", { name: "Меню аккаунта" }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("button", { name: "Личное меню" }),
-    ).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Войти/i })).toBeInTheDocument();
   });
 
   it("shows the profile full name next to the avatar when fullName is set", () => {

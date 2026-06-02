@@ -24,7 +24,6 @@ import {
 import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import { NotificationBell } from "@/features/notifications/components/NotificationBell";
 import { ProfileAvatar } from "@/components/profile-avatar";
-import { shouldShowHeaderAccountIdentity } from "@/lib/auth/role-routing";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { COPY } from "@/lib/copy";
 import { cn } from "@/lib/utils";
@@ -92,8 +91,7 @@ export function SiteHeader({
   notificationsEnabled = false,
 }: SiteHeaderProps) {
   const pathname = usePathname();
-  const showAccountIdentity =
-    isAuthenticated && shouldShowHeaderAccountIdentity(pathname);
+  const showAccountIdentity = isAuthenticated;
   const { unreadCount } = useUnreadCount(isAuthenticated);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);

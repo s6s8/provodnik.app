@@ -51,20 +51,6 @@ export function isProtectedRolePathname(pathname: string | null | undefined): bo
   return getRequiredRoleForPathname(pathname) !== null;
 }
 
-/** Account name + avatar in the shell header belong on workspace/account routes only. */
-export function shouldShowHeaderAccountIdentity(
-  pathname: string | null | undefined,
-): boolean {
-  if (!pathname) return false;
-
-  if (getRequiredRoleForPathname(pathname)) return true;
-  if (isPathWithinTree(pathname, "/profile")) return true;
-  if (isPathWithinTree(pathname, "/messages")) return true;
-  if (isPathWithinTree(pathname, "/settings")) return true;
-
-  return false;
-}
-
 export function isRoleDashboardPathname(pathname: string | null | undefined): boolean {
   if (!pathname) return false;
   return ROLE_ORDER.some((role) => pathname === ROLE_DASHBOARD_PATHS[role]);

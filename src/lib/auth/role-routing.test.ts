@@ -4,7 +4,6 @@ import {
   getRequiredRoleForPathname,
   resolveCanonicalRole,
   roleHasAccess,
-  shouldShowHeaderAccountIdentity,
 } from "./role-routing";
 
 describe("resolveCanonicalRole", () => {
@@ -65,22 +64,6 @@ describe("getRequiredRoleForPathname", () => {
   it("requires guide role for the guide profile editor", () => {
     expect(getRequiredRoleForPathname("/guide/profile")).toBe("guide");
     expect(getRequiredRoleForPathname("/profile/guide/about")).toBe("guide");
-  });
-});
-
-describe("shouldShowHeaderAccountIdentity", () => {
-  it("shows identity in traveler, profile, and messages workspaces", () => {
-    expect(shouldShowHeaderAccountIdentity("/traveler/requests")).toBe(true);
-    expect(shouldShowHeaderAccountIdentity("/profile/personal")).toBe(true);
-    expect(shouldShowHeaderAccountIdentity("/messages")).toBe(true);
-  });
-
-  it("hides identity on public marketplace pages", () => {
-    expect(shouldShowHeaderAccountIdentity("/")).toBe(false);
-    expect(shouldShowHeaderAccountIdentity("/requests")).toBe(false);
-    expect(shouldShowHeaderAccountIdentity("/listings")).toBe(false);
-    expect(shouldShowHeaderAccountIdentity("/guides")).toBe(false);
-    expect(shouldShowHeaderAccountIdentity("/destinations")).toBe(false);
   });
 });
 
