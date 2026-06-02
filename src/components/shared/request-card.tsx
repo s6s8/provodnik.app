@@ -2,7 +2,12 @@ import Link from "next/link";
 
 import { GlassCard } from "@/components/shared/glass-card";
 import { StatusBadge } from "@/components/shared/status-badge";
+import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
+
+const interestLabelMap: Partial<Record<string, string>> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+);
 
 type RequestCardProps = {
   request: RequestRecord;
@@ -19,6 +24,13 @@ export function RequestCard({
     request.capacity != null && request.capacity > 0
       ? Math.min(100, Math.round((request.groupSize / request.capacity) * 100))
       : 0;
+  const interestBadges =
+    request.interests
+      ?.map((interest) => ({
+        id: interest,
+        label: interestLabelMap[interest],
+      }))
+      .filter((interest): interest is { id: string; label: string } => Boolean(interest.label)) ?? [];
 
   return (
     <GlassCard className="flex h-full flex-col gap-4 p-6">
@@ -35,7 +47,15 @@ export function RequestCard({
       <p className="text-sm text-ink-2">
         {request.dateLabel} · {request.capacity != null ? `${request.groupSize} из ${request.capacity} мест` : `${request.groupSize} чел.`}
       </p>
-      <p className="text-sm leading-7 text-ink-2">{request.description}</p>
+      {interestBadges.length > 0 && (
+        <div className="inline-flex flex-wrap gap-1.5">
+          {interestBadges.map(({ id, label }) => (
+            <span key={id} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
+              {label}
+            </span>
+          ))}
+        </div>
+      )}
 
       <div className="mt-auto space-y-4">
         <div className="space-y-2">
