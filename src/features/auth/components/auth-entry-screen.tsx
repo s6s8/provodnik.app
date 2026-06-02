@@ -16,7 +16,8 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { getDashboardPathForRole, resolveCanonicalRole } from "@/lib/auth/role-routing";
+import { resolveCanonicalRole } from "@/lib/auth/role-routing";
+import { resolvePostAuthRedirectPath } from "@/lib/auth/safe-redirect";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
@@ -58,9 +59,10 @@ function getFriendlyAuthError(code: string): string {
 
 type AuthEntryScreenProps = {
   role?: "traveler" | "guide";
+  next?: string;
 };
 
-export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
+export function AuthEntryScreen({ role = "traveler", next }: AuthEntryScreenProps) {
   const [mode, setMode] = useState<AuthFormMode>(
     role === "guide" ? "sign-up" : "sign-in",
   );
@@ -142,14 +144,14 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
           appMetadataRole: signedInUser.app_metadata?.role as string | undefined,
           userMetadataRole: signedInUser.user_metadata?.role as string | undefined,
         });
-        const dashboardPath = userRole ? getDashboardPathForRole(userRole) : null;
+        const destination = resolvePostAuthRedirectPath(userRole, next);
 
-        if (!dashboardPath) {
+        if (!destination) {
           window.location.href = "/api/auth/signout";
           return;
         }
 
-        window.location.assign(dashboardPath);
+        window.location.assign(destination);
         return;
       }
 
@@ -167,7 +169,9 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
         return;
       }
 
-      window.location.assign(result.dashboardPath);
+      window.location.assign(
+        resolvePostAuthRedirectPath(role, next) ?? result.dashboardPath,
+      );
     } catch {
       setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");
     } finally {

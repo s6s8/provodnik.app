@@ -50,7 +50,7 @@ export default async function ThreadPage({
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    redirect("/auth");
+    redirect(`/auth?next=/messages/${threadId}`);
   }
 
   let threads;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { safeRedirectPath } from "./safe-redirect";
+import { resolvePostAuthRedirectPath, safeRedirectPath } from "./safe-redirect";
 
 describe("safeRedirectPath", () => {
   test("returns / for null", () => {
@@ -28,5 +28,29 @@ describe("safeRedirectPath", () => {
   });
   test("blocks URL that resolves to external origin", () => {
     expect(safeRedirectPath("https://evil.com/auth/confirm")).toBe("/");
+  });
+});
+
+describe("resolvePostAuthRedirectPath", () => {
+  test("returns role dashboard when next is absent", () => {
+    expect(resolvePostAuthRedirectPath("traveler", null)).toBe("/traveler/requests");
+    expect(resolvePostAuthRedirectPath("guide", undefined)).toBe("/guide");
+  });
+
+  test("returns safe messages thread path for travelers when next is set", () => {
+    const threadId = "11111111-1111-4111-8111-111111111111";
+    expect(resolvePostAuthRedirectPath("traveler", `/messages/${threadId}`)).toBe(
+      `/messages/${threadId}`,
+    );
+  });
+
+  test("falls back to dashboard when next is an open-redirect attempt", () => {
+    expect(resolvePostAuthRedirectPath("traveler", "https://evil.com")).toBe(
+      "/traveler/requests",
+    );
+  });
+
+  test("returns null when role is missing", () => {
+    expect(resolvePostAuthRedirectPath(null, "/messages")).toBeNull();
   });
 });

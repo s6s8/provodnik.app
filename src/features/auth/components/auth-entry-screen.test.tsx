@@ -105,6 +105,38 @@ describe("AuthEntryScreen traveler sign-in", () => {
     expect(getSessionMock).toHaveBeenCalled();
   });
 
+  it("redirects travelers to ?next=/messages thread after sign-in", async () => {
+    const threadId = "22222222-2222-4222-8222-222222222222";
+    signInWithPasswordMock.mockResolvedValue({
+      data: {
+        user: {
+          id: "11111111-1111-4111-8111-111111111111",
+          app_metadata: { role: "traveler" },
+          user_metadata: {},
+        },
+      },
+      error: null,
+    });
+    maybeSingleMock.mockResolvedValue({
+      data: { role: "traveler" },
+      error: null,
+    });
+
+    render(<AuthEntryScreen role="traveler" next={`/messages/${threadId}`} />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "traveler@example.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Пароль"), {
+      target: { value: "Travel1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Войти" }));
+
+    await waitFor(() => {
+      expect(assignMock).toHaveBeenCalledWith(`/messages/${threadId}`);
+    });
+  });
+
   it("falls back to JWT metadata when the profile role read fails", async () => {
     signInWithPasswordMock.mockResolvedValue({
       data: {

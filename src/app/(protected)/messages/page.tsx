@@ -21,7 +21,7 @@ export default async function MessagesPage() {
 
   const auth = await readAuthContextFromServer();
   if (!auth.isAuthenticated || !auth.userId) {
-    redirect("/auth");
+    redirect("/auth?next=/messages");
   }
 
   const threads = await getUserThreads(auth.userId);
