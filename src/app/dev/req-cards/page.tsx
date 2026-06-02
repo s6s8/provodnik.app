@@ -26,7 +26,7 @@ type RequestCardSample = {
   price: string;
 };
 
-type FlexVariant = "hybrid";
+type GroupColorVariant = "dot" | "badge";
 
 const samples = [
   {
@@ -97,22 +97,10 @@ const samples = [
   },
 ] satisfies RequestCardSample[];
 
-const flexBadgeVariantConfig = {
-  hybrid: {
-    className: "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary",
-    openGroupLabel: "Сборная группа",
-    datesFlexibleLabel: "Гибкие даты",
-  },
-} satisfies Record<
-  FlexVariant,
-  {
-    className: string;
-    openGroupLabel: string;
-    datesFlexibleLabel: string;
-  }
->;
-
 const interestLabelMap = new Map(INTEREST_CHIPS.map(({ id, label }) => [id, label]));
+
+const datesFlexibleBadgeClassName =
+  "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
 
 function getInterestLabels(interests: InterestId[]) {
   return interests
@@ -123,6 +111,20 @@ function getInterestLabels(interests: InterestId[]) {
 
 function formatSampleGroupLine({ mode, groupSize }: Pick<RequestCardSample, "mode" | "groupSize">) {
   return mode === "private" ? `Своя группа · ${groupSize} чел.` : `Сборная группа · ${groupSize} чел.`;
+}
+
+function getGroupLabel(mode: RequestCardSample["mode"]) {
+  return mode === "private" ? "Своя группа" : "Сборная группа";
+}
+
+function getGroupColorClassName(mode: RequestCardSample["mode"]) {
+  return mode === "private" ? "bg-primary" : "bg-success";
+}
+
+function getGroupBadgeClassName(mode: RequestCardSample["mode"]) {
+  return mode === "private"
+    ? "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"
+    : "rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
 }
 
 function AvatarStack({ members }: { members: ReqCardMember[] }) {
@@ -146,15 +148,15 @@ function AvatarStack({ members }: { members: ReqCardMember[] }) {
 
 function QuietReqCard({
   sample,
-  flexVariant,
+  variant,
 }: {
   sample: RequestCardSample;
-  flexVariant: FlexVariant;
+  variant: GroupColorVariant;
 }) {
   const interestLabels = getInterestLabels(sample.interests);
-  const groupLine = formatSampleGroupLine(sample);
-  const hasFlexBadges = sample.mode === "assembly" || sample.datesFlexible;
-  const flexBadgeConfig = flexBadgeVariantConfig[flexVariant];
+  const groupLabel = getGroupLabel(sample.mode);
+  const groupText = variant === "dot" ? formatSampleGroupLine(sample) : `${sample.groupSize} чел.`;
+  const hasBadges = variant === "badge" || sample.datesFlexible;
 
   return (
     <Link
@@ -163,15 +165,25 @@ function QuietReqCard({
     >
       <p className="text-lg font-semibold text-foreground">{sample.location}</p>
       <p className="mt-1 truncate text-sm text-muted-foreground">
-        {sample.date} · {groupLine}
+        {sample.date} ·{" "}
+        {variant === "dot" ? (
+          <span className="inline-flex max-w-full items-center">
+            <span
+              className={`mr-1.5 inline-block size-2 shrink-0 rounded-full ${getGroupColorClassName(sample.mode)}`}
+            />
+            {groupText}
+          </span>
+        ) : (
+          groupText
+        )}
       </p>
-      {hasFlexBadges ? (
+      {hasBadges ? (
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {sample.mode === "assembly" ? (
-            <span className={flexBadgeConfig.className}>{flexBadgeConfig.openGroupLabel}</span>
+          {variant === "badge" ? (
+            <span className={getGroupBadgeClassName(sample.mode)}>{groupLabel}</span>
           ) : null}
           {sample.datesFlexible ? (
-            <span className={flexBadgeConfig.className}>{flexBadgeConfig.datesFlexibleLabel}</span>
+            <span className={datesFlexibleBadgeClassName}>Гибкие даты</span>
           ) : null}
         </div>
       ) : null}
@@ -195,10 +207,10 @@ function QuietReqCard({
 }
 
 function RequestCardGrid({
-  flexVariant,
+  variant,
   className,
 }: {
-  flexVariant: FlexVariant;
+  variant: GroupColorVariant;
   className: string;
 }) {
   return (
@@ -208,7 +220,7 @@ function RequestCardGrid({
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {sample.scenario}
           </p>
-          <QuietReqCard sample={sample} flexVariant={flexVariant} />
+          <QuietReqCard sample={sample} variant={variant} />
         </div>
       ))}
     </div>
@@ -219,17 +231,27 @@ export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — 3 колонки</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — варианты цвета</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Адаптивная сетка с четырьмя сценариями: дата точная или гибкая, группа своя или
-          сборная.
+          Сравнение двух цветовых вариантов строки группы: маркер-точка и отдельный бейдж.
         </p>
       </div>
 
-      <RequestCardGrid
-        flexVariant="hybrid"
-        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-      />
+      <section>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Вариант А — цветная точка-маркер</h2>
+        <RequestCardGrid
+          variant="dot"
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        />
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">Вариант Б — цветной бейдж группы</h2>
+        <RequestCardGrid
+          variant="badge"
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+        />
+      </section>
     </main>
   );
 }
