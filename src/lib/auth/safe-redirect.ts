@@ -18,6 +18,13 @@ export function safeRedirectPath(raw: string | null | undefined): string {
   return raw;
 }
 
+export function isAdminWorkspacePath(path: string | null | undefined): boolean {
+  if (!path?.trim()) return false;
+
+  const safe = safeRedirectPath(path.trim());
+  return safe === "/admin" || safe.startsWith("/admin/");
+}
+
 /** Build `/auth` with a safe `?next=` return path for gated routes. */
 export function buildAuthLoginRedirect(nextPath: string | null | undefined): string {
   if (!nextPath?.trim()) return "/auth";

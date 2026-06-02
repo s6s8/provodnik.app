@@ -17,7 +17,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { resolveCanonicalRole } from "@/lib/auth/role-routing";
-import { resolvePostAuthRedirectPath } from "@/lib/auth/safe-redirect";
+import {
+  isAdminWorkspacePath,
+  resolvePostAuthRedirectPath,
+} from "@/lib/auth/safe-redirect";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
@@ -41,6 +44,13 @@ function getFriendlyAuthError(code: string): string {
 
   const normalized = code.toLowerCase();
 
+  if (
+    normalized.includes("database error") ||
+    normalized.includes("querying schema") ||
+    normalized.includes("error granting user")
+  ) {
+    return "Не удалось завершить вход: ошибка выдачи сессии. Попробуйте ещё раз через минуту или напишите в поддержку.";
+  }
   if (normalized.includes("invalid login credentials")) {
     return "Неверный email или пароль.";
   }
@@ -144,15 +154,41 @@ export function AuthEntryScreen({
           profileRole = profile?.role ?? null;
         }
 
+        if (profileError && next && isAdminWorkspacePath(next)) {
+          setError(
+            "Не удалось проверить права администратора после входа. Попробуйте ещё раз или напишите в поддержку.",
+          );
+          return;
+        }
+
         const userRole = resolveCanonicalRole({
           profileRole,
           appMetadataRole: signedInUser.app_metadata?.role as string | undefined,
           userMetadataRole: signedInUser.user_metadata?.role as string | undefined,
         });
+
+        if (!userRole) {
+          setError(
+            profileError
+              ? "Не удалось загрузить профиль после входа. Попробуйте ещё раз или напишите в поддержку."
+              : "Не удалось определить роль аккаунта. Выйдите и войдите снова или напишите в поддержку.",
+          );
+          return;
+        }
+
+        if (next && isAdminWorkspacePath(next) && userRole !== "admin") {
+          setError(
+            "У этого аккаунта нет прав администратора. Войдите под админским email или обратитесь к владельцу доступа.",
+          );
+          return;
+        }
+
         const destination = resolvePostAuthRedirectPath(userRole, next);
 
         if (!destination) {
-          window.location.href = "/api/auth/signout";
+          setError(
+            "Не удалось определить кабинет для входа. Напишите в поддержку.",
+          );
           return;
         }
 
@@ -221,6 +257,16 @@ export function AuthEntryScreen({
             <p>
               Не удалось определить роль аккаунта. Выйдите и войдите снова или
               напишите в поддержку.
+            </p>
+          </div>
+        ) : null}
+
+        {errorCode === "admin-access-denied" ? (
+          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <p>
+              Для входа в админку нужен аккаунт с ролью администратора. Войдите
+              под админским email или сначала выйдите из текущего аккаунта.
             </p>
           </div>
         ) : null}

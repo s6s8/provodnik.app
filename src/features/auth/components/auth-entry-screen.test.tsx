@@ -57,6 +57,14 @@ describe("AuthEntryScreen missing-role recovery", () => {
       screen.getByText(/Не удалось определить роль аккаунта/i),
     ).toBeInTheDocument();
   });
+
+  it("shows admin re-auth guidance when admin access is denied", () => {
+    render(<AuthEntryScreen errorCode="admin-access-denied" next="/admin/dashboard" />);
+
+    expect(
+      screen.getByText(/Для входа в админку нужен аккаунт с ролью администратора/i),
+    ).toBeInTheDocument();
+  });
 });
 
 describe("AuthEntryScreen unavailable auth fallback", () => {
@@ -211,6 +219,97 @@ describe("AuthEntryScreen traveler sign-in", () => {
 
     await waitFor(() => {
       expect(assignMock).toHaveBeenCalledWith("/admin/dashboard");
+    });
+  });
+
+  it("shows an error instead of silently signing out when the role cannot be resolved", async () => {
+    signInWithPasswordMock.mockResolvedValue({
+      data: {
+        user: {
+          id: "11111111-1111-4111-8111-111111111111",
+          app_metadata: {},
+          user_metadata: {},
+        },
+      },
+      error: null,
+    });
+    maybeSingleMock.mockResolvedValue({
+      data: null,
+      error: null,
+    });
+
+    render(<AuthEntryScreen role="traveler" />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "broken@example.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Пароль"), {
+      target: { value: "Broken1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Войти" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Не удалось определить роль аккаунта/i),
+      ).toBeInTheDocument();
+    });
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  it("shows an admin access error when signing into /admin without admin rights", async () => {
+    signInWithPasswordMock.mockResolvedValue({
+      data: {
+        user: {
+          id: "11111111-1111-4111-8111-111111111111",
+          app_metadata: { role: "traveler" },
+          user_metadata: {},
+        },
+      },
+      error: null,
+    });
+    maybeSingleMock.mockResolvedValue({
+      data: { role: "traveler" },
+      error: null,
+    });
+
+    render(<AuthEntryScreen role="traveler" next="/admin/dashboard" />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "traveler@example.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Пароль"), {
+      target: { value: "Travel1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Войти" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/нет прав администратора/i),
+      ).toBeInTheDocument();
+    });
+    expect(assignMock).not.toHaveBeenCalled();
+  });
+
+  it("shows a database session error in Russian when sign-in fails at token issuance", async () => {
+    signInWithPasswordMock.mockResolvedValue({
+      data: { user: null },
+      error: { message: "Database error querying schema" },
+    });
+
+    render(<AuthEntryScreen role="traveler" next="/admin/dashboard" />);
+
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "admin@provodnik.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Пароль"), {
+      target: { value: "Admin1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Войти" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/ошибка выдачи сессии/i),
+      ).toBeInTheDocument();
     });
   });
 

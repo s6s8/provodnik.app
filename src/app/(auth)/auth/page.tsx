@@ -1,7 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { AuthEntryScreen } from "@/features/auth/components/auth-entry-screen";
-import { resolvePostAuthRedirectPath } from "@/lib/auth/safe-redirect";
+import {
+  isAdminWorkspacePath,
+  resolvePostAuthRedirectPath,
+} from "@/lib/auth/safe-redirect";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 
 type AuthPageProps = {
@@ -39,7 +42,12 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     redirect(authContext.missingRoleRecoveryTo);
   }
 
-  if (authContext.canonicalRedirectTo) {
+  const needsAdminReauth =
+    authContext.isAuthenticated &&
+    authContext.role !== "admin" &&
+    isAdminWorkspacePath(next);
+
+  if (authContext.canonicalRedirectTo && !needsAdminReauth) {
     const destination =
       resolvePostAuthRedirectPath(authContext.role, next) ??
       authContext.canonicalRedirectTo;
@@ -52,7 +60,11 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-[#0a1628] via-[#0d1f3c] to-[#0a1628]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_90%_60%_at_50%_0%,rgba(0,88,190,0.22),transparent)]" />
       <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[rgba(0,88,190,0.08)] to-transparent" />
-      <AuthEntryScreen role={signupRole} next={next} errorCode={error} />
+      <AuthEntryScreen
+        role={signupRole}
+        next={next}
+        errorCode={needsAdminReauth ? "admin-access-denied" : error}
+      />
     </section>
   );
 }

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   buildAuthLoginRedirect,
+  isAdminWorkspacePath,
   resolvePostAuthRedirectPath,
   safeRedirectPath,
 } from "./safe-redirect";
@@ -48,6 +49,16 @@ describe("buildAuthLoginRedirect", () => {
     expect(buildAuthLoginRedirect("/messages/thread-1")).toBe(
       "/auth?next=%2Fmessages%2Fthread-1",
     );
+  });
+});
+
+describe("isAdminWorkspacePath", () => {
+  test("detects admin routes and rejects unsafe paths", () => {
+    expect(isAdminWorkspacePath("/admin/dashboard")).toBe(true);
+    expect(isAdminWorkspacePath("/admin")).toBe(true);
+    expect(isAdminWorkspacePath("https://evil.com/admin")).toBe(false);
+    expect(isAdminWorkspacePath("/traveler/requests")).toBe(false);
+    expect(isAdminWorkspacePath(null)).toBe(false);
   });
 });
 
