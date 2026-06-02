@@ -6,15 +6,13 @@
 do $$
 declare
   seeded_at timestamptz := timezone('utc', now());
-  acct record (
-    email text,
-    plain_password text,
-    profile_role public.app_role,
-    full_name text
-  );
+  acct_email text;
+  acct_plain_password text;
+  acct_profile_role public.app_role;
+  acct_full_name text;
   target_user_id uuid;
 begin
-  for acct in
+  for acct_email, acct_plain_password, acct_profile_role, acct_full_name in
     select *
     from (
       values
@@ -58,7 +56,7 @@ begin
   loop
     update auth.users as u
     set
-      encrypted_password = extensions.crypt(acct.plain_password, extensions.gen_salt('bf')),
+      encrypted_password = extensions.crypt(acct_plain_password, extensions.gen_salt('bf')),
       email_confirmed_at = coalesce(u.email_confirmed_at, seeded_at),
       raw_app_meta_data = coalesce(u.raw_app_meta_data, '{}'::jsonb)
         || jsonb_build_object(
@@ -67,17 +65,17 @@ begin
           'providers',
           jsonb_build_array('email'),
           'role',
-          acct.profile_role::text
+          acct_profile_role::text
         ),
       raw_user_meta_data = coalesce(u.raw_user_meta_data, '{}'::jsonb)
-        || jsonb_build_object('role', acct.profile_role::text),
+        || jsonb_build_object('role', acct_profile_role::text),
       confirmation_token = coalesce(u.confirmation_token, ''),
       recovery_token = coalesce(u.recovery_token, ''),
       email_change_token_new = coalesce(u.email_change_token_new, ''),
       email_change = coalesce(u.email_change, ''),
       is_sso_user = false,
       updated_at = seeded_at
-    where lower(trim(u.email)) = lower(acct.email)
+    where lower(trim(u.email)) = lower(acct_email)
     returning u.id into target_user_id;
 
     if target_user_id is null then
@@ -85,9 +83,9 @@ begin
     end if;
 
     insert into public.profiles (id, role, email, full_name)
-    values (target_user_id, acct.profile_role, acct.email, acct.full_name)
+    values (target_user_id, acct_profile_role, acct_email, acct_full_name)
     on conflict (id) do update set
-      role = acct.profile_role,
+      role = acct_profile_role,
       email = excluded.email,
       full_name = coalesce(nullif(trim(excluded.full_name), ''), profiles.full_name),
       updated_at = seeded_at;
@@ -115,7 +113,7 @@ begin
         'sub',
         target_user_id::text,
         'email',
-        acct.email,
+        acct_email,
         'email_verified',
         true,
         'phone_verified',

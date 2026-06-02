@@ -14,8 +14,15 @@ describe("repair_checklist_credentials_by_email migration", () => {
   const sql = readFileSync(REPAIR_MIGRATION, "utf8");
 
   it("updates auth.users by email, not only fixed seed UUIDs", () => {
-    expect(sql).toMatch(/lower\(trim\(u\.email\)\)\s*=\s*lower\(acct\.email\)/);
+    expect(sql).toMatch(/lower\(trim\(u\.email\)\)\s*=\s*lower\(acct_email\)/);
     expect(sql).not.toMatch(/on conflict \(id\) do update set[\s\S]*encrypted_password/);
+  });
+
+  it("uses scalar FOR loop variables (PL/pgSQL rejects typed record (...))", () => {
+    expect(sql).not.toMatch(/\bacct\s+record\s*\(/i);
+    expect(sql).toMatch(
+      /for\s+acct_email,\s+acct_plain_password,\s+acct_profile_role,\s+acct_full_name\s+in/i,
+    );
   });
 
   it.each(CHECKLIST_ACCOUNT_EMAILS)("covers %s", (email) => {
