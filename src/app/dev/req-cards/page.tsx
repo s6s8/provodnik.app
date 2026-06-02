@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Hand } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type ReqCardMember } from "@/components/shared/req-card";
@@ -27,6 +28,7 @@ type RequestCardSample = {
 };
 
 type GroupColorVariant = "dot" | "badge";
+type GuideSignalVariant = "icon" | "badge" | "caption";
 
 const samples = [
   {
@@ -206,6 +208,61 @@ function QuietReqCard({
   );
 }
 
+function GuideSignalCard({
+  sample,
+  signal,
+}: {
+  sample: RequestCardSample;
+  signal: GuideSignalVariant;
+}) {
+  const interestLabels = getInterestLabels(sample.interests);
+  const groupLabel = getGroupLabel(sample.mode);
+
+  return (
+    <Link
+      href={sample.href}
+      className="flex h-full flex-col bg-surface-high rounded-card p-4 shadow-card transition-transform hover:-translate-y-0.5"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-lg font-semibold text-foreground">{sample.location}</p>
+        {signal === "icon" ? (
+          <Hand size={16} className="mt-1 shrink-0 text-primary" aria-label="Гида пока нет" />
+        ) : null}
+      </div>
+      <p className="mt-1 truncate text-sm text-muted-foreground">
+        {sample.date} · {sample.groupSize} чел.
+      </p>
+      <div className="mt-2 flex flex-wrap gap-1.5">
+        {signal === "badge" ? (
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            Ждёт гида
+          </span>
+        ) : null}
+        <span className={getGroupBadgeClassName(sample.mode)}>{groupLabel}</span>
+        {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+      </div>
+
+      {interestLabels.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {interestLabels.map((label) => (
+            <span key={label} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
+              {label}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+        <AvatarStack members={sample.members} />
+        <div className="flex items-baseline gap-2 text-right">
+          {signal === "caption" ? <span className="text-xs text-muted-foreground">свободно</span> : null}
+          <span className="text-sm font-semibold text-foreground">{sample.price}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function RequestCardGrid({
   variant,
   className,
@@ -227,30 +284,46 @@ function RequestCardGrid({
   );
 }
 
+const guideSignalSamples = [
+  { label: "Иконка — место свободно", signal: "icon" },
+  { label: "Бейдж — Ждёт гида", signal: "badge" },
+  { label: "Подпись — свободно", signal: "caption" },
+] satisfies { label: string; signal: GuideSignalVariant }[];
+
 export default function DevReqCardsPage() {
+  const guideSignalSample = samples[0];
+
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — варианты цвета</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — вариант Б и сигнал гида</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Сравнение двух цветовых вариантов строки группы: маркер-точка и отдельный бейдж.
+          Полигон карточки с бейджем группы и тремя мягкими способами показать, что гида пока нет.
         </p>
       </div>
 
       <section>
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Вариант А — цветная точка-маркер</h2>
-        <RequestCardGrid
-          variant="dot"
-          className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-        />
-      </section>
-
-      <section className="mt-10">
         <h2 className="mb-4 text-lg font-semibold text-foreground">Вариант Б — цветной бейдж группы</h2>
         <RequestCardGrid
           variant="badge"
           className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
         />
+      </section>
+
+      <section className="mt-10">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
+          Сигнал &quot;гида пока нет&quot; — 3 варианта поверх карточки Б
+        </h2>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {guideSignalSamples.map((sample) => (
+            <div key={sample.signal} className="flex h-full flex-col space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                {sample.label}
+              </p>
+              <GuideSignalCard sample={guideSignalSample} signal={sample.signal} />
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );
