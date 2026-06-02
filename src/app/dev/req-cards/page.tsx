@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Hand } from "lucide-react";
+import { Check, Hand, UserPlus, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type ReqCardMember } from "@/components/shared/req-card";
@@ -105,7 +105,8 @@ const interestLabelMap = new Map(INTEREST_CHIPS.map(({ id, label }) => [id, labe
 
 const datesFlexibleBadgeClassName =
   "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
-const groupBadgeClassName = "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
+const groupTypeBadgeClassName =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
@@ -119,7 +120,7 @@ function getInterestLabels(interests: InterestId[]) {
 }
 
 function getGroupLabel(mode: RequestCardSample["mode"]) {
-  return mode === "private" ? "Своя группа" : "Сборная группа";
+  return mode === "private" ? "Своя группа" : "Сборная";
 }
 
 function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guideState"] }) {
@@ -134,6 +135,16 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guide
   return (
     <span className={waitingGuideBadgeClassName}>
       <Hand size={14} className="text-warning" /> Ждёт гида
+    </span>
+  );
+}
+
+function GroupTypeBadge({ mode }: { mode: RequestCardSample["mode"] }) {
+  const Icon = mode === "private" ? Users : UserPlus;
+
+  return (
+    <span className={groupTypeBadgeClassName}>
+      <Icon size={14} className="text-ink-2" /> {getGroupLabel(mode)}
     </span>
   );
 }
@@ -159,7 +170,6 @@ function AvatarStack({ members }: { members: ReqCardMember[] }) {
 
 function RequestCard({ sample }: { sample: RequestCardSample }) {
   const interestLabels = getInterestLabels(sample.interests);
-  const groupLabel = getGroupLabel(sample.mode);
 
   return (
     <Link
@@ -172,7 +182,7 @@ function RequestCard({ sample }: { sample: RequestCardSample }) {
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         <GuideStatusBadge guideState={sample.guideState} />
-        <span className={groupBadgeClassName}>{groupLabel}</span>
+        <GroupTypeBadge mode={sample.mode} />
         {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
       </div>
 
@@ -201,7 +211,7 @@ export default function DevReqCardsPage() {
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — финальная модель</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Тип
-          группы — нейтральным словом, без цвета. Четыре сценария для сравнения.
+          группы — иконкой и контурным чипом, без цвета. Четыре сценария для сравнения.
         </p>
       </div>
 
