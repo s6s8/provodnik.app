@@ -914,8 +914,10 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
 export async function getPendingListingReviews(): Promise<ListingModerationRow[]> {
   const { adminClient } = await requireAdminSession();
 
-  const [{ data: pendingReviewListings, error: listingsError }, { data: openCases, error: casesError }] =
-    await Promise.all([
+  const [
+    { data: pendingReviewListings, error: listingsError },
+    { data: openCases, error: casesError },
+  ] = await Promise.all([
       adminClient
         .from("listings")
         .select("*")
@@ -934,33 +936,8 @@ export async function getPendingListingReviews(): Promise<ListingModerationRow[]
   if (listingsError) throw listingsError;
   if (casesError) throw casesError;
 
-  const listingMap = new Map<Uuid, ListingRow>();
-  for (const listing of (pendingReviewListings ?? []) as ListingRow[]) {
-    listingMap.set(listing.id, listing);
-  }
-
+  const listings = (pendingReviewListings ?? []) as ListingRow[];
   const openCaseRows = (openCases ?? []) as ModerationCaseRow[];
-  const openCaseListingIds = openCaseRows
-    .map((item) => item.listing_id)
-    .filter(Boolean) as Uuid[];
-
-  if (openCaseListingIds.length) {
-    const { data: openCaseListings, error } = await adminClient
-      .from("listings")
-      .select("*")
-      .in("id", openCaseListingIds)
-      .neq("status", "draft");
-
-    if (error) throw error;
-
-    for (const listing of (openCaseListings ?? []) as ListingRow[]) {
-      listingMap.set(listing.id, listing);
-    }
-  }
-
-  const listings = [...listingMap.values()].sort((left, right) =>
-    right.created_at.localeCompare(left.created_at),
-  );
   const guideIds = [...new Set(listings.map((listing) => listing.guide_id))];
   const latestCaseByListing = new Map<Uuid, ModerationCaseRow>();
   for (const moderationCase of openCaseRows) {
@@ -998,12 +975,10 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   const [
     pendingGuides,
     pendingReviewListings,
-    openListingCases,
     openDisputes,
     totalBookings,
     pendingGuidesWeek,
     pendingReviewListingsWeek,
-    openListingCasesWeek,
     openDisputesWeek,
     totalBookingsWeek,
   ] = await Promise.all([
@@ -1013,13 +988,8 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .eq("verification_status", "submitted"),
     adminClient
       .from("listings")
-      .select("id")
+      .select("id", { count: "exact", head: true })
       .eq("status", "pending_review"),
-    adminClient
-      .from("moderation_cases")
-      .select("listing_id")
-      .eq("subject_type", "listing")
-      .eq("status", "open"),
     adminClient
       .from("disputes")
       .select("id", { count: "exact", head: true })
@@ -1032,14 +1002,8 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .gte("created_at", weekAgoIso),
     adminClient
       .from("listings")
-      .select("id")
+      .select("id", { count: "exact", head: true })
       .eq("status", "pending_review")
-      .gte("created_at", weekAgoIso),
-    adminClient
-      .from("moderation_cases")
-      .select("listing_id")
-      .eq("subject_type", "listing")
-      .eq("status", "open")
       .gte("created_at", weekAgoIso),
     adminClient
       .from("disputes")
@@ -1052,21 +1016,8 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
       .gte("created_at", weekAgoIso),
   ]);
 
-  const pendingListingReviews = new Set([
-    ...((pendingReviewListings.data ?? []) as Array<{ id: Uuid }>).map((item) => item.id),
-    ...((openListingCases.data ?? []) as Array<{ listing_id: Uuid | null }>)
-      .map((item) => item.listing_id)
-      .filter(Boolean),
-  ]).size;
-
-  const pendingListingReviewsWeek = new Set([
-    ...((pendingReviewListingsWeek.data ?? []) as Array<{ id: Uuid }>).map(
-      (item) => item.id,
-    ),
-    ...((openListingCasesWeek.data ?? []) as Array<{ listing_id: Uuid | null }>)
-      .map((item) => item.listing_id)
-      .filter(Boolean),
-  ]).size;
+  const pendingListingReviews = pendingReviewListings.count ?? 0;
+  const pendingListingReviewsWeek = pendingReviewListingsWeek.count ?? 0;
 
   return {
     pendingGuideApplications: pendingGuides.count ?? 0,

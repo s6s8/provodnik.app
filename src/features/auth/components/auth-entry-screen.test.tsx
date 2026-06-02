@@ -207,7 +207,7 @@ describe("AuthEntryScreen traveler sign-in", () => {
       error: { message: "temporary read failure" },
     });
 
-    render(<AuthEntryScreen role="traveler" />);
+    render(<AuthEntryScreen role="traveler" next="/admin/dashboard" />);
 
     fireEvent.change(screen.getByLabelText("Email"), {
       target: { value: "admin@provodnik.app" },

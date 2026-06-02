@@ -43,9 +43,26 @@ function statusBadgeClass(status: string) {
     case "rejected":
       return "booking-badge booking-badge--cancelled";
     case "open":
+    case "pending_review":
       return "booking-badge booking-badge--pending";
     default:
       return "booking-badge booking-badge--pending";
+  }
+}
+
+function listingStatusLabel(status: string) {
+  switch (status) {
+    case "open":
+    case "pending_review":
+      return "На проверке";
+    case "published":
+      return "Опубликован";
+    case "rejected":
+      return "Отклонен";
+    case "draft":
+      return "Черновик";
+    default:
+      return "На проверке";
   }
 }
 
@@ -89,8 +106,8 @@ export default async function AdminListingsPage() {
           Листинги на проверке
         </h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
-          Здесь только готовые экскурсии на проверке и открытые кейсы модерации.
-          Черновики карточек в очередь не попадают.
+          Здесь только готовые экскурсии со статусом «На проверке». Черновики
+          карточек в очередь не попадают.
         </p>
       </div>
 
@@ -125,7 +142,10 @@ export default async function AdminListingsPage() {
                   resolveDisplayName("guide", { full_name: row.guide_account?.full_name }) ||
                   row.guide_account?.email ||
                   "Без имени";
-                const currentStatus = row.moderation_case?.status ?? row.listing.status;
+                const displayStatus =
+                  row.moderation_case?.status === "open"
+                    ? "open"
+                    : row.listing.status;
 
                 return (
                   <tr key={row.listing.id} className="align-top">
@@ -145,14 +165,8 @@ export default async function AdminListingsPage() {
                       {formatPrice(row.listing.price_from_minor, row.listing.currency)}
                     </td>
                     <td className="px-4 py-4">
-                      <span className={statusBadgeClass(currentStatus)}>
-                        {currentStatus === "open"
-                          ? "На проверке"
-                          : currentStatus === "published"
-                            ? "Опубликован"
-                            : currentStatus === "rejected"
-                              ? "Отклонен"
-                              : "Черновик"}
+                      <span className={statusBadgeClass(displayStatus)}>
+                        {listingStatusLabel(displayStatus)}
                       </span>
                     </td>
                     <td className="px-4 py-4 text-muted-foreground">

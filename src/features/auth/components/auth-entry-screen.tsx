@@ -154,18 +154,18 @@ export function AuthEntryScreen({
           profileRole = profile?.role ?? null;
         }
 
-        if (profileError && next && isAdminWorkspacePath(next)) {
-          setError(
-            "Не удалось проверить права администратора после входа. Попробуйте ещё раз или напишите в поддержку.",
-          );
-          return;
-        }
-
         const userRole = resolveCanonicalRole({
           profileRole,
           appMetadataRole: signedInUser.app_metadata?.role as string | undefined,
           userMetadataRole: signedInUser.user_metadata?.role as string | undefined,
         });
+
+        if (profileError && next && isAdminWorkspacePath(next) && userRole !== "admin") {
+          setError(
+            "Не удалось проверить права администратора после входа. Попробуйте ещё раз или напишите в поддержку.",
+          );
+          return;
+        }
 
         if (!userRole) {
           setError(
