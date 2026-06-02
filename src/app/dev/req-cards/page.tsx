@@ -2,8 +2,10 @@ import Link from "next/link";
 import { Check, Hand, UserPlus, Users, UsersRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { type ReqCardMember } from "@/components/shared/req-card";
-import { INTEREST_CHIPS } from "@/data/interests";
+import { THEMES, type ThemeSlug } from "@/data/themes";
+import { ThemeIconChip } from "./theme-icon-chip";
 
 export const metadata = {
   robots: {
@@ -12,7 +14,7 @@ export const metadata = {
   },
 };
 
-type InterestId = (typeof INTEREST_CHIPS)[number]["id"];
+type ThemeOption = (typeof THEMES)[number];
 
 type RequestCardSample = {
   scenario: string;
@@ -23,7 +25,7 @@ type RequestCardSample = {
   guideState: "waiting" | "found";
   groupSize: number;
   datesFlexible: boolean;
-  interests: InterestId[];
+  interests: ThemeSlug[];
   members: ReqCardMember[];
   price: string;
 };
@@ -109,7 +111,7 @@ const samples = [
   },
 ] satisfies RequestCardSample[];
 
-const interestLabelMap = new Map(INTEREST_CHIPS.map(({ id, label }) => [id, label]));
+const themeMap = new Map(THEMES.map((theme) => [theme.slug, theme]));
 
 const datesFlexibleBadgeClassName =
   "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
@@ -140,11 +142,11 @@ const badgeVariantSections = [
   },
 ] satisfies BadgeVariantSection[];
 
-function getInterestLabels(interests: InterestId[]) {
+function getInterestThemes(interests: ThemeSlug[]) {
   return interests
     .slice(0, 3)
-    .map((id) => interestLabelMap.get(id))
-    .filter((label): label is NonNullable<typeof label> => label != null);
+    .map((id) => themeMap.get(id))
+    .filter((theme): theme is ThemeOption => theme != null);
 }
 
 function getGroupLabel(mode: RequestCardSample["mode"]) {
@@ -226,31 +228,40 @@ function AvatarStack({ members }: { members: ReqCardMember[] }) {
   );
 }
 
-function RequestCard({ sample, variant }: { sample: RequestCardSample; variant: GroupTypeBadgeVariant }) {
-  const interestLabels = getInterestLabels(sample.interests);
+function RequestCard({
+  sample,
+  variant,
+  themeDisplay = "text",
+}: {
+  sample: RequestCardSample;
+  variant: GroupTypeBadgeVariant;
+  themeDisplay?: "text" | "icons";
+}) {
+  const interestThemes = getInterestThemes(sample.interests);
 
   return (
-    <Link
-      href={sample.href}
-      className="flex h-full flex-col bg-surface-high rounded-card p-4 shadow-card transition-transform hover:-translate-y-0.5"
-    >
-      <p className="text-lg font-semibold text-foreground">{sample.location}</p>
-      <p className="mt-1 truncate text-sm text-muted-foreground">
-        {sample.date} · {sample.groupSize} чел.
-      </p>
-      <div className="mt-2 flex flex-wrap gap-1.5">
-        <GuideStatusBadge guideState={sample.guideState} />
-        <GroupTypeBadge mode={sample.mode} variant={variant} />
-        {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
-      </div>
+    <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
+      <Link href={sample.href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <p className="text-lg font-semibold text-foreground">{sample.location}</p>
+        <p className="mt-1 truncate text-sm text-muted-foreground">
+          {sample.date} · {sample.groupSize} чел.
+        </p>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          <GuideStatusBadge guideState={sample.guideState} />
+          <GroupTypeBadge mode={sample.mode} variant={variant} />
+          {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+        </div>
+      </Link>
 
-      {interestLabels.length > 0 ? (
+      {interestThemes.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-1.5">
-          {interestLabels.map((label) => (
-            <span key={label} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
-              {label}
-            </span>
-          ))}
+          {themeDisplay === "icons"
+            ? interestThemes.map(({ slug, label, Icon }) => <ThemeIconChip key={slug} label={label} Icon={Icon} />)
+            : interestThemes.map(({ slug, label }) => (
+                <span key={slug} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
+                  {label}
+                </span>
+              ))}
         </div>
       ) : null}
 
@@ -258,7 +269,54 @@ function RequestCard({ sample, variant }: { sample: RequestCardSample; variant: 
         <AvatarStack members={sample.members} />
         <span className="text-sm font-semibold text-foreground">{sample.price}</span>
       </div>
-    </Link>
+    </article>
+  );
+}
+
+function ThemeComparisonSection() {
+  return (
+    <section aria-labelledby="theme-comparison-heading">
+      <div className="mb-4">
+        <h2
+          id="theme-comparison-heading"
+          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+        >
+          4 · Темы: текст vs иконки-only
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Та же матрица карточек показывает текущие текстовые чипы и компактную версию: только иконки с подписью в
+          тултипе по наведению или тапу.
+        </p>
+      </div>
+
+      <div className="space-y-6">
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Текст</h3>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+            {samples.map((sample) => (
+              <div key={`themes-text-${sample.href}`} className="flex h-full flex-col space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
+                <RequestCard sample={sample} variant="weight-icon" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h3 className="mb-3 text-sm font-semibold text-foreground">Иконки-only</h3>
+          <TooltipProvider>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {samples.map((sample) => (
+                <div key={`themes-icons-${sample.href}`} className="flex h-full flex-col space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
+                  <RequestCard sample={sample} variant="weight-icon" themeDisplay="icons" />
+                </div>
+              ))}
+            </div>
+          </TooltipProvider>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -268,8 +326,8 @@ export default function DevReqCardsPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Ниже —
-          три трактовки серой метки типа группы на одних и тех же четырёх сценариях.
+          Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Первые три секции
+          сравнивают серую метку типа группы, затем — текстовые темы против иконок-only.
         </p>
       </div>
 
@@ -298,6 +356,7 @@ export default function DevReqCardsPage() {
             </div>
           </section>
         ))}
+        <ThemeComparisonSection />
       </div>
     </main>
   );
