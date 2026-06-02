@@ -18,9 +18,8 @@ type InterestId = (typeof INTEREST_CHIPS)[number]["id"];
 type RequestCardSample = {
   href: string;
   location: string;
-  title: string;
   date: string;
-  spotsLabel: string;
+  peopleLabel: string;
   interests: InterestId[];
   members: ReqCardMember[];
   price: string;
@@ -31,9 +30,8 @@ const samples = [
   {
     href: "/requests/tbilisi-evening",
     location: "Тбилиси",
-    title: "Вечерняя прогулка по старому городу с винными двориками",
     date: "12 июня, 18:00",
-    spotsLabel: "3 места",
+    peopleLabel: "3 человека",
     interests: ["history", "food", "architecture"],
     members: [
       { id: "nino", displayName: "Нино", initials: "Н" },
@@ -47,9 +45,8 @@ const samples = [
   {
     href: "/requests/svaneti-mountains",
     location: "Сванетия",
-    title: "Башни, ледники и семейный ужин в Местии на два дня",
     date: "20-21 июня",
-    spotsLabel: "2 места",
+    peopleLabel: "4 человека",
     interests: ["nature", "history", "unusual"],
     members: [
       { id: "irakli", displayName: "Ираклий", initials: "И" },
@@ -62,9 +59,8 @@ const samples = [
   {
     href: "/requests/kazbegi-one-day",
     location: "Казбеги",
-    title: "Однодневный маршрут к Гергети и горячим источникам",
     date: "28 июня, 09:00",
-    spotsLabel: "4 места",
+    peopleLabel: "3 человека",
     interests: ["nature", "religion", "architecture"],
     members: [
       { id: "mariam", displayName: "Мариам", initials: "М" },
@@ -78,9 +74,8 @@ const samples = [
   {
     href: "/requests/batumi-family",
     location: "Батуми",
-    title: "Семейный день у моря: ботанический сад, канатка и сладости",
     date: "5 июля, 11:30",
-    spotsLabel: "1 место",
+    peopleLabel: "4 человека",
     interests: ["kids", "food", "art"],
     members: [
       { id: "tamar", displayName: "Тамар", initials: "Т" },
@@ -130,19 +125,27 @@ function SectionIntro({ title, description }: { title: string; description: stri
 }
 
 function QuietReqCard({ sample }: { sample: RequestCardSample }) {
+  const interestLabels = getInterestLabels(sample.interests);
+
   return (
     <Link
       href={sample.href}
       className="block bg-surface-high rounded-card p-4 shadow-card transition-transform hover:-translate-y-0.5"
     >
-      <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
-        <span>{sample.location}</span>
-        <span>{sample.spotsLabel}</span>
-      </div>
+      <p className="text-lg font-semibold text-foreground">{sample.location}</p>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {sample.date} · {sample.peopleLabel}
+      </p>
 
-      <p className="mt-2 text-base font-semibold text-foreground line-clamp-2">{sample.title}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{sample.date}</p>
-      <p className="mt-2 text-xs text-muted-foreground">{getInterestLabels(sample.interests).join(" · ")}</p>
+      {interestLabels.length > 0 ? (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {interestLabels.map((label) => (
+            <span key={label} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
+              {label}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <div className="mt-4 flex items-center justify-between gap-3">
         <AvatarStack members={sample.members} />
@@ -153,12 +156,14 @@ function QuietReqCard({ sample }: { sample: RequestCardSample }) {
 }
 
 function RowReqCard({ sample }: { sample: RequestCardSample }) {
+  const meta = [sample.date, sample.peopleLabel, ...getInterestLabels(sample.interests).slice(0, 2)].join(" · ");
+
   return (
     <Link href={sample.href} className="flex items-center gap-3 bg-surface-high rounded-card p-3 shadow-card">
       {sample.imageUrl ? (
         <Image
           src={sample.imageUrl}
-          alt={sample.title}
+          alt={sample.location}
           width={56}
           height={56}
           sizes="56px"
@@ -169,10 +174,8 @@ function RowReqCard({ sample }: { sample: RequestCardSample }) {
       )}
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-foreground truncate">{sample.title}</p>
-        <p className="mt-0.5 text-xs text-muted-foreground truncate">
-          {sample.location} · {sample.date} · {sample.spotsLabel}
-        </p>
+        <p className="text-sm font-semibold text-foreground truncate">{sample.location}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground truncate">{meta}</p>
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5">
@@ -192,7 +195,7 @@ function EditorialReqCard({ sample }: { sample: RequestCardSample }) {
       {sample.imageUrl ? (
         <Image
           src={sample.imageUrl}
-          alt={sample.title}
+          alt={sample.location}
           width={600}
           height={450}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -203,9 +206,9 @@ function EditorialReqCard({ sample }: { sample: RequestCardSample }) {
       )}
 
       <div className="p-4">
-        <p className="text-base font-semibold text-foreground line-clamp-2">{sample.title}</p>
+        <p className="text-base font-semibold text-foreground">{sample.location}</p>
         <p className="mt-1 text-sm text-muted-foreground">
-          {sample.location} · {sample.date}
+          {sample.date} · {sample.peopleLabel}
         </p>
 
         <div className="mt-3 flex items-center justify-between gap-3">
@@ -228,9 +231,9 @@ export default function DevReqCardsPage() {
               key={sample.href}
               href={sample.href}
               location={sample.location}
-              title={sample.title}
+              title={sample.location}
               date={sample.date}
-              spotsLabel={sample.spotsLabel}
+              spotsLabel={sample.peopleLabel}
               interests={sample.interests}
               members={sample.members}
               fillPct={null}
@@ -243,7 +246,7 @@ export default function DevReqCardsPage() {
       <section>
         <SectionIntro
           title="Спокойный"
-          description="Минимальная иерархия: тихие детали, цена как единственный акцент."
+          description="Направление — главный акцент, даты и люди тихим текстом, цена — единственный второй акцент."
         />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {samples.map((sample) => (
@@ -253,7 +256,7 @@ export default function DevReqCardsPage() {
       </section>
 
       <section>
-        <SectionIntro title="Строка" description="Компактная горизонтальная строка для плотных списков." />
+        <SectionIntro title="Строка" description="Компактная строка: направление, короткая мета и цена." />
         <div className="flex max-w-md flex-col gap-2">
           {samples.map((sample) => (
             <RowReqCard key={sample.href} sample={sample} />
@@ -262,7 +265,7 @@ export default function DevReqCardsPage() {
       </section>
 
       <section>
-        <SectionIntro title="Издательский" description="Карточка с ведущим изображением и простым нижним блоком." />
+        <SectionIntro title="Издательский" description="Изображение сверху, ниже направление, даты, люди и цена." />
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {samples.map((sample) => (
             <EditorialReqCard key={sample.href} sample={sample} />
