@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { isAdminAuthUser, readJwtRole } from "@/lib/auth/admin-access";
+import { hasAdminRole } from "@/lib/auth/admin-access";
 import { createNotification } from "@/lib/notifications/create-notification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -226,8 +226,13 @@ async function requireAdminSession() {
 
   if (profileError) throw profileError;
 
-  const jwtRole = readJwtRole(user);
-  if (!isAdminAuthUser({ profileRole: profile?.role, jwtRole })) {
+  if (
+    !hasAdminRole({
+      profileRole: profile?.role,
+      appMetadataRole: user.app_metadata?.role as string | undefined,
+      userMetadataRole: user.user_metadata?.role as string | undefined,
+    })
+  ) {
     throw new Error("Доступ только для администраторов.");
   }
 
@@ -701,7 +706,7 @@ export async function getGuideReviewQueue(filters?: {
   profilesQuery =
     input.view === "drafts"
       ? profilesQuery.eq("verification_status", "draft")
-      : profilesQuery.neq("verification_status", "draft");
+      : profilesQuery.eq("verification_status", "submitted");
 
   const { data: profiles, error } = await profilesQuery.order("updated_at", {
     ascending: false,
@@ -712,7 +717,7 @@ export async function getGuideReviewQueue(filters?: {
   const guideProfiles = ((profiles ?? []) as GuideProfileRow[]).filter((profile) =>
     input.view === "drafts"
       ? profile.verification_status === "draft"
-      : profile.verification_status !== "draft",
+      : profile.verification_status === "submitted",
   );
   const guideIds = guideProfiles.map((profile) => profile.user_id);
   const [accounts, casesResult] = await Promise.all([
@@ -909,12 +914,12 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
 export async function getPendingListingReviews(): Promise<ListingModerationRow[]> {
   const { adminClient } = await requireAdminSession();
 
-  const [{ data: draftListings, error: listingsError }, { data: openCases, error: casesError }] =
+  const [{ data: pendingReviewListings, error: listingsError }, { data: openCases, error: casesError }] =
     await Promise.all([
       adminClient
         .from("listings")
         .select("*")
-        .eq("status", "draft")
+        .eq("status", "pending_review")
         .order("created_at", { ascending: false }),
       adminClient
         .from("moderation_cases")
@@ -930,7 +935,7 @@ export async function getPendingListingReviews(): Promise<ListingModerationRow[]
   if (casesError) throw casesError;
 
   const listingMap = new Map<Uuid, ListingRow>();
-  for (const listing of (draftListings ?? []) as ListingRow[]) {
+  for (const listing of (pendingReviewListings ?? []) as ListingRow[]) {
     listingMap.set(listing.id, listing);
   }
 
@@ -991,12 +996,12 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
 
   const [
     pendingGuides,
-    draftListings,
+    pendingReviewListings,
     openListingCases,
     openDisputes,
     totalBookings,
     pendingGuidesWeek,
-    draftListingsWeek,
+    pendingReviewListingsWeek,
     openListingCasesWeek,
     openDisputesWeek,
     totalBookingsWeek,
@@ -1008,7 +1013,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     adminClient
       .from("listings")
       .select("id")
-      .eq("status", "draft"),
+      .eq("status", "pending_review"),
     adminClient
       .from("moderation_cases")
       .select("listing_id")
@@ -1027,7 +1032,7 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
     adminClient
       .from("listings")
       .select("id")
-      .eq("status", "draft")
+      .eq("status", "pending_review")
       .gte("created_at", weekAgoIso),
     adminClient
       .from("moderation_cases")
@@ -1047,14 +1052,16 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   ]);
 
   const pendingListingReviews = new Set([
-    ...((draftListings.data ?? []) as Array<{ id: Uuid }>).map((item) => item.id),
+    ...((pendingReviewListings.data ?? []) as Array<{ id: Uuid }>).map((item) => item.id),
     ...((openListingCases.data ?? []) as Array<{ listing_id: Uuid | null }>)
       .map((item) => item.listing_id)
       .filter(Boolean),
   ]).size;
 
   const pendingListingReviewsWeek = new Set([
-    ...((draftListingsWeek.data ?? []) as Array<{ id: Uuid }>).map((item) => item.id),
+    ...((pendingReviewListingsWeek.data ?? []) as Array<{ id: Uuid }>).map(
+      (item) => item.id,
+    ),
     ...((openListingCasesWeek.data ?? []) as Array<{ listing_id: Uuid | null }>)
       .map((item) => item.listing_id)
       .filter(Boolean),

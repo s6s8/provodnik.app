@@ -12,6 +12,7 @@ const { getAdminNavCountsMock, readAuthContextFromServerMock, redirectMock } =
 
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
+  usePathname: () => "/admin/dashboard",
 }));
 
 vi.mock("@/lib/auth/server-auth", () => ({
@@ -70,6 +71,22 @@ describe("AdminLayout", () => {
     );
     expect(screen.queryByText("Секретная админка")).not.toBeInTheDocument();
     expect(getAdminNavCountsMock).not.toHaveBeenCalled();
+    expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("renders admin workspace when the session resolves to admin", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce(makeAuthContext({ role: "admin" }));
+    getAdminNavCountsMock.mockResolvedValueOnce({ guides: 2, listings: 1 });
+
+    const ui = await AdminLayout({
+      children: <div data-testid="admin-child">Очередь проверки</div>,
+    });
+    render(ui);
+
+    expect(screen.getByText("Панель администратора")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-child")).toBeInTheDocument();
+    expect(screen.queryByText("Админка недоступна")).not.toBeInTheDocument();
+    expect(getAdminNavCountsMock).toHaveBeenCalledOnce();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 });

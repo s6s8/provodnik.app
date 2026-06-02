@@ -17,8 +17,8 @@ vi.mock("@/lib/notifications/create-notification", () => ({
   createNotification: vi.fn(),
 }));
 
-import { getGuideReviewQueue } from "./moderation";
-import type { GuideProfileRow, Uuid } from "./types";
+import { getGuideReviewQueue, getPendingListingReviews } from "./moderation";
+import type { GuideProfileRow, ListingRow, Uuid } from "./types";
 
 function makeGuideProfile(
   userId: string,
@@ -81,25 +81,14 @@ describe("getGuideReviewQueue", () => {
     vi.clearAllMocks();
   });
 
-  it("excludes draft guide profiles from the default queue", async () => {
+  it("returns only submitted guide profiles in the default review queue", async () => {
     const submitted = makeGuideProfile(
       "submitted-guide",
       "submitted",
       "2026-05-03T10:00:00.000Z",
     );
-    const draft = makeGuideProfile("draft-guide", "draft", "2026-05-04T10:00:00.000Z");
-    const rejected = makeGuideProfile(
-      "rejected-guide",
-      "rejected",
-      "2026-05-05T10:00:00.000Z",
-    );
-    const approved = makeGuideProfile(
-      "approved-guide",
-      "approved",
-      "2026-05-02T10:00:00.000Z",
-    );
     const guideProfilesQuery = makeQuery({
-      data: [draft, rejected, submitted, approved],
+      data: [submitted],
       error: null,
     });
     const profilesQuery = makeQuery({
@@ -148,13 +137,9 @@ describe("getGuideReviewQueue", () => {
 
     const queue = await getGuideReviewQueue();
 
-    expect(queue.map((item) => item.profile.user_id)).toEqual([
-      "submitted-guide",
-      "rejected-guide",
-      "approved-guide",
-    ]);
-    expect(queue.map((item) => item.profile.verification_status)).not.toContain("draft");
-    expect(guideProfilesQuery.neq).toHaveBeenCalledWith("verification_status", "draft");
+    expect(queue.map((item) => item.profile.user_id)).toEqual(["submitted-guide"]);
+    expect(queue.every((item) => item.profile.verification_status === "submitted")).toBe(true);
+    expect(guideProfilesQuery.eq).toHaveBeenCalledWith("verification_status", "submitted");
   });
 
   it("returns only drafts for the diagnostic drafts view", async () => {
@@ -258,5 +243,190 @@ describe("getGuideReviewQueue", () => {
 
     expect(queue).toHaveLength(1);
     expect(queue[0]?.profile.user_id).toBe("submitted-guide");
+  });
+});
+
+function makeListing(id: string, status: ListingRow["status"]): ListingRow {
+  return {
+    id: id as Uuid,
+    guide_id: "guide-1" as Uuid,
+    slug: id,
+    title: `Listing ${id}`,
+    region: "Москва",
+    city: null,
+    category: "excursion",
+    route_summary: null,
+    description: null,
+    duration_minutes: 120,
+    max_group_size: 8,
+    price_from_minor: 500_000,
+    currency: "RUB",
+    private_available: true,
+    group_available: true,
+    instant_book: false,
+    meeting_point: null,
+    inclusions: [],
+    exclusions: [],
+    cancellation_policy_key: "flexible",
+    status,
+    featured_rank: null,
+    image_url: null,
+    created_at: "2026-05-01T10:00:00.000Z",
+    updated_at: "2026-05-02T10:00:00.000Z",
+    exp_type: "excursion",
+    format: "group",
+    movement_type: null,
+    languages: ["ru"],
+    currencies: ["RUB"],
+    idea: null,
+    route: null,
+    theme: null,
+    audience: null,
+    facts: null,
+    org_details: null,
+    difficulty_level: null,
+    included: [],
+    not_included: [],
+    accommodation: null,
+    deposit_rate: 0,
+    pickup_point_text: null,
+    dropoff_point_text: null,
+    vehicle_type: null,
+    baggage_allowance: null,
+    pii_gate_rate: 0,
+    booking_cutoff_hours: 24,
+    event_span_hours: null,
+    instant_booking: false,
+    average_rating: 0,
+    review_count: 0,
+  };
+}
+
+function mockAdminClients(tables: Record<string, ReturnType<typeof makeQuery>>) {
+  createSupabaseServerClient.mockResolvedValue({
+    auth: {
+      getUser: vi.fn().mockResolvedValue({
+        data: {
+          user: {
+            id: "admin-id",
+            email: "admin@example.com",
+            user_metadata: { role: "admin" },
+            app_metadata: {},
+          },
+        },
+        error: null,
+      }),
+    },
+    from: vi.fn(() =>
+      makeQuery({
+        data: {
+          id: "admin-id",
+          role: "admin",
+          full_name: "Admin",
+          email: "admin@example.com",
+          avatar_url: null,
+        },
+        error: null,
+      }),
+    ),
+  });
+  createSupabaseAdminClient.mockReturnValue({
+    from: vi.fn((table: string) => {
+      const query = tables[table];
+      if (query) return query;
+      throw new Error(`Unexpected table: ${table}`);
+    }),
+  });
+}
+
+describe("getPendingListingReviews", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("excludes draft listings that were not submitted for review", async () => {
+    const pendingReview = makeListing("pending-listing", "pending_review");
+    const listingsQuery = makeQuery({ data: [pendingReview], error: null });
+    const casesQuery = makeQuery({ data: [], error: null });
+    const profilesQuery = makeQuery({ data: [], error: null });
+    const guideProfilesQuery = makeQuery({ data: [], error: null });
+    const actionsQuery = makeQuery({ data: [], error: null });
+
+    mockAdminClients({
+      listings: listingsQuery,
+      moderation_cases: casesQuery,
+      profiles: profilesQuery,
+      guide_profiles: guideProfilesQuery,
+      moderation_actions: actionsQuery,
+    });
+
+    const rows = await getPendingListingReviews();
+
+    expect(rows.map((row) => row.listing.id)).toEqual(["pending-listing"]);
+    expect(listingsQuery.eq).toHaveBeenCalledWith("status", "pending_review");
+  });
+
+  it("includes listings tied to open moderation cases", async () => {
+    const published = makeListing("published-listing", "published");
+    const pendingListingsQuery = makeQuery({ data: [], error: null });
+    const casesQuery = makeQuery({
+      data: [
+        {
+          id: "case-1" as Uuid,
+          subject_type: "listing",
+          guide_id: "guide-1" as Uuid,
+          listing_id: "published-listing" as Uuid,
+          review_id: null,
+          opened_by: null,
+          assigned_admin_id: null,
+          status: "open",
+          queue_reason: "Проверка",
+          risk_flags: [],
+          created_at: "2026-05-01T10:00:00.000Z",
+          updated_at: "2026-05-01T10:00:00.000Z",
+        },
+      ],
+      error: null,
+    });
+    const openCaseListingsQuery = makeQuery({ data: [published], error: null });
+    let listingsCall = 0;
+
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "admin-id" } },
+          error: null,
+        }),
+      },
+      from: vi.fn(() =>
+        makeQuery({
+          data: {
+            id: "admin-id",
+            role: "admin",
+            full_name: "Admin",
+            email: "admin@example.com",
+            avatar_url: null,
+          },
+          error: null,
+        }),
+      ),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "listings") {
+          listingsCall += 1;
+          return listingsCall === 1 ? pendingListingsQuery : openCaseListingsQuery;
+        }
+        if (table === "moderation_cases") return casesQuery;
+        if (table === "profiles") return makeQuery({ data: [], error: null });
+        if (table === "guide_profiles") return makeQuery({ data: [], error: null });
+        if (table === "moderation_actions") return makeQuery({ data: [], error: null });
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    const rows = await getPendingListingReviews();
+
+    expect(rows.map((row) => row.listing.id)).toEqual(["published-listing"]);
   });
 });

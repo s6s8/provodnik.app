@@ -20,7 +20,11 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import { readAuthContextFromServer } from "./server-auth";
 
-function makeSupabaseClient(profileRole: string | null, appMetadataRole: string | null) {
+function makeSupabaseClient(
+  profileRole: string | null,
+  appMetadataRole: string | null,
+  userMetadataRole?: string | null,
+) {
   return {
     auth: {
       getSession: vi.fn().mockResolvedValue({
@@ -30,6 +34,7 @@ function makeSupabaseClient(profileRole: string | null, appMetadataRole: string 
               id: "user-1",
               email: "guide@example.test",
               app_metadata: appMetadataRole ? { role: appMetadataRole } : {},
+              user_metadata: userMetadataRole ? { role: userMetadataRole } : {},
             },
           },
         },
@@ -89,6 +94,17 @@ describe("readAuthContextFromServer", () => {
   it("routes to admin dashboard when profile.role is admin", async () => {
     createSupabaseServerClientMock.mockResolvedValue(
       makeSupabaseClient("admin", "guide"),
+    );
+
+    const auth = await readAuthContextFromServer();
+
+    expect(auth.role).toBe("admin");
+    expect(auth.canonicalRedirectTo).toBe("/admin/dashboard");
+  });
+
+  it("routes to admin dashboard when only JWT user_metadata carries admin", async () => {
+    createSupabaseServerClientMock.mockResolvedValue(
+      makeSupabaseClient(null, "guide", "admin"),
     );
 
     const auth = await readAuthContextFromServer();
