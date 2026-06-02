@@ -16,9 +16,10 @@ type ProfileRow = {
   birth_year?: number | null;
 };
 
-function mapProfileRow(row: ProfileRow, fallbackName: string): TravelerProfile {
+function mapProfileRow(row: ProfileRow): TravelerProfile {
+  const fullName = row.full_name?.trim();
   return {
-    full_name: row.full_name?.trim() || fallbackName,
+    full_name: fullName || null,
     avatar_url: row.avatar_url ?? null,
     bio: row.bio ?? null,
     home_city: row.home_city ?? null,
@@ -30,7 +31,6 @@ function mapProfileRow(row: ProfileRow, fallbackName: string): TravelerProfile {
 export async function loadTravelerProfileFromSupabase(
   supabase: SupabaseServerClient,
   userId: string,
-  fallbackName: string,
 ): Promise<TravelerProfile | null> {
   const { data: extended, error: extendedError } = await supabase
     .from("profiles")
@@ -39,7 +39,7 @@ export async function loadTravelerProfileFromSupabase(
     .maybeSingle();
 
   if (!extendedError && extended) {
-    return mapProfileRow(extended as ProfileRow, fallbackName);
+    return mapProfileRow(extended as ProfileRow);
   }
 
   const { data: basic, error: basicError } = await supabase
@@ -49,7 +49,7 @@ export async function loadTravelerProfileFromSupabase(
     .maybeSingle();
 
   if (!basicError && basic) {
-    return mapProfileRow(basic as ProfileRow, fallbackName);
+    return mapProfileRow(basic as ProfileRow);
   }
 
   return null;

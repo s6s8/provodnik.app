@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PersonalSettingsForm } from "@/features/profile/components/PersonalSettingsForm";
+import { TravelerProfileCompletionChecklist } from "@/features/profile/components/traveler-profile-completion-checklist";
 import {
   TravelerProfileForm,
   type TravelerProfile,
@@ -69,9 +70,10 @@ export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
 
   if (auth.isAuthenticated && auth.role === "traveler") {
-    const fallbackName = auth.fullName?.trim() || auth.email || "Путешественник";
+    const displayNameFallback =
+      auth.fullName?.trim() || auth.email || "Путешественник";
     let travelerProfile: TravelerProfile = {
-      full_name: fallbackName,
+      full_name: null,
       avatar_url: auth.avatarUrl,
       bio: null,
       home_city: null,
@@ -82,9 +84,10 @@ export default async function PersonalSettingsPage() {
     if (auth.source === "demo") {
       const demoProfile = await readDemoTravelerProfileFromCookies();
       if (demoProfile) {
+        const storedName = demoProfile.full_name?.trim();
         travelerProfile = {
           ...travelerProfile,
-          full_name: demoProfile.full_name?.trim() || fallbackName,
+          full_name: storedName || null,
           bio: demoProfile.bio ?? null,
           home_city: demoProfile.home_city ?? null,
           languages: demoProfile.languages?.length ? demoProfile.languages : null,
@@ -94,11 +97,7 @@ export default async function PersonalSettingsPage() {
     } else if (auth.userId && auth.hasSupabaseEnv) {
       try {
         const supabase = await createSupabaseServerClient();
-        const loaded = await loadTravelerProfileFromSupabase(
-          supabase,
-          auth.userId,
-          fallbackName,
-        );
+        const loaded = await loadTravelerProfileFromSupabase(supabase, auth.userId);
         if (loaded) {
           travelerProfile = loaded;
         }
@@ -106,6 +105,9 @@ export default async function PersonalSettingsPage() {
         // render with auth fallbacks
       }
     }
+
+    const avatarDisplayName =
+      travelerProfile.full_name?.trim() || displayNameFallback;
 
     return (
       <div className="space-y-6">
@@ -115,7 +117,11 @@ export default async function PersonalSettingsPage() {
             Профиль
           </h1>
         </div>
-        <AvatarUploadBlock avatarUrl={travelerProfile.avatar_url} displayName={travelerProfile.full_name ?? ""} />
+        <TravelerProfileCompletionChecklist profile={travelerProfile} />
+        <AvatarUploadBlock
+          avatarUrl={travelerProfile.avatar_url}
+          displayName={avatarDisplayName}
+        />
         <TravelerProfileForm
           key={[
             travelerProfile.full_name,

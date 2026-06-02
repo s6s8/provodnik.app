@@ -48,11 +48,7 @@ describe("loadTravelerProfileFromSupabase", () => {
       },
     });
 
-    const profile = await loadTravelerProfileFromSupabase(
-      client as never,
-      "user-1",
-      "Путешественник",
-    );
+    const profile = await loadTravelerProfileFromSupabase(client as never, "user-1");
 
     expect(profile).toEqual({
       full_name: "Анна",
@@ -73,11 +69,7 @@ describe("loadTravelerProfileFromSupabase", () => {
       },
     });
 
-    const profile = await loadTravelerProfileFromSupabase(
-      client as never,
-      "user-1",
-      "Путешественник",
-    );
+    const profile = await loadTravelerProfileFromSupabase(client as never, "user-1");
 
     expect(profile).toEqual({
       full_name: "Алексей",
@@ -87,5 +79,25 @@ describe("loadTravelerProfileFromSupabase", () => {
       languages: null,
       birth_year: null,
     });
+  });
+
+  it("keeps full_name null when the profile row has no stored name", async () => {
+    const { client } = makeSupabaseMock({
+      extended: {
+        data: {
+          full_name: null,
+          avatar_url: null,
+          bio: null,
+          home_city: null,
+          languages: null,
+          birth_year: null,
+        },
+        error: null,
+      },
+    });
+
+    const profile = await loadTravelerProfileFromSupabase(client as never, "user-1");
+
+    expect(profile?.full_name).toBeNull();
   });
 });
