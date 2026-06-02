@@ -43,23 +43,22 @@ function makeRequest(pathname: string) {
 }
 
 function mockSupabaseUser(role: AppRole | null) {
+  const getUser = vi.fn().mockResolvedValue({
+    data: {
+      user: role
+        ? {
+            id: "user-1",
+            app_metadata: { role },
+            user_metadata: {},
+          }
+        : null,
+    },
+  });
   const applyCookies = vi.fn((response) => response);
   createSupabaseMiddlewareClientMock.mockReturnValue({
     applyCookies,
     supabase: {
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: {
-            user: role
-              ? {
-                  id: "user-1",
-                  app_metadata: { role },
-                  user_metadata: {},
-                }
-              : null,
-          },
-        }),
-      },
+      auth: { getUser },
       from: vi.fn(() => ({
         select: vi.fn().mockReturnThis(),
         eq: vi.fn().mockReturnThis(),
@@ -69,7 +68,7 @@ function mockSupabaseUser(role: AppRole | null) {
       })),
     },
   });
-  return applyCookies;
+  return { applyCookies, getUser };
 }
 
 describe("proxy admin access", () => {
@@ -132,5 +131,39 @@ describe("proxy admin access", () => {
     expect(response.status).toBe(200);
     expect(response.headers.get("location")).toBeNull();
     expect(getDashboardPathForRoleMock).not.toHaveBeenCalled();
+  });
+
+  it("refreshes the Supabase session on public pages without role redirects", async () => {
+    const { applyCookies, getUser } = mockSupabaseUser("traveler");
+
+    const response = await proxy(makeRequest("/"));
+
+    expect(getUser).toHaveBeenCalled();
+    expect(applyCookies).toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(getDashboardPathForRoleMock).not.toHaveBeenCalled();
+  });
+
+  it("refreshes the Supabase session on messages without role redirects", async () => {
+    const { applyCookies, getUser } = mockSupabaseUser("traveler");
+
+    const response = await proxy(makeRequest("/messages/thread-1"));
+
+    expect(getUser).toHaveBeenCalled();
+    expect(applyCookies).toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+  });
+
+  it("refreshes the Supabase session on traveler profile settings", async () => {
+    const { applyCookies, getUser } = mockSupabaseUser("traveler");
+
+    const response = await proxy(makeRequest("/profile/personal"));
+
+    expect(getUser).toHaveBeenCalled();
+    expect(applyCookies).toHaveBeenCalled();
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
   });
 });

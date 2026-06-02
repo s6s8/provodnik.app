@@ -26,14 +26,27 @@ function getDemoRoleFromRequest(request: NextRequest) {
   return parseDemoSessionCookieValue(cookieValue)?.role ?? null;
 }
 
+function continueWithRefreshedSession(
+  request: NextRequest,
+  applyCookies: (response: NextResponse) => NextResponse,
+) {
+  return applyCookies(
+    NextResponse.next({
+      request: {
+        headers: request.headers,
+      },
+    }),
+  );
+}
+
 export async function proxy(request: NextRequest) {
   const requiredRole = getRequiredRoleForPathname(request.nextUrl.pathname);
 
-  if (!requiredRole) {
-    return NextResponse.next();
-  }
-
   if (!hasSupabaseEnv()) {
+    if (!requiredRole) {
+      return NextResponse.next();
+    }
+
     const demoRole = getDemoRoleFromRequest(request);
 
     if (!demoRole) {
@@ -55,6 +68,10 @@ export async function proxy(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!requiredRole) {
+    return continueWithRefreshedSession(request, applyCookies);
+  }
 
   if (!user) {
     return applyCookies(redirectToAuth(request));
@@ -82,21 +99,18 @@ export async function proxy(request: NextRequest) {
   if (!roleHasAccess(role, requiredRole)) {
     // Admin layout renders an on-screen access error for non-admin sessions.
     if (requiredRole === "admin") {
-      return applyCookies(NextResponse.next());
+      return continueWithRefreshedSession(request, applyCookies);
     }
     return applyCookies(
       redirectTo(request, getDashboardPathForRole(role) ?? "/auth?error=missing-role"),
     );
   }
 
-  return applyCookies(NextResponse.next());
+  return continueWithRefreshedSession(request, applyCookies);
 }
 
 export const config = {
   matcher: [
-    "/traveler/:path*",
-    "/guide/:path*",
-    "/admin/:path*",
-    "/profile/guide/:path*",
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
