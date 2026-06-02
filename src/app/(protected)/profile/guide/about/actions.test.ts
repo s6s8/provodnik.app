@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
 const mockGetUser = vi.fn();
 const mockMaybeSingle = vi.fn();
 const mockSelect = vi.fn();
@@ -22,6 +24,8 @@ vi.mock("@/lib/supabase/server", () => ({
     }),
   })),
 }));
+
+import { revalidatePath } from "next/cache";
 
 import { saveGuideAboutAction } from "./actions";
 
@@ -73,6 +77,7 @@ describe("saveGuideAboutAction", () => {
       }),
     );
     expect(mockInsert).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/guide/profile");
   });
 
   it("inserts guide_profiles when the row is missing", async () => {
@@ -98,6 +103,7 @@ describe("saveGuideAboutAction", () => {
         regions: ["Республика Карелия"],
       }),
     );
+    expect(revalidatePath).toHaveBeenCalledWith("/guide/profile");
   });
 
   it("updates only bio for an approved guide profile", async () => {
@@ -121,5 +127,6 @@ describe("saveGuideAboutAction", () => {
     expect(mockUpdate).toHaveBeenCalledWith({ bio: "Новый публичный текст" });
     expect(eqAfterUpdate).toHaveBeenCalledWith("user_id", "g-guide-1");
     expect(mockInsert).not.toHaveBeenCalled();
+    expect(revalidatePath).toHaveBeenCalledWith("/guide/profile");
   });
 });
