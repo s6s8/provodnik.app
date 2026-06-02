@@ -44,6 +44,38 @@ describe("SiteHeader desktop account menu", () => {
     ).toBeInTheDocument();
   });
 
+  it("shows the role label in the account trigger instead of the profile full name", () => {
+    render(
+      <SiteHeader
+        isAuthenticated
+        role="traveler"
+        fullName="Анна Иванова"
+        email="traveler@example.com"
+        userId="user-1"
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
+    expect(trigger).toHaveTextContent("Путешественник");
+    expect(trigger).not.toHaveTextContent("Анна Иванова");
+  });
+
+  it("shows the guide role label when full name is set", () => {
+    render(
+      <SiteHeader
+        isAuthenticated
+        role="guide"
+        fullName="Иван Петров"
+        email="guide@example.com"
+        userId="user-2"
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
+    expect(trigger).toHaveTextContent("Гид");
+    expect(trigger).not.toHaveTextContent("Иван Петров");
+  });
+
   it("renders traveler menu items in the avatar dropdown", async () => {
     renderAuthenticatedHeader("traveler");
 

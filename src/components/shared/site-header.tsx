@@ -168,7 +168,7 @@ export function SiteHeader({
                     size={28}
                     className="shrink-0"
                   />
-                  {fullName?.trim() || (role ? roleLabels[role] : null)}
+                  {role ? roleLabels[role] : null}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
