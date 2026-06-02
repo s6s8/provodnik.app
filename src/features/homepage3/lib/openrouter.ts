@@ -10,23 +10,78 @@ const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
 const DEFAULT_MODEL = "deepseek/deepseek-v4-flash";
 const TIMEOUT_MS = 15_000;
 
+const WEEKDAYS_RU = [
+  "воскресенье",
+  "понедельник",
+  "вторник",
+  "среда",
+  "четверг",
+  "пятница",
+  "суббота",
+] as const;
+
+function addDays(iso: string, n: number): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d) + n * 86_400_000);
+  const pad = (x: number) => String(x).padStart(2, "0");
+  return `${dt.getUTCFullYear()}-${pad(dt.getUTCMonth() + 1)}-${pad(dt.getUTCDate())}`;
+}
+
+function dayOfWeek(iso: string): number {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+/** Pre-compute relative dates so the model never has to do calendar math. */
+function buildDateTable(today: string): string {
+  const td = dayOfWeek(today);
+  const lines = [
+    `сегодня (${WEEKDAYS_RU[td]}) = ${today}`,
+    `завтра = ${addDays(today, 1)}`,
+    `послезавтра = ${addDays(today, 2)}`,
+    `через неделю = ${addDays(today, 7)}`,
+    `через две недели = ${addDays(today, 14)}`,
+  ];
+  for (let wd = 1; wd <= 6; wd++) {
+    const offset = ((wd - td + 7) % 7) || 7;
+    lines.push(`ближайший(ая) ${WEEKDAYS_RU[wd]} = ${addDays(today, offset)}`);
+  }
+  const sunOffset = ((0 - td + 7) % 7) || 7;
+  lines.push(`ближайшее ${WEEKDAYS_RU[0]} = ${addDays(today, sunOffset)}`);
+  return lines.join("\n");
+}
+
 function buildSystemPrompt(todayMoscow: string): string {
   return `Ты — парсер заявок на экскурсию для сервиса «Проводник». Тебе дают РАНЕЕ распознанные поля (JSON) и НОВОЕ сообщение пользователя. Верни СТРОГО JSON (без markdown, без пояснений) — ПОЛНОЕ обновлённое состояние по схеме:
 {
- "destination": string|null,        // город/направление как назвал пользователь. Нормализуй: "Мск"->"Москва", "Питер"/"СПб"->"Санкт-Петербург".
- "startDate": string|null,          // ISO YYYY-MM-DD. Разрешай относительные даты от сегодня. Сегодня (Europe/Moscow) = ${todayMoscow}.
- "startTime": string|null,          // "ЧЧ:ММ" если указано время начала
+ "destination": string|null,        // город как назвал пользователь. "Мск"->"Москва", "Питер"/"СПб"->"Санкт-Петербург".
+ "startDate": string|null,          // ISO YYYY-MM-DD. Используй ТАБЛИЦУ ДАТ ниже.
+ "startTime": string|null,          // "ЧЧ:ММ" если указано время начала ("в 10 утра" -> "10:00")
  "endTime": string|null,
- "groupSize": number|null,          // целое число людей; словами тоже ("вдвоём"->2, "пятеро"->5)
+ "groupSize": number|null,          // целое число людей
  "budgetPerPersonRub": number|null, // бюджет на ОДНОГО человека в рублях, целое ("три тысячи"->3000)
- "interests": string[],             // подмножество из: ${JSON.stringify(THEME_SLUGS)}. Маппинг по смыслу: храмы->religion, музеи/картины->art, еда/гастро->food, парки/природа->nature, дети->kids, необычное/нестандартное->unusual, здания->architecture, прошлое->history. Если интерес не подходит ни под один слаг — НЕ придумывай.
+ "interests": string[],             // подмножество из: ${JSON.stringify(THEME_SLUGS)}
  "requestedLanguages": string[],    // языки экскурсии если указаны: "Русский","Английский" и т.д.
  "notes": string|null               // прочие пожелания
 }
+МАППИНГ ТЕМ (по смыслу):
+- история/прошлое/исторические места -> history
+- архитектура/здания/дома/особняки -> architecture
+- природа/парки/сады/пейзажи -> nature
+- еда/гастрономия/кухня/рестораны/местная кухня -> food
+- искусство/картины/музеи/галереи/выставки/скульптура -> art
+- религия/храмы/церкви/соборы/мечети/монастыри -> religion
+- дети/семейное/для детей/с детьми -> kids
+- необычное/нестандартное/секретные/странные места -> unusual
+Если тема не подходит ни под один слаг — НЕ придумывай слаг.
+ЧИСЛО ЛЮДЕЙ словами: один->1, вдвоём/двое->2, втроём/трое->3, вчетвером/четверо->4, впятером/пятеро->5, вшестером/шестеро->6, "нас N"->N.
+ТАБЛИЦА ДАТ (Europe/Moscow):
+${buildDateTable(todayMoscow)}
+Если назван конкретный день недели или относительная дата из таблицы — ОБЯЗАТЕЛЬНО подставь точную дату из таблицы.
 ПРАВИЛА:
 1. Сохраняй ранее распознанные значения; меняй только то, что уточняет новое сообщение. Никогда не теряй уже указанные поля.
-2. ЖЕЛЕЗНО: если значение не указано явно — ставь null (или [] для массивов). НИКОГДА не выдумывай бюджет, дату, число людей, город или тему.
-3. Расплывчатое («недорого», «на выходных», «летом») — это НЕ конкретное значение: оставляй null.`;
+2. ЖЕЛЕЗНО: если значение не указано явно — ставь null (или [] для массивов). НИКОГДА не выдумывай бюджет, число людей, город или тему.
+3. Дату оставляй null ТОЛЬКО если она не указана вовсе или расплывчата («летом», «осенью», «на выходных» без конкретного дня).`;
 }
 
 function buildUserMessage(prior: ExtractedFields, userText: string): string {
