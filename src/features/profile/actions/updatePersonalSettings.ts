@@ -13,14 +13,31 @@ export async function updatePersonalSettings(data: {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Verify guide profile exists before updating
-  const { data: existingProfile } = await supabase
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.role === "traveler") {
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        notification_prefs: data.notificationPrefs,
+      })
+      .eq("id", user.id);
+
+    if (error) throw new Error(error.message);
+    return { success: true };
+  }
+
+  const { data: existingGuideProfile } = await supabase
     .from("guide_profiles")
     .select("user_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  if (!existingProfile) {
+  if (!existingGuideProfile) {
     return { success: false, error: "Профиль гида не найден." };
   }
 

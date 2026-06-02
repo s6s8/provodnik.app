@@ -2,8 +2,8 @@ import "server-only";
 
 import { z } from "zod";
 
+import { hasSupabaseAdminEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { NotificationKindDb, NotificationRow } from "@/lib/supabase/types";
 
 const notificationKindSchema = z.enum([
@@ -46,19 +46,20 @@ export type CreateNotificationInput = z.infer<typeof createNotificationInputSche
 const NOTIFICATION_SELECT =
   "id, user_id, kind, title, body, href, is_read, created_at";
 
-async function getNotificationWriteClient() {
-  try {
-    return createSupabaseAdminClient();
-  } catch {
-    return createSupabaseServerClient();
+function getNotificationWriteClient() {
+  if (!hasSupabaseAdminEnv()) {
+    throw new Error(
+      "Серверные уведомления недоступны: не настроен SUPABASE_SECRET_KEY.",
+    );
   }
+  return createSupabaseAdminClient();
 }
 
 export async function createNotification(
   data: CreateNotificationInput,
 ): Promise<NotificationRow> {
   const input = createNotificationInputSchema.parse(data);
-  const supabase = await getNotificationWriteClient();
+  const supabase = getNotificationWriteClient();
 
   const { data: row, error } = await supabase
     .from("notifications")
@@ -68,6 +69,8 @@ export async function createNotification(
       title: input.title,
       body: input.body?.trim() || null,
       href: input.href?.trim() || null,
+      channel: "inbox",
+      status: "unread",
     })
     .select(NOTIFICATION_SELECT)
     .single();

@@ -56,6 +56,27 @@ async function guideEmailDisabled(
   return prefs[`guide.${eventKey}.email`] === false;
 }
 
+async function travelerEmailDisabled(
+  travelerUserId: string,
+  eventKey: string,
+): Promise<boolean> {
+  try {
+    const admin = createSupabaseAdminClient();
+    const { data, error } = await admin
+      .from("profiles")
+      .select("notification_prefs")
+      .eq("id", travelerUserId)
+      .maybeSingle();
+
+    if (error) return false;
+
+    const prefs = (data?.notification_prefs ?? {}) as Record<string, unknown>;
+    return prefs[`traveler.${eventKey}.email`] === false;
+  } catch {
+    return false;
+  }
+}
+
 async function createNotificationForUser(data: {
   userId: string;
   kind: NotificationKind;
@@ -104,19 +125,21 @@ export async function notifyNewOffer(
   });
 
   try {
-    const to = await getUserEmail(requestRow.traveler_id);
-    if (to) {
-      const { subject, html } = renderNewOfferEmail({
-        guideName,
-        requestUrl: `${getSiteUrl()}/traveler/requests/${requestRow.id}`,
-      });
-      await sendNotificationEmail({
-        kind: "new_offer",
-        entityId: parsedOfferId,
-        to,
-        subject,
-        html,
-      });
+    if (!(await travelerEmailDisabled(requestRow.traveler_id, "new_offer"))) {
+      const to = await getUserEmail(requestRow.traveler_id);
+      if (to) {
+        const { subject, html } = renderNewOfferEmail({
+          guideName,
+          requestUrl: `${getSiteUrl()}/traveler/requests/${requestRow.id}`,
+        });
+        await sendNotificationEmail({
+          kind: "new_offer",
+          entityId: parsedOfferId,
+          to,
+          subject,
+          html,
+        });
+      }
     }
   } catch (e) {
     console.error("[notifyNewOffer] email skipped:", e instanceof Error ? e.message : e);

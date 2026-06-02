@@ -21,8 +21,6 @@ import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
 
-const hasEnv = hasSupabaseEnv();
-
 type AuthFormMode = "sign-in" | "sign-up";
 
 function getFriendlyAuthError(code: string): string {
@@ -108,24 +106,41 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
     try {
       if (mode === "sign-in") {
         const supabase = createSupabaseBrowserClient();
-        const { data, error: signInError } = await supabase.auth.signInWithPassword({
-          email: trimmedEmail,
-          password,
-        });
+        const { data: signInData, error: signInError } =
+          await supabase.auth.signInWithPassword({
+            email: trimmedEmail,
+            password,
+          });
 
         if (signInError) {
           setError(getFriendlyAuthError(signInError.message));
           return;
         }
 
-        const { data: profile } = data.user?.id
-          ? await supabase.from("profiles").select("role").eq("id", data.user.id).maybeSingle()
-          : { data: null };
+        const signedInUser = signInData.user;
+        if (!signedInUser) {
+          setError("Не удалось получить данные сессии. Попробуйте ещё раз.");
+          return;
+        }
+
+        // Ensure the browser client has the new session before profiles.role lookup (AP-038).
+        await supabase.auth.getSession();
+
+        let profileRole: string | null | undefined;
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("role")
+          .eq("id", signedInUser.id)
+          .maybeSingle();
+
+        if (!profileError) {
+          profileRole = profile?.role ?? null;
+        }
 
         const userRole = resolveCanonicalRole({
-          profileRole: profile?.role,
-          appMetadataRole: data.user?.app_metadata?.role as string | undefined,
-          userMetadataRole: data.user?.user_metadata?.role as string | undefined,
+          profileRole,
+          appMetadataRole: signedInUser.app_metadata?.role as string | undefined,
+          userMetadataRole: signedInUser.user_metadata?.role as string | undefined,
         });
         const dashboardPath = userRole ? getDashboardPathForRole(userRole) : null;
 
@@ -182,7 +197,7 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
       </div>
 
       <div>
-        {!hasEnv ? (
+        {!hasSupabaseEnv() ? (
           <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
             <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
@@ -308,7 +323,7 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
           <Button
             type="submit"
             className="h-12 w-full rounded-full"
-            disabled={isSubmitting || !hasEnv}
+            disabled={isSubmitting || !hasSupabaseEnv()}
           >
             {isSubmitting ? `${ctaLabel}...` : ctaLabel}
           </Button>
