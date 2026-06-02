@@ -17,7 +17,7 @@ interface ReqCardProps {
   title: string;
   date: string;
   desc?: string;
-  fillPct: number;
+  fillPct?: number | null;
   members?: ReqCardMember[];
   avatars?: string[];
   price: string;
@@ -50,7 +50,9 @@ export function ReqCard({
 
       {desc ? <p className="mb-3.5 line-clamp-2 text-sm leading-[1.55] text-muted-foreground">{desc}</p> : null}
 
-      <Progress value={Math.min(100, Math.max(0, fillPct))} className="mb-3.5 h-1" />
+      {fillPct != null ? (
+        <Progress value={Math.min(100, Math.max(0, fillPct))} className="mb-3.5 h-1" />
+      ) : null}
 
       <div className="flex items-center justify-between gap-3">
         {members && members.length > 0 ? (

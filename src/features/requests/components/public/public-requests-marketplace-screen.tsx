@@ -286,9 +286,14 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredRequests.map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
-                const fillPct = Math.round(
-                  (request.group.sizeCurrent / request.group.sizeTarget) * 100,
-                );
+                const isOpenGroup =
+                  request.group.openToMoreMembers &&
+                  request.group.sizeTarget === request.group.sizeCurrent;
+                const fillPct = isOpenGroup
+                  ? null
+                  : Math.round(
+                      (request.group.sizeCurrent / request.group.sizeTarget) * 100,
+                    );
                 return (
                   <ReqCard
                     key={request.id}

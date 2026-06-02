@@ -91,10 +91,15 @@ export function PublicRequestDetailScreen({
   showJoinButton = false,
   memberCount,
 }: Props) {
-  const fillPct = Math.min(
-    100,
-    Math.round((request.group.sizeCurrent / request.group.sizeTarget) * 100),
-  );
+  const isOpenGroup =
+    request.group.openToMoreMembers &&
+    request.group.sizeTarget === request.group.sizeCurrent;
+  const fillPct = isOpenGroup
+    ? null
+    : Math.min(
+        100,
+        Math.round((request.group.sizeCurrent / request.group.sizeTarget) * 100),
+      );
   const members = request.members ?? [];
   const visibleMembers = members.slice(0, 5);
   const overflowCount = members.length - visibleMembers.length;
@@ -221,7 +226,7 @@ export function PublicRequestDetailScreen({
                 </div>
 
                 {/* Progress bar */}
-                <Progress value={fillPct} className="mb-[22px] h-1" />
+                {fillPct != null ? <Progress value={fillPct} className="mb-[22px] h-1" /> : null}
 
                 {/* Meta grid */}
                 <dl className="grid gap-x-5 gap-y-[18px] sm:grid-cols-2">

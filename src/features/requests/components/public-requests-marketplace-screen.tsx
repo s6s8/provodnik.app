@@ -238,7 +238,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                   request.group.openToMoreMembers &&
                   request.group.sizeTarget === request.group.sizeCurrent;
                 const fillPct = isOpenGroup
-                  ? Math.min(60, request.group.sizeCurrent * 15)
+                  ? null
                   : Math.round(
                       (request.group.sizeCurrent / request.group.sizeTarget) * 100,
                     );

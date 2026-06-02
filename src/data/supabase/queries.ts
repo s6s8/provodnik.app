@@ -386,7 +386,7 @@ export function mapRequestRow(
     destination: destinationLabel,
     destinationSlug: normalizeSlug(dest),
     destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "Россия",
-    title: `${destinationLabel} — маршрут под группу`,
+    title: destinationLabel,
     dateLabel: (meta.dateRangeLabel as string | null) ?? formatRussianDateRange(
       (row.starts_on as string) ?? "",
       (row.ends_on as string | null) ?? null,
