@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
 import { createBooking } from "@/lib/supabase/bookings";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type AcceptOfferActionState = {
@@ -165,7 +166,7 @@ export async function openOfferThreadAction(formData: FormData) {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth");
+    redirect(buildAuthLoginRedirect("/messages"));
   }
 
   const { data: offer, error } = await supabase

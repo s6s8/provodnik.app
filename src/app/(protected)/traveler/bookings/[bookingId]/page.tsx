@@ -10,6 +10,7 @@ import { OpenDisputeButton } from "@/features/disputes/components/open-dispute-b
 import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReviewForm";
 import { getBooking } from "@/lib/supabase/bookings";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
@@ -94,7 +95,7 @@ export default async function TravelerBookingDetailPage({
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth?next=/traveler/bookings");
+    redirect(buildAuthLoginRedirect(`/traveler/bookings/${bookingId}`));
   }
 
   const booking = await getBooking(bookingId);

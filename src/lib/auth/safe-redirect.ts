@@ -18,6 +18,16 @@ export function safeRedirectPath(raw: string | null | undefined): string {
   return raw;
 }
 
+/** Build `/auth` with a safe `?next=` return path for gated routes. */
+export function buildAuthLoginRedirect(nextPath: string | null | undefined): string {
+  if (!nextPath?.trim()) return "/auth";
+
+  const safe = safeRedirectPath(nextPath.trim());
+  if (safe === "/") return "/auth";
+
+  return `/auth?next=${encodeURIComponent(safe)}`;
+}
+
 /** After login, prefer a safe ?next= path; otherwise fall back to the role dashboard. */
 export function resolvePostAuthRedirectPath(
   role: AppRole | null | undefined,

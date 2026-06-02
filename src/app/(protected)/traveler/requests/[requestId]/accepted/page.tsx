@@ -5,6 +5,7 @@ import { CheckCircle2 } from "lucide-react";
 
 import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -41,7 +42,7 @@ export default async function TravelerRequestAcceptedPage({
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth");
+    redirect(buildAuthLoginRedirect(`/traveler/bookings/${booking_id}`));
   }
 
   const { data: booking } = await supabase

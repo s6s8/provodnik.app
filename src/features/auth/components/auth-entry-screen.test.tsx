@@ -44,6 +44,21 @@ import { AuthEntryScreen } from "./auth-entry-screen";
 
 const assignMock = vi.fn();
 
+describe("AuthEntryScreen missing-role recovery", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    hasSupabaseEnvMock.mockReturnValue(true);
+  });
+
+  it("shows recovery copy when the account has no role", () => {
+    render(<AuthEntryScreen errorCode="missing-role" />);
+
+    expect(
+      screen.getByText(/Не удалось определить роль аккаунта/i),
+    ).toBeInTheDocument();
+  });
+});
+
 describe("AuthEntryScreen unavailable auth fallback", () => {
   beforeEach(() => {
     vi.clearAllMocks();

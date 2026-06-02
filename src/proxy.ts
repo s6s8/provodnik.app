@@ -6,6 +6,7 @@ import {
   resolveCanonicalRole,
   roleHasAccess,
 } from "@/lib/auth/role-routing";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import type { AppRole } from "@/lib/auth/types";
 import { DEMO_SESSION_COOKIE, parseDemoSessionCookieValue } from "@/lib/demo-session";
 import { hasSupabaseEnv } from "@/lib/env";
@@ -13,6 +14,11 @@ import { createSupabaseMiddlewareClient } from "@/lib/supabase/middleware";
 
 function redirectTo(request: NextRequest, pathname: string) {
   return NextResponse.redirect(new URL(pathname, request.url));
+}
+
+function redirectToAuth(request: NextRequest) {
+  const nextPath = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+  return redirectTo(request, buildAuthLoginRedirect(nextPath));
 }
 
 function getDemoRoleFromRequest(request: NextRequest) {
@@ -31,7 +37,7 @@ export async function proxy(request: NextRequest) {
     const demoRole = getDemoRoleFromRequest(request);
 
     if (!demoRole) {
-      return redirectTo(request, "/auth");
+      return redirectToAuth(request);
     }
 
     if (demoRole !== requiredRole) {
@@ -51,7 +57,7 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return applyCookies(redirectTo(request, "/auth"));
+    return applyCookies(redirectToAuth(request));
   }
 
   // Role lookup matches server-auth.ts: profiles.role is canonical.

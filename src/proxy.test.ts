@@ -103,6 +103,26 @@ describe("proxy admin access", () => {
     expect(response.headers.get("location")).toBe("https://provodnik.app/traveler/requests");
   });
 
+  it("preserves the requested path in the auth redirect for guests", async () => {
+    createSupabaseMiddlewareClientMock.mockReturnValue({
+      applyCookies: vi.fn((response) => response),
+      supabase: {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({ data: { user: null } }),
+        },
+      },
+    });
+
+    const response = await proxy(
+      makeRequest("/traveler/bookings/booking-42?review=success"),
+    );
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://provodnik.app/auth?next=%2Ftraveler%2Fbookings%2Fbooking-42%3Freview%3Dsuccess",
+    );
+  });
+
   it("lets demo travelers reach /admin without Supabase env", async () => {
     hasSupabaseEnvMock.mockReturnValue(false);
     parseDemoSessionCookieValueMock.mockReturnValue({ role: "traveler" });

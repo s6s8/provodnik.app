@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { resolvePostAuthRedirectPath, safeRedirectPath } from "./safe-redirect";
+import {
+  buildAuthLoginRedirect,
+  resolvePostAuthRedirectPath,
+  safeRedirectPath,
+} from "./safe-redirect";
 
 describe("safeRedirectPath", () => {
   test("returns / for null", () => {
@@ -28,6 +32,22 @@ describe("safeRedirectPath", () => {
   });
   test("blocks URL that resolves to external origin", () => {
     expect(safeRedirectPath("https://evil.com/auth/confirm")).toBe("/");
+  });
+});
+
+describe("buildAuthLoginRedirect", () => {
+  test("returns /auth when next is absent or unsafe", () => {
+    expect(buildAuthLoginRedirect(null)).toBe("/auth");
+    expect(buildAuthLoginRedirect("https://evil.com")).toBe("/auth");
+  });
+
+  test("encodes a safe return path", () => {
+    expect(buildAuthLoginRedirect("/traveler/bookings/booking-1")).toBe(
+      "/auth?next=%2Ftraveler%2Fbookings%2Fbooking-1",
+    );
+    expect(buildAuthLoginRedirect("/messages/thread-1")).toBe(
+      "/auth?next=%2Fmessages%2Fthread-1",
+    );
   });
 });
 

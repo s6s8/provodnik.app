@@ -60,9 +60,14 @@ function getFriendlyAuthError(code: string): string {
 type AuthEntryScreenProps = {
   role?: "traveler" | "guide";
   next?: string;
+  errorCode?: string;
 };
 
-export function AuthEntryScreen({ role = "traveler", next }: AuthEntryScreenProps) {
+export function AuthEntryScreen({
+  role = "traveler",
+  next,
+  errorCode,
+}: AuthEntryScreenProps) {
   const [mode, setMode] = useState<AuthFormMode>(
     role === "guide" ? "sign-up" : "sign-in",
   );
@@ -206,6 +211,16 @@ export function AuthEntryScreen({ role = "traveler", next }: AuthEntryScreenProp
             <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
               Вход временно недоступен. Напишите в поддержку.
+            </p>
+          </div>
+        ) : null}
+
+        {errorCode === "missing-role" ? (
+          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+            <AlertCircle className="mt-0.5 size-4 shrink-0" />
+            <p>
+              Не удалось определить роль аккаунта. Выйдите и войдите снова или
+              напишите в поддержку.
             </p>
           </div>
         ) : null}
