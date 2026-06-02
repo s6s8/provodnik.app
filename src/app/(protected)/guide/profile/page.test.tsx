@@ -58,10 +58,31 @@ vi.mock("@/app/(protected)/guide/verification/actions", () => ({
 
 import GuideProfilePage from "./page";
 
-function makeSupabaseClient(verificationStatus = "draft") {
+function makeGuideProfileRow(verificationStatus: string) {
+  return {
+    bio: "",
+    base_city: "",
+    languages: [],
+    specializations: [],
+    years_experience: null,
+    regions: [],
+    legal_status: "self_employed",
+    inn: null,
+    document_country: null,
+    is_tour_operator: false,
+    tour_operator_registry_number: null,
+    verification_status: verificationStatus,
+    verification_notes: null,
+  };
+}
+
+function makeSupabaseClient(
+  verificationStatus = "draft",
+  options?: { failSectionFetch?: boolean },
+) {
   return {
     from: (table: string) => ({
-      select: () => ({
+      select: (columns?: string) => ({
         eq: () => {
           if (table === "profiles") {
             return {
@@ -72,24 +93,21 @@ function makeSupabaseClient(verificationStatus = "draft") {
           }
 
           if (table === "guide_profiles") {
+            const isVerificationOnly = columns === "verification_status";
             return {
-              maybeSingle: () => Promise.resolve({
-                data: {
-                  bio: "",
-                  base_city: "",
-                  languages: [],
-                  specializations: [],
-                  years_experience: null,
-                  regions: [],
-                  legal_status: "self_employed",
-                  inn: null,
-                  document_country: null,
-                  is_tour_operator: false,
-                  tour_operator_registry_number: null,
-                  verification_status: verificationStatus,
-                  verification_notes: null,
-                },
-              }),
+              maybeSingle: () => {
+                if (isVerificationOnly) {
+                  return Promise.resolve({
+                    data: { verification_status: verificationStatus },
+                  });
+                }
+                if (options?.failSectionFetch) {
+                  return Promise.reject(new Error("section fetch failed"));
+                }
+                return Promise.resolve({
+                  data: makeGuideProfileRow(verificationStatus),
+                });
+              },
             };
           }
 
@@ -228,5 +246,42 @@ describe("GuideProfilePage", () => {
     expect(lockNotice.closest('[data-slot="card-content"]')).toBeInTheDocument();
     expect(lockNotice.closest('[data-slot="card-header"]')).not.toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("does not lock sections for a guide account that is not yet approved", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce({
+      isAuthenticated: true,
+      userId: "g1",
+      role: "guide",
+      email: "irina@example.com",
+    });
+    createSupabaseServerClientMock.mockImplementation(() => makeSupabaseClient("draft"));
+
+    const ui = await GuideProfilePage();
+    render(ui);
+
+    expect(screen.getByLabelText("О себе")).toHaveAttribute("data-locked", "false");
+    expect(screen.getByLabelText("Юридические данные")).toHaveAttribute("data-locked", "false");
+    expect(screen.getByRole("button", { name: "Добавить документ" })).not.toBeDisabled();
+  });
+
+  it("locks verified sections for an approved guide when section data fetch fails", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce({
+      isAuthenticated: true,
+      userId: "g1",
+      role: "guide",
+      email: "irina@example.com",
+    });
+    createSupabaseServerClientMock.mockImplementation(() =>
+      makeSupabaseClient("approved", { failSectionFetch: true }),
+    );
+
+    const ui = await GuideProfilePage();
+    render(ui);
+
+    expect(screen.getByLabelText("О себе")).toHaveAttribute("data-locked", "true");
+    expect(screen.getByLabelText("Юридические данные")).toHaveAttribute("data-locked", "true");
+    expect(screen.getByRole("button", { name: "Добавить документ" })).toBeDisabled();
+    expect(screen.getByText("Подтверждено")).toBeInTheDocument();
   });
 });

@@ -1,6 +1,7 @@
 "use server";
 
 import { z } from "zod";
+import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const legalInformationSchema = z.object({
@@ -34,7 +35,7 @@ export async function updateLegalInformation(data: {
     .select("verification_status")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (statusRow?.verification_status === "approved") {
+  if (isGuideProfileConfirmed(statusRow?.verification_status)) {
     throw new Error("Профиль одобрен — для изменения данных обратитесь к администраторам");
   }
 

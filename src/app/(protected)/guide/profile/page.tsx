@@ -29,6 +29,7 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { roleHasAccess } from "@/lib/auth/role-routing";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
@@ -125,6 +126,22 @@ export default async function GuideProfilePage() {
 
   try {
     const supabase = await createSupabaseServerClient();
+    const { data: verificationRow } = await supabase
+      .from("guide_profiles")
+      .select("verification_status")
+      .eq("user_id", guideId)
+      .maybeSingle();
+    if (verificationRow?.verification_status) {
+      verificationStatus = verificationRow.verification_status as GuideVerificationStatusDb;
+    }
+  } catch (err) {
+    console.error("[GuideProfilePage] verification status fetch failed:", err);
+  }
+
+  const isVerifiedDataLocked = isGuideProfileConfirmed(verificationStatus);
+
+  try {
+    const supabase = await createSupabaseServerClient();
     const [profileRes, licenseRes, listingRes, documentRes] = await Promise.all([
       supabase
         .from("guide_profiles")
@@ -152,7 +169,9 @@ export default async function GuideProfilePage() {
     ]);
 
     profile = profileRes.data;
-    verificationStatus = (profile?.verification_status ?? "draft") as GuideVerificationStatusDb;
+    if (profile?.verification_status) {
+      verificationStatus = profile.verification_status as GuideVerificationStatusDb;
+    }
     verificationNotes = profile?.verification_notes ?? null;
 
     listings =
@@ -216,8 +235,6 @@ export default async function GuideProfilePage() {
   } catch (err) {
     console.error("[GuideProfilePage] data fetch failed:", err);
   }
-
-  const isVerifiedDataLocked = verificationStatus === "approved";
 
   return (
     <div className="space-y-10">

@@ -1,5 +1,6 @@
 "use server";
 
+import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ListingStatusDb } from "@/lib/supabase/types";
 
@@ -32,7 +33,7 @@ export async function addLicense(data: {
     .select("verification_status")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (statusRow?.verification_status === "approved") {
+  if (isGuideProfileConfirmed(statusRow?.verification_status)) {
     throw new Error(APPROVED_PROFILE_LOCK_ERROR);
   }
 
@@ -127,7 +128,7 @@ export async function deleteLicense(licenseId: string) {
     .select("verification_status")
     .eq("user_id", user.id)
     .maybeSingle();
-  if (statusRow?.verification_status === "approved") {
+  if (isGuideProfileConfirmed(statusRow?.verification_status)) {
     throw new Error(APPROVED_PROFILE_LOCK_ERROR);
   }
 

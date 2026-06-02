@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import type { ThemeSlug } from "@/data/themes";
 import { THEMES } from "@/data/themes";
+import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const canonThemeSlugs = new Set<string>(THEMES.map((t) => t.slug));
@@ -36,7 +37,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
     .maybeSingle();
 
   const bio = formData.get("bio") as string | null;
-  if (statusRow?.verification_status === "approved") {
+  if (isGuideProfileConfirmed(statusRow?.verification_status)) {
     const { error } = await supabase
       .from("guide_profiles")
       .update({ bio: bio ?? "" })
@@ -44,7 +45,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
 
     if (error) return { ok: false, error: error.message };
     revalidatePath("/guide/profile");
-    return { ok: true, regions: statusRow.regions ?? [] };
+    return { ok: true, regions: statusRow?.regions ?? [] };
   }
 
   const baseCityRaw = formData.get("base_city");
