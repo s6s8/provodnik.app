@@ -28,6 +28,14 @@ type RequestCardSample = {
   price: string;
 };
 
+type FlexVariant = "cabinet" | "showcase" | "hybrid";
+
+type FlexVariantSection = {
+  title: string;
+  description: string;
+  flexVariant: FlexVariant;
+};
+
 const samples = [
   {
     scenario: "Своя группа + точная дата",
@@ -99,6 +107,51 @@ const samples = [
   },
 ] satisfies RequestCardSample[];
 
+const flexVariantSections = [
+  {
+    title: "Кабинетный стиль",
+    description:
+      "Стиль личного кабинета: primary-таблетки, короткие символьные подписи (± даты / + к группе).",
+    flexVariant: "cabinet",
+  },
+  {
+    title: "Витринный стиль",
+    description:
+      "Стиль публичной витрины: синие бейджи, полные слова (Гибкие даты / Открытая группа).",
+    flexVariant: "showcase",
+  },
+  {
+    title: "Гибрид",
+    description: "Лёгкие primary-таблетки кабинета + понятные слова витрины.",
+    flexVariant: "hybrid",
+  },
+] satisfies FlexVariantSection[];
+
+const flexBadgeVariantConfig = {
+  cabinet: {
+    className: "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary",
+    openGroupLabel: "+ к группе",
+    datesFlexibleLabel: "± даты",
+  },
+  showcase: {
+    className: "rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600",
+    openGroupLabel: "Открытая группа",
+    datesFlexibleLabel: "Гибкие даты",
+  },
+  hybrid: {
+    className: "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary",
+    openGroupLabel: "Открытая группа",
+    datesFlexibleLabel: "Гибкие даты",
+  },
+} satisfies Record<
+  FlexVariant,
+  {
+    className: string;
+    openGroupLabel: string;
+    datesFlexibleLabel: string;
+  }
+>;
+
 const interestLabelMap = new Map(INTEREST_CHIPS.map(({ id, label }) => [id, label]));
 
 function getInterestLabels(interests: InterestId[]) {
@@ -136,7 +189,13 @@ function SectionIntro({ title, description }: { title: string; description: stri
   );
 }
 
-function QuietReqCard({ sample }: { sample: RequestCardSample }) {
+function QuietReqCard({
+  sample,
+  flexVariant,
+}: {
+  sample: RequestCardSample;
+  flexVariant: FlexVariant;
+}) {
   const interestLabels = getInterestLabels(sample.interests);
   const groupLine = formatGroupLine({
     mode: sample.mode,
@@ -144,6 +203,7 @@ function QuietReqCard({ sample }: { sample: RequestCardSample }) {
     capacity: sample.capacity ?? null,
   });
   const hasFlexBadges = sample.mode === "assembly" || sample.datesFlexible;
+  const flexBadgeConfig = flexBadgeVariantConfig[flexVariant];
 
   return (
     <Link
@@ -157,14 +217,10 @@ function QuietReqCard({ sample }: { sample: RequestCardSample }) {
       {hasFlexBadges ? (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {sample.mode === "assembly" ? (
-            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
-              Открытая группа
-            </span>
+            <span className={flexBadgeConfig.className}>{flexBadgeConfig.openGroupLabel}</span>
           ) : null}
           {sample.datesFlexible ? (
-            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
-              Гибкие даты
-            </span>
+            <span className={flexBadgeConfig.className}>{flexBadgeConfig.datesFlexibleLabel}</span>
           ) : null}
         </div>
       ) : null}
@@ -190,22 +246,31 @@ function QuietReqCard({ sample }: { sample: RequestCardSample }) {
 export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
-      <section>
-        <SectionIntro
-          title="Спокойный — сценарии гибкости"
-          description="Одна карточка на каждый сценарий: дата (точная / гибкая) × группа (своя / открытая). Направление — главный акцент, дата и группа тихим текстом, цена — второй акцент."
-        />
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
-          {samples.map((sample) => (
-            <div key={sample.href} className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {sample.scenario}
-              </p>
-              <QuietReqCard sample={sample} />
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold text-foreground">Бейджи гибкости — три стиля рядом</h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Сравнение тех же четырёх сценариев: дата (точная / гибкая) × группа (своя /
+          открытая).
+        </p>
+      </div>
+
+      <div className="space-y-12">
+        {flexVariantSections.map((section) => (
+          <section key={section.flexVariant}>
+            <SectionIntro title={section.title} description={section.description} />
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
+              {samples.map((sample) => (
+                <div key={sample.href} className="space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {sample.scenario}
+                  </p>
+                  <QuietReqCard sample={sample} flexVariant={section.flexVariant} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
+        ))}
+      </div>
     </main>
   );
 }
