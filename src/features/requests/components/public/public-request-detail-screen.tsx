@@ -91,9 +91,7 @@ export function PublicRequestDetailScreen({
   showJoinButton = false,
   memberCount,
 }: Props) {
-  const isOpenGroup =
-    request.group.openToMoreMembers &&
-    request.group.sizeTarget === request.group.sizeCurrent;
+  const isOpenGroup = request.group.openToMoreMembers;
   const fillPct = isOpenGroup
     ? null
     : Math.min(
@@ -226,7 +224,9 @@ export function PublicRequestDetailScreen({
                 </div>
 
                 {/* Progress bar */}
-                {fillPct != null ? <Progress value={fillPct} className="mb-[22px] h-1" /> : null}
+                {fillPct != null ? (
+                  <Progress value={fillPct} className="mb-[22px] h-1" />
+                ) : null}
 
                 {/* Meta grid */}
                 <dl className="grid gap-x-5 gap-y-[18px] sm:grid-cols-2">

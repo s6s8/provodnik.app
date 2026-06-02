@@ -1,0 +1,210 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation "Основная навигация" [ref=e3]:
+      - link "Provodnik" [ref=e4] [cursor=pointer]:
+        - /url: /
+      - list [ref=e5]:
+        - listitem [ref=e6]:
+          - link "Открытые группы" [ref=e7] [cursor=pointer]:
+            - /url: /requests
+        - listitem [ref=e8]:
+          - link "Готовые экскурсии" [ref=e9] [cursor=pointer]:
+            - /url: /listings
+        - listitem [ref=e10]:
+          - link "Гиды" [ref=e11] [cursor=pointer]:
+            - /url: /guides
+        - listitem [ref=e12]:
+          - link "Как это работает" [ref=e13] [cursor=pointer]:
+            - /url: /how-it-works
+      - generic [ref=e15]:
+        - link "Стать гидом" [ref=e16] [cursor=pointer]:
+          - /url: /become-a-guide
+        - link "Войти" [ref=e17] [cursor=pointer]:
+          - /url: /auth
+  - main [ref=e18]:
+    - generic [ref=e21]:
+      - heading "Местный гид под ваш запрос" [level=1] [ref=e22]
+      - form "Создать запрос" [ref=e23]:
+        - generic [ref=e24]:
+          - generic [ref=e25]: Куда хотите поехать?
+          - combobox "Куда хотите поехать?" [ref=e26]: Москва
+        - generic [ref=e27]:
+          - generic [ref=e28]:
+            - generic [ref=e29]: Дата
+            - textbox "Дата" [ref=e30]
+          - generic [ref=e31]:
+            - generic [ref=e32]: Начало
+            - textbox "Начало" [ref=e33]: 12:00
+          - generic [ref=e34]:
+            - generic [ref=e35]: Конец (необязательно)
+            - textbox "Конец (необязательно)" [ref=e36]: 12:00
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Сколько вас
+            - spinbutton "Сколько вас" [ref=e40]: "2"
+          - generic [ref=e41] [cursor=pointer]:
+            - checkbox "Открыт к увеличению группы" [ref=e42]
+            - generic [ref=e44]: Открыт к увеличению группы
+          - generic [ref=e45] [cursor=pointer]:
+            - checkbox "Разрешаю гидам предлагать близкие даты и время" [ref=e46]
+            - generic [ref=e48]: Разрешаю гидам предлагать близкие даты и время
+        - generic [ref=e49]:
+          - generic [ref=e50]: Языки экскурсии (необязательно)
+          - button "Выбрать языки экскурсии" [ref=e51] [cursor=pointer]:
+            - generic [ref=e52]:
+              - text: Русский
+              - img "Убрать Русский" [ref=e53]
+            - img [ref=e56]
+        - generic [ref=e59]:
+          - generic [ref=e60]: Бюджет на человека (₽)
+          - spinbutton "Бюджет на человека (₽)" [ref=e61]: "5000"
+          - paragraph [ref=e62]:
+            - text: "Итого:"
+            - generic [ref=e63]: 10 000 ₽
+            - text: за группу из 2 человека.
+        - generic [ref=e64]:
+          - generic [ref=e65]: Темы
+          - generic [ref=e66]:
+            - button "История" [ref=e67]:
+              - img [ref=e68]
+              - generic [ref=e70]: История
+            - button "Архитектура" [ref=e71]:
+              - img [ref=e72]
+              - generic [ref=e76]: Архитектура
+            - button "Природа" [ref=e77]:
+              - img [ref=e78]
+              - generic [ref=e81]: Природа
+            - button "Гастрономия" [ref=e82]:
+              - img [ref=e83]
+              - generic [ref=e86]: Гастрономия
+            - button "Искусство" [ref=e87]:
+              - img [ref=e88]
+              - generic [ref=e94]: Искусство
+            - button "Религия" [ref=e95]:
+              - img [ref=e96]
+              - generic [ref=e100]: Религия
+            - button "Для детей" [ref=e101]:
+              - img [ref=e102]
+              - generic [ref=e105]: Для детей
+            - button "Необычное" [ref=e106]:
+              - img [ref=e107]
+              - generic [ref=e110]: Необычное
+        - group [ref=e111]:
+          - generic "Добавить детали" [ref=e112] [cursor=pointer]:
+            - generic [ref=e113]: +
+            - generic [ref=e114]: Добавить детали
+        - button "Отправить запрос гидам" [ref=e116]
+        - list "Гарантии платформы" [ref=e117]:
+          - listitem [ref=e118]:
+            - generic [ref=e119]: ✓
+            - generic [ref=e120]: Гиды проверены
+    - region "Открытые запросы путешественников" [ref=e121]:
+      - generic [ref=e123]:
+        - paragraph [ref=e124]: Что ищут путешественники прямо сейчас
+        - generic [ref=e125]:
+          - link "элиста · 10 июня · 12:02–12:00 Сборная группа · 2 чел. Открытая группа Гибкие даты История · Необычное 5 000 ₽/чел. · 1 ответ открыть →" [ref=e126] [cursor=pointer]:
+            - /url: /requests/fe49f0ef-cd14-46ef-a8e7-09051b06c026
+            - paragraph [ref=e127]: элиста · 10 июня · 12:02–12:00
+            - paragraph [ref=e128]: Сборная группа · 2 чел.
+            - generic [ref=e129]:
+              - generic [ref=e130]: Открытая группа
+              - generic [ref=e131]: Гибкие даты
+            - paragraph [ref=e132]: История · Необычное
+            - paragraph [ref=e133]: 5 000 ₽/чел. · 1 ответ
+            - paragraph [ref=e134]: открыть →
+          - link "Элиста · 18 июня · 12:00–14:00 Сборная группа · 10 чел. Открытая группа История · Архитектура · Гастрономия · Религия 3 000 ₽/чел. · 1 ответ открыть →" [ref=e135] [cursor=pointer]:
+            - /url: /requests/2967306b-9346-44e0-a5d8-20d9198ecb4b
+            - paragraph [ref=e136]: Элиста · 18 июня · 12:00–14:00
+            - paragraph [ref=e137]: Сборная группа · 10 чел.
+            - generic [ref=e139]: Открытая группа
+            - paragraph [ref=e140]: История · Архитектура · Гастрономия · Религия
+            - paragraph [ref=e141]: 3 000 ₽/чел. · 1 ответ
+            - paragraph [ref=e142]: открыть →
+          - link "Элиста · 17 июня · 12:00–14:00 Сборная группа · 5 чел. Открытая группа Гибкие даты История · Архитектура 5 000 ₽/чел. · 1 ответ открыть →" [ref=e143] [cursor=pointer]:
+            - /url: /requests/c033577e-e504-49f2-be5e-5e340251ccb5
+            - paragraph [ref=e144]: Элиста · 17 июня · 12:00–14:00
+            - paragraph [ref=e145]: Сборная группа · 5 чел.
+            - generic [ref=e146]:
+              - generic [ref=e147]: Открытая группа
+              - generic [ref=e148]: Гибкие даты
+            - paragraph [ref=e149]: История · Архитектура
+            - paragraph [ref=e150]: 5 000 ₽/чел. · 1 ответ
+            - paragraph [ref=e151]: открыть →
+    - contentinfo [ref=e152]:
+      - generic [ref=e153]:
+        - region "Частые вопросы" [ref=e154]:
+          - paragraph [ref=e155]: Частые вопросы
+          - generic [ref=e156]:
+            - group [ref=e157]:
+              - generic "Могу ли я присоединиться к чужой группе?" [ref=e158] [cursor=pointer]:
+                - generic [ref=e159]: Могу ли я присоединиться к чужой группе?
+                - img [ref=e160]
+            - group [ref=e162]:
+              - generic "Как долго ждать предложения?" [ref=e163] [cursor=pointer]:
+                - generic [ref=e164]: Как долго ждать предложения?
+                - img [ref=e165]
+            - group [ref=e167]:
+              - generic "Что если гид не ответит?" [ref=e168] [cursor=pointer]:
+                - generic [ref=e169]: Что если гид не ответит?
+                - img [ref=e170]
+            - group [ref=e172]:
+              - 'generic "Можно ли оплатить как юрлицо: счёт, договор, безналичная оплата, акт?" [ref=e173] [cursor=pointer]':
+                - generic [ref=e174]: "Можно ли оплатить как юрлицо: счёт, договор, безналичная оплата, акт?"
+                - img [ref=e175]
+        - generic [ref=e177]:
+          - navigation "О проекте" [ref=e178]:
+            - paragraph [ref=e179]: О проекте
+            - list [ref=e180]:
+              - listitem [ref=e181]:
+                - link "О нас" [ref=e182] [cursor=pointer]:
+                  - /url: /trust
+              - listitem [ref=e183]:
+                - link "Для гидов" [ref=e184] [cursor=pointer]:
+                  - /url: /guides
+              - listitem [ref=e185]:
+                - link "Для бизнеса" [ref=e186] [cursor=pointer]:
+                  - /url: /for-business
+          - navigation "Поддержка" [ref=e187]:
+            - paragraph [ref=e188]: Поддержка
+            - list [ref=e189]:
+              - listitem [ref=e190]:
+                - link "Доверие и безопасность" [ref=e191] [cursor=pointer]:
+                  - /url: /trust
+              - listitem [ref=e192]:
+                - link "Telegram-поддержка" [ref=e193] [cursor=pointer]:
+                  - /url: https://t.me/provodnik_help
+              - listitem [ref=e194]:
+                - 'link "Email: support@provodnik.app" [ref=e195] [cursor=pointer]':
+                  - /url: mailto:support@provodnik.app
+            - paragraph [ref=e196]: Отвечаем ежедневно, обычно в течение нескольких часов (с 9:00 до 22:00 МСК).
+          - generic [ref=e197]:
+            - navigation "Правила" [ref=e198]:
+              - paragraph [ref=e199]: Правила
+              - list [ref=e200]:
+                - listitem [ref=e201]:
+                  - link "Условия использования" [ref=e202] [cursor=pointer]:
+                    - /url: /policies/terms
+                - listitem [ref=e203]:
+                  - link "Конфиденциальность" [ref=e204] [cursor=pointer]:
+                    - /url: /policies/privacy
+                - listitem [ref=e205]:
+                  - link "Cookies" [ref=e206] [cursor=pointer]:
+                    - /url: /policies/cookies
+            - generic [ref=e207]:
+              - paragraph [ref=e208]: Мы в сети
+              - link "Telegram" [ref=e210] [cursor=pointer]:
+                - /url: https://t.me/provodnik_help
+                - img [ref=e211]
+        - paragraph [ref=e214]:
+          - text: "Оператор персональных данных: команда проекта Provodnik. Контакт по вопросам обработки данных и юридическим уведомлениям —"
+          - link "support@provodnik.app" [ref=e215] [cursor=pointer]:
+            - /url: mailto:support@provodnik.app
+          - text: . Provodnik находится на стадии запуска; полные регистрационные сведения оператора (ОГРНИП/ОГРН, ИНН, юридический адрес) публикуются
+          - link "на странице «Конфиденциальность»" [ref=e216] [cursor=pointer]:
+            - /url: /policies/privacy#operator
+          - text: и обновляются до запуска приёма платежей на платформе.
+        - generic [ref=e217]:
+          - paragraph [ref=e218]: © 2026 Provodnik. Все права защищены.
+          - link "Поддержка" [ref=e219] [cursor=pointer]:
+            - /url: mailto:support@provodnik.app
+  - alert [ref=e220]

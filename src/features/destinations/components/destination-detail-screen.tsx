@@ -153,9 +153,7 @@ export function DestinationDetailScreen({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {openRequests.slice(0, 3).map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
-                const isOpenGroup =
-                  request.group.openToMoreMembers &&
-                  request.group.sizeTarget === request.group.sizeCurrent;
+                const isOpenGroup = request.group.openToMoreMembers;
                 const fillPct = isOpenGroup
                   ? null
                   : Math.round(
