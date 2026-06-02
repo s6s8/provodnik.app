@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type ReqCardMember } from "@/components/shared/req-card";
 import { INTEREST_CHIPS } from "@/data/interests";
+import { formatGroupLine } from "@/data/requests-format";
 
 export const metadata = {
   robots: {
@@ -18,7 +19,10 @@ type RequestCardSample = {
   href: string;
   location: string;
   date: string;
-  peopleLabel: string;
+  mode: "private" | "assembly";
+  groupSize: number;
+  capacity?: number;
+  datesFlexible: boolean;
   interests: InterestId[];
   members: ReqCardMember[];
   price: string;
@@ -26,11 +30,13 @@ type RequestCardSample = {
 
 const samples = [
   {
-    scenario: "Точная дата + точное число",
+    scenario: "Своя группа + точная дата",
     href: "/requests/tbilisi-evening",
     location: "Тбилиси",
     date: "12 июня, 18:00",
-    peopleLabel: "3 человека",
+    mode: "private",
+    groupSize: 3,
+    datesFlexible: false,
     interests: ["history", "food", "architecture"],
     members: [
       { id: "nino", displayName: "Нино", initials: "Н" },
@@ -40,11 +46,13 @@ const samples = [
     price: "4 500 ₽ / чел",
   },
   {
-    scenario: "Гибкая дата + точное число",
+    scenario: "Своя группа + гибкая дата",
     href: "/requests/kazbegi-one-day",
     location: "Казбеги",
-    date: "Июнь, даты гибкие",
-    peopleLabel: "3 человека",
+    date: "21 июня",
+    mode: "private",
+    groupSize: 3,
+    datesFlexible: true,
     interests: ["nature", "religion", "architecture"],
     members: [
       { id: "mariam", displayName: "Мариам", initials: "М" },
@@ -54,26 +62,32 @@ const samples = [
     price: "7 900 ₽ / чел",
   },
   {
-    scenario: "Точная дата + диапазон людей",
-    href: "/requests/batumi-family",
-    location: "Батуми",
+    scenario: "Открытая группа + точная дата",
+    href: "/requests/kakheti-wine",
+    location: "Кахетия",
     date: "5 июля, 11:30",
-    peopleLabel: "2–4 человека",
-    interests: ["kids", "food", "art"],
+    mode: "assembly",
+    groupSize: 4,
+    capacity: 8,
+    datesFlexible: false,
+    interests: ["food", "history", "architecture"],
     members: [
       { id: "tamar", displayName: "Тамар", initials: "Т" },
       { id: "oleg", displayName: "Олег", initials: "О" },
       { id: "katya", displayName: "Катя", initials: "К" },
       { id: "giorgi", displayName: "Георгий", initials: "Г" },
     ],
-    price: "5 200 ₽ / чел",
+    price: "6 800 ₽ / чел",
   },
   {
-    scenario: "Гибкая дата + диапазон людей",
+    scenario: "Открытая группа + гибкая дата",
     href: "/requests/svaneti-mountains",
     location: "Сванетия",
-    date: "Лето, даты гибкие",
-    peopleLabel: "2–4 человека",
+    date: "14–16 августа",
+    mode: "assembly",
+    groupSize: 5,
+    capacity: 10,
+    datesFlexible: true,
     interests: ["nature", "history", "unusual"],
     members: [
       { id: "irakli", displayName: "Ираклий", initials: "И" },
@@ -124,6 +138,12 @@ function SectionIntro({ title, description }: { title: string; description: stri
 
 function QuietReqCard({ sample }: { sample: RequestCardSample }) {
   const interestLabels = getInterestLabels(sample.interests);
+  const groupLine = formatGroupLine({
+    mode: sample.mode,
+    groupSize: sample.groupSize,
+    capacity: sample.capacity ?? null,
+  });
+  const hasFlexBadges = sample.mode === "assembly" || sample.datesFlexible;
 
   return (
     <Link
@@ -132,8 +152,22 @@ function QuietReqCard({ sample }: { sample: RequestCardSample }) {
     >
       <p className="text-lg font-semibold text-foreground">{sample.location}</p>
       <p className="mt-1 text-sm text-muted-foreground">
-        {sample.date} · {sample.peopleLabel}
+        {sample.date} · {groupLine}
       </p>
+      {hasFlexBadges ? (
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {sample.mode === "assembly" ? (
+            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
+              Открытая группа
+            </span>
+          ) : null}
+          {sample.datesFlexible ? (
+            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
+              Гибкие даты
+            </span>
+          ) : null}
+        </div>
+      ) : null}
 
       {interestLabels.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-1.5">
@@ -159,7 +193,7 @@ export default function DevReqCardsPage() {
       <section>
         <SectionIntro
           title="Спокойный — сценарии гибкости"
-          description="Одна карточка на каждый сценарий: дата (точная / гибкая) × число людей (точное / диапазон). Направление — главный акцент, дата и люди тихим текстом, цена — второй акцент."
+          description="Одна карточка на каждый сценарий: дата (точная / гибкая) × группа (своя / открытая). Направление — главный акцент, дата и группа тихим текстом, цена — второй акцент."
         />
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
           {samples.map((sample) => (
