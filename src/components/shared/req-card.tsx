@@ -2,6 +2,11 @@ import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
+import { INTEREST_CHIPS } from "@/data/interests";
+
+const interestLabelMap: Partial<Record<string, string>> = Object.fromEntries(
+  INTEREST_CHIPS.map(({ id, label }) => [id, label]),
+);
 
 export interface ReqCardMember {
   id: string;
@@ -17,6 +22,7 @@ interface ReqCardProps {
   title: string;
   date: string;
   desc?: string;
+  interests?: string[];
   fillPct?: number | null;
   members?: ReqCardMember[];
   avatars?: string[];
@@ -30,11 +36,17 @@ export function ReqCard({
   title,
   date,
   desc,
+  interests,
   fillPct,
   members,
   avatars,
   price,
 }: ReqCardProps) {
+  const interestBadges =
+    interests
+      ?.map((s) => ({ id: s, label: interestLabelMap[s] }))
+      .filter((b): b is { id: string; label: string } => Boolean(b.label)) ?? [];
+
   return (
     <Link
       href={href}
@@ -48,7 +60,17 @@ export function ReqCard({
       <p className="mb-1.5 font-sans text-[1.125rem] font-semibold text-foreground">{title}</p>
       <p className="mb-2 text-[0.8125rem] text-muted-foreground">{date}</p>
 
-      {desc ? <p className="mb-3.5 line-clamp-2 text-sm leading-[1.55] text-muted-foreground">{desc}</p> : null}
+      {interestBadges.length > 0 ? (
+        <div className="mb-3.5 inline-flex flex-wrap gap-1.5">
+          {interestBadges.map(({ id, label }) => (
+            <span key={id} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
+              {label}
+            </span>
+          ))}
+        </div>
+      ) : desc ? (
+        <p className="mb-3.5 line-clamp-2 text-sm leading-[1.55] text-muted-foreground">{desc}</p>
+      ) : null}
 
       {fillPct != null ? (
         <Progress value={Math.min(100, Math.max(0, fillPct))} className="mb-3.5 h-1" />

@@ -252,7 +252,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     spotsLabel={spotsLabel}
                     title={request.highlights[0] ?? request.destinationLabel}
                     date={request.dateRangeLabel}
-                    desc={request.highlights[1]}
+                    interests={request.interests}
                     fillPct={fillPct}
                     members={request.members}
                     price={derivePrice(request.budgetPerPersonRub)}
