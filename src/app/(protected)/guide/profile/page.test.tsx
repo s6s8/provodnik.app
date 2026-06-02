@@ -36,7 +36,7 @@ vi.mock("@/features/profile/components/LegalInformationForm", () => ({
 }));
 
 vi.mock("@/features/guide/components/verification/verification-upload-form", () => ({
-  VerificationUploadForm: () => <form aria-label="Верификация" />,
+  VerificationUploadForm: () => <form aria-label="Форма верификации" />,
 }));
 
 vi.mock("@/app/(protected)/profile/_components/avatar-upload-block", () => ({
@@ -220,6 +220,8 @@ describe("GuideProfilePage", () => {
     expect(screen.getByLabelText("О себе")).toHaveAttribute("data-locked", "true");
     expect(screen.getByLabelText("Юридические данные")).toHaveAttribute("data-locked", "true");
     expect(screen.getByRole("button", { name: "Добавить документ" })).toBeDisabled();
+    expect(screen.getByText("Подтверждено")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Форма верификации")).not.toBeInTheDocument();
     const lockNotice = screen.getByText(
       "Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.",
     );
