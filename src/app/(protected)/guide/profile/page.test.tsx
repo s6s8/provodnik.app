@@ -191,16 +191,18 @@ describe("GuideProfilePage", () => {
     render(ui);
 
     const addButton = screen.getByRole("button", { name: "Добавить документ" });
+    const description = screen.getByText(
+      "Укажите документ и к каким видам экскурсиям он относится.",
+    );
     const action = addButton.closest('[data-slot="card-action"]');
     const header = addButton.closest('[data-slot="card-header"]');
 
     expect(action).toBeInTheDocument();
     expect(header).toBeInTheDocument();
+    expect(header as HTMLElement).toContainElement(description);
     expect(
-      within(header as HTMLElement).getByText(
-        "Укажите документ и к каким видам экскурсиям он относится.",
-      ),
-    ).toBeInTheDocument();
+      addButton.compareDocumentPosition(description) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
     expect(
       within(header as HTMLElement).queryByText(
         "Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.",

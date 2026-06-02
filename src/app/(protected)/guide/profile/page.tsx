@@ -309,12 +309,12 @@ export default async function GuideProfilePage() {
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
               <CardTitle className="text-xl">Документ о квалификации</CardTitle>
-              <CardDescription>
-                Укажите документ и к каким видам экскурсиям он относится.
-              </CardDescription>
               <CardAction>
                 <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
               </CardAction>
+              <CardDescription>
+                Укажите документ и к каким видам экскурсиям он относится.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {isVerifiedDataLocked ? (
