@@ -34,6 +34,16 @@ describe("resolveCanonicalRole", () => {
       }),
     ).toBe("admin");
   });
+
+  it("grants admin when profiles.role is admin even if JWT still says guide", () => {
+    expect(
+      resolveCanonicalRole({
+        profileRole: "admin",
+        appMetadataRole: "guide",
+        userMetadataRole: "guide",
+      }),
+    ).toBe("admin");
+  });
 });
 
 describe("roleHasAccess", () => {

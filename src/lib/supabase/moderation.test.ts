@@ -244,6 +244,63 @@ describe("getGuideReviewQueue", () => {
     expect(queue).toHaveLength(1);
     expect(queue[0]?.profile.user_id).toBe("submitted-guide");
   });
+
+  it("allows guide review when profiles.role is admin and JWT is stale guide", async () => {
+    const submitted = makeGuideProfile(
+      "submitted-guide",
+      "submitted",
+      "2026-05-03T10:00:00.000Z",
+    );
+    const guideProfilesQuery = makeQuery({
+      data: [submitted],
+      error: null,
+    });
+    const profilesQuery = makeQuery({ data: [], error: null });
+    const casesQuery = makeQuery({ data: [], error: null });
+    const actionsQuery = makeQuery({ data: [], error: null });
+
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "admin-id",
+              email: "admin@example.com",
+              user_metadata: { role: "guide" },
+              app_metadata: { role: "guide" },
+            },
+          },
+          error: null,
+        }),
+      },
+      from: vi.fn(() =>
+        makeQuery({
+          data: {
+            id: "admin-id",
+            role: "admin",
+            full_name: "Admin",
+            email: "admin@example.com",
+            avatar_url: null,
+          },
+          error: null,
+        }),
+      ),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "guide_profiles") return guideProfilesQuery;
+        if (table === "profiles") return profilesQuery;
+        if (table === "moderation_cases") return casesQuery;
+        if (table === "moderation_actions") return actionsQuery;
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    const queue = await getGuideReviewQueue();
+
+    expect(queue).toHaveLength(1);
+    expect(queue[0]?.profile.user_id).toBe("submitted-guide");
+  });
 });
 
 function makeListing(id: string, status: ListingRow["status"]): ListingRow {

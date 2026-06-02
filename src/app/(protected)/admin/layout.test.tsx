@@ -3,12 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AuthContext } from "@/lib/auth/types";
 
-const { getAdminNavCountsMock, readAuthContextFromServerMock, redirectMock } =
-  vi.hoisted(() => ({
-    getAdminNavCountsMock: vi.fn(),
-    readAuthContextFromServerMock: vi.fn(),
-    redirectMock: vi.fn(),
-  }));
+const {
+  getAdminNavCountsMock,
+  hasSupabaseAdminEnvMock,
+  readAuthContextFromServerMock,
+  redirectMock,
+} = vi.hoisted(() => ({
+  getAdminNavCountsMock: vi.fn(),
+  hasSupabaseAdminEnvMock: vi.fn(),
+  readAuthContextFromServerMock: vi.fn(),
+  redirectMock: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   redirect: redirectMock,
@@ -17,6 +22,10 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/auth/server-auth", () => ({
   readAuthContextFromServer: readAuthContextFromServerMock,
+}));
+
+vi.mock("@/lib/env", () => ({
+  hasSupabaseAdminEnv: hasSupabaseAdminEnvMock,
 }));
 
 vi.mock("@/lib/supabase/moderation", () => ({
@@ -44,6 +53,7 @@ function makeAuthContext(overrides: Partial<AuthContext>): AuthContext {
 describe("AdminLayout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    hasSupabaseAdminEnvMock.mockReturnValue(true);
   });
 
   it("shows a clear on-screen error when the user is not an admin", async () => {
@@ -88,5 +98,19 @@ describe("AdminLayout", () => {
     expect(screen.queryByText("Админка недоступна")).not.toBeInTheDocument();
     expect(getAdminNavCountsMock).toHaveBeenCalledOnce();
     expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("renders admin shell without service-role env (nav counts stay zero)", async () => {
+    hasSupabaseAdminEnvMock.mockReturnValueOnce(false);
+    readAuthContextFromServerMock.mockResolvedValueOnce(makeAuthContext({ role: "admin" }));
+
+    const ui = await AdminLayout({
+      children: <div data-testid="admin-child">Очередь проверки</div>,
+    });
+    render(ui);
+
+    expect(screen.getByText("Панель администратора")).toBeInTheDocument();
+    expect(screen.getByTestId("admin-child")).toBeInTheDocument();
+    expect(getAdminNavCountsMock).not.toHaveBeenCalled();
   });
 });

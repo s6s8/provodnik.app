@@ -41,24 +41,24 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
 
   const supabase = await createSupabaseServerClient();
   const {
-    data: { session },
+    data: { user },
     error,
-  } = await supabase.auth.getSession();
+  } = await supabase.auth.getUser();
 
-  if (error || !session) {
+  if (error || !user) {
     return baseContext;
   }
 
   const { data: profile } = await supabase
     .from("profiles")
     .select("id, role, full_name, avatar_url")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const profileRole = resolveCanonicalRole({
     profileRole: profile?.role,
-    appMetadataRole: session.user.app_metadata?.role as string | undefined,
-    userMetadataRole: session.user.user_metadata?.role as string | undefined,
+    appMetadataRole: user.app_metadata?.role as string | undefined,
+    userMetadataRole: user.user_metadata?.role as string | undefined,
   });
 
   if (!profileRole) {
@@ -67,10 +67,10 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
       isAuthenticated: true,
       source: "supabase",
       role: null,
-      email: session.user.email ?? null,
+      email: user.email ?? null,
       fullName: null,
       avatarUrl: null,
-      userId: session.user.id,
+      userId: user.id,
       canonicalRedirectTo: null,
       missingRoleRecoveryTo: MISSING_ROLE_RECOVERY_TO,
     };
@@ -81,10 +81,10 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     isAuthenticated: true,
     source: "supabase",
     role: profileRole,
-    email: session.user.email ?? null,
+    email: user.email ?? null,
     fullName: (profile?.full_name as string | null) ?? null,
     avatarUrl: (profile?.avatar_url as string | null) ?? null,
-    userId: session.user.id,
+    userId: user.id,
     canonicalRedirectTo: getCanonicalRedirect(profileRole),
     missingRoleRecoveryTo: null,
   };

@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { hasSupabaseAdminEnv } from "@/lib/env";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { getAdminNavCounts } from "@/lib/supabase/moderation";
 
@@ -61,7 +62,9 @@ export default async function AdminLayout({
     return <AdminAccessDenied returnTo={auth.canonicalRedirectTo} />;
   }
 
-  const counts = await getAdminNavCounts();
+  const counts = hasSupabaseAdminEnv()
+    ? await getAdminNavCounts()
+    : { guides: 0, listings: 0 };
   const email = auth.email ?? "admin@provodnik.app";
   const initials = getInitials(email);
 

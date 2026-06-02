@@ -43,10 +43,10 @@ export async function proxy(request: NextRequest) {
 
   const { supabase, applyCookies } = createSupabaseMiddlewareClient(request);
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session) {
+  if (!user) {
     return applyCookies(redirectTo(request, "/auth"));
   }
 
@@ -56,13 +56,13 @@ export async function proxy(request: NextRequest) {
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
-    .eq("id", session.user.id)
+    .eq("id", user.id)
     .maybeSingle();
 
   const role: AppRole | null = resolveCanonicalRole({
     profileRole: profile?.role,
-    appMetadataRole: session.user.app_metadata?.role as string | undefined,
-    userMetadataRole: session.user.user_metadata?.role as string | undefined,
+    appMetadataRole: user.app_metadata?.role as string | undefined,
+    userMetadataRole: user.user_metadata?.role as string | undefined,
   });
 
   if (!role) {
