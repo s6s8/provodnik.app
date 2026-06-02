@@ -5,8 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
+import { Button } from "@/components/ui/button";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { cn } from "@/lib/utils";
 import { HomepageAuthGate } from "@/features/homepage/components/homepage-auth-gate";
 
 import {
@@ -17,10 +19,6 @@ import {
 } from "../lib/extraction";
 import { parseRequestText } from "../lib/parse-client";
 import { SlotChips } from "./slot-chips";
-
-const CHROME_TEXT =
-  "linear-gradient(135deg,#5b6b86 0%,#9aa8be 30%,#41506b 55%,#8593ab 78%,#56657f 100%)";
-const CHROME_SOLID = "linear-gradient(135deg,#3b475e 0%,#5d6d8a 100%)";
 
 function buildFormData(fields: ExtractedFields): FormData {
   const fd = new FormData();
@@ -123,89 +121,64 @@ export function HeroConversation() {
 
   return (
     <section
-      className="relative flex min-h-[calc(100svh-var(--nav-h))] flex-col items-center justify-center overflow-hidden px-6 py-12"
+      className="relative flex min-h-[calc(100svh-var(--nav-h))] flex-col items-center justify-center overflow-hidden px-[clamp(20px,4vw,48px)] py-12"
       aria-label="Создать запрос гида"
-      style={{ background: "linear-gradient(180deg,#f4f6fa 0%,#e6eaf1 100%)" }}
     >
-      {/* Liquid-chrome atmosphere (Mercury) */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -z-10"
-        style={{
-          inset: "-20%",
-          filter: "blur(70px)",
-          background:
-            "radial-gradient(40% 40% at 30% 22%,#c3ccdb 0%,transparent 60%),radial-gradient(45% 45% at 76% 34%,#aeb9cd 0%,transparent 60%)",
-        }}
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -z-10 opacity-70"
-        style={{
-          inset: "-20%",
-          filter: "blur(70px)",
-          background:
-            "radial-gradient(35% 35% at 62% 82%,#9fb0cb 0%,transparent 55%),radial-gradient(40% 40% at 18% 76%,#cdd5e2 0%,transparent 60%)",
-        }}
-      />
+      {/* Atmosphere: soft brand wash + grain-free radial depth */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10"
         style={{
           background:
-            "linear-gradient(115deg,transparent 38%,rgba(255,255,255,0.45) 48%,transparent 60%)",
+            "radial-gradient(120% 80% at 50% -10%, var(--brand-light) 0%, transparent 55%), radial-gradient(80% 60% at 85% 110%, rgba(33,112,228,0.08) 0%, transparent 60%)",
         }}
       />
 
-      <div className="mx-auto flex w-full max-w-md flex-col items-center">
-        <p className="animate-in fade-in-50 mb-4 text-[11px] font-medium uppercase tracking-[0.32em] text-slate-400 duration-500">
-          проводник
+      <div className="mx-auto flex w-full max-w-xl flex-col items-center">
+        <p className="animate-in fade-in-50 mb-3 text-xs font-medium uppercase tracking-[0.18em] text-primary/80 duration-500">
+          Проводник
         </p>
-        <h1
-          className="animate-in fade-in-50 slide-in-from-bottom-2 mb-4 text-center font-display text-[clamp(2.4rem,11vw,3.4rem)] font-semibold leading-[1.02] duration-700"
-          style={{
-            backgroundImage: CHROME_TEXT,
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          Расскажите
-          <br />о поездке
+        <h1 className="animate-in fade-in-50 slide-in-from-bottom-2 mb-3 text-center font-display text-[clamp(2rem,6vw,3.25rem)] leading-[1.08] text-foreground duration-700">
+          Расскажите о поездке
         </h1>
 
         <p
-          className="animate-in fade-in-50 mb-8 flex min-h-[2.75rem] max-w-xs items-center justify-center gap-2 text-center text-[15px] leading-snug text-slate-500 duration-700"
+          className="animate-in fade-in-50 mb-7 flex min-h-[2.5rem] items-center justify-center gap-2 text-center text-[15px] leading-snug text-muted-foreground duration-700"
           aria-live="polite"
         >
-          <span aria-hidden="true" className="text-slate-400">
-            ✦
+          <span aria-hidden="true" className="text-base">
+            ✨
           </span>
           {assistantMessage}
         </p>
 
-        {/* The one glass bar */}
+        {/* The one bar */}
         <form
           onSubmit={handleSend}
           className="animate-in fade-in-50 slide-in-from-bottom-3 w-full duration-700"
         >
-          <div className="flex items-center gap-2.5 rounded-[22px] border border-white/80 bg-white/60 py-2 pl-5 pr-2 shadow-[0_20px_50px_-16px_rgba(40,60,90,0.3)] backdrop-blur-2xl backdrop-saturate-150 transition-shadow focus-within:border-white focus-within:shadow-[0_24px_60px_-14px_rgba(40,60,90,0.4)]">
+          <div
+            className={cn(
+              "flex items-center gap-2 rounded-2xl border border-input bg-card p-2 pl-4 shadow-soft transition-shadow",
+              "focus-within:border-primary/50 focus-within:shadow-panel",
+            )}
+          >
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               disabled={isParsing}
               autoFocus
-              placeholder="Москва на завтра, нас двое, 5000…"
+              placeholder="Москва на завтра, нас двое, 5000, история и еда…"
               aria-label="Опишите вашу поездку"
-              className="min-w-0 flex-1 bg-transparent text-[16px] text-slate-800 placeholder:text-slate-400 focus:outline-none"
+              className="min-w-0 flex-1 bg-transparent text-[16px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
             />
-            <button
+            <Button
               type="submit"
+              size="icon"
               disabled={isParsing || !input.trim()}
               aria-label="Отправить"
-              style={{ backgroundImage: CHROME_SOLID }}
-              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white shadow-[0_8px_18px_-6px_rgba(50,70,110,0.55)] transition-opacity disabled:opacity-40"
+              className="h-11 w-11 shrink-0 rounded-xl"
             >
               {isParsing ? (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -214,41 +187,40 @@ export function HeroConversation() {
                   ↑
                 </span>
               )}
-            </button>
+            </Button>
           </div>
         </form>
 
         {parseError && (
-          <p role="alert" className="mt-3 text-center text-sm text-red-600">
+          <p role="alert" className="mt-3 text-center text-sm text-destructive">
             {parseError}
           </p>
         )}
 
-        <SlotChips fields={fields} className="mt-7 w-full" />
+        <SlotChips fields={fields} className="mt-8 w-full" />
 
-        {/* Confirm — mounts only when every required chip is captured */}
+        {/* Confirm — mounts only when every required chip is green */}
         {complete && (
           <div className="animate-in fade-in-50 slide-in-from-bottom-2 mt-8 w-full duration-500">
             {serverError && (
-              <p role="alert" className="mb-3 text-center text-sm text-red-600">
+              <p role="alert" className="mb-3 text-center text-sm text-destructive">
                 {serverError}
               </p>
             )}
-            <button
+            <Button
               type="button"
               onClick={handleCreate}
               disabled={isCreating}
-              style={{ backgroundImage: CHROME_SOLID }}
-              className="h-14 w-full rounded-[20px] text-base font-medium text-white shadow-[0_16px_40px_-12px_rgba(50,70,110,0.55)] transition-opacity disabled:opacity-50"
+              className="h-14 w-full rounded-2xl text-base"
             >
               {isCreating ? "Отправляем…" : "Создать запрос"}
-            </button>
+            </Button>
           </div>
         )}
 
-        <p className="mt-7 text-center text-xs text-slate-400">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
           Предпочитаете заполнить вручную?{" "}
-          <Link href="/" className="font-medium text-slate-600 underline-offset-2 hover:underline">
+          <Link href="/" className="font-medium text-primary underline-offset-2 hover:underline">
             Обычная форма
           </Link>
         </p>

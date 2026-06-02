@@ -9,9 +9,6 @@ import type { ExtractedFields } from "../lib/extraction";
 
 const THEME_LABEL = new Map(THEMES.map((t) => [t.slug, t.label]));
 
-/** Graphite "liquid chrome" fill for captured chips. */
-const CHROME = "linear-gradient(135deg,#3b475e 0%,#5d6d8a 100%)";
-
 function formatDate(iso: string): string {
   const d = new Date(`${iso}T00:00:00`);
   if (Number.isNaN(d.getTime())) return iso;
@@ -55,16 +52,13 @@ function buildChips(f: ExtractedFields): Chip[] {
   ];
 }
 
-/**
- * Five required-field chips. Captured fields become solid liquid-chrome glass
- * with a check; missing fields stay frosted/dashed.
- */
+/** Five required-field chips that flip from amber ("missing") to green ("got it"). */
 export function SlotChips({ fields, className }: { fields: ExtractedFields; className?: string }) {
   const chips = buildChips(fields);
   const filled = chips.filter((c) => c.value).length;
 
   return (
-    <div className={cn("flex flex-col items-center gap-3", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex flex-wrap justify-center gap-2" aria-label="Распознанные детали запроса">
         {chips.map((chip) => {
           const isFilled = Boolean(chip.value);
@@ -72,12 +66,11 @@ export function SlotChips({ fields, className }: { fields: ExtractedFields; clas
             <span
               key={chip.key}
               data-filled={isFilled}
-              style={isFilled ? { backgroundImage: CHROME } : undefined}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-xs font-medium backdrop-blur-md transition-all duration-300",
+                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300",
                 isFilled
-                  ? "border border-transparent text-white shadow-[0_8px_20px_-8px_rgba(50,70,110,0.5)]"
-                  : "border border-dashed border-white/70 bg-white/45 text-slate-500",
+                  ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
+                  : "border-dashed border-[var(--warning)]/40 bg-[var(--warning)]/5 text-[var(--warning)]",
               )}
             >
               <span aria-hidden="true" className="text-sm leading-none">
@@ -85,7 +78,7 @@ export function SlotChips({ fields, className }: { fields: ExtractedFields; clas
               </span>
               <span>{chip.value ?? chip.empty}</span>
               {isFilled && (
-                <span aria-hidden="true" className="leading-none opacity-90">
+                <span aria-hidden="true" className="leading-none">
                   ✓
                 </span>
               )}
@@ -93,7 +86,7 @@ export function SlotChips({ fields, className }: { fields: ExtractedFields; clas
           );
         })}
       </div>
-      <p className="text-xs tracking-wide text-slate-400" aria-live="polite">
+      <p className="text-center text-xs text-muted-foreground" aria-live="polite">
         Заполнено {filled} из {chips.length}
       </p>
     </div>
