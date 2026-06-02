@@ -948,7 +948,8 @@ export async function getPendingListingReviews(): Promise<ListingModerationRow[]
     const { data: openCaseListings, error } = await adminClient
       .from("listings")
       .select("*")
-      .in("id", openCaseListingIds);
+      .in("id", openCaseListingIds)
+      .neq("status", "draft");
 
     if (error) throw error;
 

@@ -486,4 +486,68 @@ describe("getPendingListingReviews", () => {
 
     expect(rows.map((row) => row.listing.id)).toEqual(["published-listing"]);
   });
+
+  it("excludes draft listings even when a stale open moderation case exists", async () => {
+    const pendingListingsQuery = makeQuery({ data: [], error: null });
+    const casesQuery = makeQuery({
+      data: [
+        {
+          id: "case-1" as Uuid,
+          subject_type: "listing",
+          guide_id: "guide-1" as Uuid,
+          listing_id: "draft-listing" as Uuid,
+          review_id: null,
+          opened_by: null,
+          assigned_admin_id: null,
+          status: "open",
+          queue_reason: "Проверка",
+          risk_flags: [],
+          created_at: "2026-05-01T10:00:00.000Z",
+          updated_at: "2026-05-01T10:00:00.000Z",
+        },
+      ],
+      error: null,
+    });
+    const openCaseListingsQuery = makeQuery({ data: [], error: null });
+    let listingsCall = 0;
+
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "admin-id" } },
+          error: null,
+        }),
+      },
+      from: vi.fn(() =>
+        makeQuery({
+          data: {
+            id: "admin-id",
+            role: "admin",
+            full_name: "Admin",
+            email: "admin@example.com",
+            avatar_url: null,
+          },
+          error: null,
+        }),
+      ),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "listings") {
+          listingsCall += 1;
+          return listingsCall === 1 ? pendingListingsQuery : openCaseListingsQuery;
+        }
+        if (table === "moderation_cases") return casesQuery;
+        if (table === "profiles") return makeQuery({ data: [], error: null });
+        if (table === "guide_profiles") return makeQuery({ data: [], error: null });
+        if (table === "moderation_actions") return makeQuery({ data: [], error: null });
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    const rows = await getPendingListingReviews();
+
+    expect(rows).toEqual([]);
+    expect(openCaseListingsQuery.neq).toHaveBeenCalledWith("status", "draft");
+  });
 });
