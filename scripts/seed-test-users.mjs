@@ -55,6 +55,11 @@ for (const acct of accounts) {
   }, { onConflict: 'id' });
   if (profErr) throw new Error(`profile upsert ${acct.role}: ${profErr.message}`);
 
+  const { error: roleMetaErr } = await supa.auth.admin.updateUserById(userId, {
+    app_metadata: { role: acct.role },
+  });
+  if (roleMetaErr) throw new Error(`app_metadata ${acct.role}: ${roleMetaErr.message}`);
+
   if (acct.role === 'guide') {
     const { error: gpErr } = await supa.from('guide_profiles').upsert({
       user_id: userId,

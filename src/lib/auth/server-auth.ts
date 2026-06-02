@@ -1,11 +1,13 @@
 import { cookies } from "next/headers";
 
+import { getDemoUserIdForRole } from "@/data/notifications/demo";
 import {
   getDashboardPathForRole,
   resolveCanonicalRole,
 } from "@/lib/auth/role-routing";
 import { hasSupabaseEnv } from "@/lib/env";
 import { DEMO_SESSION_COOKIE, parseDemoSessionCookieValue } from "@/lib/demo-session";
+import type { DemoSession } from "@/lib/demo-session";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { AuthContext } from "@/lib/auth/types";
 
@@ -15,28 +17,51 @@ function getCanonicalRedirect(role: AuthContext["role"]): AuthContext["canonical
   return getDashboardPathForRole(role) as AuthContext["canonicalRedirectTo"];
 }
 
-export async function readAuthContextFromServer(): Promise<AuthContext> {
-  const hasEnv = hasSupabaseEnv();
-  const cookieStore = await cookies();
-
-  const demoCookie = cookieStore.get(DEMO_SESSION_COOKIE)?.value;
-  const demoSession = parseDemoSessionCookieValue(demoCookie);
-
-  const baseContext: AuthContext = {
+function unauthenticatedContext(hasEnv: boolean): AuthContext {
+  return {
     hasSupabaseEnv: hasEnv,
     isAuthenticated: false,
-    source: demoSession ? "demo" : "none",
-    role: demoSession?.role ?? null,
+    source: "none",
+    role: null,
     email: null,
     fullName: null,
     avatarUrl: null,
     userId: null,
-    canonicalRedirectTo: getCanonicalRedirect(demoSession?.role ?? null),
+    canonicalRedirectTo: null,
     missingRoleRecoveryTo: null,
   };
+}
+
+function demoAuthContext(demoSession: DemoSession): AuthContext {
+  return {
+    hasSupabaseEnv: false,
+    isAuthenticated: true,
+    source: "demo",
+    role: demoSession.role,
+    email: null,
+    fullName: null,
+    avatarUrl: null,
+    userId: getDemoUserIdForRole(demoSession.role),
+    canonicalRedirectTo: getCanonicalRedirect(demoSession.role),
+    missingRoleRecoveryTo: null,
+  };
+}
+
+export async function readAuthContextFromServer(): Promise<AuthContext> {
+  const hasEnv = hasSupabaseEnv();
+  const cookieStore = await cookies();
+
+  // Demo cookies apply only when Supabase is not configured (local shell / checklist).
+  // When env is present, ignore demo cookies so stale dev cookies cannot spoof role.
+  const demoSession = !hasEnv
+    ? parseDemoSessionCookieValue(cookieStore.get(DEMO_SESSION_COOKIE)?.value)
+    : null;
 
   if (!hasEnv) {
-    return baseContext;
+    if (demoSession) {
+      return demoAuthContext(demoSession);
+    }
+    return unauthenticatedContext(false);
   }
 
   const supabase = await createSupabaseServerClient();
@@ -46,7 +71,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
   } = await supabase.auth.getUser();
 
   if (error || !user) {
-    return baseContext;
+    return unauthenticatedContext(true);
   }
 
   const { data: profile } = await supabase
@@ -89,4 +114,3 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     missingRoleRecoveryTo: null,
   };
 }
-

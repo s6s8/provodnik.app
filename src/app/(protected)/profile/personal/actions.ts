@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { findContactInBio } from "@/features/profile/validation/anti-contact";
+import { writeDemoTravelerProfileToCookies } from "@/lib/demo-traveler-profile";
+import { hasSupabaseEnv } from "@/lib/env";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function updateTravelerProfile(
   formData: FormData,
@@ -17,13 +19,6 @@ export async function updateTravelerProfile(
     };
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-  if (authError || !user) return { ok: false, error: "Требуется вход" };
-
   const fullName = formData.get("name")?.toString().trim() ?? "";
   if (!fullName) return { ok: false, error: "Укажите имя" };
 
@@ -32,6 +27,25 @@ export async function updateTravelerProfile(
   const birthYearRaw = formData.get("birthYear")?.toString();
   const birthYear =
     birthYearRaw && !isNaN(Number(birthYearRaw)) ? Number(birthYearRaw) : null;
+
+  if (!hasSupabaseEnv()) {
+    await writeDemoTravelerProfileToCookies({
+      full_name: fullName,
+      bio: bio || null,
+      home_city: homeCity || null,
+      languages,
+      birth_year: birthYear,
+    });
+    revalidatePath("/profile/personal");
+    return { ok: true };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) return { ok: false, error: "Требуется вход" };
 
   const { error } = await supabase
     .from("profiles")

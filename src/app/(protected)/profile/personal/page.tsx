@@ -9,6 +9,8 @@ import {
   type TravelerProfile,
 } from "@/features/profile/components/traveler-profile-form";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { readDemoTravelerProfileFromCookies } from "@/lib/demo-traveler-profile";
+import { loadTravelerProfileFromSupabase } from "@/lib/profile/load-traveler-profile";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideProfileRow } from "@/lib/supabase/types";
@@ -66,44 +68,42 @@ async function fetchAvatar(userId: string | null | undefined, fallbackName: stri
 export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
 
-  if (auth.role === "traveler") {
+  if (auth.isAuthenticated && auth.role === "traveler") {
+    const fallbackName = auth.fullName?.trim() || auth.email || "Путешественник";
     let travelerProfile: TravelerProfile = {
-      full_name: auth.email ?? "Путешественник",
-      avatar_url: null,
+      full_name: fallbackName,
+      avatar_url: auth.avatarUrl,
       bio: null,
       home_city: null,
       languages: null,
       birth_year: null,
     };
 
-    if (auth.userId) {
+    if (auth.source === "demo") {
+      const demoProfile = await readDemoTravelerProfileFromCookies();
+      if (demoProfile) {
+        travelerProfile = {
+          ...travelerProfile,
+          full_name: demoProfile.full_name?.trim() || fallbackName,
+          bio: demoProfile.bio ?? null,
+          home_city: demoProfile.home_city ?? null,
+          languages: demoProfile.languages?.length ? demoProfile.languages : null,
+          birth_year: demoProfile.birth_year ?? null,
+        };
+      }
+    } else if (auth.userId && auth.hasSupabaseEnv) {
       try {
         const supabase = await createSupabaseServerClient();
-        const { data } = await supabase
-          .from("profiles")
-          .select("avatar_url, full_name, bio, home_city, languages, birth_year")
-          .eq("id", auth.userId)
-          .maybeSingle();
-        if (data) {
-          const row = data as {
-            avatar_url?: string | null;
-            full_name?: string | null;
-            bio?: string | null;
-            home_city?: string | null;
-            languages?: string[] | null;
-            birth_year?: number | null;
-          };
-          travelerProfile = {
-            full_name: row.full_name?.trim() || (auth.email ?? "Путешественник"),
-            avatar_url: row.avatar_url ?? null,
-            bio: row.bio ?? null,
-            home_city: row.home_city ?? null,
-            languages: row.languages?.length ? row.languages : null,
-            birth_year: row.birth_year ?? null,
-          };
+        const loaded = await loadTravelerProfileFromSupabase(
+          supabase,
+          auth.userId,
+          fallbackName,
+        );
+        if (loaded) {
+          travelerProfile = loaded;
         }
       } catch {
-        // render with defaults
+        // render with auth fallbacks
       }
     }
 
@@ -116,7 +116,16 @@ export default async function PersonalSettingsPage() {
           </h1>
         </div>
         <AvatarUploadBlock avatarUrl={travelerProfile.avatar_url} displayName={travelerProfile.full_name ?? ""} />
-        <TravelerProfileForm profile={travelerProfile} />
+        <TravelerProfileForm
+          key={[
+            travelerProfile.full_name,
+            travelerProfile.home_city,
+            travelerProfile.bio,
+            travelerProfile.birth_year,
+            travelerProfile.languages?.join(","),
+          ].join("|")}
+          profile={travelerProfile}
+        />
         <Button asChild variant="outline">
           <Link href="/traveler/requests">Мои запросы</Link>
         </Button>
