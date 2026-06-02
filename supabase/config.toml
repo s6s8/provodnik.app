@@ -15,3 +15,8 @@ major_version = 17
 [studio]
 enabled = true
 port = 54323
+
+# Stamp profiles.role into JWT app_metadata on sign-in / refresh (AP-038).
+[auth.hook.custom_access_token]
+enabled = true
+uri = "pg-functions://postgres/public/custom_access_token_hook"
