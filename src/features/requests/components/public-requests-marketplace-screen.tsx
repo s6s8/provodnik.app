@@ -125,9 +125,6 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
           <h1 className="mx-auto max-w-[780px] font-display text-[clamp(2.5rem,5vw,4.5rem)] font-semibold leading-[1.02] text-foreground">
             Открытые запросы на экскурсию
           </h1>
-          <p className="mx-auto mt-4 max-w-[620px] text-base leading-[1.65] text-muted-foreground">
-            Выберите направление, дату и присоединяйтесь к формирующейся группе
-          </p>
 
           <div className="mx-auto mt-7 max-w-[640px]">
             <label htmlFor="requests-search" className="sr-only">
@@ -138,7 +135,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Направление, дата или тема"
+              placeholder="Направление, дата, тема — присоединяйтесь к группе"
               className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
             />
           </div>
