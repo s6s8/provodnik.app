@@ -243,6 +243,27 @@ function QuietReqCard({
   );
 }
 
+function RequestCardGrid({
+  flexVariant,
+  className,
+}: {
+  flexVariant: FlexVariant;
+  className: string;
+}) {
+  return (
+    <div className={className}>
+      {samples.map((sample) => (
+        <div key={sample.href} className="space-y-2">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            {sample.scenario}
+          </p>
+          <QuietReqCard sample={sample} flexVariant={flexVariant} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
@@ -255,21 +276,34 @@ export default function DevReqCardsPage() {
       </div>
 
       <div className="space-y-12">
-        {flexVariantSections.map((section) => (
-          <section key={section.flexVariant}>
-            <SectionIntro title={section.title} description={section.description} />
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2">
-              {samples.map((sample) => (
-                <div key={sample.href} className="space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {sample.scenario}
-                  </p>
-                  <QuietReqCard sample={sample} flexVariant={section.flexVariant} />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
+        <section>
+          <SectionIntro
+            title="2 колонки (текущая)"
+            description="Текущая 2-колоночная сетка с тремя стилями бейджей для сравнения."
+          />
+          <div className="space-y-12">
+            {flexVariantSections.map((section) => (
+              <section key={section.flexVariant}>
+                <SectionIntro title={section.title} description={section.description} />
+                <RequestCardGrid
+                  flexVariant={section.flexVariant}
+                  className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2"
+                />
+              </section>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <SectionIntro
+            title="3 колонки (уже)"
+            description="Та же подборка карточек с гибридными бейджами в более узкой десктопной сетке."
+          />
+          <RequestCardGrid
+            flexVariant="hybrid"
+            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+          />
+        </section>
       </div>
     </main>
   );
