@@ -39,9 +39,11 @@ export function RequestCard({
 
       <div className="mt-auto space-y-4">
         <div className="space-y-2">
-          <div className="h-1 overflow-hidden rounded-full bg-surface-low">
-            <div className="h-full rounded-full bg-brand" style={{ width: `${progress}%` }} />
-          </div>
+          {request.capacity != null && request.capacity > 0 && (
+            <div className="h-1 overflow-hidden rounded-full bg-surface-low">
+              <div className="h-full rounded-full bg-brand" style={{ width: `${progress}%` }} />
+            </div>
+          )}
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-ink-3">{request.requesterName}</span>
             <span className="font-semibold text-ink">{request.budgetLabel}</span>
