@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
-import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public/public-requests-marketplace-screen";
+import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function generateMetadata(): Metadata {
