@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { cookiesMock, createSupabaseServerClientMock, hasSupabaseEnvMock } = vi.hoisted(() => ({
+const {
+  cookiesMock,
+  createSupabaseServerClientMock,
+  hasSupabaseEnvMock,
+  readDemoTravelerProfileFromCookiesMock,
+} = vi.hoisted(() => ({
   cookiesMock: vi.fn(),
   createSupabaseServerClientMock: vi.fn(),
   hasSupabaseEnvMock: vi.fn(),
+  readDemoTravelerProfileFromCookiesMock: vi.fn(),
 }));
 
 vi.mock("next/headers", () => ({
@@ -16,6 +22,10 @@ vi.mock("@/lib/env", () => ({
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
+}));
+
+vi.mock("@/lib/demo-traveler-profile", () => ({
+  readDemoTravelerProfileFromCookies: readDemoTravelerProfileFromCookiesMock,
 }));
 
 import { readAuthContextFromServer } from "./server-auth";
@@ -67,10 +77,18 @@ describe("readAuthContextFromServer", () => {
     });
     hasSupabaseEnvMock.mockReturnValue(true);
     createSupabaseServerClientMock.mockReset();
+    readDemoTravelerProfileFromCookiesMock.mockResolvedValue(null);
   });
 
   it("hydrates demo traveler as authenticated when Supabase env is missing", async () => {
     hasSupabaseEnvMock.mockReturnValue(false);
+    readDemoTravelerProfileFromCookiesMock.mockResolvedValue({
+      full_name: "Анна Демо",
+      bio: null,
+      home_city: null,
+      languages: null,
+      birth_year: null,
+    });
     cookiesMock.mockResolvedValue({
       get: vi.fn((name: string) =>
         name === "provodnik_demo_session" ? { value: demoTravelerCookie } : undefined,
@@ -82,6 +100,7 @@ describe("readAuthContextFromServer", () => {
     expect(auth.isAuthenticated).toBe(true);
     expect(auth.source).toBe("demo");
     expect(auth.role).toBe("traveler");
+    expect(auth.fullName).toBe("Анна Демо");
     expect(auth.userId).toBe("usr_traveler_you");
     expect(auth.canonicalRedirectTo).toBe("/traveler/requests");
   });
@@ -103,6 +122,43 @@ describe("readAuthContextFromServer", () => {
     expect(auth.isAuthenticated).toBe(false);
     expect(auth.role).toBeNull();
     expect(auth.canonicalRedirectTo).toBeNull();
+  });
+
+  it("falls back to user_metadata.full_name when the profile row has no stored name", async () => {
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "user-1",
+              email: "traveler@example.test",
+              app_metadata: { role: "traveler" },
+              user_metadata: { role: "traveler", full_name: "Мария Иванова" },
+            },
+          },
+          error: null,
+        }),
+      },
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                id: "user-1",
+                role: "traveler",
+                full_name: null,
+                avatar_url: null,
+              },
+            }),
+          })),
+        })),
+      })),
+    });
+
+    const auth = await readAuthContextFromServer();
+
+    expect(auth.fullName).toBe("Мария Иванова");
+    expect(auth.role).toBe("traveler");
   });
 
   it("uses profiles.role over stale JWT metadata for dashboard routing", async () => {

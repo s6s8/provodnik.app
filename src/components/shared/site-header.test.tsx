@@ -44,7 +44,7 @@ describe("SiteHeader desktop account menu", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows the role label in the account trigger instead of the profile full name", () => {
+  it("shows the profile full name next to the avatar when fullName is set", () => {
     render(
       <SiteHeader
         isAuthenticated
@@ -56,16 +56,15 @@ describe("SiteHeader desktop account menu", () => {
     );
 
     const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
-    expect(trigger).toHaveTextContent("Путешественник");
-    expect(trigger).not.toHaveTextContent("Анна Иванова");
+    expect(trigger).toHaveTextContent("Анна Иванова");
+    expect(trigger).not.toHaveTextContent("Путешественник");
   });
 
-  it("shows the guide role label when full name is set", () => {
+  it("falls back to the role label when fullName is absent", () => {
     render(
       <SiteHeader
         isAuthenticated
         role="guide"
-        fullName="Иван Петров"
         email="guide@example.com"
         userId="user-2"
       />,
@@ -73,7 +72,6 @@ describe("SiteHeader desktop account menu", () => {
 
     const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
     expect(trigger).toHaveTextContent("Гид");
-    expect(trigger).not.toHaveTextContent("Иван Петров");
   });
 
   it("renders traveler menu items in the avatar dropdown", async () => {

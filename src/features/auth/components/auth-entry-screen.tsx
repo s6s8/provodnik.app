@@ -137,8 +137,7 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
           return;
         }
 
-        router.replace(dashboardPath);
-        router.refresh();
+        window.location.assign(dashboardPath);
         return;
       }
 

@@ -8,6 +8,7 @@ import {
 import { hasSupabaseEnv } from "@/lib/env";
 import { DEMO_SESSION_COOKIE, parseDemoSessionCookieValue } from "@/lib/demo-session";
 import type { DemoSession } from "@/lib/demo-session";
+import { readDemoTravelerProfileFromCookies } from "@/lib/demo-traveler-profile";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { AuthContext } from "@/lib/auth/types";
 
@@ -32,14 +33,19 @@ function unauthenticatedContext(hasEnv: boolean): AuthContext {
   };
 }
 
-function demoAuthContext(demoSession: DemoSession): AuthContext {
+async function demoAuthContext(demoSession: DemoSession): Promise<AuthContext> {
+  const demoProfile =
+    demoSession.role === "traveler"
+      ? await readDemoTravelerProfileFromCookies()
+      : null;
+
   return {
     hasSupabaseEnv: false,
     isAuthenticated: true,
     source: "demo",
     role: demoSession.role,
     email: null,
-    fullName: null,
+    fullName: demoProfile?.full_name?.trim() || null,
     avatarUrl: null,
     userId: getDemoUserIdForRole(demoSession.role),
     canonicalRedirectTo: getCanonicalRedirect(demoSession.role),
@@ -59,7 +65,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
 
   if (!hasEnv) {
     if (demoSession) {
-      return demoAuthContext(demoSession);
+      return await demoAuthContext(demoSession);
     }
     return unauthenticatedContext(false);
   }
@@ -107,7 +113,12 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     source: "supabase",
     role: profileRole,
     email: user.email ?? null,
-    fullName: (profile?.full_name as string | null) ?? null,
+    fullName:
+      (profile?.full_name as string | null)?.trim() ||
+      (typeof user.user_metadata?.full_name === "string"
+        ? user.user_metadata.full_name.trim()
+        : null) ||
+      null,
     avatarUrl: (profile?.avatar_url as string | null) ?? null,
     userId: user.id,
     canonicalRedirectTo: getCanonicalRedirect(profileRole),
