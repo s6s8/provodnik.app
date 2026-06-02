@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type ReqCardMember } from "@/components/shared/req-card";
 import { INTEREST_CHIPS } from "@/data/interests";
-import { formatGroupLine } from "@/data/requests-format";
 
 export const metadata = {
   robots: {
@@ -21,20 +20,13 @@ type RequestCardSample = {
   date: string;
   mode: "private" | "assembly";
   groupSize: number;
-  capacity?: number;
   datesFlexible: boolean;
   interests: InterestId[];
   members: ReqCardMember[];
   price: string;
 };
 
-type FlexVariant = "cabinet" | "showcase" | "hybrid";
-
-type FlexVariantSection = {
-  title: string;
-  description: string;
-  flexVariant: FlexVariant;
-};
+type FlexVariant = "hybrid";
 
 const samples = [
   {
@@ -57,7 +49,7 @@ const samples = [
     scenario: "Своя группа + гибкая дата",
     href: "/requests/kazbegi-one-day",
     location: "Казбеги",
-    date: "21 июня",
+    date: "21 июня, 10:00",
     mode: "private",
     groupSize: 3,
     datesFlexible: true,
@@ -70,13 +62,12 @@ const samples = [
     price: "7 900 ₽ / чел",
   },
   {
-    scenario: "Открытая группа + точная дата",
+    scenario: "Сборная группа + точная дата",
     href: "/requests/kakheti-wine",
     location: "Кахетия",
     date: "5 июля, 11:30",
     mode: "assembly",
     groupSize: 4,
-    capacity: 8,
     datesFlexible: false,
     interests: ["food", "history", "architecture"],
     members: [
@@ -88,13 +79,12 @@ const samples = [
     price: "6 800 ₽ / чел",
   },
   {
-    scenario: "Открытая группа + гибкая дата",
+    scenario: "Сборная группа + гибкая дата",
     href: "/requests/svaneti-mountains",
     location: "Сванетия",
-    date: "14–16 августа",
+    date: "14–16 августа, 09:00",
     mode: "assembly",
     groupSize: 5,
-    capacity: 10,
     datesFlexible: true,
     interests: ["nature", "history", "unusual"],
     members: [
@@ -107,40 +97,10 @@ const samples = [
   },
 ] satisfies RequestCardSample[];
 
-const flexVariantSections = [
-  {
-    title: "Кабинетный стиль",
-    description:
-      "Стиль личного кабинета: primary-таблетки, короткие символьные подписи (± даты / + к группе).",
-    flexVariant: "cabinet",
-  },
-  {
-    title: "Витринный стиль",
-    description:
-      "Стиль публичной витрины: синие бейджи, полные слова (Гибкие даты / Открытая группа).",
-    flexVariant: "showcase",
-  },
-  {
-    title: "Гибрид",
-    description: "Лёгкие primary-таблетки кабинета + понятные слова витрины.",
-    flexVariant: "hybrid",
-  },
-] satisfies FlexVariantSection[];
-
 const flexBadgeVariantConfig = {
-  cabinet: {
-    className: "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary",
-    openGroupLabel: "+ к группе",
-    datesFlexibleLabel: "± даты",
-  },
-  showcase: {
-    className: "rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600",
-    openGroupLabel: "Открытая группа",
-    datesFlexibleLabel: "Гибкие даты",
-  },
   hybrid: {
     className: "rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary",
-    openGroupLabel: "Открытая группа",
+    openGroupLabel: "Сборная группа",
     datesFlexibleLabel: "Гибкие даты",
   },
 } satisfies Record<
@@ -159,6 +119,10 @@ function getInterestLabels(interests: InterestId[]) {
     .slice(0, 3)
     .map((id) => interestLabelMap.get(id))
     .filter((label): label is NonNullable<typeof label> => label != null);
+}
+
+function formatSampleGroupLine({ mode, groupSize }: Pick<RequestCardSample, "mode" | "groupSize">) {
+  return mode === "private" ? `Своя группа · ${groupSize} чел.` : `Сборная группа · ${groupSize} чел.`;
 }
 
 function AvatarStack({ members }: { members: ReqCardMember[] }) {
@@ -180,15 +144,6 @@ function AvatarStack({ members }: { members: ReqCardMember[] }) {
   );
 }
 
-function SectionIntro({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="mb-4">
-      <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-    </div>
-  );
-}
-
 function QuietReqCard({
   sample,
   flexVariant,
@@ -197,21 +152,17 @@ function QuietReqCard({
   flexVariant: FlexVariant;
 }) {
   const interestLabels = getInterestLabels(sample.interests);
-  const groupLine = formatGroupLine({
-    mode: sample.mode,
-    groupSize: sample.groupSize,
-    capacity: sample.capacity ?? null,
-  });
+  const groupLine = formatSampleGroupLine(sample);
   const hasFlexBadges = sample.mode === "assembly" || sample.datesFlexible;
   const flexBadgeConfig = flexBadgeVariantConfig[flexVariant];
 
   return (
     <Link
       href={sample.href}
-      className="block bg-surface-high rounded-card p-4 shadow-card transition-transform hover:-translate-y-0.5"
+      className="flex h-full flex-col bg-surface-high rounded-card p-4 shadow-card transition-transform hover:-translate-y-0.5"
     >
       <p className="text-lg font-semibold text-foreground">{sample.location}</p>
-      <p className="mt-1 text-sm text-muted-foreground">
+      <p className="mt-1 truncate text-sm text-muted-foreground">
         {sample.date} · {groupLine}
       </p>
       {hasFlexBadges ? (
@@ -235,7 +186,7 @@ function QuietReqCard({
         </div>
       ) : null}
 
-      <div className="mt-4 flex items-center justify-between gap-3">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
         <AvatarStack members={sample.members} />
         <span className="text-sm font-semibold text-foreground">{sample.price}</span>
       </div>
@@ -253,7 +204,7 @@ function RequestCardGrid({
   return (
     <div className={className}>
       {samples.map((sample) => (
-        <div key={sample.href} className="space-y-2">
+        <div key={sample.href} className="flex h-full flex-col space-y-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {sample.scenario}
           </p>
@@ -268,43 +219,17 @@ export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Бейджи гибкости — три стиля рядом</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — 3 колонки</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Сравнение тех же четырёх сценариев: дата (точная / гибкая) × группа (своя /
-          открытая).
+          Адаптивная сетка с четырьмя сценариями: дата точная или гибкая, группа своя или
+          сборная.
         </p>
       </div>
 
-      <div className="space-y-12">
-        <section>
-          <SectionIntro
-            title="2 колонки (текущая)"
-            description="Текущая 2-колоночная сетка с тремя стилями бейджей для сравнения."
-          />
-          <div className="space-y-12">
-            {flexVariantSections.map((section) => (
-              <section key={section.flexVariant}>
-                <SectionIntro title={section.title} description={section.description} />
-                <RequestCardGrid
-                  flexVariant={section.flexVariant}
-                  className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-2"
-                />
-              </section>
-            ))}
-          </div>
-        </section>
-
-        <section>
-          <SectionIntro
-            title="3 колонки (уже)"
-            description="Та же подборка карточек с гибридными бейджами в более узкой десктопной сетке."
-          />
-          <RequestCardGrid
-            flexVariant="hybrid"
-            className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
-          />
-        </section>
-      </div>
+      <RequestCardGrid
+        flexVariant="hybrid"
+        className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
+      />
     </main>
   );
 }
