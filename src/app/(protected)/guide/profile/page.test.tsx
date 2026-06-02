@@ -178,7 +178,7 @@ describe("GuideProfilePage", () => {
     expect(screen.queryByText("Документы и к каким экскурсиям они относятся.")).not.toBeInTheDocument();
   });
 
-  it("renders the license add action in the section header action slot", async () => {
+  it("renders the license add action after the section description", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce({
       isAuthenticated: true,
       userId: "g1",
@@ -194,14 +194,12 @@ describe("GuideProfilePage", () => {
     const description = screen.getByText(
       "Укажите документ и к каким видам экскурсиям он относится.",
     );
-    const action = addButton.closest('[data-slot="card-action"]');
     const header = addButton.closest('[data-slot="card-header"]');
 
-    expect(action).toBeInTheDocument();
     expect(header).toBeInTheDocument();
     expect(header as HTMLElement).toContainElement(description);
     expect(
-      addButton.compareDocumentPosition(description) & Node.DOCUMENT_POSITION_FOLLOWING,
+      description.compareDocumentPosition(addButton) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
     expect(
       within(header as HTMLElement).queryByText(

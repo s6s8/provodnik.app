@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -309,12 +308,10 @@ export default async function GuideProfilePage() {
           <Card className="border-border/70 bg-card/90">
             <CardHeader>
               <CardTitle className="text-xl">Документ о квалификации</CardTitle>
-              <CardAction>
-                <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
-              </CardAction>
               <CardDescription>
                 Укажите документ и к каким видам экскурсиям он относится.
               </CardDescription>
+              <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
             </CardHeader>
             <CardContent className="space-y-4">
               {isVerifiedDataLocked ? (
