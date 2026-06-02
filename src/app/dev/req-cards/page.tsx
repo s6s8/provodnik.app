@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Hand, UserPlus, Users } from "lucide-react";
+import { Check, Hand, UserPlus, Users, UsersRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type ReqCardMember } from "@/components/shared/req-card";
@@ -26,6 +26,14 @@ type RequestCardSample = {
   interests: InterestId[];
   members: ReqCardMember[];
   price: string;
+};
+
+type GroupTypeBadgeVariant = "quiet" | "weight" | "weight-icon";
+
+type BadgeVariantSection = {
+  variant: GroupTypeBadgeVariant;
+  title: string;
+  description: string;
 };
 
 const samples = [
@@ -105,12 +113,32 @@ const interestLabelMap = new Map(INTEREST_CHIPS.map(({ id, label }) => [id, labe
 
 const datesFlexibleBadgeClassName =
   "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
-const groupTypeBadgeClassName =
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
+const groupTypeBadgeBaseClassName =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium text-ink-2";
+const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border`;
+const groupTypeBadgeFilledClassName = `${groupTypeBadgeBaseClassName} bg-surface-low`;
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
+
+const badgeVariantSections = [
+  {
+    variant: "quiet",
+    title: "1 · Тихий чип (контроль)",
+    description: "Оба типа остаются серыми контурными чипами; различие видно только по слову и базовой иконке.",
+  },
+  {
+    variant: "weight",
+    title: "2 · Вес: заливка vs контур",
+    description: "Своя группа получает тихую серую заливку, сборная остаётся контурной без цветового акцента.",
+  },
+  {
+    variant: "weight-icon",
+    title: "3 · Вес + силуэт иконки",
+    description: "К весу добавлен другой силуэт для сборной: UsersRound вместо UserPlus.",
+  },
+] satisfies BadgeVariantSection[];
 
 function getInterestLabels(interests: InterestId[]) {
   return interests
@@ -139,12 +167,42 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guide
   );
 }
 
-function GroupTypeBadge({ mode }: { mode: RequestCardSample["mode"] }) {
-  const Icon = mode === "private" ? Users : UserPlus;
+function getGroupTypeBadgeClassName(mode: RequestCardSample["mode"], variant: GroupTypeBadgeVariant) {
+  if (mode === "private" && variant !== "quiet") {
+    return groupTypeBadgeFilledClassName;
+  }
 
+  return groupTypeBadgeOutlineClassName;
+}
+
+function GroupTypeIcon({
+  mode,
+  variant,
+}: {
+  mode: RequestCardSample["mode"];
+  variant: GroupTypeBadgeVariant;
+}) {
+  if (mode === "private") {
+    return <Users size={14} className="text-ink-2" />;
+  }
+
+  if (variant === "weight-icon") {
+    return <UsersRound size={14} className="text-ink-2" />;
+  }
+
+  return <UserPlus size={14} className="text-ink-2" />;
+}
+
+function GroupTypeBadge({
+  mode,
+  variant,
+}: {
+  mode: RequestCardSample["mode"];
+  variant: GroupTypeBadgeVariant;
+}) {
   return (
-    <span className={groupTypeBadgeClassName}>
-      <Icon size={14} className="text-ink-2" /> {getGroupLabel(mode)}
+    <span className={getGroupTypeBadgeClassName(mode, variant)}>
+      <GroupTypeIcon mode={mode} variant={variant} /> {getGroupLabel(mode)}
     </span>
   );
 }
@@ -168,7 +226,7 @@ function AvatarStack({ members }: { members: ReqCardMember[] }) {
   );
 }
 
-function RequestCard({ sample }: { sample: RequestCardSample }) {
+function RequestCard({ sample, variant }: { sample: RequestCardSample; variant: GroupTypeBadgeVariant }) {
   const interestLabels = getInterestLabels(sample.interests);
 
   return (
@@ -182,7 +240,7 @@ function RequestCard({ sample }: { sample: RequestCardSample }) {
       </p>
       <div className="mt-2 flex flex-wrap gap-1.5">
         <GuideStatusBadge guideState={sample.guideState} />
-        <GroupTypeBadge mode={sample.mode} />
+        <GroupTypeBadge mode={sample.mode} variant={variant} />
         {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
       </div>
 
@@ -208,25 +266,39 @@ export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — финальная модель</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Тип
-          группы — иконкой и контурным чипом, без цвета. Четыре сценария для сравнения.
+          Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Ниже —
+          три трактовки серой метки типа группы на одних и тех же четырёх сценариях.
         </p>
       </div>
 
-      <section>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {samples.map((sample) => (
-            <div key={sample.href} className="flex h-full flex-col space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {sample.scenario}
-              </p>
-              <RequestCard sample={sample} />
+      <div className="space-y-10">
+        {badgeVariantSections.map((section) => (
+          <section key={section.variant} aria-labelledby={`${section.variant}-heading`}>
+            <div className="mb-4">
+              <h2
+                id={`${section.variant}-heading`}
+                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+              >
+                {section.title}
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">{section.description}</p>
             </div>
-          ))}
-        </div>
-      </section>
+
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+              {samples.map((sample) => (
+                <div key={`${section.variant}-${sample.href}`} className="flex h-full flex-col space-y-2">
+                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                    {sample.scenario}
+                  </p>
+                  <RequestCard sample={sample} variant={section.variant} />
+                </div>
+              ))}
+            </div>
+          </section>
+        ))}
+      </div>
     </main>
   );
 }

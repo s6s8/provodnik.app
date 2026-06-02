@@ -4,27 +4,37 @@ import { describe, expect, it } from "vitest";
 import DevReqCardsPage from "./page";
 
 describe("/dev/req-cards", () => {
-  it("renders group type as neutral outlined icon chips", () => {
+  it("renders three side-by-side interpretations of neutral group type badges", () => {
     render(<DevReqCardsPage />);
 
-    const privateChip = screen.getAllByText("Своя группа")[0].closest("span");
-    const assemblyChip = screen.getAllByText("Сборная")[0].closest("span");
+    expect(screen.getByRole("heading", { name: "1 · Тихий чип (контроль)" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "2 · Вес: заливка vs контур" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "3 · Вес + силуэт иконки" })).toBeInTheDocument();
+    expect(screen.getAllByRole("link")).toHaveLength(12);
 
-    expect(privateChip).toHaveClass(
-      "inline-flex",
-      "items-center",
-      "gap-1",
-      "whitespace-nowrap",
-      "rounded-full",
-      "border",
-      "border-border",
-      "text-ink-2",
-    );
-    expect(privateChip).not.toHaveClass("bg-surface-low");
-    expect(privateChip?.querySelector("svg")).not.toBeNull();
+    const privateChips = screen.getAllByText("Своя группа").map((label) => label.closest("span"));
+    const assemblyChips = screen.getAllByText("Сборная").map((label) => label.closest("span"));
 
-    expect(assemblyChip).toHaveClass("border", "border-border", "whitespace-nowrap", "text-ink-2");
-    expect(assemblyChip).not.toHaveClass("bg-surface-low");
-    expect(assemblyChip?.querySelector("svg")).not.toBeNull();
+    expect(privateChips).toHaveLength(6);
+    expect(assemblyChips).toHaveLength(6);
+
+    for (const chip of [...privateChips, ...assemblyChips]) {
+      expect(chip).toHaveClass("inline-flex", "items-center", "whitespace-nowrap", "text-ink-2");
+    }
+
+    expect(privateChips[0]).toHaveClass("border", "border-border");
+    expect(privateChips[0]).not.toHaveClass("bg-surface-low");
+    expect(assemblyChips[0]).toHaveClass("border", "border-border");
+    expect(assemblyChips[0]).not.toHaveClass("bg-surface-low");
+
+    expect(privateChips[2]).toHaveClass("bg-surface-low");
+    expect(privateChips[2]).not.toHaveClass("border");
+    expect(assemblyChips[2]).toHaveClass("border", "border-border");
+    expect(assemblyChips[2]).not.toHaveClass("bg-surface-low");
+
+    expect(privateChips[4]).toHaveClass("bg-surface-low");
+    expect(privateChips[4]?.querySelector(".lucide-users")).not.toBeNull();
+    expect(assemblyChips[4]).toHaveClass("border", "border-border");
+    expect(assemblyChips[4]?.querySelector(".lucide-users-round")).not.toBeNull();
   });
 });
