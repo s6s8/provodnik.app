@@ -1,8 +1,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+let mockPathname = "/traveler/requests";
+
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/traveler/requests",
+  usePathname: () => mockPathname,
 }));
 
 vi.mock("@/features/messaging/hooks/use-unread-count", () => ({
@@ -34,6 +36,7 @@ async function openAccountMenu() {
 describe("SiteHeader desktop account menu", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockPathname = "/traveler/requests";
   });
 
   it("shows the avatar trigger for authenticated travelers", () => {
@@ -42,6 +45,18 @@ describe("SiteHeader desktop account menu", () => {
     expect(
       screen.getByRole("button", { name: "Меню аккаунта" }),
     ).toBeInTheDocument();
+  });
+
+  it("hides the account trigger on public marketplace routes", () => {
+    mockPathname = "/requests";
+    renderAuthenticatedHeader("traveler");
+
+    expect(
+      screen.queryByRole("button", { name: "Меню аккаунта" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Личное меню" }),
+    ).not.toBeInTheDocument();
   });
 
   it("shows the profile full name next to the avatar when fullName is set", () => {

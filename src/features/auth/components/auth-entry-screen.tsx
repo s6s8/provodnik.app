@@ -3,7 +3,6 @@
 import { useState } from "react";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   AlertCircle,
   CheckCircle2,
@@ -64,8 +63,6 @@ type AuthEntryScreenProps = {
 };
 
 export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
-  const router = useRouter();
-
   const [mode, setMode] = useState<AuthFormMode>(
     role === "guide" ? "sign-up" : "sign-in",
   );
@@ -155,8 +152,7 @@ export function AuthEntryScreen({ role = "traveler" }: AuthEntryScreenProps) {
         return;
       }
 
-      router.replace(result.dashboardPath);
-      router.refresh();
+      window.location.assign(result.dashboardPath);
     } catch {
       setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");
     } finally {
