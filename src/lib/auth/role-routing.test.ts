@@ -54,6 +54,10 @@ describe("roleHasAccess", () => {
   it("denies travelers access to guide-only routes", () => {
     expect(roleHasAccess("traveler", "guide")).toBe(false);
   });
+
+  it("denies travelers direct access to the admin workspace", () => {
+    expect(roleHasAccess("traveler", "admin")).toBe(false);
+  });
 });
 
 describe("getRequiredRoleForPathname", () => {

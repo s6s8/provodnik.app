@@ -35,6 +35,10 @@ export async function proxy(request: NextRequest) {
     }
 
     if (demoRole !== requiredRole) {
+      // Admin layout renders an on-screen access error for non-admin sessions.
+      if (requiredRole === "admin") {
+        return NextResponse.next();
+      }
       return redirectTo(request, getDashboardPathForRole(demoRole) ?? "/auth");
     }
 
@@ -70,6 +74,10 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!roleHasAccess(role, requiredRole)) {
+    // Admin layout renders an on-screen access error for non-admin sessions.
+    if (requiredRole === "admin") {
+      return applyCookies(NextResponse.next());
+    }
     return applyCookies(
       redirectTo(request, getDashboardPathForRole(role) ?? "/auth?error=missing-role"),
     );
