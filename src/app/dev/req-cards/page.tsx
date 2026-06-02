@@ -256,7 +256,7 @@ function RequestCard({
       {interestThemes.length > 0 ? (
         <div className="mt-3 flex flex-wrap gap-1.5">
           {themeDisplay === "icons"
-            ? interestThemes.map(({ slug, label, Icon }) => <ThemeIconChip key={slug} label={label} Icon={Icon} />)
+            ? interestThemes.map(({ slug }) => <ThemeIconChip key={slug} slug={slug} />)
             : interestThemes.map(({ slug, label }) => (
                 <span key={slug} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
                   {label}

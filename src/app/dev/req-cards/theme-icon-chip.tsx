@@ -1,17 +1,23 @@
 "use client";
 
 import { useState, type MouseEvent } from "react";
-import type { LucideIcon } from "lucide-react";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { getTheme, type ThemeSlug } from "@/data/themes";
 
 type ThemeIconChipProps = {
-  label: string;
-  Icon: LucideIcon;
+  slug: ThemeSlug;
 };
 
-export function ThemeIconChip({ label, Icon }: ThemeIconChipProps) {
+export function ThemeIconChip({ slug }: ThemeIconChipProps) {
+  const theme = getTheme(slug);
   const [open, setOpen] = useState(false);
+
+  if (!theme) {
+    return null;
+  }
+
+  const { label, Icon } = theme;
 
   function handleClick(event: MouseEvent<HTMLButtonElement>) {
     event.preventDefault();
