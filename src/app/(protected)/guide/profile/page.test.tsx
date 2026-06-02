@@ -145,8 +145,8 @@ describe("GuideProfilePage", () => {
 
     expect(screen.getByRole("link", { name: "Квалификация" })).toHaveAttribute("href", "#license");
     expect(
-      screen.getByRole("heading", { name: /^Документ о квалификации$/ }),
-    ).toBeInTheDocument();
+      screen.getAllByRole("heading", { name: /^Документ о квалификации$/ }),
+    ).toHaveLength(1);
     expect(screen.getByText("Документ о квалификации", { exact: true })).toBeInTheDocument();
     expect(screen.queryByText("Аттестаты")).not.toBeInTheDocument();
     expect(screen.queryByText("Аттестаты и документы")).not.toBeInTheDocument();
@@ -176,6 +176,21 @@ describe("GuideProfilePage", () => {
         "Укажите документ и к каким видам экскурсиям он относится.",
       ),
     ).toBeInTheDocument();
+  });
+
+  it("redirects non-guide roles away from the profile editor", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce({
+      isAuthenticated: true,
+      userId: "t1",
+      role: "traveler",
+      canonicalRedirectTo: "/traveler/requests",
+      email: "traveler@example.com",
+    });
+    createSupabaseServerClientMock.mockImplementation(makeSupabaseClient);
+
+    await GuideProfilePage();
+
+    expect(redirectMock).toHaveBeenCalledWith("/traveler/requests");
   });
 
   it("keeps the editor available for an approved guide while locking verified sections", async () => {

@@ -52,3 +52,17 @@ describe("getRequiredRoleForPathname", () => {
     expect(getRequiredRoleForPathname("/profile/guide/about")).toBe("guide");
   });
 });
+
+describe("guide profile editor access", () => {
+  it("allows guides when profiles.role overrides a stale JWT traveler claim", () => {
+    const role = resolveCanonicalRole({
+      profileRole: "guide",
+      appMetadataRole: "traveler",
+    });
+    const requiredRole = getRequiredRoleForPathname("/guide/profile");
+
+    expect(role).toBe("guide");
+    expect(requiredRole).toBe("guide");
+    expect(roleHasAccess(role!, requiredRole!)).toBe(true);
+  });
+});
