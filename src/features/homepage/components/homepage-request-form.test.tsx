@@ -365,12 +365,15 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(historyChip.parentElement).toHaveClass("grid-cols-3");
   });
 
-  it("uses native time inputs with visible time placeholders", () => {
+  it("uses native time inputs with default values", () => {
     render(<HomepageRequestForm destinations={[]} />);
 
-    expect(screen.getByLabelText("Начало")).toHaveAttribute("type", "time");
-    expect(screen.getByLabelText("Начало")).toHaveAttribute("placeholder", "10:00");
-    expect(screen.getByLabelText(/конец/i)).toHaveAttribute("type", "time");
-    expect(screen.getByLabelText(/конец/i)).toHaveAttribute("placeholder", "12:00");
+    const startTime = screen.getByLabelText("Начало");
+    const endTime = screen.getByLabelText(/конец/i);
+
+    expect(startTime).toHaveAttribute("type", "time");
+    expect((startTime as HTMLInputElement).defaultValue).toBe("10:00");
+    expect(endTime).toHaveAttribute("type", "time");
+    expect((endTime as HTMLInputElement).defaultValue).toBe("12:00");
   });
 });

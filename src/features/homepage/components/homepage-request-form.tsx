@@ -187,7 +187,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                 )
               }
               className={cn(
-                "flex shrink-0 cursor-pointer items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
+                "flex h-9 w-9 shrink-0 touch-manipulation cursor-pointer items-center justify-center rounded-md border text-base font-bold leading-none transition-colors [tap-highlight-color:transparent]",
                 dateFlexibility !== "exact"
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
@@ -211,7 +211,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <Input
             id="startTime"
             type="time"
-            placeholder="10:00"
+            defaultValue="10:00"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
           />
@@ -222,7 +222,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <Input
             id="endTime"
             type="time"
-            placeholder="12:00"
+            defaultValue="12:00"
             aria-invalid={Boolean(errors.endTime)}
             {...register("endTime")}
           />
@@ -246,7 +246,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                   })
                 }
                 className={cn(
-                  "flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded border transition-colors",
+                  "flex h-9 w-9 shrink-0 touch-manipulation cursor-pointer items-center justify-center rounded border transition-colors [tap-highlight-color:transparent]",
                   isAssembly
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
