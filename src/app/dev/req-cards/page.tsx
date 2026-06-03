@@ -209,14 +209,14 @@ function RequestCardThemesTopPrototype({
       <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-start justify-between gap-2">
           <p className="min-w-0 truncate text-lg font-semibold text-foreground">{location}</p>
-          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
-            <CountPrototypeGroupTypeBadge groupType={groupType} />
+          <div className="flex shrink-0 items-center justify-end gap-1.5">
             <GuideStatusBadge guideState={guideState} />
           </div>
         </div>
 
-        <div className="mt-1 flex min-w-0 items-center gap-1.5">
-          <p className="truncate text-sm text-muted-foreground">{date}</p>
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          <p className="min-w-0 truncate text-sm text-muted-foreground">{date}</p>
+          <CountPrototypeGroupTypeBadge groupType={groupType} />
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
         </div>
 
