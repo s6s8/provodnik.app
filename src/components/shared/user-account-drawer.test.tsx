@@ -46,4 +46,23 @@ describe("UserAccountDrawer", () => {
     expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
     expect(screen.getByText("Мой профиль")).toBeInTheDocument();
   });
+
+  it("submits logout with POST", () => {
+    render(
+      <UserAccountDrawer
+        open
+        onOpenChange={vi.fn()}
+        email="traveler@example.com"
+        role="traveler"
+      />,
+    );
+
+    const logoutButton = screen.getByRole("button", { name: "Выйти из аккаунта" });
+    expect(logoutButton).toHaveAttribute("type", "submit");
+    expect(logoutButton.closest("form")).toHaveAttribute(
+      "action",
+      "/api/auth/signout",
+    );
+    expect(logoutButton.closest("form")).toHaveAttribute("method", "post");
+  });
 });

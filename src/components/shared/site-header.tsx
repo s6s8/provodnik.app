@@ -89,10 +89,6 @@ export function SiteHeader({
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
-  function handleLogout() {
-    window.location.href = "/api/auth/signout";
-  }
-
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
@@ -174,9 +170,13 @@ export function SiteHeader({
                 <DropdownMenuItem asChild>
                   <Link href="/help">Помощь</Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={handleLogout}>
-                  Выйти
-                </DropdownMenuItem>
+                <form action="/api/auth/signout" method="post">
+                  <DropdownMenuItem asChild>
+                    <button type="submit" className="w-full">
+                      Выйти
+                    </button>
+                  </DropdownMenuItem>
+                </form>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : null}

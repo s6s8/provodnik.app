@@ -39,10 +39,6 @@ export function UserAccountDrawer({
   const displayName = fullName?.trim() || email || "Гость";
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
 
-  function handleLogout() {
-    window.location.href = "/api/auth/signout";
-  }
-
   function closeAndNavigate() {
     onOpenChange(false);
   }
@@ -95,14 +91,15 @@ export function UserAccountDrawer({
 
           <div className="h-px bg-border my-2" />
 
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
-          >
-            <LogOut className="size-[18px] shrink-0" aria-hidden="true" />
-            Выйти из аккаунта
-          </button>
+          <form action="/api/auth/signout" method="post">
+            <button
+              type="submit"
+              className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+            >
+              <LogOut className="size-[18px] shrink-0" aria-hidden="true" />
+              Выйти из аккаунта
+            </button>
+          </form>
         </nav>
       </SheetContent>
     </Sheet>

@@ -20,7 +20,7 @@ export async function sendPasswordResetEmail(
   }
 
   // Rate limit: 5 attempts per IP per hour
-  const rl = await rateLimit(`forgot-password:${email}`, 5, 3600);
+  const rl = await rateLimit(`forgot-password:${trimmed}`, 5, 3600);
   if (!rl.success) {
     // Always return ok to avoid enumeration via rate limit error
     return { ok: true };

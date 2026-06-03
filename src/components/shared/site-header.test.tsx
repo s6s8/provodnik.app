@@ -138,6 +138,20 @@ describe("SiteHeader desktop account menu", () => {
     expect(screen.getByText("Выйти")).toBeInTheDocument();
   });
 
+  it("submits desktop logout with POST", async () => {
+    renderAuthenticatedHeader("traveler");
+
+    await openAccountMenu();
+
+    const logoutItem = await screen.findByRole("menuitem", { name: "Выйти" });
+    expect(logoutItem).toHaveAttribute("type", "submit");
+    expect(logoutItem.closest("form")).toHaveAttribute(
+      "action",
+      "/api/auth/signout",
+    );
+    expect(logoutItem.closest("form")).toHaveAttribute("method", "post");
+  });
+
   it("hides «Настройки» in the desktop header dropdown for both travellers and guides (settings merged into profile)", async () => {
     const { unmount } = renderAuthenticatedHeader("traveler");
 
