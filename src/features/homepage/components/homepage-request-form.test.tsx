@@ -136,7 +136,7 @@ describe("HomepageRequestForm onSubmit", () => {
     unmount();
     render(<HomepageRequestForm destinations={[]} />);
     fillMinimalForm();
-    fireEvent.click(screen.getByRole("button", { name: "≈ Гибкая дата" }));
+    fireEvent.click(screen.getByTitle("Гибкая дата (±2–3 дня)"));
     fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
 
     await waitFor(() => {
@@ -247,12 +247,14 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(hint!.textContent?.replace(/\s/g, "")).toMatch(/10000₽/);
   });
 
-  it("renders group size and the assembly checkbox as two half-width fields", () => {
+  it("renders group size and budget as two half-width fields; assembly icon present", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const groupSizeInput = screen.getByLabelText("Сколько вас");
-    const groupRow = groupSizeInput.closest("div")?.parentElement;
+    // input → div.relative → div.grid.gap-2 → div.grid-cols-2
+    const groupRow = groupSizeInput.closest("div")?.parentElement?.parentElement;
     expect(groupRow).toHaveClass("grid-cols-2");
-    expect(within(groupRow!).getByLabelText("Открытая группа")).toBeInTheDocument();
+    expect(within(groupRow!).getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
+    expect(screen.getByTitle("Открытая группа — другие путешественники могут присоединиться")).toBeInTheDocument();
     expect(screen.queryByLabelText("Открыт к увеличению группы")).toBeNull();
     expect(screen.queryByText(/попутчиков/i)).toBeNull();
     expect(screen.queryByText(/−10%/)).toBeNull();
@@ -261,8 +263,8 @@ describe("HomepageRequestForm UI affordances", () => {
 
   it("does not render «До скольких готов добрать» field", () => {
     render(<HomepageRequestForm destinations={[]} />);
-    // Toggle assembly checkbox on
-    fireEvent.click(screen.getByLabelText("Открытая группа"));
+    // Toggle assembly via icon button
+    fireEvent.click(screen.getByTitle("Открытая группа — другие путешественники могут присоединиться"));
     expect(screen.queryByLabelText(/До скольких готов добрать/i)).toBeNull();
   });
 
@@ -286,26 +288,27 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(after).toBe(before);
   });
 
-  it("shows only the first three topics until «Ещё темы» is toggled", () => {
+  it("shows only the first six topics until «Ещё темы» is toggled", () => {
     render(<HomepageRequestForm destinations={[]} />);
+    // Indices 0–5 visible by default: История, Архитектура, Природа, Гастрономия, Искусство, Религия
     expect(screen.getByRole("button", { name: /история/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /архитектура/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /природа/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /гастрономия/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /религия/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /для детей/i })).toBeNull();
 
     fireEvent.click(screen.getByRole("button", { name: "Ещё темы" }));
 
-    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /для детей/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Свернуть" })).toBeInTheDocument();
   });
 
   it("keeps selected hidden topics visible after collapsing", () => {
     render(<HomepageRequestForm destinations={[]} />);
+    // "Для детей" is at index 6 — hidden until expanded
     fireEvent.click(screen.getByRole("button", { name: "Ещё темы" }));
-    fireEvent.click(screen.getByRole("button", { name: /гастрономия/i }));
+    fireEvent.click(screen.getByRole("button", { name: /для детей/i }));
     fireEvent.click(screen.getByRole("button", { name: "Свернуть" }));
 
-    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /искусство/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /для детей/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /необычное/i })).toBeNull();
   });
 });

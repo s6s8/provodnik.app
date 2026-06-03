@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useController, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { UserPlus } from "lucide-react";
 
 import {
   travelerRequestSchema,
@@ -18,7 +19,6 @@ import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -82,7 +82,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const selectedInterests = interestsField.value ?? [];
   const visibleThemes = THEMES.filter(
     (theme, index) =>
-      index < 3 || showAllThemes || selectedInterests.includes(theme.slug),
+      index < 6 || showAllThemes || selectedInterests.includes(theme.slug),
   );
 
   async function submitWithFormData(fd: FormData) {
@@ -182,27 +182,37 @@ export function HomepageRequestForm({ destinations }: Props) {
       <div className="grid gap-3 sm:grid-cols-3 sm:items-start sm:gap-2">
         <div className="grid gap-2">
           <FieldLabel htmlFor="startDate">Дата</FieldLabel>
-          <Input
-            id="startDate"
-            type="date"
-            min={todayMoscowISODate()}
-            aria-invalid={Boolean(errors.startDate)}
-            aria-describedby={errors.startDate ? "startDate-error" : undefined}
-            {...register("startDate")}
-          />
+          <div className="relative">
+            <Input
+              id="startDate"
+              type="date"
+              min={todayMoscowISODate()}
+              className="pr-9"
+              aria-invalid={Boolean(errors.startDate)}
+              aria-describedby={errors.startDate ? "startDate-error" : undefined}
+              {...register("startDate")}
+            />
+            <button
+              type="button"
+              title="Гибкая дата (±2–3 дня)"
+              onClick={() =>
+                setValue(
+                  "dateFlexibility",
+                  watch("dateFlexibility") !== "exact" ? "exact" : "few_days",
+                  { shouldDirty: true },
+                )
+              }
+              className={cn(
+                "absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-sm font-semibold transition-colors",
+                watch("dateFlexibility") !== "exact"
+                  ? "text-primary"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              ≈
+            </button>
+          </div>
           <FieldError id="startDate-error" message={errors.startDate?.message} />
-          <Toggle
-            size="sm"
-            pressed={watch("dateFlexibility") !== "exact"}
-            onPressedChange={(pressed) =>
-              setValue("dateFlexibility", pressed ? "few_days" : "exact", {
-                shouldDirty: true,
-              })
-            }
-            className="h-7 px-2 text-xs font-normal text-muted-foreground data-[state=on]:text-foreground"
-          >
-            ≈ Гибкая дата
-          </Toggle>
         </div>
         <div className="grid gap-2">
           <FieldLabel htmlFor="startTime">Начало</FieldLabel>
@@ -226,41 +236,68 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 4. Сколько вас + opt-in companions toggle */}
+      {/* 4. Сколько вас + Бюджет на человека */}
       <div className="grid gap-3">
-        <div className="grid grid-cols-2 items-end gap-2">
+        <div className="grid grid-cols-2 items-start gap-2">
           <div className="grid gap-2">
             <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
+            <div className="relative">
+              <Input
+                id="groupSize"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={20}
+                className="pr-9"
+                aria-invalid={Boolean(errors.groupSize)}
+                {...register("groupSize", { valueAsNumber: true })}
+              />
+              <button
+                type="button"
+                title="Открытая группа — другие путешественники могут присоединиться"
+                onClick={() =>
+                  form.setValue("mode", isAssembly ? "private" : "assembly", {
+                    shouldValidate: false,
+                    shouldDirty: true,
+                  })
+                }
+                className={cn(
+                  "absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded transition-colors",
+                  isAssembly
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                <UserPlus className="h-4 w-4" />
+              </button>
+            </div>
+            <FieldError id="groupSize-error" message={errors.groupSize?.message} />
+          </div>
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="budgetPerPersonRub">
+              Бюджет на человека (₽)
+            </FieldLabel>
             <Input
-              id="groupSize"
+              id="budgetPerPersonRub"
               type="number"
               inputMode="numeric"
-              min={1}
-              max={20}
-              aria-invalid={Boolean(errors.groupSize)}
-              {...register("groupSize", { valueAsNumber: true })}
+              min={1000}
+              max={2000000}
+              aria-invalid={Boolean(errors.budgetPerPersonRub)}
+              aria-describedby="budgetPerPersonRub-total"
+              {...register("budgetPerPersonRub", { valueAsNumber: true })}
+            />
+            <FieldError
+              id="budgetPerPersonRub-error"
+              message={errors.budgetPerPersonRub?.message}
             />
           </div>
-
-          <label className="flex h-12 cursor-pointer items-center gap-2 rounded-xl border border-input bg-background px-3 hover:bg-muted/40">
-            <input
-              type="checkbox"
-              className="h-4 w-4 shrink-0 accent-primary"
-              checked={isAssembly}
-              onChange={(e) =>
-                form.setValue("mode", e.target.checked ? "assembly" : "private", {
-                  shouldValidate: false,
-                  shouldDirty: true,
-                })
-              }
-            />
-            <span className="whitespace-nowrap text-sm font-medium text-foreground">
-              Открытая группа
-            </span>
-          </label>
         </div>
-        <FieldError id="groupSize-error" message={errors.groupSize?.message} />
-
+        <TotalBudgetHint
+          id="budgetPerPersonRub-total"
+          perPerson={watchedBudgetPerPerson}
+          groupSize={watchedGroupSize}
+        />
         <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
           <input
             type="checkbox"
@@ -274,30 +311,6 @@ export function HomepageRequestForm({ destinations }: Props) {
             </span>
           </span>
         </label>
-      </div>
-
-      {/* 6. Бюджет на человека (₽) */}
-      <div className="grid gap-2">
-        <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
-        <Input
-          id="budgetPerPersonRub"
-          type="number"
-          inputMode="numeric"
-          min={1000}
-          max={2000000}
-          aria-invalid={Boolean(errors.budgetPerPersonRub)}
-          aria-describedby="budgetPerPersonRub-total"
-          {...register("budgetPerPersonRub", { valueAsNumber: true })}
-        />
-        <TotalBudgetHint
-          id="budgetPerPersonRub-total"
-          perPerson={watchedBudgetPerPerson}
-          groupSize={watchedGroupSize}
-        />
-        <FieldError
-          id="budgetPerPersonRub-error"
-          message={errors.budgetPerPersonRub?.message}
-        />
       </div>
 
       {/* 7. Темы */}
@@ -365,7 +378,6 @@ export function HomepageRequestForm({ destinations }: Props) {
             aria-invalid={Boolean(errors.notes)}
             {...register("notes")}
           />
-          <FieldHint>Пишите коротко — детали можно уточнить после первых откликов. Для заказа от юрлица добавьте сюда название компании, ИНН и тип документов.</FieldHint>
           <FieldError id="notes-error" message={errors.notes?.message} />
         </div>
       </details>
@@ -404,10 +416,6 @@ function FieldLabel(props: React.ComponentProps<"label">) {
       className={cn("text-sm font-medium text-foreground", props.className)}
     />
   );
-}
-
-function FieldHint({ className, ...props }: React.ComponentProps<"p">) {
-  return <p {...props} className={cn("text-xs text-muted-foreground", className)} />;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
