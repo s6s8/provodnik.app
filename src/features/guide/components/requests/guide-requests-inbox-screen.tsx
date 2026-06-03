@@ -178,9 +178,7 @@ export function GuideRequestsInboxScreen() {
   const emptyText =
     filter === "new"
       ? "Новых запросов пока нет. Путешественники публикуют запросы каждый день."
-      : filter === "my-offers"
-        ? "У вас нет активных предложений."
-        : "Принятых предложений пока нет.";
+      : "У вас нет активных предложений.";
 
   return (
     <div className="space-y-6">

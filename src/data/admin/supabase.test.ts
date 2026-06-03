@@ -1,96 +1,39 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { existsSync, readFileSync } from "node:fs";
+import { join } from "node:path";
 
-const { createSupabaseBrowserClient } = vi.hoisted(() => ({
-  createSupabaseBrowserClient: vi.fn(),
-}));
+import { describe, expect, it } from "vitest";
 
-vi.mock("@/lib/supabase/client", () => ({
-  createSupabaseBrowserClient,
-}));
+const root = process.cwd();
 
-import { listDisputeCasesForAdminFromSupabase } from "@/data/admin/supabase";
-
-function createAdminSupabase() {
-  const fixtures: Record<string, unknown[]> = {
-    disputes: [
-      {
-        id: "dispute-1",
-        booking_id: "booking-1",
-        opened_by: "traveler-1",
-        assigned_admin_id: null,
-        status: "open",
-        reason: "Quality mismatch",
-        summary: "Route did not match",
-        requested_outcome: "Refund",
-        payout_frozen: false,
-        resolution_summary: null,
-        created_at: "2026-06-03T00:00:00Z",
-        updated_at: "2026-06-03T01:00:00Z",
-        resolved_at: null,
-      },
-    ],
-    bookings: [
-      {
-        id: "booking-1",
-        traveler_id: "traveler-1",
-        guide_id: "guide-1",
-        request_id: "request-1",
-        listing_id: "listing-1",
-        status: "confirmed",
-        starts_at: "2026-06-05T00:00:00Z",
-        ends_at: null,
-        subtotal_minor: 100_000,
-        currency: "USD",
-      },
-    ],
-    profiles: [
-      { id: "traveler-1", full_name: "Traveler", email: "traveler@example.com" },
-      { id: "guide-1", full_name: "Guide", email: "guide@example.com" },
-    ],
-    listings: [
-      { id: "listing-1", title: "City walk", region: "Region", city: "City" },
-    ],
-    traveler_requests: [{ id: "request-1", destination: "City" }],
-    dispute_notes: [],
-  };
-  const queries: Record<string, ReturnType<typeof makeQuery>[]> = {};
-
-  function makeQuery(table: string) {
-    const query = {
-      select: vi.fn(() => query),
-      order: vi.fn(() => query),
-      range: vi.fn(() => query),
-      in: vi.fn(() => query),
-      then: vi.fn((resolve, reject) =>
-        Promise.resolve({ data: fixtures[table] ?? [], error: null }).then(resolve, reject),
-      ),
-    };
-    return query;
-  }
-
-  const from = vi.fn((table: string) => {
-    const query = makeQuery(table);
-    queries[table] = [...(queries[table] ?? []), query];
-    return query;
-  });
-
-  return { from, queries };
+function source(path: string) {
+  return readFileSync(join(root, path), "utf8");
 }
 
-describe("listDisputeCasesForAdminFromSupabase", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+describe("dead Supabase modules and exports", () => {
+  it("keeps audited unused Supabase modules removed", () => {
+    expect(existsSync(join(root, "src/data/admin/supabase.ts"))).toBe(false);
+    expect(existsSync(join(root, "src/data/reviews/supabase-client.ts"))).toBe(false);
+    expect(existsSync(join(root, "src/data/traveler-request/submit.ts"))).toBe(false);
+    expect(existsSync(join(root, "src/features/traveler/actions/accept-offer.ts"))).toBe(false);
   });
 
-  it("paginates disputes and scopes booking hydration to the returned booking ids", async () => {
-    const supabase = createAdminSupabase();
-    createSupabaseBrowserClient.mockReturnValue({ from: supabase.from });
+  it("keeps unused review list exports removed from the canonical server helper", () => {
+    const reviewsSource = source("src/lib/supabase/reviews.ts");
 
-    await expect(
-      listDisputeCasesForAdminFromSupabase({ page: 0, pageSize: 25 }),
-    ).resolves.toHaveLength(1);
+    expect(reviewsSource).not.toContain("export async function getReviewsForGuide");
+    expect(reviewsSource).not.toContain("export async function getReviewsForListing");
+  });
 
-    expect(supabase.queries.disputes[0]?.range).toHaveBeenCalledWith(0, 24);
-    expect(supabase.queries.bookings[0]?.in).toHaveBeenCalledWith("id", ["booking-1"]);
+  it("keeps guide inbox dead branches out and wires the listing rejection prop", () => {
+    const inboxSource = source(
+      "src/features/guide/components/requests/guide-requests-inbox-screen.tsx",
+    );
+    const listingsSource = source(
+      "src/features/guide/components/listings/guide-listings-list-screen.tsx",
+    );
+
+    expect(inboxSource).not.toContain("Принятых предложений пока нет.");
+    expect(listingsSource).toContain("showListingRejectionCard,");
+    expect(listingsSource).toContain("showListingRejectionCard &&");
   });
 });

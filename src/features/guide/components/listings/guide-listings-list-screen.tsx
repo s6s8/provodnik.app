@@ -40,6 +40,7 @@ type GuideListingsListScreenProps = {
 export function GuideListingsListScreen({
   initialListings,
   actions,
+  showListingRejectionCard,
 }: GuideListingsListScreenProps) {
   const router = useRouter();
   const [listings, setListings] = React.useState<ListingRow[]>(initialListings);
@@ -227,14 +228,20 @@ export function GuideListingsListScreen({
       {filteredListings.length > 0 && (
         <div className="grid gap-4">
           {filteredListings.map((listing) => (
-            <GuideListingCard
-              key={listing.id}
-              listing={listing}
-              onPublish={(id) => void handlePublish(id)}
-              onPause={(id) => void handlePause(id)}
-              onDelete={(id) => void handleDelete(id)}
-              pending={pending}
-            />
+            <div key={listing.id} className="space-y-2">
+              <GuideListingCard
+                listing={listing}
+                onPublish={(id) => void handlePublish(id)}
+                onPause={(id) => void handlePause(id)}
+                onDelete={(id) => void handleDelete(id)}
+                pending={pending}
+              />
+              {showListingRejectionCard && listing.status === "rejected" && listing.rejection_reason ? (
+                <p className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                  Причина отклонения: {listing.rejection_reason}
+                </p>
+              ) : null}
+            </div>
           ))}
         </div>
       )}

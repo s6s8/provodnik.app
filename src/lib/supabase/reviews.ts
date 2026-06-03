@@ -50,18 +50,6 @@ type BookingRow = {
   status: string;
 };
 
-type ReviewWithDetails = ReviewRow & {
-  traveler_name: string;
-  travelerName: string;
-  createdAt: string;
-  bookingLabel: string | null;
-  booking: {
-    id: string;
-    status: string;
-    created_at: string;
-  } | null;
-};
-
 function roundRating(value: number) {
   return Math.round(value * 100) / 100;
 }
@@ -235,83 +223,4 @@ export async function getReviewForBooking(
   }
 
   return (data as ReviewRow | null) ?? null;
-}
-
-async function loadReviewRowsWithDetails(
-  rows: ReviewRow[],
-): Promise<ReviewWithDetails[]> {
-  if (rows.length === 0) return [];
-
-  const supabase = createSupabaseAdminClient();
-  const travelerIds = Array.from(new Set(rows.map((row) => row.traveler_id)));
-  const bookingIds = Array.from(new Set(rows.map((row) => row.booking_id)));
-
-  const [{ data: profiles, error: profilesError }, { data: bookings, error: bookingsError }] =
-    await Promise.all([
-      supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", travelerIds),
-      supabase
-        .from("bookings")
-        .select("id, status, created_at")
-        .in("id", bookingIds),
-    ]);
-
-  if (profilesError) throw profilesError;
-  if (bookingsError) throw bookingsError;
-
-  const travelerNameById = new Map(
-    (profiles ?? []).map((profile) => [
-      (profile as { id: string }).id,
-      (profile as { full_name: string | null }).full_name?.trim() || "Путешественник",
-    ]),
-  );
-  const bookingById = new Map(
-    (bookings ?? []).map((booking) => [
-      (booking as { id: string }).id,
-      booking as { id: string; status: string; created_at: string },
-    ]),
-  );
-
-  return rows.map((row) => ({
-    ...row,
-    traveler_name: travelerNameById.get(row.traveler_id) ?? "Путешественник",
-    travelerName: travelerNameById.get(row.traveler_id) ?? "Путешественник",
-    createdAt: row.created_at,
-    bookingLabel: bookingById.get(row.booking_id)
-      ? `Бронирование · ${bookingById.get(row.booking_id)?.status ?? "завершено"}`
-      : null,
-    booking: bookingById.get(row.booking_id) ?? null,
-  }));
-}
-
-export async function getReviewsForGuide(
-  guideId: string,
-): Promise<ReviewWithDetails[]> {
-  const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
-    .from("reviews")
-    .select("id, booking_id, traveler_id, guide_id, listing_id, rating, title, body, status, created_at, updated_at")
-    .eq("guide_id", guideId)
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return loadReviewRowsWithDetails((data ?? []) as ReviewRow[]);
-}
-
-export async function getReviewsForListing(
-  listingId: string,
-): Promise<ReviewWithDetails[]> {
-  const supabase = createSupabaseAdminClient();
-  const { data, error } = await supabase
-    .from("reviews")
-    .select("id, booking_id, traveler_id, guide_id, listing_id, rating, title, body, status, created_at, updated_at")
-    .eq("listing_id", listingId)
-    .eq("status", "published")
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return loadReviewRowsWithDetails((data ?? []) as ReviewRow[]);
 }
