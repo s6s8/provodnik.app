@@ -14,25 +14,55 @@ export function GuideOfferQaPanel({ offerId }: Props) {
   const [threadId, setThreadId] = useState<string | null>(null)
   const [qa, setQa] = useState<QaThread | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    getQaPanelDataAction(offerId).then((result) => {
-      if (cancelled) return
-      if (result) {
-        setThreadId(result.threadId)
-        setQa(result.qa)
-      } else {
+    async function load() {
+      setLoading(true)
+      setError(null)
+      try {
+        const result = await getQaPanelDataAction(offerId)
+        if (cancelled) return
+        if (result) {
+          setThreadId(result.threadId)
+          setQa(result.qa)
+        } else {
+          setThreadId(null)
+          setQa(null)
+        }
+      } catch {
+        if (cancelled) return
         setThreadId(null)
         setQa(null)
+        setError('Не удалось загрузить вопросы')
+      } finally {
+        if (!cancelled) setLoading(false)
       }
-      setLoading(false)
-    })
+    }
+    void load()
     return () => { cancelled = true }
   }, [offerId])
 
+  async function handleReply(replyThreadId: string, replyOfferId: string, body: string) {
+    await sendQaReplyAction(replyThreadId, replyOfferId, body)
+    const result = await getQaPanelDataAction(offerId)
+    if (result) {
+      setThreadId(result.threadId)
+      setQa(result.qa)
+      setError(null)
+    } else {
+      setThreadId(null)
+      setQa(null)
+    }
+  }
+
   if (loading) {
     return <p className="text-xs text-muted-foreground py-2">Загрузка вопросов...</p>
+  }
+
+  if (error) {
+    return <p className="text-sm text-destructive py-2">{error}</p>
   }
 
   if (!threadId || !qa) {
@@ -73,7 +103,7 @@ export function GuideOfferQaPanel({ offerId }: Props) {
         <GuideQaReplyForm
           threadId={threadId}
           offerId={offerId}
-          onReply={sendQaReplyAction}
+          onReply={handleReply}
         />
       )}
     </div>

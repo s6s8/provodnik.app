@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, Eye, Users } from "lucide-react";
 
 import { INTEREST_CHIPS } from "@/data/interests";
@@ -17,6 +18,9 @@ import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 );
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 function formatDateTime(value: string): string {
   const date = new Date(value);
@@ -71,12 +75,18 @@ export function GuideRequestDetailScreen({
   competingOffers,
   viewsCount,
 }: Props) {
+  const router = useRouter();
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
+
+  React.useEffect(() => {
+    setOfferId(existingOfferId);
+  }, [existingOfferId]);
 
   const interestsLabel = request.interests
     .map((s) => INTEREST_LABEL_BY_ID[s] ?? s)
     .join(" · ");
+  const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
 
   return (
     <div className="space-y-6">
@@ -176,12 +186,12 @@ export function GuideRequestDetailScreen({
             </div>
             <div className="flex items-center gap-2">
               <Users className="size-4 shrink-0" aria-hidden="true" />
-              <span>{formatCompetingOffersLabel(competingOffers, offerId !== null)}</span>
+              <span>{formatCompetingOffersLabel(competingOffers, validOfferId !== null)}</span>
             </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
-            {offerId ? (
+            {validOfferId ? (
               <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
                 ✓ Предложение отправлено
               </span>
@@ -208,9 +218,9 @@ export function GuideRequestDetailScreen({
             )}
           </div>
 
-          {offerId ? (
+          {validOfferId ? (
             <div className="mt-2 border-t border-border/50 pt-4">
-              <GuideOfferQaPanel offerId={offerId} />
+              <GuideOfferQaPanel offerId={validOfferId} />
             </div>
           ) : null}
         </CardContent>
@@ -222,7 +232,8 @@ export function GuideRequestDetailScreen({
           request={request}
           onClose={() => setPanelOpen(false)}
           onSuccess={() => {
-            setOfferId("pending");
+            setPanelOpen(false);
+            router.refresh();
           }}
         />
       ) : null}

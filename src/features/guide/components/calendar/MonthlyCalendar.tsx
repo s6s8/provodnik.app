@@ -63,6 +63,12 @@ export function MonthlyCalendar({
     return m;
   }, [listings]);
 
+  const dayPanelListing = React.useMemo(() => {
+    if (listings.length === 1) return listings[0] ?? null;
+    if (selectedListingId === "all") return null;
+    return listings.find((l) => l.id === selectedListingId) ?? null;
+  }, [listings, selectedListingId]);
+
   const visibleMonth = React.useMemo(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + monthOffset);
@@ -174,8 +180,11 @@ export function MonthlyCalendar({
             <button
               key={iso}
               type="button"
-              onClick={() => setDayPanelDate(formatDateOnlyLocal(cell.date!))}
-              className="flex min-h-[4.5rem] flex-col items-center gap-1 rounded-lg border border-border/60 bg-background/60 p-1.5 text-left transition hover:border-border hover:bg-muted/30"
+              onClick={() => {
+                if (dayPanelListing) setDayPanelDate(formatDateOnlyLocal(cell.date!));
+              }}
+              disabled={!dayPanelListing}
+              className="flex min-h-[4.5rem] flex-col items-center gap-1 rounded-lg border border-border/60 bg-background/60 p-1.5 text-left transition hover:border-border hover:bg-muted/30 disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span className="text-sm font-semibold tabular-nums text-foreground">
                 {cell.date.getDate()}
@@ -200,7 +209,7 @@ export function MonthlyCalendar({
         })}
       </div>
 
-      {dayPanelDate && (
+      {dayPanelDate && dayPanelListing && (
         <DayPanel
           date={dayPanelDate}
           dateLabel={new Date(dayPanelDate + "T00:00:00").toLocaleDateString("ru-RU", {
@@ -208,21 +217,12 @@ export function MonthlyCalendar({
             day: "numeric",
             month: "long",
           })}
-          listingId={selectedListingId === "all" ? (listings[0]?.id ?? "") : selectedListingId}
-          listingTitle={
-            selectedListingId === "all"
-              ? (listings[0]?.title ?? "Экскурсия")
-              : (listings.find((l) => l.id === selectedListingId)?.title ?? "Экскурсия")
-          }
+          listingId={dayPanelListing.id}
+          listingTitle={dayPanelListing.title}
           extras={localExtras}
           onClose={() => setDayPanelDate(null)}
           onExtrasChange={(_date, newExtras) => {
-            if (newExtras.length === 0) {
-              // blockDay was called — close panel, data will reload on next page visit
-              setDayPanelDate(null);
-            } else {
-              setLocalExtras(newExtras);
-            }
+            setLocalExtras(newExtras);
           }}
         />
       )}

@@ -44,6 +44,10 @@ interface DayPanelProps {
   onExtrasChange: (date: string, newExtras: ListingScheduleExtraRow[]) => void;
 }
 
+type BlockDayResultWithRows = Awaited<ReturnType<typeof blockDayAction>> & {
+  extras?: ListingScheduleExtraRow[];
+};
+
 export function DayPanel({
   date,
   dateLabel,
@@ -98,10 +102,15 @@ export function DayPanel({
   const handleBlockDay = async () => {
     if (!window.confirm(`Закрыть весь день ${dateLabel} для экскурсии "${listingTitle}"?`)) return;
     setBlockingDay(true);
-    const result = await blockDayAction(listingId, date);
+    const result = (await blockDayAction(listingId, date)) as BlockDayResultWithRows;
     if (result.ok) {
-      // We don't have real IDs for the new rows — signal parent to close panel
-      onExtrasChange(date, []);
+      const returnedExtras = Array.isArray(result.extras) ? result.extras : [];
+      if (returnedExtras.length > 0) {
+        onExtrasChange(date, [
+          ...extras.filter((e) => e.listing_id !== listingId || e.date !== date),
+          ...returnedExtras,
+        ]);
+      }
     }
     setBlockingDay(false);
   };

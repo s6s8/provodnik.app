@@ -19,6 +19,10 @@ import {
 
 const uuidSchema = z.string().uuid("Некорректный UUID.");
 const cancelledByRoleSchema = z.enum(["traveler", "guide", "admin"]);
+type BookingCancelRecipient = {
+  userId: string;
+  role: "traveler" | "guide";
+};
 
 async function getGuideDisplayName(guideId: string): Promise<string> {
   const supabase = await createSupabaseServerClient();
@@ -225,33 +229,43 @@ export async function notifyBookingCancelled(
 
   if (error) throw error;
 
-  const recipientIds =
+  const recipients: BookingCancelRecipient[] =
     role === "traveler"
-      ? [bookingRow.guide_id]
+      ? [{ userId: bookingRow.guide_id, role: "guide" }]
       : role === "guide"
-        ? [bookingRow.traveler_id]
-        : [bookingRow.traveler_id, bookingRow.guide_id];
+        ? [{ userId: bookingRow.traveler_id, role: "traveler" }]
+        : [
+            { userId: bookingRow.traveler_id, role: "traveler" },
+            { userId: bookingRow.guide_id, role: "guide" },
+          ];
 
   await Promise.all(
-    recipientIds.map((userId) =>
+    recipients.map((recipient) =>
       createNotificationForUser({
-        userId,
+        userId: recipient.userId,
         kind: "booking_cancelled",
         title: "Бронирование отменено",
+        href: `/${recipient.role}/bookings/${bookingRow.id}`,
       }),
     ),
   );
 
-  for (const userId of recipientIds) {
+  for (const recipient of recipients) {
     try {
-      const to = await getUserEmail(userId);
+      const emailDisabled =
+        recipient.role === "guide"
+          ? await guideEmailDisabled(recipient.userId, "booking_status")
+          : await travelerEmailDisabled(recipient.userId, "booking_status");
+      if (emailDisabled) continue;
+
+      const to = await getUserEmail(recipient.userId);
       if (!to) continue;
       const { subject, html } = renderBookingCancelledEmail({
-        bookingUrl: `${getSiteUrl()}/traveler/bookings/${bookingRow.id}`,
+        bookingUrl: `${getSiteUrl()}/${recipient.role}/bookings/${bookingRow.id}`,
       });
       await sendNotificationEmail({
         kind: "booking_cancelled",
-        entityId: `${parsedBookingId}:${userId}`,
+        entityId: `${parsedBookingId}:${recipient.userId}`,
         to,
         subject,
         html,
