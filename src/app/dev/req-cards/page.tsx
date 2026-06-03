@@ -96,7 +96,7 @@ const countPrototypeSamples = [
 ] satisfies RequestCardCountSample[];
 
 const datesFlexibleBadgeClassName =
-  "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
+  "shrink-0 rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
 const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
@@ -180,7 +180,7 @@ function ParticipantStack({
       ))}
       {participantCount > 1 ? (
         <span
-          className="flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-ink-2 text-[0.625rem] font-semibold text-surface-high"
+          className="relative z-10 flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-ink-2 text-[0.625rem] font-semibold text-surface-high"
           data-testid="participant-count-badge"
         >
           {participantCount}
@@ -205,21 +205,33 @@ function RequestCardThemesTopPrototype({
   const themeSlugs = interests.slice(0, 3);
 
   return (
-    <article className="relative flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
-      <div className="absolute right-4 top-4">
-        <GuideStatusBadge guideState={guideState} />
-      </div>
-
+    <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
       <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <p className="truncate pr-24 text-lg font-semibold text-foreground">{location}</p>
-        <p className="mt-1 truncate text-sm text-muted-foreground">{date}</p>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-          <CountPrototypeGroupTypeBadge groupType={groupType} />
+        <div className="flex items-start justify-between gap-2">
+          <p className="min-w-0 truncate text-lg font-semibold text-foreground">{location}</p>
+          <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+            <CountPrototypeGroupTypeBadge groupType={groupType} />
+            <GuideStatusBadge guideState={guideState} />
+          </div>
+        </div>
+
+        <div className="mt-1 flex min-w-0 items-center gap-1.5">
+          <p className="truncate text-sm text-muted-foreground">{date}</p>
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
-          {themeSlugs.map((slug) => (
+        </div>
+
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {themeSlugs.slice(0, 2).map((slug) => (
             <ThemeLabelChip key={slug} slug={slug} />
           ))}
         </div>
+        {themeSlugs.length > 2 ? (
+          <div className="mt-1.5 flex flex-wrap gap-1.5">
+            {themeSlugs.slice(2).map((slug) => (
+              <ThemeLabelChip key={slug} slug={slug} />
+            ))}
+          </div>
+        ) : null}
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
@@ -268,8 +280,7 @@ export default function DevReqCardsPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — счётчик участников</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Один утверждённый вариант карточек: темы-чипы сверху, а число участников встроено в стопку аватаров слева
-          в нижнем ряду.
+          Статусы подняты в верхнюю строку, темы живут отдельными рядами, низ — только участники и цена.
         </p>
       </div>
 
@@ -277,7 +288,7 @@ export default function DevReqCardsPage() {
         <CountPrototypeSection
           id="stack-badge-heading"
           heading="Счётчик в стеке"
-          description="Число — последний кружок в стопке аватаров: весь левый блок читается как один объект. Соло — один аватар без числа."
+          description="Город и статусы сверху, дата ниже, темы отдельными рядами. Внизу остаются только участники и цена."
         />
       </div>
     </main>
