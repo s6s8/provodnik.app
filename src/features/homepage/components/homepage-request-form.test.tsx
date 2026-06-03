@@ -172,7 +172,7 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(screen.queryByText("Когда")).not.toBeInTheDocument();
     expect(screen.getByText("Дата")).toBeInTheDocument();
     expect(screen.getByText("Начало")).toBeInTheDocument();
-    expect(screen.getByText("Конец (необязательно)")).toBeInTheDocument();
+    expect(screen.getByText("Конец", { exact: false })).toBeInTheDocument();
   });
 
   it("renders the language multi-select inside «Добавить детали»", () => {
@@ -320,26 +320,18 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(screen.queryByRole("button", { name: "Свернуть" })).toBeNull();
   });
 
-  it("renders topics in a responsive two-to-four-column grid", () => {
+  it("renders topics in a three-column grid", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const historyChip = screen.getByRole("button", { name: /история и культура/i });
-    expect(historyChip.parentElement).toHaveClass("grid-cols-2", "sm:grid-cols-4");
+    expect(historyChip.parentElement).toHaveClass("grid-cols-3");
   });
 
-  it("uses text inputs with visible time placeholders", () => {
+  it("uses native time inputs with visible time placeholders", () => {
     render(<HomepageRequestForm destinations={[]} />);
 
-    expect(screen.getByLabelText("Начало")).toHaveAttribute("type", "text");
-    expect(screen.getByLabelText("Начало")).toHaveAttribute("inputmode", "numeric");
+    expect(screen.getByLabelText("Начало")).toHaveAttribute("type", "time");
     expect(screen.getByLabelText("Начало")).toHaveAttribute("placeholder", "10:00");
-    expect(screen.getByLabelText("Конец (необязательно)")).toHaveAttribute("type", "text");
-    expect(screen.getByLabelText("Конец (необязательно)")).toHaveAttribute(
-      "inputmode",
-      "numeric",
-    );
-    expect(screen.getByLabelText("Конец (необязательно)")).toHaveAttribute(
-      "placeholder",
-      "12:00",
-    );
+    expect(screen.getByLabelText(/конец/i)).toHaveAttribute("type", "time");
+    expect(screen.getByLabelText(/конец/i)).toHaveAttribute("placeholder", "12:00");
   });
 });

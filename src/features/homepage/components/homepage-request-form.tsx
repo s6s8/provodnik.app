@@ -62,7 +62,6 @@ export function HomepageRequestForm({ destinations }: Props) {
     register,
     handleSubmit,
     control,
-    watch,
     setValue,
     formState: { errors },
   } = form;
@@ -188,10 +187,10 @@ export function HomepageRequestForm({ destinations }: Props) {
                 )
               }
               className={cn(
-                "flex items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
+                "flex shrink-0 items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
                 dateFlexibility !== "exact"
-                  ? "border-primary bg-primary/8 text-primary"
-                  : "border-input text-muted-foreground hover:text-foreground",
+                  ? "border-primary bg-primary/15 text-primary"
+                  : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
               )}
             >
               ≈
@@ -211,8 +210,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldLabel htmlFor="startTime">Начало</FieldLabel>
           <Input
             id="startTime"
-            type="text"
-            inputMode="numeric"
+            type="time"
             placeholder="10:00"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
@@ -220,11 +218,10 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldError id="startTime-error" message={errors.startTime?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
+          <FieldLabel htmlFor="endTime">Конец <span className="font-normal text-muted-foreground">(необязательно)</span></FieldLabel>
           <Input
             id="endTime"
-            type="text"
-            inputMode="numeric"
+            type="time"
             placeholder="12:00"
             aria-invalid={Boolean(errors.endTime)}
             {...register("endTime")}
@@ -249,10 +246,10 @@ export function HomepageRequestForm({ destinations }: Props) {
                   })
                 }
                 className={cn(
-                  "flex h-6 w-6 items-center justify-center rounded transition-colors",
+                  "flex h-6 w-6 shrink-0 items-center justify-center rounded border transition-colors",
                   isAssembly
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground",
+                    ? "border-primary bg-primary/15 text-primary"
+                    : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
                 )}
               >
                 <UserPlus className="h-4 w-4" />
@@ -298,7 +295,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-2">
           {THEMES.map((theme) => {
             const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
