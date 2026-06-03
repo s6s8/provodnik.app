@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Inbox } from "lucide-react";
 
-import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
+import { loadGuideInboxRequests, type RequestRecord } from "@/data/supabase/queries";
 import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
@@ -87,7 +87,7 @@ export function GuideRequestsInboxScreen() {
 
     async function loadInitial() {
       try {
-        const { data } = await getOpenRequests(supabase);
+        const { data } = await loadGuideInboxRequests();
         if (!ignore && data) setItems(data);
 
         const {

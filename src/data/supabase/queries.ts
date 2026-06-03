@@ -339,22 +339,6 @@ export function revealTravelerName(
   return bookingStatus === "confirmed" && trimmed ? trimmed : "Путешественник";
 }
 
-/**
- * Mask a traveler's full name to "First L." for guide-side request detail.
- * Gives the guide enough signal to assess seriousness while keeping last name
- * and avatar hidden until booking is confirmed.
- */
-function maskRequesterIdentity(fullName: string): { displayName: string; initials: string } {
-  const trimmed = fullName.trim();
-  if (!trimmed) return { displayName: "Путешественник", initials: "П" };
-  const parts = trimmed.split(/\s+/).filter(Boolean);
-  const first = parts[0] ?? "";
-  const lastInitial = parts[1]?.[0]?.toUpperCase() ?? "";
-  const displayName = lastInitial ? `${first} ${lastInitial}.` : first;
-  const initials = (first[0]?.toUpperCase() ?? "П") + (lastInitial || "");
-  return { displayName, initials };
-}
-
 export function mapRequestRow(
   row: Record<string, unknown>,
   requesterName = "Путешественник",
@@ -421,24 +405,21 @@ async function fetchMembersForRequests(db: SupabaseClient, requestIds: string[])
   const map = new Map<string, RequestMember[]>();
   if (requestIds.length === 0) return map;
 
-  const { data } = await db
+  const { data, error } = await db
     .from("open_request_members")
-    .select("request_id, traveler_id, profiles:traveler_id(id, full_name, avatar_url)")
+    .select("request_id, traveler_id")
     .in("request_id", requestIds)
     .eq("status", "joined");
 
+  if (error) throw error;
   if (!data) return map;
 
   for (const row of data) {
     const reqId = row.request_id as string;
-    const profileRaw = row.profiles as unknown;
-    const profile = Array.isArray(profileRaw) ? profileRaw[0] as Record<string, unknown> | undefined : profileRaw as Record<string, unknown> | null;
-    const fullName = (profile?.full_name as string) ?? "Участник";
-    const { displayName, initials } = maskRequesterIdentity(fullName);
     const member: RequestMember = {
-      id: (profile?.id as string) ?? row.traveler_id,
-      displayName,
-      initials,
+      id: row.traveler_id as string,
+      displayName: "Участник",
+      initials: "У",
     };
     const list = map.get(reqId) ?? [];
     list.push(member);
@@ -612,6 +593,18 @@ export async function getListingsByGuide(
 // Requests (public.traveler_requests)
 // ---------------------------------------------------------------------------
 
+export async function loadGuideInboxRequests(): Promise<QueryResult<RequestRecord[]>> {
+  "use server";
+
+  try {
+    const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+    const supabase = await createSupabaseServerClient();
+    return await getOpenRequests(supabase);
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
 export async function getOpenRequests(
   client: SupabaseClient,
   filters?: RequestFilters,
@@ -620,28 +613,14 @@ export async function getOpenRequests(
     const db = client;
     const { data, error } = await db
       .from("traveler_requests")
-      .select("*, profiles:traveler_id(full_name, avatar_url)")
+      .select("*")
       .eq("status", "open")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
-    const records = data.map((row) => {
-      const profileRaw = (row as Record<string, unknown>).profiles as unknown;
-      const profile = Array.isArray(profileRaw)
-        ? (profileRaw[0] as Record<string, unknown> | undefined)
-        : (profileRaw as Record<string, unknown> | null);
-      const fullName =
-        (profile?.full_name as string | undefined)?.trim() || "Путешественник";
-      const { displayName, initials } = maskRequesterIdentity(fullName);
-      return mapRequestRow(
-        row,
-        displayName,
-        initials,
-        null,
-      );
-    });
+    const records = data.map((row) => mapRequestRow(row));
     const membersMap = await fetchMembersForRequests(db, records.map((r) => r.id));
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];
@@ -662,25 +641,13 @@ export async function getRequestById(
     const db = client;
     const { data, error } = await db
       .from("traveler_requests")
-      .select("*, profiles:traveler_id(full_name, avatar_url)")
+      .select("*")
       .eq("id", id)
       .maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
-    const profileRaw = (data as Record<string, unknown>).profiles as unknown;
-    const profile = Array.isArray(profileRaw)
-      ? (profileRaw[0] as Record<string, unknown> | undefined)
-      : (profileRaw as Record<string, unknown> | null);
-    const fullName = (profile?.full_name as string | undefined)?.trim() ?? "";
-    const { displayName, initials } = maskRequesterIdentity(fullName);
-
-    const record = mapRequestRow(
-      data,
-      displayName,
-      initials,
-      (profile?.avatar_url as string | null) ?? null,
-    );
+    const record = mapRequestRow(data);
     const membersMap = await fetchMembersForRequests(db, [id]);
     record.members = membersMap.get(id) ?? [];
     if (record.members.length > 0) record.groupSize = record.members.length;

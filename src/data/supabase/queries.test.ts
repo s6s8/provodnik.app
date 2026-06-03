@@ -30,6 +30,7 @@ import {
 } from "@/data/supabase/queries";
 
 type FixtureMap = Record<string, unknown[]>;
+type ErrorMap = Record<string, Error>;
 
 type FakeClient = SupabaseClient & {
   calls: string[];
@@ -39,6 +40,7 @@ class FakeQuery {
   constructor(
     private readonly calls: string[],
     private readonly fixtures: FixtureMap,
+    private readonly errors: ErrorMap,
     private readonly table: string,
   ) {}
 
@@ -93,32 +95,36 @@ class FakeQuery {
   }
 
   maybeSingle() {
+    const error = this.errors[this.table];
+    if (error) return Promise.resolve({ data: null, error });
     const rows = this.fixtures[this.table] ?? [];
     return Promise.resolve({ data: rows[0] ?? null, error: null });
   }
 
   then<TResult1 = unknown, TResult2 = never>(
-    onfulfilled?: ((value: { data: unknown[]; error: null }) => TResult1 | PromiseLike<TResult1>) | null,
+    onfulfilled?: ((value: { data: unknown[] | null; error: Error | null }) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ) {
-    return Promise.resolve({ data: this.fixtures[this.table] ?? [], error: null }).then(
+    const error = this.errors[this.table] ?? null;
+    return Promise.resolve({ data: error ? null : (this.fixtures[this.table] ?? []), error }).then(
       onfulfilled,
       onrejected,
     );
   }
 }
 
-function createFakeClient(fixtures: FixtureMap = {}): FakeClient {
+function createFakeClient(fixtures: FixtureMap = {}, errors: ErrorMap = {}): FakeClient {
   const calls: string[] = [];
   const client = {
     calls,
     from(table: string) {
       calls.push(`from:${table}`);
-      return new FakeQuery(calls, fixtures, table);
+      return new FakeQuery(calls, fixtures, errors, table);
     },
     rpc(name: string) {
       calls.push(`rpc:${name}`);
-      return Promise.resolve({ data: fixtures[`rpc:${name}`] ?? [], error: null });
+      const error = errors[`rpc:${name}`] ?? null;
+      return Promise.resolve({ data: error ? null : (fixtures[`rpc:${name}`] ?? []), error });
     },
   };
 
@@ -177,7 +183,7 @@ describe("public Supabase query helpers", () => {
 });
 
 describe("PII-safe Supabase query mapping", () => {
-  it("masks requester identity and avatar in open request lists", async () => {
+  it("uses anonymous requester and member display data in open request lists", async () => {
     const client = createFakeClient({
       traveler_requests: [
         {
@@ -188,10 +194,6 @@ describe("PII-safe Supabase query mapping", () => {
           status: "open",
           category: "city",
           created_at: "2026-06-03T00:00:00Z",
-          profiles: {
-            full_name: "Анна Петрова",
-            avatar_url: "https://example.com/avatar.jpg",
-          },
         },
       ],
       open_request_members: [
@@ -199,11 +201,6 @@ describe("PII-safe Supabase query mapping", () => {
           request_id: "request-1",
           traveler_id: "traveler-2",
           status: "joined",
-          profiles: {
-            id: "traveler-2",
-            full_name: "Мария Иванова",
-            avatar_url: "https://example.com/member.jpg",
-          },
         },
       ],
     });
@@ -212,15 +209,15 @@ describe("PII-safe Supabase query mapping", () => {
 
     expect(result.error).toBeNull();
     expect(result.data?.[0]).toMatchObject({
-      requesterName: "Анна П.",
-      requesterInitials: "АП",
+      requesterName: "Путешественник",
+      requesterInitials: "П",
       requesterAvatarUrl: null,
     });
     expect(result.data?.[0]?.members).toEqual([
       {
         id: "traveler-2",
-        displayName: "Мария И.",
-        initials: "МИ",
+        displayName: "Участник",
+        initials: "У",
       },
     ]);
   });
@@ -247,6 +244,33 @@ describe("PII-safe Supabase query mapping", () => {
     expect(result.data?.[0]?.message).toBe(
       "Пишите [контакт скрыт] или звоните [контакт скрыт]",
     );
+  });
+
+  it("surfaces open request member query errors instead of dropping member rows silently", async () => {
+    const memberError = new Error("member policy denied");
+    const client = createFakeClient(
+      {
+        traveler_requests: [
+          {
+            id: "request-1",
+            destination: "Москва",
+            budget_minor: 100_000,
+            participants_count: 2,
+            status: "open",
+            category: "city",
+            created_at: "2026-06-03T00:00:00Z",
+          },
+        ],
+      },
+      {
+        open_request_members: memberError,
+      },
+    );
+
+    const result = await getOpenRequests(client);
+
+    expect(result.data).toEqual([]);
+    expect(result.error).toBe(memberError);
   });
 });
 

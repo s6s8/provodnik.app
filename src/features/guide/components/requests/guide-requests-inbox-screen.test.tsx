@@ -10,9 +10,9 @@ import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import { filterInbox, getInboxTabCounts } from "./guide-requests-inbox-filter";
 import { GuideRequestsInboxScreen } from "./guide-requests-inbox-screen";
 
-const { createSupabaseBrowserClientMock, getOpenRequestsMock } = vi.hoisted(() => ({
+const { createSupabaseBrowserClientMock, loadGuideInboxRequestsMock } = vi.hoisted(() => ({
   createSupabaseBrowserClientMock: vi.fn(),
-  getOpenRequestsMock: vi.fn(),
+  loadGuideInboxRequestsMock: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
@@ -23,7 +23,7 @@ vi.mock("@/data/supabase/queries", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/data/supabase/queries")>();
   return {
     ...actual,
-    getOpenRequests: getOpenRequestsMock,
+    loadGuideInboxRequests: loadGuideInboxRequestsMock,
   };
 });
 
@@ -141,7 +141,7 @@ describe("getInboxTabCounts", () => {
 describe("GuideRequestsInboxScreen meta layout", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    getOpenRequestsMock.mockResolvedValue({
+    loadGuideInboxRequestsMock.mockResolvedValue({
       data: [
         request({ id: "elista", destination: "Элиста, центр" }),
         request({ id: "karelia", destination: "Карелия, Рускеала" }),
@@ -193,6 +193,14 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       expect(screen.getByText("1 запрос.")).toBeInTheDocument();
     });
     expect(screen.queryByText("2 запроса.")).toBeNull();
+  });
+
+  it("loads request rows through the server-side inbox loader", async () => {
+    render(<GuideRequestsInboxScreen />);
+
+    await waitFor(() => {
+      expect(loadGuideInboxRequestsMock).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("keeps the request time inline with the date meta row", () => {

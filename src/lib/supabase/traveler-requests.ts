@@ -63,6 +63,19 @@ export interface JoinedGroupSummary {
   owner_avatar_url: string | null
 }
 
+type DisplayProfileRpcRow = {
+  booking_id?: string | null
+  request_id?: string | null
+  guide_id?: string | null
+  owner_id?: string | null
+  full_name: string | null
+  avatar_url: string | null
+}
+
+type RpcClient = {
+  rpc: (fn: string) => Promise<{ data: DisplayProfileRpcRow[] | null; error: unknown }>
+}
+
 // ---------------------------------------------------------------------------
 // Queries
 // ---------------------------------------------------------------------------
@@ -178,10 +191,7 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
           .in('id', requestIds)
       : Promise.resolve({ data: [], error: null }),
     guideIds.length > 0
-      ? supabase
-          .from('profiles')
-          .select('id, full_name, avatar_url')
-          .in('id', guideIds)
+      ? (supabase as unknown as RpcClient).rpc('get_traveler_booking_guide_display_profiles')
       : Promise.resolve({ data: [], error: null }),
     bookingIds.length > 0
       ? supabase
@@ -191,6 +201,10 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
       : Promise.resolve({ data: [], error: null }),
   ])
 
+  if (requestsRes.error) throw requestsRes.error
+  if (profilesRes.error) throw profilesRes.error
+  if (threadsRes.error) throw threadsRes.error
+
   const requestMap = new Map<string, { destination: string; starts_on: string }>()
   for (const r of requestsRes.data ?? []) {
     requestMap.set(r.id, { destination: r.destination, starts_on: r.starts_on })
@@ -198,7 +212,7 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
 
   const profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
   for (const p of profilesRes.data ?? []) {
-    profileMap.set(p.id, { full_name: p.full_name, avatar_url: p.avatar_url })
+    if (p.guide_id) profileMap.set(p.guide_id, { full_name: p.full_name, avatar_url: p.avatar_url })
   }
 
   const threadMap = new Map<string, string>()
@@ -252,15 +266,13 @@ export const getJoinedRequests = cache(async (travelerId: string): Promise<Joine
   if (reqError) throw reqError
   if (!requests || requests.length === 0) return []
 
-  const ownerIds = [...new Set(requests.map((r) => r.traveler_id))]
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('id, full_name, avatar_url')
-    .in('id', ownerIds)
+  const { data: profiles, error: profileError } = await (supabase as unknown as RpcClient)
+    .rpc('get_joined_request_owner_display_profiles')
+  if (profileError) throw profileError
 
   const profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
   for (const p of profiles ?? []) {
-    profileMap.set(p.id, { full_name: p.full_name, avatar_url: p.avatar_url })
+    if (p.owner_id) profileMap.set(p.owner_id, { full_name: p.full_name, avatar_url: p.avatar_url })
   }
 
   const joinedAtMap = new Map<string, string>()
