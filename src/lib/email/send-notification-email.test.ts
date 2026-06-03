@@ -21,14 +21,19 @@ import { sendNotificationEmail } from "@/lib/email/send-notification-email";
 
 function createAdminClient() {
   const insert = vi.fn();
+  const update = vi.fn();
+  const match = vi.fn();
+
+  update.mockReturnValue({ match });
 
   const adminClient = {
     from: vi.fn(() => ({
       insert,
+      update,
     })),
   };
 
-  return { adminClient, insert };
+  return { adminClient, insert, update, match };
 }
 
 const emailArgs = {
@@ -45,9 +50,10 @@ describe("sendNotificationEmail", () => {
     vi.spyOn(console, "error").mockImplementation(() => undefined);
   });
 
-  it("does not insert an email log when the provider send fails", async () => {
-    const { adminClient, insert } = createAdminClient();
+  it("reserves the email log before provider send and does not mark sent when the provider fails", async () => {
+    const { adminClient, insert, match } = createAdminClient();
     createSupabaseAdminClient.mockReturnValue(adminClient);
+    insert.mockResolvedValue({ error: null });
     resendSend.mockResolvedValue({
       data: null,
       error: { message: "domain is not verified" },
@@ -55,13 +61,22 @@ describe("sendNotificationEmail", () => {
 
     await sendNotificationEmail(emailArgs);
 
-    expect(createSupabaseAdminClient).not.toHaveBeenCalled();
-    expect(insert).not.toHaveBeenCalled();
+    expect(insert).toHaveBeenCalledWith({
+      kind: "new_offer",
+      entity_id: "offer-1",
+      recipient: "dev+traveller@rgx.ge",
+      sent_at: expect.any(String),
+    });
+    expect(insert.mock.invocationCallOrder[0]).toBeLessThan(
+      resendSend.mock.invocationCallOrder[0],
+    );
+    expect(match).not.toHaveBeenCalled();
   });
 
-  it("does not insert an email log when the provider returns no message id", async () => {
-    const { adminClient, insert } = createAdminClient();
+  it("reserves the email log before provider send and does not mark sent when the provider returns no message id", async () => {
+    const { adminClient, insert, match } = createAdminClient();
     createSupabaseAdminClient.mockReturnValue(adminClient);
+    insert.mockResolvedValue({ error: null });
     resendSend.mockResolvedValue({
       data: {},
       error: null,
@@ -69,14 +84,18 @@ describe("sendNotificationEmail", () => {
 
     await sendNotificationEmail(emailArgs);
 
-    expect(createSupabaseAdminClient).not.toHaveBeenCalled();
-    expect(insert).not.toHaveBeenCalled();
+    expect(insert).toHaveBeenCalledOnce();
+    expect(insert.mock.invocationCallOrder[0]).toBeLessThan(
+      resendSend.mock.invocationCallOrder[0],
+    );
+    expect(match).not.toHaveBeenCalled();
   });
 
-  it("inserts the sent email log with the correct recipient after provider success", async () => {
-    const { adminClient, insert } = createAdminClient();
+  it("marks the reserved email log as sent after provider success", async () => {
+    const { adminClient, insert, update, match } = createAdminClient();
     createSupabaseAdminClient.mockReturnValue(adminClient);
     insert.mockResolvedValue({ error: null });
+    match.mockResolvedValue({ error: null });
     resendSend.mockResolvedValue({
       data: { id: "email_123" },
       error: null,
@@ -96,12 +115,21 @@ describe("sendNotificationEmail", () => {
       recipient: "dev+traveller@rgx.ge",
       sent_at: expect.any(String),
     });
+    expect(update).toHaveBeenCalledWith({ sent_at: expect.any(String) });
+    expect(match).toHaveBeenCalledWith({
+      kind: "new_offer",
+      entity_id: "offer-1",
+      recipient: "dev+traveller@rgx.ge",
+    });
+    expect(insert.mock.invocationCallOrder[0]).toBeLessThan(
+      resendSend.mock.invocationCallOrder[0],
+    );
     expect(resendSend.mock.invocationCallOrder[0]).toBeLessThan(
-      insert.mock.invocationCallOrder[0],
+      update.mock.invocationCallOrder[0],
     );
   });
 
-  it("treats duplicate post-send log inserts as already sent", async () => {
+  it("treats duplicate reservations as already sent without calling the provider", async () => {
     const { adminClient, insert } = createAdminClient();
     createSupabaseAdminClient.mockReturnValue(adminClient);
     insert.mockResolvedValue({
@@ -114,10 +142,39 @@ describe("sendNotificationEmail", () => {
 
     await sendNotificationEmail(emailArgs);
 
-    expect(resendSend).toHaveBeenCalledOnce();
-    expect(console.error).not.toHaveBeenCalledWith(
-      "[notif-email] log insert error:",
-      expect.any(String),
+    expect(resendSend).not.toHaveBeenCalled();
+  });
+
+  it("surfaces non-duplicate reservation errors before calling the provider", async () => {
+    const { adminClient, insert } = createAdminClient();
+    createSupabaseAdminClient.mockReturnValue(adminClient);
+    insert.mockResolvedValue({
+      error: { code: "42501", message: "permission denied for table notification_email_log" },
+    });
+
+    await expect(sendNotificationEmail(emailArgs)).rejects.toThrow(
+      "permission denied for table notification_email_log",
     );
+
+    expect(resendSend).not.toHaveBeenCalled();
+  });
+
+  it("surfaces sent marker errors after provider success", async () => {
+    const { adminClient, insert, match } = createAdminClient();
+    createSupabaseAdminClient.mockReturnValue(adminClient);
+    insert.mockResolvedValue({ error: null });
+    match.mockResolvedValue({
+      error: { code: "42501", message: "permission denied for table notification_email_log" },
+    });
+    resendSend.mockResolvedValue({
+      data: { id: "email_123" },
+      error: null,
+    });
+
+    await expect(sendNotificationEmail(emailArgs)).rejects.toThrow(
+      "permission denied for table notification_email_log",
+    );
+
+    expect(resendSend).toHaveBeenCalledOnce();
   });
 });
