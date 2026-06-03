@@ -1,0 +1,10 @@
+---
+description: Code hygiene and the definition-of-done gate
+alwaysApply: true
+---
+The repo baseline is 0 console.log, 0 TODO, ~0 `: any` — KEEP IT THERE. Do not introduce
+`console.log`, `TODO`, or `: any`. Money only via src/data/money.ts (*_minor columns, never
+inline ÷/×100). "Today"/dates only via src/lib/dates.ts Moscow helpers (never
+new Date().toISOString().slice(0,10)). Never hardcode «Гид» — use resolveDisplayName.
+Use `bun` for all scripts (never npm/yarn). Before declaring done, run `bun run check`
+(typecheck + eslint + lint:gid) and `bun run test:run`; report the actual output.
