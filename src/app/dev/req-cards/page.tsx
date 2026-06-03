@@ -2,11 +2,8 @@ import Link from "next/link";
 import { Check, Hand, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { RequestCardFinal } from "@/components/shared/request-card-final";
 import { type ReqCardMember } from "@/components/shared/req-card";
-import { type ThemeSlug } from "@/data/themes";
-import { ThemeIconChip } from "@/components/shared/theme-icon-chip";
+import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export const metadata = {
   robots: {
@@ -31,75 +28,6 @@ type RequestCardSample = {
 type RequestCardCountSample = RequestCardSample & {
   participantCount: number;
 };
-
-const samples = [
-  {
-    scenario: "Своя · Ждёт гида",
-    href: "/requests/tbilisi-evening",
-    location: "Тбилиси",
-    date: "12 июня, 18:00",
-    groupType: "private",
-    guideState: "waiting",
-    datesFlexible: false,
-    interests: ["history", "food", "architecture"],
-    members: [
-      { id: "nino", displayName: "Нино", initials: "Н" },
-      { id: "anna", displayName: "Анна", initials: "А" },
-      { id: "maxim", displayName: "Максим", initials: "М" },
-    ],
-    price: "4 500 ₽ / чел",
-  },
-  {
-    scenario: "Своя · Гид найден",
-    href: "/requests/kazbegi-one-day",
-    location: "Казбеги",
-    date: "21 июня, 10:00",
-    groupType: "private",
-    guideState: "found",
-    datesFlexible: true,
-    interests: ["nature", "religion", "architecture"],
-    members: [
-      { id: "mariam", displayName: "Мариам", initials: "М" },
-      { id: "roman", displayName: "Роман", initials: "Р" },
-      { id: "lena", displayName: "Лена", initials: "Л" },
-    ],
-    price: "7 900 ₽ / чел",
-  },
-  {
-    scenario: "Открытая · Ждёт гида",
-    href: "/requests/kakheti-wine",
-    location: "Кахетия",
-    date: "5 июля, 11:30",
-    groupType: "assembly",
-    guideState: "waiting",
-    datesFlexible: false,
-    interests: ["food", "history", "architecture"],
-    members: [
-      { id: "tamar", displayName: "Тамар", initials: "Т" },
-      { id: "oleg", displayName: "Олег", initials: "О" },
-      { id: "katya", displayName: "Катя", initials: "К" },
-      { id: "giorgi", displayName: "Георгий", initials: "Г" },
-    ],
-    price: "6 800 ₽ / чел",
-  },
-  {
-    scenario: "Открытая · Гид найден",
-    href: "/requests/svaneti-mountains",
-    location: "Сванетия",
-    date: "14 августа, 09:00",
-    groupType: "assembly",
-    guideState: "found",
-    datesFlexible: true,
-    interests: ["nature", "history", "unusual"],
-    members: [
-      { id: "irakli", displayName: "Ираклий", initials: "И" },
-      { id: "sofia", displayName: "София", initials: "С" },
-      { id: "daria", displayName: "Дарья", initials: "Д" },
-      { id: "levan", displayName: "Леван", initials: "Л" },
-    ],
-    price: "18 000 ₽ / чел",
-  },
-] satisfies RequestCardSample[];
 
 const countPrototypeSamples = [
   {
@@ -177,6 +105,8 @@ const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
+const themeLabelChipClassName =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 
 function getPrototypeGroupLabel(groupType: RequestCardSample["groupType"]) {
   return groupType === "private" ? "Своя группа" : "Открытая";
@@ -210,6 +140,23 @@ function CountPrototypeGroupTypeBadge({ groupType }: { groupType: RequestCardSam
   );
 }
 
+function ThemeLabelChip({ slug }: { slug: ThemeSlug }) {
+  const theme = getTheme(slug);
+
+  if (!theme) {
+    return null;
+  }
+
+  const { Icon, label } = theme;
+
+  return (
+    <span className={themeLabelChipClassName}>
+      <Icon size={14} className="text-ink-2" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
 function ParticipantStack({
   members,
   participantCount,
@@ -239,7 +186,7 @@ function ParticipantStack({
   );
 }
 
-function RequestCardCountPrototype({
+function RequestCardThemesTopPrototype({
   href,
   location,
   date,
@@ -265,91 +212,43 @@ function RequestCardCountPrototype({
         <div className="mt-2 flex flex-wrap gap-1.5">
           <CountPrototypeGroupTypeBadge groupType={groupType} />
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+          {themeSlugs.map((slug) => (
+            <ThemeLabelChip key={slug} slug={slug} />
+          ))}
         </div>
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-        <div className="flex min-w-0 items-center gap-2">
-          <ParticipantStack members={members} participantCount={participantCount} />
-          {themeSlugs.length > 0 ? (
-            <div className="flex min-w-0 flex-nowrap gap-1.5 overflow-hidden">
-              {themeSlugs.map((slug) => (
-                <ThemeIconChip key={slug} slug={slug} />
-              ))}
-            </div>
-          ) : null}
-        </div>
+        <ParticipantStack members={members} participantCount={participantCount} />
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>
   );
 }
 
-function CountPrototypeSection() {
+function ThemesTopSection() {
   return (
-    <section aria-labelledby="participant-count-heading">
+    <section aria-labelledby="themes-top-heading">
       <div className="mb-4">
         <h2
-          id="participant-count-heading"
+          id="themes-top-heading"
           className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
         >
-          6 · Аватары + счётчик участников
+          1 · Темы наверху, чистый низ
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Проверка нижней строки: один аватар без числа, для групп — короткий стек и фактический счётчик участников.
+          Темы — подписанные чипы в верхнем ряду меток (значок + слово). Нижняя строка только «кто идёт» и цена.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {countPrototypeSamples.map((sample) => (
-          <div key={`count-prototype-${sample.href}`} className="flex h-full flex-col space-y-2">
+          <div key={`themes-top-${sample.href}`} className="flex h-full flex-col space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-            <TooltipProvider>
-              <RequestCardCountPrototype {...sample} />
-            </TooltipProvider>
+            <RequestCardThemesTopPrototype {...sample} />
           </div>
         ))}
       </div>
-    </section>
-  );
-}
-
-function OutlineColorSection() {
-  return (
-    <section aria-labelledby="outline-color-heading">
-      <div className="mb-4">
-        <h2
-          id="outline-color-heading"
-          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          5 · Контур: цвет рамки = тип
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Своя — нейтральный серый контур, открытая — холодный контур цвета primary; заливку по-прежнему несёт
-          только статус-бейдж.
-        </p>
-      </div>
-
-      <TooltipProvider>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {samples.map((sample) => (
-            <div key={`outline-color-${sample.href}`} className="flex h-full flex-col space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-              <RequestCardFinal
-                href={sample.href}
-                location={sample.location}
-                date={sample.date}
-                groupType={sample.groupType}
-                guideState={sample.guideState}
-                datesFlexible={sample.datesFlexible}
-                interests={sample.interests}
-                members={sample.members}
-                price={sample.price}
-              />
-            </div>
-          ))}
-        </div>
-      </TooltipProvider>
     </section>
   );
 }
@@ -360,13 +259,12 @@ export default function DevReqCardsPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Сейчас страница показывает продакшен-карточку из bundle 5 и прототип счётчика участников из bundle 6.
+          Один прототип карточки проверяет перенос тем в верхний ряд меток и чистую нижнюю строку без лишних чипов.
         </p>
       </div>
 
       <div className="space-y-10">
-        <OutlineColorSection />
-        <CountPrototypeSection />
+        <ThemesTopSection />
       </div>
     </main>
   );
