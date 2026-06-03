@@ -1,27 +1,31 @@
-import { render } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { act } from "react";
 import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 
-const mockLimit = vi.fn().mockResolvedValue({ data: [], error: null });
+const mockLimit = vi.fn();
 const mockSubscribe = vi.fn().mockReturnValue({});
 const mockOn = vi.fn().mockReturnThis();
-
-vi.mock("@/lib/supabase/client", () => ({
-  createSupabaseBrowserClient: () => ({
-    channel: vi.fn().mockReturnValue({ on: mockOn, subscribe: mockSubscribe }),
-    from: vi.fn().mockReturnValue({
-      select: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            neq: vi.fn().mockReturnValue({
-              order: vi.fn().mockReturnValue({
-                limit: mockLimit,
-              }),
-            }),
+const mockUpdateEq = vi.fn();
+const mockUpdate = vi.fn(() => ({ eq: mockUpdateEq }));
+const mockFrom = vi.fn().mockReturnValue({
+  select: vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        or: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: mockLimit,
           }),
         }),
       }),
     }),
+  }),
+  update: mockUpdate,
+});
+
+vi.mock("@/lib/supabase/client", () => ({
+  createSupabaseBrowserClient: () => ({
+    channel: vi.fn().mockReturnValue({ on: mockOn, subscribe: mockSubscribe }),
+    from: mockFrom,
     removeChannel: vi.fn().mockResolvedValue(undefined),
   }),
 }));
@@ -42,9 +46,13 @@ async function renderNotificationBell(userId = "user-123") {
 
 describe("NotificationBell", () => {
   beforeEach(() => {
-    mockLimit.mockClear();
+    mockLimit.mockReset();
+    mockLimit.mockResolvedValue({ data: [], error: null });
     mockSubscribe.mockClear();
     mockOn.mockClear();
+    mockUpdate.mockClear();
+    mockUpdateEq.mockReset();
+    mockUpdateEq.mockResolvedValue({ data: null, error: null });
   });
 
   it("passes an error callback to .subscribe()", async () => {
@@ -91,5 +99,35 @@ describe("NotificationBell", () => {
         },
       });
     });
+  });
+
+  it("keeps a notification visible when marking it read fails", async () => {
+    mockLimit.mockResolvedValueOnce({
+      data: [
+        {
+          id: "notification-1",
+          user_id: "user-123",
+          event_type: "new_offer",
+          payload: null,
+          channel: "inbox",
+          status: "sent",
+          created_at: "2026-05-31T06:00:00.000Z",
+          read_at: null,
+        },
+      ],
+      error: null,
+    });
+    mockUpdateEq.mockResolvedValueOnce({ data: null, error: new Error("denied") });
+
+    await renderNotificationBell();
+    fireEvent.click(screen.getByRole("button", { name: "Уведомления" }));
+    expect(await screen.findByText("Новое предложение от гида")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByText("Новое предложение от гида"));
+
+    await waitFor(() => {
+      expect(mockUpdateEq).toHaveBeenCalledWith("id", "notification-1");
+    });
+    expect(screen.getByText("Новое предложение от гида")).toBeInTheDocument();
   });
 });

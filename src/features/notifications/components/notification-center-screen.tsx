@@ -12,10 +12,13 @@ import type { NotificationRecord, NotificationSeverity } from "@/data/notificati
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
+import { isUnreadNotification } from "./NotificationBell";
+
 type FeedFilter = "all" | "unread";
 
 function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
   const kind = (row.kind as NotificationRecord["kind"]) ?? "admin_alert";
+  const readAt = (row.read_at as string | null) ?? null;
 
   return {
     id: row.id as string,
@@ -23,7 +26,10 @@ function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
     kind,
     severity: getSeverityForKind(kind),
     createdAt: row.created_at as string,
-    readAt: row.is_read ? (row.created_at as string) : null,
+    readAt: isUnreadNotification({
+      status: (row.status as string | null) ?? null,
+      read_at: readAt,
+    }) ? null : readAt,
     title: row.title as string,
     body: (row.body as string) ?? "",
     href: (row.href as string) ?? undefined,
@@ -52,7 +58,7 @@ export function NotificationCenterScreen() {
         setUserId(user.id);
         const { data, error } = await supabase
           .from("notifications")
-          .select("id, user_id, kind, title, body, href, is_read, created_at")
+          .select("id, user_id, kind, title, body, href, status, read_at, created_at")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
@@ -75,13 +81,14 @@ export function NotificationCenterScreen() {
 
       try {
         const supabase = createSupabaseBrowserClient();
-        await supabase
+        const { error } = await supabase
           .from("notifications")
-          .update({ is_read: true })
+          .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
           .eq("id", notificationId)
           .eq("user_id", userId);
+        if (error) return;
       } catch {
-        // ignore
+        return;
       }
       setNotifications((prev) =>
         prev.map((n) =>
@@ -99,13 +106,14 @@ export function NotificationCenterScreen() {
 
       try {
         const supabase = createSupabaseBrowserClient();
-        await supabase
+        const { error } = await supabase
           .from("notifications")
-          .update({ is_read: false })
+          .update({ is_read: false, status: "sent", read_at: null })
           .eq("id", notificationId)
           .eq("user_id", userId);
+        if (error) return;
       } catch {
-        // ignore
+        return;
       }
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, readAt: null } : n)),
@@ -120,13 +128,14 @@ export function NotificationCenterScreen() {
 
     try {
       const supabase = createSupabaseBrowserClient();
-      await supabase
+        const { error } = await supabase
         .from("notifications")
-        .update({ is_read: true })
+          .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
         .eq("user_id", userId)
-        .eq("is_read", false);
+          .or("status.neq.read,read_at.is.null");
+        if (error) return;
     } catch {
-      // ignore
+        return;
     }
     setNotifications((prev) =>
       prev.map((n) => (n.readAt === null ? { ...n, readAt: new Date().toISOString() } : n)),

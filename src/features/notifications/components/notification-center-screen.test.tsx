@@ -24,7 +24,9 @@ function createNotificationClient() {
         title: "Новое предложение",
         body: "Гид отправил предложение.",
         href: null,
-        is_read: false,
+        is_read: true,
+        status: "sent",
+        read_at: null,
         created_at: "2026-06-03T06:00:00.000Z",
       },
     ],
@@ -33,7 +35,7 @@ function createNotificationClient() {
   const loadEq = vi.fn(() => ({ order: loadOrder }));
   const select = vi.fn(() => ({ eq: loadEq }));
 
-  const updateUserEq = vi.fn().mockResolvedValue({ error: null });
+  const updateUserEq = vi.fn().mockResolvedValue({ data: null, error: null });
   const updateIdEq = vi.fn(() => ({ eq: updateUserEq }));
   const update = vi.fn(() => ({ eq: updateIdEq }));
 
@@ -50,6 +52,7 @@ function createNotificationClient() {
       from,
     },
     loadEq,
+    update,
     updateIdEq,
     updateUserEq,
   };
@@ -68,10 +71,16 @@ describe("NotificationCenterScreen", () => {
 
     expect(await screen.findByText("Новое предложение")).toBeInTheDocument();
     expect(supabase.loadEq).toHaveBeenCalledWith("user_id", userId);
+    expect(screen.getAllByText("1")).toHaveLength(2);
 
     fireEvent.click(screen.getByRole("button", { name: "Отметить прочитанным" }));
 
     await waitFor(() => {
+      expect(supabase.update).toHaveBeenCalledWith({
+        is_read: true,
+        status: "read",
+        read_at: expect.any(String),
+      });
       expect(supabase.updateIdEq).toHaveBeenCalledWith("id", notificationId);
       expect(supabase.updateUserEq).toHaveBeenCalledWith("user_id", userId);
     });

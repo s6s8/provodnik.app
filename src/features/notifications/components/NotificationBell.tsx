@@ -18,6 +18,10 @@ import { NotificationItem } from "./NotificationItem";
 /** In-app delivery channel in DB (`notifications.channel` CHECK). */
 const IN_APP_NOTIFICATION_CHANNEL = "inbox" as const;
 
+export function isUnreadNotification(notification: { status: string | null; read_at: string | null }) {
+  return notification.status !== "read" || notification.read_at === null;
+}
+
 export interface NotificationBellProps {
   userId: string;
 }
@@ -29,21 +33,23 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   const markRead = React.useCallback(async (id: string) => {
     if (!hasSupabaseEnv()) return;
     const supabase = createSupabaseBrowserClient();
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
       .eq("id", id);
+    if (error) return;
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   }, []);
 
   const markAllRead = React.useCallback(async () => {
     if (!hasSupabaseEnv()) return;
     const supabase = createSupabaseBrowserClient();
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
       .eq("user_id", userId)
-      .neq("status", "read");
+      .or("status.neq.read,read_at.is.null");
+    if (error) return;
     setNotifications([]);
   }, [userId]);
 
@@ -59,12 +65,12 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         .select("*")
         .eq("user_id", userId)
         .eq("channel", IN_APP_NOTIFICATION_CHANNEL)
-        .neq("status", "read")
+        .or("status.neq.read,read_at.is.null")
         .order("created_at", { ascending: false })
         .limit(20);
 
       if (error || cancelled || !data) return;
-      setNotifications(data as NotificationRow2[]);
+      setNotifications((data as NotificationRow2[]).filter(isUnreadNotification));
     }
 
     void load();
@@ -81,7 +87,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         },
         (payload) => {
           const row = payload.new as NotificationRow2;
-          if (row.channel !== IN_APP_NOTIFICATION_CHANNEL || row.status === "read") return;
+          if (row.channel !== IN_APP_NOTIFICATION_CHANNEL || !isUnreadNotification(row)) return;
           setNotifications((prev) => {
             if (prev.some((n) => n.id === row.id)) return prev;
             return [row, ...prev].slice(0, 20);

@@ -10,6 +10,11 @@ type UnreadCountResponse = {
   userId: string | null;
 };
 
+function isMessageThreadNotification(row: { event_type?: string | null; kind?: string | null }) {
+  const eventName = row.event_type ?? row.kind ?? "";
+  return eventName.includes("message") || eventName.includes("thread");
+}
+
 export function useUnreadCount(enabled = true) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
@@ -63,7 +68,10 @@ export function useUnreadCount(enabled = true) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        () => {
+        (payload) => {
+          if (!isMessageThreadNotification(payload.new as { event_type?: string | null; kind?: string | null })) {
+            return;
+          }
           setUnreadCount((count) => count + 1);
         },
       )

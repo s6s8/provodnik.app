@@ -1,15 +1,19 @@
+import { act } from "react";
 import { renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 
 vi.mock("@/lib/env", () => ({
   hasSupabaseEnv: () => true,
 }));
 
+const mockOn = vi.fn().mockReturnThis();
+const mockSubscribe = vi.fn().mockReturnValue({});
+
 vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: () => ({
     channel: vi.fn().mockReturnValue({
-      on: vi.fn().mockReturnThis(),
-      subscribe: vi.fn().mockReturnValue({}),
+      on: mockOn,
+      subscribe: mockSubscribe,
     }),
     removeChannel: vi.fn().mockResolvedValue(undefined),
   }),
@@ -18,6 +22,11 @@ vi.mock("@/lib/supabase/client", () => ({
 import { useUnreadCount } from "./use-unread-count";
 
 describe("useUnreadCount", () => {
+  beforeEach(() => {
+    mockOn.mockClear();
+    mockSubscribe.mockClear();
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
   });
@@ -53,5 +62,33 @@ describe("useUnreadCount", () => {
     await waitFor(() => {
       expect(result.current.unreadCount).toBe(3);
     });
+  });
+
+  it("increments realtime count only for message or thread notifications", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(JSON.stringify({ unreadCount: 3, userId: "u-1" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      })
+    );
+
+    const { result } = renderHook(() => useUnreadCount(true));
+    await waitFor(() => {
+      expect(result.current.unreadCount).toBe(3);
+    });
+
+    const changeHandler = (mockOn as Mock).mock.calls[0][2] as (payload: {
+      new: { event_type?: string; kind?: string };
+    }) => void;
+
+    await act(async () => {
+      changeHandler({ new: { event_type: "booking_created" } });
+    });
+    expect(result.current.unreadCount).toBe(3);
+
+    await act(async () => {
+      changeHandler({ new: { event_type: "thread_message_created" } });
+    });
+    expect(result.current.unreadCount).toBe(4);
   });
 });
