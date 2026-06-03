@@ -2,23 +2,23 @@ import type { Metadata } from "next";
 
 import { Badge } from "@/components/ui/badge";
 import { ModerationQueueList } from "@/features/admin/components/ModerationQueueItem";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAdminSession } from "@/lib/supabase/moderation";
 
 export const metadata: Metadata = {
   title: "Очередь модерации",
 };
 
 export default async function ModerationQueuePage() {
-  const supabase = await createSupabaseServerClient();
+  const { adminClient } = await requireAdminSession();
 
-  const { data: listings } = await supabase
+  const { data: listings } = await adminClient
     .from("listings")
     .select("id, title, region, exp_type, guide_id, description, created_at, status")
     .eq("status", "pending_review")
     .order("created_at", { ascending: true })
     .limit(50);
 
-  const { data: replies } = await supabase
+  const { data: replies } = await adminClient
     .from("review_replies")
     .select("id, review_id, body, submitted_at")
     .eq("status", "pending_review")
