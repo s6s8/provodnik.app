@@ -105,12 +105,10 @@ export function DayPanel({
     const result = (await blockDayAction(listingId, date)) as BlockDayResultWithRows;
     if (result.ok) {
       const returnedExtras = Array.isArray(result.extras) ? result.extras : [];
-      if (returnedExtras.length > 0) {
-        onExtrasChange(date, [
-          ...extras.filter((e) => e.listing_id !== listingId || e.date !== date),
-          ...returnedExtras,
-        ]);
-      }
+      onExtrasChange(date, [
+        ...extras.filter((e) => e.listing_id !== listingId || e.date !== date),
+        ...returnedExtras,
+      ]);
     }
     setBlockingDay(false);
   };

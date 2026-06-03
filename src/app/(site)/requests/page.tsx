@@ -45,7 +45,9 @@ export default async function RequestsPage() {
     if (result.data && result.data.length > 0) {
       initialData = result.data.map(mapToOpenRequestRecord);
     }
-  } catch {}
+  } catch (error) {
+    console.error("[RequestsPage] failed to load initial requests:", error);
+  }
 
   return <PublicRequestsMarketplaceScreen initialData={initialData} />;
 }
