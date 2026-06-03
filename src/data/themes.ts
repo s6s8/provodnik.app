@@ -1,24 +1,26 @@
 import type { LucideIcon } from "lucide-react";
 import {
-  Baby,
-  Building2,
   Church,
   Landmark,
   Leaf,
+  Moon,
+  Mountain,
   Palette,
   Sparkles,
   Utensils,
+  Waves,
 } from "lucide-react";
 
 export type ThemeSlug =
-  | "history"
-  | "architecture"
+  | "history_culture"
   | "nature"
   | "food"
   | "art"
-  | "religion"
-  | "kids"
-  | "unusual";
+  | "unusual"
+  | "night"
+  | "active"
+  | "water"
+  | "religion";
 
 export type Theme = {
   slug: ThemeSlug;
@@ -27,14 +29,15 @@ export type Theme = {
 };
 
 export const THEMES = [
-  { slug: "history", label: "История", Icon: Landmark },
-  { slug: "architecture", label: "Архитектура", Icon: Building2 },
+  { slug: "history_culture", label: "История и культура", Icon: Landmark },
   { slug: "nature", label: "Природа", Icon: Leaf },
   { slug: "food", label: "Гастрономия", Icon: Utensils },
   { slug: "art", label: "Искусство", Icon: Palette },
-  { slug: "religion", label: "Религия", Icon: Church },
-  { slug: "kids", label: "Для детей", Icon: Baby },
-  { slug: "unusual", label: "Необычное", Icon: Sparkles },
+  { slug: "unusual", label: "Необычные маршруты", Icon: Sparkles },
+  { slug: "night", label: "Ночные прогулки", Icon: Moon },
+  { slug: "active", label: "Активный отдых", Icon: Mountain },
+  { slug: "water", label: "Водные прогулки", Icon: Waves },
+  { slug: "religion", label: "Религия и духовность", Icon: Church },
 ] as const satisfies readonly Theme[];
 
 export function getTheme(slug: string): Theme | undefined {

@@ -30,7 +30,7 @@ describe("/dev/req-cards", () => {
 
     const tbilisiLink = within(section!).getByRole("link", { name: /Тбилиси/ });
 
-    expect(within(tbilisiLink).getByText("История")).toBeInTheDocument();
+    expect(within(tbilisiLink).getByText("История и культура")).toBeInTheDocument();
     expect(within(tbilisiLink).getByText("Гастрономия")).toBeInTheDocument();
   });
 

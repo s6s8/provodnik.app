@@ -268,47 +268,19 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(screen.queryByLabelText(/До скольких готов добрать/i)).toBeNull();
   });
 
-  it("renders the flexibility checkbox, default unchecked", () => {
+  it("does not render the guide date-suggestion checkbox", () => {
     render(<HomepageRequestForm destinations={[]} />);
-    const flex = screen.getByLabelText(
-      "Разрешаю гидам предлагать близкие даты и время",
-    );
-    expect(flex).toBeInTheDocument();
-    expect(flex).not.toBeChecked();
+    expect(
+      screen.queryByLabelText("Разрешаю гидам предлагать близкие даты и время"),
+    ).toBeNull();
   });
 
-  it("flexibility checkbox does not expand any extra field on toggle", () => {
+  it("shows all topics without an expand button", () => {
     render(<HomepageRequestForm destinations={[]} />);
-    const flex = screen.getByLabelText(
-      "Разрешаю гидам предлагать близкие даты и время",
-    );
-    const before = document.querySelectorAll("input,select").length;
-    fireEvent.click(flex);
-    const after = document.querySelectorAll("input,select").length;
-    expect(after).toBe(before);
-  });
 
-  it("shows only the first six topics until «Ещё темы» is toggled", () => {
-    render(<HomepageRequestForm destinations={[]} />);
-    // Indices 0–5 visible by default: История, Архитектура, Природа, Гастрономия, Искусство, Религия
-    expect(screen.getByRole("button", { name: /история/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /религия/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /для детей/i })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Ещё темы" }));
-
-    expect(screen.getByRole("button", { name: /для детей/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Свернуть" })).toBeInTheDocument();
-  });
-
-  it("keeps selected hidden topics visible after collapsing", () => {
-    render(<HomepageRequestForm destinations={[]} />);
-    // "Для детей" is at index 6 — hidden until expanded
-    fireEvent.click(screen.getByRole("button", { name: "Ещё темы" }));
-    fireEvent.click(screen.getByRole("button", { name: /для детей/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Свернуть" }));
-
-    expect(screen.getByRole("button", { name: /для детей/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /необычное/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /история и культура/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ещё темы" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Свернуть" })).toBeNull();
   });
 });

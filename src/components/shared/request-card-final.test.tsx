@@ -23,7 +23,7 @@ describe("RequestCardFinal", () => {
         groupType="assembly"
         guideState="found"
         datesFlexible
-        interests={["food", "history", "unknown-interest"]}
+        interests={["food", "history_culture", "unknown-interest"]}
         members={[
           { id: "tamar", displayName: "Тамар", initials: "Т" },
           { id: "oleg", displayName: "Олег", initials: "О" },
@@ -62,7 +62,7 @@ describe("RequestCardFinal", () => {
         date="12 июня"
         groupType="private"
         guideState="waiting"
-        interests={["history"]}
+        interests={["history_culture"]}
         members={[]}
         price="По договоренности"
       />,

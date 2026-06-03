@@ -38,8 +38,6 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [allowGuideSuggestions, setAllowGuideSuggestions] = React.useState(false);
-  const [showAllThemes, setShowAllThemes] = React.useState(false);
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
@@ -80,10 +78,6 @@ export function HomepageRequestForm({ destinations }: Props) {
   const watchedGroupSize = useWatch({ control, name: "groupSize" });
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
   const selectedInterests = interestsField.value ?? [];
-  const visibleThemes = THEMES.filter(
-    (theme, index) =>
-      index < 6 || showAllThemes || selectedInterests.includes(theme.slug),
-  );
 
   async function submitWithFormData(fd: FormData) {
     setIsLoading(true);
@@ -118,7 +112,6 @@ export function HomepageRequestForm({ destinations }: Props) {
       fd.set("groupSizeCurrent", String(count));
     }
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
-    fd.set("allowGuideSuggestions", allowGuideSuggestions ? "true" : "false");
     fd.set("notes", values.notes ?? "");
 
     try {
@@ -203,7 +196,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                 )
               }
               className={cn(
-                "absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-sm font-semibold transition-colors",
+                "absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-lg font-bold transition-colors",
                 watch("dateFlexibility") !== "exact"
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground",
@@ -298,26 +291,13 @@ export function HomepageRequestForm({ destinations }: Props) {
           perPerson={watchedBudgetPerPerson}
           groupSize={watchedGroupSize}
         />
-        <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 accent-primary"
-            checked={allowGuideSuggestions}
-            onChange={(e) => setAllowGuideSuggestions(e.target.checked)}
-          />
-          <span className="flex flex-col gap-0.5 text-sm">
-            <span className="font-medium text-foreground">
-              Разрешаю гидам предлагать близкие даты и время
-            </span>
-          </span>
-        </label>
       </div>
 
       {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
-        <div className="flex flex-wrap gap-2">
-          {visibleThemes.map((theme) => {
+        <div className="grid grid-cols-3 gap-2">
+          {THEMES.map((theme) => {
             const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
             return (
@@ -333,7 +313,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                   interestsField.onChange(next);
                 }}
                 className={cn(
-                  "flex flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
+                  "flex w-full flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
                   selected
                     ? "border-primary bg-primary/8 text-primary ring-2 ring-primary/40"
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",
@@ -345,14 +325,6 @@ export function HomepageRequestForm({ destinations }: Props) {
             );
           })}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          className="h-9 w-fit px-3 text-sm"
-          onClick={() => setShowAllThemes((current) => !current)}
-        >
-          {showAllThemes ? "Свернуть" : "Ещё темы"}
-        </Button>
         <FieldError id="interests-error" message={errors.interests?.message} />
       </div>
 
@@ -374,7 +346,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           </div>
           <Textarea
             id="notes"
-            placeholder="Пожелания, ограничения, формат отчётных документов. Если оформляете от компании — укажите название юрлица, ИНН и нужны ли счёт/акт или оплата по реквизитам."
+            placeholder="Пожелания, особые пожелания, ограничения по здоровью или другие детали."
             aria-invalid={Boolean(errors.notes)}
             {...register("notes")}
           />

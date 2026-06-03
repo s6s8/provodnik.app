@@ -1,0 +1,47 @@
+[    2629ms] [ERROR] Loading the image 'data:image/x-icon;,' violates the following Content Security Policy directive: "default-src 'none'". Note that 'img-src' was not explicitly set, so 'default-src' is used as a fallback. The action has been blocked. @ https://www.getyourguide.com/optics/_/service_worker/65d0/sw_iframe.html?origin=https%3A%2F%2Fwww.getyourguide.com&1p=1&path=%2Foptics:3
+[    2629ms] [ERROR] Executing inline script violates the following Content Security Policy directive 'default-src 'none''. Either the 'unsafe-inline' keyword, a hash ('sha256-xRJGcXxTB0SilizMQwZ0/YJKjUyyXl5CAOawMgpfyVY='), or a nonce ('nonce-...') is required to enable inline execution. Note also that 'script-src' was not explicitly set, so 'default-src' is used as a fallback. The action has been blocked. @ https://www.getyourguide.com/optics/_/service_worker/65d0/sw_iframe.html?origin=https%3A%2F%2Fwww.getyourguide.com&1p=1&path=%2Foptics:6
+[    2629ms] [ERROR] Loading the script 'https://static.cloudflareinsights.com/beacon.min.js/v833ccba57c9e4d2798f2e76cebdd09a11778172276447' violates the following Content Security Policy directive: "default-src 'none'". Note that 'script-src-elem' was not explicitly set, so 'default-src' is used as a fallback. The action has been blocked. @ https://www.getyourguide.com/optics/_/service_worker/65d0/sw_iframe.html?origin=https%3A%2F%2Fwww.getyourguide.com&1p=1&path=%2Foptics:0
+[    2683ms] [WARNING] [Meta Pixel] - You are sending a non-standard event 'WebEntry'. The preferred way to send these events is using trackCustom. See 'https://developers.facebook.com/docs/ads-for-websites/pixel-events/#events' for more information. @ https://connect.facebook.net/en_US/fbevents.js:183
+[    4116ms] [LOG] %c 
+     ++++++++++++         ++++++++++++++++ +++++++++++++++++++
+   +++++++++++++++++      ++++++++++++++++ +++++++++++++++++++
+ ++++++++++++++++++++     ++++++++++++++++ +++++++++++++++++++
++++++++++     ++++++++    ++++++
+++++++          ++++      ++++++                  ++++++
+++++++    +++++++++++++   +++++++++++++++         ++++++
+++++++    +++++++++++++   +++++++++++++++         ++++++
+++++++    +++++++++++++   +++++++++++++++         ++++++
+++++++    +++++++++++++   ++++++                  +++++
+++++++++     ++++++++++   ++++++                  ++++++
+ ++++++++++++++++++++++   ++++++++++++++++        ++++++
+   ++++++++++++++ +++++   ++++++++++++++++        ++++++
+     ++++++++++   +++++   ++++++++++++++++        ++++++
+
++++++++         +++++++      ++++ ++++++          ++++++        ++++++     +++++++ +++++++
+ +++++++       +++++++     ++++++++++++++++       ++++++        ++++++    +++++++  ++++++++++
+  +++++++     +++++++       +++++ +++++++++++     ++++++        ++++++   +++++++   +++++++++++
+   +++++++   +++++++   ++++++ +       ++++++++    ++++++        ++++++    +++++++       ++++++
+    +++++++ +++++++    ++++++           +++++++   ++++++        ++++++     +++++++      +++++++
+     +++++++++++++     +++++             ++++++   ++++++        ++++++    +++++++  +++++++++++
+       +++++++++      ++++++             ++++++   ++++++        ++++++   +++++++   ++++++++++
+        +++++++       +++++++           +++++++   ++++++        ++++++    +++++++  +++++++++
+        +++++++       ++++++++         +++++++    ++++++        ++++++     +++++++ ++++++++
+        +++++++        +++++++++++ +++++++++++    ++++++++    ++++++++    +++++++   ++++++++
+        +++++++          +++++++++++++++++++       ++++++++++++++++++    +++++++      ++++++++
+        +++++++           +++++++++++++++++         +++++++++++++++        +++++++     ++++++++
+         +++++                +++++++++                +++++++++            ++++++      +++++++
+
+    ++++++++++++++        ++++++        +++++++   ++++++     ++++++++++++++         ++++++++++++++++
+  ++++++++++++++++++      ++++++        +++++++   +++++++    +++++++++++++++++      ++++++++++++++++
+ +++++++++++++++++++++    ++++++        +++++++   ++++++++   +++++++++++++++++++    ++++++++++++++++
++++++++         ++++++    ++++++        +++++++     ++++++   ++++++      ++++++++   ++++++
+++++++           +        ++++++        +++++++    +++++++   ++++++        +++++++  ++++++
+++++++    +++++++++++++   ++++++        +++++++   +++++++    ++++++         ++++++  +++++++++++++++
+++++++    +++++++++++++   ++++++        +++++++   +++++++    ++++++         ++++++  +++++++++++++++
+++++++    +++++++++++++   ++++++        +++++++   ++++++++   ++++++        +++++++  +++++++++++++++
++++++++       +++++++++   +++++++       ++++++      ++++++   ++++++       +++++++   ++++++
+ +++++++++ ++++++++++++    +++++++++ +++++++++     +++++++   ++++++++++++++++++++   ++++++++++++++++
+  +++++++++++++++++++++     +++++++++++++++++     +++++++    ++++++++++++++++++     ++++++++++++++++
+   +++++++++++++  +++++      ++++++++++++++       ++++++     ++++++++++++++++       ++++++++++++++++
+       +++++                     +++++++
+ %c 🌍 We are hiring! → https://getyourguide.careers color: #FF5722;font-family: monospace;font-size: 10px;line-height: 1.1;white-space: pre color: #FF5722;font-size: 18px;font-weight: bold;padding: 20px 0 @ https://cdn.getyourguide.com/tf/assets/compiled/client/master-ChMSD43d-v01.js:43

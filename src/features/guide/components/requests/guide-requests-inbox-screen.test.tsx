@@ -149,7 +149,7 @@ describe("GuideInboxCardHeader", () => {
           id: "r1",
           requesterName: "Анна Петрова",
           destination: "Элиста",
-          interests: ["nature", "history"],
+          interests: ["nature", "history_culture"],
         })}
         matched={false}
       />,
@@ -192,7 +192,7 @@ describe("GuideInboxCardHeader", () => {
         item={request({
           id: "r1",
           destination: "Элиста",
-          interests: ["nature", "history"],
+          interests: ["nature", "history_culture"],
         })}
         matched={false}
       />,
@@ -200,7 +200,7 @@ describe("GuideInboxCardHeader", () => {
 
     expect(screen.queryByText(/Соответствует/)).toBeNull();
     expect(
-      screen.getByText(/природа.*история|история.*природа/i),
+      screen.getByText(/природа.*история и культура|история и культура.*природа/i),
     ).toBeInTheDocument();
   });
 

@@ -1,0 +1,141 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - 'heading "Вариант В — поле даты: три состояния" [level=2] [ref=e3]'
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - generic [ref=e6]: Пусто
+        - generic [ref=e7]: Дата начала
+        - generic [ref=e8] [cursor=pointer]:
+          - generic [ref=e9]: 📅
+          - generic [ref=e10]: Выберите дату
+          - generic [ref=e11]: ▾
+      - generic [ref=e12]:
+        - generic [ref=e13]: Точная дата
+        - generic [ref=e14]: Дата начала
+        - generic [ref=e15] [cursor=pointer]:
+          - generic [ref=e16]: 📅
+          - generic [ref=e17]: 12 июня
+          - generic [ref=e18]: ▾
+      - generic [ref=e19]:
+        - generic [ref=e20]: Гибкая дата ≈
+        - generic [ref=e21]: Дата начала
+        - generic [ref=e22] [cursor=pointer]:
+          - generic [ref=e23]: 📅
+          - generic [ref=e24]: ≈12 июня
+          - generic [ref=e25]: ▾
+  - separator [ref=e26]
+  - generic [ref=e27]:
+    - heading "Тап по полю → датапикер с переключателем" [level=2] [ref=e28]
+    - generic [ref=e29]:
+      - generic [ref=e30]:
+        - generic [ref=e31]: Открыт — точная дата
+        - generic [ref=e32]: Дата начала
+        - generic [ref=e33] [cursor=pointer]:
+          - generic [ref=e34]: 📅
+          - generic [ref=e35]: 12 июня
+          - generic [ref=e36]: ▾
+        - generic [ref=e37]:
+          - generic [ref=e38]:
+            - generic [ref=e39]: Июнь 2026
+            - generic [ref=e40]:
+              - button "‹" [ref=e41] [cursor=pointer]
+              - button "›" [ref=e42] [cursor=pointer]
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e45]: Пн
+              - generic [ref=e46]: Вт
+              - generic [ref=e47]: Ср
+              - generic [ref=e48]: Чт
+              - generic [ref=e49]: Пт
+              - generic [ref=e50]: Сб
+              - generic [ref=e51]: Вс
+            - generic [ref=e52]:
+              - generic [ref=e53] [cursor=pointer]: "1"
+              - generic [ref=e54] [cursor=pointer]: "2"
+              - generic [ref=e55] [cursor=pointer]: "3"
+              - generic [ref=e56] [cursor=pointer]: "4"
+              - generic [ref=e57] [cursor=pointer]: "5"
+              - generic [ref=e58] [cursor=pointer]: "6"
+              - generic [ref=e59] [cursor=pointer]: "7"
+              - generic [ref=e60] [cursor=pointer]: "8"
+              - generic [ref=e61] [cursor=pointer]: "9"
+              - generic [ref=e62] [cursor=pointer]: "10"
+              - generic [ref=e63] [cursor=pointer]: "11"
+              - generic [ref=e64] [cursor=pointer]: "12"
+              - generic [ref=e65] [cursor=pointer]: "13"
+              - generic [ref=e66] [cursor=pointer]: "14"
+              - generic [ref=e67] [cursor=pointer]: "15"
+              - generic [ref=e68] [cursor=pointer]: "16"
+              - generic [ref=e69] [cursor=pointer]: "17"
+              - generic [ref=e70] [cursor=pointer]: "18"
+              - generic [ref=e71] [cursor=pointer]: "19"
+              - generic [ref=e72] [cursor=pointer]: "20"
+              - generic [ref=e73] [cursor=pointer]: "21"
+              - generic [ref=e74] [cursor=pointer]: "22"
+              - generic [ref=e75] [cursor=pointer]: "23"
+              - generic [ref=e76] [cursor=pointer]: "24"
+              - generic [ref=e77] [cursor=pointer]: "25"
+              - generic [ref=e78] [cursor=pointer]: "26"
+              - generic [ref=e79] [cursor=pointer]: "27"
+              - generic [ref=e80] [cursor=pointer]: "28"
+              - generic [ref=e81] [cursor=pointer]: "29"
+              - generic [ref=e82] [cursor=pointer]: "30"
+          - generic [ref=e84]:
+            - generic [ref=e85]: Гибкая дата
+            - generic [ref=e86]: ±2–3 дня от выбранной
+      - generic [ref=e88]:
+        - generic [ref=e89]: Открыт — гибкая дата ≈
+        - generic [ref=e90]: Дата начала
+        - generic [ref=e91] [cursor=pointer]:
+          - generic [ref=e92]: 📅
+          - generic [ref=e93]: ≈12 июня
+          - generic [ref=e94]: ▾
+        - generic [ref=e95]:
+          - generic [ref=e96]:
+            - generic [ref=e97]: Июнь 2026
+            - generic [ref=e98]:
+              - button "‹" [ref=e99] [cursor=pointer]
+              - button "›" [ref=e100] [cursor=pointer]
+          - generic [ref=e101]:
+            - generic [ref=e102]:
+              - generic [ref=e103]: Пн
+              - generic [ref=e104]: Вт
+              - generic [ref=e105]: Ср
+              - generic [ref=e106]: Чт
+              - generic [ref=e107]: Пт
+              - generic [ref=e108]: Сб
+              - generic [ref=e109]: Вс
+            - generic [ref=e110]:
+              - generic [ref=e111] [cursor=pointer]: "1"
+              - generic [ref=e112] [cursor=pointer]: "2"
+              - generic [ref=e113] [cursor=pointer]: "3"
+              - generic [ref=e114] [cursor=pointer]: "4"
+              - generic [ref=e115] [cursor=pointer]: "5"
+              - generic [ref=e116] [cursor=pointer]: "6"
+              - generic [ref=e117] [cursor=pointer]: "7"
+              - generic [ref=e118] [cursor=pointer]: "8"
+              - generic [ref=e119] [cursor=pointer]: "9"
+              - generic [ref=e120] [cursor=pointer]: "10"
+              - generic [ref=e121] [cursor=pointer]: "11"
+              - generic [ref=e122] [cursor=pointer]: "12"
+              - generic [ref=e123] [cursor=pointer]: "13"
+              - generic [ref=e124] [cursor=pointer]: "14"
+              - generic [ref=e125] [cursor=pointer]: "15"
+              - generic [ref=e126] [cursor=pointer]: "16"
+              - generic [ref=e127] [cursor=pointer]: "17"
+              - generic [ref=e128] [cursor=pointer]: "18"
+              - generic [ref=e129] [cursor=pointer]: "19"
+              - generic [ref=e130] [cursor=pointer]: "20"
+              - generic [ref=e131] [cursor=pointer]: "21"
+              - generic [ref=e132] [cursor=pointer]: "22"
+              - generic [ref=e133] [cursor=pointer]: "23"
+              - generic [ref=e134] [cursor=pointer]: "24"
+              - generic [ref=e135] [cursor=pointer]: "25"
+              - generic [ref=e136] [cursor=pointer]: "26"
+              - generic [ref=e137] [cursor=pointer]: "27"
+              - generic [ref=e138] [cursor=pointer]: "28"
+              - generic [ref=e139] [cursor=pointer]: "29"
+              - generic [ref=e140] [cursor=pointer]: "30"
+          - generic [ref=e142]:
+            - generic [ref=e143]: Гибкая дата
+            - generic [ref=e144]: ±2–3 дня от выбранной

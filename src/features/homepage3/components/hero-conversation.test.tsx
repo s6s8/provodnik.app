@@ -50,7 +50,7 @@ const COMPLETE_BODY = {
     endTime: null,
     groupSize: 2,
     budgetPerPersonRub: 5000,
-    interests: ["history", "food"],
+    interests: ["history_culture", "food"],
     requestedLanguages: [],
     notes: null,
   },

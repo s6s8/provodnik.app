@@ -6,7 +6,7 @@ describe("travelerRequestSchema", () => {
   it("sanitizes polluted destination labels from traveler form input", () => {
     const parsed = travelerRequestSchema.parse({
       mode: "private",
-      interests: ["history"],
+      interests: ["history_culture"],
       destination: "МоскваМосква placeholder=Москва autocomplete=list",
       startDate: "2026-05-10",
       dateFlexibility: "exact",
@@ -22,7 +22,7 @@ describe("travelerRequestSchema", () => {
   it("keeps empty destinations invalid after sanitizing traveler form input", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "private",
-      interests: ["history"],
+      interests: ["history_culture"],
       destination: "placeholder=Москва autocomplete=list",
       startDate: "2026-05-10",
       dateFlexibility: "exact",

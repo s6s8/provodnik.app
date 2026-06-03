@@ -38,7 +38,7 @@ const countPrototypeSamples = [
     groupType: "assembly",
     guideState: "waiting",
     datesFlexible: false,
-    interests: ["history", "religion"],
+    interests: ["history_culture", "religion"],
     members: [{ id: "ana", displayName: "Ана", initials: "А" }],
     price: "3 500 ₽",
     participantCount: 1,
@@ -51,7 +51,7 @@ const countPrototypeSamples = [
     groupType: "assembly",
     guideState: "found",
     datesFlexible: true,
-    interests: ["food", "history", "architecture"],
+    interests: ["food", "history_culture", "art"],
     members: [
       { id: "nino-count", displayName: "Нино", initials: "Н" },
       { id: "anna-count", displayName: "Анна", initials: "А" },
@@ -85,7 +85,7 @@ const countPrototypeSamples = [
     groupType: "private",
     guideState: "found",
     datesFlexible: false,
-    interests: ["nature", "architecture"],
+    interests: ["nature", "history_culture"],
     members: [
       { id: "mariam-count", displayName: "Мариам", initials: "М" },
       { id: "roman-count", displayName: "Роман", initials: "Р" },

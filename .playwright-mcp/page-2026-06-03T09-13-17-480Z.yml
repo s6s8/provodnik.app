@@ -1,0 +1,768 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Карточки запросов — сравнение меток группы" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Первые три секции сравнивают серую метку типа группы, затем — текстовые темы против иконок-only и контурный цвет типа.
+    - generic [ref=e6]:
+      - region "1 · Тихий чип (контроль)" [ref=e7]:
+        - generic [ref=e8]:
+          - heading "1 · Тихий чип (контроль)" [level=2] [ref=e9]
+          - paragraph [ref=e10]: Оба типа остаются серыми контурными чипами; различие видно только по слову и базовой иконке.
+        - generic [ref=e11]:
+          - generic [ref=e12]:
+            - paragraph [ref=e13]: Своя · Ждёт гида
+            - article [ref=e14]:
+              - link "Тбилиси 12 июня, 18:00 · 3 чел. Ждёт гида Своя группа" [ref=e15] [cursor=pointer]:
+                - /url: /requests/tbilisi-evening
+                - paragraph [ref=e16]: Тбилиси
+                - paragraph [ref=e17]: 12 июня, 18:00 · 3 чел.
+                - generic [ref=e18]:
+                  - generic [ref=e19]:
+                    - text: Ждёт гида
+                    - img [ref=e20]
+                  - generic [ref=e25]:
+                    - img [ref=e26]
+                    - text: Своя группа
+              - generic [ref=e31]:
+                - generic [ref=e32]:
+                  - generic [ref=e33]: История
+                  - generic [ref=e34]: Гастрономия
+                  - generic [ref=e35]: Архитектура
+                - generic [ref=e36]:
+                  - generic [ref=e37]:
+                    - generic "Нино" [ref=e38]:
+                      - generic [ref=e39]: Н
+                    - generic "Анна" [ref=e40]:
+                      - generic [ref=e41]: А
+                    - generic "Максим" [ref=e42]:
+                      - generic [ref=e43]: М
+                  - generic [ref=e44]: 4 500 ₽ / чел
+          - generic [ref=e45]:
+            - paragraph [ref=e46]: Своя · Гид найден
+            - article [ref=e47]:
+              - link "Казбеги 21 июня, 10:00 · 3 чел. Гид найден Своя группа Гибкие даты" [ref=e48] [cursor=pointer]:
+                - /url: /requests/kazbegi-one-day
+                - paragraph [ref=e49]: Казбеги
+                - paragraph [ref=e50]: 21 июня, 10:00 · 3 чел.
+                - generic [ref=e51]:
+                  - generic [ref=e52]:
+                    - text: Гид найден
+                    - img [ref=e53]
+                  - generic [ref=e55]:
+                    - img [ref=e56]
+                    - text: Своя группа
+                  - generic [ref=e61]: Гибкие даты
+              - generic [ref=e62]:
+                - generic [ref=e63]:
+                  - generic [ref=e64]: Природа
+                  - generic [ref=e65]: Религия
+                  - generic [ref=e66]: Архитектура
+                - generic [ref=e67]:
+                  - generic [ref=e68]:
+                    - generic "Мариам" [ref=e69]:
+                      - generic [ref=e70]: М
+                    - generic "Роман" [ref=e71]:
+                      - generic [ref=e72]: Р
+                    - generic "Лена" [ref=e73]:
+                      - generic [ref=e74]: Л
+                  - generic [ref=e75]: 7 900 ₽ / чел
+          - generic [ref=e76]:
+            - paragraph [ref=e77]: Открытая · Ждёт гида
+            - article [ref=e78]:
+              - link "Кахетия 5 июля, 11:30 · 4 чел. Ждёт гида Открытая" [ref=e79] [cursor=pointer]:
+                - /url: /requests/kakheti-wine
+                - paragraph [ref=e80]: Кахетия
+                - paragraph [ref=e81]: 5 июля, 11:30 · 4 чел.
+                - generic [ref=e82]:
+                  - generic [ref=e83]:
+                    - text: Ждёт гида
+                    - img [ref=e84]
+                  - generic [ref=e89]:
+                    - img [ref=e90]
+                    - text: Открытая
+              - generic [ref=e93]:
+                - generic [ref=e94]:
+                  - generic [ref=e95]: Гастрономия
+                  - generic [ref=e96]: История
+                  - generic [ref=e97]: Архитектура
+                - generic [ref=e98]:
+                  - generic [ref=e99]:
+                    - generic "Тамар" [ref=e100]:
+                      - generic [ref=e101]: Т
+                    - generic "Олег" [ref=e102]:
+                      - generic [ref=e103]: О
+                    - generic "Катя" [ref=e104]:
+                      - generic [ref=e105]: К
+                    - generic "Георгий" [ref=e106]:
+                      - generic [ref=e107]: Г
+                  - generic [ref=e108]: 6 800 ₽ / чел
+          - generic [ref=e109]:
+            - paragraph [ref=e110]: Открытая · Гид найден
+            - article [ref=e111]:
+              - link "Сванетия 14 августа, 09:00 · 5 чел. Гид найден Открытая Гибкие даты" [ref=e112] [cursor=pointer]:
+                - /url: /requests/svaneti-mountains
+                - paragraph [ref=e113]: Сванетия
+                - paragraph [ref=e114]: 14 августа, 09:00 · 5 чел.
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - text: Гид найден
+                    - img [ref=e117]
+                  - generic [ref=e119]:
+                    - img [ref=e120]
+                    - text: Открытая
+                  - generic [ref=e123]: Гибкие даты
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - generic [ref=e126]: Природа
+                  - generic [ref=e127]: История
+                  - generic [ref=e128]: Необычное
+                - generic [ref=e129]:
+                  - generic [ref=e130]:
+                    - generic "Ираклий" [ref=e131]:
+                      - generic [ref=e132]: И
+                    - generic "София" [ref=e133]:
+                      - generic [ref=e134]: С
+                    - generic "Дарья" [ref=e135]:
+                      - generic [ref=e136]: Д
+                    - generic "Леван" [ref=e137]:
+                      - generic [ref=e138]: Л
+                  - generic [ref=e139]: 18 000 ₽ / чел
+      - 'region "2 · Вес: заливка vs контур" [ref=e140]':
+        - generic [ref=e141]:
+          - 'heading "2 · Вес: заливка vs контур" [level=2] [ref=e142]'
+          - paragraph [ref=e143]: Своя группа получает тихую серую заливку, открытая остаётся контурной без цветового акцента.
+        - generic [ref=e144]:
+          - generic [ref=e145]:
+            - paragraph [ref=e146]: Своя · Ждёт гида
+            - article [ref=e147]:
+              - link "Тбилиси 12 июня, 18:00 · 3 чел. Ждёт гида Своя группа" [ref=e148] [cursor=pointer]:
+                - /url: /requests/tbilisi-evening
+                - paragraph [ref=e149]: Тбилиси
+                - paragraph [ref=e150]: 12 июня, 18:00 · 3 чел.
+                - generic [ref=e151]:
+                  - generic [ref=e152]:
+                    - text: Ждёт гида
+                    - img [ref=e153]
+                  - generic [ref=e158]:
+                    - img [ref=e159]
+                    - text: Своя группа
+              - generic [ref=e164]:
+                - generic [ref=e165]:
+                  - generic [ref=e166]: История
+                  - generic [ref=e167]: Гастрономия
+                  - generic [ref=e168]: Архитектура
+                - generic [ref=e169]:
+                  - generic [ref=e170]:
+                    - generic "Нино" [ref=e171]:
+                      - generic [ref=e172]: Н
+                    - generic "Анна" [ref=e173]:
+                      - generic [ref=e174]: А
+                    - generic "Максим" [ref=e175]:
+                      - generic [ref=e176]: М
+                  - generic [ref=e177]: 4 500 ₽ / чел
+          - generic [ref=e178]:
+            - paragraph [ref=e179]: Своя · Гид найден
+            - article [ref=e180]:
+              - link "Казбеги 21 июня, 10:00 · 3 чел. Гид найден Своя группа Гибкие даты" [ref=e181] [cursor=pointer]:
+                - /url: /requests/kazbegi-one-day
+                - paragraph [ref=e182]: Казбеги
+                - paragraph [ref=e183]: 21 июня, 10:00 · 3 чел.
+                - generic [ref=e184]:
+                  - generic [ref=e185]:
+                    - text: Гид найден
+                    - img [ref=e186]
+                  - generic [ref=e188]:
+                    - img [ref=e189]
+                    - text: Своя группа
+                  - generic [ref=e194]: Гибкие даты
+              - generic [ref=e195]:
+                - generic [ref=e196]:
+                  - generic [ref=e197]: Природа
+                  - generic [ref=e198]: Религия
+                  - generic [ref=e199]: Архитектура
+                - generic [ref=e200]:
+                  - generic [ref=e201]:
+                    - generic "Мариам" [ref=e202]:
+                      - generic [ref=e203]: М
+                    - generic "Роман" [ref=e204]:
+                      - generic [ref=e205]: Р
+                    - generic "Лена" [ref=e206]:
+                      - generic [ref=e207]: Л
+                  - generic [ref=e208]: 7 900 ₽ / чел
+          - generic [ref=e209]:
+            - paragraph [ref=e210]: Открытая · Ждёт гида
+            - article [ref=e211]:
+              - link "Кахетия 5 июля, 11:30 · 4 чел. Ждёт гида Открытая" [ref=e212] [cursor=pointer]:
+                - /url: /requests/kakheti-wine
+                - paragraph [ref=e213]: Кахетия
+                - paragraph [ref=e214]: 5 июля, 11:30 · 4 чел.
+                - generic [ref=e215]:
+                  - generic [ref=e216]:
+                    - text: Ждёт гида
+                    - img [ref=e217]
+                  - generic [ref=e222]:
+                    - img [ref=e223]
+                    - text: Открытая
+              - generic [ref=e226]:
+                - generic [ref=e227]:
+                  - generic [ref=e228]: Гастрономия
+                  - generic [ref=e229]: История
+                  - generic [ref=e230]: Архитектура
+                - generic [ref=e231]:
+                  - generic [ref=e232]:
+                    - generic "Тамар" [ref=e233]:
+                      - generic [ref=e234]: Т
+                    - generic "Олег" [ref=e235]:
+                      - generic [ref=e236]: О
+                    - generic "Катя" [ref=e237]:
+                      - generic [ref=e238]: К
+                    - generic "Георгий" [ref=e239]:
+                      - generic [ref=e240]: Г
+                  - generic [ref=e241]: 6 800 ₽ / чел
+          - generic [ref=e242]:
+            - paragraph [ref=e243]: Открытая · Гид найден
+            - article [ref=e244]:
+              - link "Сванетия 14 августа, 09:00 · 5 чел. Гид найден Открытая Гибкие даты" [ref=e245] [cursor=pointer]:
+                - /url: /requests/svaneti-mountains
+                - paragraph [ref=e246]: Сванетия
+                - paragraph [ref=e247]: 14 августа, 09:00 · 5 чел.
+                - generic [ref=e248]:
+                  - generic [ref=e249]:
+                    - text: Гид найден
+                    - img [ref=e250]
+                  - generic [ref=e252]:
+                    - img [ref=e253]
+                    - text: Открытая
+                  - generic [ref=e256]: Гибкие даты
+              - generic [ref=e257]:
+                - generic [ref=e258]:
+                  - generic [ref=e259]: Природа
+                  - generic [ref=e260]: История
+                  - generic [ref=e261]: Необычное
+                - generic [ref=e262]:
+                  - generic [ref=e263]:
+                    - generic "Ираклий" [ref=e264]:
+                      - generic [ref=e265]: И
+                    - generic "София" [ref=e266]:
+                      - generic [ref=e267]: С
+                    - generic "Дарья" [ref=e268]:
+                      - generic [ref=e269]: Д
+                    - generic "Леван" [ref=e270]:
+                      - generic [ref=e271]: Л
+                  - generic [ref=e272]: 18 000 ₽ / чел
+      - region "3 · Вес + силуэт иконки" [ref=e273]:
+        - generic [ref=e274]:
+          - heading "3 · Вес + силуэт иконки" [level=2] [ref=e275]
+          - paragraph [ref=e276]: "К весу добавлен другой силуэт для открытой: UsersRound вместо UserPlus."
+        - generic [ref=e277]:
+          - generic [ref=e278]:
+            - paragraph [ref=e279]: Своя · Ждёт гида
+            - article [ref=e280]:
+              - link "Тбилиси 12 июня, 18:00 · 3 чел. Ждёт гида Своя группа" [ref=e281] [cursor=pointer]:
+                - /url: /requests/tbilisi-evening
+                - paragraph [ref=e282]: Тбилиси
+                - paragraph [ref=e283]: 12 июня, 18:00 · 3 чел.
+                - generic [ref=e284]:
+                  - generic [ref=e285]:
+                    - text: Ждёт гида
+                    - img [ref=e286]
+                  - generic [ref=e291]:
+                    - img [ref=e292]
+                    - text: Своя группа
+              - generic [ref=e297]:
+                - generic [ref=e298]:
+                  - generic [ref=e299]: История
+                  - generic [ref=e300]: Гастрономия
+                  - generic [ref=e301]: Архитектура
+                - generic [ref=e302]:
+                  - generic [ref=e303]:
+                    - generic "Нино" [ref=e304]:
+                      - generic [ref=e305]: Н
+                    - generic "Анна" [ref=e306]:
+                      - generic [ref=e307]: А
+                    - generic "Максим" [ref=e308]:
+                      - generic [ref=e309]: М
+                  - generic [ref=e310]: 4 500 ₽ / чел
+          - generic [ref=e311]:
+            - paragraph [ref=e312]: Своя · Гид найден
+            - article [ref=e313]:
+              - link "Казбеги 21 июня, 10:00 · 3 чел. Гид найден Своя группа Гибкие даты" [ref=e314] [cursor=pointer]:
+                - /url: /requests/kazbegi-one-day
+                - paragraph [ref=e315]: Казбеги
+                - paragraph [ref=e316]: 21 июня, 10:00 · 3 чел.
+                - generic [ref=e317]:
+                  - generic [ref=e318]:
+                    - text: Гид найден
+                    - img [ref=e319]
+                  - generic [ref=e321]:
+                    - img [ref=e322]
+                    - text: Своя группа
+                  - generic [ref=e327]: Гибкие даты
+              - generic [ref=e328]:
+                - generic [ref=e329]:
+                  - generic [ref=e330]: Природа
+                  - generic [ref=e331]: Религия
+                  - generic [ref=e332]: Архитектура
+                - generic [ref=e333]:
+                  - generic [ref=e334]:
+                    - generic "Мариам" [ref=e335]:
+                      - generic [ref=e336]: М
+                    - generic "Роман" [ref=e337]:
+                      - generic [ref=e338]: Р
+                    - generic "Лена" [ref=e339]:
+                      - generic [ref=e340]: Л
+                  - generic [ref=e341]: 7 900 ₽ / чел
+          - generic [ref=e342]:
+            - paragraph [ref=e343]: Открытая · Ждёт гида
+            - article [ref=e344]:
+              - link "Кахетия 5 июля, 11:30 · 4 чел. Ждёт гида Открытая" [ref=e345] [cursor=pointer]:
+                - /url: /requests/kakheti-wine
+                - paragraph [ref=e346]: Кахетия
+                - paragraph [ref=e347]: 5 июля, 11:30 · 4 чел.
+                - generic [ref=e348]:
+                  - generic [ref=e349]:
+                    - text: Ждёт гида
+                    - img [ref=e350]
+                  - generic [ref=e355]:
+                    - img [ref=e356]
+                    - text: Открытая
+              - generic [ref=e360]:
+                - generic [ref=e361]:
+                  - generic [ref=e362]: Гастрономия
+                  - generic [ref=e363]: История
+                  - generic [ref=e364]: Архитектура
+                - generic [ref=e365]:
+                  - generic [ref=e366]:
+                    - generic "Тамар" [ref=e367]:
+                      - generic [ref=e368]: Т
+                    - generic "Олег" [ref=e369]:
+                      - generic [ref=e370]: О
+                    - generic "Катя" [ref=e371]:
+                      - generic [ref=e372]: К
+                    - generic "Георгий" [ref=e373]:
+                      - generic [ref=e374]: Г
+                  - generic [ref=e375]: 6 800 ₽ / чел
+          - generic [ref=e376]:
+            - paragraph [ref=e377]: Открытая · Гид найден
+            - article [ref=e378]:
+              - link "Сванетия 14 августа, 09:00 · 5 чел. Гид найден Открытая Гибкие даты" [ref=e379] [cursor=pointer]:
+                - /url: /requests/svaneti-mountains
+                - paragraph [ref=e380]: Сванетия
+                - paragraph [ref=e381]: 14 августа, 09:00 · 5 чел.
+                - generic [ref=e382]:
+                  - generic [ref=e383]:
+                    - text: Гид найден
+                    - img [ref=e384]
+                  - generic [ref=e386]:
+                    - img [ref=e387]
+                    - text: Открытая
+                  - generic [ref=e391]: Гибкие даты
+              - generic [ref=e392]:
+                - generic [ref=e393]:
+                  - generic [ref=e394]: Природа
+                  - generic [ref=e395]: История
+                  - generic [ref=e396]: Необычное
+                - generic [ref=e397]:
+                  - generic [ref=e398]:
+                    - generic "Ираклий" [ref=e399]:
+                      - generic [ref=e400]: И
+                    - generic "София" [ref=e401]:
+                      - generic [ref=e402]: С
+                    - generic "Дарья" [ref=e403]:
+                      - generic [ref=e404]: Д
+                    - generic "Леван" [ref=e405]:
+                      - generic [ref=e406]: Л
+                  - generic [ref=e407]: 18 000 ₽ / чел
+      - 'region "4 · Темы: текст vs иконки-only" [ref=e408]':
+        - generic [ref=e409]:
+          - 'heading "4 · Темы: текст vs иконки-only" [level=2] [ref=e410]'
+          - paragraph [ref=e411]: "Та же матрица карточек показывает текущие текстовые чипы и компактную версию: только иконки с подписью в тултипе по наведению или тапу."
+        - generic [ref=e412]:
+          - generic [ref=e413]:
+            - heading "Текст" [level=3] [ref=e414]
+            - generic [ref=e415]:
+              - generic [ref=e416]:
+                - paragraph [ref=e417]: Своя · Ждёт гида
+                - article [ref=e418]:
+                  - link "Тбилиси 12 июня, 18:00 · 3 чел. Ждёт гида Своя группа" [ref=e419] [cursor=pointer]:
+                    - /url: /requests/tbilisi-evening
+                    - paragraph [ref=e420]: Тбилиси
+                    - paragraph [ref=e421]: 12 июня, 18:00 · 3 чел.
+                    - generic [ref=e422]:
+                      - generic [ref=e423]:
+                        - text: Ждёт гида
+                        - img [ref=e424]
+                      - generic [ref=e429]:
+                        - img [ref=e430]
+                        - text: Своя группа
+                  - generic [ref=e435]:
+                    - generic [ref=e436]:
+                      - generic [ref=e437]: История
+                      - generic [ref=e438]: Гастрономия
+                      - generic [ref=e439]: Архитектура
+                    - generic [ref=e440]:
+                      - generic [ref=e441]:
+                        - generic "Нино" [ref=e442]:
+                          - generic [ref=e443]: Н
+                        - generic "Анна" [ref=e444]:
+                          - generic [ref=e445]: А
+                        - generic "Максим" [ref=e446]:
+                          - generic [ref=e447]: М
+                      - generic [ref=e448]: 4 500 ₽ / чел
+              - generic [ref=e449]:
+                - paragraph [ref=e450]: Своя · Гид найден
+                - article [ref=e451]:
+                  - link "Казбеги 21 июня, 10:00 · 3 чел. Гид найден Своя группа Гибкие даты" [ref=e452] [cursor=pointer]:
+                    - /url: /requests/kazbegi-one-day
+                    - paragraph [ref=e453]: Казбеги
+                    - paragraph [ref=e454]: 21 июня, 10:00 · 3 чел.
+                    - generic [ref=e455]:
+                      - generic [ref=e456]:
+                        - text: Гид найден
+                        - img [ref=e457]
+                      - generic [ref=e459]:
+                        - img [ref=e460]
+                        - text: Своя группа
+                      - generic [ref=e465]: Гибкие даты
+                  - generic [ref=e466]:
+                    - generic [ref=e467]:
+                      - generic [ref=e468]: Природа
+                      - generic [ref=e469]: Религия
+                      - generic [ref=e470]: Архитектура
+                    - generic [ref=e471]:
+                      - generic [ref=e472]:
+                        - generic "Мариам" [ref=e473]:
+                          - generic [ref=e474]: М
+                        - generic "Роман" [ref=e475]:
+                          - generic [ref=e476]: Р
+                        - generic "Лена" [ref=e477]:
+                          - generic [ref=e478]: Л
+                      - generic [ref=e479]: 7 900 ₽ / чел
+              - generic [ref=e480]:
+                - paragraph [ref=e481]: Открытая · Ждёт гида
+                - article [ref=e482]:
+                  - link "Кахетия 5 июля, 11:30 · 4 чел. Ждёт гида Открытая" [ref=e483] [cursor=pointer]:
+                    - /url: /requests/kakheti-wine
+                    - paragraph [ref=e484]: Кахетия
+                    - paragraph [ref=e485]: 5 июля, 11:30 · 4 чел.
+                    - generic [ref=e486]:
+                      - generic [ref=e487]:
+                        - text: Ждёт гида
+                        - img [ref=e488]
+                      - generic [ref=e493]:
+                        - img [ref=e494]
+                        - text: Открытая
+                  - generic [ref=e498]:
+                    - generic [ref=e499]:
+                      - generic [ref=e500]: Гастрономия
+                      - generic [ref=e501]: История
+                      - generic [ref=e502]: Архитектура
+                    - generic [ref=e503]:
+                      - generic [ref=e504]:
+                        - generic "Тамар" [ref=e505]:
+                          - generic [ref=e506]: Т
+                        - generic "Олег" [ref=e507]:
+                          - generic [ref=e508]: О
+                        - generic "Катя" [ref=e509]:
+                          - generic [ref=e510]: К
+                        - generic "Георгий" [ref=e511]:
+                          - generic [ref=e512]: Г
+                      - generic [ref=e513]: 6 800 ₽ / чел
+              - generic [ref=e514]:
+                - paragraph [ref=e515]: Открытая · Гид найден
+                - article [ref=e516]:
+                  - link "Сванетия 14 августа, 09:00 · 5 чел. Гид найден Открытая Гибкие даты" [ref=e517] [cursor=pointer]:
+                    - /url: /requests/svaneti-mountains
+                    - paragraph [ref=e518]: Сванетия
+                    - paragraph [ref=e519]: 14 августа, 09:00 · 5 чел.
+                    - generic [ref=e520]:
+                      - generic [ref=e521]:
+                        - text: Гид найден
+                        - img [ref=e522]
+                      - generic [ref=e524]:
+                        - img [ref=e525]
+                        - text: Открытая
+                      - generic [ref=e529]: Гибкие даты
+                  - generic [ref=e530]:
+                    - generic [ref=e531]:
+                      - generic [ref=e532]: Природа
+                      - generic [ref=e533]: История
+                      - generic [ref=e534]: Необычное
+                    - generic [ref=e535]:
+                      - generic [ref=e536]:
+                        - generic "Ираклий" [ref=e537]:
+                          - generic [ref=e538]: И
+                        - generic "София" [ref=e539]:
+                          - generic [ref=e540]: С
+                        - generic "Дарья" [ref=e541]:
+                          - generic [ref=e542]: Д
+                        - generic "Леван" [ref=e543]:
+                          - generic [ref=e544]: Л
+                      - generic [ref=e545]: 18 000 ₽ / чел
+          - generic [ref=e546]:
+            - heading "Иконки-only" [level=3] [ref=e547]
+            - generic [ref=e548]:
+              - generic [ref=e549]:
+                - paragraph [ref=e550]: Своя · Ждёт гида
+                - article [ref=e551]:
+                  - link "Тбилиси 12 июня, 18:00 · 3 чел. Ждёт гида Своя группа" [ref=e552] [cursor=pointer]:
+                    - /url: /requests/tbilisi-evening
+                    - paragraph [ref=e553]: Тбилиси
+                    - paragraph [ref=e554]: 12 июня, 18:00 · 3 чел.
+                    - generic [ref=e555]:
+                      - generic [ref=e556]:
+                        - text: Ждёт гида
+                        - img [ref=e557]
+                      - generic [ref=e562]:
+                        - img [ref=e563]
+                        - text: Своя группа
+                  - generic [ref=e568]:
+                    - generic [ref=e569]:
+                      - button "История" [ref=e570] [cursor=pointer]:
+                        - img [ref=e571]
+                      - button "Гастрономия" [ref=e573] [cursor=pointer]:
+                        - img [ref=e574]
+                      - button "Архитектура" [ref=e577] [cursor=pointer]:
+                        - img [ref=e578]
+                    - generic [ref=e582]:
+                      - generic [ref=e583]:
+                        - generic "Нино" [ref=e584]:
+                          - generic [ref=e585]: Н
+                        - generic "Анна" [ref=e586]:
+                          - generic [ref=e587]: А
+                        - generic "Максим" [ref=e588]:
+                          - generic [ref=e589]: М
+                      - generic [ref=e590]: 4 500 ₽ / чел
+              - generic [ref=e591]:
+                - paragraph [ref=e592]: Своя · Гид найден
+                - article [ref=e593]:
+                  - link "Казбеги 21 июня, 10:00 · 3 чел. Гид найден Своя группа Гибкие даты" [ref=e594] [cursor=pointer]:
+                    - /url: /requests/kazbegi-one-day
+                    - paragraph [ref=e595]: Казбеги
+                    - paragraph [ref=e596]: 21 июня, 10:00 · 3 чел.
+                    - generic [ref=e597]:
+                      - generic [ref=e598]:
+                        - text: Гид найден
+                        - img [ref=e599]
+                      - generic [ref=e601]:
+                        - img [ref=e602]
+                        - text: Своя группа
+                      - generic [ref=e607]: Гибкие даты
+                  - generic [ref=e608]:
+                    - generic [ref=e609]:
+                      - button "Природа" [ref=e610] [cursor=pointer]:
+                        - img [ref=e611]
+                      - button "Религия" [ref=e614] [cursor=pointer]:
+                        - img [ref=e615]
+                      - button "Архитектура" [ref=e619] [cursor=pointer]:
+                        - img [ref=e620]
+                    - generic [ref=e624]:
+                      - generic [ref=e625]:
+                        - generic "Мариам" [ref=e626]:
+                          - generic [ref=e627]: М
+                        - generic "Роман" [ref=e628]:
+                          - generic [ref=e629]: Р
+                        - generic "Лена" [ref=e630]:
+                          - generic [ref=e631]: Л
+                      - generic [ref=e632]: 7 900 ₽ / чел
+              - generic [ref=e633]:
+                - paragraph [ref=e634]: Открытая · Ждёт гида
+                - article [ref=e635]:
+                  - link "Кахетия 5 июля, 11:30 · 4 чел. Ждёт гида Открытая" [ref=e636] [cursor=pointer]:
+                    - /url: /requests/kakheti-wine
+                    - paragraph [ref=e637]: Кахетия
+                    - paragraph [ref=e638]: 5 июля, 11:30 · 4 чел.
+                    - generic [ref=e639]:
+                      - generic [ref=e640]:
+                        - text: Ждёт гида
+                        - img [ref=e641]
+                      - generic [ref=e646]:
+                        - img [ref=e647]
+                        - text: Открытая
+                  - generic [ref=e651]:
+                    - generic [ref=e652]:
+                      - button "Гастрономия" [ref=e653] [cursor=pointer]:
+                        - img [ref=e654]
+                      - button "История" [ref=e657] [cursor=pointer]:
+                        - img [ref=e658]
+                      - button "Архитектура" [ref=e660] [cursor=pointer]:
+                        - img [ref=e661]
+                    - generic [ref=e665]:
+                      - generic [ref=e666]:
+                        - generic "Тамар" [ref=e667]:
+                          - generic [ref=e668]: Т
+                        - generic "Олег" [ref=e669]:
+                          - generic [ref=e670]: О
+                        - generic "Катя" [ref=e671]:
+                          - generic [ref=e672]: К
+                        - generic "Георгий" [ref=e673]:
+                          - generic [ref=e674]: Г
+                      - generic [ref=e675]: 6 800 ₽ / чел
+              - generic [ref=e676]:
+                - paragraph [ref=e677]: Открытая · Гид найден
+                - article [ref=e678]:
+                  - link "Сванетия 14 августа, 09:00 · 5 чел. Гид найден Открытая Гибкие даты" [ref=e679] [cursor=pointer]:
+                    - /url: /requests/svaneti-mountains
+                    - paragraph [ref=e680]: Сванетия
+                    - paragraph [ref=e681]: 14 августа, 09:00 · 5 чел.
+                    - generic [ref=e682]:
+                      - generic [ref=e683]:
+                        - text: Гид найден
+                        - img [ref=e684]
+                      - generic [ref=e686]:
+                        - img [ref=e687]
+                        - text: Открытая
+                      - generic [ref=e691]: Гибкие даты
+                  - generic [ref=e692]:
+                    - generic [ref=e693]:
+                      - button "Природа" [ref=e694] [cursor=pointer]:
+                        - img [ref=e695]
+                      - button "История" [ref=e698] [cursor=pointer]:
+                        - img [ref=e699]
+                      - button "Необычное" [ref=e701] [cursor=pointer]:
+                        - img [ref=e702]
+                    - generic [ref=e705]:
+                      - generic [ref=e706]:
+                        - generic "Ираклий" [ref=e707]:
+                          - generic [ref=e708]: И
+                        - generic "София" [ref=e709]:
+                          - generic [ref=e710]: С
+                        - generic "Дарья" [ref=e711]:
+                          - generic [ref=e712]: Д
+                        - generic "Леван" [ref=e713]:
+                          - generic [ref=e714]: Л
+                      - generic [ref=e715]: 18 000 ₽ / чел
+      - 'region "5 · Контур: цвет рамки = тип" [ref=e716]':
+        - generic [ref=e717]:
+          - 'heading "5 · Контур: цвет рамки = тип" [level=2] [ref=e718]'
+          - paragraph [ref=e719]: Своя — нейтральный серый контур, открытая — холодный контур цвета primary; заливку по-прежнему несёт только статус-бейдж.
+        - generic [ref=e720]:
+          - generic [ref=e721]:
+            - paragraph [ref=e722]: Своя · Ждёт гида
+            - article [ref=e723]:
+              - generic [ref=e725]:
+                - text: Ждёт гида
+                - img [ref=e726]
+              - link "Тбилиси 12 июня, 18:00 Своя группа" [ref=e731] [cursor=pointer]:
+                - /url: /requests/tbilisi-evening
+                - paragraph [ref=e732]: Тбилиси
+                - paragraph [ref=e733]: 12 июня, 18:00
+                - generic [ref=e735]:
+                  - img [ref=e736]
+                  - text: Своя группа
+              - generic [ref=e741]:
+                - generic [ref=e742]:
+                  - generic [ref=e743]:
+                    - generic "Нино" [ref=e744]:
+                      - generic [ref=e745]: Н
+                    - generic "Анна" [ref=e746]:
+                      - generic [ref=e747]: А
+                    - generic "Максим" [ref=e748]:
+                      - generic [ref=e749]: М
+                  - generic [ref=e750]:
+                    - button "История" [ref=e751] [cursor=pointer]:
+                      - img [ref=e752]
+                    - button "Гастрономия" [ref=e754] [cursor=pointer]:
+                      - img [ref=e755]
+                    - button "Архитектура" [ref=e758] [cursor=pointer]:
+                      - img [ref=e759]
+                - generic [ref=e763]: 4 500 ₽ / чел
+          - generic [ref=e764]:
+            - paragraph [ref=e765]: Своя · Гид найден
+            - article [ref=e766]:
+              - generic [ref=e768]:
+                - text: Гид найден
+                - img [ref=e769]
+              - link "Казбеги 21 июня, 10:00 Своя группа Гибкие даты" [ref=e771] [cursor=pointer]:
+                - /url: /requests/kazbegi-one-day
+                - paragraph [ref=e772]: Казбеги
+                - paragraph [ref=e773]: 21 июня, 10:00
+                - generic [ref=e774]:
+                  - generic [ref=e775]:
+                    - img [ref=e776]
+                    - text: Своя группа
+                  - generic [ref=e781]: Гибкие даты
+              - generic [ref=e782]:
+                - generic [ref=e783]:
+                  - generic [ref=e784]:
+                    - generic "Мариам" [ref=e785]:
+                      - generic [ref=e786]: М
+                    - generic "Роман" [ref=e787]:
+                      - generic [ref=e788]: Р
+                    - generic "Лена" [ref=e789]:
+                      - generic [ref=e790]: Л
+                  - generic [ref=e791]:
+                    - button "Природа" [ref=e792] [cursor=pointer]:
+                      - img [ref=e793]
+                    - button "Религия" [ref=e796] [cursor=pointer]:
+                      - img [ref=e797]
+                    - button "Архитектура" [ref=e801] [cursor=pointer]:
+                      - img [ref=e802]
+                - generic [ref=e806]: 7 900 ₽ / чел
+          - generic [ref=e807]:
+            - paragraph [ref=e808]: Открытая · Ждёт гида
+            - article [ref=e809]:
+              - generic [ref=e811]:
+                - text: Ждёт гида
+                - img [ref=e812]
+              - link "Кахетия 5 июля, 11:30 Открытая" [ref=e817] [cursor=pointer]:
+                - /url: /requests/kakheti-wine
+                - paragraph [ref=e818]: Кахетия
+                - paragraph [ref=e819]: 5 июля, 11:30
+                - generic [ref=e821]:
+                  - img [ref=e822]
+                  - text: Открытая
+              - generic [ref=e827]:
+                - generic [ref=e828]:
+                  - generic [ref=e829]:
+                    - generic "Тамар" [ref=e830]:
+                      - generic [ref=e831]: Т
+                    - generic "Олег" [ref=e832]:
+                      - generic [ref=e833]: О
+                    - generic "Катя" [ref=e834]:
+                      - generic [ref=e835]: К
+                    - generic "Георгий" [ref=e836]:
+                      - generic [ref=e837]: Г
+                  - generic [ref=e838]:
+                    - button "Гастрономия" [ref=e839] [cursor=pointer]:
+                      - img [ref=e840]
+                    - button "История" [ref=e843] [cursor=pointer]:
+                      - img [ref=e844]
+                    - button "Архитектура" [ref=e846] [cursor=pointer]:
+                      - img [ref=e847]
+                - generic [ref=e851]: 6 800 ₽ / чел
+          - generic [ref=e852]:
+            - paragraph [ref=e853]: Открытая · Гид найден
+            - article [ref=e854]:
+              - generic [ref=e856]:
+                - text: Гид найден
+                - img [ref=e857]
+              - link "Сванетия 14 августа, 09:00 Открытая Гибкие даты" [ref=e859] [cursor=pointer]:
+                - /url: /requests/svaneti-mountains
+                - paragraph [ref=e860]: Сванетия
+                - paragraph [ref=e861]: 14 августа, 09:00
+                - generic [ref=e862]:
+                  - generic [ref=e863]:
+                    - img [ref=e864]
+                    - text: Открытая
+                  - generic [ref=e869]: Гибкие даты
+              - generic [ref=e870]:
+                - generic [ref=e871]:
+                  - generic [ref=e872]:
+                    - generic "Ираклий" [ref=e873]:
+                      - generic [ref=e874]: И
+                    - generic "София" [ref=e875]:
+                      - generic [ref=e876]: С
+                    - generic "Дарья" [ref=e877]:
+                      - generic [ref=e878]: Д
+                    - generic "Леван" [ref=e879]:
+                      - generic [ref=e880]: Л
+                  - generic [ref=e881]:
+                    - button "Природа" [ref=e882] [cursor=pointer]:
+                      - img [ref=e883]
+                    - button "История" [ref=e886] [cursor=pointer]:
+                      - img [ref=e887]
+                    - button "Необычное" [ref=e889] [cursor=pointer]:
+                      - img [ref=e890]
+                - generic [ref=e893]: 18 000 ₽ / чел
+  - alert [ref=e894]

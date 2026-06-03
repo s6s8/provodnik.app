@@ -31,7 +31,7 @@ const request: OpenRequestRecord = {
   dateRangeLabel: "12 июня",
   budgetPerPersonRub: 4500,
   highlights: ["Исторический центр"],
-  interests: ["history", "food"],
+  interests: ["history_culture", "food"],
   members: [
     { id: "anna", displayName: "Анна", initials: "А" },
     { id: "max", displayName: "Максим", initials: "М" },
@@ -62,7 +62,9 @@ describe("PublicRequestsMarketplaceScreen", () => {
     expect(within(article!).getByText("Гид найден")).toBeInTheDocument();
     expect(within(article!).getByText("Открытая")).toBeInTheDocument();
     expect(within(article!).getByText(/4\s*500 ₽ \/ чел/)).toBeInTheDocument();
-    expect(within(article!).getByRole("button", { name: "История" })).toBeInTheDocument();
+    expect(
+      within(article!).getByRole("button", { name: "История и культура" }),
+    ).toBeInTheDocument();
     expect(within(article!).queryByText(/2\s*\/\s*6/)).not.toBeInTheDocument();
     expect(within(article!).queryByText("2 участников")).not.toBeInTheDocument();
   });
