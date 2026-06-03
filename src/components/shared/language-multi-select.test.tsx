@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { LANGUAGES } from "@/data/languages";
@@ -33,12 +33,8 @@ describe("LanguageMultiSelect", () => {
       />,
     );
 
-    const trigger = screen.getByRole("button", {
-      name: "Выбрать языки экскурсии",
-    });
-
-    expect(within(trigger).getByText("Русский")).toBeInTheDocument();
-    expect(within(trigger).getByText("Хинди")).toBeInTheDocument();
+    expect(screen.getByText("Русский")).toBeInTheDocument();
+    expect(screen.getByText("Хинди")).toBeInTheDocument();
   });
 
   it("toggles an option without dropping the prior selection", () => {
@@ -107,5 +103,23 @@ describe("LanguageMultiSelect", () => {
 
     expect(onChange).toHaveBeenCalledWith([]);
     expect(screen.queryByPlaceholderText("Поиск языка…")).not.toBeInTheDocument();
+  });
+
+  it("exposes selected language removal as a keyboard-operable button", () => {
+    const onChange = vi.fn();
+    render(
+      <LanguageMultiSelect
+        options={LANGUAGES}
+        value={["Русский"]}
+        onChange={onChange}
+      />,
+    );
+
+    const removeButton = screen.getByRole("button", { name: "Убрать Русский" });
+    removeButton.focus();
+    fireEvent.click(removeButton);
+
+    expect(removeButton.tagName).toBe("BUTTON");
+    expect(onChange).toHaveBeenCalledWith([]);
   });
 });

@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let mockPathname = "/traveler/requests";
+let mockUnreadCount = 0;
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
@@ -9,7 +10,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/features/messaging/hooks/use-unread-count", () => ({
   useUnreadCount: () => ({
-    unreadCount: 0,
+    unreadCount: mockUnreadCount,
     refetch: vi.fn(),
   }),
 }));
@@ -37,6 +38,7 @@ describe("SiteHeader desktop account menu", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockPathname = "/traveler/requests";
+    mockUnreadCount = 0;
   });
 
   it("shows the avatar trigger for authenticated travelers", () => {
@@ -146,6 +148,16 @@ describe("SiteHeader desktop account menu", () => {
       "href",
       "/guide/profile",
     );
+  });
+
+  it("includes unread message count in the messages link label", () => {
+    mockUnreadCount = 7;
+
+    renderAuthenticatedHeader("traveler");
+
+    expect(
+      screen.getByRole("link", { name: "Сообщения, непрочитанных: 7" }),
+    ).toHaveAttribute("href", "/messages");
   });
 });
 

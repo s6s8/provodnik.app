@@ -45,6 +45,7 @@ export function TourItineraryDisplay({ days }: { days: ListingDayRow[] }) {
       <ol className="space-y-2">
         {days.map((day) => {
           const isOpen = openSet.has(day.day_number);
+          const panelId = `tour-itinerary-day-${day.day_number}-panel`;
           const dayLabel = day.date_override
             ? `День ${day.day_number} · ${formatDateOverride(day.date_override)}`
             : `День ${day.day_number}`;
@@ -55,13 +56,15 @@ export function TourItineraryDisplay({ days }: { days: ListingDayRow[] }) {
               <button
                 type="button"
                 onClick={() => toggleDay(day.day_number)}
+                aria-expanded={isOpen}
+                aria-controls={panelId}
                 className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium hover:bg-muted/40 transition-colors"
               >
                 <span>{heading}</span>
                 <span className="shrink-0 text-muted-foreground">{isOpen ? "▲" : "▼"}</span>
               </button>
               {isOpen && day.body ? (
-                <div className="border-t border-border px-4 pb-4 pt-3">
+                <div id={panelId} className="border-t border-border px-4 pb-4 pt-3">
                   <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
                     {day.body}
                   </p>

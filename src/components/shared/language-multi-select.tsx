@@ -43,45 +43,64 @@ export function LanguageMultiSelect({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label="Выбрать языки экскурсии"
-          className="flex min-h-11 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none"
-        >
-          {value.length === 0 ? (
-            <span className="text-muted-foreground">{placeholder}</span>
-          ) : (
-            value.map((language) => (
+      <div className="flex min-h-11 w-full flex-wrap items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
+        {value.length === 0 ? (
+          <PopoverTrigger asChild>
+            <button
+              type="button"
+              aria-label="Выбрать языки экскурсии"
+              className="flex min-h-6 flex-1 cursor-pointer items-center justify-between gap-2 text-left focus-visible:outline-none"
+            >
+              <span className="text-muted-foreground">{placeholder}</span>
+              <ChevronsUpDown
+                aria-hidden="true"
+                className={cn(
+                  "size-4 shrink-0 text-muted-foreground transition-transform",
+                  open && "rotate-180",
+                )}
+              />
+            </button>
+          </PopoverTrigger>
+        ) : (
+          <>
+            {value.map((language) => (
               <span
                 key={language}
-                className="flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
+                className="flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pl-2 pr-1 text-xs text-primary"
               >
                 {language}
-                <X
+                <button
+                  type="button"
                   aria-label={`Убрать ${language}`}
-                  className="size-3 cursor-pointer"
+                  className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
                   onClick={(event) => {
                     event.preventDefault();
                     event.stopPropagation();
                     toggle(language);
                   }}
-                />
+                >
+                  <X aria-hidden="true" className="size-3" />
+                </button>
               </span>
-            ))
-          )}
-          <ChevronsUpDown
-            aria-hidden="true"
-            className={cn(
-              "ml-auto size-4 shrink-0 text-muted-foreground transition-transform",
-              open && "rotate-180",
-            )}
-          />
-        </button>
-      </PopoverTrigger>
+            ))}
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label="Выбрать языки экскурсии"
+                className="ml-auto flex min-h-6 min-w-6 flex-1 cursor-pointer items-center justify-end rounded-full text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+              >
+                <ChevronsUpDown
+                  aria-hidden="true"
+                  className={cn("size-4 transition-transform", open && "rotate-180")}
+                />
+              </button>
+            </PopoverTrigger>
+          </>
+        )}
+      </div>
       <PopoverContent
         align="start"
-        className="w-[var(--radix-popover-trigger-width)] p-0"
+        className="min-w-64 w-[var(--radix-popover-trigger-width)] p-0"
       >
         <Command
           filter={(itemValue, search) =>

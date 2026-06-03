@@ -104,6 +104,8 @@ export function SiteHeader({
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
+  const messagesLabel =
+    unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
 
   return (
     <>
@@ -195,7 +197,7 @@ export function SiteHeader({
                 "max-md:hidden relative inline-flex items-center gap-2 rounded-full border border-glass-border bg-surface-high/72 px-4 py-2.5 text-sm font-medium text-foreground transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:bg-[color-mix(in_srgb,var(--primary)_8%,var(--surface-high))] hover:text-primary",
                 (pathname === "/messages" || pathname.startsWith("/messages/")) && "border-primary/24 text-primary",
               )}
-              aria-label="Сообщения"
+              aria-label={messagesLabel}
             >
               <MessageSquare className="size-4" aria-hidden="true" />
               <span>Сообщения</span>

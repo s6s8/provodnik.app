@@ -60,14 +60,10 @@ export function HelpSearch({ articles }: { articles: HelpArticleRow[] }) {
         placeholder="Поиск по справке..."
         aria-label="Поиск по справке"
         className="w-full max-w-md"
-        aria-autocomplete="list"
-        aria-controls="help-search-results"
-        aria-expanded={query.trim().length > 0 && results.length > 0}
       />
       {query.trim().length > 0 ? (
         <div
           id="help-search-results"
-          role="listbox"
           className={cn(
             "absolute left-0 right-0 top-full z-20 mt-2 max-h-72 overflow-y-auto rounded-card border border-border bg-popover shadow-card",
             "max-w-md",
@@ -78,10 +74,10 @@ export function HelpSearch({ articles }: { articles: HelpArticleRow[] }) {
           ) : (
             <ul className="py-1">
               {results.map((a) => (
-                <li key={a.id} role="option" aria-selected={false}>
+                <li key={a.id}>
                   <button
                     type="button"
-                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted"
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-muted focus-visible:bg-muted focus-visible:outline-none"
                     onClick={() => goToArticle(a.id)}
                   >
                     {highlightText(a.title, query)}
