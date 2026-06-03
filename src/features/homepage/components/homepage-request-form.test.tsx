@@ -63,6 +63,16 @@ function fillMinimalForm() {
   fireEvent.click(screen.getByRole("button", { name: /история/i }));
 }
 
+function getDateFlexibilityButton() {
+  return screen.getByRole("button", { name: "≈" });
+}
+
+function getAssemblyButton() {
+  const groupLabelRow = screen.getByText("Сколько вас").parentElement;
+  expect(groupLabelRow).not.toBeNull();
+  return within(groupLabelRow!).getByRole("button");
+}
+
 describe("HomepageRequestForm onSubmit", () => {
   beforeEach(() => {
     mockGetUser.mockReset();
@@ -136,7 +146,7 @@ describe("HomepageRequestForm onSubmit", () => {
     unmount();
     render(<HomepageRequestForm destinations={[]} />);
     fillMinimalForm();
-    fireEvent.click(screen.getByTitle("Гибкая дата (±2–3 дня)"));
+    fireEvent.click(getDateFlexibilityButton());
     fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
 
     await waitFor(() => {
@@ -234,8 +244,9 @@ describe("HomepageRequestForm UI affordances", () => {
     render(<HomepageRequestForm destinations={[]} />);
 
     // ≈ toggle is in the label row (not inside the date input) — no pl-9, no absolute positioning
-    const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
+    const dateFlexibilityButton = getDateFlexibilityButton();
     expect(dateFlexibilityButton).toBeInTheDocument();
+    expect(dateFlexibilityButton).not.toHaveAttribute("title");
 
     const groupSizeInput = screen.getByLabelText("Сколько вас");
     expect(groupSizeInput).toHaveAttribute("placeholder", "2");
@@ -253,7 +264,7 @@ describe("HomepageRequestForm UI affordances", () => {
   it("uses pointer cursor and filled active state on icon toggles", () => {
     render(<HomepageRequestForm destinations={[]} />);
 
-    const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
+    const dateFlexibilityButton = getDateFlexibilityButton();
     expect(dateFlexibilityButton).toHaveClass("cursor-pointer");
     expect(dateFlexibilityButton).toHaveClass("border-amber-400", "text-amber-500");
     fireEvent.click(dateFlexibilityButton);
@@ -263,10 +274,9 @@ describe("HomepageRequestForm UI affordances", () => {
       "text-primary-foreground",
     );
 
-    const assemblyButton = screen.getByTitle(
-      "Открытая группа — другие путешественники могут присоединиться",
-    );
+    const assemblyButton = getAssemblyButton();
     expect(assemblyButton).toHaveClass("cursor-pointer");
+    expect(assemblyButton).not.toHaveAttribute("title");
     expect(assemblyButton).toHaveClass("border-amber-400", "text-amber-500");
     fireEvent.click(assemblyButton);
     expect(assemblyButton).toHaveClass(
@@ -317,9 +327,7 @@ describe("HomepageRequestForm UI affordances", () => {
     const groupRow = groupSizeInput.closest("div")?.parentElement;
     expect(groupRow).toHaveClass("grid-cols-2");
     expect(within(groupRow!).getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
-    const assemblyButton = screen.getByTitle(
-      "Открытая группа — другие путешественники могут присоединиться",
-    );
+    const assemblyButton = getAssemblyButton();
     expect(assemblyButton.parentElement).toHaveClass("flex", "items-center", "gap-1.5");
     expect(within(assemblyButton.parentElement!).getByText("Сколько вас")).toBeInTheDocument();
     expect(screen.queryByLabelText("Открыт к увеличению группы")).toBeNull();
@@ -330,7 +338,7 @@ describe("HomepageRequestForm UI affordances", () => {
 
   it("places date flexibility control next to the date label", () => {
     render(<HomepageRequestForm destinations={[]} />);
-    const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
+    const dateFlexibilityButton = getDateFlexibilityButton();
 
     expect(dateFlexibilityButton.parentElement).toHaveClass("flex", "items-center", "gap-1.5");
     expect(within(dateFlexibilityButton.parentElement!).getByText("Дата")).toBeInTheDocument();
@@ -339,7 +347,7 @@ describe("HomepageRequestForm UI affordances", () => {
   it("does not render «До скольких готов добрать» field", () => {
     render(<HomepageRequestForm destinations={[]} />);
     // Toggle assembly via icon button
-    fireEvent.click(screen.getByTitle("Открытая группа — другие путешественники могут присоединиться"));
+    fireEvent.click(getAssemblyButton());
     expect(screen.queryByLabelText(/До скольких готов добрать/i)).toBeNull();
   });
 

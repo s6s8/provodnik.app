@@ -19,6 +19,7 @@ import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -145,12 +146,13 @@ export function HomepageRequestForm({ destinations }: Props) {
   };
 
   return (
-    <form
-      className="grid gap-5 pb-24 sm:pb-0"
-      onSubmit={handleSubmit(onSubmit)}
-      aria-label="Создать запрос"
-      noValidate
-    >
+    <TooltipProvider>
+      <form
+        className="grid gap-5 pb-24 sm:pb-0"
+        onSubmit={handleSubmit(onSubmit)}
+        aria-label="Создать запрос"
+        noValidate
+      >
       {/* 2. Куда хотите поехать? */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="destination">Куда хотите поехать?</FieldLabel>
@@ -176,24 +178,30 @@ export function HomepageRequestForm({ destinations }: Props) {
         <div className="grid gap-2">
           <div className="flex min-h-7 items-center gap-1.5">
             <FieldLabel htmlFor="startDate">Дата</FieldLabel>
-            <button
-              type="button"
-              title="Гибкая дата (±2–3 дня)"
-              onClick={() => {
-                const current = form.getValues("dateFlexibility");
-                setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
-                  shouldDirty: true,
-                });
-              }}
-              className={cn(
-                "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
-                dateFlexibility !== "exact"
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
-              )}
-            >
-              ≈
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = form.getValues("dateFlexibility");
+                    setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+                      shouldDirty: true,
+                    });
+                  }}
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
+                    dateFlexibility !== "exact"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
+                  )}
+                >
+                  ≈
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="text-sm">
+                <p>Гибкая дата (±2–3 дня)</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
           <Input
             id="startDate"
@@ -239,25 +247,31 @@ export function HomepageRequestForm({ destinations }: Props) {
           <div className="grid gap-2">
             <div className="flex min-h-7 items-center gap-1.5">
               <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
-              <button
-                type="button"
-                title="Открытая группа — другие путешественники могут присоединиться"
-                onClick={() => {
-                  const current = form.getValues("mode");
-                  form.setValue("mode", current === "assembly" ? "private" : "assembly", {
-                    shouldValidate: false,
-                    shouldDirty: true,
-                  });
-                }}
-                className={cn(
-                  "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded border transition-colors",
-                  isAssembly
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
-                )}
-              >
-                <UserPlus className="h-4 w-4" />
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const current = form.getValues("mode");
+                      form.setValue("mode", current === "assembly" ? "private" : "assembly", {
+                        shouldValidate: false,
+                        shouldDirty: true,
+                      });
+                    }}
+                    className={cn(
+                      "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded border transition-colors",
+                      isAssembly
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
+                    )}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="text-sm">
+                  <p>Открытая группа — другие путешественники могут присоединиться</p>
+                </TooltipContent>
+              </Tooltip>
             </div>
             <Input
               id="groupSize"
@@ -381,8 +395,9 @@ export function HomepageRequestForm({ destinations }: Props) {
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
       </div>
-      <TrustStrip className="mt-6" />
-    </form>
+        <TrustStrip className="mt-6" />
+      </form>
+    </TooltipProvider>
   );
 }
 
