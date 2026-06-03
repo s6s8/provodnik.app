@@ -194,7 +194,7 @@ describe("getGuideReviewQueue", () => {
     expect(guideProfilesQuery.eq).toHaveBeenCalledWith("verification_status", "draft");
   });
 
-  it("allows guide review when JWT role is admin but profile row is absent", async () => {
+  it("denies guide review when admin signal comes only from user_metadata (profile row absent, app_metadata empty)", async () => {
     const submitted = makeGuideProfile(
       "submitted-guide",
       "submitted",
@@ -239,10 +239,7 @@ describe("getGuideReviewQueue", () => {
       }),
     });
 
-    const queue = await getGuideReviewQueue();
-
-    expect(queue).toHaveLength(1);
-    expect(queue[0]?.profile.user_id).toBe("submitted-guide");
+    await expect(getGuideReviewQueue()).rejects.toThrow("Доступ только для администраторов.");
   });
 
   it("allows guide review when profiles.role is admin and JWT is stale guide", async () => {

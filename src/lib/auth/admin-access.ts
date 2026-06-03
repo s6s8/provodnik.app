@@ -14,8 +14,7 @@ export type RoleSources = {
 export function hasAdminRole(sources: RoleSources): boolean {
   return (
     sources.profileRole === "admin" ||
-    sources.appMetadataRole === "admin" ||
-    sources.userMetadataRole === "admin"
+    sources.appMetadataRole === "admin"
   );
 }
 
@@ -23,9 +22,7 @@ export function readJwtRole(user: {
   user_metadata?: Record<string, unknown> | null;
   app_metadata?: Record<string, unknown> | null;
 }): AppRole | null {
-  const userMeta = user.user_metadata?.role;
   const appMeta = user.app_metadata?.role;
-  if (isAppRole(userMeta)) return userMeta;
   if (isAppRole(appMeta)) return appMeta;
   return null;
 }

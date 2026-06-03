@@ -22,6 +22,16 @@ describe("hasAdminRole", () => {
       }),
     ).toBe(true);
   });
+
+  it("ignores user_metadata.role for admin decisions", () => {
+    expect(
+      hasAdminRole({
+        profileRole: "guide",
+        appMetadataRole: "traveler",
+        userMetadataRole: "admin",
+      }),
+    ).toBe(false);
+  });
 });
 
 describe("isAdminAuthUser", () => {
@@ -39,13 +49,22 @@ describe("isAdminAuthUser", () => {
 });
 
 describe("readJwtRole", () => {
-  it("prefers user_metadata.role over app_metadata", () => {
+  it("reads app_metadata.role and ignores user_metadata.role", () => {
     expect(
       readJwtRole({
         user_metadata: { role: "admin" },
         app_metadata: { role: "guide" },
       }),
-    ).toBe("admin");
+    ).toBe("guide");
+  });
+
+  it("returns null when only user_metadata.role is present", () => {
+    expect(
+      readJwtRole({
+        user_metadata: { role: "admin" },
+        app_metadata: {},
+      }),
+    ).toBeNull();
   });
 });
 

@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   cookiesMock,
@@ -71,6 +71,8 @@ const demoTravelerCookie = encodeURIComponent(
 );
 
 describe("readAuthContextFromServer", () => {
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+
   beforeEach(() => {
     cookiesMock.mockResolvedValue({
       get: vi.fn(() => undefined),
@@ -78,6 +80,11 @@ describe("readAuthContextFromServer", () => {
     hasSupabaseEnvMock.mockReturnValue(true);
     createSupabaseServerClientMock.mockReset();
     readDemoTravelerProfileFromCookiesMock.mockResolvedValue(null);
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   it("hydrates demo traveler as authenticated when Supabase env is missing", async () => {
@@ -207,14 +214,55 @@ describe("readAuthContextFromServer", () => {
     expect(auth.canonicalRedirectTo).toBe("/admin/dashboard");
   });
 
-  it("routes to admin dashboard when only JWT user_metadata carries admin", async () => {
+  it("does not grant a role when only JWT user_metadata carries admin", async () => {
     createSupabaseServerClientMock.mockResolvedValue(
       makeSupabaseClient(null, "guide", "admin"),
     );
 
     const auth = await readAuthContextFromServer();
 
-    expect(auth.role).toBe("admin");
-    expect(auth.canonicalRedirectTo).toBe("/admin/dashboard");
+    expect(auth.role).toBe("guide");
+    expect(auth.canonicalRedirectTo).toBe("/guide");
+  });
+
+  it("fails closed and logs telemetry when the profile role read errors", async () => {
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: {
+            user: {
+              id: "user-1",
+              email: "admin@example.test",
+              app_metadata: { role: "admin" },
+              user_metadata: { role: "admin", full_name: "Admin User" },
+            },
+          },
+          error: null,
+        }),
+      },
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: null,
+              error: { message: "permission denied for table profiles" },
+            }),
+          })),
+        })),
+      })),
+    });
+
+    const auth = await readAuthContextFromServer();
+
+    expect(auth.role).toBeNull();
+    expect(auth.canonicalRedirectTo).toBeNull();
+    expect(auth.missingRoleRecoveryTo).toBe("/auth?error=missing-role");
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "[server-auth] profile role read failed",
+      {
+        userId: "user-1",
+        error: "permission denied for table profiles",
+      },
+    );
   });
 });

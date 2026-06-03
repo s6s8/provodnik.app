@@ -80,16 +80,35 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     return unauthenticatedContext(true);
   }
 
-  const { data: profile } = await supabase
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("id, role, full_name, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
+  if (profileError) {
+    console.error("[server-auth] profile role read failed", {
+      userId: user.id,
+      error: profileError.message,
+    });
+
+    return {
+      hasSupabaseEnv: hasEnv,
+      isAuthenticated: true,
+      source: "supabase",
+      role: null,
+      email: user.email ?? null,
+      fullName: null,
+      avatarUrl: null,
+      userId: user.id,
+      canonicalRedirectTo: null,
+      missingRoleRecoveryTo: MISSING_ROLE_RECOVERY_TO,
+    };
+  }
+
   const profileRole = resolveCanonicalRole({
     profileRole: profile?.role,
     appMetadataRole: user.app_metadata?.role as string | undefined,
-    userMetadataRole: user.user_metadata?.role as string | undefined,
   });
 
   if (!profileRole) {
