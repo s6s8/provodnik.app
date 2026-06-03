@@ -174,7 +174,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 3. Даты и время */}
       <div className="grid gap-3 sm:grid-cols-3 sm:items-start sm:gap-2">
         <div className="grid gap-2">
-          <div className="flex items-center gap-1.5">
+          <div className="flex min-h-7 items-center gap-1.5">
             <FieldLabel htmlFor="startDate">Дата</FieldLabel>
             <button
               type="button"
@@ -206,7 +206,9 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldError id="startDate-error" message={errors.startDate?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+          <div className="flex min-h-7 items-center">
+            <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+          </div>
           <Input
             id="startTime"
             type="time"
@@ -217,7 +219,9 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldError id="startTime-error" message={errors.startTime?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="endTime">Конец <span className="font-normal text-muted-foreground">(необязательно)</span></FieldLabel>
+          <div className="flex min-h-7 items-center">
+            <FieldLabel htmlFor="endTime">Конец <span className="font-normal text-muted-foreground">(необязательно)</span></FieldLabel>
+          </div>
           <Input
             id="endTime"
             type="time"
@@ -266,9 +270,11 @@ export function HomepageRequestForm({ destinations }: Props) {
             <FieldError id="groupSize-error" message={errors.groupSize?.message} />
           </div>
           <div className="grid gap-2">
-            <FieldLabel htmlFor="budgetPerPersonRub">
-              Бюджет на человека (₽)
-            </FieldLabel>
+            <div className="flex min-h-7 items-center">
+              <FieldLabel htmlFor="budgetPerPersonRub">
+                Бюджет на человека (₽)
+              </FieldLabel>
+            </div>
             <Input
               id="budgetPerPersonRub"
               type="number"
