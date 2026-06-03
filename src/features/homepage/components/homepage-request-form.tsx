@@ -259,7 +259,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                       });
                     }}
                     className={cn(
-                      "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded border transition-colors",
+                      "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border transition-colors",
                       isAssembly
                         ? "border-primary bg-primary text-primary-foreground"
                         : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
