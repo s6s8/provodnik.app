@@ -4,11 +4,6 @@
  * All functions accept a typed Supabase client so they can be called from both
  * server components (createSupabaseServerClient) and server actions.
  *
- * Note on `publishListing`: the DB enum is ('draft','published','paused','rejected').
- * There is no 'pending_review' value. Setting status='published' surfaces the listing
- * to the moderation queue via the existing `moderation_cases` table flow — admin
- * approval is handled there, not at the enum level.
- *
  * Note on `softDeleteListing`: the `listings` table has no `deleted_at` column.
  * Soft-delete is implemented as status='rejected', which excludes the listing from
  * public RLS reads (only the guide and admins can still read it).
@@ -21,6 +16,7 @@ import {
   listingInputSchema,
   type ListingInput,
 } from "@/lib/supabase/listing-schema";
+import { ensureOpenModerationCase } from "@/lib/supabase/moderation";
 
 // Re-export so callers can import from one place (server-only context only)
 export { listingInputSchema, type ListingInput };
@@ -168,8 +164,6 @@ export async function updateListing(
 
 /**
  * Submit a listing for admin review.
- * Sets status='published' — the moderation_cases flow handles admin approval.
- * (DB enum has no 'pending_review' value.)
  */
 export async function publishListing(
   id: Uuid,
@@ -188,13 +182,20 @@ export async function publishListing(
 
   const { data, error } = await supabase
     .from("listings")
-    .update({ status: "published" as ListingStatusDb })
+    .update({ status: "pending_review" as ListingStatusDb })
     .eq("id", id)
     .eq("guide_id", guideId)
     .select("*")
     .single();
 
   if (error) throw error;
+  await ensureOpenModerationCase({
+    subjectType: "listing",
+    guideId,
+    listingId: id,
+    queueReason: "Проверка листинга администратором",
+  });
+
   return data as ListingRow;
 }
 
