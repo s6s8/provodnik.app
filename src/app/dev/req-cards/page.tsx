@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Check, Hand, Users } from "lucide-react";
+import { Calendar, Check, Hand, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type ReqCardMember } from "@/components/shared/req-card";
@@ -96,7 +96,7 @@ const countPrototypeSamples = [
 ] satisfies RequestCardCountSample[];
 
 const datesFlexibleBadgeClassName =
-  "shrink-0 rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
 const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
@@ -224,7 +224,10 @@ function RequestCardThemesTopPrototype({
         </div>
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
-          <p className="min-w-0 truncate text-sm text-muted-foreground">{date}</p>
+          <span className="inline-flex min-w-0 items-center gap-1">
+            <Calendar size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
+            <span className="min-w-0 truncate text-sm font-medium text-ink-2">{date}</span>
+          </span>
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
         </div>
 
