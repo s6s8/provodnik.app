@@ -626,13 +626,14 @@ export async function getListingsByGuide(
 export async function getOpenRequests(
   client: SupabaseClient,
   filters?: RequestFilters,
+  statuses: string[] = ["open"],
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
     const db = client;
     const { data, error } = await db
       .from("traveler_requests")
       .select("*, profiles:traveler_id(full_name, avatar_url)")
-      .eq("status", "open")
+      .in("status", statuses)
       .order("created_at", { ascending: false });
 
     if (error) throw error;

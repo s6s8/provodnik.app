@@ -111,12 +111,15 @@ export function RequestCardFinal({
   const themeSlugs = getThemeSlugs(interests);
 
   return (
-    <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
+    <article className="relative flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
+      <div className="absolute right-4 top-4">
+        <GuideStatusBadge guideState={guideState} />
+      </div>
+
       <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <p className="text-lg font-semibold text-foreground">{location}</p>
+        <p className="truncate pr-24 text-lg font-semibold text-foreground">{location}</p>
         <p className="mt-1 truncate text-sm text-muted-foreground">{date}</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <GuideStatusBadge guideState={guideState} />
           <GroupTypeBadge groupType={groupType} />
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
         </div>

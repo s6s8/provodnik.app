@@ -38,6 +38,16 @@ const request: OpenRequestRecord = {
   ],
 };
 
+const openRequest: OpenRequestRecord = {
+  ...request,
+  id: "request-2",
+  status: "open",
+  travelerRequestId: "traveler-request-2",
+  destinationLabel: "Тбилиси, Грузия",
+  regionLabel: "Грузия",
+  dateRangeLabel: "18 июня",
+};
+
 describe("PublicRequestsMarketplaceScreen", () => {
   it("maps open request records to the final request card design", () => {
     render(<PublicRequestsMarketplaceScreen initialData={[request]} />);
@@ -55,5 +65,17 @@ describe("PublicRequestsMarketplaceScreen", () => {
     expect(within(article!).getByRole("button", { name: "История" })).toBeInTheDocument();
     expect(within(article!).queryByText(/2\s*\/\s*6/)).not.toBeInTheDocument();
     expect(within(article!).queryByText("2 участников")).not.toBeInTheDocument();
+  });
+
+  it("renders found and waiting guide statuses from request status", () => {
+    render(<PublicRequestsMarketplaceScreen initialData={[request, openRequest]} />);
+
+    const matchedCard = screen.getByRole("link", { name: /Казань/ }).closest("article");
+    const openCard = screen.getByRole("link", { name: /Тбилиси/ }).closest("article");
+
+    expect(matchedCard).not.toBeNull();
+    expect(openCard).not.toBeNull();
+    expect(within(matchedCard!).getByText("Гид найден")).toBeInTheDocument();
+    expect(within(openCard!).getByText("Ждёт гида")).toBeInTheDocument();
   });
 });
