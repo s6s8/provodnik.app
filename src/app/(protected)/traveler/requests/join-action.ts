@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { joinRequest, isRequestMember } from "@/lib/supabase/request-members";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Uuid } from "@/lib/supabase/types";
@@ -21,7 +22,7 @@ export async function joinRequestAction(
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/auth");
+    redirect(buildAuthLoginRedirect(`/requests/${requestId}`));
   }
 
   const travelerId = user.id as unknown as Uuid;
