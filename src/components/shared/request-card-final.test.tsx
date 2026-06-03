@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import { RequestCardFinal } from "./request-card-final";
@@ -34,7 +34,7 @@ describe("RequestCardFinal", () => {
 
     expect(screen.getByRole("link", { name: /Кахетия/ })).toHaveAttribute("href", "/requests/kakheti");
     expect(screen.getByText("Гид найден").closest("span")).toHaveClass("bg-success/10", "text-success");
-    expect(screen.getByText("Открытая").closest("span")).toHaveClass("border-primary/40", "text-primary");
+    expect(screen.getByText("Сборная группа").closest("span")).toHaveClass("border-primary/40", "text-primary");
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
     expect(screen.getByText("5 июля, 11:30")).toBeInTheDocument();
     expect(screen.queryByText(/2\s*\/\s*\d+/)).not.toBeInTheDocument();
@@ -43,15 +43,12 @@ describe("RequestCardFinal", () => {
     expect(price).toBeInTheDocument();
     expect(price).toHaveClass("shrink-0", "whitespace-nowrap");
 
-    const foodChip = screen.getByRole("button", { name: "Гастрономия" });
-    expect(foodChip).not.toHaveTextContent("Гастрономия");
+    const foodChip = screen.getByText("Гастрономия").closest("span");
+    expect(foodChip).toHaveClass("border", "border-border", "text-ink-2");
     const bottomRow = price.parentElement;
     expect(bottomRow).toContainElement(screen.getByTitle("Тамар"));
-    expect(bottomRow).toContainElement(foodChip);
-
-    fireEvent.click(foodChip);
-
-    expect(screen.getByRole("tooltip")).toHaveTextContent("Гастрономия");
+    expect(bottomRow).toContainElement(price);
+    expect(bottomRow).not.toContainElement(foodChip);
   });
 
   it("renders private waiting cards with the neutral group outline", () => {
