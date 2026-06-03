@@ -96,7 +96,7 @@ const countPrototypeSamples = [
 ] satisfies RequestCardCountSample[];
 
 const datesFlexibleBadgeClassName =
-  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-teal-500/40 px-2 py-0.5 text-xs font-medium text-teal-600";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
 const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
