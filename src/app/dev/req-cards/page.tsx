@@ -202,17 +202,25 @@ function RequestCardThemesTopPrototype({
   price,
   participantCount,
 }: RequestCardCountSample) {
-  const themeSlugs = interests.slice(0, 3);
+  const themeSlugs = interests
+    .map((slug) => ({ slug, label: getTheme(slug)?.label }))
+    .filter((theme): theme is { slug: ThemeSlug; label: string } => Boolean(theme.label))
+    .sort((a, b) => a.label.length - b.label.length)
+    .slice(0, 3)
+    .map(({ slug }) => slug);
 
   return (
     <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
       <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-start justify-between gap-2">
-          <p className="min-w-0 truncate text-lg font-semibold text-foreground">{location}</p>
-          <div className="flex shrink-0 flex-col items-end gap-1.5">
+          <p className="min-w-0 truncate text-lg font-semibold leading-7 text-foreground">{location}</p>
+          <div className="flex h-7 shrink-0 items-center">
             <GuideStatusBadge guideState={guideState} />
-            <CountPrototypeGroupTypeBadge groupType={groupType} />
           </div>
+        </div>
+
+        <div className="mt-1.5 flex justify-start">
+          <CountPrototypeGroupTypeBadge groupType={groupType} />
         </div>
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
