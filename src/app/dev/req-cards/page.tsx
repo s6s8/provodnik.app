@@ -262,21 +262,22 @@ function RequestCard({
         </div>
       </Link>
 
-      {interestThemes.length > 0 ? (
-        <div className="mt-3 flex flex-wrap gap-1.5">
-          {themeDisplay === "icons"
-            ? interestThemes.map(({ slug }) => <ThemeIconChip key={slug} slug={slug} />)
-            : interestThemes.map(({ slug, label }) => (
-                <span key={slug} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
-                  {label}
-                </span>
-              ))}
+      <div className="mt-auto flex flex-col gap-3 pt-4">
+        {interestThemes.length > 0 ? (
+          <div className="flex flex-wrap gap-1.5">
+            {themeDisplay === "icons"
+              ? interestThemes.map(({ slug }) => <ThemeIconChip key={slug} slug={slug} />)
+              : interestThemes.map(({ slug, label }) => (
+                  <span key={slug} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
+                    {label}
+                  </span>
+                ))}
+          </div>
+        ) : null}
+        <div className="flex items-center justify-between gap-3">
+          <AvatarStack members={sample.members} />
+          <span className="text-sm font-semibold text-foreground">{sample.price}</span>
         </div>
-      ) : null}
-
-      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-        <AvatarStack members={sample.members} />
-        <span className="text-sm font-semibold text-foreground">{sample.price}</span>
       </div>
     </article>
   );
@@ -345,14 +346,16 @@ function OutlineColorSection() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        {samples.map((sample) => (
-          <div key={`outline-color-${sample.href}`} className="flex h-full flex-col space-y-2">
-            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-            <RequestCard sample={sample} variant="outline-color" />
-          </div>
-        ))}
-      </div>
+      <TooltipProvider>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+          {samples.map((sample) => (
+            <div key={`outline-color-${sample.href}`} className="flex h-full flex-col space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
+              <RequestCard sample={sample} variant="outline-color" themeDisplay="icons" />
+            </div>
+          ))}
+        </div>
+      </TooltipProvider>
     </section>
   );
 }

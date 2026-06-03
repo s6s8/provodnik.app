@@ -87,7 +87,13 @@ describe("/dev/req-cards", () => {
   it("renders theme icon-only chips with accessible labels and tap-open tooltips", () => {
     render(<DevReqCardsPage />);
 
-    const historyButtons = screen.getAllByRole("button", { name: "История" });
+    const section4 = screen
+      .getByRole("heading", { name: "4 · Темы: текст vs иконки-only" })
+      .closest("section");
+
+    expect(section4).not.toBeNull();
+
+    const historyButtons = within(section4!).getAllByRole("button", { name: "История" });
     expect(historyButtons).toHaveLength(3);
     expect(historyButtons[0]).toHaveClass("rounded-full", "text-ink-2");
     expect(historyButtons[0]?.querySelector(".lucide-landmark")).not.toBeNull();
