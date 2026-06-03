@@ -222,31 +222,24 @@ describe("HomepageRequestForm UI affordances", () => {
     ]);
   });
 
-  it("defaults start and end time inputs to 12:00 (bk-task-03)", () => {
+  it("defaults start and end time inputs to empty (bk-task-03)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const startTime = document.getElementById("startTime") as HTMLInputElement;
     const endTime = document.getElementById("endTime") as HTMLInputElement;
-    expect(startTime.value).toBe("12:00");
-    expect(endTime.value).toBe("12:00");
+    expect(startTime.value).toBe("");
+    expect(endTime.value).toBe("");
   });
 
   it("renders compact form affordances without overlapping native controls", () => {
     render(<HomepageRequestForm destinations={[]} />);
 
-    const dateInput = document.getElementById("startDate") as HTMLInputElement;
+    // ≈ toggle is in the label row (not inside the date input) — no pl-9, no absolute positioning
     const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
-    expect(dateInput).toHaveClass("pl-9");
-    expect(dateFlexibilityButton).toHaveClass("left-2");
-
-    expect(document.getElementById("startTime")).toHaveAttribute("placeholder", "10:00");
-    expect(document.getElementById("endTime")).toHaveAttribute("placeholder", "12:00");
+    expect(dateFlexibilityButton).toBeInTheDocument();
 
     const groupSizeInput = screen.getByLabelText("Сколько вас");
     expect(groupSizeInput).toHaveAttribute("placeholder", "2");
-    expect(groupSizeInput).toHaveClass(
-      "[&::-webkit-outer-spin-button]:appearance-none",
-      "[&::-webkit-inner-spin-button]:appearance-none",
-    );
+    expect(groupSizeInput).toHaveAttribute("type", "text");
   });
 
   it("topic chip exposes aria-pressed reflecting selection state (bug 3d58789e)", () => {

@@ -47,8 +47,8 @@ export function HomepageRequestForm({ destinations }: Props) {
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
       startDate: "",
       dateFlexibility: "exact",
-      startTime: "12:00",
-      endTime: "12:00",
+      startTime: "",
+      endTime: "",
       groupSize: 2,
       groupSizeCurrent: 1,
       allowGuideSuggestionsOutsideConstraints: true,
@@ -174,17 +174,8 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 3. Даты и время */}
       <div className="grid gap-3 sm:grid-cols-3 sm:items-start sm:gap-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startDate">Дата</FieldLabel>
-          <div className="relative">
-            <Input
-              id="startDate"
-              type="date"
-              min={todayMoscowISODate()}
-              className="pl-9"
-              aria-invalid={Boolean(errors.startDate)}
-              aria-describedby={errors.startDate ? "startDate-error" : undefined}
-              {...register("startDate")}
-            />
+          <div className="flex items-center justify-between">
+            <FieldLabel htmlFor="startDate">Дата</FieldLabel>
             <button
               type="button"
               title="Гибкая дата (±2–3 дня)"
@@ -196,15 +187,23 @@ export function HomepageRequestForm({ destinations }: Props) {
                 )
               }
               className={cn(
-                "absolute left-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-lg font-bold transition-colors",
+                "flex items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
                 watch("dateFlexibility") !== "exact"
-                  ? "text-primary"
-                  : "text-muted-foreground hover:text-foreground",
+                  ? "border-primary bg-primary/8 text-primary"
+                  : "border-input text-muted-foreground hover:text-foreground",
               )}
             >
               ≈
             </button>
           </div>
+          <Input
+            id="startDate"
+            type="date"
+            min={todayMoscowISODate()}
+            aria-invalid={Boolean(errors.startDate)}
+            aria-describedby={errors.startDate ? "startDate-error" : undefined}
+            {...register("startDate")}
+          />
           <FieldError id="startDate-error" message={errors.startDate?.message} />
         </div>
         <div className="grid gap-2">
@@ -212,7 +211,6 @@ export function HomepageRequestForm({ destinations }: Props) {
           <Input
             id="startTime"
             type="time"
-            placeholder="10:00"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
           />
@@ -223,7 +221,6 @@ export function HomepageRequestForm({ destinations }: Props) {
           <Input
             id="endTime"
             type="time"
-            placeholder="12:00"
             aria-invalid={Boolean(errors.endTime)}
             {...register("endTime")}
           />
@@ -239,12 +236,10 @@ export function HomepageRequestForm({ destinations }: Props) {
             <div className="relative">
               <Input
                 id="groupSize"
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={1}
-                max={20}
                 placeholder="2"
-                className="pr-9 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                className="pr-9"
                 aria-invalid={Boolean(errors.groupSize)}
                 {...register("groupSize", { valueAsNumber: true })}
               />
@@ -316,14 +311,14 @@ export function HomepageRequestForm({ destinations }: Props) {
                   interestsField.onChange(next);
                 }}
                 className={cn(
-                  "flex w-full flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
+                  "flex w-full flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-center text-xs transition-colors",
                   selected
                     ? "border-primary bg-primary/8 text-primary ring-2 ring-primary/40"
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                <span>{theme.label}</span>
+                <span className="leading-tight">{theme.label}</span>
               </button>
             );
           })}
