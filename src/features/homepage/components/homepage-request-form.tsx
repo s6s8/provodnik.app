@@ -174,7 +174,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 3. Даты и время */}
       <div className="grid gap-3 sm:grid-cols-3 sm:items-start sm:gap-2">
         <div className="grid gap-2">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
             <FieldLabel htmlFor="startDate">Дата</FieldLabel>
             <button
               type="button"
@@ -210,7 +210,9 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldLabel htmlFor="startTime">Начало</FieldLabel>
           <Input
             id="startTime"
-            type="time"
+            type="text"
+            inputMode="numeric"
+            placeholder="10:00"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
           />
@@ -220,7 +222,9 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
           <Input
             id="endTime"
-            type="time"
+            type="text"
+            inputMode="numeric"
+            placeholder="12:00"
             aria-invalid={Boolean(errors.endTime)}
             {...register("endTime")}
           />
@@ -232,17 +236,8 @@ export function HomepageRequestForm({ destinations }: Props) {
       <div className="grid gap-3">
         <div className="grid grid-cols-2 items-start gap-2">
           <div className="grid gap-2">
-            <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
-            <div className="relative">
-              <Input
-                id="groupSize"
-                type="text"
-                inputMode="numeric"
-                placeholder="2"
-                className="pr-9"
-                aria-invalid={Boolean(errors.groupSize)}
-                {...register("groupSize", { valueAsNumber: true })}
-              />
+            <div className="flex items-center gap-1.5">
+              <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
               <button
                 type="button"
                 title="Открытая группа — другие путешественники могут присоединиться"
@@ -253,7 +248,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                   })
                 }
                 className={cn(
-                  "absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded transition-colors",
+                  "flex h-6 w-6 items-center justify-center rounded transition-colors",
                   isAssembly
                     ? "text-primary"
                     : "text-muted-foreground hover:text-foreground",
@@ -262,6 +257,14 @@ export function HomepageRequestForm({ destinations }: Props) {
                 <UserPlus className="h-4 w-4" />
               </button>
             </div>
+            <Input
+              id="groupSize"
+              type="text"
+              inputMode="numeric"
+              placeholder="2"
+              aria-invalid={Boolean(errors.groupSize)}
+              {...register("groupSize", { valueAsNumber: true })}
+            />
             <FieldError id="groupSize-error" message={errors.groupSize?.message} />
           </div>
           <div className="grid gap-2">
@@ -294,7 +297,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {THEMES.map((theme) => {
             const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;

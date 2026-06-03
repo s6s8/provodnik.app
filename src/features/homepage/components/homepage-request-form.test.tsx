@@ -274,15 +274,27 @@ describe("HomepageRequestForm UI affordances", () => {
   it("renders group size and budget as two half-width fields; assembly icon present", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const groupSizeInput = screen.getByLabelText("Сколько вас");
-    // input → div.relative → div.grid.gap-2 → div.grid-cols-2
-    const groupRow = groupSizeInput.closest("div")?.parentElement?.parentElement;
+    // input → div.grid.gap-2 → div.grid-cols-2
+    const groupRow = groupSizeInput.closest("div")?.parentElement;
     expect(groupRow).toHaveClass("grid-cols-2");
     expect(within(groupRow!).getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
-    expect(screen.getByTitle("Открытая группа — другие путешественники могут присоединиться")).toBeInTheDocument();
+    const assemblyButton = screen.getByTitle(
+      "Открытая группа — другие путешественники могут присоединиться",
+    );
+    expect(assemblyButton.parentElement).toHaveClass("flex", "items-center", "gap-1.5");
+    expect(within(assemblyButton.parentElement!).getByText("Сколько вас")).toBeInTheDocument();
     expect(screen.queryByLabelText("Открыт к увеличению группы")).toBeNull();
     expect(screen.queryByText(/попутчиков/i)).toBeNull();
     expect(screen.queryByText(/−10%/)).toBeNull();
     expect(screen.queryByText(/сдвиг группы/i)).toBeNull();
+  });
+
+  it("places date flexibility control next to the date label", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
+
+    expect(dateFlexibilityButton.parentElement).toHaveClass("flex", "items-center", "gap-1.5");
+    expect(within(dateFlexibilityButton.parentElement!).getByText("Дата")).toBeInTheDocument();
   });
 
   it("does not render «До скольких готов добрать» field", () => {
@@ -308,9 +320,26 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(screen.queryByRole("button", { name: "Свернуть" })).toBeNull();
   });
 
-  it("renders topics in a four-column grid", () => {
+  it("renders topics in a responsive two-to-four-column grid", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const historyChip = screen.getByRole("button", { name: /история и культура/i });
-    expect(historyChip.parentElement).toHaveClass("grid-cols-4");
+    expect(historyChip.parentElement).toHaveClass("grid-cols-2", "sm:grid-cols-4");
+  });
+
+  it("uses text inputs with visible time placeholders", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+
+    expect(screen.getByLabelText("Начало")).toHaveAttribute("type", "text");
+    expect(screen.getByLabelText("Начало")).toHaveAttribute("inputmode", "numeric");
+    expect(screen.getByLabelText("Начало")).toHaveAttribute("placeholder", "10:00");
+    expect(screen.getByLabelText("Конец (необязательно)")).toHaveAttribute("type", "text");
+    expect(screen.getByLabelText("Конец (необязательно)")).toHaveAttribute(
+      "inputmode",
+      "numeric",
+    );
+    expect(screen.getByLabelText("Конец (необязательно)")).toHaveAttribute(
+      "placeholder",
+      "12:00",
+    );
   });
 });
