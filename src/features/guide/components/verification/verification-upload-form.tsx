@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, Clock3, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import type { GuideVerificationStatusDb } from "@/lib/supabase/types";
 import type {
   SubmitVerificationResult,
   VerificationAssetConfirmResult,
@@ -16,6 +17,7 @@ import type { UploadedGuideDocument } from "./verification-types";
 
 type VerificationUploadFormProps = {
   initialDocuments: UploadedGuideDocument[];
+  verificationStatus?: GuideVerificationStatusDb | null;
   actions: {
     getUploadUrl: (
       bucket: string,
@@ -33,6 +35,7 @@ type VerificationUploadFormProps = {
       assetId: string,
       documentType: "passport" | "selfie" | "certificate",
     ) => Promise<VerificationDocumentLinkResult>;
+    listDocuments?: () => Promise<UploadedGuideDocument[]>;
     submitForVerification: () => Promise<SubmitVerificationResult>;
   };
 };
@@ -55,8 +58,13 @@ function toDocumentMap(documents: UploadedGuideDocument[]) {
   return new Map(documents.map((document) => [document.documentType, document]));
 }
 
+function hasRequiredLinkedDocuments(documents: Map<string, UploadedGuideDocument>) {
+  return documents.has("passport") && documents.has("selfie");
+}
+
 export function VerificationUploadForm({
   initialDocuments,
+  verificationStatus = null,
   actions,
 }: VerificationUploadFormProps) {
   const router = useRouter();
@@ -64,8 +72,7 @@ export function VerificationUploadForm({
   const [submitError, setSubmitError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const hasRequiredDocuments =
-    documents.has("passport") && documents.has("selfie");
+  const hasRequiredDocuments = hasRequiredLinkedDocuments(documents);
 
   const handleUploadComplete = React.useCallback((document: UploadedGuideDocument) => {
     setDocuments((current) => {
@@ -80,6 +87,18 @@ export function VerificationUploadForm({
     setIsSubmitting(true);
 
     try {
+      let latestDocuments = documents;
+      if (actions.listDocuments) {
+        const refreshedDocuments = await actions.listDocuments();
+        latestDocuments = toDocumentMap(refreshedDocuments);
+        setDocuments(latestDocuments);
+      }
+
+      if (!hasRequiredLinkedDocuments(latestDocuments)) {
+        setSubmitError("Загрузите паспорт и селфи с документом перед отправкой.");
+        return;
+      }
+
       const result = await actions.submitForVerification();
       if ("error" in result) {
         setSubmitError(result.error);
@@ -95,7 +114,7 @@ export function VerificationUploadForm({
     } finally {
       setIsSubmitting(false);
     }
-  }, [actions, router]);
+  }, [actions, documents, router]);
 
   return (
     <div className="grid gap-6">
@@ -122,6 +141,7 @@ export function VerificationUploadForm({
             label={slot.label}
             required={slot.required}
             documentType={slot.documentType}
+            verificationStatus={verificationStatus}
             initialDocument={documents.get(slot.documentType) ?? null}
             onUploadComplete={handleUploadComplete}
             onRequestUploadUrl={actions.getUploadUrl}

@@ -174,6 +174,7 @@ export function GuideRequestsInboxScreen() {
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои предложения", count: myOffersCount },
   ];
+  const scopedItemsCount = newCount + myOffersCount;
 
   const emptyText =
     filter === "new"
@@ -187,10 +188,10 @@ export function GuideRequestsInboxScreen() {
           <CardTitle>Входящие запросы</CardTitle>
           {!isLoading && (
             <p className="text-sm text-muted-foreground">
-              {items.length} запрос
-              {items.length === 1
+              {scopedItemsCount} запрос
+              {scopedItemsCount === 1
                 ? ""
-                : items.length > 1 && items.length < 5
+                : scopedItemsCount > 1 && scopedItemsCount < 5
                   ? "а"
                   : "ов"}
               .

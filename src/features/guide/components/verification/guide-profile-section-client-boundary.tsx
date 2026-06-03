@@ -47,6 +47,12 @@ export class GuideProfileSectionClientBoundary extends Component<
     );
   }
 
+  componentDidUpdate(prevProps: GuideProfileSectionClientBoundaryProps) {
+    if (prevProps.sectionId !== this.props.sectionId && this.state.hasError) {
+      this.setState({ hasError: false });
+    }
+  }
+
   render() {
     if (this.state.hasError) {
       return <GuideProfileSectionFallback title={this.props.title} />;

@@ -26,6 +26,7 @@ type DocumentUploadCardProps = {
   label: string;
   required?: boolean;
   documentType: GuideVerificationDocumentType;
+  verificationStatus?: GuideVerificationStatusDb | null;
   initialDocument?: UploadedGuideDocument | null;
   onUploadComplete: (document: UploadedGuideDocument) => void;
   onRequestUploadUrl: (
@@ -65,6 +66,7 @@ export function DocumentUploadCard({
   label,
   required = false,
   documentType,
+  verificationStatus = null,
   initialDocument = null,
   onUploadComplete,
   onRequestUploadUrl,
@@ -88,12 +90,23 @@ export function DocumentUploadCard({
     };
   }, [state.previewUrl]);
 
+  const isLocked =
+    verificationStatus === "submitted" || verificationStatus === "approved";
+
   const handleSelectFile = React.useCallback(() => {
+    if (isLocked) {
+      return;
+    }
     inputRef.current?.click();
-  }, []);
+  }, [isLocked]);
 
   const handleFileChange = React.useCallback(
     async (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (isLocked) {
+        event.target.value = "";
+        return;
+      }
+
       const file = event.target.files?.[0];
       event.target.value = "";
 
@@ -199,11 +212,19 @@ export function DocumentUploadCard({
         }));
       }
     },
-    [documentType, onConfirmAsset, onLinkDocument, onRequestUploadUrl, onUploadComplete],
+    [
+      documentType,
+      isLocked,
+      onConfirmAsset,
+      onLinkDocument,
+      onRequestUploadUrl,
+      onUploadComplete,
+    ],
   );
 
   const fileName = getDocumentFileName(state.uploaded);
   const hasImagePreview = Boolean(state.previewUrl);
+  const isInteractionDisabled = state.isUploading || isLocked;
 
   return (
     <article className="grid min-h-full gap-4 rounded-glass border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]">
@@ -213,6 +234,7 @@ export function DocumentUploadCard({
         accept="image/*,application/pdf"
         className="sr-only"
         onChange={handleFileChange}
+        disabled={isLocked}
       />
       <div className="flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
         <div>
@@ -239,7 +261,7 @@ export function DocumentUploadCard({
         type="button"
         className="grid min-h-[13rem] w-full place-items-center gap-3 rounded-[calc(var(--card-radius)-2px)] border-2 border-dashed border-outline-variant bg-surface-high/[0.78] p-4 transition-[transform,border-color,background] duration-150 hover:-translate-y-0.5 hover:border-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
         onClick={handleSelectFile}
-        disabled={state.isUploading}
+        disabled={isInteractionDisabled}
       >
         {hasImagePreview ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -265,7 +287,9 @@ export function DocumentUploadCard({
         <span className="text-center text-sm text-muted-foreground">
           {state.isUploading
             ? `Загрузка: ${state.progress}%`
-            : state.uploaded
+            : isLocked
+              ? "Документы уже отправлены на проверку."
+              : state.uploaded
               ? "Файл загружен. Нажмите, чтобы заменить."
               : "Нажмите, чтобы выбрать файл"}
         </span>

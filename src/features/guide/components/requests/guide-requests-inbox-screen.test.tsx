@@ -1,13 +1,31 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mapRequestRow, type RequestRecord } from "@/data/supabase/queries";
 
 import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import { filterInbox, getInboxTabCounts } from "./guide-requests-inbox-filter";
+import { GuideRequestsInboxScreen } from "./guide-requests-inbox-screen";
+
+const { createSupabaseBrowserClientMock, getOpenRequestsMock } = vi.hoisted(() => ({
+  createSupabaseBrowserClientMock: vi.fn(),
+  getOpenRequestsMock: vi.fn(),
+}));
+
+vi.mock("@/lib/supabase/client", () => ({
+  createSupabaseBrowserClient: createSupabaseBrowserClientMock,
+}));
+
+vi.mock("@/data/supabase/queries", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/data/supabase/queries")>();
+  return {
+    ...actual,
+    getOpenRequests: getOpenRequestsMock,
+  };
+});
 
 const baseRequest: RequestRecord = {
   id: "req-1",
@@ -121,6 +139,62 @@ describe("getInboxTabCounts", () => {
 });
 
 describe("GuideRequestsInboxScreen meta layout", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    getOpenRequestsMock.mockResolvedValue({
+      data: [
+        request({ id: "elista", destination: "Элиста, центр" }),
+        request({ id: "karelia", destination: "Карелия, Рускеала" }),
+      ],
+      error: null,
+    });
+    createSupabaseBrowserClientMock.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
+        }),
+        onAuthStateChange: vi.fn(() => ({
+          data: { subscription: { unsubscribe: vi.fn() } },
+        })),
+      },
+      from: vi.fn((table: string) => {
+        const query = {
+          select: vi.fn(() => query),
+          eq: vi.fn(() => query),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data:
+              table === "guide_profiles"
+                ? {
+                    specializations: [],
+                    base_city: "Элиста",
+                    verification_status: "approved",
+                  }
+                : null,
+            error: null,
+          }),
+        };
+        if (table === "guide_offers") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+            })),
+          };
+        }
+        return query;
+      }),
+    });
+  });
+
+  it("shows the scoped request count in the header", async () => {
+    render(<GuideRequestsInboxScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("1 запрос.")).toBeInTheDocument();
+    });
+    expect(screen.queryByText("2 запроса.")).toBeNull();
+  });
+
   it("keeps the request time inline with the date meta row", () => {
     const source = readFileSync(
       join(

@@ -8,6 +8,38 @@ vi.mock("@/lib/storage/client-upload", () => ({
 }));
 
 describe("DocumentUploadCard", () => {
+  it("locks the file input and replace control after verification is submitted", () => {
+    const onRequestUploadUrl = vi.fn();
+    const onConfirmAsset = vi.fn();
+    const onLinkDocument = vi.fn();
+    const onUploadComplete = vi.fn();
+
+    render(
+      <DocumentUploadCard
+        label="Паспорт"
+        documentType="passport"
+        verificationStatus="submitted"
+        initialDocument={{
+          assetId: "asset-1",
+          documentType: "passport",
+          objectPath: "guide/passport.jpg",
+          fileName: "passport.jpg",
+          status: "submitted",
+        }}
+        onUploadComplete={onUploadComplete}
+        onRequestUploadUrl={onRequestUploadUrl}
+        onConfirmAsset={onConfirmAsset}
+        onLinkDocument={onLinkDocument}
+      />,
+    );
+
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const replaceButton = screen.getByRole("button");
+
+    expect(input).toBeDisabled();
+    expect(replaceButton).toBeDisabled();
+  });
+
   it("shows Russian server error when asset confirmation fails", async () => {
     const onRequestUploadUrl = vi.fn().mockResolvedValue({
       ok: true,

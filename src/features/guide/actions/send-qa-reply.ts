@@ -44,7 +44,7 @@ export async function sendQaReplyAction(
   // Verify this guide owns the offer
   const { data: offer } = await supabase
     .from('guide_offers')
-    .select('id')
+    .select('id, request_id')
     .eq('id', offerId)
     .eq('guide_id', user.id)
     .maybeSingle()
@@ -70,4 +70,6 @@ export async function sendQaReplyAction(
   }
 
   revalidatePath('/guide/inbox')
+  revalidatePath(`/guide/inbox/${offer.request_id}`)
+  revalidatePath('/guide')
 }

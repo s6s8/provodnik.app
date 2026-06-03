@@ -107,4 +107,20 @@ describe("guide QA actions", () => {
     expect(sendQaMessageMock).not.toHaveBeenCalled();
     expect(revalidatePathMock).not.toHaveBeenCalled();
   });
+
+  it("revalidates guide inbox, request detail, and birjha after sending a reply", async () => {
+    makeSupabase({
+      user: { id: "guide-owned" },
+      dataByTable: {
+        guide_offers: { id: "offer-owned", request_id: "request-owned" },
+        conversation_threads: { id: "thread-owned" },
+      },
+    });
+
+    await sendQaReplyAction("thread-owned", "offer-owned", "Answer");
+
+    expect(revalidatePathMock).toHaveBeenCalledWith("/guide/inbox");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/guide/inbox/request-owned");
+    expect(revalidatePathMock).toHaveBeenCalledWith("/guide");
+  });
 });

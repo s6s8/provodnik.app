@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,25 +14,46 @@ import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/gu
 
 export function GuideBookingsScreen() {
   const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
+
+  const loadBookings = React.useCallback(async () => {
+    setLoadError(null);
+
+    const supabase = createSupabaseBrowserClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data, error } = await getGuideBookings(supabase, user.id);
+    if (error) {
+      throw error;
+    }
+    setBookings(data ?? []);
+  }, []);
 
   React.useEffect(() => {
     let ignore = false;
 
     async function load() {
       try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user || ignore) return;
-        const { data } = await getGuideBookings(supabase, user.id);
-        if (!ignore && data) setBookings(data);
+        await loadBookings();
       } catch {
-        // leave empty
+        if (!ignore) {
+          setLoadError("Не удалось загрузить бронирования.");
+        }
       }
     }
 
     void load();
     return () => { ignore = true; };
-  }, []);
+  }, [loadBookings]);
+
+  const handleRetry = React.useCallback(async () => {
+    try {
+      await loadBookings();
+    } catch {
+      setLoadError("Не удалось загрузить бронирования.");
+    }
+  }, [loadBookings]);
 
   const summary = React.useMemo(() => {
     const totalCount = bookings.length;
@@ -104,7 +125,24 @@ export function GuideBookingsScreen() {
       </Card>
 
       <div className="space-y-4">
-        {bookings.length === 0 ? (
+        {loadError ? (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader className="space-y-1">
+              <CardTitle className="flex items-center gap-2">
+                <AlertCircle className="size-5 text-destructive" />
+                {loadError}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Проверьте соединение и повторите загрузку.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <Button type="button" variant="secondary" onClick={handleRetry}>
+                Повторить загрузку
+              </Button>
+            </CardContent>
+          </Card>
+        ) : bookings.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
               <CardTitle>Пока нет бронирований</CardTitle>

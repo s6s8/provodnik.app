@@ -2,6 +2,7 @@ import * as React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import { GuideProfileSectionClientBoundary } from "./guide-profile-section-client-boundary";
 import { GuideProfileSectionBoundary } from "./guide-profile-section-boundary";
 
 describe("GuideProfileSectionBoundary", () => {
@@ -100,6 +101,32 @@ describe("GuideProfileSectionBoundary", () => {
     ).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Сменить раздел" }));
+
+    expect(screen.getByText("Раздел восстановлен")).toBeInTheDocument();
+  });
+
+  it("clears client boundary errors when sectionId changes without remounting", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    function ThrowingSectionChild(): never {
+      throw new Error("child render failed");
+    }
+
+    const { rerender } = render(
+      <GuideProfileSectionClientBoundary sectionId="verification" title="Верификация">
+        <ThrowingSectionChild />
+      </GuideProfileSectionClientBoundary>,
+    );
+
+    expect(
+      screen.getByText("Раздел временно недоступен. Остальная часть профиля продолжает работать."),
+    ).toBeInTheDocument();
+
+    rerender(
+      <GuideProfileSectionClientBoundary sectionId="about" title="О себе">
+        <p>Раздел восстановлен</p>
+      </GuideProfileSectionClientBoundary>,
+    );
 
     expect(screen.getByText("Раздел восстановлен")).toBeInTheDocument();
   });
