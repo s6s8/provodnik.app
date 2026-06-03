@@ -47,8 +47,8 @@ export function HomepageRequestForm({ destinations }: Props) {
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
       startDate: "",
       dateFlexibility: "exact",
-      startTime: "",
-      endTime: "",
+      startTime: "10:00",
+      endTime: "12:00",
       groupSize: 2,
       groupSizeCurrent: 1,
       allowGuideSuggestionsOutsideConstraints: true,
@@ -187,9 +187,9 @@ export function HomepageRequestForm({ destinations }: Props) {
                 )
               }
               className={cn(
-                "flex shrink-0 items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
+                "flex shrink-0 cursor-pointer items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
                 dateFlexibility !== "exact"
-                  ? "border-primary bg-primary/15 text-primary"
+                  ? "border-primary bg-primary text-primary-foreground"
                   : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
               )}
             >
@@ -246,9 +246,9 @@ export function HomepageRequestForm({ destinations }: Props) {
                   })
                 }
                 className={cn(
-                  "flex h-6 w-6 shrink-0 items-center justify-center rounded border transition-colors",
+                  "flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded border transition-colors",
                   isAssembly
-                    ? "border-primary bg-primary/15 text-primary"
+                    ? "border-primary bg-primary text-primary-foreground"
                     : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
                 )}
               >
@@ -312,7 +312,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                   interestsField.onChange(next);
                 }}
                 className={cn(
-                  "flex w-full flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-center text-xs transition-colors",
+                  "flex w-full flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
                   selected
                     ? "border-primary bg-primary/8 text-primary ring-2 ring-primary/40"
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",

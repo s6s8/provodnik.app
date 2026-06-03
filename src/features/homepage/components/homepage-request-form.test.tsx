@@ -222,12 +222,12 @@ describe("HomepageRequestForm UI affordances", () => {
     ]);
   });
 
-  it("defaults start and end time inputs to empty (bk-task-03)", () => {
+  it("defaults start and end time inputs to common tour hours", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const startTime = document.getElementById("startTime") as HTMLInputElement;
     const endTime = document.getElementById("endTime") as HTMLInputElement;
-    expect(startTime.value).toBe("");
-    expect(endTime.value).toBe("");
+    expect(startTime.value).toBe("10:00");
+    expect(endTime.value).toBe("12:00");
   });
 
   it("renders compact form affordances without overlapping native controls", () => {
@@ -248,6 +248,45 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(historyChip).toHaveAttribute("aria-pressed", "false");
     fireEvent.click(historyChip);
     expect(historyChip).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("uses pointer cursor and filled active state on icon toggles", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+
+    const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
+    expect(dateFlexibilityButton).toHaveClass("cursor-pointer");
+    expect(dateFlexibilityButton).toHaveClass("border-amber-400", "text-amber-500");
+    fireEvent.click(dateFlexibilityButton);
+    expect(dateFlexibilityButton).toHaveClass(
+      "border-primary",
+      "bg-primary",
+      "text-primary-foreground",
+    );
+
+    const assemblyButton = screen.getByTitle(
+      "Открытая группа — другие путешественники могут присоединиться",
+    );
+    expect(assemblyButton).toHaveClass("cursor-pointer");
+    expect(assemblyButton).toHaveClass("border-amber-400", "text-amber-500");
+    fireEvent.click(assemblyButton);
+    expect(assemblyButton).toHaveClass(
+      "border-primary",
+      "bg-primary",
+      "text-primary-foreground",
+    );
+  });
+
+  it("renders topic chips as horizontal icon and label rows", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const historyChip = screen.getByRole("button", { name: /история и культура/i });
+    expect(historyChip).toHaveClass(
+      "flex-row",
+      "items-center",
+      "gap-2",
+      "px-3",
+      "py-2.5",
+      "text-left",
+    );
   });
 
   it("renders total-budget hint computed from budget × group size (bug 22f86d82)", () => {
