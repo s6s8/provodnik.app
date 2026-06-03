@@ -209,29 +209,22 @@ function RequestCardThemesTopPrototype({
       <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-start justify-between gap-2">
           <p className="min-w-0 truncate text-lg font-semibold text-foreground">{location}</p>
-          <div className="flex shrink-0 items-center justify-end gap-1.5">
+          <div className="flex shrink-0 flex-col items-end gap-1.5">
             <GuideStatusBadge guideState={guideState} />
+            <CountPrototypeGroupTypeBadge groupType={groupType} />
           </div>
         </div>
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5">
           <p className="min-w-0 truncate text-sm text-muted-foreground">{date}</p>
-          <CountPrototypeGroupTypeBadge groupType={groupType} />
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
         </div>
 
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {themeSlugs.slice(0, 2).map((slug) => (
+          {themeSlugs.map((slug) => (
             <ThemeLabelChip key={slug} slug={slug} />
           ))}
         </div>
-        {themeSlugs.length > 2 ? (
-          <div className="mt-1.5 flex flex-wrap gap-1.5">
-            {themeSlugs.slice(2).map((slug) => (
-              <ThemeLabelChip key={slug} slug={slug} />
-            ))}
-          </div>
-        ) : null}
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
