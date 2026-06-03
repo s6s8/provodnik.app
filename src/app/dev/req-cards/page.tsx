@@ -3,9 +3,10 @@ import { Check, Hand, UserPlus, Users, UsersRound } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { RequestCardFinal } from "@/components/shared/request-card-final";
 import { type ReqCardMember } from "@/components/shared/req-card";
 import { THEMES, type ThemeSlug } from "@/data/themes";
-import { ThemeIconChip } from "./theme-icon-chip";
+import { ThemeIconChip } from "@/components/shared/theme-icon-chip";
 
 export const metadata = {
   robots: {
@@ -351,7 +352,17 @@ function OutlineColorSection() {
           {samples.map((sample) => (
             <div key={`outline-color-${sample.href}`} className="flex h-full flex-col space-y-2">
               <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-              <RequestCard sample={sample} variant="outline-color" themeDisplay="icons" />
+              <RequestCardFinal
+                href={sample.href}
+                location={sample.location}
+                date={sample.date}
+                groupType={sample.mode}
+                guideState={sample.guideState}
+                datesFlexible={sample.datesFlexible}
+                interests={sample.interests}
+                members={sample.members}
+                price={sample.price}
+              />
             </div>
           ))}
         </div>
