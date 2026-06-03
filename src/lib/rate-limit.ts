@@ -6,6 +6,21 @@ type RateLimitResult = {
 };
 
 const RATE_LIMIT_KEY_PREFIX = "rate-limit";
+const FORGOT_PASSWORD_PREFIX = "forgot-password:";
+const RATE_LIMIT_SCRIPT = `
+redis.call("ZREMRANGEBYSCORE", KEYS[1], 0, ARGV[1])
+
+local request_count = redis.call("ZCARD", KEYS[1])
+local limit = tonumber(ARGV[3])
+if request_count >= limit then
+  redis.call("EXPIRE", KEYS[1], ARGV[4])
+  return {0, 0}
+end
+
+redis.call("ZADD", KEYS[1], ARGV[2], ARGV[5])
+redis.call("EXPIRE", KEYS[1], ARGV[4])
+return {1, limit - request_count - 1}
+`;
 
 function hasUpstashRedisEnv() {
   return Boolean(
@@ -13,8 +28,37 @@ function hasUpstashRedisEnv() {
   );
 }
 
+function normalizeRateLimitIdentifier(identifier: string) {
+  const trimmed = identifier.trim();
+  if (trimmed.toLowerCase().startsWith(FORGOT_PASSWORD_PREFIX)) {
+    return `${FORGOT_PASSWORD_PREFIX}${trimmed
+      .slice(FORGOT_PASSWORD_PREFIX.length)
+      .trim()
+      .toLowerCase()}`;
+  }
+
+  return trimmed;
+}
+
 function getRateLimitKey(identifier: string, limit: number, window: number) {
-  return `${RATE_LIMIT_KEY_PREFIX}:${identifier}:${limit}:${window}`;
+  return `${RATE_LIMIT_KEY_PREFIX}:${normalizeRateLimitIdentifier(identifier)}:${limit}:${window}`;
+}
+
+function parseRateLimitScriptResult(result: unknown): RateLimitResult {
+  if (!Array.isArray(result) || result.length < 2) {
+    throw new Error("Unexpected rate limit script result");
+  }
+
+  const allowed = Number(result[0]);
+  const remaining = Number(result[1]);
+  if (!Number.isFinite(allowed) || !Number.isFinite(remaining)) {
+    throw new Error("Unexpected rate limit script result");
+  }
+
+  return {
+    success: allowed === 1,
+    remaining: Math.max(0, remaining),
+  };
 }
 
 export async function rateLimit(
@@ -42,29 +86,15 @@ export async function rateLimit(
       };
     }
 
-    await redis.zremrangebyscore(key, 0, windowStart);
-
-    const requestCount = await redis.zcard(key);
-
-    if (requestCount >= limit) {
-      return {
-        success: false,
-        remaining: 0,
-      };
-    }
-
-    await Promise.all([
-      redis.zadd(key, {
-        score: now,
-        member: `${now}:${crypto.randomUUID()}`,
-      }),
-      redis.expire(key, window),
+    const result = await redis.eval(RATE_LIMIT_SCRIPT, [key], [
+      windowStart,
+      now,
+      limit,
+      window,
+      `${now}:${crypto.randomUUID()}`,
     ]);
 
-    return {
-      success: true,
-      remaining: Math.max(0, limit - requestCount - 1),
-    };
+    return parseRateLimitScriptResult(result);
   } catch {
     return {
       success: true,

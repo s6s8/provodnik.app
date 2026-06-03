@@ -81,6 +81,18 @@ describe("resolvePostAuthRedirectPath", () => {
     );
   });
 
+  test("falls back to dashboard when next requires another role", () => {
+    expect(resolvePostAuthRedirectPath("traveler", "/guide/profile")).toBe(
+      "/traveler/requests",
+    );
+  });
+
+  test("allows admins to follow role-gated next paths", () => {
+    expect(resolvePostAuthRedirectPath("admin", "/guide/profile")).toBe(
+      "/guide/profile",
+    );
+  });
+
   test("returns null when role is missing", () => {
     expect(resolvePostAuthRedirectPath(null, "/messages")).toBeNull();
   });

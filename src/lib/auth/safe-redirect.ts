@@ -1,4 +1,8 @@
-import { getDashboardPathForRole } from "@/lib/auth/role-routing";
+import {
+  getDashboardPathForRole,
+  getRequiredRoleForPathname,
+  roleHasAccess,
+} from "@/lib/auth/role-routing";
 import type { AppRole } from "@/lib/auth/types";
 
 /**
@@ -41,11 +45,14 @@ export function resolvePostAuthRedirectPath(
   next: string | null | undefined,
 ): string | null {
   const dashboard = getDashboardPathForRole(role);
-  if (!dashboard) return null;
+  if (!role || !dashboard) return null;
   if (!next?.trim()) return dashboard;
 
   const safeNext = safeRedirectPath(next);
   if (safeNext === "/") return dashboard;
+
+  const requiredRole = getRequiredRoleForPathname(safeNext);
+  if (requiredRole && !roleHasAccess(role, requiredRole)) return dashboard;
 
   return safeNext;
 }
