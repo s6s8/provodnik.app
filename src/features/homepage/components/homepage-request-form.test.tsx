@@ -230,6 +230,25 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(endTime.value).toBe("12:00");
   });
 
+  it("renders compact form affordances without overlapping native controls", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+
+    const dateInput = document.getElementById("startDate") as HTMLInputElement;
+    const dateFlexibilityButton = screen.getByTitle("Гибкая дата (±2–3 дня)");
+    expect(dateInput).toHaveClass("pl-9");
+    expect(dateFlexibilityButton).toHaveClass("left-2");
+
+    expect(document.getElementById("startTime")).toHaveAttribute("placeholder", "10:00");
+    expect(document.getElementById("endTime")).toHaveAttribute("placeholder", "12:00");
+
+    const groupSizeInput = screen.getByLabelText("Сколько вас");
+    expect(groupSizeInput).toHaveAttribute("placeholder", "2");
+    expect(groupSizeInput).toHaveClass(
+      "[&::-webkit-outer-spin-button]:appearance-none",
+      "[&::-webkit-inner-spin-button]:appearance-none",
+    );
+  });
+
   it("topic chip exposes aria-pressed reflecting selection state (bug 3d58789e)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const historyChip = screen.getByRole("button", { name: /история/i });
@@ -245,6 +264,18 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(hint).not.toBeNull();
     expect(hint!.textContent).toMatch(/Итого/);
     expect(hint!.textContent?.replace(/\s/g, "")).toMatch(/10000₽/);
+  });
+
+  it("uses genitive people wording after «из» in the total-budget hint", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const hint = document.getElementById("budgetPerPersonRub-total");
+    expect(hint).not.toBeNull();
+    expect(hint).toHaveTextContent(/за группу из 2 человек\./);
+
+    fireEvent.change(screen.getByLabelText("Сколько вас"), {
+      target: { value: "1" },
+    });
+    expect(hint).toHaveTextContent(/за группу из 1 человека\./);
   });
 
   it("renders group size and budget as two half-width fields; assembly icon present", () => {
@@ -282,5 +313,11 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Ещё темы" })).toBeNull();
     expect(screen.queryByRole("button", { name: "Свернуть" })).toBeNull();
+  });
+
+  it("renders topics in a four-column grid", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const historyChip = screen.getByRole("button", { name: /история и культура/i });
+    expect(historyChip.parentElement).toHaveClass("grid-cols-4");
   });
 });

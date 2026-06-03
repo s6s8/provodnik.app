@@ -180,7 +180,7 @@ export function HomepageRequestForm({ destinations }: Props) {
               id="startDate"
               type="date"
               min={todayMoscowISODate()}
-              className="pr-9"
+              className="pl-9"
               aria-invalid={Boolean(errors.startDate)}
               aria-describedby={errors.startDate ? "startDate-error" : undefined}
               {...register("startDate")}
@@ -196,7 +196,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                 )
               }
               className={cn(
-                "absolute right-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-lg font-bold transition-colors",
+                "absolute left-2 top-1/2 flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded text-lg font-bold transition-colors",
                 watch("dateFlexibility") !== "exact"
                   ? "text-primary"
                   : "text-muted-foreground hover:text-foreground",
@@ -212,6 +212,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <Input
             id="startTime"
             type="time"
+            placeholder="10:00"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
           />
@@ -222,6 +223,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <Input
             id="endTime"
             type="time"
+            placeholder="12:00"
             aria-invalid={Boolean(errors.endTime)}
             {...register("endTime")}
           />
@@ -241,7 +243,8 @@ export function HomepageRequestForm({ destinations }: Props) {
                 inputMode="numeric"
                 min={1}
                 max={20}
-                className="pr-9"
+                placeholder="2"
+                className="pr-9 [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 aria-invalid={Boolean(errors.groupSize)}
                 {...register("groupSize", { valueAsNumber: true })}
               />
@@ -296,7 +299,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {THEMES.map((theme) => {
             const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
@@ -431,15 +434,14 @@ function TotalBudgetHint({
       aria-live="polite"
     >
       Итого: <span className="font-medium text-foreground">{total.toLocaleString("ru-RU")} ₽</span>
-      {" "}за группу из {safeCount} {pluralizePeople(safeCount)}.
+      {" "}за группу из {safeCount} {pluralizePeopleGenitive(safeCount)}.
     </p>
   );
 }
 
-function pluralizePeople(n: number): string {
+function pluralizePeopleGenitive(n: number): string {
   const mod10 = n % 10;
   const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "человек";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "человека";
+  if (mod10 === 1 && mod100 !== 11) return "человека";
   return "человек";
 }

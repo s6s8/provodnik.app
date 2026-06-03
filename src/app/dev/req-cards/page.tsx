@@ -29,6 +29,8 @@ type RequestCardCountSample = RequestCardSample & {
   participantCount: number;
 };
 
+type ParticipantCountVariant = "stack-badge" | "caption";
+
 const countPrototypeSamples = [
   {
     scenario: "Соло · 1 участник",
@@ -160,28 +162,49 @@ function ThemeLabelChip({ slug }: { slug: ThemeSlug }) {
 function ParticipantStack({
   members,
   participantCount,
+  variant,
 }: {
   members: readonly ReqCardMember[];
   participantCount: number;
+  variant: ParticipantCountVariant;
 }) {
   const visibleMembers = members.slice(0, participantCount === 1 ? 1 : 3);
+  const avatarRow = (
+    <div className="flex items-center">
+      {visibleMembers.map((member) => (
+        <Avatar
+          key={member.id}
+          className="size-6 -ml-1.5 border-2 border-surface-high first:ml-0"
+          title={member.displayName}
+          data-testid="participant-avatar"
+        >
+          {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
+          <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">{member.initials}</AvatarFallback>
+        </Avatar>
+      ))}
+      {variant === "stack-badge" && participantCount > 1 ? (
+        <span
+          className="flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-surface-low text-[0.625rem] font-semibold text-ink-2"
+          data-testid="participant-count-badge"
+        >
+          {participantCount}
+        </span>
+      ) : null}
+    </div>
+  );
+
+  if (variant === "caption") {
+    return (
+      <div className="flex shrink-0 flex-col items-start gap-1">
+        {avatarRow}
+        {participantCount > 1 ? <span className="text-xs text-muted-foreground">{participantCount} идут</span> : null}
+      </div>
+    );
+  }
 
   return (
-    <div className="flex shrink-0 items-center gap-1.5">
-      <div className="flex items-center">
-        {visibleMembers.map((member) => (
-          <Avatar
-            key={member.id}
-            className="size-6 -ml-1.5 border-2 border-surface-high first:ml-0"
-            title={member.displayName}
-            data-testid="participant-avatar"
-          >
-            {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
-            <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">{member.initials}</AvatarFallback>
-          </Avatar>
-        ))}
-      </div>
-      {participantCount > 1 ? <span className="text-sm text-muted-foreground">{participantCount}</span> : null}
+    <div className="flex shrink-0 items-center">
+      {avatarRow}
     </div>
   );
 }
@@ -197,7 +220,8 @@ function RequestCardThemesTopPrototype({
   members,
   price,
   participantCount,
-}: RequestCardCountSample) {
+  participantVariant,
+}: RequestCardCountSample & { participantVariant: ParticipantCountVariant }) {
   const themeSlugs = interests.slice(0, 3);
 
   return (
@@ -219,33 +243,40 @@ function RequestCardThemesTopPrototype({
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-        <ParticipantStack members={members} participantCount={participantCount} />
+        <ParticipantStack members={members} participantCount={participantCount} variant={participantVariant} />
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>
   );
 }
 
-function ThemesTopSection() {
+function CountPrototypeSection({
+  id,
+  heading,
+  description,
+  participantVariant,
+}: {
+  id: string;
+  heading: string;
+  description: string;
+  participantVariant: ParticipantCountVariant;
+}) {
   return (
-    <section aria-labelledby="themes-top-heading">
+    <section aria-labelledby={id}>
       <div className="mb-4">
-        <h2
-          id="themes-top-heading"
-          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          1 · Темы наверху, чистый низ
+        <h2 id={id} className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {heading}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Темы — подписанные чипы в верхнем ряду меток (значок + слово). Нижняя строка только «кто идёт» и цена.
+          {description}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {countPrototypeSamples.map((sample) => (
-          <div key={`themes-top-${sample.href}`} className="flex h-full flex-col space-y-2">
+          <div key={`${participantVariant}-${sample.href}`} className="flex h-full flex-col space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-            <RequestCardThemesTopPrototype {...sample} />
+            <RequestCardThemesTopPrototype {...sample} participantVariant={participantVariant} />
           </div>
         ))}
       </div>
@@ -257,14 +288,26 @@ export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — счётчик участников</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Один прототип карточки проверяет перенос тем в верхний ряд меток и чистую нижнюю строку без лишних чипов.
+          Сравниваем два способа показать число участников при одинаковой верхней строке с темами-чипами и чистом
+          нижнем ряду с ценой справа.
         </p>
       </div>
 
       <div className="space-y-10">
-        <ThemesTopSection />
+        <CountPrototypeSection
+          id="stack-badge-heading"
+          heading="1 · Счётчик в стеке"
+          description="Число становится последним кружком в стеке аватаров, чтобы весь левый блок читался как один объект."
+          participantVariant="stack-badge"
+        />
+        <CountPrototypeSection
+          id="caption-heading"
+          heading="2 · Счётчик подписью"
+          description="Аватары остаются чистой строкой, а число участников уходит в короткую подпись под ними."
+          participantVariant="caption"
+        />
       </div>
     </main>
   );
