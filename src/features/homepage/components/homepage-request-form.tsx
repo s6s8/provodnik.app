@@ -14,7 +14,6 @@ import {
 import { LANGUAGES } from "@/data/languages";
 import { THEMES } from "@/data/themes";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
-import TrustStrip from "@/components/shared/TrustStrip";
 import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -353,6 +352,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           <span aria-hidden="true" className="text-base leading-none group-open:hidden">+</span>
           <span aria-hidden="true" className="hidden text-base leading-none group-open:inline">−</span>
           <span>Добавить детали</span>
+          <span className="text-muted-foreground font-normal">(выбрать язык, написать пожелания)</span>
         </summary>
         <div className="grid gap-3 px-3 pb-3 pt-1">
           <div className="grid gap-2">
@@ -395,7 +395,6 @@ export function HomepageRequestForm({ destinations }: Props) {
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
       </div>
-        <TrustStrip className="mt-6" />
       </form>
     </TooltipProvider>
   );
