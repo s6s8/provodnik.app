@@ -179,15 +179,14 @@ export function HomepageRequestForm({ destinations }: Props) {
             <button
               type="button"
               title="Гибкая дата (±2–3 дня)"
-              onClick={() =>
-                setValue(
-                  "dateFlexibility",
-                  dateFlexibility !== "exact" ? "exact" : "few_days",
-                  { shouldDirty: true },
-                )
-              }
+              onClick={() => {
+                const current = form.getValues("dateFlexibility");
+                setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+                  shouldDirty: true,
+                });
+              }}
               className={cn(
-                "flex h-9 w-9 shrink-0 touch-manipulation cursor-pointer items-center justify-center rounded-md border text-base font-bold leading-none transition-colors [tap-highlight-color:transparent]",
+                "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
                 dateFlexibility !== "exact"
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
@@ -239,14 +238,15 @@ export function HomepageRequestForm({ destinations }: Props) {
               <button
                 type="button"
                 title="Открытая группа — другие путешественники могут присоединиться"
-                onClick={() =>
-                  form.setValue("mode", isAssembly ? "private" : "assembly", {
+                onClick={() => {
+                  const current = form.getValues("mode");
+                  form.setValue("mode", current === "assembly" ? "private" : "assembly", {
                     shouldValidate: false,
                     shouldDirty: true,
-                  })
-                }
+                  });
+                }}
                 className={cn(
-                  "flex h-9 w-9 shrink-0 touch-manipulation cursor-pointer items-center justify-center rounded border transition-colors [tap-highlight-color:transparent]",
+                  "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded border transition-colors",
                   isAssembly
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
