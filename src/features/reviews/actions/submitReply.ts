@@ -39,14 +39,17 @@ export async function submitReplyForReview(replyId: string, reviewId: string) {
     }
   }
 
-  await supabase
+  const { count, error } = await supabase
     .from("review_replies")
     .update({
       status: "pending_review",
       submitted_at: new Date().toISOString(),
-    })
+    }, { count: "exact" })
     .eq("id", replyId)
     .eq("guide_id", user.id);
+
+  if (error) throw new Error(error.message);
+  if (count !== 1) throw new Error("Ответ не найден или не доступен.");
 
   return { success: true };
 }
@@ -74,17 +77,21 @@ export async function saveReplyDraft(reviewId: string, body: string) {
     .select("id")
     .eq("review_id", reviewId)
     .eq("guide_id", user.id)
-    .single();
+    .maybeSingle();
 
   if (existing) {
-    await supabase
+    const { count, error } = await supabase
       .from("review_replies")
-      .update({ body, status: "draft" })
-      .eq("id", existing.id);
+      .update({ body, status: "draft" }, { count: "exact" })
+      .eq("id", existing.id)
+      .eq("guide_id", user.id);
+
+    if (error) throw new Error(error.message);
+    if (count !== 1) throw new Error("Ответ не найден или не доступен.");
     return { id: existing.id };
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("review_replies")
     .insert({
       review_id: reviewId,
@@ -95,5 +102,8 @@ export async function saveReplyDraft(reviewId: string, body: string) {
     .select("id")
     .single();
 
-  return { id: data!.id };
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Не удалось сохранить ответ.");
+
+  return { id: data.id };
 }

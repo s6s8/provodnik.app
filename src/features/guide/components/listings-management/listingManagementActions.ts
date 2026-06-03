@@ -14,7 +14,7 @@ export async function bulkSetStatus(
 
   const { count, error } = await supabase
     .from("listings")
-    .update({ status })
+    .update({ status }, { count: "exact" })
     .in("id", listingIds)
     .eq("guide_id", user.id);
 
@@ -37,12 +37,15 @@ export async function quickEditTitle(listingId: string, title: string) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { error } = await supabase
+  const { count, error } = await supabase
     .from("listings")
-    .update({ title: title.trim() })
+    .update({ title: title.trim() }, { count: "exact" })
     .eq("id", listingId)
     .eq("guide_id", user.id);
 
   if (error) throw new Error(error.message);
+  if (count !== 1) {
+    throw new Error("Экскурсия не найдена или не принадлежит вам.");
+  }
   return { success: true };
 }
