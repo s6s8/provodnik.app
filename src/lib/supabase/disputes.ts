@@ -5,6 +5,7 @@ import { z } from "zod";
 import { transitionBooking } from "@/lib/bookings/state-machine";
 import { notifyDisputeOpened } from "@/lib/notifications/triggers";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import { requireAdminSession } from "@/lib/supabase/moderation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BookingRow, Uuid } from "@/lib/supabase/types";
 
@@ -241,20 +242,6 @@ async function currentUser() {
   };
 }
 
-async function ensureAdmin(userId: string) {
-  const supabase = await getSupabaseClient();
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("id, role")
-    .eq("id", userId)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (!profile || profile.role !== "admin") {
-    throw new Error("Только администратор может выполнить это действие.");
-  }
-}
-
 async function loadBooking(bookingId: string) {
   const supabase = await getSupabaseClient();
   const { data, error } = await supabase
@@ -326,9 +313,9 @@ export async function openDispute(data: {
 
 export async function getDispute(disputeId: string): Promise<DisputeDetail | null> {
   z.string().uuid().parse(disputeId);
-  const supabase = await getSupabaseClient();
+  const { adminClient } = await requireAdminSession();
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from("disputes")
     .select(
       `
@@ -386,8 +373,8 @@ export async function getDispute(disputeId: string): Promise<DisputeDetail | nul
 }
 
 export async function getDisputes(filters?: { status?: string }): Promise<DisputeListItem[]> {
-  const supabase = await getSupabaseClient();
-  let query = supabase
+  const { adminClient } = await requireAdminSession();
+  let query = adminClient
     .from("disputes")
     .select(
       `
@@ -442,14 +429,12 @@ export async function addDisputeNote(
   internalOnly: boolean,
 ): Promise<DisputeNote> {
   const input = disputeNoteInputSchema.parse({ disputeId, authorId, note, internalOnly });
-  const auth = await currentUser();
-  if (auth.id !== input.authorId) {
+  const { adminId, adminClient } = await requireAdminSession();
+  if (adminId !== input.authorId) {
     throw new Error("Автор заметки не совпадает с авторизованным пользователем.");
   }
-  await ensureAdmin(input.authorId);
 
-  const supabase = await getSupabaseClient();
-  const { data: dispute, error: disputeError } = await supabase
+  const { data: dispute, error: disputeError } = await adminClient
     .from("disputes")
     .select("id")
     .eq("id", input.disputeId)
@@ -458,7 +443,7 @@ export async function addDisputeNote(
   if (disputeError) throw disputeError;
   if (!dispute) throw new Error("Спор не найден.");
 
-  const { data, error } = await supabase
+  const { data, error } = await adminClient
     .from("dispute_notes")
     .insert({
       dispute_id: input.disputeId,
@@ -479,14 +464,12 @@ export async function assignDisputeToAdmin(
   disputeId: string,
   adminId: string,
 ): Promise<DisputeDetail> {
-  const auth = await currentUser();
-  if (auth.id !== adminId) {
+  const session = await requireAdminSession();
+  if (session.adminId !== adminId) {
     throw new Error("Администратор не совпадает с авторизованным пользователем.");
   }
-  await ensureAdmin(adminId);
 
-  const supabase = await getSupabaseClient();
-  const { error } = await supabase
+  const { error } = await session.adminClient
     .from("disputes")
     .update({
       assigned_admin_id: adminId,
@@ -507,14 +490,12 @@ export async function resolveDispute(
   resolutionSummary: string,
 ): Promise<DisputeDetail> {
   const input = disputeResolutionInputSchema.parse({ disputeId, adminId, resolutionSummary });
-  const auth = await currentUser();
-  if (auth.id !== input.adminId) {
+  const session = await requireAdminSession();
+  if (session.adminId !== input.adminId) {
     throw new Error("Администратор не совпадает с авторизованным пользователем.");
   }
-  await ensureAdmin(input.adminId);
 
-  const supabase = await getSupabaseClient();
-  const { data: dispute, error: disputeError } = await supabase
+  const { data: dispute, error: disputeError } = await session.adminClient
     .from("disputes")
     .select("id, booking_id")
     .eq("id", input.disputeId)
@@ -523,7 +504,7 @@ export async function resolveDispute(
   if (disputeError) throw disputeError;
   if (!dispute) throw new Error("Спор не найден.");
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await session.adminClient
     .from("disputes")
     .update({
       status: "resolved",
@@ -535,7 +516,7 @@ export async function resolveDispute(
 
   if (updateError) throw updateError;
 
-  const { error: bookingUpdateError } = await supabase
+  const { error: bookingUpdateError } = await session.adminClient
     .from("bookings")
     .update({ status: "confirmed" })
     .eq("id", dispute.booking_id);

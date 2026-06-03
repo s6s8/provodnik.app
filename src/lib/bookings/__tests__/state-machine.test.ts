@@ -16,10 +16,14 @@ import {
 } from '@/lib/bookings/state-machine'
 
 type SupabaseChain = {
+  authGetUser: ReturnType<typeof vi.fn>
   from: ReturnType<typeof vi.fn>
   select: ReturnType<typeof vi.fn>
   selectEq: ReturnType<typeof vi.fn>
   maybeSingle: ReturnType<typeof vi.fn>
+  profileSelect: ReturnType<typeof vi.fn>
+  profileEq: ReturnType<typeof vi.fn>
+  profileSingle: ReturnType<typeof vi.fn>
   update: ReturnType<typeof vi.fn>
   updateEq: ReturnType<typeof vi.fn>
   updateEq2: ReturnType<typeof vi.fn>
@@ -27,13 +31,37 @@ type SupabaseChain = {
   single: ReturnType<typeof vi.fn>
 }
 
-function createBookingSupabase(fromStatus: BookingStatus, toStatus: BookingStatus): SupabaseChain {
+function createBookingSupabase(
+  fromStatus: BookingStatus,
+  toStatus: BookingStatus,
+  options: {
+    userId?: string
+    travelerId?: string
+    guideId?: string
+    role?: string
+  } = {},
+): SupabaseChain {
+  const userId = options.userId ?? 'user-1'
+  const travelerId = options.travelerId ?? 'traveler-1'
+  const guideId = options.guideId ?? 'guide-1'
+  const role = options.role ?? 'admin'
+  const authGetUser = vi.fn().mockResolvedValue({
+    data: { user: { id: userId } },
+    error: null,
+  })
   const maybeSingle = vi.fn().mockResolvedValue({
-    data: { id: 'booking-1', status: fromStatus },
+    data: { id: 'booking-1', status: fromStatus, traveler_id: travelerId, guide_id: guideId },
     error: null,
   })
   const selectEq = vi.fn(() => ({ maybeSingle }))
   const select = vi.fn(() => ({ eq: selectEq }))
+
+  const profileSingle = vi.fn().mockResolvedValue({
+    data: { id: userId, role },
+    error: null,
+  })
+  const profileEq = vi.fn(() => ({ maybeSingle: profileSingle }))
+  const profileSelect = vi.fn(() => ({ eq: profileEq }))
 
   const single = vi.fn().mockResolvedValue({
     data: { id: 'booking-1', status: toStatus },
@@ -44,12 +72,32 @@ function createBookingSupabase(fromStatus: BookingStatus, toStatus: BookingStatu
   const updateEq = vi.fn(() => ({ eq: updateEq2 }))
   const update = vi.fn(() => ({ eq: updateEq }))
 
-  const from = vi.fn(() => ({
-    select,
-    update,
-  }))
+  const from = vi.fn((table: string) =>
+    table === 'profiles'
+      ? {
+          select: profileSelect,
+        }
+      : {
+          select,
+          update,
+        },
+  )
 
-  return { from, select, selectEq, maybeSingle, update, updateEq, updateEq2, updateSelect, single }
+  return {
+    authGetUser,
+    from,
+    select,
+    selectEq,
+    maybeSingle,
+    profileSelect,
+    profileEq,
+    profileSingle,
+    update,
+    updateEq,
+    updateEq2,
+    updateSelect,
+    single,
+  }
 }
 
 describe('BOOKING_TRANSITIONS', () => {
@@ -131,6 +179,9 @@ describe('transitionBooking', () => {
   it.each(validTransitions)('persists a valid transition from %s to %s', async (from, to) => {
     const supabase = createBookingSupabase(from, to)
     createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: supabase.authGetUser,
+      },
       from: supabase.from,
     })
 
@@ -147,11 +198,33 @@ describe('transitionBooking', () => {
   it.each(invalidTransitions)('throws for an invalid transition from %s to %s', async (from, to) => {
     const supabase = createBookingSupabase(from, from)
     createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: supabase.authGetUser,
+      },
       from: supabase.from,
     })
 
     await expect(transitionBooking('booking-1', to, 'user-1')).rejects.toThrow(
       `Invalid booking transition: ${from} → ${to}`,
+    )
+
+    expect(supabase.update).not.toHaveBeenCalled()
+  })
+
+  it('rejects a caller who does not own the booking', async () => {
+    const supabase = createBookingSupabase('confirmed', 'completed', {
+      userId: 'traveler-2',
+      role: 'traveler',
+    })
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: supabase.authGetUser,
+      },
+      from: supabase.from,
+    })
+
+    await expect(transitionBooking('booking-1', 'completed', 'traveler-2')).rejects.toThrow(
+      'Нет доступа к изменению статуса бронирования.',
     )
 
     expect(supabase.update).not.toHaveBeenCalled()

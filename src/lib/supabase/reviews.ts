@@ -198,7 +198,31 @@ export async function createReview(data: {
 export async function getReviewForBooking(
   bookingId: string,
 ): Promise<ReviewRow | null> {
-  const supabase = createSupabaseAdminClient();
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) throw authError;
+  if (!user) throw new Error("Пользователь не авторизован.");
+
+  const { data: booking, error: bookingError } = await supabase
+    .from("bookings")
+    .select("id, traveler_id")
+    .eq("id", bookingId)
+    .maybeSingle();
+
+  if (bookingError) {
+    if (bookingError.code === "PGRST116") return null;
+    throw bookingError;
+  }
+
+  if (!booking) return null;
+  if (booking.traveler_id !== user.id) {
+    throw new Error("Нет доступа к отзыву по этому бронированию.");
+  }
+
   const { data, error } = await supabase
     .from("reviews")
     .select("id, booking_id, traveler_id, guide_id, listing_id, rating, title, body, status, created_at, updated_at")

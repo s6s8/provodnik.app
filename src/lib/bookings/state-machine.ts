@@ -23,17 +23,46 @@ export function canTransition(from: BookingStatus, to: BookingStatus): boolean {
   return BOOKING_TRANSITIONS[from].includes(to);
 }
 
+type BookingActor = "traveler" | "guide" | "admin";
+
+function canActorTransition(
+  actor: BookingActor,
+  from: BookingStatus,
+  to: BookingStatus,
+): boolean {
+  if (actor === "admin") return true;
+
+  if (to === "disputed" || to === "cancelled") {
+    return actor === "traveler" || actor === "guide";
+  }
+
+  if (from === "pending" && to === "awaiting_guide_confirmation") {
+    return actor === "traveler";
+  }
+
+  return actor === "guide";
+}
+
 export async function transitionBooking(
   bookingId: string,
   to: BookingStatus,
-  _userId: string,
+  userId: string,
 ): Promise<{ id: string; status: BookingStatus }> {
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError) throw authError;
+  if (!user || user.id !== userId) {
+    throw new Error("Нет доступа к изменению статуса бронирования.");
+  }
 
   // Fetch current status first
   const { data: current, error: fetchError } = await supabase
     .from("bookings")
-    .select("id, status")
+    .select("id, status, traveler_id, guide_id")
     .eq("id", bookingId)
     .maybeSingle();
 
@@ -46,6 +75,27 @@ export async function transitionBooking(
     throw new Error(
       `Invalid booking transition: ${from} → ${to}`,
     );
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id, role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) throw profileError;
+
+  const actor: BookingActor | null =
+    profile?.role === "admin"
+      ? "admin"
+      : current.traveler_id === user.id
+        ? "traveler"
+        : current.guide_id === user.id
+          ? "guide"
+          : null;
+
+  if (!actor || !canActorTransition(actor, from, to)) {
+    throw new Error("Нет доступа к изменению статуса бронирования.");
   }
 
   const { data: updated, error: updateError } = await supabase
