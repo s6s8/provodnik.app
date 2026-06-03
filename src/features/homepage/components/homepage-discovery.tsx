@@ -6,6 +6,10 @@ function formatPrice(budgetRub: number): string {
   return `${new Intl.NumberFormat("ru-RU").format(budgetRub)} ₽ / чел`;
 }
 
+function deriveGuideState(status: RequestRecord["status"]) {
+  return status === "booked" ? "found" : "waiting";
+}
+
 interface Props {
   requests: RequestRecord[];
 }
@@ -36,7 +40,7 @@ export function HomePageDiscovery({ requests }: Props) {
                 location={req.destination}
                 date={req.dateLabel}
                 groupType={req.mode}
-                guideState="waiting"
+                guideState={deriveGuideState(req.status)}
                 datesFlexible={req.date_locked === false}
                 interests={req.interests}
                 members={req.members}

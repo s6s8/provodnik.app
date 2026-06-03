@@ -1145,6 +1145,11 @@ export async function getHomepageRequests(
       rec.offerCount = countMap[rec.id] ?? 0;
       return rec;
     });
+    const membersMap = await fetchMembersForRequests(client, records.map((r) => r.id));
+    for (const rec of records) {
+      rec.members = membersMap.get(rec.id) ?? [];
+      if (rec.members.length > 0) rec.groupSize = rec.members.length;
+    }
 
     const filtered = records.filter((rec) => {
       if (rec.mode !== "assembly") return true;
