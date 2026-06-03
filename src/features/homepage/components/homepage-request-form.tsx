@@ -18,6 +18,7 @@ import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -38,6 +39,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [allowGuideSuggestions, setAllowGuideSuggestions] = React.useState(false);
+  const [showAllThemes, setShowAllThemes] = React.useState(false);
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
@@ -62,6 +64,8 @@ export function HomepageRequestForm({ destinations }: Props) {
     register,
     handleSubmit,
     control,
+    watch,
+    setValue,
     formState: { errors },
   } = form;
 
@@ -75,6 +79,11 @@ export function HomepageRequestForm({ destinations }: Props) {
   const isAssembly = mode === "assembly";
   const watchedGroupSize = useWatch({ control, name: "groupSize" });
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
+  const selectedInterests = interestsField.value ?? [];
+  const visibleThemes = THEMES.filter(
+    (theme, index) =>
+      index < 3 || showAllThemes || selectedInterests.includes(theme.slug),
+  );
 
   async function submitWithFormData(fd: FormData) {
     setIsLoading(true);
@@ -98,6 +107,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     }
     fd.set("destination", values.destination);
     fd.set("startDate", values.startDate);
+    fd.set("dateFlexibility", values.dateFlexibility);
     fd.set("startTime", values.startTime ?? "");
     fd.set("endTime", values.endTime ?? "");
     // Unified "Сколько вас" — write to groupSize always; when assembly,
@@ -181,6 +191,18 @@ export function HomepageRequestForm({ destinations }: Props) {
             {...register("startDate")}
           />
           <FieldError id="startDate-error" message={errors.startDate?.message} />
+          <Toggle
+            size="sm"
+            pressed={watch("dateFlexibility") !== "exact"}
+            onPressedChange={(pressed) =>
+              setValue("dateFlexibility", pressed ? "few_days" : "exact", {
+                shouldDirty: true,
+              })
+            }
+            className="h-7 px-2 text-xs font-normal text-muted-foreground data-[state=on]:text-foreground"
+          >
+            ≈ Гибкая дата
+          </Toggle>
         </div>
         <div className="grid gap-2">
           <FieldLabel htmlFor="startTime">Начало</FieldLabel>
@@ -206,38 +228,39 @@ export function HomepageRequestForm({ destinations }: Props) {
 
       {/* 4. Сколько вас + opt-in companions toggle */}
       <div className="grid gap-3">
-        <div className="grid gap-2">
-          <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
-          <Input
-            id="groupSize"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={20}
-            aria-invalid={Boolean(errors.groupSize)}
-            {...register("groupSize", { valueAsNumber: true })}
-          />
-          <FieldError id="groupSize-error" message={errors.groupSize?.message} />
-        </div>
+        <div className="grid grid-cols-2 items-end gap-2">
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
+            <Input
+              id="groupSize"
+              type="number"
+              inputMode="numeric"
+              min={1}
+              max={20}
+              aria-invalid={Boolean(errors.groupSize)}
+              {...register("groupSize", { valueAsNumber: true })}
+            />
+          </div>
 
-        <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 accent-primary"
-            checked={isAssembly}
-            onChange={(e) =>
-              form.setValue("mode", e.target.checked ? "assembly" : "private", {
-                shouldValidate: false,
-                shouldDirty: true,
-              })
-            }
-          />
-          <span className="flex flex-col gap-0.5 text-sm">
-            <span className="font-medium text-foreground">
-              Открыт к увеличению группы
+          <label className="flex h-12 cursor-pointer items-center gap-2 rounded-xl border border-input bg-background px-3 hover:bg-muted/40">
+            <input
+              type="checkbox"
+              className="h-4 w-4 shrink-0 accent-primary"
+              checked={isAssembly}
+              onChange={(e) =>
+                form.setValue("mode", e.target.checked ? "assembly" : "private", {
+                  shouldValidate: false,
+                  shouldDirty: true,
+                })
+              }
+            />
+            <span className="whitespace-nowrap text-sm font-medium text-foreground">
+              Открытая группа
             </span>
-          </span>
-        </label>
+          </label>
+        </div>
+        <FieldError id="groupSize-error" message={errors.groupSize?.message} />
+
         <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
           <input
             type="checkbox"
@@ -251,16 +274,6 @@ export function HomepageRequestForm({ destinations }: Props) {
             </span>
           </span>
         </label>
-      </div>
-
-      {/* 5. Языки экскурсии */}
-      <div className="grid gap-2">
-        <FieldLabel>Языки экскурсии (необязательно)</FieldLabel>
-        <LanguageMultiSelect
-          options={LANGUAGES}
-          value={requestedLanguagesField.value ?? []}
-          onChange={requestedLanguagesField.onChange}
-        />
       </div>
 
       {/* 6. Бюджет на человека (₽) */}
@@ -291,8 +304,8 @@ export function HomepageRequestForm({ destinations }: Props) {
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
         <div className="grid grid-cols-2 gap-2">
-          {THEMES.map((theme) => {
-            const selected = interestsField.value.includes(theme.slug);
+          {visibleThemes.map((theme) => {
+            const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
             return (
               <button
@@ -319,6 +332,14 @@ export function HomepageRequestForm({ destinations }: Props) {
             );
           })}
         </div>
+        <Button
+          type="button"
+          variant="ghost"
+          className="h-9 w-fit px-3 text-sm"
+          onClick={() => setShowAllThemes((current) => !current)}
+        >
+          {showAllThemes ? "Свернуть" : "Ещё темы"}
+        </Button>
         <FieldError id="interests-error" message={errors.interests?.message} />
       </div>
 
@@ -329,7 +350,15 @@ export function HomepageRequestForm({ destinations }: Props) {
           <span aria-hidden="true" className="hidden text-base leading-none group-open:inline">−</span>
           <span>Добавить детали</span>
         </summary>
-        <div className="grid gap-2 px-3 pb-3 pt-1">
+        <div className="grid gap-3 px-3 pb-3 pt-1">
+          <div className="grid gap-2">
+            <FieldLabel>Языки экскурсии</FieldLabel>
+            <LanguageMultiSelect
+              options={LANGUAGES}
+              value={requestedLanguagesField.value ?? []}
+              onChange={requestedLanguagesField.onChange}
+            />
+          </div>
           <Textarea
             id="notes"
             placeholder="Пожелания, ограничения, формат отчётных документов. Если оформляете от компании — укажите название юрлица, ИНН и нужны ли счёт/акт или оплата по реквизитам."

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { describe, beforeAll, beforeEach, expect, it, vi } from "vitest";
 
 const mockGetUser = vi.fn();
@@ -114,6 +114,38 @@ describe("HomepageRequestForm onSubmit", () => {
       "Английский",
     ]);
   });
+
+  it("submits exact date flexibility by default and few days when toggled", async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: "user-1" } },
+      error: null,
+    });
+
+    const { unmount } = render(<HomepageRequestForm destinations={[]} />);
+    fillMinimalForm();
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
+
+    await waitFor(() => {
+      expect(createRequestAction).toHaveBeenCalled();
+    });
+
+    const defaultFormData = vi.mocked(createRequestAction).mock.calls[0][1] as FormData;
+    expect(defaultFormData.get("dateFlexibility")).toBe("exact");
+
+    vi.mocked(createRequestAction).mockClear();
+    unmount();
+    render(<HomepageRequestForm destinations={[]} />);
+    fillMinimalForm();
+    fireEvent.click(screen.getByRole("button", { name: "≈ Гибкая дата" }));
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
+
+    await waitFor(() => {
+      expect(createRequestAction).toHaveBeenCalled();
+    });
+
+    const flexibleFormData = vi.mocked(createRequestAction).mock.calls[0][1] as FormData;
+    expect(flexibleFormData.get("dateFlexibility")).toBe("few_days");
+  });
 });
 
 describe("HomepageRequestForm UI affordances", () => {
@@ -143,10 +175,12 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(screen.getByText("Конец (необязательно)")).toBeInTheDocument();
   });
 
-  it("renders the language multi-select labelled «Языки экскурсии» (bk-task-05)", () => {
+  it("renders the language multi-select inside «Добавить детали»", () => {
     render(<HomepageRequestForm destinations={[]} />);
-    expect(screen.getByText(/Языки экскурсии/i)).toBeInTheDocument();
-    expect(screen.getByText("Русский")).toBeInTheDocument();
+    const details = screen.getByText("Добавить детали").closest("details");
+    expect(details).not.toBeNull();
+    expect(within(details!).getByText("Языки экскурсии")).toBeInTheDocument();
+    expect(within(details!).getByText("Русский")).toBeInTheDocument();
     expect(
       screen.queryByText(
         "Если важен конкретный язык — выберите. Иначе гиды любых языков смогут откликнуться.",
@@ -160,6 +194,32 @@ describe("HomepageRequestForm UI affordances", () => {
     // canonical list — at minimum Russian + Hindi must be selectable
     expect(screen.getAllByText("Русский").length).toBeGreaterThan(0);
     expect(screen.getByText("Хинди")).toBeInTheDocument();
+  });
+
+  it("keeps the language multi-select working after moving it into details", async () => {
+    mockGetUser.mockResolvedValueOnce({
+      data: { user: { id: "user-1" } },
+      error: null,
+    });
+    render(<HomepageRequestForm destinations={[]} />);
+    fillMinimalForm();
+
+    fireEvent.click(screen.getByText("Добавить детали"));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Выбрать языки экскурсии" }),
+    );
+    fireEvent.click(screen.getByText("Английский"));
+    fireEvent.click(screen.getByRole("button", { name: /отправить запрос/i }));
+
+    await waitFor(() => {
+      expect(createRequestAction).toHaveBeenCalled();
+    });
+
+    const submittedFormData = vi.mocked(createRequestAction).mock.calls[0][1] as FormData;
+    expect(submittedFormData.getAll("requested_languages[]")).toEqual([
+      "Русский",
+      "Английский",
+    ]);
   });
 
   it("defaults start and end time inputs to 12:00 (bk-task-03)", () => {
@@ -187,11 +247,13 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(hint!.textContent?.replace(/\s/g, "")).toMatch(/10000₽/);
   });
 
-  it("renders the assembly checkbox with the new label and no explanation", () => {
+  it("renders group size and the assembly checkbox as two half-width fields", () => {
     render(<HomepageRequestForm destinations={[]} />);
-    expect(
-      screen.getByLabelText("Открыт к увеличению группы"),
-    ).toBeInTheDocument();
+    const groupSizeInput = screen.getByLabelText("Сколько вас");
+    const groupRow = groupSizeInput.closest("div")?.parentElement;
+    expect(groupRow).toHaveClass("grid-cols-2");
+    expect(within(groupRow!).getByLabelText("Открытая группа")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Открыт к увеличению группы")).toBeNull();
     expect(screen.queryByText(/попутчиков/i)).toBeNull();
     expect(screen.queryByText(/−10%/)).toBeNull();
     expect(screen.queryByText(/сдвиг группы/i)).toBeNull();
@@ -200,7 +262,7 @@ describe("HomepageRequestForm UI affordances", () => {
   it("does not render «До скольких готов добрать» field", () => {
     render(<HomepageRequestForm destinations={[]} />);
     // Toggle assembly checkbox on
-    fireEvent.click(screen.getByLabelText("Открыт к увеличению группы"));
+    fireEvent.click(screen.getByLabelText("Открытая группа"));
     expect(screen.queryByLabelText(/До скольких готов добрать/i)).toBeNull();
   });
 
@@ -222,5 +284,28 @@ describe("HomepageRequestForm UI affordances", () => {
     fireEvent.click(flex);
     const after = document.querySelectorAll("input,select").length;
     expect(after).toBe(before);
+  });
+
+  it("shows only the first three topics until «Ещё темы» is toggled", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    expect(screen.getByRole("button", { name: /история/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /архитектура/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /природа/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /гастрономия/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Ещё темы" }));
+
+    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Свернуть" })).toBeInTheDocument();
+  });
+
+  it("keeps selected hidden topics visible after collapsing", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    fireEvent.click(screen.getByRole("button", { name: "Ещё темы" }));
+    fireEvent.click(screen.getByRole("button", { name: /гастрономия/i }));
+    fireEvent.click(screen.getByRole("button", { name: "Свернуть" }));
+
+    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /искусство/i })).toBeNull();
   });
 });
