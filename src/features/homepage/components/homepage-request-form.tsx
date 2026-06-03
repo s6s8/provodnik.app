@@ -365,7 +365,7 @@ export function HomepageRequestForm({ destinations }: Props) {
           </div>
           <Textarea
             id="notes"
-            placeholder="Пожелания, особые пожелания, ограничения по здоровью или другие детали."
+            placeholder="Особые пожелания, ограничения по здоровью или другие детали."
             aria-invalid={Boolean(errors.notes)}
             {...register("notes")}
           />
