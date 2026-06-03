@@ -29,8 +29,6 @@ type RequestCardCountSample = RequestCardSample & {
   participantCount: number;
 };
 
-type ParticipantCountVariant = "stack-badge" | "caption";
-
 const countPrototypeSamples = [
   {
     scenario: "Соло · 1 участник",
@@ -162,15 +160,13 @@ function ThemeLabelChip({ slug }: { slug: ThemeSlug }) {
 function ParticipantStack({
   members,
   participantCount,
-  variant,
 }: {
   members: readonly ReqCardMember[];
   participantCount: number;
-  variant: ParticipantCountVariant;
 }) {
   const visibleMembers = members.slice(0, participantCount === 1 ? 1 : 3);
-  const avatarRow = (
-    <div className="flex items-center">
+  return (
+    <div className="flex shrink-0 items-center">
       {visibleMembers.map((member) => (
         <Avatar
           key={member.id}
@@ -182,7 +178,7 @@ function ParticipantStack({
           <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">{member.initials}</AvatarFallback>
         </Avatar>
       ))}
-      {variant === "stack-badge" && participantCount > 1 ? (
+      {participantCount > 1 ? (
         <span
           className="flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-surface-low text-[0.625rem] font-semibold text-ink-2"
           data-testid="participant-count-badge"
@@ -190,21 +186,6 @@ function ParticipantStack({
           {participantCount}
         </span>
       ) : null}
-    </div>
-  );
-
-  if (variant === "caption") {
-    return (
-      <div className="flex shrink-0 flex-col items-start gap-1">
-        {avatarRow}
-        {participantCount > 1 ? <span className="text-xs text-muted-foreground">{participantCount} идут</span> : null}
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex shrink-0 items-center">
-      {avatarRow}
     </div>
   );
 }
@@ -220,8 +201,7 @@ function RequestCardThemesTopPrototype({
   members,
   price,
   participantCount,
-  participantVariant,
-}: RequestCardCountSample & { participantVariant: ParticipantCountVariant }) {
+}: RequestCardCountSample) {
   const themeSlugs = interests.slice(0, 3);
 
   return (
@@ -243,7 +223,7 @@ function RequestCardThemesTopPrototype({
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-        <ParticipantStack members={members} participantCount={participantCount} variant={participantVariant} />
+        <ParticipantStack members={members} participantCount={participantCount} />
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>
@@ -254,12 +234,10 @@ function CountPrototypeSection({
   id,
   heading,
   description,
-  participantVariant,
 }: {
   id: string;
   heading: string;
   description: string;
-  participantVariant: ParticipantCountVariant;
 }) {
   return (
     <section aria-labelledby={id}>
@@ -274,9 +252,9 @@ function CountPrototypeSection({
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {countPrototypeSamples.map((sample) => (
-          <div key={`${participantVariant}-${sample.href}`} className="flex h-full flex-col space-y-2">
+          <div key={sample.href} className="flex h-full flex-col space-y-2">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-            <RequestCardThemesTopPrototype {...sample} participantVariant={participantVariant} />
+            <RequestCardThemesTopPrototype {...sample} />
           </div>
         ))}
       </div>
@@ -290,23 +268,16 @@ export default function DevReqCardsPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — счётчик участников</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Сравниваем два способа показать число участников при одинаковой верхней строке с темами-чипами и чистом
-          нижнем ряду с ценой справа.
+          Один утверждённый вариант карточек: темы-чипы сверху, а число участников встроено в стопку аватаров слева
+          в нижнем ряду.
         </p>
       </div>
 
       <div className="space-y-10">
         <CountPrototypeSection
           id="stack-badge-heading"
-          heading="1 · Счётчик в стеке"
-          description="Число становится последним кружком в стеке аватаров, чтобы весь левый блок читался как один объект."
-          participantVariant="stack-badge"
-        />
-        <CountPrototypeSection
-          id="caption-heading"
-          heading="2 · Счётчик подписью"
-          description="Аватары остаются чистой строкой, а число участников уходит в короткую подпись под ними."
-          participantVariant="caption"
+          heading="Счётчик в стеке"
+          description="Число — последний кружок в стопке аватаров: весь левый блок читается как один объект. Соло — один аватар без числа."
         />
       </div>
     </main>
