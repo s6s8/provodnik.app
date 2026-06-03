@@ -1,4 +1,4 @@
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
@@ -154,17 +154,6 @@ export type DestinationOption = {
   region: string;
   guideCount: number;
 };
-
-// ---------------------------------------------------------------------------
-// Admin client for public reads (bypasses RLS)
-// ---------------------------------------------------------------------------
-
-function getPublicClient(): SupabaseClient {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.SUPABASE_SECRET_KEY ?? process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) throw new Error("Missing Supabase env vars for public reads");
-  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
-}
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -495,10 +484,9 @@ async function fetchProfilesByUserIds(
 // Destinations (public.destinations table)
 // ---------------------------------------------------------------------------
 
-export async function getDestinations(_client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
+export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
-    const db = getPublicClient();
-    const { data, error } = await db.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
+    const { data, error } = await client.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
@@ -522,10 +510,9 @@ export async function getDestinations(_client: SupabaseClient): Promise<QueryRes
   }
 }
 
-export async function getDestinationBySlug(_client: SupabaseClient, slug: string): Promise<QueryResult<DestinationRecord>> {
+export async function getDestinationBySlug(client: SupabaseClient, slug: string): Promise<QueryResult<DestinationRecord>> {
   try {
-    const db = getPublicClient();
-    const { data, error } = await db.from("destinations").select("*").eq("slug", slug).maybeSingle();
+    const { data, error } = await client.from("destinations").select("*").eq("slug", slug).maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
@@ -554,12 +541,11 @@ export async function getDestinationBySlug(_client: SupabaseClient, slug: string
 // ---------------------------------------------------------------------------
 
 export async function getActiveListings(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   filters?: ListingFilters,
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
-    const db = getPublicClient();
-    const { data, error } = await db
+    const { data, error } = await client
       .from("listings")
       .select("*")
       .eq("status", "published")
@@ -575,12 +561,11 @@ export async function getActiveListings(
 }
 
 export async function getListingsByDestination(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
-    const db = getPublicClient();
-    const { data: dest, error: destError } = await db
+    const { data: dest, error: destError } = await client
       .from("destinations")
       .select("name, region")
       .eq("slug", slug)
@@ -588,7 +573,7 @@ export async function getListingsByDestination(
     if (destError) throw destError;
     if (!dest) return { data: [], error: null };
 
-    const { data, error } = await db
+    const { data, error } = await client
       .from("listings")
       .select("*")
       .or(`city.ilike.%${dest.name}%,region.ilike.%${dest.region}%`)
@@ -604,12 +589,11 @@ export async function getListingsByDestination(
 }
 
 export async function getListingsByGuide(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   guideId: string,
 ): Promise<QueryResult<ListingRecord[]>> {
   try {
-    const db = getPublicClient();
-    const { data, error } = await db.from("listings").select("*").eq("guide_id", guideId).eq("status", "published");
+    const { data, error } = await client.from("listings").select("*").eq("guide_id", guideId).eq("status", "published");
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
@@ -721,13 +705,12 @@ export async function getUserRequests(
 // ---------------------------------------------------------------------------
 
 export async function getGuides(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   filters?: GuideFilters,
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
-    const db = getPublicClient();
     // OPT-001: Push specializations + has_listings filter server-side
-    const { data: searchRows, error } = await db.rpc("search_guides", {
+    const { data: searchRows, error } = await client.rpc("search_guides", {
       q: filters?.q ?? "",
       p_specializations: (filters?.specializations && filters.specializations.length > 0)
         ? filters.specializations
@@ -740,9 +723,9 @@ export async function getGuides(
 
     const rows = searchRows as Record<string, unknown>[];
     const guideIds = rows.map((row) => row.user_id as string);
-    const profileMap = await fetchProfilesByUserIds(db, guideIds);
+    const profileMap = await fetchProfilesByUserIds(client, guideIds);
 
-    const { data: listingRows } = await db
+    const { data: listingRows } = await client
       .from("listings")
       .select("guide_id")
       .eq("status", "published")
@@ -770,13 +753,12 @@ export async function getGuides(
 }
 
 export async function getGuidesByDestination(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   region: string,
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
-    const db = getPublicClient();
     // OPT-001: Push region filter + has_listings server-side
-    const { data: searchRows, error } = await db.rpc("search_guides", {
+    const { data: searchRows, error } = await client.rpc("search_guides", {
       q: "",
       p_region: region,
       p_has_listings: true,
@@ -793,7 +775,7 @@ export async function getGuidesByDestination(
     if (rows.length === 0) return { data: [], error: null };
 
     const profileMap = await fetchProfilesByUserIds(
-      db,
+      client,
       rows.map((row) => row.user_id as string),
     );
 
@@ -807,12 +789,11 @@ export async function getGuidesByDestination(
 }
 
 export async function getGuideBySlug(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<GuideRecord>> {
   try {
-    const db = getPublicClient();
-    const { data, error } = await db
+    const { data, error } = await client
       .from("guide_profiles")
       .select("*, profiles:user_id(id, full_name, avatar_url)")
       .eq("slug", slug)
@@ -828,12 +809,11 @@ export async function getGuideBySlug(
 }
 
 export async function getGuideLocationPhotos(
-  _client: SupabaseClient,
+  client: SupabaseClient,
   guideId: string,
 ): Promise<QueryResult<{ id: string; location_name: string; object_path: string; sort_order: number }[]>> {
   try {
-    const db = getPublicClient();
-    const { data, error } = await db
+    const { data, error } = await client
       .from("guide_location_photos")
       .select("id, location_name, sort_order, storage_assets!inner(object_path)")
       .eq("guide_id", guideId)
@@ -1009,14 +989,13 @@ export async function toggleFavorite(
 // Reviews (public.reviews — columns: booking_id, traveler_id, guide_id, listing_id)
 // ---------------------------------------------------------------------------
 
-export async function getListingReviews(_client: SupabaseClient, listingSlug: string): Promise<QueryResult<ReviewRecord[]>> {
+export async function getListingReviews(client: SupabaseClient, listingSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
-    const db = getPublicClient();
     // First resolve listing UUID from slug
-    const { data: listing } = await db.from("listings").select("id").eq("slug", listingSlug).maybeSingle();
+    const { data: listing } = await client.from("listings").select("id").eq("slug", listingSlug).maybeSingle();
     if (!listing) return { data: [], error: null };
 
-    const { data, error } = await db
+    const { data, error } = await client
       .from("reviews")
       .select("*, profiles:traveler_id(full_name)")
       .eq("listing_id", listing.id)
@@ -1042,14 +1021,13 @@ export async function getListingReviews(_client: SupabaseClient, listingSlug: st
   }
 }
 
-export async function getGuideReviews(_client: SupabaseClient, guideSlug: string): Promise<QueryResult<ReviewRecord[]>> {
+export async function getGuideReviews(client: SupabaseClient, guideSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
-    const db = getPublicClient();
     // First resolve guide UUID from slug
-    const { data: gp } = await db.from("guide_profiles").select("user_id").eq("slug", guideSlug).maybeSingle();
+    const { data: gp } = await client.from("guide_profiles").select("user_id").eq("slug", guideSlug).maybeSingle();
     if (!gp) return { data: [], error: null };
 
-    const { data, error } = await db
+    const { data, error } = await client
       .from("reviews")
       .select("*, profiles:traveler_id(full_name)")
       .eq("guide_id", gp.user_id)
@@ -1129,8 +1107,7 @@ export async function getHomepageRequests(
 
     const ids = rows.map((r) => r.id as string);
 
-    const adminDb = getPublicClient();
-    const { data: offerRows } = await adminDb
+    const { data: offerRows } = await client
       .from("guide_offers")
       .select("request_id")
       .in("request_id", ids);
