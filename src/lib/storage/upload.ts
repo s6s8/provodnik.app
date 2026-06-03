@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { StorageAssetRow, StorageAssetKindDb } from "@/lib/supabase/types";
 import {
   getStorageBucketConfig,
@@ -22,7 +23,6 @@ const uploadPathInputSchema = z.object({
   bucket: storageBucketSchema,
   fileName: z.string().trim().min(1).max(255),
   mimeType: z.string().trim().min(1).max(255),
-  userId: z.string().uuid(),
 });
 
 /** Matches `storage_assets` unique constraint `(bucket_id, object_path)`. */
@@ -36,6 +36,14 @@ const confirmUploadSchema = z.object({
   mimeType: z.string().trim().min(1).max(255),
   byteSize: z.number().int().positive(),
 });
+
+const bucketAssetKinds: Record<StorageBucketId, readonly StorageAssetKindDb[]> = {
+  "guide-avatars": ["guide-avatar"],
+  "traveler-avatars": [],
+  "guide-documents": ["guide-document"],
+  "listing-media": ["listing-cover", "listing-gallery"],
+  "dispute-evidence": ["dispute-evidence"],
+};
 
 function getMimeExtension(mimeType: string) {
   switch (mimeType) {
@@ -52,15 +60,7 @@ function getMimeExtension(mimeType: string) {
   }
 }
 
-function getFileExtension(fileName: string, mimeType: string) {
-  const fileNameParts = fileName.split(".");
-  const rawExtension =
-    fileNameParts.length > 1 ? fileNameParts.at(-1)?.toLowerCase() ?? null : null;
-
-  if (rawExtension && /^[a-z0-9]+$/i.test(rawExtension)) {
-    return rawExtension;
-  }
-
+function getFileExtension(mimeType: string) {
   const mimeExtension = getMimeExtension(mimeType);
   if (mimeExtension) {
     return mimeExtension;
@@ -76,17 +76,59 @@ export function assertMimeTypeAllowed(bucket: StorageBucketId, mimeType: string)
   }
 }
 
+export function assertByteSizeAllowed(bucket: StorageBucketId, byteSize: number) {
+  const config = getStorageBucketConfig(bucket);
+  if (byteSize > config.maxBytes) {
+    throw new Error("Файл превышает лимит выбранного бакета.");
+  }
+}
+
+function assertAssetKindAllowed(bucket: StorageBucketId, assetKind: StorageAssetKindDb) {
+  if (!bucketAssetKinds[bucket].includes(assetKind)) {
+    throw new Error("Тип файла не соответствует выбранному бакету.");
+  }
+}
+
+function assertObjectPathOwnedByUser(objectPath: string, userId: string) {
+  const [ownerPrefix] = objectPath.split("/");
+  if (ownerPrefix !== userId) {
+    throw new Error("Путь файла не соответствует текущему пользователю.");
+  }
+}
+
+function assertObjectPathMatchesMimeType(objectPath: string, mimeType: string) {
+  const extension = getFileExtension(mimeType);
+  if (!objectPath.toLowerCase().endsWith(`.${extension}`)) {
+    throw new Error("Путь файла не соответствует типу файла.");
+  }
+}
+
+async function getAuthenticatedUserId() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user?.id) {
+    throw error ?? new Error("Не авторизован.");
+  }
+
+  return user.id;
+}
+
 export async function getPresignedUploadUrl(
   bucket: string,
   fileName: string,
   mimeType: string,
-  userId: string,
+  _userId: string,
 ) {
-  const input = uploadPathInputSchema.parse({ bucket, fileName, mimeType, userId });
+  const input = uploadPathInputSchema.parse({ bucket, fileName, mimeType });
   assertMimeTypeAllowed(input.bucket, input.mimeType);
 
-  const extension = getFileExtension(input.fileName, input.mimeType);
-  const path = `${input.userId}/${randomUUID()}.${extension}`;
+  const extension = getFileExtension(input.mimeType);
+  const ownerId = await getAuthenticatedUserId();
+  const path = `${ownerId}/${randomUUID()}.${extension}`;
 
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase.storage
@@ -114,13 +156,19 @@ export async function confirmUpload(data: {
 }): Promise<StorageAssetRow> {
   const input = confirmUploadSchema.parse(data);
   assertMimeTypeAllowed(input.bucketId, input.mimeType);
+  assertByteSizeAllowed(input.bucketId, input.byteSize);
+  assertAssetKindAllowed(input.bucketId, input.assetKind);
+  assertObjectPathMatchesMimeType(input.objectPath, input.mimeType);
+
+  const ownerId = await getAuthenticatedUserId();
+  assertObjectPathOwnedByUser(input.objectPath, ownerId);
 
   const supabase = createSupabaseAdminClient();
   const { data: asset, error } = await supabase
     .from("storage_assets")
     .upsert(
       {
-        owner_id: input.ownerId,
+        owner_id: ownerId,
         bucket_id: input.bucketId,
         object_path: input.objectPath,
         asset_kind: input.assetKind,

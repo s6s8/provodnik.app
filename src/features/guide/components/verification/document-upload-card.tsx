@@ -11,6 +11,7 @@ import {
 
 import { getStorageBucketConfig } from "@/lib/storage/buckets";
 import { uploadFileToSignedUrl } from "@/lib/storage/client-upload";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideVerificationStatusDb } from "@/lib/supabase/types";
 import type {
   VerificationAssetConfirmResult,
@@ -45,6 +46,10 @@ type DocumentUploadCardProps = {
     assetId: string,
     documentType: GuideVerificationDocumentType,
   ) => Promise<VerificationDocumentLinkResult>;
+  onDeleteUploadedObject?: (data: {
+    bucketId: "guide-documents";
+    objectPath: string;
+  }) => Promise<{ ok: true } | { error: string }>;
 };
 
 type UploadState = {
@@ -56,6 +61,17 @@ type UploadState = {
 };
 
 const guideDocumentBucket = getStorageBucketConfig("guide-documents");
+
+async function deleteUploadedGuideDocument(objectPath: string) {
+  const { error } = await createSupabaseBrowserClient()
+    .storage
+    .from("guide-documents")
+    .remove([objectPath]);
+
+  if (error) {
+    throw error;
+  }
+}
 
 function getDocumentFileName(document: UploadedGuideDocument | null) {
   if (!document) return null;
@@ -72,6 +88,7 @@ export function DocumentUploadCard({
   onRequestUploadUrl,
   onConfirmAsset,
   onLinkDocument,
+  onDeleteUploadedObject,
 }: DocumentUploadCardProps) {
   const inputRef = React.useRef<HTMLInputElement | null>(null);
   const [state, setState] = React.useState<UploadState>(() => ({
@@ -176,6 +193,14 @@ export function DocumentUploadCard({
         const documentResult = await onLinkDocument(assetResult.id, documentType);
 
         if ("error" in documentResult) {
+          if (onDeleteUploadedObject) {
+            await onDeleteUploadedObject({
+              bucketId: "guide-documents",
+              objectPath: assetResult.objectPath,
+            }).catch(() => null);
+          } else {
+            await deleteUploadedGuideDocument(assetResult.objectPath).catch(() => null);
+          }
           throw new Error(documentResult.error);
         }
 
@@ -216,6 +241,7 @@ export function DocumentUploadCard({
       documentType,
       isLocked,
       onConfirmAsset,
+      onDeleteUploadedObject,
       onLinkDocument,
       onRequestUploadUrl,
       onUploadComplete,
