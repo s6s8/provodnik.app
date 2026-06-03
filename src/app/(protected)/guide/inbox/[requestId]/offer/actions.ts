@@ -63,14 +63,14 @@ export async function checkOfferAgainstLocks(args: {
 async function getCurrentUserId(): Promise<string> {
   const supabase = await createSupabaseServerClient();
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!session?.user?.id) {
+  if (!user?.id) {
     throw new Error("Не авторизован.");
   }
 
-  return session.user.id;
+  return user.id;
 }
 
 export async function submitOfferAction(

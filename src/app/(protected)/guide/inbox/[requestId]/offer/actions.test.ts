@@ -84,8 +84,9 @@ describe("submitOfferAction", () => {
 
     createSupabaseServerClientMock.mockResolvedValue({
       auth: {
-        getSession: vi.fn().mockResolvedValue({
-          data: { session: { user: { id: "guide-1" } } },
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
         }),
       },
       from,
