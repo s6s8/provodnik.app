@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 
 import type {
   ConfirmedBookingSummary,
+  JoinedGroupSummary,
   TravelerRequestSummary,
 } from "@/lib/supabase/traveler-requests";
 
@@ -43,6 +44,23 @@ const baseBooking: ConfirmedBookingSummary = {
   guide_name: "Демо Гид",
   guide_avatar_url: "/avatars/guide.jpg",
   booking_thread_id: null,
+};
+
+const baseJoinedGroup: JoinedGroupSummary = {
+  id: "joined-group-1",
+  destination: "Кострома",
+  region: "Золотое кольцо",
+  starts_on: isoDateFromNow(8),
+  start_time: "11:00",
+  ends_on: null,
+  budget_minor: 1800000,
+  participants_count: 3,
+  group_max: 6,
+  status: "open",
+  joined_at: "2026-05-28T11:00:00.000Z",
+  owner_id: "traveler-owner-1",
+  owner_name: "Мария К.",
+  owner_avatar_url: "/avatars/maria.jpg",
 };
 
 describe("TravelerRequestsScreen — lifecycle feed", () => {
@@ -108,5 +126,23 @@ describe("TravelerRequestsScreen — lifecycle feed", () => {
     );
 
     expect(screen.queryByText(/СКОРО/i)).toBeNull();
+  });
+
+  it("renders joined assembly groups with the organizer in the upcoming phase", () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[]}
+        confirmedBookings={[]}
+        joinedGroups={[baseJoinedGroup]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 2, name: /СКОРО · 1/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Кострома")).toBeInTheDocument();
+    expect(
+      screen.getByText("Сборная группа · организатор: Мария К."),
+    ).toBeInTheDocument();
   });
 });

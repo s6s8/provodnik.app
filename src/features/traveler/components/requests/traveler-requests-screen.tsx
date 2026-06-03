@@ -3,7 +3,7 @@ import {
   type Inspiration,
 } from '../empty-cabinet/empty-cabinet'
 import { groupTripsByPhase } from '../trip-card/group-by-phase'
-import type { TripPhase } from '../trip-card/trip-card-types'
+import type { TripCardModel, TripPhase } from '../trip-card/trip-card-types'
 import { CabinetSection } from './cabinet-section'
 import type {
   TravelerRequestSummary,
@@ -34,12 +34,59 @@ const phaseLabels: Record<TripPhase, string> = {
   completed: 'Завершённые',
 }
 
+function todayDateKey(): string {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function joinedGroupPhase(group: JoinedGroupSummary): TripPhase {
+  const startsOn = group.starts_on.slice(0, 10)
+  const today = todayDateKey()
+
+  if (startsOn === today) return 'today'
+  if (startsOn > today) return 'upcoming'
+  return 'completed'
+}
+
+function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
+  return {
+    id: group.id,
+    destination: group.destination,
+    startsOn: group.starts_on,
+    endsOn: group.ends_on,
+    startTime: group.start_time,
+    participantsCount: group.participants_count,
+    budget:
+      group.budget_minor == null
+        ? null
+        : { amount: group.budget_minor, currency: 'RUB' },
+    isOwnRequest: false,
+    guideName: null,
+    guideAvatarUrl: null,
+    organizerName: group.owner_name,
+  }
+}
+
 export function TravelerRequestsScreen({
   activeRequests,
   confirmedBookings,
+  joinedGroups = [],
   inspirations = [],
 }: Props) {
+  const joinedTrips = joinedGroups.map((group) => ({
+    phase: joinedGroupPhase(group),
+    trip: mapJoinedGroupToTrip(group),
+  }))
   const trips = groupTripsByPhase({ activeRequests, confirmedBookings })
+
+  for (const { phase, trip } of joinedTrips) {
+    trips[phase].push(trip)
+  }
+
   const hasTrips = phaseOrder.some((phase) => trips[phase].length > 0)
 
   if (!hasTrips) {
