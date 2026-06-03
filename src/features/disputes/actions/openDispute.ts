@@ -1,6 +1,5 @@
 "use server";
 
-import { transitionBooking } from "@/lib/bookings/state-machine";
 import { flags } from "@/lib/flags";
 import { notifyDisputeOpened } from "@/lib/notifications/triggers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -16,56 +15,21 @@ export async function openDispute(bookingId: string, reason: string) {
   const trimmed = reason.trim();
   if (!trimmed) throw new Error("Укажите причину спора.");
 
-  const { data: booking, error: bookingError } = await supabase
-    .from("bookings")
-    .select("id, traveler_id, guide_id, status")
-    .eq("id", bookingId)
-    .maybeSingle();
-
-  if (bookingError) throw bookingError;
-  if (!booking) throw new Error("Бронирование не найдено.");
-  if (!["confirmed", "completed"].includes(booking.status)) {
-    throw new Error("Спор можно открыть только по подтверждённой или завершённой поездке.");
-  }
-  if (booking.traveler_id !== user.id && booking.guide_id !== user.id) {
-    throw new Error("Спор может открыть только участник бронирования.");
-  }
-
-  // Transition booking FIRST — if this fails, no orphaned dispute is created
-  if (booking.status === "confirmed") {
-    await transitionBooking(booking.id, "disputed", user.id);
-  } else {
-    const { error: bookingUpdateError } = await supabase
-      .from("bookings")
-      .update({ status: "disputed" })
-      .eq("id", booking.id);
-    if (bookingUpdateError) throw bookingUpdateError;
-  }
-
-  // Now create the dispute record
-  const { data, error } = await supabase
-    .from("disputes")
-    .insert({
-      booking_id: bookingId,
-      opened_by: user.id,
-      status: "open",
-      reason: trimmed,
-      summary: trimmed,
-    })
-    .select("id")
-    .single();
+  const { data, error } = await supabase.rpc("open_dispute", {
+    p_booking_id: bookingId,
+    p_reason: trimmed,
+  });
 
   if (error) throw error;
 
-  await notifyDisputeOpened(data.id);
+  const disputeId =
+    typeof data === "string"
+      ? data
+      : (data as { dispute_id?: string; id?: string } | null)?.dispute_id ??
+        (data as { id?: string } | null)?.id;
+  if (!disputeId) throw new Error("Не удалось открыть спор.");
 
-  const { error: eventError } = await supabase.from("dispute_events").insert({
-    dispute_id: data.id,
-    actor_id: user.id,
-    event_type: "dispute_opened",
-    payload: { reason: trimmed },
-  });
-  if (eventError) throw eventError;
+  await notifyDisputeOpened(disputeId);
 
-  return { success: true, disputeId: data.id };
+  return { success: true, disputeId };
 }

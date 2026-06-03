@@ -3,6 +3,16 @@
 import { recalculateGuideStats } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+type ReviewAxis = "material" | "engagement" | "knowledge" | "route";
+
+function validateReviewAxes(axes: Array<[ReviewAxis, number]>) {
+  for (const [axis, score] of axes) {
+    if (typeof score !== "number" || score < 1 || score > 5 || !Number.isInteger(score)) {
+      throw new Error(`Оценка "${axis}" должна быть целым числом от 1 до 5.`);
+    }
+  }
+}
+
 export async function submitReview(data: {
   bookingId: string;
   guideId: string;
@@ -19,6 +29,14 @@ export async function submitReview(data: {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+
+  const axes: Array<[ReviewAxis, number]> = [
+    ["material", data.material],
+    ["engagement", data.engagement],
+    ["knowledge", data.knowledge],
+    ["route", data.route],
+  ];
+  validateReviewAxes(axes);
 
   const listingId =
     data.listingId && data.listingId.length > 0 ? data.listingId : null;
@@ -57,49 +75,28 @@ export async function submitReview(data: {
 
   const resolvedListingId = listingId ?? booking.listing_id ?? null;
 
-  const { data: review, error } = await supabase
-    .from("reviews")
-    .insert({
-      booking_id: data.bookingId,
-      traveler_id: user.id,
-      guide_id: data.guideId,
-      listing_id: resolvedListingId,
-      rating: data.overall,
-      body: data.body.trim(),
-      status: "published",
-    })
-    .select("id")
-    .single();
+  const { data: review, error } = await supabase.rpc("submit_review", {
+    p_booking_id: data.bookingId,
+    p_guide_id: data.guideId,
+    p_listing_id: resolvedListingId,
+    p_overall: data.overall,
+    p_body: data.body.trim(),
+    p_material: data.material,
+    p_engagement: data.engagement,
+    p_knowledge: data.knowledge,
+    p_route: data.route,
+  });
 
   if (error || !review) throw new Error(error?.message ?? "Failed to submit review");
 
-  // Validate all axis scores are in 1-5 range
-  const axes: Array<[string, number]> = [
-    ["material", data.material],
-    ["engagement", data.engagement],
-    ["knowledge", data.knowledge],
-    ["route", data.route],
-  ];
-
-  for (const [axis, score] of axes) {
-    if (typeof score !== "number" || score < 1 || score > 5 || !Number.isInteger(score)) {
-      throw new Error(`Оценка "${axis}" должна быть целым числом от 1 до 5.`);
-    }
-  }
-
-  const { error: breakdownError } = await supabase
-    .from("review_ratings_breakdown")
-    .insert(
-      axes.map(([axis, score]) => ({
-        review_id: review.id,
-        axis,
-        score,
-      })),
-    );
-
-  if (breakdownError) throw new Error(breakdownError.message);
+  const reviewId =
+    typeof review === "string"
+      ? review
+      : (review as { review_id?: string; id?: string }).review_id ??
+        (review as { id?: string }).id;
+  if (!reviewId) throw new Error("Failed to submit review");
 
   await recalculateGuideStats(data.guideId);
 
-  return { reviewId: review.id };
+  return { reviewId };
 }

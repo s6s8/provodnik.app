@@ -18,6 +18,7 @@ type SupabaseChain = {
   update: ReturnType<typeof vi.fn>
   updateEq: ReturnType<typeof vi.fn>
   updateEq2: ReturnType<typeof vi.fn>
+  updateSelect: ReturnType<typeof vi.fn>
   updateMaybeSingle: ReturnType<typeof vi.fn>
 }
 
@@ -26,6 +27,7 @@ function makeSupabase(opts: {
   offer?: Record<string, unknown> | null
   request?: Record<string, unknown> | null
   updateError?: string | null
+  updatedOffer?: { id: string } | null
 }): SupabaseChain {
   const user = opts.user ?? null
   const offer = opts.offer ?? null
@@ -50,11 +52,12 @@ function makeSupabase(opts: {
   const requestSelectEq = vi.fn(() => ({ maybeSingle: requestMaybeSingle }))
   const requestSelect = vi.fn(() => ({ eq: requestSelectEq }))
 
-  const updateResult = {
-    data: null,
+  const updateMaybeSingle = vi.fn().mockResolvedValue({
+    data: opts.updateError ? null : (opts.updatedOffer ?? { id: 'offer-1' }),
     error: opts.updateError ?? null,
-  }
-  const updateEq2 = vi.fn().mockResolvedValue(updateResult)
+  })
+  const updateSelect = vi.fn(() => ({ maybeSingle: updateMaybeSingle }))
+  const updateEq2 = vi.fn(() => ({ select: updateSelect }))
   const updateEq = vi.fn(() => ({ eq: updateEq2 }))
   const update = vi.fn(() => ({ eq: updateEq }))
 
@@ -83,7 +86,8 @@ function makeSupabase(opts: {
     update,
     updateEq,
     updateEq2,
-    updateMaybeSingle: offerMaybeSingle,
+    updateSelect,
+    updateMaybeSingle,
   }
 }
 
