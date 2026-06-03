@@ -75,6 +75,7 @@ export function HomepageRequestForm({ destinations }: Props) {
 
   const mode = useWatch({ control, name: "mode" });
   const isAssembly = mode === "assembly";
+  const dateFlexibility = useWatch({ control, name: "dateFlexibility" });
   const watchedGroupSize = useWatch({ control, name: "groupSize" });
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
   const selectedInterests = interestsField.value ?? [];
@@ -182,13 +183,13 @@ export function HomepageRequestForm({ destinations }: Props) {
               onClick={() =>
                 setValue(
                   "dateFlexibility",
-                  watch("dateFlexibility") !== "exact" ? "exact" : "few_days",
+                  dateFlexibility !== "exact" ? "exact" : "few_days",
                   { shouldDirty: true },
                 )
               }
               className={cn(
                 "flex items-center justify-center rounded-md border px-2 py-0.5 text-base font-bold leading-none transition-colors",
-                watch("dateFlexibility") !== "exact"
+                dateFlexibility !== "exact"
                   ? "border-primary bg-primary/8 text-primary"
                   : "border-input text-muted-foreground hover:text-foreground",
               )}
