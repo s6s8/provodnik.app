@@ -30,7 +30,7 @@ type RequestCardSample = {
   price: string;
 };
 
-type GroupTypeBadgeVariant = "quiet" | "weight" | "weight-icon";
+type GroupTypeBadgeVariant = "quiet" | "weight" | "weight-icon" | "outline-color";
 
 type BadgeVariantSection = {
   variant: GroupTypeBadgeVariant;
@@ -116,9 +116,10 @@ const themeMap = new Map(THEMES.map((theme) => [theme.slug, theme]));
 const datesFlexibleBadgeClassName =
   "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
 const groupTypeBadgeBaseClassName =
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium text-ink-2";
-const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border`;
-const groupTypeBadgeFilledClassName = `${groupTypeBadgeBaseClassName} bg-surface-low`;
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
+const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
+const groupTypeBadgeFilledClassName = `${groupTypeBadgeBaseClassName} bg-surface-low text-ink-2`;
+const groupTypeBadgePrimaryOutlineClassName = `${groupTypeBadgeBaseClassName} border border-primary/40 text-primary`;
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
@@ -170,6 +171,10 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guide
 }
 
 function getGroupTypeBadgeClassName(mode: RequestCardSample["mode"], variant: GroupTypeBadgeVariant) {
+  if (variant === "outline-color") {
+    return mode === "assembly" ? groupTypeBadgePrimaryOutlineClassName : groupTypeBadgeOutlineClassName;
+  }
+
   if (mode === "private" && variant !== "quiet") {
     return groupTypeBadgeFilledClassName;
   }
@@ -186,6 +191,10 @@ function GroupTypeIcon({
 }) {
   if (mode === "private") {
     return <Users size={14} className="text-ink-2" />;
+  }
+
+  if (variant === "outline-color") {
+    return <UsersRound size={14} className="text-primary" />;
   }
 
   if (variant === "weight-icon") {
@@ -320,6 +329,34 @@ function ThemeComparisonSection() {
   );
 }
 
+function OutlineColorSection() {
+  return (
+    <section aria-labelledby="outline-color-heading">
+      <div className="mb-4">
+        <h2
+          id="outline-color-heading"
+          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+        >
+          5 · Контур: цвет рамки = тип
+        </h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Своя — нейтральный серый контур, сборная — холодный контур цвета primary + силуэт UsersRound; заливку
+          по-прежнему несёт только статус-бейдж.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {samples.map((sample) => (
+          <div key={`outline-color-${sample.href}`} className="flex h-full flex-col space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
+            <RequestCard sample={sample} variant="outline-color" />
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
@@ -327,7 +364,7 @@ export default function DevReqCardsPage() {
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Первые три секции
-          сравнивают серую метку типа группы, затем — текстовые темы против иконок-only.
+          сравнивают серую метку типа группы, затем — текстовые темы против иконок-only и контурный цвет типа.
         </p>
       </div>
 
@@ -357,6 +394,7 @@ export default function DevReqCardsPage() {
           </section>
         ))}
         <ThemeComparisonSection />
+        <OutlineColorSection />
       </div>
     </main>
   );
