@@ -179,7 +179,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       </div>
 
       {/* 3. Даты и время */}
-      <div className="grid gap-3 sm:grid-cols-3 sm:items-end sm:gap-2">
+      <div className="grid gap-3 sm:grid-cols-3 sm:items-start sm:gap-2">
         <div className="grid gap-2">
           <FieldLabel htmlFor="startDate">Дата</FieldLabel>
           <Input
@@ -303,7 +303,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-wrap gap-2">
           {visibleThemes.map((theme) => {
             const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
