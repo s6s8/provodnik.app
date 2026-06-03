@@ -109,7 +109,7 @@ const themeLabelChipClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 
 function getPrototypeGroupLabel(groupType: RequestCardSample["groupType"]) {
-  return groupType === "private" ? "Своя группа" : "Открытая";
+  return groupType === "private" ? "Своя группа" : "Сборная группа";
 }
 
 function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guideState"] }) {
