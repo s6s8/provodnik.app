@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 
 import { FavoritesManager } from "@/features/favorites/components/FavoritesManager";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { FavoritesFolderRow, FavoritesItemRow } from "@/lib/supabase/types";
@@ -12,7 +13,7 @@ export default async function FavoritesPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/auth");
+  if (!user) redirect(buildAuthLoginRedirect("/favorites"));
 
   const { data: folders } = await supabase
     .from("favorites_folders")

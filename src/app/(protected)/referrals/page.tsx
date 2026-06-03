@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { BonusLedger } from "@/features/referrals/components/BonusLedger";
 import { ReferralCode } from "@/features/referrals/components/ReferralCode";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { hasSupabaseEnv } from "@/lib/env";
 import { flags } from "@/lib/flags";
 import type { BonusLedgerRow } from "@/lib/supabase/types";
@@ -32,7 +33,7 @@ export default async function ReferralsPage() {
     error: authError,
   } = await supabase.auth.getUser();
 
-  if (authError || !user) redirect("/auth");
+  if (authError || !user) redirect(buildAuthLoginRedirect("/referrals"));
 
   const { data: myCodeRow } = await supabase
     .from("referral_codes")

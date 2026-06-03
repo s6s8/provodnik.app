@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { DisputeThread } from "@/features/disputes/components/DisputeThread";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -23,7 +24,7 @@ export default async function DisputeDetailPage({
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth");
+    redirect(buildAuthLoginRedirect(`/disputes/${id}`));
   }
 
   const { data: profile } = await supabase

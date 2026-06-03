@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { ApiTokenManager } from "@/features/partner/components/ApiTokenManager";
 import { PayoutsLedger } from "@/features/partner/components/PayoutsLedger";
+import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -19,7 +20,7 @@ export default async function PartnerCabinetPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/auth");
+  if (!user) redirect(buildAuthLoginRedirect("/partner"));
 
   const { data: account } = await supabase
     .from("partner_accounts")
