@@ -1,5 +1,5 @@
 import { kopecksToRub } from "@/data/money";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAdminSession } from "@/lib/supabase/moderation";
 import { EmptyState } from "@/components/shared/empty-state";
 
 import { confirmPaymentAction } from "./actions";
@@ -17,8 +17,8 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 export default async function BookingsPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: bookings } = await supabase
+  const { adminClient } = await requireAdminSession();
+  const { data: bookings } = await adminClient
     .from("bookings")
     .select(
       "id, status, subtotal_minor, currency, starts_at, created_at, traveler_id, guide_id",

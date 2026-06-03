@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireAdminSession } from "@/lib/supabase/moderation";
 
 export const metadata: Metadata = {
   title: "Журнал действий",
@@ -56,10 +56,10 @@ function profileDisplay(
 }
 
 export default async function AdminAuditPage() {
-  const supabase = await createSupabaseServerClient();
+  const { adminClient } = await requireAdminSession();
 
   const [actionsResult, listingEventsResult] = await Promise.all([
-    supabase
+    adminClient
       .from("moderation_actions")
       .select(
         `id, created_at, decision, note, admin_id,
@@ -70,7 +70,7 @@ export default async function AdminAuditPage() {
       )
       .order("created_at", { ascending: false })
       .limit(PAGE_SIZE),
-    supabase
+    adminClient
       .from("listing_moderation_events")
       .select(
         `id, created_at, from_status, to_status, reason, listing_id, actor_id,
