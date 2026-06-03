@@ -180,10 +180,10 @@ function ParticipantStack({
       ))}
       {participantCount > 1 ? (
         <span
-          className="flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-ink-2 text-[0.625rem] font-semibold text-primary-foreground"
+          className="flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-ink-2 text-[0.625rem] font-semibold text-surface-high"
           data-testid="participant-count-badge"
         >
-          +{participantCount}
+          {participantCount}
         </span>
       ) : null}
     </div>
