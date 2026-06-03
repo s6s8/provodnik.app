@@ -64,7 +64,7 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardFinalGuideSta
 }
 
 function getGroupLabel(groupType: RequestCardFinalGroupType) {
-  return groupType === "private" ? "Своя группа" : "Сборная";
+  return groupType === "private" ? "Своя группа" : "Открытая";
 }
 
 function GroupTypeBadge({ groupType }: { groupType: RequestCardFinalGroupType }) {

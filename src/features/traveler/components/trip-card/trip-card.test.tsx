@@ -276,7 +276,7 @@ describe("TripCard", () => {
       />,
     );
     expect(
-      screen.getByText("Сборная группа · организатор: Мария К."),
+      screen.getByText("Открытая группа · организатор: Мария К."),
     ).toBeInTheDocument();
   });
 

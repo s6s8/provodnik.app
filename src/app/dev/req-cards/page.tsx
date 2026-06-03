@@ -75,7 +75,7 @@ const samples = [
     price: "7 900 ₽ / чел",
   },
   {
-    scenario: "Сборная · Ждёт гида",
+    scenario: "Открытая · Ждёт гида",
     href: "/requests/kakheti-wine",
     location: "Кахетия",
     date: "5 июля, 11:30",
@@ -93,7 +93,7 @@ const samples = [
     price: "6 800 ₽ / чел",
   },
   {
-    scenario: "Сборная · Гид найден",
+    scenario: "Открытая · Гид найден",
     href: "/requests/svaneti-mountains",
     location: "Сванетия",
     date: "14 августа, 09:00",
@@ -135,12 +135,12 @@ const badgeVariantSections = [
   {
     variant: "weight",
     title: "2 · Вес: заливка vs контур",
-    description: "Своя группа получает тихую серую заливку, сборная остаётся контурной без цветового акцента.",
+    description: "Своя группа получает тихую серую заливку, открытая остаётся контурной без цветового акцента.",
   },
   {
     variant: "weight-icon",
     title: "3 · Вес + силуэт иконки",
-    description: "К весу добавлен другой силуэт для сборной: UsersRound вместо UserPlus.",
+    description: "К весу добавлен другой силуэт для открытой: UsersRound вместо UserPlus.",
   },
 ] satisfies BadgeVariantSection[];
 
@@ -152,7 +152,7 @@ function getInterestThemes(interests: ThemeSlug[]) {
 }
 
 function getGroupLabel(mode: RequestCardSample["mode"]) {
-  return mode === "private" ? "Своя группа" : "Сборная";
+  return mode === "private" ? "Своя группа" : "Открытая";
 }
 
 function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guideState"] }) {
@@ -342,7 +342,7 @@ function OutlineColorSection() {
           5 · Контур: цвет рамки = тип
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Своя — нейтральный серый контур, сборная — холодный контур цвета primary; заливку по-прежнему несёт
+          Своя — нейтральный серый контур, открытая — холодный контур цвета primary; заливку по-прежнему несёт
           только статус-бейдж.
         </p>
       </div>

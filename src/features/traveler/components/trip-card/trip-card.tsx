@@ -210,7 +210,7 @@ function TripCardContent({
       )}
       {!trip.isOwnRequest && trip.organizerName && (
         <p className="text-sm">
-          Сборная группа · организатор: {trip.organizerName}
+          Открытая группа · организатор: {trip.organizerName}
         </p>
       )}
       {shouldShowMeetingPoint(phase, trip.startsOn) && meetingPoint && (

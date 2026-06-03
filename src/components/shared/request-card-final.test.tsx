@@ -34,7 +34,7 @@ describe("RequestCardFinal", () => {
 
     expect(screen.getByRole("link", { name: /Кахетия/ })).toHaveAttribute("href", "/requests/kakheti");
     expect(screen.getByText("Гид найден").closest("span")).toHaveClass("bg-success/10", "text-success");
-    expect(screen.getByText("Сборная").closest("span")).toHaveClass("border-primary/40", "text-primary");
+    expect(screen.getByText("Открытая").closest("span")).toHaveClass("border-primary/40", "text-primary");
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
     expect(screen.getByText("5 июля, 11:30")).toBeInTheDocument();
     expect(screen.queryByText(/2\s*\/\s*\d+/)).not.toBeInTheDocument();

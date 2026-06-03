@@ -27,7 +27,7 @@ describe("/dev/req-cards", () => {
     expect(screen.getAllByRole("link")).toHaveLength(24);
 
     const privateChips = screen.getAllByText("Своя группа").map((label) => label.closest("span"));
-    const assemblyChips = screen.getAllByText("Сборная").map((label) => label.closest("span"));
+    const assemblyChips = screen.getAllByText("Открытая").map((label) => label.closest("span"));
 
     expect(privateChips).toHaveLength(12);
     expect(assemblyChips).toHaveLength(12);
@@ -66,7 +66,7 @@ describe("/dev/req-cards", () => {
     expect(outlineColorSection).not.toBeNull();
 
     const privateChips = within(outlineColorSection!).getAllByText("Своя группа").map((label) => label.closest("span"));
-    const assemblyChips = within(outlineColorSection!).getAllByText("Сборная").map((label) => label.closest("span"));
+    const assemblyChips = within(outlineColorSection!).getAllByText("Открытая").map((label) => label.closest("span"));
 
     expect(privateChips).toHaveLength(2);
     expect(assemblyChips).toHaveLength(2);
