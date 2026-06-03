@@ -23,6 +23,22 @@ describe("resolveDisplayName", () => {
     );
   });
 
+  it("masks traveler names by default for cross-user display", () => {
+    expect(
+      resolveDisplayName("traveler", { full_name: "Анна Петрова" }),
+    ).toBe("Путешественник");
+  });
+
+  it("reveals traveler names only in trusted context", () => {
+    expect(
+      resolveDisplayName(
+        "traveler",
+        { full_name: "  Анна Петрова  " },
+        { context: "trusted" },
+      ),
+    ).toBe("Анна Петрова");
+  });
+
   it("returns «Путешественник» on inbox-card context regardless of name", () => {
     expect(
       resolveDisplayName(

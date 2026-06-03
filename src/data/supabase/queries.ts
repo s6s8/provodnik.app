@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 import { formatRussianDateRange } from "@/lib/dates";
+import { maskPii } from "@/lib/pii/mask";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
@@ -429,11 +430,11 @@ async function fetchMembersForRequests(db: SupabaseClient, requestIds: string[])
     const profileRaw = row.profiles as unknown;
     const profile = Array.isArray(profileRaw) ? profileRaw[0] as Record<string, unknown> | undefined : profileRaw as Record<string, unknown> | null;
     const fullName = (profile?.full_name as string) ?? "Участник";
+    const { displayName, initials } = maskRequesterIdentity(fullName);
     const member: RequestMember = {
       id: (profile?.id as string) ?? row.traveler_id,
-      displayName: fullName,
-      initials: getInitials(fullName),
-      avatarUrl: (profile?.avatar_url as string) ?? undefined,
+      displayName,
+      initials,
     };
     const list = map.get(reqId) ?? [];
     list.push(member);
@@ -629,11 +630,12 @@ export async function getOpenRequests(
         : (profileRaw as Record<string, unknown> | null);
       const fullName =
         (profile?.full_name as string | undefined)?.trim() || "Путешественник";
+      const { displayName, initials } = maskRequesterIdentity(fullName);
       return mapRequestRow(
         row,
-        fullName,
-        getInitials(fullName),
-        (profile?.avatar_url as string | null) ?? null,
+        displayName,
+        initials,
+        null,
       );
     });
     const membersMap = await fetchMembersForRequests(db, records.map((r) => r.id));
@@ -865,7 +867,7 @@ export async function getOffersForRequest(
         guideName: row.title ?? "Локальный гид",
         priceRub: Math.round(row.price_minor / 100),
         capacity: row.capacity,
-        message: row.message ?? "",
+        message: maskPii(row.message ?? ""),
         guideRating: 4.8,
         status: row.status,
       })),

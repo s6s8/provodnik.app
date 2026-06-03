@@ -89,27 +89,27 @@ describe("maskMessageBodies", () => {
     expect(out.body).toContain(maskPii(phone));
   });
 
-  it("preserves non-body fields verbatim via spread (same nested references)", () => {
-    const sender_profile = { full_name: "Мария" };
-    const metadata = { x: 1 };
+  it("returns only the whitelisted message shape", () => {
     const row = {
       id: "00000000-0000-4000-8000-000000000002",
       thread_id: "00000000-0000-4000-8000-000000000003",
       sender_id: "00000000-0000-4000-8000-000000000004",
       sender_role: "guide" as const,
       body: "+7 999 1234567",
-      metadata,
+      metadata: { contact: "+79991234567" },
       created_at: "2025-01-16T08:30:00.000Z",
-      sender_profile,
+      sender_profile: { full_name: "Мария", email: "maria@example.com" },
+      internal_notes: "call +79991234567",
     };
     const [out] = maskMessageBodies([row]);
-    expect(out.id).toBe(row.id);
-    expect(out.thread_id).toBe(row.thread_id);
-    expect(out.sender_id).toBe(row.sender_id);
-    expect(out.sender_role).toBe(row.sender_role);
-    expect(out.created_at).toBe(row.created_at);
-    expect(out.metadata).toBe(metadata);
-    expect(out.sender_profile).toBe(sender_profile);
+    expect(out).toEqual({
+      id: row.id,
+      thread_id: row.thread_id,
+      sender_id: row.sender_id,
+      sender_role: row.sender_role,
+      body: HIDDEN,
+      created_at: row.created_at,
+    });
   });
 
   it("round-trips an empty array", () => {

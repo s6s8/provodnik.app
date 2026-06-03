@@ -53,12 +53,19 @@ export function hasPii(text: string | null | undefined): boolean {
 }
 
 /**
- * Visual-only masking for chat message rows: replaces `body` via {@link maskPii};
- * all other fields are shallow-copied unchanged (DB payloads stay raw elsewhere).
+ * Visual-only masking for chat message rows: returns only fields needed for
+ * rendering the message body so nested payloads cannot leak raw contact data.
  */
 export function maskMessageBodies<T extends { body: string }>(messages: T[]): T[] {
-  return messages.map((m) => ({
-    ...m,
-    body: maskPii(m.body),
-  }));
+  return messages.map((message) => {
+    const row = message as Record<string, unknown>;
+    return {
+      id: row.id,
+      thread_id: row.thread_id,
+      sender_id: row.sender_id,
+      sender_role: row.sender_role,
+      body: maskPii(message.body),
+      created_at: row.created_at,
+    } as unknown as T;
+  });
 }

@@ -5,20 +5,32 @@ type EmailTemplate = {
   html: string;
 };
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 export function renderNewOfferEmail(args: {
   guideName: string;
   requestUrl: string;
 }): EmailTemplate {
+  const guideName = escapeHtml(args.guideName);
+  const requestUrl = escapeHtml(args.requestUrl);
+
   return {
     subject: `Новое предложение от ${args.guideName} — Provodnik`,
     html: `
       <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
         <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">Новое предложение</h2>
         <p style="color: #555; margin-bottom: 24px;">
-          Гид ${args.guideName} откликнулся на ваш запрос.<br/>
+          Гид ${guideName} откликнулся на ваш запрос.<br/>
           Нажмите кнопку ниже, чтобы посмотреть предложение.
         </p>
-        <a href="${args.requestUrl}"
+        <a href="${requestUrl}"
            style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500;">
           Посмотреть предложение
         </a>
@@ -30,6 +42,8 @@ export function renderNewOfferEmail(args: {
 export function renderBookingCreatedEmail(args: {
   bookingUrl: string;
 }): EmailTemplate {
+  const bookingUrl = escapeHtml(args.bookingUrl);
+
   return {
     subject: "Новое бронирование — Provodnik",
     html: `
@@ -39,7 +53,7 @@ export function renderBookingCreatedEmail(args: {
           У вас новое бронирование.<br/>
           Нажмите кнопку ниже, чтобы открыть детали.
         </p>
-        <a href="${args.bookingUrl}"
+        <a href="${bookingUrl}"
            style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500;">
           Открыть бронирование
         </a>
@@ -51,6 +65,8 @@ export function renderBookingCreatedEmail(args: {
 export function renderBookingCancelledEmail(args: {
   bookingUrl: string;
 }): EmailTemplate {
+  const bookingUrl = escapeHtml(args.bookingUrl);
+
   return {
     subject: "Бронирование отменено — Provodnik",
     html: `
@@ -60,7 +76,7 @@ export function renderBookingCancelledEmail(args: {
           Бронирование было отменено.<br/>
           Нажмите кнопку ниже, чтобы открыть детали.
         </p>
-        <a href="${args.bookingUrl}"
+        <a href="${bookingUrl}"
            style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500;">
           Открыть бронирование
         </a>

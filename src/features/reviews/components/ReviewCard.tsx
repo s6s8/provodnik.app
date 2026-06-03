@@ -75,7 +75,7 @@ export function ReviewCard({
             <Separator />
             <div className="space-y-2">
               <p className="text-sm font-medium text-foreground">Ответ гида:</p>
-              <p className="whitespace-pre-wrap text-sm text-foreground">{reply.body}</p>
+              <p className="whitespace-pre-wrap text-sm text-foreground">{maskPii(reply.body)}</p>
             </div>
           </>
         ) : null}
