@@ -80,7 +80,7 @@ describe("/dev/req-cards", () => {
     for (const chip of assemblyChips) {
       expect(chip).toHaveClass("border", "border-primary/40", "text-primary");
       expect(chip).not.toHaveClass("bg-surface-low", "border-border", "text-ink-2");
-      expect(chip?.querySelector(".lucide-users-round")).not.toBeNull();
+      expect(chip?.querySelector(".lucide-users")).not.toBeNull();
     }
   });
 

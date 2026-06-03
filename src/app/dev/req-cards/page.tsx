@@ -95,7 +95,7 @@ const samples = [
     scenario: "Сборная · Гид найден",
     href: "/requests/svaneti-mountains",
     location: "Сванетия",
-    date: "14–16 августа, 09:00",
+    date: "14 августа, 09:00",
     mode: "assembly",
     guideState: "found",
     groupSize: 5,
@@ -158,14 +158,14 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guide
   if (guideState === "found") {
     return (
       <span className={foundGuideBadgeClassName}>
-        <Check size={14} className="text-success" /> Гид найден
+        Гид найден <Check size={14} className="text-success" />
       </span>
     );
   }
 
   return (
     <span className={waitingGuideBadgeClassName}>
-      <Hand size={14} className="text-warning" /> Ждёт гида
+      Ждёт гида <Hand size={14} className="text-warning" />
     </span>
   );
 }
@@ -194,7 +194,7 @@ function GroupTypeIcon({
   }
 
   if (variant === "outline-color") {
-    return <UsersRound size={14} className="text-primary" />;
+    return <Users size={14} className="text-primary" />;
   }
 
   if (variant === "weight-icon") {
@@ -341,8 +341,8 @@ function OutlineColorSection() {
           5 · Контур: цвет рамки = тип
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Своя — нейтральный серый контур, сборная — холодный контур цвета primary + силуэт UsersRound; заливку
-          по-прежнему несёт только статус-бейдж.
+          Своя — нейтральный серый контур, сборная — холодный контур цвета primary; заливку по-прежнему несёт
+          только статус-бейдж.
         </p>
       </div>
 
