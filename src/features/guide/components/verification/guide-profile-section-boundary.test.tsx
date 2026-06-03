@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import * as React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { GuideProfileSectionBoundary } from "./guide-profile-section-boundary";
@@ -63,5 +64,43 @@ describe("GuideProfileSectionBoundary", () => {
     expect(
       screen.getByText("Раздел временно недоступен. Остальная часть профиля продолжает работать."),
     ).toBeInTheDocument();
+  });
+
+  it("resets the client error boundary when the section id changes", () => {
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    function ThrowingSectionChild(): never {
+      throw new Error("child render failed");
+    }
+
+    function Harness() {
+      const [sectionId, setSectionId] = React.useState("verification");
+      return (
+        <>
+          <button type="button" onClick={() => setSectionId("about")}>
+            Сменить раздел
+          </button>
+          <GuideProfileSectionBoundary id={sectionId} title="Верификация">
+            {() =>
+              sectionId === "verification" ? (
+                <ThrowingSectionChild />
+              ) : (
+                <p>Раздел восстановлен</p>
+              )
+            }
+          </GuideProfileSectionBoundary>
+        </>
+      );
+    }
+
+    render(<Harness />);
+
+    expect(
+      screen.getByText("Раздел временно недоступен. Остальная часть профиля продолжает работать."),
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Сменить раздел" }));
+
+    expect(screen.getByText("Раздел восстановлен")).toBeInTheDocument();
   });
 });

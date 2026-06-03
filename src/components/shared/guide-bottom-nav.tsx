@@ -16,9 +16,13 @@ const items = [
   { href: "/guide/profile", label: "Профиль", Icon: User },
 ] as const;
 
-export function GuideBottomNav() {
+type GuideBottomNavProps = {
+  isAuthenticated?: boolean;
+};
+
+export function GuideBottomNav({ isAuthenticated = true }: GuideBottomNavProps) {
   const pathname = usePathname();
-  const { unreadCount } = useUnreadCount(true);
+  const { unreadCount } = useUnreadCount(isAuthenticated);
 
   return (
     <div

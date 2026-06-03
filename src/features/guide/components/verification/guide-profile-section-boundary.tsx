@@ -27,7 +27,7 @@ export function GuideProfileSectionBoundary({
 
   return (
     <section id={id} className="scroll-mt-[calc(var(--nav-h)+1rem)]">
-      <GuideProfileSectionClientBoundary sectionId={id} title={title}>
+      <GuideProfileSectionClientBoundary key={id} sectionId={id} title={title}>
         {content}
       </GuideProfileSectionClientBoundary>
     </section>

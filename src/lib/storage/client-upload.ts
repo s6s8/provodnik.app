@@ -1,41 +1,41 @@
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+
+function parseSignedUploadUrl(signedUrl: string): { bucket: string; path: string; token: string } {
+  const url = new URL(signedUrl);
+  const match = url.pathname.match(/\/object\/upload\/sign\/([^/]+)\/(.+)$/);
+  const token = url.searchParams.get("token");
+
+  if (!match || !token) {
+    throw new Error("Не удалось подготовить ссылку для загрузки файла.");
+  }
+
+  return {
+    bucket: decodeURIComponent(match[1]),
+    path: decodeURIComponent(match[2]),
+    token,
+  };
+}
+
 export function uploadFileToSignedUrl(input: {
   signedUrl: string;
   file: File;
   onProgress?: (progress: number) => void;
 }) {
   const { signedUrl, file, onProgress } = input;
+  const { bucket, path, token } = parseSignedUploadUrl(signedUrl);
 
-  return new Promise<void>((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    const formData = new FormData();
-
-    formData.append("cacheControl", "3600");
-    formData.append("", file);
-
-    xhr.upload.addEventListener("progress", (event) => {
-      if (!event.lengthComputable) {
-        return;
+  return createSupabaseBrowserClient()
+    .storage
+    .from(bucket)
+    .uploadToSignedUrl(path, token, file, {
+      cacheControl: "3600",
+      upsert: false,
+    })
+    .then(({ error }) => {
+      if (error) {
+        throw new Error("Хранилище вернуло ошибку при загрузке файла.");
       }
 
-      onProgress?.(Math.round((event.loaded / event.total) * 100));
+      onProgress?.(100);
     });
-
-    xhr.addEventListener("error", () => {
-      reject(new Error("Не удалось загрузить файл в хранилище."));
-    });
-
-    xhr.addEventListener("load", () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        onProgress?.(100);
-        resolve();
-        return;
-      }
-
-      reject(new Error("Хранилище вернуло ошибку при загрузке файла."));
-    });
-
-    xhr.open("PUT", signedUrl);
-    xhr.setRequestHeader("x-upsert", "false");
-    xhr.send(formData);
-  });
 }

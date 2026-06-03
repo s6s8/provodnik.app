@@ -1,15 +1,30 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RequestRecord } from "@/data/supabase/queries";
 
-vi.mock("@/app/(protected)/guide/inbox/[requestId]/offer/actions", () => ({
+const { submitOfferAction, verificationStatus } = vi.hoisted(() => ({
   submitOfferAction: vi.fn(),
+  verificationStatus: { value: "approved" as string | null },
+}));
+
+vi.mock("@/app/(protected)/guide/inbox/[requestId]/offer/actions", () => ({
+  submitOfferAction,
 }));
 
 vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: () => ({
-    auth: { getUser: async () => ({ data: { user: null } }) },
+    auth: { getUser: async () => ({ data: { user: { id: "guide-1" } } }) },
+    from: () => ({
+      select: () => ({
+        eq: () => ({
+          maybeSingle: async () => ({
+            data: { verification_status: verificationStatus.value },
+            error: null,
+          }),
+        }),
+      }),
+    }),
     storage: { from: () => ({ getPublicUrl: () => ({ data: { publicUrl: "" } }) }) },
   }),
 }));
@@ -19,6 +34,12 @@ vi.mock("@/data/guide-assets/supabase-client", () => ({
 }));
 
 import { BidFormPanel } from "./bid-form-panel";
+
+beforeEach(() => {
+  vi.clearAllMocks();
+  verificationStatus.value = "approved";
+  submitOfferAction.mockResolvedValue({ ok: true, offerId: "offer-1" });
+});
 
 const baseRequest: RequestRecord = {
   id: "req-1",
@@ -123,5 +144,28 @@ describe("BidFormPanel — headcount field", () => {
     });
 
     expect(screen.queryByText(/предложено/i)).toBeNull();
+  });
+});
+
+describe("BidFormPanel — verification gate", () => {
+  it("does not submit an offer when the guide is not approved", async () => {
+    verificationStatus.value = "submitted";
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, budgetRub: 1500 }}
+        onClose={() => {}}
+      />,
+    );
+
+    fireEvent.change(screen.getByLabelText("Сообщение гостю"), {
+      target: { value: "Готов провести маршрут по вашему запросу." },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Отправить предложение" }));
+
+    expect(
+      await screen.findByText("Предложения доступны только после одобрения профиля гида."),
+    ).toBeInTheDocument();
+    expect(submitOfferAction).not.toHaveBeenCalled();
   });
 });

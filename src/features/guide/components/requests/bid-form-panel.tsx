@@ -107,6 +107,7 @@ export function BidFormPanel({
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
   const [inclusions, setInclusions] = React.useState<string[]>([]);
   const [customInclusion, setCustomInclusion] = React.useState("");
+  const [guideVerificationStatus, setGuideVerificationStatus] = React.useState<string | null>(null);
 
   const toggleInclusion = React.useCallback((label: string) => {
     setInclusions((prev) =>
@@ -132,6 +133,14 @@ export function BidFormPanel({
       const supabase = createSupabaseBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      const { data: profile } = await supabase
+        .from("guide_profiles")
+        .select("verification_status")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      setGuideVerificationStatus(
+        typeof profile?.verification_status === "string" ? profile.verification_status : null,
+      );
       const photos = await listGuideLocationPhotos(user.id as Uuid);
       setGuidePhotos(photos.map((p) => ({
         id: p.id,
@@ -207,6 +216,10 @@ export function BidFormPanel({
     async (values: OfferFormValues) => {
       if (submitted) return;
       setServerError(null);
+      if (guideVerificationStatus !== "approved") {
+        setServerError("Предложения доступны только после одобрения профиля гида.");
+        return;
+      }
       const fd = new FormData();
       fd.set("price_total", String(values.price_total));
       fd.set("message", values.message);
@@ -250,7 +263,7 @@ export function BidFormPanel({
         setServerError(result.error);
       }
     },
-    [requestId, onSuccess, routeStops, submitted, inclusions],
+    [requestId, onSuccess, routeStops, submitted, inclusions, guideVerificationStatus],
   );
 
   return (

@@ -3,16 +3,19 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let mockPathname = "/traveler/requests";
 let mockUnreadCount = 0;
+const { useUnreadCountMock } = vi.hoisted(() => ({
+  useUnreadCountMock: vi.fn(() => ({
+    unreadCount: 0,
+    refetch: vi.fn(),
+  })),
+}));
 
 vi.mock("next/navigation", () => ({
   usePathname: () => mockPathname,
 }));
 
 vi.mock("@/features/messaging/hooks/use-unread-count", () => ({
-  useUnreadCount: () => ({
-    unreadCount: mockUnreadCount,
-    refetch: vi.fn(),
-  }),
+  useUnreadCount: useUnreadCountMock,
 }));
 
 import { SiteHeader } from "./site-header";
@@ -39,6 +42,10 @@ describe("SiteHeader desktop account menu", () => {
     vi.clearAllMocks();
     mockPathname = "/traveler/requests";
     mockUnreadCount = 0;
+    useUnreadCountMock.mockImplementation(() => ({
+      unreadCount: mockUnreadCount,
+      refetch: vi.fn(),
+    }));
   });
 
   it("shows the avatar trigger for authenticated travelers", () => {
@@ -99,6 +106,26 @@ describe("SiteHeader desktop account menu", () => {
 
     const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
     expect(trigger).toHaveTextContent("Гид");
+  });
+
+  it("keeps a neutral account menu for authenticated users before role resolution", () => {
+    render(
+      <SiteHeader
+        isAuthenticated
+        role={null}
+        email="pending@example.com"
+        userId="user-pending"
+      />,
+    );
+
+    const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
+    expect(trigger).toHaveTextContent("Аккаунт");
+  });
+
+  it("passes the authenticated state to unread message loading", () => {
+    render(<SiteHeader isAuthenticated={false} />);
+
+    expect(useUnreadCountMock).toHaveBeenCalledWith(false);
   });
 
   it("renders traveler menu items in the avatar dropdown", async () => {

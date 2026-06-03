@@ -18,4 +18,8 @@ describe("demo traveler profile cookie", () => {
     const encoded = serializeDemoTravelerProfileCookieValue(payload);
     expect(parseDemoTravelerProfileCookieValue(encoded)).toEqual(payload);
   });
+
+  it("returns null for malformed percent encoding", () => {
+    expect(parseDemoTravelerProfileCookieValue("%E0%A4%A")).toBeNull();
+  });
 });

@@ -16,6 +16,28 @@ type SignUpResult =
   | { ok: true; dashboardPath: string }
   | { ok: false; error: string };
 
+async function rollbackRecentlyCreatedAuthUser(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  userId: string,
+) {
+  const { data: checkUser, error: lookupError } = await admin.auth.admin.getUserById(userId);
+  if (lookupError) {
+    console.error("[signUpAction] auth rollback lookup failed:", lookupError);
+    return;
+  }
+
+  if (!checkUser?.user) return;
+
+  const createdAt = new Date(checkUser.user.created_at).getTime();
+  const now = Date.now();
+  if (now - createdAt >= 30_000) return;
+
+  const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
+  if (deleteError) {
+    console.error("[signUpAction] auth rollback delete failed:", deleteError);
+  }
+}
+
 export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   // Public signup allowlist: traveler and guide only. Admin and arbitrary roles
   // are rejected before any Supabase call — must be the first executable statement.
@@ -44,7 +66,10 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     return { ok: false, error: "internal" };
   }
 
-  const userId = created.user.id;
+  const userId = created.user?.id;
+  if (!userId) {
+    return { ok: false, error: "internal" };
+  }
 
   // The profiles upsert and the app_metadata update were previously unchecked:
   // a failure left an auth user with no usable profile or role claim behind a
@@ -59,16 +84,7 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   });
 
   if (profileError) {
-    // Idempotency guard: only delete if the user was created within the last 30 seconds
-    // to avoid deleting a legitimate user from a concurrent signup
-    const { data: checkUser } = await admin.auth.admin.getUserById(userId);
-    if (checkUser && checkUser.user) {
-      const createdAt = new Date(checkUser.user.created_at).getTime();
-      const now = Date.now();
-      if (now - createdAt < 30_000) {
-        await admin.auth.admin.deleteUser(userId);
-      }
-    }
+    await rollbackRecentlyCreatedAuthUser(admin, userId);
     return { ok: false, error: "profile_failed" };
   }
 
@@ -77,15 +93,7 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   });
 
   if (roleError) {
-    // Idempotency guard: only delete if the user was created within the last 30 seconds
-    const { data: checkUser } = await admin.auth.admin.getUserById(userId);
-    if (checkUser && checkUser.user) {
-      const createdAt = new Date(checkUser.user.created_at).getTime();
-      const now = Date.now();
-      if (now - createdAt < 30_000) {
-        await admin.auth.admin.deleteUser(userId);
-      }
-    }
+    await rollbackRecentlyCreatedAuthUser(admin, userId);
     return { ok: false, error: "role_failed" };
   }
 

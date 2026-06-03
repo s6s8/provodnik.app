@@ -81,6 +81,20 @@ describe("loadTravelerProfileFromSupabase", () => {
     });
   });
 
+  it("throws non-schema errors instead of hiding them as a missing profile", async () => {
+    const dbError = { message: "permission denied for table profiles", code: "42501" };
+    const { client, maybeSingleBasic } = makeSupabaseMock({
+      extended: { data: null, error: dbError },
+      basic: {
+        data: { full_name: "Алексей", avatar_url: "https://cdn/avatar.png" },
+        error: null,
+      },
+    });
+
+    await expect(loadTravelerProfileFromSupabase(client as never, "user-1")).rejects.toBe(dbError);
+    expect(maybeSingleBasic).not.toHaveBeenCalled();
+  });
+
   it("keeps full_name null when the profile row has no stored name", async () => {
     const { client } = makeSupabaseMock({
       extended: {

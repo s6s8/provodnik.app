@@ -16,6 +16,19 @@ type ProfileRow = {
   birth_year?: number | null;
 };
 
+function isMissingProfileColumnError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const { code, message } = error as { code?: unknown; message?: unknown };
+  if (code === "42703" || code === "PGRST204") return true;
+  if (typeof message !== "string") return false;
+
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("column") &&
+    (normalized.includes("does not exist") || normalized.includes("could not find"))
+  );
+}
+
 function mapProfileRow(row: ProfileRow): TravelerProfile {
   const fullName = row.full_name?.trim();
   return {
@@ -42,6 +55,10 @@ export async function loadTravelerProfileFromSupabase(
     return mapProfileRow(extended as ProfileRow);
   }
 
+  if (extendedError && !isMissingProfileColumnError(extendedError)) {
+    throw extendedError;
+  }
+
   const { data: basic, error: basicError } = await supabase
     .from("profiles")
     .select(BASIC_PROFILE_SELECT)
@@ -50,6 +67,10 @@ export async function loadTravelerProfileFromSupabase(
 
   if (!basicError && basic) {
     return mapProfileRow(basic as ProfileRow);
+  }
+
+  if (basicError) {
+    throw basicError;
   }
 
   return null;

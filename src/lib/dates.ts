@@ -10,6 +10,26 @@ const MONTH_NAMES_RU = [
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
 ];
 
+function parseISODateParts(value: string): { month: number; day: number } | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return null;
+
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  const day = Number(match[3]);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  if (
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  return { month, day };
+}
+
 /**
  * Format one or two ISO date strings (YYYY-MM-DD) as Russian-locale ranges.
  * Examples:
@@ -19,17 +39,21 @@ const MONTH_NAMES_RU = [
  */
 export function formatRussianDateRange(startsOn: string, endsOn?: string | null): string {
   if (!startsOn) return "";
-  const [, sm, sd] = startsOn.split("-").map(Number);
-  const startMonth = MONTH_NAMES_RU[(sm ?? 1) - 1] ?? "";
+  const start = parseISODateParts(startsOn);
+  if (!start) return "";
+  const startMonth = MONTH_NAMES_RU[start.month - 1] ?? "";
   if (!endsOn || endsOn === startsOn) {
-    return `${sd} ${startMonth}`;
+    return `${start.day} ${startMonth}`;
   }
-  const [, em, ed] = endsOn.split("-").map(Number);
-  const endMonth = MONTH_NAMES_RU[(em ?? 1) - 1] ?? "";
-  if (sm === em) {
-    return `${sd} – ${ed} ${endMonth}`;
+  const end = parseISODateParts(endsOn);
+  if (!end) {
+    return `${start.day} ${startMonth}`;
   }
-  return `${sd} ${startMonth} – ${ed} ${endMonth}`;
+  const endMonth = MONTH_NAMES_RU[end.month - 1] ?? "";
+  if (start.month === end.month) {
+    return `${start.day} – ${end.day} ${endMonth}`;
+  }
+  return `${start.day} ${startMonth} – ${end.day} ${endMonth}`;
 }
 
 /**

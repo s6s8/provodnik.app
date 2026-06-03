@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   createNotification,
@@ -41,11 +41,15 @@ vi.mock("@/lib/email/templates/notification-emails", () => ({
   }),
 }));
 
-import { notifyBookingCancelled } from "./triggers";
+import { notifyBookingCancelled, notifyGuidesNewRequest } from "./triggers";
 
 const bookingId = "11111111-1111-4111-8111-111111111111";
 const travelerId = "22222222-2222-4222-8222-222222222222";
 const guideId = "33333333-3333-4333-8333-333333333333";
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
 
 function createQuery(table: string, data: Record<string, unknown>) {
   let selected = "";
@@ -137,6 +141,57 @@ describe("notifyBookingCancelled", () => {
         to: "guide@example.test",
         html: `https://provodnik.test/guide/bookings/${bookingId}`,
       }),
+    );
+  });
+});
+
+describe("notifyGuidesNewRequest", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    createNotification.mockResolvedValue(undefined);
+  });
+
+  it("attempts every guide notification and throws an aggregate error for failures", async () => {
+    const request = {
+      id: bookingId,
+      destination: "Сочи",
+      interests: ["mountains"],
+      participants_count: 2,
+    };
+    const candidates = [
+      { user_id: travelerId, specialties: ["mountains"], max_group_size: 4 },
+      { user_id: guideId, specialties: ["mountains"], max_group_size: 4 },
+    ];
+    createNotification
+      .mockRejectedValueOnce(new Error("first notification failed"))
+      .mockResolvedValueOnce(undefined);
+
+    const requestQuery = {
+      select: vi.fn(() => requestQuery),
+      eq: vi.fn(() => requestQuery),
+      single: vi.fn(async () => ({ data: request, error: null })),
+    };
+    const guidesQuery = {
+      select: vi.fn(() => guidesQuery),
+      eq: vi.fn(() => guidesQuery),
+      ilike: vi.fn(() => guidesQuery),
+      or: vi.fn(async () => ({ data: candidates, error: null })),
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "traveler_requests") return requestQuery;
+        if (table === "guide_profiles") return guidesQuery;
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    await expect(notifyGuidesNewRequest(bookingId)).rejects.toThrow(AggregateError);
+    expect(createNotification).toHaveBeenCalledTimes(2);
+    expect(console.error).toHaveBeenCalledWith(
+      "[notifyGuidesNewRequest] notification failures:",
+      expect.any(AggregateError),
     );
   });
 });

@@ -367,7 +367,7 @@ export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
 
   if (!matchingGuides.length) return;
 
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     matchingGuides.map((guide) =>
       createNotificationForUser({
         userId: guide.user_id,
@@ -377,4 +377,14 @@ export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
       }),
     ),
   );
+
+  const failures = results.filter((result) => result.status === "rejected");
+  if (failures.length > 0) {
+    const error = new AggregateError(
+      failures.map((failure) => failure.reason),
+      "Не удалось отправить часть уведомлений гидам.",
+    );
+    console.error("[notifyGuidesNewRequest] notification failures:", error);
+    throw error;
+  }
 }

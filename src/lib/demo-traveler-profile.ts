@@ -17,11 +17,21 @@ function safeJsonParse(value: string): unknown {
   }
 }
 
+function safeDecodeURIComponent(value: string): string | null {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return null;
+  }
+}
+
 export function parseDemoTravelerProfileCookieValue(
   value: string | undefined,
 ): DemoTravelerProfilePayload | null {
   if (!value) return null;
-  const decoded = safeJsonParse(decodeURIComponent(value));
+  const decodedValue = safeDecodeURIComponent(value);
+  if (!decodedValue) return null;
+  const decoded = safeJsonParse(decodedValue);
   if (!decoded || typeof decoded !== "object") return null;
 
   const row = decoded as Record<string, unknown>;

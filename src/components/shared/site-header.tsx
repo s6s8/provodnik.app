@@ -63,12 +63,6 @@ const roleLabels: Record<AppRole, string> = {
   admin: "Администратор",
 };
 
-const roleDashboards: Record<AppRole, AuthRedirectTarget> = {
-  traveler: "/traveler/requests",
-  guide: "/guide",
-  admin: "/admin/dashboard",
-};
-
 interface SiteHeaderProps {
   isAuthenticated?: boolean;
   role?: AppRole | null;
@@ -86,7 +80,6 @@ export function SiteHeader({
   email = null,
   fullName = null,
   avatarUrl = null,
-  canonicalRedirectTo = null,
   userId = null,
   notificationsEnabled = false,
 }: SiteHeaderProps) {
@@ -100,10 +93,10 @@ export function SiteHeader({
     window.location.href = "/api/auth/signout";
   }
 
-  const dashboardPath = canonicalRedirectTo ?? (role ? roleDashboards[role] : null);
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
+  const accountLabel = fullName?.trim() || (role ? roleLabels[role] : "Аккаунт");
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
 
@@ -158,7 +151,7 @@ export function SiteHeader({
         </ul>
 
         <div className="flex items-center justify-self-end gap-2">
-          {showAccountIdentity && dashboardPath ? (
+          {showAccountIdentity ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -171,7 +164,7 @@ export function SiteHeader({
                     size={28}
                     className="shrink-0"
                   />
-                  {fullName?.trim() || (role ? roleLabels[role] : null)}
+                  {accountLabel}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

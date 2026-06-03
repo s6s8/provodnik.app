@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
   createUserMock,
@@ -84,10 +84,19 @@ function mockSuccessfulRegistration(userId = "user-1") {
   signInWithPasswordMock.mockResolvedValue({ data: {}, error: null });
 }
 
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
 describe("signUpAction — public signup roles", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     upsertMock.mockResolvedValue({ data: null, error: null });
+    _getUserByIdMock.mockResolvedValue({
+      data: { user: { created_at: new Date().toISOString() } },
+      error: null,
+    });
+    deleteUserMock.mockResolvedValue({ data: null, error: null });
   });
 
   it("registers role:guide with guide stamped on user, profile, and app_metadata", async () => {
@@ -147,6 +156,20 @@ describe("signUpAction — failure rollback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     upsertMock.mockResolvedValue({ data: null, error: null });
+    _getUserByIdMock.mockResolvedValue({
+      data: { user: { created_at: new Date().toISOString() } },
+      error: null,
+    });
+    deleteUserMock.mockResolvedValue({ data: null, error: null });
+  });
+
+  it("returns a controlled error when auth creation succeeds without a user id", async () => {
+    createUserMock.mockResolvedValue({ data: { user: null }, error: null });
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "internal" });
+    expect(upsertMock).not.toHaveBeenCalled();
   });
 
   it("rolls the auth user back when the profiles upsert fails", async () => {
@@ -157,6 +180,40 @@ describe("signUpAction — failure rollback", () => {
 
     expect(result).toEqual({ ok: false, error: "profile_failed" });
     expect(deleteUserMock).toHaveBeenCalledWith("user-9");
+  });
+
+  it("reports rollback lookup failures while preserving the original profile error", async () => {
+    createUserMock.mockResolvedValue({ data: { user: { id: "user-9" } }, error: null });
+    upsertMock.mockResolvedValue({ data: null, error: { message: "upsert failed" } });
+    _getUserByIdMock.mockResolvedValue({
+      data: null,
+      error: { message: "lookup failed" },
+    });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "profile_failed" });
+    expect(consoleError).toHaveBeenCalledWith(
+      "[signUpAction] auth rollback lookup failed:",
+      expect.objectContaining({ message: "lookup failed" }),
+    );
+    expect(deleteUserMock).not.toHaveBeenCalled();
+  });
+
+  it("reports rollback delete failures while preserving the original profile error", async () => {
+    createUserMock.mockResolvedValue({ data: { user: { id: "user-9" } }, error: null });
+    upsertMock.mockResolvedValue({ data: null, error: { message: "upsert failed" } });
+    deleteUserMock.mockResolvedValue({ data: null, error: { message: "delete failed" } });
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "profile_failed" });
+    expect(consoleError).toHaveBeenCalledWith(
+      "[signUpAction] auth rollback delete failed:",
+      expect.objectContaining({ message: "delete failed" }),
+    );
   });
 
   it("rolls the auth user back when the app_metadata update fails", async () => {
