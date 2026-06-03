@@ -125,20 +125,20 @@ export function RequestCardFinal({
         </div>
       </Link>
 
-      <div className="mt-auto flex flex-col gap-3 pt-4">
-        {themeSlugs.length > 0 ? (
-          <TooltipProvider>
-            <div className="flex flex-wrap gap-1.5">
-              {themeSlugs.map((slug) => (
-                <ThemeIconChip key={slug} slug={slug} />
-              ))}
-            </div>
-          </TooltipProvider>
-        ) : null}
-        <div className="flex items-center justify-between gap-3">
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+        <div className="flex min-w-0 items-center gap-2">
           <AvatarStack members={members} />
-          <span className="text-sm font-semibold text-foreground">{price}</span>
+          {themeSlugs.length > 0 ? (
+            <TooltipProvider>
+              <div className="flex min-w-0 flex-wrap gap-1.5">
+                {themeSlugs.map((slug) => (
+                  <ThemeIconChip key={slug} slug={slug} />
+                ))}
+              </div>
+            </TooltipProvider>
+          ) : null}
         </div>
+        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>
   );

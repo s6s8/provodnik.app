@@ -39,10 +39,15 @@ describe("RequestCardFinal", () => {
     expect(screen.getByText("5 июля, 11:30")).toBeInTheDocument();
     expect(screen.queryByText(/2\s*\/\s*\d+/)).not.toBeInTheDocument();
     expect(screen.queryByText(/2 чел/)).not.toBeInTheDocument();
-    expect(screen.getByText("6 800 ₽ / чел")).toBeInTheDocument();
+    const price = screen.getByText("6 800 ₽ / чел");
+    expect(price).toBeInTheDocument();
+    expect(price).toHaveClass("shrink-0", "whitespace-nowrap");
 
     const foodChip = screen.getByRole("button", { name: "Гастрономия" });
     expect(foodChip).not.toHaveTextContent("Гастрономия");
+    const bottomRow = price.parentElement;
+    expect(bottomRow).toContainElement(screen.getByTitle("Тамар"));
+    expect(bottomRow).toContainElement(foodChip);
 
     fireEvent.click(foodChip);
 
