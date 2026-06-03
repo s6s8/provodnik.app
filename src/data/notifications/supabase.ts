@@ -68,11 +68,16 @@ export async function markNotificationReadInSupabase(
   notificationId: string,
 ): Promise<void> {
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
 
   const { error } = await supabase
     .from("notifications")
     .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
-    .eq("id", notificationId);
+    .eq("id", notificationId)
+    .eq("user_id", user.id);
 
   if (error) {
     throw error;

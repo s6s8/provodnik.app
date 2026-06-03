@@ -74,6 +74,23 @@ export async function GET(
     );
   }
 
+  const { data: participant, error: participantError } = await supabase
+    .from("thread_participants")
+    .select("thread_id")
+    .eq("thread_id", params.data.threadId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (participantError || !participant) {
+    return NextResponse.json(
+      { error: "Диалог не найден." },
+      {
+        status: 404,
+        headers: withRateLimitHeaders(result.remaining),
+      },
+    );
+  }
+
   const messages = maskMessageBodies(await getThreadMessages(params.data.threadId));
   return NextResponse.json(messages, {
     headers: withRateLimitHeaders(result.remaining),

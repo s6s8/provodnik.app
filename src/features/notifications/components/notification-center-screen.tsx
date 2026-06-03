@@ -35,6 +35,7 @@ export function NotificationCenterScreen() {
   const [filter, setFilter] = React.useState<FeedFilter>("all");
   const [notifications, setNotifications] = React.useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
+  const [userId, setUserId] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     let ignore = false;
@@ -42,9 +43,17 @@ export function NotificationCenterScreen() {
     async function load() {
       try {
         const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user || ignore) return;
+
+        setUserId(user.id);
         const { data, error } = await supabase
           .from("notifications")
           .select("id, user_id, kind, title, body, href, is_read, created_at")
+          .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
         if (error || !data || ignore) return;
@@ -62,9 +71,15 @@ export function NotificationCenterScreen() {
 
   const markRead = React.useCallback(
     async (notificationId: string) => {
+      if (!userId) return;
+
       try {
         const supabase = createSupabaseBrowserClient();
-        await supabase.from("notifications").update({ is_read: true }).eq("id", notificationId);
+        await supabase
+          .from("notifications")
+          .update({ is_read: true })
+          .eq("id", notificationId)
+          .eq("user_id", userId);
       } catch {
         // ignore
       }
@@ -75,14 +90,20 @@ export function NotificationCenterScreen() {
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
     },
-    [],
+    [userId],
   );
 
   const markUnread = React.useCallback(
     async (notificationId: string) => {
+      if (!userId) return;
+
       try {
         const supabase = createSupabaseBrowserClient();
-        await supabase.from("notifications").update({ is_read: false }).eq("id", notificationId);
+        await supabase
+          .from("notifications")
+          .update({ is_read: false })
+          .eq("id", notificationId)
+          .eq("user_id", userId);
       } catch {
         // ignore
       }
@@ -91,13 +112,19 @@ export function NotificationCenterScreen() {
       );
       setUnreadCount((prev) => prev + 1);
     },
-    [],
+    [userId],
   );
 
   const markAllRead = React.useCallback(async () => {
+    if (!userId) return;
+
     try {
       const supabase = createSupabaseBrowserClient();
-      await supabase.from("notifications").update({ is_read: true }).eq("is_read", false);
+      await supabase
+        .from("notifications")
+        .update({ is_read: true })
+        .eq("user_id", userId)
+        .eq("is_read", false);
     } catch {
       // ignore
     }
@@ -105,7 +132,7 @@ export function NotificationCenterScreen() {
       prev.map((n) => (n.readAt === null ? { ...n, readAt: new Date().toISOString() } : n)),
     );
     setUnreadCount(0);
-  }, []);
+  }, [userId]);
 
   const visible = React.useMemo(() => {
     if (filter === "unread") return notifications.filter((item) => item.readAt === null);
