@@ -26,6 +26,7 @@ import {
   getListingReviews,
   getListingsByDestination,
   getListingsByGuide,
+  getSimilarRequests,
 } from "@/data/supabase/queries";
 
 type FixtureMap = Record<string, unknown[]>;
@@ -41,23 +42,23 @@ class FakeQuery {
     private readonly table: string,
   ) {}
 
-  select() {
-    this.calls.push(`${this.table}.select`);
+  select(columns?: string) {
+    this.calls.push(`${this.table}.select:${columns ?? "*"}`);
     return this;
   }
 
-  order() {
-    this.calls.push(`${this.table}.order`);
+  order(column?: string) {
+    this.calls.push(`${this.table}.order:${column ?? ""}`);
     return this;
   }
 
-  limit() {
-    this.calls.push(`${this.table}.limit`);
+  limit(count?: number) {
+    this.calls.push(`${this.table}.limit:${count ?? ""}`);
     return this;
   }
 
-  eq() {
-    this.calls.push(`${this.table}.eq`);
+  eq(column?: string, value?: unknown) {
+    this.calls.push(`${this.table}.eq:${column ?? ""}:${String(value)}`);
     return this;
   }
 
@@ -76,8 +77,13 @@ class FakeQuery {
     return this;
   }
 
-  neq() {
-    this.calls.push(`${this.table}.neq`);
+  neq(column?: string, value?: unknown) {
+    this.calls.push(`${this.table}.neq:${column ?? ""}:${String(value)}`);
+    return this;
+  }
+
+  ilike(column?: string, pattern?: string) {
+    this.calls.push(`${this.table}.ilike:${column ?? ""}:${pattern ?? ""}`);
     return this;
   }
 
@@ -241,5 +247,32 @@ describe("PII-safe Supabase query mapping", () => {
     expect(result.data?.[0]?.message).toBe(
       "Пишите [контакт скрыт] или звоните [контакт скрыт]",
     );
+  });
+});
+
+describe("query performance safeguards", () => {
+  it("filters similar requests by destination in SQL before applying the limit", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "request-1",
+          destination: "moscow",
+          budget_minor: 100_000,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+        },
+      ],
+    });
+
+    const result = await getSimilarRequests(client, "moscow", "request-0");
+
+    expect(result.error).toBeNull();
+    const destinationFilterIndex = client.calls.findIndex((call) =>
+      call.startsWith("traveler_requests.ilike:destination:%moscow%"),
+    );
+    const limitIndex = client.calls.indexOf("traveler_requests.limit:10");
+    expect(destinationFilterIndex).toBeGreaterThan(-1);
+    expect(limitIndex).toBeGreaterThan(-1);
+    expect(destinationFilterIndex).toBeLessThan(limitIndex);
   });
 });

@@ -171,6 +171,10 @@ function normalizeSlug(value: string) {
   return value.toLowerCase().replace(/\s+/g, "-");
 }
 
+function destinationSearchFromSlug(value: string) {
+  return value.trim().toLowerCase().replace(/-/g, " ");
+}
+
 function getInitials(value: string) {
   return value
     .split(/\s+/)
@@ -1155,6 +1159,7 @@ export async function getSimilarRequests(
       .select("*")
       .eq("status", "open")
       .neq("id", excludeId)
+      .ilike("destination", `%${destinationSearchFromSlug(destinationSlug)}%`)
       .order("created_at", { ascending: false })
       .limit(10);
 
@@ -1162,8 +1167,9 @@ export async function getSimilarRequests(
     if (!data || data.length === 0) return { data: [], error: null };
 
     const records = data.map((row) => mapRequestRow(row));
-    const sameSlug = records.filter((r) => r.destinationSlug === destinationSlug);
-    const result = sameSlug.length >= 2 ? sameSlug.slice(0, 3) : records.slice(0, 2);
+    const result = records
+      .filter((record) => record.destinationSlug === destinationSlug)
+      .slice(0, 3);
 
     return { data: result, error: null };
   } catch (error) {

@@ -650,31 +650,73 @@ export async function saveListingModerationActionInSupabase(input: {
   };
 }
 
-export async function listDisputeCasesForAdminFromSupabase(): Promise<DisputeCase[]> {
+export async function listDisputeCasesForAdminFromSupabase(options: {
+  page?: number;
+  pageSize?: number;
+} = {}): Promise<DisputeCase[]> {
   const supabase = createSupabaseBrowserClient();
-  const [{ data: disputes, error: disputesError }, { data: bookings, error: bookingsError }, { data: profiles, error: profilesError }, { data: listings, error: listingsError }, { data: requests, error: requestsError }, { data: notes, error: notesError }] =
-    await Promise.all([
-      supabase
-        .from("disputes")
-        .select("id, booking_id, opened_by, assigned_admin_id, status, reason, summary, requested_outcome, payout_frozen, resolution_summary, created_at, updated_at, resolved_at")
-        .order("updated_at", { ascending: false }),
-      supabase
-        .from("bookings")
-        .select("id, traveler_id, guide_id, request_id, listing_id, status, starts_at, ends_at, subtotal_minor, currency"),
-      supabase.from("profiles").select("id, full_name, email"),
-      supabase.from("listings").select("id, title, region, city"),
-      supabase.from("traveler_requests").select("id, destination"),
-      supabase.from("dispute_notes").select("id, dispute_id, author_id, note, internal_only, created_at"),
-    ]);
+  const page = Math.max(0, options.page ?? 0);
+  const pageSize = Math.min(Math.max(options.pageSize ?? 50, 1), 100);
+  const from = page * pageSize;
+  const to = from + pageSize - 1;
+
+  const { data: disputes, error: disputesError } = await supabase
+    .from("disputes")
+    .select("id, booking_id, opened_by, assigned_admin_id, status, reason, summary, requested_outcome, payout_frozen, resolution_summary, created_at, updated_at, resolved_at")
+    .order("updated_at", { ascending: false })
+    .range(from, to);
 
   if (disputesError) throw disputesError;
+  if (!disputes?.length) return [];
+
+  const disputeRows = disputes as DisputeRow[];
+  const disputeIds = [...new Set(disputeRows.map((row) => row.id))];
+  const bookingIds = [...new Set(disputeRows.map((row) => row.booking_id))];
+
+  const [{ data: bookings, error: bookingsError }, { data: notes, error: notesError }] =
+    await Promise.all([
+      supabase
+        .from("bookings")
+        .select("id, traveler_id, guide_id, request_id, listing_id, status, starts_at, ends_at, subtotal_minor, currency")
+        .in("id", bookingIds),
+      supabase
+        .from("dispute_notes")
+        .select("id, dispute_id, author_id, note, internal_only, created_at")
+        .in("dispute_id", disputeIds),
+    ]);
+
   if (bookingsError) throw bookingsError;
+  if (notesError) throw notesError;
+
+  const bookingRows = (bookings ?? []) as BookingLiteRow[];
+  const profileIds = [
+    ...new Set(bookingRows.flatMap((row) => [row.traveler_id, row.guide_id])),
+  ];
+  const listingIds = [
+    ...new Set(bookingRows.map((row) => row.listing_id).filter((id): id is string => Boolean(id))),
+  ];
+  const requestIds = [
+    ...new Set(bookingRows.map((row) => row.request_id).filter((id): id is string => Boolean(id))),
+  ];
+
+  const [{ data: profiles, error: profilesError }, { data: listings, error: listingsError }, { data: requests, error: requestsError }] =
+    await Promise.all([
+      profileIds.length
+        ? supabase.from("profiles").select("id, full_name, email").in("id", profileIds)
+        : Promise.resolve({ data: [], error: null }),
+      listingIds.length
+        ? supabase.from("listings").select("id, title, region, city").in("id", listingIds)
+        : Promise.resolve({ data: [], error: null }),
+      requestIds.length
+        ? supabase.from("traveler_requests").select("id, destination").in("id", requestIds)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
   if (profilesError) throw profilesError;
   if (listingsError) throw listingsError;
   if (requestsError) throw requestsError;
-  if (notesError) throw notesError;
 
-  const bookingsById = new Map((bookings ?? []).map((row) => [row.id as string, row as BookingLiteRow]));
+  const bookingsById = new Map(bookingRows.map((row) => [row.id, row]));
   const profilesById = new Map(
     (profiles ?? []).map((row) => [
       row.id as string,
@@ -696,7 +738,7 @@ export async function listDisputeCasesForAdminFromSupabase(): Promise<DisputeCas
     notesByDispute.set(row.dispute_id, current);
   }
 
-  return ((disputes ?? []) as DisputeRow[]).flatMap((row) => {
+  return disputeRows.flatMap((row) => {
     const booking = bookingsById.get(row.booking_id);
     if (!booking) return [];
 

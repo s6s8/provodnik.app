@@ -220,10 +220,11 @@ async function listLatestMessagesByThread(
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
-    .from("messages")
-    .select("thread_id, body, created_at, sender_id")
-    .in("thread_id", threadIds)
-    .order("created_at", { ascending: false });
+    .from("conversation_threads")
+    .select(`id, latest_message:messages(thread_id, body, created_at, sender_id)`)
+    .in("id", threadIds)
+    .order("created_at", { ascending: false, referencedTable: "latest_message" })
+    .limit(1, { referencedTable: "latest_message" });
 
   if (error) throw error;
 
@@ -232,11 +233,12 @@ async function listLatestMessagesByThread(
     Pick<MessageRow, "thread_id" | "body" | "created_at" | "sender_id">
   >();
 
-  for (const row of (data as Array<
-    Pick<MessageRow, "thread_id" | "body" | "created_at" | "sender_id">
-  >) ?? []) {
-    if (!latestByThread.has(row.thread_id)) {
-      latestByThread.set(row.thread_id, row);
+  for (const row of (data as Array<Record<string, unknown>>) ?? []) {
+    const latestMessage = normalizeRelation<
+      Pick<MessageRow, "thread_id" | "body" | "created_at" | "sender_id">
+    >(row.latest_message);
+    if (latestMessage) {
+      latestByThread.set(latestMessage.thread_id, latestMessage);
     }
   }
 
