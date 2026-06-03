@@ -55,6 +55,23 @@ async function getAuthorizedUser() {
   };
 }
 
+async function assertThreadParticipant(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  threadId: string,
+  userId: string,
+) {
+  const { data: participant, error } = await supabase
+    .from("thread_participants")
+    .select("thread_id")
+    .eq("thread_id", threadId)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error || !participant) {
+    throw new Error("Диалог не найден.");
+  }
+}
+
 export async function sendMessageAction(
   threadId: string,
   body: string,
@@ -72,7 +89,8 @@ export async function sendMessageAction(
   }
 
   try {
-    const { userId, senderRole } = await getAuthorizedUser();
+    const { supabase, userId, senderRole } = await getAuthorizedUser();
+    await assertThreadParticipant(supabase, parsed.data.threadId, userId);
     const message = await sendMessage(
       parsed.data.threadId,
       userId,
