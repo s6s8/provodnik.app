@@ -133,4 +133,20 @@ describe("groupTripsByPhase", () => {
     expect(grouped.completed).toHaveLength(1);
     expect(grouped.completed[0]?.id).toBe("completed-booking");
   });
+
+  it("keeps bookings with missing start dates out of completed", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [],
+      confirmedBookings: [
+        {
+          ...baseBooking,
+          booking_id: "missing-date-booking",
+          starts_on: "",
+        },
+      ],
+    });
+
+    expect(grouped.upcoming[0]?.id).toBe("missing-date-booking");
+    expect(grouped.completed).toEqual([]);
+  });
 });

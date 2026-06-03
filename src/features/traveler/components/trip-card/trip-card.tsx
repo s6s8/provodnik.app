@@ -45,6 +45,10 @@ function formatPeople(count: number) {
   return `${count} ${noun}`;
 }
 
+function formatTimeLabel(time: string) {
+  return time.slice(0, 5);
+}
+
 function TripPhoto({
   phase,
   trip,
@@ -133,8 +137,7 @@ function FlexPills({
 function RequestFacts({ trip }: { trip: TripCardModel }) {
   const budgetRub = trip.budget ? trip.budget.amount / 100 : null;
   const participantsCount = trip.participantsCount;
-  const shouldShowParticipants =
-    participantsCount != null && participantsCount > 0;
+  const shouldShowParticipants = participantsCount != null;
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -145,7 +148,7 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
       {trip.startTime ? (
         <Badge variant="outline" className={BADGE_CLASS}>
           <Clock className="size-3.5" />
-          {trip.startTime}
+          {formatTimeLabel(trip.startTime)}
         </Badge>
       ) : null}
       {shouldShowParticipants ? (

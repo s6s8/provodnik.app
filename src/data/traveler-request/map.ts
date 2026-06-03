@@ -39,14 +39,18 @@ export function mapTravelerRequestRow(row: TravelerRequestRow): TravelerRequestR
         : [],
       destination: row.destination,
       startDate: row.starts_on,
-      dateFlexibility: row.date_flexibility,
+      dateFlexibility: row.date_flexibility ?? "exact",
       startTime: row.start_time ? row.start_time.slice(0, 5) : undefined,
       endTime: row.end_time ? row.end_time.slice(0, 5) : undefined,
       ...(mode === "assembly"
         ? { groupSizeCurrent: row.participants_count, groupMax: row.group_capacity ?? undefined }
         : { groupSize: row.participants_count }),
       allowGuideSuggestionsOutsideConstraints: row.allow_guide_suggestions,
-      budgetPerPersonRub: kopecksToRub(row.budget_minor ?? 0),
+      openToJoin: row.open_to_join ?? false,
+      budgetPerPersonRub:
+        row.budget_minor == null
+          ? (undefined as unknown as number)
+          : kopecksToRub(row.budget_minor),
       notes: row.notes ?? undefined,
     },
   };

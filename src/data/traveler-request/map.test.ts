@@ -34,9 +34,9 @@ describe("mapTravelerRequestRow — budget conversion", () => {
     expect(result.request.budgetPerPersonRub).toBe(4_800);
   });
 
-  test("budget_minor=null defaults to 0 RUB", () => {
+  test("budget_minor=null leaves budget unset", () => {
     const result = mapTravelerRequestRow({ ...baseRow, budget_minor: null } as TravelerRequestRow);
-    expect(result.request.budgetPerPersonRub).toBe(0);
+    expect(result.request.budgetPerPersonRub).toBeUndefined();
   });
 
   test("budget_minor=100 (1 RUB) maps to 1, not 100", () => {
@@ -69,5 +69,16 @@ describe("mapTravelerRequestRow — budget conversion", () => {
       groupSizeCurrent: 2,
       groupMax: 5,
     });
+  });
+
+  test("defaults missing date flexibility and exposes open-to-join flag", () => {
+    const result = mapTravelerRequestRow({
+      ...baseRow,
+      date_flexibility: undefined,
+      open_to_join: true,
+    } as unknown as TravelerRequestRow);
+
+    expect(result.request.dateFlexibility).toBe("exact");
+    expect(result.request.openToJoin).toBe(true);
   });
 });

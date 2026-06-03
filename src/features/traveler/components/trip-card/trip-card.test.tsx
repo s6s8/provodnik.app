@@ -148,6 +148,22 @@ describe("TripCard", () => {
     expect(screen.getByText("± даты")).toBeInTheDocument();
   });
 
+  it("normalizes request start time to HH:MM on the card", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{
+          ...baseTrip,
+          id: "request-time",
+          startTime: "09:30:00",
+        }}
+      />,
+    );
+
+    expect(screen.getByText("09:30")).toBeInTheDocument();
+    expect(screen.queryByText("09:30:00")).not.toBeInTheDocument();
+  });
+
   it("renders no flex pills when both flags are false", () => {
     render(
       <TripCard

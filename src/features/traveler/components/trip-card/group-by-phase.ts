@@ -38,6 +38,7 @@ function bookingPhase(startsOn: string): TripPhase {
   const startsOnDate = startsOn.slice(0, 10);
   const today = todayDateKey();
 
+  if (!startsOnDate) return "upcoming";
   if (startsOnDate === today) return "today";
   if (startsOnDate > today) return "upcoming";
   return "completed";

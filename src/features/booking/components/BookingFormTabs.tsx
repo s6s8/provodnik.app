@@ -97,6 +97,8 @@ function userMessageForError(code: string | undefined): string {
       return "У этого тура ещё не указана цена.";
     case "validation":
       return "Проверьте заполненные поля и попробуйте снова.";
+    case "request_create_failed":
+      return "Не удалось отправить заявку. Попробуйте через минуту.";
     default:
       return "Не удалось отправить заявку. Попробуйте через минуту.";
   }

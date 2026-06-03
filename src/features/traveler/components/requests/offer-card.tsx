@@ -74,6 +74,10 @@ function formatTime(iso: string | null | undefined): string {
   return d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Moscow" });
 }
 
+function normalizeTime(value: string | null | undefined): string | null {
+  return value ? value.slice(0, 5) : null;
+}
+
 export function OfferCard({
   offer,
   guideInfo,
@@ -114,8 +118,8 @@ export function OfferCard({
   const timeDeviates =
     travelerTimeLocked === false &&
     (
-      (travelerStartTime != null && offer.starts_at != null && formatTime(offer.starts_at) !== travelerStartTime) ||
-      (travelerEndTime != null && offer.ends_at != null && formatTime(offer.ends_at) !== travelerEndTime)
+      (travelerStartTime != null && offer.starts_at != null && formatTime(offer.starts_at) !== normalizeTime(travelerStartTime)) ||
+      (travelerEndTime != null && offer.ends_at != null && formatTime(offer.ends_at) !== normalizeTime(travelerEndTime))
     );
   const countDeviates =
     travelerCountLocked === false && travelerCount != null && offerCount !== travelerCount;

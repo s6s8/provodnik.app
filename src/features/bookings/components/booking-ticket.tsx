@@ -97,7 +97,7 @@ export function BookingTicket({
                 </div>
               ) : null}
 
-              {participantCount ? (
+              {participantCount != null ? (
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted-foreground">Участников</dt>
                   <dd className="font-medium text-foreground">{participantCount}</dd>

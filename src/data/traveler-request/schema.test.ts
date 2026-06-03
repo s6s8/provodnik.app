@@ -41,4 +41,41 @@ describe("travelerRequestSchema", () => {
       "Укажите город или направление.",
     );
   });
+
+  it("defaults date flexibility and accepts an unset budget", () => {
+    const parsed = travelerRequestSchema.parse({
+      mode: "private",
+      interests: ["history"],
+      destination: "Москва",
+      startDate: "2026-05-10",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      notes: "",
+    });
+
+    expect(parsed.dateFlexibility).toBe("exact");
+    expect(parsed.budgetPerPersonRub).toBeUndefined();
+  });
+
+  it("requires groupMax, not current size, for assembly requests", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "assembly",
+      interests: ["history"],
+      destination: "Москва",
+      startDate: "2026-05-10",
+      dateFlexibility: "exact",
+      groupSizeCurrent: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      notes: "",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) {
+      throw new Error("Expected schema validation to fail");
+    }
+
+    expect(result.error.flatten().fieldErrors.groupMax).toContain(
+      "Укажите максимальный размер группы.",
+    );
+  });
 });

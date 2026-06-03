@@ -28,7 +28,7 @@ export const travelerRequestSchema = z
           .max(80, "Не больше 80 символов."),
       ),
     startDate: z.string().min(1, "Укажите дату начала."),
-    dateFlexibility: z.enum(['exact', 'few_days', 'week']),
+    dateFlexibility: z.enum(["exact", "few_days", "week"]).default("exact"),
     startTime: z
       .string()
       .regex(timeRegex, "Формат времени: ЧЧ:ММ")
@@ -60,11 +60,14 @@ export const travelerRequestSchema = z
       .max(20, "Максимум 20 путешественников.")
       .optional(),
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
+    openToJoin: z.boolean().optional(),
     budgetPerPersonRub: z
       .number()
       .int("Укажите целое число.")
       .min(1_000, "Бюджет должен быть не меньше 1 000 ₽.")
-      .max(2_000_000, "Бюджет выглядит слишком высоким."),
+      .max(2_000_000, "Бюджет выглядит слишком высоким.")
+      .optional()
+      .transform((value) => value as number),
     notes: z
       .string()
       .trim()
@@ -84,11 +87,11 @@ export const travelerRequestSchema = z
     }
 
     if (value.mode === "assembly") {
-      if (!value.groupSizeCurrent) {
+      if (!value.groupMax) {
         ctx.addIssue({
           code: "custom",
-          path: ["groupSizeCurrent"],
-          message: "Укажите текущее количество участников.",
+          path: ["groupMax"],
+          message: "Укажите максимальный размер группы.",
         });
       }
     }

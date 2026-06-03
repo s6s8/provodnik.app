@@ -5,6 +5,8 @@ import * as React from "react";
 import { updateRequestDetailsAction } from "@/app/(protected)/traveler/requests/sent-actions";
 import { cn } from "@/lib/utils";
 
+const NOTES_MAX_LENGTH = 800;
+
 const BUDGET_OPTIONS = [
   { label: "до 10 тыс.", value: 10000 },
   { label: "10–30 тыс.", value: 30000 },
@@ -93,13 +95,15 @@ export function SentScreenEnrich({ requestId }: Props) {
             <textarea
               value={notes}
               onChange={handleNotesChange}
-              maxLength={280}
+              maxLength={NOTES_MAX_LENGTH}
               rows={3}
               aria-label="Дополнительная информация для гидов"
               placeholder="Особые пожелания, интересы, ограничения..."
               className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30"
             />
-            <p className="mt-1 text-xs text-muted-foreground">{notes.length}/280</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {notes.length}/{NOTES_MAX_LENGTH}
+            </p>
           </div>
 
           <p aria-live="polite" className="text-xs text-muted-foreground">

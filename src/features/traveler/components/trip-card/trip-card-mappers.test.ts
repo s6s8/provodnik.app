@@ -55,6 +55,12 @@ describe("trip card mappers", () => {
     );
   });
 
+  it("does not put closed requests into active offer phases", () => {
+    expect(
+      mapRequestToPhase({ ...baseRequest, status: "cancelled", offer_count: 2 }),
+    ).toBe("completed");
+  });
+
   it("maps a traveler request summary to a TripCardModel", () => {
     expect(
       mapRequestToTrip({
@@ -75,6 +81,9 @@ describe("trip card mappers", () => {
       budget: { amount: 2450000, currency: "RUB" },
       participantsCount: 4,
       offerCount: 3,
+      interests: ["буддизм", "степь"],
+      mode: "private",
+      groupMax: null,
       isOwnRequest: true,
       guideName: null,
       guideAvatarUrl: null,
@@ -83,19 +92,38 @@ describe("trip card mappers", () => {
   });
 
   it("maps a confirmed booking summary to a TripCardModel", () => {
-    const trip = mapBookingToTrip(baseBooking);
+    const bookingWithItinerary = {
+      ...baseBooking,
+      starts_on: "2026-07-20",
+      ends_on: "2026-07-21",
+      start_time: "09:30:00",
+      participants_count: 0,
+      route_stops: [{ photoUrl: "/route.jpg", address: "Площадь" }],
+      inclusions: ["входные билеты"],
+    } as ConfirmedBookingSummary & {
+      ends_on: string;
+      start_time: string;
+      participants_count: number;
+      route_stops: { photoUrl: string; address: string }[];
+      inclusions: string[];
+    };
+
+    const trip = mapBookingToTrip(bookingWithItinerary);
 
     expect(trip).toMatchObject({
       id: "booking-1",
       destination: "Москва",
       startsOn: "2026-07-20",
+      endsOn: "2026-07-21",
+      startTime: "09:30",
+      participantsCount: 0,
       isOwnRequest: true,
       guideName: "Демо Гид",
       guideAvatarUrl: "/avatars/guide.jpg",
       organizerName: null,
       price: { amount: 2450000, currency: "RUB" },
+      routeStops: [{ photoUrl: "/route.jpg", address: "Площадь" }],
+      inclusions: ["входные билеты"],
     });
-    expect(trip.routeStops).toBeUndefined();
-    expect(trip.inclusions).toBeUndefined();
   });
 });

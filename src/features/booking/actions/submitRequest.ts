@@ -54,12 +54,13 @@ export async function submitRequest(formData: {
       destination: formData.destination,
       region: formData.region,
       category: formData.category,
+      interests: formData.category ? [formData.category] : [],
       starts_on: formData.startsOn,
       ends_on: endsOn ?? null,
       participants_count: formData.participantsCount,
       format_preference: formData.formatPreference ?? null,
       notes: formData.notes ?? null,
-      open_to_join: false,
+      open_to_join: formData.formatPreference === "group",
       budget_minor: null,
       currency: "RUB",
       status: "open",
@@ -67,7 +68,7 @@ export async function submitRequest(formData: {
     .select("id")
     .single();
 
-  if (error || !request) throw new Error(error?.message ?? "Failed to create request");
+  if (error || !request) throw new Error("request_create_failed");
 
   redirect(`/requests/${request.id}`);
 }

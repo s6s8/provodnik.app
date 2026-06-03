@@ -94,4 +94,27 @@ describe("OfferCard", () => {
     );
     expect(screen.queryByText("Принять предложение")).not.toBeInTheDocument();
   });
+
+  it("does not flag equal HH:MM and HH:MM:SS times as deviations", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          starts_at: "2026-06-01T09:30:00+03:00",
+          ends_at: "2026-06-01T11:00:00+03:00",
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerTimeLocked={false}
+        travelerStartTime="09:30:00"
+        travelerEndTime="11:00:00"
+      />,
+    );
+
+    expect(screen.queryByText(/гид предложил 09:30/)).not.toBeInTheDocument();
+  });
 });

@@ -18,6 +18,17 @@ const CATEGORY_PILLS = [
 ] as const;
 type CategoryPill = (typeof CATEGORY_PILLS)[number];
 
+const CATEGORY_INTEREST_SLUGS: Partial<Record<CategoryPill, string>> = {
+  История: "history",
+  Архитектура: "architecture",
+  Природа: "nature",
+  Гастрономия: "food",
+  Искусство: "art",
+  Религия: "religion",
+  "Для детей": "kids",
+  Необычное: "unusual",
+};
+
 const MONTHS_GENITIVE = [
   "января", "февраля", "марта", "апреля", "мая", "июня",
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
@@ -106,6 +117,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       const matchesQuery = !normalizedQuery || searchText.includes(normalizedQuery);
       const matchesCategory =
         category === "Все" ||
+        request.interests?.includes(CATEGORY_INTEREST_SLUGS[category] ?? "") ||
         categoryMap[category].some((token) => searchText.includes(token));
       const matchesCity =
         activeCity === "Все" ||
@@ -234,9 +246,11 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                 const isOpenGroup = request.group.openToMoreMembers;
                 const fillPct = isOpenGroup
                   ? null
-                  : Math.round(
-                      (request.group.sizeCurrent / request.group.sizeTarget) * 100,
-                    );
+                  : request.group.sizeTarget > 0
+                    ? Math.round(
+                        (request.group.sizeCurrent / request.group.sizeTarget) * 100,
+                      )
+                    : null;
                 const spotsLabel = isOpenGroup
                   ? `${request.group.sizeCurrent} участников`
                   : `${request.group.sizeCurrent} / ${request.group.sizeTarget} мест`;
@@ -249,7 +263,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     spotsLabel={spotsLabel}
                     title={request.highlights[0] ?? request.destinationLabel}
                     date={request.dateRangeLabel}
-                    desc={request.highlights[1]}
+                    desc={request.highlights[1] ?? request.destinationLabel}
                     interests={request.interests}
                     fillPct={fillPct}
                     members={request.members}

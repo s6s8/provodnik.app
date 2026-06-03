@@ -56,7 +56,10 @@ export function TravelerRequestDetailScreen({ record }: Props) {
       ? "border-emerald-200 bg-emerald-50 text-emerald-700"
       : "border-amber-200 bg-amber-50 text-amber-700";
 
-  const budgetLabel = `${formatRub(request.budgetPerPersonRub)} на чел.`;
+  const budgetLabel =
+    request.budgetPerPersonRub == null
+      ? "Бюджет не указан"
+      : `${formatRub(request.budgetPerPersonRub)} на чел.`;
 
   const interests = request.interests ?? [];
 
@@ -99,7 +102,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             <Wallet className="size-3.5" />
             {budgetLabel}
           </Badge>
-          {isAssembly && (
+          {request.openToJoin && (
             <Badge variant="outline" className={cn(BADGE_CLASS, "border-blue-200 bg-blue-50 text-blue-700")}>
               Открытая группа
             </Badge>
