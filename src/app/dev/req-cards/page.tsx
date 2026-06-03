@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { Check, Hand, UserPlus, Users, UsersRound } from "lucide-react";
+import { Check, Hand, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { RequestCardFinal } from "@/components/shared/request-card-final";
 import { type ReqCardMember } from "@/components/shared/req-card";
-import { THEMES, type ThemeSlug } from "@/data/themes";
+import { type ThemeSlug } from "@/data/themes";
 import { ThemeIconChip } from "@/components/shared/theme-icon-chip";
 
 export const metadata = {
@@ -15,28 +15,21 @@ export const metadata = {
   },
 };
 
-type ThemeOption = (typeof THEMES)[number];
-
 type RequestCardSample = {
   scenario: string;
   href: string;
   location: string;
   date: string;
-  mode: "private" | "assembly";
+  groupType: "private" | "assembly";
   guideState: "waiting" | "found";
-  groupSize: number;
   datesFlexible: boolean;
   interests: ThemeSlug[];
   members: ReqCardMember[];
   price: string;
 };
 
-type GroupTypeBadgeVariant = "quiet" | "weight" | "weight-icon" | "outline-color";
-
-type BadgeVariantSection = {
-  variant: GroupTypeBadgeVariant;
-  title: string;
-  description: string;
+type RequestCardCountSample = RequestCardSample & {
+  participantCount: number;
 };
 
 const samples = [
@@ -45,9 +38,8 @@ const samples = [
     href: "/requests/tbilisi-evening",
     location: "Тбилиси",
     date: "12 июня, 18:00",
-    mode: "private",
+    groupType: "private",
     guideState: "waiting",
-    groupSize: 3,
     datesFlexible: false,
     interests: ["history", "food", "architecture"],
     members: [
@@ -62,9 +54,8 @@ const samples = [
     href: "/requests/kazbegi-one-day",
     location: "Казбеги",
     date: "21 июня, 10:00",
-    mode: "private",
+    groupType: "private",
     guideState: "found",
-    groupSize: 3,
     datesFlexible: true,
     interests: ["nature", "religion", "architecture"],
     members: [
@@ -79,9 +70,8 @@ const samples = [
     href: "/requests/kakheti-wine",
     location: "Кахетия",
     date: "5 июля, 11:30",
-    mode: "assembly",
+    groupType: "assembly",
     guideState: "waiting",
-    groupSize: 4,
     datesFlexible: false,
     interests: ["food", "history", "architecture"],
     members: [
@@ -97,9 +87,8 @@ const samples = [
     href: "/requests/svaneti-mountains",
     location: "Сванетия",
     date: "14 августа, 09:00",
-    mode: "assembly",
+    groupType: "assembly",
     guideState: "found",
-    groupSize: 5,
     datesFlexible: true,
     interests: ["nature", "history", "unusual"],
     members: [
@@ -112,47 +101,85 @@ const samples = [
   },
 ] satisfies RequestCardSample[];
 
-const themeMap = new Map(THEMES.map((theme) => [theme.slug, theme]));
+const countPrototypeSamples = [
+  {
+    scenario: "Соло · 1 участник",
+    href: "/requests/count-prototype-solo",
+    location: "Мцхета",
+    date: "Сегодня, 18:00",
+    groupType: "assembly",
+    guideState: "waiting",
+    datesFlexible: false,
+    interests: ["history", "religion"],
+    members: [{ id: "ana", displayName: "Ана", initials: "А" }],
+    price: "3 500 ₽",
+    participantCount: 1,
+  },
+  {
+    scenario: "Малая группа · 3 участника",
+    href: "/requests/count-prototype-small",
+    location: "Тбилиси",
+    date: "12 июня, 18:00",
+    groupType: "assembly",
+    guideState: "found",
+    datesFlexible: true,
+    interests: ["food", "history", "architecture"],
+    members: [
+      { id: "nino-count", displayName: "Нино", initials: "Н" },
+      { id: "anna-count", displayName: "Анна", initials: "А" },
+      { id: "maxim-count", displayName: "Максим", initials: "М" },
+    ],
+    price: "4 500 ₽",
+    participantCount: 3,
+  },
+  {
+    scenario: "Большая группа · 40",
+    href: "/requests/count-prototype-large",
+    location: "Кахетия",
+    date: "5 июля, 11:30",
+    groupType: "assembly",
+    guideState: "waiting",
+    datesFlexible: false,
+    interests: ["food", "nature", "unusual"],
+    members: [
+      { id: "tamar-count", displayName: "Тамар", initials: "Т" },
+      { id: "oleg-count", displayName: "Олег", initials: "О" },
+      { id: "katya-count", displayName: "Катя", initials: "К" },
+    ],
+    price: "6 800 ₽",
+    participantCount: 40,
+  },
+  {
+    scenario: "Своя группа · 2 участника",
+    href: "/requests/count-prototype-private",
+    location: "Казбеги",
+    date: "21 июня, 10:00",
+    groupType: "private",
+    guideState: "found",
+    datesFlexible: false,
+    interests: ["nature", "architecture"],
+    members: [
+      { id: "mariam-count", displayName: "Мариам", initials: "М" },
+      { id: "roman-count", displayName: "Роман", initials: "Р" },
+    ],
+    price: "7 900 ₽",
+    participantCount: 2,
+  },
+] satisfies RequestCardCountSample[];
 
 const datesFlexibleBadgeClassName =
   "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
 const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
-const groupTypeBadgeFilledClassName = `${groupTypeBadgeBaseClassName} bg-surface-low text-ink-2`;
 const groupTypeBadgePrimaryOutlineClassName = `${groupTypeBadgeBaseClassName} border border-primary/40 text-primary`;
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
 
-const badgeVariantSections = [
-  {
-    variant: "quiet",
-    title: "1 · Тихий чип (контроль)",
-    description: "Оба типа остаются серыми контурными чипами; различие видно только по слову и базовой иконке.",
-  },
-  {
-    variant: "weight",
-    title: "2 · Вес: заливка vs контур",
-    description: "Своя группа получает тихую серую заливку, открытая остаётся контурной без цветового акцента.",
-  },
-  {
-    variant: "weight-icon",
-    title: "3 · Вес + силуэт иконки",
-    description: "К весу добавлен другой силуэт для открытой: UsersRound вместо UserPlus.",
-  },
-] satisfies BadgeVariantSection[];
-
-function getInterestThemes(interests: ThemeSlug[]) {
-  return interests
-    .slice(0, 3)
-    .map((id) => themeMap.get(id))
-    .filter((theme): theme is ThemeOption => theme != null);
-}
-
-function getGroupLabel(mode: RequestCardSample["mode"]) {
-  return mode === "private" ? "Своя группа" : "Открытая";
+function getPrototypeGroupLabel(groupType: RequestCardSample["groupType"]) {
+  return groupType === "private" ? "Своя группа" : "Открытая";
 }
 
 function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guideState"] }) {
@@ -171,161 +198,117 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guide
   );
 }
 
-function getGroupTypeBadgeClassName(mode: RequestCardSample["mode"], variant: GroupTypeBadgeVariant) {
-  if (variant === "outline-color") {
-    return mode === "assembly" ? groupTypeBadgePrimaryOutlineClassName : groupTypeBadgeOutlineClassName;
-  }
+function CountPrototypeGroupTypeBadge({ groupType }: { groupType: RequestCardSample["groupType"] }) {
+  const className =
+    groupType === "assembly" ? groupTypeBadgePrimaryOutlineClassName : groupTypeBadgeOutlineClassName;
+  const iconClassName = groupType === "assembly" ? "text-primary" : "text-ink-2";
 
-  if (mode === "private" && variant !== "quiet") {
-    return groupTypeBadgeFilledClassName;
-  }
-
-  return groupTypeBadgeOutlineClassName;
-}
-
-function GroupTypeIcon({
-  mode,
-  variant,
-}: {
-  mode: RequestCardSample["mode"];
-  variant: GroupTypeBadgeVariant;
-}) {
-  if (mode === "private") {
-    return <Users size={14} className="text-ink-2" />;
-  }
-
-  if (variant === "outline-color") {
-    return <Users size={14} className="text-primary" />;
-  }
-
-  if (variant === "weight-icon") {
-    return <UsersRound size={14} className="text-ink-2" />;
-  }
-
-  return <UserPlus size={14} className="text-ink-2" />;
-}
-
-function GroupTypeBadge({
-  mode,
-  variant,
-}: {
-  mode: RequestCardSample["mode"];
-  variant: GroupTypeBadgeVariant;
-}) {
   return (
-    <span className={getGroupTypeBadgeClassName(mode, variant)}>
-      <GroupTypeIcon mode={mode} variant={variant} /> {getGroupLabel(mode)}
+    <span className={className}>
+      <Users size={14} className={iconClassName} /> {getPrototypeGroupLabel(groupType)}
     </span>
   );
 }
 
-function AvatarStack({ members }: { members: ReqCardMember[] }) {
+function ParticipantStack({
+  members,
+  participantCount,
+}: {
+  members: readonly ReqCardMember[];
+  participantCount: number;
+}) {
+  const visibleMembers = members.slice(0, participantCount === 1 ? 1 : 3);
+
   return (
-    <div className="flex items-center">
-      {members.slice(0, 5).map((member) => (
-        <Avatar
-          key={member.id}
-          className="size-6 -ml-1.5 border-2 border-surface-high first:ml-0"
-          title={member.displayName}
-        >
-          {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
-          <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">
-            {member.initials}
-          </AvatarFallback>
-        </Avatar>
-      ))}
+    <div className="flex shrink-0 items-center gap-1.5">
+      <div className="flex items-center">
+        {visibleMembers.map((member) => (
+          <Avatar
+            key={member.id}
+            className="size-6 -ml-1.5 border-2 border-surface-high first:ml-0"
+            title={member.displayName}
+            data-testid="participant-avatar"
+          >
+            {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
+            <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">{member.initials}</AvatarFallback>
+          </Avatar>
+        ))}
+      </div>
+      {participantCount > 1 ? <span className="text-sm text-muted-foreground">{participantCount}</span> : null}
     </div>
   );
 }
 
-function RequestCard({
-  sample,
-  variant,
-  themeDisplay = "text",
-}: {
-  sample: RequestCardSample;
-  variant: GroupTypeBadgeVariant;
-  themeDisplay?: "text" | "icons";
-}) {
-  const interestThemes = getInterestThemes(sample.interests);
+function RequestCardCountPrototype({
+  href,
+  location,
+  date,
+  groupType,
+  guideState,
+  datesFlexible,
+  interests,
+  members,
+  price,
+  participantCount,
+}: RequestCardCountSample) {
+  const themeSlugs = interests.slice(0, 3);
 
   return (
-    <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
-      <Link href={sample.href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <p className="text-lg font-semibold text-foreground">{sample.location}</p>
-        <p className="mt-1 truncate text-sm text-muted-foreground">
-          {sample.date} · {sample.groupSize} чел.
-        </p>
+    <article className="relative flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
+      <div className="absolute right-4 top-4">
+        <GuideStatusBadge guideState={guideState} />
+      </div>
+
+      <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <p className="truncate pr-24 text-lg font-semibold text-foreground">{location}</p>
+        <p className="mt-1 truncate text-sm text-muted-foreground">{date}</p>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <GuideStatusBadge guideState={sample.guideState} />
-          <GroupTypeBadge mode={sample.mode} variant={variant} />
-          {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+          <CountPrototypeGroupTypeBadge groupType={groupType} />
+          {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
         </div>
       </Link>
 
-      <div className="mt-auto flex flex-col gap-3 pt-4">
-        {interestThemes.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {themeDisplay === "icons"
-              ? interestThemes.map(({ slug }) => <ThemeIconChip key={slug} slug={slug} />)
-              : interestThemes.map(({ slug, label }) => (
-                  <span key={slug} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
-                    {label}
-                  </span>
-                ))}
-          </div>
-        ) : null}
-        <div className="flex items-center justify-between gap-3">
-          <AvatarStack members={sample.members} />
-          <span className="text-sm font-semibold text-foreground">{sample.price}</span>
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <ParticipantStack members={members} participantCount={participantCount} />
+          {themeSlugs.length > 0 ? (
+            <div className="flex min-w-0 flex-nowrap gap-1.5 overflow-hidden">
+              {themeSlugs.map((slug) => (
+                <ThemeIconChip key={slug} slug={slug} />
+              ))}
+            </div>
+          ) : null}
         </div>
+        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>
   );
 }
 
-function ThemeComparisonSection() {
+function CountPrototypeSection() {
   return (
-    <section aria-labelledby="theme-comparison-heading">
+    <section aria-labelledby="participant-count-heading">
       <div className="mb-4">
         <h2
-          id="theme-comparison-heading"
+          id="participant-count-heading"
           className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
         >
-          4 · Темы: текст vs иконки-only
+          6 · Аватары + счётчик участников
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Та же матрица карточек показывает текущие текстовые чипы и компактную версию: только иконки с подписью в
-          тултипе по наведению или тапу.
+          Проверка нижней строки: один аватар без числа, для групп — короткий стек и фактический счётчик участников.
         </p>
       </div>
 
-      <div className="space-y-6">
-        <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">Текст</h3>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {samples.map((sample) => (
-              <div key={`themes-text-${sample.href}`} className="flex h-full flex-col space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-                <RequestCard sample={sample} variant="weight-icon" />
-              </div>
-            ))}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {countPrototypeSamples.map((sample) => (
+          <div key={`count-prototype-${sample.href}`} className="flex h-full flex-col space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
+            <TooltipProvider>
+              <RequestCardCountPrototype {...sample} />
+            </TooltipProvider>
           </div>
-        </div>
-
-        <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">Иконки-only</h3>
-          <TooltipProvider>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {samples.map((sample) => (
-                <div key={`themes-icons-${sample.href}`} className="flex h-full flex-col space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-                  <RequestCard sample={sample} variant="weight-icon" themeDisplay="icons" />
-                </div>
-              ))}
-            </div>
-          </TooltipProvider>
-        </div>
+        ))}
       </div>
     </section>
   );
@@ -356,7 +339,7 @@ function OutlineColorSection() {
                 href={sample.href}
                 location={sample.location}
                 date={sample.date}
-                groupType={sample.mode}
+                groupType={sample.groupType}
                 guideState={sample.guideState}
                 datesFlexible={sample.datesFlexible}
                 interests={sample.interests}
@@ -377,38 +360,13 @@ export default function DevReqCardsPage() {
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Первые три секции
-          сравнивают серую метку типа группы, затем — текстовые темы против иконок-only и контурный цвет типа.
+          Сейчас страница показывает продакшен-карточку из bundle 5 и прототип счётчика участников из bundle 6.
         </p>
       </div>
 
       <div className="space-y-10">
-        {badgeVariantSections.map((section) => (
-          <section key={section.variant} aria-labelledby={`${section.variant}-heading`}>
-            <div className="mb-4">
-              <h2
-                id={`${section.variant}-heading`}
-                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-              >
-                {section.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{section.description}</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {samples.map((sample) => (
-                <div key={`${section.variant}-${sample.href}`} className="flex h-full flex-col space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {sample.scenario}
-                  </p>
-                  <RequestCard sample={sample} variant={section.variant} />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-        <ThemeComparisonSection />
         <OutlineColorSection />
+        <CountPrototypeSection />
       </div>
     </main>
   );
