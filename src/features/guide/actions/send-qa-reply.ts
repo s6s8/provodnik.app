@@ -9,6 +9,18 @@ export async function getQaPanelDataAction(
   offerId: string,
 ): Promise<{ threadId: string; qa: QaThread } | null> {
   const supabase = await createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Unauthorized')
+
+  const { data: offer } = await supabase
+    .from('guide_offers')
+    .select('id')
+    .eq('id', offerId)
+    .eq('guide_id', user.id)
+    .maybeSingle()
+
+  if (!offer) return null
+
   const { data: thread } = await supabase
     .from('conversation_threads')
     .select('id')
@@ -38,6 +50,16 @@ export async function sendQaReplyAction(
     .maybeSingle()
 
   if (!offer) throw new Error('Нет доступа к этому предложению')
+
+  const { data: thread } = await supabase
+    .from('conversation_threads')
+    .select('id')
+    .eq('id', threadId)
+    .eq('offer_id', offerId)
+    .eq('subject_type', 'offer')
+    .maybeSingle()
+
+  if (!thread) throw new Error('Нет доступа к этому предложению')
 
   try {
     await sendQaMessage(threadId, user.id, 'guide', body)

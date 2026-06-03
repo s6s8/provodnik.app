@@ -30,8 +30,9 @@ function buildPublicUrl(
   return supabase.storage.from("guide-portfolio").getPublicUrl(objectPath).data.publicUrl;
 }
 
-export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
+export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreenProps) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const [authenticatedGuideId, setAuthenticatedGuideId] = useState<Uuid | null>(null);
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -44,25 +45,37 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
 
   useEffect(() => {
     let cancelled = false;
-    listGuideLocationPhotos(guideId as Uuid)
-      .then((rows) => {
+
+    async function loadPortfolio() {
+      try {
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!user) throw new Error("Unauthorized");
+
+        const guideId = user.id as Uuid;
+        if (!cancelled) setAuthenticatedGuideId(guideId);
+
+        const rows = await listGuideLocationPhotos(guideId);
         if (cancelled) return;
         setPhotos(
           rows.map((r) => ({ ...r, publicUrl: buildPublicUrl(supabase, r.object_path) })),
         );
-      })
-      .catch((err) => {
+      } catch (err) {
         if (cancelled) return;
         console.error("[portfolio] list failed", err);
         setLoadError("Не удалось загрузить фото. Обновите страницу.");
-      })
-      .finally(() => {
+      } finally {
         if (!cancelled) setLoading(false);
-      });
+      }
+    }
+
+    void loadPortfolio();
+
     return () => {
       cancelled = true;
     };
-  }, [guideId, supabase]);
+  }, [supabase]);
 
   function validateFile(file: File): string | null {
     if (!ALLOWED_MIME.includes(file.type)) {
@@ -79,7 +92,7 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
   }
 
   async function handleUpload(file: File | undefined) {
-    if (!file || !locationName.trim()) return;
+    if (!file || !locationName.trim() || !authenticatedGuideId) return;
     if (photos.length >= MAX_PHOTOS) {
       setUploadError(`Максимум ${MAX_PHOTOS} фото. Удалите старое, чтобы добавить новое.`);
       resetFileInput();
@@ -95,7 +108,7 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
     setUploadError(null);
     try {
       const result = await uploadPortfolioPhoto({
-        guideId: guideId as Uuid,
+        guideId: authenticatedGuideId,
         file,
         locationName: locationName.trim(),
         sortOrder: photos.length,
@@ -139,7 +152,7 @@ export function GuidePortfolioScreen({ guideId }: GuidePortfolioScreenProps) {
   }
 
   const reachedLimit = photos.length >= MAX_PHOTOS;
-  const disabled = !locationName.trim() || uploading || reachedLimit;
+  const disabled = !locationName.trim() || !authenticatedGuideId || uploading || reachedLimit;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">

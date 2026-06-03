@@ -139,6 +139,19 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       /<p>[\s\S]*Даты:[\s\S]*formatTimeRange\(item\.startTime, item\.endTime\)[\s\S]*Время:[\s\S]*<\/p>/,
     );
   });
+
+  it("uses auth.getUser() rather than auth.getSession() for guide identity", () => {
+    const source = readFileSync(
+      join(
+        process.cwd(),
+        "src/features/guide/components/requests/guide-requests-inbox-screen.tsx",
+      ),
+      "utf8",
+    );
+
+    expect(source).toContain("auth.getUser()");
+    expect(source).not.toContain("auth.getSession()");
+  });
 });
 
 describe("GuideInboxCardHeader", () => {

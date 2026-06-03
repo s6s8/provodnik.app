@@ -91,11 +91,11 @@ export function GuideRequestsInboxScreen() {
         if (!ignore && data) setItems(data);
 
         const {
-          data: { session },
-        } = await supabase.auth.getSession();
-        if (!ignore && session?.user?.id) {
-          await loadOffersForGuide(session.user.id);
-          await loadGuideProfileForGuide(session.user.id);
+          data: { user },
+        } = await supabase.auth.getUser();
+        if (!ignore && user?.id) {
+          await loadOffersForGuide(user.id);
+          await loadGuideProfileForGuide(user.id);
         }
       } catch (err) {
         console.warn("[inbox] initial load failed:", err);
@@ -107,14 +107,16 @@ export function GuideRequestsInboxScreen() {
     void loadInitial();
 
     const { data: authSub } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      () => {
         if (ignore) return;
-        if (session?.user?.id) {
-          void (async () => {
-            await loadOffersForGuide(session.user.id);
-            await loadGuideProfileForGuide(session.user.id);
-          })();
-        }
+        void (async () => {
+          const {
+            data: { user },
+          } = await supabase.auth.getUser();
+          if (ignore || !user?.id) return;
+          await loadOffersForGuide(user.id);
+          await loadGuideProfileForGuide(user.id);
+        })();
       },
     );
 
