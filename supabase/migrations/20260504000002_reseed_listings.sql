@@ -25,7 +25,30 @@ INSERT INTO public.listings (
   status,
   featured_rank,
   image_url
-) VALUES
+) SELECT
+  seed.guide_id::uuid,
+  seed.slug,
+  seed.title,
+  seed.region,
+  seed.city,
+  seed.category,
+  seed.description,
+  seed.duration_minutes,
+  seed.max_group_size,
+  seed.price_from_minor,
+  seed.currency,
+  seed.private_available,
+  seed.group_available,
+  seed.instant_book,
+  seed.meeting_point,
+  seed.inclusions::text[],
+  seed.exclusions::text[],
+  seed.cancellation_policy_key,
+  seed.status::public.listing_status,
+  seed.featured_rank,
+  seed.image_url
+FROM (
+  VALUES
   (
     '1bc71bcf-3114-4316-9759-b7493250b468',
     'moscow-kremlin-and-old-city-history',
@@ -210,4 +233,33 @@ INSERT INTO public.listings (
     17,
     'https://images.unsplash.com/photo-1520637836862-4d197d17c55a?auto=format&fit=crop&w=1600&h=900&q=80'
   )
+) AS seed (
+  guide_id,
+  slug,
+  title,
+  region,
+  city,
+  category,
+  description,
+  duration_minutes,
+  max_group_size,
+  price_from_minor,
+  currency,
+  private_available,
+  group_available,
+  instant_book,
+  meeting_point,
+  inclusions,
+  exclusions,
+  cancellation_policy_key,
+  status,
+  featured_rank,
+  image_url
+)
+WHERE EXISTS (
+  SELECT 1
+  FROM public.profiles p
+  WHERE p.id = seed.guide_id::uuid
+    AND p.role = 'guide'::public.app_role
+)
 ON CONFLICT (slug) DO NOTHING;

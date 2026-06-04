@@ -588,10 +588,13 @@ CREATE POLICY "partner_payouts_ledger_insert" ON public.partner_payouts_ledger F
 
 -- disputes
 ALTER TABLE public.disputes ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "disputes_select" ON public.disputes;
 CREATE POLICY "disputes_select" ON public.disputes FOR SELECT
   USING ((SELECT auth.uid()) = opened_by OR public.is_admin());
+DROP POLICY IF EXISTS "disputes_insert" ON public.disputes;
 CREATE POLICY "disputes_insert" ON public.disputes FOR INSERT
   WITH CHECK ((SELECT auth.uid()) IS NOT NULL OR public.is_admin());
+DROP POLICY IF EXISTS "disputes_update" ON public.disputes;
 CREATE POLICY "disputes_update" ON public.disputes FOR UPDATE
   USING (public.is_admin());
 
