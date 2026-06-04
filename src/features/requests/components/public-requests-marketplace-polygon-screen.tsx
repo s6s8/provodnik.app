@@ -308,7 +308,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
 
       <section className="bg-surface-low py-8">
         <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-[clamp(20px,4vw,48px)]">
-          <div className="grid grid-cols-3 gap-2 md:max-w-[560px] md:gap-3">
+          <div className="mx-auto grid grid-cols-3 gap-2 md:max-w-[560px] md:gap-3">
             <FilterControl
               label="Город"
               title="Город"
@@ -371,7 +371,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
             </FilterControl>
 
             <FilterControl
-              label="Тема"
+              label={activeCategories.length ? `Тема · ${activeCategories.length}` : "Тема"}
               title="Тема"
               description="Можно выбрать несколько тем"
             >
@@ -400,7 +400,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
           </div>
 
           {hasActiveDropdownFilter && (
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center justify-center gap-2">
               {activeCity && (
                 <Badge variant="outline" className="normal-case tracking-normal">
                   {activeCity}
