@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { HelpCircle, LogOut, User } from "lucide-react";
+import { Calendar, HelpCircle, Image as ImageIcon, LogOut, User } from "lucide-react";
 
 import {
   Sheet,
@@ -80,6 +80,26 @@ export function UserAccountDrawer({
             <User className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
             Мой профиль
           </Link>
+          {role === "guide" && (
+            <>
+              <Link
+                href="/guide/portfolio"
+                onClick={closeAndNavigate}
+                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+              >
+                <ImageIcon className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+                Портфолио
+              </Link>
+              <Link
+                href="/guide/calendar"
+                onClick={closeAndNavigate}
+                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+              >
+                <Calendar className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+                Календарь
+              </Link>
+            </>
+          )}
           <Link
             href="/help"
             onClick={closeAndNavigate}
