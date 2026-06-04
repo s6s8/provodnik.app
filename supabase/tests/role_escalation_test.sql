@@ -79,7 +79,7 @@ values (
   'authenticated',
   'role-escalation-signup@example.test',
   extensions.crypt('RoleLock123!', extensions.gen_salt('bf')),
-  true,
+  timezone('utc', now()),
   '{"provider":"email","providers":["email"]}'::jsonb,
   '{"role":"admin","full_name":"Signup Admin Attempt"}'::jsonb,
   timezone('utc', now()),

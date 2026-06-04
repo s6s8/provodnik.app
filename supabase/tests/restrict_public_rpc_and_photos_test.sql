@@ -111,7 +111,7 @@ insert into public.traveler_requests (
   traveler_id,
   destination,
   region,
-  category,
+  interests,
   starts_on,
   ends_on,
   budget_minor,
@@ -129,7 +129,7 @@ values (
   '7a000000-0000-4000-8000-000000000001',
   'RPC Photo Request',
   'Test Region',
-  'city',
+  array['history_culture'],
   date '2026-10-01',
   date '2026-10-02',
   100000,
@@ -254,17 +254,15 @@ set local role anon;
 select set_config('request.jwt.claim.role', 'anon', true);
 select set_config('request.jwt.claim.sub', '', true);
 
-select throws_ok(
-  $$ select public.count_competing_offers('7b000000-0000-4000-8000-000000000001'::uuid) $$,
-  '42501',
-  'permission denied for function count_competing_offers',
+select is(
+  has_function_privilege('anon', 'public.count_competing_offers(uuid)', 'execute'),
+  false,
   'anon cannot execute count_competing_offers'
 );
 
-select throws_ok(
-  $$ select public.record_request_view('7b000000-0000-4000-8000-000000000001'::uuid) $$,
-  '42501',
-  'permission denied for function record_request_view',
+select is(
+  has_function_privilege('anon', 'public.record_request_view(uuid)', 'execute'),
+  false,
   'anon cannot execute record_request_view'
 );
 

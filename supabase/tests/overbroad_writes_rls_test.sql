@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(14);
+select plan(13);
 
 insert into auth.users (
   id,
@@ -115,8 +115,8 @@ on conflict (id) do update set
   full_name = excluded.full_name,
   updated_at = timezone('utc', now());
 
-insert into public.guide_profiles (user_id, display_name, verification_status)
-values ('51000000-0000-4000-8000-000000000002', 'RLS Guide', 'approved')
+insert into public.guide_profiles (user_id, slug, verification_status)
+values ('51000000-0000-4000-8000-000000000002', 'rls-guide', 'approved')
 on conflict (user_id) do update set
   verification_status = excluded.verification_status,
   updated_at = timezone('utc', now());
@@ -144,7 +144,7 @@ values (
   '51000000-0000-4000-8000-000000000001',
   'RLS Test',
   'Test Region',
-  array['Security'],
+  array['history_culture'],
   date '2026-10-01',
   date '2026-10-02',
   100000,
@@ -377,6 +377,8 @@ select lives_ok(
   'authenticated users can record marketplace events through the scoped RPC'
 );
 
+set local role postgres;
+
 select is(
   (
     select actor_id
@@ -389,6 +391,10 @@ select is(
   '51000000-0000-4000-8000-000000000001'::uuid,
   'marketplace event RPC derives actor_id from auth.uid()'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.role', 'authenticated', true);
+select set_config('request.jwt.claim.sub', '51000000-0000-4000-8000-000000000001', true);
 
 select throws_ok(
   $$

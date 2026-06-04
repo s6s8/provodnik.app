@@ -289,6 +289,8 @@ select throws_ok(
   'counter_offer denies a caller who does not own the traveler request'
 );
 
+set local role postgres;
+
 select is(
   (
     select status::text
@@ -298,6 +300,10 @@ select is(
   'pending',
   'failed counter_offer leaves the original offer pending'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.role', 'authenticated', true);
+select set_config('request.jwt.claim.sub', '51000000-0000-4000-8000-000000000003', true);
 
 select is(
   (
@@ -371,6 +377,8 @@ select is(
   'failed open_dispute does not insert a dispute'
 );
 
+set local role postgres;
+
 select is(
   (
     select status::text
@@ -380,6 +388,10 @@ select is(
   'confirmed',
   'failed open_dispute leaves the booking status unchanged'
 );
+
+set local role authenticated;
+select set_config('request.jwt.claim.role', 'authenticated', true);
+select set_config('request.jwt.claim.sub', '51000000-0000-4000-8000-000000000003', true);
 
 select set_config('request.jwt.claim.sub', '51000000-0000-4000-8000-000000000001', true);
 

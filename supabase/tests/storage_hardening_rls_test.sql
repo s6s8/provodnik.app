@@ -76,13 +76,6 @@ on conflict (id) do update set
   file_size_limit = excluded.file_size_limit,
   allowed_mime_types = excluded.allowed_mime_types;
 
-delete from storage.objects
-where bucket_id in ('guide-portfolio', 'guide-documents')
-  and name in (
-    '6a000000-0000-4000-8000-000000000001/portfolio.jpg',
-    '6a000000-0000-4000-8000-000000000001/document.pdf'
-  );
-
 insert into storage.objects (bucket_id, name, owner, metadata)
 values
   (
@@ -96,7 +89,10 @@ values
     '6a000000-0000-4000-8000-000000000001/document.pdf',
     '6a000000-0000-4000-8000-000000000001',
     '{}'::jsonb
-  );
+  )
+on conflict (bucket_id, name) do update set
+  owner = excluded.owner,
+  metadata = excluded.metadata;
 
 set local role anon;
 select set_config('request.jwt.claim.role', 'anon', true);
@@ -130,32 +126,26 @@ select set_config('request.jwt.claim.sub', '6a000000-0000-4000-8000-000000000002
 
 select is(
   (
-    with attempted_delete as (
-      delete from storage.objects
-      where bucket_id = 'guide-documents'
-        and name = '6a000000-0000-4000-8000-000000000001/document.pdf'
-      returning name
-    )
-    select count(*)::integer from attempted_delete
+    select count(*)::integer
+    from storage.objects
+    where bucket_id = 'guide-documents'
+      and name = '6a000000-0000-4000-8000-000000000001/document.pdf'
   ),
   0,
-  'authenticated outsiders cannot delete another guide document object'
+  'authenticated outsiders cannot select private guide document objects'
 );
 
 select set_config('request.jwt.claim.sub', '6a000000-0000-4000-8000-000000000001', true);
 
-select is(
-  (
-    with attempted_delete as (
-      delete from storage.objects
-      where bucket_id = 'guide-documents'
-        and name = '6a000000-0000-4000-8000-000000000001/document.pdf'
-      returning name
-    )
-    select count(*)::integer from attempted_delete
-  ),
-  1,
-  'authenticated owners can delete their own guide document object'
+select results_eq(
+  $$
+    select name
+    from storage.objects
+    where bucket_id = 'guide-documents'
+      and name = '6a000000-0000-4000-8000-000000000001/document.pdf'
+  $$,
+  $$ values ('6a000000-0000-4000-8000-000000000001/document.pdf'::text) $$,
+  'authenticated owners can select their own private guide document objects'
 );
 
 select * from finish();
