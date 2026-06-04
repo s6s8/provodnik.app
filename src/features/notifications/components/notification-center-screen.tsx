@@ -2,6 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
+import { ru } from "date-fns/locale";
 import { ArrowRight, Check, Circle } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -305,7 +307,12 @@ function NotificationCard({
           <div className="flex items-center justify-between gap-3">
             <Separator className="flex-1" />
             <Button asChild size="sm" variant="ghost">
-              <Link href={notification.href}>
+              <Link
+                href={notification.href}
+                onClick={() => {
+                  if (isUnread) onMarkRead(notification.id);
+                }}
+              >
                 Открыть событие
                 <ArrowRight className="size-4" />
               </Link>
@@ -371,14 +378,11 @@ function getSeverityForKind(kind: NotificationRecord["kind"]): NotificationSever
 }
 
 function formatTimestamp(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  try {
+    return formatDistanceToNow(new Date(iso), { addSuffix: true, locale: ru });
+  } catch {
+    return iso;
+  }
 }
 
 function groupNotifications(items: NotificationRecord[]) {

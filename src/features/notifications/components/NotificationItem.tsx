@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
 import {
   AlertTriangle,
+  ArrowRight,
   Ban,
   Bell,
   CalendarCheck,
@@ -48,6 +49,14 @@ const EVENT_ICONS: Record<string, LucideIcon> = {
   listing_rejected: FileX,
 };
 
+const ACTION_CTA: Record<string, string> = {
+  new_offer: "Посмотреть предложение",
+  offer_expiring: "Ответить",
+  booking_created: "Открыть бронь",
+  review_requested: "Написать отзыв",
+  dispute_opened: "Перейти",
+};
+
 function formatRelativeTime(iso: string): string {
   try {
     return formatDistanceToNow(new Date(iso), { addSuffix: true, locale: ru });
@@ -64,6 +73,7 @@ export type NotificationItemProps = {
 export function NotificationItem({ notification, onMarkRead }: NotificationItemProps) {
   const iconKey = notification.kind ?? notification.event_type ?? "";
   const Icon = EVENT_ICONS[iconKey] ?? Bell;
+  const ctaLabel = ACTION_CTA[iconKey] ?? null;
   const displayTitle =
     notification.title ??
     EVENT_LABELS[notification.kind ?? notification.event_type ?? ""] ??
@@ -100,6 +110,12 @@ export function NotificationItem({ notification, onMarkRead }: NotificationItemP
         <span className="mt-0.5 block text-xs text-muted-foreground">
           {formatRelativeTime(notification.created_at)}
         </span>
+        {ctaLabel && notification.href && (
+          <span className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary">
+            {ctaLabel}
+            <ArrowRight className="size-3" aria-hidden />
+          </span>
+        )}
       </span>
     </button>
   );

@@ -254,8 +254,8 @@ export async function notifyBookingConfirmed(bookingId: string): Promise<void> {
   await createNotificationForUser({
     userId: bookingRow.traveler_id,
     kind: "booking_confirmed",
-    title: "Бронирование подтверждено",
-    body: "Гид подтвердил вашу бронь",
+    title: `${guideName} подтвердил бронирование`,
+    body: "Можно готовиться к поездке",
     href: `/traveler/bookings/${bookingRow.id}`,
     payload: {
       actor_id: bookingRow.guide_id,
@@ -281,6 +281,17 @@ export async function notifyBookingCancelled(
 
   if (error) throw error;
 
+  const actorName =
+    role === "traveler"
+      ? await getTravelerDisplayName(bookingRow.traveler_id)
+      : role === "guide"
+        ? await getGuideDisplayName(bookingRow.guide_id)
+        : "Администратор";
+  const body =
+    role === "admin"
+      ? "Администратор отменил бронирование"
+      : `${actorName} отменил бронирование`;
+
   const recipients: BookingCancelRecipient[] =
     role === "traveler"
       ? [{ userId: bookingRow.guide_id, role: "guide" }]
@@ -297,16 +308,12 @@ export async function notifyBookingCancelled(
         userId: recipient.userId,
         kind: "booking_cancelled",
         title: "Бронирование отменено",
-        body:
-          role === "traveler"
-            ? "Путешественник отменил бронирование"
-            : role === "guide"
-              ? "Гид отменил бронирование"
-              : "Администратор отменил бронирование",
+        body,
         href: `/${recipient.role}/bookings/${bookingRow.id}`,
         payload: {
           booking_id: parsedBookingId,
           cancelled_by: role,
+          actor_name: actorName,
         },
       }),
     ),
@@ -347,19 +354,24 @@ export async function notifyReviewRequested(bookingId: string): Promise<void> {
 
   const { data: bookingRow, error } = await supabase
     .from("bookings")
-    .select("id, traveler_id")
+    .select("id, traveler_id, guide_id")
     .eq("id", parsedBookingId)
     .single();
 
   if (error) throw error;
 
+  const guideName = await getGuideDisplayName(bookingRow.guide_id);
+
   await createNotificationForUser({
     userId: bookingRow.traveler_id,
     kind: "review_requested",
-    title: "Оставьте отзыв о поездке",
+    title: `Как прошёл тур с ${guideName}?`,
+    body: "Поделитесь впечатлениями — это важно для других путешественников",
     href: `/traveler/bookings/${bookingRow.id}/review`,
     payload: {
       booking_id: parsedBookingId,
+      actor_id: bookingRow.guide_id,
+      actor_name: guideName,
     },
   });
 }
