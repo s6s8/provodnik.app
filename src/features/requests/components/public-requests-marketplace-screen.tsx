@@ -188,8 +188,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     onClick={() => setActiveCity(city)}
                     className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
                       activeCity === city
-                        ? "border-primary bg-primary text-white"
-                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
                     }`}
                   >
                     {city}
@@ -210,8 +210,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                   onClick={() => setActiveMonth("all")}
                   className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
                     activeMonth === "all"
-                      ? "border-primary bg-primary text-white"
-                      : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
                   }`}
                 >
                   Все
@@ -223,8 +223,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     onClick={() => setActiveMonth(m)}
                     className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
                       activeMonth === m
-                        ? "border-primary bg-primary text-white"
-                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-white"
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
                     }`}
                   >
                     {MONTHS_NOMINATIVE[m]}

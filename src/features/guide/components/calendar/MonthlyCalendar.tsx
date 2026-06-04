@@ -11,12 +11,12 @@ import type {
 import { DayPanel } from "./day-panel";
 
 const LISTING_DOT_CLASSES = [
-  "bg-sky-500",
-  "bg-emerald-500",
-  "bg-amber-500",
-  "bg-rose-500",
-  "bg-violet-500",
-  "bg-cyan-500",
+  "bg-primary",
+  "bg-success",
+  "bg-warning",
+  "bg-destructive",
+  "bg-brand-500",
+  "bg-gold",
 ] as const;
 
 function formatDateOnlyLocal(d: Date): string {
@@ -199,7 +199,7 @@ export function MonthlyCalendar({
                 ))}
                 {hasDeparture ? (
                   <span
-                    className="size-1.5 shrink-0 rounded-sm bg-violet-500 ring-1 ring-violet-300 dark:ring-violet-700"
+                    className="size-1.5 shrink-0 rounded-sm bg-gold ring-1 ring-gold/40"
                     title="Отправление"
                   />
                 ) : null}

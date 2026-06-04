@@ -269,7 +269,7 @@ export function BidFormPanel({
   return (
     <>
       <div
-        className="fixed inset-0 z-[110] bg-black/40 backdrop-blur-[2px]"
+        className="fixed inset-0 z-[110] bg-foreground/40 backdrop-blur-[2px]"
         onClick={onClose}
         aria-hidden
       />
@@ -349,8 +349,8 @@ export function BidFormPanel({
                       className="relative flex-shrink-0 overflow-hidden rounded-xl"
                     >
                       <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
-                      <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
-                        <p className="truncate text-[10px] text-white">{photo.location_name}</p>
+                      <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
+                        <p className="truncate text-[10px] text-primary-foreground">{photo.location_name}</p>
                       </div>
                     </button>
                   ))}

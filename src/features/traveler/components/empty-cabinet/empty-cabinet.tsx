@@ -15,7 +15,7 @@ export function EmptyCabinet({ inspirations }: { inspirations: Inspiration[] }) 
         Опишите поездку — местные гиды пришлют предложения
       </p>
       <Link
-        href="/"
+        href="/form"
         className="inline-block rounded-full bg-primary px-6 py-3 font-medium text-primary-foreground"
       >
         Создать запрос

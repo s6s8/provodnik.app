@@ -95,7 +95,7 @@ describe("SiteHeader desktop account menu", () => {
     expect(screen.queryByText("Анна Иванова")).not.toBeInTheDocument();
   });
 
-  it("falls back to the role label in dropdown when fullName is absent", async () => {
+  it("falls back to the resolved role label in dropdown when fullName is absent", async () => {
     render(
       <SiteHeader
         isAuthenticated
@@ -107,7 +107,7 @@ describe("SiteHeader desktop account menu", () => {
 
     const trigger = screen.getByRole("button", { name: /Меню аккаунта/i });
     fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
-    expect(await screen.findByText("Гид")).toBeInTheDocument();
+    expect(await screen.findByText("Локальный гид")).toBeInTheDocument();
   });
 
   it("keeps a neutral account menu for authenticated users before role resolution", async () => {

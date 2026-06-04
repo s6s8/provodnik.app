@@ -10,13 +10,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "border-primary/60 bg-[linear-gradient(135deg,color-mix(in_srgb,var(--primary)_90%,white_10%),color-mix(in_srgb,var(--primary)_78%,black_8%))] text-primary-foreground shadow-[0_12px_30px_rgba(52,86,95,0.18)] hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(52,86,95,0.24)]",
+          "border-primary/60 bg-primary text-primary-foreground shadow-glass hover:-translate-y-0.5 hover:bg-primary-hover",
         outline:
-          "border-border/80 bg-[color-mix(in_srgb,var(--background)_78%,white_22%)] text-foreground shadow-[0_6px_20px_rgba(37,43,48,0.06)] hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--secondary)_72%,white_28%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "border-border/80 bg-card text-foreground shadow-sm hover:-translate-y-0.5 hover:bg-muted aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         secondary:
-          "border-[color-mix(in_srgb,var(--accent)_35%,var(--border))] bg-[color-mix(in_srgb,var(--secondary)_88%,white_12%)] text-secondary-foreground shadow-[0_8px_20px_rgba(168,128,84,0.12)] hover:-translate-y-0.5 hover:bg-[color-mix(in_srgb,var(--accent)_36%,white_64%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "border-border bg-secondary text-secondary-foreground shadow-sm hover:-translate-y-0.5 hover:bg-muted aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
-          "text-muted-foreground hover:bg-[color-mix(in_srgb,var(--secondary)_50%,white_50%)] hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
+          "text-muted-foreground hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground",
         destructive:
           "border-destructive/20 bg-destructive/10 text-destructive hover:bg-destructive/18 focus-visible:border-destructive/40 focus-visible:ring-destructive/20",
         link: "text-primary underline-offset-4 hover:underline",

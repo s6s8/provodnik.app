@@ -28,16 +28,19 @@ import { NotificationBell } from "@/features/notifications/components/Notificati
 import { ProfileAvatar } from "@/components/profile-avatar";
 import type { AppRole, AuthRedirectTarget } from "@/lib/auth/types";
 import { COPY } from "@/lib/copy";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
 
 const navLinks = [
+  { href: "/form", label: "Подбор гида" },
   { href: "/requests", label: "Запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
 ] as const;
 
 const travelerNavLinks = [
+  { href: "/form", label: "Подбор гида" },
   { href: "/traveler/requests", label: "Мои запросы" },
   { href: "/requests", label: "Открытые группы" },
   { href: "/listings", label: "Готовые экскурсии" },
@@ -50,6 +53,7 @@ const guideNavLinks = [
 ] as const;
 
 const publicNavLinks = [
+  { href: "/form", label: "Подбор гида" },
   { href: "/requests", label: "Открытые группы" },
   { href: "/listings", label: "Готовые экскурсии" },
   { href: "/guides", label: "Гиды" },
@@ -59,7 +63,7 @@ const publicNavLinks = [
 
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
-  guide: "Гид",
+  guide: resolveDisplayName("guide", {}),
   admin: "Администратор",
 };
 
@@ -90,7 +94,7 @@ export function SiteHeader({
   const [drawerOpen, setDrawerOpen] = React.useState(false);
 
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
-  const primaryCtaHref = role === "guide" ? "/requests" : "/";
+  const primaryCtaHref = role === "guide" ? "/requests" : "/form";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
   const accountLabel = fullName?.trim().split(/\s+/)[0] || (role ? roleLabels[role] : "Аккаунт");
   const messagesLabel =
@@ -206,7 +210,7 @@ export function SiteHeader({
               <MessageSquare className="size-5" aria-hidden="true" />
               {unreadCount > 0 ? (
                 <span
-                  className="absolute -top-1 -right-1 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-destructive px-[0.25rem] text-[0.6rem] font-bold leading-none text-white"
+                  className="absolute -top-1 -right-1 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-destructive px-[0.25rem] text-[0.6rem] font-bold leading-none text-destructive-foreground"
                   aria-live="polite"
                 >
                   {unreadCount > 99 ? "99+" : unreadCount}

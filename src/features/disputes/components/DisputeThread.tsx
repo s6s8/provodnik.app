@@ -17,13 +17,13 @@ const STATUS_LABEL: Record<string, string> = {
 function statusBadgeClass(status: string) {
   switch (status) {
     case "open":
-      return "border-yellow-500/40 bg-yellow-500/15 text-yellow-900 dark:text-yellow-100";
+      return "border-warning/40 bg-warning/15 text-warning";
     case "under_review":
     case "investigating":
-      return "border-blue-500/40 bg-blue-500/15 text-blue-900 dark:text-blue-100";
+      return "border-primary/40 bg-primary/15 text-primary";
     case "resolved":
     case "closed":
-      return "border-emerald-500/40 bg-emerald-500/15 text-emerald-900 dark:text-emerald-100";
+      return "border-success/40 bg-success/15 text-success";
     case "escalated":
       return "border-destructive/40 bg-destructive/10 text-destructive";
     default:

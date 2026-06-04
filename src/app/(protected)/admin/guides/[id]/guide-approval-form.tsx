@@ -44,7 +44,7 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
           formAction={approveAction}
           type="submit"
           variant="secondary"
-          className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+          className="border-success/30 bg-success/10 text-success hover:bg-success/20"
         >
           Одобрить гида
         </Button>

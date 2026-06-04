@@ -79,9 +79,7 @@ export default async function TravelerBookingDetailPage({
   searchParams,
 }: {
   params: Promise<{ bookingId: string }>;
-  searchParams?:
-    | Promise<Record<string, string | string[] | undefined>>
-    | Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { bookingId } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};
@@ -194,7 +192,7 @@ export default async function TravelerBookingDetailPage({
                   {guideName}
                   {isVerified ? (
                     <span
-                      className="inline-flex items-center justify-center size-[18px] rounded-full bg-primary text-white text-[0.625rem] font-bold shrink-0"
+                      className="inline-flex items-center justify-center size-[18px] rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold shrink-0"
                       aria-label="Верифицирован"
                     >
                       ✓

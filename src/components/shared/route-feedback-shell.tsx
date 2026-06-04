@@ -39,7 +39,7 @@ export function RouteFeedbackShell({
       <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(260px,0.88fr)]">
           <GlassCard className="relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.28),transparent_42%)]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary-foreground/30 to-transparent" />
 
             <div className="relative space-y-5">
               <div className="flex flex-wrap items-center gap-2">
@@ -65,7 +65,7 @@ export function RouteFeedbackShell({
             <div className="relative space-y-5">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-sm font-semibold text-foreground">{asideTitle}</p>
-                <span className="h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_6px_color-mix(in_srgb,var(--primary)_16%,transparent)]" />
+                <span className="h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/15" />
               </div>
 
               <ul className="space-y-3">

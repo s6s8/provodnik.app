@@ -203,7 +203,7 @@ export function OfferCard({
           </Badge>
           <Badge
             variant="outline"
-            className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-50 text-emerald-700")}
+            className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
           >
             <Wallet className="size-3.5" />
             {priceLabel}
@@ -243,8 +243,8 @@ export function OfferCard({
                   height={96}
                   className="size-24 object-cover"
                 />
-                <div className="absolute inset-x-0 bottom-0 bg-black/50 px-1 py-0.5">
-                  <p className="truncate text-[10px] text-white">{stop.locationName}</p>
+                <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
+                  <p className="truncate text-[10px] text-primary-foreground">{stop.locationName}</p>
                 </div>
               </button>
             ))}
@@ -261,7 +261,7 @@ export function OfferCard({
               <Badge
                 key={`${label}-${idx}`}
                 variant="outline"
-                className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-50 text-emerald-700")}
+                className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
               >
                 ✓ {label}
               </Badge>
@@ -271,8 +271,8 @@ export function OfferCard({
       ) : null}
 
       {/* PII disclosure banner */}
-      <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2">
-        <p className="text-xs text-amber-700">
+      <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
+        <p className="text-xs text-warning">
           Контактные данные скрыты до принятия предложения
         </p>
       </div>
@@ -308,7 +308,7 @@ export function OfferCard({
       {lightboxOpen ? (
         <>
           <div
-            className="fixed inset-0 z-[130] bg-black/80"
+            className="fixed inset-0 z-[130] bg-foreground/80"
             onClick={closeLightbox}
             aria-hidden
           />
@@ -327,7 +327,7 @@ export function OfferCard({
                 closeLightbox();
               }}
               aria-label="Закрыть"
-              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
             >
               <X className="size-5" />
             </button>
@@ -340,7 +340,7 @@ export function OfferCard({
                     showPrev();
                   }}
                   aria-label="Предыдущее"
-                  className="absolute left-2 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
                 >
                   <ChevronLeft className="size-6" />
                 </button>
@@ -351,7 +351,7 @@ export function OfferCard({
                     showNext();
                   }}
                   aria-label="Следующее"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 flex size-10 items-center justify-center rounded-full bg-foreground/40 text-primary-foreground hover:bg-foreground/60"
                 >
                   <ChevronRight className="size-6" />
                 </button>
@@ -366,7 +366,7 @@ export function OfferCard({
                 className="max-h-[88vh] w-auto max-w-[92vw] object-contain"
                 unoptimized
               />
-              <p className="absolute inset-x-0 bottom-2 text-center text-sm text-white drop-shadow">
+              <p className="absolute inset-x-0 bottom-2 text-center text-sm text-primary-foreground drop-shadow">
                 {routeStops[lightboxIndex ?? 0].locationName}
               </p>
             </div>

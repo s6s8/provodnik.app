@@ -15,14 +15,14 @@ const STATUS_CONFIG: Record<
   { label: string; className: string }
 > = {
   draft: { label: "Черновик", className: "bg-muted text-muted-foreground" },
-  published: { label: "Опубликован", className: "bg-green-100 text-green-800" },
-  active: { label: "Активен", className: "bg-green-100 text-green-800" },
-  paused: { label: "Приостановлен", className: "bg-orange-100 text-orange-800" },
+  published: { label: "Опубликован", className: "bg-success/10 text-success" },
+  active: { label: "Активен", className: "bg-success/10 text-success" },
+  paused: { label: "Приостановлен", className: "bg-warning/10 text-warning" },
   pending_review: {
     label: "На проверке",
-    className: "bg-yellow-100 text-yellow-800",
+    className: "bg-warning/10 text-warning",
   },
-  rejected: { label: "Отказано", className: "bg-red-100 text-red-800" },
+  rejected: { label: "Отказано", className: "bg-destructive/10 text-destructive" },
   archived: { label: "В архиве", className: "bg-muted text-muted-foreground" },
 };
 
@@ -127,7 +127,7 @@ export function GuideListingCard({
 
         <CardContent className="space-y-3">
           {listing.status === "rejected" && listing.rejection_reason ? (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+            <p className="rounded-lg bg-destructive/10 px-3 py-2 text-xs text-destructive">
               Причина: {listing.rejection_reason}
             </p>
           ) : null}

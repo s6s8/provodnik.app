@@ -72,7 +72,7 @@ export function BonusLedger({ ledger }: BonusLedgerProps) {
                     <TableCell>{label}</TableCell>
                     <TableCell
                       className={`text-right font-medium tabular-nums ${
-                        positive ? "text-green-600" : row.delta < 0 ? "text-destructive" : ""
+                        positive ? "text-success" : row.delta < 0 ? "text-destructive" : ""
                       }`}
                     >
                       {positive ? `+${row.delta}` : String(row.delta)}

@@ -68,7 +68,7 @@ export function GuideAboutForm({
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="max-w-xl">
       {isLocked && (
-        <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+        <p className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           Профиль одобрен. Проверенные данные недоступны для редактирования — для изменений напишите администраторам. Текст «О себе» можно обновлять.
         </p>
       )}
@@ -182,7 +182,7 @@ export function GuideAboutForm({
           {status === "saving" ? "Сохраняем…" : "Сохранить"}
         </Button>
         {status === "saved" ? (
-          <p className="text-sm text-green-600">Сохранено</p>
+          <p className="text-sm text-success">Сохранено</p>
         ) : null}
         {status === "error" ? (
           <p className="text-sm text-destructive">{errorMsg}</p>

@@ -9,7 +9,7 @@ describe("BookingTicket", () => {
       <BookingTicket
         bookingId="booking-1"
         listingTitle="Экскурсия"
-        guideName="Гид"
+        guideName="Мария"
         dateRange="10 июня"
         participantCount={0}
         onClose={vi.fn()}

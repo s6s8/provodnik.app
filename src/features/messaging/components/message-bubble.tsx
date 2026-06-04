@@ -197,7 +197,7 @@ function UserBubble({
       <article
         className={
           isOwn
-            ? "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-[color-mix(in_srgb,var(--primary)_12%,var(--surface-high))] border border-[color-mix(in_srgb,var(--primary)_18%,transparent)] shadow-glass"
+            ? "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-primary/10 border border-primary/20 shadow-glass"
             : "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass"
         }
       >

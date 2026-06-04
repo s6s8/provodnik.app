@@ -75,7 +75,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {isLocked && (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+        <p className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           Профиль одобрен. Юридические данные недоступны для редактирования — для изменений напишите администраторам.
         </p>
       )}
@@ -135,7 +135,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
             type="checkbox"
             checked={isTourOperator}
             onChange={(e) => setIsTourOperator(e.target.checked)}
-            className="h-4 w-4 rounded border-gray-300 accent-primary cursor-pointer"
+            className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
           />
           <Label htmlFor="is-tour-operator" className="cursor-pointer">
             Туроператор
@@ -160,7 +160,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
       </fieldset>
 
       {saved && (
-        <Alert className="border-green-500 text-green-700 bg-green-50">
+        <Alert className="border-success/40 text-success bg-success/10">
           Сохранено
         </Alert>
       )}

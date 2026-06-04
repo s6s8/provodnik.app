@@ -101,7 +101,7 @@ export function ChatWindow({
             }
           >
             <div className="grid gap-2.5 max-w-[min(100%,38rem)] px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass">
-              <div className="w-64 h-20 rounded-[1rem] bg-[color-mix(in_srgb,var(--surface-low)_82%,var(--surface-high))] relative overflow-hidden" />
+              <div className="w-64 h-20 rounded-[1rem] bg-muted relative overflow-hidden" />
             </div>
           </div>
         ))}

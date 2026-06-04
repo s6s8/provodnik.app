@@ -77,7 +77,7 @@ export default async function BookingsPage() {
                   >
                     <button
                       type="submit"
-                      className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand/90"
+                      className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand/90"
                     >
                       Подтвердить оплату
                     </button>

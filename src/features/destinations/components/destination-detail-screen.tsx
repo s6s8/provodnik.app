@@ -55,14 +55,14 @@ export function DestinationDetailScreen({
         />
 
         <div
-          className="absolute inset-0 pointer-events-none bg-[linear-gradient(to_bottom,rgba(25,28,32,0.12)_0%,rgba(25,28,32,0.38)_55%,rgba(25,28,32,0.60)_100%)]"
+          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-foreground/10 via-foreground/40 to-foreground/60"
           aria-hidden
         />
 
-        <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
+        <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 text-primary-foreground">
           <div className="max-w-[720px]">
             {destination.region ? (
-              <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-white/70">
+              <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-primary-foreground/70">
                 {destination.region}
               </p>
             ) : null}
@@ -72,28 +72,28 @@ export function DestinationDetailScreen({
             </h1>
 
             {destination.description ? (
-              <p className="mt-4 max-w-[560px] text-base leading-[1.65] text-white/80">
+              <p className="mt-4 max-w-[560px] text-base leading-[1.65] text-primary-foreground/80">
                 {destination.description}
               </p>
             ) : null}
 
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
+              <span className="inline-flex items-center rounded-full border border-primary-foreground/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
                 Лучший сезон: весна / лето / осень
               </span>
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
+              <span className="inline-flex items-center rounded-full border border-primary-foreground/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
                 Природа · Культура · Гастрономия
               </span>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2.5">
               <Button asChild>
-                <Link href="/">Найти гида</Link>
+                <Link href="/form">Найти гида</Link>
               </Button>
               <Button
                 variant="outline"
                 asChild
-                className="border-white/30 bg-transparent text-white hover:bg-white/10 hover:text-white"
+                className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               >
                 <a href="#tours">Смотреть маршруты</a>
               </Button>

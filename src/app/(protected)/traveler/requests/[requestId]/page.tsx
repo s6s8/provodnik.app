@@ -129,7 +129,7 @@ export default async function TravelerRequestDetailPage({
     return (
       <div className="flex flex-col gap-8">
         {justCreated ? (
-          <div className="rounded-lg border border-green-500/40 bg-green-500/10 px-4 py-3 text-sm text-green-700 dark:text-green-400">
+          <div className="rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
             {createdMode === "assembly"
               ? "Открытая экскурсия опубликована — гиды увидят ваш запрос и смогут присоединиться."
               : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}

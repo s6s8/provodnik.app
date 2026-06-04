@@ -53,8 +53,8 @@ export function TravelerRequestDetailScreen({ record }: Props) {
   const countColor = !hasCapacity
     ? ""
     : countFull
-      ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-      : "border-amber-200 bg-amber-50 text-amber-700";
+      ? "border-success/30 bg-success/10 text-success"
+      : "border-warning/30 bg-warning/10 text-warning";
 
   const budgetLabel =
     request.budgetPerPersonRub == null
@@ -97,13 +97,13 @@ export function TravelerRequestDetailScreen({ record }: Props) {
           </Badge>
           <Badge
             variant="outline"
-            className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-50 text-emerald-700")}
+            className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
           >
             <Wallet className="size-3.5" />
             {budgetLabel}
           </Badge>
           {request.openToJoin && (
-            <Badge variant="outline" className={cn(BADGE_CLASS, "border-blue-200 bg-blue-50 text-blue-700")}>
+            <Badge variant="outline" className={cn(BADGE_CLASS, "border-primary/30 bg-primary/10 text-primary")}>
               Открытая группа
             </Badge>
           )}
@@ -130,7 +130,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
         ) : null}
 
         {request.notes ? (
-          <div className="w-full max-w-[720px] whitespace-pre-line rounded-2xl border border-border/80 bg-[color-mix(in_srgb,var(--background)_76%,white_24%)] px-4 py-3 text-sm text-foreground">
+          <div className="w-full max-w-[720px] whitespace-pre-line rounded-2xl border border-border/80 bg-card px-4 py-3 text-sm text-foreground">
             {request.notes}
           </div>
         ) : null}

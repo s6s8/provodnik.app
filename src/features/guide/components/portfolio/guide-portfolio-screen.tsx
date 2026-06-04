@@ -265,15 +265,15 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
                     }
                   />
                 )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-2">
-                  <p className="text-xs font-medium text-white">{photo.location_name}</p>
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-foreground/60 to-transparent px-2 py-2">
+                  <p className="text-xs font-medium text-primary-foreground">{photo.location_name}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleDelete(photo.id, photo.location_name)}
                   aria-label={`Удалить фото ${photo.location_name}`}
                   disabled={deletingId === photo.id}
-                  className="absolute right-2 top-2 flex size-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity hover:bg-black/70 focus:opacity-100 disabled:opacity-50 group-hover:opacity-100"
+                  className="absolute right-2 top-2 flex size-6 items-center justify-center rounded-full bg-foreground/50 text-primary-foreground opacity-0 transition-opacity hover:bg-foreground/70 focus:opacity-100 disabled:opacity-50 group-hover:opacity-100"
                 >
                   {deletingId === photo.id ? "…" : "✕"}
                 </button>

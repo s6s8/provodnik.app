@@ -35,22 +35,22 @@ export function TourCard({
 
       {/* Gradient overlay */}
       <div
-        className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]"
+        className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-foreground/80 to-foreground/10"
         aria-hidden="true"
       />
 
       {/* Content */}
-      <div className="relative z-[2] w-full p-6 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)] [--outline-variant:rgba(255,255,255,0.20)]">
+      <div className="relative z-[2] w-full p-6 text-primary-foreground">
         <h3 className="font-display text-[2rem] font-semibold leading-[1.02]">{title}</h3>
 
-        <div className="mt-3 grid gap-1.5 text-sm text-white/82">
+        <div className="mt-3 grid gap-1.5 text-sm text-primary-foreground/80">
           <span>
             {guide}
             {rating !== undefined ? ` · ${rating} ★` : null}
           </span>
         </div>
 
-        <div className="mt-3.5 w-fit rounded-full border border-white/20 bg-white/[0.18] px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-[20px]">
+        <div className="mt-3.5 w-fit rounded-full border border-primary-foreground/20 bg-primary-foreground/20 px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-[20px]">
           {price}
         </div>
       </div>

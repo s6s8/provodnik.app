@@ -89,8 +89,8 @@ export default async function TravelerRequestAcceptedPage({
   return (
     <div className="flex min-h-[80vh] items-center justify-center px-4 py-16">
       <div className="flex w-full max-w-[480px] flex-col items-center gap-6 text-center">
-        <div className="flex size-16 items-center justify-center rounded-full bg-green-100">
-          <CheckCircle2 className="size-9 text-green-600" strokeWidth={1.8} />
+        <div className="flex size-16 items-center justify-center rounded-full bg-success/10">
+          <CheckCircle2 className="size-9 text-success" strokeWidth={1.8} />
         </div>
 
         <div className="space-y-2">
@@ -107,12 +107,12 @@ export default async function TravelerRequestAcceptedPage({
           <ProfileAvatar
             profile={guideProfile}
             size={80}
-            className="border-2 border-green-200"
+            className="border-2 border-success/30"
           />
           <p className="text-sm font-semibold text-foreground">{guideName}</p>
         </div>
 
-        <div className="inline-flex items-center rounded-full border border-green-200 bg-green-50 px-4 py-1.5 text-sm font-medium text-green-700">
+        <div className="inline-flex items-center rounded-full border border-success/30 bg-success/10 px-4 py-1.5 text-sm font-medium text-success">
           {tripDateLabel ? `Поездка: ${tripDateLabel}` : "Дата уточняется"}
         </div>
 

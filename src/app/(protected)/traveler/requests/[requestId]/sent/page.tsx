@@ -101,7 +101,7 @@ export default async function SentPage({
               <Link
                 key={req.id}
                 href={`/requests/${req.id}`}
-                className="block rounded-lg border border-border bg-white p-4 transition-shadow hover:shadow-sm"
+                className="block rounded-lg border border-border bg-card p-4 transition-shadow hover:shadow-sm"
               >
                 <p className="mb-1 font-display text-base text-foreground">
                   &ldquo;{req.destination}&rdquo;

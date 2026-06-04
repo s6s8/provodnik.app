@@ -17,6 +17,9 @@
   --color-popover-foreground: var(--on-surface);
   --color-primary: var(--primary);
   --color-primary-foreground: #ffffff;
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-hover: var(--gold-hover);
   --color-secondary: var(--surface-lowest);
   --color-secondary-foreground: var(--on-surface);
   --color-muted: var(--surface-low);
@@ -36,26 +39,39 @@
 
   --shadow-soft: var(--card-shadow);
   --shadow-panel: var(--glass-shadow);
+
+  --color-brand-50: var(--brand-50);   --color-brand-100: var(--brand-100);
+  --color-brand-200: var(--brand-200); --color-brand-300: var(--brand-300);
+  --color-brand-400: var(--brand-400); --color-brand-500: var(--brand-500);
+  --color-brand-600: var(--brand-600); --color-brand-700: var(--brand-700);
+  --color-brand-800: var(--brand-800); --color-brand-900: var(--brand-900);
+  --color-brand-950: var(--brand-950);
+  --color-gold-50: var(--gold-50);     --color-gold-100: var(--gold-100);
+  --color-gold-200: var(--gold-200);   --color-gold-300: var(--gold-300);
+  --color-gold-400: var(--gold-400);   --color-gold-500: var(--gold-500);
+  --color-gold-600: var(--gold-600);   --color-gold-700: var(--gold-700);
+  --color-gold-800: var(--gold-800);   --color-gold-900: var(--gold-900);
+  --color-gold-950: var(--gold-950);
 }
 
 :root {
   --nav-h: 88px;
-  --primary: #0058be;
-  --primary-hover: #2170e4;
-  --surface: #f9f9ff;
-  --surface-low: #f3f3fa;
-  --surface-lowest: #ffffff;
-  --on-surface: #191c20;
-  --on-surface-muted: #5a5e6b;
-  --outline-variant: #c2c6d6;
-  --footer-bg: #0f172a;
+  --primary: #1F7A5C;
+  --primary-hover: #1A6149;
+  --surface: #F7FAF6;
+  --surface-low: #EDF2EE;
+  --surface-lowest: #FFFFFF;
+  --on-surface: #16241D;
+  --on-surface-muted: #5D7669;
+  --outline-variant: #DCE5DF;
+  --footer-bg: #0A271E;
 
-  --glass-bg: rgba(249, 249, 255, 0.6);
-  --glass-border: rgba(194, 198, 214, 0.18);
+  --glass-bg: rgba(247, 250, 246, 0.60);
+  --glass-border: rgba(31, 122, 92, 0.16);
   --glass-blur: blur(20px);
-  --glass-shadow: 0 8px 32px rgba(25, 28, 32, 0.06);
+  --glass-shadow: 0 8px 32px rgba(10, 40, 28, 0.08);
   --glass-radius: 28px;
-  --card-shadow: 0 4px 24px rgba(25, 28, 32, 0.07);
+  --card-shadow: 0 4px 24px rgba(10, 40, 28, 0.08);
   --card-radius: 24px;
 
   --font-display: var(--font-cormorant-garamond);
@@ -63,22 +79,35 @@
   --font-serif: var(--font-cormorant-garamond);
   --font-mono: var(--font-geist-mono);
 
-  --success: #16a34a;
-  --warning: #d97706;
+  --success: #1E9E63;
+  --warning: #E0A126;
 
   --max-w: 1200px;
   --sec-pad: 80px;
   --px: clamp(20px, 4vw, 48px);
 
   --brand: var(--primary);
-  --brand-light: #e8f0fb;
-  --brand-mid: #2170e4;
+  --brand-light: #EEF7F2;
+  --brand-mid: #2E8C68;
   --ink: var(--on-surface);
-  --ink-2: #3d4a57;
+  --ink-2: #47584E;
   --ink-3: var(--on-surface-muted);
   --surface-high: var(--surface-lowest);
-  --nav-glass-bg: rgba(249, 249, 255, 0.72);
-  --nav-glass-border: rgba(194, 198, 214, 0.25);
+  --nav-glass-bg: rgba(247, 250, 246, 0.72);
+  --nav-glass-border: rgba(31, 122, 92, 0.20);
+
+  /* Gold — the single warm CTA / highlight accent */
+  --gold: #E0A126;
+  --gold-foreground: #1A1405;
+  --gold-hover: #C5871A;
+  /* Emerald brand ramp */
+  --brand-50:#EEF7F2; --brand-100:#D6ECE0; --brand-200:#AFDAC6; --brand-300:#7FC2A6;
+  --brand-400:#4DA381; --brand-500:#2E8C68; --brand-600:#1F7A5C; --brand-700:#1A6149;
+  --brand-800:#164D3B; --brand-900:#134032; --brand-950:#0A271E;
+  /* Gold ramp */
+  --gold-50:#FCF6E6; --gold-100:#F8E9C2; --gold-200:#F1D389; --gold-300:#EABB50;
+  --gold-400:#E0A126; --gold-500:#C5871A; --gold-600:#A06D16; --gold-700:#7C5413;
+  --gold-800:#5A3D0F; --gold-900:#3E2A0A; --gold-950:#241705;
 
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -92,7 +121,7 @@
   --muted-foreground: var(--on-surface-muted);
   --accent: var(--surface-low);
   --accent-foreground: var(--on-surface);
-  --destructive: #b91c1c;
+  --destructive: #C8453B;
   --destructive-foreground: #ffffff;
   --border: var(--outline-variant);
   --input: var(--outline-variant);
@@ -101,17 +130,24 @@
 }
 
 .dark {
-  --surface: #11151d;
-  --surface-low: #181d27;
-  --surface-lowest: #202633;
-  --on-surface: #f4f7fb;
-  --on-surface-muted: #b6bfce;
-  --outline-variant: rgba(194, 198, 214, 0.28);
-  --footer-bg: #020617;
-  --glass-bg: rgba(24, 29, 39, 0.72);
-  --glass-border: rgba(194, 198, 214, 0.14);
-  --nav-glass-bg: rgba(24, 29, 39, 0.82);
-  --nav-glass-border: rgba(194, 198, 214, 0.18);
+  --surface: #0E1A14;
+  --surface-low: #14231B;
+  --surface-lowest: #1A2C22;
+  --on-surface: #E7EFE9;
+  --on-surface-muted: #94A89C;
+  --outline-variant: #28392F;
+  --footer-bg: #06120C;
+  --glass-bg: rgba(20, 35, 27, 0.72);
+  --glass-border: rgba(52, 168, 126, 0.16);
+  --nav-glass-bg: rgba(20, 35, 27, 0.82);
+  --nav-glass-border: rgba(52, 168, 126, 0.20);
+  --primary: #34A87E;
+  --primary-hover: #2E9B74;
+  --brand-mid: #5FBF98;
+  --brand-light: #143C2C;
+  --ink-2: #B6C6BC;
+  --gold: #E8B23E;
+  --gold-hover: #D69E2E;
 }
 
 @layer base {

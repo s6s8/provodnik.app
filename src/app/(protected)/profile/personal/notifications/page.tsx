@@ -65,7 +65,7 @@ export default function NotificationPreferencesPage() {
         <p className="text-sm text-muted-foreground">Сохранение…</p>
       )}
       {!saving && saved && (
-        <p className="text-sm text-green-600">Настройки сохранены</p>
+        <p className="text-sm text-success">Настройки сохранены</p>
       )}
     </div>
   );

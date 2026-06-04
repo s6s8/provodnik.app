@@ -98,9 +98,7 @@ async function rejectGuideAction(guideId: string) {
 export default async function AdminGuidesPage({
   searchParams,
 }: {
-  searchParams?:
-    | Promise<Record<string, string | string[] | undefined>>
-    | Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const view = resolveQueueView(resolvedSearchParams.view);
@@ -229,7 +227,7 @@ export default async function AdminGuidesPage({
                                 type="submit"
                                 variant="secondary"
                                 size="sm"
-                                className="min-w-[120px] border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+                                className="min-w-[120px] border-success/30 bg-success/10 text-success hover:bg-success/20"
                               >
                                 Одобрить
                               </Button>

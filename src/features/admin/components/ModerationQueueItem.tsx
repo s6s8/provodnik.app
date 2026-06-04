@@ -192,7 +192,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
           type="button"
           size="sm"
           disabled={busy || showReject}
-          className="border-[color-mix(in_srgb,var(--success)_35%,var(--border))] bg-[color-mix(in_srgb,var(--success)_14%,white_86%)] text-success hover:bg-[color-mix(in_srgb,var(--success)_20%,white_80%)]"
+          className="border-success/30 bg-success/10 text-success hover:bg-success/20"
           onClick={() => void handleApprove()}
         >
           Одобрить

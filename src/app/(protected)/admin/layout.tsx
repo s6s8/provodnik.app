@@ -82,7 +82,7 @@ export default async function AdminLayout({
                 <p className="text-sm text-ink-3">{email}</p>
               </div>
             </div>
-            <div className="h-px bg-[rgba(15,25,35,0.08)]" />
+            <div className="h-px bg-border" />
             <AdminSidebarNav counts={counts} />
           </div>
         </aside>

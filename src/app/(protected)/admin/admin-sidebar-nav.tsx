@@ -132,7 +132,7 @@ export function AdminMobileTabs({
 
   return (
     <nav
-      className="fixed inset-x-3 bottom-3 z-[110] grid grid-cols-7 rounded-[1.5rem] border border-glass-border bg-[rgba(249,249,255,0.9)] p-1.5 shadow-glass backdrop-blur md:hidden"
+      className="fixed inset-x-3 bottom-3 z-[110] grid grid-cols-7 rounded-[1.5rem] border border-glass-border bg-nav-glass-bg p-1.5 shadow-glass backdrop-blur md:hidden"
       aria-label="Admin workspace mobile"
     >
       {adminNavItems.map((item) => {

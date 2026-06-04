@@ -181,7 +181,7 @@ export function HeroConversation() {
               className="h-11 w-11 shrink-0 rounded-xl"
             >
               {isParsing ? (
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
               ) : (
                 <span aria-hidden="true" className="text-lg leading-none">
                   ↑
@@ -220,7 +220,7 @@ export function HeroConversation() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Предпочитаете заполнить вручную?{" "}
-          <Link href="/" className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link href="/form" className="font-medium text-primary underline-offset-2 hover:underline">
             Обычная форма
           </Link>
         </p>

@@ -37,9 +37,7 @@ export default async function TravelerBookingDisputePage({
   searchParams,
 }: {
   params: Promise<{ bookingId: string }>;
-  searchParams?:
-    | Promise<Record<string, string | string[] | undefined>>
-    | Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { bookingId } = await params;
   const resolvedSearchParams = (await searchParams) ?? {};

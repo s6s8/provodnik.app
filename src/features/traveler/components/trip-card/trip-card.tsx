@@ -162,7 +162,7 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
           variant="outline"
           className={cn(
             BADGE_CLASS,
-            "border-emerald-200 bg-emerald-50 text-emerald-700",
+            "border-success/30 bg-success/10 text-success",
           )}
         >
           <Wallet className="size-3.5" />

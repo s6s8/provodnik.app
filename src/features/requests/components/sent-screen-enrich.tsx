@@ -80,7 +80,7 @@ export function SentScreenEnrich({ requestId }: Props) {
                   className={cn(
                     "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
                     optimisticBudget === opt.value
-                      ? "border-primary bg-primary text-white"
+                      ? "border-primary bg-primary text-primary-foreground"
                       : "border-border text-foreground hover:border-primary",
                   )}
                 >

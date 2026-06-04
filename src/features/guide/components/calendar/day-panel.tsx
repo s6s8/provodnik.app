@@ -116,7 +116,7 @@ export function DayPanel({
   return (
     <>
       {/* Backdrop */}
-      <div className="fixed inset-0 z-[110] bg-black/30" onClick={onClose} aria-hidden />
+      <div className="fixed inset-0 z-[110] bg-foreground/30" onClick={onClose} aria-hidden />
 
       {/* Panel */}
       <div

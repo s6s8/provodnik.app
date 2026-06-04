@@ -266,7 +266,7 @@ describe("HomepageRequestForm UI affordances", () => {
 
     const dateFlexibilityButton = getDateFlexibilityButton();
     expect(dateFlexibilityButton).toHaveClass("cursor-pointer");
-    expect(dateFlexibilityButton).toHaveClass("border-amber-400", "text-amber-500");
+    expect(dateFlexibilityButton).toHaveClass("border-warning", "text-warning");
     fireEvent.click(dateFlexibilityButton);
     expect(dateFlexibilityButton).toHaveClass(
       "border-primary",
@@ -277,7 +277,7 @@ describe("HomepageRequestForm UI affordances", () => {
     const assemblyButton = getAssemblyButton();
     expect(assemblyButton).toHaveClass("cursor-pointer");
     expect(assemblyButton).not.toHaveAttribute("title");
-    expect(assemblyButton).toHaveClass("border-amber-400", "text-amber-500");
+    expect(assemblyButton).toHaveClass("border-warning", "text-warning");
     fireEvent.click(assemblyButton);
     expect(assemblyButton).toHaveClass(
       "border-primary",

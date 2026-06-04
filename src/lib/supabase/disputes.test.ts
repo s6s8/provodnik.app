@@ -12,7 +12,7 @@ vi.mock("@/lib/notifications/triggers", () => ({
   notifyDisputeOpened: vi.fn(),
 }));
 vi.mock("@/lib/profile/resolve-display-name", () => ({
-  resolveDisplayName: vi.fn(() => "Гид"),
+  resolveDisplayName: vi.fn(() => "Мария"),
 }));
 vi.mock("@/lib/supabase/moderation", () => ({
   requireAdminSession,

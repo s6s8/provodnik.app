@@ -179,7 +179,7 @@ export function WeeklyCalendar({
                       <span className="font-medium">
                         {titleByListingId.get(dep.listing_id) ?? "Экскурсия"}
                       </span>
-                      <span className="block text-violet-600 dark:text-violet-400">
+                      <span className="block text-gold">
                         Отправление · от {formatRub(dep.price_minor)} {cur} ·{" "}
                         {departureStatusLabel(dep.status)}
                       </span>

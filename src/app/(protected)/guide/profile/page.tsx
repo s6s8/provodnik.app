@@ -62,7 +62,7 @@ function getStorageAsset(relation: GuideVerificationDocumentRow["storage_assets"
 function getStatusBadgeClass(status: GuideVerificationStatusDb) {
   return cn(
     "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
-    status === "approved" && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+    status === "approved" && "bg-success/10 text-success",
     status === "submitted" && "bg-primary/10 text-primary",
     status === "rejected" && "bg-destructive/10 text-destructive",
     status === "draft" && "bg-muted text-muted-foreground",

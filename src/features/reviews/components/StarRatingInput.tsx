@@ -33,7 +33,7 @@ export function StarRatingInput({ value, onChange, label, size = "md" }: Props) 
               type="button"
               className={cn(
                 "rounded-md p-0.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                "text-muted-foreground hover:text-yellow-400/90",
+                "text-muted-foreground hover:text-gold/90",
               )}
               aria-label={`${star} из 5`}
               aria-pressed={value === star}
@@ -46,7 +46,7 @@ export function StarRatingInput({ value, onChange, label, size = "md" }: Props) 
                 className={cn(
                   iconClass,
                   filled
-                    ? "fill-yellow-400 text-yellow-400"
+                    ? "fill-gold text-gold"
                     : "fill-transparent",
                 )}
                 strokeWidth={filled ? 0 : 1.5}

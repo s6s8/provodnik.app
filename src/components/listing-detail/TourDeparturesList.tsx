@@ -25,9 +25,9 @@ function diffDays(start: string, end: string): number {
 
 function StatusBadge({ status }: { status: string }) {
   if (status === "active")
-    return <Badge className="bg-green-100 text-green-800 border-green-200">Свободны места</Badge>;
+    return <Badge className="bg-success/10 text-success border-success/30">Свободны места</Badge>;
   if (status === "sold_out")
-    return <Badge className="bg-orange-100 text-orange-800 border-orange-200">Мест нет</Badge>;
+    return <Badge className="bg-warning/10 text-warning border-warning/30">Мест нет</Badge>;
   return <Badge variant="secondary" className="text-muted-foreground">Отменено</Badge>;
 }
 

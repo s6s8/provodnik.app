@@ -84,17 +84,17 @@ export function DestinationsGrid({
                 style={{ objectFit: "cover" }}
                 sizes="(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 560px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-foreground/10" />
               <div className="absolute inset-0 z-[1] flex flex-col justify-end p-6">
                 {featured.listingCount ? (
-                  <span className="mb-2.5 inline-flex w-fit items-center gap-1.5 rounded-full border border-white/20 bg-white/[0.14] px-3 py-1 text-xs font-medium text-white/90 backdrop-blur-[12px]">
+                  <span className="mb-2.5 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/15 px-3 py-1 text-xs font-medium text-primary-foreground/90 backdrop-blur-[12px]">
                     {featured.listingCount} {toursWord(featured.listingCount)}
                   </span>
                 ) : null}
-                <p className="font-display text-[1.75rem] font-semibold leading-[1.1] text-white">
+                <p className="font-display text-[1.75rem] font-semibold leading-[1.1] text-primary-foreground">
                   {featured.name}
                 </p>
-                <p className="mt-1 text-[0.8125rem] text-white/70">{featured.region}</p>
+                <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{featured.region}</p>
               </div>
             </Link>
           )}
@@ -115,12 +115,12 @@ export function DestinationsGrid({
                 style={{ objectFit: "cover" }}
                 sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 320px"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[rgba(15,23,42,0.78)] to-[rgba(15,23,42,0.06)]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-foreground/10" />
               <div className="absolute inset-0 z-[1] flex flex-col justify-end p-6">
-                <p className="font-display text-[1.25rem] font-semibold leading-[1.1] text-white">
+                <p className="font-display text-[1.25rem] font-semibold leading-[1.1] text-primary-foreground">
                   {dest.name}
                 </p>
-                <p className="mt-1 text-[0.8125rem] text-white/70">{dest.region}</p>
+                <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{dest.region}</p>
               </div>
             </Link>
           ))}

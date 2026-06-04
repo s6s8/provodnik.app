@@ -35,7 +35,7 @@ export function AcceptOfferButton({
       <input type="hidden" name="guide_id" value={guideId} />
       <input type="hidden" name="price_minor" value={String(priceMinor)} />
       {state.error ? (
-        <p className="mb-2 font-sans text-[0.8125rem] text-[#c0392b]">
+        <p className="mb-2 font-sans text-[0.8125rem] text-destructive">
           {state.error}
         </p>
       ) : null}

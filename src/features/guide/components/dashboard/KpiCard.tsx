@@ -21,12 +21,12 @@ export function KpiCard({ label, value, subtext, trend, icon }: Props) {
         <div className="mt-1 flex items-baseline gap-2">
           <p className="text-2xl font-semibold tracking-tight text-foreground">{value}</p>
           {trend === "up" ? (
-            <span className="text-sm font-medium text-emerald-600 dark:text-emerald-500" aria-hidden>
+            <span className="text-sm font-medium text-success" aria-hidden>
               ↑
             </span>
           ) : null}
           {trend === "down" ? (
-            <span className="text-sm font-medium text-red-600 dark:text-red-500" aria-hidden>
+            <span className="text-sm font-medium text-destructive" aria-hidden>
               ↓
             </span>
           ) : null}

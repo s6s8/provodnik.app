@@ -32,7 +32,7 @@ export function TransportOptionPill({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/8 px-2.5 py-1 text-xs text-white/70",
+        "inline-flex items-center gap-1.5 rounded-full border border-primary-foreground/10 bg-primary-foreground/10 px-2.5 py-1 text-xs text-primary-foreground/70",
         className,
       )}
     >

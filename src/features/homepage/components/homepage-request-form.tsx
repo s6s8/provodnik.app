@@ -191,7 +191,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                     "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
                     dateFlexibility !== "exact"
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
+                      : "border-warning text-warning hover:border-gold-hover hover:text-gold-hover",
                   )}
                 >
                   ≈
@@ -261,7 +261,7 @@ export function HomepageRequestForm({ destinations }: Props) {
                       "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border transition-colors",
                       isAssembly
                         ? "border-primary bg-primary text-primary-foreground"
-                        : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
+                        : "border-warning text-warning hover:border-gold-hover hover:text-gold-hover",
                     )}
                   >
                     <UserPlus className="h-4 w-4" />

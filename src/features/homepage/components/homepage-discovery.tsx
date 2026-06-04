@@ -24,7 +24,7 @@ export function HomePageDiscovery({ requests }: Props) {
         </p>
         <div className="grid gap-4 md:grid-cols-2">
           {requests.length === 0 ? (
-            <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-foreground/[0.12] bg-white p-4 md:px-6 md:py-5 shadow-sm md:col-span-2 text-center">
+            <div className="flex h-full flex-col items-center justify-center gap-3 rounded-lg border border-border bg-card p-4 md:px-6 md:py-5 shadow-sm md:col-span-2 text-center">
               <p className="font-display text-[1.125rem] font-semibold leading-snug text-foreground">
                 Пока пусто
               </p>

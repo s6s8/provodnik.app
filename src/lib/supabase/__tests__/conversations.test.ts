@@ -72,7 +72,7 @@ function createThreadListSupabase() {
         user_id: '33333333-3333-4333-8333-333333333333',
         joined_at: '2026-04-01T10:01:00.000Z',
         last_read_at: null,
-        profile: { id: '33333333-3333-4333-8333-333333333333', full_name: 'Гид' },
+        profile: { id: '33333333-3333-4333-8333-333333333333', full_name: 'Мария' },
       },
     ],
     latestMessages: [latestMessage],

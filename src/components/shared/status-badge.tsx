@@ -1,19 +1,19 @@
 import { cn } from "@/lib/utils";
 
 const statusMap = {
-  open: "bg-[rgba(0,88,190,0.08)] text-brand",
-  booked: "bg-[rgba(33,112,228,0.12)] text-primary-hover",
-  cancelled: "bg-[rgba(185,28,28,0.1)] text-[#b91c1c]",
+  open: "bg-primary/10 text-primary",
+  booked: "bg-primary/10 text-primary-hover",
+  cancelled: "bg-destructive/10 text-destructive",
   expired: "bg-surface-low text-ink-3",
-  pending: "bg-[rgba(33,112,228,0.12)] text-primary-hover",
-  confirmed: "bg-[rgba(0,88,190,0.08)] text-brand",
-  completed: "bg-[rgba(15,114,82,0.12)] text-[#0f7252]",
-  awaiting_guide_confirmation: "bg-[rgba(33,112,228,0.12)] text-primary-hover",
-  deposit_ready: "bg-[rgba(33,112,228,0.12)] text-primary-hover",
-  awaiting_confirmation: "bg-[rgba(33,112,228,0.12)] text-primary-hover",
-  in_progress: "bg-[rgba(0,88,190,0.08)] text-brand",
-  accepted: "bg-[rgba(0,88,190,0.08)] text-brand",
-  declined: "bg-[rgba(185,28,28,0.1)] text-[#b91c1c]",
+  pending: "bg-primary/10 text-primary-hover",
+  confirmed: "bg-primary/10 text-primary",
+  completed: "bg-success/10 text-success",
+  awaiting_guide_confirmation: "bg-primary/10 text-primary-hover",
+  deposit_ready: "bg-primary/10 text-primary-hover",
+  awaiting_confirmation: "bg-primary/10 text-primary-hover",
+  in_progress: "bg-primary/10 text-primary",
+  accepted: "bg-primary/10 text-primary",
+  declined: "bg-destructive/10 text-destructive",
   withdrawn: "bg-surface-low text-ink-3",
 } as const;
 
