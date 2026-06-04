@@ -357,13 +357,25 @@ describe("HomepageRequestForm UI affordances", () => {
     ).toBeNull();
   });
 
-  it("shows all topics without an expand button", () => {
+  it("shows only first 3 topics with an expand button", () => {
     render(<HomepageRequestForm destinations={[]} />);
 
     expect(screen.getByRole("button", { name: /история и культура/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "Ещё темы" })).toBeNull();
+    expect(screen.getByRole("button", { name: /природа/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /религия и духовность/i })).toBeNull();
+    expect(screen.getByRole("button", { name: /ещё темы/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Свернуть" })).toBeNull();
+  });
+
+  it("expands all topics on 'Ещё темы' click", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+
+    const expandBtn = screen.getByRole("button", { name: /ещё темы/i });
+    fireEvent.click(expandBtn);
+
+    expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /ещё темы/i })).toBeNull();
   });
 
   it("renders topics in a three-column grid", () => {

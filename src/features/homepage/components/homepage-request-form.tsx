@@ -37,6 +37,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+  const [showAllThemes, setShowAllThemes] = React.useState(false);
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
@@ -77,6 +78,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   const watchedGroupSize = useWatch({ control, name: "groupSize" });
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
   const selectedInterests = interestsField.value ?? [];
+  const visibleThemes = showAllThemes ? THEMES : THEMES.slice(0, 3);
 
   async function submitWithFormData(fd: FormData) {
     setIsLoading(true);
@@ -310,7 +312,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
         <div className="grid grid-cols-3 gap-2">
-          {THEMES.map((theme) => {
+          {visibleThemes.map((theme) => {
             const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
             return (
@@ -337,6 +339,15 @@ export function HomepageRequestForm({ destinations }: Props) {
               </button>
             );
           })}
+          {!showAllThemes && (
+            <button
+              type="button"
+              onClick={() => setShowAllThemes(true)}
+              className="col-span-3 text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+            >
+              Ещё темы →
+            </button>
+          )}
         </div>
         <FieldError id="interests-error" message={errors.interests?.message} />
       </div>
