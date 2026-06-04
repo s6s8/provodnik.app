@@ -608,13 +608,14 @@ export async function loadGuideInboxRequests(): Promise<QueryResult<RequestRecor
 export async function getOpenRequests(
   client: SupabaseClient,
   filters?: RequestFilters,
+  statuses: string[] = ["open"],
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
     const db = client;
     const { data, error } = await db
       .from("traveler_requests")
       .select("*")
-      .eq("status", "open")
+      .in("status", statuses)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -1095,6 +1096,11 @@ export async function getHomepageRequests(
       rec.offerCount = countMap[rec.id] ?? 0;
       return rec;
     });
+    const membersMap = await fetchMembersForRequests(client, records.map((r) => r.id));
+    for (const rec of records) {
+      rec.members = membersMap.get(rec.id) ?? [];
+      if (rec.members.length > 0) rec.groupSize = rec.members.length;
+    }
 
     const filtered = records.filter((rec) => {
       if (rec.mode !== "assembly") return true;

@@ -72,7 +72,7 @@ describe("submitRequest", () => {
         guideId: "guide-1",
         destination: "Элиста",
         region: "Калмыкия",
-        category: "history",
+        category: "history_culture",
         startsOn: "2026-06-10",
         participantsCount: 2,
         formatPreference: "group",
@@ -83,7 +83,7 @@ describe("submitRequest", () => {
     expect(mockInsert).toHaveBeenCalledWith(
       expect.objectContaining({
         open_to_join: true,
-        interests: ["history"],
+        interests: ["history_culture"],
       }),
     );
   });

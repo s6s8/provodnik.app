@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useController, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { UserPlus } from "lucide-react";
 
 import {
   travelerRequestSchema,
@@ -13,11 +14,11 @@ import {
 import { LANGUAGES } from "@/data/languages";
 import { THEMES } from "@/data/themes";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
-import TrustStrip from "@/components/shared/TrustStrip";
 import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -37,7 +38,6 @@ export function HomepageRequestForm({ destinations }: Props) {
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [allowGuideSuggestions, setAllowGuideSuggestions] = React.useState(false);
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
@@ -47,7 +47,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
       startDate: "",
       dateFlexibility: "exact",
-      startTime: "12:00",
+      startTime: "10:00",
       endTime: "12:00",
       groupSize: 2,
       groupSizeCurrent: 1,
@@ -62,6 +62,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = form;
 
@@ -73,8 +74,10 @@ export function HomepageRequestForm({ destinations }: Props) {
 
   const mode = useWatch({ control, name: "mode" });
   const isAssembly = mode === "assembly";
+  const dateFlexibility = useWatch({ control, name: "dateFlexibility" });
   const watchedGroupSize = useWatch({ control, name: "groupSize" });
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
+  const selectedInterests = interestsField.value ?? [];
 
   async function submitWithFormData(fd: FormData) {
     setIsLoading(true);
@@ -98,6 +101,7 @@ export function HomepageRequestForm({ destinations }: Props) {
     }
     fd.set("destination", values.destination);
     fd.set("startDate", values.startDate);
+    fd.set("dateFlexibility", values.dateFlexibility);
     fd.set("startTime", values.startTime ?? "");
     fd.set("endTime", values.endTime ?? "");
     // Unified "Сколько вас" — write to groupSize always; when assembly,
@@ -108,7 +112,6 @@ export function HomepageRequestForm({ destinations }: Props) {
       fd.set("groupSizeCurrent", String(count));
     }
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
-    fd.set("allowGuideSuggestions", allowGuideSuggestions ? "true" : "false");
     fd.set("notes", values.notes ?? "");
 
     try {
@@ -142,12 +145,13 @@ export function HomepageRequestForm({ destinations }: Props) {
   };
 
   return (
-    <form
-      className="grid gap-5 pb-24 sm:pb-0"
-      onSubmit={handleSubmit(onSubmit)}
-      aria-label="Создать запрос"
-      noValidate
-    >
+    <TooltipProvider>
+      <form
+        className="grid gap-5 pb-24 sm:pb-0"
+        onSubmit={handleSubmit(onSubmit)}
+        aria-label="Создать запрос"
+        noValidate
+      >
       {/* 2. Куда хотите поехать? */}
       <div className="grid gap-2">
         <FieldLabel htmlFor="destination">Куда хотите поехать?</FieldLabel>
@@ -169,9 +173,35 @@ export function HomepageRequestForm({ destinations }: Props) {
       </div>
 
       {/* 3. Даты и время */}
-      <div className="grid gap-3 sm:grid-cols-3 sm:items-end sm:gap-2">
+      <div className="grid gap-3 sm:grid-cols-3 sm:items-start sm:gap-2">
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+          <div className="flex min-h-7 items-center gap-1.5">
+            <FieldLabel htmlFor="startDate">Дата</FieldLabel>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = form.getValues("dateFlexibility");
+                    setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+                      shouldDirty: true,
+                    });
+                  }}
+                  className={cn(
+                    "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
+                    dateFlexibility !== "exact"
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
+                  )}
+                >
+                  ≈
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="text-sm">
+                <p>Гибкая дата (±2–3 дня)</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Input
             id="startDate"
             type="date"
@@ -183,20 +213,26 @@ export function HomepageRequestForm({ destinations }: Props) {
           <FieldError id="startDate-error" message={errors.startDate?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+          <div className="flex min-h-7 items-center">
+            <FieldLabel htmlFor="startTime">Начало</FieldLabel>
+          </div>
           <Input
             id="startTime"
             type="time"
+            defaultValue="10:00"
             aria-invalid={Boolean(errors.startTime)}
             {...register("startTime")}
           />
           <FieldError id="startTime-error" message={errors.startTime?.message} />
         </div>
         <div className="grid gap-2">
-          <FieldLabel htmlFor="endTime">Конец (необязательно)</FieldLabel>
+          <div className="flex min-h-7 items-center">
+            <FieldLabel htmlFor="endTime">Конец <span className="font-normal text-muted-foreground">(необязательно)</span></FieldLabel>
+          </div>
           <Input
             id="endTime"
             type="time"
+            defaultValue="12:00"
             aria-invalid={Boolean(errors.endTime)}
             {...register("endTime")}
           />
@@ -204,95 +240,83 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 4. Сколько вас + opt-in companions toggle */}
+      {/* 4. Сколько вас + Бюджет на человека */}
       <div className="grid gap-3">
-        <div className="grid gap-2">
-          <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
-          <Input
-            id="groupSize"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={20}
-            aria-invalid={Boolean(errors.groupSize)}
-            {...register("groupSize", { valueAsNumber: true })}
-          />
-          <FieldError id="groupSize-error" message={errors.groupSize?.message} />
+        <div className="grid grid-cols-2 items-start gap-2">
+          <div className="grid gap-2">
+            <div className="flex min-h-7 items-center gap-1.5">
+              <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const current = form.getValues("mode");
+                      form.setValue("mode", current === "assembly" ? "private" : "assembly", {
+                        shouldValidate: false,
+                        shouldDirty: true,
+                      });
+                    }}
+                    className={cn(
+                      "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border transition-colors",
+                      isAssembly
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-amber-400 text-amber-500 hover:border-amber-500 hover:text-amber-600",
+                    )}
+                  >
+                    <UserPlus className="h-4 w-4" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent className="text-sm">
+                  <p>Открытая группа — другие путешественники могут присоединиться</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <Input
+              id="groupSize"
+              type="text"
+              inputMode="numeric"
+              placeholder="2"
+              aria-invalid={Boolean(errors.groupSize)}
+              {...register("groupSize", { valueAsNumber: true })}
+            />
+            <FieldError id="groupSize-error" message={errors.groupSize?.message} />
+          </div>
+          <div className="grid gap-2">
+            <div className="flex min-h-7 items-center">
+              <FieldLabel htmlFor="budgetPerPersonRub">
+                Бюджет на человека (₽)
+              </FieldLabel>
+            </div>
+            <Input
+              id="budgetPerPersonRub"
+              type="number"
+              inputMode="numeric"
+              min={1000}
+              max={2000000}
+              aria-invalid={Boolean(errors.budgetPerPersonRub)}
+              aria-describedby="budgetPerPersonRub-total"
+              {...register("budgetPerPersonRub", { valueAsNumber: true })}
+            />
+            <FieldError
+              id="budgetPerPersonRub-error"
+              message={errors.budgetPerPersonRub?.message}
+            />
+          </div>
         </div>
-
-        <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 accent-primary"
-            checked={isAssembly}
-            onChange={(e) =>
-              form.setValue("mode", e.target.checked ? "assembly" : "private", {
-                shouldValidate: false,
-                shouldDirty: true,
-              })
-            }
-          />
-          <span className="flex flex-col gap-0.5 text-sm">
-            <span className="font-medium text-foreground">
-              Открыт к увеличению группы
-            </span>
-          </span>
-        </label>
-        <label className="flex items-start gap-2 cursor-pointer rounded-xl border border-input bg-background px-3 py-2.5 hover:bg-muted/40">
-          <input
-            type="checkbox"
-            className="mt-0.5 h-4 w-4 accent-primary"
-            checked={allowGuideSuggestions}
-            onChange={(e) => setAllowGuideSuggestions(e.target.checked)}
-          />
-          <span className="flex flex-col gap-0.5 text-sm">
-            <span className="font-medium text-foreground">
-              Разрешаю гидам предлагать близкие даты и время
-            </span>
-          </span>
-        </label>
-      </div>
-
-      {/* 5. Языки экскурсии */}
-      <div className="grid gap-2">
-        <FieldLabel>Языки экскурсии (необязательно)</FieldLabel>
-        <LanguageMultiSelect
-          options={LANGUAGES}
-          value={requestedLanguagesField.value ?? []}
-          onChange={requestedLanguagesField.onChange}
-        />
-      </div>
-
-      {/* 6. Бюджет на человека (₽) */}
-      <div className="grid gap-2">
-        <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
-        <Input
-          id="budgetPerPersonRub"
-          type="number"
-          inputMode="numeric"
-          min={1000}
-          max={2000000}
-          aria-invalid={Boolean(errors.budgetPerPersonRub)}
-          aria-describedby="budgetPerPersonRub-total"
-          {...register("budgetPerPersonRub", { valueAsNumber: true })}
-        />
         <TotalBudgetHint
           id="budgetPerPersonRub-total"
           perPerson={watchedBudgetPerPerson}
           groupSize={watchedGroupSize}
-        />
-        <FieldError
-          id="budgetPerPersonRub-error"
-          message={errors.budgetPerPersonRub?.message}
         />
       </div>
 
       {/* 7. Темы */}
       <div className="grid gap-2">
         <FieldLabel>Темы</FieldLabel>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {THEMES.map((theme) => {
-            const selected = interestsField.value.includes(theme.slug);
+            const selected = selectedInterests.includes(theme.slug);
             const Icon = theme.Icon;
             return (
               <button
@@ -307,14 +331,14 @@ export function HomepageRequestForm({ destinations }: Props) {
                   interestsField.onChange(next);
                 }}
                 className={cn(
-                  "flex flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
+                  "flex w-full flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
                   selected
                     ? "border-primary bg-primary/8 text-primary ring-2 ring-primary/40"
                     : "border-input bg-background text-muted-foreground hover:bg-muted/40",
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
-                <span>{theme.label}</span>
+                <span className="leading-tight">{theme.label}</span>
               </button>
             );
           })}
@@ -328,15 +352,23 @@ export function HomepageRequestForm({ destinations }: Props) {
           <span aria-hidden="true" className="text-base leading-none group-open:hidden">+</span>
           <span aria-hidden="true" className="hidden text-base leading-none group-open:inline">−</span>
           <span>Добавить детали</span>
+          <span className="text-muted-foreground font-normal">(выбрать язык, написать пожелания)</span>
         </summary>
-        <div className="grid gap-2 px-3 pb-3 pt-1">
+        <div className="grid gap-3 px-3 pb-3 pt-1">
+          <div className="grid gap-2">
+            <FieldLabel>Языки экскурсии</FieldLabel>
+            <LanguageMultiSelect
+              options={LANGUAGES}
+              value={requestedLanguagesField.value ?? []}
+              onChange={requestedLanguagesField.onChange}
+            />
+          </div>
           <Textarea
             id="notes"
-            placeholder="Пожелания, ограничения, формат отчётных документов. Если оформляете от компании — укажите название юрлица, ИНН и нужны ли счёт/акт или оплата по реквизитам."
+            placeholder="Особые пожелания, ограничения по здоровью или другие детали."
             aria-invalid={Boolean(errors.notes)}
             {...register("notes")}
           />
-          <FieldHint>Пишите коротко — детали можно уточнить после первых откликов. Для заказа от юрлица добавьте сюда название компании, ИНН и тип документов.</FieldHint>
           <FieldError id="notes-error" message={errors.notes?.message} />
         </div>
       </details>
@@ -363,8 +395,8 @@ export function HomepageRequestForm({ destinations }: Props) {
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
       </div>
-      <TrustStrip className="mt-6" />
-    </form>
+      </form>
+    </TooltipProvider>
   );
 }
 
@@ -375,10 +407,6 @@ function FieldLabel(props: React.ComponentProps<"label">) {
       className={cn("text-sm font-medium text-foreground", props.className)}
     />
   );
-}
-
-function FieldHint({ className, ...props }: React.ComponentProps<"p">) {
-  return <p {...props} className={cn("text-xs text-muted-foreground", className)} />;
 }
 
 function FieldError({ id, message }: { id: string; message?: string }) {
@@ -422,15 +450,14 @@ function TotalBudgetHint({
       aria-live="polite"
     >
       Итого: <span className="font-medium text-foreground">{total.toLocaleString("ru-RU")} ₽</span>
-      {" "}за группу из {safeCount} {pluralizePeople(safeCount)}.
+      {" "}за группу из {safeCount} {pluralizePeopleGenitive(safeCount)}.
     </p>
   );
 }
 
-function pluralizePeople(n: number): string {
+function pluralizePeopleGenitive(n: number): string {
   const mod10 = n % 10;
   const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "человек";
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return "человека";
+  if (mod10 === 1 && mod100 !== 11) return "человека";
   return "человек";
 }

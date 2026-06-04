@@ -82,7 +82,7 @@ describe("BidFormPanel — mode line", () => {
     expect(
       screen.getByText("К запросу могут присоединяться другие путешественники"),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/^Сборная группа$/)).toBeNull();
+    expect(screen.queryByText(/^Открытая группа$/)).toBeNull();
   });
 
   it("renders text line for private mode with N count", () => {

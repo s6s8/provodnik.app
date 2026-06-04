@@ -1,0 +1,9 @@
+---
+description: Restrict the RLS-bypassing admin Supabase client
+globs: src/**/*.ts,src/**/*.tsx
+---
+`createSupabaseAdminClient()` (service-role, RLS-bypassing) may ONLY be imported inside
+`src/lib/**` modules, and any file importing it MUST begin with `import "server-only";`.
+Never import it into a feature/action/component file, and never into a `"use client"` file.
+Never import values from server-only modules (src/lib/supabase/server, src/lib/auth/server-auth,
+anything using next/headers) into a client component — split shared types into `*-types.ts`.

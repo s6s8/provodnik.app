@@ -1,0 +1,258 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Карточки запросов — счётчик участников" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Сравниваем два способа показать число участников при одинаковой верхней строке с темами-чипами и чистом нижнем ряду с ценой справа.
+    - generic [ref=e6]:
+      - region "1 · Счётчик в стеке" [ref=e7]:
+        - generic [ref=e8]:
+          - heading "1 · Счётчик в стеке" [level=2] [ref=e9]
+          - paragraph [ref=e10]: Число становится последним кружком в стеке аватаров, чтобы весь левый блок читался как один объект.
+        - generic [ref=e11]:
+          - generic [ref=e12]:
+            - paragraph [ref=e13]: Соло · 1 участник
+            - article [ref=e14]:
+              - generic [ref=e16]:
+                - text: Ждёт гида
+                - img [ref=e17]
+              - link "Мцхета Сегодня, 18:00 Открытая История и культура Религия и духовность" [ref=e22] [cursor=pointer]:
+                - /url: /requests/count-prototype-solo
+                - paragraph [ref=e23]: Мцхета
+                - paragraph [ref=e24]: Сегодня, 18:00
+                - generic [ref=e25]:
+                  - generic [ref=e26]:
+                    - img [ref=e27]
+                    - text: Открытая
+                  - generic [ref=e32]:
+                    - img [ref=e33]
+                    - text: История и культура
+                  - generic [ref=e35]:
+                    - img [ref=e36]
+                    - text: Религия и духовность
+              - generic [ref=e40]:
+                - generic "Ана" [ref=e43]:
+                  - generic [ref=e44]: А
+                - generic [ref=e45]: 3 500 ₽
+          - generic [ref=e46]:
+            - paragraph [ref=e47]: Малая группа · 3 участника
+            - article [ref=e48]:
+              - generic [ref=e50]:
+                - text: Гид найден
+                - img [ref=e51]
+              - link "Тбилиси 12 июня, 18:00 Открытая Гибкие даты Гастрономия История и культура Искусство" [ref=e53] [cursor=pointer]:
+                - /url: /requests/count-prototype-small
+                - paragraph [ref=e54]: Тбилиси
+                - paragraph [ref=e55]: 12 июня, 18:00
+                - generic [ref=e56]:
+                  - generic [ref=e57]:
+                    - img [ref=e58]
+                    - text: Открытая
+                  - generic [ref=e63]: Гибкие даты
+                  - generic [ref=e64]:
+                    - img [ref=e65]
+                    - text: Гастрономия
+                  - generic [ref=e68]:
+                    - img [ref=e69]
+                    - text: История и культура
+                  - generic [ref=e71]:
+                    - img [ref=e72]
+                    - text: Искусство
+              - generic [ref=e78]:
+                - generic [ref=e80]:
+                  - generic "Нино" [ref=e81]:
+                    - generic [ref=e82]: Н
+                  - generic "Анна" [ref=e83]:
+                    - generic [ref=e84]: А
+                  - generic "Максим" [ref=e85]:
+                    - generic [ref=e86]: М
+                  - generic [ref=e87]: "3"
+                - generic [ref=e88]: 4 500 ₽
+          - generic [ref=e89]:
+            - paragraph [ref=e90]: Большая группа · 40
+            - article [ref=e91]:
+              - generic [ref=e93]:
+                - text: Ждёт гида
+                - img [ref=e94]
+              - link "Кахетия 5 июля, 11:30 Открытая Гастрономия Природа Необычные маршруты" [ref=e99] [cursor=pointer]:
+                - /url: /requests/count-prototype-large
+                - paragraph [ref=e100]: Кахетия
+                - paragraph [ref=e101]: 5 июля, 11:30
+                - generic [ref=e102]:
+                  - generic [ref=e103]:
+                    - img [ref=e104]
+                    - text: Открытая
+                  - generic [ref=e109]:
+                    - img [ref=e110]
+                    - text: Гастрономия
+                  - generic [ref=e113]:
+                    - img [ref=e114]
+                    - text: Природа
+                  - generic [ref=e117]:
+                    - img [ref=e118]
+                    - text: Необычные маршруты
+              - generic [ref=e121]:
+                - generic [ref=e123]:
+                  - generic "Тамар" [ref=e124]:
+                    - generic [ref=e125]: Т
+                  - generic "Олег" [ref=e126]:
+                    - generic [ref=e127]: О
+                  - generic "Катя" [ref=e128]:
+                    - generic [ref=e129]: К
+                  - generic [ref=e130]: "40"
+                - generic [ref=e131]: 6 800 ₽
+          - generic [ref=e132]:
+            - paragraph [ref=e133]: Своя группа · 2 участника
+            - article [ref=e134]:
+              - generic [ref=e136]:
+                - text: Гид найден
+                - img [ref=e137]
+              - link "Казбеги 21 июня, 10:00 Своя группа Природа История и культура" [ref=e139] [cursor=pointer]:
+                - /url: /requests/count-prototype-private
+                - paragraph [ref=e140]: Казбеги
+                - paragraph [ref=e141]: 21 июня, 10:00
+                - generic [ref=e142]:
+                  - generic [ref=e143]:
+                    - img [ref=e144]
+                    - text: Своя группа
+                  - generic [ref=e149]:
+                    - img [ref=e150]
+                    - text: Природа
+                  - generic [ref=e153]:
+                    - img [ref=e154]
+                    - text: История и культура
+              - generic [ref=e156]:
+                - generic [ref=e158]:
+                  - generic "Мариам" [ref=e159]:
+                    - generic [ref=e160]: М
+                  - generic "Роман" [ref=e161]:
+                    - generic [ref=e162]: Р
+                  - generic [ref=e163]: "2"
+                - generic [ref=e164]: 7 900 ₽
+      - region "2 · Счётчик подписью" [ref=e165]:
+        - generic [ref=e166]:
+          - heading "2 · Счётчик подписью" [level=2] [ref=e167]
+          - paragraph [ref=e168]: Аватары остаются чистой строкой, а число участников уходит в короткую подпись под ними.
+        - generic [ref=e169]:
+          - generic [ref=e170]:
+            - paragraph [ref=e171]: Соло · 1 участник
+            - article [ref=e172]:
+              - generic [ref=e174]:
+                - text: Ждёт гида
+                - img [ref=e175]
+              - link "Мцхета Сегодня, 18:00 Открытая История и культура Религия и духовность" [ref=e180] [cursor=pointer]:
+                - /url: /requests/count-prototype-solo
+                - paragraph [ref=e181]: Мцхета
+                - paragraph [ref=e182]: Сегодня, 18:00
+                - generic [ref=e183]:
+                  - generic [ref=e184]:
+                    - img [ref=e185]
+                    - text: Открытая
+                  - generic [ref=e190]:
+                    - img [ref=e191]
+                    - text: История и культура
+                  - generic [ref=e193]:
+                    - img [ref=e194]
+                    - text: Религия и духовность
+              - generic [ref=e198]:
+                - generic "Ана" [ref=e201]:
+                  - generic [ref=e202]: А
+                - generic [ref=e203]: 3 500 ₽
+          - generic [ref=e204]:
+            - paragraph [ref=e205]: Малая группа · 3 участника
+            - article [ref=e206]:
+              - generic [ref=e208]:
+                - text: Гид найден
+                - img [ref=e209]
+              - link "Тбилиси 12 июня, 18:00 Открытая Гибкие даты Гастрономия История и культура Искусство" [ref=e211] [cursor=pointer]:
+                - /url: /requests/count-prototype-small
+                - paragraph [ref=e212]: Тбилиси
+                - paragraph [ref=e213]: 12 июня, 18:00
+                - generic [ref=e214]:
+                  - generic [ref=e215]:
+                    - img [ref=e216]
+                    - text: Открытая
+                  - generic [ref=e221]: Гибкие даты
+                  - generic [ref=e222]:
+                    - img [ref=e223]
+                    - text: Гастрономия
+                  - generic [ref=e226]:
+                    - img [ref=e227]
+                    - text: История и культура
+                  - generic [ref=e229]:
+                    - img [ref=e230]
+                    - text: Искусство
+              - generic [ref=e236]:
+                - generic [ref=e237]:
+                  - generic [ref=e238]:
+                    - generic "Нино" [ref=e239]:
+                      - generic [ref=e240]: Н
+                    - generic "Анна" [ref=e241]:
+                      - generic [ref=e242]: А
+                    - generic "Максим" [ref=e243]:
+                      - generic [ref=e244]: М
+                  - generic [ref=e245]: 3 идут
+                - generic [ref=e246]: 4 500 ₽
+          - generic [ref=e247]:
+            - paragraph [ref=e248]: Большая группа · 40
+            - article [ref=e249]:
+              - generic [ref=e251]:
+                - text: Ждёт гида
+                - img [ref=e252]
+              - link "Кахетия 5 июля, 11:30 Открытая Гастрономия Природа Необычные маршруты" [ref=e257] [cursor=pointer]:
+                - /url: /requests/count-prototype-large
+                - paragraph [ref=e258]: Кахетия
+                - paragraph [ref=e259]: 5 июля, 11:30
+                - generic [ref=e260]:
+                  - generic [ref=e261]:
+                    - img [ref=e262]
+                    - text: Открытая
+                  - generic [ref=e267]:
+                    - img [ref=e268]
+                    - text: Гастрономия
+                  - generic [ref=e271]:
+                    - img [ref=e272]
+                    - text: Природа
+                  - generic [ref=e275]:
+                    - img [ref=e276]
+                    - text: Необычные маршруты
+              - generic [ref=e279]:
+                - generic [ref=e280]:
+                  - generic [ref=e281]:
+                    - generic "Тамар" [ref=e282]:
+                      - generic [ref=e283]: Т
+                    - generic "Олег" [ref=e284]:
+                      - generic [ref=e285]: О
+                    - generic "Катя" [ref=e286]:
+                      - generic [ref=e287]: К
+                  - generic [ref=e288]: 40 идут
+                - generic [ref=e289]: 6 800 ₽
+          - generic [ref=e290]:
+            - paragraph [ref=e291]: Своя группа · 2 участника
+            - article [ref=e292]:
+              - generic [ref=e294]:
+                - text: Гид найден
+                - img [ref=e295]
+              - link "Казбеги 21 июня, 10:00 Своя группа Природа История и культура" [ref=e297] [cursor=pointer]:
+                - /url: /requests/count-prototype-private
+                - paragraph [ref=e298]: Казбеги
+                - paragraph [ref=e299]: 21 июня, 10:00
+                - generic [ref=e300]:
+                  - generic [ref=e301]:
+                    - img [ref=e302]
+                    - text: Своя группа
+                  - generic [ref=e307]:
+                    - img [ref=e308]
+                    - text: Природа
+                  - generic [ref=e311]:
+                    - img [ref=e312]
+                    - text: История и культура
+              - generic [ref=e314]:
+                - generic [ref=e315]:
+                  - generic [ref=e316]:
+                    - generic "Мариам" [ref=e317]:
+                      - generic [ref=e318]: М
+                    - generic "Роман" [ref=e319]:
+                      - generic [ref=e320]: Р
+                  - generic [ref=e321]: 2 идут
+                - generic [ref=e322]: 7 900 ₽
+  - alert [ref=e323]

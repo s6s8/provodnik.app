@@ -1,0 +1,139 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - heading "Карточки запросов — счётчик участников" [level=1] [ref=e4]
+      - paragraph [ref=e5]: Статусы подняты в верхнюю строку, темы живут отдельными рядами, низ — только участники и цена.
+    - region "Счётчик в стеке" [ref=e7]:
+      - generic [ref=e8]:
+        - heading "Счётчик в стеке" [level=2] [ref=e9]
+        - paragraph [ref=e10]: Город и статусы сверху, дата ниже, темы отдельными рядами. Внизу остаются только участники и цена.
+      - generic [ref=e11]:
+        - generic [ref=e12]:
+          - paragraph [ref=e13]: Соло · 1 участник
+          - article [ref=e14]:
+            - link "Мцхета Ждёт гида Сегодня, 18:00 Открытая История и культура Религия и духовность" [ref=e15] [cursor=pointer]:
+              - /url: /requests/count-prototype-solo
+              - generic [ref=e16]:
+                - paragraph [ref=e17]: Мцхета
+                - generic [ref=e19]:
+                  - text: Ждёт гида
+                  - img [ref=e20]
+              - generic [ref=e25]:
+                - paragraph [ref=e26]: Сегодня, 18:00
+                - generic [ref=e27]:
+                  - img [ref=e28]
+                  - text: Открытая
+              - generic [ref=e33]:
+                - generic [ref=e34]:
+                  - img [ref=e35]
+                  - text: История и культура
+                - generic [ref=e37]:
+                  - img [ref=e38]
+                  - text: Религия и духовность
+            - generic [ref=e42]:
+              - generic "Ана" [ref=e44]:
+                - generic [ref=e45]: А
+              - generic [ref=e46]: 3 500 ₽
+        - generic [ref=e47]:
+          - paragraph [ref=e48]: Малая группа · 3 участника
+          - article [ref=e49]:
+            - link "Тбилиси Гид найден 12 июня, 18:00 Открытая Гибкие даты Гастрономия История и культура Искусство" [ref=e50] [cursor=pointer]:
+              - /url: /requests/count-prototype-small
+              - generic [ref=e51]:
+                - paragraph [ref=e52]: Тбилиси
+                - generic [ref=e54]:
+                  - text: Гид найден
+                  - img [ref=e55]
+              - generic [ref=e57]:
+                - paragraph [ref=e58]: 12 июня, 18:00
+                - generic [ref=e59]:
+                  - img [ref=e60]
+                  - text: Открытая
+                - generic [ref=e65]: Гибкие даты
+              - generic [ref=e66]:
+                - generic [ref=e67]:
+                  - img [ref=e68]
+                  - text: Гастрономия
+                - generic [ref=e71]:
+                  - img [ref=e72]
+                  - text: История и культура
+              - generic [ref=e75]:
+                - img [ref=e76]
+                - text: Искусство
+            - generic [ref=e82]:
+              - generic [ref=e83]:
+                - generic "Нино" [ref=e84]:
+                  - generic [ref=e85]: Н
+                - generic "Анна" [ref=e86]:
+                  - generic [ref=e87]: А
+                - generic "Максим" [ref=e88]:
+                  - generic [ref=e89]: М
+                - generic [ref=e90]: "3"
+              - generic [ref=e91]: 4 500 ₽
+        - generic [ref=e92]:
+          - paragraph [ref=e93]: Большая группа · 40
+          - article [ref=e94]:
+            - link "Кахетия Ждёт гида 5 июля, 11:30 Открытая Гастрономия Природа Необычные маршруты" [ref=e95] [cursor=pointer]:
+              - /url: /requests/count-prototype-large
+              - generic [ref=e96]:
+                - paragraph [ref=e97]: Кахетия
+                - generic [ref=e99]:
+                  - text: Ждёт гида
+                  - img [ref=e100]
+              - generic [ref=e105]:
+                - paragraph [ref=e106]: 5 июля, 11:30
+                - generic [ref=e107]:
+                  - img [ref=e108]
+                  - text: Открытая
+              - generic [ref=e113]:
+                - generic [ref=e114]:
+                  - img [ref=e115]
+                  - text: Гастрономия
+                - generic [ref=e118]:
+                  - img [ref=e119]
+                  - text: Природа
+              - generic [ref=e123]:
+                - img [ref=e124]
+                - text: Необычные маршруты
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - generic "Тамар" [ref=e129]:
+                  - generic [ref=e130]: Т
+                - generic "Олег" [ref=e131]:
+                  - generic [ref=e132]: О
+                - generic "Катя" [ref=e133]:
+                  - generic [ref=e134]: К
+                - generic [ref=e135]: "40"
+              - generic [ref=e136]: 6 800 ₽
+        - generic [ref=e137]:
+          - paragraph [ref=e138]: Своя группа · 2 участника
+          - article [ref=e139]:
+            - link "Казбеги Гид найден 21 июня, 10:00 Своя группа Природа История и культура" [ref=e140] [cursor=pointer]:
+              - /url: /requests/count-prototype-private
+              - generic [ref=e141]:
+                - paragraph [ref=e142]: Казбеги
+                - generic [ref=e144]:
+                  - text: Гид найден
+                  - img [ref=e145]
+              - generic [ref=e147]:
+                - paragraph [ref=e148]: 21 июня, 10:00
+                - generic [ref=e149]:
+                  - img [ref=e150]
+                  - text: Своя группа
+              - generic [ref=e155]:
+                - generic [ref=e156]:
+                  - img [ref=e157]
+                  - text: Природа
+                - generic [ref=e160]:
+                  - img [ref=e161]
+                  - text: История и культура
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - generic "Мариам" [ref=e165]:
+                  - generic [ref=e166]: М
+                - generic "Роман" [ref=e167]:
+                  - generic [ref=e168]: Р
+                - generic [ref=e169]: "2"
+              - generic [ref=e170]: 7 900 ₽
+  - button "Open Next.js Dev Tools" [ref=e176] [cursor=pointer]:
+    - img [ref=e177]

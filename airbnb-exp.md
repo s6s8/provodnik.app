@@ -1,0 +1,1636 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#site-content"
+    - text: Skip to content
+    - img [ref=e3]
+  - alert
+  - generic [ref=e15]:
+    - heading "Airbnb homepage" [level=1] [ref=e16]
+    - banner [ref=e20]:
+      - link "Airbnb homepage" [ref=e21] [cursor=pointer]:
+        - /url: /
+        - img [ref=e23]
+      - search [ref=e25]:
+        - generic [ref=e27]:
+          - tablist [ref=e29]:
+            - tab "Homes" [ref=e30] [cursor=pointer]:
+              - generic [ref=e34]: Homes
+              - generic [ref=e36]: Homes
+            - tab "Experiences, new" [selected] [ref=e37] [cursor=pointer]:
+              - generic [ref=e269]:
+                - text: NEW
+                - generic [ref=e270]: NEW
+              - generic [ref=e41]: Experiences
+              - generic [ref=e43]: Experiences, new
+            - tab "Services, new" [ref=e44] [cursor=pointer]:
+              - generic [ref=e274]:
+                - text: NEW
+                - generic [ref=e275]: NEW
+              - generic [ref=e48]: Services
+              - generic [ref=e50]: Services, new
+          - generic [ref=e51]:
+            - generic [ref=e55]:
+              - generic [ref=e57] [cursor=pointer]:
+                - generic [ref=e281]: Where
+                - searchbox "Where" [ref=e282]
+              - button "When Add dates" [ref=e283] [cursor=pointer]:
+                - generic [ref=e63]:
+                  - generic [ref=e284]: When
+                  - generic [ref=e285]: Add dates
+              - button "Who Add guests" [ref=e286] [cursor=pointer]:
+                - generic [ref=e69]:
+                  - generic [ref=e287]: Who
+                  - generic [ref=e288]: Add guests
+            - button "Search" [ref=e73] [cursor=pointer]:
+              - img [ref=e76]
+      - navigation "Profile" [ref=e80]:
+        - generic [ref=e81]:
+          - button "Become a host" [ref=e289] [cursor=pointer]:
+            - generic [ref=e290]: Become a host
+          - button "Choose a language and currency" [ref=e291] [cursor=pointer]:
+            - img [ref=e293]
+        - button "Main navigation menu" [ref=e295] [cursor=pointer]:
+          - img [ref=e297]
+    - generic [ref=e96]:
+      - main [ref=e97]:
+        - generic [ref=e98]:
+          - group "Happening today in Ajman City" [ref=e303]:
+            - link "Happening today in Ajman City" [ref=e306] [cursor=pointer]:
+              - /url: /s/Ajman-City/experiences?place_id=ChIJeb6P3WRXXz4RGahFZN6QoM0&refinement_paths%5B%5D=%2Fexperiences&checkin=2026-06-03&checkout=2026-06-03&search_type=HOMEPAGE_CAROUSEL_CLICK
+              - generic [ref=e307]:
+                - heading "Happening today in Ajman City" [level=2] [ref=e308]:
+                  - generic [ref=e309]: Happening today in Ajman City
+                - img [ref=e311]
+            - generic [ref=e314]: 6 of 9 items showing
+            - generic [ref=e317]:
+              - button "Previous" [disabled] [ref=e318]:
+                - generic [ref=e319]:
+                  - generic [ref=e320]: _
+                  - img [ref=e321]
+              - button "Next" [ref=e323] [cursor=pointer]:
+                - generic [ref=e324]:
+                  - generic [ref=e325]: _
+                  - img [ref=e326]
+            - generic [ref=e332]:
+              - group "Explore desert with kids" [ref=e334]:
+                - link "Explore desert with kids" [ref=e335] [cursor=pointer]:
+                  - /url: /experiences/1915943?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e336]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 2:30 PM
+                            - generic: 2:30 PM
+                        - 'button "Add to wishlist: Explore desert with kids" [ref=e338] [cursor=pointer]':
+                          - img [ref=e340]
+                  - generic [ref=e342]:
+                    - generic [ref=e344]: Explore desert with kids
+                    - generic [ref=e345]:
+                      - generic [ref=e349]:
+                        - generic "From ﺩ.ﺇ 200, per guest" [ref=e350]:
+                          - generic [ref=e351]: From
+                          - generic [ref=e352]: ﺩ.ﺇ 200
+                          - generic [ref=e353]: / guest
+                        - generic [ref=e354]: From ﺩ.ﺇ 200, per guest
+                      - generic [ref=e355]:
+                        - generic [ref=e356]: ","
+                        - generic [ref=e357]: ·
+                      - generic [ref=e358]:
+                        - generic [ref=e359]: 4.98 out of 5 average rating
+                        - img [ref=e361]
+                        - generic [ref=e363]: "4.98"
+              - group "TopTen things to do in Dubai" [ref=e365]:
+                - link "TopTen things to do in Dubai" [ref=e366] [cursor=pointer]:
+                  - /url: /experiences/2918869?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e367]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 8:15 PM
+                            - generic: 8:15 PM
+                        - 'button "Add to wishlist: TopTen things to do in Dubai" [ref=e369] [cursor=pointer]':
+                          - img [ref=e371]
+                  - generic [ref=e373]:
+                    - generic [ref=e375]: TopTen things to do in Dubai
+                    - generic [ref=e376]:
+                      - generic [ref=e380]:
+                        - generic "From ﺩ.ﺇ 187, per guest" [ref=e381]:
+                          - generic [ref=e382]: From
+                          - generic [ref=e383]: ﺩ.ﺇ 187
+                          - generic [ref=e384]: / guest
+                        - generic [ref=e385]: From ﺩ.ﺇ 187, per guest
+                      - generic [ref=e386]:
+                        - generic [ref=e387]: ","
+                        - generic [ref=e388]: ·
+                      - generic [ref=e389]:
+                        - generic [ref=e390]: 4.79 out of 5 average rating
+                        - img [ref=e392]
+                        - generic [ref=e394]: "4.79"
+              - group "Explore Al Fahidi district with historical markets" [ref=e396]:
+                - link "Explore Al Fahidi district with historical markets" [ref=e397] [cursor=pointer]:
+                  - /url: /experiences/6472754?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e398]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 5 PM
+                            - generic: 5 PM
+                        - 'button "Add to wishlist: Explore Al Fahidi district with historical markets" [ref=e400] [cursor=pointer]':
+                          - img [ref=e402]
+                  - generic [ref=e404]:
+                    - generic [ref=e406]: Explore Al Fahidi district with historical markets
+                    - generic [ref=e407]:
+                      - generic [ref=e411]:
+                        - generic "From ﺩ.ﺇ 120, per guest" [ref=e412]:
+                          - generic [ref=e413]: From
+                          - generic [ref=e414]: ﺩ.ﺇ 120
+                          - generic [ref=e415]: / guest
+                        - generic [ref=e416]: From ﺩ.ﺇ 120, per guest
+                      - generic [ref=e417]:
+                        - generic [ref=e418]: ","
+                        - generic [ref=e419]: ·
+                      - generic [ref=e420]:
+                        - generic [ref=e421]: 4.92 out of 5 average rating
+                        - img [ref=e423]
+                        - generic [ref=e425]: "4.92"
+              - 'group "Heritage & modern Dubai: souks to the Palm" [ref=e427]':
+                - 'link "Heritage & modern Dubai: souks to the Palm" [ref=e428] [cursor=pointer]':
+                  - /url: /experiences/6919536?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e429]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 8 PM
+                            - generic: 8 PM
+                        - 'button "Add to wishlist: Heritage & modern Dubai: souks to the Palm" [ref=e431] [cursor=pointer]':
+                          - img [ref=e433]
+                  - generic [ref=e435]:
+                    - generic [ref=e437]: "Heritage & modern Dubai: souks to the Palm"
+                    - generic [ref=e442]:
+                      - generic "From ﺩ.ﺇ 125, per guest" [ref=e443]:
+                        - generic [ref=e444]: From
+                        - generic [ref=e445]: ﺩ.ﺇ 125
+                        - generic [ref=e446]: / guest
+                      - generic [ref=e447]: From ﺩ.ﺇ 125, per guest
+              - group "Experience Old Dubai & Souks with Abra & Tastings" [ref=e449]:
+                - link "Experience Old Dubai & Souks with Abra & Tastings" [ref=e450] [cursor=pointer]:
+                  - /url: /experiences/2073477?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e451]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 5 PM
+                            - generic: 5 PM
+                        - 'button "Add to wishlist: Experience Old Dubai & Souks with Abra & Tastings" [ref=e453] [cursor=pointer]':
+                          - img [ref=e455]
+                  - generic [ref=e457]:
+                    - generic [ref=e459]: Experience Old Dubai & Souks with Abra & Tastings
+                    - generic [ref=e460]:
+                      - generic [ref=e464]:
+                        - generic "From ﺩ.ﺇ 89, per guest" [ref=e465]:
+                          - generic [ref=e466]: From
+                          - generic [ref=e467]: ﺩ.ﺇ 89
+                          - generic [ref=e468]: / guest
+                        - generic [ref=e469]: From ﺩ.ﺇ 89, per guest
+                      - generic [ref=e470]:
+                        - generic [ref=e471]: ","
+                        - generic [ref=e472]: ·
+                      - generic [ref=e473]:
+                        - generic [ref=e474]: 4.91 out of 5 average rating
+                        - img [ref=e476]
+                        - generic [ref=e478]: "4.91"
+              - 'group "Old Dubai Uncovered: History Souks & Local Stories" [ref=e480]':
+                - 'link "Old Dubai Uncovered: History Souks & Local Stories" [ref=e481] [cursor=pointer]':
+                  - /url: /experiences/6617772?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e482]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 3:30 PM
+                            - generic: 3:30 PM
+                        - 'button "Add to wishlist: Old Dubai Uncovered: History Souks & Local Stories" [ref=e484] [cursor=pointer]':
+                          - img [ref=e486]
+                  - generic [ref=e488]:
+                    - generic [ref=e490]: "Old Dubai Uncovered: History Souks & Local Stories"
+                    - generic [ref=e491]:
+                      - generic [ref=e495]:
+                        - generic "From ﺩ.ﺇ 200, per guest" [ref=e496]:
+                          - generic [ref=e497]: From
+                          - generic [ref=e498]: ﺩ.ﺇ 200
+                          - generic [ref=e499]: / guest
+                        - generic [ref=e500]: From ﺩ.ﺇ 200, per guest
+                      - generic [ref=e501]:
+                        - generic [ref=e502]: ","
+                        - generic [ref=e503]: ·
+                      - generic [ref=e504]:
+                        - generic [ref=e505]: 5.0 out of 5 average rating
+                        - img [ref=e507]
+                        - generic [ref=e509]: "5.0"
+              - group [ref=e511]:
+                - link [ref=e512] [cursor=pointer]:
+                  - /url: /experiences/6487328?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e513]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 6 PM
+                            - generic: 6 PM
+                        - button [ref=e515] [cursor=pointer]:
+                          - img [ref=e517]
+                  - generic [ref=e519]:
+                    - generic [ref=e521]: "Dubai in a Day: Layover City Tour"
+                    - generic [ref=e526]:
+                      - generic [ref=e527]:
+                        - generic [ref=e528]: From
+                        - generic [ref=e529]: ﺩ.ﺇ 470
+                        - generic [ref=e530]: / guest
+                      - generic [ref=e531]: From ﺩ.ﺇ 470, per guest
+              - group [ref=e533]:
+                - link [ref=e534] [cursor=pointer]:
+                  - /url: /experiences/6867709?adults=1&checkin=2026-06-03&checkout=2026-06-03&children=0&infants=0
+                - generic [ref=e535]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 1:30 PM
+                            - generic: 1:30 PM
+                        - button [ref=e537] [cursor=pointer]:
+                          - img [ref=e539]
+                  - generic [ref=e543]: "Dubai Layover: Private Stopover Tour with Transfer"
+              - link [ref=e546] [cursor=pointer]:
+                - /url: /s/Ajman-City/experiences?place_id=ChIJeb6P3WRXXz4RGahFZN6QoM0&refinement_paths%5B%5D=%2Fexperiences&checkin=2026-06-03&checkout=2026-06-03&search_type=HOMEPAGE_CAROUSEL_CLICK
+                - generic [ref=e552]: See all
+          - group "Tomorrow in Ajman City" [ref=e556]:
+            - link "Tomorrow in Ajman City" [ref=e559] [cursor=pointer]:
+              - /url: /s/Ajman-City/experiences?place_id=ChIJeb6P3WRXXz4RGahFZN6QoM0&refinement_paths%5B%5D=%2Fexperiences&checkin=2026-06-04&checkout=2026-06-04&search_type=HOMEPAGE_CAROUSEL_CLICK
+              - generic [ref=e560]:
+                - heading "Tomorrow in Ajman City" [level=2] [ref=e561]:
+                  - generic [ref=e562]: Tomorrow in Ajman City
+                - img [ref=e564]
+            - generic [ref=e567]: 6 of 9 items showing
+            - generic [ref=e570]:
+              - button "Previous" [disabled] [ref=e571]:
+                - generic [ref=e572]:
+                  - generic [ref=e573]: _
+                  - img [ref=e574]
+              - button "Next" [ref=e576] [cursor=pointer]:
+                - generic [ref=e577]:
+                  - generic [ref=e578]: _
+                  - img [ref=e579]
+            - generic [ref=e585]:
+              - group "Unforgettable Day Trip from Dubai to Abu Dhabi" [ref=e587]:
+                - link "Unforgettable Day Trip from Dubai to Abu Dhabi" [ref=e588] [cursor=pointer]:
+                  - /url: /experiences/4877005?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e589]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 8 AM
+                            - generic: 8 AM
+                        - 'button "Add to wishlist: Unforgettable Day Trip from Dubai to Abu Dhabi" [ref=e591] [cursor=pointer]':
+                          - img [ref=e593]
+                  - generic [ref=e595]:
+                    - generic [ref=e597]: Unforgettable Day Trip from Dubai to Abu Dhabi
+                    - generic [ref=e598]:
+                      - generic [ref=e602]:
+                        - generic "From ﺩ.ﺇ 173, per guest" [ref=e603]:
+                          - generic [ref=e604]: From
+                          - generic [ref=e605]: ﺩ.ﺇ 173
+                          - generic [ref=e606]: / guest
+                        - generic [ref=e607]: From ﺩ.ﺇ 173, per guest
+                      - generic [ref=e608]:
+                        - generic [ref=e609]: ","
+                        - generic [ref=e610]: ·
+                      - generic [ref=e611]:
+                        - generic [ref=e612]: 5.0 out of 5 average rating
+                        - img [ref=e614]
+                        - generic [ref=e616]: "5.0"
+              - group "Sharjah to Dubai Full Day City Tour with Transfer" [ref=e618]:
+                - link "Sharjah to Dubai Full Day City Tour with Transfer" [ref=e619] [cursor=pointer]:
+                  - /url: /experiences/7034936?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e620]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 9 AM
+                            - generic: 9 AM
+                        - 'button "Add to wishlist: Sharjah to Dubai Full Day City Tour with Transfer" [ref=e622] [cursor=pointer]':
+                          - img [ref=e624]
+                  - generic [ref=e626]:
+                    - generic [ref=e628]: Sharjah to Dubai Full Day City Tour with Transfer
+                    - generic [ref=e633]:
+                      - generic "From ﺩ.ﺇ 396, per guest" [ref=e634]:
+                        - generic [ref=e635]: From
+                        - generic [ref=e636]: ﺩ.ﺇ 396
+                        - generic [ref=e637]: / guest
+                      - generic [ref=e638]: From ﺩ.ﺇ 396, per guest
+              - group "Desert Safari with BBQ Dinner & Live Entertainment" [ref=e640]:
+                - link "Desert Safari with BBQ Dinner & Live Entertainment" [ref=e641] [cursor=pointer]:
+                  - /url: /experiences/6723610?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e642]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 3 PM
+                            - generic: 3 PM
+                        - 'button "Add to wishlist: Desert Safari with BBQ Dinner & Live Entertainment" [ref=e644] [cursor=pointer]':
+                          - img [ref=e646]
+                  - generic [ref=e648]:
+                    - generic [ref=e650]: Desert Safari with BBQ Dinner & Live Entertainment
+                    - generic [ref=e655]:
+                      - generic "From ﺩ.ﺇ 149, per guest" [ref=e656]:
+                        - generic [ref=e657]: From
+                        - generic [ref=e658]: ﺩ.ﺇ 149
+                        - generic [ref=e659]: / guest
+                      - generic [ref=e660]: From ﺩ.ﺇ 149, per guest
+              - group "Dubai Desert Safari - Dune Bashing, Camel Ride" [ref=e662]:
+                - link "Dubai Desert Safari - Dune Bashing, Camel Ride" [ref=e663] [cursor=pointer]:
+                  - /url: /experiences/6930023?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e664]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 3:45 PM
+                            - generic: 3:45 PM
+                        - 'button "Add to wishlist: Dubai Desert Safari - Dune Bashing, Camel Ride" [ref=e666] [cursor=pointer]':
+                          - img [ref=e668]
+                  - generic [ref=e670]:
+                    - generic [ref=e672]: Dubai Desert Safari - Dune Bashing, Camel Ride
+                    - generic [ref=e677]:
+                      - generic "From ﺩ.ﺇ 113, per guest" [ref=e678]:
+                        - generic [ref=e679]: From
+                        - generic [ref=e680]: ﺩ.ﺇ 113
+                        - generic [ref=e681]: / guest
+                      - generic [ref=e682]: From ﺩ.ﺇ 113, per guest
+              - 'group "Abu Dhabi Icons: Mosque, Palace & 300m View Deck" [ref=e684]':
+                - 'link "Abu Dhabi Icons: Mosque, Palace & 300m View Deck" [ref=e685] [cursor=pointer]':
+                  - /url: /experiences/6856842?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e686]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 8:30 AM
+                            - generic: 8:30 AM
+                        - 'button "Add to wishlist: Abu Dhabi Icons: Mosque, Palace & 300m View Deck" [ref=e688] [cursor=pointer]':
+                          - img [ref=e690]
+                  - generic [ref=e692]:
+                    - generic [ref=e694]: "Abu Dhabi Icons: Mosque, Palace & 300m View Deck"
+                    - generic [ref=e699]:
+                      - generic "From ﺩ.ﺇ 330, per guest" [ref=e700]:
+                        - generic [ref=e701]: From
+                        - generic [ref=e702]: ﺩ.ﺇ 330
+                        - generic [ref=e703]: / guest
+                      - generic [ref=e704]: From ﺩ.ﺇ 330, per guest
+              - group "Uncover old Dubai's hidden treasures" [ref=e706]:
+                - link "Uncover old Dubai's hidden treasures" [ref=e707] [cursor=pointer]:
+                  - /url: /experiences/3017071?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e708]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 9:30 AM
+                            - generic: 9:30 AM
+                        - 'button "Add to wishlist: Uncover old Dubai''s hidden treasures" [ref=e710] [cursor=pointer]':
+                          - img [ref=e712]
+                  - generic [ref=e714]:
+                    - generic [ref=e716]: Uncover old Dubai's hidden treasures
+                    - generic [ref=e717]:
+                      - generic [ref=e721]:
+                        - generic "From ﺩ.ﺇ 120, per guest" [ref=e722]:
+                          - generic [ref=e723]: From
+                          - generic [ref=e724]: ﺩ.ﺇ 120
+                          - generic [ref=e725]: / guest
+                        - generic [ref=e726]: From ﺩ.ﺇ 120, per guest
+                      - generic [ref=e727]:
+                        - generic [ref=e728]: ","
+                        - generic [ref=e729]: ·
+                      - generic [ref=e730]:
+                        - generic [ref=e731]: 4.93 out of 5 average rating
+                        - img [ref=e733]
+                        - generic [ref=e735]: "4.93"
+              - group [ref=e737]:
+                - link [ref=e738] [cursor=pointer]:
+                  - /url: /experiences/6120461?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e739]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 2 AM
+                            - generic: 2 AM
+                        - button [ref=e741] [cursor=pointer]:
+                          - img [ref=e743]
+                  - generic [ref=e745]:
+                    - generic [ref=e747]: Sunset Desert Safari with Dinner & Shows
+                    - generic [ref=e752]:
+                      - generic [ref=e753]:
+                        - generic [ref=e754]: From
+                        - generic [ref=e755]: ﺩ.ﺇ 145
+                        - generic [ref=e756]: / guest
+                      - generic [ref=e757]: From ﺩ.ﺇ 145, per guest
+              - group [ref=e759]:
+                - link [ref=e760] [cursor=pointer]:
+                  - /url: /experiences/6472754?adults=1&checkin=2026-06-04&checkout=2026-06-04&children=0&infants=0
+                - generic [ref=e761]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: 9:30 AM
+                            - generic: 9:30 AM
+                        - button [ref=e763] [cursor=pointer]:
+                          - img [ref=e765]
+                  - generic [ref=e767]:
+                    - generic [ref=e769]: Explore Al Fahidi district with historical markets
+                    - generic [ref=e770]:
+                      - generic [ref=e774]:
+                        - generic [ref=e775]:
+                          - generic [ref=e776]: From
+                          - generic [ref=e777]: ﺩ.ﺇ 120
+                          - generic [ref=e778]: / guest
+                        - generic [ref=e779]: From ﺩ.ﺇ 120, per guest
+                      - generic [ref=e780]:
+                        - generic [ref=e781]: ","
+                        - generic [ref=e782]: ·
+                      - generic [ref=e783]:
+                        - generic [ref=e784]: 4.92 out of 5 average rating
+                        - img [ref=e786]
+                        - generic [ref=e788]: "4.92"
+              - link [ref=e791] [cursor=pointer]:
+                - /url: /s/Ajman-City/experiences?place_id=ChIJeb6P3WRXXz4RGahFZN6QoM0&refinement_paths%5B%5D=%2Fexperiences&checkin=2026-06-04&checkout=2026-06-04&search_type=HOMEPAGE_CAROUSEL_CLICK
+                - generic [ref=e797]: See all
+          - group "Experiences this weekend" [ref=e801]:
+            - link "Experiences this weekend" [ref=e804] [cursor=pointer]:
+              - /url: /s/Ajman-City/experiences?place_id=ChIJeb6P3WRXXz4RGahFZN6QoM0&refinement_paths%5B%5D=%2Fexperiences&checkin=2026-06-05&checkout=2026-06-07&search_type=HOMEPAGE_CAROUSEL_CLICK
+              - generic [ref=e805]:
+                - heading "Experiences this weekend" [level=2] [ref=e806]:
+                  - generic [ref=e807]: Experiences this weekend
+                - img [ref=e809]
+            - generic [ref=e812]: 6 of 9 items showing
+            - generic [ref=e815]:
+              - button "Previous" [disabled] [ref=e816]:
+                - generic [ref=e817]:
+                  - generic [ref=e818]: _
+                  - img [ref=e819]
+              - button "Next" [ref=e821] [cursor=pointer]:
+                - generic [ref=e822]:
+                  - generic [ref=e823]: _
+                  - img [ref=e824]
+            - generic [ref=e830]:
+              - group "Dubai Layover Tour with Airport Pickup and Drop" [ref=e832]:
+                - link "Dubai Layover Tour with Airport Pickup and Drop" [ref=e833] [cursor=pointer]:
+                  - /url: /experiences/7056350?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e834]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 12 AM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 12 AM
+                        - 'button "Add to wishlist: Dubai Layover Tour with Airport Pickup and Drop" [ref=e836] [cursor=pointer]':
+                          - img [ref=e838]
+                  - generic [ref=e840]:
+                    - generic [ref=e842]: Dubai Layover Tour with Airport Pickup and Drop
+                    - generic [ref=e847]:
+                      - generic "From ﺩ.ﺇ 300, per guest" [ref=e848]:
+                        - generic [ref=e849]: From
+                        - generic [ref=e850]: ﺩ.ﺇ 300
+                        - generic [ref=e851]: / guest
+                      - generic [ref=e852]: From ﺩ.ﺇ 300, per guest
+              - group "Sunset Desert Safari with Dinner & Shows" [ref=e854]:
+                - link "Sunset Desert Safari with Dinner & Shows" [ref=e855] [cursor=pointer]:
+                  - /url: /experiences/6120461?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e856]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 2 AM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 2 AM
+                        - 'button "Add to wishlist: Sunset Desert Safari with Dinner & Shows" [ref=e858] [cursor=pointer]':
+                          - img [ref=e860]
+                  - generic [ref=e862]:
+                    - generic [ref=e864]: Sunset Desert Safari with Dinner & Shows
+                    - generic [ref=e869]:
+                      - generic "From ﺩ.ﺇ 145, per guest" [ref=e870]:
+                        - generic [ref=e871]: From
+                        - generic [ref=e872]: ﺩ.ﺇ 145
+                        - generic [ref=e873]: / guest
+                      - generic [ref=e874]: From ﺩ.ﺇ 145, per guest
+              - group "Historic Dubai Walking Tour:Food, Abra Ride & Souq" [ref=e876]:
+                - link "Historic Dubai Walking Tour:Food, Abra Ride & Souq" [ref=e877] [cursor=pointer]:
+                  - /url: /experiences/1453988?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e878]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 7 AM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 7 AM
+                        - 'button "Add to wishlist: Historic Dubai Walking Tour:Food, Abra Ride & Souq" [ref=e880] [cursor=pointer]':
+                          - img [ref=e882]
+                  - generic [ref=e884]:
+                    - generic [ref=e886]: Historic Dubai Walking Tour:Food, Abra Ride & Souq
+                    - generic [ref=e887]:
+                      - generic [ref=e891]:
+                        - generic "From ﺩ.ﺇ 199, per guest" [ref=e892]:
+                          - generic [ref=e893]: From
+                          - generic [ref=e894]: ﺩ.ﺇ 199
+                          - generic [ref=e895]: / guest
+                        - generic [ref=e896]: From ﺩ.ﺇ 199, per guest
+                      - generic [ref=e897]:
+                        - generic [ref=e898]: ","
+                        - generic [ref=e899]: ·
+                      - generic [ref=e900]:
+                        - generic [ref=e901]: 4.98 out of 5 average rating
+                        - img [ref=e903]
+                        - generic [ref=e905]: "4.98"
+              - 'group "The essence of Old Dubai: A heritage walk" [ref=e907]':
+                - 'link "The essence of Old Dubai: A heritage walk" [ref=e908] [cursor=pointer]':
+                  - /url: /experiences/6481239?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e909]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 9 AM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 9 AM
+                        - 'button "Add to wishlist: The essence of Old Dubai: A heritage walk" [ref=e911] [cursor=pointer]':
+                          - img [ref=e913]
+                  - generic [ref=e915]:
+                    - generic [ref=e917]: "The essence of Old Dubai: A heritage walk"
+                    - generic [ref=e922]:
+                      - generic "From ﺩ.ﺇ 130, per guest" [ref=e923]:
+                        - generic [ref=e924]: From
+                        - generic [ref=e925]: ﺩ.ﺇ 130
+                        - generic [ref=e926]: / guest
+                      - generic [ref=e927]: From ﺩ.ﺇ 130, per guest
+              - group "Explore Dubai old town and Souks with a local" [ref=e929]:
+                - link "Explore Dubai old town and Souks with a local" [ref=e930] [cursor=pointer]:
+                  - /url: /experiences/3493792?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e931]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Sun; 9:30 AM
+                            - generic:
+                              - text: Sun
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 9:30 AM
+                        - 'button "Add to wishlist: Explore Dubai old town and Souks with a local" [ref=e933] [cursor=pointer]':
+                          - img [ref=e935]
+                  - generic [ref=e937]:
+                    - generic [ref=e939]: Explore Dubai old town and Souks with a local
+                    - generic [ref=e940]:
+                      - generic [ref=e944]:
+                        - generic "From ﺩ.ﺇ 99, per guest" [ref=e945]:
+                          - generic [ref=e946]: From
+                          - generic [ref=e947]: ﺩ.ﺇ 99
+                          - generic [ref=e948]: / guest
+                        - generic [ref=e949]: From ﺩ.ﺇ 99, per guest
+                      - generic [ref=e950]:
+                        - generic [ref=e951]: ","
+                        - generic [ref=e952]: ·
+                      - generic [ref=e953]:
+                        - generic [ref=e954]: 4.91 out of 5 average rating
+                        - img [ref=e956]
+                        - generic [ref=e958]: "4.91"
+              - group "Hidden Gems of Dubai Heritage Walking tour" [ref=e960]:
+                - link "Hidden Gems of Dubai Heritage Walking tour" [ref=e961] [cursor=pointer]:
+                  - /url: /experiences/7033826?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e962]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 5 PM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 5 PM
+                        - 'button "Add to wishlist: Hidden Gems of Dubai Heritage Walking tour" [ref=e964] [cursor=pointer]':
+                          - img [ref=e966]
+                  - generic [ref=e968]:
+                    - generic [ref=e970]: Hidden Gems of Dubai Heritage Walking tour
+                    - generic [ref=e975]:
+                      - generic "From ﺩ.ﺇ 150, per guest" [ref=e976]:
+                        - generic [ref=e977]: From
+                        - generic [ref=e978]: ﺩ.ﺇ 150
+                        - generic [ref=e979]: / guest
+                      - generic [ref=e980]: From ﺩ.ﺇ 150, per guest
+              - group [ref=e982]:
+                - link [ref=e983] [cursor=pointer]:
+                  - /url: /experiences/6479877?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e984]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 8 AM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 8 AM
+                        - button [ref=e986] [cursor=pointer]:
+                          - img [ref=e988]
+                  - generic [ref=e990]:
+                    - generic [ref=e992]: Dubai Tour Old Souks Creek Museum Iconic Landmarks
+                    - generic [ref=e997]:
+                      - generic [ref=e998]:
+                        - generic [ref=e999]: From
+                        - generic [ref=e1000]: ﺩ.ﺇ 399
+                        - generic [ref=e1001]: / group
+                      - generic [ref=e1002]: From ﺩ.ﺇ 399, per group
+              - group [ref=e1004]:
+                - link [ref=e1005] [cursor=pointer]:
+                  - /url: /experiences/6763270?adults=1&checkin=2026-06-05&checkout=2026-06-07&children=0&infants=0
+                - generic [ref=e1006]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Fri; 1 PM
+                            - generic:
+                              - text: Fri
+                              - generic:
+                                - generic: ","
+                                - generic: ·
+                              - text: 1 PM
+                        - button [ref=e1008] [cursor=pointer]:
+                          - img [ref=e1010]
+                  - generic [ref=e1012]:
+                    - generic [ref=e1014]: "Discover Old Dubai: Souks & Heritage Walk"
+                    - generic [ref=e1019]:
+                      - generic [ref=e1020]:
+                        - generic [ref=e1021]: From
+                        - generic [ref=e1022]: ﺩ.ﺇ 120
+                        - generic [ref=e1023]: / guest
+                      - generic [ref=e1024]: From ﺩ.ﺇ 120, per guest
+              - link [ref=e1027] [cursor=pointer]:
+                - /url: /s/Ajman-City/experiences?place_id=ChIJeb6P3WRXXz4RGahFZN6QoM0&refinement_paths%5B%5D=%2Fexperiences&checkin=2026-06-05&checkout=2026-06-07&search_type=HOMEPAGE_CAROUSEL_CLICK
+                - generic [ref=e1033]: See all
+          - group "Airbnb Originals Hosted by the world’s most interesting people" [ref=e1038]:
+            - link "Airbnb Originals Hosted by the world’s most interesting people" [ref=e1041] [cursor=pointer]:
+              - /url: /s/experiences?refinement_paths%5B%5D=%2Fexperiences&location_search=ANYWHERE&activity_listing_tiers%5B%5D=TIER_1&activity_listing_tiers%5B%5D=TIER_2&search_type=HOMEPAGE_CAROUSEL_CLICK
+              - generic [ref=e1042]:
+                - heading "Airbnb Originals" [level=2] [ref=e1043]:
+                  - generic [ref=e1044]: Airbnb Originals
+                - generic [ref=e1045]: Hosted by the world’s most interesting people
+                - img [ref=e1047]
+            - generic [ref=e1050]: 6 of 17 items showing
+            - generic [ref=e1053]:
+              - button "Previous" [disabled] [ref=e1054]:
+                - generic [ref=e1055]:
+                  - generic [ref=e1056]: _
+                  - img [ref=e1057]
+              - button "Next" [ref=e1059] [cursor=pointer]:
+                - generic [ref=e1060]:
+                  - generic [ref=e1061]: _
+                  - img [ref=e1062]
+            - generic [ref=e1068]:
+              - group "Play a match with soccer pros in Miami Stadium" [ref=e1070]:
+                - link "Play a match with soccer pros in Miami Stadium" [ref=e1071] [cursor=pointer]:
+                  - /url: /experiences/6999258?adults=1&children=0&infants=0
+                - generic [ref=e1072]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                            - generic: Original
+                            - generic: Original
+                        - button "Share Play a match with soccer pros in Miami Stadium" [ref=e1073] [cursor=pointer]:
+                          - img [ref=e1075]
+                  - generic [ref=e1077]:
+                    - generic [ref=e1079]: Play a match with soccer pros in Miami Stadium
+                    - generic [ref=e1080]: Miami Gardens, United States
+                    - generic [ref=e1085]:
+                      - generic "From ﺩ.ﺇ 919, per guest" [ref=e1086]:
+                        - generic [ref=e1087]: From
+                        - generic [ref=e1088]: ﺩ.ﺇ 919
+                        - generic [ref=e1089]: / guest
+                      - generic [ref=e1090]: From ﺩ.ﺇ 919, per guest
+              - group "Play a match with soccer pros in Toronto Stadium" [ref=e1092]:
+                - link "Play a match with soccer pros in Toronto Stadium" [ref=e1093] [cursor=pointer]:
+                  - /url: /experiences/6996789?adults=1&children=0&infants=0
+                - generic [ref=e1094]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                            - generic: Original
+                            - generic: Original
+                        - button "Share Play a match with soccer pros in Toronto Stadium" [ref=e1095] [cursor=pointer]:
+                          - img [ref=e1097]
+                  - generic [ref=e1099]:
+                    - generic [ref=e1101]: Play a match with soccer pros in Toronto Stadium
+                    - generic [ref=e1102]: Toronto, Canada
+                    - generic [ref=e1107]:
+                      - generic "From ﺩ.ﺇ 929, per guest" [ref=e1108]:
+                        - generic [ref=e1109]: From
+                        - generic [ref=e1110]: ﺩ.ﺇ 929
+                        - generic [ref=e1111]: / guest
+                      - generic [ref=e1112]: From ﺩ.ﺇ 929, per guest
+              - group "Watch party with Abby Wambach and Julie Foudy" [ref=e1114]:
+                - link "Watch party with Abby Wambach and Julie Foudy" [ref=e1115] [cursor=pointer]:
+                  - /url: /experiences/6995610?adults=1&children=0&infants=0
+                - generic [ref=e1116]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                            - generic: Original
+                            - generic: Original
+                        - button "Share Watch party with Abby Wambach and Julie Foudy" [ref=e1117] [cursor=pointer]:
+                          - img [ref=e1119]
+                  - generic [ref=e1121]:
+                    - generic [ref=e1123]: Watch party with Abby Wambach and Julie Foudy
+                    - generic [ref=e1124]: Los Angeles, United States
+                    - generic [ref=e1129]:
+                      - generic "From ﺩ.ﺇ 184, per guest" [ref=e1130]:
+                        - generic [ref=e1131]: From
+                        - generic [ref=e1132]: ﺩ.ﺇ 184
+                        - generic [ref=e1133]: / guest
+                      - generic [ref=e1134]: From ﺩ.ﺇ 184, per guest
+              - group "FIFA World Cup 26™️ fan night with Abby and Julie" [ref=e1136]:
+                - link "FIFA World Cup 26™️ fan night with Abby and Julie" [ref=e1137] [cursor=pointer]:
+                  - /url: /experiences/7003411?adults=1&children=0&infants=0
+                - generic [ref=e1138]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                            - generic: Original
+                            - generic: Original
+                        - button "Share FIFA World Cup 26™️ fan night with Abby and Julie" [ref=e1139] [cursor=pointer]:
+                          - img [ref=e1141]
+                  - generic [ref=e1143]:
+                    - generic [ref=e1145]: FIFA World Cup 26™️ fan night with Abby and Julie
+                    - generic [ref=e1146]: New York, United States
+                    - generic [ref=e1151]:
+                      - generic "From ﺩ.ﺇ 184, per guest" [ref=e1152]:
+                        - generic [ref=e1153]: From
+                        - generic [ref=e1154]: ﺩ.ﺇ 184
+                        - generic [ref=e1155]: / guest
+                      - generic [ref=e1156]: From ﺩ.ﺇ 184, per guest
+              - group "Youth training day with soccer pro Christen Press" [ref=e1158]:
+                - link "Youth training day with soccer pro Christen Press" [ref=e1159] [cursor=pointer]:
+                  - /url: /experiences/6999684?adults=1&children=0&infants=0
+                - generic [ref=e1160]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                            - generic: Original
+                            - generic: Original
+                        - button "Share Youth training day with soccer pro Christen Press" [ref=e1161] [cursor=pointer]:
+                          - img [ref=e1163]
+                  - generic [ref=e1165]:
+                    - generic [ref=e1167]: Youth training day with soccer pro Christen Press
+                    - generic [ref=e1168]: Glendale, United States
+                    - generic [ref=e1173]:
+                      - generic "From ﺩ.ﺇ 551, per guest" [ref=e1174]:
+                        - generic [ref=e1175]: From
+                        - generic [ref=e1176]: ﺩ.ﺇ 551
+                        - generic [ref=e1177]: / guest
+                      - generic [ref=e1178]: From ﺩ.ﺇ 551, per guest
+              - group "Youth training day with soccer pro Ian Wright" [ref=e1180]:
+                - link "Youth training day with soccer pro Ian Wright" [ref=e1181] [cursor=pointer]:
+                  - /url: /experiences/7000869?adults=1&children=0&infants=0
+                - generic [ref=e1182]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - generic:
+                                - img
+                            - generic: Original
+                            - generic: Original
+                        - button "Share Youth training day with soccer pro Ian Wright" [ref=e1183] [cursor=pointer]:
+                          - img [ref=e1185]
+                  - generic [ref=e1187]:
+                    - generic [ref=e1189]: Youth training day with soccer pro Ian Wright
+                    - generic [ref=e1190]: New York, United States
+                    - generic [ref=e1195]:
+                      - generic "From ﺩ.ﺇ 551, per guest" [ref=e1196]:
+                        - generic [ref=e1197]: From
+                        - generic [ref=e1198]: ﺩ.ﺇ 551
+                        - generic [ref=e1199]: / guest
+                      - generic [ref=e1200]: From ﺩ.ﺇ 551, per guest
+              - group [ref=e1202]:
+                - link [ref=e1203] [cursor=pointer]:
+                  - /url: /experiences/7064064?adults=1&children=0&infants=0
+                - generic [ref=e1204]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1205] [cursor=pointer]:
+                          - img [ref=e1207]
+                  - generic [ref=e1209]:
+                    - generic [ref=e1211]: "Beyond the Match: An immersive soccer exhibit"
+                    - generic [ref=e1212]: Mexico City, Mexico
+                    - generic [ref=e1213]: Coming June 3
+              - group [ref=e1215]:
+                - link [ref=e1216] [cursor=pointer]:
+                  - /url: /experiences/7099140?adults=1&children=0&infants=0
+                - generic [ref=e1217]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1218] [cursor=pointer]:
+                          - img [ref=e1220]
+                  - generic [ref=e1222]:
+                    - generic [ref=e1224]: Play with Presnel in the Kimpembe Cup
+                    - generic [ref=e1225]: Colombes, France
+                    - generic [ref=e1226]: Coming June 8
+              - group [ref=e1228]:
+                - link [ref=e1229] [cursor=pointer]:
+                  - /url: /experiences/5975701?adults=1&children=0&infants=0
+                - generic [ref=e1230]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1232] [cursor=pointer]:
+                          - img [ref=e1234]
+                  - generic [ref=e1236]:
+                    - generic [ref=e1238]: Carve marble with a third-generation sculptor
+                    - generic [ref=e1239]: Athens, Greece
+                    - generic [ref=e1240]:
+                      - generic [ref=e1244]:
+                        - generic [ref=e1245]:
+                          - generic [ref=e1246]: From
+                          - generic [ref=e1247]: ﺩ.ﺇ 257
+                          - generic [ref=e1248]: / guest
+                        - generic [ref=e1249]: From ﺩ.ﺇ 257, per guest
+                      - generic [ref=e1250]:
+                        - generic [ref=e1251]: ","
+                        - generic [ref=e1252]: ·
+                      - generic [ref=e1253]:
+                        - generic [ref=e1254]: 5.0 out of 5 average rating
+                        - img [ref=e1256]
+                        - generic [ref=e1258]: "5.0"
+              - group [ref=e1260]:
+                - link [ref=e1261] [cursor=pointer]:
+                  - /url: /experiences/7008335?adults=1&children=0&infants=0
+                - generic [ref=e1262]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1264] [cursor=pointer]:
+                          - img [ref=e1266]
+                  - generic [ref=e1268]:
+                    - generic [ref=e1270]: Kuber Atv Ubud With Tunnel and waterfalll
+                    - generic [ref=e1271]: Payangan, Indonesia
+                    - generic [ref=e1272]:
+                      - generic [ref=e1276]:
+                        - generic [ref=e1277]:
+                          - generic [ref=e1278]: From
+                          - generic [ref=e1279]: ﺩ.ﺇ 160
+                          - generic [ref=e1280]: / guest
+                        - generic [ref=e1281]: From ﺩ.ﺇ 160, per guest
+                      - generic [ref=e1282]:
+                        - generic [ref=e1283]: ","
+                        - generic [ref=e1284]: ·
+                      - generic [ref=e1285]:
+                        - generic [ref=e1286]: 4.98 out of 5 average rating
+                        - img [ref=e1288]
+                        - generic [ref=e1290]: "4.98"
+              - group [ref=e1292]:
+                - link [ref=e1293] [cursor=pointer]:
+                  - /url: /experiences/6166099?adults=1&children=0&infants=0
+                - generic [ref=e1294]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1296] [cursor=pointer]:
+                          - img [ref=e1298]
+                  - generic [ref=e1300]:
+                    - generic [ref=e1302]: Inside Art Basel Unlimited with Carrie Scott
+                    - generic [ref=e1303]: Basel, Switzerland
+                    - generic [ref=e1308]:
+                      - generic [ref=e1309]:
+                        - generic [ref=e1310]: From
+                        - generic [ref=e1311]: ﺩ.ﺇ 583
+                        - generic [ref=e1312]: / guest
+                      - generic [ref=e1313]: From ﺩ.ﺇ 583, per guest
+              - group [ref=e1315]:
+                - link [ref=e1316] [cursor=pointer]:
+                  - /url: /experiences/6427653?adults=1&children=0&infants=0
+                - generic [ref=e1317]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1319] [cursor=pointer]:
+                          - img [ref=e1321]
+                  - generic [ref=e1323]:
+                    - generic [ref=e1325]: Make Traditional Stroopwafels at AlbertCuyp Market
+                    - generic [ref=e1326]: Amsterdam, Netherlands
+                    - generic [ref=e1327]:
+                      - generic [ref=e1331]:
+                        - generic [ref=e1332]:
+                          - generic [ref=e1333]: From
+                          - generic [ref=e1334]: ﺩ.ﺇ 111
+                          - generic [ref=e1335]: / guest
+                        - generic [ref=e1336]: From ﺩ.ﺇ 111, per guest
+                      - generic [ref=e1337]:
+                        - generic [ref=e1338]: ","
+                        - generic [ref=e1339]: ·
+                      - generic [ref=e1340]:
+                        - generic [ref=e1341]: 4.87 out of 5 average rating
+                        - img [ref=e1343]
+                        - generic [ref=e1345]: "4.87"
+              - group [ref=e1347]:
+                - link [ref=e1348] [cursor=pointer]:
+                  - /url: /experiences/6221230?adults=1&children=0&infants=0
+                - generic [ref=e1349]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1351] [cursor=pointer]:
+                          - img [ref=e1353]
+                  - generic [ref=e1355]:
+                    - generic [ref=e1357]: Craft a Georgia peach with a pro glassblower
+                    - generic [ref=e1358]: Atlanta, United States
+                    - generic [ref=e1359]:
+                      - generic [ref=e1363]:
+                        - generic [ref=e1364]:
+                          - generic [ref=e1365]: From
+                          - generic [ref=e1366]: ﺩ.ﺇ 309
+                          - generic [ref=e1367]: / guest
+                        - generic [ref=e1368]: From ﺩ.ﺇ 309, per guest
+                      - generic [ref=e1369]:
+                        - generic [ref=e1370]: ","
+                        - generic [ref=e1371]: ·
+                      - generic [ref=e1372]:
+                        - generic [ref=e1373]: 4.99 out of 5 average rating
+                        - img [ref=e1375]
+                        - generic [ref=e1377]: "4.99"
+              - group [ref=e1379]:
+                - link [ref=e1380] [cursor=pointer]:
+                  - /url: /experiences/7033200?adults=1&children=0&infants=0
+                - generic [ref=e1381]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1383] [cursor=pointer]:
+                          - img [ref=e1385]
+                  - generic [ref=e1387]:
+                    - generic [ref=e1389]: Taste seven seasonal courses at Tendril
+                    - generic [ref=e1390]: Greater London, United Kingdom
+                    - generic [ref=e1391]:
+                      - generic [ref=e1395]:
+                        - generic [ref=e1396]:
+                          - generic [ref=e1397]: From
+                          - generic [ref=e1398]: ﺩ.ﺇ 391
+                          - generic [ref=e1399]: / guest
+                        - generic [ref=e1400]: From ﺩ.ﺇ 391, per guest
+                      - generic [ref=e1401]:
+                        - generic [ref=e1402]: ","
+                        - generic [ref=e1403]: ·
+                      - generic [ref=e1404]:
+                        - generic [ref=e1405]: 5.0 out of 5 average rating
+                        - img [ref=e1407]
+                        - generic [ref=e1409]: "5.0"
+              - group [ref=e1411]:
+                - link [ref=e1412] [cursor=pointer]:
+                  - /url: /experiences/6108793?adults=1&children=0&infants=0
+                - generic [ref=e1413]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1415] [cursor=pointer]:
+                          - img [ref=e1417]
+                  - generic [ref=e1419]:
+                    - generic [ref=e1421]: Zen Meditation & Matcha in a Hidden Temple
+                    - generic [ref=e1422]: Kyoto, Japan
+                    - generic [ref=e1423]:
+                      - generic [ref=e1427]:
+                        - generic [ref=e1428]:
+                          - generic [ref=e1429]: From
+                          - generic [ref=e1430]: ﺩ.ﺇ 368
+                          - generic [ref=e1431]: / guest
+                        - generic [ref=e1432]: From ﺩ.ﺇ 368, per guest
+                      - generic [ref=e1433]:
+                        - generic [ref=e1434]: ","
+                        - generic [ref=e1435]: ·
+                      - generic [ref=e1436]:
+                        - generic [ref=e1437]: 5.0 out of 5 average rating
+                        - img [ref=e1439]
+                        - generic [ref=e1441]: "5.0"
+              - group [ref=e1443]:
+                - link [ref=e1444] [cursor=pointer]:
+                  - /url: /experiences/5749656?adults=1&children=0&infants=0
+                - generic [ref=e1445]:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic:
+                              - img
+                    - generic:
+                      - generic:
+                        - generic:
+                          - generic:
+                            - generic: Original
+                            - generic: Original
+                        - button [ref=e1447] [cursor=pointer]:
+                          - img [ref=e1449]
+                  - generic [ref=e1451]:
+                    - generic [ref=e1453]: Single-Origin Premium Matcha Ceremony in Shibuya
+                    - generic [ref=e1454]: Shibuya, Japan
+                    - generic [ref=e1455]:
+                      - generic [ref=e1459]:
+                        - generic [ref=e1460]:
+                          - generic [ref=e1461]: From
+                          - generic [ref=e1462]: ﺩ.ﺇ 138
+                          - generic [ref=e1463]: / guest
+                        - generic [ref=e1464]: From ﺩ.ﺇ 138, per guest
+                      - generic [ref=e1465]:
+                        - generic [ref=e1466]: ","
+                        - generic [ref=e1467]: ·
+                      - generic [ref=e1468]:
+                        - generic [ref=e1469]: 5.0 out of 5 average rating
+                        - img [ref=e1471]
+                        - generic [ref=e1473]: "5.0"
+              - link [ref=e1476] [cursor=pointer]:
+                - /url: /s/experiences?refinement_paths%5B%5D=%2Fexperiences&location_search=ANYWHERE&activity_listing_tiers%5B%5D=TIER_1&activity_listing_tiers%5B%5D=TIER_2&search_type=HOMEPAGE_CAROUSEL_CLICK
+                - generic [ref=e1482]: See all
+      - generic [ref=e1487]:
+        - heading "Inspiration for future getaways" [level=2] [ref=e1488]
+        - generic [ref=e1489]:
+          - tablist [ref=e1492]:
+            - tab "Popular" [selected] [ref=e1493]
+            - tab "Arts & culture" [ref=e1494] [cursor=pointer]
+            - tab "Beach" [ref=e1495] [cursor=pointer]
+            - tab "Mountains" [ref=e1496] [cursor=pointer]
+            - tab "Outdoors" [ref=e1497] [cursor=pointer]
+            - tab "Things to do" [ref=e1498] [cursor=pointer]
+            - tab "Airbnb-friendly apartments" [ref=e1499] [cursor=pointer]
+          - tabpanel "Popular" [ref=e1502]:
+            - list [ref=e1503]:
+              - listitem [ref=e1504]:
+                - link "North Myrtle Beach Villa rentals" [ref=e1505] [cursor=pointer]:
+                  - /url: /north-myrtle-beach-sc/stays/villas
+                  - generic [ref=e1506]: North Myrtle Beach
+                  - generic [ref=e1507]: Villa rentals
+              - listitem [ref=e1508]:
+                - link "Portland Condo rentals" [ref=e1509] [cursor=pointer]:
+                  - /url: /portland-me/stays/condos
+                  - generic [ref=e1510]: Portland
+                  - generic [ref=e1511]: Condo rentals
+              - listitem [ref=e1512]:
+                - link "Nice Villa rentals" [ref=e1513] [cursor=pointer]:
+                  - /url: /nice-france/stays/villas
+                  - generic [ref=e1514]: Nice
+                  - generic [ref=e1515]: Villa rentals
+              - listitem [ref=e1516]:
+                - link "Dallas Vacation rentals" [ref=e1517] [cursor=pointer]:
+                  - /url: /dallas-tx/stays
+                  - generic [ref=e1518]: Dallas
+                  - generic [ref=e1519]: Vacation rentals
+              - listitem [ref=e1520]:
+                - link "Galveston Condo rentals" [ref=e1521] [cursor=pointer]:
+                  - /url: /galveston-tx/stays/condos
+                  - generic [ref=e1522]: Galveston
+                  - generic [ref=e1523]: Condo rentals
+              - listitem [ref=e1524]:
+                - link "Raleigh Villa rentals" [ref=e1525] [cursor=pointer]:
+                  - /url: /raleigh-nc/stays/villas
+                  - generic [ref=e1526]: Raleigh
+                  - generic [ref=e1527]: Villa rentals
+              - listitem [ref=e1528]:
+                - link "Cleveland Vacation rentals" [ref=e1529] [cursor=pointer]:
+                  - /url: /cleveland-oh/stays
+                  - generic [ref=e1530]: Cleveland
+                  - generic [ref=e1531]: Vacation rentals
+              - listitem [ref=e1532]:
+                - link "Kauai Condo rentals" [ref=e1533] [cursor=pointer]:
+                  - /url: /kauai-hi/stays/condos
+                  - generic [ref=e1534]: Kauai
+                  - generic [ref=e1535]: Condo rentals
+              - listitem [ref=e1536]:
+                - link "Gulf Shores Villa rentals" [ref=e1537] [cursor=pointer]:
+                  - /url: /gulf-shores-al/stays/villas
+                  - generic [ref=e1538]: Gulf Shores
+                  - generic [ref=e1539]: Villa rentals
+              - listitem [ref=e1540]:
+                - link "Barcelona House rentals" [ref=e1541] [cursor=pointer]:
+                  - /url: /barcelona-spain/stays/houses
+                  - generic [ref=e1542]: Barcelona
+                  - generic [ref=e1543]: House rentals
+              - listitem [ref=e1544]:
+                - link "Portland House rentals" [ref=e1545] [cursor=pointer]:
+                  - /url: /portland-or/stays/houses
+                  - generic [ref=e1546]: Portland
+                  - generic [ref=e1547]: House rentals
+              - listitem [ref=e1548]:
+                - link "Minneapolis Monthly Rentals" [ref=e1549] [cursor=pointer]:
+                  - /url: /minneapolis-mn/stays/monthly
+                  - generic [ref=e1550]: Minneapolis
+                  - generic [ref=e1551]: Monthly Rentals
+              - listitem [ref=e1552]:
+                - link "Amsterdam Cabin rentals" [ref=e1553] [cursor=pointer]:
+                  - /url: /amsterdam-netherlands/stays/cabins
+                  - generic [ref=e1554]: Amsterdam
+                  - generic [ref=e1555]: Cabin rentals
+              - listitem [ref=e1556]:
+                - link "Philadelphia Vacation rentals" [ref=e1557] [cursor=pointer]:
+                  - /url: /philadelphia-pa/stays
+                  - generic [ref=e1558]: Philadelphia
+                  - generic [ref=e1559]: Vacation rentals
+              - listitem [ref=e1560]:
+                - link "Orange Beach Vacation rentals" [ref=e1561] [cursor=pointer]:
+                  - /url: /orange-beach-al/stays
+                  - generic [ref=e1562]: Orange Beach
+                  - generic [ref=e1563]: Vacation rentals
+              - listitem [ref=e1564]:
+                - link "Montreal House rentals" [ref=e1565] [cursor=pointer]:
+                  - /url: /montreal-canada/stays/houses
+                  - generic [ref=e1566]: Montreal
+                  - generic [ref=e1567]: House rentals
+              - listitem [ref=e1568]:
+                - link "Charlotte Condo rentals" [ref=e1569] [cursor=pointer]:
+                  - /url: /charlotte-nc/stays/condos
+                  - generic [ref=e1570]: Charlotte
+                  - generic [ref=e1571]: Condo rentals
+              - listitem [ref=e1572]:
+                - button "Show more Popular" [ref=e1573] [cursor=pointer]:
+                  - generic [ref=e1574]: Show more
+                  - img [ref=e1575]
+      - contentinfo [ref=e1578]:
+        - generic [ref=e1579]:
+          - heading "Site Footer" [level=2] [ref=e1581]
+          - generic [ref=e1582]:
+            - generic [ref=e1583]:
+              - heading "Support" [level=3] [ref=e1584]
+              - list [ref=e1585]:
+                - listitem [ref=e1586]:
+                  - link "Help Center" [ref=e1587] [cursor=pointer]:
+                    - /url: /help/home?from=footer
+                - listitem [ref=e1588]:
+                  - link "Get help with a safety issue" [ref=e1589] [cursor=pointer]:
+                    - /url: /help/contact-us?entry=DESKTOP_FOOTER_SAFETY
+                - listitem [ref=e1590]:
+                  - link "AirCover" [ref=e1591] [cursor=pointer]:
+                    - /url: /aircover
+                - listitem [ref=e1592]:
+                  - link "Anti-discrimination" [ref=e1593] [cursor=pointer]:
+                    - /url: /against-discrimination
+                - listitem [ref=e1594]:
+                  - link "Disability support" [ref=e1595] [cursor=pointer]:
+                    - /url: /accessibility
+                - listitem [ref=e1596]:
+                  - link "Cancellation options" [ref=e1597] [cursor=pointer]:
+                    - /url: /help/article/2701/extenuating-circumstances-policy-and-the-coronavirus-covid19
+                - listitem [ref=e1598]:
+                  - link "Report neighborhood concern" [ref=e1599] [cursor=pointer]:
+                    - /url: /neighbors
+            - generic [ref=e1600]:
+              - heading "Hosting" [level=3] [ref=e1601]
+              - list [ref=e1602]:
+                - listitem [ref=e1603]:
+                  - link "Airbnb your home" [ref=e1604] [cursor=pointer]:
+                    - /url: /host/homes?from_footer=1
+                - listitem [ref=e1605]:
+                  - link "Airbnb your experience" [ref=e1606] [cursor=pointer]:
+                    - /url: /host/experiences
+                - listitem [ref=e1607]:
+                  - link "Airbnb your service" [ref=e1608] [cursor=pointer]:
+                    - /url: /host/services
+                - listitem [ref=e1609]:
+                  - link "AirCover for Hosts" [ref=e1610] [cursor=pointer]:
+                    - /url: /aircover-for-hosts
+                - listitem [ref=e1611]:
+                  - link "Hosting resources" [ref=e1612] [cursor=pointer]:
+                    - /url: /resources
+                - listitem [ref=e1613]:
+                  - link "Community forum" [ref=e1614] [cursor=pointer]:
+                    - /url: https://community.withairbnb.com/t5/Community-Center/ct-p/community-center
+                - listitem [ref=e1615]:
+                  - link "Hosting responsibly" [ref=e1616] [cursor=pointer]:
+                    - /url: /help/responsible-hosting
+                - listitem [ref=e1617]:
+                  - link "Join a free hosting class" [ref=e1618] [cursor=pointer]:
+                    - /url: /e/intro-to-hosting
+                - listitem [ref=e1619]:
+                  - link "Find a co‑host" [ref=e1620] [cursor=pointer]:
+                    - /url: /host/co-hosts
+                - listitem [ref=e1621]:
+                  - link "Refer a host" [ref=e1622] [cursor=pointer]:
+                    - /url: /refer
+            - generic [ref=e1623]:
+              - heading "Airbnb" [level=3] [ref=e1624]
+              - list [ref=e1625]:
+                - listitem [ref=e1626]:
+                  - link "2026 Summer Release" [ref=e1627] [cursor=pointer]:
+                    - /url: /release
+                - listitem [ref=e1628]:
+                  - link "Newsroom" [ref=e1629] [cursor=pointer]:
+                    - /url: /press/news
+                - listitem [ref=e1630]:
+                  - link "Careers" [ref=e1631] [cursor=pointer]:
+                    - /url: /careers
+                - listitem [ref=e1632]:
+                  - link "Investors" [ref=e1633] [cursor=pointer]:
+                    - /url: https://investors.airbnb.com
+                - listitem [ref=e1634]:
+                  - link "Airbnb.org emergency stays" [ref=e1635] [cursor=pointer]:
+                    - /url: https://www.airbnb.org?locale=en
+          - generic [ref=e1636]:
+            - generic [ref=e1637]: Footer section
+            - generic [ref=e1639]:
+              - generic [ref=e1641]:
+                - generic [ref=e1642]: © 2026 Airbnb, Inc.
+                - generic [ref=e1643]:
+                  - generic [ref=e1645]: ·
+                  - list [ref=e1647]:
+                    - listitem [ref=e1648]:
+                      - link "Privacy" [ref=e1649] [cursor=pointer]:
+                        - /url: /terms/privacy_policy
+                      - generic [ref=e1650]:
+                        - generic:
+                          - generic: ·
+                    - listitem [ref=e1651]:
+                      - link "Terms" [ref=e1652] [cursor=pointer]:
+                        - /url: /terms
+              - generic [ref=e1653]:
+                - generic [ref=e1655]:
+                  - button "Choose a language" [ref=e1657] [cursor=pointer]:
+                    - generic [ref=e1658]:
+                      - generic:
+                        - img
+                        - text: English (AE)
+                  - button "Choose a currency" [ref=e1660] [cursor=pointer]:
+                    - generic [ref=e1662]:
+                      - generic [ref=e1663]: ﺩ.ﺇ
+                      - generic [ref=e1664]: AED
+                - list [ref=e1666]:
+                  - listitem [ref=e1667]:
+                    - link "Navigate to Facebook" [ref=e1668] [cursor=pointer]:
+                      - /url: https://www.facebook.com/airbnb
+                      - img [ref=e1670]
+                  - listitem [ref=e1672]:
+                    - link "Navigate to Twitter" [ref=e1673] [cursor=pointer]:
+                      - /url: https://twitter.com/airbnb
+                      - img [ref=e1675]
+                  - listitem [ref=e1677]:
+                    - link "Navigate to Instagram" [ref=e1678] [cursor=pointer]:
+                      - /url: https://instagram.com/airbnb
+                      - img [ref=e1680]

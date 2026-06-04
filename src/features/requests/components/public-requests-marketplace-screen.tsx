@@ -2,31 +2,33 @@
 
 import { useMemo, useState } from "react";
 
-import { ReqCard } from "@/components/shared/req-card";
+import { RequestCardFinal } from "@/components/shared/request-card-final";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 
 const CATEGORY_PILLS = [
   "Все",
-  "История",
-  "Архитектура",
+  "История и культура",
   "Природа",
   "Гастрономия",
   "Искусство",
-  "Религия",
-  "Для детей",
-  "Необычное",
+  "Необычные маршруты",
+  "Ночные прогулки",
+  "Активный отдых",
+  "Водные прогулки",
+  "Религия и духовность",
 ] as const;
 type CategoryPill = (typeof CATEGORY_PILLS)[number];
 
 const CATEGORY_INTEREST_SLUGS: Partial<Record<CategoryPill, string>> = {
-  История: "history",
-  Архитектура: "architecture",
+  "История и культура": "history_culture",
   Природа: "nature",
   Гастрономия: "food",
   Искусство: "art",
-  Религия: "religion",
-  "Для детей": "kids",
-  Необычное: "unusual",
+  "Необычные маршруты": "unusual",
+  "Ночные прогулки": "night",
+  "Активный отдых": "active",
+  "Водные прогулки": "water",
+  "Религия и духовность": "religion",
 };
 
 const MONTHS_GENITIVE = [
@@ -60,6 +62,10 @@ type Props = {
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договоренности";
   return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
+}
+
+function deriveGuideState(status: OpenRequestRecord["status"]) {
+  return status === "matched" ? "found" : "waiting";
 }
 
 function getSearchText(request: OpenRequestRecord): string {
@@ -102,14 +108,27 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const filteredRequests = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     const categoryMap: Record<Exclude<CategoryPill, "Все">, string[]> = {
-      История: ["история", "исторический", "музей", "крепость", "памятник", "летопись"],
-      Архитектура: ["архитектур", "усадьба", "зодчество", "особняк", "дворец"],
+      "История и культура": [
+        "история",
+        "исторический",
+        "музей",
+        "крепость",
+        "памятник",
+        "летопись",
+        "архитектур",
+        "усадьба",
+        "зодчество",
+        "особняк",
+        "дворец",
+      ],
       Природа: ["байкал", "алтай", "карелия", "камчатка", "природа", "лес", "гора", "степь", "озеро"],
       Гастрономия: ["гастроном", "кухня", "ресторан", "рынок", "еда", "дегустац"],
       Искусство: ["искусство", "театр", "галерея", "выставка", "художник"],
-      Религия: ["монастырь", "церковь", "храм", "мечеть", "собор", "паломничество", "религи"],
-      "Для детей": ["дети", "ребёнок", "семья", "семейн", "детск"],
-      Необычное: ["необычн", "квест", "приключен", "мистик", "тайн", "экстрим"],
+      "Необычные маршруты": ["необычн", "квест", "приключен", "мистик", "тайн", "экстрим"],
+      "Ночные прогулки": ["ноч", "вечер", "огни", "закат", "рассвет"],
+      "Активный отдых": ["актив", "спорт", "поход", "велосипед", "дети", "ребёнок", "семья", "семейн", "детск"],
+      "Водные прогулки": ["вода", "лодка", "катер", "река", "канал", "море", "озеро"],
+      "Религия и духовность": ["монастырь", "церковь", "храм", "мечеть", "собор", "паломничество", "религи"],
     };
 
     return requests.filter((request) => {
@@ -243,29 +262,16 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredRequests.map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
-                const isOpenGroup = request.group.openToMoreMembers;
-                const fillPct = isOpenGroup
-                  ? null
-                  : request.group.sizeTarget > 0
-                    ? Math.round(
-                        (request.group.sizeCurrent / request.group.sizeTarget) * 100,
-                      )
-                    : null;
-                const spotsLabel = isOpenGroup
-                  ? `${request.group.sizeCurrent} участников`
-                  : `${request.group.sizeCurrent} / ${request.group.sizeTarget} мест`;
 
                 return (
-                  <ReqCard
+                  <RequestCardFinal
                     key={request.id}
                     href={`/requests/${request.id}`}
                     location={location}
-                    spotsLabel={spotsLabel}
-                    title={request.highlights[0] ?? request.destinationLabel}
                     date={request.dateRangeLabel}
-                    desc={request.highlights[1] ?? request.destinationLabel}
+                    groupType={request.group.openToMoreMembers ? "assembly" : "private"}
+                    guideState={deriveGuideState(request.status)}
                     interests={request.interests}
-                    fillPct={fillPct}
                     members={request.members}
                     price={derivePrice(request.budgetPerPersonRub)}
                   />

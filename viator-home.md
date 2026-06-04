@@ -1,0 +1,507 @@
+- generic [ref=e1]:
+  - generic [ref=e4]:
+    - navigation "Skip to main content":
+      - link "Skip to main content" [ref=e5] [cursor=pointer]:
+        - /url: "#main-content-wrapper"
+    - main [ref=e6]:
+      - generic [ref=e8]:
+        - generic [ref=e10]:
+          - link "GetYourGuide logo" [ref=e11] [cursor=pointer]:
+            - /url: /
+            - img "GetYourGuide logo" [ref=e12]:
+              - img "Get Your Guide logo" [ref=e13]
+          - navigation [ref=e14]:
+            - list [ref=e15]:
+              - text: 
+              - listitem [ref=e16]:
+                - link "Wishlist" [ref=e17] [cursor=pointer]:
+                  - /url: /wishlists/
+                  - button "Wishlist" [ref=e19]:
+                    - generic [ref=e21]: 
+              - listitem [ref=e22]:
+                - link "Cart" [ref=e23] [cursor=pointer]:
+                  - /url: /cart/
+                  - button "Cart" [ref=e26]:
+                    - generic [ref=e28]: 
+              - listitem [ref=e29]:
+                - generic "Language" [ref=e30] [cursor=pointer]:
+                  - button "Language" [ref=e32]:
+                    - generic [ref=e34]: 
+              - listitem [ref=e35]:
+                - link "Profile" [ref=e36] [cursor=pointer]:
+                  - /url: "#"
+                  - button "Profile" [ref=e39]:
+                    - generic [ref=e41]: 
+        - list [ref=e44]:
+          - listitem [ref=e45]:
+            - generic [ref=e46]:
+              - generic [ref=e47]: Places to see
+              - generic [ref=e49]: 
+          - listitem [ref=e50]:
+            - generic [ref=e51]:
+              - generic [ref=e52]: Things to do
+              - generic [ref=e54]: 
+          - listitem [ref=e55]:
+            - generic [ref=e56]:
+              - generic [ref=e57]: Trip inspiration
+              - generic [ref=e59]: 
+      - generic [ref=e61]:
+        - generic [ref=e64]:
+          - img "Discover & book things to do" [ref=e67]
+          - generic [ref=e69]:
+            - heading "Discover & book things to do" [level=1] [ref=e70]:
+              - generic [ref=e71]: Discover & book things to do
+            - generic "Search GetYourGuide" [ref=e77]:
+              - generic [ref=e79]:
+                - generic: 
+                - combobox "Search suggestions" [ref=e81]
+              - button "Search" [ref=e83] [cursor=pointer]:
+                - generic [ref=e84]: Search
+        - heading "Things to do wherever you're going" [level=2] [ref=e90]
+        - generic [ref=e95]:
+          - generic [ref=e96]:  
+          - list [ref=e98]:
+            - listitem [ref=e99]:
+              - link "image Rome" [ref=e101] [cursor=pointer]:
+                - /url: /rome-l33/
+                - button "image Rome" [ref=e102]:
+                  - img "image" [ref=e104]
+                  - generic [ref=e105]: Rome
+            - listitem [ref=e106]:
+              - link "image Paris" [ref=e108] [cursor=pointer]:
+                - /url: /paris-l16/
+                - button "image Paris" [ref=e109]:
+                  - img "image" [ref=e111]
+                  - generic [ref=e112]: Paris
+            - listitem [ref=e113]:
+              - link "image Amsterdam" [ref=e115] [cursor=pointer]:
+                - /url: /amsterdam-l36/
+                - button "image Amsterdam" [ref=e116]:
+                  - img "image" [ref=e118]
+                  - generic [ref=e119]: Amsterdam
+            - listitem [ref=e120]:
+              - link "image New York City" [ref=e122] [cursor=pointer]:
+                - /url: /new-york-city-l59/
+                - button "image New York City" [ref=e123]:
+                  - img "image" [ref=e125]
+                  - generic [ref=e126]: New York City
+            - listitem [ref=e127]:
+              - link "image Boston" [ref=e129] [cursor=pointer]:
+                - /url: /boston-l260/
+                - button "image Boston" [ref=e130]:
+                  - img "image" [ref=e132]
+                  - generic [ref=e133]: Boston
+            - listitem [ref=e134]:
+              - link "image Chicago" [ref=e136] [cursor=pointer]:
+                - /url: /chicago-l225/
+                - button "image Chicago" [ref=e137]:
+                  - img "image" [ref=e139]
+                  - generic [ref=e140]: Chicago
+        - heading "Attractions you can't miss" [level=2] [ref=e146]
+        - generic [ref=e151]:
+          - generic [ref=e152]:
+            - button "Next" [ref=e153] [cursor=pointer]:
+              - generic [ref=e155]: 
+            - text: 
+          - list [ref=e157]:
+            - listitem [ref=e158]:
+              - link "image Statue of Liberty 195 activities" [ref=e160] [cursor=pointer]:
+                - /url: /statue-of-liberty-l2612/
+                - button "image Statue of Liberty 195 activities" [ref=e161]:
+                  - img "image" [ref=e163]
+                  - generic [ref=e164]: Statue of Liberty
+                  - generic [ref=e165]: 195 activities
+            - listitem [ref=e166]:
+              - link "image Vatican Museums 470 activities" [ref=e168] [cursor=pointer]:
+                - /url: /vatican-museums-l2738/
+                - button "image Vatican Museums 470 activities" [ref=e169]:
+                  - img "image" [ref=e171]
+                  - generic [ref=e172]: Vatican Museums
+                  - generic [ref=e173]: 470 activities
+            - listitem [ref=e174]:
+              - link "image Eiffel Tower 570 activities" [ref=e176] [cursor=pointer]:
+                - /url: /eiffel-tower-l2600/
+                - button "image Eiffel Tower 570 activities" [ref=e177]:
+                  - img "image" [ref=e179]
+                  - generic [ref=e180]: Eiffel Tower
+                  - generic [ref=e181]: 570 activities
+            - listitem [ref=e182]:
+              - link "image Metropolitan Museum of Art 63 activities" [ref=e184] [cursor=pointer]:
+                - /url: /metropolitan-museum-of-art-l2609/
+                - button "image Metropolitan Museum of Art 63 activities" [ref=e185]:
+                  - img "image" [ref=e187]
+                  - generic [ref=e188]: Metropolitan Museum of Art
+                  - generic [ref=e189]: 63 activities
+            - listitem [ref=e190]
+        - heading "Unforgettable travel experiences" [level=2] [ref=e196]
+        - generic [ref=e198]:
+          - 'link "image Originals by GetYourGuide Add to wishlist Day trip Vegas: Grand Canyon, Hoover Dam, Skywalk Option, & Two Meals 10 hours • Skip the line • Pickup available 4.8 (3,282) From د.إ364" [ref=e199] [cursor=pointer]':
+            - /url: /las-vegas-l58/vegas-grand-canyon-hoover-dam-skywalk-option-two-meals-t4623/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Originals by GetYourGuide Add to wishlist Day trip Vegas: Grand Canyon, Hoover Dam, Skywalk Option, & Two Meals 10 hours • Skip the line • Pickup available 4.8 (3,282) From د.إ364" [ref=e200]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e204]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic [ref=e207]: 
+                        - generic [ref=e208]: Originals by GetYourGuide
+                    - generic "Add to wishlist" [ref=e210]:
+                      - button [ref=e211]:
+                        - generic [ref=e213]: 
+              - generic:
+                - generic [ref=e214]: Day trip
+                - generic [ref=e215]: "Vegas: Grand Canyon, Hoover Dam, Skywalk Option, & Two Meals"
+                - generic [ref=e216]: 10 hours • Skip the line • Pickup available
+                - generic:
+                  - generic:
+                    - generic [ref=e217]: "4.8"
+                    - generic [ref=e220]: 
+                    - generic [ref=e221]: (3,282)
+                  - generic:
+                    - generic [ref=e222]: From
+                    - generic [ref=e223]: د.إ364
+          - 'link "image Add to wishlist Other experience Rome: Dining Experience at a Local''s Home 2.5 - 3 hours • Small group 4.7 (70) From د.إ295" [ref=e224] [cursor=pointer]':
+            - /url: /rome-l33/rome-dining-experience-at-a-local-s-home-t281022/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Add to wishlist Other experience Rome: Dining Experience at a Local''s Home 2.5 - 3 hours • Small group 4.7 (70) From د.إ295" [ref=e225]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e227]
+                  - generic "Add to wishlist" [ref=e229]:
+                    - button [ref=e230]:
+                      - generic [ref=e232]: 
+              - generic:
+                - generic [ref=e233]: Other experience
+                - generic [ref=e234]: "Rome: Dining Experience at a Local's Home"
+                - generic [ref=e235]: 2.5 - 3 hours • Small group
+                - generic:
+                  - generic:
+                    - generic [ref=e236]: "4.7"
+                    - generic [ref=e239]: 
+                    - generic [ref=e240]: (70)
+                  - generic:
+                    - generic [ref=e241]: From
+                    - generic [ref=e242]: د.إ295
+          - 'link "image Add to wishlist Guided tour San Francisco: Muir Woods and Sausalito Half-Day Trip 5 hours 4.6 (1,769) From د.إ364" [ref=e243] [cursor=pointer]':
+            - /url: /san-francisco-l61/muir-woods-sausalito-half-day-tour-from-san-francisc-t149645/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Add to wishlist Guided tour San Francisco: Muir Woods and Sausalito Half-Day Trip 5 hours 4.6 (1,769) From د.إ364" [ref=e244]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e246]
+                  - generic "Add to wishlist" [ref=e248]:
+                    - button [ref=e249]:
+                      - generic [ref=e251]: 
+              - generic:
+                - generic [ref=e252]: Guided tour
+                - generic [ref=e253]: "San Francisco: Muir Woods and Sausalito Half-Day Trip"
+                - generic [ref=e254]: 5 hours
+                - generic:
+                  - generic:
+                    - generic [ref=e255]: "4.6"
+                    - generic [ref=e258]: 
+                    - generic [ref=e259]: (1,769)
+                  - generic:
+                    - generic [ref=e260]: From
+                    - generic [ref=e261]: د.إ364
+          - 'link "image Originals by GetYourGuide Add to wishlist Guided tour Rome: Turning the Lights on at the Vatican Museums 2.5 hours • Skip the line 4.9 (171) From د.إ1,495" [ref=e262] [cursor=pointer]':
+            - /url: /rome-l33/rome-turning-the-lights-on-at-the-vatican-museums-t438033/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Originals by GetYourGuide Add to wishlist Guided tour Rome: Turning the Lights on at the Vatican Museums 2.5 hours • Skip the line 4.9 (171) From د.إ1,495" [ref=e263]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e267]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic [ref=e270]: 
+                        - generic [ref=e271]: Originals by GetYourGuide
+                    - generic "Add to wishlist" [ref=e273]:
+                      - button [ref=e274]:
+                        - generic [ref=e276]: 
+              - generic:
+                - generic [ref=e277]: Guided tour
+                - generic [ref=e278]: "Rome: Turning the Lights on at the Vatican Museums"
+                - generic [ref=e279]: 2.5 hours • Skip the line
+                - generic:
+                  - generic:
+                    - generic [ref=e280]: "4.9"
+                    - generic [ref=e283]: 
+                    - generic [ref=e284]: (171)
+                  - generic:
+                    - generic [ref=e285]: From
+                    - generic [ref=e286]: د.إ1,495
+          - 'link "image Originals by GetYourGuide Add to wishlist Guided tour London: Beatles and Abbey Road Tour with Richard Porter 2.5 hours 4.6 (603) From د.إ99" [ref=e287] [cursor=pointer]':
+            - /url: /london-l57/london-beatles-and-abbey-road-tour-with-richard-porter-t445767/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Originals by GetYourGuide Add to wishlist Guided tour London: Beatles and Abbey Road Tour with Richard Porter 2.5 hours 4.6 (603) From د.إ99" [ref=e288]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e292]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic [ref=e295]: 
+                        - generic [ref=e296]: Originals by GetYourGuide
+                    - generic "Add to wishlist" [ref=e298]:
+                      - button [ref=e299]:
+                        - generic [ref=e301]: 
+              - generic:
+                - generic [ref=e302]: Guided tour
+                - generic [ref=e303]: "London: Beatles and Abbey Road Tour with Richard Porter"
+                - generic [ref=e304]: 2.5 hours
+                - generic:
+                  - generic:
+                    - generic [ref=e305]: "4.6"
+                    - generic [ref=e308]: 
+                    - generic [ref=e309]: (603)
+                  - generic:
+                    - generic [ref=e310]: From
+                    - generic [ref=e311]: د.إ99
+          - 'link "image Likely to sell out Add to wishlist Day trip Nice: Full-Day Côtes de Provence Wine Tour 8 hours • Small group 4.9 (220) From د.إ705" [ref=e312] [cursor=pointer]':
+            - /url: /nice-l314/nice-full-day-cotes-de-provence-wine-tour-t141642/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Likely to sell out Add to wishlist Day trip Nice: Full-Day Côtes de Provence Wine Tour 8 hours • Small group 4.9 (220) From د.إ705" [ref=e313]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e315]
+                  - generic:
+                    - generic [ref=e316]: Likely to sell out
+                    - generic "Add to wishlist" [ref=e318]:
+                      - button [ref=e319]:
+                        - generic [ref=e321]: 
+              - generic:
+                - generic [ref=e322]: Day trip
+                - generic [ref=e323]: "Nice: Full-Day Côtes de Provence Wine Tour"
+                - generic [ref=e324]: 8 hours • Small group
+                - generic:
+                  - generic:
+                    - generic [ref=e325]: "4.9"
+                    - generic [ref=e328]: 
+                    - generic [ref=e329]: (220)
+                  - generic:
+                    - generic [ref=e330]: From
+                    - generic [ref=e331]: د.إ705
+          - 'link "image Originals by GetYourGuide Add to wishlist Guided tour Atlanta: Martin Luther King Historical Park Walking Tour 2.5 hours 5 (91) From د.إ147" [ref=e332] [cursor=pointer]':
+            - /url: /atlanta-l503/atlanta-martin-luther-king-historic-district-walking-tour-t220860/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Originals by GetYourGuide Add to wishlist Guided tour Atlanta: Martin Luther King Historical Park Walking Tour 2.5 hours 5 (91) From د.إ147" [ref=e333]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e337]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic [ref=e340]: 
+                        - generic [ref=e341]: Originals by GetYourGuide
+                    - generic "Add to wishlist" [ref=e343]:
+                      - button [ref=e344]:
+                        - generic [ref=e346]: 
+              - generic:
+                - generic [ref=e347]: Guided tour
+                - generic [ref=e348]: "Atlanta: Martin Luther King Historical Park Walking Tour"
+                - generic [ref=e349]: 2.5 hours
+                - generic:
+                  - generic:
+                    - generic [ref=e350]: "5"
+                    - generic [ref=e353]: 
+                    - generic [ref=e354]: (91)
+                  - generic:
+                    - generic [ref=e355]: From
+                    - generic [ref=e356]: د.إ147
+          - 'link "image Originals by GetYourGuide Add to wishlist Guided tour Charleston: Old Walled City Historical Walking Tour 2 hours 4.6 (710) From د.إ113" [ref=e357] [cursor=pointer]':
+            - /url: /charleston-l894/charleston-old-walled-city-historical-walking-tour-t14244/?ranking_uuid=36bbadce-438a-4494-9146-796580a9e33d
+            - 'button "image Originals by GetYourGuide Add to wishlist Guided tour Charleston: Old Walled City Historical Walking Tour 2 hours 4.6 (710) From د.إ113" [ref=e358]':
+              - generic:
+                - generic:
+                  - img "image" [ref=e362]
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic [ref=e365]: 
+                        - generic [ref=e366]: Originals by GetYourGuide
+                    - generic "Add to wishlist" [ref=e368]:
+                      - button [ref=e369]:
+                        - generic [ref=e371]: 
+              - generic:
+                - generic [ref=e372]: Guided tour
+                - generic [ref=e373]: "Charleston: Old Walled City Historical Walking Tour"
+                - generic [ref=e374]: 2 hours
+                - generic:
+                  - generic:
+                    - generic [ref=e375]: "4.6"
+                    - generic [ref=e378]: 
+                    - generic [ref=e379]: (710)
+                  - generic:
+                    - generic [ref=e380]: From
+                    - generic [ref=e381]: د.إ113
+        - heading "Why book with GetYourGuide?" [level=2] [ref=e387]
+        - generic [ref=e393]:
+          - generic [ref=e394]:  
+          - list [ref=e396]:
+            - listitem [ref=e397]:
+              - generic [ref=e398]:
+                - generic:
+                  - img "Experiences worth traveling for" [ref=e400]
+                  - generic:
+                    - heading "Experiences worth traveling for" [level=3] [ref=e401]
+                    - generic [ref=e402]: Discover iconic sights and experience places the way locals do.
+            - listitem [ref=e403]:
+              - generic [ref=e404]:
+                - generic:
+                  - img "Book with confidence" [ref=e406]
+                  - generic:
+                    - heading "Book with confidence" [level=3] [ref=e407]
+                    - generic [ref=e408]: Trusted reviews, quality tours, and all the details you need to decide.
+            - listitem [ref=e409]:
+              - generic [ref=e410]:
+                - generic:
+                  - img "Plans change and that’s ok" [ref=e412]
+                  - generic:
+                    - heading "Plans change and that’s ok" [level=3] [ref=e413]
+                    - generic [ref=e414]: Breathe easy with free cancellations on most activities, the option to pay later, and 24/7 support.
+    - contentinfo [ref=e421]:
+      - navigation [ref=e423]:
+        - generic [ref=e424]:
+          - generic [ref=e425]:
+            - group "Select Language" [ref=e426]:
+              - generic: Language
+              - generic [ref=e430] [cursor=pointer]:
+                - textbox "Language" [ref=e432]:
+                  - /placeholder: English (United States)
+                  - text: English (United States)
+                - generic:
+                  - generic:
+                    - generic: 
+            - group "Select Currency" [ref=e433]:
+              - generic: Currency
+              - generic [ref=e437] [cursor=pointer]:
+                - textbox "Currency" [ref=e439]:
+                  - /placeholder: UAE Dirham (د.إ)
+                  - text: UAE Dirham (د.إ)
+                - generic:
+                  - generic:
+                    - generic: 
+          - generic [ref=e440]:
+            - generic: Mobile
+            - generic [ref=e441]:
+              - link "Get it on Google Play" [ref=e442] [cursor=pointer]:
+                - /url: https://getyourguide.go.link/?adj_t=ozocv7g&adj_deeplink=gyg%3A%2F%2Fdiscovery%3Fvisitor_id%3D9QCLVTJQY45Y2MF28M5KI76SA827MYWV%26utm_source%3Dgetyourguide%26utm_medium%3Dweb_to_app%26utm_campaign%3Dfooter_sitewide%26utm_content%3DHome_desktop%26uuid%3D261888f2-fcc1-4c4a-a7ca-59c29d8e4abd&adj_campaign=Home
+                - img "Get it on Google Play" [ref=e443]
+              - link "Download on the App Store" [ref=e444] [cursor=pointer]:
+                - /url: https://getyourguide.go.link/?adj_t=fmh9r7&adj_deeplink=gyg%3A%2F%2Fdiscovery%3Fvisitor_id%3D9QCLVTJQY45Y2MF28M5KI76SA827MYWV%26utm_source%3Dgetyourguide%26utm_medium%3Dweb_to_app%26utm_campaign%3Dfooter_sitewide%26utm_content%3DHome_desktop%26uuid%3D261888f2-fcc1-4c4a-a7ca-59c29d8e4abd&adj_campaign=Home
+                - img "Download on the App Store" [ref=e445]
+          - navigation "Support" [ref=e446]:
+            - text: 
+            - heading "Support" [level=2]
+            - list [ref=e447]:
+              - listitem [ref=e448]:
+                - link "Contact" [ref=e449] [cursor=pointer]:
+                  - /url: /contact/?referrer_source=site_footer
+              - listitem [ref=e450]:
+                - link "Legal Notice" [ref=e451] [cursor=pointer]:
+                  - /url: /c/legal/
+              - listitem [ref=e452]:
+                - link "Privacy Policy" [ref=e453] [cursor=pointer]:
+                  - /url: /c/privacy-policy/
+              - listitem [ref=e454]:
+                - link "Cookies and Marketing Preferences" [ref=e455] [cursor=pointer]:
+                  - /url: "#"
+              - listitem [ref=e456]:
+                - link "General Terms and Conditions" [ref=e457] [cursor=pointer]:
+                  - /url: /c/general-terms-and-conditions/
+              - listitem [ref=e458]:
+                - link "Information according to the Digital Services Act" [ref=e459] [cursor=pointer]:
+                  - /url: /c/dsa/
+              - listitem [ref=e460]:
+                - link "Sitemap" [ref=e461] [cursor=pointer]:
+                  - /url: /destinations/
+          - generic [ref=e462]:
+            - text: 
+            - heading "Company" [level=2]
+            - list [ref=e463]:
+              - listitem [ref=e464]:
+                - link "About Us" [ref=e465] [cursor=pointer]:
+                  - /url: /about/
+              - listitem [ref=e466]:
+                - link "Careers" [ref=e467] [cursor=pointer]:
+                  - /url: https://careers.getyourguide.com/
+              - listitem [ref=e468]:
+                - link "Blog" [ref=e469] [cursor=pointer]:
+                  - /url: https://inside.getyourguide.com/
+              - listitem [ref=e470]:
+                - link "Press" [ref=e471] [cursor=pointer]:
+                  - /url: https://press.getyourguide.com/
+              - listitem [ref=e472]:
+                - link "Gift Cards" [ref=e473] [cursor=pointer]:
+                  - /url: /coupon/
+              - listitem [ref=e474]:
+                - link "Explorer" [ref=e475] [cursor=pointer]:
+                  - /url: /explorer/
+          - generic [ref=e476]:
+            - text: 
+            - heading "Work With Us" [level=2]
+            - list [ref=e477]:
+              - listitem [ref=e478]:
+                - link "As a Supply Partner" [ref=e479] [cursor=pointer]:
+                  - /url: https://supplier.getyourguide.com/?utm_source=inbound&utm_medium=b2c_website_supply&utm_campaign=footer_link_home
+              - listitem [ref=e480]:
+                - link "As a Content Creator" [ref=e481] [cursor=pointer]:
+                  - /url: https://partner.getyourguide.com/en-us/content-creators/?partner_id=VPFQWBY&cmp=gyg_footer_creator
+              - listitem [ref=e482]:
+                - link "As an Affiliate Partner" [ref=e483] [cursor=pointer]:
+                  - /url: https://partner.getyourguide.com/en-us/content-creators/?partner_id=VPFQWBY&cmp=gyg_footer_affiliate
+            - generic [ref=e484]:
+              - generic: Ways You Can Pay
+              - generic [ref=e485]:
+                - img "Paypal" [ref=e487]
+                - img "Mastercard" [ref=e489]
+                - img "Visa" [ref=e491]
+                - img "Maestro" [ref=e493]
+                - img "American Express" [ref=e495]
+                - img "Jcb" [ref=e497]
+                - img "Discover" [ref=e499]
+                - img "Klarna" [ref=e501]
+                - img "Google Pay" [ref=e503]
+                - img "Apple Pay" [ref=e505]
+                - img "Ideal" [ref=e507]
+                - img "Bancontact" [ref=e509]
+        - generic [ref=e510]:
+          - paragraph [ref=e511]:
+            - generic [ref=e512]:
+              - text: ©
+              - time [ref=e513]: "2008"
+              - text: –
+              - time [ref=e514]: "2026"
+              - text: GetYourGuide. Made in Zurich & Berlin.
+          - generic [ref=e515]:
+            - link "Facebook":
+              - /url: https://www.facebook.com/GetYourGuide
+              - generic [ref=e517] [cursor=pointer]: 
+              - text: Facebook
+            - link "Instagram":
+              - /url: https://www.instagram.com/getyourguide/
+              - generic [ref=e519] [cursor=pointer]: 
+              - text: Instagram
+            - link "Twitter":
+              - /url: https://www.twitter.com/GetYourGuide
+              - generic [ref=e521] [cursor=pointer]: 
+              - text: Twitter
+            - link "Pinterest":
+              - /url: https://pinterest.com/getyourguide/
+              - generic [ref=e523] [cursor=pointer]: 
+              - text: Pinterest
+            - link "LinkedIn":
+              - /url: https://www.linkedin.com/company/getyourguide-ag/
+              - generic [ref=e525] [cursor=pointer]: 
+              - text: LinkedIn
+  - complementary [active]:
+    - dialog "Let’s give you the best experience possible" [ref=e527]:
+      - generic [ref=e530]:
+        - heading "Let’s give you the best experience possible" [level=2] [ref=e531]
+        - generic:
+          - generic:
+            - text: GetYourGuide uses cookies and other technologies, whether users are browsing our website or using our app. We do this to keep our platforms secure, measure their performance, deliver a personalized experience, improve our services and advertise them more relevantly. To do this, we and our trusted partners collect information about users, their purchases, activity, and their devices.
+            - generic:
+              - text: Preferences can be changed at any time with future effect across your devices. For more information, see our
+              - link "privacy policy" [ref=e532] [cursor=pointer]:
+                - /url: /c/privacy-policy
+              - text: .
+      - generic [ref=e535]:
+        - button "Change preferences" [ref=e536] [cursor=pointer]
+        - button "Let's go" [ref=e537] [cursor=pointer]

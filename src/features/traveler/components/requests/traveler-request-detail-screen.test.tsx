@@ -12,7 +12,7 @@ const baseRecord: TravelerRequestRecord = {
   updatedAt: "2026-06-01T00:00:00.000Z",
   request: {
     mode: "assembly",
-    interests: ["history"],
+    interests: ["history_culture"],
     requestedLanguages: [],
     destination: "Элиста",
     startDate: "2026-06-10",

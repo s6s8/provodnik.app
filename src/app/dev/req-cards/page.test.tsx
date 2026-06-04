@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { beforeAll, describe, expect, it, vi } from "vitest";
 
 import DevReqCardsPage from "./page";
@@ -14,93 +14,52 @@ beforeAll(() => {
 });
 
 describe("/dev/req-cards", () => {
-  it("renders three side-by-side interpretations of neutral group type badges", () => {
+  it("renders the single stack-badge participant-count bundle", () => {
     render(<DevReqCardsPage />);
 
-    expect(screen.getByRole("heading", { name: "1 · Тихий чип (контроль)" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "2 · Вес: заливка vs контур" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "3 · Вес + силуэт иконки" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "4 · Темы: текст vs иконки-only" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "5 · Контур: цвет рамки = тип" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Текст" })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Иконки-only" })).toBeInTheDocument();
-    expect(screen.getAllByRole("link")).toHaveLength(24);
-
-    const privateChips = screen.getAllByText("Своя группа").map((label) => label.closest("span"));
-    const assemblyChips = screen.getAllByText("Сборная").map((label) => label.closest("span"));
-
-    expect(privateChips).toHaveLength(12);
-    expect(assemblyChips).toHaveLength(12);
-
-    for (const chip of [...privateChips, ...assemblyChips]) {
-      expect(chip).toHaveClass("inline-flex", "items-center", "whitespace-nowrap");
-    }
-
-    for (const chip of [...privateChips.slice(0, 10), ...assemblyChips.slice(0, 10)]) {
-      expect(chip).toHaveClass("text-ink-2");
-    }
-
-    expect(privateChips[0]).toHaveClass("border", "border-border");
-    expect(privateChips[0]).not.toHaveClass("bg-surface-low");
-    expect(assemblyChips[0]).toHaveClass("border", "border-border");
-    expect(assemblyChips[0]).not.toHaveClass("bg-surface-low");
-
-    expect(privateChips[2]).toHaveClass("bg-surface-low");
-    expect(privateChips[2]).not.toHaveClass("border");
-    expect(assemblyChips[2]).toHaveClass("border", "border-border");
-    expect(assemblyChips[2]).not.toHaveClass("bg-surface-low");
-
-    expect(privateChips[4]).toHaveClass("bg-surface-low");
-    expect(privateChips[4]?.querySelector(".lucide-users")).not.toBeNull();
-    expect(assemblyChips[4]).toHaveClass("border", "border-border");
-    expect(assemblyChips[4]?.querySelector(".lucide-users-round")).not.toBeNull();
+    expect(screen.getByRole("heading", { name: "Карточки запросов — счётчик участников" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Счётчик в стеке" })).toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /Счётчик подписью/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/Сравниваем два способа/)).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "5 · Контур: цвет рамки = тип" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: "6 · Аватары + счётчик участников" })).not.toBeInTheDocument();
   });
 
-  it("renders outline-color group type chips with primary only for assembly", () => {
+  it("renders theme words in the top label row", () => {
     render(<DevReqCardsPage />);
 
-    const outlineColorSection = screen
-      .getByRole("heading", { name: "5 · Контур: цвет рамки = тип" })
-      .closest("section");
+    const section = screen.getByRole("heading", { name: "Счётчик в стеке" }).closest("section");
+    expect(section).not.toBeNull();
 
-    expect(outlineColorSection).not.toBeNull();
+    const tbilisiLink = within(section!).getByRole("link", { name: /Тбилиси/ });
 
-    const privateChips = within(outlineColorSection!).getAllByText("Своя группа").map((label) => label.closest("span"));
-    const assemblyChips = within(outlineColorSection!).getAllByText("Сборная").map((label) => label.closest("span"));
-
-    expect(privateChips).toHaveLength(2);
-    expect(assemblyChips).toHaveLength(2);
-
-    for (const chip of privateChips) {
-      expect(chip).toHaveClass("border", "border-border", "text-ink-2");
-      expect(chip).not.toHaveClass("bg-surface-low", "border-primary/40", "text-primary");
-      expect(chip?.querySelector(".lucide-users")).not.toBeNull();
-    }
-
-    for (const chip of assemblyChips) {
-      expect(chip).toHaveClass("border", "border-primary/40", "text-primary");
-      expect(chip).not.toHaveClass("bg-surface-low", "border-border", "text-ink-2");
-      expect(chip?.querySelector(".lucide-users")).not.toBeNull();
-    }
+    expect(within(tbilisiLink).getByText("История и культура")).toBeInTheDocument();
+    expect(within(tbilisiLink).getByText("Гастрономия")).toBeInTheDocument();
   });
 
-  it("renders theme icon-only chips with accessible labels and tap-open tooltips", () => {
+  it("renders participant count as the last circle in the stack-badge variant", () => {
     render(<DevReqCardsPage />);
 
-    const section4 = screen
-      .getByRole("heading", { name: "4 · Темы: текст vs иконки-only" })
-      .closest("section");
+    const countSection = screen.getByRole("heading", { name: "Счётчик в стеке" }).closest("section");
 
-    expect(section4).not.toBeNull();
+    expect(countSection).not.toBeNull();
 
-    const historyButtons = within(section4!).getAllByRole("button", { name: "История" });
-    expect(historyButtons).toHaveLength(3);
-    expect(historyButtons[0]).toHaveClass("rounded-full", "text-ink-2");
-    expect(historyButtons[0]?.querySelector(".lucide-landmark")).not.toBeNull();
-    expect(historyButtons[0]).not.toHaveTextContent("История");
+    const soloCard = within(countSection!)
+      .getByRole("link", { name: /Мцхета/ })
+      .closest("article");
+    const largeCard = within(countSection!)
+      .getByRole("link", { name: /Кахетия/ })
+      .closest("article");
 
-    fireEvent.click(historyButtons[0]);
+    expect(soloCard).not.toBeNull();
+    expect(largeCard).not.toBeNull();
 
-    expect(screen.getByRole("tooltip")).toHaveTextContent("История");
+    expect(within(soloCard!).getAllByTestId("participant-avatar")).toHaveLength(1);
+    expect(within(soloCard!).queryByTestId("participant-count-badge")).not.toBeInTheDocument();
+    expect(within(largeCard!).getAllByTestId("participant-avatar")).toHaveLength(3);
+    expect(within(largeCard!).getByTestId("participant-count-badge")).toHaveTextContent("40");
+    expect(within(countSection!).queryByText("из")).not.toBeInTheDocument();
+    expect(countSection).not.toHaveTextContent("/");
+    expect(within(countSection!).queryByText(/идут/)).not.toBeInTheDocument();
   });
 });

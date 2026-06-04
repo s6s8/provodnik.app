@@ -35,7 +35,7 @@ function makeFormData(overrides?: Partial<Record<string, string | string[]>>) {
   fd.set("base_city", "Санкт-Петербург");
   fd.set("years_experience", "5");
   fd.append("languages", "Русский");
-  fd.append("specializations", "history");
+  fd.append("specializations", "history_culture");
   const regions = overrides?.regions ?? ["Санкт Петербург", "Карелия"];
   for (const region of Array.isArray(regions) ? regions : [regions]) {
     fd.append("regions", region);

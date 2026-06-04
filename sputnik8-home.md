@@ -1,0 +1,581 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - link "sputnik-logo" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img "sputnik-logo" [ref=e7]
+    - textbox "Москва" [ref=e403]
+    - generic [ref=e12]:
+      - link "Хочу скидки на экскурсии" [ref=e405] [cursor=pointer]:
+        - /url: /ru/loyalty?from=top_bar
+        - generic [ref=e406]: Хочу скидки на экскурсии
+      - link [ref=e14] [cursor=pointer]:
+        - /url: /ru/wishlist_activities
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17] [cursor=pointer]: Вход
+          - generic [ref=e18] [cursor=pointer]: Регистрация
+        - generic [ref=e20] [cursor=pointer]: Помощь
+  - generic [ref=e22]:
+    - heading "Бронирование экскурсий по всему миру" [level=1] [ref=e24]
+    - generic [ref=e27]: 28678 экскурсий в 1097 городах на одном сайте. Онлайн бронирование, настоящие отзывы, расписание на каждый день.
+  - generic [ref=e30]:
+    - link "2075 Санкт-Петербург" [ref=e31] [cursor=pointer]:
+      - /url: /ru/st-petersburg
+      - generic [ref=e32]: "2075"
+      - text: Санкт-Петербург
+    - link "1083 Москва" [ref=e33] [cursor=pointer]:
+      - /url: /ru/moscow
+      - generic [ref=e34]: "1083"
+      - text: Москва
+    - link "415 Калининград" [ref=e35] [cursor=pointer]:
+      - /url: /ru/kaliningrad
+      - generic [ref=e36]: "415"
+      - text: Калининград
+    - link "259 Казань" [ref=e37] [cursor=pointer]:
+      - /url: /ru/kazan
+      - generic [ref=e38]: "259"
+      - text: Казань
+    - link "140 Минск" [ref=e39] [cursor=pointer]:
+      - /url: /ru/minsk
+      - generic [ref=e40]: "140"
+      - text: Минск
+    - link "298 Сочи" [ref=e41] [cursor=pointer]:
+      - /url: /ru/sochi
+      - generic [ref=e42]: "298"
+      - text: Сочи
+    - link "215 Нижний Новгород" [ref=e43] [cursor=pointer]:
+      - /url: /ru/nizhnynovgorod
+      - generic [ref=e44]: "215"
+      - text: Нижний Новгород
+    - link "438 Стамбул" [ref=e45] [cursor=pointer]:
+      - /url: /ru/istanbul
+      - generic [ref=e46]: "438"
+      - text: Стамбул
+    - link "261 Кисловодск" [ref=e47] [cursor=pointer]:
+      - /url: /ru/kislovodsk
+      - generic [ref=e48]: "261"
+      - text: Кисловодск
+    - link "440 Тбилиси" [ref=e49] [cursor=pointer]:
+      - /url: /ru/tbilisi
+      - generic [ref=e50]: "440"
+      - text: Тбилиси
+    - link "316 Владивосток" [ref=e51] [cursor=pointer]:
+      - /url: /ru/vladivostok
+      - generic [ref=e52]: "316"
+      - text: Владивосток
+    - link "145 Кемер" [ref=e53] [cursor=pointer]:
+      - /url: /ru/kemer
+      - generic [ref=e54]: "145"
+      - text: Кемер
+  - generic [ref=e66]:
+    - paragraph [ref=e67]: Сегодня, чтобы купить билет на экскурсию, необязательно идти в офис, оплачивать услуги турагентства или дожидаться прибытия на место, ведь можно заказать онлайн. Если у вас мало времени, выберите обзорную экскурсию на автобусе — тур даст самые важные знания о городе. Если времени немного больше, подберите пешеходные прогулки по личным интересам. Sputnik8 — платформа, которая связывает гидов и туристов, желающих пойти на экскурсию.
+    - paragraph [ref=e68]: "В 2026 году темы экскурсий стали намного разнообразнее. В список лучших вошли: прогулки по дворикам, гастрономические туры, квесты по городам России, Европы и Азии."
+    - paragraph [ref=e69]: "Стоимость прогулок с гидом зависит от трех факторов:"
+    - list [ref=e70]:
+      - listitem [ref=e71]: ■ города, в котором проводится
+      - listitem [ref=e72]: ■ количества участников в группе
+      - listitem [ref=e73]: ■ личного мнения автора о стоимости своих услуг
+    - paragraph [ref=e74]:
+      - text: В среднем обзорная экскурсия по Москве для группы из трех-четырех человек стоит от 800 до 1600 руб. Цены на
+      - link "экскурсии в Санкт-Петербурге" [ref=e75] [cursor=pointer]:
+        - /url: /ru/st-petersburg
+      - text: еще ниже — от 600 до 1200 рублей. Советуем готовиться к путешествию заранее.
+    - paragraph [ref=e76]:
+      - text: Если вы планируете поездку в один из самых красивых пригородов Санкт-Петербурга, отличным вариантом станет
+      - link "метеор в Петергоф" [ref=e77] [cursor=pointer]:
+        - /url: /ru/st-petersburg/activities/23007-bilet-na-meteor-v-petergof-i-iz-petergofa
+      - text: — скоростной теплоход, который позволит добраться до Петергофа всего за 45 минут, наслаждаясь видами Невы.
+    - paragraph [ref=e78]:
+      - text: "Популярные достопримечательности:"
+      - link "экскурсии на Куршскую косу" [ref=e79] [cursor=pointer]:
+        - /url: /ru/kaliningrad/sights/kurshskaya-kosa
+      - text: ","
+      - link "туры в Териберку" [ref=e80] [cursor=pointer]:
+        - /url: /ru/murmansk/category/teriberka
+      - text: .
+  - generic [ref=e82]:
+    - generic [ref=e83]:
+      - generic [ref=e84]:
+        - link "Санкт-Петербург" [ref=e85] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/st-petersburg
+        - generic [ref=e87]:
+          - link "Автобусные" [ref=e88] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/bus-tours
+          - link "Реки и каналы" [ref=e89] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/reki-i-kanaly
+          - link "Обзорные" [ref=e90] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/highlights
+          - link "Однодневные" [ref=e91] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/odnodnevnye
+          - link "Развод мостов" [ref=e92] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/razvod-mostov
+          - link "Необычные" [ref=e93] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/off-the-beaten-track
+          - link "Ночные" [ref=e94] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/nochnye-ekskursii
+          - link "Автомобильные" [ref=e95] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/avtomobilnye
+          - link "Музеи" [ref=e96] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/museums
+          - link "По пригородам" [ref=e97] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/suburbs
+          - link "Природные" [ref=e98] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/nature
+          - link "Дворы" [ref=e99] [cursor=pointer]:
+            - /url: /ru/st-petersburg/category/dvory
+        - generic [ref=e100]:
+          - link [ref=e101] [cursor=pointer]:
+            - /url: /ru/st-petersburg
+          - text: 2076 экскурсий
+          - generic [ref=e102]: 
+      - generic [ref=e103]:
+        - link "Москва" [ref=e104] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/moscow
+        - generic [ref=e106]:
+          - link "Автобусные" [ref=e107] [cursor=pointer]:
+            - /url: /ru/moscow/category/bus-tours
+          - link "Обзорные" [ref=e108] [cursor=pointer]:
+            - /url: /ru/moscow/category/highlights
+          - link "Речные прогулки" [ref=e109] [cursor=pointer]:
+            - /url: /ru/moscow/category/moskva-reka-progulki-na-teplohode
+          - link "Пешеходные" [ref=e110] [cursor=pointer]:
+            - /url: /ru/moscow/category/walking-tours
+          - link "Необычные" [ref=e111] [cursor=pointer]:
+            - /url: /ru/moscow/category/off-the-beaten-track
+          - link "Вечерние" [ref=e112] [cursor=pointer]:
+            - /url: /ru/moscow/category/vechernie-ekskursii
+          - link "Выездные" [ref=e113] [cursor=pointer]:
+            - /url: /ru/moscow/category/vyezdnye
+          - link "Смотровые площадки" [ref=e114] [cursor=pointer]:
+            - /url: /ru/moscow/category/smotrovye-ploshadki
+          - link "По пригородам" [ref=e115] [cursor=pointer]:
+            - /url: /ru/moscow/category/suburbs
+          - link "Музеи" [ref=e116] [cursor=pointer]:
+            - /url: /ru/moscow/category/museums
+          - link "Теплоходы Radisson" [ref=e117] [cursor=pointer]:
+            - /url: /ru/moscow/category/radisson-cruise
+          - link "Индивидуальные" [ref=e118] [cursor=pointer]:
+            - /url: /ru/moscow/category/individual
+        - generic [ref=e119]:
+          - link [ref=e120] [cursor=pointer]:
+            - /url: /ru/moscow
+          - text: 1083 экскурсии
+          - generic [ref=e121]: 
+    - generic [ref=e122]:
+      - generic [ref=e124]:
+        - link "Калининград" [ref=e125] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/kaliningrad
+        - generic [ref=e127]:
+          - link "Однодневные" [ref=e128] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/odnodnevnye
+          - link "Обзорные" [ref=e129] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/highlights
+          - link "Водные прогулки" [ref=e130] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/vodnye
+          - link "Мини-группы до 10 чел" [ref=e131] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/mini-gruppy
+          - link "Автобусные" [ref=e132] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/bus-tours
+          - link "Пешеходные" [ref=e133] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/walking-tours
+          - link "Необычные" [ref=e134] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/off-the-beaten-track
+          - link "Индивидуальные" [ref=e135] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/individual
+          - link "Замки" [ref=e136] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/castles
+          - link "Гастрономические" [ref=e137] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/food
+          - link "Балтийск, Янтарный, Светлогорск" [ref=e138] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/baltiysk-yantarniy-svetlogorsk
+          - link "Групповые" [ref=e139] [cursor=pointer]:
+            - /url: /ru/kaliningrad/category/group
+        - link "415 экскурсий" [ref=e140] [cursor=pointer]:
+          - /url: /ru/kaliningrad
+      - generic [ref=e142]:
+        - link "Прага" [ref=e143] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/prague
+        - generic [ref=e145]:
+          - link "Саксонская Швейцария" [ref=e146] [cursor=pointer]:
+            - /url: /ru/prague/category/saksonskaya-shveytsariya
+          - link "В другие города Европы" [ref=e147] [cursor=pointer]:
+            - /url: /ru/prague/category/v-drugie-goroda-evropy
+          - link "Замки" [ref=e148] [cursor=pointer]:
+            - /url: /ru/prague/category/castles
+          - link "Индивидуальные" [ref=e149] [cursor=pointer]:
+            - /url: /ru/prague/category/individual
+          - link "Пивные туры в Праге" [ref=e150] [cursor=pointer]:
+            - /url: /ru/prague/category/pivnye-tury-v-prage
+          - link "Ротенбург" [ref=e151] [cursor=pointer]:
+            - /url: /ru/prague/category/rotenburg
+          - link "Групповые" [ref=e152] [cursor=pointer]:
+            - /url: /ru/prague/category/group
+          - link "Моравский крас" [ref=e153] [cursor=pointer]:
+            - /url: /ru/prague/category/moravskiy-kras
+          - link "Автобусные" [ref=e154] [cursor=pointer]:
+            - /url: /ru/prague/category/bus-tours
+          - link "Германия" [ref=e155] [cursor=pointer]:
+            - /url: /ru/prague/category/germaniya
+          - link "Бавария" [ref=e156] [cursor=pointer]:
+            - /url: /ru/prague/category/bavariya
+          - link "Необычные" [ref=e157] [cursor=pointer]:
+            - /url: /ru/prague/category/off-the-beaten-track
+        - link "246 экскурсий" [ref=e158] [cursor=pointer]:
+          - /url: /ru/prague
+    - generic [ref=e159]:
+      - generic [ref=e161]:
+        - link "Париж" [ref=e162] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/paris
+        - generic [ref=e164]:
+          - link "Обзорные" [ref=e165] [cursor=pointer]:
+            - /url: /ru/paris/category/highlights
+          - link "Автобусные" [ref=e166] [cursor=pointer]:
+            - /url: /ru/paris/category/bus-tours
+          - link "Групповые" [ref=e167] [cursor=pointer]:
+            - /url: /ru/paris/category/group
+          - link "Пешеходные" [ref=e168] [cursor=pointer]:
+            - /url: /ru/paris/category/walking-tours
+          - link "Круизы и теплоходные прогулки" [ref=e169] [cursor=pointer]:
+            - /url: /ru/paris/category/cruise
+          - link "Нормандия" [ref=e170] [cursor=pointer]:
+            - /url: /ru/paris/category/normandiya
+          - link "Индивидуальные" [ref=e171] [cursor=pointer]:
+            - /url: /ru/paris/category/individual
+          - link "Ночные" [ref=e172] [cursor=pointer]:
+            - /url: /ru/paris/category/nochnye-ekskursii
+          - link "Необычные" [ref=e173] [cursor=pointer]:
+            - /url: /ru/paris/category/off-the-beaten-track
+          - link "Детские" [ref=e174] [cursor=pointer]:
+            - /url: /ru/paris/category/kids
+          - link "По пригородам" [ref=e175] [cursor=pointer]:
+            - /url: /ru/paris/category/suburbs
+          - link "На сигвее" [ref=e176] [cursor=pointer]:
+            - /url: /ru/paris/category/sigvey
+        - link "317 экскурсий" [ref=e177] [cursor=pointer]:
+          - /url: /ru/paris
+      - generic [ref=e179]:
+        - link "Рим" [ref=e180] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/rome
+        - generic [ref=e182]:
+          - link "Ночные" [ref=e183] [cursor=pointer]:
+            - /url: /ru/rome/category/nochnye-ekskursii
+          - link "По Италии" [ref=e184] [cursor=pointer]:
+            - /url: /ru/rome/category/po-italii
+          - link "Обзорные" [ref=e185] [cursor=pointer]:
+            - /url: /ru/rome/category/highlights
+          - link "Автобусные" [ref=e186] [cursor=pointer]:
+            - /url: /ru/rome/category/bus-tours
+          - link "По пригородам" [ref=e187] [cursor=pointer]:
+            - /url: /ru/rome/category/suburbs
+          - link "Индивидуальные" [ref=e188] [cursor=pointer]:
+            - /url: /ru/rome/category/individual
+          - link "Групповые" [ref=e189] [cursor=pointer]:
+            - /url: /ru/rome/category/group
+          - link "Пешеходные" [ref=e190] [cursor=pointer]:
+            - /url: /ru/rome/category/walking-tours
+          - link "Необычные" [ref=e191] [cursor=pointer]:
+            - /url: /ru/rome/category/off-the-beaten-track
+          - link "Римские замки" [ref=e192] [cursor=pointer]:
+            - /url: /ru/rome/category/rimskie-zamki
+          - link "На сигвее" [ref=e193] [cursor=pointer]:
+            - /url: /ru/rome/category/sigvey
+          - link "Детские" [ref=e194] [cursor=pointer]:
+            - /url: /ru/rome/category/kids
+        - link "246 экскурсий" [ref=e195] [cursor=pointer]:
+          - /url: /ru/rome
+    - generic [ref=e198]:
+      - generic [ref=e199]:
+        - link [ref=e200] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/barcelona
+        - link "Барселона" [ref=e201] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/barcelona
+        - generic [ref=e202]:
+          - link "Испания" [ref=e203] [cursor=pointer]:
+            - /url: /ru/countries/spain
+          - link "218 экскурсий" [ref=e204] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/barcelona
+      - generic [ref=e205]:
+        - link [ref=e206] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/milan
+        - link "Милан" [ref=e207] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/milan
+        - generic [ref=e208]:
+          - link "Италия" [ref=e209] [cursor=pointer]:
+            - /url: /ru/countries/italy
+          - link "123 экскурсии" [ref=e210] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/milan
+      - generic [ref=e211]:
+        - link [ref=e212] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/vienna
+        - link "Вена" [ref=e213] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/vienna
+        - generic [ref=e214]:
+          - link "Австрия" [ref=e215] [cursor=pointer]:
+            - /url: /ru/countries/austria
+          - link "184 экскурсии" [ref=e216] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/vienna
+      - generic [ref=e217]:
+        - link [ref=e218] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/phuket
+        - link "Пхукет" [ref=e219] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/phuket
+        - generic [ref=e220]:
+          - link "Таиланд" [ref=e221] [cursor=pointer]:
+            - /url: /ru/countries/thailand
+          - link "289 экскурсий" [ref=e222] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/phuket
+      - generic [ref=e223]:
+        - link [ref=e224] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/pattaya
+        - link "Паттайя" [ref=e225] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/pattaya
+        - generic [ref=e226]:
+          - link "Таиланд" [ref=e227] [cursor=pointer]:
+            - /url: /ru/countries/thailand
+          - link "136 экскурсий" [ref=e228] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/pattaya
+      - generic [ref=e229]:
+        - link [ref=e230] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/bali
+        - link "Бали" [ref=e231] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/bali
+        - generic [ref=e232]:
+          - link "Индонезия" [ref=e233] [cursor=pointer]:
+            - /url: /ru/countries/indonesia
+          - link "137 экскурсий" [ref=e234] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/bali
+      - generic [ref=e235]:
+        - link [ref=e236] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/baku
+        - link "Баку" [ref=e237] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/baku
+        - generic [ref=e238]:
+          - link "Азербайджан" [ref=e239] [cursor=pointer]:
+            - /url: /ru/countries/azerbaijan
+          - link "489 экскурсий" [ref=e240] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/baku
+      - generic [ref=e241]:
+        - link [ref=e242] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/kazan
+        - link "Казань" [ref=e243] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/kazan
+        - generic [ref=e244]:
+          - link "Россия" [ref=e245] [cursor=pointer]:
+            - /url: /ru/countries/russia
+          - link "259 экскурсий" [ref=e246] [cursor=pointer]:
+            - /url: https://www.sputnik8.com/ru/kazan
+    - generic [ref=e247]:
+      - generic [ref=e248]: Популярные города
+      - generic [ref=e250]:
+        - link "Бангкок" [ref=e251] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/bangkok
+        - link "Стамбул" [ref=e252] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/istanbul
+        - link "Мюнхен" [ref=e253] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/munich
+        - link "Нью-Йорк" [ref=e254] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/new-york
+        - link "Минск" [ref=e255] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/minsk
+        - link "Кисловодск" [ref=e256] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/kislovodsk
+        - link "Дубай" [ref=e257] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/dubai
+        - link "Амстердам" [ref=e258] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/amsterdam
+        - link "Тбилиси" [ref=e259] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/tbilisi
+        - link "Мадрид" [ref=e260] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/madrid
+        - link "Нячанг" [ref=e261] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/nha-trang
+        - link "Флоренция" [ref=e262] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/florence
+        - link "Ереван" [ref=e263] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/yerevan
+        - link "Адлер" [ref=e264] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/adler
+        - link "Иерусалим" [ref=e265] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/jerusalem
+        - link "Сортавала" [ref=e266] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/sortavala
+        - link "Туры на Алтае" [ref=e267] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/altay-tours
+        - link "Каппадокия" [ref=e268] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/cappadocia
+        - link "Будапешт" [ref=e269] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/budapest
+        - link "Венеция" [ref=e270] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/venice
+        - link "Анталья" [ref=e271] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/antalya
+        - link "Нижний Новгород" [ref=e272] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/nizhnynovgorod
+        - link "Псков" [ref=e273] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/pskov
+        - link "Тель-Авив" [ref=e274] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/tel-aviv
+        - link "Великий Новгород" [ref=e275] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/veliky-novgorod
+        - link "Владивосток" [ref=e276] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/vladivostok
+        - link "Мурманск" [ref=e277] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/murmansk
+        - link "Махачкала" [ref=e278] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/makhachkala
+        - link "Сочи" [ref=e279] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/sochi
+        - link "Кемер" [ref=e280] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/kemer
+        - link "Ялта" [ref=e281] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/yalta
+        - link "Аланья" [ref=e282] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/alanya
+        - link "Сиде" [ref=e283] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/side
+        - link "Пятигорск" [ref=e284] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/pyatigorsk
+        - link "Байкал" [ref=e285] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/baikal
+        - link "Братислава" [ref=e286] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/bratislava
+        - link "Гоа" [ref=e287] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/goa
+        - link "Астана" [ref=e288] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/astana
+        - link "Стокгольм" [ref=e289] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/stockholm
+        - link "Лондон" [ref=e290] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/london
+        - link "Берлин" [ref=e291] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/berlin
+        - link "Хельсинки" [ref=e292] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/helsinki
+        - link "Марса-Алам" [ref=e293] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/marsa-alam
+        - link "Памуккале" [ref=e294] [cursor=pointer]:
+          - /url: https://www.sputnik8.com/ru/pamukkale
+  - generic [ref=e296]:
+    - generic [ref=e298]: Наши преимущества
+    - generic [ref=e300]:
+      - generic [ref=e301]:
+        - generic [ref=e302]: Бесплатная отмена
+        - generic [ref=e303]: Бесплатная отмена за 48 часов
+      - generic [ref=e304]:
+        - generic [ref=e305]: Оплата онлайн
+        - generic [ref=e306]: Мы гарантируем сохранность платежей и персональных данных
+      - generic [ref=e307]:
+        - generic [ref=e308]: Мгновенное подтверждение
+        - generic [ref=e309]: После оплаты вы получите билет на электронную почту или телефон
+      - generic [ref=e310]:
+        - generic [ref=e311]: Честные отзывы
+        - generic [ref=e312]: 15 000 отзывов от наших клиентов, которым вы можете доверять
+  - generic [ref=e318]:
+    - generic [ref=e319]:
+      - generic [ref=e320]:
+        - link "Города 1024" [ref=e321] [cursor=pointer]:
+          - /url: /ru/cities
+          - text: Города
+          - generic [ref=e322]: "1024"
+        - link "Страны 110" [ref=e323] [cursor=pointer]:
+          - /url: /ru/countries
+          - text: Страны
+          - generic [ref=e324]: "110"
+        - link "Добавить экскурсию" [ref=e325] [cursor=pointer]:
+          - /url: /ru/hosts/registration
+      - generic [ref=e326]:
+        - link "Статьи" [ref=e327] [cursor=pointer]:
+          - /url: /ru/pages
+        - link "Часто задаваемые вопросы" [ref=e328] [cursor=pointer]:
+          - /url: /ru/faq
+        - link "Подарочные сертификаты" [ref=e329] [cursor=pointer]:
+          - /url: /ru/neobychnyi-podarok-ekskursiya
+        - link "Программа лояльности" [ref=e330] [cursor=pointer]:
+          - /url: /ru/loyalty?from=footer
+        - link "Скидки и акции" [ref=e331] [cursor=pointer]:
+          - /url: /ru/discounts
+        - link "Политика возврата билетов" [ref=e332] [cursor=pointer]:
+          - /url: /ru/vozvrat
+        - link "Рамочный договор" [ref=e333] [cursor=pointer]:
+          - /url: /ru/pages/framework-agreement
+        - link "Пользовательское соглашение" [ref=e334] [cursor=pointer]:
+          - /url: /ru/pages/terms-for-users
+        - link "Политика обработки персональных данных" [ref=e335] [cursor=pointer]:
+          - /url: /ru/pages/personal-data-policy
+        - link "Способы оплаты" [ref=e336] [cursor=pointer]:
+          - /url: /ru/payment-methods
+        - link "Курсы валют" [ref=e337] [cursor=pointer]:
+          - /url: /ru/exchange-rates
+      - generic [ref=e338]:
+        - generic [ref=e339]:
+          - generic [ref=e340]:
+            - generic [ref=e341]: Санкт-Петербург
+            - generic [ref=e342]: Санкт-Петербург, Большой пр. В.О. 18A, пом. 48Н
+            - generic [ref=e343]: Ежедневно 10:00 — 18:00
+            - link "+7 (812) 407-36-52" [ref=e344] [cursor=pointer]:
+              - /url: tel://+7 (812) 407-36-52
+          - generic [ref=e345]:
+            - generic [ref=e346]: Москва
+            - link "+7 (499) 110-52-66" [ref=e347] [cursor=pointer]:
+              - /url: tel://+7 (499) 110-52-66
+          - generic [ref=e348]:
+            - generic [ref=e349]: Сочи
+            - link "+7 (862) 555-27-23" [ref=e350] [cursor=pointer]:
+              - /url: "tel://+7 (862) 555-27-23\n\n"
+        - generic [ref=e351]:
+          - generic [ref=e352]: Поддержка
+          - generic [ref=e353]:
+            - link "ВКонтакте" [ref=e354] [cursor=pointer]:
+              - /url: https://vk.com/im?media=&sel=-33151951
+            - link "Max" [ref=e355] [cursor=pointer]:
+              - /url: https://max.ru/id7814547081_bot
+          - link "hi@sputnik8.com" [ref=e356] [cursor=pointer]:
+            - /url: mailto:hi@sputnik8.com
+      - generic [ref=e357]:
+        - generic [ref=e358]: Мы в социальных сетях
+        - generic [ref=e359]:
+          - link [ref=e360] [cursor=pointer]:
+            - /url: https://dzen.ru/id/5c4eff377fd71100ae5f4931
+          - link [ref=e362] [cursor=pointer]:
+            - /url: https://vk.com/sputnik8
+        - generic [ref=e364]:
+          - text: Тысячи экскурсий по всему миру
+          - text: "в одном приложении:"
+        - generic [ref=e365]:
+          - link [ref=e367] [cursor=pointer]:
+            - /url: https://apps.apple.com/ru/app/sputnik8-%D1%8D%D0%BA%D1%81%D0%BA%D1%83%D1%80%D1%81%D0%B8%D0%B8-%D0%B8-%D0%B1%D0%B8%D0%BB%D0%B5%D1%82%D1%8B/id1546863088
+          - link [ref=e370] [cursor=pointer]:
+            - /url: https://play.google.com/store/apps/details?id=com.sputnik8.android
+        - link [ref=e372] [cursor=pointer]:
+          - /url: https://sk.ru/
+        - iframe [ref=e374]:
+          - link [ref=f1e2] [cursor=pointer]:
+            - /url: //yandex.ru/maps/org/219066637030/reviews?utm_source=badge&utm_medium=rating&utm_campaign=v1
+    - generic [ref=e375]:
+      - generic [ref=e376]:
+        - generic [ref=e378]:
+          - link "О компании" [ref=e379] [cursor=pointer]:
+            - /url: /ru/about
+          - link "Партнерская программа" [ref=e380] [cursor=pointer]:
+            - /url: /ru/affiliate/new
+          - link "Правовая информация" [ref=e381] [cursor=pointer]:
+            - /url: /ru/contacts#legal
+          - link "Вакансии" [ref=e382] [cursor=pointer]:
+            - /url: /ru/jobs
+          - link "Реквизиты" [ref=e383] [cursor=pointer]:
+            - /url: /ru/pages/rekvizity
+          - link "Контакты" [ref=e384] [cursor=pointer]:
+            - /url: /ru/contacts
+        - generic [ref=e386]: © 2012 - 2026 ООО "Спутник"
+        - generic [ref=e388]:
+          - generic [ref=e389]: 
+          - text: Сделано в Петербурге
+      - link "English version" [ref=e393] [cursor=pointer]:
+        - /url: /en
+        - generic [ref=e396]: English version
+  - text: "* * * * * * "
+  - generic [ref=e399]:
+    - text: Мы используем cookie, чтобы поиск экскурсий был удобным для вас. Оставаясь на сайте, вы принимаете
+    - link "условия" [ref=e400] [cursor=pointer]:
+      - /url: /ru/pages/personal-data-policy#cookie
+    - text: .

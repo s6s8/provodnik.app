@@ -1,0 +1,738 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+      - /url: "#content"
+    - generic [ref=e4]:
+      - banner [ref=e9]:
+        - generic [ref=e10]:
+          - link "Viator" [ref=e12] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e13]:
+              - img "Viator logo" [ref=e14]
+              - generic [ref=e30]: a Tripadvisor company
+          - button "Discover" [ref=e31] [cursor=pointer]:
+            - text: Discover
+            - img [ref=e32]
+        - generic [ref=e34]:
+          - button "Language and Currency" [ref=e35] [cursor=pointer]:
+            - img [ref=e36]
+          - link "Viator Rewards" [ref=e38] [cursor=pointer]:
+            - /url: /rewards
+            - img [ref=e40]
+          - button "profile" [ref=e44] [cursor=pointer]:
+            - img [ref=e45]
+            - img [ref=e50]
+      - main [ref=e58]:
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - heading "Do more with Viator" [level=1] [ref=e66]
+              - paragraph [ref=e67]: Plan better with 400,000+ travel experiences.
+            - search [ref=e69]:
+              - generic [ref=e72]:
+                - log [ref=e74]
+                - generic [ref=e77]:
+                  - generic [ref=e78]: Search for a place or activity
+                  - generic [ref=e80] [cursor=pointer]:
+                    - paragraph [ref=e81]: Where to?
+                    - textbox "Where to?" [ref=e82]
+              - separator [ref=e83]
+              - generic [ref=e85]:
+                - generic [ref=e86]: When
+                - combobox "Select a date" [ref=e88]:
+                  - textbox [disabled] [ref=e90] [cursor=pointer]:
+                    - /placeholder: Select Dates
+              - button "Search" [ref=e91] [cursor=pointer]:
+                - img [ref=e92]
+          - generic [ref=e96]:
+            - generic [ref=e98]:
+              - generic [ref=e101]:
+                - img "Do more with Viator" [ref=e102]
+                - link "Do more with Viator" [ref=e107] [cursor=pointer]:
+                  - /url: /collections/do-more-with-viator/c1298
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+            - list [ref=e108]:
+              - listitem [ref=e109] [cursor=pointer]:
+                - generic [ref=e110]: "1"
+              - listitem [ref=e111] [cursor=pointer]:
+                - generic [ref=e112]: "2"
+              - listitem [ref=e113] [cursor=pointer]:
+                - generic [ref=e114]: "3"
+        - generic [ref=e116]:
+          - heading "Why book with Viator?" [level=2] [ref=e118]
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - img [ref=e123]
+              - generic [ref=e127]: 24/7 customer support
+              - generic [ref=e128]: No matter the time zone, we’re here to help.
+            - generic [ref=e129]:
+              - img [ref=e130]
+              - generic [ref=e134]: Earn rewards
+              - generic [ref=e135]: Explore, earn, redeem, and repeat with our loyalty program.
+            - generic [ref=e136]:
+              - img [ref=e137]
+              - generic [ref=e140]: Millions of reviews
+              - generic [ref=e141]: Plan and book with confidence using reviews from fellow travelers.
+            - generic [ref=e142]:
+              - img [ref=e143]
+              - generic [ref=e147]: Plan your way
+              - generic [ref=e148]: Stay flexible with free cancellation and the option to reserve now and pay later at no additional cost.
+        - generic [ref=e151]:
+          - heading "Log in to manage bookings & Viator Rewards" [level=2] [ref=e152]
+          - generic [ref=e153]:
+            - text: Don't have an account yet?
+            - link "Sign up" [ref=e154] [cursor=pointer]:
+              - /url: /signup
+          - link "Log in" [ref=e156] [cursor=pointer]:
+            - /url: /login
+            - generic [ref=e157]: Log in
+        - link "Why you are seeing these recommendations" [ref=e160] [cursor=pointer]:
+          - /url: /support/siteoperation
+        - generic [ref=e162]:
+          - heading "Top Destinations" [level=2] [ref=e165]
+          - generic [ref=e169]:
+            - generic [ref=e174]:
+              - link "Las Vegas" [ref=e177] [cursor=pointer]:
+                - /url: /Las-Vegas/d684-ttd
+                - strong [ref=e181]: Las Vegas
+              - link "Washington DC" [ref=e184] [cursor=pointer]:
+                - /url: /Washington-DC/d657-ttd
+                - strong [ref=e188]: Washington DC
+            - generic [ref=e193]:
+              - link "Rome" [ref=e196] [cursor=pointer]:
+                - /url: /Rome/d511-ttd
+                - strong [ref=e200]: Rome
+              - link "Cancun" [ref=e203] [cursor=pointer]:
+                - /url: /Cancun/d631-ttd
+                - strong [ref=e207]: Cancun
+            - generic [ref=e212]:
+              - link "Paris" [ref=e215] [cursor=pointer]:
+                - /url: /Paris/d479-ttd
+                - strong [ref=e219]: Paris
+              - link "Florence" [ref=e222] [cursor=pointer]:
+                - /url: /Florence/d519-ttd
+                - strong [ref=e226]: Florence
+            - generic [ref=e231]:
+              - link "London" [ref=e234] [cursor=pointer]:
+                - /url: /London/d737-ttd
+                - strong [ref=e238]: London
+              - link "Barcelona" [ref=e241] [cursor=pointer]:
+                - /url: /Barcelona/d562-ttd
+                - strong [ref=e245]: Barcelona
+            - generic [ref=e250]:
+              - link "New York City" [ref=e253] [cursor=pointer]:
+                - /url: /New-York-City/d687-ttd
+                - strong [ref=e257]: New York City
+              - link "Oahu" [ref=e260] [cursor=pointer]:
+                - /url: /Oahu/d672-ttd
+                - strong [ref=e264]: Oahu
+        - generic [ref=e267]:
+          - heading "Keep things flexible" [level=2] [ref=e268]
+          - generic [ref=e269]: Use Reserve Now & Pay Later to secure the activities you don't want to miss without being locked in.
+        - generic [ref=e271]:
+          - heading "Top Attractions" [level=2] [ref=e274]
+          - generic [ref=e278]:
+            - generic [ref=e282]:
+              - link "Nice scenic view of the Colosseum ruins in summer. Colosseum 1,851 Tours and Activities" [ref=e285] [cursor=pointer]:
+                - /url: /Rome-attractions/Colosseum/d511-a701
+                - generic [ref=e286]:
+                  - img "Nice scenic view of the Colosseum ruins in summer." [ref=e289]
+                  - generic [ref=e291]:
+                    - heading "Colosseum" [level=5] [ref=e292]
+                    - generic [ref=e293]: 1,851 Tours and Activities
+              - link "Bison herd at Yellowstone National Park, Jackson Hole, USA Yellowstone National Park 125 Tours and Activities" [ref=e296] [cursor=pointer]:
+                - /url: /Jackson-Hole-attractions/Yellowstone-National-Park/d5261-a10723
+                - generic [ref=e297]:
+                  - img "Bison herd at Yellowstone National Park, Jackson Hole, USA" [ref=e300]
+                  - generic [ref=e302]:
+                    - heading "Yellowstone National Park" [level=5] [ref=e303]
+                    - generic [ref=e304]: 125 Tours and Activities
+              - link "Eiffel tower and river Seine in Paris, France Eiffel Tower 857 Tours and Activities" [ref=e307] [cursor=pointer]:
+                - /url: /Paris-attractions/Eiffel-Tower/d479-a89
+                - generic [ref=e308]:
+                  - img "Eiffel tower and river Seine in Paris, France" [ref=e311]
+                  - generic [ref=e313]:
+                    - heading "Eiffel Tower" [level=5] [ref=e314]
+                    - generic [ref=e315]: 857 Tours and Activities
+            - generic [ref=e319]:
+              - link "Sagrada Familia Cathedral surrounded by trees in Barcelona, Spain. Sagrada Família 480 Tours and Activities" [ref=e322] [cursor=pointer]:
+                - /url: /Barcelona-attractions/Sagrada-Familia/d562-a845
+                - generic [ref=e323]:
+                  - img "Sagrada Familia Cathedral surrounded by trees in Barcelona, Spain." [ref=e326]
+                  - generic [ref=e328]:
+                    - heading "Sagrada Família" [level=5] [ref=e329]
+                    - generic [ref=e330]: 480 Tours and Activities
+              - link "Frida Kahlo Museum (Museo Frida Kahlo) also known as the Blue House in Mexico City. Frida Kahlo Museum (Museo Frida Kahlo) 96 Tours and Activities" [ref=e333] [cursor=pointer]:
+                - /url: /Mexico-City-attractions/Frida-Kahlo-Museum-Museo-Frida-Kahlo/d628-a1766
+                - generic [ref=e334]:
+                  - img "Frida Kahlo Museum (Museo Frida Kahlo) also known as the Blue House in Mexico City." [ref=e337]
+                  - generic [ref=e339]:
+                    - heading "Frida Kahlo Museum (Museo Frida Kahlo)" [level=5] [ref=e340]
+                    - generic [ref=e341]: 96 Tours and Activities
+              - link "Kona (Kailua-Kona) Kona (Kailua-Kona) 131 Tours and Activities" [ref=e344] [cursor=pointer]:
+                - /url: /Big-Island-of-Hawaii-attractions/Kona-Kailua-Kona/d669-a1160
+                - generic [ref=e345]:
+                  - img "Kona (Kailua-Kona)" [ref=e348]
+                  - generic [ref=e350]:
+                    - heading "Kona (Kailua-Kona)" [level=5] [ref=e351]
+                    - generic [ref=e352]: 131 Tours and Activities
+            - generic [ref=e356]:
+              - link "Celsus Library ruins in Ephesus (Efes), Sel&ccedil;uk, Turkey. Ephesus (Efes) 330 Tours and Activities" [ref=e359] [cursor=pointer]:
+                - /url: /Selcuk-attractions/Ephesus/d25618-a2190
+                - generic [ref=e360]:
+                  - img "Celsus Library ruins in Ephesus (Efes), Sel&ccedil;uk, Turkey." [ref=e363]
+                  - generic [ref=e365]:
+                    - heading "Ephesus (Efes)" [level=5] [ref=e366]
+                    - generic [ref=e367]: 330 Tours and Activities
+              - link "Old stairs inside the Vatican Museums, Rome Vatican Museums 941 Tours and Activities" [ref=e370] [cursor=pointer]:
+                - /url: /Vatican-City-attractions/Vatican-Museums/d60477-a115
+                - generic [ref=e371]:
+                  - img "Old stairs inside the Vatican Museums, Rome" [ref=e374]
+                  - generic [ref=e376]:
+                    - heading "Vatican Museums" [level=5] [ref=e377]
+                    - generic [ref=e378]: 941 Tours and Activities
+              - link "People walking inside a gold domed hallway lined with artwork during daytime. Louvre Museum 843 Tours and Activities" [ref=e381] [cursor=pointer]:
+                - /url: /Paris-attractions/Louvre-Museum/d479-a73
+                - generic [ref=e382]:
+                  - img "People walking inside a gold domed hallway lined with artwork during daytime." [ref=e385]
+                  - generic [ref=e387]:
+                    - heading "Louvre Museum" [level=5] [ref=e388]
+                    - generic [ref=e389]: 843 Tours and Activities
+        - generic [ref=e391]:
+          - heading "Top Tours" [level=2] [ref=e394]
+          - generic [ref=e396]:
+            - text: ←
+            - generic [ref=e398]:
+              - link "Special Offer Add to wishlist Colosseum Arena Floor, Roman Forum and Palatine Hill Guided Tour Rome, Italy Rated 4.3 out of 5 with 8,891 reviews Colosseum Arena Floor, Roman Forum and Palatine Hill Guided Tour from $34" [ref=e404] [cursor=pointer]:
+                - /url: /tours/Rome/Colosseum-Arena-Floor-Roman-Forum-and-Palatine-Hill-Guided-Tour/d511-62972P2
+                - generic [ref=e405]:
+                  - generic [ref=e406]:
+                    - strong [ref=e410]: Special Offer
+                    - button "Add to wishlist" [ref=e412]:
+                      - img [ref=e415]
+                  - img "Colosseum Arena Floor, Roman Forum and Palatine Hill Guided Tour" [ref=e420]
+                - generic [ref=e421]:
+                  - generic [ref=e422]:
+                    - img [ref=e423]
+                    - generic [ref=e425]: Rome, Italy
+                  - generic "Rated 4.3 out of 5 with 8,891 reviews" [ref=e427]:
+                    - img [ref=e429]
+                    - generic [ref=e431]: "4.3"
+                    - generic [ref=e432]: (8,891)
+                  - generic [ref=e433]: Colosseum Arena Floor, Roman Forum and Palatine Hill Guided Tour
+                  - generic [ref=e435]:
+                    - text: from
+                    - strong [ref=e436]:
+                      - generic [ref=e437]: $34
+              - link "Add to wishlist NYC Empire State Building Observation Deck Ticket New York City, New York Rated 4.4 out of 5 with 7,169 reviews NYC Empire State Building Observation Deck Ticket from $48" [ref=e443] [cursor=pointer]:
+                - /url: /tours/New-York-City/Empire-State-Building-Tickets-Observatory-Ticket/d687-2194EMPIRE
+                - generic [ref=e444]:
+                  - button "Add to wishlist" [ref=e447]:
+                    - img [ref=e450]
+                  - img "NYC Empire State Building Observation Deck Ticket" [ref=e455]
+                - generic [ref=e456]:
+                  - generic [ref=e457]:
+                    - img [ref=e458]
+                    - generic [ref=e460]: New York City, New York
+                  - generic "Rated 4.4 out of 5 with 7,169 reviews" [ref=e462]:
+                    - img [ref=e464]
+                    - generic [ref=e466]: "4.4"
+                    - generic [ref=e467]: (7,169)
+                  - generic [ref=e468]: NYC Empire State Building Observation Deck Ticket
+                  - generic [ref=e470]:
+                    - text: from
+                    - strong [ref=e471]:
+                      - generic [ref=e472]: $48
+              - 'link "Special Offer Add to wishlist Tuscany Day Trip from Florence: Siena, San Gimignano, Pisa and Lunch at a Winery Florence, Tuscany Rated 4.9 out of 5 with 22,731 reviews Tuscany Day Trip from Florence: Siena, San Gimignano, Pisa and Lunch at a Winery from $101 $113" [ref=e478] [cursor=pointer]':
+                - /url: /tours/Florence/Tuscany-Day-Trip-from-Florence-Siena-San-Gimignano-Pisa-and-Lunch-at-a-Winery/d519-5070TUSCANY
+                - generic [ref=e479]:
+                  - generic [ref=e480]:
+                    - strong [ref=e484]: Special Offer
+                    - button "Add to wishlist" [ref=e486]:
+                      - img [ref=e489]
+                  - 'img "Tuscany Day Trip from Florence: Siena, San Gimignano, Pisa and Lunch at a Winery" [ref=e494]'
+                - generic [ref=e495]:
+                  - generic [ref=e496]:
+                    - img [ref=e497]
+                    - generic [ref=e499]: Florence, Tuscany
+                  - generic "Rated 4.9 out of 5 with 22,731 reviews" [ref=e501]:
+                    - img [ref=e503]
+                    - generic [ref=e505]: "4.9"
+                    - generic [ref=e506]: (22,731)
+                  - generic [ref=e507]: "Tuscany Day Trip from Florence: Siena, San Gimignano, Pisa and Lunch at a Winery"
+                  - generic [ref=e510]:
+                    - generic [ref=e511]: from
+                    - generic [ref=e513]: $101
+                    - generic [ref=e515]: $113
+              - link "Likely to Sell Out Add to wishlist Sagrada Familia Guided Tour with Skip the Line Ticket Barcelona, Catalonia Rated 4.7 out of 5 with 3,506 reviews Sagrada Familia Guided Tour with Skip the Line Ticket from $66 Price varies by group size" [ref=e521] [cursor=pointer]:
+                - /url: /tours/Barcelona/Sagrada-Familia-Guided-express-english-tour/d562-190179P1
+                - generic [ref=e522]:
+                  - generic [ref=e523]:
+                    - strong [ref=e527]: Likely to Sell Out
+                    - button "Add to wishlist" [ref=e529]:
+                      - img [ref=e532]
+                  - img "Sagrada Familia Guided Tour with Skip the Line Ticket" [ref=e537]
+                - generic [ref=e538]:
+                  - generic [ref=e539]:
+                    - img [ref=e540]
+                    - generic [ref=e542]: Barcelona, Catalonia
+                  - generic "Rated 4.7 out of 5 with 3,506 reviews" [ref=e544]:
+                    - img [ref=e546]
+                    - generic [ref=e548]: "4.7"
+                    - generic [ref=e549]: (3,506)
+                  - generic [ref=e550]: Sagrada Familia Guided Tour with Skip the Line Ticket
+                  - generic [ref=e552]:
+                    - text: from
+                    - strong [ref=e553]:
+                      - generic [ref=e554]: $66
+                    - generic [ref=e555]: Price varies by group size
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - link:
+                          - /url: /tours/Paris/Eiffel-Tower-Summit-Access/d479-382015P1
+                          - generic:
+                            - generic:
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic:
+                                      - img
+                            - img
+                          - generic:
+                            - generic:
+                              - img
+                              - generic: Paris, Île-de-France
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: "4.6"
+                                - generic: (3,834)
+                            - generic: Eiffel Tower Dedicated Reserved Access Top or 2nd floor by lift
+                            - generic:
+                              - generic:
+                                - text: from
+                                - strong:
+                                  - generic: $32
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - link:
+                          - /url: /tours/Tokyo/Mt-Fuji-and-Hakone-1-Day-Bus-Tour-return-by-Bullet-Train-Shinkansen/d334-28575P41
+                          - generic:
+                            - generic:
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic:
+                                      - img
+                            - img
+                          - generic:
+                            - generic:
+                              - img
+                              - generic: Tokyo, Kanto
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: "4.8"
+                                - generic: (30,007)
+                            - generic: Mt Fuji and Hakone 1-Day Bus Tour Return by Bullet Train
+                            - generic:
+                              - generic:
+                                - text: from
+                                - strong:
+                                  - generic: $158
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - link:
+                          - /url: /tours/San-Juan/Rum-Trip-Old-San-Juan/d903-101727P4
+                          - generic:
+                            - generic:
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic:
+                                      - img
+                            - img
+                          - generic:
+                            - generic:
+                              - img
+                              - generic: San Juan, Puerto Rico
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: "4.9"
+                                - generic: (15,205)
+                            - generic: Top Rated El Yunque Rainforest & Waterslide – SmallGroup Tour
+                            - generic:
+                              - generic:
+                                - text: from
+                                - strong:
+                                  - generic: $45
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - link:
+                          - /url: /tours/Vatican-City/Vatican-Vatican-museum-and-Sistine-Chapel-Skip-The-Line-Ticket/d60477-5506006P2
+                          - generic:
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - generic:
+                                    - strong: Likely to Sell Out
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic:
+                                      - img
+                            - img
+                          - generic:
+                            - generic:
+                              - img
+                              - generic: Vatican City, Rome
+                            - generic:
+                              - generic:
+                                - generic:
+                                  - img
+                                - generic: "4.3"
+                                - generic: (239)
+                            - generic: "VATICAN: Vatican Museum and Sistine Chapel Skip The Line Tickets"
+                            - generic:
+                              - generic:
+                                - text: from
+                                - strong:
+                                  - generic: $30
+            - button "Next" [ref=e556] [cursor=pointer]:
+              - img [ref=e557]
+        - generic [ref=e561]:
+          - heading "Free cancellation" [level=2] [ref=e562]
+          - generic [ref=e563]: You'll receive a full refund if you cancel at least 24 hours in advance of most experiences.
+        - generic [ref=e565]:
+          - heading "Warm Destinations" [level=2] [ref=e568]
+          - generic [ref=e570]:
+            - text: ←
+            - generic [ref=e572]:
+              - link "Rio de Janeiro Rio de Janeiro 1,567 Tours" [ref=e579] [cursor=pointer]:
+                - /url: /Rio-de-Janeiro/d712-ttd
+                - img "Rio de Janeiro" [ref=e581]
+                - generic [ref=e582]:
+                  - heading "Rio de Janeiro" [level=5] [ref=e584]
+                  - generic [ref=e585]: 1,567 Tours
+              - link "Bali Bali 7,054 Tours" [ref=e592] [cursor=pointer]:
+                - /url: /Bali/d98-ttd
+                - img "Bali" [ref=e594]
+                - generic [ref=e595]:
+                  - heading "Bali" [level=5] [ref=e597]
+                  - generic [ref=e598]: 7,054 Tours
+              - link "Cancun Cancun 3,634 Tours" [ref=e605] [cursor=pointer]:
+                - /url: /Cancun/d631-ttd
+                - img "Cancun" [ref=e607]
+                - generic [ref=e608]:
+                  - heading "Cancun" [level=5] [ref=e610]
+                  - generic [ref=e611]: 3,634 Tours
+              - link "Miami Miami 1,108 Tours" [ref=e618] [cursor=pointer]:
+                - /url: /Miami/d662-ttd
+                - img "Miami" [ref=e620]
+                - generic [ref=e621]:
+                  - heading "Miami" [level=5] [ref=e623]
+                  - generic [ref=e624]: 1,108 Tours
+              - link "Siem Reap Siem Reap 2,421 Tours" [ref=e631] [cursor=pointer]:
+                - /url: /Siem-Reap/d5480-ttd
+                - img "Siem Reap" [ref=e633]
+                - generic [ref=e634]:
+                  - heading "Siem Reap" [level=5] [ref=e636]
+                  - generic [ref=e637]: 2,421 Tours
+              - link "Punta Cana Punta Cana 2,836 Tours" [ref=e644] [cursor=pointer]:
+                - /url: /Punta-Cana/d794-ttd
+                - img "Punta Cana" [ref=e646]
+                - generic [ref=e647]:
+                  - heading "Punta Cana" [level=5] [ref=e649]
+                  - generic [ref=e650]: 2,836 Tours
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - link:
+                            - /url: /Phuket/d349-ttd
+                            - generic:
+                              - img
+                            - generic:
+                              - generic:
+                                - heading [level=5]: Phuket
+                              - generic: 1,845 Tours
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - generic:
+                          - link:
+                            - /url: /Aruba/d28-ttd
+                            - generic:
+                              - img
+                            - generic:
+                              - generic:
+                                - heading [level=5]: Aruba
+                              - generic: 466 Tours
+            - button "Next" [ref=e651] [cursor=pointer]:
+              - img [ref=e652]
+        - generic [ref=e657]:
+          - generic [ref=e659]:
+            - heading "Popular Cities" [level=3] [ref=e661]
+            - list [ref=e662]:
+              - listitem [ref=e663]:
+                - link "Things to do in Nashville" [ref=e664] [cursor=pointer]:
+                  - /url: /Nashville/d799
+              - listitem [ref=e665]:
+                - link "Things to do in Chicago" [ref=e666] [cursor=pointer]:
+                  - /url: /Chicago/d673
+              - listitem [ref=e667]:
+                - link "Things to do in Houston" [ref=e668] [cursor=pointer]:
+                  - /url: /Houston/d5186
+              - listitem [ref=e669]:
+                - link "Things to do in San Diego" [ref=e670] [cursor=pointer]:
+                  - /url: /San-Diego/d736
+              - listitem [ref=e671]:
+                - link "Things to do in Atlanta" [ref=e672] [cursor=pointer]:
+                  - /url: /Atlanta/d784
+              - listitem [ref=e673]:
+                - link "Things to do in Denver" [ref=e674] [cursor=pointer]:
+                  - /url: /Denver/d4837
+              - listitem [ref=e675]:
+                - link "Things to do in Las Vegas" [ref=e676] [cursor=pointer]:
+                  - /url: /Las-Vegas/d684
+              - listitem [ref=e677]:
+                - link "Things to do in Miami" [ref=e678] [cursor=pointer]:
+                  - /url: /Miami/d662
+              - listitem [ref=e679]:
+                - link "Things to do in Orlando" [ref=e680] [cursor=pointer]:
+                  - /url: /Orlando/d663
+              - listitem [ref=e681]:
+                - link "Things to do in Dallas" [ref=e682] [cursor=pointer]:
+                  - /url: /Dallas/d918
+              - listitem [ref=e683]:
+                - link "Things to do in New Orleans" [ref=e684] [cursor=pointer]:
+                  - /url: /New-Orleans/d675
+              - listitem [ref=e685]:
+                - link "Things to do in San Antonio" [ref=e686] [cursor=pointer]:
+                  - /url: /San-Antonio/d910
+              - listitem [ref=e687]:
+                - link "Things to do in San Francisco" [ref=e688] [cursor=pointer]:
+                  - /url: /San-Francisco/d651
+              - listitem [ref=e689]:
+                - link "Things to do in Seattle" [ref=e690] [cursor=pointer]:
+                  - /url: /Seattle/d704
+              - listitem [ref=e691]:
+                - link "Things to do in Austin" [ref=e692] [cursor=pointer]:
+                  - /url: /Austin/d5021
+              - listitem [ref=e693]:
+                - link "Things to do in Boston" [ref=e694] [cursor=pointer]:
+                  - /url: /Boston/d678
+              - listitem [ref=e695]:
+                - link "Things to do in Rome" [ref=e696] [cursor=pointer]:
+                  - /url: /Rome/d511
+              - listitem [ref=e697]:
+                - link "Things to do in Los Angeles" [ref=e698] [cursor=pointer]:
+                  - /url: /Los-Angeles/d645
+              - listitem [ref=e699]:
+                - link "Things to do in Myrtle Beach" [ref=e700] [cursor=pointer]:
+                  - /url: /Myrtle-Beach/d5217
+              - listitem [ref=e701]:
+                - link "Things to do in Philadelphia" [ref=e702] [cursor=pointer]:
+                  - /url: /Philadelphia/d906
+              - listitem [ref=e703]:
+                - link "Things to do in Paris" [ref=e704] [cursor=pointer]:
+                  - /url: /Paris/d479
+              - listitem [ref=e705]:
+                - link "Things to do in Colorado" [ref=e706] [cursor=pointer]:
+                  - /url: /Colorado/d273
+              - listitem [ref=e707]:
+                - link "Things to do in Phoenix" [ref=e708] [cursor=pointer]:
+                  - /url: /Phoenix/d639
+              - listitem [ref=e709]:
+                - link "Things to do in London" [ref=e710] [cursor=pointer]:
+                  - /url: /London/d737
+              - listitem [ref=e711]:
+                - link "Things to do in Tampa" [ref=e712] [cursor=pointer]:
+                  - /url: /Tampa/d666
+              - listitem [ref=e713]:
+                - link "Things to do in Florence" [ref=e714] [cursor=pointer]:
+                  - /url: /Florence/d519
+              - listitem [ref=e715]:
+                - link "Things to do in Oahu" [ref=e716] [cursor=pointer]:
+                  - /url: /Oahu/d672
+              - listitem [ref=e717]:
+                - link "Things to do in Key West" [ref=e718] [cursor=pointer]:
+                  - /url: /Key-West/d661
+              - listitem [ref=e719]:
+                - link "Things to do in New York City" [ref=e720] [cursor=pointer]:
+                  - /url: /New-York-City/d687
+              - listitem [ref=e721]:
+                - link "Things to do in Maui" [ref=e722] [cursor=pointer]:
+                  - /url: /Maui/d671
+              - listitem [ref=e723]:
+                - link "Things to do in Arizona" [ref=e724] [cursor=pointer]:
+                  - /url: /Arizona/d271
+              - listitem [ref=e725]:
+                - link "Things to do in Barcelona" [ref=e726] [cursor=pointer]:
+                  - /url: /Barcelona/d562
+              - listitem [ref=e727]:
+                - link "Things to do in Florida" [ref=e728] [cursor=pointer]:
+                  - /url: /Florida/d276
+              - listitem [ref=e729]:
+                - link "Things to do in Lisbon" [ref=e730] [cursor=pointer]:
+                  - /url: /Lisbon/d538
+              - listitem [ref=e731]:
+                - link "Things to do in Washington DC" [ref=e732] [cursor=pointer]:
+                  - /url: /Washington-DC/d657
+          - generic [ref=e734]:
+            - heading "Popular Attractions" [level=3] [ref=e736]
+            - list [ref=e737]:
+              - listitem [ref=e738]:
+                - link "Antelope Canyon" [ref=e739] [cursor=pointer]:
+                  - /url: /Page-attractions/Antelope-Canyon/d23393-a2087
+              - listitem [ref=e740]:
+                - link "Aquarium of the Pacific" [ref=e741] [cursor=pointer]:
+                  - /url: /Long-Beach-attractions/Aquarium-of-the-Pacific/d5409-a11976
+              - listitem [ref=e742]:
+                - link "Xcaret" [ref=e743] [cursor=pointer]:
+                  - /url: /Cancun-attractions/Xcaret/d631-a100
+              - listitem [ref=e744]:
+                - link "British Museum" [ref=e745] [cursor=pointer]:
+                  - /url: /London-attractions/British-Museum/d737-a1388
+              - listitem [ref=e746]:
+                - link "London Natural History Museum" [ref=e747] [cursor=pointer]:
+                  - /url: /London-attractions/Natural-History-Museum-London/d737-a23081
+              - listitem [ref=e748]:
+                - link "Xplor Park" [ref=e749] [cursor=pointer]:
+                  - /url: /Riviera-Maya-and-the-Yucatan-attractions/Xplor-Park/d770-a14482
+              - listitem [ref=e750]:
+                - link "Stonehenge" [ref=e751] [cursor=pointer]:
+                  - /url: /London-attractions/Stonehenge/d737-a113
+              - listitem [ref=e752]:
+                - link "Distillery Historic District" [ref=e753] [cursor=pointer]:
+                  - /url: /Toronto-attractions/Distillery-Historic-District/d623-a950
+              - listitem [ref=e754]:
+                - link "El Yunque National Forest" [ref=e755] [cursor=pointer]:
+                  - /url: /San-Juan-attractions/El-Yunque-National-Forest/d903-a2461
+              - listitem [ref=e756]:
+                - link "Chichen Itza" [ref=e757] [cursor=pointer]:
+                  - /url: /Cancun-attractions/Chichen-Itza/d631-a78
+              - listitem [ref=e758]:
+                - link "Machu Picchu" [ref=e759] [cursor=pointer]:
+                  - /url: /Cusco-attractions/Machu-Picchu/d937-a3358
+              - listitem [ref=e760]:
+                - link "Hoover Dam" [ref=e761] [cursor=pointer]:
+                  - /url: /Las-Vegas-attractions/Hoover-Dam/d684-a11
+              - listitem [ref=e762]:
+                - link "Teotihuacán" [ref=e763] [cursor=pointer]:
+                  - /url: /Mexico-City-attractions/Teotihuacan/d628-a1760
+              - listitem [ref=e764]:
+                - link "Gondola Rides at the Venetian" [ref=e765] [cursor=pointer]:
+                  - /url: /Las-Vegas-attractions/Gondola-Rides-at-the-Venetian/d684-a1245
+              - listitem [ref=e766]:
+                - link "Bioluminescent Bay (Mosquito Bay)" [ref=e767] [cursor=pointer]:
+                  - /url: /Vieques-attractions/Bioluminescent-Bay/d22812-a22596
+              - listitem [ref=e768]:
+                - link "Arch of Cabo San Lucas (El Arco)" [ref=e769] [cursor=pointer]:
+                  - /url: /Los-Cabos-attractions/Arch-of-Cabo-San-Lucas/d627-a979
+              - listitem [ref=e770]:
+                - link "Molokini Crater" [ref=e771] [cursor=pointer]:
+                  - /url: /Maui-attractions/Molokini-Crater/d671-a1182
+              - listitem [ref=e772]:
+                - link "Mauna Kea Summit and Observatory" [ref=e773] [cursor=pointer]:
+                  - /url: /Big-Island-of-Hawaii-attractions/Mauna-Kea-Summit-and-Observatory/d669-a1148
+      - contentinfo [ref=e774]:
+        - generic [ref=e779]:
+          - generic [ref=e780]:
+            - link "Facebook" [ref=e781] [cursor=pointer]:
+              - /url: https://www.facebook.com/viatortravel/
+              - img [ref=e782]
+            - link "X" [ref=e784] [cursor=pointer]:
+              - /url: https://x.com/ViatorTravel
+              - img [ref=e785]
+            - link "Pinterest" [ref=e787] [cursor=pointer]:
+              - /url: https://www.pinterest.com/viator/
+              - img [ref=e788]
+            - link "Instagram" [ref=e790] [cursor=pointer]:
+              - /url: https://www.instagram.com/viator
+              - img [ref=e791]
+            - link "YouTube" [ref=e793] [cursor=pointer]:
+              - /url: https://www.youtube.com/user/ViatorTravel
+              - img [ref=e794]
+            - link "TikTok" [ref=e796] [cursor=pointer]:
+              - /url: https://www.tiktok.com/@viator
+              - img [ref=e797]
+          - generic [ref=e799]:
+            - button "Help Center" [ref=e800] [cursor=pointer]
+            - link "Privacy and Cookies Statement" [ref=e801] [cursor=pointer]:
+              - /url: /support/privacyPolicy
+            - link "About Viator" [ref=e802] [cursor=pointer]:
+              - /url: /support/about
+            - link "Careers" [ref=e803] [cursor=pointer]:
+              - /url: /careers
+            - link "Sitemap" [ref=e804] [cursor=pointer]:
+              - /url: /sitemap
+            - link "Supplier Sign Up" [ref=e805] [cursor=pointer]:
+              - /url: https://supplier.viator.com/sign-up-info?m=62034
+            - link "Travel Agents" [ref=e806] [cursor=pointer]:
+              - /url: https://travelagents.viator.com/
+            - link "Become an Affiliate" [ref=e807] [cursor=pointer]:
+              - /url: https://partnerresources.viator.com/?utm_source=viator&utm_medium=referral&utm_campaign=distribution-partners
+            - link "News" [ref=e808] [cursor=pointer]:
+              - /url: /news
+            - link "Viator blog" [ref=e809] [cursor=pointer]:
+              - /url: /blog
+            - link "Accessibility" [ref=e810] [cursor=pointer]:
+              - /url: /support/accessibility
+          - separator [ref=e811]
+          - generic [ref=e812]:
+            - generic [ref=e813]:
+              - link "Download the Viator app from the Google Play store" [ref=e815] [cursor=pointer]:
+                - /url: https://my-viator.onelink.me/biAM/ftbseoand
+                - img "Download the Viator app from the Google Play store" [ref=e816]
+              - link "Download the Viator app from the Apple App Store" [ref=e818] [cursor=pointer]:
+                - /url: https://my-viator.onelink.me/biAM/ftbseoios
+                - img "Download the Viator app from the Apple App Store" [ref=e819]
+            - generic [ref=e820]:
+              - generic [ref=e821]: © 1997-2026 Viator, Inc.
+              - generic [ref=e822]:
+                - link "Terms & Conditions" [ref=e823] [cursor=pointer]:
+                  - /url: /support/termsAndConditions
+                - link "How Viator works" [ref=e824] [cursor=pointer]:
+                  - /url: /support/siteoperation
+                - button "Cookie Consent" [ref=e825] [cursor=pointer]
+    - generic:
+      - iframe
+  - dialog "Privacy" [ref=e827]:
+    - generic [ref=e829]:
+      - generic [ref=e832]:
+        - text: By clicking “Accept All”, you agree to the storing of cookies on your device to enhance site navigation, analyze site usage, and assist in our marketing efforts.
+        - link "More information about your privacy, opens in a new tab" [ref=e833] [cursor=pointer]:
+          - /url: https://www.viator.com/support/privacyPolicy
+          - text: Privacy and Cookies Statement
+      - generic [ref=e835]:
+        - button "Cookies Settings, Opens the preference center dialog" [ref=e836] [cursor=pointer]: Cookies Settings
+        - button "Accept All" [ref=e837] [cursor=pointer]
+    - button "Close" [ref=e839] [cursor=pointer]

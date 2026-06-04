@@ -1,11 +1,9 @@
 import Link from "next/link";
-import { Check, Hand, UserPlus, Users, UsersRound } from "lucide-react";
+import { Calendar, Check, Hand, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { type ReqCardMember } from "@/components/shared/req-card";
-import { THEMES, type ThemeSlug } from "@/data/themes";
-import { ThemeIconChip } from "./theme-icon-chip";
+import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export const metadata = {
   robots: {
@@ -14,144 +12,104 @@ export const metadata = {
   },
 };
 
-type ThemeOption = (typeof THEMES)[number];
-
 type RequestCardSample = {
   scenario: string;
   href: string;
   location: string;
   date: string;
-  mode: "private" | "assembly";
+  groupType: "private" | "assembly";
   guideState: "waiting" | "found";
-  groupSize: number;
   datesFlexible: boolean;
   interests: ThemeSlug[];
   members: ReqCardMember[];
   price: string;
 };
 
-type GroupTypeBadgeVariant = "quiet" | "weight" | "weight-icon" | "outline-color";
-
-type BadgeVariantSection = {
-  variant: GroupTypeBadgeVariant;
-  title: string;
-  description: string;
+type RequestCardCountSample = RequestCardSample & {
+  participantCount: number;
 };
 
-const samples = [
+const countPrototypeSamples = [
   {
-    scenario: "Своя · Ждёт гида",
-    href: "/requests/tbilisi-evening",
+    scenario: "Соло · 1 участник",
+    href: "/requests/count-prototype-solo",
+    location: "Мцхета",
+    date: "Сегодня, 18:00",
+    groupType: "assembly",
+    guideState: "waiting",
+    datesFlexible: false,
+    interests: ["history_culture", "religion"],
+    members: [{ id: "ana", displayName: "Ана", initials: "А" }],
+    price: "3 500 ₽",
+    participantCount: 1,
+  },
+  {
+    scenario: "Малая группа · 3 участника",
+    href: "/requests/count-prototype-small",
     location: "Тбилиси",
     date: "12 июня, 18:00",
-    mode: "private",
-    guideState: "waiting",
-    groupSize: 3,
-    datesFlexible: false,
-    interests: ["history", "food", "architecture"],
-    members: [
-      { id: "nino", displayName: "Нино", initials: "Н" },
-      { id: "anna", displayName: "Анна", initials: "А" },
-      { id: "maxim", displayName: "Максим", initials: "М" },
-    ],
-    price: "4 500 ₽ / чел",
-  },
-  {
-    scenario: "Своя · Гид найден",
-    href: "/requests/kazbegi-one-day",
-    location: "Казбеги",
-    date: "21 июня, 10:00",
-    mode: "private",
+    groupType: "assembly",
     guideState: "found",
-    groupSize: 3,
     datesFlexible: true,
-    interests: ["nature", "religion", "architecture"],
+    interests: ["food", "history_culture", "art"],
     members: [
-      { id: "mariam", displayName: "Мариам", initials: "М" },
-      { id: "roman", displayName: "Роман", initials: "Р" },
-      { id: "lena", displayName: "Лена", initials: "Л" },
+      { id: "nino-count", displayName: "Нино", initials: "Н" },
+      { id: "anna-count", displayName: "Анна", initials: "А" },
+      { id: "maxim-count", displayName: "Максим", initials: "М" },
     ],
-    price: "7 900 ₽ / чел",
+    price: "4 500 ₽",
+    participantCount: 3,
   },
   {
-    scenario: "Сборная · Ждёт гида",
-    href: "/requests/kakheti-wine",
+    scenario: "Большая группа · 40",
+    href: "/requests/count-prototype-large",
     location: "Кахетия",
     date: "5 июля, 11:30",
-    mode: "assembly",
+    groupType: "assembly",
     guideState: "waiting",
-    groupSize: 4,
     datesFlexible: false,
-    interests: ["food", "history", "architecture"],
+    interests: ["food", "nature", "unusual"],
     members: [
-      { id: "tamar", displayName: "Тамар", initials: "Т" },
-      { id: "oleg", displayName: "Олег", initials: "О" },
-      { id: "katya", displayName: "Катя", initials: "К" },
-      { id: "giorgi", displayName: "Георгий", initials: "Г" },
+      { id: "tamar-count", displayName: "Тамар", initials: "Т" },
+      { id: "oleg-count", displayName: "Олег", initials: "О" },
+      { id: "katya-count", displayName: "Катя", initials: "К" },
     ],
-    price: "6 800 ₽ / чел",
+    price: "6 800 ₽",
+    participantCount: 40,
   },
   {
-    scenario: "Сборная · Гид найден",
-    href: "/requests/svaneti-mountains",
-    location: "Сванетия",
-    date: "14 августа, 09:00",
-    mode: "assembly",
+    scenario: "Своя группа · 2 участника",
+    href: "/requests/count-prototype-private",
+    location: "Казбеги",
+    date: "21 июня, 10:00",
+    groupType: "private",
     guideState: "found",
-    groupSize: 5,
-    datesFlexible: true,
-    interests: ["nature", "history", "unusual"],
+    datesFlexible: false,
+    interests: ["nature", "history_culture"],
     members: [
-      { id: "irakli", displayName: "Ираклий", initials: "И" },
-      { id: "sofia", displayName: "София", initials: "С" },
-      { id: "daria", displayName: "Дарья", initials: "Д" },
-      { id: "levan", displayName: "Леван", initials: "Л" },
+      { id: "mariam-count", displayName: "Мариам", initials: "М" },
+      { id: "roman-count", displayName: "Роман", initials: "Р" },
     ],
-    price: "18 000 ₽ / чел",
+    price: "7 900 ₽",
+    participantCount: 2,
   },
-] satisfies RequestCardSample[];
-
-const themeMap = new Map(THEMES.map((theme) => [theme.slug, theme]));
+] satisfies RequestCardCountSample[];
 
 const datesFlexibleBadgeClassName =
-  "rounded-full bg-surface-low px-2 py-0.5 text-xs font-medium text-ink-2";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-cyan-500/40 px-2 py-0.5 text-xs font-medium text-cyan-600";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
 const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
-const groupTypeBadgeFilledClassName = `${groupTypeBadgeBaseClassName} bg-surface-low text-ink-2`;
 const groupTypeBadgePrimaryOutlineClassName = `${groupTypeBadgeBaseClassName} border border-primary/40 text-primary`;
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
+const themeLabelChipClassName =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 
-const badgeVariantSections = [
-  {
-    variant: "quiet",
-    title: "1 · Тихий чип (контроль)",
-    description: "Оба типа остаются серыми контурными чипами; различие видно только по слову и базовой иконке.",
-  },
-  {
-    variant: "weight",
-    title: "2 · Вес: заливка vs контур",
-    description: "Своя группа получает тихую серую заливку, сборная остаётся контурной без цветового акцента.",
-  },
-  {
-    variant: "weight-icon",
-    title: "3 · Вес + силуэт иконки",
-    description: "К весу добавлен другой силуэт для сборной: UsersRound вместо UserPlus.",
-  },
-] satisfies BadgeVariantSection[];
-
-function getInterestThemes(interests: ThemeSlug[]) {
-  return interests
-    .slice(0, 3)
-    .map((id) => themeMap.get(id))
-    .filter((theme): theme is ThemeOption => theme != null);
-}
-
-function getGroupLabel(mode: RequestCardSample["mode"]) {
-  return mode === "private" ? "Своя группа" : "Сборная";
+function getPrototypeGroupLabel(groupType: RequestCardSample["groupType"]) {
+  return groupType === "private" ? "Своя группа" : "Сборная группа";
 }
 
 function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guideState"] }) {
@@ -170,192 +128,152 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardSample["guide
   );
 }
 
-function getGroupTypeBadgeClassName(mode: RequestCardSample["mode"], variant: GroupTypeBadgeVariant) {
-  if (variant === "outline-color") {
-    return mode === "assembly" ? groupTypeBadgePrimaryOutlineClassName : groupTypeBadgeOutlineClassName;
-  }
+function CountPrototypeGroupTypeBadge({ groupType }: { groupType: RequestCardSample["groupType"] }) {
+  const className =
+    groupType === "assembly" ? groupTypeBadgePrimaryOutlineClassName : groupTypeBadgeOutlineClassName;
+  const iconClassName = groupType === "assembly" ? "text-primary" : "text-ink-2";
 
-  if (mode === "private" && variant !== "quiet") {
-    return groupTypeBadgeFilledClassName;
-  }
-
-  return groupTypeBadgeOutlineClassName;
-}
-
-function GroupTypeIcon({
-  mode,
-  variant,
-}: {
-  mode: RequestCardSample["mode"];
-  variant: GroupTypeBadgeVariant;
-}) {
-  if (mode === "private") {
-    return <Users size={14} className="text-ink-2" />;
-  }
-
-  if (variant === "outline-color") {
-    return <Users size={14} className="text-primary" />;
-  }
-
-  if (variant === "weight-icon") {
-    return <UsersRound size={14} className="text-ink-2" />;
-  }
-
-  return <UserPlus size={14} className="text-ink-2" />;
-}
-
-function GroupTypeBadge({
-  mode,
-  variant,
-}: {
-  mode: RequestCardSample["mode"];
-  variant: GroupTypeBadgeVariant;
-}) {
   return (
-    <span className={getGroupTypeBadgeClassName(mode, variant)}>
-      <GroupTypeIcon mode={mode} variant={variant} /> {getGroupLabel(mode)}
+    <span className={className}>
+      <Users size={14} className={iconClassName} /> {getPrototypeGroupLabel(groupType)}
     </span>
   );
 }
 
-function AvatarStack({ members }: { members: ReqCardMember[] }) {
+function ThemeLabelChip({ slug }: { slug: ThemeSlug }) {
+  const theme = getTheme(slug);
+
+  if (!theme) {
+    return null;
+  }
+
+  const { Icon, label } = theme;
+
   return (
-    <div className="flex items-center">
-      {members.slice(0, 5).map((member) => (
+    <span className={themeLabelChipClassName}>
+      <Icon size={14} className="text-ink-2" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+function ParticipantStack({
+  members,
+  participantCount,
+}: {
+  members: readonly ReqCardMember[];
+  participantCount: number;
+}) {
+  const visibleMembers = members.slice(0, participantCount === 1 ? 1 : 3);
+  return (
+    <div className="flex shrink-0 items-center">
+      {visibleMembers.map((member) => (
         <Avatar
           key={member.id}
           className="size-6 -ml-1.5 border-2 border-surface-high first:ml-0"
           title={member.displayName}
+          data-testid="participant-avatar"
         >
           {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
-          <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">
-            {member.initials}
-          </AvatarFallback>
+          <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">{member.initials}</AvatarFallback>
         </Avatar>
       ))}
+      {participantCount > 1 ? (
+        <span
+          className="relative z-10 flex size-6 -ml-1.5 items-center justify-center rounded-full border-2 border-surface-high bg-ink-2 text-[0.625rem] font-semibold text-surface-high"
+          data-testid="participant-count-badge"
+        >
+          {participantCount}
+        </span>
+      ) : null}
     </div>
   );
 }
 
-function RequestCard({
-  sample,
-  variant,
-  themeDisplay = "text",
-}: {
-  sample: RequestCardSample;
-  variant: GroupTypeBadgeVariant;
-  themeDisplay?: "text" | "icons";
-}) {
-  const interestThemes = getInterestThemes(sample.interests);
+function RequestCardThemesTopPrototype({
+  href,
+  location,
+  date,
+  groupType,
+  guideState,
+  datesFlexible,
+  interests,
+  members,
+  price,
+  participantCount,
+}: RequestCardCountSample) {
+  const themeSlugs = interests
+    .map((slug) => ({ slug, label: getTheme(slug)?.label }))
+    .filter((theme): theme is { slug: ThemeSlug; label: string } => Boolean(theme.label))
+    .sort((a, b) => a.label.length - b.label.length)
+    .slice(0, 3)
+    .map(({ slug }) => slug);
 
   return (
     <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
-      <Link href={sample.href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-        <p className="text-lg font-semibold text-foreground">{sample.location}</p>
-        <p className="mt-1 truncate text-sm text-muted-foreground">
-          {sample.date} · {sample.groupSize} чел.
-        </p>
+      <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+        <div className="flex items-start justify-between gap-2">
+          <p className="min-w-0 truncate text-lg font-semibold leading-7 text-foreground">{location}</p>
+          <div className="flex h-7 shrink-0 items-center">
+            <GuideStatusBadge guideState={guideState} />
+          </div>
+        </div>
+
+        <div className="mt-1.5 flex justify-start">
+          <CountPrototypeGroupTypeBadge groupType={groupType} />
+        </div>
+
+        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+          <span className="inline-flex min-w-0 items-center gap-1">
+            <Calendar size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
+            <span className="min-w-0 truncate text-sm font-medium text-ink-2">{date}</span>
+          </span>
+          {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+        </div>
+
         <div className="mt-2 flex flex-wrap gap-1.5">
-          <GuideStatusBadge guideState={sample.guideState} />
-          <GroupTypeBadge mode={sample.mode} variant={variant} />
-          {sample.datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+          {themeSlugs.map((slug) => (
+            <ThemeLabelChip key={slug} slug={slug} />
+          ))}
         </div>
       </Link>
 
-      <div className="mt-auto flex flex-col gap-3 pt-4">
-        {interestThemes.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {themeDisplay === "icons"
-              ? interestThemes.map(({ slug }) => <ThemeIconChip key={slug} slug={slug} />)
-              : interestThemes.map(({ slug, label }) => (
-                  <span key={slug} className="rounded-full bg-surface-low px-2 py-0.5 text-xs text-ink-2">
-                    {label}
-                  </span>
-                ))}
-          </div>
-        ) : null}
-        <div className="flex items-center justify-between gap-3">
-          <AvatarStack members={sample.members} />
-          <span className="text-sm font-semibold text-foreground">{sample.price}</span>
-        </div>
+      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+        <ParticipantStack members={members} participantCount={participantCount} />
+        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>
   );
 }
 
-function ThemeComparisonSection() {
+function CountPrototypeSection({
+  id,
+  heading,
+  description,
+}: {
+  id: string;
+  heading: string;
+  description: string;
+}) {
   return (
-    <section aria-labelledby="theme-comparison-heading">
+    <section aria-labelledby={id}>
       <div className="mb-4">
-        <h2
-          id="theme-comparison-heading"
-          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          4 · Темы: текст vs иконки-only
+        <h2 id={id} className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          {heading}
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Та же матрица карточек показывает текущие текстовые чипы и компактную версию: только иконки с подписью в
-          тултипе по наведению или тапу.
+          {description}
         </p>
       </div>
 
-      <div className="space-y-6">
-        <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">Текст</h3>
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {samples.map((sample) => (
-              <div key={`themes-text-${sample.href}`} className="flex h-full flex-col space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-                <RequestCard sample={sample} variant="weight-icon" />
-              </div>
-            ))}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {countPrototypeSamples.map((sample) => (
+          <div key={sample.href} className="flex h-full flex-col space-y-2">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
+            <RequestCardThemesTopPrototype {...sample} />
           </div>
-        </div>
-
-        <div>
-          <h3 className="mb-3 text-sm font-semibold text-foreground">Иконки-only</h3>
-          <TooltipProvider>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {samples.map((sample) => (
-                <div key={`themes-icons-${sample.href}`} className="flex h-full flex-col space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-                  <RequestCard sample={sample} variant="weight-icon" themeDisplay="icons" />
-                </div>
-              ))}
-            </div>
-          </TooltipProvider>
-        </div>
+        ))}
       </div>
-    </section>
-  );
-}
-
-function OutlineColorSection() {
-  return (
-    <section aria-labelledby="outline-color-heading">
-      <div className="mb-4">
-        <h2
-          id="outline-color-heading"
-          className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-        >
-          5 · Контур: цвет рамки = тип
-        </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Своя — нейтральный серый контур, сборная — холодный контур цвета primary; заливку по-прежнему несёт
-          только статус-бейдж.
-        </p>
-      </div>
-
-      <TooltipProvider>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-          {samples.map((sample) => (
-            <div key={`outline-color-${sample.href}`} className="flex h-full flex-col space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
-              <RequestCard sample={sample} variant="outline-color" themeDisplay="icons" />
-            </div>
-          ))}
-        </div>
-      </TooltipProvider>
     </section>
   );
 }
@@ -364,40 +282,18 @@ export default function DevReqCardsPage() {
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — сравнение меток группы</h1>
+        <h1 className="text-2xl font-semibold text-foreground">Карточки запросов — счётчик участников</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Цвет несёт только статус гида (янтарь «Ждёт гида» / тихий зелёный «Гид найден»). Первые три секции
-          сравнивают серую метку типа группы, затем — текстовые темы против иконок-only и контурный цвет типа.
+          Статусы подняты в верхнюю строку, темы живут отдельными рядами, низ — только участники и цена.
         </p>
       </div>
 
       <div className="space-y-10">
-        {badgeVariantSections.map((section) => (
-          <section key={section.variant} aria-labelledby={`${section.variant}-heading`}>
-            <div className="mb-4">
-              <h2
-                id={`${section.variant}-heading`}
-                className="text-xs font-semibold uppercase tracking-wide text-muted-foreground"
-              >
-                {section.title}
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">{section.description}</p>
-            </div>
-
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-              {samples.map((sample) => (
-                <div key={`${section.variant}-${sample.href}`} className="flex h-full flex-col space-y-2">
-                  <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                    {sample.scenario}
-                  </p>
-                  <RequestCard sample={sample} variant={section.variant} />
-                </div>
-              ))}
-            </div>
-          </section>
-        ))}
-        <ThemeComparisonSection />
-        <OutlineColorSection />
+        <CountPrototypeSection
+          id="stack-badge-heading"
+          heading="Счётчик в стеке"
+          description="Город и статусы сверху, дата ниже, темы отдельными рядами. Внизу остаются только участники и цена."
+        />
       </div>
     </main>
   );

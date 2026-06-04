@@ -18,7 +18,7 @@ const FULL: ExtractedFields = {
   endTime: null,
   groupSize: 2,
   budgetPerPersonRub: 5000,
-  interests: ["history", "food"],
+  interests: ["history_culture", "food"],
   requestedLanguages: ["Русский"],
   notes: null,
 };
@@ -31,7 +31,7 @@ describe("sanitizeExtraction", () => {
       startTime: "9:30",
       groupSize: 2,
       budgetPerPersonRub: 5000,
-      interests: ["history", "food"],
+      interests: ["history_culture", "food"],
       requestedLanguages: ["Русский"],
     });
     expect(out.destination).toBe("Москва");
@@ -39,12 +39,12 @@ describe("sanitizeExtraction", () => {
     expect(out.startTime).toBe("09:30");
     expect(out.groupSize).toBe(2);
     expect(out.budgetPerPersonRub).toBe(5000);
-    expect(out.interests).toEqual(["history", "food"]);
+    expect(out.interests).toEqual(["history_culture", "food"]);
   });
 
   it("drops unknown theme slugs (no invented categories)", () => {
-    const out = sanitizeExtraction({ interests: ["history", "nightlife", "shopping"] });
-    expect(out.interests).toEqual(["history"]);
+    const out = sanitizeExtraction({ interests: ["history_culture", "nightlife", "shopping"] });
+    expect(out.interests).toEqual(["history_culture"]);
   });
 
   it("nulls out malformed date and non-positive numbers", () => {
@@ -90,7 +90,7 @@ describe("mergeFields", () => {
   });
 
   it("incoming arrays replace prior when non-empty", () => {
-    const prior: ExtractedFields = { ...EMPTY_FIELDS, interests: ["history"] };
+    const prior: ExtractedFields = { ...EMPTY_FIELDS, interests: ["history_culture"] };
     const incoming: ExtractedFields = { ...EMPTY_FIELDS, interests: ["food", "art"] };
     expect(mergeFields(prior, incoming).interests).toEqual(["food", "art"]);
   });

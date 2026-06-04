@@ -1,0 +1,12 @@
+---
+description: Verify external library APIs against context7 before use
+alwaysApply: true
+---
+Before you use, import, or upgrade ANY external library/framework API you have not
+verified THIS session (Next.js, React, Supabase, TanStack Query, Zod, RHF, date-fns,
+shadcn, framer-motion, etc.):
+1. Call the context7 MCP tool: `resolve-library-id` then `query-docs` for the exact symbol.
+2. Use ONLY the signature/option names context7 returns — do not rely on memory; APIs drift.
+3. In your final summary, name each library you looked up and the version context7 reported.
+If the context7 tool is not available in this run, STOP and report "context7 unavailable"
+rather than guessing an API.

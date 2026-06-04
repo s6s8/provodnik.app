@@ -1,22 +1,13 @@
-import Link from "next/link";
-
+import { RequestCardFinal } from "@/components/shared/request-card-final";
 import type { RequestRecord } from "@/data/supabase/queries";
-import { INTEREST_CHIPS } from "@/data/interests";
-import { formatGroupLine } from "@/data/requests-format";
 
-function formatOfferCount(count: number): string {
-  if (count === 0) return "Нет ответов ещё";
-  if (count === 1) return "1 ответ";
-  if (count >= 2 && count <= 4) return `${count} ответа`;
-  return `${count} ответов`;
+function formatPrice(budgetRub: number): string {
+  if (!budgetRub) return "По договоренности";
+  return `${new Intl.NumberFormat("ru-RU").format(budgetRub)} ₽ / чел`;
 }
 
-const interestLabelMap: Record<string, string> = Object.fromEntries(
-  INTEREST_CHIPS.map((c) => [c.id, c.label]),
-);
-
-function resolveInterestLabels(slugs: string[]): string[] {
-  return slugs.flatMap((s) => (interestLabelMap[s] ? [interestLabelMap[s]] : []));
+function deriveGuideState(status: RequestRecord["status"]) {
+  return status === "booked" ? "found" : "waiting";
 }
 
 interface Props {
@@ -42,51 +33,20 @@ export function HomePageDiscovery({ requests }: Props) {
               </p>
             </div>
           ) : (
-            requests.map((req) => {
-              const interestLabels = resolveInterestLabels(req.interests);
-              const visibleLabels = interestLabels.slice(0, 4);
-              const overflow = interestLabels.length - visibleLabels.length;
-              const interestText =
-                visibleLabels.length > 0
-                  ? visibleLabels.join(" · ") + (overflow > 0 ? ` +${overflow}` : "")
-                  : null;
-
-              const timeLabel = req.startTime
-                ? `${req.startTime}${req.endTime ? `–${req.endTime}` : ""}`
-                : null;
-
-              return (
-                <Link
-                  key={req.id}
-                  href={`/requests/${req.id}`}
-                  className="flex h-full flex-col gap-3 rounded-lg border border-foreground/[0.12] bg-white p-4 md:px-6 md:py-5 shadow-sm transition-shadow hover:shadow-md"
-                >
-                  <p className="font-display text-[1.125rem] font-semibold leading-snug text-foreground">
-                    {req.destination}{req.dateLabel ? ` · ${req.dateLabel}` : ""}{timeLabel ? ` · ${timeLabel}` : ""}
-                  </p>
-                  <p className="text-sm text-muted-foreground">{formatGroupLine(req)}</p>
-                  {(req.mode === "assembly" || req.date_locked === false) && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {req.mode === "assembly" && (
-                        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
-                          Открытая группа
-                        </span>
-                      )}
-                      {req.date_locked === false && (
-                        <span className="rounded bg-blue-50 px-1.5 py-0.5 text-xs text-blue-600">
-                          Гибкие даты
-                        </span>
-                      )}
-                    </div>
-                  )}
-                  <p className="text-sm text-muted-foreground">{interestText ?? " "}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {req.budgetRub.toLocaleString("ru-RU")} ₽/чел. · {formatOfferCount(req.offerCount)}
-                  </p>
-                  <p className="text-xs font-semibold text-primary">открыть →</p>
-                </Link>
-              );
-            })
+            requests.map((req) => (
+              <RequestCardFinal
+                key={req.id}
+                href={`/requests/${req.id}`}
+                location={req.destination}
+                date={req.dateLabel}
+                groupType={req.mode}
+                guideState={deriveGuideState(req.status)}
+                datesFlexible={req.date_locked === false}
+                interests={req.interests}
+                members={req.members}
+                price={formatPrice(req.budgetRub)}
+              />
+            ))
           )}
         </div>
         </div>

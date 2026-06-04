@@ -7,17 +7,17 @@ const THEME_SLUGS: readonly ThemeSlug[] = THEMES.map((t) => t.slug);
 
 /** DB `listings.category` and legacy display strings -> canonical `ThemeSlug`. */
 const LEGACY_CATEGORY_TO_SLUG: Record<string, ThemeSlug> = {
-  История: "history",
+  История: "history_culture",
   Природа: "nature",
   Гастрономия: "food",
   Еда: "food",
-  "С семьей": "kids",
-  "С семьёй": "kids",
-  Архитектура: "architecture",
+  "С семьей": "active",
+  "С семьёй": "active",
+  Архитектура: "history_culture",
   Искусство: "art",
   Необычное: "unusual",
   Религия: "religion",
-  "Для детей": "kids",
+  "Для детей": "active",
 };
 
 export function mapDbCategoryToThemeSlug(raw: string): ThemeSlug | null {

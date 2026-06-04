@@ -15,7 +15,7 @@ export function generateMetadata(): Metadata {
 function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
   return {
     id: request.id,
-    status: "open",
+    status: request.status === "booked" ? "matched" : "open",
     visibility: "public",
     createdAt: request.createdAt,
     updatedAt: request.createdAt,
@@ -41,7 +41,7 @@ export default async function RequestsPage() {
 
   try {
     const supabase = await createSupabaseServerClient();
-    const result = await getOpenRequests(supabase);
+    const result = await getOpenRequests(supabase, undefined, ["open", "booked"]);
     if (result.data && result.data.length > 0) {
       initialData = result.data.map(mapToOpenRequestRecord);
     }

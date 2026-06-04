@@ -10,7 +10,7 @@ import { buildRequestInsertPayload } from "./actions";
 
 const baseInput: TravelerRequest = {
   mode: "private",
-  interests: ["history"],
+  interests: ["history_culture"],
   destination: "Элиста",
   startDate: "2026-09-10",
   dateFlexibility: "exact",
