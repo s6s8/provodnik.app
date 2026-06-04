@@ -97,16 +97,16 @@ function RequestsCategoryTabs({
           Активные
           {activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
         </TabsTrigger>
-        <TabsTrigger value="joined" onClick={() => setCategoryTab('joined')}>
-          Мои группы
-          {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
-        </TabsTrigger>
         <TabsTrigger
           value="confirmed"
           onClick={() => setCategoryTab('confirmed')}
         >
           Подтверждённые
           {confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
+        </TabsTrigger>
+        <TabsTrigger value="joined" onClick={() => setCategoryTab('joined')}>
+          Мои группы
+          {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="active">
@@ -129,6 +129,23 @@ function RequestsCategoryTabs({
           </CategoryEmptyState>
         )}
       </TabsContent>
+      <TabsContent value="confirmed">
+        {confirmedBookings.length > 0 ? (
+          <CategoryGrid>
+            {confirmedBookings.map((booking) => (
+              <TripCard
+                key={booking.booking_id}
+                phase="upcoming"
+                trip={mapBookingToTrip(booking)}
+              />
+            ))}
+          </CategoryGrid>
+        ) : (
+          <CategoryEmptyState>
+            <p>Подтверждённых поездок пока нет</p>
+          </CategoryEmptyState>
+        )}
+      </TabsContent>
       <TabsContent value="joined">
         {joinedGroups.length > 0 ? (
           <CategoryGrid>
@@ -148,23 +165,6 @@ function RequestsCategoryTabs({
             <Button asChild variant="outline">
               <Link href="/requests">Найти группу</Link>
             </Button>
-          </CategoryEmptyState>
-        )}
-      </TabsContent>
-      <TabsContent value="confirmed">
-        {confirmedBookings.length > 0 ? (
-          <CategoryGrid>
-            {confirmedBookings.map((booking) => (
-              <TripCard
-                key={booking.booking_id}
-                phase="upcoming"
-                trip={mapBookingToTrip(booking)}
-              />
-            ))}
-          </CategoryGrid>
-        ) : (
-          <CategoryEmptyState>
-            <p>Подтверждённых поездок пока нет</p>
           </CategoryEmptyState>
         )}
       </TabsContent>

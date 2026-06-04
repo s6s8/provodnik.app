@@ -123,6 +123,11 @@ describe('TravelerRequestsScreen — category tabs', () => {
       />,
     )
 
+    const categoryTabs = screen.getAllByRole('tab')
+    expect(categoryTabs[0]?.textContent).toMatch('Активные')
+    expect(categoryTabs[1]?.textContent).toMatch('Подтверждённые')
+    expect(categoryTabs[2]?.textContent).toMatch('Мои группы')
+
     fireEvent.click(screen.getByRole('tab', { name: 'Мои группы (1)' }))
 
     expect(screen.getByText('Кострома')).toBeInTheDocument()
