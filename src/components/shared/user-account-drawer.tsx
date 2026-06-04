@@ -36,7 +36,7 @@ export function UserAccountDrawer({
   avatarUrl,
   role,
 }: UserAccountDrawerProps) {
-  const displayName = fullName?.trim() || email || "Гость";
+  const displayName = fullName?.trim().split(/\s+/)[0] || email || "Гость";
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
 
   function closeAndNavigate() {

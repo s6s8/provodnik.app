@@ -2,31 +2,24 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, FileText, MessageSquare } from "lucide-react";
+import { ClipboardList, FileText } from "lucide-react";
 
-import { useUnreadCount } from "@/features/messaging/hooks/use-unread-count";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/guide", label: "Запросы", Icon: FileText },
   { href: "/guide/listings", label: "Мои объявления", Icon: ClipboardList },
-  { href: "/messages", label: "Сообщения", Icon: MessageSquare, badge: true },
 ] as const;
 
-type GuideBottomNavProps = {
-  isAuthenticated?: boolean;
-};
-
-export function GuideBottomNav({ isAuthenticated = true }: GuideBottomNavProps) {
+export function GuideBottomNav() {
   const pathname = usePathname();
-  const { unreadCount } = useUnreadCount(isAuthenticated);
 
   return (
     <div
       className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-background/92 backdrop-blur-xl backdrop-saturate-150 border-t border-border"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="h-16 grid grid-cols-3">
+      <div className="h-16 grid grid-cols-2">
         {items.map((item) => {
           let isActive: boolean;
           if (item.href === "/guide") {
@@ -64,14 +57,6 @@ export function GuideBottomNav({ isAuthenticated = true }: GuideBottomNavProps) 
                   aria-hidden="true"
                   strokeWidth={isActive ? 2.25 : 1.75}
                 />
-                {"badge" in item && item.badge && unreadCount > 0 && (
-                  <span
-                    aria-live="polite"
-                    className="absolute -top-1 left-[calc(50%+4px)] min-w-[16px] h-4 rounded-full bg-destructive text-white text-[10px] font-bold flex items-center justify-center px-1"
-                  >
-                    {unreadCount > 99 ? "99+" : String(unreadCount)}
-                  </span>
-                )}
               </span>
 
               <span className={cn("text-[11px]", isActive ? "font-bold" : "font-medium")}>

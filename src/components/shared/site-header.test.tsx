@@ -32,7 +32,7 @@ function renderAuthenticatedHeader(role: "traveler" | "guide") {
 }
 
 async function openAccountMenu() {
-  const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
+  const trigger = screen.getByRole("button", { name: /Меню аккаунта/i });
   fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
   return trigger;
 }
@@ -52,7 +52,7 @@ describe("SiteHeader desktop account menu", () => {
     renderAuthenticatedHeader("traveler");
 
     expect(
-      screen.getByRole("button", { name: "Меню аккаунта" }),
+      screen.getByRole("button", { name: /Меню аккаунта/i }),
     ).toBeInTheDocument();
   });
 
@@ -63,7 +63,7 @@ describe("SiteHeader desktop account menu", () => {
       renderAuthenticatedHeader("traveler");
 
       expect(
-        screen.getByRole("button", { name: "Меню аккаунта" }),
+        screen.getByRole("button", { name: /Меню аккаунта/i }),
       ).toBeInTheDocument();
     },
   );
@@ -78,7 +78,7 @@ describe("SiteHeader desktop account menu", () => {
     expect(screen.getByRole("link", { name: /Войти/i })).toBeInTheDocument();
   });
 
-  it("shows the profile full name next to the avatar when fullName is set", () => {
+  it("shows first name in dropdown label when fullName is set", async () => {
     render(
       <SiteHeader
         isAuthenticated
@@ -89,12 +89,13 @@ describe("SiteHeader desktop account menu", () => {
       />,
     );
 
-    const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
-    expect(trigger).toHaveTextContent("Анна Иванова");
-    expect(trigger).not.toHaveTextContent("Путешественник");
+    const trigger = screen.getByRole("button", { name: /Меню аккаунта/i });
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+    expect(await screen.findByText("Анна")).toBeInTheDocument();
+    expect(screen.queryByText("Анна Иванова")).not.toBeInTheDocument();
   });
 
-  it("falls back to the role label when fullName is absent", () => {
+  it("falls back to the role label in dropdown when fullName is absent", async () => {
     render(
       <SiteHeader
         isAuthenticated
@@ -104,11 +105,12 @@ describe("SiteHeader desktop account menu", () => {
       />,
     );
 
-    const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
-    expect(trigger).toHaveTextContent("Гид");
+    const trigger = screen.getByRole("button", { name: /Меню аккаунта/i });
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+    expect(await screen.findByText("Гид")).toBeInTheDocument();
   });
 
-  it("keeps a neutral account menu for authenticated users before role resolution", () => {
+  it("keeps a neutral account menu for authenticated users before role resolution", async () => {
     render(
       <SiteHeader
         isAuthenticated
@@ -118,8 +120,9 @@ describe("SiteHeader desktop account menu", () => {
       />,
     );
 
-    const trigger = screen.getByRole("button", { name: "Меню аккаунта" });
-    expect(trigger).toHaveTextContent("Аккаунт");
+    const trigger = screen.getByRole("button", { name: /Меню аккаунта/i });
+    fireEvent.pointerDown(trigger, { button: 0, ctrlKey: false });
+    expect(await screen.findByText("Аккаунт")).toBeInTheDocument();
   });
 
   it("passes the authenticated state to unread message loading", () => {

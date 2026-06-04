@@ -10,6 +10,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -38,6 +40,7 @@ const navLinks = [
 const travelerNavLinks = [
   { href: "/traveler/requests", label: "Мои запросы" },
   { href: "/requests", label: "Открытые группы" },
+  { href: "/listings", label: "Готовые экскурсии" },
   { href: "/destinations", label: "Направления" },
 ] as const;
 
@@ -89,7 +92,7 @@ export function SiteHeader({
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
-  const accountLabel = fullName?.trim() || (role ? roleLabels[role] : "Аккаунт");
+  const accountLabel = fullName?.trim().split(/\s+/)[0] || (role ? roleLabels[role] : "Аккаунт");
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
 
@@ -149,18 +152,19 @@ export function SiteHeader({
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  aria-label="Меню аккаунта"
-                  className="max-md:hidden bg-surface-high/80 border border-glass-border rounded-full px-3 py-1.5 text-sm font-medium flex items-center gap-2 text-foreground transition-colors hover:text-primary"
+                  aria-label={`Меню аккаунта: ${accountLabel}`}
+                  className="max-md:hidden rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-opacity hover:opacity-80"
                 >
                   <ProfileAvatar
                     profile={{ full_name: fullName, avatar_url: avatarUrl }}
-                    size={28}
+                    size={36}
                     className="shrink-0"
                   />
-                  {accountLabel}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{accountLabel}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href={profileHref}>Мой профиль</Link>
                 </DropdownMenuItem>
@@ -194,16 +198,15 @@ export function SiteHeader({
             <Link
               href="/messages"
               className={cn(
-                "max-md:hidden relative inline-flex items-center gap-2 rounded-full border border-glass-border bg-surface-high/72 px-4 py-2.5 text-sm font-medium text-foreground transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:bg-[color-mix(in_srgb,var(--primary)_8%,var(--surface-high))] hover:text-primary",
+                "relative inline-flex items-center justify-center size-10 rounded-full border border-glass-border bg-surface-high/72 text-foreground transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:text-primary",
                 (pathname === "/messages" || pathname.startsWith("/messages/")) && "border-primary/24 text-primary",
               )}
               aria-label={messagesLabel}
             >
-              <MessageSquare className="size-4" aria-hidden="true" />
-              <span>Сообщения</span>
+              <MessageSquare className="size-5" aria-hidden="true" />
               {unreadCount > 0 ? (
                 <span
-                  className="inline-flex h-[1.35rem] min-w-[1.35rem] items-center justify-center rounded-full bg-primary px-[0.35rem] text-[0.6875rem] font-bold leading-none text-white"
+                  className="absolute -top-1 -right-1 inline-flex h-[1.1rem] min-w-[1.1rem] items-center justify-center rounded-full bg-destructive px-[0.25rem] text-[0.6rem] font-bold leading-none text-white"
                   aria-live="polite"
                 >
                   {unreadCount > 99 ? "99+" : unreadCount}
