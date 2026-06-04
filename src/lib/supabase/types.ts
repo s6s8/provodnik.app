@@ -105,8 +105,12 @@ export type NotificationRow = {
   title: string;
   body: string | null;
   href: string | null;
+  channel: string | null;
+  status: string | null;
   is_read: boolean;
   created_at: string;
+  read_at: string | null;
+  payload: Record<string, unknown> | null;
 };
 
 export type ConversationThreadRow = {
@@ -521,9 +525,13 @@ export type NotificationRow2 = {
   id: Uuid;
   user_id: Uuid;
   event_type: string;
+  kind: string | null;
+  title: string | null;
+  body: string | null;
+  href: string | null;
   payload: Record<string, unknown> | null;
   channel: "inbox" | "email" | "telegram" | "push" | null;
-  status: "pending" | "sent" | "failed" | "read";
+  status: string | null;
   created_at: string;
   read_at: string | null;
 };

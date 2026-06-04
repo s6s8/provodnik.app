@@ -24,6 +24,17 @@ type BookingCancelRecipient = {
   role: "traveler" | "guide";
 };
 
+function formatShortDate(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat("ru-RU", {
+      day: "numeric",
+      month: "short",
+    }).format(new Date(iso));
+  } catch {
+    return iso;
+  }
+}
+
 async function getGuideDisplayName(guideId: string): Promise<string> {
   const supabase = await createSupabaseServerClient();
 
@@ -34,6 +45,22 @@ async function getGuideDisplayName(guideId: string): Promise<string> {
     .maybeSingle();
 
   return resolveDisplayName("guide", { full_name: profile?.full_name });
+}
+
+async function getTravelerDisplayName(travelerId: string): Promise<string> {
+  const admin = createSupabaseAdminClient();
+
+  const { data: profile } = await admin
+    .from("profiles")
+    .select("full_name")
+    .eq("id", travelerId)
+    .maybeSingle();
+
+  return resolveDisplayName(
+    "traveler",
+    { full_name: profile?.full_name },
+    { context: "trusted" },
+  );
 }
 
 async function getUserEmail(userId: string): Promise<string | null> {
@@ -87,6 +114,7 @@ async function createNotificationForUser(data: {
   title: string;
   body?: string;
   href?: string;
+  payload?: Record<string, unknown>;
 }) {
   return createNotification(data);
 }
@@ -103,7 +131,7 @@ export async function notifyNewOffer(
     await Promise.all([
       supabase
         .from("traveler_requests")
-        .select("id, traveler_id")
+        .select("id, traveler_id, destination, starts_on, participants_count")
         .eq("id", parsedRequestId)
         .single(),
       supabase
@@ -125,7 +153,16 @@ export async function notifyNewOffer(
     userId: requestRow.traveler_id,
     kind: "new_offer",
     title: `Новое предложение от ${guideName}`,
+    body: `${requestRow.destination} · ${formatShortDate(requestRow.starts_on)} · ${requestRow.participants_count} чел.`,
     href: `/traveler/requests/${requestRow.id}`,
+    payload: {
+      actor_id: offerRow.guide_id,
+      actor_name: guideName,
+      request_id: requestRow.id,
+      offer_id: parsedOfferId,
+      destination: requestRow.destination,
+      participants: requestRow.participants_count,
+    },
   });
 
   try {
@@ -162,11 +199,18 @@ export async function notifyBookingCreated(bookingId: string): Promise<void> {
 
   if (error) throw error;
 
+  const travelerName = await getTravelerDisplayName(bookingRow.traveler_id);
+
   await createNotificationForUser({
     userId: bookingRow.guide_id,
     kind: "booking_created",
-    title: "Новое бронирование",
+    title: `Новое бронирование от ${travelerName}`,
     href: `/guide/bookings/${bookingRow.id}`,
+    payload: {
+      actor_id: bookingRow.traveler_id,
+      actor_name: travelerName,
+      booking_id: parsedBookingId,
+    },
   });
 
   try {
@@ -199,17 +243,25 @@ export async function notifyBookingConfirmed(bookingId: string): Promise<void> {
 
   const { data: bookingRow, error } = await supabase
     .from("bookings")
-    .select("id, traveler_id")
+    .select("id, traveler_id, guide_id")
     .eq("id", parsedBookingId)
     .single();
 
   if (error) throw error;
 
+  const guideName = await getGuideDisplayName(bookingRow.guide_id);
+
   await createNotificationForUser({
     userId: bookingRow.traveler_id,
     kind: "booking_confirmed",
     title: "Бронирование подтверждено",
+    body: "Гид подтвердил вашу бронь",
     href: `/traveler/bookings/${bookingRow.id}`,
+    payload: {
+      actor_id: bookingRow.guide_id,
+      actor_name: guideName,
+      booking_id: parsedBookingId,
+    },
   });
 }
 
@@ -245,7 +297,17 @@ export async function notifyBookingCancelled(
         userId: recipient.userId,
         kind: "booking_cancelled",
         title: "Бронирование отменено",
+        body:
+          role === "traveler"
+            ? "Путешественник отменил бронирование"
+            : role === "guide"
+              ? "Гид отменил бронирование"
+              : "Администратор отменил бронирование",
         href: `/${recipient.role}/bookings/${bookingRow.id}`,
+        payload: {
+          booking_id: parsedBookingId,
+          cancelled_by: role,
+        },
       }),
     ),
   );
@@ -296,6 +358,9 @@ export async function notifyReviewRequested(bookingId: string): Promise<void> {
     kind: "review_requested",
     title: "Оставьте отзыв о поездке",
     href: `/traveler/bookings/${bookingRow.id}/review`,
+    payload: {
+      booking_id: parsedBookingId,
+    },
   });
 }
 
@@ -317,6 +382,9 @@ export async function notifyDisputeOpened(disputeId: string): Promise<void> {
         kind: "dispute_opened",
         title: "Открыт новый спор",
         href: `/admin/disputes/${parsedDisputeId}`,
+        payload: {
+          dispute_id: parsedDisputeId,
+        },
       }),
     ),
   );
@@ -372,8 +440,13 @@ export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
       createNotificationForUser({
         userId: guide.user_id,
         kind: "new_request",
-        title: `Новый запрос: ${request.destination}`,
+        title: `Новый запрос: ${request.destination} · ${request.participants_count} чел.`,
         href: `/guide/inbox`,
+        payload: {
+          request_id: parsedRequestId,
+          destination: request.destination,
+          participants: request.participants_count,
+        },
       }),
     ),
   );

@@ -38,13 +38,14 @@ const createNotificationInputSchema = z.object({
     .min(1, "Ссылка уведомления не должна быть пустой.")
     .max(512, "Ссылка уведомления слишком длинная.")
     .optional(),
+  payload: z.record(z.string(), z.unknown()).optional(),
 });
 
 export type NotificationKind = NotificationKindDb;
 export type CreateNotificationInput = z.infer<typeof createNotificationInputSchema>;
 
 const NOTIFICATION_SELECT =
-  "id, user_id, kind, title, body, href, is_read, created_at";
+  "id, user_id, kind, title, body, href, channel, status, is_read, created_at, read_at, payload";
 
 function getNotificationWriteClient() {
   if (!hasSupabaseAdminEnv()) {
@@ -69,6 +70,7 @@ export async function createNotification(
       title: input.title,
       body: input.body?.trim() || null,
       href: input.href?.trim() || null,
+      payload: input.payload ?? null,
       channel: "inbox",
       status: "unread",
     })
