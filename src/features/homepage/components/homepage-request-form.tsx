@@ -4,7 +4,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useController, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { UserPlus } from "lucide-react";
 
 import {
   travelerRequestSchema,
@@ -240,38 +239,12 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 4. Сколько вас + Бюджет на человека */}
+      {/* 4. Сколько вас + Сборная группа */}
       <div className="grid gap-3">
         <div className="grid grid-cols-2 items-start gap-2">
+          {/* Left: groupSize */}
           <div className="grid gap-2">
-            <div className="flex min-h-7 items-center gap-1.5">
-              <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const current = form.getValues("mode");
-                      form.setValue("mode", current === "assembly" ? "private" : "assembly", {
-                        shouldValidate: false,
-                        shouldDirty: true,
-                      });
-                    }}
-                    className={cn(
-                      "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border transition-colors",
-                      isAssembly
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-warning text-warning hover:border-gold-hover hover:text-gold-hover",
-                    )}
-                  >
-                    <UserPlus className="h-4 w-4" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent className="text-sm">
-                  <p>Открытая группа — другие путешественники могут присоединиться</p>
-                </TooltipContent>
-              </Tooltip>
-            </div>
+            <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
             <Input
               id="groupSize"
               type="text"
@@ -282,28 +255,50 @@ export function HomepageRequestForm({ destinations }: Props) {
             />
             <FieldError id="groupSize-error" message={errors.groupSize?.message} />
           </div>
+
+          {/* Right: Сборная группа labeled toggle */}
           <div className="grid gap-2">
-            <div className="flex min-h-7 items-center">
-              <FieldLabel htmlFor="budgetPerPersonRub">
-                Бюджет на человека (₽)
-              </FieldLabel>
-            </div>
-            <Input
-              id="budgetPerPersonRub"
-              type="number"
-              inputMode="numeric"
-              min={1000}
-              max={2000000}
-              aria-invalid={Boolean(errors.budgetPerPersonRub)}
-              aria-describedby="budgetPerPersonRub-total"
-              {...register("budgetPerPersonRub", { valueAsNumber: true })}
-            />
-            <FieldError
-              id="budgetPerPersonRub-error"
-              message={errors.budgetPerPersonRub?.message}
-            />
+            <FieldLabel>Сборная группа</FieldLabel>
+            <button
+              type="button"
+              onClick={() => {
+                const current = form.getValues("mode");
+                form.setValue("mode", current === "assembly" ? "private" : "assembly", {
+                  shouldValidate: false,
+                  shouldDirty: true,
+                });
+              }}
+              className={cn(
+                "flex h-10 w-full cursor-pointer select-none items-center justify-center rounded-md border text-sm font-medium transition-colors",
+                isAssembly
+                  ? "border-primary bg-primary/8 text-primary"
+                  : "border-input bg-background",
+              )}
+            >
+              {isAssembly ? "Открытая" : "Закрытая"}
+            </button>
           </div>
         </div>
+
+        {/* Budget — separate row, full-width */}
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="budgetPerPersonRub">Бюджет на человека (₽)</FieldLabel>
+          <Input
+            id="budgetPerPersonRub"
+            type="number"
+            inputMode="numeric"
+            min={1000}
+            max={2000000}
+            aria-invalid={Boolean(errors.budgetPerPersonRub)}
+            aria-describedby="budgetPerPersonRub-total"
+            {...register("budgetPerPersonRub", { valueAsNumber: true })}
+          />
+          <FieldError
+            id="budgetPerPersonRub-error"
+            message={errors.budgetPerPersonRub?.message}
+          />
+        </div>
+
         <TotalBudgetHint
           id="budgetPerPersonRub-total"
           perPerson={watchedBudgetPerPerson}

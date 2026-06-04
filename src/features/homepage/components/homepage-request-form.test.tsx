@@ -68,9 +68,8 @@ function getDateFlexibilityButton() {
 }
 
 function getAssemblyButton() {
-  const groupLabelRow = screen.getByText("Сколько вас").parentElement;
-  expect(groupLabelRow).not.toBeNull();
-  return within(groupLabelRow!).getByRole("button");
+  const assemblyLabel = screen.getByText("Сборная группа");
+  return within(assemblyLabel.closest("div")!).getByRole("button");
 }
 
 describe("HomepageRequestForm onSubmit", () => {
@@ -277,13 +276,9 @@ describe("HomepageRequestForm UI affordances", () => {
     const assemblyButton = getAssemblyButton();
     expect(assemblyButton).toHaveClass("cursor-pointer");
     expect(assemblyButton).not.toHaveAttribute("title");
-    expect(assemblyButton).toHaveClass("border-warning", "text-warning");
+    expect(assemblyButton).toHaveClass("border-input", "bg-background");
     fireEvent.click(assemblyButton);
-    expect(assemblyButton).toHaveClass(
-      "border-primary",
-      "bg-primary",
-      "text-primary-foreground",
-    );
+    expect(assemblyButton).toHaveClass("border-primary", "text-primary");
   });
 
   it("renders topic chips as horizontal icon and label rows", () => {
@@ -320,16 +315,20 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(hint).toHaveTextContent(/за группу из 1 человека\./);
   });
 
-  it("renders group size and budget as two half-width fields; assembly icon present", () => {
+  it("renders group size and assembly toggle in grid-cols-2 row; budget in separate full-width row", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const groupSizeInput = screen.getByLabelText("Сколько вас");
     // input → div.grid.gap-2 → div.grid-cols-2
     const groupRow = groupSizeInput.closest("div")?.parentElement;
     expect(groupRow).toHaveClass("grid-cols-2");
-    expect(within(groupRow!).getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
+    // Budget is NOT inside the grid-cols-2 row
+    expect(within(groupRow!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
+    // Budget exists in the form outside the row
+    expect(screen.getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
+    // Assembly toggle shares the same grid-cols-2 row
     const assemblyButton = getAssemblyButton();
-    expect(assemblyButton.parentElement).toHaveClass("flex", "items-center", "gap-1.5");
-    expect(within(assemblyButton.parentElement!).getByText("Сколько вас")).toBeInTheDocument();
+    expect(assemblyButton.closest("div")?.parentElement).toBe(groupRow);
+    expect(within(assemblyButton.parentElement!).getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.queryByLabelText("Открыт к увеличению группы")).toBeNull();
     expect(screen.queryByText(/попутчиков/i)).toBeNull();
     expect(screen.queryByText(/−10%/)).toBeNull();
