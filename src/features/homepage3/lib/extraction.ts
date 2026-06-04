@@ -165,7 +165,7 @@ const QUESTIONS: Record<RequiredField, string> = {
 export const COMPLETE_MESSAGE = "Готово! Проверьте детали ниже и отправьте запрос гидам.";
 
 export const INITIAL_MESSAGE =
-  "Опишите поездку одним сообщением: куда, когда, сколько вас и какой бюджет на человека.";
+  "Куда, когда, сколько вас и бюджет — одним сообщением.";
 
 /** The next single question to ask, or `null` when nothing required is missing. */
 export function nextQuestion(missing: RequiredField[]): string | null {

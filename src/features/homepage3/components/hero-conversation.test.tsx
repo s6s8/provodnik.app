@@ -66,8 +66,8 @@ describe("HeroConversation", () => {
 
   it("shows the initial prompt and no create button before any input", () => {
     render(<HeroConversation />);
-    expect(screen.getByText(/опишите поездку одним сообщением/i)).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /создать запрос/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/куда, когда, сколько вас и бюджет/i)).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /подобрать гида/i })).not.toBeInTheDocument();
   });
 
   it("fills chips and enables create after a complete parse", async () => {
@@ -84,7 +84,7 @@ describe("HeroConversation", () => {
     });
     expect(screen.getByText(/5\s?000 ₽/)).toBeInTheDocument();
     expect(screen.getByText(/заполнено 5 из 5/i)).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /создать запрос/i })).toBeEnabled();
+    expect(screen.getByRole("button", { name: /подобрать гида/i })).toBeEnabled();
   });
 
   it("keeps create disabled and shows the next question when a field is missing", async () => {
@@ -104,6 +104,6 @@ describe("HeroConversation", () => {
     await waitFor(() => {
       expect(screen.getByText(/на какую дату/i)).toBeInTheDocument();
     });
-    expect(screen.queryByRole("button", { name: /создать запрос/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /подобрать гида/i })).not.toBeInTheDocument();
   });
 });
