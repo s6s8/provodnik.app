@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import type {
   ConfirmedBookingSummary,
@@ -8,6 +8,10 @@ import type {
 } from "@/lib/supabase/traveler-requests";
 
 import { TravelerRequestsScreen } from "./traveler-requests-screen";
+
+beforeEach(() => {
+  window.localStorage.clear();
+});
 
 function isoDateFromNow(days: number): string {
   return new Date(Date.now() + days * 24 * 3600 * 1000)
@@ -144,5 +148,80 @@ describe("TravelerRequestsScreen — lifecycle feed", () => {
     expect(
       screen.getByText("Сборная группа · организатор: Мария К."),
     ).toBeInTheDocument();
+  });
+});
+
+describe("TravelerRequestsScreen — view toggle / category tabs", () => {
+  it("renders view toggle buttons when trips exist and defaults to the feed", () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[baseRequest]}
+        confirmedBookings={[]}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: /Лента/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /По категориям/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole("tablist")).toBeNull();
+  });
+
+  it("reveals category tabs with counts after switching views", () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[baseRequest]}
+        confirmedBookings={[baseBooking]}
+        joinedGroups={[baseJoinedGroup]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /По категориям/i }));
+
+    expect(screen.getByRole("tablist")).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Активные \(1\)/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Мои группы \(1\)/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Подтверждённые \(1\)/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows active trips first and joined groups after switching tabs", () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[baseRequest]}
+        confirmedBookings={[]}
+        joinedGroups={[baseJoinedGroup]}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /По категориям/i }));
+
+    expect(screen.getByText("Элиста")).toBeInTheDocument();
+    expect(screen.queryByText("Кострома")).toBeNull();
+
+    const joinedTab = screen.getByRole("tab", { name: /Мои группы \(1\)/i });
+    fireEvent.pointerDown(joinedTab, {
+      button: 0,
+      ctrlKey: false,
+      pointerType: "mouse",
+    });
+    fireEvent.click(joinedTab);
+
+    expect(screen.getByText("Кострома")).toBeInTheDocument();
+  });
+
+  it("renders only the empty cabinet when there are no trips", () => {
+    render(
+      <TravelerRequestsScreen activeRequests={[]} confirmedBookings={[]} />,
+    );
+
+    expect(screen.queryByRole("button", { name: /Лента/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /По категориям/i })).toBeNull();
+    expect(screen.queryByRole("tablist")).toBeNull();
   });
 });
