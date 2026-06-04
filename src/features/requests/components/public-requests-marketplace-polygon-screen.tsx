@@ -1,0 +1,491 @@
+"use client";
+
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+
+import { RequestCardFinal } from "@/components/shared/request-card-final";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { todayMoscowISODate } from "@/lib/dates";
+
+const CATEGORY_PILLS = [
+  "Все",
+  "История и культура",
+  "Природа",
+  "Гастрономия",
+  "Искусство",
+  "Необычные маршруты",
+  "Ночные прогулки",
+  "Активный отдых",
+  "Водные прогулки",
+  "Религия и духовность",
+] as const;
+type CategoryPill = (typeof CATEGORY_PILLS)[number];
+type CategoryFilter = Exclude<CategoryPill, "Все">;
+
+const CATEGORY_FILTERS = CATEGORY_PILLS.filter((pill): pill is CategoryFilter => pill !== "Все");
+
+const CATEGORY_INTEREST_SLUGS: Partial<Record<CategoryFilter, string>> = {
+  "История и культура": "history_culture",
+  Природа: "nature",
+  Гастрономия: "food",
+  Искусство: "art",
+  "Необычные маршруты": "unusual",
+  "Ночные прогулки": "night",
+  "Активный отдых": "active",
+  "Водные прогулки": "water",
+  "Религия и духовность": "religion",
+};
+
+const MONTHS_GENITIVE = [
+  "января", "февраля", "марта", "апреля", "мая", "июня",
+  "июля", "августа", "сентября", "октября", "ноября", "декабря",
+] as const;
+
+const WHEN_PRESETS = [
+  { value: "this-week", label: "На этой неделе" },
+  { value: "this-month", label: "В этом месяце" },
+  { value: "next-month", label: "В следующем месяце" },
+  { value: "flexible", label: "Гибкие даты" },
+] as const;
+type WhenPreset = (typeof WHEN_PRESETS)[number]["value"];
+
+type Props = {
+  initialData: OpenRequestRecord[] | null;
+};
+
+type FilterControlProps = {
+  label: string;
+  title: string;
+  description: string;
+  children: (close: () => void) => ReactNode;
+};
+
+function deriveCityFromDestination(label: string): string {
+  return label.split(",")[0].trim();
+}
+
+function deriveMonthsFromDateLabel(label: string): number[] {
+  if (!label) return [];
+  const lower = label.toLowerCase();
+  const matched: number[] = [];
+  MONTHS_GENITIVE.forEach((m, idx) => {
+    if (lower.includes(m)) matched.push(idx);
+  });
+  return matched;
+}
+
+function derivePrice(budgetPerPersonRub?: number): string {
+  if (!budgetPerPersonRub) return "По договоренности";
+  return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
+}
+
+function deriveGuideState(status: OpenRequestRecord["status"]) {
+  return status === "matched" ? "found" : "waiting";
+}
+
+function getSearchText(request: OpenRequestRecord): string {
+  return [
+    request.destinationLabel,
+    request.regionLabel,
+    request.dateRangeLabel,
+    ...request.highlights,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
+function getCurrentMonthIndex(): number {
+  const [, month] = todayMoscowISODate().split("-").map(Number);
+  return Math.max(0, Math.min(11, (month ?? 1) - 1));
+}
+
+function getTargetMonths(preset: WhenPreset): number[] {
+  const currentMonth = getCurrentMonthIndex();
+  if (preset === "next-month") return [(currentMonth + 1) % 12];
+  if (preset === "flexible") return [];
+  return [currentMonth];
+}
+
+function getWhenLabel(preset: WhenPreset): string {
+  return WHEN_PRESETS.find((option) => option.value === preset)?.label ?? "";
+}
+
+function FilterControl({ label, title, description, children }: FilterControlProps) {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const trigger = (
+    <Button type="button" variant="outline" className="w-full cursor-pointer justify-between">
+      <span>{label}</span>
+      <span aria-hidden="true">▾</span>
+    </Button>
+  );
+
+  return (
+    <>
+      <div className="hidden md:block">
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+          <PopoverContent align="start" className="w-[320px] p-0">
+            {children(() => setIsPopoverOpen(false))}
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="md:hidden">
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>{trigger}</SheetTrigger>
+          <SheetContent side="bottom" className="max-h-[85vh] rounded-t-card p-0">
+            <SheetHeader>
+              <SheetTitle>{title}</SheetTitle>
+              <SheetDescription>{description}</SheetDescription>
+            </SheetHeader>
+            <div className="overflow-y-auto px-4 pb-4">{children(() => setIsSheetOpen(false))}</div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
+  );
+}
+
+export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
+  const [query, setQuery] = useState("");
+  const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
+  const [activeCity, setActiveCity] = useState<string | null>(null);
+  const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(null);
+  const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
+
+  const requests = useMemo(() => initialData ?? [], [initialData]);
+
+  const cityOptions = useMemo(() => {
+    const set = new Set<string>();
+    requests.forEach((r) => {
+      const city = deriveCityFromDestination(r.destinationLabel);
+      if (city) set.add(city);
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ru"));
+  }, [requests]);
+
+  useEffect(() => {
+    if (hasLoadedStoredCity || cityOptions.length === 0) return;
+
+    try {
+      const savedCity = window.localStorage.getItem("requests-polygon-city");
+      if (savedCity && cityOptions.includes(savedCity)) {
+        setActiveCity(savedCity);
+      }
+    } catch {
+      // Best effort only: storage can be unavailable in private or restricted contexts.
+    } finally {
+      setHasLoadedStoredCity(true);
+    }
+  }, [cityOptions, hasLoadedStoredCity]);
+
+  const filteredRequests = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
+    const categoryMap: Record<CategoryFilter, string[]> = {
+      "История и культура": [
+        "история",
+        "исторический",
+        "музей",
+        "крепость",
+        "памятник",
+        "летопись",
+        "архитектур",
+        "усадьба",
+        "зодчество",
+        "особняк",
+        "дворец",
+      ],
+      Природа: ["байкал", "алтай", "карелия", "камчатка", "природа", "лес", "гора", "степь", "озеро"],
+      Гастрономия: ["гастроном", "кухня", "ресторан", "рынок", "еда", "дегустац"],
+      Искусство: ["искусство", "театр", "галерея", "выставка", "художник"],
+      "Необычные маршруты": ["необычн", "квест", "приключен", "мистик", "тайн", "экстрим"],
+      "Ночные прогулки": ["ноч", "вечер", "огни", "закат", "рассвет"],
+      "Активный отдых": ["актив", "спорт", "поход", "велосипед", "дети", "ребёнок", "семья", "семейн", "детск"],
+      "Водные прогулки": ["вода", "лодка", "катер", "река", "канал", "море", "озеро"],
+      "Религия и духовность": ["монастырь", "церковь", "храм", "мечеть", "собор", "паломничество", "религи"],
+    };
+
+    return requests.filter((request) => {
+      const searchText = getSearchText(request);
+      const requestMonths = deriveMonthsFromDateLabel(request.dateRangeLabel);
+      const matchesQuery = !normalizedQuery || searchText.includes(normalizedQuery);
+      const matchesCategory =
+        activeCategories.length === 0 ||
+        activeCategories.some((category) => {
+          const slug = CATEGORY_INTEREST_SLUGS[category] ?? "";
+          return request.interests?.includes(slug) || categoryMap[category].some((token) => searchText.includes(token));
+        });
+      const matchesCity =
+        activeCity == null ||
+        deriveCityFromDestination(request.destinationLabel) === activeCity;
+      const matchesWhen =
+        activeWhen == null ||
+        (activeWhen === "flexible"
+          ? requestMonths.length === 0
+          : getTargetMonths(activeWhen).some((month) => requestMonths.includes(month)));
+
+      return matchesQuery && matchesCategory && matchesCity && matchesWhen;
+    });
+  }, [activeCategories, query, requests, activeCity, activeWhen]);
+
+  const hasActiveDropdownFilter = activeCity != null || activeWhen != null || activeCategories.length > 0;
+
+  function selectCity(city: string): void {
+    setActiveCity(city);
+    try {
+      window.localStorage.setItem("requests-polygon-city", city);
+    } catch {
+      // Best effort only: the selected city still works for the current session.
+    }
+  }
+
+  function clearCity(): void {
+    setActiveCity(null);
+    try {
+      window.localStorage.removeItem("requests-polygon-city");
+    } catch {
+      // Best effort only: no UI fallback needed if storage removal fails.
+    }
+  }
+
+  function toggleCategory(category: CategoryFilter): void {
+    setActiveCategories((current) =>
+      current.includes(category)
+        ? current.filter((item) => item !== category)
+        : [...current, category]
+    );
+  }
+
+  function resetDropdownFilters(): void {
+    clearCity();
+    setActiveWhen(null);
+    setActiveCategories([]);
+  }
+
+  return (
+    <div>
+      <section className="bg-surface py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] text-center">
+          <h1 className="mx-auto max-w-[780px] font-display text-[clamp(2.5rem,5vw,4.5rem)] font-semibold leading-[1.02] text-foreground">
+            Открытые запросы на экскурсию
+          </h1>
+
+          <div className="mx-auto mt-7 max-w-[640px]">
+            <label htmlFor="requests-search" className="sr-only">
+              Поиск по запросам
+            </label>
+            <input
+              id="requests-search"
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Направление, дата, тема — присоединяйтесь к группе"
+              className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-surface-low py-8">
+        <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-[clamp(20px,4vw,48px)]">
+          <div className="grid grid-cols-3 gap-2 md:max-w-[560px] md:gap-3">
+            <FilterControl
+              label="Город"
+              title="Город"
+              description="Найдите город в текущих запросах"
+            >
+              {(close) => (
+                <Command>
+                  <CommandInput placeholder="Куда едете?" />
+                  <CommandList>
+                    <CommandEmpty>Город не найден</CommandEmpty>
+                    <CommandGroup heading="Города">
+                      {cityOptions.map((city) => (
+                        <CommandItem
+                          key={city}
+                          value={city}
+                          data-checked={city === activeCity}
+                          onSelect={() => {
+                            selectCity(city);
+                            close();
+                          }}
+                        >
+                          {city}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              )}
+            </FilterControl>
+
+            <FilterControl
+              label="Когда"
+              title="Когда"
+              description="Выберите один временной пресет"
+            >
+              {(close) => (
+                <div className="flex flex-col gap-2 p-1">
+                  {WHEN_PRESETS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-pressed={activeWhen === option.value}
+                      onClick={() => {
+                        setActiveWhen(option.value);
+                        close();
+                      }}
+                      className={`flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                        activeWhen === option.value
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <span>{option.label}</span>
+                      {activeWhen === option.value && <span aria-hidden="true">✓</span>}
+                    </button>
+                  ))}
+                  {/* TODO: exact-date picker (calendar) — follow-up */}
+                </div>
+              )}
+            </FilterControl>
+
+            <FilterControl
+              label="Тема"
+              title="Тема"
+              description="Можно выбрать несколько тем"
+            >
+              {(close) => (
+                <div className="flex flex-col gap-2 p-1">
+                  {CATEGORY_FILTERS.map((category) => (
+                    <label
+                      key={category}
+                      className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={activeCategories.includes(category)}
+                        onChange={() => toggleCategory(category)}
+                        className="size-4 rounded border-border accent-primary"
+                      />
+                      <span>{category}</span>
+                    </label>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="mt-2 cursor-pointer" onClick={close}>
+                    Готово
+                  </Button>
+                </div>
+              )}
+            </FilterControl>
+          </div>
+
+          {hasActiveDropdownFilter && (
+            <div className="flex flex-wrap items-center gap-2">
+              {activeCity && (
+                <Badge variant="outline" className="normal-case tracking-normal">
+                  {activeCity}
+                  <button
+                    type="button"
+                    onClick={clearCity}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить город ${activeCity}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+              {activeWhen && (
+                <Badge variant="outline" className="normal-case tracking-normal">
+                  {getWhenLabel(activeWhen)}
+                  <button
+                    type="button"
+                    onClick={() => setActiveWhen(null)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить период ${getWhenLabel(activeWhen)}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+              {activeCategories.map((category) => (
+                <Badge key={category} variant="outline" className="normal-case tracking-normal">
+                  {category}
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(category)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить тему ${category}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              ))}
+              <button
+                type="button"
+                onClick={resetDropdownFilters}
+                className="cursor-pointer px-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                Сбросить всё
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      <section className="py-sec-pad">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+          {filteredRequests.length > 0 ? (
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredRequests.map((request) => {
+                const location = request.destinationLabel.split(",")[0].trim();
+
+                return (
+                  <RequestCardFinal
+                    key={request.id}
+                    href={`/requests/${request.id}`}
+                    location={location}
+                    date={request.dateRangeLabel}
+                    groupType={request.group.openToMoreMembers ? "assembly" : "private"}
+                    guideState={deriveGuideState(request.status)}
+                    interests={request.interests}
+                    members={request.members}
+                    price={derivePrice(request.budgetPerPersonRub)}
+                  />
+                );
+              })}
+            </div>
+          ) : (
+            <div className="rounded-card bg-surface-high p-8 text-center shadow-card">
+              <p className="font-display text-[1.5rem] font-semibold text-foreground">
+                Подходящих запросов пока нет
+              </p>
+              <p className="mx-auto mt-2 max-w-[460px] text-sm leading-[1.6] text-muted-foreground">
+                Попробуйте изменить направление или выбрать другую тематику.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
+  );
+}
