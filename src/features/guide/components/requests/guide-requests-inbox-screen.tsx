@@ -4,7 +4,8 @@ import * as React from "react";
 import Link from "next/link";
 import { Inbox } from "lucide-react";
 
-import { loadGuideInboxRequests, type RequestRecord } from "@/data/supabase/queries";
+import { type RequestRecord } from "@/data/supabase/queries";
+import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";

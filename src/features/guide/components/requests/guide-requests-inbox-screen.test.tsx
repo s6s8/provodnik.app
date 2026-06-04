@@ -19,13 +19,9 @@ vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: createSupabaseBrowserClientMock,
 }));
 
-vi.mock("@/data/supabase/queries", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/data/supabase/queries")>();
-  return {
-    ...actual,
-    loadGuideInboxRequests: loadGuideInboxRequestsMock,
-  };
-});
+vi.mock("@/app/(protected)/guide/inbox/actions", () => ({
+  loadGuideInboxRequests: loadGuideInboxRequestsMock,
+}));
 
 const baseRequest: RequestRecord = {
   id: "req-1",

@@ -163,7 +163,7 @@ export type DestinationOption = {
 const fallbackHeroImage =
   "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2400&q=80";
 
-function makeError(error: unknown) {
+export function makeError(error: unknown) {
   return error instanceof Error ? error : new Error("Unknown Supabase error");
 }
 
@@ -592,18 +592,6 @@ export async function getListingsByGuide(
 // ---------------------------------------------------------------------------
 // Requests (public.traveler_requests)
 // ---------------------------------------------------------------------------
-
-export async function loadGuideInboxRequests(): Promise<QueryResult<RequestRecord[]>> {
-  "use server";
-
-  try {
-    const { createSupabaseServerClient } = await import("@/lib/supabase/server");
-    const supabase = await createSupabaseServerClient();
-    return await getOpenRequests(supabase);
-  } catch (error) {
-    return { data: [], error: makeError(error) };
-  }
-}
 
 export async function getOpenRequests(
   client: SupabaseClient,
