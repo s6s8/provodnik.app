@@ -1,10 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 import { RequestCardFinal } from "@/components/shared/request-card-final";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Command,
   CommandEmpty,
@@ -66,6 +69,7 @@ const WHEN_PRESETS = [
   { value: "flexible", label: "Гибкие даты" },
 ] as const;
 type WhenPreset = (typeof WHEN_PRESETS)[number]["value"];
+type ActiveDateRange = { from?: Date; to?: Date };
 
 type Props = {
   initialData: OpenRequestRecord[] | null;
@@ -102,12 +106,7 @@ function deriveGuideState(status: OpenRequestRecord["status"]) {
 }
 
 function getSearchText(request: OpenRequestRecord): string {
-  return [
-    request.destinationLabel,
-    request.regionLabel,
-    request.dateRangeLabel,
-    ...request.highlights,
-  ]
+  return request.highlights
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
@@ -127,6 +126,34 @@ function getTargetMonths(preset: WhenPreset): number[] {
 
 function getWhenLabel(preset: WhenPreset): string {
   return WHEN_PRESETS.find((option) => option.value === preset)?.label ?? "";
+}
+
+function getDateRangeMonths(range: ActiveDateRange): number[] {
+  if (!range.from) return [];
+
+  const fromMonth = range.from.getMonth();
+  const toMonth = range.to?.getMonth() ?? fromMonth;
+  if (fromMonth <= toMonth) {
+    return Array.from({ length: toMonth - fromMonth + 1 }, (_, index) => fromMonth + index);
+  }
+
+  return [
+    ...Array.from({ length: 12 - fromMonth }, (_, index) => fromMonth + index),
+    ...Array.from({ length: toMonth + 1 }, (_, index) => index),
+  ];
+}
+
+function formatDateRangeLabel(range: ActiveDateRange): string {
+  if (!range.from) return "";
+  if (!range.to || range.from.getTime() === range.to.getTime()) {
+    return format(range.from, "d MMMM", { locale: ru });
+  }
+
+  if (range.from.getMonth() === range.to.getMonth()) {
+    return `${format(range.from, "d", { locale: ru })} – ${format(range.to, "d MMMM", { locale: ru })}`;
+  }
+
+  return `${format(range.from, "d MMMM", { locale: ru })} – ${format(range.to, "d MMMM", { locale: ru })}`;
 }
 
 function FilterControl({ label, title, description, children }: FilterControlProps) {
@@ -171,6 +198,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
   const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
   const [activeCity, setActiveCity] = useState<string | null>(null);
   const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(null);
+  const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(null);
   const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
 
   const requests = useMemo(() => initialData ?? [], [initialData]);
@@ -238,17 +266,27 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
       const matchesCity =
         activeCity == null ||
         deriveCityFromDestination(request.destinationLabel) === activeCity;
-      const matchesWhen =
-        activeWhen == null ||
-        (activeWhen === "flexible"
-          ? requestMonths.length === 0
-          : getTargetMonths(activeWhen).some((month) => requestMonths.includes(month)));
+      const matchesWhen = (() => {
+        if (activeWhen) {
+          return activeWhen === "flexible"
+            ? requestMonths.length === 0
+            : getTargetMonths(activeWhen).some((month) => requestMonths.includes(month));
+        }
+
+        if (activeDateRange) {
+          const rangeMonths = getDateRangeMonths(activeDateRange);
+          return rangeMonths.length === 0 || rangeMonths.some((month) => requestMonths.includes(month));
+        }
+
+        return true;
+      })();
 
       return matchesQuery && matchesCategory && matchesCity && matchesWhen;
     });
-  }, [activeCategories, query, requests, activeCity, activeWhen]);
+  }, [activeCategories, query, requests, activeCity, activeWhen, activeDateRange]);
 
-  const hasActiveDropdownFilter = activeCity != null || activeWhen != null || activeCategories.length > 0;
+  const hasActiveDropdownFilter =
+    activeCity != null || activeWhen != null || activeDateRange != null || activeCategories.length > 0;
 
   function selectCity(city: string): void {
     setActiveCity(city);
@@ -279,6 +317,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
   function resetDropdownFilters(): void {
     clearCity();
     setActiveWhen(null);
+    setActiveDateRange(null);
     setActiveCategories([]);
   }
 
@@ -299,7 +338,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Направление, дата, тема — присоединяйтесь к группе"
+              placeholder="Ключевые слова: формат, детали, пожелания"
               className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
             />
           </div>
@@ -353,6 +392,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
                       aria-pressed={activeWhen === option.value}
                       onClick={() => {
                         setActiveWhen(option.value);
+                        setActiveDateRange(null);
                         close();
                       }}
                       className={`flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
@@ -365,7 +405,24 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
                       {activeWhen === option.value && <span aria-hidden="true">✓</span>}
                     </button>
                   ))}
-                  {/* TODO: exact-date picker (calendar) — follow-up */}
+                  <div className="my-2 h-px bg-border" />
+                  <div className="px-3 pt-1 text-sm font-medium text-foreground">Точные даты</div>
+                  <Calendar
+                    mode="range"
+                    locale={ru}
+                    selected={
+                      activeDateRange?.from
+                        ? { from: activeDateRange.from, to: activeDateRange.to }
+                        : undefined
+                    }
+                    onSelect={(range) => {
+                      setActiveDateRange(range?.from ? { from: range.from, to: range.to } : null);
+                      setActiveWhen(null);
+                    }}
+                  />
+                  <p className="px-3 pb-2 text-xs leading-[1.5] text-muted-foreground">
+                    Сопоставление по месяцам выбранного периода
+                  </p>
                 </div>
               )}
             </FilterControl>
@@ -422,6 +479,19 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
                     onClick={() => setActiveWhen(null)}
                     className="cursor-pointer text-muted-foreground hover:text-foreground"
                     aria-label={`Очистить период ${getWhenLabel(activeWhen)}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+              {activeDateRange && (
+                <Badge variant="outline" className="normal-case tracking-normal">
+                  {formatDateRangeLabel(activeDateRange)}
+                  <button
+                    type="button"
+                    onClick={() => setActiveDateRange(null)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить период ${formatDateRangeLabel(activeDateRange)}`}
                   >
                     ✕
                   </button>
