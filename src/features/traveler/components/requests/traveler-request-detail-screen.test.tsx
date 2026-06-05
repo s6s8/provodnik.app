@@ -27,13 +27,22 @@ const baseRecord: TravelerRequestRecord = {
 };
 
 describe("TravelerRequestDetailScreen", () => {
-  it("shows the publication date under the destination title and unset budget honestly", () => {
+  it("shows the publication date in the badge row and unset budget honestly", () => {
     render(<TravelerRequestDetailScreen record={baseRecord} />);
 
-    expect(
-      screen.getByText(/^Опубликован 3 июня 2026 г?., 14:25$/),
-    ).toBeInTheDocument();
+    const publishedAt = screen.getByText(/^Опубликован 3 июня 2026 г?., 14:25$/);
+    const metaRow = publishedAt.parentElement;
+    expect(publishedAt).toHaveClass("text-xs", "text-muted-foreground");
+    expect(metaRow).toHaveClass("flex", "flex-row", "justify-between");
+    expect(metaRow).toContainElement(screen.getByText("Сборная группа"));
     expect(screen.getByText("Бюджет не указан")).toBeInTheDocument();
+  });
+
+  it("frames the main request detail card", () => {
+    render(<TravelerRequestDetailScreen record={baseRecord} />);
+
+    const detailCard = screen.getByRole("heading", { name: "Элиста" }).parentElement;
+    expect(detailCard).toHaveClass("rounded-lg", "border", "bg-card", "p-4");
   });
 
   it("does not show a redundant open-group badge for an assembly request", () => {

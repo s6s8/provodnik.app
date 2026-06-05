@@ -125,6 +125,7 @@ describe("TripCard", () => {
           organizerName: null,
           openToJoin: true,
           datesFlexible: true,
+          groupType: "assembly",
           createdAt: "2026-06-03T10:25:00.000Z",
         }}
       />,
@@ -145,9 +146,14 @@ describe("TripCard", () => {
       ),
     ).toBeInTheDocument();
     expect(screen.getByText("5 человек")).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.getByText("+ к группе")).toBeInTheDocument();
     expect(screen.getByText("± даты")).toBeInTheDocument();
-    expect(screen.getByText(/^Опубликован: 3 июн\.?, 14:25$/)).toBeInTheDocument();
+    const publishedAt = screen.getByText(/^Опубликован: 3 июн\.?, 14:25$/);
+    const metaRow = publishedAt.parentElement;
+    expect(publishedAt).toHaveClass("text-xs", "text-muted-foreground");
+    expect(metaRow).toHaveClass("flex", "flex-row", "justify-between");
+    expect(metaRow).toContainElement(screen.getByText("Сборная группа"));
   });
 
   it("normalizes request start time to HH:MM on the card", () => {

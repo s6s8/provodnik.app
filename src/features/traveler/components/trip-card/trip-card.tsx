@@ -161,6 +161,29 @@ function FlexPills({
   );
 }
 
+function RequestMetaRow({ trip }: { trip: TripCardModel }) {
+  const publishedAt = trip.createdAt ? formatPublishedAt(trip.createdAt) : null;
+
+  if (!trip.openToJoin && !trip.datesFlexible && !trip.groupType && !publishedAt) {
+    return null;
+  }
+
+  return (
+    <div className="flex flex-row items-start justify-between gap-3">
+      <FlexPills
+        openToJoin={trip.openToJoin}
+        datesFlexible={trip.datesFlexible}
+        groupType={trip.groupType}
+      />
+      {publishedAt ? (
+        <p className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
+          Опубликован: {publishedAt}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function RequestFacts({ trip }: { trip: TripCardModel }) {
   const budgetRub = trip.budget ? trip.budget.amount / 100 : null;
   const participantsCount = trip.participantsCount;
@@ -224,16 +247,7 @@ function TripCardContent({
       {isRequestBacked ? (
         <>
           <RequestFacts trip={trip} />
-          <FlexPills
-            openToJoin={trip.openToJoin}
-            datesFlexible={trip.datesFlexible}
-            groupType={trip.groupType}
-          />
-          {trip.createdAt ? (
-            <p className="text-xs text-muted-foreground">
-              Опубликован: {formatPublishedAt(trip.createdAt)}
-            </p>
-          ) : null}
+          <RequestMetaRow trip={trip} />
           {phase === "awaiting_decision" ? (
             <OfferCount count={trip.offerCount} />
           ) : null}
