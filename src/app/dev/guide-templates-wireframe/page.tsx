@@ -310,23 +310,25 @@ function PickerComparisonScreen() {
 
       <div className="space-y-3 rounded-card border border-border bg-card p-4">
         <div>
-          <h3 className="text-base font-semibold text-foreground">Вариант B — шит поверх</h3>
-          <p className="mt-1 text-xs text-muted-foreground">Шит всплывает поверх формы, не требует скролла</p>
+          <h3 className="text-base font-semibold text-foreground">Вариант B — правая панель</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Как текущая форма отклика гида — фиксированная панель справа, оверлей слева</p>
         </div>
-        <div className="relative h-[420px] overflow-hidden rounded-card bg-muted/40">
-          <BidResponseCard className="pointer-events-none opacity-40" />
-          <div className="absolute inset-x-0 bottom-0 h-[280px] rounded-t-[1.5rem] bg-surface-high p-4 shadow-xl">
-            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
-            <div className="flex items-center justify-between gap-3">
-              <h3 className="text-lg font-semibold text-foreground">Добавить в отклик</h3>
+        <div className="relative h-[480px] overflow-hidden rounded-card bg-muted/40">
+          <div className="pointer-events-none absolute inset-0 right-[200px] opacity-40">
+            <BidResponseCard />
+          </div>
+          <div className="absolute inset-y-0 right-0 z-10 flex w-[200px] flex-col bg-surface-high shadow-xl">
+            <div className="flex items-center justify-between gap-3 border-b border-border p-3">
+              <span className="text-sm font-semibold text-foreground">Добавить в отклик</span>
               <Button variant="ghost" size="icon-sm" aria-label="Закрыть picker">
                 <XIcon aria-hidden="true" />
               </Button>
             </div>
-            <div className="mt-4">
+            <div className="flex-1 overflow-y-auto p-3">
               <TemplatePickerRows />
             </div>
           </div>
+          <div className="pointer-events-none absolute inset-0 right-[200px] bg-background/40" />
         </div>
       </div>
     </div>
