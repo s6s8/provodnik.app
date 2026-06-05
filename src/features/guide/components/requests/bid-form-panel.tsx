@@ -271,8 +271,8 @@ export function BidFormPanel({
         </div>
 
         {/* Request context (readonly) */}
-        <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-2">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-3">
+          <div className="flex flex-wrap gap-2">
             <span
               className={
                 request.mode === "assembly"
@@ -291,22 +291,34 @@ export function BidFormPanel({
             >
               {request.dateFlexibility === "few_days" ? "гибкие даты" : "точная дата"}
             </span>
-            <p className="text-sm text-muted-foreground">
+          </div>
+          <div className="space-y-1">
+            <p className="text-xs text-muted-foreground">
               {request.mode === "assembly"
                 ? "К запросу могут присоединяться другие путешественники"
                 : `Группа закрытая — только ${request.groupSize} человек`}
             </p>
-            {request.interests.length > 0 ? (
-              <span className="text-xs text-muted-foreground">
-                {request.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
-              </span>
+            {request.dateFlexibility === "few_days" ? (
+              <p className="text-xs text-muted-foreground">
+                Путешественник открыт к близким датам — предложите удобную вам дату
+              </p>
             ) : null}
           </div>
+          {request.interests.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {request.interests.map((interest) => (
+                <span key={interest} className="text-xs bg-muted rounded px-2 py-0.5 text-muted-foreground">
+                  {INTEREST_LABEL_BY_ID[interest] ?? interest}
+                </span>
+              ))}
+            </div>
+          ) : null}
           {request.description ? (
-            <p className="whitespace-pre-line text-sm text-muted-foreground">{request.description}</p>
-          ) : (
-            <p className="text-sm italic text-muted-foreground/60">Описание не указано</p>
-          )}
+            <div>
+              <p className="text-xs font-medium text-foreground/50 mb-0.5">Пожелания</p>
+              <p className="whitespace-pre-line text-sm text-foreground/80">{request.description}</p>
+            </div>
+          ) : null}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 px-6 py-6" noValidate>
@@ -346,12 +358,6 @@ export function BidFormPanel({
               </div>
             </div>
           )}
-
-          {request.dateFlexibility === "few_days" ? (
-            <p className="mb-1 text-sm text-muted-foreground">
-              путешественник открыт к близким датам — предложите удобную вам дату
-            </p>
-          ) : null}
 
           {/* Когда: date */}
           <div className="grid gap-2">

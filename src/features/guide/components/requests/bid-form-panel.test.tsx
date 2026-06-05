@@ -114,7 +114,7 @@ describe("BidFormPanel — date/time locks", () => {
     expect(screen.getByText("путешественник просит строго эту дату")).toBeInTheDocument();
   });
 
-  it("shows hint above date when dateFlexibility is few_days", () => {
+  it("shows hint in context block when dateFlexibility is few_days", () => {
     render(
       <BidFormPanel
         requestId="req-1"
@@ -124,7 +124,7 @@ describe("BidFormPanel — date/time locks", () => {
     );
 
     expect(
-      screen.getByText("путешественник открыт к близким датам — предложите удобную вам дату"),
+      screen.getByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
     ).toBeInTheDocument();
   });
 });
