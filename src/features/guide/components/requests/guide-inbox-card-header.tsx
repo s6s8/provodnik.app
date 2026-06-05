@@ -7,16 +7,6 @@ const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 );
 
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString("ru-RU", {
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function GuideInboxCardHeader({
   item,
@@ -53,9 +43,6 @@ export function GuideInboxCardHeader({
         </p>
       </div>
       <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pt-0.5">
-        <p className="text-xs text-muted-foreground">
-          {formatDateTime(item.createdAt)}
-        </p>
         {item.interests.length > 0 ? (
           <span
             className={

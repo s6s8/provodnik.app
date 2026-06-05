@@ -9,6 +9,17 @@ import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
+
+function formatPublishedAt(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("ru-RU", {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -293,9 +304,6 @@ export function GuideRequestsInboxScreen() {
                         <GuideInboxCardHeader item={item} matched={matched} />
 
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
-                        {item.mode === "assembly" && (
-                          <p className="mt-0.5 text-xs font-medium text-primary">Открытая группа — набор продолжается</p>
-                        )}
 
                         {/* Meta */}
                         <div className="mt-3 space-y-1 text-xs text-muted-foreground">
@@ -322,6 +330,9 @@ export function GuideRequestsInboxScreen() {
                               Бюджет:
                             </span>{" "}
                             {item.budgetLabel}
+                          </p>
+                          <p className="pt-0.5 text-muted-foreground/70">
+                            Опубликовано: {formatPublishedAt(item.createdAt)}
                           </p>
                         </div>
 

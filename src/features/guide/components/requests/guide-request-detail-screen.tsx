@@ -134,11 +134,8 @@ export function GuideRequestDetailScreen({
           <p className="text-sm text-muted-foreground">
             {formatGroupLine(request)}
           </p>
-          {request.mode === "assembly" && (
-            <p className="text-xs font-medium text-primary">Открытая группа — набор продолжается</p>
-          )}
 
-          <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+          <div className="space-y-1.5 text-sm text-muted-foreground">
             <p>
               <span className="font-medium text-foreground">Даты:</span>{" "}
               {request.dateLabel}
@@ -147,14 +144,15 @@ export function GuideRequestDetailScreen({
                   гибкие даты
                 </span>
               )}
+              {formatTimeRange(request.startTime, request.endTime) && (
+                <>
+                  {" · "}
+                  <span className="font-medium text-foreground">Время:</span>{" "}
+                  {formatTimeRange(request.startTime, request.endTime)}
+                </>
+              )}
             </p>
-            {formatTimeRange(request.startTime, request.endTime) && (
-              <p>
-                <span className="font-medium text-foreground">Время:</span>{" "}
-                {formatTimeRange(request.startTime, request.endTime)}
-              </p>
-            )}
-            <p className="sm:col-span-2">
+            <p>
               <span className="font-medium text-foreground">Бюджет:</span>{" "}
               {request.budgetLabel}
             </p>
