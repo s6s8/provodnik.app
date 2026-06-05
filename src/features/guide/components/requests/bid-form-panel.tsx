@@ -450,26 +450,24 @@ export function BidFormPanel({
             ) : null}
           </div>
 
-          {/* Количество человек */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium text-foreground">
-              {request.mode === "assembly" ? "Максимум мест в группе" : "Участников в группе"}
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={50}
-              className={FIELD_CLASS}
-              disabled={submitted}
-              {...register("headcount", { valueAsNumber: true })}
-            />
-            <p className="text-xs text-muted-foreground">
-              {request.mode === "assembly"
-                ? "Гид открывает столько мест — путешественники могут присоединяться"
-                : "Группа уже сформирована и не расширяется"}
-            </p>
-          </div>
+          {/* Количество человек — только для сборной группы; для своей группа уже сформирована */}
+          {request.mode === "assembly" ? (
+            <div className="grid gap-2">
+              <label className="text-sm font-medium text-foreground">Максимум мест в группе</label>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={50}
+                className={FIELD_CLASS}
+                disabled={submitted}
+                {...register("headcount", { valueAsNumber: true })}
+              />
+              <p className="text-xs text-muted-foreground">
+                Гид открывает столько мест — путешественники могут присоединяться
+              </p>
+            </div>
+          ) : null}
 
           {/* Цена — двусторонний калькулятор */}
           <div className="grid gap-2">
