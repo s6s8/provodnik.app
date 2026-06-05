@@ -126,7 +126,6 @@ export function BidFormPanel({
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
   const dateLocked = request.date_locked ?? true;
   const timeLocked = request.time_locked ?? true;
-  const bothOpen = !dateLocked && !timeLocked;
 
   React.useEffect(() => {
     async function load() {
@@ -302,6 +301,24 @@ export function BidFormPanel({
         {/* Request context (readonly) */}
         <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-2">
           <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={
+                request.mode === "assembly"
+                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700"
+                  : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
+              }
+            >
+              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+            </span>
+            <span
+              className={
+                request.dateFlexibility === "few_days"
+                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700"
+                  : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
+              }
+            >
+              {request.dateFlexibility === "few_days" ? "гибкие даты" : "точная дата"}
+            </span>
             <p className="text-sm text-muted-foreground">
               {request.mode === "assembly"
                 ? "К запросу могут присоединяться другие путешественники"
@@ -358,9 +375,9 @@ export function BidFormPanel({
             </div>
           )}
 
-          {bothOpen ? (
+          {request.dateFlexibility === "few_days" ? (
             <p className="mb-1 text-sm text-muted-foreground">
-              путешественник открыт к близким датам и времени
+              путешественник открыт к близким датам — предложите удобную вам дату
             </p>
           ) : null}
 
@@ -435,7 +452,9 @@ export function BidFormPanel({
 
           {/* Количество человек */}
           <div className="grid gap-2">
-            <label className="text-sm font-medium text-foreground">Количество человек</label>
+            <label className="text-sm font-medium text-foreground">
+              {request.mode === "assembly" ? "Максимум мест в группе" : "Участников в группе"}
+            </label>
             <input
               type="number"
               inputMode="numeric"
@@ -445,6 +464,11 @@ export function BidFormPanel({
               disabled={submitted}
               {...register("headcount", { valueAsNumber: true })}
             />
+            <p className="text-xs text-muted-foreground">
+              {request.mode === "assembly"
+                ? "Гид открывает столько мест — путешественники могут присоединяться"
+                : "Группа уже сформирована и не расширяется"}
+            </p>
           </div>
 
           {/* Цена — двусторонний калькулятор */}
