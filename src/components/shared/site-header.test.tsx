@@ -141,18 +141,24 @@ describe("SiteHeader desktop account menu", () => {
     expect(screen.getByText("Выйти")).toBeInTheDocument();
   });
 
-  it("submits desktop logout with POST", async () => {
+  it("submits desktop logout with POST when the item is selected", async () => {
+    const requestSubmit = vi
+      .spyOn(HTMLFormElement.prototype, "requestSubmit")
+      .mockImplementation(() => {});
+
     renderAuthenticatedHeader("traveler");
 
     await openAccountMenu();
 
     const logoutItem = await screen.findByRole("menuitem", { name: "Выйти" });
-    expect(logoutItem).toHaveAttribute("type", "submit");
-    expect(logoutItem.closest("form")).toHaveAttribute(
-      "action",
-      "/api/auth/signout",
-    );
-    expect(logoutItem.closest("form")).toHaveAttribute("method", "post");
+    fireEvent.click(logoutItem);
+
+    expect(requestSubmit).toHaveBeenCalledTimes(1);
+    const form = requestSubmit.mock.instances[0] as HTMLFormElement;
+    expect(form).toHaveAttribute("action", "/api/auth/signout");
+    expect(form).toHaveAttribute("method", "post");
+
+    requestSubmit.mockRestore();
   });
 
   it("hides «Настройки» in the desktop header dropdown for both travellers and guides (settings merged into profile)", async () => {

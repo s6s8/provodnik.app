@@ -89,6 +89,7 @@ export function SiteHeader({
   const { unreadCount } = useUnreadCount(isAuthenticated);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [drawerOpen, setDrawerOpen] = React.useState(false);
+  const logoutFormRef = React.useRef<HTMLFormElement>(null);
 
   const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
   const primaryCtaHref = role === "guide" ? "/requests" : "/form";
@@ -149,6 +150,7 @@ export function SiteHeader({
 
         <div className="flex items-center justify-self-end gap-2">
           {showAccountIdentity ? (
+            <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -182,15 +184,27 @@ export function SiteHeader({
                 <DropdownMenuItem asChild>
                   <Link href="/help">Помощь</Link>
                 </DropdownMenuItem>
-                <form action="/api/auth/signout" method="post">
-                  <DropdownMenuItem asChild>
-                    <button type="submit" className="w-full">
-                      Выйти
-                    </button>
-                  </DropdownMenuItem>
-                </form>
+                <DropdownMenuItem
+                  onSelect={(event) => {
+                    // Radix closes (and unmounts) the menu on select, which
+                    // cancels a native form submit inside it. Keep the menu open
+                    // and submit the sibling form imperatively so logout fires.
+                    event.preventDefault();
+                    logoutFormRef.current?.requestSubmit();
+                  }}
+                >
+                  Выйти
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <form
+              ref={logoutFormRef}
+              action="/api/auth/signout"
+              method="post"
+              className="hidden"
+              aria-hidden="true"
+            />
+            </>
           ) : null}
           {notificationsEnabled && isAuthenticated && userId ? (
             <NotificationBell userId={userId} />
