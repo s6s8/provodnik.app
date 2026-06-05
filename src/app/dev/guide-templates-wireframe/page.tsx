@@ -311,24 +311,26 @@ function PickerComparisonScreen() {
       <div className="space-y-3 rounded-card border border-border bg-card p-4">
         <div>
           <h3 className="text-base font-semibold text-foreground">Вариант B — правая панель</h3>
-          <p className="mt-1 text-xs text-muted-foreground">Как текущая форма отклика гида — фиксированная панель справа, оверлей слева</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Боковая панель справа — как в текущей форме отклика гида. Пикер открывается поверх формы.
+          </p>
         </div>
         <div className="relative h-[480px] overflow-hidden rounded-card bg-muted/40">
-          <div className="pointer-events-none absolute inset-0 right-[200px] opacity-40">
-            <BidResponseCard />
+          <div className="absolute bottom-0 left-0 right-[200px] top-0">
+            <BidResponseCard className="pointer-events-none h-full opacity-40" />
+            <div className="pointer-events-none absolute inset-0 bg-background/40" />
           </div>
-          <div className="absolute inset-y-0 right-0 z-10 flex w-[200px] flex-col bg-surface-high shadow-xl">
-            <div className="flex items-center justify-between gap-3 border-b border-border p-3">
+          <div className="absolute right-0 top-0 flex h-full w-[200px] flex-col bg-surface-high shadow-xl">
+            <div className="flex items-center justify-between gap-3 border-b border-border p-4">
               <span className="text-sm font-semibold text-foreground">Добавить в отклик</span>
               <Button variant="ghost" size="icon-sm" aria-label="Закрыть picker">
                 <XIcon aria-hidden="true" />
               </Button>
             </div>
-            <div className="flex-1 overflow-y-auto p-3">
+            <div className="flex-1 overflow-y-auto p-4">
               <TemplatePickerRows />
             </div>
           </div>
-          <div className="pointer-events-none absolute inset-0 right-[200px] bg-background/40" />
         </div>
       </div>
     </div>
