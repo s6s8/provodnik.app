@@ -23,12 +23,16 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
     group: {
       sizeTarget: request.capacity ?? request.groupSize,
       sizeCurrent: request.groupSize,
-      openToMoreMembers: request.capacity == null || request.groupSize < request.capacity,
+      openToMoreMembers: request.mode === "assembly",
     },
     destinationLabel: request.destination,
     imageUrl: request.imageUrl,
     regionLabel: request.destinationRegion,
     dateRangeLabel: request.dateLabel,
+    datesFlexible: request.dateFlexibility === "few_days",
+    timeLabel: request.startTime
+      ? `${request.startTime}${request.endTime ? `–${request.endTime}` : ""}`
+      : undefined,
     budgetPerPersonRub: request.budgetRub,
     highlights: [request.title, request.description, request.format].filter(Boolean) as string[],
     interests: request.interests,

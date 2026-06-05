@@ -535,7 +535,9 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     href={`/requests/${request.id}`}
                     location={location}
                     date={request.dateRangeLabel}
+                    time={request.timeLabel}
                     groupType={request.group.openToMoreMembers ? "assembly" : "private"}
+                    datesFlexible={request.datesFlexible}
                     guideState={deriveGuideState(request.status)}
                     interests={request.interests}
                     members={request.members}

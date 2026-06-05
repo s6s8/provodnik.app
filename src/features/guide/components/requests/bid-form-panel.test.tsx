@@ -33,6 +33,10 @@ vi.mock("@/data/guide-assets/supabase-client", () => ({
   listGuideLocationPhotos: async () => [],
 }));
 
+vi.mock("@/data/guide-templates/supabase-client", () => ({
+  listGuideTemplates: async () => [],
+}));
+
 import { BidFormPanel } from "./bid-form-panel";
 
 beforeEach(() => {

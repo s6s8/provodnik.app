@@ -614,3 +614,16 @@ export type BookingWithListing = BookingRow & {
   listing?: ListingSnippet | null;
 };
 
+export type GuideTemplateRow = {
+  id: Uuid;
+  guide_id: Uuid;
+  title: string;
+  description: string | null;
+  duration_text: string | null;
+  price_from_kopecks: number | null;
+  is_visible: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+};
+

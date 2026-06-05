@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calendar, Check, Hand, Users } from "lucide-react";
+import { Calendar, Check, Clock, Hand, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getTheme, type ThemeSlug } from "@/data/themes";
@@ -18,6 +18,7 @@ export type RequestCardFinalProps = {
   href: string;
   location: string;
   date: string;
+  time?: string;
   groupType: RequestCardFinalGroupType;
   guideState: RequestCardFinalGuideState;
   datesFlexible?: boolean;
@@ -121,6 +122,7 @@ export function RequestCardFinal({
   href,
   location,
   date,
+  time,
   groupType,
   guideState,
   datesFlexible = false,
@@ -149,6 +151,12 @@ export function RequestCardFinal({
             <Calendar size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
             <span className="min-w-0 truncate text-sm font-medium text-ink-2">{date}</span>
           </span>
+          {time ? (
+            <span className="inline-flex min-w-0 items-center gap-1">
+              <Clock size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
+              <span className="min-w-0 truncate text-sm font-medium text-ink-2">{time}</span>
+            </span>
+          ) : null}
           {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
         </div>
 

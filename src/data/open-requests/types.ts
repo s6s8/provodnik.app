@@ -30,6 +30,8 @@ export type OpenRequestRecord = {
   imageUrl?: string;
   regionLabel?: string;
   dateRangeLabel: string;
+  timeLabel?: string;
+  datesFlexible?: boolean;
   budgetPerPersonRub?: number;
   priceScenarios?: Array<{ groupSize: number; pricePerPersonRub: number }>;
   highlights: string[];

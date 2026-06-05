@@ -391,7 +391,7 @@ export function mapRequestRow(
       ? (row.interests as string[]).filter((s) => (VALID_INTEREST_SLUGS as readonly string[]).includes(s))
       : [],
     mode: (row.open_to_join as boolean) === true ? "assembly" : "private",
-    format: formatCategory((row.category as string) ?? ""),
+    format: formatCategory((row.format_preference as string) ?? ""),
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
     offerCount: 0,
