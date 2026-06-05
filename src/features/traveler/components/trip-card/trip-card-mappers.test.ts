@@ -81,6 +81,7 @@ describe("trip card mappers", () => {
       budget: { amount: 2450000, currency: "RUB" },
       participantsCount: 4,
       offerCount: 3,
+      createdAt: "2026-05-28T10:00:00.000Z",
       interests: ["буддизм", "степь"],
       mode: "private",
       groupMax: null,

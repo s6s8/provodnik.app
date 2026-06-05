@@ -8,7 +8,7 @@ import { TravelerRequestDetailScreen } from "./traveler-request-detail-screen";
 const baseRecord: TravelerRequestRecord = {
   id: "request-1",
   status: "submitted",
-  createdAt: "2026-06-01T00:00:00.000Z",
+  createdAt: "2026-06-03T10:25:00.000Z",
   updatedAt: "2026-06-01T00:00:00.000Z",
   request: {
     mode: "assembly",
@@ -27,14 +27,16 @@ const baseRecord: TravelerRequestRecord = {
 };
 
 describe("TravelerRequestDetailScreen", () => {
-  it("uses openToJoin for the open-group badge and shows unset budget honestly", () => {
+  it("shows the publication date under the destination title and unset budget honestly", () => {
     render(<TravelerRequestDetailScreen record={baseRecord} />);
 
-    expect(screen.queryByText("Открытая группа")).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/^Опубликован 3 июня 2026 г?., 14:25$/),
+    ).toBeInTheDocument();
     expect(screen.getByText("Бюджет не указан")).toBeInTheDocument();
   });
 
-  it("shows open-group badge when the request is actually open to join", () => {
+  it("does not show a redundant open-group badge for an assembly request", () => {
     render(
       <TravelerRequestDetailScreen
         record={{
@@ -44,6 +46,7 @@ describe("TravelerRequestDetailScreen", () => {
       />,
     );
 
-    expect(screen.getByText("Открытая группа")).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
+    expect(screen.queryByText("Открытая группа")).not.toBeInTheDocument();
   });
 });

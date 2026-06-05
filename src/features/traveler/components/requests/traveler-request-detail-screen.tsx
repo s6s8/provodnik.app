@@ -30,6 +30,21 @@ function formatDate(iso: string) {
   return `${monthDay} ${d.getFullYear()}`;
 }
 
+function formatPublishedAt(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const date = d.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  const time = d.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `Опубликован ${date}, ${time}`;
+}
+
 interface Props {
   record: TravelerRequestRecord;
 }
@@ -79,6 +94,9 @@ export function TravelerRequestDetailScreen({ record }: Props) {
         <h1 className="text-3xl font-semibold text-foreground">
           {request.destination}
         </h1>
+        <p className="text-xs text-muted-foreground">
+          {formatPublishedAt(record.createdAt)}
+        </p>
       </div>
 
       <div className="space-y-3">
@@ -113,11 +131,6 @@ export function TravelerRequestDetailScreen({ record }: Props) {
           >
             {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
           </Badge>
-          {request.openToJoin && (
-            <Badge variant="outline" className={cn(BADGE_CLASS, "border-primary/30 bg-primary/10 text-primary")}>
-              Открытая группа
-            </Badge>
-          )}
           {request.dateFlexibility && request.dateFlexibility !== "exact" && (
             <Badge variant="outline" className={BADGE_CLASS}>
               {request.dateFlexibility === "few_days" ? "±пара дней" : "±неделя"}

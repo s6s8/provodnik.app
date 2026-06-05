@@ -38,6 +38,7 @@ export function mapRequestToTrip(
         ? null
         : { amount: request.budget_minor, currency: "RUB" },
     offerCount: request.offer_count,
+    createdAt: request.created_at,
     interests: request.interests,
     mode: request.mode,
     groupMax: request.group_max,

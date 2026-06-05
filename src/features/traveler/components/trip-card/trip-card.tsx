@@ -33,6 +33,20 @@ function formatDateRange(startsOn: string, endsOn?: string | null) {
   return `${formatDate(startsOn)} – ${formatDate(endsOn)}`;
 }
 
+function formatPublishedAt(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const date = d.toLocaleDateString("ru-RU", {
+    day: "numeric",
+    month: "short",
+  });
+  const time = d.toLocaleTimeString("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+  return `${date}, ${time}`;
+}
+
 function formatPeople(count: number) {
   const mod10 = count % 10;
   const mod100 = count % 100;
@@ -215,6 +229,11 @@ function TripCardContent({
             datesFlexible={trip.datesFlexible}
             groupType={trip.groupType}
           />
+          {trip.createdAt ? (
+            <p className="text-xs text-muted-foreground">
+              Опубликован: {formatPublishedAt(trip.createdAt)}
+            </p>
+          ) : null}
           {phase === "awaiting_decision" ? (
             <OfferCount count={trip.offerCount} />
           ) : null}

@@ -33,5 +33,6 @@ export type TripCardModel = {
   inclusions?: string[];
   price?: { amount: number; currency: string };
   hasReview?: boolean;
+  createdAt?: string;
   reviewRating?: number;
 };
