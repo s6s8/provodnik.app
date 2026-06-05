@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import {
@@ -89,6 +89,11 @@ export function AuthEntryScreen({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
+
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
 
   function handleModeChange(nextMode: AuthFormMode) {
     setMode(nextMode);
@@ -388,7 +393,7 @@ export function AuthEntryScreen({
           <Button
             type="submit"
             className="h-12 w-full rounded-full"
-            disabled={isSubmitting || !hasSupabaseEnv()}
+            disabled={isSubmitting || !hasSupabaseEnv() || !hydrated}
           >
             {isSubmitting ? `${ctaLabel}...` : ctaLabel}
           </Button>
