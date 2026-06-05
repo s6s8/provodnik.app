@@ -175,7 +175,7 @@ export type TravelerRequestRow = {
   group_capacity: number | null;
   start_time: string | null;
   end_time: string | null;
-  date_flexibility: 'exact' | 'few_days' | 'week';
+  date_flexibility: 'exact' | 'few_days';
   date_locked?: boolean;
   time_locked?: boolean;
   count_locked?: boolean;

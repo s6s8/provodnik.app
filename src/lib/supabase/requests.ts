@@ -75,7 +75,7 @@ export const createRequestInputSchema = z
       .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
       .nullable()
       .optional(),
-    date_flexibility: z.enum(['exact', 'few_days', 'week']).default('exact'),
+    date_flexibility: z.enum(['exact', 'few_days']).default('exact'),
     date_locked: z.boolean().optional(),
     time_locked: z.boolean().optional(),
     count_locked: z.boolean().optional(),

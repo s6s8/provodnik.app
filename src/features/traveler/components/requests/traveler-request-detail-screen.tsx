@@ -130,7 +130,7 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             </Badge>
             {request.dateFlexibility && request.dateFlexibility !== "exact" && (
               <Badge variant="outline" className={BADGE_CLASS}>
-                {request.dateFlexibility === "few_days" ? "±пара дней" : "±неделя"}
+                ±пара дней
               </Badge>
             )}
             {record.dateLocked === false && (

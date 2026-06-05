@@ -28,7 +28,7 @@ export const travelerRequestSchema = z
           .max(80, "Не больше 80 символов."),
       ),
     startDate: z.string().min(1, "Укажите дату начала."),
-    dateFlexibility: z.enum(["exact", "few_days", "week"]).default("exact"),
+    dateFlexibility: z.enum(["exact", "few_days"]).default("exact"),
     startTime: z
       .string()
       .regex(timeRegex, "Формат времени: ЧЧ:ММ")
