@@ -1,9 +1,32 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { format } from "date-fns";
+import { ru } from "date-fns/locale";
 
 import { RequestCardFinal } from "@/components/shared/request-card-final";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { todayMoscowISODate } from "@/lib/dates";
 
 const CATEGORY_PILLS = [
   "Все",
@@ -18,8 +41,11 @@ const CATEGORY_PILLS = [
   "Религия и духовность",
 ] as const;
 type CategoryPill = (typeof CATEGORY_PILLS)[number];
+type CategoryFilter = Exclude<CategoryPill, "Все">;
 
-const CATEGORY_INTEREST_SLUGS: Partial<Record<CategoryPill, string>> = {
+const CATEGORY_FILTERS = CATEGORY_PILLS.filter((pill): pill is CategoryFilter => pill !== "Все");
+
+const CATEGORY_INTEREST_SLUGS: Partial<Record<CategoryFilter, string>> = {
   "История и культура": "history_culture",
   Природа: "nature",
   Гастрономия: "food",
@@ -36,10 +62,25 @@ const MONTHS_GENITIVE = [
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
 ] as const;
 
-const MONTHS_NOMINATIVE = [
-  "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-  "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь",
+const WHEN_PRESETS = [
+  { value: "this-week", label: "На этой неделе" },
+  { value: "this-month", label: "В этом месяце" },
+  { value: "next-month", label: "В следующем месяце" },
+  { value: "flexible", label: "Гибкие даты" },
 ] as const;
+type WhenPreset = (typeof WHEN_PRESETS)[number]["value"];
+type ActiveDateRange = { from?: Date; to?: Date };
+
+type Props = {
+  initialData: OpenRequestRecord[] | null;
+};
+
+type FilterControlProps = {
+  label: string;
+  title: string;
+  description: string;
+  children: (close: () => void) => ReactNode;
+};
 
 function deriveCityFromDestination(label: string): string {
   return label.split(",")[0].trim();
@@ -55,10 +96,6 @@ function deriveMonthsFromDateLabel(label: string): number[] {
   return matched;
 }
 
-type Props = {
-  initialData: OpenRequestRecord[] | null;
-};
-
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договоренности";
   return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
@@ -69,22 +106,100 @@ function deriveGuideState(status: OpenRequestRecord["status"]) {
 }
 
 function getSearchText(request: OpenRequestRecord): string {
-  return [
-    request.destinationLabel,
-    request.regionLabel,
-    request.dateRangeLabel,
-    ...request.highlights,
-  ]
+  return request.highlights
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
 }
 
-export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
+function getCurrentMonthIndex(): number {
+  const [, month] = todayMoscowISODate().split("-").map(Number);
+  return Math.max(0, Math.min(11, (month ?? 1) - 1));
+}
+
+function getTargetMonths(preset: WhenPreset): number[] {
+  const currentMonth = getCurrentMonthIndex();
+  if (preset === "next-month") return [(currentMonth + 1) % 12];
+  if (preset === "flexible") return [];
+  return [currentMonth];
+}
+
+function getWhenLabel(preset: WhenPreset): string {
+  return WHEN_PRESETS.find((option) => option.value === preset)?.label ?? "";
+}
+
+function getDateRangeMonths(range: ActiveDateRange): number[] {
+  if (!range.from) return [];
+
+  const fromMonth = range.from.getMonth();
+  const toMonth = range.to?.getMonth() ?? fromMonth;
+  if (fromMonth <= toMonth) {
+    return Array.from({ length: toMonth - fromMonth + 1 }, (_, index) => fromMonth + index);
+  }
+
+  return [
+    ...Array.from({ length: 12 - fromMonth }, (_, index) => fromMonth + index),
+    ...Array.from({ length: toMonth + 1 }, (_, index) => index),
+  ];
+}
+
+function formatDateRangeLabel(range: ActiveDateRange): string {
+  if (!range.from) return "";
+  if (!range.to || range.from.getTime() === range.to.getTime()) {
+    return format(range.from, "d MMMM", { locale: ru });
+  }
+
+  if (range.from.getMonth() === range.to.getMonth()) {
+    return `${format(range.from, "d", { locale: ru })} – ${format(range.to, "d MMMM", { locale: ru })}`;
+  }
+
+  return `${format(range.from, "d MMMM", { locale: ru })} – ${format(range.to, "d MMMM", { locale: ru })}`;
+}
+
+function FilterControl({ label, title, description, children }: FilterControlProps) {
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  const trigger = (
+    <Button type="button" variant="outline" className="w-full cursor-pointer justify-between">
+      <span>{label}</span>
+      <span aria-hidden="true">▾</span>
+    </Button>
+  );
+
+  return (
+    <>
+      <div className="hidden md:block">
+        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+          <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+          <PopoverContent align="start" className="w-[320px] p-0">
+            {children(() => setIsPopoverOpen(false))}
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="md:hidden">
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>{trigger}</SheetTrigger>
+          <SheetContent side="bottom" className="max-h-[85vh] rounded-t-card p-0">
+            <SheetHeader>
+              <SheetTitle>{title}</SheetTitle>
+              <SheetDescription>{description}</SheetDescription>
+            </SheetHeader>
+            <div className="overflow-y-auto px-4 pb-4">{children(() => setIsSheetOpen(false))}</div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
+  );
+}
+
+export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<CategoryPill>("Все");
-  const [activeCity, setActiveCity] = useState<string>("Все");
-  const [activeMonth, setActiveMonth] = useState<number | "all">("all");
+  const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
+  const [activeCity, setActiveCity] = useState<string | null>(null);
+  const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(null);
+  const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(null);
+  const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
 
   const requests = useMemo(() => initialData ?? [], [initialData]);
 
@@ -94,20 +209,27 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       const city = deriveCityFromDestination(r.destinationLabel);
       if (city) set.add(city);
     });
-    return ["Все", ...Array.from(set).sort((a, b) => a.localeCompare(b, "ru"))];
+    return Array.from(set).sort((a, b) => a.localeCompare(b, "ru"));
   }, [requests]);
 
-  const monthOptions = useMemo(() => {
-    const set = new Set<number>();
-    requests.forEach((r) => {
-      deriveMonthsFromDateLabel(r.dateRangeLabel).forEach((m) => set.add(m));
-    });
-    return Array.from(set).sort((a, b) => a - b);
-  }, [requests]);
+  useEffect(() => {
+    if (hasLoadedStoredCity || cityOptions.length === 0) return;
+
+    try {
+      const savedCity = window.localStorage.getItem("requests-polygon-city");
+      if (savedCity && cityOptions.includes(savedCity)) {
+        setActiveCity(savedCity);
+      }
+    } catch {
+      // Best effort only: storage can be unavailable in private or restricted contexts.
+    } finally {
+      setHasLoadedStoredCity(true);
+    }
+  }, [cityOptions, hasLoadedStoredCity]);
 
   const filteredRequests = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const categoryMap: Record<Exclude<CategoryPill, "Все">, string[]> = {
+    const categoryMap: Record<CategoryFilter, string[]> = {
       "История и культура": [
         "история",
         "исторический",
@@ -133,21 +255,71 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
     return requests.filter((request) => {
       const searchText = getSearchText(request);
+      const requestMonths = deriveMonthsFromDateLabel(request.dateRangeLabel);
       const matchesQuery = !normalizedQuery || searchText.includes(normalizedQuery);
       const matchesCategory =
-        category === "Все" ||
-        request.interests?.includes(CATEGORY_INTEREST_SLUGS[category] ?? "") ||
-        categoryMap[category].some((token) => searchText.includes(token));
+        activeCategories.length === 0 ||
+        activeCategories.some((category) => {
+          const slug = CATEGORY_INTEREST_SLUGS[category] ?? "";
+          return request.interests?.includes(slug) || categoryMap[category].some((token) => searchText.includes(token));
+        });
       const matchesCity =
-        activeCity === "Все" ||
+        activeCity == null ||
         deriveCityFromDestination(request.destinationLabel) === activeCity;
-      const matchesMonth =
-        activeMonth === "all" ||
-        deriveMonthsFromDateLabel(request.dateRangeLabel).includes(activeMonth);
+      const matchesWhen = (() => {
+        if (activeWhen) {
+          return activeWhen === "flexible"
+            ? requestMonths.length === 0
+            : getTargetMonths(activeWhen).some((month) => requestMonths.includes(month));
+        }
 
-      return matchesQuery && matchesCategory && matchesCity && matchesMonth;
+        if (activeDateRange) {
+          const rangeMonths = getDateRangeMonths(activeDateRange);
+          return rangeMonths.length === 0 || rangeMonths.some((month) => requestMonths.includes(month));
+        }
+
+        return true;
+      })();
+
+      return matchesQuery && matchesCategory && matchesCity && matchesWhen;
     });
-  }, [category, query, requests, activeCity, activeMonth]);
+  }, [activeCategories, query, requests, activeCity, activeWhen, activeDateRange]);
+
+  const hasActiveDropdownFilter =
+    activeCity != null || activeWhen != null || activeDateRange != null || activeCategories.length > 0;
+
+  function selectCity(city: string): void {
+    setActiveCity(city);
+    try {
+      window.localStorage.setItem("requests-polygon-city", city);
+    } catch {
+      // Best effort only: the selected city still works for the current session.
+    }
+  }
+
+  function clearCity(): void {
+    setActiveCity(null);
+    try {
+      window.localStorage.removeItem("requests-polygon-city");
+    } catch {
+      // Best effort only: no UI fallback needed if storage removal fails.
+    }
+  }
+
+  function toggleCategory(category: CategoryFilter): void {
+    setActiveCategories((current) =>
+      current.includes(category)
+        ? current.filter((item) => item !== category)
+        : [...current, category]
+    );
+  }
+
+  function resetDropdownFilters(): void {
+    clearCity();
+    setActiveWhen(null);
+    setActiveDateRange(null);
+    setActiveCategories([]);
+  }
 
   return (
     <div>
@@ -166,7 +338,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
               type="search"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Направление, дата, тема — присоединяйтесь к группе"
+              placeholder="Ключевые слова: формат, детали, пожелания"
               className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
             />
           </div>
@@ -174,85 +346,179 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       </section>
 
       <section className="bg-surface-low py-8">
-        <div className="mx-auto w-full max-w-page flex flex-col gap-5 px-[clamp(20px,4vw,48px)]">
-          {cityOptions.length > 1 && (
-            <div className="flex flex-col gap-1.5">
-              <p className="px-1 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                Город
-              </p>
-              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
-                {cityOptions.map((city) => (
-                  <button
-                    key={city}
-                    type="button"
-                    onClick={() => setActiveCity(city)}
-                    className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
-                      activeCity === city
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                    }`}
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+        <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-[clamp(20px,4vw,48px)]">
+          <div className="mx-auto grid grid-cols-3 gap-2 md:max-w-[560px] md:gap-3">
+            <FilterControl
+              label="Город"
+              title="Город"
+              description="Найдите город в текущих запросах"
+            >
+              {(close) => (
+                <Command>
+                  <CommandInput placeholder="Куда едете?" />
+                  <CommandList>
+                    <CommandEmpty>Город не найден</CommandEmpty>
+                    <CommandGroup heading="Города">
+                      {cityOptions.map((city) => (
+                        <CommandItem
+                          key={city}
+                          value={city}
+                          data-checked={city === activeCity}
+                          onSelect={() => {
+                            selectCity(city);
+                            close();
+                          }}
+                        >
+                          {city}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              )}
+            </FilterControl>
 
-          {monthOptions.length > 0 && (
-            <div className="flex flex-col gap-1.5">
-              <p className="px-1 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">
-                Месяц
-              </p>
-              <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
-                <button
-                  type="button"
-                  onClick={() => setActiveMonth("all")}
-                  className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
-                    activeMonth === "all"
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                  }`}
-                >
-                  Все
-                </button>
-                {monthOptions.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setActiveMonth(m)}
-                    className={`inline-flex shrink-0 cursor-pointer items-center rounded-full border px-3.5 py-[6px] text-sm font-medium transition-all ${
-                      activeMonth === m
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-outline-variant bg-surface-high text-muted-foreground hover:border-primary hover:bg-primary hover:text-primary-foreground"
-                    }`}
-                  >
-                    {MONTHS_NOMINATIVE[m]}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
+            <FilterControl
+              label="Когда"
+              title="Когда"
+              description="Выберите один временной пресет"
+            >
+              {(close) => (
+                <div className="flex flex-col gap-2 p-1">
+                  {WHEN_PRESETS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      aria-pressed={activeWhen === option.value}
+                      onClick={() => {
+                        setActiveWhen(option.value);
+                        setActiveDateRange(null);
+                        close();
+                      }}
+                      className={`flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                        activeWhen === option.value
+                          ? "bg-primary text-primary-foreground"
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <span>{option.label}</span>
+                      {activeWhen === option.value && <span aria-hidden="true">✓</span>}
+                    </button>
+                  ))}
+                  <div className="my-2 h-px bg-border" />
+                  <div className="px-3 pt-1 text-sm font-medium text-foreground">Точные даты</div>
+                  <Calendar
+                    mode="range"
+                    locale={ru}
+                    selected={
+                      activeDateRange?.from
+                        ? { from: activeDateRange.from, to: activeDateRange.to }
+                        : undefined
+                    }
+                    onSelect={(range) => {
+                      setActiveDateRange(range?.from ? { from: range.from, to: range.to } : null);
+                      setActiveWhen(null);
+                    }}
+                  />
+                  <p className="px-3 pb-2 text-xs leading-[1.5] text-muted-foreground">
+                    Сопоставление по месяцам выбранного периода
+                  </p>
+                </div>
+              )}
+            </FilterControl>
 
-          <div className="flex flex-col gap-1.5">
-            <p className="px-1 text-[0.6875rem] font-medium uppercase tracking-[0.14em] text-muted-foreground">Тематика</p>
-            <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 md:flex-wrap md:overflow-visible">
-              {CATEGORY_PILLS.map((pill) => (
-                <button
-                  key={pill}
-                  type="button"
-                  onClick={() => setCategory(pill)}
-                  className={`rounded-full border px-4 py-2 text-sm font-semibold transition-colors ${
-                    category === pill
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-surface-high text-foreground hover:border-primary"
-                  }`}
-                >
-                  {pill}
-                </button>
-              ))}
-            </div>
+            <FilterControl
+              label={activeCategories.length ? `Тема · ${activeCategories.length}` : "Тема"}
+              title="Тема"
+              description="Можно выбрать несколько тем"
+            >
+              {(close) => (
+                <div className="flex flex-col gap-2 p-1">
+                  {CATEGORY_FILTERS.map((category) => (
+                    <label
+                      key={category}
+                      className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={activeCategories.includes(category)}
+                        onChange={() => toggleCategory(category)}
+                        className="size-4 rounded border-border accent-primary"
+                      />
+                      <span>{category}</span>
+                    </label>
+                  ))}
+                  <Button type="button" variant="outline" size="sm" className="mt-2 cursor-pointer" onClick={close}>
+                    Готово
+                  </Button>
+                </div>
+              )}
+            </FilterControl>
           </div>
+
+          {hasActiveDropdownFilter && (
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {activeCity && (
+                <Badge variant="outline" className="normal-case tracking-normal">
+                  {activeCity}
+                  <button
+                    type="button"
+                    onClick={clearCity}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить город ${activeCity}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+              {activeWhen && (
+                <Badge variant="outline" className="normal-case tracking-normal">
+                  {getWhenLabel(activeWhen)}
+                  <button
+                    type="button"
+                    onClick={() => setActiveWhen(null)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить период ${getWhenLabel(activeWhen)}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+              {activeDateRange && (
+                <Badge variant="outline" className="normal-case tracking-normal">
+                  {formatDateRangeLabel(activeDateRange)}
+                  <button
+                    type="button"
+                    onClick={() => setActiveDateRange(null)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить период ${formatDateRangeLabel(activeDateRange)}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              )}
+              {activeCategories.map((category) => (
+                <Badge key={category} variant="outline" className="normal-case tracking-normal">
+                  {category}
+                  <button
+                    type="button"
+                    onClick={() => toggleCategory(category)}
+                    className="cursor-pointer text-muted-foreground hover:text-foreground"
+                    aria-label={`Очистить тему ${category}`}
+                  >
+                    ✕
+                  </button>
+                </Badge>
+              ))}
+              <button
+                type="button"
+                onClick={resetDropdownFilters}
+                className="cursor-pointer px-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
+              >
+                Сбросить всё
+              </button>
+            </div>
+          )}
         </div>
       </section>
 

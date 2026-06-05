@@ -97,7 +97,7 @@ export function BidFormPanel({
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
-  const dateLocked = request.date_locked ?? true;
+  const dateLocked = request.dateFlexibility === "few_days" ? false : (request.date_locked ?? true);
   const timeLocked = request.time_locked ?? true;
 
   React.useEffect(() => {
