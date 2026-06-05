@@ -168,6 +168,8 @@ describe("BidFormPanel — excursion picker", () => {
         max_participants: null,
         photo_urls: [],
         status: "published",
+        region: null,
+        category: null,
         created_at: "2026-01-01T00:00:00Z",
         updated_at: "2026-01-01T00:00:00Z",
       },

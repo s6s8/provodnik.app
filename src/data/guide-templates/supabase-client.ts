@@ -13,6 +13,8 @@ type CreateGuideTemplateInput = {
   maxParticipants?: number | null;
   photoUrls?: string[];
   status?: "draft" | "published";
+  region?: string | null;
+  category?: string | null;
 };
 
 type UpdateGuideTemplateInput = {
@@ -24,6 +26,8 @@ type UpdateGuideTemplateInput = {
   maxParticipants?: number | null;
   photoUrls?: string[];
   status?: "draft" | "published";
+  region?: string | null;
+  category?: string | null;
 };
 
 function getSupabaseClient() {
@@ -92,6 +96,8 @@ export async function createGuideTemplate(
       max_participants: input.maxParticipants ?? null,
       photo_urls: input.photoUrls ?? [],
       status: input.status ?? "draft",
+      region: input.region ?? null,
+      category: input.category ?? null,
     })
     .select()
     .single();
@@ -123,6 +129,8 @@ export async function updateGuideTemplate(
   if ("maxParticipants" in input) update.max_participants = input.maxParticipants ?? null;
   if ("photoUrls" in input) update.photo_urls = input.photoUrls ?? [];
   if ("status" in input) update.status = input.status ?? "draft";
+  if ("region" in input) update.region = input.region ?? null;
+  if ("category" in input) update.category = input.category ?? null;
 
   const { data, error } = await supabase
     .from("guide_templates")

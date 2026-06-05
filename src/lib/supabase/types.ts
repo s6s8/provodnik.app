@@ -625,6 +625,8 @@ export type GuideTemplateRow = {
   max_participants: number | null;
   photo_urls: string[];
   status: "draft" | "published";
+  region: string | null;
+  category: string | null;
   created_at: string;
   updated_at: string;
 };

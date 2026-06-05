@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/guide", label: "Запросы", Icon: FileText },
-  { href: "/guide/listings", label: "Мои объявления", Icon: ClipboardList },
+  { href: "/guide/excursions", label: "Экскурсии", Icon: ClipboardList },
 ] as const;
 
 export function GuideBottomNav() {

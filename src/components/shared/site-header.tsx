@@ -47,7 +47,7 @@ const travelerNavLinks = [
 
 const guideNavLinks = [
   { href: "/guide", label: "Запросы" },
-  { href: "/guide/listings", label: "Мои объявления" },
+  { href: "/guide/excursions", label: "Мои экскурсии" },
 ] as const;
 
 const publicNavLinks = [
@@ -173,9 +173,6 @@ export function SiteHeader({
                 </DropdownMenuItem>
                 {role === "guide" && (
                   <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/guide/portfolio">Портфолио</Link>
-                    </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href="/guide/calendar">Календарь</Link>
                     </DropdownMenuItem>

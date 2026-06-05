@@ -2,16 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { type ChangeEvent, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
 import { kopecksToRub, rubToKopecks } from "@/data/money";
+import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
 import {
   createGuideTemplate,
   deleteGuideTemplate,
   listGuideTemplates,
-  uploadTemplatePhoto,
   updateGuideTemplate,
 } from "@/data/guide-templates/supabase-client";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -21,10 +22,6 @@ interface GuideExcursionsScreenProps {
   guideId: string;
 }
 
-const MAX_PHOTOS = 10;
-const MAX_FILE_BYTES = 10 * 1024 * 1024;
-const ALLOWED_MIME: readonly string[] = ["image/jpeg", "image/png", "image/webp"];
-const ACCEPT_ATTR = ALLOWED_MIME.join(",");
 const FIELD_CLASS =
   "mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary";
 
@@ -44,11 +41,16 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
   const [tplMeetingPoint, setTplMeetingPoint] = useState("");
   const [tplMaxParticipants, setTplMaxParticipants] = useState("");
   const [tplPhotos, setTplPhotos] = useState<string[]>([]);
-  const [tplPhotoUploading, setTplPhotoUploading] = useState(false);
+  const [portfolioPhotos, setPortfolioPhotos] = useState<
+    Array<{ id: string; location_name: string; photoUrl: string }>
+  >([]);
+  const [tplRegion, setTplRegion] = useState("");
+  const [tplCategory, setTplCategory] = useState("");
   const [tplEditingId, setTplEditingId] = useState<string | null>(null);
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"excursions" | "photos">("excursions");
 
   useEffect(() => {
     let cancelled = false;
@@ -62,6 +64,23 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
 
         const guideId = user.id as Uuid;
         if (!cancelled) setAuthenticatedGuideId(guideId);
+
+        try {
+          const locationPhotos = await listGuideLocationPhotos(guideId);
+          if (cancelled) return;
+          setPortfolioPhotos(
+            locationPhotos.map((photo) => ({
+              id: photo.id,
+              location_name: photo.location_name,
+              photoUrl: supabase.storage
+                .from("guide-portfolio")
+                .getPublicUrl(photo.object_path).data.publicUrl,
+            })),
+          );
+        } catch {
+          if (cancelled) return;
+          setPortfolioPhotos([]);
+        }
 
         const rows = await listGuideTemplates(guideId);
         if (cancelled) return;
@@ -92,6 +111,8 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
     setTplMeetingPoint("");
     setTplMaxParticipants("");
     setTplPhotos([]);
+    setTplRegion("");
+    setTplCategory("");
     setTplEditingId(null);
     setTplError(null);
     setSheetOpen(true);
@@ -113,19 +134,11 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
       template.max_participants != null ? String(template.max_participants) : "",
     );
     setTplPhotos(template.photo_urls ?? []);
+    setTplRegion(template.region ?? "");
+    setTplCategory(template.category ?? "");
     setTplEditingId(template.id);
     setTplError(null);
     setSheetOpen(true);
-  }
-
-  function validateFile(file: File): string | null {
-    if (!ALLOWED_MIME.includes(file.type)) {
-      return "Подходят только JPEG, PNG или WebP.";
-    }
-    if (file.size > MAX_FILE_BYTES) {
-      return "Файл больше 10 МБ. Сожмите его и попробуйте ещё раз.";
-    }
-    return null;
   }
 
   function parsePriceRub(): number | null {
@@ -174,6 +187,8 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
           maxParticipants,
           photoUrls: tplPhotos,
           status: tplStatus,
+          region: tplRegion.trim() || null,
+          category: tplCategory.trim() || null,
         });
         setTemplates((prev) =>
           prev.map((template) => (template.id === updated.id ? updated : template)),
@@ -188,6 +203,8 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
           maxParticipants,
           photoUrls: tplPhotos,
           status: tplStatus,
+          region: tplRegion.trim() || null,
+          category: tplCategory.trim() || null,
         });
         setTemplates((prev) => [...prev, created]);
       }
@@ -212,34 +229,6 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
     }
   }
 
-  async function handleTemplatePhotoUpload(e: ChangeEvent<HTMLInputElement>) {
-    const file = e.currentTarget.files?.[0];
-    if (!file || !authenticatedGuideId) return;
-    if (tplPhotos.length >= MAX_PHOTOS) {
-      setTplError(`Максимум ${MAX_PHOTOS} фото маршрута.`);
-      e.currentTarget.value = "";
-      return;
-    }
-    const validationError = validateFile(file);
-    if (validationError) {
-      setTplError(validationError);
-      e.currentTarget.value = "";
-      return;
-    }
-
-    setTplPhotoUploading(true);
-    setTplError(null);
-    try {
-      const url = await uploadTemplatePhoto({ guideId: authenticatedGuideId, file });
-      setTplPhotos((prev) => [...prev, url]);
-    } catch {
-      setTplError("Не удалось загрузить фото");
-    } finally {
-      setTplPhotoUploading(false);
-      e.currentTarget.value = "";
-    }
-  }
-
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6">
@@ -253,16 +242,45 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
 
       <div className="mb-6 flex items-center justify-between gap-3">
         <h1 className="text-xl font-semibold">Мои экскурсии</h1>
+        {activeTab === "excursions" && (
+          <button
+            type="button"
+            onClick={openCreateSheet}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-high px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            + Добавить экскурсию
+          </button>
+        )}
+      </div>
+
+      <div className="mb-6 flex gap-1 rounded-xl bg-muted p-1">
         <button
           type="button"
-          onClick={openCreateSheet}
-          className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-high px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
+          onClick={() => setActiveTab("excursions")}
+          className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+            activeTab === "excursions"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
         >
-          + Добавить экскурсию
+          Экскурсии
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("photos")}
+          className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
+            activeTab === "photos"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Фото
         </button>
       </div>
 
-      {loading ? (
+      {activeTab === "photos" ? (
+        <GuidePortfolioScreen guideId={authenticatedGuideId ?? ""} />
+      ) : loading ? (
         <div className="space-y-2" aria-busy="true" aria-label="Загрузка экскурсий">
           {Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-16 animate-pulse rounded-xl bg-surface-high" />
@@ -414,44 +432,78 @@ export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScre
               />
             </div>
             <div>
+              <Label htmlFor="tpl-region">Регион</Label>
+              <input
+                id="tpl-region"
+                type="text"
+                value={tplRegion}
+                maxLength={100}
+                onChange={(e) => setTplRegion(e.target.value)}
+                placeholder="Например: Тбилиси, Грузия"
+                className={FIELD_CLASS}
+              />
+            </div>
+            <div>
+              <Label htmlFor="tpl-category">Категория</Label>
+              <input
+                id="tpl-category"
+                type="text"
+                value={tplCategory}
+                maxLength={100}
+                onChange={(e) => setTplCategory(e.target.value)}
+                placeholder="Например: Пешие прогулки"
+                className={FIELD_CLASS}
+              />
+            </div>
+            <div>
               <Label>Фото маршрута</Label>
-              <div className="mt-1.5 flex flex-wrap gap-2">
-                {tplPhotos.map((url, i) => (
-                  <div
-                    key={`${url}-${i}`}
-                    className="relative h-16 w-16 overflow-hidden rounded-lg border border-border"
-                  >
-                    <Image src={url} alt="" fill sizes="64px" className="object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => setTplPhotos((prev) => prev.filter((_, j) => j !== i))}
-                      className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-foreground/60 text-xs text-primary-foreground"
-                      aria-label="Удалить фото маршрута"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ))}
-                {tplPhotos.length < MAX_PHOTOS && (
-                  <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:bg-muted">
-                    {tplPhotoUploading ? (
-                      <span className="text-xs">...</span>
-                    ) : (
-                      <span className="text-xl">+</span>
-                    )}
-                    <input
-                      type="file"
-                      accept={ACCEPT_ATTR}
-                      className="sr-only"
-                      onChange={handleTemplatePhotoUpload}
-                      disabled={tplPhotoUploading}
-                    />
-                  </label>
-                )}
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Фото маршрута. До {MAX_PHOTOS} фото, мин. 1 для публикации.
-              </p>
+              {portfolioPhotos.length === 0 ? (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Добавьте фото во вкладке «Фото», затем вернитесь сюда и выберите нужные.
+                </p>
+              ) : (
+                <div className="mt-1.5 grid grid-cols-4 gap-2">
+                  {portfolioPhotos.map((photo) => {
+                    const selected = tplPhotos.includes(photo.photoUrl);
+                    return (
+                      <button
+                        key={photo.id}
+                        type="button"
+                        onClick={() => {
+                          setTplPhotos((prev) =>
+                            selected
+                              ? prev.filter((url) => url !== photo.photoUrl)
+                              : [...prev, photo.photoUrl],
+                          );
+                        }}
+                        className={`relative h-16 w-full overflow-hidden rounded-lg border-2 transition-colors ${
+                          selected ? "border-primary" : "border-transparent"
+                        }`}
+                        aria-pressed={selected}
+                        aria-label={photo.location_name || "фото"}
+                      >
+                        <Image
+                          src={photo.photoUrl}
+                          alt={photo.location_name || ""}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                        {selected && (
+                          <span className="absolute inset-0 flex items-center justify-center bg-primary/20 text-lg font-bold text-primary">
+                            ✓
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+              {tplPhotos.length > 0 && (
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Выбрано: {tplPhotos.length} фото
+                </p>
+              )}
             </div>
             <div>
               <Label>Статус</Label>

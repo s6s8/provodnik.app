@@ -371,7 +371,7 @@ export function BidFormPanel({
                 <button
                   type="button"
                   disabled={submitted}
-                  onClick={() => setExcursionPickerOpen(true)}
+                  onClick={() => setExcursionPickerOpen((prev) => !prev)}
                   className="inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Выбрать экскурсию ↓
