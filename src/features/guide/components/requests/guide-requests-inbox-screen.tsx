@@ -331,9 +331,6 @@ export function GuideRequestsInboxScreen() {
                             </span>{" "}
                             {item.budgetLabel}
                           </p>
-                          <p className="pt-0.5 text-muted-foreground/70">
-                            Опубликовано: {formatPublishedAt(item.createdAt)}
-                          </p>
                         </div>
 
                         {item.description ? (

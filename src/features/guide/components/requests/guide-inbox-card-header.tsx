@@ -8,6 +8,17 @@ const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
 );
 
 
+function formatPublishedAt(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("ru-RU", {
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export function GuideInboxCardHeader({
   item,
   matched,
@@ -42,7 +53,7 @@ export function GuideInboxCardHeader({
           </span>
         </p>
       </div>
-      <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 pt-0.5">
+      <div className="flex shrink-0 flex-col items-end gap-1.5 pt-0.5">
         {item.interests.length > 0 ? (
           <span
             className={
@@ -54,6 +65,9 @@ export function GuideInboxCardHeader({
             {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
           </span>
         ) : null}
+        <span className="text-[10px] text-muted-foreground/60">
+          Опубликовано {formatPublishedAt(item.createdAt)}
+        </span>
       </div>
     </div>
   );
