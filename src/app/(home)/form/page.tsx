@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { getActiveGuideDestinations, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
-import { HomePageShell2 } from "@/features/homepage/components/homepage-shell2";
+import { HomePageShell2Classic } from "@/features/homepage/components/homepage-shell2-classic";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default async function HomePage() {
     <>
       <SiteHeaderServer />
       <main className="pt-nav-h">
-        <HomePageShell2 destinations={destinations} requests={requests} />
+        <HomePageShell2Classic destinations={destinations} requests={requests} />
       </main>
     </>
   );
