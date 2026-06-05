@@ -5,6 +5,7 @@ const hasSentryAuthToken = Boolean(process.env.SENTRY_AUTH_TOKEN);
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  allowedDevOrigins: ["dev.provodnik.app"],
   images: {
     remotePatterns: [
       {
