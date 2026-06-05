@@ -193,7 +193,7 @@ function FilterControl({ label, title, description, children }: FilterControlPro
   );
 }
 
-export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
+export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const [query, setQuery] = useState("");
   const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
   const [activeCity, setActiveCity] = useState<string | null>(null);
@@ -216,7 +216,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
     if (hasLoadedStoredCity || cityOptions.length === 0) return;
 
     try {
-      const savedCity = window.localStorage.getItem("requests-polygon-city");
+      const savedCity = window.localStorage.getItem("requests-city");
       if (savedCity && cityOptions.includes(savedCity)) {
         setActiveCity(savedCity);
       }
@@ -291,7 +291,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
   function selectCity(city: string): void {
     setActiveCity(city);
     try {
-      window.localStorage.setItem("requests-polygon-city", city);
+      window.localStorage.setItem("requests-city", city);
     } catch {
       // Best effort only: the selected city still works for the current session.
     }
@@ -300,7 +300,7 @@ export function PublicRequestsMarketplacePolygonScreen({ initialData }: Props) {
   function clearCity(): void {
     setActiveCity(null);
     try {
-      window.localStorage.removeItem("requests-polygon-city");
+      window.localStorage.removeItem("requests-city");
     } catch {
       // Best effort only: no UI fallback needed if storage removal fails.
     }
