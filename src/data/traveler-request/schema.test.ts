@@ -57,7 +57,7 @@ describe("travelerRequestSchema", () => {
     expect(parsed.budgetPerPersonRub).toBeUndefined();
   });
 
-  it("requires groupMax, not current size, for assembly requests", () => {
+  it("accepts assembly requests without groupMax (form does not collect it)", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "assembly",
       interests: ["history_culture"],
@@ -69,13 +69,6 @@ describe("travelerRequestSchema", () => {
       notes: "",
     });
 
-    expect(result.success).toBe(false);
-    if (result.success) {
-      throw new Error("Expected schema validation to fail");
-    }
-
-    expect(result.error.flatten().fieldErrors.groupMax).toContain(
-      "Укажите максимальный размер группы.",
-    );
+    expect(result.success).toBe(true);
   });
 });

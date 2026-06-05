@@ -102,6 +102,17 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             <Wallet className="size-3.5" />
             {budgetLabel}
           </Badge>
+          <Badge
+            variant="outline"
+            className={cn(
+              BADGE_CLASS,
+              request.mode === "assembly"
+                ? "border-primary/30 bg-primary/10 text-primary"
+                : "border-border text-ink-2",
+            )}
+          >
+            {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+          </Badge>
           {request.openToJoin && (
             <Badge variant="outline" className={cn(BADGE_CLASS, "border-primary/30 bg-primary/10 text-primary")}>
               Открытая группа

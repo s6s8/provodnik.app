@@ -22,11 +22,6 @@ export function mapRequestToPhase(
 export function mapRequestToTrip(
   request: TravelerRequestSummary,
 ): TripCardModel {
-  const requestWithFlexFlags = request as TravelerRequestSummary & {
-    open_to_join?: boolean | null;
-    date_locked?: boolean | null;
-  };
-
   const trip: TripCardModel & {
     interests: string[];
     mode: TravelerRequestSummary["mode"];
@@ -47,8 +42,10 @@ export function mapRequestToTrip(
     mode: request.mode,
     groupMax: request.group_max,
     isOwnRequest: true,
-    openToJoin: requestWithFlexFlags.open_to_join ?? false,
-    datesFlexible: requestWithFlexFlags.date_locked === false,
+    openToJoin: request.open_to_join ?? false,
+    datesFlexible:
+      request.date_flexibility != null && request.date_flexibility !== "exact",
+    groupType: request.mode,
     guideName: null,
     guideAvatarUrl: null,
     organizerName: null,

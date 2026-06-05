@@ -86,16 +86,6 @@ export const travelerRequestSchema = z
       });
     }
 
-    if (value.mode === "assembly") {
-      if (!value.groupMax) {
-        ctx.addIssue({
-          code: "custom",
-          path: ["groupMax"],
-          message: "Укажите максимальный размер группы.",
-        });
-      }
-    }
-
     if (value.mode === "private") {
       if (!value.groupSize) {
         ctx.addIssue({

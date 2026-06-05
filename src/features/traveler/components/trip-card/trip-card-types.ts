@@ -17,8 +17,10 @@ export type TripCardModel = {
   isOwnRequest: boolean;
   /** «Открыт к увеличению группы» — render «+ к группе» pill */
   openToJoin?: boolean;
-  /** dates flexible (date_locked === false) — render «± даты» pill */
+  /** traveler selected flexible dates — render «± даты» pill */
   datesFlexible?: boolean;
+  /** group format: 'assembly' = сборная группа, 'private' = своя группа */
+  groupType?: "assembly" | "private";
   guideName: string | null;
   guideAvatarUrl: string | null;
   organizerName: string | null;

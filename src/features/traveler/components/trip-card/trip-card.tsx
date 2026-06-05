@@ -112,14 +112,27 @@ function shouldShowMeetingPoint(phase: TripPhase, startsOn: string): boolean {
 function FlexPills({
   openToJoin,
   datesFlexible,
+  groupType,
 }: {
   openToJoin?: boolean;
   datesFlexible?: boolean;
+  groupType?: "assembly" | "private";
 }) {
-  if (!openToJoin && !datesFlexible) return null;
+  if (!openToJoin && !datesFlexible && !groupType) return null;
 
   return (
     <div className="flex flex-wrap gap-1.5">
+      {groupType ? (
+        <span
+          className={
+            groupType === "assembly"
+              ? "rounded-full border border-primary/40 px-2 py-0.5 text-xs font-medium text-primary"
+              : "rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2"
+          }
+        >
+          {groupType === "assembly" ? "Сборная группа" : "Своя группа"}
+        </span>
+      ) : null}
       {openToJoin ? (
         <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
           + к группе
@@ -200,6 +213,7 @@ function TripCardContent({
           <FlexPills
             openToJoin={trip.openToJoin}
             datesFlexible={trip.datesFlexible}
+            groupType={trip.groupType}
           />
           {phase === "awaiting_decision" ? (
             <OfferCount count={trip.offerCount} />
@@ -209,6 +223,7 @@ function TripCardContent({
         <FlexPills
           openToJoin={trip.openToJoin}
           datesFlexible={trip.datesFlexible}
+          groupType={trip.groupType}
         />
       )}
       {!trip.isOwnRequest && trip.organizerName && (
