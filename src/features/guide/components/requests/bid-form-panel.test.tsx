@@ -2,8 +2,10 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { RequestRecord } from "@/data/supabase/queries";
+import type { GuideTemplateRow } from "@/lib/supabase/types";
 
-const { submitOfferAction, verificationStatus } = vi.hoisted(() => ({
+const { guideTemplates, submitOfferAction, verificationStatus } = vi.hoisted(() => ({
+  guideTemplates: { value: [] as GuideTemplateRow[] },
   submitOfferAction: vi.fn(),
   verificationStatus: { value: "approved" as string | null },
 }));
@@ -34,13 +36,14 @@ vi.mock("@/data/guide-assets/supabase-client", () => ({
 }));
 
 vi.mock("@/data/guide-templates/supabase-client", () => ({
-  listGuideTemplates: async () => [],
+  listGuideTemplates: async () => guideTemplates.value,
 }));
 
 import { BidFormPanel } from "./bid-form-panel";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  guideTemplates.value = [];
   verificationStatus.value = "approved";
   submitOfferAction.mockResolvedValue({ ok: true, offerId: "offer-1" });
 });
@@ -148,6 +151,53 @@ describe("BidFormPanel — headcount field", () => {
     });
 
     expect(screen.queryByText(/предложено/i)).toBeNull();
+  });
+});
+
+describe("BidFormPanel — excursion picker", () => {
+  it("selects a published excursion inline without changing request price defaults", async () => {
+    guideTemplates.value = [
+      {
+        id: "template-1",
+        guide_id: "guide-1",
+        title: "Морской променад",
+        description: "Покажу любимый маршрут вдоль моря и старых дач.",
+        duration_text: "2 часа",
+        price_from_kopecks: 990_000,
+        meeting_point: null,
+        max_participants: null,
+        photo_urls: [],
+        status: "published",
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
+      },
+    ];
+
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, budgetRub: 1500, groupSize: 2 }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(await screen.findByRole("button", { name: "Выбрать экскурсию ↓" })).toBeInTheDocument();
+    expect(screen.queryByText("Из шаблона ↑")).toBeNull();
+
+    expect(screen.getByPlaceholderText("За группу, ₽")).toHaveValue(3000);
+    expect(screen.getByPlaceholderText("На человека, ₽")).toHaveValue(1500);
+
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать экскурсию ↓" }));
+    fireEvent.click(screen.getByRole("button", { name: /Морской променад/ }));
+
+    expect(screen.getByLabelText("Сообщение гостю")).toHaveValue(
+      "Покажу любимый маршрут вдоль моря и старых дач.",
+    );
+    expect(screen.getByText("Морской променад")).toBeInTheDocument();
+    expect(screen.getByText("2 часа")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "× изменить" })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("За группу, ₽")).toHaveValue(3000);
+    expect(screen.getByPlaceholderText("На человека, ₽")).toHaveValue(1500);
   });
 });
 

@@ -104,7 +104,7 @@ export type RequestRecord = {
   offerCount: number;
   imageUrl: string;
   members: RequestMember[];
-  dateFlexibility?: 'exact' | 'few_days' | 'week';
+  dateFlexibility?: 'exact' | 'few_days';
 };
 
 export type OfferRecord = {
@@ -397,7 +397,7 @@ export function mapRequestRow(
     offerCount: 0,
     imageUrl,
     members: [],
-    dateFlexibility: (row.date_flexibility as 'exact' | 'few_days' | 'week') ?? 'exact',
+    dateFlexibility: (row.date_flexibility as 'exact' | 'few_days') ?? 'exact',
   };
 }
 
