@@ -46,17 +46,19 @@ function WireframeSection({
   id,
   title,
   children,
+  contentClassName = "mx-auto w-full max-w-sm",
 }: {
   id: string;
   title: string;
   children: React.ReactNode;
+  contentClassName?: string;
 }) {
   return (
     <section aria-labelledby={id} className="space-y-4">
       <h2 id={id} className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         {title}
       </h2>
-      <div className="mx-auto w-full max-w-sm">{children}</div>
+      <div className={contentClassName}>{children}</div>
     </section>
   );
 }
@@ -241,6 +243,96 @@ function TemplatePickerScreen() {
   );
 }
 
+function BidResponseCard({ className = "" }: { className?: string }) {
+  return (
+    <div className={`rounded-card bg-surface-high p-4 shadow-card ${className}`}>
+      <h3 className="text-lg font-semibold text-foreground">Ваш отклик</h3>
+      <Textarea className="mt-4 bg-muted" placeholder="Опишите маршрут…" readOnly />
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+        <Button variant="outline" size="sm">
+          Из шаблона ↑
+        </Button>
+        <Button size="sm">Отправить отклик</Button>
+      </div>
+    </div>
+  );
+}
+
+function TemplatePickerRows() {
+  return (
+    <div className="space-y-2">
+      {routeTemplates.map((template) => (
+        <button
+          key={template.title}
+          className="flex w-full items-center gap-3 rounded-[1.2rem] border border-border bg-card p-2 text-left transition-colors hover:bg-muted"
+          type="button"
+        >
+          <span className="size-14 shrink-0 rounded-md bg-muted" />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-sm font-semibold text-foreground">{template.title}</span>
+            <span className="mt-1 block text-xs text-muted-foreground">{template.duration}</span>
+          </span>
+          <ChevronRight className="text-muted-foreground" aria-hidden="true" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function TemplatePickerCard({ className = "" }: { className?: string }) {
+  return (
+    <div className={`rounded-card border border-border bg-surface-high p-4 shadow-card ${className}`}>
+      <div className="flex items-center justify-between gap-3">
+        <h3 className="text-lg font-semibold text-foreground">Добавить в отклик</h3>
+        <Button variant="ghost" size="icon-sm" aria-label="Закрыть picker">
+          <XIcon aria-hidden="true" />
+        </Button>
+      </div>
+      <div className="mt-4">
+        <TemplatePickerRows />
+      </div>
+    </div>
+  );
+}
+
+function PickerComparisonScreen() {
+  return (
+    <div className="grid gap-4 md:grid-cols-2">
+      <div className="space-y-3 rounded-card border border-border bg-card p-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Вариант A — блок снизу</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Скролл вниз для выбора шаблона</p>
+        </div>
+        <BidResponseCard />
+        <p className="text-center text-xs text-muted-foreground">↓ Пикер появляется ниже, нужно скроллить</p>
+        <TemplatePickerCard />
+      </div>
+
+      <div className="space-y-3 rounded-card border border-border bg-card p-4">
+        <div>
+          <h3 className="text-base font-semibold text-foreground">Вариант B — шит поверх</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Шит всплывает поверх формы, не требует скролла</p>
+        </div>
+        <div className="relative h-[420px] overflow-hidden rounded-card bg-muted/40">
+          <BidResponseCard className="pointer-events-none opacity-40" />
+          <div className="absolute inset-x-0 bottom-0 h-[280px] rounded-t-[1.5rem] bg-surface-high p-4 shadow-xl">
+            <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-muted-foreground/30" />
+            <div className="flex items-center justify-between gap-3">
+              <h3 className="text-lg font-semibold text-foreground">Добавить в отклик</h3>
+              <Button variant="ghost" size="icon-sm" aria-label="Закрыть picker">
+                <XIcon aria-hidden="true" />
+              </Button>
+            </div>
+            <div className="mt-4">
+              <TemplatePickerRows />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PhotoPickerPreview() {
   return (
     <div className="space-y-3">
@@ -286,6 +378,14 @@ export default function GuideTemplatesWireframePage() {
 
         <WireframeSection id="screen-bid-picker" title="Экран 3: Picker в отклике">
           <TemplatePickerScreen />
+        </WireframeSection>
+
+        <WireframeSection
+          id="screen-bid-picker-comparison"
+          title="Экран 3: Сравнение вариантов"
+          contentClassName="w-full"
+        >
+          <PickerComparisonScreen />
         </WireframeSection>
       </div>
     </main>
