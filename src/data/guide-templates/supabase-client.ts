@@ -9,7 +9,10 @@ type CreateGuideTemplateInput = {
   description?: string | null;
   durationText?: string | null;
   priceFromRub?: number | null;
-  isVisible?: boolean;
+  meetingPoint?: string | null;
+  maxParticipants?: number | null;
+  photoUrls?: string[];
+  status?: "draft" | "published";
 };
 
 type UpdateGuideTemplateInput = {
@@ -17,11 +20,32 @@ type UpdateGuideTemplateInput = {
   description?: string | null;
   durationText?: string | null;
   priceFromRub?: number | null;
-  isVisible?: boolean;
+  meetingPoint?: string | null;
+  maxParticipants?: number | null;
+  photoUrls?: string[];
+  status?: "draft" | "published";
 };
 
 function getSupabaseClient() {
   return createSupabaseBrowserClient();
+}
+
+export async function uploadTemplatePhoto(input: {
+  guideId: Uuid;
+  file: File;
+}): Promise<string> {
+  const supabase = getSupabaseClient();
+  const safeName = input.file.name.replace(/[^a-z0-9.]/gi, "-");
+  const objectPath = `${input.guideId}/templates/${Date.now()}-${safeName}`;
+  const { error } = await supabase.storage
+    .from("guide-portfolio")
+    .upload(objectPath, input.file, { upsert: false });
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return supabase.storage.from("guide-portfolio").getPublicUrl(objectPath).data.publicUrl;
 }
 
 export async function listGuideTemplates(guideId: Uuid): Promise<GuideTemplateRow[]> {
@@ -30,7 +54,6 @@ export async function listGuideTemplates(guideId: Uuid): Promise<GuideTemplateRo
     .from("guide_templates")
     .select("*")
     .eq("guide_id", guideId)
-    .order("sort_order", { ascending: true })
     .order("created_at", { ascending: true });
 
   if (error) {
@@ -65,7 +88,10 @@ export async function createGuideTemplate(
       duration_text: input.durationText ?? null,
       price_from_kopecks:
         input.priceFromRub == null ? null : rubToKopecks(input.priceFromRub),
-      is_visible: input.isVisible ?? true,
+      meeting_point: input.meetingPoint ?? null,
+      max_participants: input.maxParticipants ?? null,
+      photo_urls: input.photoUrls ?? [],
+      status: input.status ?? "draft",
     })
     .select()
     .single();
@@ -93,7 +119,10 @@ export async function updateGuideTemplate(
     update.price_from_kopecks =
       input.priceFromRub == null ? null : rubToKopecks(input.priceFromRub);
   }
-  if ("isVisible" in input) update.is_visible = input.isVisible;
+  if ("meetingPoint" in input) update.meeting_point = input.meetingPoint ?? null;
+  if ("maxParticipants" in input) update.max_participants = input.maxParticipants ?? null;
+  if ("photoUrls" in input) update.photo_urls = input.photoUrls ?? [];
+  if ("status" in input) update.status = input.status ?? "draft";
 
   const { data, error } = await supabase
     .from("guide_templates")
@@ -116,4 +145,20 @@ export async function deleteGuideTemplate(id: Uuid): Promise<void> {
   if (error) {
     throw new Error(error.message);
   }
+}
+
+export async function deleteTemplatePhoto(input: {
+  guideId: Uuid;
+  photoUrl: string;
+  templateId: Uuid;
+  currentPhotoUrls: string[];
+}): Promise<GuideTemplateRow> {
+  const supabase = getSupabaseClient();
+  const baseUrl = supabase.storage.from("guide-portfolio").getPublicUrl("").data.publicUrl;
+  const objectPath = input.photoUrl.replace(baseUrl, "");
+
+  await supabase.storage.from("guide-portfolio").remove([objectPath]).catch(() => undefined);
+
+  const newUrls = input.currentPhotoUrls.filter((url) => url !== input.photoUrl);
+  return updateGuideTemplate(input.templateId, { photoUrls: newUrls });
 }

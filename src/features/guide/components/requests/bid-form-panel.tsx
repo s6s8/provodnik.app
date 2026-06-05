@@ -8,13 +8,16 @@ import { z } from "zod";
 import { Lock, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { INTEREST_CHIPS } from "@/data/interests";
+import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
 import type { SubmitOfferResult } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions-types";
 import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
+import { listGuideTemplates } from "@/data/guide-templates/supabase-client";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { Uuid } from "@/lib/supabase/types";
+import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
 
@@ -92,6 +95,8 @@ export function BidFormPanel({
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const [guidePhotos, setGuidePhotos] = React.useState<Array<{ id: string; location_name: string; photoUrl: string }>>([]);
+  const [guideTemplates, setGuideTemplates] = React.useState<GuideTemplateRow[]>([]);
+  const [templatePickerOpen, setTemplatePickerOpen] = React.useState(false);
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
   const [guideVerificationStatus, setGuideVerificationStatus] = React.useState<string | null>(null);
 
@@ -101,6 +106,8 @@ export function BidFormPanel({
   const timeLocked = request.time_locked ?? true;
 
   React.useEffect(() => {
+    let cancelled = false;
+
     async function load() {
       const supabase = createSupabaseBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -110,17 +117,27 @@ export function BidFormPanel({
         .select("verification_status")
         .eq("user_id", user.id)
         .maybeSingle();
+      if (cancelled) return;
       setGuideVerificationStatus(
         typeof profile?.verification_status === "string" ? profile.verification_status : null,
       );
-      const photos = await listGuideLocationPhotos(user.id as Uuid);
+      const [photos, templates] = await Promise.all([
+        listGuideLocationPhotos(user.id as Uuid),
+        listGuideTemplates(user.id as Uuid),
+      ]);
+      if (cancelled) return;
       setGuidePhotos(photos.map((p) => ({
         id: p.id,
         location_name: p.location_name,
         photoUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data.publicUrl,
       })));
+      setGuideTemplates(templates.filter((template) => template.status === "published"));
     }
     void load();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const {
@@ -509,6 +526,15 @@ export function BidFormPanel({
               disabled={submitted}
               {...register("message")}
             />
+            {guideTemplates.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setTemplatePickerOpen(true)}
+                className="mt-1 inline-flex items-center gap-1 rounded-lg border border-border bg-surface-high px-2.5 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                Из шаблона ↑
+              </button>
+            )}
             {errors.message ? <p className="text-xs text-destructive">{errors.message.message}</p> : null}
           </div>
 
@@ -556,6 +582,50 @@ export function BidFormPanel({
           </Button>
         </form>
       </div>
+
+      <Sheet open={templatePickerOpen} onOpenChange={setTemplatePickerOpen}>
+        <SheetContent side="right" className="z-[130] w-full max-w-xs">
+          <SheetHeader>
+            <SheetTitle>Добавить в отклик</SheetTitle>
+          </SheetHeader>
+          <div className="mt-4 space-y-2 px-4">
+            {guideTemplates.map((template) => (
+              <button
+                key={template.id}
+                type="button"
+                onClick={() => {
+                  setValue("message", template.description ?? template.title);
+                  if (template.price_from_kopecks != null) {
+                    const pricePerPerson = kopecksToRub(template.price_from_kopecks);
+                    setValue("price_per_person", pricePerPerson, { shouldValidate: false });
+                    setValue("price_total", pricePerPerson * travelerCount, {
+                      shouldValidate: true,
+                    });
+                  }
+                  setTemplatePickerOpen(false);
+                }}
+                className="flex w-full items-start gap-3 rounded-xl border border-border bg-surface-high px-3 py-2.5 text-left transition-colors hover:bg-muted"
+              >
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-medium text-foreground">
+                    {template.title}
+                  </span>
+                  {template.duration_text && (
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {template.duration_text}
+                    </span>
+                  )}
+                  {template.price_from_kopecks != null && (
+                    <span className="mt-0.5 block text-xs text-muted-foreground">
+                      {kopecksToRub(template.price_from_kopecks).toLocaleString("ru-RU")} ₽/чел.
+                    </span>
+                  )}
+                </span>
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }

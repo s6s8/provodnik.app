@@ -621,8 +621,10 @@ export type GuideTemplateRow = {
   description: string | null;
   duration_text: string | null;
   price_from_kopecks: number | null;
-  is_visible: boolean;
-  sort_order: number;
+  meeting_point: string | null;
+  max_participants: number | null;
+  photo_urls: string[];
+  status: "draft" | "published";
   created_at: string;
   updated_at: string;
 };

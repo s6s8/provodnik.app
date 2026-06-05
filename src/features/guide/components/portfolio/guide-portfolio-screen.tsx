@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { type ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -18,6 +18,7 @@ import {
   createGuideTemplate,
   deleteGuideTemplate,
   listGuideTemplates,
+  uploadTemplatePhoto,
   updateGuideTemplate,
 } from "@/data/guide-templates/supabase-client";
 import type { GuideLocationPhotoRow, GuideTemplateRow, Uuid } from "@/lib/supabase/types";
@@ -33,6 +34,8 @@ const MAX_PHOTOS = 30;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_MIME: readonly string[] = ["image/jpeg", "image/png", "image/webp"];
 const ACCEPT_ATTR = ALLOWED_MIME.join(",");
+const TEMPLATE_FIELD_CLASS =
+  "mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary";
 
 function buildPublicUrl(
   supabase: ReturnType<typeof createSupabaseBrowserClient>,
@@ -60,7 +63,12 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
   const [tplDescription, setTplDescription] = useState("");
   const [tplDuration, setTplDuration] = useState("");
   const [tplPriceRub, setTplPriceRub] = useState("");
-  const [tplIsVisible, setTplIsVisible] = useState(true);
+  const [tplStatus, setTplStatus] = useState<"draft" | "published">("draft");
+  const [tplMeetingPoint, setTplMeetingPoint] = useState("");
+  const [tplMaxParticipants, setTplMaxParticipants] = useState("");
+  const [tplPhotos, setTplPhotos] = useState<string[]>([]);
+  const [tplPhotoUploading, setTplPhotoUploading] = useState(false);
+  const [tplEditingId, setTplEditingId] = useState<string | null>(null);
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
@@ -111,7 +119,11 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
     setTplDescription("");
     setTplDuration("");
     setTplPriceRub("");
-    setTplIsVisible(true);
+    setTplStatus("draft");
+    setTplMeetingPoint("");
+    setTplMaxParticipants("");
+    setTplPhotos([]);
+    setTplEditingId(null);
     setTplError(null);
     setSheetOpen(true);
   }
@@ -126,7 +138,13 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
         ? String(kopecksToRub(template.price_from_kopecks))
         : "",
     );
-    setTplIsVisible(template.is_visible);
+    setTplStatus(template.status);
+    setTplMeetingPoint(template.meeting_point ?? "");
+    setTplMaxParticipants(
+      template.max_participants != null ? String(template.max_participants) : "",
+    );
+    setTplPhotos(template.photo_urls ?? []);
+    setTplEditingId(template.id);
     setTplError(null);
     setSheetOpen(true);
   }
@@ -142,6 +160,18 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
       setTplError("Укажите корректную цену.");
       return;
     }
+    const maxParticipants = tplMaxParticipants.trim() ? Number(tplMaxParticipants) : null;
+    if (
+      maxParticipants != null &&
+      (!Number.isInteger(maxParticipants) || maxParticipants < 1 || maxParticipants > 500)
+    ) {
+      setTplError("Укажите корректное число участников.");
+      return;
+    }
+    if (tplStatus === "published" && tplPhotos.length === 0) {
+      setTplError("Добавьте минимум одно фото для публикации.");
+      return;
+    }
 
     setTplSaving(true);
     setTplError(null);
@@ -152,7 +182,10 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
           description: tplDescription.trim() || null,
           durationText: tplDuration.trim() || null,
           priceFromRub,
-          isVisible: tplIsVisible,
+          meetingPoint: tplMeetingPoint.trim() || null,
+          maxParticipants,
+          photoUrls: tplPhotos,
+          status: tplStatus,
         });
         setTemplates((prev) =>
           prev.map((template) => (template.id === updated.id ? updated : template)),
@@ -163,7 +196,10 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
           description: tplDescription.trim() || null,
           durationText: tplDuration.trim() || null,
           priceFromRub,
-          isVisible: tplIsVisible,
+          meetingPoint: tplMeetingPoint.trim() || null,
+          maxParticipants,
+          photoUrls: tplPhotos,
+          status: tplStatus,
         });
         setTemplates((prev) => [...prev, created]);
       }
@@ -185,6 +221,29 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
       window.alert(err instanceof Error ? err.message : "Не удалось удалить шаблон.");
     } finally {
       setDeletingTemplateId(null);
+    }
+  }
+
+  async function handleTemplatePhotoUpload(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.currentTarget.files?.[0];
+    if (!file || !authenticatedGuideId) return;
+    const validationError = validateFile(file);
+    if (validationError) {
+      setTplError(validationError);
+      e.currentTarget.value = "";
+      return;
+    }
+
+    setTplPhotoUploading(true);
+    setTplError(null);
+    try {
+      const url = await uploadTemplatePhoto({ guideId: authenticatedGuideId, file });
+      setTplPhotos((prev) => [...prev, url]);
+    } catch {
+      setTplError("Не удалось загрузить фото");
+    } finally {
+      setTplPhotoUploading(false);
+      e.currentTarget.value = "";
     }
   }
 
@@ -427,21 +486,37 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
                   className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-high px-4 py-3"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-foreground">
-                      {template.title}
-                    </p>
+                    <div className="flex items-center gap-1.5">
+                      <span className="truncate text-sm font-medium text-foreground">
+                        {template.title}
+                      </span>
+                      <span
+                        className={`shrink-0 rounded-full px-1.5 py-0.5 text-[0.65rem] font-medium ${
+                          template.status === "published"
+                            ? "bg-green-100 text-green-700"
+                            : "bg-muted text-muted-foreground"
+                        }`}
+                      >
+                        {template.status === "published" ? "Опубл." : "Черновик"}
+                      </span>
+                      {template.photo_urls.length > 0 && (
+                        <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[0.65rem] font-medium text-muted-foreground">
+                          {template.photo_urls.length} фото
+                        </span>
+                      )}
+                    </div>
                     {template.duration_text && (
                       <p className="mt-0.5 text-xs text-muted-foreground">
                         {template.duration_text}
                       </p>
                     )}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    {!template.is_visible && (
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-[0.7rem] text-muted-foreground">
-                        Скрыт
+                    {template.meeting_point && (
+                      <span className="block text-xs text-muted-foreground">
+                        {template.meeting_point}
                       </span>
                     )}
+                  </div>
+                  <div className="flex shrink-0 items-center gap-1">
                     <button
                       type="button"
                       onClick={() => openEditSheet(template)}
@@ -468,7 +543,7 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full max-w-md">
           <SheetHeader>
-            <SheetTitle>{editingTemplate ? "Изменить шаблон" : "Новый шаблон"}</SheetTitle>
+            <SheetTitle>{tplEditingId ? "Изменить шаблон" : "Новый шаблон"}</SheetTitle>
           </SheetHeader>
           <div className="mt-5 space-y-4 px-4">
             <div>
@@ -482,7 +557,7 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
                 maxLength={120}
                 onChange={(e) => setTplTitle(e.target.value)}
                 placeholder="Например: Тбилиси за один день"
-                className="mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary"
+                className={TEMPLATE_FIELD_CLASS}
               />
             </div>
             <div>
@@ -505,7 +580,7 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
                 maxLength={60}
                 onChange={(e) => setTplDuration(e.target.value)}
                 placeholder="Например: 6 часов"
-                className="mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary"
+                className={TEMPLATE_FIELD_CLASS}
               />
             </div>
             <div>
@@ -517,20 +592,100 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
                 min={0}
                 onChange={(e) => setTplPriceRub(e.target.value)}
                 placeholder="Оставьте пустым — обсудите в чате"
-                className="mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary"
+                className={TEMPLATE_FIELD_CLASS}
               />
             </div>
-            <div className="flex items-center justify-between rounded-xl border border-border bg-surface-high px-4 py-3">
-              <Label htmlFor="tpl-visible" className="cursor-pointer text-sm font-medium">
-                Показывать в каталоге
-              </Label>
+            <div>
+              <Label htmlFor="tpl-meeting-point">Место сбора</Label>
               <input
-                id="tpl-visible"
-                type="checkbox"
-                checked={tplIsVisible}
-                onChange={(e) => setTplIsVisible(e.target.checked)}
-                className="size-4 accent-primary"
+                id="tpl-meeting-point"
+                type="text"
+                value={tplMeetingPoint}
+                maxLength={200}
+                onChange={(e) => setTplMeetingPoint(e.target.value)}
+                placeholder="Например: метро Арбатская, выход 2"
+                className={TEMPLATE_FIELD_CLASS}
               />
+            </div>
+            <div>
+              <Label htmlFor="tpl-max-participants">Макс. участников</Label>
+              <input
+                id="tpl-max-participants"
+                type="number"
+                min={1}
+                max={500}
+                value={tplMaxParticipants}
+                onChange={(e) => setTplMaxParticipants(e.target.value)}
+                placeholder="10"
+                className={TEMPLATE_FIELD_CLASS}
+              />
+            </div>
+            <div>
+              <Label>Фото маршрута</Label>
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {tplPhotos.map((url, i) => (
+                  <div
+                    key={`${url}-${i}`}
+                    className="relative h-16 w-16 overflow-hidden rounded-lg border border-border"
+                  >
+                    <Image src={url} alt="" fill sizes="64px" className="object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setTplPhotos((prev) => prev.filter((_, j) => j !== i))}
+                      className="absolute right-0.5 top-0.5 flex size-5 items-center justify-center rounded-full bg-black/60 text-xs text-white"
+                      aria-label="Удалить фото маршрута"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                {tplPhotos.length < 10 && (
+                  <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-lg border border-dashed border-border text-muted-foreground hover:bg-muted">
+                    {tplPhotoUploading ? (
+                      <span className="text-xs">...</span>
+                    ) : (
+                      <span className="text-xl">+</span>
+                    )}
+                    <input
+                      type="file"
+                      accept={ACCEPT_ATTR}
+                      className="sr-only"
+                      onChange={handleTemplatePhotoUpload}
+                      disabled={tplPhotoUploading}
+                    />
+                  </label>
+                )}
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Фото маршрута (не из профиля). Мин. 1 для публикации.
+              </p>
+            </div>
+            <div>
+              <Label>Статус</Label>
+              <div className="mt-1.5 flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTplStatus("draft")}
+                  className={`rounded-lg border px-3 py-1.5 text-sm ${
+                    tplStatus === "draft"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  Черновик
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTplStatus("published")}
+                  className={`rounded-lg border px-3 py-1.5 text-sm ${
+                    tplStatus === "published"
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground"
+                  }`}
+                >
+                  Опубликовано
+                </button>
+              </div>
             </div>
             {tplError && <p className="text-xs text-destructive">{tplError}</p>}
           </div>
