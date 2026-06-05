@@ -9,6 +9,7 @@ const TG_ICON = (
 
 const projectLinks = [
   { href: "/trust", label: "О нас" },
+  { href: "/how-it-works", label: "Как это работает" },
   { href: "/guides", label: "Для гидов" },
   { href: "/for-business", label: "Для бизнеса" },
 ] as const;

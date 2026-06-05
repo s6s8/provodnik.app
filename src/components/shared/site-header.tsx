@@ -33,14 +33,12 @@ import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
 
 const navLinks = [
-  { href: "/form", label: "Подбор гида" },
   { href: "/requests", label: "Запросы" },
   { href: "/destinations", label: "Направления" },
   { href: "/guides", label: "Гиды" },
 ] as const;
 
 const travelerNavLinks = [
-  { href: "/form", label: "Подбор гида" },
   { href: "/traveler/requests", label: "Мои запросы" },
   { href: "/requests", label: "Открытые группы" },
   { href: "/listings", label: "Готовые экскурсии" },
@@ -53,7 +51,6 @@ const guideNavLinks = [
 ] as const;
 
 const publicNavLinks = [
-  { href: "/form", label: "Подбор гида" },
   { href: "/requests", label: "Открытые группы" },
   { href: "/listings", label: "Готовые экскурсии" },
   { href: "/guides", label: "Гиды" },
