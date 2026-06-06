@@ -3,11 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
 import { kopecksToRub, rubToKopecks } from "@/data/money";
+import { THEMES } from "@/data/themes";
 import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
 import {
   createGuideTemplate,
@@ -47,6 +49,7 @@ export function GuideExcursionsScreen() {
   const [tplError, setTplError] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"excursions" | "photos">("excursions");
+  const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -390,7 +393,7 @@ export function GuideExcursionsScreen() {
               />
             </div>
             <div>
-              <Label htmlFor="tpl-price">Цена от (₽)</Label>
+              <Label htmlFor="tpl-price">Цена от (₽) · за человека</Label>
               <input
                 id="tpl-price"
                 type="number"
@@ -441,15 +444,19 @@ export function GuideExcursionsScreen() {
             </div>
             <div>
               <Label htmlFor="tpl-category">Категория</Label>
-              <input
+              <select
                 id="tpl-category"
-                type="text"
                 value={tplCategory}
-                maxLength={100}
                 onChange={(e) => setTplCategory(e.target.value)}
-                placeholder="Например: Пешие прогулки"
                 className={FIELD_CLASS}
-              />
+              >
+                <option value="">Выберите категорию</option>
+                {THEMES.map((theme) => (
+                  <option key={theme.slug} value={theme.slug}>
+                    {theme.label}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <Label>Фото маршрута</Label>
@@ -458,42 +465,69 @@ export function GuideExcursionsScreen() {
                   Добавьте фото во вкладке «Фото», затем вернитесь сюда и выберите нужные.
                 </p>
               ) : (
-                <div className="mt-1.5 grid grid-cols-4 gap-2">
-                  {portfolioPhotos.map((photo) => {
-                    const selected = tplPhotos.includes(photo.photoUrl);
-                    return (
-                      <button
-                        key={photo.id}
-                        type="button"
-                        onClick={() => {
-                          setTplPhotos((prev) =>
-                            selected
-                              ? prev.filter((url) => url !== photo.photoUrl)
-                              : [...prev, photo.photoUrl],
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setPhotoPickerOpen(true)}
+                    className="mt-1.5 w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-left text-sm text-muted-foreground hover:border-primary"
+                  >
+                    {tplPhotos.length > 0
+                      ? `Выбрано фото: ${tplPhotos.length}`
+                      : "Выбрать фото маршрута"}
+                  </button>
+                  <Dialog open={photoPickerOpen} onOpenChange={setPhotoPickerOpen}>
+                    <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-md">
+                      <DialogHeader>
+                        <DialogTitle>Выбрать фото маршрута</DialogTitle>
+                      </DialogHeader>
+                      <div className="grid grid-cols-4 gap-2 pt-2">
+                        {portfolioPhotos.map((photo) => {
+                          const selected = tplPhotos.includes(photo.photoUrl);
+                          return (
+                            <button
+                              key={photo.id}
+                              type="button"
+                              onClick={() => {
+                                setTplPhotos((prev) =>
+                                  selected
+                                    ? prev.filter((url) => url !== photo.photoUrl)
+                                    : [...prev, photo.photoUrl],
+                                );
+                              }}
+                              className={`relative h-16 w-full overflow-hidden rounded-lg border-2 transition-colors ${
+                                selected ? "border-primary" : "border-transparent"
+                              }`}
+                              aria-pressed={selected}
+                              aria-label={photo.location_name || "фото"}
+                            >
+                              <Image
+                                src={photo.photoUrl}
+                                alt={photo.location_name || ""}
+                                fill
+                                sizes="80px"
+                                className="object-cover"
+                              />
+                              {selected && (
+                                <span className="absolute inset-0 flex items-center justify-center bg-primary/20 text-lg font-bold text-primary">
+                                  ✓
+                                </span>
+                              )}
+                            </button>
                           );
-                        }}
-                        className={`relative h-16 w-full overflow-hidden rounded-lg border-2 transition-colors ${
-                          selected ? "border-primary" : "border-transparent"
-                        }`}
-                        aria-pressed={selected}
-                        aria-label={photo.location_name || "фото"}
-                      >
-                        <Image
-                          src={photo.photoUrl}
-                          alt={photo.location_name || ""}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
-                        {selected && (
-                          <span className="absolute inset-0 flex items-center justify-center bg-primary/20 text-lg font-bold text-primary">
-                            ✓
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                        })}
+                      </div>
+                      <div className="mt-4 flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setPhotoPickerOpen(false)}
+                          className="rounded-xl border border-border bg-surface-high px-4 py-2.5 text-sm font-medium hover:bg-muted"
+                        >
+                          Готово
+                        </button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </>
               )}
               {tplPhotos.length > 0 && (
                 <p className="mt-1 text-xs text-muted-foreground">
