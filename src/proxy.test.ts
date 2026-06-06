@@ -96,7 +96,7 @@ describe("proxy admin access", () => {
   it("still redirects non-admins away from guide-only routes", async () => {
     mockSupabaseUser("traveler");
 
-    const response = await proxy(makeRequest("/guide/listings"));
+    const response = await proxy(makeRequest("/guide/excursions"));
 
     expect(response.status).toBe(307);
     expect(response.headers.get("location")).toBe("https://provodnik.app/traveler/requests");

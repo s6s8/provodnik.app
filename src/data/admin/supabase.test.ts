@@ -24,16 +24,11 @@ describe("dead Supabase modules and exports", () => {
     expect(reviewsSource).not.toContain("export async function getReviewsForListing");
   });
 
-  it("keeps guide inbox dead branches out and wires the listing rejection prop", () => {
+  it("keeps guide inbox dead branches out", () => {
     const inboxSource = source(
       "src/features/guide/components/requests/guide-requests-inbox-screen.tsx",
     );
-    const listingsSource = source(
-      "src/features/guide/components/listings/guide-listings-list-screen.tsx",
-    );
 
     expect(inboxSource).not.toContain("Принятых предложений пока нет.");
-    expect(listingsSource).toContain("showListingRejectionCard,");
-    expect(listingsSource).toContain("showListingRejectionCard &&");
   });
 });

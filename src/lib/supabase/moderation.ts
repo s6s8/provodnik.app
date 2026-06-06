@@ -412,7 +412,7 @@ async function getNotificationRecipient(
 
     return {
       userId: listing.guide_id,
-      href: `/guide/listings/${listing.id}`,
+      href: "/guide/excursions",
       title: "Обновление по проверке листинга",
       body: `Проверка листинга «${listing.title}» была обновлена администратором.`,
     };
