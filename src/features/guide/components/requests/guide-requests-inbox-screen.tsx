@@ -65,6 +65,7 @@ export function GuideRequestsInboxScreen() {
   const [isLoading, setIsLoading] = React.useState(true);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
   const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, OfferMeta>>(new Map());
+  const [guideId, setGuideId] = React.useState<string | null>(null);
   const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
     null,
   );
@@ -111,6 +112,7 @@ export function GuideRequestsInboxScreen() {
           data: { user },
         } = await supabase.auth.getUser();
         if (!ignore && user?.id) {
+          setGuideId(user.id);
           await loadOffersForGuide(user.id);
           await loadGuideProfileForGuide(user.id);
         }
@@ -357,7 +359,7 @@ export function GuideRequestsInboxScreen() {
                                   Вы предложили:
                                   {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
                                   {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
-                                  {offerMeta.price_minor != null ? ` · ${Math.round(offerMeta.price_minor / 100).toLocaleString("ru-RU")} ₽/чел.` : ""}
+                                  {offerMeta.price_minor != null ? ` · ${Math.round(offerMeta.price_minor / 100 / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
                                 </p>
                               ) : null}
                             </div>
@@ -415,8 +417,13 @@ export function GuideRequestsInboxScreen() {
           request={panelRequest}
           onClose={() => setPanelRequestId(null)}
           onSuccess={() => {
-            // Mark as offered optimistically
             setOfferedIds((prev) => new Set([...prev, panelRequestId]));
+            if (guideId) {
+              void fetchOfferedRequestIds(guideId).then(({ offeredIds: ids, offerIdByRequestId: offerMap }) => {
+                setOfferedIds(ids);
+                setOfferIdByRequestId(offerMap);
+              });
+            }
           }}
         />
       ) : null}
