@@ -26,21 +26,36 @@ import {
 } from "./guide-requests-inbox-filter";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 
+interface OfferMeta {
+  id: string;
+  starts_at: string | null;
+  capacity: number | null;
+  price_minor: number | null;
+}
+
 interface OffersByRequest {
   offeredIds: Set<string>;
-  offerIdByRequestId: Map<string, string>;
+  offerIdByRequestId: Map<string, OfferMeta>;
 }
 
 async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest> {
   const supabase = createSupabaseBrowserClient();
   const { data } = await supabase
     .from("guide_offers")
-    .select("id, request_id")
+    .select("id, request_id, starts_at, capacity, price_minor")
     .eq("guide_id", guideId);
   if (!data) return { offeredIds: new Set(), offerIdByRequestId: new Map() };
   const offeredIds = new Set(data.map((row) => row.request_id as string));
   const offerIdByRequestId = new Map(
-    data.map((row) => [row.request_id as string, row.id as string]),
+    data.map((row) => [
+      row.request_id as string,
+      {
+        id: row.id as string,
+        starts_at: (row.starts_at as string | null) ?? null,
+        capacity: (row.capacity as number | null) ?? null,
+        price_minor: (row.price_minor as number | null) ?? null,
+      },
+    ]),
   );
   return { offeredIds, offerIdByRequestId };
 }
@@ -49,7 +64,7 @@ export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
-  const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, string>>(new Map());
+  const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, OfferMeta>>(new Map());
   const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
     null,
   );
@@ -174,7 +189,7 @@ export function GuideRequestsInboxScreen() {
 
   const tabs: Array<{ key: GuideRequestsFilter; label: string; count: number }> = [
     { key: "new", label: "Новые", count: newCount },
-    { key: "my-offers", label: "Мои предложения", count: myOffersCount },
+    { key: "my-offers", label: "Мои отклики", count: myOffersCount },
   ];
   const scopedItemsCount = newCount + myOffersCount;
 
@@ -285,7 +300,8 @@ export function GuideRequestsInboxScreen() {
                 {filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
                   const matched = isMatchedRequest(item, specializations);
-                  const offerId = offerIdByRequestId.get(item.id);
+                  const offerMeta = offerIdByRequestId.get(item.id);
+                  const offerId = offerMeta?.id;
                   const showQaPanel = alreadyOffered && !!offerId;
                   return (
                     <div key={item.id} className="space-y-3">
