@@ -226,7 +226,20 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
 function OfferCount({ count }: { count?: number }) {
   if (!count || count <= 0) return null;
 
-  return <p className="text-sm text-muted-foreground">{count} откликов</p>;
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  const noun =
+    mod10 === 1 && mod100 !== 11
+      ? "отклик"
+      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+        ? "отклика"
+        : "откликов";
+
+  return (
+    <Badge variant="secondary" className="text-xs font-semibold">
+      {count} {noun}
+    </Badge>
+  );
 }
 
 function TripCardContent({

@@ -348,9 +348,19 @@ export function GuideRequestsInboxScreen() {
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {alreadyOffered ? (
-                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
-                              ✓ Предложение отправлено
-                            </span>
+                            <div className="flex flex-col gap-1">
+                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                                ✓ Предложение отправлено
+                              </span>
+                              {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
+                                <p className="text-xs text-muted-foreground">
+                                  Вы предложили:
+                                  {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
+                                  {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
+                                  {offerMeta.price_minor != null ? ` · ${Math.round(offerMeta.price_minor / 100).toLocaleString("ru-RU")} ₽/чел.` : ""}
+                                </p>
+                              ) : null}
+                            </div>
                           ) : isApproved ? (
                             <Button
                               variant="default"
