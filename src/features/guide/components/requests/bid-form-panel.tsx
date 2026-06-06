@@ -120,17 +120,29 @@ export function BidFormPanel({
       setGuideVerificationStatus(
         typeof profile?.verification_status === "string" ? profile.verification_status : null,
       );
-      const [photos, templates] = await Promise.all([
-        listGuideLocationPhotos(user.id as Uuid),
-        listGuideTemplates(user.id as Uuid),
-      ]);
-      if (cancelled) return;
-      setGuidePhotos(photos.map((p) => ({
-        id: p.id,
-        location_name: p.location_name,
-        photoUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data.publicUrl,
-      })));
-      setGuideTemplates(templates.filter((template) => template.status === "published"));
+      try {
+        const templates = await listGuideTemplates(user.id as Uuid);
+        if (!cancelled) {
+          setGuideTemplates(templates.filter((template) => template.status === "published"));
+        }
+      } catch (err) {
+        console.error("[bid-panel] failed to load excursions", err);
+      }
+      try {
+        const photos = await listGuideLocationPhotos(user.id as Uuid);
+        if (!cancelled) {
+          setGuidePhotos(
+            photos.map((p) => ({
+              id: p.id,
+              location_name: p.location_name,
+              photoUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data
+                .publicUrl,
+            })),
+          );
+        }
+      } catch (err) {
+        console.error("[bid-panel] failed to load photos", err);
+      }
     }
     void load();
 

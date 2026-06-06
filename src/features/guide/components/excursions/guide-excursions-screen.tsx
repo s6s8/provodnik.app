@@ -18,14 +18,10 @@ import {
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
 
-interface GuideExcursionsScreenProps {
-  guideId: string;
-}
-
 const FIELD_CLASS =
   "mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary";
 
-export function GuideExcursionsScreen({ guideId: _guideId }: GuideExcursionsScreenProps) {
+export function GuideExcursionsScreen() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [authenticatedGuideId, setAuthenticatedGuideId] = useState<Uuid | null>(null);
   const [templates, setTemplates] = useState<GuideTemplateRow[]>([]);

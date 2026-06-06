@@ -4,5 +4,5 @@ import { GuideExcursionsScreen } from "@/features/guide/components/excursions/gu
 export const metadata: Metadata = { title: "Мои экскурсии" };
 
 export default async function GuideExcursionsPage() {
-  return <GuideExcursionsScreen guideId="" />;
+  return <GuideExcursionsScreen />;
 }
