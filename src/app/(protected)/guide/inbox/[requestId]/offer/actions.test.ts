@@ -71,6 +71,16 @@ describe("checkOfferAgainstLocks", () => {
 
     expect("ok" in result && result.ok).toBe(true);
   });
+
+  it("accepts different date when date_locked=false regardless of date mismatch", async () => {
+    const result = await checkOfferAgainstLocks({
+      startsAt: makeIso("2026-09-15", "10:00"),
+      endsAt: makeIso("2026-09-15", "13:00"),
+      request: { ...baseRequest, date_locked: false },
+    });
+
+    expect("ok" in result && result.ok).toBe(true);
+  });
 });
 
 describe("submitOfferAction", () => {
