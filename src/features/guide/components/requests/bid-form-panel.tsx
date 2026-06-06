@@ -304,7 +304,7 @@ export function BidFormPanel({
             <span
               className={
                 request.mode === "assembly"
-                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700"
+                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
                   : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
               }
             >

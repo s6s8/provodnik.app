@@ -265,20 +265,20 @@ describe("HomepageRequestForm UI affordances", () => {
 
     const dateFlexibilityButton = getDateFlexibilityButton();
     expect(dateFlexibilityButton).toHaveClass("cursor-pointer");
-    expect(dateFlexibilityButton).toHaveClass("border-warning", "text-warning");
+    expect(dateFlexibilityButton).toHaveClass("border-rose-200", "text-rose-700");
     fireEvent.click(dateFlexibilityButton);
     expect(dateFlexibilityButton).toHaveClass(
-      "border-primary",
-      "bg-primary",
-      "text-primary-foreground",
+      "border-emerald-200",
+      "bg-emerald-100",
+      "text-emerald-700",
     );
 
     const assemblyButton = getAssemblyButton();
     expect(assemblyButton).toHaveClass("cursor-pointer");
     expect(assemblyButton).not.toHaveAttribute("title");
-    expect(assemblyButton).toHaveClass("border-input", "bg-background");
+    expect(assemblyButton).toHaveClass("border-purple-200", "bg-purple-100");
     fireEvent.click(assemblyButton);
-    expect(assemblyButton).toHaveClass("border-primary", "text-primary");
+    expect(assemblyButton).toHaveClass("border-sky-200", "text-sky-700");
   });
 
   it("renders topic chips as horizontal icon and label rows", () => {

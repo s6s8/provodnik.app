@@ -38,6 +38,12 @@ interface OffersByRequest {
   offerIdByRequestId: Map<string, OfferMeta>;
 }
 
+const requestChipClassName = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
+const assemblyChipClassName = `${requestChipClassName} bg-sky-100 text-sky-700`;
+const privateChipClassName = `${requestChipClassName} bg-purple-100 text-purple-700`;
+const flexibleDatesChipClassName = `${requestChipClassName} bg-emerald-100 text-emerald-700`;
+const exactDateChipClassName = `${requestChipClassName} bg-rose-100 text-rose-700`;
+
 async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest> {
   const supabase = createSupabaseBrowserClient();
   const { data } = await supabase
@@ -305,11 +311,21 @@ export function GuideRequestsInboxScreen() {
                   const offerMeta = offerIdByRequestId.get(item.id);
                   const offerId = offerMeta?.id;
                   const showQaPanel = alreadyOffered && !!offerId;
+                  const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
                   return (
                     <div key={item.id} className="space-y-3">
                       <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
                         {/* Card header */}
                         <GuideInboxCardHeader item={item} matched={matched} />
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className={item.mode === "assembly" ? assemblyChipClassName : privateChipClassName}>
+                            {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+                          </span>
+                          <span className={hasFlexibleDates ? flexibleDatesChipClassName : exactDateChipClassName}>
+                            {hasFlexibleDates ? "гибкие даты" : "точная дата"}
+                          </span>
+                        </div>
 
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
 
@@ -320,8 +336,8 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
-                            {item.date_locked === false && (
-                              <span className="ml-1 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+                            {hasFlexibleDates && (
+                              <span className="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700">
                                 гибкие даты
                               </span>
                             )}

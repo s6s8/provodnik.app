@@ -139,8 +139,8 @@ export function GuideRequestDetailScreen({
             <p>
               <span className="font-medium text-foreground">Даты:</span>{" "}
               {request.dateLabel}
-              {request.date_locked === false && (
-                <span className="ml-1 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
+              {(request.dateFlexibility === "few_days" || request.date_locked === false) && (
+                <span className="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700">
                   гибкие даты
                 </span>
               )}
