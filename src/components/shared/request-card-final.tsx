@@ -160,7 +160,7 @@ export function RequestCardFinal({
             </span>
           ) : null}
           <span className={datesFlexible ? datesFlexibleBadgeClassName : exactDateBadgeClassName}>
-            {datesFlexible ? "Гибкие даты" : "точная дата"}
+            {datesFlexible ? "Гибкие даты" : "Точная дата"}
           </span>
         </div>
 

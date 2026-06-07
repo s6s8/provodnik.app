@@ -460,7 +460,7 @@ export function BidFormPanel({
                     : "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
                 }
               >
-                {request.dateFlexibility === "few_days" ? "Гибкие даты" : "точная дата"}
+                {request.dateFlexibility === "few_days" ? "Гибкие даты" : "Точная дата"}
               </span>
             </div>
             <div className="relative">
