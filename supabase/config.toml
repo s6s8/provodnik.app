@@ -1,20 +1,20 @@
-project_id = "pvd-agent-fix-format-label-r2"
+project_id = "pvd-agent-hide-wishes-g1-r3"
 
 [api]
 enabled = true
-port = 56221
+port = 55321
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 56222
+port = 55322
 shadow_port = 54320
 major_version = 17
 
 [studio]
 enabled = true
-port = 56223
+port = 55323
 
 # Stamp profiles.role into JWT app_metadata on sign-in / refresh (AP-038).
 [auth.hook.custom_access_token]
