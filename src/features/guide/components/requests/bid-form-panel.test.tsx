@@ -86,9 +86,7 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(
-      screen.getByText("К запросу могут присоединяться другие путешественники"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.queryByText(/^Открытая группа$/)).toBeNull();
   });
 
@@ -101,7 +99,6 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(screen.getByText("Группа закрытая — только 4 человек")).toBeInTheDocument();
     expect(screen.getByText("Своя группа")).toBeInTheDocument();
   });
 });
@@ -118,7 +115,6 @@ describe("BidFormPanel — date/time locks", () => {
 
     expect(screen.getByLabelText(/Дата/)).toBeDisabled();
     expect(screen.getByLabelText(/Время начала/)).toBeDisabled();
-    expect(screen.getByText("путешественник просит строго эту дату")).toBeInTheDocument();
   });
 
   it("shows hint in context block when dateFlexibility is few_days", () => {
@@ -130,9 +126,7 @@ describe("BidFormPanel — date/time locks", () => {
       />,
     );
 
-    expect(
-      screen.getByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("гибкие даты")).toBeInTheDocument();
   });
 });
 

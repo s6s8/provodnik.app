@@ -50,15 +50,6 @@ const offerFormSchema = z.object({
 
 type OfferFormValues = z.infer<typeof offerFormSchema>;
 
-function formatRub(amount: number | undefined | null): string {
-  if (!amount || Number.isNaN(amount)) return "—";
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 function getDefaultValidUntil(): string {
   const d = new Date();
@@ -320,18 +311,6 @@ export function BidFormPanel({
               {request.dateFlexibility === "few_days" ? "гибкие даты" : "точная дата"}
             </span>
           </div>
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">
-              {request.mode === "assembly"
-                ? "К запросу могут присоединяться другие путешественники"
-                : `Группа закрытая — только ${request.groupSize} человек`}
-            </p>
-            {request.dateFlexibility === "few_days" ? (
-              <p className="text-xs text-muted-foreground">
-                Путешественник открыт к близким датам — предложите удобную вам дату
-              </p>
-            ) : null}
-          </div>
           {request.interests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.interests.map((interest) => (
@@ -476,9 +455,6 @@ export function BidFormPanel({
                 />
               ) : null}
             </div>
-            {dateLocked ? (
-              <p className="text-xs text-muted-foreground">путешественник просит строго эту дату</p>
-            ) : null}
           </div>
 
           {/* Когда: time start → end */}
@@ -519,9 +495,6 @@ export function BidFormPanel({
                 ) : null}
               </div>
             </div>
-            {timeLocked ? (
-              <p className="text-xs text-muted-foreground">путешественник просит строго это время</p>
-            ) : null}
           </div>
 
           {/* Количество человек — только для сборной группы; для своей группа уже сформирована */}
@@ -583,13 +556,7 @@ export function BidFormPanel({
             </div>
             {errors.price_total ? (
               <p className="text-xs text-destructive">{errors.price_total.message}</p>
-            ) : budgetCeilingPerPerson ? (
-              <p className="text-xs text-muted-foreground">
-                Потолок путешественника — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">Путешественник открыт к предложениям — назовите свою цену.</p>
-            )}
+            ) : null}
           </div>
 
           {/* Сообщение */}
