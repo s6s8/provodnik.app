@@ -1,20 +1,20 @@
-project_id = "pvd-agent-fix-format-label-r2"
+project_id = "pvd-agent-inbox-sort-filter-r3"
 
 [api]
 enabled = true
-port = 56221
+port = 54621
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 56222
+port = 54622
 shadow_port = 54320
 major_version = 17
 
 [studio]
 enabled = true
-port = 56223
+port = 54623
 
 # Stamp profiles.role into JWT app_metadata on sign-in / refresh (AP-038).
 [auth.hook.custom_access_token]
