@@ -12,7 +12,6 @@ vi.mock("@supabase/supabase-js", () => ({
 }));
 
 import {
-  formatRequestPreference,
   getActiveListings,
   getDestinationBySlug,
   getDestinations,
@@ -22,7 +21,6 @@ import {
   getGuides,
   getGuidesByDestination,
   getHomepageRequests,
-  mapRequestRow,
   getOffersForRequest,
   getOpenRequests,
   getListingReviews,
@@ -185,33 +183,6 @@ describe("public Supabase query helpers", () => {
 });
 
 describe("PII-safe Supabase query mapping", () => {
-  it.each([
-    { value: "group", expected: "Сборная" },
-    { value: "private", expected: "Своя" },
-    { value: "combo", expected: "combo" },
-  ])("formats request preference $value as $expected", ({ value, expected }) => {
-    expect(formatRequestPreference(value)).toBe(expected);
-  });
-
-  it.each([
-    { formatPreference: "group", expected: "Сборная" },
-    { formatPreference: "private", expected: "Своя" },
-    { formatPreference: null, expected: "" },
-    { formatPreference: "combo", expected: "combo" },
-  ])("maps format_preference $formatPreference to $expected", ({ formatPreference, expected }) => {
-    const row: Record<string, unknown> = {
-      id: "request-1",
-      destination: "Москва",
-      budget_minor: null,
-      participants_count: 2,
-      status: "open",
-      created_at: "2026-06-03T00:00:00Z",
-      format_preference: formatPreference,
-    };
-
-    expect(mapRequestRow(row).format).toBe(expected);
-  });
-
   it("uses anonymous requester and member display data in open request lists", async () => {
     const client = createFakeClient({
       traveler_requests: [

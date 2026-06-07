@@ -28,11 +28,13 @@ export type RequestCardFinalProps = {
 };
 
 const datesFlexibleBadgeClassName =
-  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full border border-primary/40 px-2 py-0.5 text-xs font-medium text-primary";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700";
+const exactDateBadgeClassName =
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
-const groupTypeBadgeOutlineClassName = `${groupTypeBadgeBaseClassName} border border-border text-ink-2`;
-const groupTypeBadgePrimaryOutlineClassName = `${groupTypeBadgeBaseClassName} border border-primary/40 text-primary`;
+const groupTypeBadgePrivateClassName = `${groupTypeBadgeBaseClassName} bg-purple-100 text-purple-700`;
+const groupTypeBadgeAssemblyClassName = `${groupTypeBadgeBaseClassName} bg-sky-100 text-sky-700`;
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const foundGuideBadgeClassName =
@@ -72,8 +74,8 @@ function getGroupLabel(groupType: RequestCardFinalGroupType) {
 }
 
 function GroupTypeBadge({ groupType }: { groupType: RequestCardFinalGroupType }) {
-  const className = groupType === "assembly" ? groupTypeBadgePrimaryOutlineClassName : groupTypeBadgeOutlineClassName;
-  const iconClassName = groupType === "assembly" ? "text-primary" : "text-ink-2";
+  const className = groupType === "assembly" ? groupTypeBadgeAssemblyClassName : groupTypeBadgePrivateClassName;
+  const iconClassName = groupType === "assembly" ? "text-sky-700" : "text-purple-700";
 
   return (
     <span className={className}>
@@ -157,7 +159,9 @@ export function RequestCardFinal({
               <span className="min-w-0 truncate text-sm font-medium text-ink-2">{time}</span>
             </span>
           ) : null}
-          {datesFlexible ? <span className={datesFlexibleBadgeClassName}>Гибкие даты</span> : null}
+          <span className={datesFlexible ? datesFlexibleBadgeClassName : exactDateBadgeClassName}>
+            {datesFlexible ? "Гибкие даты" : "точная дата"}
+          </span>
         </div>
 
         <div className="mt-2 flex flex-wrap gap-1.5">

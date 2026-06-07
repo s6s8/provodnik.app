@@ -60,21 +60,26 @@ export function filterInbox(
     );
   }
 
-  filtered = filtered.filter((item) =>
-    isMatchedRequest(item, specializations),
-  );
-
   // Sort
   if (sortKey === "newest") {
     filtered = [...filtered].sort((a, b) =>
       b.createdAt.localeCompare(a.createdAt),
     );
   } else if (sortKey === "date") {
-    filtered = [...filtered].sort((a, b) =>
-      a.dateLabel.localeCompare(b.dateLabel),
-    );
+    filtered = [...filtered].sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
   } else if (sortKey === "size") {
     filtered = [...filtered].sort((a, b) => b.groupSize - a.groupSize);
+  }
+
+  // Plan 50 T3 — soft sort: matched first, unmatched second; in-tier order preserved
+  if (specializations.length > 0) {
+    const matched = filtered.filter((r: RequestRecord) =>
+      isMatchedRequest(r, specializations),
+    );
+    const unmatched = filtered.filter(
+      (r: RequestRecord) => !isMatchedRequest(r, specializations),
+    );
+    filtered = [...matched, ...unmatched];
   }
 
   return filtered;

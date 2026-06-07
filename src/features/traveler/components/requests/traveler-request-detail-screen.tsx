@@ -122,19 +122,19 @@ export function TravelerRequestDetailScreen({ record }: Props) {
               className={cn(
                 BADGE_CLASS,
                 request.mode === "assembly"
-                  ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-border text-ink-2",
+                  ? "border-sky-200 bg-sky-100 text-sky-700"
+                  : "border-purple-200 bg-purple-100 text-purple-700",
               )}
             >
               {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
             </Badge>
             {request.dateFlexibility && request.dateFlexibility !== "exact" && (
-              <Badge variant="outline" className={BADGE_CLASS}>
+              <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
                 ±пара дней
               </Badge>
             )}
             {record.dateLocked === false && (
-              <Badge variant="outline" className={BADGE_CLASS}>
+              <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
                 Гид может предлагать даты
               </Badge>
             )}

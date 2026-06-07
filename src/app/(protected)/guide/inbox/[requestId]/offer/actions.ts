@@ -155,7 +155,7 @@ export async function submitOfferAction(
 
     const { data: requestRow } = await supabaseAuth
       .from("traveler_requests")
-      .select("traveler_id, date_locked, time_locked, starts_on, start_time, end_time")
+      .select("traveler_id, date_locked, time_locked, starts_on, start_time, end_time, date_flexibility")
       .eq("id", requestId)
       .maybeSingle();
 
@@ -166,7 +166,10 @@ export async function submitOfferAction(
     const lockCheck = await checkOfferAgainstLocks({
       startsAt: parsed.data.starts_at ?? undefined,
       endsAt: parsed.data.ends_at ?? undefined,
-      request: requestRow,
+      request: {
+        ...requestRow,
+        date_locked: requestRow.date_flexibility === "few_days" ? false : requestRow.date_locked,
+      },
     });
 
     if ("error" in lockCheck) {

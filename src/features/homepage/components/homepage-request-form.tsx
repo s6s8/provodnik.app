@@ -191,8 +191,8 @@ export function HomepageRequestForm({ destinations }: Props) {
                   className={cn(
                     "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
                     dateFlexibility !== "exact"
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-warning text-warning hover:border-gold-hover hover:text-gold-hover",
+                      ? "border-emerald-200 bg-emerald-100 text-emerald-700"
+                      : "border-rose-200 bg-rose-100 text-rose-700 hover:border-rose-300 hover:text-rose-800",
                   )}
                 >
                   ≈
@@ -273,11 +273,11 @@ export function HomepageRequestForm({ destinations }: Props) {
               className={cn(
                 "flex h-10 w-full cursor-pointer select-none items-center justify-center rounded-md border text-sm font-medium transition-colors",
                 isAssembly
-                  ? "border-primary bg-primary/8 text-primary"
-                  : "border-input bg-background",
+                  ? "border-sky-200 bg-sky-100 text-sky-700"
+                  : "border-purple-200 bg-purple-100 text-purple-700",
               )}
             >
-              {isAssembly ? "Открытая" : "Закрытая"}
+              {isAssembly ? "Сборная" : "Своя"}
             </button>
           </div>
         </div>

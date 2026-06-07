@@ -140,20 +140,20 @@ function FlexPills({
         <span
           className={
             groupType === "assembly"
-              ? "rounded-full border border-primary/40 px-2 py-0.5 text-xs font-medium text-primary"
-              : "rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2"
+              ? "rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700"
+              : "rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
           }
         >
           {groupType === "assembly" ? "Сборная группа" : "Своя группа"}
         </span>
       ) : null}
       {openToJoin ? (
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+        <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
           + к группе
         </span>
       ) : null}
       {datesFlexible ? (
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
           ± даты
         </span>
       ) : null}
@@ -226,7 +226,20 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
 function OfferCount({ count }: { count?: number }) {
   if (!count || count <= 0) return null;
 
-  return <p className="text-sm text-muted-foreground">{count} откликов</p>;
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  const noun =
+    mod10 === 1 && mod100 !== 11
+      ? "отклик"
+      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
+        ? "отклика"
+        : "откликов";
+
+  return (
+    <Badge variant="secondary" className="text-xs font-semibold">
+      {count} {noun}
+    </Badge>
+  );
 }
 
 function TripCardContent({
