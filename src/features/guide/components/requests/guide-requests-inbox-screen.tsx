@@ -6,7 +6,6 @@ import { Inbox } from "lucide-react";
 
 import { type RequestRecord } from "@/data/supabase/queries";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
-import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
 
@@ -327,8 +326,6 @@ export function GuideRequestsInboxScreen() {
                           </span>
                         </div>
 
-                        <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
-
                         {/* Meta */}
                         <div className="mt-3 space-y-1 text-xs text-muted-foreground">
                           <p>
@@ -348,7 +345,7 @@ export function GuideRequestsInboxScreen() {
                             <span className="font-medium text-foreground">
                               Бюджет:
                             </span>{" "}
-                            {item.budgetLabel}
+                            {item.budgetLabel} · {item.groupSize} чел.
                           </p>
                         </div>
 
