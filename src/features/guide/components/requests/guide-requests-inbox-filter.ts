@@ -18,6 +18,16 @@ export function isMatchedRequest(req: { interests: string[] }, specs: string[]):
   return false;
 }
 
+function compareStartDates(
+  a: string | null | undefined,
+  b: string | null | undefined,
+): number {
+  if (a && b) return a.localeCompare(b);
+  if (a) return -1;
+  if (b) return 1;
+  return 0;
+}
+
 export function filterInbox(
   items: RequestRecord[],
   {
@@ -60,26 +70,21 @@ export function filterInbox(
     );
   }
 
+  filtered = filtered.filter((item) =>
+    isMatchedRequest(item, specializations),
+  );
+
   // Sort
   if (sortKey === "newest") {
     filtered = [...filtered].sort((a, b) =>
       b.createdAt.localeCompare(a.createdAt),
     );
   } else if (sortKey === "date") {
-    filtered = [...filtered].sort((a, b) => a.dateLabel.localeCompare(b.dateLabel));
+    filtered = [...filtered].sort((a, b) =>
+      compareStartDates(a.startsOn, b.startsOn),
+    );
   } else if (sortKey === "size") {
     filtered = [...filtered].sort((a, b) => b.groupSize - a.groupSize);
-  }
-
-  // Plan 50 T3 — soft sort: matched first, unmatched second; in-tier order preserved
-  if (specializations.length > 0) {
-    const matched = filtered.filter((r: RequestRecord) =>
-      isMatchedRequest(r, specializations),
-    );
-    const unmatched = filtered.filter(
-      (r: RequestRecord) => !isMatchedRequest(r, specializations),
-    );
-    filtered = [...matched, ...unmatched];
   }
 
   return filtered;
