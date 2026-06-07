@@ -336,11 +336,6 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
-                            {hasFlexibleDates && (
-                              <span className="ml-1 rounded bg-emerald-100 px-1.5 py-0.5 text-xs text-emerald-700">
-                                гибкие даты
-                              </span>
-                            )}
                             {formatTimeRange(item.startTime, item.endTime) && (
                               <>
                                 {" · "}
