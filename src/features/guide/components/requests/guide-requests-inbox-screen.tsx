@@ -11,7 +11,7 @@ import { formatTimeRange } from "@/lib/dates";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { BidFormPanel } from "./bid-form-panel";
@@ -198,7 +198,6 @@ export function GuideRequestsInboxScreen() {
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои отклики", count: myOffersCount },
   ];
-  const scopedItemsCount = newCount + myOffersCount;
 
   const emptyText =
     filter === "new"
@@ -209,18 +208,6 @@ export function GuideRequestsInboxScreen() {
     <div className="space-y-6">
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Входящие запросы</CardTitle>
-          {!isLoading && (
-            <p className="text-sm text-muted-foreground">
-              {scopedItemsCount} запрос
-              {scopedItemsCount === 1
-                ? ""
-                : scopedItemsCount > 1 && scopedItemsCount < 5
-                  ? "а"
-                  : "ов"}
-              .
-            </p>
-          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
