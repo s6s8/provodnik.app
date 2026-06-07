@@ -7,7 +7,6 @@ import { ArrowLeft, Eye, Users } from "lucide-react";
 
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
-import { formatGroupLine } from "@/data/requests-format";
 import { formatTimeRange } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -126,7 +125,7 @@ export function GuideRequestDetailScreen({
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg">{request.requesterName}</CardTitle>
               <p className="mt-1 text-sm text-muted-foreground">
-                {request.format ? <>{request.format} </> : null}в{" "}
+                в{" "}
                 <span className="font-medium text-foreground">
                   {request.destination}
                 </span>
@@ -156,10 +155,6 @@ export function GuideRequestDetailScreen({
             </span>
           </div>
 
-          <p className="text-sm text-muted-foreground">
-            {formatGroupLine(request)}
-          </p>
-
           <div className="space-y-1.5 text-sm text-muted-foreground">
             <p>
               <span className="font-medium text-foreground">Даты:</span>{" "}
@@ -174,7 +169,7 @@ export function GuideRequestDetailScreen({
             </p>
             <p>
               <span className="font-medium text-foreground">Бюджет:</span>{" "}
-              {request.budgetLabel}
+              {request.budgetLabel} · {request.groupSize} чел.
             </p>
           </div>
 

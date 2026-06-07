@@ -1,0 +1,28 @@
+---
+description: Prevent collateral damage — map the blast radius before AND after every change
+alwaysApply: true
+---
+
+PRIME LAW: change one thing, do not break another. One data field / shared symbol lives in MANY
+places. Find them ALL before you call the task done. Most regressions here = fixed A, broke B.
+
+BEFORE editing any SHARED thing (exported function, type, enum, string-literal, DB query, RLS
+policy, component, route, trigger):
+- grep every caller + importer of it. Write the list. That list is your verify-scope.
+- one data field renders across MANY surfaces: list-card + detail + form + notification + email +
+  admin. If you change a field's shape / label / query, check EVERY surface, not just the one named.
+- DB change (column / migration / enum / RLS) → trace it: which queries read it (auth vs public
+  client?), which RLS gate, which TS type, which UI renders it, which trigger fires. Update or
+  confirm each one.
+- if `.cursor/surfaces.json` lists the concept you touch, open EVERY file it maps and update/verify.
+
+AFTER editing:
+- re-grep the pattern / old term / old shape across the WHOLE repo. Same issue elsewhere? Fix it in
+  THIS pass — a half-fix is a new bug (e.g. a term renamed in 1 of 5 files).
+- run gates: typecheck + lint + tests must be green, or it is not done.
+
+SCOPE: do not silently widen. If the blast radius needs files outside the task spec, STOP and
+report the full list — never leave a consumer stale, never quietly edit files the spec didn't name.
+
+REPORT at the end: files changed (1 line each) + ALSO-checked consumers/surfaces (confirm each still
+correct) + anything intentionally left untouched and why.
