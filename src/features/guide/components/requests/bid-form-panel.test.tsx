@@ -125,7 +125,7 @@ describe("BidFormPanel — date/time locks", () => {
     expect(screen.getByLabelText(/Время начала/)).toBeDisabled();
   });
 
-  it("shows hint in context block when dateFlexibility is few_days", () => {
+  it("drops the few_days explanatory hint (UX point 7) but keeps the гибкие даты badge", () => {
     render(
       <BidFormPanel
         requestId="req-1"
@@ -134,9 +134,10 @@ describe("BidFormPanel — date/time locks", () => {
       />,
     );
 
+    // Point 7 (commit b5240a8, approved) removed explanatory texts under context badges.
     expect(
-      screen.getByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
-    ).toBeInTheDocument();
+      screen.queryByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
+    ).toBeNull();
     expect(screen.getByText("гибкие даты")).toBeInTheDocument();
   });
 });
