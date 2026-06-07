@@ -239,17 +239,8 @@ export function GuideExcursionsScreen() {
         </Link>
       </div>
 
-      <div className="mb-6 flex items-center justify-between gap-3">
+      <div className="mb-6">
         <h1 className="text-xl font-semibold">Мои экскурсии</h1>
-        {activeTab === "excursions" && (
-          <button
-            type="button"
-            onClick={openCreateSheet}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-high px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            + Добавить экскурсию
-          </button>
-        )}
       </div>
 
       <div className="mb-6 flex gap-1 rounded-xl bg-muted p-1">
@@ -288,9 +279,18 @@ export function GuideExcursionsScreen() {
       ) : loadError ? (
         <p className="text-sm text-destructive">{loadError}</p>
       ) : templates.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Экскурсий пока нет. Добавьте первую.
-        </p>
+        <div className="space-y-2">
+          <p className="text-sm text-muted-foreground">
+            Экскурсий пока нет. Добавьте первую.
+          </p>
+          <button
+            type="button"
+            onClick={openCreateSheet}
+            className="flex w-full items-center justify-center rounded-xl border border-border bg-surface-high px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            + Добавить экскурсию
+          </button>
+        </div>
       ) : (
         <div className="space-y-2">
           {templates.map((template) => (
@@ -346,6 +346,13 @@ export function GuideExcursionsScreen() {
               </div>
             </div>
           ))}
+          <button
+            type="button"
+            onClick={openCreateSheet}
+            className="flex w-full items-center justify-center rounded-xl border border-border bg-surface-high px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
+          >
+            + Добавить экскурсию
+          </button>
         </div>
       )}
 

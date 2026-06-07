@@ -5,11 +5,11 @@ export function formatGroupLine(req: Pick<RequestRecord, "mode" | "groupSize" | 
     return `Своя группа · ${req.groupSize} чел.`;
   }
   if (req.capacity == null) {
-    return `Открытая группа · ${req.groupSize} чел.`;
+    return `Сборная группа · ${req.groupSize} чел.`;
   }
   const remaining = req.capacity - req.groupSize;
   if (remaining <= 0) {
     return "Группа набрана";
   }
-  return `Открытая группа · Свободно мест: ${remaining} из ${req.capacity}`;
+  return `Сборная группа · Свободно мест: ${remaining} из ${req.capacity}`;
 }

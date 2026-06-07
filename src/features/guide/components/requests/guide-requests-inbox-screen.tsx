@@ -26,21 +26,42 @@ import {
 } from "./guide-requests-inbox-filter";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 
+interface OfferMeta {
+  id: string;
+  starts_at: string | null;
+  capacity: number | null;
+  price_minor: number | null;
+}
+
 interface OffersByRequest {
   offeredIds: Set<string>;
-  offerIdByRequestId: Map<string, string>;
+  offerIdByRequestId: Map<string, OfferMeta>;
 }
+
+const requestChipClassName = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
+const assemblyChipClassName = `${requestChipClassName} bg-sky-100 text-sky-700`;
+const privateChipClassName = `${requestChipClassName} bg-purple-100 text-purple-700`;
+const flexibleDatesChipClassName = `${requestChipClassName} bg-emerald-100 text-emerald-700`;
+const exactDateChipClassName = `${requestChipClassName} bg-rose-100 text-rose-700`;
 
 async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest> {
   const supabase = createSupabaseBrowserClient();
   const { data } = await supabase
     .from("guide_offers")
-    .select("id, request_id")
+    .select("id, request_id, starts_at, capacity, price_minor")
     .eq("guide_id", guideId);
   if (!data) return { offeredIds: new Set(), offerIdByRequestId: new Map() };
   const offeredIds = new Set(data.map((row) => row.request_id as string));
   const offerIdByRequestId = new Map(
-    data.map((row) => [row.request_id as string, row.id as string]),
+    data.map((row) => [
+      row.request_id as string,
+      {
+        id: row.id as string,
+        starts_at: (row.starts_at as string | null) ?? null,
+        capacity: (row.capacity as number | null) ?? null,
+        price_minor: (row.price_minor as number | null) ?? null,
+      },
+    ]),
   );
   return { offeredIds, offerIdByRequestId };
 }
@@ -49,7 +70,8 @@ export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
-  const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, string>>(new Map());
+  const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, OfferMeta>>(new Map());
+  const [guideId, setGuideId] = React.useState<string | null>(null);
   const [panelRequestId, setPanelRequestId] = React.useState<string | null>(
     null,
   );
@@ -96,6 +118,7 @@ export function GuideRequestsInboxScreen() {
           data: { user },
         } = await supabase.auth.getUser();
         if (!ignore && user?.id) {
+          setGuideId(user.id);
           await loadOffersForGuide(user.id);
           await loadGuideProfileForGuide(user.id);
         }
@@ -174,7 +197,7 @@ export function GuideRequestsInboxScreen() {
 
   const tabs: Array<{ key: GuideRequestsFilter; label: string; count: number }> = [
     { key: "new", label: "Новые", count: newCount },
-    { key: "my-offers", label: "Мои предложения", count: myOffersCount },
+    { key: "my-offers", label: "Мои отклики", count: myOffersCount },
   ];
   const scopedItemsCount = newCount + myOffersCount;
 
@@ -285,13 +308,24 @@ export function GuideRequestsInboxScreen() {
                 {filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
                   const matched = isMatchedRequest(item, specializations);
-                  const offerId = offerIdByRequestId.get(item.id);
+                  const offerMeta = offerIdByRequestId.get(item.id);
+                  const offerId = offerMeta?.id;
                   const showQaPanel = alreadyOffered && !!offerId;
+                  const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
                   return (
                     <div key={item.id} className="space-y-3">
                       <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
                         {/* Card header */}
                         <GuideInboxCardHeader item={item} matched={matched} />
+
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <span className={item.mode === "assembly" ? assemblyChipClassName : privateChipClassName}>
+                            {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+                          </span>
+                          <span className={hasFlexibleDates ? flexibleDatesChipClassName : exactDateChipClassName}>
+                            {hasFlexibleDates ? "гибкие даты" : "точная дата"}
+                          </span>
+                        </div>
 
                         <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
 
@@ -302,11 +336,6 @@ export function GuideRequestsInboxScreen() {
                               Даты:
                             </span>{" "}
                             {item.dateLabel}
-                            {item.date_locked === false && (
-                              <span className="ml-1 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
-                                гибкие даты
-                              </span>
-                            )}
                             {formatTimeRange(item.startTime, item.endTime) && (
                               <>
                                 {" · "}
@@ -323,12 +352,28 @@ export function GuideRequestsInboxScreen() {
                           </p>
                         </div>
 
+                        {item.description ? (
+                          <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
+                            {item.description}
+                          </p>
+                        ) : null}
+
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {alreadyOffered ? (
-                            <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
-                              ✓ Предложение отправлено
-                            </span>
+                            <div className="flex flex-col gap-1">
+                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                                ✓ Предложение отправлено
+                              </span>
+                              {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
+                                <p className="text-xs text-muted-foreground">
+                                  Вы предложили:
+                                  {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
+                                  {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
+                                  {offerMeta.price_minor != null ? ` · ${Math.round(offerMeta.price_minor / 100 / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
+                                </p>
+                              ) : null}
+                            </div>
                           ) : isApproved ? (
                             <Button
                               variant="default"
@@ -383,8 +428,13 @@ export function GuideRequestsInboxScreen() {
           request={panelRequest}
           onClose={() => setPanelRequestId(null)}
           onSuccess={() => {
-            // Mark as offered optimistically
             setOfferedIds((prev) => new Set([...prev, panelRequestId]));
+            if (guideId) {
+              void fetchOfferedRequestIds(guideId).then(({ offeredIds: ids, offerIdByRequestId: offerMap }) => {
+                setOfferedIds(ids);
+                setOfferIdByRequestId(offerMap);
+              });
+            }
           }}
         />
       ) : null}

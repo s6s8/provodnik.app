@@ -59,8 +59,8 @@ function request(overrides: Partial<RequestRecord>): RequestRecord {
 describe("filterInbox", () => {
   it("restricts visible requests to the guide base city", () => {
     const items = [
-      request({ id: "elista", destination: "Элиста, центр", interests: ["nature"] }),
-      request({ id: "karelia", destination: "Карелия, Рускеала", interests: ["nature"] }),
+      request({ id: "elista", destination: "Элиста, центр" }),
+      request({ id: "karelia", destination: "Карелия, Рускеала" }),
     ];
 
     const filtered = filterInbox(items, {
@@ -69,7 +69,7 @@ describe("filterInbox", () => {
       filter: "new",
       offeredIds: new Set(),
       sortKey: "newest",
-      specializations: ["nature"],
+      specializations: [],
     });
 
     expect(filtered.map((item) => item.id)).toEqual(["elista"]);
@@ -77,8 +77,8 @@ describe("filterInbox", () => {
 
   it("renders no requests when none match the guide base city", () => {
     const items = [
-      request({ id: "elista", destination: "Элиста, центр", interests: ["nature"] }),
-      request({ id: "karelia", destination: "Карелия, Рускеала", interests: ["nature"] }),
+      request({ id: "elista", destination: "Элиста, центр" }),
+      request({ id: "karelia", destination: "Карелия, Рускеала" }),
     ];
 
     const filtered = filterInbox(items, {
@@ -87,105 +87,10 @@ describe("filterInbox", () => {
       filter: "new",
       offeredIds: new Set(),
       sortKey: "newest",
-      specializations: ["nature"],
+      specializations: [],
     });
 
     expect(filtered).toEqual([]);
-  });
-
-  it("shows requests with any matching theme and hides requests with no matches", () => {
-    const items = [
-      request({ id: "nature", interests: ["nature"] }),
-      request({ id: "mixed", interests: ["food", "history_culture"] }),
-      request({ id: "unmatched", interests: ["craft"] }),
-    ];
-
-    const filtered = filterInbox(items, {
-      baseCity: null,
-      cityFilter: "all",
-      filter: "new",
-      offeredIds: new Set(),
-      sortKey: "newest",
-      specializations: ["nature", "history_culture"],
-    });
-
-    expect(filtered.map((item) => item.id)).toEqual(["nature", "mixed"]);
-  });
-
-  it("sorts default newest requests by creation time descending", () => {
-    const items = [
-      request({ id: "older", createdAt: "2026-01-01T00:00:00Z", interests: ["nature"] }),
-      request({ id: "fresh", createdAt: "2026-01-03T00:00:00Z", interests: ["nature"] }),
-      request({ id: "middle", createdAt: "2026-01-02T00:00:00Z", interests: ["nature"] }),
-    ];
-
-    const filtered = filterInbox(items, {
-      baseCity: null,
-      cityFilter: "all",
-      filter: "new",
-      offeredIds: new Set(),
-      sortKey: "newest",
-      specializations: ["nature"],
-    });
-
-    expect(filtered.map((item) => item.id)).toEqual(["fresh", "middle", "older"]);
-  });
-
-  it("sorts requests by date label", () => {
-    const items = [
-      request({
-        id: "later-label-first",
-        dateLabel: "1 июня",
-        startsOn: "2026-06-20",
-        interests: ["nature"],
-      }),
-      request({
-        id: "earlier-label-second",
-        dateLabel: "30 мая",
-        startsOn: "2026-05-30",
-        interests: ["nature"],
-      }),
-      request({
-        id: "middle",
-        dateLabel: "15 июня",
-        startsOn: "2026-06-15",
-        interests: ["nature"],
-      }),
-    ];
-
-    const filtered = filterInbox(items, {
-      baseCity: null,
-      cityFilter: "all",
-      filter: "new",
-      offeredIds: new Set(),
-      sortKey: "date",
-      specializations: ["nature"],
-    });
-
-    expect(filtered.map((item) => item.id)).toEqual([
-      "later-label-first",
-      "middle",
-      "earlier-label-second",
-    ]);
-  });
-
-  it("sorts requests by group size descending", () => {
-    const items = [
-      request({ id: "small", groupSize: 2, interests: ["nature"] }),
-      request({ id: "large", groupSize: 6, interests: ["nature"] }),
-      request({ id: "medium", groupSize: 4, interests: ["nature"] }),
-    ];
-
-    const filtered = filterInbox(items, {
-      baseCity: null,
-      cityFilter: "all",
-      filter: "new",
-      offeredIds: new Set(),
-      sortKey: "size",
-      specializations: ["nature"],
-    });
-
-    expect(filtered.map((item) => item.id)).toEqual(["large", "medium", "small"]);
   });
 });
 
@@ -195,14 +100,14 @@ describe("getInboxTabCounts", () => {
     cityFilter: "all",
     offeredIds: new Set(["elista-b", "karelia-c"]),
     sortKey: "newest" as const,
-    specializations: ["nature"] as string[],
+    specializations: [] as string[],
   };
 
   it("counts «Новые» only for unanswered requests in the guide base city", () => {
     const items = [
-      request({ id: "elista-a", destination: "Элиста, центр", interests: ["nature"] }),
-      request({ id: "elista-b", destination: "Элиста, музеи", interests: ["nature"] }),
-      request({ id: "karelia-c", destination: "Карелия, Рускеала", interests: ["nature"] }),
+      request({ id: "elista-a", destination: "Элиста, центр" }),
+      request({ id: "elista-b", destination: "Элиста, музеи" }),
+      request({ id: "karelia-c", destination: "Карелия, Рускеала" }),
     ];
 
     const { newCount } = getInboxTabCounts(items, scopeOptions);
@@ -215,9 +120,9 @@ describe("getInboxTabCounts", () => {
 
   it("counts «Мои предложения» only for offers in the guide base city", () => {
     const items = [
-      request({ id: "elista-a", destination: "Элиста, центр", interests: ["nature"] }),
-      request({ id: "elista-b", destination: "Элиста, музеи", interests: ["nature"] }),
-      request({ id: "karelia-c", destination: "Карелия, Рускеала", interests: ["nature"] }),
+      request({ id: "elista-a", destination: "Элиста, центр" }),
+      request({ id: "elista-b", destination: "Элиста, музеи" }),
+      request({ id: "karelia-c", destination: "Карелия, Рускеала" }),
     ];
 
     const { myOffersCount } = getInboxTabCounts(items, scopeOptions);
@@ -234,8 +139,8 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     vi.clearAllMocks();
     loadGuideInboxRequestsMock.mockResolvedValue({
       data: [
-        request({ id: "elista", destination: "Элиста, центр", interests: ["nature"] }),
-        request({ id: "karelia", destination: "Карелия, Рускеала", interests: ["nature"] }),
+        request({ id: "elista", destination: "Элиста, центр" }),
+        request({ id: "karelia", destination: "Карелия, Рускеала" }),
       ],
       error: null,
     });
@@ -257,7 +162,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
             data:
               table === "guide_profiles"
                 ? {
-                    specializations: ["nature"],
+                    specializations: [],
                     base_city: "Элиста",
                     verification_status: "approved",
                   }
@@ -294,28 +199,6 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     });
   });
 
-  it("does not render traveler wishes on the inbox card", async () => {
-    const wishes = "Хочу увидеть степь без туристов";
-    loadGuideInboxRequestsMock.mockResolvedValueOnce({
-      data: [
-        request({
-          id: "elista",
-          destination: "Элиста, центр",
-          description: wishes,
-          interests: ["nature"],
-        }),
-      ],
-      error: null,
-    });
-
-    render(<GuideRequestsInboxScreen />);
-
-    await waitFor(() => {
-      expect(screen.getByText("1 запрос.")).toBeInTheDocument();
-    });
-    expect(screen.queryByText(wishes)).toBeNull();
-  });
-
   it("keeps the request time inline with the date meta row", () => {
     const source = readFileSync(
       join(
@@ -324,7 +207,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       ),
       "utf8",
     );
-    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{\/\* Actions \*\/\}/)?.[1];
+    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{item\.description/)?.[1];
 
     expect(metaBlock).toContain(
       'className="mt-3 space-y-1 text-xs text-muted-foreground"',

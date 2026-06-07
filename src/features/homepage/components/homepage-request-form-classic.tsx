@@ -190,8 +190,8 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                   className={cn(
                     "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
                     dateFlexibility !== "exact"
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-warning text-warning hover:border-gold-hover hover:text-gold-hover",
+                      ? "border-emerald-200 bg-emerald-100 text-emerald-700"
+                      : "border-rose-200 bg-rose-100 text-rose-700 hover:border-rose-300 hover:text-rose-800",
                   )}
                 >
                   ≈
@@ -260,15 +260,15 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                     className={cn(
                       "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border transition-colors",
                       isAssembly
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-warning text-warning hover:border-gold-hover hover:text-gold-hover",
+                        ? "border-sky-200 bg-sky-100 text-sky-700"
+                        : "border-purple-200 bg-purple-100 text-purple-700 hover:border-purple-300 hover:text-purple-800",
                     )}
                   >
                     <UserPlus className="h-4 w-4" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent className="text-sm">
-                  <p>Открытая группа — другие путешественники могут присоединиться</p>
+                  <p>Сборная группа — другие путешественники могут присоединиться</p>
                 </TooltipContent>
               </Tooltip>
             </div>

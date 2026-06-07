@@ -33,13 +33,26 @@ function formatDateTime(value: string): string {
   });
 }
 
+interface OfferMeta {
+  starts_at: string | null;
+  capacity: number | null;
+  price_minor: number | null;
+}
+
 interface Props {
   request: RequestRecord;
   isApproved: boolean;
   existingOfferId: string | null;
+  offerMeta?: OfferMeta | null;
   competingOffers: number;
   viewsCount: number;
 }
+
+const chipBase = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
+const assemblyChip = `${chipBase} bg-sky-100 text-sky-700`;
+const privateChip = `${chipBase} bg-purple-100 text-purple-700`;
+const flexibleChip = `${chipBase} bg-emerald-100 text-emerald-700`;
+const exactChip = `${chipBase} bg-rose-100 text-rose-700`;
 
 function formatViewsLabel(count: number): string {
   if (count <= 0) return "Вы первый, кто открыл этот запрос";
@@ -72,6 +85,7 @@ export function GuideRequestDetailScreen({
   request,
   isApproved,
   existingOfferId,
+  offerMeta,
   competingOffers,
   viewsCount,
 }: Props) {
@@ -87,6 +101,8 @@ export function GuideRequestDetailScreen({
     .map((s) => INTEREST_LABEL_BY_ID[s] ?? s)
     .join(" · ");
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
+  const hasFlexibleDates =
+    request.dateFlexibility === "few_days" || request.date_locked === false;
 
   return (
     <div className="space-y-6">
@@ -131,6 +147,15 @@ export function GuideRequestDetailScreen({
             </div>
           ) : null}
 
+          <div className="flex flex-wrap gap-2">
+            <span className={request.mode === "assembly" ? assemblyChip : privateChip}>
+              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+            </span>
+            <span className={hasFlexibleDates ? flexibleChip : exactChip}>
+              {hasFlexibleDates ? "гибкие даты" : "точная дата"}
+            </span>
+          </div>
+
           <p className="text-sm text-muted-foreground">
             {formatGroupLine(request)}
           </p>
@@ -139,11 +164,6 @@ export function GuideRequestDetailScreen({
             <p>
               <span className="font-medium text-foreground">Даты:</span>{" "}
               {request.dateLabel}
-              {request.date_locked === false && (
-                <span className="ml-1 rounded bg-primary/10 px-1.5 py-0.5 text-xs text-primary">
-                  гибкие даты
-                </span>
-              )}
               {formatTimeRange(request.startTime, request.endTime) && (
                 <>
                   {" · "}
@@ -190,9 +210,26 @@ export function GuideRequestDetailScreen({
 
           <div className="flex flex-wrap items-center gap-3 pt-2">
             {validOfferId ? (
-              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
-                ✓ Предложение отправлено
-              </span>
+              <div className="flex flex-col gap-1">
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                  ✓ Предложение отправлено
+                </span>
+                {offerMeta &&
+                  (offerMeta.starts_at != null ||
+                    offerMeta.capacity != null ||
+                    offerMeta.price_minor != null) ? (
+                  <p className="text-xs text-muted-foreground">
+                    Вы предложили:
+                    {offerMeta.starts_at
+                      ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`
+                      : ""}
+                    {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
+                    {offerMeta.price_minor != null
+                      ? ` · ${Math.round(offerMeta.price_minor / 100 / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.`
+                      : ""}
+                  </p>
+                ) : null}
+              </div>
             ) : isApproved ? (
               <Button
                 variant="default"

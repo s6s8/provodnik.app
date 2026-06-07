@@ -304,7 +304,7 @@ export function BidFormPanel({
             <span
               className={
                 request.mode === "assembly"
-                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700"
+                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
                   : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
               }
             >
@@ -352,9 +352,9 @@ export function BidFormPanel({
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 px-6 py-6" noValidate>
           {guideTemplates.length > 0 ? (
             <div className="grid gap-2">
-              <p className="text-sm font-medium text-foreground">Экскурсия</p>
+              <p className="text-sm font-medium text-foreground">Моя экскурсия</p>
               {selectedExcursion ? (
-                <div className="rounded-xl border border-border bg-surface-high px-3.5 py-3">
+                <div className="rounded-xl border border-success/30 bg-success/10 px-3.5 py-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium text-foreground">
@@ -628,19 +628,6 @@ export function BidFormPanel({
             <p className="text-sm font-semibold text-destructive" role="alert">
               {serverError}
             </p>
-          ) : null}
-
-          {submitted ? (
-            <div
-              role="status"
-              aria-live="polite"
-              className="rounded-xl border border-success/30 bg-success/10 px-4 py-3 text-sm text-success"
-            >
-              <p className="font-medium">Предложение отправлено</p>
-              <p className="mt-1 text-foreground/80">
-                Гость получил уведомление. Обычно путешественники отвечают в течение 24 часов — ответ придёт в чат и в «Заявки».
-              </p>
-            </div>
           ) : null}
 
           <Button

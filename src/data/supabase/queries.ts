@@ -313,7 +313,7 @@ function getNotesPlainText(notes: string | null | undefined): string | null {
   }
 }
 
-export function formatCategory(cat: string): string {
+function formatCategory(cat: string): string {
   switch (cat) {
     case "city": return "Городская экскурсия";
     case "nature": return "Природный маршрут";
@@ -322,14 +322,6 @@ export function formatCategory(cat: string): string {
     case "adventure": return "Активный отдых";
     case "relax": return "Отдых";
     default: return cat;
-  }
-}
-
-export function formatRequestPreference(value: string): string {
-  switch (value) {
-    case "group": return "Сборная";
-    case "private": return "Своя";
-    default: return value;
   }
 }
 
@@ -399,7 +391,7 @@ export function mapRequestRow(
       ? (row.interests as string[]).filter((s) => (VALID_INTEREST_SLUGS as readonly string[]).includes(s))
       : [],
     mode: (row.open_to_join as boolean) === true ? "assembly" : "private",
-    format: formatRequestPreference((row.format_preference as string | null | undefined) ?? ""),
+    format: formatCategory((row.format_preference as string) ?? ""),
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
     offerCount: 0,
