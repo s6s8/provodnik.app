@@ -138,7 +138,7 @@ describe("BidFormPanel — date/time locks", () => {
     expect(
       screen.queryByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
     ).toBeNull();
-    expect(screen.getByText("гибкие даты")).toBeInTheDocument();
+    expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
   });
 });
 
@@ -212,7 +212,7 @@ describe("BidFormPanel — excursion picker", () => {
     fireEvent.click(screen.getByRole("button", { name: "Выбрать из моих экскурсий ↓" }));
     fireEvent.click(screen.getByRole("button", { name: /Морской променад/ }));
 
-    expect(screen.getByPlaceholderText("дополнительная информация об экскурсии, вопросы и условия")).toHaveValue(
+    expect(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия")).toHaveValue(
       "Покажу любимый маршрут вдоль моря и старых дач.",
     );
     expect(screen.getByText("Морской променад")).toBeInTheDocument();
@@ -280,9 +280,9 @@ describe("BidFormPanel — form copy", () => {
 
     expect(screen.getByText("Начало")).toBeInTheDocument();
     expect(screen.getByText("Конец")).toBeInTheDocument();
-    expect(screen.getByText("Сколько человек готов взять")).toBeInTheDocument();
+    expect(screen.getByText("Сколько человек готовы взять?")).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText("дополнительная информация об экскурсии, вопросы и условия"),
+      screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"),
     ).toBeInTheDocument();
   });
 });
@@ -298,7 +298,7 @@ describe("BidFormPanel — verification gate", () => {
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText("дополнительная информация об экскурсии, вопросы и условия"), {
+    fireEvent.change(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"), {
       target: { value: "Готов провести маршрут по вашему запросу." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Отправить предложение" }));

@@ -322,7 +322,7 @@ export function GuideRequestsInboxScreen() {
                             {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
                           </span>
                           <span className={hasFlexibleDates ? flexibleDatesChipClassName : exactDateChipClassName}>
-                            {hasFlexibleDates ? "гибкие даты" : "точная дата"}
+                            {hasFlexibleDates ? "Гибкие даты" : "точная дата"}
                           </span>
                         </div>
 

@@ -151,7 +151,7 @@ export function GuideRequestDetailScreen({
               {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
             </span>
             <span className={hasFlexibleDates ? flexibleChip : exactChip}>
-              {hasFlexibleDates ? "гибкие даты" : "точная дата"}
+              {hasFlexibleDates ? "Гибкие даты" : "точная дата"}
             </span>
           </div>
 
