@@ -199,6 +199,33 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     });
   });
 
+  it("does not render traveler wishes on the inbox card while keeping scanning fields", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValueOnce({
+      data: [
+        request({
+          id: "elista",
+          destination: "Элиста, центр",
+          description: "Особые пожелания: без длинных переходов",
+          interests: ["nature"],
+          mode: "private",
+          groupSize: 2,
+          budgetLabel: "5 000 ₽ / чел.",
+        }),
+      ],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    await waitFor(() => {
+      expect(screen.getByText("10 июня")).toBeInTheDocument();
+    });
+    expect(screen.getByText("Своя группа · 2 чел.")).toBeInTheDocument();
+    expect(screen.getByText("5 000 ₽ / чел.")).toBeInTheDocument();
+    expect(screen.getByText(/природа/i)).toBeInTheDocument();
+    expect(screen.queryByText("Особые пожелания: без длинных переходов")).toBeNull();
+  });
+
   it("keeps the request time inline with the date meta row", () => {
     const source = readFileSync(
       join(
@@ -207,7 +234,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       ),
       "utf8",
     );
-    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{item\.description/)?.[1];
+    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{\/\* Actions \*\/\}/)?.[1];
 
     expect(metaBlock).toContain(
       'className="mt-3 space-y-1 text-xs text-muted-foreground"',
