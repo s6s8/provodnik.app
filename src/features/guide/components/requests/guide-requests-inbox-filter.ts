@@ -18,16 +18,6 @@ export function isMatchedRequest(req: { interests: string[] }, specs: string[]):
   return false;
 }
 
-function compareStartDates(
-  a: string | null | undefined,
-  b: string | null | undefined,
-): number {
-  if (a && b) return a.localeCompare(b);
-  if (a) return -1;
-  if (b) return 1;
-  return 0;
-}
-
 export function filterInbox(
   items: RequestRecord[],
   {
@@ -81,7 +71,7 @@ export function filterInbox(
     );
   } else if (sortKey === "date") {
     filtered = [...filtered].sort((a, b) =>
-      compareStartDates(a.startsOn, b.startsOn),
+      a.dateLabel.localeCompare(b.dateLabel),
     );
   } else if (sortKey === "size") {
     filtered = [...filtered].sort((a, b) => b.groupSize - a.groupSize);

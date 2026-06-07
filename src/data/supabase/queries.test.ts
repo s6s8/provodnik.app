@@ -12,6 +12,7 @@ vi.mock("@supabase/supabase-js", () => ({
 }));
 
 import {
+  formatRequestPreference,
   getActiveListings,
   getDestinationBySlug,
   getDestinations,
@@ -185,10 +186,18 @@ describe("public Supabase query helpers", () => {
 
 describe("PII-safe Supabase query mapping", () => {
   it.each([
+    { value: "group", expected: "Сборная" },
+    { value: "private", expected: "Своя" },
+    { value: "combo", expected: "combo" },
+  ])("formats request preference $value as $expected", ({ value, expected }) => {
+    expect(formatRequestPreference(value)).toBe(expected);
+  });
+
+  it.each([
     { formatPreference: "group", expected: "Сборная" },
     { formatPreference: "private", expected: "Своя" },
     { formatPreference: null, expected: "" },
-    { formatPreference: "combo", expected: "" },
+    { formatPreference: "combo", expected: "combo" },
   ])("maps format_preference $formatPreference to $expected", ({ formatPreference, expected }) => {
     const row: Record<string, unknown> = {
       id: "request-1",

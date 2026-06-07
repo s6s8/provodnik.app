@@ -131,7 +131,7 @@ describe("filterInbox", () => {
     expect(filtered.map((item) => item.id)).toEqual(["fresh", "middle", "older"]);
   });
 
-  it("sorts requests by start date chronologically", () => {
+  it("sorts requests by date label", () => {
     const items = [
       request({
         id: "later-label-first",
@@ -163,9 +163,9 @@ describe("filterInbox", () => {
     });
 
     expect(filtered.map((item) => item.id)).toEqual([
-      "earlier-label-second",
-      "middle",
       "later-label-first",
+      "middle",
+      "earlier-label-second",
     ]);
   });
 

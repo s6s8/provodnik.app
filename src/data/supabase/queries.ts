@@ -325,11 +325,11 @@ export function formatCategory(cat: string): string {
   }
 }
 
-function formatRequestPreference(preference: unknown): string {
-  switch (preference) {
+export function formatRequestPreference(value: string): string {
+  switch (value) {
     case "group": return "Сборная";
     case "private": return "Своя";
-    default: return "";
+    default: return value;
   }
 }
 
@@ -399,7 +399,7 @@ export function mapRequestRow(
       ? (row.interests as string[]).filter((s) => (VALID_INTEREST_SLUGS as readonly string[]).includes(s))
       : [],
     mode: (row.open_to_join as boolean) === true ? "assembly" : "private",
-    format: formatRequestPreference(row.format_preference),
+    format: formatRequestPreference((row.format_preference as string | null | undefined) ?? ""),
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
     offerCount: 0,
