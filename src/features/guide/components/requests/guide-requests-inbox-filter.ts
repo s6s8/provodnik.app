@@ -71,15 +71,12 @@ export function filterInbox(
     filtered = [...filtered].sort((a, b) => b.groupSize - a.groupSize);
   }
 
-  // Plan 50 T3 — soft sort: matched first, unmatched second; in-tier order preserved
+  // Hard filter: show only requests whose topics match the guide's specializations.
+  // Guarded so guides with no specializations still see all open requests.
   if (specializations.length > 0) {
-    const matched = filtered.filter((r: RequestRecord) =>
-      isMatchedRequest(r, specializations),
+    filtered = filtered.filter((item: RequestRecord) =>
+      isMatchedRequest(item, specializations),
     );
-    const unmatched = filtered.filter(
-      (r: RequestRecord) => !isMatchedRequest(r, specializations),
-    );
-    filtered = [...matched, ...unmatched];
   }
 
   return filtered;

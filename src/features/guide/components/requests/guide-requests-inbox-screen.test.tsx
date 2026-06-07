@@ -207,7 +207,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       ),
       "utf8",
     );
-    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{item\.description/)?.[1];
+    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{\/\* Actions \*\/\}/)?.[1];
 
     expect(metaBlock).toContain(
       'className="mt-3 space-y-1 text-xs text-muted-foreground"',

@@ -352,11 +352,6 @@ export function GuideRequestsInboxScreen() {
                           </p>
                         </div>
 
-                        {item.description ? (
-                          <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
-                            {item.description}
-                          </p>
-                        ) : null}
 
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
