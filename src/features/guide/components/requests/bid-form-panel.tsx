@@ -63,7 +63,7 @@ const FIELD_CLASS =
 
 function ProposedBadge() {
   return (
-    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.7rem] font-medium text-primary">
+    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
       ↔️ предложено
     </span>
   );
@@ -279,7 +279,7 @@ export function BidFormPanel({
       >
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
-            <h2 className="font-sans text-[1.0625rem] font-semibold text-foreground">
+            <h2 className="font-sans text-base font-semibold text-foreground">
               Сделать предложение
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -439,7 +439,7 @@ export function BidFormPanel({
                         >
                           <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
                           <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
-                            <p className="truncate text-[10px] text-primary-foreground">{photo.location_name}</p>
+                            <p className="truncate text-xs text-primary-foreground">{photo.location_name}</p>
                           </div>
                         </button>
                       ))}
@@ -456,8 +456,8 @@ export function BidFormPanel({
               <span
                 className={
                   request.dateFlexibility === "few_days"
-                    ? "inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium bg-emerald-100 text-emerald-700"
-                    : "inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium bg-rose-100 text-rose-700"
+                    ? "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700"
+                    : "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
                 }
               >
                 {request.dateFlexibility === "few_days" ? "Гибкие даты" : "точная дата"}
@@ -575,7 +575,7 @@ export function BidFormPanel({
                     onChange: (e) => handleGroupChange(e.target.value),
                   })}
                 />
-                <p className="mt-1 text-[0.7rem] text-muted-foreground">За группу, ₽</p>
+                <p className="mt-1 text-xs text-muted-foreground">За группу, ₽</p>
               </div>
               <div className="flex-1">
                 <input
@@ -591,7 +591,7 @@ export function BidFormPanel({
                     onChange: (e) => handlePerPersonChange(e.target.value),
                   })}
                 />
-                <p className="mt-1 text-[0.7rem] text-muted-foreground">На человека, ₽</p>
+                <p className="mt-1 text-xs text-muted-foreground">На человека, ₽</p>
               </div>
             </div>
             {errors.price_total ? (
