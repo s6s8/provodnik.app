@@ -96,7 +96,7 @@ describe('resolveDisputeThreadAction', () => {
 
   it('succeeds when JWT role is admin', async () => {
     makeSupabase({
-      user: { id: 'admin-1', user_metadata: { role: 'admin' }, app_metadata: {} },
+      user: { id: 'admin-1', user_metadata: {}, app_metadata: { role: 'admin' } },
     })
 
     resolveDispute.mockResolvedValueOnce({})
@@ -104,6 +104,19 @@ describe('resolveDisputeThreadAction', () => {
     await resolveDisputeThreadAction('dispute-1', '  resolved summary  ')
 
     expect(resolveDispute).toHaveBeenCalledWith('dispute-1', 'admin-1', 'resolved summary')
+  })
+
+  it('rejects when only user_metadata role is admin', async () => {
+    makeSupabase({
+      user: { id: 'user-1', user_metadata: { role: 'admin' }, app_metadata: {} },
+      profile: { role: 'traveler' },
+    })
+
+    await expect(
+      resolveDisputeThreadAction('dispute-1', 'resolved'),
+    ).rejects.toThrow('Только администратор может разрешить спор.')
+
+    expect(resolveDispute).not.toHaveBeenCalled()
   })
 
   it('succeeds when profile.role is admin (AP-038 fallback path)', async () => {

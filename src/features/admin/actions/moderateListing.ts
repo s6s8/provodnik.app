@@ -9,8 +9,7 @@ async function verifyAdmin(supabase: Awaited<ReturnType<typeof createSupabaseSer
   if (!user) throw new Error("Unauthorized");
 
   // JWT fast path
-  const jwtRole = user.user_metadata?.role ?? user.app_metadata?.role;
-  if (jwtRole === "admin") return true;
+  if (user.app_metadata?.role === "admin") return true;
 
   // Profile fallback (AP-038 / ERR-096): users created via seed scripts or admin tooling
   // may have profiles.role = 'admin' but no JWT claim.

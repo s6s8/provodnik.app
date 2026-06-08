@@ -17,8 +17,7 @@ export async function resolveDisputeThreadAction(
   if (!user) throw new Error("Unauthorized");
 
   // Verify admin role with profile fallback (AP-038)
-  const jwtRole = user.user_metadata?.role ?? user.app_metadata?.role;
-  if (jwtRole !== "admin") {
+  if (user.app_metadata?.role !== "admin") {
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
