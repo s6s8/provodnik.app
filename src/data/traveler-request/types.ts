@@ -6,7 +6,8 @@ export type TravelerRequestStatus =
   | "offers_received"
   | "shortlisted"
   | "booked"
-  | "closed";
+  | "closed"
+  | "cancelled";
 
 export type TravelerRequestRecord = {
   id: string;

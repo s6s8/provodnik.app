@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
+import { CancelRequestButton } from "@/features/traveler/components/requests/cancel-request-button";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
 import { cn } from "@/lib/utils";
 
@@ -92,57 +93,57 @@ export function TravelerRequestDetailScreen({ record }: Props) {
       </div>
 
       <div className="space-y-3 rounded-lg border bg-card p-4">
-        <h1 className="text-3xl font-semibold text-foreground">
-          {request.destination}
-        </h1>
-
-        <div className="flex flex-row items-start justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline" className={BADGE_CLASS}>
-              <CalendarDays className="size-3.5" />
-              {dateLabel}
-            </Badge>
-            <Badge variant="outline" className={BADGE_CLASS}>
-              <Clock className="size-3.5" />
-              {timeLabel}
-            </Badge>
-            <Badge variant="outline" className={cn(BADGE_CLASS, countColor)}>
-              <Users className="size-3.5" />
-              {countLabel}
-            </Badge>
-            <Badge
-              variant="outline"
-              className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
-            >
-              <Wallet className="size-3.5" />
-              {budgetLabel}
-            </Badge>
-            <Badge
-              variant="outline"
-              className={cn(
-                BADGE_CLASS,
-                request.mode === "assembly"
-                  ? "border-sky-200 bg-sky-100 text-sky-700"
-                  : "border-purple-200 bg-purple-100 text-purple-700",
-              )}
-            >
-              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-            </Badge>
-            {request.dateFlexibility && request.dateFlexibility !== "exact" && (
-              <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
-                ±пара дней
-              </Badge>
-            )}
-            {record.dateLocked === false && (
-              <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
-                Гид может предлагать даты
-              </Badge>
-            )}
-          </div>
-          <p className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
-            {publishedAt}
-          </p>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-3xl font-semibold text-foreground">
+            {request.destination}
+          </h1>
+          <CancelRequestButton requestId={record.id} status={record.status} />
         </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <CalendarDays className="size-3.5" />
+            {dateLabel}
+          </Badge>
+          <Badge variant="outline" className={BADGE_CLASS}>
+            <Clock className="size-3.5" />
+            {timeLabel}
+          </Badge>
+          <Badge variant="outline" className={cn(BADGE_CLASS, countColor)}>
+            <Users className="size-3.5" />
+            {countLabel}
+          </Badge>
+          <Badge
+            variant="outline"
+            className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
+          >
+            <Wallet className="size-3.5" />
+            {budgetLabel}
+          </Badge>
+          <Badge
+            variant="outline"
+            className={cn(
+              BADGE_CLASS,
+              request.mode === "assembly"
+                ? "border-sky-200 bg-sky-100 text-sky-700"
+                : "border-purple-200 bg-purple-100 text-purple-700",
+            )}
+          >
+            {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+          </Badge>
+          {request.dateFlexibility && request.dateFlexibility !== "exact" && (
+            <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
+              ±пара дней
+            </Badge>
+          )}
+          {record.dateLocked === false && (
+            <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
+              Гид может предлагать даты
+            </Badge>
+          )}
+        </div>
+
+        <p className="text-xs text-muted-foreground">{publishedAt}</p>
 
         {interests.length > 0 ? (
           <div className="flex flex-wrap gap-2">
