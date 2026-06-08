@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const items = [
   { href: "/guide", label: "Запросы", Icon: FileText },
   { href: "/guide/excursions", label: "Экскурсии", Icon: ClipboardList },
-  { href: "/guide/bookings", label: "Бронирования", Icon: BookCheck },
+  { href: "/guide/bookings", label: "Подтверждённые", Icon: BookCheck },
 ] as const;
 
 export function GuideBottomNav() {
