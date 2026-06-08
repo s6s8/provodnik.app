@@ -41,7 +41,7 @@ export function HomePageDiscovery({ requests }: Props) {
                 date={req.dateLabel}
                 groupType={req.mode}
                 guideState={deriveGuideState(req.status)}
-                datesFlexible={req.date_locked === false}
+                datesFlexible={req.dateFlexibility === 'few_days'}
                 interests={req.interests}
                 members={req.members}
                 price={formatPrice(req.budgetRub)}

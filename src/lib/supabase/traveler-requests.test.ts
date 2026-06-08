@@ -217,8 +217,8 @@ describe('getConfirmedBookings', () => {
 
     const [booking] = await getConfirmedBookings('traveler-confirmed-1')
 
-    expect(bookingsQuery.in).toHaveBeenCalledWith('status', ['awaiting_guide_confirmation', 'confirmed'])
-    expect(bookingsQuery.in).not.toHaveBeenCalledWith('status', expect.arrayContaining(['pending']))
+    expect(bookingsQuery.in).toHaveBeenCalledWith('status', ['pending', 'awaiting_guide_confirmation', 'confirmed'])
+    expect(bookingsQuery.in).not.toHaveBeenCalledWith('status', expect.arrayContaining(['draft']))
     expect(booking).toEqual({
       booking_id: 'booking-1',
       request_id: 'request-1',
