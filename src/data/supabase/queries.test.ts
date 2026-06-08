@@ -212,6 +212,57 @@ describe("PII-safe Supabase query mapping", () => {
     expect(mapRequestRow(row).format).toBe(expected);
   });
 
+  it("maps group format preference to assembly mode even when open_to_join is false", () => {
+    const row: Record<string, unknown> = {
+      id: "request-1",
+      destination: "Москва",
+      budget_minor: null,
+      participants_count: 2,
+      status: "open",
+      created_at: "2026-06-03T00:00:00Z",
+      format_preference: "group",
+      open_to_join: false,
+    };
+
+    expect(mapRequestRow(row)).toMatchObject({
+      mode: "assembly",
+      format: "Сборная",
+    });
+  });
+
+  it("maps private format preference to private mode even when open_to_join is true", () => {
+    const row: Record<string, unknown> = {
+      id: "request-1",
+      destination: "Москва",
+      budget_minor: null,
+      participants_count: 2,
+      status: "open",
+      created_at: "2026-06-03T00:00:00Z",
+      format_preference: "private",
+      open_to_join: true,
+    };
+
+    expect(mapRequestRow(row)).toMatchObject({
+      mode: "private",
+      format: "Своя",
+    });
+  });
+
+  it("keeps legacy mode fallback when format preference is missing", () => {
+    const row: Record<string, unknown> = {
+      id: "request-1",
+      destination: "Москва",
+      budget_minor: null,
+      participants_count: 2,
+      status: "open",
+      created_at: "2026-06-03T00:00:00Z",
+      format_preference: null,
+      open_to_join: true,
+    };
+
+    expect(mapRequestRow(row).mode).toBe("assembly");
+  });
+
   it("uses anonymous requester and member display data in open request lists", async () => {
     const client = createFakeClient({
       traveler_requests: [
