@@ -1078,7 +1078,6 @@ export async function getHomepageRequests(
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
-      .gt("budget_minor", 0)
       .order("created_at", { ascending: false })
       .limit(4);
 
