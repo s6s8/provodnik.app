@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ClipboardList, FileText } from "lucide-react";
+import { BookCheck, ClipboardList, FileText } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/guide", label: "Запросы", Icon: FileText },
   { href: "/guide/excursions", label: "Экскурсии", Icon: ClipboardList },
+  { href: "/guide/bookings", label: "Бронирования", Icon: BookCheck },
 ] as const;
 
 export function GuideBottomNav() {
@@ -19,14 +20,13 @@ export function GuideBottomNav() {
       className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-background/92 backdrop-blur-xl backdrop-saturate-150 border-t border-border"
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="h-16 grid grid-cols-2">
+      <div className="h-16 grid grid-cols-3">
         {items.map((item) => {
           let isActive: boolean;
           if (item.href === "/guide") {
             isActive =
               pathname === "/guide" ||
-              pathname.startsWith("/guide/inbox") ||
-              pathname.startsWith("/guide/bookings");
+              pathname.startsWith("/guide/inbox");
           } else {
             isActive =
               pathname === item.href ||
