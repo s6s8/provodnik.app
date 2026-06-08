@@ -100,3 +100,31 @@ supabase/
 - `traveler@provodnik.test` / Travel1234! (traveler)
 - `guide@provodnik.test` / Guide1234! (guide, id: 30000000-0000-4000-8000-000000000001)
 - `guide@provodnik.app` / Demo1234! (guide demo, id: 00000000-0000-4000-8000-000000000002)
+
+## Screen Registry (dev.provodnik.app)
+
+Naming convention: Parent-Child-SubLevel via dash separators. Each dash = one nav level deeper.
+
+| Код | URL | Описание |
+|-----|-----|---------|
+| Г-Главная | `/guide` | Гид — главная |
+| Г-Входящие | `/guide/inbox` | Гид — входящие запросы |
+| Г-Входящие-Карточка | карточка внутри Г-Входящие | Входящие — карточка-превью |
+| Г-Входящие-Карточка-Детали | `/guide/inbox/[id]` | Входящие — детали запроса |
+| Г-Экскурсии | `/guide/excursions` | Гид — мои экскурсии |
+| Г-Профиль | `/guide/profile` | Гид — профиль (верификация, лицензии, данные) |
+| Г-Верификация | `/guide/verification` | Редирект → Г-Профиль#verification; используется в уведомлениях и CTA |
+| П-Главная | `/traveler` | Путешественник — главная |
+| П-Запросы | `/traveler/requests` | Путешественник — мои запросы |
+| П-Запросы-Новый | `/traveler/requests/new` | Путешественник — создать запрос |
+| П-Запросы-Детали | `/traveler/requests/[id]` | Путешественник — детали запроса |
+| П-Бронь-Детали | `/traveler/bookings/[id]` | Путешественник — бронирование |
+| А-Главная | `/admin` | Админ — главная |
+| А-Гиды | `/admin/guides` | Админ — список гидов |
+| А-Модерация | `/admin/moderation` | Админ — модерация |
+| А-Споры | `/admin/disputes` | Админ — споры |
+| А-Бронирования | `/admin/bookings` | Админ — бронирования |
+| Проф-Личное | `/profile/personal` | Профиль — личные данные |
+| Проф-Гид | `/profile/guide/about` | Профиль — данные гида |
+| Каталог | `/requests` | Каталог запросов (публичный) |
+| Гид-Публичный | `/guides/[slug]` | Публичный профиль гида |

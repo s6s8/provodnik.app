@@ -94,9 +94,7 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(
-      screen.getByText("К запросу могут присоединяться другие путешественники"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.queryByText(/^Открытая группа$/)).toBeNull();
   });
 
@@ -109,7 +107,6 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(screen.getByText("Группа закрытая — только 4 человек")).toBeInTheDocument();
     expect(screen.getByText("Своя группа")).toBeInTheDocument();
   });
 });
@@ -126,10 +123,9 @@ describe("BidFormPanel — date/time locks", () => {
 
     expect(screen.getByLabelText(/Дата/)).toBeDisabled();
     expect(screen.getByLabelText(/Время начала/)).toBeDisabled();
-    expect(screen.getByText("путешественник просит строго эту дату")).toBeInTheDocument();
   });
 
-  it("shows hint in context block when dateFlexibility is few_days", () => {
+  it("drops the few_days explanatory hint (UX point 7) but keeps the гибкие даты badge", () => {
     render(
       <BidFormPanel
         requestId="req-1"
@@ -138,10 +134,11 @@ describe("BidFormPanel — date/time locks", () => {
       />,
     );
 
+    // Point 7 (commit b5240a8, approved) removed explanatory texts under context badges.
     expect(
-      screen.getByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
-    ).toBeInTheDocument();
-    expect(screen.getByText("гибкие даты")).toBeInTheDocument();
+      screen.queryByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
+    ).toBeNull();
+    expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
   });
 });
 
@@ -215,7 +212,7 @@ describe("BidFormPanel — excursion picker", () => {
     fireEvent.click(screen.getByRole("button", { name: "Выбрать из моих экскурсий ↓" }));
     fireEvent.click(screen.getByRole("button", { name: /Морской променад/ }));
 
-    expect(screen.getByPlaceholderText("дополнительная информация об экскурсии, вопросы и условия")).toHaveValue(
+    expect(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия")).toHaveValue(
       "Покажу любимый маршрут вдоль моря и старых дач.",
     );
     expect(screen.getByText("Морской променад")).toBeInTheDocument();
@@ -283,9 +280,9 @@ describe("BidFormPanel — form copy", () => {
 
     expect(screen.getByText("Начало")).toBeInTheDocument();
     expect(screen.getByText("Конец")).toBeInTheDocument();
-    expect(screen.getByText("Сколько человек готов взять")).toBeInTheDocument();
+    expect(screen.getByText("Сколько человек готовы взять?")).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText("дополнительная информация об экскурсии, вопросы и условия"),
+      screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"),
     ).toBeInTheDocument();
   });
 });
@@ -301,7 +298,7 @@ describe("BidFormPanel — verification gate", () => {
       />,
     );
 
-    fireEvent.change(screen.getByPlaceholderText("дополнительная информация об экскурсии, вопросы и условия"), {
+    fireEvent.change(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"), {
       target: { value: "Готов провести маршрут по вашему запросу." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Отправить предложение" }));

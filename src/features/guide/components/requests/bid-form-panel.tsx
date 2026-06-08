@@ -51,15 +51,6 @@ const offerFormSchema = z.object({
 
 type OfferFormValues = z.infer<typeof offerFormSchema>;
 
-function formatRub(amount: number | undefined | null): string {
-  if (!amount || Number.isNaN(amount)) return "—";
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 function getDefaultValidUntil(): string {
   const d = new Date();
@@ -72,7 +63,7 @@ const FIELD_CLASS =
 
 function ProposedBadge() {
   return (
-    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.7rem] font-medium text-primary">
+    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
       ↔️ предложено
     </span>
   );
@@ -288,7 +279,7 @@ export function BidFormPanel({
       >
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
-            <h2 className="font-sans text-[1.0625rem] font-semibold text-foreground">
+            <h2 className="font-sans text-base font-semibold text-foreground">
               Сделать предложение
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -307,29 +298,6 @@ export function BidFormPanel({
 
         {/* Request context (readonly) */}
         <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <span
-              className={
-                request.mode === "assembly"
-                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
-                  : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
-              }
-            >
-              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-            </span>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">
-              {request.mode === "assembly"
-                ? "К запросу могут присоединяться другие путешественники"
-                : `Группа закрытая — только ${request.groupSize} человек`}
-            </p>
-            {request.dateFlexibility === "few_days" ? (
-              <p className="text-xs text-muted-foreground">
-                Путешественник открыт к близким датам — предложите удобную вам дату
-              </p>
-            ) : null}
-          </div>
           {request.interests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.interests.map((interest) => (
@@ -471,7 +439,7 @@ export function BidFormPanel({
                         >
                           <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
                           <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
-                            <p className="truncate text-[10px] text-primary-foreground">{photo.location_name}</p>
+                            <p className="truncate text-xs text-primary-foreground">{photo.location_name}</p>
                           </div>
                         </button>
                       ))}
@@ -484,16 +452,15 @@ export function BidFormPanel({
           {/* Когда: date */}
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-foreground">Дата</label>
               {dateShifted ? <ProposedBadge /> : null}
               <span
                 className={
                   request.dateFlexibility === "few_days"
-                    ? "inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium bg-emerald-100 text-emerald-700"
-                    : "inline-flex items-center rounded-full px-2 py-0.5 text-[0.7rem] font-medium bg-rose-100 text-rose-700"
+                    ? "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700"
+                    : "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
                 }
               >
-                {request.dateFlexibility === "few_days" ? "гибкие даты" : "точная дата"}
+                {request.dateFlexibility === "few_days" ? "Гибкие даты" : "Точная дата"}
               </span>
             </div>
             <div className="relative">
@@ -511,9 +478,6 @@ export function BidFormPanel({
                 />
               ) : null}
             </div>
-            {dateLocked ? (
-              <p className="text-xs text-muted-foreground">путешественник просит строго эту дату</p>
-            ) : null}
           </div>
 
           {/* Когда: time start → end */}
@@ -561,15 +525,25 @@ export function BidFormPanel({
                 </div>
               </div>
             </div>
-            {timeLocked ? (
-              <p className="text-xs text-muted-foreground">путешественник просит строго это время</p>
-            ) : null}
           </div>
 
-          {/* Количество человек — только для сборной группы; для своей группа уже сформирована */}
-          {request.mode === "assembly" ? (
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-foreground">Сколько человек готов взять</label>
+          {/* Количество человек */}
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2">
+              <span
+                className={
+                  request.mode === "assembly"
+                    ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
+                    : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
+                }
+              >
+                {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+              </span>
+              <span className="text-sm font-medium text-foreground">
+                {request.mode === "assembly" ? "Сколько человек готовы взять?" : "Группа сформирована"}
+              </span>
+            </div>
+            {request.mode === "assembly" ? (
               <input
                 type="number"
                 inputMode="numeric"
@@ -579,8 +553,8 @@ export function BidFormPanel({
                 disabled={submitted}
                 {...register("headcount", { valueAsNumber: true })}
               />
-            </div>
-          ) : null}
+            ) : null}
+          </div>
 
           {/* Цена — двусторонний калькулятор */}
           <div className="grid gap-2">
@@ -601,7 +575,7 @@ export function BidFormPanel({
                     onChange: (e) => handleGroupChange(e.target.value),
                   })}
                 />
-                <p className="mt-1 text-[0.7rem] text-muted-foreground">За группу, ₽</p>
+                <p className="mt-1 text-xs text-muted-foreground">За группу, ₽</p>
               </div>
               <div className="flex-1">
                 <input
@@ -617,18 +591,12 @@ export function BidFormPanel({
                     onChange: (e) => handlePerPersonChange(e.target.value),
                   })}
                 />
-                <p className="mt-1 text-[0.7rem] text-muted-foreground">На человека, ₽</p>
+                <p className="mt-1 text-xs text-muted-foreground">На человека, ₽</p>
               </div>
             </div>
             {errors.price_total ? (
               <p className="text-xs text-destructive">{errors.price_total.message}</p>
-            ) : budgetCeilingPerPerson ? (
-              <p className="text-xs text-muted-foreground">
-                Потолок путешественника — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">Путешественник открыт к предложениям — назовите свою цену.</p>
-            )}
+            ) : null}
           </div>
 
           {/* Сообщение */}
@@ -636,7 +604,7 @@ export function BidFormPanel({
             <textarea
               id="panel-message"
               className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-              placeholder="дополнительная информация об экскурсии, вопросы и условия"
+              placeholder="Дополнительная информация об экскурсии, вопросы и условия"
               aria-invalid={Boolean(errors.message)}
               disabled={submitted}
               {...register("message")}

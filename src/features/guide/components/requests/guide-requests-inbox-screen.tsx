@@ -6,13 +6,12 @@ import { Inbox } from "lucide-react";
 
 import { type RequestRecord } from "@/data/supabase/queries";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
-import { formatGroupLine } from "@/data/requests-format";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { BidFormPanel } from "./bid-form-panel";
@@ -199,7 +198,6 @@ export function GuideRequestsInboxScreen() {
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои отклики", count: myOffersCount },
   ];
-  const scopedItemsCount = newCount + myOffersCount;
 
   const emptyText =
     filter === "new"
@@ -210,18 +208,6 @@ export function GuideRequestsInboxScreen() {
     <div className="space-y-6">
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
-          <CardTitle>Входящие запросы</CardTitle>
-          {!isLoading && (
-            <p className="text-sm text-muted-foreground">
-              {scopedItemsCount} запрос
-              {scopedItemsCount === 1
-                ? ""
-                : scopedItemsCount > 1 && scopedItemsCount < 5
-                  ? "а"
-                  : "ов"}
-              .
-            </p>
-          )}
         </CardHeader>
         <CardContent className="space-y-4">
           {isLoading ? (
@@ -323,11 +309,9 @@ export function GuideRequestsInboxScreen() {
                             {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
                           </span>
                           <span className={hasFlexibleDates ? flexibleDatesChipClassName : exactDateChipClassName}>
-                            {hasFlexibleDates ? "гибкие даты" : "точная дата"}
+                            {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
                           </span>
                         </div>
-
-                        <p className="mt-2 text-sm text-muted-foreground">{formatGroupLine(item)}</p>
 
                         {/* Meta */}
                         <div className="mt-3 space-y-1 text-xs text-muted-foreground">
@@ -348,7 +332,7 @@ export function GuideRequestsInboxScreen() {
                             <span className="font-medium text-foreground">
                               Бюджет:
                             </span>{" "}
-                            {item.budgetLabel}
+                            {item.budgetLabel} · {item.groupSize} чел.
                           </p>
                         </div>
 
