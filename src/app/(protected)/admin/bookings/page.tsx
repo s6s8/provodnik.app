@@ -79,7 +79,7 @@ export default async function BookingsPage() {
                       type="submit"
                       className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand/90"
                     >
-                      Подтвердить оплату
+                      Подтвердить бронирование
                     </button>
                   </form>
                 )}
