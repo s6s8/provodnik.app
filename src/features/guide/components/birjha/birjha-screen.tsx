@@ -38,7 +38,7 @@ export function BirjhaScreen({ initialTab }: Props) {
               : "border-border bg-background/60 text-foreground hover:bg-background",
           )}
         >
-          Бронирования
+          Подтверждённые
         </Link>
       </div>
 
