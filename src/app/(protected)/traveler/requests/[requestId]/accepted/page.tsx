@@ -7,6 +7,7 @@ import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -61,9 +62,10 @@ export default async function TravelerRequestAcceptedPage({
   };
 
   if (guide_id) {
-    const { data: profile } = await supabase
+    const adminClient = createSupabaseAdminClient();
+    const { data: profile } = await adminClient
       .from("profiles")
-      .select("id, full_name, avatar_url")
+      .select("full_name, avatar_url")
       .eq("id", guide_id)
       .maybeSingle();
     if (profile) {
