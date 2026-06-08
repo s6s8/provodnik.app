@@ -73,14 +73,19 @@ export async function markNotificationReadInSupabase(
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from("notifications")
     .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
     .eq("id", notificationId)
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .select("id")
+    .maybeSingle();
 
   if (error) {
     throw error;
+  }
+  if (!data) {
+    throw new Error("Notification not found or not accessible.");
   }
 }
 
