@@ -22,18 +22,22 @@ export default async function PartnerCabinetPage() {
 
   if (!user) redirect(buildAuthLoginRedirect("/partner"));
 
-  const { data: account } = await supabase
+  const { data: account, error: accountError } = await supabase
     .from("partner_accounts")
     .select("id, created_at")
     .eq("user_id", user.id)
     .maybeSingle();
 
-  const { data: ledger } = await supabase
+  if (accountError) throw accountError;
+
+  const { data: ledger, error: ledgerError } = await supabase
     .from("partner_payouts_ledger")
     .select("*")
     .eq("partner_id", account?.id ?? "none")
     .order("created_at", { ascending: false })
     .limit(50);
+
+  if (ledgerError) throw ledgerError;
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
