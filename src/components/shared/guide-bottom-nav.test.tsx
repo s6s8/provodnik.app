@@ -8,10 +8,10 @@ vi.mock("next/navigation", () => ({
 import { GuideBottomNav } from "./guide-bottom-nav";
 
 describe("GuideBottomNav", () => {
-  it("renders Запросы, Экскурсии and Бронирования nav items", () => {
+  it("renders Запросы, Экскурсии and Подтверждённые nav items", () => {
     render(<GuideBottomNav />);
     expect(screen.getByRole("link", { name: "Запросы" })).toBeDefined();
     expect(screen.getByRole("link", { name: "Экскурсии" })).toBeDefined();
-    expect(screen.getByRole("link", { name: "Бронирования" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Подтверждённые" })).toBeDefined();
   });
 });
