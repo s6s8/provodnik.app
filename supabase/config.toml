@@ -1,22 +1,17 @@
-project_id = "pvd-agent-bid-panel-ux-v2"
+project_id = "yjzpshutgmhxizosbeef"
 
 [api]
 enabled = true
-port = 55021
+port = 54321
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 55022
+port = 54322
 shadow_port = 54320
 major_version = 17
 
 [studio]
 enabled = true
-port = 55023
-
-# Stamp profiles.role into JWT app_metadata on sign-in / refresh (AP-038).
-[auth.hook.custom_access_token]
-enabled = true
-uri = "pg-functions://postgres/public/custom_access_token_hook"
+port = 54323
