@@ -40,25 +40,31 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   const markRead = React.useCallback(async (id: string) => {
     if (!hasSupabaseEnv()) return;
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("notifications")
       .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
-      .eq("id", id);
-    if (error) return;
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select("id")
+      .maybeSingle();
+    if (error || !data) return;
     setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  }, [userId]);
 
   const markAllRead = React.useCallback(async () => {
     if (!hasSupabaseEnv()) return;
+    const hadLocalUnread = notifications.length > 0;
     const supabase = createSupabaseBrowserClient();
-    const { error } = await supabase
+    const { data, error } = await supabase
       .from("notifications")
       .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
       .eq("user_id", userId)
-      .or("status.neq.read,read_at.is.null");
+      .or("status.neq.read,read_at.is.null")
+      .select("id");
     if (error) return;
+    if (hadLocalUnread && (!data || data.length === 0)) return;
     setNotifications([]);
-  }, [userId]);
+  }, [notifications, userId]);
 
   React.useEffect(() => {
     if (!hasSupabaseEnv()) return;
