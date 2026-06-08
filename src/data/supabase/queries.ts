@@ -333,6 +333,17 @@ export function formatRequestPreference(value: string): string {
   }
 }
 
+function mapRequestMode(
+  formatPreference: string | null | undefined,
+  openToJoin: boolean | null | undefined,
+): RequestRecord["mode"] {
+  switch (formatPreference) {
+    case "group": return "assembly";
+    case "private": return "private";
+    default: return openToJoin === true ? "assembly" : "private";
+  }
+}
+
 const VALID_INTEREST_SLUGS = THEMES.map((t) => t.slug) satisfies readonly ThemeSlug[];
 
 /**
@@ -366,6 +377,7 @@ export function mapRequestRow(
   const destinationLabel = sanitizeTravelerRequestDestinationLabel(
     (meta.destinationLabel as string | undefined) ?? dest,
   );
+  const formatPreference = row.format_preference as string | null | undefined;
 
   return {
     id: row.id as string,
@@ -398,8 +410,8 @@ export function mapRequestRow(
     interests: Array.isArray(row.interests)
       ? (row.interests as string[]).filter((s) => (VALID_INTEREST_SLUGS as readonly string[]).includes(s))
       : [],
-    mode: (row.open_to_join as boolean) === true ? "assembly" : "private",
-    format: formatRequestPreference((row.format_preference as string | null | undefined) ?? ""),
+    mode: mapRequestMode(formatPreference, row.open_to_join as boolean | null | undefined),
+    format: formatRequestPreference(formatPreference ?? ""),
     status: (row.status as RequestRecord["status"]) ?? "open",
     createdAt: (row.created_at as string) ?? "",
     offerCount: 0,
