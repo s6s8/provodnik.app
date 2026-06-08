@@ -80,11 +80,15 @@ export async function proxy(request: NextRequest) {
   // Role lookup matches server-auth.ts: profiles.role is canonical.
   // JWT app_metadata.role is a signup cache and may be stale when profile.role
   // was updated without refreshing the claim (see AP-038).
-  const { data: profile } = await supabase
+  const { data: profile, error: profileReadError } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
+
+  if (profileReadError) {
+    return applyCookies(redirectTo(request, "/auth?error=missing-role"));
+  }
 
   const role: AppRole | null = resolveCanonicalRole({
     profileRole: profile?.role,
