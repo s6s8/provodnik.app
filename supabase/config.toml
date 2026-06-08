@@ -1,17 +1,17 @@
-project_id = "pvd-agent-confirmed-rename-v1"
+project_id = "pvd-agent-fix-missing-alert-dialog"
 
 [api]
 enabled = true
-port = 55121
+port = 55621
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 55122
+port = 55622
 shadow_port = 54320
 major_version = 17
 
 [studio]
 enabled = true
-port = 55123
+port = 55623
