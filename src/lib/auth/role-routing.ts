@@ -74,11 +74,11 @@ export function roleHasAccess(userRole: AppRole, requiredRole: AppRole): boolean
 export function resolveCanonicalRole(input: {
   profileRole: string | null | undefined;
   appMetadataRole: string | null | undefined;
+  /** Kept for caller compatibility; user_metadata.role is untrusted for authorization. */
   userMetadataRole?: string | null | undefined;
 }): AppRole | null {
   if (hasAdminRole(input)) return "admin";
   if (isAppRole(input.profileRole)) return input.profileRole;
   if (isAppRole(input.appMetadataRole)) return input.appMetadataRole;
-  if (isAppRole(input.userMetadataRole)) return input.userMetadataRole;
   return null;
 }
