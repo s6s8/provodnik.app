@@ -1,12 +1,39 @@
-import { render, screen } from "@testing-library/react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClient, requireAdminSession } = vi.hoisted(() => ({
-  createSupabaseServerClient: vi.fn(),
-  requireAdminSession: vi.fn(),
-}));
+const bunTestSpecifier = "bun:" + "test";
+const bunMock = process.env.VITEST
+  ? null
+  : ((await import(bunTestSpecifier)) as typeof import("bun:test")).mock;
 
-vi.mock("@/components/shared/empty-state", () => ({
+const createSupabaseServerClient = vi.fn();
+const requireAdminSession = vi.fn();
+
+if (typeof vi.doMock === "function") {
+  vi.doMock("@/components/shared/empty-state", () => ({
+    EmptyState: ({
+      title,
+      description,
+    }: {
+      title: string;
+      description: string;
+    }) => (
+      <div>
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+    ),
+  }));
+  vi.doMock("server-only", () => ({}));
+  vi.doMock("@/lib/supabase/moderation", () => ({
+    requireAdminSession,
+  }));
+  vi.doMock("@/lib/supabase/server", () => ({
+    createSupabaseServerClient,
+  }));
+}
+
+bunMock?.module("@/components/shared/empty-state", () => ({
   EmptyState: ({ title, description }: { title: string; description: string }) => (
     <div>
       <h2>{title}</h2>
@@ -14,17 +41,13 @@ vi.mock("@/components/shared/empty-state", () => ({
     </div>
   ),
 }));
-vi.mock("@/lib/supabase/moderation", () => ({
+bunMock?.module("server-only", () => ({}));
+bunMock?.module("@/lib/supabase/moderation", () => ({
   requireAdminSession,
 }));
-vi.mock("@/lib/supabase/server", () => ({
+bunMock?.module("@/lib/supabase/server", () => ({
   createSupabaseServerClient,
 }));
-vi.mock("./actions", () => ({
-  confirmPaymentAction: vi.fn(),
-}));
-
-import BookingsPage from "./page";
 
 function createBookingsQuery(data: unknown[]) {
   const limit = vi.fn().mockResolvedValue({ data, error: null });
@@ -44,6 +67,7 @@ describe("BookingsPage", () => {
       from: vi.fn(() => createBookingsQuery([])),
     };
     requireAdminSession.mockRejectedValue(new Error("Доступ только для администраторов."));
+    const { default: BookingsPage } = await import("./page");
 
     await expect(BookingsPage()).rejects.toThrow("Доступ только для администраторов.");
 
@@ -73,16 +97,18 @@ describe("BookingsPage", () => {
     };
     requireAdminSession.mockResolvedValue({ adminClient });
     createSupabaseServerClient.mockResolvedValue(serverClient);
+    const { default: BookingsPage } = await import("./page");
 
     const ui = await BookingsPage();
-    render(ui);
+    const html = renderToStaticMarkup(ui);
 
     expect(requireAdminSession).toHaveBeenCalledOnce();
     expect(createSupabaseServerClient).not.toHaveBeenCalled();
     expect(adminClient.from).toHaveBeenCalledWith("bookings");
     expect(serverClient.from).not.toHaveBeenCalled();
-    expect(screen.getByText("Ожидает подтверждения")).toBeInTheDocument();
-    expect(screen.getByText("1 250 ₽")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Подтвердить оплату" })).toBeInTheDocument();
+    expect(html).toContain("Ожидает подтверждения");
+    expect(html).toContain("1\u00a0250 ₽");
+    expect(html).toContain("Подтвердить бронирование");
+    expect(html).not.toContain("Подтвердить оплату");
   });
 });
