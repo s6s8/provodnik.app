@@ -33,10 +33,11 @@ const ALL_CATEGORIES = [
   "account",
 ] as const;
 
-const CATEGORY_ORDER: string[] = ALL_CATEGORIES.filter((category) => {
-  if (category === "payment" && !flags.FEATURE_TR_PAYMENT) return false;
-  return true;
-});
+function isCategoryEnabled(category: string): boolean {
+  return category !== "payment" || flags.FEATURE_TR_PAYMENT;
+}
+
+const CATEGORY_ORDER: string[] = ALL_CATEGORIES.filter(isCategoryEnabled);
 
 const FALLBACK_ARTICLES: HelpArticleRow[] = [
   {
@@ -96,13 +97,15 @@ function normalizeCategory(category: string | null): string {
 }
 
 function orderedCategories(articles: HelpArticleRow[]): string[] {
-  const present = new Set(articles.map((a) => normalizeCategory(a.category)));
+  const present = new Set(
+    articles.map((a) => normalizeCategory(a.category)).filter(isCategoryEnabled),
+  );
   const ordered: string[] = [];
   for (const k of CATEGORY_ORDER) {
     if (present.has(k)) ordered.push(k);
   }
   for (const k of present) {
-    if (!CATEGORY_ORDER.includes(k)) ordered.push(k);
+    if (!CATEGORY_ORDER.includes(k) && isCategoryEnabled(k)) ordered.push(k);
   }
   return ordered;
 }
@@ -136,7 +139,10 @@ export default async function HelpPage() {
     articles = FALLBACK_ARTICLES;
   }
 
-  const categories = orderedCategories(articles);
+  const enabledArticles = articles.filter((article) =>
+    isCategoryEnabled(normalizeCategory(article.category)),
+  );
+  const categories = orderedCategories(enabledArticles);
 
   return (
     <section className="pb-20 pt-10">
@@ -144,10 +150,10 @@ export default async function HelpPage() {
         <h1 className="mb-6 font-serif text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Центр помощи
         </h1>
-        <HelpSearch articles={articles} />
+        <HelpSearch articles={enabledArticles} />
         <div className="space-y-12">
           {categories.map((category) => {
-            const inCategory = articlesForCategory(articles, category);
+            const inCategory = articlesForCategory(enabledArticles, category);
             if (inCategory.length === 0) return null;
             return (
               <section key={category}>
