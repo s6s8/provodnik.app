@@ -8,7 +8,7 @@ vi.mock('@/lib/supabase/server', () => ({
   createSupabaseServerClient,
 }))
 
-import { getActiveRequests } from './traveler-requests'
+import { getActiveRequests, getConfirmedBookings } from './traveler-requests'
 import type { TravelerRequestSummary, ConfirmedBookingSummary } from './traveler-requests'
 
 beforeEach(() => {
@@ -113,5 +113,70 @@ describe('getActiveRequests', () => {
 
     expect(summary.open_to_join).toBe(true)
     expect(summary.date_locked).toBe(false)
+  })
+})
+
+describe('getConfirmedBookings', () => {
+  it('requests confirmation-ready statuses and returns confirmed bookings', async () => {
+    const bookingsQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'booking-1',
+          offer_id: 'offer-1',
+          request_id: 'request-1',
+          subtotal_minor: 150000,
+          currency: 'RUB',
+          guide_id: 'guide-1',
+          created_at: '2026-06-08T10:00:00Z',
+        }],
+        error: null,
+      }),
+    }
+    const requestsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({
+        data: [{ id: 'request-1', destination: 'Элиста', starts_on: '2026-07-01' }],
+        error: null,
+      }),
+    }
+    const threadsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({
+        data: [{ id: 'thread-1', booking_id: 'booking-1' }],
+        error: null,
+      }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingsQuery
+      if (table === 'traveler_requests') return requestsQuery
+      if (table === 'conversation_threads') return threadsQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    const rpc = vi.fn().mockResolvedValue({
+      data: [{ booking_id: 'booking-1', guide_id: 'guide-1', full_name: 'Иван', avatar_url: null }],
+      error: null,
+    })
+
+    createSupabaseServerClient.mockResolvedValue({ from, rpc })
+
+    const [booking] = await getConfirmedBookings('traveler-confirmed-1')
+
+    expect(bookingsQuery.in).toHaveBeenCalledWith('status', ['awaiting_guide_confirmation', 'confirmed'])
+    expect(bookingsQuery.in).not.toHaveBeenCalledWith('status', expect.arrayContaining(['pending']))
+    expect(booking).toEqual({
+      booking_id: 'booking-1',
+      request_id: 'request-1',
+      destination: 'Элиста',
+      starts_on: '2026-07-01',
+      price_minor: 150000,
+      currency: 'RUB',
+      guide_id: 'guide-1',
+      guide_name: 'Иван',
+      guide_avatar_url: null,
+      booking_thread_id: 'thread-1',
+    })
   })
 })

@@ -68,7 +68,7 @@ export async function createBooking(
       guide_id: data.guide_id,
       request_id: data.request_id,
       offer_id: data.offer_id,
-      status: "pending" as const,
+      status: "confirmed" as const,
       subtotal_minor: data.subtotal_minor,
       currency: "RUB",
     })
