@@ -195,6 +195,7 @@ export async function openOfferThreadAction(formData: FormData) {
 }
 
 const CANCELLABLE_STATUSES = ["open", "booked"] as const; // DB request_status vocab (open=active); NOT the UI status words
+const ACTIVE_BOOKING_STATUSES = ["awaiting_guide_confirmation", "confirmed"];
 
 export type CancelRequestActionState = { error: string | null };
 
@@ -231,6 +232,17 @@ export async function cancelRequestAction(
     .eq("id", requestId);
 
   if (updateError) return { error: "Не удалось отменить запрос." };
+
+  if (requestRow.status === "booked") {
+    const { error: bookingUpdateError } = await supabase
+      .from("bookings")
+      .update({ status: "cancelled" })
+      .eq("request_id", requestId)
+      .eq("traveler_id", user.id)
+      .in("status", ACTIVE_BOOKING_STATUSES);
+
+    if (bookingUpdateError) return { error: "Не удалось отменить связанное бронирование." };
+  }
 
   // Notify guides who submitted offers
   const { data: offers } = await supabase
