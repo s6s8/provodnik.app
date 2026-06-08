@@ -1,17 +1,17 @@
-project_id = "pvd-agent-traveler-cancel-request-v1"
+project_id = "pvd-agent-booking-autoconfirm-v1"
 
 [api]
 enabled = true
-port = 54921
+port = 54521
 schemas = ["public", "storage", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [db]
-port = 54922
+port = 54522
 shadow_port = 54320
 major_version = 17
 
 [studio]
 enabled = true
-port = 54923
+port = 54523
