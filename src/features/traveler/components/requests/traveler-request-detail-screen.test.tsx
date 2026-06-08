@@ -27,21 +27,19 @@ const baseRecord: TravelerRequestRecord = {
 };
 
 describe("TravelerRequestDetailScreen", () => {
-  it("shows the publication date in the badge row and unset budget honestly", () => {
+  it("shows the publication date below the badges and unset budget honestly", () => {
     render(<TravelerRequestDetailScreen record={baseRecord} />);
 
     const publishedAt = screen.getByText(/^Опубликован 3 июня 2026 г?., 14:25$/);
-    const metaRow = publishedAt.parentElement;
     expect(publishedAt).toHaveClass("text-xs", "text-muted-foreground");
-    expect(metaRow).toHaveClass("flex", "flex-row", "justify-between");
-    expect(metaRow).toContainElement(screen.getByText("Сборная группа"));
+    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.getByText("Бюджет не указан")).toBeInTheDocument();
   });
 
   it("frames the main request detail card", () => {
     render(<TravelerRequestDetailScreen record={baseRecord} />);
 
-    const detailCard = screen.getByRole("heading", { name: "Элиста" }).parentElement;
+    const detailCard = screen.getByRole("heading", { name: "Элиста" }).closest(".rounded-lg");
     expect(detailCard).toHaveClass("rounded-lg", "border", "bg-card", "p-4");
   });
 

@@ -8,6 +8,7 @@ import { getOrCreateThread } from "@/lib/supabase/conversations";
 import { createBooking } from "@/lib/supabase/bookings";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createNotification } from "@/lib/notifications/create-notification";
 
 export type AcceptOfferActionState = {
   error: string | null;
@@ -191,4 +192,71 @@ export async function openOfferThreadAction(formData: FormData) {
 
   const thread = await getOrCreateThread("offer", offer.id, user.id, [offer.guide_id]);
   redirect(`/messages/${thread.id}`);
+}
+
+const CANCELLABLE_STATUSES = ["open", "booked"] as const; // DB request_status vocab (open=active); NOT the UI status words
+
+export type CancelRequestActionState = { error: string | null };
+
+export async function cancelRequestAction(
+  _prev: CancelRequestActionState,
+  formData: FormData,
+): Promise<CancelRequestActionState> {
+  const requestId = formData.get("request_id") as string | null;
+  if (!requestId) return { error: "Идентификатор запроса не указан." };
+
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+  if (authError || !user) return { error: "Необходима авторизация." };
+
+  const { data: requestRow, error: reqError } = await supabase
+    .from("traveler_requests")
+    .select("id, traveler_id, status, destination, starts_on")
+    .eq("id", requestId)
+    .maybeSingle();
+
+  if (reqError || !requestRow) return { error: "Запрос не найден." };
+  if (requestRow.traveler_id !== user.id) return { error: "Нет прав на отмену этого запроса." };
+  if (!(CANCELLABLE_STATUSES as readonly string[]).includes(requestRow.status)) {
+    return { error: "Запрос нельзя отменить в текущем статусе." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("traveler_requests")
+    .update({ status: "cancelled" })
+    .eq("id", requestId);
+
+  if (updateError) return { error: "Не удалось отменить запрос." };
+
+  // Notify guides who submitted offers
+  const { data: offers } = await supabase
+    .from("guide_offers")
+    .select("guide_id")
+    .eq("request_id", requestId)
+    .in("status", ["pending", "accepted"]);
+
+  if (offers && offers.length > 0) {
+    const destination = requestRow.destination ?? "запрос";
+    const date = requestRow.starts_on
+      ? new Date(requestRow.starts_on).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
+      : "";
+    const body = [date, destination].filter(Boolean).join(" · ");
+    await Promise.allSettled(
+      offers.map((o) =>
+        createNotification({
+          userId: o.guide_id,
+          kind: "booking_cancelled",
+          title: "Путешественник отменил запрос",
+          body,
+          href: `/guide/inbox/${requestId}`,
+        }),
+      ),
+    );
+  }
+
+  redirect("/traveler/requests");
 }
