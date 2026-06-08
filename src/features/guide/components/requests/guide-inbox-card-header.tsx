@@ -47,7 +47,7 @@ export function GuideInboxCardHeader({
           {travelerDisplayName}
         </p>
         <p className="text-sm text-muted-foreground">
-          {item.format ? <>{item.format} </> : null}в{" "}
+          в{" "}
           <span className="font-medium text-foreground">
             {item.destination}
           </span>

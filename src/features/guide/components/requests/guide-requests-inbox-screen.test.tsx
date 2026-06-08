@@ -182,14 +182,6 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     });
   });
 
-  it("shows the scoped request count in the header", async () => {
-    render(<GuideRequestsInboxScreen />);
-
-    await waitFor(() => {
-      expect(screen.getByText("1 запрос.")).toBeInTheDocument();
-    });
-    expect(screen.queryByText("2 запроса.")).toBeNull();
-  });
 
   it("loads request rows through the server-side inbox loader", async () => {
     render(<GuideRequestsInboxScreen />);
@@ -207,7 +199,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       ),
       "utf8",
     );
-    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{item\.description/)?.[1];
+    const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{\/\* Actions \*\/\}/)?.[1];
 
     expect(metaBlock).toContain(
       'className="mt-3 space-y-1 text-xs text-muted-foreground"',

@@ -18,6 +18,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
+type CatalogRouteTab = "catalog" | "route";
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
@@ -50,15 +51,6 @@ const offerFormSchema = z.object({
 
 type OfferFormValues = z.infer<typeof offerFormSchema>;
 
-function formatRub(amount: number | undefined | null): string {
-  if (!amount || Number.isNaN(amount)) return "—";
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
 
 function getDefaultValidUntil(): string {
   const d = new Date();
@@ -71,7 +63,7 @@ const FIELD_CLASS =
 
 function ProposedBadge() {
   return (
-    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-[0.7rem] font-medium text-primary">
+    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
       ↔️ предложено
     </span>
   );
@@ -97,6 +89,7 @@ export function BidFormPanel({
   const [selectedExcursion, setSelectedExcursion] = React.useState<GuideTemplateRow | null>(null);
   const [excursionPickerOpen, setExcursionPickerOpen] = React.useState(false);
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
+  const [activeCatalogRouteTab, setActiveCatalogRouteTab] = React.useState<CatalogRouteTab>("catalog");
   const [guideVerificationStatus, setGuideVerificationStatus] = React.useState<string | null>(null);
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
@@ -182,6 +175,11 @@ export function BidFormPanel({
     ((startTimeVal ?? "") !== (request.startTime ?? "") || (endTimeVal ?? "") !== (request.endTime ?? ""));
 
   const budgetCeilingPerPerson = request.budgetRub > 0 ? request.budgetRub : undefined;
+  const hasCatalog = guideTemplates.length > 0;
+  const hasRouteBuilder = guidePhotos.length > 0;
+  const showCatalogRouteTabs = hasCatalog && hasRouteBuilder;
+  const showCatalogPicker = hasCatalog && (!showCatalogRouteTabs || activeCatalogRouteTab === "catalog");
+  const showRouteBuilder = hasRouteBuilder && (!showCatalogRouteTabs || activeCatalogRouteTab === "route");
 
   // Two-sided price calculator: editing one field recomputes the other by current count.
   const handleGroupChange = React.useCallback(
@@ -281,7 +279,7 @@ export function BidFormPanel({
       >
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
-            <h2 className="font-sans text-[1.0625rem] font-semibold text-foreground">
+            <h2 className="font-sans text-base font-semibold text-foreground">
               Сделать предложение
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
@@ -300,38 +298,6 @@ export function BidFormPanel({
 
         {/* Request context (readonly) */}
         <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-3">
-          <div className="flex flex-wrap gap-2">
-            <span
-              className={
-                request.mode === "assembly"
-                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
-                  : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
-              }
-            >
-              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-            </span>
-            <span
-              className={
-                request.dateFlexibility === "few_days"
-                  ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700"
-                  : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
-              }
-            >
-              {request.dateFlexibility === "few_days" ? "гибкие даты" : "точная дата"}
-            </span>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">
-              {request.mode === "assembly"
-                ? "К запросу могут присоединяться другие путешественники"
-                : `Группа закрытая — только ${request.groupSize} человек`}
-            </p>
-            {request.dateFlexibility === "few_days" ? (
-              <p className="text-xs text-muted-foreground">
-                Путешественник открыт к близким датам — предложите удобную вам дату
-              </p>
-            ) : null}
-          </div>
           {request.interests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.interests.map((interest) => (
@@ -341,125 +307,161 @@ export function BidFormPanel({
               ))}
             </div>
           ) : null}
-          {request.description ? (
-            <div>
-              <p className="text-xs font-medium text-foreground/50 mb-0.5">Пожелания</p>
-              <p className="whitespace-pre-line text-sm text-foreground/80">{request.description}</p>
-            </div>
-          ) : null}
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 px-6 py-6" noValidate>
-          {guideTemplates.length > 0 ? (
-            <div className="grid gap-2">
-              <p className="text-sm font-medium text-foreground">Моя экскурсия</p>
-              {selectedExcursion ? (
-                <div className="rounded-xl border border-success/30 bg-success/10 px-3.5 py-3">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-foreground">
-                        {selectedExcursion.title}
-                      </p>
-                      {selectedExcursion.duration_text ? (
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {selectedExcursion.duration_text}
-                        </p>
-                      ) : null}
-                    </div>
-                    <button
-                      type="button"
-                      disabled={submitted}
-                      onClick={() => {
-                        setSelectedExcursion(null);
-                        setExcursionPickerOpen(true);
-                      }}
-                      className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-60"
-                    >
-                      × изменить
-                    </button>
-                  </div>
+          {hasCatalog || hasRouteBuilder ? (
+            <div className="grid gap-3">
+              {showCatalogRouteTabs ? (
+                <div className="grid grid-cols-2 gap-2 rounded-xl bg-muted p-1">
+                  <button
+                    type="button"
+                    disabled={submitted}
+                    onClick={() => setActiveCatalogRouteTab("catalog")}
+                    className={
+                      activeCatalogRouteTab === "catalog"
+                        ? "min-h-10 rounded-lg bg-surface px-3 text-sm font-medium text-foreground shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                        : "min-h-10 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    }
+                  >
+                    Мой каталог
+                  </button>
+                  <button
+                    type="button"
+                    disabled={submitted}
+                    onClick={() => setActiveCatalogRouteTab("route")}
+                    className={
+                      activeCatalogRouteTab === "route"
+                        ? "min-h-10 rounded-lg bg-surface px-3 text-sm font-medium text-foreground shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
+                        : "min-h-10 rounded-lg px-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
+                    }
+                  >
+                    Построить путь
+                  </button>
                 </div>
-              ) : (
-                <button
-                  type="button"
-                  disabled={submitted}
-                  onClick={() => setExcursionPickerOpen((prev) => !prev)}
-                  className="inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Выбрать экскурсию ↓
-                </button>
-              )}
-              {excursionPickerOpen ? (
-                <div className="grid gap-2 rounded-xl border border-border bg-surface-high p-2">
-                  {guideTemplates.map((template) => (
+              ) : null}
+
+              {showCatalogPicker ? (
+                <div className="grid gap-2">
+                  {selectedExcursion ? (
+                    <div className="rounded-xl border border-success/30 bg-success/10 px-3.5 py-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-foreground">
+                            {selectedExcursion.title}
+                          </p>
+                          {selectedExcursion.duration_text ? (
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              {selectedExcursion.duration_text}
+                            </p>
+                          ) : null}
+                        </div>
+                        <button
+                          type="button"
+                          disabled={submitted}
+                          onClick={() => {
+                            setSelectedExcursion(null);
+                            setExcursionPickerOpen(true);
+                          }}
+                          className="shrink-0 text-xs font-medium text-primary transition-colors hover:text-primary/80 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          × изменить
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
                     <button
-                      key={template.id}
                       type="button"
                       disabled={submitted}
-                      onClick={() => {
-                        setSelectedExcursion(template);
-                        setValue("message", template.description ?? "");
-                        setExcursionPickerOpen(false);
-                      }}
-                      className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                      onClick={() => setExcursionPickerOpen((prev) => !prev)}
+                      className="inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <span className="min-w-0 truncate text-sm font-medium text-foreground">
-                        {template.title}
-                      </span>
-                      {template.duration_text ? (
-                        <span className="shrink-0 text-xs text-muted-foreground">
-                          {template.duration_text}
-                        </span>
-                      ) : null}
+                      Выбрать из моих экскурсий ↓
                     </button>
-                  ))}
+                  )}
+                  {excursionPickerOpen ? (
+                    <div className="grid gap-2 rounded-xl border border-border bg-surface-high p-2">
+                      {guideTemplates.map((template) => (
+                        <button
+                          key={template.id}
+                          type="button"
+                          disabled={submitted}
+                          onClick={() => {
+                            setSelectedExcursion(template);
+                            setValue("message", template.description ?? "");
+                            setExcursionPickerOpen(false);
+                          }}
+                          className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          <span className="min-w-0 truncate text-sm font-medium text-foreground">
+                            {template.title}
+                          </span>
+                          {template.duration_text ? (
+                            <span className="shrink-0 text-xs text-muted-foreground">
+                              {template.duration_text}
+                            </span>
+                          ) : null}
+                        </button>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {showRouteBuilder ? (
+                <div className="grid gap-3">
+                  {routeStops.length > 0 ? (
+                    <div className="flex flex-col gap-2">
+                      {routeStops.map((stop, idx) => (
+                        <div key={stop.photoId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-high p-2">
+                          <Image src={stop.photoUrl} alt={stop.locationName} width={40} height={40} className="size-10 rounded-lg object-cover" />
+                          <span className="flex-1 text-sm">{stop.locationName}</span>
+                          <button type="button" disabled={submitted} onClick={() => setRouteStops((prev) => prev.filter((_, i) => i !== idx))}
+                            className="text-muted-foreground hover:text-destructive text-xs">✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Создайте персонализированный маршрут из фото-локаций
+                    </p>
+                  )}
+                  <div className="flex gap-2 overflow-x-auto pb-1">
+                    {guidePhotos
+                      .filter((p) => !routeStops.some((s) => s.photoId === p.id))
+                      .map((photo) => (
+                        <button
+                          key={photo.id}
+                          type="button"
+                          disabled={submitted}
+                          onClick={() => setRouteStops((prev) => [...prev, { photoId: photo.id, locationName: photo.location_name, photoUrl: photo.photoUrl, sortOrder: prev.length }])}
+                          className="relative flex-shrink-0 overflow-hidden rounded-xl"
+                        >
+                          <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
+                          <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
+                            <p className="truncate text-xs text-primary-foreground">{photo.location_name}</p>
+                          </div>
+                        </button>
+                      ))}
+                  </div>
                 </div>
               ) : null}
             </div>
           ) : null}
 
-          {/* Route builder */}
-          {guidePhotos.length > 0 && (
-            <div className="grid gap-3">
-              <p className="text-sm font-medium text-foreground">Маршрут</p>
-              {routeStops.length > 0 && (
-                <div className="flex flex-col gap-2">
-                  {routeStops.map((stop, idx) => (
-                    <div key={stop.photoId} className="flex items-center gap-3 rounded-xl border border-border bg-surface-high p-2">
-                      <Image src={stop.photoUrl} alt={stop.locationName} width={40} height={40} className="size-10 rounded-lg object-cover" />
-                      <span className="flex-1 text-sm">{stop.locationName}</span>
-                      <button type="button" disabled={submitted} onClick={() => setRouteStops((prev) => prev.filter((_, i) => i !== idx))}
-                        className="text-muted-foreground hover:text-destructive text-xs">✕</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {guidePhotos
-                  .filter((p) => !routeStops.some((s) => s.photoId === p.id))
-                  .map((photo) => (
-                    <button
-                      key={photo.id}
-                      type="button"
-                      disabled={submitted}
-                      onClick={() => setRouteStops((prev) => [...prev, { photoId: photo.id, locationName: photo.location_name, photoUrl: photo.photoUrl, sortOrder: prev.length }])}
-                      className="relative flex-shrink-0 overflow-hidden rounded-xl"
-                    >
-                      <Image src={photo.photoUrl} alt={photo.location_name} width={64} height={64} className="size-16 object-cover" />
-                      <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
-                        <p className="truncate text-[10px] text-primary-foreground">{photo.location_name}</p>
-                      </div>
-                    </button>
-                  ))}
-              </div>
-            </div>
-          )}
-
           {/* Когда: date */}
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-foreground">Дата</label>
               {dateShifted ? <ProposedBadge /> : null}
+              <span
+                className={
+                  request.dateFlexibility === "few_days"
+                    ? "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700"
+                    : "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
+                }
+              >
+                {request.dateFlexibility === "few_days" ? "Гибкие даты" : "Точная дата"}
+              </span>
             </div>
             <div className="relative">
               <input
@@ -476,58 +478,72 @@ export function BidFormPanel({
                 />
               ) : null}
             </div>
-            {dateLocked ? (
-              <p className="text-xs text-muted-foreground">путешественник просит строго эту дату</p>
-            ) : null}
           </div>
 
           {/* Когда: time start → end */}
           <div className="grid gap-2">
-            <div className="flex items-center gap-2">
-              <label className="text-sm font-medium text-foreground">Время начала — конца</label>
-              {timeShifted ? <ProposedBadge /> : null}
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <input
-                  type="time"
-                  aria-label="Время начала"
-                  className={`${FIELD_CLASS} pr-10`}
-                  disabled={submitted || timeLocked}
-                  {...register("excursion_start_time")}
-                />
-                {timeLocked ? (
-                  <Lock
-                    aria-hidden="true"
-                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                  />
-                ) : null}
+            {timeShifted ? (
+              <div className="flex items-center gap-2">
+                <ProposedBadge />
               </div>
-              <div className="relative flex-1">
-                <input
-                  type="time"
-                  aria-label="Время окончания"
-                  className={`${FIELD_CLASS} pr-10`}
-                  disabled={submitted || timeLocked}
-                  {...register("excursion_end_time")}
-                />
-                {timeLocked ? (
-                  <Lock
-                    aria-hidden="true"
-                    className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-                  />
-                ) : null}
-              </div>
-            </div>
-            {timeLocked ? (
-              <p className="text-xs text-muted-foreground">путешественник просит строго это время</p>
             ) : null}
+            <div className="flex items-center gap-2">
+              <div className="grid flex-1 gap-2">
+                <label className="text-sm font-medium text-foreground">Начало</label>
+                <div className="relative">
+                  <input
+                    type="time"
+                    aria-label="Время начала"
+                    className={`${FIELD_CLASS} pr-10`}
+                    disabled={submitted || timeLocked}
+                    {...register("excursion_start_time")}
+                  />
+                  {timeLocked ? (
+                    <Lock
+                      aria-hidden="true"
+                      className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                  ) : null}
+                </div>
+              </div>
+              <div className="grid flex-1 gap-2">
+                <label className="text-sm font-medium text-foreground">Конец</label>
+                <div className="relative">
+                  <input
+                    type="time"
+                    aria-label="Время окончания"
+                    className={`${FIELD_CLASS} pr-10`}
+                    disabled={submitted || timeLocked}
+                    {...register("excursion_end_time")}
+                  />
+                  {timeLocked ? (
+                    <Lock
+                      aria-hidden="true"
+                      className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                    />
+                  ) : null}
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Количество человек — только для сборной группы; для своей группа уже сформирована */}
-          {request.mode === "assembly" ? (
-            <div className="grid gap-2">
-              <label className="text-sm font-medium text-foreground">Максимум мест в группе</label>
+          {/* Количество человек */}
+          <div className="grid gap-2">
+            <div className="flex items-center gap-2">
+              <span
+                className={
+                  request.mode === "assembly"
+                    ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
+                    : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
+                }
+              >
+                {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+              </span>
+              <span className="text-sm font-medium text-foreground">
+                {request.mode === "assembly" ? "Сколько человек готовы взять?" : "Группа сформирована"}
+              </span>
+            </div>
+            {request.mode === "assembly" ? (
               <input
                 type="number"
                 inputMode="numeric"
@@ -537,11 +553,8 @@ export function BidFormPanel({
                 disabled={submitted}
                 {...register("headcount", { valueAsNumber: true })}
               />
-              <p className="text-xs text-muted-foreground">
-                Гид открывает столько мест — путешественники могут присоединяться
-              </p>
-            </div>
-          ) : null}
+            ) : null}
+          </div>
 
           {/* Цена — двусторонний калькулятор */}
           <div className="grid gap-2">
@@ -562,7 +575,7 @@ export function BidFormPanel({
                     onChange: (e) => handleGroupChange(e.target.value),
                   })}
                 />
-                <p className="mt-1 text-[0.7rem] text-muted-foreground">За группу, ₽</p>
+                <p className="mt-1 text-xs text-muted-foreground">За группу, ₽</p>
               </div>
               <div className="flex-1">
                 <input
@@ -578,29 +591,20 @@ export function BidFormPanel({
                     onChange: (e) => handlePerPersonChange(e.target.value),
                   })}
                 />
-                <p className="mt-1 text-[0.7rem] text-muted-foreground">На человека, ₽</p>
+                <p className="mt-1 text-xs text-muted-foreground">На человека, ₽</p>
               </div>
             </div>
             {errors.price_total ? (
               <p className="text-xs text-destructive">{errors.price_total.message}</p>
-            ) : budgetCeilingPerPerson ? (
-              <p className="text-xs text-muted-foreground">
-                Потолок путешественника — {formatRub(budgetCeilingPerPerson)} за человека. Можно предложить дешевле.
-              </p>
-            ) : (
-              <p className="text-xs text-muted-foreground">Путешественник открыт к предложениям — назовите свою цену.</p>
-            )}
+            ) : null}
           </div>
 
           {/* Сообщение */}
           <div className="grid gap-2">
-            <label htmlFor="panel-message" className="text-sm font-medium text-foreground">
-              Сообщение гостю
-            </label>
             <textarea
               id="panel-message"
               className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
-              placeholder="Расскажите, почему стоит выбрать вас, и уточните нюансы маршрута."
+              placeholder="Дополнительная информация об экскурсии, вопросы и условия"
               aria-invalid={Boolean(errors.message)}
               disabled={submitted}
               {...register("message")}

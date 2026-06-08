@@ -4,7 +4,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { RequestRecord } from "@/data/supabase/queries";
 import type { GuideTemplateRow } from "@/lib/supabase/types";
 
-const { guideTemplates, submitOfferAction, verificationStatus } = vi.hoisted(() => ({
+const { guidePhotos, guideTemplates, submitOfferAction, verificationStatus } = vi.hoisted(() => ({
+  guidePhotos: {
+    value: [] as Array<{ id: string; location_name: string; object_path: string }>,
+  },
   guideTemplates: { value: [] as GuideTemplateRow[] },
   submitOfferAction: vi.fn(),
   verificationStatus: { value: "approved" as string | null },
@@ -27,12 +30,16 @@ vi.mock("@/lib/supabase/client", () => ({
         }),
       }),
     }),
-    storage: { from: () => ({ getPublicUrl: () => ({ data: { publicUrl: "" } }) }) },
+    storage: {
+      from: () => ({
+        getPublicUrl: (objectPath: string) => ({ data: { publicUrl: `/photos/${objectPath}` } }),
+      }),
+    },
   }),
 }));
 
 vi.mock("@/data/guide-assets/supabase-client", () => ({
-  listGuideLocationPhotos: async () => [],
+  listGuideLocationPhotos: async () => guidePhotos.value,
 }));
 
 vi.mock("@/data/guide-templates/supabase-client", () => ({
@@ -43,6 +50,7 @@ import { BidFormPanel } from "./bid-form-panel";
 
 beforeEach(() => {
   vi.clearAllMocks();
+  guidePhotos.value = [];
   guideTemplates.value = [];
   verificationStatus.value = "approved";
   submitOfferAction.mockResolvedValue({ ok: true, offerId: "offer-1" });
@@ -86,9 +94,7 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(
-      screen.getByText("К запросу могут присоединяться другие путешественники"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.queryByText(/^Открытая группа$/)).toBeNull();
   });
 
@@ -101,7 +107,6 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(screen.getByText("Группа закрытая — только 4 человек")).toBeInTheDocument();
     expect(screen.getByText("Своя группа")).toBeInTheDocument();
   });
 });
@@ -118,10 +123,9 @@ describe("BidFormPanel — date/time locks", () => {
 
     expect(screen.getByLabelText(/Дата/)).toBeDisabled();
     expect(screen.getByLabelText(/Время начала/)).toBeDisabled();
-    expect(screen.getByText("путешественник просит строго эту дату")).toBeInTheDocument();
   });
 
-  it("shows hint in context block when dateFlexibility is few_days", () => {
+  it("drops the few_days explanatory hint (UX point 7) but keeps the гибкие даты badge", () => {
     render(
       <BidFormPanel
         requestId="req-1"
@@ -130,9 +134,25 @@ describe("BidFormPanel — date/time locks", () => {
       />,
     );
 
+    // Point 7 (commit b5240a8, approved) removed explanatory texts under context badges.
     expect(
-      screen.getByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
-    ).toBeInTheDocument();
+      screen.queryByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
+    ).toBeNull();
+    expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
+  });
+});
+
+describe("BidFormPanel — request context", () => {
+  it("does not render traveler wishes in the readonly context block", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, description: "Хочу неспешную прогулку без музеев." }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(screen.queryByText("Хочу неспешную прогулку без музеев.")).toBeNull();
   });
 });
 
@@ -183,16 +203,16 @@ describe("BidFormPanel — excursion picker", () => {
       />,
     );
 
-    expect(await screen.findByRole("button", { name: "Выбрать экскурсию ↓" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Выбрать из моих экскурсий ↓" })).toBeInTheDocument();
     expect(screen.queryByText("Из шаблона ↑")).toBeNull();
 
     expect(screen.getByPlaceholderText("За группу, ₽")).toHaveValue(3000);
     expect(screen.getByPlaceholderText("На человека, ₽")).toHaveValue(1500);
 
-    fireEvent.click(screen.getByRole("button", { name: "Выбрать экскурсию ↓" }));
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать из моих экскурсий ↓" }));
     fireEvent.click(screen.getByRole("button", { name: /Морской променад/ }));
 
-    expect(screen.getByLabelText("Сообщение гостю")).toHaveValue(
+    expect(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия")).toHaveValue(
       "Покажу любимый маршрут вдоль моря и старых дач.",
     );
     expect(screen.getByText("Морской променад")).toBeInTheDocument();
@@ -200,6 +220,70 @@ describe("BidFormPanel — excursion picker", () => {
     expect(screen.getByRole("button", { name: "× изменить" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("За группу, ₽")).toHaveValue(3000);
     expect(screen.getByPlaceholderText("На человека, ₽")).toHaveValue(1500);
+  });
+});
+
+describe("BidFormPanel — catalog and route switcher", () => {
+  const template: GuideTemplateRow = {
+    id: "template-1",
+    guide_id: "guide-1",
+    title: "Морской променад",
+    description: "Покажу любимый маршрут вдоль моря и старых дач.",
+    duration_text: "2 часа",
+    price_from_kopecks: 990_000,
+    meeting_point: null,
+    max_participants: null,
+    photo_urls: [],
+    status: "published",
+    region: null,
+    category: null,
+    created_at: "2026-01-01T00:00:00Z",
+    updated_at: "2026-01-01T00:00:00Z",
+  };
+
+  it("shows tabs when catalog templates and route photos are both available", async () => {
+    guideTemplates.value = [template];
+    guidePhotos.value = [
+      { id: "photo-1", location_name: "Морской вокзал", object_path: "photo-1.jpg" },
+    ];
+
+    render(<BidFormPanel requestId="req-1" request={baseRequest} onClose={() => {}} />);
+
+    expect(await screen.findByRole("button", { name: "Мой каталог" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Построить путь" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Выбрать из моих экскурсий ↓" })).toBeInTheDocument();
+    expect(screen.queryByText("Создайте персонализированный маршрут из фото-локаций")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Построить путь" }));
+
+    expect(screen.queryByRole("button", { name: "Выбрать из моих экскурсий ↓" })).toBeNull();
+    expect(screen.getByText("Создайте персонализированный маршрут из фото-локаций")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Морской вокзал/ })).toBeInTheDocument();
+  });
+
+  it("shows route builder without tabs when only route photos are available", async () => {
+    guidePhotos.value = [
+      { id: "photo-1", location_name: "Морской вокзал", object_path: "photo-1.jpg" },
+    ];
+
+    render(<BidFormPanel requestId="req-1" request={baseRequest} onClose={() => {}} />);
+
+    expect(await screen.findByText("Создайте персонализированный маршрут из фото-локаций")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Мой каталог" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Построить путь" })).toBeNull();
+  });
+});
+
+describe("BidFormPanel — form copy", () => {
+  it("renders updated labels and placeholder text", () => {
+    render(<BidFormPanel requestId="req-1" request={baseRequest} onClose={() => {}} />);
+
+    expect(screen.getByText("Начало")).toBeInTheDocument();
+    expect(screen.getByText("Конец")).toBeInTheDocument();
+    expect(screen.getByText("Сколько человек готовы взять?")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"),
+    ).toBeInTheDocument();
   });
 });
 
@@ -214,7 +298,7 @@ describe("BidFormPanel — verification gate", () => {
       />,
     );
 
-    fireEvent.change(screen.getByLabelText("Сообщение гостю"), {
+    fireEvent.change(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"), {
       target: { value: "Готов провести маршрут по вашему запросу." },
     });
     fireEvent.click(screen.getByRole("button", { name: "Отправить предложение" }));
