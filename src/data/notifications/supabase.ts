@@ -31,7 +31,7 @@ function mapRow(row: NotificationRow): NotificationRecord {
     kind: kindDb,
     severity,
     createdAt: row.created_at,
-    readAt: row.is_read ? row.created_at : null,
+    readAt: row.is_read ? row.read_at : null,
     title: row.title,
     body: row.body ?? "",
     href: row.href ?? undefined,
@@ -52,7 +52,7 @@ export async function listNotificationsForCurrentUserFromSupabase(): Promise<
   const { data, error } = await supabase
     .from("notifications")
     .select(
-      "id, user_id, kind, title, body, href, is_read, created_at",
+      "id, user_id, kind, title, body, href, is_read, created_at, read_at",
     )
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
