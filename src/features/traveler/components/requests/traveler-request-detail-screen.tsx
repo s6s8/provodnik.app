@@ -94,9 +94,12 @@ export function TravelerRequestDetailScreen({ record }: Props) {
 
       <div className="space-y-3 rounded-lg border bg-card p-4">
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-3xl font-semibold text-foreground">
-            {request.destination}
-          </h1>
+          <div>
+            <h1 className="text-3xl font-semibold text-foreground">
+              {request.destination}
+            </h1>
+            <p className="text-xs text-muted-foreground mt-1">{publishedAt}</p>
+          </div>
           <CancelRequestButton requestId={record.id} status={record.status} />
         </div>
 
@@ -142,8 +145,6 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             </Badge>
           )}
         </div>
-
-        <p className="text-xs text-muted-foreground">{publishedAt}</p>
 
         {interests.length > 0 ? (
           <div className="flex flex-wrap gap-2">
