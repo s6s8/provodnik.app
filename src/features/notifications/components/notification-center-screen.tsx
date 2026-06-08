@@ -44,6 +44,7 @@ export function NotificationCenterScreen() {
   const [notifications, setNotifications] = React.useState<NotificationRecord[]>([]);
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [userId, setUserId] = React.useState<string | null>(null);
+  const [loadError, setLoadError] = React.useState(false);
 
   React.useEffect(() => {
     let ignore = false;
@@ -64,12 +65,16 @@ export function NotificationCenterScreen() {
           .eq("user_id", user.id)
           .order("created_at", { ascending: false });
 
-        if (error || !data || ignore) return;
+        if (error || !data) {
+          if (!ignore) setLoadError(true);
+          return;
+        }
+        if (ignore) return;
         const mapped = data.map(mapNotificationRow);
         setNotifications(mapped);
         setUnreadCount(mapped.filter((n) => n.readAt === null).length);
       } catch {
-        // Supabase unavailable
+        if (!ignore) setLoadError(true);
       }
     }
 
@@ -81,20 +86,23 @@ export function NotificationCenterScreen() {
     async (notificationId: string) => {
       if (!userId) return;
 
+      const readAt = new Date().toISOString();
       try {
         const supabase = createSupabaseBrowserClient();
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("notifications")
-          .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
+          .update({ is_read: true, status: "read", read_at: readAt })
           .eq("id", notificationId)
-          .eq("user_id", userId);
-        if (error) return;
+          .eq("user_id", userId)
+          .select("id")
+          .maybeSingle();
+        if (error || !data) return;
       } catch {
         return;
       }
       setNotifications((prev) =>
         prev.map((n) =>
-          n.id === notificationId ? { ...n, readAt: n.readAt ?? new Date().toISOString() } : n,
+          n.id === notificationId ? { ...n, readAt: n.readAt ?? readAt } : n,
         ),
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
@@ -108,12 +116,14 @@ export function NotificationCenterScreen() {
 
       try {
         const supabase = createSupabaseBrowserClient();
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from("notifications")
           .update({ is_read: false, status: "sent", read_at: null })
           .eq("id", notificationId)
-          .eq("user_id", userId);
-        if (error) return;
+          .eq("user_id", userId)
+          .select("id")
+          .maybeSingle();
+        if (error || !data) return;
       } catch {
         return;
       }
@@ -128,22 +138,24 @@ export function NotificationCenterScreen() {
   const markAllRead = React.useCallback(async () => {
     if (!userId) return;
 
+    const readAt = new Date().toISOString();
     try {
       const supabase = createSupabaseBrowserClient();
-        const { error } = await supabase
+      const { data, error } = await supabase
         .from("notifications")
-          .update({ is_read: true, status: "read", read_at: new Date().toISOString() })
+        .update({ is_read: true, status: "read", read_at: readAt })
         .eq("user_id", userId)
-          .or("status.neq.read,read_at.is.null");
-        if (error) return;
+        .or("status.neq.read,read_at.is.null")
+        .select("id");
+      if (error || (unreadCount > 0 && (!data || data.length === 0))) return;
     } catch {
-        return;
+      return;
     }
     setNotifications((prev) =>
-      prev.map((n) => (n.readAt === null ? { ...n, readAt: new Date().toISOString() } : n)),
+      prev.map((n) => (n.readAt === null ? { ...n, readAt } : n)),
     );
     setUnreadCount(0);
-  }, [userId]);
+  }, [unreadCount, userId]);
 
   const visible = React.useMemo(() => {
     if (filter === "unread") return notifications.filter((item) => item.readAt === null);
@@ -208,7 +220,16 @@ export function NotificationCenterScreen() {
       </div>
 
       <div className="space-y-3">
-        {visible.length === 0 ? (
+        {loadError ? (
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader className="space-y-1">
+              <CardTitle>Не удалось загрузить уведомления.</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Попробуйте обновить страницу позже.
+              </p>
+            </CardHeader>
+          </Card>
+        ) : visible.length === 0 ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
               <CardTitle>Пока пусто</CardTitle>

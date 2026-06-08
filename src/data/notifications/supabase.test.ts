@@ -14,7 +14,9 @@ const userId = "22222222-2222-4222-8222-222222222222";
 const notificationId = "33333333-3333-4333-8333-333333333333";
 
 function createNotificationUpdateClient() {
-  const userEq = vi.fn().mockResolvedValue({ error: null });
+  const maybeSingle = vi.fn().mockResolvedValue({ data: { id: notificationId }, error: null });
+  const select = vi.fn(() => ({ maybeSingle }));
+  const userEq = vi.fn(() => ({ select }));
   const idEq = vi.fn(() => ({ eq: userEq }));
   const update = vi.fn(() => ({ eq: idEq }));
   const from = vi.fn(() => ({ update }));
@@ -33,6 +35,8 @@ function createNotificationUpdateClient() {
     update,
     idEq,
     userEq,
+    select,
+    maybeSingle,
   };
 }
 
@@ -50,5 +54,15 @@ describe("markNotificationReadInSupabase", () => {
     expect(supabase.from).toHaveBeenCalledWith("notifications");
     expect(supabase.idEq).toHaveBeenCalledWith("id", notificationId);
     expect(supabase.userEq).toHaveBeenCalledWith("user_id", userId);
+  });
+
+  it("rejects when the scoped update returns no updated row", async () => {
+    const supabase = createNotificationUpdateClient();
+    supabase.maybeSingle.mockResolvedValue({ data: null, error: null });
+    createSupabaseServerClient.mockResolvedValue(supabase.client);
+
+    await expect(markNotificationReadInSupabase(notificationId)).rejects.toThrow(
+      "Notification not found or not accessible.",
+    );
   });
 });

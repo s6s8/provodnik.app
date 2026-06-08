@@ -35,7 +35,12 @@ function createNotificationClient() {
   const loadEq = vi.fn(() => ({ order: loadOrder }));
   const select = vi.fn(() => ({ eq: loadEq }));
 
-  const updateUserEq = vi.fn().mockResolvedValue({ data: null, error: null });
+  const updateMaybeSingle = vi.fn().mockResolvedValue({
+    data: { id: notificationId },
+    error: null,
+  });
+  const updateSelect = vi.fn(() => ({ maybeSingle: updateMaybeSingle }));
+  const updateUserEq = vi.fn(() => ({ select: updateSelect }));
   const updateIdEq = vi.fn(() => ({ eq: updateUserEq }));
   const update = vi.fn(() => ({ eq: updateIdEq }));
 
@@ -55,6 +60,8 @@ function createNotificationClient() {
     update,
     updateIdEq,
     updateUserEq,
+    updateSelect,
+    updateMaybeSingle,
   };
 }
 
@@ -84,5 +91,45 @@ describe("NotificationCenterScreen", () => {
       expect(supabase.updateIdEq).toHaveBeenCalledWith("id", notificationId);
       expect(supabase.updateUserEq).toHaveBeenCalledWith("user_id", userId);
     });
+  });
+
+  it("keeps an unread notification unchanged when mark-read updates zero rows", async () => {
+    const supabase = createNotificationClient();
+    supabase.updateMaybeSingle.mockResolvedValue({ data: null, error: null });
+    createSupabaseBrowserClient.mockReturnValue(supabase.client);
+
+    render(<NotificationCenterScreen />);
+
+    expect(await screen.findByText("Новое предложение")).toBeInTheDocument();
+    expect(screen.getAllByText("1")).toHaveLength(2);
+
+    fireEvent.click(screen.getByRole("button", { name: "Отметить прочитанным" }));
+
+    await waitFor(() => {
+      expect(supabase.updateMaybeSingle).toHaveBeenCalled();
+    });
+    expect(screen.getAllByText("1")).toHaveLength(2);
+    expect(screen.getByText("Новое")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Отметить прочитанным" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows a load failure instead of the empty inbox when notifications fail to load", async () => {
+    const supabase = createNotificationClient();
+    supabase.loadEq.mockReturnValue({
+      order: vi.fn().mockResolvedValue({
+        data: null,
+        error: new Error("RLS load failed"),
+      }),
+    });
+    createSupabaseBrowserClient.mockReturnValue(supabase.client);
+
+    render(<NotificationCenterScreen />);
+
+    expect(
+      await screen.findByText("Не удалось загрузить уведомления."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Пока пусто")).not.toBeInTheDocument();
   });
 });
