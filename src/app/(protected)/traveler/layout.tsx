@@ -15,7 +15,11 @@ export default async function TravelerLayout({
     redirect("/auth?next=/traveler/requests");
   }
 
-  if (auth.role && auth.role !== "traveler") {
+  if (!auth.role) {
+    redirect(auth.missingRoleRecoveryTo ?? "/auth?error=missing-role");
+  }
+
+  if (auth.role !== "traveler") {
     redirect(auth.canonicalRedirectTo ?? "/");
   }
 

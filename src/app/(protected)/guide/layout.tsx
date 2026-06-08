@@ -17,7 +17,11 @@ export default async function GuideLayout({
     redirect("/auth?next=/guide/inbox");
   }
 
-  if (auth.role && !roleHasAccess(auth.role, "guide")) {
+  if (!auth.role) {
+    redirect(auth.missingRoleRecoveryTo ?? "/auth?error=missing-role");
+  }
+
+  if (!roleHasAccess(auth.role, "guide")) {
     redirect(auth.canonicalRedirectTo ?? "/");
   }
 

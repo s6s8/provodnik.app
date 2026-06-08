@@ -102,6 +102,43 @@ describe("proxy admin access", () => {
     expect(response.headers.get("location")).toBe("https://provodnik.app/traveler/requests");
   });
 
+  it("redirects to missing-role when the protected route profile role lookup fails", async () => {
+    const applyCookies = vi.fn((response) => response);
+    createSupabaseMiddlewareClientMock.mockReturnValue({
+      applyCookies,
+      supabase: {
+        auth: {
+          getUser: vi.fn().mockResolvedValue({
+            data: {
+              user: {
+                id: "user-1",
+                app_metadata: { role: "guide" },
+                user_metadata: {},
+              },
+            },
+          }),
+        },
+        from: vi.fn(() => ({
+          select: vi.fn().mockReturnThis(),
+          eq: vi.fn().mockReturnThis(),
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: null,
+            error: { message: "permission denied for table profiles" },
+          }),
+        })),
+      },
+    });
+
+    const response = await proxy(makeRequest("/guide/excursions"));
+
+    expect(response.status).toBe(307);
+    expect(response.headers.get("location")).toBe(
+      "https://provodnik.app/auth?error=missing-role",
+    );
+    expect(applyCookies).toHaveBeenCalledOnce();
+    expect(getDashboardPathForRoleMock).not.toHaveBeenCalled();
+  });
+
   it("preserves the requested path in the auth redirect for guests", async () => {
     createSupabaseMiddlewareClientMock.mockReturnValue({
       applyCookies: vi.fn((response) => response),
