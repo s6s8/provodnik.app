@@ -110,10 +110,12 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
 
   const profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
   if (guideIds.length > 0) {
-    const { data: profiles } = await supabase
+    const { data: profiles, error: profilesError } = await supabase
       .from('profiles')
       .select('id, full_name, avatar_url')
       .in('id', guideIds)
+    if (profilesError) throw profilesError
+
     for (const p of profiles ?? []) {
       profileMap.set(p.id, { full_name: p.full_name, avatar_url: p.avatar_url })
     }

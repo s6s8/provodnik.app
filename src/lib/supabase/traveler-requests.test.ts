@@ -68,6 +68,59 @@ describe('ConfirmedBookingSummary type', () => {
 })
 
 describe('getActiveRequests', () => {
+  it('surfaces guide profile lookup errors', async () => {
+    const profileError = new Error('profile policy denied')
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'request-1',
+          destination: 'Элиста',
+          region: null,
+          interests: ['История'],
+          starts_on: '2026-06-01',
+          ends_on: null,
+          start_time: null,
+          budget_minor: 10000,
+          participants_count: 2,
+          status: 'open',
+          created_at: '2026-04-21T00:00:00Z',
+          format_preference: 'group',
+          group_capacity: 8,
+          open_to_join: true,
+          date_locked: false,
+        }],
+        error: null,
+      }),
+    }
+    const offersQuery: { select: ReturnType<typeof vi.fn>; in: ReturnType<typeof vi.fn> } = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn(),
+    }
+    offersQuery.in
+      .mockReturnValueOnce(offersQuery)
+      .mockResolvedValueOnce({
+        data: [{ request_id: 'request-1', guide_id: 'guide-1' }],
+        error: null,
+      })
+    const profilesQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({ data: null, error: profileError }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'traveler_requests') return requestQuery
+      if (table === 'guide_offers') return offersQuery
+      if (table === 'profiles') return profilesQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    await expect(getActiveRequests('traveler-1')).rejects.toBe(profileError)
+  })
+
   it('returns open_to_join and date_locked flags', async () => {
     const requestQuery = {
       select: vi.fn().mockReturnThis(),
@@ -109,7 +162,7 @@ describe('getActiveRequests', () => {
 
     createSupabaseServerClient.mockResolvedValue({ from })
 
-    const [summary] = await getActiveRequests('traveler-1')
+    const [summary] = await getActiveRequests('traveler-flags-1')
 
     expect(summary.open_to_join).toBe(true)
     expect(summary.date_locked).toBe(false)

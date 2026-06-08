@@ -633,7 +633,6 @@ export async function getOpenRequests(
     const membersMap = await fetchMembersForRequests(db, records.map((r) => r.id));
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];
-      if (rec.members.length > 0) rec.groupSize = rec.members.length;
     }
 
     return { data: applyRequestFilters(records, filters), error: null };
@@ -659,7 +658,6 @@ export async function getRequestById(
     const record = mapRequestRow(data);
     const membersMap = await fetchMembersForRequests(db, [id]);
     record.members = membersMap.get(id) ?? [];
-    if (record.members.length > 0) record.groupSize = record.members.length;
 
     return { data: record, error: null };
   } catch (error) {
@@ -1089,10 +1087,12 @@ export async function getHomepageRequests(
 
     const ids = rows.map((r) => r.id as string);
 
-    const { data: offerRows } = await client
+    const { data: offerRows, error: offerError } = await client
       .from("guide_offers")
       .select("request_id")
       .in("request_id", ids);
+
+    if (offerError) throw offerError;
 
     const countMap: Record<string, number> = {};
     for (const row of offerRows ?? []) {
@@ -1107,7 +1107,6 @@ export async function getHomepageRequests(
     const membersMap = await fetchMembersForRequests(client, records.map((r) => r.id));
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];
-      if (rec.members.length > 0) rec.groupSize = rec.members.length;
     }
 
     const filtered = records.filter((rec) => {

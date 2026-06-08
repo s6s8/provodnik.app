@@ -302,6 +302,64 @@ describe("PII-safe Supabase query mapping", () => {
     ]);
   });
 
+  it("keeps canonical group size when joined members are loaded", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "request-1",
+          destination: "Москва",
+          budget_minor: 100_000,
+          participants_count: 3,
+          group_capacity: 5,
+          format_preference: "group",
+          status: "open",
+          category: "city",
+          created_at: "2026-06-03T00:00:00Z",
+        },
+      ],
+      open_request_members: [
+        {
+          request_id: "request-1",
+          traveler_id: "traveler-2",
+          status: "joined",
+        },
+      ],
+    });
+
+    const result = await getOpenRequests(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.groupSize).toBe(3);
+    expect(result.data?.[0]?.members).toHaveLength(1);
+  });
+
+  it("surfaces homepage offer count errors instead of returning zero offers", async () => {
+    const offerError = new Error("offer policy denied");
+    const client = createFakeClient(
+      {
+        traveler_requests: [
+          {
+            id: "request-1",
+            destination: "Москва",
+            budget_minor: 100_000,
+            participants_count: 1,
+            status: "open",
+            category: "city",
+            created_at: "2026-06-03T00:00:00Z",
+          },
+        ],
+      },
+      {
+        guide_offers: offerError,
+      },
+    );
+
+    const result = await getHomepageRequests(client);
+
+    expect(result.data).toEqual([]);
+    expect(result.error).toBe(offerError);
+  });
+
   it("masks contact details in offer messages returned for a request", async () => {
     const client = createFakeClient({
       guide_offers: [
