@@ -5,7 +5,16 @@ import { beforeEach, describe, expect, it, vi, type Mock } from "vitest";
 const mockLimit = vi.fn();
 const mockSubscribe = vi.fn().mockReturnValue({});
 const mockOn = vi.fn().mockReturnThis();
-const mockUpdateEq = vi.fn();
+const mockMaybeSingle = vi.fn();
+const mockSelectSingle = vi.fn(() => ({ maybeSingle: mockMaybeSingle }));
+const mockEqUserIdSingle = vi.fn(() => ({ select: mockSelectSingle }));
+const mockSelectBulk = vi.fn();
+const mockOr = vi.fn(() => ({ select: mockSelectBulk }));
+const mockUpdateEq = vi.fn((column: string) => {
+  if (column === "id") return { eq: mockEqUserIdSingle };
+  if (column === "user_id") return { or: mockOr };
+  return { eq: vi.fn() };
+});
 const mockUpdate = vi.fn(() => ({ eq: mockUpdateEq }));
 const mockFrom = vi.fn().mockReturnValue({
   select: vi.fn().mockReturnValue({
@@ -36,12 +45,34 @@ vi.mock("@/lib/env", () => ({
 
 import { NotificationBell } from "./NotificationBell";
 
+const unreadNotification = {
+  id: "notification-1",
+  user_id: "user-123",
+  event_type: "new_offer",
+  payload: null,
+  channel: "inbox",
+  status: "sent",
+  created_at: "2026-05-31T06:00:00.000Z",
+  read_at: null,
+};
+
 async function renderNotificationBell(userId = "user-123") {
   const view = render(<NotificationBell userId={userId} />);
   await act(async () => {
     await mockLimit.mock.results.at(-1)?.value;
   });
   return view;
+}
+
+async function openBellWithUnreadNotification() {
+  mockLimit.mockResolvedValueOnce({
+    data: [unreadNotification],
+    error: null,
+  });
+
+  await renderNotificationBell();
+  fireEvent.click(screen.getByRole("button", { name: "Уведомления" }));
+  expect(await screen.findByText("Новое предложение от гида")).toBeInTheDocument();
 }
 
 describe("NotificationBell", () => {
@@ -51,8 +82,14 @@ describe("NotificationBell", () => {
     mockSubscribe.mockClear();
     mockOn.mockClear();
     mockUpdate.mockClear();
-    mockUpdateEq.mockReset();
-    mockUpdateEq.mockResolvedValue({ data: null, error: null });
+    mockUpdateEq.mockClear();
+    mockEqUserIdSingle.mockClear();
+    mockSelectSingle.mockClear();
+    mockMaybeSingle.mockReset();
+    mockMaybeSingle.mockResolvedValue({ data: null, error: null });
+    mockOr.mockClear();
+    mockSelectBulk.mockReset();
+    mockSelectBulk.mockResolvedValue({ data: [], error: null });
   });
 
   it("passes an error callback to .subscribe()", async () => {
@@ -103,21 +140,10 @@ describe("NotificationBell", () => {
 
   it("keeps a notification visible when marking it read fails", async () => {
     mockLimit.mockResolvedValueOnce({
-      data: [
-        {
-          id: "notification-1",
-          user_id: "user-123",
-          event_type: "new_offer",
-          payload: null,
-          channel: "inbox",
-          status: "sent",
-          created_at: "2026-05-31T06:00:00.000Z",
-          read_at: null,
-        },
-      ],
+      data: [unreadNotification],
       error: null,
     });
-    mockUpdateEq.mockResolvedValueOnce({ data: null, error: new Error("denied") });
+    mockMaybeSingle.mockResolvedValueOnce({ data: null, error: new Error("denied") });
 
     await renderNotificationBell();
     fireEvent.click(screen.getByRole("button", { name: "Уведомления" }));
@@ -127,7 +153,73 @@ describe("NotificationBell", () => {
 
     await waitFor(() => {
       expect(mockUpdateEq).toHaveBeenCalledWith("id", "notification-1");
+      expect(mockEqUserIdSingle).toHaveBeenCalledWith("user_id", "user-123");
+      expect(mockSelectSingle).toHaveBeenCalledWith("id");
+      expect(mockMaybeSingle).toHaveBeenCalled();
     });
     expect(screen.getByText("Новое предложение от гида")).toBeInTheDocument();
+  });
+
+  it("does not remove a notification when mark-read updates zero rows without error", async () => {
+    await openBellWithUnreadNotification();
+    mockMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
+
+    fireEvent.click(screen.getByText("Новое предложение от гида"));
+
+    await waitFor(() => {
+      expect(mockMaybeSingle).toHaveBeenCalled();
+    });
+    expect(screen.getByText("Новое предложение от гида")).toBeInTheDocument();
+    expect(screen.queryByText("Нет новых уведомлений")).not.toBeInTheDocument();
+  });
+
+  it("removes a notification only after mark-read returns a selected row", async () => {
+    await openBellWithUnreadNotification();
+    mockMaybeSingle.mockResolvedValueOnce({ data: { id: "notification-1" }, error: null });
+
+    fireEvent.click(screen.getByText("Новое предложение от гида"));
+
+    await waitFor(() => {
+      expect(mockUpdateEq).toHaveBeenCalledWith("id", "notification-1");
+      expect(mockEqUserIdSingle).toHaveBeenCalledWith("user_id", "user-123");
+      expect(mockSelectSingle).toHaveBeenCalledWith("id");
+      expect(mockMaybeSingle).toHaveBeenCalled();
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("Новое предложение от гида")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("Нет новых уведомлений")).toBeInTheDocument();
+  });
+
+  it("keeps notifications visible when mark-all updates zero rows without error", async () => {
+    await openBellWithUnreadNotification();
+    mockSelectBulk.mockResolvedValueOnce({ data: [], error: null });
+
+    fireEvent.click(screen.getByRole("button", { name: "Отметить все как прочитанные" }));
+
+    await waitFor(() => {
+      expect(mockUpdateEq).toHaveBeenCalledWith("user_id", "user-123");
+      expect(mockOr).toHaveBeenCalledWith("status.neq.read,read_at.is.null");
+      expect(mockSelectBulk).toHaveBeenCalledWith("id");
+    });
+    expect(screen.getByText("Новое предложение от гида")).toBeInTheDocument();
+    expect(screen.queryByText("Нет новых уведомлений")).not.toBeInTheDocument();
+  });
+
+  it("clears notifications only after mark-all returns selected rows", async () => {
+    await openBellWithUnreadNotification();
+    mockSelectBulk.mockResolvedValueOnce({ data: [{ id: "notification-1" }], error: null });
+
+    fireEvent.click(screen.getByRole("button", { name: "Отметить все как прочитанные" }));
+
+    await waitFor(() => {
+      expect(mockUpdateEq).toHaveBeenCalledWith("user_id", "user-123");
+      expect(mockOr).toHaveBeenCalledWith("status.neq.read,read_at.is.null");
+      expect(mockSelectBulk).toHaveBeenCalledWith("id");
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("Новое предложение от гида")).not.toBeInTheDocument();
+    });
+    expect(screen.getByText("Нет новых уведомлений")).toBeInTheDocument();
   });
 });
