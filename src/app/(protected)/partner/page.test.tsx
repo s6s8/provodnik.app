@@ -169,7 +169,7 @@ describe("PartnerCabinetPage", () => {
   });
 
   it("renders an empty ledger and no existing token when the user has no partner account", async () => {
-    const { ledgerQuery } = setupSupabase({
+    const { from, ledgerQuery } = setupSupabase({
       user: { id: "user-1" },
       accountResponse: { data: null, error: null },
       ledgerResponse: { data: [], error: null },
@@ -177,7 +177,8 @@ describe("PartnerCabinetPage", () => {
 
     render(await PartnerCabinetPage());
 
-    expect(ledgerQuery.eq).toHaveBeenCalledWith("partner_id", "none");
+    expect(from).not.toHaveBeenCalledWith("partner_payouts_ledger");
+    expect(ledgerQuery.eq).not.toHaveBeenCalledWith("partner_id", "none");
     expect(apiTokenManagerMock).toHaveBeenCalledWith({
       hasExistingToken: false,
       generatedAt: null,
