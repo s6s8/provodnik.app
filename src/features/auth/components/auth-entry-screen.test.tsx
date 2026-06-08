@@ -191,7 +191,7 @@ describe("AuthEntryScreen traveler sign-in", () => {
     });
   });
 
-  it("redirects admins using JWT metadata when the profile role read fails", async () => {
+  it("shows an error instead of trusting user_metadata admin when the profile role read fails", async () => {
     signInWithPasswordMock.mockResolvedValue({
       data: {
         user: {
@@ -218,8 +218,11 @@ describe("AuthEntryScreen traveler sign-in", () => {
     fireEvent.click(screen.getByRole("button", { name: "Войти" }));
 
     await waitFor(() => {
-      expect(assignMock).toHaveBeenCalledWith("/admin/dashboard");
+      expect(
+        screen.getByText(/Не удалось проверить права администратора после входа/i),
+      ).toBeInTheDocument();
     });
+    expect(assignMock).not.toHaveBeenCalled();
   });
 
   it("shows an error instead of silently signing out when the role cannot be resolved", async () => {
