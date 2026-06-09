@@ -42,11 +42,11 @@ export function GuideInboxCardHeader({
         size={40}
         className="shrink-0"
       />
-      <div className="min-w-0 flex-1 space-y-1">
-        <p className="truncate text-sm font-semibold text-foreground">
+      <div className="min-w-0 flex-1 space-y-0.5">
+        <p className="truncate text-sm font-semibold leading-snug text-foreground">
           {travelerDisplayName}
         </p>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm leading-snug text-muted-foreground">
           в{" "}
           <span className="font-medium text-foreground">
             {item.destination}
@@ -58,15 +58,15 @@ export function GuideInboxCardHeader({
           <span
             className={
               matched
-                ? "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary"
-                : "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-muted px-2.5 py-1 font-sans text-[11px] font-medium tracking-[0.02em] text-muted-foreground"
+                ? "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
+                : "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
             }
           >
             {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
           </span>
         ) : null}
-        <span className="text-[10px] text-muted-foreground/60">
-          Опубликовано {formatPublishedAt(item.createdAt)}
+        <span className="text-xs text-muted-foreground/60">
+          {formatPublishedAt(item.createdAt)}
         </span>
       </div>
     </div>

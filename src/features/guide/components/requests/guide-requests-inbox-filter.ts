@@ -1,6 +1,6 @@
 import type { RequestRecord } from "@/data/supabase/queries";
 
-export type GuideRequestsFilter = "new" | "my-offers";
+export type GuideRequestsFilter = "new" | "my-offers" | "confirmed";
 export type GuideRequestsSortKey = "newest" | "date" | "size";
 
 interface FilterInboxOptions {
@@ -40,6 +40,8 @@ export function filterInbox(
     filtered = filtered.filter(
       (item) => offeredIds.has(item.id),
     );
+  } else if (filter === "confirmed") {
+    return [];
   }
 
   // form-epic #8: baseCity filter (Phase A). If guide's base_city is set,

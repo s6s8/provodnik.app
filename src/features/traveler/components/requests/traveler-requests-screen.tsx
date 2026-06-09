@@ -5,6 +5,12 @@ import { useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import {
+  RequestCardFinal,
+  type RequestCardFinalMember,
+  type RequestCardFinalProps,
+} from '@/components/shared/request-card-final'
+import { resolveDisplayName } from '@/lib/profile/resolve-display-name'
 import type {
   TravelerRequestSummary,
   ConfirmedBookingSummary,
@@ -18,8 +24,6 @@ import {
 import { TripCard } from '../trip-card/trip-card'
 import {
   mapBookingToTrip,
-  mapRequestToPhase,
-  mapRequestToTrip,
 } from '../trip-card/trip-card-mappers'
 import type { TripCardModel } from '../trip-card/trip-card-types'
 
@@ -31,6 +35,64 @@ interface Props {
 }
 
 type CategoryTab = 'active' | 'joined' | 'confirmed'
+
+function formatDateRange(startsOn: string, endsOn?: string | null): string {
+  const start = new Date(startsOn)
+  if (Number.isNaN(start.getTime())) return startsOn
+  const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
+  const s = start.toLocaleDateString('ru-RU', opts)
+  if (!endsOn || endsOn === startsOn) return s
+  const end = new Date(endsOn)
+  if (Number.isNaN(end.getTime())) return s
+  return `${s} – ${end.toLocaleDateString('ru-RU', opts)}`
+}
+
+function formatPrice(budgetMinor: number | null): string {
+  if (budgetMinor == null) return 'По договоренности'
+  const rub = budgetMinor / 100
+  return `${new Intl.NumberFormat('ru-RU').format(rub)} ₽ / чел`
+}
+
+function getInitials(fullName: string | null): string {
+  if (!fullName) return '?'
+  const parts = fullName.trim().split(/\s+/)
+  return parts
+    .slice(0, 2)
+    .map((p) => p[0]?.toUpperCase() ?? '')
+    .join('')
+}
+
+function formatPublishedAt(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  const date = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+  const time = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
+  return `${date}, ${time}`
+}
+
+function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProps {
+  const members: RequestCardFinalMember[] = request.guide_avatars.map((g) => ({
+    id: g.guide_id,
+    displayName: resolveDisplayName('guide', { full_name: g.full_name ?? null }),
+    initials: getInitials(g.full_name),
+    avatarUrl: g.avatar_url ?? undefined,
+  }))
+
+  return {
+    href: `/traveler/requests/${request.id}`,
+    location: request.destination,
+    date: formatDateRange(request.starts_on, request.ends_on),
+    time: request.start_time ? `${request.start_time.slice(0, 5)}${request.end_time ? `–${request.end_time.slice(0, 5)}` : ''}` : undefined,
+    groupType: request.mode,
+    guideState: request.offer_count > 0 ? 'found' : 'waiting',
+    datesFlexible: request.date_flexibility != null && request.date_flexibility !== 'exact',
+    interests: request.interests,
+    members,
+    participantCount: request.participants_count,
+    price: formatPrice(request.budget_minor),
+    publishedAt: request.created_at ? formatPublishedAt(request.created_at) : undefined,
+  }
+}
 
 function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
   return {
@@ -113,11 +175,7 @@ function RequestsCategoryTabs({
         {activeRequests.length > 0 ? (
           <CategoryGrid>
             {activeRequests.map((request) => (
-              <TripCard
-                key={request.id}
-                phase={mapRequestToPhase(request)}
-                trip={mapRequestToTrip(request)}
-              />
+              <RequestCardFinal key={request.id} {...mapRequestToCard(request)} />
             ))}
           </CategoryGrid>
         ) : (
@@ -188,7 +246,7 @@ export function TravelerRequestsScreen({
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-6">
+    <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
       <RequestsCategoryTabs
         activeRequests={activeRequests}
         confirmedBookings={confirmedBookings}

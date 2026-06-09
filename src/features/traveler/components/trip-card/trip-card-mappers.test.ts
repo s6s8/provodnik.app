@@ -18,6 +18,7 @@ const baseRequest: TravelerRequestSummary = {
   interests: ["буддизм", "степь"],
   starts_on: "2026-09-10",
   start_time: null,
+  end_time: null,
   ends_on: null,
   budget_minor: null,
   participants_count: 2,

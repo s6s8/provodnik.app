@@ -36,7 +36,7 @@ export default async function GuideRequestDetailPage({
 
   let isApproved = false;
   let existingOfferId: string | null = null;
-  let offerMeta: { starts_at: string | null; capacity: number | null; price_minor: number | null } | null = null;
+  let offerMeta: { starts_at: string | null; capacity: number | null; price_minor: number | null; message: string | null } | null = null;
 
   if (guideId) {
     const { data: profile } = await supabase
@@ -48,7 +48,7 @@ export default async function GuideRequestDetailPage({
 
     const { data: offer } = await supabase
       .from("guide_offers")
-      .select("id, starts_at, capacity, price_minor")
+      .select("id, starts_at, capacity, price_minor, message")
       .eq("guide_id", guideId)
       .eq("request_id", requestId)
       .maybeSingle();
@@ -58,6 +58,7 @@ export default async function GuideRequestDetailPage({
           starts_at: offer.starts_at as string | null,
           capacity: offer.capacity as number | null,
           price_minor: offer.price_minor as number | null,
+          message: offer.message as string | null,
         }
       : null;
   }

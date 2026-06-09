@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Inbox } from "lucide-react";
 
-import { type RequestRecord } from "@/data/supabase/queries";
+import { type RequestRecord, type BookingRecord, getGuideBookings } from "@/data/supabase/queries";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
@@ -67,6 +67,7 @@ async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest>
 
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
+  const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
   const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, OfferMeta>>(new Map());
@@ -120,6 +121,8 @@ export function GuideRequestsInboxScreen() {
           setGuideId(user.id);
           await loadOffersForGuide(user.id);
           await loadGuideProfileForGuide(user.id);
+          const { data: bookingData } = await getGuideBookings(supabase, user.id);
+          if (!ignore && bookingData) setBookings(bookingData);
         }
       } catch (err) {
         console.warn("[inbox] initial load failed:", err);
@@ -197,12 +200,15 @@ export function GuideRequestsInboxScreen() {
   const tabs: Array<{ key: GuideRequestsFilter; label: string; count: number }> = [
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои отклики", count: myOffersCount },
+    { key: "confirmed", label: "Подтверждённые", count: bookings.length },
   ];
 
   const emptyText =
     filter === "new"
       ? "Новых запросов пока нет. Путешественники публикуют запросы каждый день."
-      : "У вас нет активных предложений.";
+      : filter === "my-offers"
+      ? "У вас нет активных предложений."
+      : "Подтверждённых бронирований пока нет.";
 
   return (
     <div className="space-y-6">
@@ -286,12 +292,40 @@ export function GuideRequestsInboxScreen() {
               ) : null}
 
               <div className="space-y-3">
-                {filteredItems.length === 0 ? (
+                {filter === "confirmed" ? (
+                  bookings.length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground">{emptyText}</p>
+                  ) : (
+                    bookings.map((booking) => (
+                      <Link
+                        key={booking.id}
+                        href={`/guide/bookings/${booking.id}`}
+                        className="block rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <p className="font-medium text-foreground">{booking.destination}</p>
+                            <p className="text-xs text-muted-foreground">{booking.dateLabel}</p>
+                          </div>
+                          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                            Подтверждено
+                          </span>
+                        </div>
+                        {booking.priceRub > 0 ? (
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {booking.priceRub.toLocaleString("ru-RU")} ₽
+                          </p>
+                        ) : null}
+                      </Link>
+                    ))
+                  )
+                ) : null}
+                {filter !== "confirmed" && filteredItems.length === 0 ? (
                   <p className="text-center text-sm text-muted-foreground">
                     {emptyText}
                   </p>
                 ) : null}
-                {filteredItems.map((item, index) => {
+                {filter !== "confirmed" && filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
                   const matched = isMatchedRequest(item, specializations);
                   const offerMeta = offerIdByRequestId.get(item.id);
@@ -314,7 +348,7 @@ export function GuideRequestsInboxScreen() {
                         </div>
 
                         {/* Meta */}
-                        <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                        <div className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
                           <p>
                             <span className="font-medium text-foreground">
                               Даты:
@@ -340,12 +374,12 @@ export function GuideRequestsInboxScreen() {
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {alreadyOffered ? (
-                            <div className="flex flex-col gap-1">
-                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                            <div className="flex flex-col gap-2">
+                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary">
                                 ✓ Предложение отправлено
                               </span>
                               {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs leading-relaxed text-muted-foreground">
                                   Вы предложили:
                                   {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
                                   {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}

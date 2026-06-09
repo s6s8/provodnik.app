@@ -24,7 +24,9 @@ export type RequestCardFinalProps = {
   datesFlexible?: boolean;
   interests?: readonly string[];
   members?: readonly RequestCardFinalMember[];
+  participantCount?: number;
   price: string;
+  publishedAt?: string;
 };
 
 const datesFlexibleBadgeClassName =
@@ -42,15 +44,17 @@ const foundGuideBadgeClassName =
 const themeLabelChipClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 
-function getThemeSlugs(interests: readonly string[] | undefined): ThemeSlug[] {
-  return (
+function getThemeData(interests: readonly string[] | undefined): { slugs: ThemeSlug[]; overflow: number } {
+  const validThemes =
     interests
       ?.map((slug) => ({ slug, label: getTheme(slug)?.label }))
       .filter((theme): theme is { slug: ThemeSlug; label: string } => Boolean(theme.label))
-      .sort((a, b) => a.label.length - b.label.length)
-      .slice(0, 3)
-      .map(({ slug }) => slug) ?? []
-  );
+      .sort((a, b) => a.label.length - b.label.length) ?? [];
+
+  return {
+    slugs: validThemes.slice(0, 2).map(({ slug }) => slug),
+    overflow: Math.max(0, validThemes.length - 2),
+  };
 }
 
 function GuideStatusBadge({ guideState }: { guideState: RequestCardFinalGuideState }) {
@@ -69,18 +73,26 @@ function GuideStatusBadge({ guideState }: { guideState: RequestCardFinalGuideSta
   );
 }
 
-function getGroupLabel(groupType: RequestCardFinalGroupType) {
-  return groupType === "private" ? "Своя группа" : "Сборная группа";
-}
-
-function GroupTypeBadge({ groupType }: { groupType: RequestCardFinalGroupType }) {
+function GroupTypeBadge({
+  groupType,
+  participantCount,
+}: {
+  groupType: RequestCardFinalGroupType;
+  participantCount: number;
+}) {
   const className = groupType === "assembly" ? groupTypeBadgeAssemblyClassName : groupTypeBadgePrivateClassName;
   const iconClassName = groupType === "assembly" ? "text-sky-700" : "text-purple-700";
+  const label = groupType === "assembly" ? "Сборная группа" : "Своя группа";
 
   return (
-    <span className={className}>
-      <Users size={14} className={iconClassName} /> {getGroupLabel(groupType)}
-    </span>
+    <div className="flex items-center gap-1.5">
+      <span className={className}>
+        <Users size={14} className={iconClassName} />
+        {label}
+        {groupType === "assembly" && <span className="inline-block leading-none align-middle">≥</span>}
+      </span>
+      <span className="text-xs font-medium text-ink-2">· {participantCount} чел.</span>
+    </div>
   );
 }
 
@@ -130,9 +142,11 @@ export function RequestCardFinal({
   datesFlexible = false,
   interests,
   members = [],
+  participantCount,
   price,
+  publishedAt,
 }: RequestCardFinalProps) {
-  const themeSlugs = getThemeSlugs(interests);
+  const { slugs: themeSlugs, overflow: themeOverflow } = getThemeData(interests);
 
   return (
     <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
@@ -145,34 +159,42 @@ export function RequestCardFinal({
         </div>
 
         <div className="mt-1.5 flex justify-start">
-          <GroupTypeBadge groupType={groupType} />
+          <GroupTypeBadge groupType={groupType} participantCount={participantCount ?? members.length} />
         </div>
 
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <span className="inline-flex min-w-0 items-center gap-1">
             <Calendar size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
-            <span className="min-w-0 truncate text-sm font-medium text-ink-2">{date}</span>
+            <span className="min-w-0 truncate text-xs font-medium text-ink-2">{date}</span>
+          </span>
+          <span className={datesFlexible ? datesFlexibleBadgeClassName : exactDateBadgeClassName}>
+            {datesFlexible ? "Гибкие даты" : "Точная дата"}
           </span>
           {time ? (
             <span className="inline-flex min-w-0 items-center gap-1">
               <Clock size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
-              <span className="min-w-0 truncate text-sm font-medium text-ink-2">{time}</span>
+              <span className="min-w-0 truncate text-xs font-medium text-ink-2">{time}</span>
             </span>
           ) : null}
-          <span className={datesFlexible ? datesFlexibleBadgeClassName : exactDateBadgeClassName}>
-            {datesFlexible ? "Гибкие даты" : "Точная дата"}
-          </span>
         </div>
 
         <div className="mt-2 flex flex-wrap gap-1.5">
           {themeSlugs.map((slug) => (
             <ThemeLabelChip key={slug} slug={slug} />
           ))}
+          {themeOverflow > 0 ? (
+            <span className={themeLabelChipClassName}>+{themeOverflow}</span>
+          ) : null}
         </div>
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-        <AvatarStack members={members} />
+        <div className="flex flex-col gap-1">
+          <AvatarStack members={members} />
+          {publishedAt ? (
+            <span className="text-xs text-muted-foreground">Опубликован: {publishedAt}</span>
+          ) : null}
+        </div>
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>

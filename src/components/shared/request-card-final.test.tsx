@@ -38,7 +38,7 @@ describe("RequestCardFinal", () => {
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
     expect(screen.getByText("5 июля, 11:30")).toBeInTheDocument();
     expect(screen.queryByText(/2\s*\/\s*\d+/)).not.toBeInTheDocument();
-    expect(screen.queryByText(/2 чел/)).not.toBeInTheDocument();
+    expect(screen.getByText(/·\s*2\s*чел\./)).toBeInTheDocument();
     const price = screen.getByText("6 800 ₽ / чел");
     expect(price).toBeInTheDocument();
     expect(price).toHaveClass("shrink-0", "whitespace-nowrap");
@@ -67,6 +67,7 @@ describe("RequestCardFinal", () => {
 
     expect(screen.getByText("Ждёт гида").closest("span")).toHaveClass("bg-warning/10", "text-warning");
     expect(screen.getByText("Своя группа").closest("span")).toHaveClass("bg-purple-100", "text-purple-700");
+    expect(screen.getByText(/·\s*0\s*чел\./)).toBeInTheDocument();
     expect(screen.queryByText("Гибкие даты")).not.toBeInTheDocument();
     expect(screen.getByText("По договоренности")).toBeInTheDocument();
   });

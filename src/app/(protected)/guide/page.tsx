@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
 
-import { BirjhaScreen } from "@/features/guide/components/birjha/birjha-screen";
+import { GuideRequestsInboxScreen } from "@/features/guide/components/requests/guide-requests-inbox-screen";
 
 export const metadata: Metadata = {
   title: "Запросы",
 };
 
-export default async function GuidePage({
-  searchParams,
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const params = await searchParams;
-  const tab = params.tab === "bookings" ? "bookings" : "inbox";
-  return <BirjhaScreen initialTab={tab} />;
+export default function GuidePage() {
+  return <GuideRequestsInboxScreen />;
 }

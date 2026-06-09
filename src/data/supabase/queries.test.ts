@@ -274,6 +274,7 @@ describe("PII-safe Supabase query mapping", () => {
           status: "open",
           category: "city",
           created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-1",
         },
       ],
       open_request_members: [
@@ -293,13 +294,10 @@ describe("PII-safe Supabase query mapping", () => {
       requesterInitials: "П",
       requesterAvatarUrl: null,
     });
-    expect(result.data?.[0]?.members).toEqual([
-      {
-        id: "traveler-2",
-        displayName: "Участник",
-        initials: "У",
-      },
-    ]);
+    // Creator is prepended; joined member follows
+    expect(result.data?.[0]?.members).toHaveLength(2);
+    expect(result.data?.[0]?.members[0]).toMatchObject({ id: "traveler-1" });
+    expect(result.data?.[0]?.members[1]).toMatchObject({ id: "traveler-2" });
   });
 
   it("keeps canonical group size when joined members are loaded", async () => {
@@ -315,6 +313,7 @@ describe("PII-safe Supabase query mapping", () => {
           status: "open",
           category: "city",
           created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-1",
         },
       ],
       open_request_members: [
@@ -330,7 +329,8 @@ describe("PII-safe Supabase query mapping", () => {
 
     expect(result.error).toBeNull();
     expect(result.data?.[0]?.groupSize).toBe(3);
-    expect(result.data?.[0]?.members).toHaveLength(1);
+    // Creator + 1 joined member
+    expect(result.data?.[0]?.members).toHaveLength(2);
   });
 
   it("surfaces homepage offer count errors instead of returning zero offers", async () => {
