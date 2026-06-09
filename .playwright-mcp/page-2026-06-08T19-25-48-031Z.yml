@@ -1,0 +1,127 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - navigation "Основная навигация" [ref=e4]:
+        - link "Provodnik" [ref=e5] [cursor=pointer]:
+          - /url: /
+        - list [ref=e6]:
+          - listitem [ref=e7]:
+            - link "Открытые группы" [ref=e8] [cursor=pointer]:
+              - /url: /requests
+          - listitem [ref=e9]:
+            - link "Готовые экскурсии" [ref=e10] [cursor=pointer]:
+              - /url: /listings
+          - listitem [ref=e11]:
+            - link "Гиды" [ref=e12] [cursor=pointer]:
+              - /url: /guides
+          - listitem [ref=e13]:
+            - link "Как это работает" [ref=e14] [cursor=pointer]:
+              - /url: /how-it-works
+        - generic [ref=e16]:
+          - link "Стать гидом" [ref=e17] [cursor=pointer]:
+            - /url: /become-a-guide
+          - link "Войти" [ref=e18] [cursor=pointer]:
+            - /url: /auth
+    - main [ref=e19]:
+      - generic [ref=e20]:
+        - generic [ref=e22]:
+          - heading "Открытые запросы на экскурсию" [level=1] [ref=e23]
+          - generic [ref=e24]:
+            - generic [ref=e25]: Поиск по запросам
+            - searchbox "Поиск по запросам" [ref=e26]
+        - generic [ref=e29]:
+          - button "Город" [ref=e31] [cursor=pointer]:
+            - generic [ref=e32]: Город
+            - generic [ref=e33]: ▾
+          - button "Когда" [ref=e35] [cursor=pointer]:
+            - generic [ref=e36]: Когда
+            - generic [ref=e37]: ▾
+          - button "Тема" [ref=e39] [cursor=pointer]:
+            - generic [ref=e40]: Тема
+            - generic [ref=e41]: ▾
+        - generic [ref=e44]:
+          - paragraph [ref=e45]: Подходящих запросов пока нет
+          - paragraph [ref=e46]: Попробуйте изменить направление или выбрать другую тематику.
+    - contentinfo [ref=e47]:
+      - generic [ref=e48]:
+        - region "Частые вопросы" [ref=e49]:
+          - paragraph [ref=e50]: Частые вопросы
+          - generic [ref=e51]:
+            - group [ref=e52]:
+              - generic "Могу ли я присоединиться к чужой группе?" [ref=e53] [cursor=pointer]:
+                - generic [ref=e54]: Могу ли я присоединиться к чужой группе?
+                - img [ref=e55]
+            - group [ref=e57]:
+              - generic "Как долго ждать предложения?" [ref=e58] [cursor=pointer]:
+                - generic [ref=e59]: Как долго ждать предложения?
+                - img [ref=e60]
+            - group [ref=e62]:
+              - generic "Что если гид не ответит?" [ref=e63] [cursor=pointer]:
+                - generic [ref=e64]: Что если гид не ответит?
+                - img [ref=e65]
+            - group [ref=e67]:
+              - 'generic "Можно ли оплатить как юрлицо: счёт, договор, безналичная оплата, акт?" [ref=e68] [cursor=pointer]':
+                - generic [ref=e69]: "Можно ли оплатить как юрлицо: счёт, договор, безналичная оплата, акт?"
+                - img [ref=e70]
+        - generic [ref=e72]:
+          - navigation "О проекте" [ref=e73]:
+            - paragraph [ref=e74]: О проекте
+            - list [ref=e75]:
+              - listitem [ref=e76]:
+                - link "О нас" [ref=e77] [cursor=pointer]:
+                  - /url: /trust
+              - listitem [ref=e78]:
+                - link "Как это работает" [ref=e79] [cursor=pointer]:
+                  - /url: /how-it-works
+              - listitem [ref=e80]:
+                - link "Для гидов" [ref=e81] [cursor=pointer]:
+                  - /url: /guides
+              - listitem [ref=e82]:
+                - link "Для бизнеса" [ref=e83] [cursor=pointer]:
+                  - /url: /for-business
+          - navigation "Поддержка" [ref=e84]:
+            - paragraph [ref=e85]: Поддержка
+            - list [ref=e86]:
+              - listitem [ref=e87]:
+                - link "Доверие и безопасность" [ref=e88] [cursor=pointer]:
+                  - /url: /trust
+              - listitem [ref=e89]:
+                - link "Telegram-поддержка" [ref=e90] [cursor=pointer]:
+                  - /url: https://t.me/provodnik_help
+              - listitem [ref=e91]:
+                - 'link "Email: support@provodnik.app" [ref=e92] [cursor=pointer]':
+                  - /url: mailto:support@provodnik.app
+            - paragraph [ref=e93]: Отвечаем ежедневно, обычно в течение нескольких часов (с 9:00 до 22:00 МСК).
+          - generic [ref=e94]:
+            - navigation "Правила" [ref=e95]:
+              - paragraph [ref=e96]: Правила
+              - list [ref=e97]:
+                - listitem [ref=e98]:
+                  - link "Условия использования" [ref=e99] [cursor=pointer]:
+                    - /url: /policies/terms
+                - listitem [ref=e100]:
+                  - link "Конфиденциальность" [ref=e101] [cursor=pointer]:
+                    - /url: /policies/privacy
+                - listitem [ref=e102]:
+                  - link "Cookies" [ref=e103] [cursor=pointer]:
+                    - /url: /policies/cookies
+            - generic [ref=e104]:
+              - paragraph [ref=e105]: Мы в сети
+              - link "Telegram" [ref=e107] [cursor=pointer]:
+                - /url: https://t.me/provodnik_help
+                - img [ref=e108]
+        - paragraph [ref=e111]:
+          - text: "Оператор персональных данных: команда проекта Provodnik. Контакт по вопросам обработки данных и юридическим уведомлениям —"
+          - link "support@provodnik.app" [ref=e112] [cursor=pointer]:
+            - /url: mailto:support@provodnik.app
+          - text: . Provodnik находится на стадии запуска; полные регистрационные сведения оператора (ОГРНИП/ОГРН, ИНН, юридический адрес) публикуются
+          - link "на странице «Конфиденциальность»" [ref=e113] [cursor=pointer]:
+            - /url: /policies/privacy#operator
+          - text: и обновляются до запуска приёма платежей на платформе.
+        - generic [ref=e114]:
+          - paragraph [ref=e115]: © 2026 Provodnik. Все права защищены.
+          - link "Поддержка" [ref=e116] [cursor=pointer]:
+            - /url: mailto:support@provodnik.app
+  - button "Open Next.js Dev Tools" [ref=e122] [cursor=pointer]:
+    - img [ref=e123]
+  - alert [ref=e126]

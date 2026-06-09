@@ -36,6 +36,7 @@ interface OfferMeta {
   starts_at: string | null;
   capacity: number | null;
   price_minor: number | null;
+  message: string | null;
 }
 
 interface Props {
@@ -138,6 +139,10 @@ export function GuideRequestDetailScreen({
         </CardHeader>
 
         <CardContent className="space-y-5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            Запрос путешественника
+          </p>
+
           {interestsLabel ? (
             <div>
               <span className="inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary">
@@ -155,104 +160,120 @@ export function GuideRequestDetailScreen({
             </span>
           </div>
 
-          <div className="space-y-1.5 text-sm text-muted-foreground">
-            <p>
+          <div className="space-y-1.5">
+            <p className="text-sm">
               <span className="font-medium text-foreground">Даты:</span>{" "}
-              {request.dateLabel}
+              <span className="text-muted-foreground">{request.dateLabel}</span>
               {formatTimeRange(request.startTime, request.endTime) && (
                 <>
                   {" · "}
                   <span className="font-medium text-foreground">Время:</span>{" "}
-                  {formatTimeRange(request.startTime, request.endTime)}
+                  <span className="text-muted-foreground">
+                    {formatTimeRange(request.startTime, request.endTime)}
+                  </span>
                 </>
               )}
             </p>
-            <p>
+            <p className="text-sm">
               <span className="font-medium text-foreground">Бюджет:</span>{" "}
-              {request.budgetLabel} · {request.groupSize} чел.
+              <span className="text-muted-foreground">
+                {request.budgetLabel} · {request.groupSize} чел.
+              </span>
             </p>
           </div>
 
           <div className="border-t border-border/50 pt-4">
-            <p className="text-sm font-medium text-foreground">
-              Описание от путешественника
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
+              Описание
             </p>
             {request.description ? (
               <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
                 {request.description}
               </p>
             ) : (
-              <p className="mt-2 text-sm italic text-muted-foreground/70">
-                Путешественник не оставил описание. Используйте детали выше,
-                чтобы составить предложение.
+              <p className="mt-2 text-sm italic text-muted-foreground/60">
+                Путешественник не оставил описание.
               </p>
             )}
           </div>
 
           <div
-            className="flex flex-col gap-1.5 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-sm text-muted-foreground"
+            className="flex flex-col gap-1.5 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs text-muted-foreground"
             aria-live="polite"
           >
             <div className="flex items-center gap-2">
-              <Eye className="size-4 shrink-0" aria-hidden="true" />
+              <Eye className="size-3.5 shrink-0" aria-hidden="true" />
               <span>{formatViewsLabel(viewsCount)}</span>
             </div>
             <div className="flex items-center gap-2">
-              <Users className="size-4 shrink-0" aria-hidden="true" />
+              <Users className="size-3.5 shrink-0" aria-hidden="true" />
               <span>{formatCompetingOffersLabel(competingOffers, validOfferId !== null)}</span>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            {validOfferId ? (
-              <div className="flex flex-col gap-1">
-                <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
-                  ✓ Предложение отправлено
-                </span>
-                {offerMeta &&
-                  (offerMeta.starts_at != null ||
-                    offerMeta.capacity != null ||
-                    offerMeta.price_minor != null) ? (
-                  <p className="text-xs text-muted-foreground">
-                    Вы предложили:
+          {validOfferId ? (
+            <div className="rounded-lg border border-primary/25 bg-primary/5 p-4 space-y-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">
+                Ваш отклик
+              </p>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                ✓ Предложение отправлено
+              </span>
+              {offerMeta &&
+                (offerMeta.starts_at != null ||
+                  offerMeta.capacity != null ||
+                  offerMeta.price_minor != null ||
+                  offerMeta.message != null) ? (
+                <div className="space-y-2">
+                  <p className="text-sm text-foreground/80">
                     {offerMeta.starts_at
-                      ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}`
+                      ? new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", {
+                          day: "numeric",
+                          month: "long",
+                        })
                       : ""}
                     {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
                     {offerMeta.price_minor != null
-                      ? ` · ${Math.round(offerMeta.price_minor / 100 / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.`
+                      ? ` · ${Math.round(
+                          offerMeta.price_minor / 100 / (offerMeta.capacity ?? 1),
+                        ).toLocaleString("ru-RU")} ₽/чел.`
                       : ""}
                   </p>
-                ) : null}
+                  {offerMeta.message ? (
+                    <div className="rounded-md border border-primary/15 bg-background/70 p-3">
+                      <p className="mb-1 text-xs font-medium text-primary/60">
+                        Сообщение путешественнику
+                      </p>
+                      <p className="text-sm whitespace-pre-line">{offerMeta.message}</p>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+              <div className="border-t border-primary/15 pt-3">
+                <GuideOfferQaPanel offerId={validOfferId} />
               </div>
-            ) : isApproved ? (
-              <Button
-                variant="default"
-                size="default"
-                onClick={() => setPanelOpen(true)}
-              >
-                Сделать предложение
-              </Button>
-            ) : (
-              <div className="flex flex-wrap items-center gap-2">
-                <Button variant="default" size="default" disabled>
-                  Доступно после верификации
-                </Button>
-                <Link
-                  href="/guide/verification"
-                  className="text-xs text-primary underline-offset-2 hover:underline"
-                >
-                  Пройти верификацию →
-                </Link>
-              </div>
-            )}
-          </div>
-
-          {validOfferId ? (
-            <div className="mt-2 border-t border-border/50 pt-4">
-              <GuideOfferQaPanel offerId={validOfferId} />
             </div>
-          ) : null}
+          ) : isApproved ? (
+            <Button
+              variant="default"
+              size="default"
+              onClick={() => setPanelOpen(true)}
+            >
+              Сделать предложение
+            </Button>
+          ) : (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="default" size="default" disabled>
+                Доступно после верификации
+              </Button>
+              <Link
+                href="/guide/verification"
+                className="text-xs text-primary underline-offset-2 hover:underline"
+              >
+                Пройти верификацию →
+              </Link>
+            </div>
+          )}
         </CardContent>
       </Card>
 
