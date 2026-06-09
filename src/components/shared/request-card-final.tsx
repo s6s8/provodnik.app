@@ -26,6 +26,7 @@ export type RequestCardFinalProps = {
   members?: readonly RequestCardFinalMember[];
   participantCount?: number;
   price: string;
+  publishedAt?: string;
 };
 
 const datesFlexibleBadgeClassName =
@@ -143,6 +144,7 @@ export function RequestCardFinal({
   members = [],
   participantCount,
   price,
+  publishedAt,
 }: RequestCardFinalProps) {
   const { slugs: themeSlugs, overflow: themeOverflow } = getThemeData(interests);
 
@@ -187,7 +189,12 @@ export function RequestCardFinal({
       </Link>
 
       <div className="mt-auto flex items-center justify-between gap-3 pt-4">
-        <AvatarStack members={members} />
+        <div className="flex flex-col gap-1">
+          <AvatarStack members={members} />
+          {publishedAt ? (
+            <span className="text-xs text-muted-foreground">Опубликован: {publishedAt}</span>
+          ) : null}
+        </div>
         <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
       </div>
     </article>

@@ -20,6 +20,7 @@ export interface TravelerRequestSummary {
   interests: string[]
   starts_on: string
   start_time: string | null
+  end_time: string | null
   ends_on: string | null
   budget_minor: number | null
   participants_count: number
@@ -90,7 +91,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
 
   const { data: requests, error } = await supabase
     .from('traveler_requests')
-    .select('id, destination, region, interests, starts_on, ends_on, start_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked, date_flexibility')
+    .select('id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked, date_flexibility')
     .eq('traveler_id', travelerId)
     .in('status', ['open', 'expired', 'cancelled'])
     .order('created_at', { ascending: false })
@@ -130,6 +131,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
 
   type RequestRow = (typeof requests)[number] & {
     start_time: string | null
+    end_time: string | null
     format_preference: string | null
     group_capacity: number | null
     open_to_join: boolean
@@ -147,6 +149,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
       interests,
       starts_on: r.starts_on,
       start_time: r.start_time,
+      end_time: r.end_time,
       ends_on: r.ends_on,
       budget_minor: r.budget_minor,
       participants_count: r.participants_count,
