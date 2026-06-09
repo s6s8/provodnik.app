@@ -81,14 +81,16 @@ function GroupTypeBadge({
 }) {
   const className = groupType === "assembly" ? groupTypeBadgeAssemblyClassName : groupTypeBadgePrivateClassName;
   const iconClassName = groupType === "assembly" ? "text-sky-700" : "text-purple-700";
-  const label = groupType === "assembly" ? "Сборная группа ≥" : "Своя группа";
+  const label = groupType === "assembly" ? "Сборная группа" : "Своя группа";
 
   return (
     <div className="flex items-center gap-1.5">
       <span className={className}>
-        <Users size={14} className={iconClassName} /> {label}
+        <Users size={14} className={iconClassName} />
+        {label}
+        {groupType === "assembly" && <span className="inline-block leading-none align-middle">≥</span>}
       </span>
-      <span className="text-sm font-medium text-ink-2">· {participantCount} чел.</span>
+      <span className="text-xs font-medium text-ink-2">· {participantCount} чел.</span>
     </div>
   );
 }
@@ -158,10 +160,10 @@ export function RequestCardFinal({
           <GroupTypeBadge groupType={groupType} participantCount={participantCount ?? members.length} />
         </div>
 
-        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+        <div className="mt-2 flex flex-wrap items-center gap-1.5">
           <span className="inline-flex min-w-0 items-center gap-1">
             <Calendar size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
-            <span className="min-w-0 truncate text-sm font-medium text-ink-2">{date}</span>
+            <span className="min-w-0 truncate text-xs font-medium text-ink-2">{date}</span>
           </span>
           <span className={datesFlexible ? datesFlexibleBadgeClassName : exactDateBadgeClassName}>
             {datesFlexible ? "Гибкие даты" : "Точная дата"}
@@ -169,7 +171,7 @@ export function RequestCardFinal({
           {time ? (
             <span className="inline-flex min-w-0 items-center gap-1">
               <Clock size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
-              <span className="min-w-0 truncate text-sm font-medium text-ink-2">{time}</span>
+              <span className="min-w-0 truncate text-xs font-medium text-ink-2">{time}</span>
             </span>
           ) : null}
         </div>

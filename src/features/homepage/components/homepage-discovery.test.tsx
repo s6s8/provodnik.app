@@ -59,7 +59,7 @@ describe("HomePageDiscovery", () => {
     expect(within(article!).getByText("21 июня")).toBeInTheDocument();
     expect(within(article!).getByText(/10:00/)).toBeInTheDocument();
     expect(within(article!).getByText("Ждёт гида")).toBeInTheDocument();
-    expect(within(article!).getByText("Сборная группа ≥")).toBeInTheDocument();
+    expect(within(article!).getByText("Сборная группа")).toBeInTheDocument();
     expect(within(article!).getByText("Гибкие даты")).toBeInTheDocument();
     expect(within(article!).getByText("История и культура")).toBeInTheDocument();
     expect(within(article!).getByText(/7\s*900 ₽ \/ чел/)).toBeInTheDocument();
