@@ -45,6 +45,7 @@ export function HomePageDiscovery({ requests }: Props) {
                 datesFlexible={req.dateFlexibility === 'few_days'}
                 interests={req.interests}
                 members={req.members}
+                participantCount={req.groupSize}
                 price={formatPrice(req.budgetRub)}
               />
             ))

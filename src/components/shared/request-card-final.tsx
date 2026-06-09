@@ -24,6 +24,7 @@ export type RequestCardFinalProps = {
   datesFlexible?: boolean;
   interests?: readonly string[];
   members?: readonly RequestCardFinalMember[];
+  participantCount?: number;
   price: string;
 };
 
@@ -138,6 +139,7 @@ export function RequestCardFinal({
   datesFlexible = false,
   interests,
   members = [],
+  participantCount,
   price,
 }: RequestCardFinalProps) {
   const { slugs: themeSlugs, overflow: themeOverflow } = getThemeData(interests);
@@ -153,7 +155,7 @@ export function RequestCardFinal({
         </div>
 
         <div className="mt-1.5 flex justify-start">
-          <GroupTypeBadge groupType={groupType} participantCount={members.length} />
+          <GroupTypeBadge groupType={groupType} participantCount={participantCount ?? members.length} />
         </div>
 
         <div className="mt-1 flex flex-wrap items-center gap-1.5">

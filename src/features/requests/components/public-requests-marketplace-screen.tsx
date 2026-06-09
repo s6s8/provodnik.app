@@ -542,6 +542,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     guideState={deriveGuideState(request.status)}
                     interests={request.interests}
                     members={request.members}
+                    participantCount={request.group.sizeCurrent}
                     price={derivePrice(request.budgetPerPersonRub)}
                   />
                 );
