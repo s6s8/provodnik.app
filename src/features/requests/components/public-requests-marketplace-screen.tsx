@@ -525,7 +525,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       <section className="py-sec-pad">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           {filteredRequests.length > 0 ? (
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mx-auto max-w-2xl">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               {filteredRequests.map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
 
@@ -545,6 +546,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                   />
                 );
               })}
+            </div>
             </div>
           ) : (
             <div className="rounded-card bg-surface-high p-8 text-center shadow-card">
