@@ -57,7 +57,7 @@ describe("HomePageDiscovery", () => {
     expect(article).not.toBeNull();
     expect(within(article!).getByText("Тбилиси")).toBeInTheDocument();
     expect(within(article!).getByText("21 июня")).toBeInTheDocument();
-    expect(within(article!).queryByText(/10:00/)).not.toBeInTheDocument();
+    expect(within(article!).getByText(/10:00/)).toBeInTheDocument();
     expect(within(article!).getByText("Ждёт гида")).toBeInTheDocument();
     expect(within(article!).getByText("Сборная группа")).toBeInTheDocument();
     expect(within(article!).getByText("Гибкие даты")).toBeInTheDocument();

@@ -39,6 +39,7 @@ export function HomePageDiscovery({ requests }: Props) {
                 href={`/requests/${req.id}`}
                 location={req.destination}
                 date={req.dateLabel}
+                time={req.startTime ? `${req.startTime}${req.endTime ? `–${req.endTime}` : ''}` : undefined}
                 groupType={req.mode}
                 guideState={deriveGuideState(req.status)}
                 datesFlexible={req.dateFlexibility === 'few_days'}
