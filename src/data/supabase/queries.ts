@@ -421,28 +421,64 @@ export function mapRequestRow(
   };
 }
 
-async function fetchMembersForRequests(db: SupabaseClient, requestIds: string[]): Promise<Map<string, RequestMember[]>> {
+async function fetchMembersForRequests(
+  db: SupabaseClient,
+  requests: Array<{ id: string; creatorId: string }>,
+): Promise<Map<string, RequestMember[]>> {
   const map = new Map<string, RequestMember[]>();
-  if (requestIds.length === 0) return map;
+  if (requests.length === 0) return map;
 
-  const { data, error } = await db
-    .from("open_request_members")
-    .select("request_id, traveler_id")
-    .in("request_id", requestIds)
-    .eq("status", "joined");
+  const requestIds = requests.map((r) => r.id);
+  const creatorIds = [...new Set(requests.map((r) => r.creatorId))];
 
-  if (error) throw error;
-  if (!data) return map;
+  const [{ data: memberRows, error: memberError }, { data: creatorRows, error: creatorError }] =
+    await Promise.all([
+      db
+        .from("open_request_members")
+        .select("request_id, traveler_id, profiles:traveler_id(full_name, avatar_url)")
+        .in("request_id", requestIds)
+        .eq("status", "joined"),
+      db.from("profiles").select("id, full_name, avatar_url").in("id", creatorIds),
+    ]);
 
-  for (const row of data) {
+  if (memberError) throw memberError;
+  if (creatorError) throw creatorError;
+
+  const creatorProfiles = new Map<string, { name: string | null; avatarUrl: string | null }>();
+  for (const cp of creatorRows ?? []) {
+    creatorProfiles.set(cp.id as string, {
+      name: cp.full_name as string | null,
+      avatarUrl: cp.avatar_url as string | null,
+    });
+  }
+
+  for (const req of requests) {
+    const cp = creatorProfiles.get(req.creatorId);
+    const displayName = cp?.name ?? "Путешественник";
+    map.set(req.id, [
+      { id: req.creatorId, displayName, initials: getInitials(displayName), avatarUrl: cp?.avatarUrl ?? undefined },
+    ]);
+  }
+
+  for (const row of memberRows ?? []) {
     const reqId = row.request_id as string;
-    const member: RequestMember = {
-      id: row.traveler_id as string,
-      displayName: "Участник",
-      initials: "У",
-    };
+    const travelerId = row.traveler_id as string;
+    const req = requests.find((r) => r.id === reqId);
+    if (req?.creatorId === travelerId) continue;
+
+    const profileRaw = (row as Record<string, unknown>).profiles;
+    const profile = Array.isArray(profileRaw)
+      ? (profileRaw[0] as Record<string, unknown> | undefined)
+      : (profileRaw as Record<string, unknown> | null);
+
+    const displayName = (profile?.full_name as string | null) ?? "Участник";
     const list = map.get(reqId) ?? [];
-    list.push(member);
+    list.push({
+      id: travelerId,
+      displayName,
+      initials: getInitials(displayName),
+      avatarUrl: (profile?.avatar_url as string | null) ?? undefined,
+    });
     map.set(reqId, list);
   }
 
@@ -630,7 +666,10 @@ export async function getOpenRequests(
     if (!data || data.length === 0) return { data: [], error: null };
 
     const records = data.map((row) => mapRequestRow(row));
-    const membersMap = await fetchMembersForRequests(db, records.map((r) => r.id));
+    const membersMap = await fetchMembersForRequests(
+      db,
+      data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+    );
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];
     }
@@ -656,7 +695,7 @@ export async function getRequestById(
     if (!data) return { data: null, error: null };
 
     const record = mapRequestRow(data);
-    const membersMap = await fetchMembersForRequests(db, [id]);
+    const membersMap = await fetchMembersForRequests(db, [{ id, creatorId: data.traveler_id as string }]);
     record.members = membersMap.get(id) ?? [];
 
     return { data: record, error: null };
@@ -1103,7 +1142,10 @@ export async function getHomepageRequests(
       rec.offerCount = countMap[rec.id] ?? 0;
       return rec;
     });
-    const membersMap = await fetchMembersForRequests(client, records.map((r) => r.id));
+    const membersMap = await fetchMembersForRequests(
+      client,
+      rows.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+    );
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];
     }
