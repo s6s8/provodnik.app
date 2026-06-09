@@ -348,7 +348,7 @@ export function GuideRequestsInboxScreen() {
                         </div>
 
                         {/* Meta */}
-                        <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+                        <div className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
                           <p>
                             <span className="font-medium text-foreground">
                               Даты:
@@ -374,12 +374,12 @@ export function GuideRequestsInboxScreen() {
                         {/* Actions */}
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {alreadyOffered ? (
-                            <div className="flex flex-col gap-1">
-                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
+                            <div className="flex flex-col gap-2">
+                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary">
                                 ✓ Предложение отправлено
                               </span>
                               {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-xs leading-relaxed text-muted-foreground">
                                   Вы предложили:
                                   {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
                                   {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}

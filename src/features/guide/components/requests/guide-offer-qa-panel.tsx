@@ -66,7 +66,7 @@ export function GuideOfferQaPanel({ offerId }: Props) {
   }
 
   if (!threadId || !qa) {
-    return <p className="text-sm text-muted-foreground py-2">Вопросов пока нет</p>
+    return null
   }
 
   return (
@@ -92,9 +92,6 @@ export function GuideOfferQaPanel({ offerId }: Props) {
             </div>
           </div>
         ))}
-        {qa.messages.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-2">Вопросов пока нет</p>
-        ) : null}
       </div>
 
       {qa.at_limit ? (

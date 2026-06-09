@@ -202,7 +202,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{\/\* Actions \*\/\}/)?.[1];
 
     expect(metaBlock).toContain(
-      'className="mt-3 space-y-1 text-xs text-muted-foreground"',
+      'className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground"',
     );
     expect(metaBlock).not.toContain("sm:grid-cols-2");
     expect(metaBlock).toMatch(
