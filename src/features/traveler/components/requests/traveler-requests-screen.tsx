@@ -10,6 +10,7 @@ import {
   type RequestCardFinalMember,
   type RequestCardFinalProps,
 } from '@/components/shared/request-card-final'
+import { resolveDisplayName } from '@/lib/profile/resolve-display-name'
 import type {
   TravelerRequestSummary,
   ConfirmedBookingSummary,
@@ -72,7 +73,7 @@ function formatPublishedAt(iso: string): string {
 function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProps {
   const members: RequestCardFinalMember[] = request.guide_avatars.map((g) => ({
     id: g.guide_id,
-    displayName: g.full_name ?? 'Гид',
+    displayName: resolveDisplayName('guide', { full_name: g.full_name ?? null }),
     initials: getInitials(g.full_name),
     avatarUrl: g.avatar_url ?? undefined,
   }))
