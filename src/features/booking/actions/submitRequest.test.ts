@@ -1,17 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const mockInsert = vi.fn();
-const mockListingSingle = vi.fn();
-const mockRequestSingle = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  redirect: vi.fn((url: string) => {
-    throw new Error(`NEXT_REDIRECT:${url}`);
-  }),
-}));
-
-vi.mock("@/lib/supabase/server", () => ({
-  createSupabaseServerClient: async () => ({
+const { createClient, mockInsert, mockListingSingle, mockRequestSingle } = vi.hoisted(() => {
+  const insert = vi.fn();
+  const listingSingle = vi.fn();
+  const requestSingle = vi.fn();
+  const client = vi.fn(async () => ({
     auth: {
       getUser: async () => ({ data: { user: { id: "traveler-1" } } }),
     },
@@ -20,7 +13,7 @@ vi.mock("@/lib/supabase/server", () => ({
         return {
           select: () => ({
             eq: () => ({
-              single: mockListingSingle,
+              single: listingSingle,
             }),
           }),
         };
@@ -28,13 +21,33 @@ vi.mock("@/lib/supabase/server", () => ({
 
       if (table === "traveler_requests") {
         return {
-          insert: mockInsert,
+          insert,
         };
       }
 
       throw new Error(`Unexpected table: ${table}`);
     },
+  }));
+
+  return {
+    createClient: client,
+    mockInsert: insert,
+    mockListingSingle: listingSingle,
+    mockRequestSingle: requestSingle,
+  };
+});
+
+const listingId = "550e8400-e29b-41d4-a716-446655440000";
+const guideId = "650e8400-e29b-41d4-a716-446655440000";
+
+vi.mock("next/navigation", () => ({
+  redirect: vi.fn((url: string) => {
+    throw new Error(`NEXT_REDIRECT:${url}`);
   }),
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: createClient,
 }));
 
 import { submitRequest } from "./submitRequest";
@@ -44,11 +57,12 @@ describe("submitRequest", () => {
     mockInsert.mockReset();
     mockListingSingle.mockReset();
     mockRequestSingle.mockReset();
+    createClient.mockClear();
 
     mockListingSingle.mockResolvedValue({
       data: {
-        id: "listing-1",
-        guide_id: "guide-1",
+        id: listingId,
+        guide_id: guideId,
         status: "published",
         price_from_minor: 100000,
       },
@@ -68,8 +82,8 @@ describe("submitRequest", () => {
   it("persists open-to-join and interests for group listing requests", async () => {
     await expect(
       submitRequest({
-        listingId: "listing-1",
-        guideId: "guide-1",
+        listingId,
+        guideId,
         destination: "Элиста",
         region: "Калмыкия",
         category: "history_culture",
@@ -96,8 +110,8 @@ describe("submitRequest", () => {
 
     await expect(
       submitRequest({
-        listingId: "listing-1",
-        guideId: "guide-1",
+        listingId,
+        guideId,
         destination: "Элиста",
         region: "Калмыкия",
         category: "history",
@@ -106,5 +120,21 @@ describe("submitRequest", () => {
         mode: "order",
       }),
     ).rejects.toThrow("request_create_failed");
+  });
+
+  it("rejects an invalid payload before creating the Supabase client", async () => {
+    await expect(
+      submitRequest({
+        listingId: "not-a-uuid",
+        guideId: "x",
+        destination: "",
+        region: "",
+        category: "",
+        startsOn: "bad",
+        participantsCount: 0,
+      }),
+    ).rejects.toThrow("invalid_input");
+
+    expect(createClient).not.toHaveBeenCalled();
   });
 });
