@@ -166,7 +166,6 @@ export default async function TravelerRequestDetailPage({
                   <OfferCard
                     key={offer.id}
                     offer={offer}
-                    isUnread={!offer.traveler_read_at}
                     guideInfo={guideInfoMap.get(offer.guide_id) ?? null}
                     qaThread={qaThreadMap.get(offer.id) ?? null}
                     requestId={requestId}
