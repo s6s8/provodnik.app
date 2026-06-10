@@ -25,6 +25,7 @@ const baseRequest: TravelerRequestSummary = {
   status: "open",
   created_at: "2026-05-28T10:00:00.000Z",
   offer_count: 0,
+  unread_offer_count: 0,
   guide_avatars: [],
   mode: "private",
   group_max: null,
