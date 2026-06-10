@@ -41,7 +41,7 @@ const groupTypeBadgeAssemblyClassName = `${groupTypeBadgeBaseClassName} bg-sky-1
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
 const offersGuideBadgeClassName =
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700";
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
 const themeLabelChipClassName =
