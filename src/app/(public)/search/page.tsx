@@ -60,7 +60,11 @@ export default async function SearchPage({
     else if (sort === "rating") query = query.order("average_rating", { ascending: false });
     else query = query.order("featured_rank", { ascending: true, nullsFirst: false });
 
-    const { data } = await query.limit(48);
+    const { data, error } = await query.limit(48);
+    if (error) {
+      const Sentry = await import("@sentry/nextjs");
+      Sentry.captureException(error);
+    }
     listings = (data ?? []) as ListingRow[];
   } catch {
     listings = [];

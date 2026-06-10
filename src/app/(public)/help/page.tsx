@@ -124,16 +124,13 @@ export default async function HelpPage() {
 
   let articles: HelpArticleRow[] = [];
 
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-      .from("help_articles")
-      .select("id, slug, category, title, body_md, position")
-      .order("position", { ascending: true });
-    articles = (data ?? []) as HelpArticleRow[];
-  } catch {
-    articles = [];
-  }
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("help_articles")
+    .select("id, slug, category, title, body_md, position")
+    .order("position", { ascending: true });
+  if (error) throw error;
+  articles = (data ?? []) as HelpArticleRow[];
 
   if (articles.length === 0) {
     articles = FALLBACK_ARTICLES;
