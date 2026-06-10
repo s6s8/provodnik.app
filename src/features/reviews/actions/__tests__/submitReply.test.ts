@@ -10,6 +10,10 @@ vi.mock('@/lib/supabase/server', () => ({
 
 import { saveReplyDraft, submitReplyForReview } from '@/features/reviews/actions/submitReply'
 
+const REPLY_ID = '11111111-1111-4111-8111-111111111111'
+const REVIEW_ID = '22222222-2222-4222-8222-222222222222'
+const BOOKING_ID = '33333333-3333-4333-8333-333333333333'
+
 function makeSupabase(opts: {
   user?: { id: string } | null
   reply?: Record<string, unknown> | null
@@ -104,7 +108,7 @@ describe('submitReplyForReview', () => {
   it('throws Unauthorized when no user', async () => {
     makeSupabase({ user: null })
 
-    await expect(submitReplyForReview('reply-1', 'review-1')).rejects.toThrow('Unauthorized')
+    await expect(submitReplyForReview(REPLY_ID, REVIEW_ID)).rejects.toThrow('Unauthorized')
   })
 
   it('throws "Ответ не найден." when reply maybeSingle returns null', async () => {
@@ -113,16 +117,16 @@ describe('submitReplyForReview', () => {
       reply: null,
     })
 
-    await expect(submitReplyForReview('reply-1', 'review-1')).rejects.toThrow('Ответ не найден.')
+    await expect(submitReplyForReview(REPLY_ID, REVIEW_ID)).rejects.toThrow('Ответ не найден.')
   })
 
   it('throws "Нет доступа к этому ответу." when reply.guide_id !== user.id', async () => {
     makeSupabase({
       user: { id: 'guide-1' },
-      reply: { id: 'reply-1', guide_id: 'other-guide', review_id: 'review-1' },
+      reply: { id: REPLY_ID, guide_id: 'other-guide', review_id: REVIEW_ID },
     })
 
-    await expect(submitReplyForReview('reply-1', 'review-1')).rejects.toThrow(
+    await expect(submitReplyForReview(REPLY_ID, REVIEW_ID)).rejects.toThrow(
       'Нет доступа к этому ответу.',
     )
   })
@@ -130,10 +134,10 @@ describe('submitReplyForReview', () => {
   it('throws "Ответ не относится к этому отзыву." when reply.review_id !== reviewId', async () => {
     makeSupabase({
       user: { id: 'guide-1' },
-      reply: { id: 'reply-1', guide_id: 'guide-1', review_id: 'wrong-review' },
+      reply: { id: REPLY_ID, guide_id: 'guide-1', review_id: BOOKING_ID },
     })
 
-    await expect(submitReplyForReview('reply-1', 'review-1')).rejects.toThrow(
+    await expect(submitReplyForReview(REPLY_ID, REVIEW_ID)).rejects.toThrow(
       'Ответ не относится к этому отзыву.',
     )
   })
@@ -141,12 +145,12 @@ describe('submitReplyForReview', () => {
   it('throws "Нет доступа к этому отзыву." when booking.guide_id !== user.id', async () => {
     makeSupabase({
       user: { id: 'guide-1' },
-      reply: { id: 'reply-1', guide_id: 'guide-1', review_id: 'review-1' },
-      review: { booking_id: 'booking-1' },
+      reply: { id: REPLY_ID, guide_id: 'guide-1', review_id: REVIEW_ID },
+      review: { booking_id: BOOKING_ID },
       booking: { guide_id: 'other-guide' },
     })
 
-    await expect(submitReplyForReview('reply-1', 'review-1')).rejects.toThrow(
+    await expect(submitReplyForReview(REPLY_ID, REVIEW_ID)).rejects.toThrow(
       'Нет доступа к этому отзыву.',
     )
   })
@@ -154,12 +158,12 @@ describe('submitReplyForReview', () => {
   it('succeeds when all guards pass', async () => {
     const supabase = makeSupabase({
       user: { id: 'guide-1' },
-      reply: { id: 'reply-1', guide_id: 'guide-1', review_id: 'review-1' },
-      review: { booking_id: 'booking-1' },
+      reply: { id: REPLY_ID, guide_id: 'guide-1', review_id: REVIEW_ID },
+      review: { booking_id: BOOKING_ID },
       booking: { guide_id: 'guide-1' },
     })
 
-    const result = await submitReplyForReview('reply-1', 'review-1')
+    const result = await submitReplyForReview(REPLY_ID, REVIEW_ID)
     expect(result).toEqual({ success: true })
 
     expect(supabase.from).toHaveBeenCalledWith('review_replies')
@@ -168,13 +172,13 @@ describe('submitReplyForReview', () => {
   it('throws when submitting a reply updates no owned row', async () => {
     makeSupabase({
       user: { id: 'guide-1' },
-      reply: { id: 'reply-1', guide_id: 'guide-1', review_id: 'review-1' },
-      review: { booking_id: 'booking-1' },
+      reply: { id: REPLY_ID, guide_id: 'guide-1', review_id: REVIEW_ID },
+      review: { booking_id: BOOKING_ID },
       booking: { guide_id: 'guide-1' },
       updateResult: { data: null, error: null, count: 0 },
     })
 
-    await expect(submitReplyForReview('reply-1', 'review-1')).rejects.toThrow(
+    await expect(submitReplyForReview(REPLY_ID, REVIEW_ID)).rejects.toThrow(
       'Ответ не найден или не доступен.',
     )
   })
@@ -182,12 +186,12 @@ describe('submitReplyForReview', () => {
   it('throws when saving an existing draft updates no owned row', async () => {
     makeSupabase({
       user: { id: 'guide-1' },
-      review: { id: 'review-1', guide_id: 'guide-1' },
-      reply: { id: 'reply-1' },
+      review: { id: REVIEW_ID, guide_id: 'guide-1' },
+      reply: { id: REPLY_ID },
       updateResult: { data: null, error: null, count: 0 },
     })
 
-    await expect(saveReplyDraft('review-1', 'Draft body')).rejects.toThrow(
+    await expect(saveReplyDraft(REVIEW_ID, 'Draft body')).rejects.toThrow(
       'Ответ не найден или не доступен.',
     )
   })
@@ -195,13 +199,20 @@ describe('submitReplyForReview', () => {
   it('throws when inserting a new draft returns no row', async () => {
     makeSupabase({
       user: { id: 'guide-1' },
-      review: { id: 'review-1', guide_id: 'guide-1' },
+      review: { id: REVIEW_ID, guide_id: 'guide-1' },
       reply: null,
       insertResult: { data: null, error: null },
     })
 
-    await expect(saveReplyDraft('review-1', 'Draft body')).rejects.toThrow(
+    await expect(saveReplyDraft(REVIEW_ID, 'Draft body')).rejects.toThrow(
       'Не удалось сохранить ответ.',
     )
+  })
+
+  it('throws invalid_input before DB work when draft input is invalid', async () => {
+    createSupabaseServerClient.mockRejectedValue(new Error('DB should not be called'))
+
+    await expect(saveReplyDraft('not-a-uuid', '')).rejects.toThrow('invalid_input')
+    expect(createSupabaseServerClient).not.toHaveBeenCalled()
   })
 })
