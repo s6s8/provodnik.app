@@ -28,6 +28,7 @@ export type RequestCardFinalProps = {
   participantCount?: number;
   price: string;
   publishedAt?: string;
+  unreadOfferCount?: number;
 };
 
 const datesFlexibleBadgeClassName =
@@ -166,11 +167,13 @@ export function RequestCardFinal({
   participantCount,
   price,
   publishedAt,
+  unreadOfferCount,
 }: RequestCardFinalProps) {
   const { slugs: themeSlugs, overflow: themeOverflow } = getThemeData(interests);
+  const hasUnread = (unreadOfferCount ?? 0) > 0;
 
   return (
-    <article className="flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5">
+    <article className={`flex h-full flex-col rounded-card bg-surface-high p-4 shadow-card transition-transform hover:-translate-y-0.5${hasUnread ? " border-l-4 border-primary" : ""}`}>
       <Link href={href} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
         <div className="flex items-start justify-between gap-2">
           <p className="min-w-0 truncate text-lg font-semibold leading-7 text-foreground">{location}</p>

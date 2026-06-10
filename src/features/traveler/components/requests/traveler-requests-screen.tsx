@@ -107,6 +107,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
     participantCount: request.participants_count,
     price: formatPrice(request.budget_minor),
     publishedAt: request.created_at ? formatPublishedAt(request.created_at) : undefined,
+    unreadOfferCount: request.unread_offer_count,
   }
 }
 
