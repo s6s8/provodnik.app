@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export type RequestCardFinalGroupType = "private" | "assembly";
-export type RequestCardFinalGuideState = "waiting" | "found";
+export type RequestCardFinalGuideState = "waiting" | "offers" | "found";
 
 export type RequestCardFinalMember = {
   id: string;
@@ -21,6 +21,7 @@ export type RequestCardFinalProps = {
   time?: string;
   groupType: RequestCardFinalGroupType;
   guideState: RequestCardFinalGuideState;
+  offerCount?: number;
   datesFlexible?: boolean;
   interests?: readonly string[];
   members?: readonly RequestCardFinalMember[];
@@ -39,6 +40,8 @@ const groupTypeBadgePrivateClassName = `${groupTypeBadgeBaseClassName} bg-purple
 const groupTypeBadgeAssemblyClassName = `${groupTypeBadgeBaseClassName} bg-sky-100 text-sky-700`;
 const waitingGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
+const offersGuideBadgeClassName =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
 const themeLabelChipClassName =
@@ -57,11 +60,28 @@ function getThemeData(interests: readonly string[] | undefined): { slugs: ThemeS
   };
 }
 
-function GuideStatusBadge({ guideState }: { guideState: RequestCardFinalGuideState }) {
+function pluralOffers(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 14) return `${n} откликов`;
+  if (mod10 === 1) return `${n} отклик`;
+  if (mod10 >= 2 && mod10 <= 4) return `${n} отклика`;
+  return `${n} откликов`;
+}
+
+function GuideStatusBadge({ guideState, offerCount }: { guideState: RequestCardFinalGuideState; offerCount?: number }) {
   if (guideState === "found") {
     return (
       <span className={foundGuideBadgeClassName}>
         Гид найден <Check size={14} className="text-success" />
+      </span>
+    );
+  }
+
+  if (guideState === "offers") {
+    return (
+      <span className={offersGuideBadgeClassName}>
+        {pluralOffers(offerCount ?? 0)}
       </span>
     );
   }
@@ -139,6 +159,7 @@ export function RequestCardFinal({
   time,
   groupType,
   guideState,
+  offerCount,
   datesFlexible = false,
   interests,
   members = [],
@@ -154,7 +175,7 @@ export function RequestCardFinal({
         <div className="flex items-start justify-between gap-2">
           <p className="min-w-0 truncate text-lg font-semibold leading-7 text-foreground">{location}</p>
           <div className="flex h-7 shrink-0 items-center">
-            <GuideStatusBadge guideState={guideState} />
+            <GuideStatusBadge guideState={guideState} offerCount={offerCount} />
           </div>
         </div>
 

@@ -6,8 +6,10 @@ function formatPrice(budgetRub: number): string {
   return `${new Intl.NumberFormat("ru-RU").format(budgetRub)} ₽ / чел`;
 }
 
-function deriveGuideState(status: RequestRecord["status"]) {
-  return status === "booked" ? "found" : "waiting";
+function deriveGuideState(status: RequestRecord["status"], offerCount: number) {
+  if (status === "booked") return "found" as const;
+  if (offerCount > 0) return "offers" as const;
+  return "waiting" as const;
 }
 
 interface Props {
@@ -41,7 +43,8 @@ export function HomePageDiscovery({ requests }: Props) {
                 date={req.dateLabel}
                 time={req.startTime ? `${req.startTime}${req.endTime ? `–${req.endTime}` : ''}` : undefined}
                 groupType={req.mode}
-                guideState={deriveGuideState(req.status)}
+                guideState={deriveGuideState(req.status, req.offerCount)}
+                offerCount={req.offerCount > 0 ? req.offerCount : undefined}
                 datesFlexible={req.dateFlexibility === 'few_days'}
                 interests={req.interests}
                 members={req.members}
