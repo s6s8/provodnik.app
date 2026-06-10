@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState, useTransition } from "react";
 import { Trash2 } from "lucide-react";
 
 import {
@@ -31,9 +31,19 @@ interface Props {
 }
 
 export function CancelRequestButton({ requestId, status }: Props) {
-  const [state, formAction, pending] = useActionState(cancelRequestAction, { error: null });
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   if (!CANCELLABLE.includes(status)) return null;
+
+  function handleConfirm() {
+    const formData = new FormData();
+    formData.set("request_id", requestId);
+    startTransition(async () => {
+      const result = await cancelRequestAction({ error: null }, formData);
+      if (result?.error) setError(result.error);
+    });
+  }
 
   return (
     <AlertDialog>
@@ -50,17 +60,18 @@ export function CancelRequestButton({ requestId, status }: Props) {
             Гиды не смогут больше отвечать на этот запрос. Действие необратимо.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        {state.error && (
-          <p className="text-sm text-destructive">{state.error}</p>
+        {error && (
+          <p className="text-sm text-destructive">{error}</p>
         )}
         <AlertDialogFooter>
           <AlertDialogCancel>Назад</AlertDialogCancel>
-          <form action={formAction}>
-            <input type="hidden" name="request_id" value={requestId} />
-            <AlertDialogAction type="submit" disabled={pending} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {pending ? "Отменяю..." : "Отменить запрос"}
-            </AlertDialogAction>
-          </form>
+          <AlertDialogAction
+            disabled={isPending}
+            onClick={handleConfirm}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            {isPending ? "Отменяю..." : "Отменить запрос"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
