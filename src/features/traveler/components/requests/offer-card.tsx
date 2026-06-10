@@ -173,7 +173,7 @@ export function OfferCard({
   };
 
   return (
-    <div className={cn("space-y-3 rounded-xl border p-4", isUnread ? "bg-primary/5 border-primary/20" : "bg-card")}>
+    <div className={cn("space-y-3 rounded-xl border p-4", isUnread ? "bg-primary/15 border-primary/35" : "bg-card")}>
       {/* Guide header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
