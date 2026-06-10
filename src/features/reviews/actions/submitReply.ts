@@ -1,8 +1,13 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { replyBodySchema, uuidSchema } from "@/features/reviews/actions/submitReply.schema";
 
 export async function submitReplyForReview(replyId: string, reviewId: string) {
+  if (!uuidSchema.safeParse(replyId).success || !uuidSchema.safeParse(reviewId).success) {
+    throw new Error("invalid_input");
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -55,6 +60,11 @@ export async function submitReplyForReview(replyId: string, reviewId: string) {
 }
 
 export async function saveReplyDraft(reviewId: string, body: string) {
+  const bodyResult = replyBodySchema.safeParse(body);
+  if (!uuidSchema.safeParse(reviewId).success || !bodyResult.success) {
+    throw new Error("invalid_input");
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -82,7 +92,7 @@ export async function saveReplyDraft(reviewId: string, body: string) {
   if (existing) {
     const { count, error } = await supabase
       .from("review_replies")
-      .update({ body, status: "draft" }, { count: "exact" })
+      .update({ body: bodyResult.data, status: "draft" }, { count: "exact" })
       .eq("id", existing.id)
       .eq("guide_id", user.id);
 
@@ -96,7 +106,7 @@ export async function saveReplyDraft(reviewId: string, body: string) {
     .insert({
       review_id: reviewId,
       guide_id: user.id,
-      body,
+      body: bodyResult.data,
       status: "draft",
     })
     .select("id")
