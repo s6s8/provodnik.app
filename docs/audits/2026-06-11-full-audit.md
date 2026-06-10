@@ -50,3 +50,20 @@ Six-dimension audit of `~/provodnik` (Next.js 16 + React 19 + Supabase, 601 src 
 
 ## Overall
 Foundation is genuinely good (RLS discipline, RHF+zod where adopted, React Compiler on, security headers, green gates). The "sticks and glue" feeling comes from: parallel implementations never retired (homepage3/formx/booking-vs-bookings/3 data layers), no shared contracts (action results, query keys, error handling), and observability that stops at console.error. The refactor plan addresses all of it in 7 stoppable phases.
+
+---
+
+## Refactor execution status (live — updated 2026-06-11)
+
+Driven by the self-evolving cursor loop (`.claude/refactor/`, runs from `/Users/idev/refactor-loop` on the mini).
+Integration branch `refactor/full-2026-06` (off `origin/main`). **Not pushed to prod main** — awaiting approval.
+
+**Phase 1 (Security & Correctness) — COMPLETE.** 12/40 tasks integrated, all gates green (732 tests, +10):
+- 1.1 LLM budget cap on `/api/requests/parse` (daily global counter, fail-open) ✅
+- 1.2 favorites folder ownership assertions (closes IDOR) ✅
+- 1.3a–e zod validation on submitRequest / saveOnboardingStep / updatePersonalSettings / review replies / counterOffer ✅
+- 1.4 double-submit in-flight guard on the offer form ✅ (DB partial-unique-index DEFERRED — risky on live data + bid state-machine; needs review before applying)
+- 1.5a/b surface swallowed Supabase errors (pages throw; notification triggers capture to Sentry; search keeps resilience + gains visibility) ✅
+- 2.1 deleted byte-identical `formx` route ✅ · 2.3 deleted orphaned `src/data` modules ✅
+
+**Deferred / needs decision:** DB partial-unique-index on `guide_offers` (1.4); dep-prune 2.2 (shared node_modules); junk-untrack 2.4; inbox-screen error surfacing (with its decomposition); Phase 4 structural moves (checkpoint); final push to `origin/main` (approval).
