@@ -37,6 +37,21 @@ describe("updatePersonalSettings", () => {
     mockGuideUpdate.mockReturnValue({ eq: mockGuideEq });
   });
 
+  it("rejects invalid notification prefs before database work", async () => {
+    const result = await updatePersonalSettings({
+      locale: "ru",
+      preferredCurrency: "RUB",
+      notificationPrefs: { nested: { x: 1 } },
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: "Некорректные данные.",
+    });
+    expect(mockGetUser).not.toHaveBeenCalled();
+    expect(mockFrom).not.toHaveBeenCalled();
+  });
+
   it("persists traveler notification prefs on profiles", async () => {
     const profilesMaybeSingle = vi.fn().mockResolvedValue({
       data: { role: "traveler" },
