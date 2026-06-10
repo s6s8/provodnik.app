@@ -103,14 +103,18 @@ export async function getGuideBookingDetailAction(
   if (!booking) return { ok: false, error: "Бронирование не найдено" };
   if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
 
-  const admin = createSupabaseAdminClient();
-  const { data: traveler, error: travelerError } = await admin
-    .from("profiles")
-    .select("full_name")
-    .eq("id", booking.traveler_id)
-    .maybeSingle();
-
-  if (travelerError) return { ok: false, error: travelerError.message };
+  let travelerName: string | undefined;
+  try {
+    const admin = createSupabaseAdminClient();
+    const { data: traveler } = await admin
+      .from("profiles")
+      .select("full_name")
+      .eq("id", booking.traveler_id)
+      .maybeSingle();
+    travelerName = revealTravelerName(traveler?.full_name, booking.status);
+  } catch {
+    // admin env not configured — traveler name unavailable
+  }
 
   return {
     ok: true,
@@ -120,7 +124,7 @@ export async function getGuideBookingDetailAction(
       destination: booking.meeting_point ?? "Маршрут",
       dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
       priceRub: Math.round((booking.subtotal_minor ?? 0) / 100),
-      travelerName: revealTravelerName(traveler?.full_name, booking.status),
+      travelerName,
       status: booking.status,
     },
   };

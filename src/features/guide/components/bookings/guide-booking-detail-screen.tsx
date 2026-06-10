@@ -52,8 +52,10 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
         } else {
           setErrorMessage(result.error);
         }
-      } catch {
-        // leave empty
+      } catch (err) {
+        if (!ignore) {
+          setErrorMessage(err instanceof Error ? err.message : "Не удалось загрузить бронирование");
+        }
       }
     }
 
