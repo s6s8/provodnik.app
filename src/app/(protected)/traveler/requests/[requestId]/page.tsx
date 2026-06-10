@@ -9,7 +9,7 @@ import {
 import { OfferCard } from "@/features/traveler/components/requests/offer-card";
 import { TravelerRequestDetailScreen } from "@/features/traveler/components/requests/traveler-request-detail-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getOffersForRequest } from "@/lib/supabase/offers";
+import { getOffersForRequest, markOffersReadForRequest } from "@/lib/supabase/offers";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 import { getQaMessages } from "@/lib/supabase/qa-threads";
 import type {
@@ -121,6 +121,10 @@ export default async function TravelerRequestDetailPage({
             }
           }
         }
+      }
+      // Mark offers as read (fire-and-forget; non-fatal)
+      if (offers.length > 0) {
+        markOffersReadForRequest(requestId).catch(() => {});
       }
     } catch {
       // Non-fatal — render page without offers

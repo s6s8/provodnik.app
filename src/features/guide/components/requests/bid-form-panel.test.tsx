@@ -212,9 +212,7 @@ describe("BidFormPanel — excursion picker", () => {
     fireEvent.click(screen.getByRole("button", { name: "Выбрать из моих экскурсий ↓" }));
     fireEvent.click(screen.getByRole("button", { name: /Морской променад/ }));
 
-    expect(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия")).toHaveValue(
-      "Покажу любимый маршрут вдоль моря и старых дач.",
-    );
+    expect(screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия")).toHaveValue("");
     expect(screen.getByText("Морской променад")).toBeInTheDocument();
     expect(screen.getByText("2 часа")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "× изменить" })).toBeInTheDocument();

@@ -27,6 +27,7 @@ export interface TravelerRequestSummary {
   status: 'open' | 'booked' | 'cancelled' | 'expired'
   created_at: string
   offer_count: number
+  unread_offer_count: number
   guide_avatars: Array<{ guide_id: string; avatar_url: string | null; full_name: string | null }>
   mode: 'assembly' | 'private'
   group_max: number | null
@@ -93,7 +94,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
     .from('traveler_requests')
     .select('id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked, date_flexibility')
     .eq('traveler_id', travelerId)
-    .in('status', ['open', 'expired', 'cancelled'])
+    .in('status', ['open', 'expired'])
     .order('created_at', { ascending: false })
 
   if (error) throw error
@@ -102,7 +103,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
   const ids = requests.map((r) => r.id)
   const { data: offers, error: offersError } = await supabase
     .from('guide_offers')
-    .select('request_id, guide_id')
+    .select('request_id, guide_id, traveler_read_at')
     .in('request_id', ids)
     .in('status', ['pending', 'accepted'])
   if (offersError) throw offersError
@@ -122,7 +123,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
     }
   }
 
-  const byRequest = new Map<string, Array<{ guide_id: string }>>()
+  const byRequest = new Map<string, Array<{ guide_id: string; traveler_read_at: string | null }>>()
   for (const o of offers ?? []) {
     const list = byRequest.get(o.request_id) ?? []
     list.push(o)
@@ -159,6 +160,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
       date_locked: r.date_locked,
       date_flexibility: r.date_flexibility ?? 'exact',
       offer_count: offerList.length,
+      unread_offer_count: offerList.filter((o) => !o.traveler_read_at).length,
       guide_avatars: offerList.slice(0, 3).map((o) => ({
         guide_id: o.guide_id,
         ...(profileMap.get(o.guide_id) ?? { full_name: null, avatar_url: null }),

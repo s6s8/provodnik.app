@@ -14,6 +14,7 @@ export type TripCardModel = {
   participantsCount?: number | null;
   budget?: { amount: number; currency: string } | null;
   offerCount?: number;
+  unreadOfferCount?: number;
   isOwnRequest: boolean;
   /** «Открыт к увеличению группы» — render «+ к группе» pill */
   openToJoin?: boolean;

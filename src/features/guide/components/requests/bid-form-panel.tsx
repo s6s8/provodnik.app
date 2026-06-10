@@ -388,7 +388,6 @@ export function BidFormPanel({
                           disabled={submitted}
                           onClick={() => {
                             setSelectedExcursion(template);
-                            setValue("message", template.description ?? "");
                             setExcursionPickerOpen(false);
                           }}
                           className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
