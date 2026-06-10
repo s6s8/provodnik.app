@@ -10,7 +10,6 @@ import {
   type RequestCardFinalMember,
   type RequestCardFinalProps,
 } from '@/components/shared/request-card-final'
-import { resolveDisplayName } from '@/lib/profile/resolve-display-name'
 import type {
   TravelerRequestSummary,
   ConfirmedBookingSummary,
@@ -36,6 +35,36 @@ interface Props {
 
 type CategoryTab = 'active' | 'joined' | 'confirmed'
 
+const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
+
+function getCreatedAtTime(request: TravelerRequestSummary): number {
+  const time = Date.parse(request.created_at)
+  return Number.isNaN(time) ? Number.NEGATIVE_INFINITY : time
+}
+
+function getPriorityBucket(
+  request: TravelerRequestSummary,
+  freshCutoff: number
+): number {
+  if (request.offer_count > 0) return 0
+  return getCreatedAtTime(request) >= freshCutoff ? 1 : 2
+}
+
+function sortByPriority(
+  requests: TravelerRequestSummary[]
+): TravelerRequestSummary[] {
+  const freshCutoff = Date.now() - SEVEN_DAYS_MS
+
+  return [...requests].sort((a, b) => {
+    const priorityDiff =
+      getPriorityBucket(a, freshCutoff) - getPriorityBucket(b, freshCutoff)
+
+    if (priorityDiff !== 0) return priorityDiff
+
+    return getCreatedAtTime(b) - getCreatedAtTime(a)
+  })
+}
+
 function formatDateRange(startsOn: string, endsOn?: string | null): string {
   const start = new Date(startsOn)
   if (Number.isNaN(start.getTime())) return startsOn
@@ -53,15 +82,6 @@ function formatPrice(budgetMinor: number | null): string {
   return `${new Intl.NumberFormat('ru-RU').format(rub)} ₽ / чел`
 }
 
-function getInitials(fullName: string | null): string {
-  if (!fullName) return '?'
-  const parts = fullName.trim().split(/\s+/)
-  return parts
-    .slice(0, 2)
-    .map((p) => p[0]?.toUpperCase() ?? '')
-    .join('')
-}
-
 function formatPublishedAt(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
@@ -71,12 +91,7 @@ function formatPublishedAt(iso: string): string {
 }
 
 function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProps {
-  const members: RequestCardFinalMember[] = request.guide_avatars.map((g) => ({
-    id: g.guide_id,
-    displayName: resolveDisplayName('guide', { full_name: g.full_name ?? null }),
-    initials: getInitials(g.full_name),
-    avatarUrl: g.avatar_url ?? undefined,
-  }))
+  const members: RequestCardFinalMember[] = []
 
   return {
     href: `/traveler/requests/${request.id}`,
@@ -142,6 +157,7 @@ function RequestsCategoryTabs({
   const defaultTab =
     activeRequests.length === 0 && joinedGroups.length > 0 ? 'joined' : 'active'
   const [categoryTab, setCategoryTab] = useState<CategoryTab>(defaultTab)
+  const sortedActiveRequests = sortByPriority(activeRequests)
 
   const handleCategoryTabChange = (nextTab: string) => {
     if (
@@ -175,7 +191,7 @@ function RequestsCategoryTabs({
       <TabsContent value="active">
         {activeRequests.length > 0 ? (
           <CategoryGrid>
-            {activeRequests.map((request) => (
+            {sortedActiveRequests.map((request) => (
               <RequestCardFinal key={request.id} {...mapRequestToCard(request)} />
             ))}
           </CategoryGrid>
