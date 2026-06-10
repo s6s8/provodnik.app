@@ -38,6 +38,7 @@ const baseOffer: GuideOfferRow = {
   updated_at: "2026-01-01T00:00:00Z",
   route_stops: [],
   route_duration_minutes: null,
+  traveler_read_at: null,
 };
 
 const guideInfo = {

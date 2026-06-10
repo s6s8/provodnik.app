@@ -75,6 +75,7 @@ export type GuideOfferRow = {
   updated_at: string;
   route_stops: unknown[];
   route_duration_minutes: number | null;
+  traveler_read_at: string | null;
 };
 
 export type BookingRow = {

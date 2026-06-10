@@ -128,6 +128,7 @@ export async function getOffersForRequest(
     .from("guide_offers")
     .select("*")
     .eq("request_id", requestId)
+    .order("traveler_read_at", { ascending: true, nullsFirst: true })
     .order("created_at", { ascending: false });
 
   if (error) throw error;
@@ -151,6 +152,21 @@ export async function getGuideOffers(guideId: Uuid): Promise<GuideOffer[]> {
 
   if (error) throw error;
   return (data as GuideOffer[]) ?? [];
+}
+
+/**
+ * Mark all offers on a request as read by the traveler (sets traveler_read_at = now).
+ * Only touches rows where traveler_read_at is still NULL.
+ * Safe to call fire-and-forget; no-ops if the user doesn't own the request
+ * (RLS rejects the update silently).
+ */
+export async function markOffersReadForRequest(requestId: Uuid): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  await supabase
+    .from("guide_offers")
+    .update({ traveler_read_at: new Date().toISOString() })
+    .eq("request_id", requestId)
+    .is("traveler_read_at", null);
 }
 
 /**

@@ -39,6 +39,7 @@ interface Props {
   travelerEndTime?: string | null;
   travelerCount?: number;
   travelerBudgetPerPersonRub?: number | null;
+  isUnread?: boolean;
 }
 
 const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
@@ -95,6 +96,7 @@ export function OfferCard({
   travelerEndTime,
   travelerCount,
   travelerBudgetPerPersonRub,
+  isUnread,
 }: Props) {
   const guideName = resolveDisplayName("guide", { full_name: guideInfo?.full_name ?? null });
   const canAccept = requestStatus === "open" && offer.status === "pending";
@@ -171,7 +173,7 @@ export function OfferCard({
   };
 
   return (
-    <div className="space-y-3 rounded-xl border bg-card p-4">
+    <div className={cn("space-y-3 rounded-xl border p-4", isUnread ? "bg-primary/5 border-primary/20" : "bg-card")}>
       {/* Guide header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
