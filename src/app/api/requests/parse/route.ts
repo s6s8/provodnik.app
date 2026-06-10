@@ -9,7 +9,7 @@ import {
   sanitizeExtraction,
 } from "@/features/homepage3/lib/extraction";
 import { extractFields } from "@/features/homepage3/lib/openrouter";
-import { rateLimit } from "@/lib/rate-limit";
+import { checkGlobalBudget, rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
   userText: z.string().trim().min(1, "Пустое сообщение.").max(1000),
@@ -30,6 +30,14 @@ export async function POST(request: Request) {
     return NextResponse.json(
       { error: "Слишком много запросов. Попробуйте через минуту." },
       { status: 429, headers: { "X-RateLimit-Remaining": String(limit.remaining) } },
+    );
+  }
+
+  const budget = await checkGlobalBudget("parse-llm", 5000);
+  if (!budget.success) {
+    return NextResponse.json(
+      { error: "Сервис временно перегружен. Попробуйте позже." },
+      { status: 429 },
     );
   }
 
