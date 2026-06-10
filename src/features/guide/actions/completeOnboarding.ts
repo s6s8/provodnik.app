@@ -2,19 +2,24 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-function getRegions(data: Record<string, unknown>) {
-  const regions = data.regions;
-  if (!Array.isArray(regions)) return undefined;
-  if (!regions.every((region): region is string => typeof region === "string")) {
-    return undefined;
-  }
-  return regions;
+import {
+  onboardingRegionsSchema,
+  onboardingStepSchema,
+} from "./completeOnboarding.schema";
+
+function getRegions(data: Record<string, unknown>): string[] | undefined {
+  const parsed = onboardingRegionsSchema.safeParse(data.regions);
+  return parsed.success ? parsed.data : undefined;
 }
 
 export async function saveOnboardingStep(
   step: number,
   data: Record<string, unknown>,
 ) {
+  const stepParsed = onboardingStepSchema.safeParse(step);
+  if (!stepParsed.success) throw new Error("invalid_step");
+  const safeStep = stepParsed.data;
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -41,8 +46,8 @@ export async function saveOnboardingStep(
       ...existing,
       _onboarding: {
         ...onboardingData,
-        [`step_${step}`]: data,
-        completed_steps: [...new Set([...completedSteps, step])],
+        [`step_${safeStep}`]: data,
+        completed_steps: [...new Set([...completedSteps, safeStep])],
       },
     },
   };

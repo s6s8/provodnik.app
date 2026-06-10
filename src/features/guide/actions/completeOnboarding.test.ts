@@ -79,6 +79,14 @@ describe("guide onboarding actions", () => {
     );
   });
 
+  it("throws before DB work when saving an invalid onboarding step", async () => {
+    createSupabaseServerClientMock.mockRejectedValue(
+      new Error("unexpected DB work"),
+    );
+
+    await expect(saveOnboardingStep(-1, {})).rejects.toThrow("invalid_step");
+  });
+
   it("throws when marking onboarding complete updates no guide profile", async () => {
     makeSupabase({
       updateResult: { error: null, count: 0 },
