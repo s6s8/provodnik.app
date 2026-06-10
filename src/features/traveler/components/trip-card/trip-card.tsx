@@ -347,8 +347,12 @@ export function TripCard({
     "block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   if (isRequestBacked) {
+    const hasUnread = (trip.unreadOfferCount ?? 0) > 0;
     return (
-      <Link href={`/traveler/requests/${trip.id}`} className={cardClassName}>
+      <Link
+        href={`/traveler/requests/${trip.id}`}
+        className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
+      >
         <article className="space-y-3">
           <TripCardContent phase={phase} trip={trip} />
         </article>
