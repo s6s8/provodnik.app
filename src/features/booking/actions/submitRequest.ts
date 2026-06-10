@@ -4,19 +4,12 @@ import { redirect } from "next/navigation";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function submitRequest(formData: {
-  listingId: string;
-  guideId: string;
-  destination: string;
-  region: string;
-  category: string;
-  startsOn: string;
-  endsOn?: string;
-  participantsCount: number;
-  formatPreference?: string;
-  notes?: string;
-  mode?: "order" | "question";
-}) {
+import { submitRequestSchema } from "./submitRequest.schema";
+
+export async function submitRequest(formData: unknown) {
+  const parsed = submitRequestSchema.safeParse(formData);
+  if (!parsed.success) throw new Error("invalid_input");
+  const input = parsed.data;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -26,7 +19,7 @@ export async function submitRequest(formData: {
   const { data: listing, error: listingErr } = await supabase
     .from("listings")
     .select("id, status, price_from_minor, guide_id")
-    .eq("id", formData.listingId)
+    .eq("id", input.listingId)
     .single();
 
   if (listingErr || !listing) {
@@ -34,33 +27,32 @@ export async function submitRequest(formData: {
   }
 
   // Verify the listing belongs to the specified guide
-  if (listing.guide_id !== formData.guideId) {
+  if (listing.guide_id !== input.guideId) {
     throw new Error("listing_unavailable");
   }
   if (listing.status !== "published") {
     throw new Error("listing_unavailable");
   }
-  if (formData.mode !== "question" && listing.price_from_minor == null) {
+  if (input.mode !== "question" && listing.price_from_minor == null) {
     throw new Error("listing_no_price");
   }
 
-  const endsOn =
-    formData.endsOn && formData.endsOn.trim() !== "" ? formData.endsOn.trim() : undefined;
+  const endsOn = input.endsOn && input.endsOn.trim() !== "" ? input.endsOn.trim() : undefined;
 
   const { data: request, error } = await supabase
     .from("traveler_requests")
     .insert({
       traveler_id: user.id,
-      destination: formData.destination,
-      region: formData.region,
-      category: formData.category,
-      interests: formData.category ? [formData.category] : [],
-      starts_on: formData.startsOn,
+      destination: input.destination,
+      region: input.region,
+      category: input.category,
+      interests: input.category ? [input.category] : [],
+      starts_on: input.startsOn,
       ends_on: endsOn ?? null,
-      participants_count: formData.participantsCount,
-      format_preference: formData.formatPreference ?? null,
-      notes: formData.notes ?? null,
-      open_to_join: formData.formatPreference === "group",
+      participants_count: input.participantsCount,
+      format_preference: input.formatPreference ?? null,
+      notes: input.notes ?? null,
+      open_to_join: input.formatPreference === "group",
       budget_minor: null,
       currency: "RUB",
       status: "open",
