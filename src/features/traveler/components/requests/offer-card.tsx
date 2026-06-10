@@ -105,7 +105,7 @@ export function OfferCard({
   const countBadgeLabel = `${offerCount} чел.`;
 
   const dateDeviates =
-    travelerDateLocked === false && travelerStartsOn != null && offerDateIso != null && offerDateIso !== travelerStartsOn.slice(0, 10);
+    travelerDateLocked === false && offerDateIso != null && (travelerStartsOn == null || offerDateIso !== travelerStartsOn.slice(0, 10));
   const timeDeviates =
     travelerTimeLocked === false &&
     (
