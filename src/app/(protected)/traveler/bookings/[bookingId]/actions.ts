@@ -5,6 +5,36 @@ import { z } from "zod";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+const CANCELLABLE_STATUSES = ["pending", "awaiting_guide_confirmation", "confirmed"] as const;
+
+export async function cancelBookingAsTravelerAction(bookingId: string) {
+  const parsed = z.string().uuid().safeParse(bookingId);
+  if (!parsed.success) return { error: "Некорректный идентификатор." };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) return { error: "Требуется авторизация." };
+
+  const { data: booking } = await supabase
+    .from("bookings")
+    .select("id, traveler_id, status")
+    .eq("id", parsed.data)
+    .maybeSingle();
+
+  if (!booking || booking.traveler_id !== user.id) return { error: "Бронирование не найдено." };
+  if (!(CANCELLABLE_STATUSES as readonly string[]).includes(booking.status)) {
+    return { error: "Это бронирование нельзя отменить." };
+  }
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({ status: "cancelled" })
+    .eq("id", parsed.data);
+
+  if (error) return { error: "Не удалось отменить." };
+  return { success: true };
+}
+
 const bookingThreadSchema = z.object({
   bookingId: z.string().uuid("Некорректный идентификатор бронирования."),
 });
