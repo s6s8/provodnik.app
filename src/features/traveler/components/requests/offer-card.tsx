@@ -173,7 +173,7 @@ export function OfferCard({
   };
 
   return (
-    <div className={cn("space-y-3 rounded-xl border p-4", isUnread ? "bg-primary/15 border-primary/35" : "bg-card")}>
+    <div className={cn("space-y-3 rounded-xl border p-4", isUnread ? "bg-primary/20 border-primary border-l-4" : "bg-card")}>
       {/* Guide header */}
       <div className="flex items-center gap-3">
         <Avatar className="h-10 w-10">
@@ -182,6 +182,7 @@ export function OfferCard({
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{guideName}</p>
+          {isUnread ? <Badge className="bg-blue-500 text-white text-xs px-1.5 py-0">Новое</Badge> : null}
         </div>
         <Badge variant={offer.status === "accepted" ? "default" : "outline"}>
           {offer.status === "accepted" ? "Принято" : "Ожидает"}
