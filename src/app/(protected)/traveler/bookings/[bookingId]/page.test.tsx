@@ -59,6 +59,11 @@ vi.mock("@/features/reviews/components/FourAxisReviewForm", () => ({
 
 vi.mock("./actions", () => ({
   openBookingThreadAction: vi.fn(),
+  cancelBookingAsTravelerAction: vi.fn(),
+}));
+
+vi.mock("@/features/bookings/components/cancel-booking-button", () => ({
+  CancelBookingButton: () => <button type="button">Отменить бронирование</button>,
 }));
 
 import TravelerBookingDetailPage from "./page";

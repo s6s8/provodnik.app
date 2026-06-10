@@ -4,8 +4,10 @@ import { notFound, redirect } from "next/navigation";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { CancelBookingButton } from "@/features/bookings/components/cancel-booking-button";
 import { OpenDisputeButton } from "@/features/disputes/components/open-dispute-button";
 import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReviewForm";
 import { getBooking } from "@/lib/supabase/bookings";
@@ -15,6 +17,7 @@ import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { getTheme } from "@/data/themes";
 
 import { BookingTicketTrigger } from "@/features/bookings/components/booking-ticket-trigger";
 import { SupportSidebar } from "@/features/bookings/components/support-sidebar";
@@ -47,6 +50,17 @@ function formatDateRange(startsOn: string | null, endsOn: string | null) {
   return `${fmt(startsOn)} — ${fmt(endsOn)}`;
 }
 
+function formatTime(isoOrTime: string | null | undefined): string {
+  if (!isoOrTime) return "";
+  // "HH:MM" or "HH:MM:SS"
+  if (/^\d{2}:\d{2}/.test(isoOrTime)) return isoOrTime.slice(0, 5);
+  try {
+    return new Date(isoOrTime).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "";
+  }
+}
+
 function toStateMachineStatus(s: string) {
   const allowed: BookingStatus[] = [
     "pending",
@@ -69,6 +83,8 @@ const BOOKING_HEADINGS: Record<BookingStatus, string> = {
   disputed: "Открыт спор по бронированию",
   no_show: "Гость не явился",
 };
+
+const CANCELLABLE_FOR_TRAVELER: BookingStatus[] = ["pending", "confirmed"];
 
 function resolveSearchValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
@@ -111,16 +127,36 @@ export default async function TravelerBookingDetailPage({
   const isVerified = guideProfile?.verification_status === "approved";
 
   const request = booking.traveler_request;
+  const offer = booking.guide_offer;
   const destination = request?.destination ?? "Маршрут";
   const dateRange = formatDateRange(
     request?.starts_on ?? null,
     request?.ends_on ?? null,
   );
 
-  const priceMinor =
-    booking.guide_offer?.price_minor ?? booking.subtotal_minor ?? 0;
+  // Meeting time: prefer offer.starts_at, fall back to request.start_time
+  const meetingTime = formatTime(offer?.starts_at ?? request?.start_time);
+  // Meeting place: from booking row
+  const meetingPlace = booking.meeting_point ?? null;
+
+  const priceMinor = offer?.price_minor ?? booking.subtotal_minor ?? 0;
+  const partySize = booking.party_size ?? request?.participants_count ?? 1;
+  const pricePerPersonMinor = partySize > 1 ? Math.round(priceMinor / partySize) : priceMinor;
+
+  // What's included from guide offer
+  const inclusions: string[] = offer?.inclusions ?? [];
+
+  // Description: offer.message or request.notes
+  const description = offer?.message || request?.notes || null;
+
+  // Theme labels
+  const interests: string[] = request?.interests ?? [];
+  const themeLabels = interests
+    .map((slug) => getTheme(slug)?.label)
+    .filter(Boolean) as string[];
 
   const status = toStateMachineStatus(booking.status);
+  const canCancel = CANCELLABLE_FOR_TRAVELER.includes(status);
   const existingReview =
     booking.status === "completed" ? await getReviewForBooking(booking.id) : null;
   const canOpenDispute =
@@ -164,18 +200,88 @@ export default async function TravelerBookingDetailPage({
 
       <div className="py-12">
         <div className="max-w-[640px] mx-auto px-[var(--px)] flex flex-col gap-6">
-          <div className="flex items-center gap-4 flex-wrap">
-            <h1 className="font-display text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-[1.05] text-foreground">{BOOKING_HEADINGS[status]}</h1>
-            <BookingStatusBadge status={status} />
+          {/* Heading + status + cancel */}
+          <div className="flex items-start gap-3 flex-wrap justify-between">
+            <div className="flex items-center gap-4 flex-wrap">
+              <h1 className="font-display text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-[1.05] text-foreground">{BOOKING_HEADINGS[status]}</h1>
+              <BookingStatusBadge status={status} />
+            </div>
+            {canCancel ? <CancelBookingButton bookingId={booking.id} /> : null}
           </div>
 
-          <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-1.5">
+          {/* Trip details */}
+          <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-2">
             <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
             <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
-            {dateRange ? <p className="font-sans text-sm text-muted-foreground">{dateRange}</p> : null}
-            <p className="font-sans text-[1.125rem] font-semibold text-foreground mt-1">{formatRub(priceMinor)}</p>
+            {dateRange ? (
+              <p className="font-sans text-sm text-muted-foreground">
+                {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
+              </p>
+            ) : null}
+            {meetingPlace ? (
+              <p className="font-sans text-sm text-muted-foreground">
+                <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
+              </p>
+            ) : null}
+            {themeLabels.length > 0 ? (
+              <div className="flex flex-wrap gap-1.5 mt-1">
+                {themeLabels.map((label) => (
+                  <Badge key={label} variant="secondary" className="text-xs">{label}</Badge>
+                ))}
+              </div>
+            ) : null}
+            {partySize > 0 ? (
+              <p className="font-sans text-sm text-muted-foreground">
+                {partySize} {partySize === 1 ? "человек" : partySize < 5 ? "человека" : "человек"}
+                {request?.open_to_join ? " · сборная группа" : ""}
+              </p>
+            ) : null}
           </div>
 
+          {/* Excursion details from guide offer */}
+          {(description || inclusions.length > 0 || offer?.title) ? (
+            <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-3">
+              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Что вас ждёт</p>
+              {offer?.title ? (
+                <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
+              ) : null}
+              {description ? (
+                <p className="font-sans text-sm text-foreground leading-[1.6] whitespace-pre-line">{description}</p>
+              ) : null}
+              {inclusions.length > 0 ? (
+                <div>
+                  <p className="font-sans text-xs font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1.5">Включено</p>
+                  <ul className="flex flex-col gap-1">
+                    {inclusions.map((item) => (
+                      <li key={item} className="font-sans text-sm text-foreground flex items-start gap-2">
+                        <span className="text-primary mt-0.5">✓</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {/* Price block */}
+          <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-1.5">
+            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
+            {partySize > 1 ? (
+              <>
+                <p className="font-sans text-sm text-muted-foreground">
+                  {formatRub(pricePerPersonMinor)} <span className="text-muted-foreground/70">/ человек</span>
+                </p>
+                <p className="font-sans text-[1.125rem] font-semibold text-foreground">
+                  Итого: {formatRub(priceMinor)}
+                </p>
+              </>
+            ) : (
+              <p className="font-sans text-[1.125rem] font-semibold text-foreground">{formatRub(priceMinor)}</p>
+            )}
+          </div>
+
+          {/* Guide contact */}
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass p-5 px-6 flex flex-col gap-3.5">
             <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
             <div className="flex items-center gap-3.5">
@@ -255,10 +361,6 @@ export default async function TravelerBookingDetailPage({
               listingTitle={listingTitle}
             />
           ) : null}
-
-          <p className="font-sans text-[0.8125rem] text-muted-foreground leading-[1.6] p-3.5 px-4 rounded-[12px] border border-glass-border bg-outline-variant/[0.08]">
-            Итоговая стоимость и детали поездки обсуждаются с гидом напрямую
-          </p>
 
           <SupportSidebar bookingId={booking.id} />
 

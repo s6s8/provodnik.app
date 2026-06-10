@@ -35,9 +35,21 @@ export type BookingWithDetails = BookingRow & {
   }) | null;
   traveler_request: Pick<
     TravelerRequestRow,
-    "destination" | "starts_on" | "ends_on" | "participants_count"
+    | "destination"
+    | "starts_on"
+    | "ends_on"
+    | "participants_count"
+    | "notes"
+    | "interests"
+    | "start_time"
+    | "end_time"
+    | "format_preference"
+    | "open_to_join"
   > | null;
-  guide_offer: Pick<GuideOfferRow, "price_minor" | "currency" | "message"> | null;
+  guide_offer: Pick<
+    GuideOfferRow,
+    "price_minor" | "currency" | "message" | "title" | "inclusions" | "capacity" | "starts_at" | "ends_at"
+  > | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -112,14 +124,14 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     booking.request_id
       ? supabase
           .from("traveler_requests")
-          .select("destination, starts_on, ends_on, participants_count")
+          .select("destination, starts_on, ends_on, participants_count, notes, interests, start_time, end_time, format_preference, open_to_join")
           .eq("id", booking.request_id)
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),
     booking.offer_id
       ? supabase
           .from("guide_offers")
-          .select("price_minor, currency, message")
+          .select("price_minor, currency, message, title, inclusions, capacity, starts_at, ends_at")
           .eq("id", booking.offer_id)
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),
