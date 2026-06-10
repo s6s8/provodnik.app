@@ -84,6 +84,7 @@ export function BidFormPanel({
 }: BidFormPanelProps) {
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
+  const submitInFlight = React.useRef(false);
   const [guidePhotos, setGuidePhotos] = React.useState<Array<{ id: string; location_name: string; photoUrl: string }>>([]);
   const [guideTemplates, setGuideTemplates] = React.useState<GuideTemplateRow[]>([]);
   const [selectedExcursion, setSelectedExcursion] = React.useState<GuideTemplateRow | null>(null);
@@ -212,52 +213,57 @@ export function BidFormPanel({
 
   const onSubmit = React.useCallback(
     async (values: OfferFormValues) => {
-      if (submitted) return;
-      setServerError(null);
-      if (guideVerificationStatus !== "approved") {
-        setServerError("Предложения доступны только после одобрения профиля гида.");
-        return;
-      }
-      const fd = new FormData();
-      fd.set("price_total", String(values.price_total));
-      fd.set("message", values.message);
-      fd.set("valid_until", values.valid_until);
-      if (values.headcount && values.headcount > 0) {
-        fd.set("capacity", String(values.headcount));
-      }
-
-      fd.set(
-        "route_stops",
-        JSON.stringify(
-          routeStops.map((s, i) => ({
-            photoId: s.photoId,
-            locationName: s.locationName,
-            photoUrl: s.photoUrl,
-            sortOrder: i,
-          })),
-        ),
-      );
-
-      const date = values.excursion_date;
-      const startTime = values.excursion_start_time;
-      const endTime = values.excursion_end_time;
-      if (date && startTime) {
-        const startsAt = new Date(`${date}T${startTime}:00+03:00`);
-        fd.set("starts_at", startsAt.toISOString());
-        if (endTime) {
-          const endsAt = new Date(`${date}T${endTime}:00+03:00`);
-          fd.set("ends_at", endsAt.toISOString());
-          const durMin = Math.max(0, Math.round((endsAt.getTime() - startsAt.getTime()) / 60_000));
-          fd.set("route_duration_minutes", durMin > 0 ? String(durMin) : "");
+      if (submitted || submitInFlight.current) return;
+      submitInFlight.current = true;
+      try {
+        setServerError(null);
+        if (guideVerificationStatus !== "approved") {
+          setServerError("Предложения доступны только после одобрения профиля гида.");
+          return;
         }
-      }
+        const fd = new FormData();
+        fd.set("price_total", String(values.price_total));
+        fd.set("message", values.message);
+        fd.set("valid_until", values.valid_until);
+        if (values.headcount && values.headcount > 0) {
+          fd.set("capacity", String(values.headcount));
+        }
 
-      const result: SubmitOfferResult = await submitOfferAction(requestId, fd);
-      if ("ok" in result && result.ok === true) {
-        setSubmitted(true);
-        onSuccess?.();
-      } else if ("error" in result && result.error) {
-        setServerError(result.error);
+        fd.set(
+          "route_stops",
+          JSON.stringify(
+            routeStops.map((s, i) => ({
+              photoId: s.photoId,
+              locationName: s.locationName,
+              photoUrl: s.photoUrl,
+              sortOrder: i,
+            })),
+          ),
+        );
+
+        const date = values.excursion_date;
+        const startTime = values.excursion_start_time;
+        const endTime = values.excursion_end_time;
+        if (date && startTime) {
+          const startsAt = new Date(`${date}T${startTime}:00+03:00`);
+          fd.set("starts_at", startsAt.toISOString());
+          if (endTime) {
+            const endsAt = new Date(`${date}T${endTime}:00+03:00`);
+            fd.set("ends_at", endsAt.toISOString());
+            const durMin = Math.max(0, Math.round((endsAt.getTime() - startsAt.getTime()) / 60_000));
+            fd.set("route_duration_minutes", durMin > 0 ? String(durMin) : "");
+          }
+        }
+
+        const result: SubmitOfferResult = await submitOfferAction(requestId, fd);
+        if ("ok" in result && result.ok === true) {
+          setSubmitted(true);
+          onSuccess?.();
+        } else if ("error" in result && result.error) {
+          setServerError(result.error);
+        }
+      } finally {
+        submitInFlight.current = false;
       }
     },
     [requestId, onSuccess, routeStops, submitted, guideVerificationStatus],
