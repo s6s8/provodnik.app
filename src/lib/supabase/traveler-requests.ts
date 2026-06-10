@@ -93,7 +93,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
     .from('traveler_requests')
     .select('id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked, date_flexibility')
     .eq('traveler_id', travelerId)
-    .in('status', ['open', 'expired', 'cancelled'])
+    .in('status', ['open', 'expired'])
     .order('created_at', { ascending: false })
 
   if (error) throw error
