@@ -102,3 +102,30 @@ export async function rateLimit(
     };
   }
 }
+
+/**
+ * Daily GLOBAL budget counter for a shared, expensive resource (e.g. LLM calls).
+ * Independent of per-IP rate limiting — caps total daily usage regardless of caller.
+ * Fail-open: if Redis is not configured or errors, the request is allowed.
+ */
+export async function checkGlobalBudget(
+  bucket: string,
+  dailyLimit: number,
+): Promise<{ success: boolean; count: number }> {
+  if (!hasUpstashRedisEnv() || !redis) {
+    return { success: true, count: 0 };
+  }
+
+  const key = `budget:${bucket}`;
+
+  try {
+    const count = await redis.incr(key);
+    if (count === 1) {
+      await redis.expire(key, 86_400); // 24h TTL set once, on the first hit of the day
+    }
+
+    return { success: count <= dailyLimit, count };
+  } catch {
+    return { success: true, count: 0 };
+  }
+}
