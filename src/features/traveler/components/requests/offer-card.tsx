@@ -51,15 +51,6 @@ function formatPrice(minor: number, currency: string): string {
   }).format(minor / 100);
 }
 
-function formatRub(amount: number): string {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
 function formatDateRu(iso: string | null | undefined): string {
   if (!iso) return "—";
   const d = new Date(iso);
@@ -128,6 +119,8 @@ export function OfferCard({
     travelerBudgetPerPersonRub != null &&
     Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub;
 
+  const isCounterOffer = dateDeviates || timeDeviates || countDeviates || budgetDeviates;
+
   const routeStops = (Array.isArray(offer.route_stops) ? (offer.route_stops as RouteStop[]) : []).filter(
     (s) => s && typeof s === "object" && typeof s.photoUrl === "string",
   );
@@ -187,40 +180,29 @@ export function OfferCard({
       </div>
 
       {/* Badge strip */}
-      <div className="space-y-1">
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className={BADGE_CLASS}>
-            <CalendarDays className="size-3.5" />
-            {dateBadgeLabel}
-          </Badge>
-          <Badge variant="outline" className={BADGE_CLASS}>
-            <Clock className="size-3.5" />
-            {timeBadgeLabel}
-          </Badge>
-          <Badge variant="outline" className={BADGE_CLASS}>
-            <Users className="size-3.5" />
-            {countBadgeLabel}
-          </Badge>
-          <Badge
-            variant="outline"
-            className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
-          >
-            <Wallet className="size-3.5" />
-            {priceLabel}
-          </Badge>
-        </div>
-        {(dateDeviates || timeDeviates || countDeviates || budgetDeviates) ? (
-          <div className="flex flex-wrap gap-3 text-[0.7rem] text-muted-foreground">
-            {dateDeviates ? <span>гид предложил {dateBadgeLabel}</span> : null}
-            {timeDeviates ? <span>гид предложил {timeBadgeLabel}</span> : null}
-            {countDeviates ? <span>гид предложил {countBadgeLabel}</span> : null}
-            {budgetDeviates ? (
-              <span>
-                гид предложил {formatRub(Math.round(perPersonMinor / 100))} на чел.
-              </span>
-            ) : null}
-          </div>
+      <div className="flex flex-wrap items-center gap-2">
+        {isCounterOffer ? (
+          <span className="text-xs font-medium text-orange-500">Гид предлагает другие условия</span>
         ) : null}
+        <Badge variant="outline" className={cn(BADGE_CLASS, isCounterOffer && "border-orange-300 bg-orange-50 text-orange-600")}>
+          <CalendarDays className="size-3.5" />
+          {dateBadgeLabel}
+        </Badge>
+        <Badge variant="outline" className={cn(BADGE_CLASS, isCounterOffer && "border-orange-300 bg-orange-50 text-orange-600")}>
+          <Clock className="size-3.5" />
+          {timeBadgeLabel}
+        </Badge>
+        <Badge variant="outline" className={cn(BADGE_CLASS, isCounterOffer && "border-orange-300 bg-orange-50 text-orange-600")}>
+          <Users className="size-3.5" />
+          {countBadgeLabel}
+        </Badge>
+        <Badge
+          variant="outline"
+          className={cn(BADGE_CLASS, isCounterOffer ? "border-orange-300 bg-orange-50 text-orange-600" : "border-success/30 bg-success/10 text-success")}
+        >
+          <Wallet className="size-3.5" />
+          {priceLabel}
+        </Badge>
       </div>
 
       {/* Route collage */}
