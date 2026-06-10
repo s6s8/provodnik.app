@@ -193,6 +193,11 @@ export function GuideRequestsInboxScreen() {
     });
   }, [filter, items, offeredIds, baseCity, cityFilter, sortKey, specializations]);
 
+  const activeBookings = React.useMemo(
+    () => bookings.filter((b) => b.status !== "cancelled" && b.status !== "no_show" && b.status !== "completed"),
+    [bookings],
+  );
+
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
     : null;
@@ -200,7 +205,7 @@ export function GuideRequestsInboxScreen() {
   const tabs: Array<{ key: GuideRequestsFilter; label: string; count: number }> = [
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои отклики", count: myOffersCount },
-    { key: "confirmed", label: "Подтверждённые", count: bookings.length },
+    { key: "confirmed", label: "Подтверждённые", count: activeBookings.length },
   ];
 
   const emptyText =
@@ -293,10 +298,10 @@ export function GuideRequestsInboxScreen() {
 
               <div className="space-y-3">
                 {filter === "confirmed" ? (
-                  bookings.length === 0 ? (
+                  activeBookings.length === 0 ? (
                     <p className="text-center text-sm text-muted-foreground">{emptyText}</p>
                   ) : (
-                    bookings.map((booking) => (
+                    activeBookings.map((booking) => (
                       <Link
                         key={booking.id}
                         href={`/guide/bookings/${booking.id}`}
