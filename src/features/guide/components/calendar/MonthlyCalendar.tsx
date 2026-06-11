@@ -110,7 +110,7 @@ export function MonthlyCalendar({
   return (
     <div className="space-y-4">
       {listings.length > 1 && (
-        <select
+        <select aria-label="Выберите предложение"
           value={selectedListingId}
           onChange={(e) => setSelectedListingId(e.target.value)}
           className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
