@@ -11,7 +11,7 @@ import { formatTimeRange } from "@/lib/dates";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { BidFormPanel } from "./bid-form-panel";
+import { BidFormPanel } from "./bid-form-panel-lazy";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
