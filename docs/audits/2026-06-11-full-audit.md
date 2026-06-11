@@ -67,3 +67,15 @@ Integration branch `refactor/full-2026-06` (off `origin/main`). **Not pushed to 
 - 2.1 deleted byte-identical `formx` route ✅ · 2.3 deleted orphaned `src/data` modules ✅
 
 **Deferred / needs decision:** DB partial-unique-index on `guide_offers` (1.4); dep-prune 2.2 (shared node_modules); junk-untrack 2.4; inbox-screen error surfacing (with its decomposition); Phase 4 structural moves (checkpoint); final push to `origin/main` (approval).
+
+---
+
+## Execution status — 2026-06-11 (29/40 integrated, branch green)
+
+Branch refactor/full-2026-06: typecheck clean, lint -2 vs baseline, 740 tests pass, 46 commits. NOT pushed to prod.
+
+DONE: Phase 1 (security, 10), Phase 2 (deadweight, 4), Phase 3 (observability, 4), Phase 4 (architecture, 6 + 4.6 cancelled), Phase 6 (perf, 3), 5.6 a11y.
+CANCELLED (audit false-positives caught by read-before-act): 4.6 (no N+1 — getBooking not looped), 5.7 (raw img is a blob upload-preview; next/image inappropriate).
+REMAINING (9): 5.1 homepage-form hook, 5.2 card primitive, 5.3 decompose bid-form, 5.4 excursions RHF, 5.5 styles/copy (visual refactors — need browser QA); 7.1 revive e2e, 7.2 coverage, 7.3 docs; 7.4 final review+deploy.
+IRREVERSIBLE (gated on go/no-go): apply offer-uniqueness DB index to live Supabase (pre-check dup rows first); push origin/main (Vercel deploy).
+RESUME: node /Users/idev/refactor-loop/run.mjs next   (loop self-resumes; state in tasks.json + runs/).
