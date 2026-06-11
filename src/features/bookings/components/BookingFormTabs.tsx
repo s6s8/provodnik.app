@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 
-import { submitRequest } from "@/features/booking/actions/submitRequest";
+import { submitRequest } from "@/features/bookings/actions/submitRequest";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

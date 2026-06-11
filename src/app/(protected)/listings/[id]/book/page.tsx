@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { notFound, redirect } from "next/navigation";
 
-import { BookingFormTabs } from "@/features/booking/components/BookingFormTabs";
+import { BookingFormTabs } from "@/features/bookings/components/BookingFormTabs";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
