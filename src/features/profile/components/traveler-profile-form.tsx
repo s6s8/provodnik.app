@@ -8,18 +8,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import type { TravelerProfile } from "@/lib/profile/types";
 
 import { findContactInBio } from "../validation/anti-contact";
 import { useRouter } from "next/navigation";
 
-export type TravelerProfile = {
-  full_name: string | null;
-  avatar_url: string | null;
-  bio: string | null;
-  home_city: string | null;
-  languages: string[] | null;
-  birth_year: number | null;
-};
+export type { TravelerProfile };
 
 const languageOptions = [
   { value: "ru", label: "Русский" },
