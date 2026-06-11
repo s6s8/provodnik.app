@@ -3,6 +3,8 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+import { messagesApi } from "@/lib/api/messages";
+import { queryKeys } from "@/lib/query-keys";
 import type { MessageWithSender } from "@/lib/supabase/conversations";
 import type { MessageRow } from "@/lib/supabase/types";
 
@@ -11,19 +13,6 @@ import { useRealtimeMessages } from "@/features/messaging/hooks/use-realtime-mes
 import { MessageBubble } from "./message-bubble";
 
 type MarkReadAction = (threadId: string) => Promise<void>;
-
-async function fetchMessages(threadId: string) {
-  const response = await fetch(`/api/messages/threads/${threadId}`, {
-    method: "GET",
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Не удалось загрузить сообщения.");
-  }
-
-  return (await response.json()) as MessageWithSender[];
-}
 
 function formatSenderName(message: MessageWithSender) {
   return message.sender_profile?.full_name?.trim() || "Участник";
@@ -46,15 +35,15 @@ export function ChatWindow({
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
   const { data: messages = initialMessages, isFetching } = useQuery({
-    queryKey: ["thread-messages", threadId],
-    queryFn: () => fetchMessages(threadId),
+    queryKey: queryKeys.messages.threadMessages(threadId),
+    queryFn: () => messagesApi.threadMessages(threadId),
     initialData: initialMessages,
   });
 
   const handleNewMessage = useCallback(
     (message: MessageRow) => {
       queryClient.setQueryData<MessageWithSender[]>(
-        ["thread-messages", threadId],
+        queryKeys.messages.threadMessages(threadId),
         (current = []) => {
           if (current.some((item) => item.id === message.id)) {
             return current;
@@ -70,7 +59,9 @@ export function ChatWindow({
         },
       );
 
-      void queryClient.invalidateQueries({ queryKey: ["message-threads"] });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.threads(),
+      });
 
       if (message.sender_id !== currentUserId) {
         void markReadAction(threadId);
