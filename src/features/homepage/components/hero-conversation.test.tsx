@@ -27,7 +27,7 @@ vi.mock("@/lib/dates", () => ({
   todayMoscowISODate: () => "2026-06-02",
 }));
 
-vi.mock("@/features/homepage/components/homepage-auth-gate", () => ({
+vi.mock("@/features/homepage-classic/components/homepage-auth-gate", () => ({
   HomepageAuthGate: ({ open }: { open: boolean }) =>
     open ? <div data-testid="auth-gate-open" /> : null,
 }));

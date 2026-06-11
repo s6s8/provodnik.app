@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
-import { HomepageAuthGate } from "@/features/homepage/components/homepage-auth-gate";
+import { HomepageAuthGate } from "@/features/homepage-classic/components/homepage-auth-gate";
 
 import {
   EMPTY_FIELDS,

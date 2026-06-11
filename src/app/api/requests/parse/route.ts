@@ -7,8 +7,8 @@ import {
   mergeFields,
   nextQuestion,
   sanitizeExtraction,
-} from "@/features/homepage3/lib/extraction";
-import { extractFields } from "@/features/homepage3/lib/openrouter";
+} from "@/features/homepage/lib/extraction";
+import { extractFields } from "@/features/homepage/lib/openrouter";
 import { checkGlobalBudget, rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
