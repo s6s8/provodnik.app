@@ -83,10 +83,6 @@ export function OfferCard({
   requestStatus,
   onSendQa,
   onGetOrCreateQaThread,
-  travelerDateLocked,
-  travelerTimeLocked,
-  travelerCountLocked,
-  travelerBudgetLocked,
   travelerStartsOn,
   travelerStartTime,
   travelerEndTime,
@@ -111,19 +107,14 @@ export function OfferCard({
   const countBadgeLabel = `${offerCount} чел.`;
 
   const dateDeviates =
-    travelerDateLocked === false && offerDateIso != null && (travelerStartsOn == null || offerDateIso !== travelerStartsOn.slice(0, 10));
+    offerDateIso != null && (travelerStartsOn == null || offerDateIso !== travelerStartsOn.slice(0, 10));
   const timeDeviates =
-    travelerTimeLocked === false &&
-    (
-      (travelerStartTime != null && offer.starts_at != null && formatTime(offer.starts_at) !== normalizeTime(travelerStartTime)) ||
-      (travelerEndTime != null && offer.ends_at != null && formatTime(offer.ends_at) !== normalizeTime(travelerEndTime))
-    );
+    (travelerStartTime != null && offer.starts_at != null && formatTime(offer.starts_at) !== normalizeTime(travelerStartTime)) ||
+    (travelerEndTime != null && offer.ends_at != null && formatTime(offer.ends_at) !== normalizeTime(travelerEndTime));
   const countDeviates =
-    travelerCountLocked === false && travelerCount != null && offerCount !== travelerCount;
+    offer.capacity > 0 && (travelerCount == null || offerCount !== travelerCount);
   const budgetDeviates =
-    travelerBudgetLocked === false &&
-    travelerBudgetPerPersonRub != null &&
-    Math.round(kopecksToRub(perPersonMinor)) !== travelerBudgetPerPersonRub;
+    perPersonMinor > 0 && (travelerBudgetPerPersonRub == null || Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub);
 
   const isCounterOffer = dateDeviates || timeDeviates || countDeviates || budgetDeviates;
   const travelerTimeBefore = normalizeTime(travelerStartTime) ?? normalizeTime(travelerEndTime) ?? "—";
