@@ -3,11 +3,10 @@ import Link from "next/link";
 import { CalendarDays, Clock, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { BADGE_CLASS } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 import type { TripCardModel, TripPhase } from "./trip-card-types";
-
-const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {

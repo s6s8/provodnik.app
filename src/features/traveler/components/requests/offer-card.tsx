@@ -8,6 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { kopecksToRub } from "@/data/money";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import { BADGE_CLASS } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -42,7 +43,6 @@ interface Props {
   travelerBudgetPerPersonRub?: number | null;
 }
 
-const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
 const COUNTER_BADGE_CLASS = cn(BADGE_CLASS, "border-orange-300 bg-orange-50 text-orange-700");
 
 function formatPrice(minor: number, currency: string): string {

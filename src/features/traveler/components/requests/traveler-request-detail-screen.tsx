@@ -7,13 +7,12 @@ import { INTEREST_CHIPS } from "@/data/interests";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { CancelRequestButton } from "@/features/traveler/components/requests/cancel-request-button";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
+import { BADGE_CLASS } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
 );
-
-const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
