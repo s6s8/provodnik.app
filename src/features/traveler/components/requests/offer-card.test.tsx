@@ -119,6 +119,58 @@ describe("OfferCard", () => {
     expect(screen.queryByText(/гид предложил 09:30/)).not.toBeInTheDocument();
   });
 
+  it("warns when a locked traveler date differs from the guide offer date", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          starts_at: "2026-07-24T08:00:00+00:00",
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerDateLocked={true}
+        travelerTimeLocked={true}
+        travelerCountLocked={true}
+        travelerBudgetLocked={true}
+        travelerStartsOn="2026-06-24"
+        travelerCount={1}
+        travelerBudgetPerPersonRub={5000}
+      />,
+    );
+
+    expect(screen.getByText("Гид предложил другие условия")).toBeInTheDocument();
+  });
+
+  it("does not warn when locked traveler conditions match the guide offer", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          starts_at: "2026-06-24T08:00:00+00:00",
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerDateLocked={true}
+        travelerTimeLocked={true}
+        travelerCountLocked={true}
+        travelerBudgetLocked={true}
+        travelerStartsOn="2026-06-24"
+        travelerCount={1}
+        travelerBudgetPerPersonRub={5000}
+      />,
+    );
+
+    expect(screen.queryByText("Гид предложил другие условия")).not.toBeInTheDocument();
+  });
+
   it("renders counter-offer arrow badges for changed conditions only", () => {
     render(
       <OfferCard
