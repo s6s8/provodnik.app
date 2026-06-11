@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { hasAdminRole } from "@/lib/auth/admin-access";
+import { logError } from "@/lib/log";
 import { createNotification } from "@/lib/notifications/create-notification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
@@ -815,23 +816,25 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
   const accounts =
     accountsResult.status === "fulfilled"
       ? accountsResult.value
-      : (console.error(
-          `getGuideReviewDetail: accounts query failed — ${accountsResult.status === "rejected" ? accountsResult.reason : "unknown"}`,
-        ),
+      : (logError("moderation.guideReviewDetail.accounts", accountsResult.reason, { guideId }),
         new Map<Uuid, ProfileLite>());
 
   const documents =
     docsResult.status === "rejected" || (docsResult.status === "fulfilled" && docsResult.value.error)
-      ? (console.error(
-          `getGuideReviewDetail: documents query failed — ${docsResult.status === "rejected" ? docsResult.reason : docsResult.status === "fulfilled" && docsResult.value.error?.message}`,
+      ? (logError(
+          "moderation.guideReviewDetail.documents",
+          docsResult.status === "rejected" ? docsResult.reason : docsResult.value.error,
+          { guideId },
         ),
         [] as GuideDocumentRow[])
       : ((docsResult.value.data ?? []) as GuideDocumentRow[]);
 
   const cases =
     casesResult.status === "rejected" || (casesResult.status === "fulfilled" && casesResult.value.error)
-      ? (console.error(
-          `getGuideReviewDetail: cases query failed — ${casesResult.status === "rejected" ? casesResult.reason : casesResult.status === "fulfilled" && casesResult.value.error?.message}`,
+      ? (logError(
+          "moderation.guideReviewDetail.cases",
+          casesResult.status === "rejected" ? casesResult.reason : casesResult.value.error,
+          { guideId },
         ),
         null)
       : casesResult.status === "fulfilled"
@@ -840,8 +843,10 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
 
   const licensesRaw =
     licensesResult.status === "rejected" || (licensesResult.status === "fulfilled" && licensesResult.value.error)
-      ? (console.error(
-          `getGuideReviewDetail: licenses query failed — ${licensesResult.status === "rejected" ? licensesResult.reason : licensesResult.status === "fulfilled" && licensesResult.value.error?.message}`,
+      ? (logError(
+          "moderation.guideReviewDetail.licenses",
+          licensesResult.status === "rejected" ? licensesResult.reason : licensesResult.value.error,
+          { guideId },
         ),
         [] as GuideLicenseQueryRow[])
       : ((licensesResult.value.data ?? []) as unknown as GuideLicenseQueryRow[]);
