@@ -103,3 +103,5 @@ export default async function DestinationDetailPage({
     </>
   );
 }
+
+export const revalidate = 3600;

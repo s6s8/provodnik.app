@@ -1,5 +1,6 @@
 import "server-only";
 
+import * as Sentry from "@sentry/nextjs";
 import { z } from "zod";
 
 import {
@@ -24,6 +25,12 @@ type BookingCancelRecipient = {
   role: "traveler" | "guide";
 };
 
+function captureNotificationLookupError(error: unknown): void {
+  Sentry.captureException(error, {
+    tags: { context: "notification_trigger" },
+  });
+}
+
 function formatShortDate(iso: string): string {
   try {
     return new Intl.DateTimeFormat("ru-RU", {
@@ -38,11 +45,16 @@ function formatShortDate(iso: string): string {
 async function getGuideDisplayName(guideId: string): Promise<string> {
   const supabase = await createSupabaseServerClient();
 
-  const { data: profile } = await supabase
+  const { data: profile, error } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", guideId)
     .maybeSingle();
+
+  if (error) {
+    captureNotificationLookupError(error);
+    return resolveDisplayName("guide", { full_name: undefined });
+  }
 
   return resolveDisplayName("guide", { full_name: profile?.full_name });
 }
@@ -50,11 +62,20 @@ async function getGuideDisplayName(guideId: string): Promise<string> {
 async function getTravelerDisplayName(travelerId: string): Promise<string> {
   const admin = createSupabaseAdminClient();
 
-  const { data: profile } = await admin
+  const { data: profile, error } = await admin
     .from("profiles")
     .select("full_name")
     .eq("id", travelerId)
     .maybeSingle();
+
+  if (error) {
+    captureNotificationLookupError(error);
+    return resolveDisplayName(
+      "traveler",
+      { full_name: undefined },
+      { context: "trusted" },
+    );
+  }
 
   return resolveDisplayName(
     "traveler",
@@ -65,11 +86,15 @@ async function getTravelerDisplayName(travelerId: string): Promise<string> {
 
 async function getUserEmail(userId: string): Promise<string | null> {
   const admin = createSupabaseAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("profiles")
     .select("email")
     .eq("id", userId)
     .maybeSingle();
+  if (error) {
+    captureNotificationLookupError(error);
+    return null;
+  }
   return data?.email ?? null;
 }
 
@@ -78,11 +103,15 @@ async function guideEmailDisabled(
   eventKey: string,
 ): Promise<boolean> {
   const admin = createSupabaseAdminClient();
-  const { data } = await admin
+  const { data, error } = await admin
     .from("guide_profiles")
     .select("notification_prefs")
     .eq("user_id", guideUserId)
     .maybeSingle();
+  if (error) {
+    captureNotificationLookupError(error);
+    return false;
+  }
   const prefs = (data?.notification_prefs ?? {}) as Record<string, unknown>;
   return prefs[`guide.${eventKey}.email`] === false;
 }
@@ -99,7 +128,10 @@ async function travelerEmailDisabled(
       .eq("id", travelerUserId)
       .maybeSingle();
 
-    if (error) return false;
+    if (error) {
+      captureNotificationLookupError(error);
+      return false;
+    }
 
     const prefs = (data?.notification_prefs ?? {}) as Record<string, unknown>;
     return prefs[`traveler.${eventKey}.email`] === false;

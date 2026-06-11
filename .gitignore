@@ -72,3 +72,6 @@ package-lock.json
 # local supabase CLI artifacts
 supabase/.branches/
 supabase/.temp/
+
+.playwright-mcp/
+/*.png

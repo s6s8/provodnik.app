@@ -1,6 +1,7 @@
 import "server-only";
-import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getResendClient } from "@/lib/email/resend-client";
+import { logError } from "@/lib/log";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const FROM = "Provodnik <noreply@provodnik.app>";
 const RESERVED_SENT_AT = "1970-01-01T00:00:00.000Z";
@@ -39,12 +40,20 @@ export async function sendNotificationEmail(args: {
       html: args.html,
     });
     if (sendErr) {
-      console.error("[notif-email] send error:", sendErr.message);
+      logError("notifEmail.send", sendErr, {
+        entityId: args.entityId,
+        kind: args.kind,
+        recipient: args.to,
+      });
       return;
     }
 
     if (!data?.id) {
-      console.error("[notif-email] send error: missing provider message id");
+      logError("notifEmail.send.missingMessageId", new Error("Missing provider message id"), {
+        entityId: args.entityId,
+        kind: args.kind,
+        recipient: args.to,
+      });
       return;
     }
 
@@ -63,6 +72,11 @@ export async function sendNotificationEmail(args: {
   } catch (e) {
     const message = e instanceof Error ? e.message : String(e);
     if (message.startsWith("[notif-email] log sent marker error:")) throw e;
-    console.error("[notif-email] unexpected:", message);
+    logError("notifEmail.unexpected", e, {
+      entityId: args.entityId,
+      kind: args.kind,
+      message,
+      recipient: args.to,
+    });
   }
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
 import { SiteFooter } from "@/components/shared/site-footer";
-import { HeroConversation } from "@/features/homepage3/components/hero-conversation";
+import { HeroConversation } from "@/features/homepage/components/hero-conversation";
 
 export const metadata: Metadata = {
   title: "Проводник — опишите поездку",

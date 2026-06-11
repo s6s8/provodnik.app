@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { getActiveGuideDestinations, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
-import { HomePageShell2Classic } from "@/features/homepage/components/homepage-shell2-classic";
+import { HomePageShell2Classic } from "@/features/homepage-classic/components/homepage-shell2-classic";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {

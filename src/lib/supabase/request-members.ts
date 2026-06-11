@@ -66,12 +66,14 @@ export async function joinRequest(
   const supabase = await createSupabaseServerClient();
 
   // Check for existing row first
-  const { data: existing } = await supabase
+  const { data: existing, error: existingError } = await supabase
     .from("open_request_members")
     .select("status, left_at")
     .eq("request_id", input.requestId)
     .eq("traveler_id", input.travelerId)
     .maybeSingle();
+
+  if (existingError) throw existingError;
 
   if (existing) {
     const row = existing as Pick<OpenRequestMemberRow, "status" | "left_at">;
@@ -150,13 +152,14 @@ export async function isRequestMember(
 ): Promise<boolean> {
   const supabase = await createSupabaseServerClient();
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("open_request_members")
     .select("status, left_at")
     .eq("request_id", requestId)
     .eq("traveler_id", travelerId)
     .maybeSingle();
 
+  if (error) throw error;
   if (!data) return false;
   const row = data as Pick<OpenRequestMemberRow, "status" | "left_at">;
   return row.status === "joined" && !row.left_at;

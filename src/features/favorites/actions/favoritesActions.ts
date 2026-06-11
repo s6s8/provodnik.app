@@ -3,6 +3,21 @@
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+async function assertFolderOwned(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  folderId: string,
+  userId: string,
+) {
+  const { data, error } = await supabase
+    .from("favorites_folders")
+    .select("id")
+    .eq("id", folderId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) throw new Error("not_found");
+}
+
 export async function createFolder(name: string) {
   if (!flags.FEATURE_TR_FAVORITES) throw new Error("Feature disabled");
   const supabase = await createSupabaseServerClient();
@@ -28,6 +43,7 @@ export async function deleteFolder(folderId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+  await assertFolderOwned(supabase, folderId, user.id);
   await supabase.from("favorites_folders").delete().eq("id", folderId).eq("user_id", user.id);
   return { success: true };
 }
@@ -39,6 +55,7 @@ export async function addToFolder(folderId: string, listingId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+  await assertFolderOwned(supabase, folderId, user.id);
   await supabase.from("favorites_items").upsert({ folder_id: folderId, listing_id: listingId });
   return { success: true };
 }
@@ -50,6 +67,7 @@ export async function removeFromFolder(folderId: string, listingId: string) {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
+  await assertFolderOwned(supabase, folderId, user.id);
   await supabase.from("favorites_items").delete().eq("folder_id", folderId).eq("listing_id", listingId);
   return { success: true };
 }

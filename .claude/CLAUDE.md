@@ -71,3 +71,6 @@ Inlined in `.claude/checklists/post-deployment-verification.md` and used at rele
 5. Open a quick PR or merge yourself if the change is trivial.
 
 If you're tempted to push straight to `main`, don't. A bad commit takes the live site down.
+
+## Data access + layering (refactor 2026-06)
+All Supabase I/O in src/lib/supabase/<domain>.ts; src/data = static only. lib/data must not import features (eslint-enforced). Full convention: docs/architecture/feature-structure.md

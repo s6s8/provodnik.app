@@ -23,6 +23,24 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // Layering boundary: the lib/ and data/ layers are infrastructure and must never
+  // depend on feature modules (unidirectional dependency). See refactor task 4.1.
+  {
+    files: ["src/lib/**/*.{ts,tsx}", "src/data/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/features/*", "@/features"],
+              message: "lib/data must not import from features — extract shared types/constants into lib (layering).",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

@@ -1,7 +1,0 @@
-[    2449ms] [LOG] DOMContentLoaded (DevTools): 0.00 ms @ https://experience.tripster.ru/mfs/assets/main-j_YJvRUb.js:13
-[    2461ms] [LOG] Host-app rendering completed (self): 12.00 ms @ https://experience.tripster.ru/mfs/assets/main-j_YJvRUb.js:13
-[    2461ms] [LOG] Host-app loading completed (total): 13.10 ms @ https://experience.tripster.ru/mfs/assets/main-j_YJvRUb.js:13
-[    2581ms] [LOG] MF "experience-mf-home" загружен! Время рендера: 2575.40ms @ https://experience.tripster.ru/mfs/assets/main-j_YJvRUb.js:20
-[    2685ms] [LOG] LCP (Largest Contentful Paint): 2672.00 ms @ https://experience.tripster.ru/mfs/assets/lazy-sentry-COLwcqlE.js:3
-[    2904ms] [LOG] LCP (Largest Contentful Paint): 2888.00 ms @ https://experience.tripster.ru/mfs/assets/lazy-sentry-COLwcqlE.js:3
-[    3284ms] [LOG] LCP (Largest Contentful Paint): 3272.00 ms @ https://experience.tripster.ru/mfs/assets/lazy-sentry-COLwcqlE.js:3

@@ -11,7 +11,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh }),
 }));
 
-vi.mock("./bid-form-panel", () => ({
+vi.mock("./bid-form-panel-lazy", () => ({
   BidFormPanel: ({ onSuccess }: { onSuccess?: () => void }) => (
     <button type="button" onClick={() => onSuccess?.()}>
       submit mocked offer

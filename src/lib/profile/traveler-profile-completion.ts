@@ -1,4 +1,4 @@
-import type { TravelerProfile } from "@/features/profile/components/traveler-profile-form";
+import type { TravelerProfile } from "@/lib/profile/types";
 
 /** Stored traveler name from DB or demo cookie — not display fallbacks. */
 export function hasTravelerProfileName(

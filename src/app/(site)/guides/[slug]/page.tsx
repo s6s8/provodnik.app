@@ -146,3 +146,5 @@ export default async function PublicGuideProfilePage({
     </>
   );
 }
+
+export const revalidate = 3600;

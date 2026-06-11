@@ -1,0 +1,227 @@
+{
+  "meta": {
+    "project": "provodnik",
+    "workspace": "/Users/idev/provodnik",
+    "integration_branch": "refactor/full-2026-06",
+    "base_ref": "origin/main",
+    "dispatcher": "/Users/idev/quantumbek/tools/dispatch-cursor.mjs",
+    "merger": "/Users/idev/quantumbek/tools/merge-task.mjs",
+    "plan": "docs/superpowers/plans/2026-06-11-full-refactor.md",
+    "audit": "docs/audits/2026-06-11-full-audit.md",
+    "max_attempts": 3,
+    "rule_no_push_to_main": true,
+    "created": "2026-06-11"
+  },
+  "tasks": [
+    {
+      "id": "1.1-llm-budget",
+      "phase": 1,
+      "title": "Daily global budget cap on /api/requests/parse",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/lib/rate-limit.ts", "src/app/api/requests/parse/route.ts", "src/lib/rate-limit.test.ts"],
+      "libs": [],
+      "symbol": null,
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/lib/rate-limit.test.ts"],
+      "done": [
+        "checkGlobalBudget(bucket, dailyLimit) exported from rate-limit.ts, fail-open when redis null (mirrors existing rateLimit())",
+        "POST handler calls checkGlobalBudget after the per-IP rateLimit and returns 429 when over budget",
+        "rate-limit.test.ts covers over-budget reject + first-hit TTL set + redis-null fail-open"
+      ],
+      "notes": "redis export is `redis` (nullable) from @/lib/upstash/redis. Match the existing fail-open style: no redis env -> allow."
+    },
+    {
+      "id": "1.2-favorites-ownership",
+      "phase": 1,
+      "title": "Explicit ownership assertions in favorites folder mutations",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/favorites/actions/favoritesActions.ts", "src/features/favorites/actions/favoritesActions.test.ts"],
+      "libs": [],
+      "symbol": null,
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/features/favorites/actions/favoritesActions.test.ts"],
+      "done": [
+        "assertFolderOwned(supabase, folderId, userId) added; throws 'not_found' when select returns null",
+        "deleteFolder / addToFolder / removeFromFolder call it before mutating",
+        "test proves a non-owned folder id is rejected"
+      ],
+      "notes": "Belt-and-suspenders on top of RLS. Do not remove the existing .eq('user_id', user.id) filters."
+    },
+    {
+      "id": "1.3a-zod-submitRequest",
+      "phase": 1,
+      "title": "Zod schema for submitRequest action",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/booking/actions/submitRequest.ts", "src/features/booking/actions/submitRequest.schema.ts", "src/features/booking/actions/submitRequest.test.ts"],
+      "libs": ["zod"],
+      "symbol": "z.object / safeParse",
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/features/booking/actions/submitRequest.test.ts"],
+      "done": [
+        "submitRequest.schema.ts exports submitRequestSchema covering every field the action destructures",
+        "action safeParses input first; returns {ok:false,error} on invalid; no DB write on invalid",
+        "test covers an out-of-range/invalid field"
+      ],
+      "notes": "Derive the exact field list by reading the current action body. Use zod 4 API confirmed via context7."
+    },
+    {
+      "id": "1.3b-zod-completeOnboarding",
+      "phase": 1,
+      "title": "Zod schema for completeOnboarding action",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/guide/actions/completeOnboarding.ts", "src/features/guide/actions/completeOnboarding.schema.ts", "src/features/guide/actions/completeOnboarding.test.ts"],
+      "libs": ["zod"],
+      "symbol": "z.array / safeParse",
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/features/guide/actions/completeOnboarding.test.ts"],
+      "done": [
+        "completeOnboarding.schema.ts: regions z.array(z.string().min(1)).max(20), plus every other field",
+        "action safeParses first; invalid -> {ok:false,error}; existing test still green"
+      ],
+      "notes": "completeOnboarding already has a test file - extend it, do not replace passing cases."
+    },
+    {
+      "id": "1.3c-zod-updatePersonalSettings",
+      "phase": 1,
+      "title": "Zod schema for updatePersonalSettings action",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/profile/actions/updatePersonalSettings.ts", "src/features/profile/actions/updatePersonalSettings.schema.ts", "src/features/profile/actions/updatePersonalSettings.test.ts"],
+      "libs": ["zod"],
+      "symbol": "z.object strict",
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/features/profile/actions/updatePersonalSettings.test.ts"],
+      "done": [
+        "notificationPrefs typed as explicit z.object({...}).strict() - no Record<string, unknown>",
+        "action safeParses first; invalid -> {ok:false,error}"
+      ],
+      "notes": "Confirm actual action filename via grep before dispatch; adjust scope if path differs."
+    },
+    {
+      "id": "1.3d-zod-submitReply",
+      "phase": 1,
+      "title": "Zod schema for review submitReply action",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/reviews/actions/submitReply.ts", "src/features/reviews/actions/submitReply.schema.ts", "src/features/reviews/actions/submitReply.test.ts"],
+      "libs": ["zod"],
+      "symbol": "z.string trim min max",
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/features/reviews/actions/submitReply.test.ts"],
+      "done": ["text: z.string().trim().min(1).max(2000); action safeParses first"],
+      "notes": "Confirm actual action path via grep before dispatch."
+    },
+    {
+      "id": "1.3e-zod-counterOffer",
+      "phase": 1,
+      "title": "Zod schema for counterOffer action",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/messaging/actions/offerActions.ts", "src/features/messaging/actions/offerActions.schema.ts"],
+      "libs": ["zod"],
+      "symbol": "z.coerce.number int",
+      "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/features/messaging/actions/__tests__/offerActions.test.ts"],
+      "done": ["counterOffer priceRub: z.coerce.number().int().min(1000).max(1000000); safeParse first; offerActions.test.ts still green"],
+      "notes": "Use the money helpers per AP-012 (rubToKopecks) if writing _minor fields. Validate RUB, not kopecks."
+    },
+    {
+      "id": "1.4-offer-idempotency",
+      "phase": 1,
+      "title": "Idempotent offer submission (partial unique index + in-flight guard)",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["supabase/migrations/20260611000001_guide_offers_unique_active.sql", "src/features/guide/components/requests/bid-form-panel.tsx", "src/features/messaging/actions/offerActions.ts"],
+      "libs": [],
+      "symbol": null,
+      "verify": ["bun run typecheck", "bun run lint:ratchet"],
+      "done": [
+        "Migration: partial unique index on guide_offers(request_id, guide_id) WHERE status in non-terminal set (confirm enum values first)",
+        "bid-form-panel: submitInFlight ref flips synchronously before await; double-click cannot double-submit",
+        "offerActions: maps Postgres 23505 to a friendly 'already submitted' error"
+      ],
+      "notes": "ORCHESTRATOR applies the migration via Management API after merge - cursor only writes the .sql file."
+    },
+    {
+      "id": "1.5a-supabase-errors-pages",
+      "phase": 1,
+      "title": "Surface swallowed Supabase errors (pages)",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/app/(public)/help/page.tsx", "src/app/(protected)/profile/personal/page.tsx", "src/app/(public)/search/page.tsx", "src/app/(site)/guide/[id]/page.tsx"],
+      "libs": [],
+      "symbol": null,
+      "verify": ["bun run typecheck", "bun run lint:ratchet"],
+      "done": ["Each `const { data } = await supabase...` becomes `const { data, error } = ...; if (error) throw error;` (server components bubble to error.tsx)"],
+      "notes": "Do not change happy-path rendering. Only add error handling."
+    },
+    {
+      "id": "1.5b-supabase-errors-lib",
+      "phase": 1,
+      "title": "Surface swallowed Supabase errors (inbox + triggers + members)",
+      "executor": "cursor",
+      "status": "pending",
+      "attempts": 0,
+      "deps": [],
+      "scope": ["src/features/guide/components/requests/guide-requests-inbox-screen.tsx", "src/lib/notifications/triggers.ts", "src/lib/supabase/request-members.ts"],
+      "libs": [],
+      "symbol": null,
+      "verify": ["bun run typecheck", "bun run lint:ratchet"],
+      "done": [
+        "Pages/components: throw on error. Background triggers.ts: capture to Sentry and return (best-effort), do not crash the parent flow"
+      ],
+      "notes": "triggers.ts errors are best-effort notification delivery - Sentry.captureException + return, never throw."
+    },
+
+    { "id": "2.1-delete-formx", "phase": 2, "title": "Delete byte-identical formx route", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/app/(home)/formx"], "verify": ["grep -rn formx src", "bun run typecheck"], "done": ["formx dir git-removed; zero references remain"] },
+    { "id": "2.2-deps-prune", "phase": 2, "title": "Remove unused framer-motion/motion; shadcn -> devDep", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": ["package.json"], "verify": ["grep -rn 'framer-motion|from \"motion' src", "bun run build"], "done": ["framer-motion+motion removed (0 imports verified); shadcn moved to devDependencies; build green"] },
+    { "id": "2.3-delete-orphan-data", "phase": 2, "title": "Delete orphaned src/data modules", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/data/bookings/supabase.ts", "src/data/conversations/supabase.ts", "src/data/favorites/supabase-client.ts"], "verify": ["bun run typecheck", "bun run test:run"], "done": ["Confirmed-zero-importer modules + their tests deleted; gates green"] },
+    { "id": "2.4-untrack-junk", "phase": 2, "title": "Untrack playwright artifacts + screenshots, archive competitor dumps", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": [".gitignore", ".playwright-mcp", "*.png", "docs/_research/competitors"], "verify": ["git status"], "done": [".playwright-mcp + root *.png untracked & gitignored; competitor md dumps moved to docs/_research/competitors; generate-specializations-proposal.ts deleted"] },
+
+    { "id": "3.1-create-action", "phase": 3, "title": "createAction wrapper (result contract + Sentry)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/lib/actions/create-action.ts", "src/lib/actions/create-action.test.ts"], "libs": ["zod", "@sentry/nextjs"], "symbol": "captureException / safeParse", "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/lib/actions/create-action.test.ts"], "done": ["createAction(schema,handler,opts) returns ActionResult union; ActionError for user-facing; Sentry on unknown throw; tests cover success/validation/throw"] },
+    { "id": "3.2-error-boundaries", "phase": 3, "title": "error.tsx for (home)/(public)/(auth) + Sentry in existing", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/app/(home)/error.tsx", "src/app/(public)/error.tsx", "src/app/(auth)/error.tsx", "src/app/(protected)/error.tsx", "src/app/(site)/error.tsx"], "libs": ["@sentry/nextjs"], "symbol": "captureException", "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["3 new boundaries; existing two call Sentry.captureException not console.error"] },
+    { "id": "3.3-logger", "phase": 3, "title": "logError logger + replace console.* (batched)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": ["3.1-create-action"], "scope": ["src/lib/log.ts"], "libs": ["@sentry/nextjs"], "symbol": "captureException", "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["logError(context,err,extra) created; console.* call sites migrated in batches; lint forbids new console via ratchet"], "notes": "Batched across many files - dispatch one area per sub-run; >5 files means split." },
+    { "id": "3.4-sentry-hardening", "phase": 3, "title": "Sentry tunnelRoute + tracesSampler", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["next.config.ts", "sentry.server.config.ts", "sentry.edge.config.ts", "src/instrumentation-client.ts"], "libs": ["@sentry/nextjs"], "symbol": "tracesSampler / tunnelRoute", "verify": ["bun run typecheck", "bun run build"], "done": ["tunnelRoute /monitoring enabled; path-weighted tracesSampler; build green"] },
+
+    { "id": "4.1-traveler-profile-type", "phase": 4, "title": "Extract TravelerProfile to lib; forbid lib->features imports", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/lib/profile/types.ts", "src/lib/profile/load-traveler-profile.ts", "src/lib/demo-traveler-profile.ts", "src/lib/profile/traveler-profile-completion.ts", "eslint.config.mjs"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run"], "done": ["TravelerProfile moved to lib/profile/types.ts; form re-exports it; lib files import from lib; eslint no-restricted-imports blocks @/features/* from lib & data"], "notes": "AP-014 boundary. The form component must keep working - re-export the type from its old path during migration." },
+    { "id": "4.2-route-groups", "phase": 4, "title": "Collapse (public) into (site); fold (guide) into (protected)", "executor": "mixed", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/app/(public)", "src/app/(site)", "src/app/(guide)", "src/app/(protected)/guide/settings"], "verify": ["bun run build", "bun run typecheck"], "done": ["(public) pages moved into (site); (guide) page folded into (protected)/guide/settings; build has no route conflicts"], "notes": "ORCHESTRATOR does git mv; cursor only fixes import paths. INVESTIGATE (public)/listings/[id] vs (protected)/listings/[id] URL collision FIRST." },
+    { "id": "4.3-homepage-rename", "phase": 4, "title": "homepage3 -> homepage; old homepage -> homepage-classic", "executor": "mixed", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/features/homepage", "src/features/homepage3", "src/features/homepage-classic"], "verify": ["bun run build", "bun run typecheck"], "done": ["dirs renamed; all imports updated; / and /form both render"], "notes": "ORCHESTRATOR does git mv (classic first, then homepage3->homepage); cursor fixes residual imports." },
+    { "id": "4.4-merge-booking", "phase": 4, "title": "Merge features/booking into features/bookings", "executor": "mixed", "status": "pending", "attempts": 0, "deps": ["1.3a-zod-submitRequest"], "scope": ["src/features/booking", "src/features/bookings", "src/app/(protected)/listings/[id]/book/page.tsx"], "verify": ["bun run build", "bun run typecheck"], "done": ["booking files moved into bookings; importers updated; build green"], "notes": "ORCHESTRATOR git mv; cursor import fixes." },
+    { "id": "4.5-data-layer", "phase": 4, "title": "Canonical data layer: I/O in lib/supabase, src/data static-only", "executor": "mixed", "status": "pending", "attempts": 0, "deps": ["2.3-delete-orphan-data"], "scope": ["src/data", "src/lib/supabase"], "verify": ["bun run typecheck", "bun run test:run"], "done": ["all Supabase I/O under lib/supabase; src/data holds only static constants/types; rule documented in .claude/CLAUDE.md"], "notes": "One domain per sub-run. ORCHESTRATOR git mv; cursor import fixes." },
+    { "id": "4.6-bookings-n1", "phase": 4, "title": "Batch-load bookings related rows (fix N+1)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/lib/supabase/bookings.ts", "src/lib/supabase/bookings.test.ts"], "libs": ["@supabase/supabase-js"], "symbol": ".in() batch select", "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run src/lib/supabase/bookings.test.ts"], "done": ["getTravelerBookings batch-loads guide profiles/requests/offers via .in(); test asserts one query per related table; column lists mirror current per-booking select"] },
+    { "id": "4.7-query-keys", "phase": 4, "title": "Query-key factory + typed messages api module", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/lib/query-keys.ts", "src/lib/api/messages.ts", "src/features/messaging/components/chat-window.tsx", "src/features/messaging/hooks/use-unread-count.ts"], "libs": ["@tanstack/react-query"], "symbol": "queryOptions / query key factory", "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["queryKeys factory; messagesApi module is the only client fetch of /api/messages/*; sites use factory + module"] },
+    { "id": "4.8-feature-structure-doc", "phase": 4, "title": "Feature structure standard + cross-feature import rule", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": ["docs/architecture/feature-structure.md", ".claude/CLAUDE.md"], "verify": ["bun run lint:ratchet"], "done": ["standard documented; eslint rule for cross-feature imports added or current violators grandfathered"] },
+
+    { "id": "5.1-merge-homepage-forms", "phase": 5, "title": "Single form-logic hook behind two homepage layouts", "executor": "cursor", "status": "pending", "attempts": 0, "deps": ["4.3-homepage-rename"], "scope": ["src/features/homepage-classic/components/request-form/use-request-form.ts", "src/features/homepage-classic/components/homepage-request-form.tsx", "src/features/homepage-classic/components/homepage-request-form-classic.tsx"], "libs": ["react-hook-form", "zod"], "symbol": "useForm / zodResolver", "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run"], "done": ["shared useRequestForm hook; both components layout-only; existing form test green"], "notes": "paths assume 4.3 done; adjust if homepage-classic path differs." },
+    { "id": "5.2-media-card", "phase": 5, "title": "Shared MediaCard primitive for 5 card variants", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/components/shared/media-card.tsx", "src/components/shared/listing-card.tsx", "src/components/shared/tour-card.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["MediaCard primitive lifts exact gradient/badge classes; listing-card+tour-card migrated; visuals unchanged"], "notes": "request-card-final + req-card migrate in follow-up sub-runs; verify visuals in browser per HOT-NEW." },
+    { "id": "5.3-decompose-bid-form", "phase": 5, "title": "Decompose bid-form-panel (607 lines)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": ["1.4-offer-idempotency"], "scope": ["src/features/guide/components/requests/bid-form-panel.tsx", "src/features/guide/components/requests/use-guide-catalog.ts", "src/features/guide/components/requests/excursion-picker.tsx", "src/features/guide/components/requests/route-builder.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["catalog data hook + excursion-picker + route-builder extracted; ProposedBadge hoisted to module; panel owns the RHF instance"], "notes": "Behavior-preserving. Browser-verify offer flow (HOT-NEW)." },
+    { "id": "5.4-excursions-rhf", "phase": 5, "title": "guide-excursions-screen -> react-hook-form", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/features/guide/components/excursions/guide-excursions-screen.tsx", "src/features/guide/components/excursions/template-form.tsx"], "libs": ["react-hook-form", "zod"], "symbol": "useForm / watch subscription", "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["12 useState replaced by RHF; open/edit reset via form.reset; price-sync via watch subscription (no missing-dep effect)"] },
+    { "id": "5.5-styles-copy", "phase": 5, "title": "Shared style constants + copy.ts consolidation", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/lib/styles.ts", "src/lib/copy.ts"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["FIELD_CLASS/BADGE_CLASS in styles.ts; duplicated literals incl 'Поездка завершена' x3 moved to copy.ts; call sites updated"], "notes": "call-site edits may exceed 5 files - split into follow-up sub-runs by area." },
+    { "id": "5.6-a11y", "phase": 5, "title": "Accessibility: real buttons, image alts, labeled selects", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/components/shared/language-multi-select.tsx", "src/components/shared/theme-icon-chip.tsx", "src/features/guide/components/public/guide-photo-grid.tsx", "src/features/guide/components/calendar/MonthlyCalendar.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["div onClick -> button; gallery alts added; calendar select labeled"] },
+    { "id": "5.7-next-image", "phase": 5, "title": "Replace raw <img> with next/image (3 files)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/features/traveler/components/requests/offer-card.tsx", "src/features/traveler/components/trip-card/trip-card.tsx", "src/features/guide/components/verification/document-upload-card.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run lint:ratchet"], "done": ["<img> -> next/image with width/height or fill+sized parent; supabase host already in remotePatterns"] },
+
+    { "id": "6.1-lazy-panels", "phase": 6, "title": "Lazy-load bid form panel (client wrapper for ssr:false)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": ["5.3-decompose-bid-form"], "scope": ["src/features/guide/components/requests/bid-form-panel-lazy.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run build"], "done": ["dynamic(ssr:false) lives inside a 'use client' wrapper (RSC cannot use ssr:false); importers use the wrapper"], "notes": "RESEARCH-CONFIRMED: ssr:false is illegal in a Server Component - MUST be a client-component wrapper." },
+    { "id": "6.2-cache-semantics", "phase": 6, "title": "Explicit dynamic/revalidate per public page", "executor": "cursor", "status": "pending", "attempts": 0, "deps": ["4.2-route-groups"], "scope": ["src/app/(site)/search/page.tsx", "src/app/(site)/destinations/[slug]/page.tsx", "src/app/(site)/guides/[slug]/page.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck", "bun run build"], "done": ["search: force-dynamic; destinations/guides: revalidate=3600 only if all reads are public/cacheable"] },
+    { "id": "6.3-loading-states", "phase": 6, "title": "Loading skeletons for search + listing detail", "executor": "cursor", "status": "pending", "attempts": 0, "deps": ["4.2-route-groups"], "scope": ["src/app/(site)/search/loading.tsx", "src/app/(site)/listings/[id]/loading.tsx"], "libs": [], "symbol": null, "verify": ["bun run typecheck"], "done": ["skeletons reuse Skeleton ui, mirror each page grid"] },
+
+    { "id": "7.1-revive-e2e", "phase": 7, "title": "Shared e2e user fixtures; unskip tripster-v1 (ERR-059)", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["tests/e2e/fixtures/users.ts", "scripts/seed-test-users.mjs"], "libs": [], "symbol": null, "verify": ["bun run typecheck"], "done": ["single TEST_USERS source shared by seed + specs; specs use it; ERR-059 noted resolved"], "notes": "Live seed drift risk (HOT). Verify seeds login before relying on them. Unskipping specs may need follow-up selector work - re-skip with dated TODO rather than stall." },
+    { "id": "7.2-coverage-gaps", "phase": 7, "title": "Messaging thread mapping + request lifecycle tests", "executor": "cursor", "status": "pending", "attempts": 0, "deps": [], "scope": ["src/lib/supabase/conversations.test.ts", "src/features/traveler/actions/__tests__/request-lifecycle.test.ts"], "libs": [], "symbol": null, "verify": ["bun run test:run"], "done": ["thread-list mapping test (sort+unread); request state-transition test mirroring reviews state-machine test style"] },
+    { "id": "7.3-docs-consolidation", "phase": 7, "title": "Archive stale docs; de-duplicate product canon", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": ["docs/_stale", "docs/ARCHIVE-MANIFEST.md", "DECISIONS.md"], "verify": ["true"], "done": ["_stale frontmatter or archived; .claude/sot canon vs docs/product cross-linked not duplicated"] },
+    { "id": "7.4-final-merge", "phase": 7, "title": "Final sweep, code-review, merge gate (USER APPROVAL REQUIRED)", "executor": "orchestrator", "status": "pending", "attempts": 0, "deps": [], "scope": ["(branch)"], "verify": ["bun run typecheck", "bun run lint:ratchet", "bun run test:run", "bun run build"], "done": ["full gate green; requesting-code-review run; STOP for user approval before any push to origin/main"], "notes": "HARD STOP: pushing origin/main auto-deploys to Vercel prod. Never push without explicit user approval (CLAUDE.md §9)." }
+  ]
+}

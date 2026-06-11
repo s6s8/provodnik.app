@@ -1,14 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { messagesApi } from "@/lib/api/messages";
 import { hasSupabaseEnv } from "@/lib/env";
+import { queryKeys } from "@/lib/query-keys";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-type UnreadCountResponse = {
-  unreadCount: number;
-  userId: string | null;
-};
+type UnreadCountQueryKey = ReturnType<typeof queryKeys.messages.unreadCount>;
+
+function fetchUnreadCount(_queryKey: UnreadCountQueryKey) {
+  return messagesApi.unreadCount();
+}
 
 function isMessageThreadNotification(row: { event_type?: string | null; kind?: string | null }) {
   const eventName = row.event_type ?? row.kind ?? "";
@@ -18,6 +21,7 @@ function isMessageThreadNotification(row: { event_type?: string | null; kind?: s
 export function useUnreadCount(enabled = true) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [userId, setUserId] = useState<string | null>(null);
+  const unreadCountQueryKey = useMemo(() => queryKeys.messages.unreadCount(), []);
 
   const refetch = useCallback(async () => {
     if (!enabled || !hasSupabaseEnv()) {
@@ -27,25 +31,14 @@ export function useUnreadCount(enabled = true) {
     }
 
     try {
-      const response = await fetch("/api/messages/unread-count", {
-        method: "GET",
-        cache: "no-store",
-      });
-
-      if (!response.ok) {
-        setUnreadCount(0);
-        setUserId(null);
-        return;
-      }
-
-      const payload = (await response.json()) as UnreadCountResponse;
+      const payload = await fetchUnreadCount(unreadCountQueryKey);
       setUnreadCount(payload.unreadCount);
       setUserId(payload.userId);
     } catch {
       setUnreadCount(0);
       setUserId(null);
     }
-  }, [enabled]);
+  }, [enabled, unreadCountQueryKey]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect

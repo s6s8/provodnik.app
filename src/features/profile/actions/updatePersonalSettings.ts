@@ -2,11 +2,15 @@
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function updatePersonalSettings(data: {
-  locale: string;
-  preferredCurrency: string;
-  notificationPrefs: Record<string, unknown>;
-}) {
+import { personalSettingsSchema } from "./updatePersonalSettings.schema";
+
+export async function updatePersonalSettings(data: unknown) {
+  const parsed = personalSettingsSchema.safeParse(data);
+  if (!parsed.success) {
+    return { success: false as const, error: "Некорректные данные." };
+  }
+
+  const input = parsed.data;
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -20,7 +24,7 @@ export async function updatePersonalSettings(data: {
     .maybeSingle();
 
   if (profile?.role === "traveler") {
-    if (data.locale !== "ru" || data.preferredCurrency !== "RUB") {
+    if (input.locale !== "ru" || input.preferredCurrency !== "RUB") {
       return {
         success: false,
         error: "Настройки языка и валюты доступны только профилям гида.",
@@ -30,7 +34,7 @@ export async function updatePersonalSettings(data: {
     const { count, error } = await supabase
       .from("profiles")
       .update({
-        notification_prefs: data.notificationPrefs,
+        notification_prefs: input.notificationPrefs,
       }, { count: "exact" })
       .eq("id", user.id);
 
@@ -52,9 +56,9 @@ export async function updatePersonalSettings(data: {
   const { count, error } = await supabase
     .from("guide_profiles")
     .update({
-      locale: data.locale,
-      preferred_currency: data.preferredCurrency,
-      notification_prefs: data.notificationPrefs,
+      locale: input.locale,
+      preferred_currency: input.preferredCurrency,
+      notification_prefs: input.notificationPrefs,
     }, { count: "exact" })
     .eq("user_id", user.id);
 

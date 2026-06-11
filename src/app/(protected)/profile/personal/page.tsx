@@ -49,21 +49,18 @@ function normalizeNotificationPrefs(
 
 async function fetchAvatar(userId: string | null | undefined, fallbackName: string): Promise<{ url: string | null; name: string }> {
   if (!userId) return { url: null, name: fallbackName };
-  try {
-    const supabase = await createSupabaseServerClient();
-    const { data } = await supabase
-      .from("profiles")
-      .select("avatar_url, full_name")
-      .eq("id", userId)
-      .maybeSingle();
-    const row = (data ?? null) as { avatar_url?: string | null; full_name?: string | null } | null;
-    return {
-      url: row?.avatar_url ?? null,
-      name: row?.full_name?.trim() || fallbackName,
-    };
-  } catch {
-    return { url: null, name: fallbackName };
-  }
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("avatar_url, full_name")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) throw error;
+  const row = (data ?? null) as { avatar_url?: string | null; full_name?: string | null } | null;
+  return {
+    url: row?.avatar_url ?? null,
+    name: row?.full_name?.trim() || fallbackName,
+  };
 }
 
 export default async function PersonalSettingsPage() {
@@ -144,29 +141,26 @@ export default async function PersonalSettingsPage() {
     let preferredCurrency: "RUB" | "USD" | "EUR" = "RUB";
     let notificationPrefs: Record<string, unknown> = {};
 
-    try {
-      const supabase = await createSupabaseServerClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (user) {
-        const { data: profile } = await supabase
-          .from("guide_profiles")
-          .select("locale, preferred_currency, notification_prefs")
-          .eq("user_id", user.id)
-          .maybeSingle();
+    if (user) {
+      const { data: profile, error } = await supabase
+        .from("guide_profiles")
+        .select("locale, preferred_currency, notification_prefs")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      if (error) throw error;
 
-        if (profile) {
-          locale = normalizeLocale(profile.locale);
-          preferredCurrency = normalizeCurrency(profile.preferred_currency);
-          notificationPrefs = normalizeNotificationPrefs(
-            profile.notification_prefs as GuideProfileRow["notification_prefs"],
-          );
-        }
+      if (profile) {
+        locale = normalizeLocale(profile.locale);
+        preferredCurrency = normalizeCurrency(profile.preferred_currency);
+        notificationPrefs = normalizeNotificationPrefs(
+          profile.notification_prefs as GuideProfileRow["notification_prefs"],
+        );
       }
-    } catch {
-      // Render with defaults if Supabase access fails.
     }
 
     const avatar = await fetchAvatar(

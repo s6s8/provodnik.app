@@ -1,4 +1,4 @@
-import type { TravelerProfile } from "@/features/profile/components/traveler-profile-form";
+import type { TravelerProfile } from "@/lib/profile/types";
 import type { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createSupabaseServerClient>>;
