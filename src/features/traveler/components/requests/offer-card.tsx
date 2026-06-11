@@ -6,6 +6,7 @@ import { CalendarDays, ChevronLeft, ChevronRight, Clock, Users, Wallet, X } from
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { kopecksToRub } from "@/data/money";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
@@ -42,13 +43,18 @@ interface Props {
 }
 
 const BADGE_CLASS = "normal-case tracking-normal text-xs font-medium";
+const COUNTER_BADGE_CLASS = cn(BADGE_CLASS, "border-orange-300 bg-orange-50 text-orange-700");
 
 function formatPrice(minor: number, currency: string): string {
+  return formatRub(kopecksToRub(minor), currency);
+}
+
+function formatRub(rub: number, currency: string): string {
   return new Intl.NumberFormat("ru-RU", {
     style: "currency",
     currency,
     maximumFractionDigits: 0,
-  }).format(minor / 100);
+  }).format(rub);
 }
 
 function formatDateRu(iso: string | null | undefined): string {
@@ -117,9 +123,11 @@ export function OfferCard({
   const budgetDeviates =
     travelerBudgetLocked === false &&
     travelerBudgetPerPersonRub != null &&
-    Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub;
+    Math.round(kopecksToRub(perPersonMinor)) !== travelerBudgetPerPersonRub;
 
   const isCounterOffer = dateDeviates || timeDeviates || countDeviates || budgetDeviates;
+  const travelerTimeBefore = normalizeTime(travelerStartTime) ?? normalizeTime(travelerEndTime) ?? "—";
+  const guideTimeAfter = offer.starts_at ? formatTime(offer.starts_at) : formatTime(offer.ends_at);
 
   const routeStops = (Array.isArray(offer.route_stops) ? (offer.route_stops as RouteStop[]) : []).filter(
     (s) => s && typeof s === "object" && typeof s.photoUrl === "string",
@@ -179,26 +187,49 @@ export function OfferCard({
         </Badge>
       </div>
 
+      {isCounterOffer ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-orange-700">Гид предложил другие условия</span>
+          {dateDeviates ? (
+            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
+              Дата: {travelerStartsOn == null ? "гибкая" : formatDateRu(travelerStartsOn)} → {formatDateRu(offer.starts_at)}
+            </Badge>
+          ) : null}
+          {countDeviates ? (
+            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
+              Людей: {travelerCount} чел. → {offerCount} чел.
+            </Badge>
+          ) : null}
+          {budgetDeviates ? (
+            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
+              Цена: {formatRub(travelerBudgetPerPersonRub ?? 0, offer.currency)} → {formatPrice(perPersonMinor, offer.currency)}/чел
+            </Badge>
+          ) : null}
+          {timeDeviates ? (
+            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
+              Время: {travelerTimeBefore} → {guideTimeAfter}
+            </Badge>
+          ) : null}
+        </div>
+      ) : null}
+
       {/* Badge strip */}
       <div className="flex flex-wrap items-center gap-2">
-        {isCounterOffer ? (
-          <span className="text-xs font-medium text-orange-500">Гид предлагает другие условия</span>
-        ) : null}
-        <Badge variant="outline" className={cn(BADGE_CLASS, isCounterOffer && "border-orange-300 bg-orange-50 text-orange-600")}>
+        <Badge variant="outline" className={BADGE_CLASS}>
           <CalendarDays className="size-3.5" />
           {dateBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={cn(BADGE_CLASS, isCounterOffer && "border-orange-300 bg-orange-50 text-orange-600")}>
+        <Badge variant="outline" className={BADGE_CLASS}>
           <Clock className="size-3.5" />
           {timeBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={cn(BADGE_CLASS, isCounterOffer && "border-orange-300 bg-orange-50 text-orange-600")}>
+        <Badge variant="outline" className={BADGE_CLASS}>
           <Users className="size-3.5" />
           {countBadgeLabel}
         </Badge>
         <Badge
           variant="outline"
-          className={cn(BADGE_CLASS, isCounterOffer ? "border-orange-300 bg-orange-50 text-orange-600" : "border-success/30 bg-success/10 text-success")}
+          className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
         >
           <Wallet className="size-3.5" />
           {priceLabel}
