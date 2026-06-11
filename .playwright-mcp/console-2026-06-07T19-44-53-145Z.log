@@ -1,5 +1,0 @@
-[    4433ms] [LOG] [Client Instrumentation Hook] Slow execution detected: 123ms (Note: Code download overhead is not included in this measurement) @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[    4472ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[    6217ms] [LOG] [HMR] connected @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[    6781ms] [LOG] [Fast Refresh] rebuilding @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[    6821ms] [LOG] [Fast Refresh] done in 144ms @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515

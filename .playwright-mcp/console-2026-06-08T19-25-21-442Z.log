@@ -1,6 +1,0 @@
-[     928ms] [LOG] [Fast Refresh] rebuilding @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[   23775ms] [LOG] [Fast Refresh] done in 23091ms @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[   23993ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[   25399ms] [LOG] [HMR] connected @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[   26500ms] [LOG] [Fast Refresh] rebuilding @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
-[   27488ms] [LOG] [Fast Refresh] done in 1089ms @ https://dev.provodnik.app/_next/static/chunks/node_modules_%40sentry_core_build_esm_0._qcpy._.js:10515
