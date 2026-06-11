@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
-import { BidFormPanel } from "./bid-form-panel";
+import { BidFormPanel } from "./bid-form-panel-lazy";
 import { GuideInboxCardHeader } from "./guide-inbox-card-header";
 import {
   filterInbox,
