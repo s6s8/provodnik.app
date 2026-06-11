@@ -117,3 +117,5 @@ function normalizeSort(v: string | undefined): string | undefined {
   if (!v) return undefined;
   return SORT_KEYS.has(v) ? v : undefined;
 }
+
+export const dynamic = "force-dynamic";
