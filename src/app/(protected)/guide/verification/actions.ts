@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
+import { guideVerificationDocumentTypes } from "@/features/guide/components/verification/verification-types";
+import { logError } from "@/lib/log";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { confirmUpload, getPresignedUploadUrl } from "@/lib/storage/upload";
-import { guideVerificationDocumentTypes } from "@/features/guide/components/verification/verification-types";
 import type { GuideDocumentRow, StorageAssetRow } from "@/lib/supabase/types";
 import type {
   SubmitVerificationResult,
@@ -59,7 +60,7 @@ function verificationActionError(err: unknown): string {
       msg.includes("there is no unique or exclusion constraint") ||
       msg.includes("ON CONFLICT")
     ) {
-      console.error("[verification-actions] storage_assets upsert conflict:", msg);
+      logError("verification.storageAssetsUpsertConflict", err, { message: msg });
       return "Не удалось сохранить файл. Попробуйте ещё раз.";
     }
     if (msg.includes("Недопустимый тип файла")) {
@@ -68,11 +69,11 @@ function verificationActionError(err: unknown): string {
     if (msg.includes("Не удалось")) {
       return msg;
     }
-    console.error("[verification-actions]", msg);
+    logError("verification.actions", err, { message: msg });
     return "Произошла ошибка. Попробуйте ещё раз.";
   }
 
-  console.error("[verification-actions]", err);
+  logError("verification.actions", err);
   return "Произошла ошибка. Попробуйте ещё раз.";
 }
 
