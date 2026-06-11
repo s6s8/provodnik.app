@@ -12,10 +12,8 @@ import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
 import type { SubmitOfferResult } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions-types";
-import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
-import { listGuideTemplates } from "@/data/guide-templates/supabase-client";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
+import type { GuideTemplateRow } from "@/lib/supabase/types";
+import { useGuideCatalog } from "./use-guide-catalog";
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
 type CatalogRouteTab = "catalog" | "route";
@@ -85,65 +83,16 @@ export function BidFormPanel({
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const submitInFlight = React.useRef(false);
-  const [guidePhotos, setGuidePhotos] = React.useState<Array<{ id: string; location_name: string; photoUrl: string }>>([]);
-  const [guideTemplates, setGuideTemplates] = React.useState<GuideTemplateRow[]>([]);
+  const { guidePhotos, guideTemplates, guideVerificationStatus } = useGuideCatalog();
   const [selectedExcursion, setSelectedExcursion] = React.useState<GuideTemplateRow | null>(null);
   const [excursionPickerOpen, setExcursionPickerOpen] = React.useState(false);
   const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
   const [activeCatalogRouteTab, setActiveCatalogRouteTab] = React.useState<CatalogRouteTab>("catalog");
-  const [guideVerificationStatus, setGuideVerificationStatus] = React.useState<string | null>(null);
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
   const dateLocked = request.dateFlexibility === "few_days" ? false : (request.date_locked ?? true);
   const timeLocked = request.time_locked ?? true;
-
-  React.useEffect(() => {
-    let cancelled = false;
-
-    async function load() {
-      const supabase = createSupabaseBrowserClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: profile } = await supabase
-        .from("guide_profiles")
-        .select("verification_status")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      if (cancelled) return;
-      setGuideVerificationStatus(
-        typeof profile?.verification_status === "string" ? profile.verification_status : null,
-      );
-      try {
-        const templates = await listGuideTemplates(user.id as Uuid);
-        if (!cancelled) {
-          setGuideTemplates(templates.filter((template) => template.status === "published"));
-        }
-      } catch (err) {
-        console.error("[bid-panel] failed to load excursions", err);
-      }
-      try {
-        const photos = await listGuideLocationPhotos(user.id as Uuid);
-        if (!cancelled) {
-          setGuidePhotos(
-            photos.map((p) => ({
-              id: p.id,
-              location_name: p.location_name,
-              photoUrl: supabase.storage.from("guide-portfolio").getPublicUrl(p.object_path).data
-                .publicUrl,
-            })),
-          );
-        }
-      } catch (err) {
-        console.error("[bid-panel] failed to load photos", err);
-      }
-    }
-    void load();
-
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const {
     register,
