@@ -118,4 +118,81 @@ describe("OfferCard", () => {
 
     expect(screen.queryByText(/гид предложил 09:30/)).not.toBeInTheDocument();
   });
+
+  it("renders counter-offer arrow badges for changed conditions only", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          price_minor: 1200000,
+          capacity: 2,
+          starts_at: "2026-06-15T10:30:00+03:00",
+          ends_at: "2026-06-15T12:00:00+03:00",
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerDateLocked={false}
+        travelerTimeLocked={false}
+        travelerCountLocked={false}
+        travelerBudgetLocked={false}
+        travelerStartsOn={null}
+        travelerStartTime="09:00:00"
+        travelerEndTime="12:00:00"
+        travelerCount={3}
+        travelerBudgetPerPersonRub={5000}
+      />,
+    );
+
+    expect(screen.getByText("Гид предложил другие условия")).toBeInTheDocument();
+    expect(screen.getByText("Дата: гибкая → 15 июня")).toBeInTheDocument();
+    expect(screen.getByText("Людей: 3 чел. → 2 чел.")).toBeInTheDocument();
+    expect(screen.getByText("Время: 09:00 → 10:30")).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => (
+      element?.getAttribute("data-slot") === "badge" &&
+      (element.textContent?.replace(/\s/g, " ").includes("Цена: 5 000 ₽ → 6 000 ₽/чел") ?? false)
+    ))).toBeInTheDocument();
+    expect(screen.getByText((_content, element) => (
+      element?.getAttribute("data-slot") === "badge" &&
+      (element.textContent?.replace(/\s/g, " ").includes("12 000 ₽ за группу") ?? false)
+    ))).toHaveClass("border-success/30", "bg-success/10", "text-success");
+  });
+
+  it("does not render the counter-offer row when conditions match", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          price_minor: 1000000,
+          capacity: 2,
+          starts_at: "2026-06-15T09:00:00+03:00",
+          ends_at: "2026-06-15T12:00:00+03:00",
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerDateLocked={false}
+        travelerTimeLocked={false}
+        travelerCountLocked={false}
+        travelerBudgetLocked={false}
+        travelerStartsOn="2026-06-15"
+        travelerStartTime="09:00:00"
+        travelerEndTime="12:00:00"
+        travelerCount={2}
+        travelerBudgetPerPersonRub={5000}
+      />,
+    );
+
+    expect(screen.queryByText("Гид предложил другие условия")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Дата:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Людей:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Цена:/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Время:/)).not.toBeInTheDocument();
+  });
 });
