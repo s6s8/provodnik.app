@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 
-import type { TravelerProfile } from "@/features/profile/components/traveler-profile-form";
+import type { TravelerProfile } from "@/lib/profile/types";
 
 export const DEMO_TRAVELER_PROFILE_COOKIE = "provodnik_demo_traveler_profile";
 
