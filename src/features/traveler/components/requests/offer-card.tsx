@@ -46,6 +46,7 @@ interface Props {
 }
 
 const DEVIATION_BADGE_CLASS = cn(BADGE_CLASS, "border-blue-300 bg-blue-50 text-blue-600");
+const NEUTRAL_BADGE_CLASS = cn(BADGE_CLASS, "border-slate-200 bg-slate-50 text-slate-600");
 
 function formatPrice(minor: number, currency: string): string {
   return formatRub(kopecksToRub(minor), currency);
@@ -195,31 +196,31 @@ export function OfferCard({
 
       {isCounterOffer ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-orange-700">Гид предложил другие условия</span>
+          <span className="text-xs font-medium text-blue-600">Гид предложил другие условия</span>
         </div>
       ) : null}
 
       {/* Badge strip */}
       <div className="flex flex-wrap items-center gap-2">
         {travelerStartsOn == null ? (
-          <Badge variant="outline" className={BADGE_CLASS}>
+          <Badge variant="outline" className={NEUTRAL_BADGE_CLASS}>
             Гибкие даты
           </Badge>
         ) : null}
-        <Badge variant="outline" className={dateDeviates ? DEVIATION_BADGE_CLASS : BADGE_CLASS}>
+        <Badge variant="outline" className={dateDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
           <CalendarDays className="size-3.5" />
           {dateBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={timeDeviates ? DEVIATION_BADGE_CLASS : BADGE_CLASS}>
+        <Badge variant="outline" className={timeDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
           <Clock className="size-3.5" />
           {timeBadgeLabel}
         </Badge>
         {groupTypeLabel ? (
-          <Badge variant="outline" className={BADGE_CLASS}>
+          <Badge variant="outline" className={NEUTRAL_BADGE_CLASS}>
             {groupTypeLabel}
           </Badge>
         ) : null}
-        <Badge variant="outline" className={countDeviates ? DEVIATION_BADGE_CLASS : BADGE_CLASS}>
+        <Badge variant="outline" className={countDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
           <Users className="size-3.5" />
           {countBadgeLabel}
         </Badge>
