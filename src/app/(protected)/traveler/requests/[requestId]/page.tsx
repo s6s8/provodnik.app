@@ -179,6 +179,7 @@ export default async function TravelerRequestDetailPage({
                     travelerStartsOn={requestRow.starts_on ?? null}
                     travelerStartTime={requestRow.start_time ?? null}
                     travelerEndTime={requestRow.end_time ?? null}
+                    travelerOpenToJoin={requestRow.open_to_join}
                     travelerCount={requestRow.participants_count ?? 1}
                     travelerBudgetPerPersonRub={requestRow.budget_minor ? Math.round(requestRow.budget_minor / 100) : null}
                   />

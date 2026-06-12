@@ -39,11 +39,12 @@ interface Props {
   travelerStartsOn?: string | null;
   travelerStartTime?: string | null;
   travelerEndTime?: string | null;
+  travelerOpenToJoin?: boolean;
   travelerCount?: number;
   travelerBudgetPerPersonRub?: number | null;
 }
 
-const COUNTER_BADGE_CLASS = cn(BADGE_CLASS, "border-orange-300 bg-orange-50 text-orange-700");
+const DEVIATION_BADGE_CLASS = cn(BADGE_CLASS, "border-orange-300 bg-orange-50 text-orange-700");
 
 function formatPrice(minor: number, currency: string): string {
   return formatRub(kopecksToRub(minor), currency);
@@ -86,6 +87,7 @@ export function OfferCard({
   travelerStartsOn,
   travelerStartTime,
   travelerEndTime,
+  travelerOpenToJoin,
   travelerCount,
   travelerBudgetPerPersonRub,
 }: Props) {
@@ -117,8 +119,11 @@ export function OfferCard({
     perPersonMinor > 0 && (travelerBudgetPerPersonRub == null || Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub);
 
   const isCounterOffer = dateDeviates || timeDeviates || countDeviates || budgetDeviates;
-  const travelerTimeBefore = normalizeTime(travelerStartTime) ?? normalizeTime(travelerEndTime) ?? "—";
-  const guideTimeAfter = offer.starts_at ? formatTime(offer.starts_at) : formatTime(offer.ends_at);
+  const groupTypeLabel = travelerOpenToJoin == null
+    ? null
+    : travelerOpenToJoin
+      ? "Сборная группа"
+      : "Своя группа";
 
   const routeStops = (Array.isArray(offer.route_stops) ? (offer.route_stops as RouteStop[]) : []).filter(
     (s) => s && typeof s === "object" && typeof s.photoUrl === "string",
@@ -181,46 +186,36 @@ export function OfferCard({
       {isCounterOffer ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-xs font-medium text-orange-700">Гид предложил другие условия</span>
-          {dateDeviates ? (
-            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
-              Дата: {travelerStartsOn == null ? "гибкая" : formatDateRu(travelerStartsOn)} → {formatDateRu(offer.starts_at)}
-            </Badge>
-          ) : null}
-          {countDeviates ? (
-            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
-              Людей: {travelerCount} чел. → {offerCount} чел.
-            </Badge>
-          ) : null}
-          {budgetDeviates ? (
-            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
-              Цена: {formatRub(travelerBudgetPerPersonRub ?? 0, offer.currency)} → {formatPrice(perPersonMinor, offer.currency)}/чел
-            </Badge>
-          ) : null}
-          {timeDeviates ? (
-            <Badge variant="outline" className={COUNTER_BADGE_CLASS}>
-              Время: {travelerTimeBefore} → {guideTimeAfter}
-            </Badge>
-          ) : null}
         </div>
       ) : null}
 
       {/* Badge strip */}
       <div className="flex flex-wrap items-center gap-2">
-        <Badge variant="outline" className={BADGE_CLASS}>
+        {travelerStartsOn == null ? (
+          <Badge variant="outline" className={BADGE_CLASS}>
+            Гибкие даты
+          </Badge>
+        ) : null}
+        <Badge variant="outline" className={dateDeviates ? DEVIATION_BADGE_CLASS : BADGE_CLASS}>
           <CalendarDays className="size-3.5" />
           {dateBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={BADGE_CLASS}>
+        <Badge variant="outline" className={timeDeviates ? DEVIATION_BADGE_CLASS : BADGE_CLASS}>
           <Clock className="size-3.5" />
           {timeBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={BADGE_CLASS}>
+        {groupTypeLabel ? (
+          <Badge variant="outline" className={BADGE_CLASS}>
+            {groupTypeLabel}
+          </Badge>
+        ) : null}
+        <Badge variant="outline" className={countDeviates ? DEVIATION_BADGE_CLASS : BADGE_CLASS}>
           <Users className="size-3.5" />
           {countBadgeLabel}
         </Badge>
         <Badge
           variant="outline"
-          className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
+          className={budgetDeviates ? DEVIATION_BADGE_CLASS : cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
         >
           <Wallet className="size-3.5" />
           {priceLabel}

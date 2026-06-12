@@ -200,17 +200,14 @@ describe("OfferCard", () => {
     );
 
     expect(screen.getByText("Гид предложил другие условия")).toBeInTheDocument();
-    expect(screen.getByText("Дата: гибкая → 15 июня")).toBeInTheDocument();
-    expect(screen.getByText("Людей: 3 чел. → 2 чел.")).toBeInTheDocument();
-    expect(screen.getByText("Время: 09:00 → 10:30")).toBeInTheDocument();
-    expect(screen.getByText((_content, element) => (
-      element?.getAttribute("data-slot") === "badge" &&
-      (element.textContent?.replace(/\s/g, " ").includes("Цена: 5 000 ₽ → 6 000 ₽/чел") ?? false)
-    ))).toBeInTheDocument();
-    expect(screen.getByText((_content, element) => (
-      element?.getAttribute("data-slot") === "badge" &&
-      (element.textContent?.replace(/\s/g, " ").includes("12 000 ₽ за группу") ?? false)
-    ))).toHaveClass("border-success/30", "bg-success/10", "text-success");
+    // Гибкие даты — бейдж появляется когда travelerStartsOn=null
+    expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
+    // Дата-бейдж (следующий после "Гибкие даты") — оранжевый
+    const flexBadge = screen.getByText("Гибкие даты").closest("[data-slot='badge']");
+    const dateBadge = flexBadge?.parentElement?.querySelector("[data-slot='badge']:nth-child(2)");
+    expect(dateBadge).toHaveClass("border-orange-300");
+    // Нет стрелочных бейджей старого формата
+    expect(screen.queryByText(/гибкая →/)).not.toBeInTheDocument();
   });
 
   it("does not render the counter-offer row when conditions match", () => {
