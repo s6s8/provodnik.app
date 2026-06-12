@@ -24,13 +24,7 @@ import {
   type GuideRequestsSortKey,
 } from "./guide-requests-inbox-filter";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
-
-interface OfferMeta {
-  id: string;
-  starts_at: string | null;
-  capacity: number | null;
-  price_minor: number | null;
-}
+import type { OfferMeta } from "./offer-meta";
 
 interface OffersByRequest {
   offeredIds: Set<string>;

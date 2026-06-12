@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { BidFormPanel } from "./bid-form-panel-lazy";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
+import type { OfferMeta } from "./offer-meta";
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
@@ -30,13 +31,6 @@ function formatDateTime(value: string): string {
     hour: "2-digit",
     minute: "2-digit",
   });
-}
-
-interface OfferMeta {
-  starts_at: string | null;
-  capacity: number | null;
-  price_minor: number | null;
-  message: string | null;
 }
 
 interface Props {
