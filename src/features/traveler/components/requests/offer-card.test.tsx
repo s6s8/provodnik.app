@@ -61,9 +61,46 @@ describe("OfferCard", () => {
         requestStatus="open"
         onSendQa={onSendQa}
         onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerOpenToJoin={false}
       />,
     );
     expect(screen.getByText("Иван Петров")).toBeInTheDocument();
+  });
+
+  it("always renders the group type badge first with canonical color", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          starts_at: "2026-06-15T10:30:00+03:00",
+          ends_at: "2026-06-15T12:00:00+03:00",
+          capacity: 2,
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerStartsOn="2026-06-15"
+        travelerOpenToJoin={true}
+        travelerCount={2}
+        travelerBudgetPerPersonRub={2500}
+      />,
+    );
+
+    const groupBadge = screen.getByText("Сборная группа").closest("[data-slot='badge']");
+    const badges = Array.from(groupBadge?.parentElement?.querySelectorAll("[data-slot='badge']") ?? []);
+    const badgeTexts = badges.map((badge) => badge.textContent);
+
+    expect(groupBadge).toHaveClass("border-sky-200", "bg-sky-100", "text-sky-700");
+    expect(badgeTexts).toEqual([
+      "Сборная группа",
+      "15 июня",
+      "10:30 – 12:00",
+      "2 чел.",
+      "5 000 ₽ за группу · 2 500 ₽ на чел.",
+    ]);
   });
 
   it('shows "Принять предложение" when requestStatus is open and offer is pending', () => {
@@ -76,6 +113,7 @@ describe("OfferCard", () => {
         requestStatus="open"
         onSendQa={onSendQa}
         onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerOpenToJoin={false}
       />,
     );
     expect(screen.getByText("Принять предложение")).toBeInTheDocument();
@@ -91,6 +129,7 @@ describe("OfferCard", () => {
         requestStatus="booked"
         onSendQa={onSendQa}
         onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerOpenToJoin={false}
       />,
     );
     expect(screen.queryByText("Принять предложение")).not.toBeInTheDocument();
@@ -113,6 +152,7 @@ describe("OfferCard", () => {
         travelerTimeLocked={false}
         travelerStartTime="09:30:00"
         travelerEndTime="11:00:00"
+        travelerOpenToJoin={false}
       />,
     );
 
@@ -137,6 +177,7 @@ describe("OfferCard", () => {
         travelerCountLocked={true}
         travelerBudgetLocked={true}
         travelerStartsOn="2026-06-24"
+        travelerOpenToJoin={false}
         travelerCount={1}
         travelerBudgetPerPersonRub={5000}
       />,
@@ -163,6 +204,7 @@ describe("OfferCard", () => {
         travelerCountLocked={true}
         travelerBudgetLocked={true}
         travelerStartsOn="2026-06-24"
+        travelerOpenToJoin={false}
         travelerCount={1}
         travelerBudgetPerPersonRub={5000}
       />,
@@ -194,6 +236,7 @@ describe("OfferCard", () => {
         travelerStartsOn={null}
         travelerStartTime="09:00:00"
         travelerEndTime="12:00:00"
+        travelerOpenToJoin={false}
         travelerCount={3}
         travelerBudgetPerPersonRub={5000}
       />,
@@ -202,9 +245,21 @@ describe("OfferCard", () => {
     expect(screen.getByText("Гид предложил другие условия")).toBeInTheDocument();
     // Гибкие даты — бейдж появляется когда travelerStartsOn=null
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
-    // Дата-бейдж (следующий после "Гибкие даты") — синий (не error-семантика)
-    const flexBadge = screen.getByText("Гибкие даты").closest("[data-slot='badge']");
-    const dateBadge = flexBadge?.parentElement?.querySelector("[data-slot='badge']:nth-child(2)");
+    // Дата-бейдж (следующий после типа группы и "Гибкие даты") — синий (не error-семантика)
+    const groupBadge = screen.getByText("Своя группа").closest("[data-slot='badge']");
+    const badges = Array.from(groupBadge?.parentElement?.querySelectorAll("[data-slot='badge']") ?? []);
+    const badgeTexts = badges.map((badge) => badge.textContent);
+    const dateBadge = badges[2];
+
+    expect(badgeTexts).toEqual([
+      "Своя группа",
+      "Гибкие даты",
+      "15 июня",
+      "10:30 – 12:00",
+      "2 чел.",
+      "12 000 ₽ за группу · 6 000 ₽ на чел.",
+    ]);
+    expect(groupBadge).toHaveClass("border-purple-200", "bg-purple-100", "text-purple-700");
     expect(dateBadge).toHaveClass("border-blue-300");
     // Нет стрелочных бейджей старого формата
     expect(screen.queryByText(/гибкая →/)).not.toBeInTheDocument();
@@ -233,6 +288,7 @@ describe("OfferCard", () => {
         travelerStartsOn="2026-06-15"
         travelerStartTime="09:00:00"
         travelerEndTime="12:00:00"
+        travelerOpenToJoin={false}
         travelerCount={2}
         travelerBudgetPerPersonRub={5000}
       />,

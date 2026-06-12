@@ -40,7 +40,7 @@ interface Props {
   travelerStartsOn?: string | null;
   travelerStartTime?: string | null;
   travelerEndTime?: string | null;
-  travelerOpenToJoin?: boolean;
+  travelerOpenToJoin: boolean;
   travelerCount?: number;
   travelerBudgetPerPersonRub?: number | null;
 }
@@ -129,11 +129,7 @@ export function OfferCard({
     perPersonMinor > 0 && (travelerBudgetPerPersonRub == null || Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub);
 
   const isCounterOffer = dateDeviates || timeDeviates || countDeviates || budgetDeviates;
-  const groupTypeLabel = travelerOpenToJoin == null
-    ? null
-    : travelerOpenToJoin
-      ? "Сборная группа"
-      : "Своя группа";
+  const groupTypeLabel = travelerOpenToJoin ? "Сборная группа" : "Своя группа";
 
   const routeStops = (Array.isArray(offer.route_stops) ? (offer.route_stops as RouteStop[]) : []).filter(
     (s) => s && typeof s === "object" && typeof s.photoUrl === "string",
@@ -202,6 +198,17 @@ export function OfferCard({
 
       {/* Badge strip */}
       <div className="flex flex-wrap items-center gap-2">
+        <Badge
+          variant="outline"
+          className={cn(
+            BADGE_CLASS,
+            travelerOpenToJoin
+              ? "border-sky-200 bg-sky-100 text-sky-700"
+              : "border-purple-200 bg-purple-100 text-purple-700",
+          )}
+        >
+          {groupTypeLabel}
+        </Badge>
         {travelerStartsOn == null ? (
           <Badge variant="outline" className={NEUTRAL_BADGE_CLASS}>
             Гибкие даты
@@ -215,11 +222,6 @@ export function OfferCard({
           <Clock className="size-3.5" />
           {timeBadgeLabel}
         </Badge>
-        {groupTypeLabel ? (
-          <Badge variant="outline" className={NEUTRAL_BADGE_CLASS}>
-            {groupTypeLabel}
-          </Badge>
-        ) : null}
         <Badge variant="outline" className={countDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
           <Users className="size-3.5" />
           {countBadgeLabel}
