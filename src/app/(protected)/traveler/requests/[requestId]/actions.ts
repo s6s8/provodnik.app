@@ -9,6 +9,7 @@ import { getOrCreateThread } from "@/lib/supabase/conversations";
 import { createBooking } from "@/lib/supabase/bookings";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { markOffersReadForRequest } from "@/lib/supabase/offers";
 import { createNotification } from "@/lib/notifications/create-notification";
 
 export type AcceptOfferActionState = {
@@ -153,6 +154,35 @@ export async function acceptOfferAction(
 }
 
 export type RejectOfferActionState = { error: string | null };
+
+export async function markOffersReadAction(requestId: string): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return;
+  }
+
+  const { data: requestRow, error: reqError } = await supabase
+    .from("traveler_requests")
+    .select("id, traveler_id")
+    .eq("id", requestId)
+    .maybeSingle();
+
+  if (reqError) {
+    throw reqError;
+  }
+
+  if (!requestRow || requestRow.traveler_id !== user.id) {
+    return;
+  }
+
+  await markOffersReadForRequest(requestId);
+}
 
 export async function rejectOfferAction(
   _prev: RejectOfferActionState,
