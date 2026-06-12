@@ -1,5 +1,6 @@
 import { test } from "@playwright/test";
 import { E2E_READY, SEED_USERS } from "../fixtures";
+import { loginAs } from "../helpers";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
 // Spec hard-codes guide1@provodnik.test / testpass123 but seed creates guide@provodnik.test
@@ -8,11 +9,9 @@ import { E2E_READY, SEED_USERS } from "../fixtures";
 test("guide creates an excursion listing", async ({ page }) => {
   test.skip(!E2E_READY, "QA_SEED_PASSWORD not set");
 
-  await page.goto("/auth");
-  await page.fill("#email", SEED_USERS.guide.email);
-  await page.fill("#password", SEED_USERS.guide.password);
-  await page.click('[type="submit"]');
-  await page.waitForURL("/guide/dashboard");
+  // Login via the shared helper — the app redirects guides to /guide (the old
+  // /guide/dashboard wait predates the route-group refactor and never resolves).
+  await loginAs(page, SEED_USERS.guide.email, SEED_USERS.guide.password);
 
   await page.goto("/guide/listings/new");
   // If FEATURE_TRIPSTER_V1 is on, should show type picker
