@@ -39,6 +39,7 @@ vi.mock("./homepage-auth-gate", () => ({
 }));
 
 import { HomepageRequestForm } from "./homepage-request-form";
+import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
 import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
 
 beforeAll(() => {
@@ -394,5 +395,36 @@ describe("HomepageRequestForm UI affordances", () => {
     expect((startTime as HTMLInputElement).defaultValue).toBe("10:00");
     expect(endTime).toHaveAttribute("type", "time");
     expect((endTime as HTMLInputElement).defaultValue).toBe("12:00");
+  });
+});
+
+describe("HomepageRequestFormClassic repaired layout", () => {
+  it("keeps the approved group, budget, details, and topic expansion layout", () => {
+    render(<HomepageRequestFormClassic destinations={[]} />);
+
+    const groupSizeInput = screen.getByLabelText("Сколько вас");
+    const groupRow = groupSizeInput.closest("div")?.parentElement;
+    expect(groupRow).toHaveClass("grid-cols-2");
+
+    const assemblyLabel = within(groupRow!).getByText("Сборная группа");
+    const assemblyCell = assemblyLabel.closest("div");
+    expect(assemblyCell?.parentElement).toBe(groupRow);
+    expect(within(assemblyCell!).getByRole("button")).toBeInTheDocument();
+
+    expect(within(groupRow!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
+    expect(screen.getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
+
+    const details = screen.getByText("Добавить детали").closest("details");
+    expect(details).not.toBeNull();
+    expect(within(details!).getByText("Языки экскурсии")).toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: /история и культура/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /природа/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /религия и духовность/i })).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "Ещё темы →" }));
+
+    expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
   });
 });
