@@ -6,10 +6,11 @@ import {
   getOrCreateQaThreadAction,
   sendQaMessageAction,
 } from "@/features/traveler/actions/qa-actions";
+import { MarkOffersRead } from "@/features/traveler/components/requests/mark-offers-read";
 import { OfferCard } from "@/features/traveler/components/requests/offer-card";
 import { TravelerRequestDetailScreen } from "@/features/traveler/components/requests/traveler-request-detail-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getOffersForRequest, markOffersReadForRequest } from "@/lib/supabase/offers";
+import { getOffersForRequest } from "@/lib/supabase/offers";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 import { getQaMessages } from "@/lib/supabase/qa-threads";
 import type {
@@ -122,10 +123,6 @@ export default async function TravelerRequestDetailPage({
           }
         }
       }
-      // Mark offers as read (fire-and-forget; non-fatal)
-      if (offers.length > 0) {
-        markOffersReadForRequest(requestId).catch(() => {});
-      }
     } catch {
       // Non-fatal — render page without offers
     }
@@ -142,6 +139,7 @@ export default async function TravelerRequestDetailPage({
         <TravelerRequestDetailScreen
           record={mapTravelerRequestRow(requestRow)}
         />
+        <MarkOffersRead requestId={requestId} hasOffers={offers.length > 0} />
         <section className="flex flex-col gap-4">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-semibold leading-none text-foreground">
