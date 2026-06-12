@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { getRequestById } from "@/data/supabase/queries";
 import { GuideRequestDetailScreen } from "@/features/guide/components/requests/guide-request-detail-screen";
+import type { OfferMeta } from "@/features/guide/components/requests/offer-meta";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
@@ -36,7 +37,7 @@ export default async function GuideRequestDetailPage({
 
   let isApproved = false;
   let existingOfferId: string | null = null;
-  let offerMeta: { starts_at: string | null; capacity: number | null; price_minor: number | null; message: string | null } | null = null;
+  let offerMeta: OfferMeta | null = null;
 
   if (guideId) {
     const { data: profile } = await supabase
