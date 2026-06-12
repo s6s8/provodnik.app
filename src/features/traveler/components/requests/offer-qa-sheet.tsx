@@ -63,13 +63,17 @@ export function OfferQaSheet({
           };
         });
       } catch (e) {
-        const msg = e instanceof Error ? e.message : "Ошибка отправки";
+        const msg = e instanceof Error ? e.message : "";
         if (msg === "qa_thread_at_limit") {
           setError(
             "Достигнут лимит сообщений (8). Для продолжения диалога примите предложение.",
           );
         } else {
-          setError(msg);
+          const friendly =
+            msg && !msg.includes("{") && /[А-Яа-я]/.test(msg)
+              ? msg
+              : "Не удалось отправить сообщение. Попробуйте ещё раз.";
+          setError(friendly);
         }
       }
     });
