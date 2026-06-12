@@ -11,12 +11,16 @@ import {
 export async function getOrCreateQaThreadAction(
   offerId: string,
 ): Promise<string> {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
-  return getOrCreateOfferQaThread(offerId, user.id);
+  try {
+    const supabase = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) throw new Error("Unauthorized");
+    return getOrCreateOfferQaThread(offerId, user.id);
+  } catch {
+    throw new Error("Не удалось открыть диалог с гидом. Попробуйте ещё раз.");
+  }
 }
 
 export async function sendQaMessageAction(
