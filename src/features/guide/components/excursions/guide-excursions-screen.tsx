@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect, useMemo, useState } from "react";
+import { useForm, useWatch, type SubmitErrorHandler } from "react-hook-form";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
-import { kopecksToRub, rubToKopecks } from "@/data/money";
+import { kopecksToRub } from "@/data/money";
 import { THEMES } from "@/data/themes";
 import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
 import {
@@ -19,6 +21,12 @@ import {
 } from "@/data/guide-templates/supabase-client";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
+import {
+  defaultExcursionFormValues,
+  excursionFormSchema,
+  type ExcursionFormInput,
+  type ExcursionFormValues,
+} from "./excursion-form-schema";
 
 const FIELD_CLASS =
   "mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary";
@@ -31,25 +39,24 @@ export function GuideExcursionsScreen() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<GuideTemplateRow | null>(null);
-  const [tplTitle, setTplTitle] = useState("");
-  const [tplDescription, setTplDescription] = useState("");
-  const [tplDuration, setTplDuration] = useState("");
-  const [tplPriceRub, setTplPriceRub] = useState("");
-  const [tplStatus, setTplStatus] = useState<"draft" | "published">("draft");
-  const [tplMeetingPoint, setTplMeetingPoint] = useState("");
-  const [tplMaxParticipants, setTplMaxParticipants] = useState("");
-  const [tplPhotos, setTplPhotos] = useState<string[]>([]);
   const [portfolioPhotos, setPortfolioPhotos] = useState<
     Array<{ id: string; location_name: string; photoUrl: string }>
   >([]);
-  const [tplRegion, setTplRegion] = useState("");
-  const [tplCategory, setTplCategory] = useState("");
-  const [tplEditingId, setTplEditingId] = useState<string | null>(null);
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"excursions" | "photos">("excursions");
   const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
+  const { register, handleSubmit, reset, setValue, getValues, control } = useForm<
+    ExcursionFormInput,
+    unknown,
+    ExcursionFormValues
+  >({
+    resolver: zodResolver(excursionFormSchema, undefined, { mode: "sync" }),
+    defaultValues: defaultExcursionFormValues,
+  });
+  const tplStatus = useWatch({ control, name: "status" });
+  const tplPhotos = useWatch({ control, name: "photoUrls" }) ?? [];
 
   useEffect(() => {
     let cancelled = false;
@@ -102,108 +109,97 @@ export function GuideExcursionsScreen() {
 
   function openCreateSheet() {
     setEditingTemplate(null);
-    setTplTitle("");
-    setTplDescription("");
-    setTplDuration("");
-    setTplPriceRub("");
-    setTplStatus("draft");
-    setTplMeetingPoint("");
-    setTplMaxParticipants("");
-    setTplPhotos([]);
-    setTplRegion("");
-    setTplCategory("");
-    setTplEditingId(null);
+    reset(defaultExcursionFormValues);
     setTplError(null);
     setSheetOpen(true);
   }
 
   function openEditSheet(template: GuideTemplateRow) {
     setEditingTemplate(template);
-    setTplTitle(template.title);
-    setTplDescription(template.description ?? "");
-    setTplDuration(template.duration_text ?? "");
-    setTplPriceRub(
-      template.price_from_kopecks != null
-        ? String(kopecksToRub(template.price_from_kopecks))
-        : "",
-    );
-    setTplStatus(template.status);
-    setTplMeetingPoint(template.meeting_point ?? "");
-    setTplMaxParticipants(
-      template.max_participants != null ? String(template.max_participants) : "",
-    );
-    setTplPhotos(template.photo_urls ?? []);
-    setTplRegion(template.region ?? "");
-    setTplCategory(template.category ?? "");
-    setTplEditingId(template.id);
+    reset({
+      title: template.title,
+      description: template.description ?? "",
+      duration: template.duration_text ?? "",
+      priceRub:
+        template.price_from_kopecks != null
+          ? String(kopecksToRub(template.price_from_kopecks))
+          : "",
+      status: template.status,
+      meetingPoint: template.meeting_point ?? "",
+      maxParticipants:
+        template.max_participants != null ? String(template.max_participants) : "",
+      photoUrls: template.photo_urls ?? [],
+      region: template.region ?? "",
+      category: template.category ?? "",
+    });
     setTplError(null);
     setSheetOpen(true);
   }
 
-  function parsePriceRub(): number | null {
-    const rawPrice = tplPriceRub.trim();
-    const priceFromRub = rawPrice ? Number(rawPrice) : Number.NaN;
-    if (!Number.isFinite(priceFromRub) || priceFromRub <= 0) {
-      setTplError("Укажите корректную положительную цену.");
-      return null;
+  const handleTemplateValidationError: SubmitErrorHandler<ExcursionFormInput> = (errors) => {
+    setTplError(
+      errors.title?.message ??
+        errors.priceRub?.message ??
+        errors.maxParticipants?.message ??
+        errors.photoUrls?.message ??
+        "Ошибка сохранения.",
+    );
+  };
+
+  function handleSaveTemplateClick() {
+    const parsed = excursionFormSchema.safeParse(getValues());
+    if (!parsed.success) {
+      const titleIssue = parsed.error.issues.find((issue) => issue.path[0] === "title");
+      const priceIssue = parsed.error.issues.find((issue) => issue.path[0] === "priceRub");
+      const maxParticipantsIssue = parsed.error.issues.find(
+        (issue) => issue.path[0] === "maxParticipants",
+      );
+      const photoUrlsIssue = parsed.error.issues.find((issue) => issue.path[0] === "photoUrls");
+      setTplError(
+        titleIssue?.message ??
+          priceIssue?.message ??
+          maxParticipantsIssue?.message ??
+          photoUrlsIssue?.message ??
+          "Ошибка сохранения.",
+      );
+      return;
     }
 
-    return kopecksToRub(rubToKopecks(priceFromRub));
+    void handleSubmit(handleSaveTemplate, handleTemplateValidationError)();
   }
 
-  async function handleSaveTemplate() {
-    if (!tplTitle.trim()) {
-      setTplError("Название обязательно.");
-      return;
-    }
-
-    const priceFromRub = parsePriceRub();
-    if (priceFromRub == null) return;
-
-    const maxParticipants = tplMaxParticipants.trim() ? Number(tplMaxParticipants) : null;
-    if (
-      maxParticipants != null &&
-      (!Number.isInteger(maxParticipants) || maxParticipants < 1 || maxParticipants > 500)
-    ) {
-      setTplError("Укажите корректное число участников.");
-      return;
-    }
-    if (tplStatus === "published" && tplPhotos.length === 0) {
-      setTplError("Добавьте минимум одно фото для публикации.");
-      return;
-    }
-
+  async function handleSaveTemplate(values: ExcursionFormValues) {
     setTplSaving(true);
     setTplError(null);
     try {
       if (editingTemplate) {
         const updated = await updateGuideTemplate(editingTemplate.id, {
-          title: tplTitle.trim(),
-          description: tplDescription.trim() || null,
-          durationText: tplDuration.trim() || null,
-          priceFromRub,
-          meetingPoint: tplMeetingPoint.trim() || null,
-          maxParticipants,
-          photoUrls: tplPhotos,
-          status: tplStatus,
-          region: tplRegion.trim() || null,
-          category: tplCategory.trim() || null,
+          title: values.title,
+          description: values.description,
+          durationText: values.duration,
+          priceFromRub: values.priceRub,
+          meetingPoint: values.meetingPoint,
+          maxParticipants: values.maxParticipants,
+          photoUrls: values.photoUrls,
+          status: values.status,
+          region: values.region,
+          category: values.category,
         });
         setTemplates((prev) =>
           prev.map((template) => (template.id === updated.id ? updated : template)),
         );
       } else {
         const created = await createGuideTemplate({
-          title: tplTitle.trim(),
-          description: tplDescription.trim() || null,
-          durationText: tplDuration.trim() || null,
-          priceFromRub,
-          meetingPoint: tplMeetingPoint.trim() || null,
-          maxParticipants,
-          photoUrls: tplPhotos,
-          status: tplStatus,
-          region: tplRegion.trim() || null,
-          category: tplCategory.trim() || null,
+          title: values.title,
+          description: values.description,
+          durationText: values.duration,
+          priceFromRub: values.priceRub,
+          meetingPoint: values.meetingPoint,
+          maxParticipants: values.maxParticipants,
+          photoUrls: values.photoUrls,
+          status: values.status,
+          region: values.region,
+          category: values.category,
         });
         setTemplates((prev) => [...prev, created]);
       }
@@ -359,7 +355,7 @@ export function GuideExcursionsScreen() {
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full max-w-md">
           <SheetHeader>
-            <SheetTitle>{tplEditingId ? "Изменить экскурсию" : "Новая экскурсия"}</SheetTitle>
+            <SheetTitle>{editingTemplate ? "Изменить экскурсию" : "Новая экскурсия"}</SheetTitle>
           </SheetHeader>
           <div className="mt-5 space-y-4 px-4">
             <div>
@@ -369,22 +365,20 @@ export function GuideExcursionsScreen() {
               <input
                 id="tpl-title"
                 type="text"
-                value={tplTitle}
                 maxLength={120}
-                onChange={(e) => setTplTitle(e.target.value)}
                 placeholder="Например: Тбилиси за один день"
                 className={FIELD_CLASS}
+                {...register("title")}
               />
             </div>
             <div>
               <Label htmlFor="tpl-description">Текст отклика</Label>
               <Textarea
                 id="tpl-description"
-                value={tplDescription}
                 maxLength={2000}
-                onChange={(e) => setTplDescription(e.target.value)}
                 placeholder="Описание маршрута, программа, что входит…"
                 className="mt-1.5 min-h-[120px]"
+                {...register("description")}
               />
             </div>
             <div>
@@ -392,11 +386,10 @@ export function GuideExcursionsScreen() {
               <input
                 id="tpl-duration"
                 type="text"
-                value={tplDuration}
                 maxLength={60}
-                onChange={(e) => setTplDuration(e.target.value)}
                 placeholder="Например: 6 часов"
                 className={FIELD_CLASS}
+                {...register("duration")}
               />
             </div>
             <div>
@@ -404,12 +397,11 @@ export function GuideExcursionsScreen() {
               <input
                 id="tpl-price"
                 type="number"
-                value={tplPriceRub}
                 min={0.01}
                 step={1}
-                onChange={(e) => setTplPriceRub(e.target.value)}
                 placeholder="Например: 5000"
                 className={FIELD_CLASS}
+                {...register("priceRub")}
               />
             </div>
             <div>
@@ -417,11 +409,10 @@ export function GuideExcursionsScreen() {
               <input
                 id="tpl-meeting-point"
                 type="text"
-                value={tplMeetingPoint}
                 maxLength={200}
-                onChange={(e) => setTplMeetingPoint(e.target.value)}
                 placeholder="Например: метро Арбатская, выход 2"
                 className={FIELD_CLASS}
+                {...register("meetingPoint")}
               />
             </div>
             <div>
@@ -431,10 +422,9 @@ export function GuideExcursionsScreen() {
                 type="number"
                 min={1}
                 max={500}
-                value={tplMaxParticipants}
-                onChange={(e) => setTplMaxParticipants(e.target.value)}
                 placeholder="10"
                 className={FIELD_CLASS}
+                {...register("maxParticipants")}
               />
             </div>
             <div>
@@ -442,20 +432,18 @@ export function GuideExcursionsScreen() {
               <input
                 id="tpl-region"
                 type="text"
-                value={tplRegion}
                 maxLength={100}
-                onChange={(e) => setTplRegion(e.target.value)}
                 placeholder="Например: Тбилиси, Грузия"
                 className={FIELD_CLASS}
+                {...register("region")}
               />
             </div>
             <div>
               <Label htmlFor="tpl-category">Категория</Label>
               <select
                 id="tpl-category"
-                value={tplCategory}
-                onChange={(e) => setTplCategory(e.target.value)}
                 className={FIELD_CLASS}
+                {...register("category")}
               >
                 <option value="">Выберите категорию</option>
                 {THEMES.map((theme) => (
@@ -495,10 +483,12 @@ export function GuideExcursionsScreen() {
                               key={photo.id}
                               type="button"
                               onClick={() => {
-                                setTplPhotos((prev) =>
+                                setValue(
+                                  "photoUrls",
                                   selected
-                                    ? prev.filter((url) => url !== photo.photoUrl)
-                                    : [...prev, photo.photoUrl],
+                                    ? tplPhotos.filter((url) => url !== photo.photoUrl)
+                                    : [...tplPhotos, photo.photoUrl],
+                                  { shouldValidate: true },
                                 );
                               }}
                               className={`relative h-16 w-full overflow-hidden rounded-lg border-2 transition-colors ${
@@ -547,7 +537,7 @@ export function GuideExcursionsScreen() {
               <div className="mt-1.5 flex gap-2">
                 <button
                   type="button"
-                  onClick={() => setTplStatus("draft")}
+                  onClick={() => setValue("status", "draft", { shouldValidate: true })}
                   className={`rounded-lg border px-3 py-1.5 text-sm ${
                     tplStatus === "draft"
                       ? "border-primary bg-primary/10 text-primary"
@@ -558,7 +548,7 @@ export function GuideExcursionsScreen() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setTplStatus("published")}
+                  onClick={() => setValue("status", "published", { shouldValidate: true })}
                   className={`rounded-lg border px-3 py-1.5 text-sm ${
                     tplStatus === "published"
                       ? "border-primary bg-primary/10 text-primary"
@@ -581,7 +571,7 @@ export function GuideExcursionsScreen() {
             </button>
             <button
               type="button"
-              onClick={handleSaveTemplate}
+              onClick={handleSaveTemplateClick}
               disabled={tplSaving}
               className="rounded-xl bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity disabled:opacity-50"
             >
