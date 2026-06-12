@@ -14,6 +14,7 @@ import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 
 import { AcceptOfferButton } from "./accept-offer-button";
+import { RejectOfferButton } from "./reject-offer-button";
 import { OfferQaSheet } from "./offer-qa-sheet";
 
 interface GuideInfo {
@@ -63,6 +64,14 @@ function formatDateRu(iso: string | null | undefined): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
   return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+}
+
+function formatOfferDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  const date = d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+  const time = d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+  return `Ответил ${date}, ${time}`;
 }
 
 function formatTime(iso: string | null | undefined): string {
@@ -177,10 +186,11 @@ export function OfferCard({
         </Avatar>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">{guideName}</p>
+          <p className="text-xs text-muted-foreground">{formatOfferDate(offer.created_at)}</p>
         </div>
-        <Badge variant={offer.status === "accepted" ? "default" : "outline"}>
-          {offer.status === "accepted" ? "Принято" : "Ожидает"}
-        </Badge>
+        {offer.status === "accepted" ? (
+          <Badge variant="default">Принято</Badge>
+        ) : null}
       </div>
 
       {isCounterOffer ? (
@@ -287,12 +297,15 @@ export function OfferCard({
       {/* Actions */}
       <div className="flex flex-wrap gap-2">
         {canAccept ? (
-          <AcceptOfferButton
-            offerId={offer.id}
-            requestId={requestId}
-            guideId={offer.guide_id}
-            priceMinor={offer.price_minor}
-          />
+          <>
+            <AcceptOfferButton
+              offerId={offer.id}
+              requestId={requestId}
+              guideId={offer.guide_id}
+              priceMinor={offer.price_minor}
+            />
+            <RejectOfferButton offerId={offer.id} requestId={requestId} />
+          </>
         ) : null}
 
         <OfferQaSheet
