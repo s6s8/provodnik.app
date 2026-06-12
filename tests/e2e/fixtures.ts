@@ -3,21 +3,25 @@ type SeedUserCredentials = {
   password: string;
 };
 
+const QA_PASSWORD = process.env.QA_SEED_PASSWORD ?? "";
+
 export const SEED_USERS: {
   admin: SeedUserCredentials;
-  traveler: SeedUserCredentials;
   guide: SeedUserCredentials;
+  traveler: SeedUserCredentials;
 } = {
   admin: {
-    email: "admin@provodnik.test",
-    password: "Admin1234!",
-  },
-  traveler: {
-    email: "traveler@provodnik.test",
-    password: "Travel1234!",
+    email: "qa-admin@example.com",
+    password: QA_PASSWORD,
   },
   guide: {
-    email: "guide@provodnik.test",
-    password: "Guide1234!",
+    email: "qa-guide@example.com",
+    password: QA_PASSWORD,
+  },
+  traveler: {
+    email: "qa-traveler@example.com",
+    password: QA_PASSWORD,
   },
 };
+
+export const E2E_READY = QA_PASSWORD.length > 0;
