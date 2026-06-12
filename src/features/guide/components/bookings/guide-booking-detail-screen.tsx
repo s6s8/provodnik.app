@@ -29,6 +29,13 @@ import {
 
 type GuideBookingAction = "confirm" | "complete" | "cancel" | "no_show";
 
+const ACTION_LABEL_RU: Record<string, string> = {
+  confirm: "Подтверждение",
+  complete: "Завершение",
+  cancel: "Отмена",
+  no_show: "Неявка",
+};
+
 export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
@@ -194,7 +201,9 @@ export function GuideBookingDetailScreen({ bookingId }: { bookingId: string }) {
       {actionResult ? (
         <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
           Статус обновлён:{" "}
-          <span className="font-medium text-foreground">{actionResult.action}</span>{" "}
+          <span className="font-medium text-foreground">
+            {ACTION_LABEL_RU[actionResult.action] ?? actionResult.action}
+          </span>{" "}
           →{" "}
           <span className="font-medium text-foreground">
             {formatStatusLabelForSummary(actionResult.nextStatus)}
