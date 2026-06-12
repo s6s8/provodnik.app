@@ -106,8 +106,8 @@ export function PublicRequestDetailScreen({
     "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80";
 
   const heroLabel = request.regionLabel
-    ? `Открытая группа · ${request.regionLabel}`
-    : "Открытая группа";
+    ? `Сборная группа · ${request.regionLabel}`
+    : "Сборная группа";
 
   const title = request.highlights[0] ?? request.destinationLabel;
   const description = request.highlights[1] ?? "";
