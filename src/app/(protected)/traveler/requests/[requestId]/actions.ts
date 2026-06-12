@@ -2,6 +2,7 @@
 
 import { z } from "zod";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
@@ -149,6 +150,79 @@ export async function acceptOfferAction(
   redirect(
     `/traveler/requests/${requestId}/accepted?booking_id=${booking.id}&guide_id=${guideId}`,
   );
+}
+
+export type RejectOfferActionState = { error: string | null };
+
+export async function rejectOfferAction(
+  _prev: RejectOfferActionState,
+  formData: FormData,
+): Promise<RejectOfferActionState> {
+  const offerId = formData.get("offer_id") as string | null;
+  const requestId = formData.get("request_id") as string | null;
+
+  if (!offerId || !requestId) {
+    return { error: "Недостаточно данных для отклонения предложения." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    return { error: "Необходима авторизация." };
+  }
+
+  const { data: requestRow, error: reqError } = await supabase
+    .from("traveler_requests")
+    .select("id, traveler_id, status")
+    .eq("id", requestId)
+    .maybeSingle();
+
+  if (reqError || !requestRow) {
+    return { error: "Запрос не найден." };
+  }
+
+  if (requestRow.traveler_id !== user.id) {
+    return { error: "Вы не являетесь владельцем этого запроса." };
+  }
+
+  if (requestRow.status !== "open") {
+    return { error: "Запрос уже не открыт." };
+  }
+
+  const { data: offerRow, error: offerError } = await supabase
+    .from("guide_offers")
+    .select("id, request_id, status")
+    .eq("id", offerId)
+    .maybeSingle();
+
+  if (offerError || !offerRow) {
+    return { error: "Предложение не найдено." };
+  }
+
+  if (offerRow.request_id !== requestId) {
+    return { error: "Предложение не относится к этому запросу." };
+  }
+
+  if (offerRow.status !== "pending") {
+    return { error: "Предложение уже не активно." };
+  }
+
+  const { error: updateError } = await supabase
+    .from("guide_offers")
+    .update({ status: "declined" })
+    .eq("id", offerId);
+
+  if (updateError) {
+    return { error: "Не удалось отклонить предложение." };
+  }
+
+  revalidatePath(`/traveler/requests/${requestId}`);
+  return { error: null };
 }
 
 export async function openOfferThreadAction(formData: FormData) {

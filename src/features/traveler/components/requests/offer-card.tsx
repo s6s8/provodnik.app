@@ -14,6 +14,7 @@ import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 
 import { AcceptOfferButton } from "./accept-offer-button";
+import { RejectOfferButton } from "./reject-offer-button";
 import { OfferQaSheet } from "./offer-qa-sheet";
 
 interface GuideInfo {
@@ -296,12 +297,15 @@ export function OfferCard({
       {/* Actions */}
       <div className="flex flex-wrap gap-2">
         {canAccept ? (
-          <AcceptOfferButton
-            offerId={offer.id}
-            requestId={requestId}
-            guideId={offer.guide_id}
-            priceMinor={offer.price_minor}
-          />
+          <>
+            <AcceptOfferButton
+              offerId={offer.id}
+              requestId={requestId}
+              guideId={offer.guide_id}
+              priceMinor={offer.price_minor}
+            />
+            <RejectOfferButton offerId={offer.id} requestId={requestId} />
+          </>
         ) : null}
 
         <OfferQaSheet
