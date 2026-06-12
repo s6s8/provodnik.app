@@ -219,6 +219,50 @@ describe("BidFormPanel — excursion picker", () => {
     expect(screen.getByPlaceholderText("За группу, ₽")).toHaveValue(3000);
     expect(screen.getByPlaceholderText("На человека, ₽")).toHaveValue(1500);
   });
+
+  it("selecting an excursion template does not modify the typed message", async () => {
+    const typedMessage = "моё личное сообщение";
+    const catalogDescription = "КАТАЛОЖНЫЙ ТЕКСТ ЭКСКУРСИИ";
+    guideTemplates.value = [
+      {
+        id: "template-1",
+        guide_id: "guide-1",
+        title: "Обзорная",
+        description: catalogDescription,
+        duration_text: "2 часа",
+        price_from_kopecks: 990_000,
+        meeting_point: null,
+        max_participants: null,
+        photo_urls: [],
+        status: "published",
+        region: null,
+        category: null,
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
+      },
+    ];
+
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, budgetRub: 1500, groupSize: 2 }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(await screen.findByRole("button", { name: "Выбрать из моих экскурсий ↓" })).toBeInTheDocument();
+
+    const messageField = document.getElementById("panel-message") as HTMLTextAreaElement;
+    fireEvent.change(messageField, {
+      target: { value: typedMessage },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать из моих экскурсий ↓" }));
+    fireEvent.click(screen.getByRole("button", { name: /Обзорная/ }));
+
+    expect(messageField).toHaveValue(typedMessage);
+    expect(messageField.value).not.toContain(catalogDescription);
+  });
 });
 
 describe("BidFormPanel — catalog and route switcher", () => {
