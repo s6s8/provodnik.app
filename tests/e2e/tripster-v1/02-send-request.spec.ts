@@ -1,12 +1,14 @@
 import { test } from "@playwright/test";
-import { SEED_USERS } from "../fixtures";
+import { E2E_READY, SEED_USERS } from "../fixtures";
 import { loginAs } from "../helpers";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
 // Spec hard-codes traveler1@provodnik.test / testpass123 but seed creates traveler@provodnik.test
 // with password Travel1234!. Internal-form `[name=...]` selectors + several data-testids are
 // also unverified. Bek's first post-handover ticket fixes this end-to-end.
-test.skip("traveler sends booking request", async ({ page }) => {
+test("traveler sends booking request", async ({ page }) => {
+  test.skip(!E2E_READY, "QA_SEED_PASSWORD not set");
+
   // Login as traveler
   await loginAs(page, SEED_USERS.traveler.email, SEED_USERS.traveler.password);
 

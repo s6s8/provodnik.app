@@ -1,11 +1,13 @@
 import { test } from "@playwright/test";
-import { SEED_USERS } from "../fixtures";
+import { E2E_READY, SEED_USERS } from "../fixtures";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
 // Spec hard-codes guide1@provodnik.test / testpass123 but seed creates guide@provodnik.test
 // with password Guide1234!. Internal-form selectors (#title, #region, etc.) and several
 // data-testids are also unverified. Bek's first post-handover ticket fixes this end-to-end.
-test.skip("guide creates an excursion listing", async ({ page }) => {
+test("guide creates an excursion listing", async ({ page }) => {
+  test.skip(!E2E_READY, "QA_SEED_PASSWORD not set");
+
   await page.goto("/auth");
   await page.fill("#email", SEED_USERS.guide.email);
   await page.fill("#password", SEED_USERS.guide.password);
