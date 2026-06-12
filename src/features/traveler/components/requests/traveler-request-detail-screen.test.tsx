@@ -43,6 +43,30 @@ describe("TravelerRequestDetailScreen", () => {
     expect(detailCard).toHaveClass("rounded-lg", "border", "bg-card", "p-4");
   });
 
+  it("renders request badges in canonical group-date-time-count-budget order", () => {
+    render(
+      <TravelerRequestDetailScreen
+        record={{
+          ...baseRecord,
+          request: { ...baseRecord.request, dateFlexibility: "few_days" },
+        }}
+      />,
+    );
+
+    const groupBadge = screen.getByText("Сборная группа").closest("[data-slot='badge']");
+    const badges = Array.from(groupBadge?.parentElement?.querySelectorAll("[data-slot='badge']") ?? []);
+    const badgeTexts = badges.map((badge) => badge.textContent);
+
+    expect(badgeTexts).toEqual([
+      "Сборная группа",
+      "10 июня 2026",
+      "±пара дней",
+      "—",
+      "2 из 5 чел.",
+      "Бюджет не указан",
+    ]);
+  });
+
   it("does not show a redundant open-group badge for an assembly request", () => {
     render(
       <TravelerRequestDetailScreen

@@ -103,10 +103,26 @@ export function TravelerRequestDetailScreen({ record }: Props) {
         </div>
 
         <div className="flex flex-wrap gap-2">
+          <Badge
+            variant="outline"
+            className={cn(
+              BADGE_CLASS,
+              request.mode === "assembly"
+                ? "border-sky-200 bg-sky-100 text-sky-700"
+                : "border-purple-200 bg-purple-100 text-purple-700",
+            )}
+          >
+            {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+          </Badge>
           <Badge variant="outline" className={BADGE_CLASS}>
             <CalendarDays className="size-3.5" />
             {dateLabel}
           </Badge>
+          {request.dateFlexibility && request.dateFlexibility !== "exact" && (
+            <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
+              ±пара дней
+            </Badge>
+          )}
           <Badge variant="outline" className={BADGE_CLASS}>
             <Clock className="size-3.5" />
             {timeLabel}
@@ -122,22 +138,6 @@ export function TravelerRequestDetailScreen({ record }: Props) {
             <Wallet className="size-3.5" />
             {budgetLabel}
           </Badge>
-          <Badge
-            variant="outline"
-            className={cn(
-              BADGE_CLASS,
-              request.mode === "assembly"
-                ? "border-sky-200 bg-sky-100 text-sky-700"
-                : "border-purple-200 bg-purple-100 text-purple-700",
-            )}
-          >
-            {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-          </Badge>
-          {request.dateFlexibility && request.dateFlexibility !== "exact" && (
-            <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
-              ±пара дней
-            </Badge>
-          )}
           {record.dateLocked === false && (
             <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
               Гид может предлагать даты
