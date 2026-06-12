@@ -82,7 +82,7 @@ export function OfferQaSheet({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline">
           Задать вопрос
         </Button>
       </SheetTrigger>
