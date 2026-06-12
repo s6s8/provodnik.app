@@ -12,9 +12,14 @@ const env = Object.fromEntries(
     .map(l => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).replace(/^"|"$/g, '').trim()]; })
 );
 
-const url = env.PROVODNIK_SUPABASE_URL;
-const key = env.PROVODNIK_SUPABASE_SECRET_KEY;
-if (!url || !key) { console.error('missing PROVODNIK_SUPABASE_URL / PROVODNIK_SUPABASE_SECRET_KEY'); process.exit(2); }
+const url = env.PROVODNIK_SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL;
+const key = env.PROVODNIK_SUPABASE_SECRET_KEY ?? env.SUPABASE_SECRET_KEY;
+if (!url || !key) { console.error('missing PROVODNIK_SUPABASE_URL / PROVODNIK_SUPABASE_SECRET_KEY (or NEXT_PUBLIC_SUPABASE_URL / SUPABASE_SECRET_KEY)'); process.exit(2); }
+
+// Fixed-credential mode for e2e: QA_SEED_PASSWORD (process env or env-file) pins all QA
+// account passwords so playwright fixtures can log in across runs. Without it each run
+// generated a random password — which is what kept the e2e suite permanently skipped.
+const fixedPassword = process.env.QA_SEED_PASSWORD ?? env.QA_SEED_PASSWORD ?? null;
 
 const supa = createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
@@ -32,7 +37,7 @@ async function findUserByEmail(email) {
 
 const results = [];
 for (const acct of accounts) {
-  const password = randomBytes(18).toString('base64url');
+  const password = fixedPassword ?? randomBytes(18).toString('base64url');
   const existing = await findUserByEmail(acct.email);
   let userId;
   if (existing) {
