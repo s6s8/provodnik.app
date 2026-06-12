@@ -45,7 +45,7 @@ interface Props {
   travelerBudgetPerPersonRub?: number | null;
 }
 
-const DEVIATION_BADGE_CLASS = cn(BADGE_CLASS, "border-orange-300 bg-orange-50 text-orange-700");
+const DEVIATION_BADGE_CLASS = cn(BADGE_CLASS, "border-blue-300 bg-blue-50 text-blue-600");
 
 function formatPrice(minor: number, currency: string): string {
   return formatRub(kopecksToRub(minor), currency);
@@ -279,13 +279,6 @@ export function OfferCard({
         </div>
       ) : null}
 
-      {/* PII disclosure banner */}
-      <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
-        <p className="text-xs text-warning">
-          Контактные данные скрыты до принятия предложения
-        </p>
-      </div>
-
       {/* Offer message */}
       {offer.message ? (
         <div className="rounded-lg border bg-background/60 p-3">
@@ -293,6 +286,13 @@ export function OfferCard({
           <p className="text-sm whitespace-pre-line">{offer.message}</p>
         </div>
       ) : null}
+
+      {/* PII disclosure banner */}
+      <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
+        <p className="text-xs text-warning">
+          Контактные данные скрыты до принятия предложения
+        </p>
+      </div>
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2">

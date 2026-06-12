@@ -202,10 +202,10 @@ describe("OfferCard", () => {
     expect(screen.getByText("Гид предложил другие условия")).toBeInTheDocument();
     // Гибкие даты — бейдж появляется когда travelerStartsOn=null
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
-    // Дата-бейдж (следующий после "Гибкие даты") — оранжевый
+    // Дата-бейдж (следующий после "Гибкие даты") — синий (не error-семантика)
     const flexBadge = screen.getByText("Гибкие даты").closest("[data-slot='badge']");
     const dateBadge = flexBadge?.parentElement?.querySelector("[data-slot='badge']:nth-child(2)");
-    expect(dateBadge).toHaveClass("border-orange-300");
+    expect(dateBadge).toHaveClass("border-blue-300");
     // Нет стрелочных бейджей старого формата
     expect(screen.queryByText(/гибкая →/)).not.toBeInTheDocument();
   });
