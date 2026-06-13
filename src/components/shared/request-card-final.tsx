@@ -27,6 +27,7 @@ export type RequestCardFinalProps = {
   members?: readonly RequestCardFinalMember[];
   participantCount?: number;
   price: string;
+  priceGroup?: string;
   publishedAt?: string;
   unreadOfferCount?: number;
 };
@@ -166,6 +167,7 @@ export function RequestCardFinal({
   members = [],
   participantCount,
   price,
+  priceGroup,
   publishedAt,
   unreadOfferCount,
 }: RequestCardFinalProps) {
@@ -212,14 +214,17 @@ export function RequestCardFinal({
         </div>
       </Link>
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-4">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
         <div className="flex flex-col gap-1">
           <AvatarStack members={members} />
           {publishedAt ? (
             <span className="text-xs text-muted-foreground">Опубликован: {publishedAt}</span>
           ) : null}
         </div>
-        <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
+        <span className="ml-auto shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
+        {priceGroup ? (
+          <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-muted-foreground">{priceGroup}</span>
+        ) : null}
       </div>
     </article>
   );
