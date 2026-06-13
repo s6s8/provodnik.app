@@ -27,7 +27,7 @@ export type RequestCardFinalProps = {
   members?: readonly RequestCardFinalMember[];
   participantCount?: number;
   price: string;
-  priceGroup?: string;
+  groupPrice?: string;
   publishedAt?: string;
   unreadOfferCount?: number;
 };
@@ -167,7 +167,7 @@ export function RequestCardFinal({
   members = [],
   participantCount,
   price,
-  priceGroup,
+  groupPrice,
   publishedAt,
   unreadOfferCount,
 }: RequestCardFinalProps) {
@@ -221,10 +221,10 @@ export function RequestCardFinal({
             <span className="text-xs text-muted-foreground">Опубликован: {publishedAt}</span>
           ) : null}
         </div>
-        <span className="ml-auto shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
-        {priceGroup ? (
-          <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-muted-foreground">{priceGroup}</span>
-        ) : null}
+        <div className="flex flex-col items-end gap-0.5">
+          <span className="shrink-0 whitespace-nowrap text-sm font-semibold text-foreground">{price}</span>
+          {groupPrice ? <span className="shrink-0 whitespace-nowrap text-xs font-medium text-ink-2">{groupPrice}</span> : null}
+        </div>
       </div>
     </article>
   );

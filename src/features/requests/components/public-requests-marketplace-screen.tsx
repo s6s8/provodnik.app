@@ -544,6 +544,9 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     members={request.members}
                     participantCount={request.group.sizeCurrent}
                     price={derivePrice(request.budgetPerPersonRub)}
+                    groupPrice={request.budgetPerPersonRub != null
+                      ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(request.budgetPerPersonRub * request.group.sizeCurrent))} ₽ за группу`
+                      : undefined}
                   />
                 );
               })}
