@@ -28,6 +28,7 @@ export type OpenRequestRecord = {
   };
   destinationLabel: string;
   imageUrl?: string;
+  cityImageUrl?: string;
   regionLabel?: string;
   dateRangeLabel: string;
   timeLabel?: string;
@@ -36,6 +37,9 @@ export type OpenRequestRecord = {
   priceScenarios?: Array<{ groupSize: number; pricePerPersonRub: number }>;
   highlights: string[];
   interests?: string[];
+  themes?: string[];
+  notes?: string;
+  organizerName?: string;
   members?: Array<{ id: string; displayName: string; initials: string; avatarUrl?: string }>;
 };
 

@@ -2,11 +2,15 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
-import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getRequestById, type RequestRecord } from "@/data/supabase/queries";
-import { PublicRequestDetailScreen } from "@/features/requests/components/public/public-request-detail-screen";
+import {
+  PublicRequestDetailScreen,
+  type PublicRequestDetailViewModel,
+  type PublicRequestJoinState,
+} from "@/features/requests/components/public/public-request-detail-screen";
+import { cityImage } from "@/lib/city-image";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isRequestMember, getRequestMembers } from "@/lib/supabase/request-members";
+import { isRequestMember } from "@/lib/supabase/request-members";
 import { hasSupabaseEnv } from "@/lib/env";
 
 const getRequestDetail = cache(async (requestId: string) => {
@@ -22,7 +26,7 @@ export async function generateMetadata({
   const { requestId } = await params;
   const result = await getRequestDetail(requestId);
 
-  if (!result.data) {
+  if (!result.data || result.data.mode !== "assembly") {
     return { title: "Запрос не найден" };
   }
 
@@ -32,26 +36,67 @@ export async function generateMetadata({
   };
 }
 
-function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
+function getTimeLabel(request: RequestRecord): string | undefined {
+  if (!request.startTime) return undefined;
+  return request.endTime ? `${request.startTime}–${request.endTime}` : request.startTime;
+}
+
+function getJoinState({
+  request,
+  currentUserId,
+  isMember,
+  ownerId,
+}: {
+  request: RequestRecord;
+  currentUserId: string | null;
+  isMember: boolean;
+  ownerId: string | null;
+}): PublicRequestJoinState {
+  if (request.status !== "open") return "closed";
+  if (!currentUserId) return "anon";
+  if (ownerId === currentUserId) return "owner";
+  if (isMember) return "member";
+  return "can-join";
+}
+
+function buildViewModel({
+  request,
+  currentUserId,
+  isMember,
+  ownerId,
+}: {
+  request: RequestRecord;
+  currentUserId: string | null;
+  isMember: boolean;
+  ownerId: string | null;
+}): PublicRequestDetailViewModel {
+  const organizerFallback = request.requesterName || "Путешественник";
+  const members =
+    request.members.length > 0
+      ? request.members
+      : [
+          {
+            id: `${request.id}-organizer`,
+            displayName: organizerFallback,
+            initials: request.requesterInitials,
+            avatarUrl: request.requesterAvatarUrl ?? undefined,
+          },
+        ];
+
   return {
-    id: request.id,
-    status: request.status === "booked" ? "matched" : request.status === "expired" ? "closed" : "open",
-    visibility: "public",
-    createdAt: request.createdAt,
-    updatedAt: request.createdAt,
-    travelerRequestId: request.id,
-    group: {
-      sizeTarget: request.capacity ?? request.groupSize,
-      sizeCurrent: request.groupSize,
-      openToMoreMembers: request.mode === "assembly",
-    },
-    destinationLabel: request.destination,
-    imageUrl: request.imageUrl,
+    title: request.title,
     regionLabel: request.destinationRegion,
-    dateRangeLabel: request.dateLabel,
-    budgetPerPersonRub: request.budgetRub,
-    highlights: [request.title, request.description, request.format].filter(Boolean) as string[],
-    members: request.members,
+    cityImageUrl: cityImage(request.destination),
+    dateLabel: request.dateLabel,
+    timeLabel: getTimeLabel(request),
+    datesFlexible: request.dateFlexibility === "few_days",
+    pricePerPersonRub: request.budgetRub > 0 ? request.budgetRub : null,
+    memberCount: Math.max(request.groupSize, members.length),
+    members,
+    organizerName: members[0]?.displayName ?? organizerFallback,
+    themes: request.interests,
+    notes: request.description,
+    joinState: getJoinState({ request, currentUserId, isMember, ownerId }),
   };
 }
 
@@ -64,31 +109,27 @@ export default async function RequestDetailPage({
   const result = await getRequestDetail(requestId);
 
   if (!result.data) notFound();
-
-  const request = mapToOpenRequestRecord(result.data);
+  if (result.data.mode !== "assembly") notFound();
 
   let currentUserId: string | null = null;
   let isMember = false;
   let ownerId: string | null = null;
-  let serverMemberCount: number | null = null;
 
   if (hasSupabaseEnv()) {
     try {
       const supabase = await createSupabaseServerClient();
 
-      const [userResult, ownerResult, memberResult] = await Promise.all([
+      const [userResult, ownerResult] = await Promise.all([
         supabase.auth.getUser(),
         supabase
           .from("traveler_requests")
           .select("traveler_id")
           .eq("id", requestId)
           .maybeSingle(),
-        getRequestMembers(requestId),
       ]);
 
       currentUserId = userResult.data.user?.id ?? null;
       ownerId = (ownerResult.data as { traveler_id: string } | null)?.traveler_id ?? null;
-      serverMemberCount = memberResult.length;
 
       if (currentUserId) {
         isMember = await isRequestMember(requestId, currentUserId);
@@ -98,23 +139,17 @@ export default async function RequestDetailPage({
     }
   }
 
-  const isOwner = ownerId !== null && currentUserId === ownerId;
-
-  const showJoinButton =
-    request.status === "open" &&
-    currentUserId !== null &&
-    !isOwner &&
-    !isMember;
-
-  const displayMemberCount = serverMemberCount ?? result.data.members.length;
+  const viewModel = buildViewModel({
+    request: result.data,
+    currentUserId,
+    isMember,
+    ownerId,
+  });
 
   return (
     <PublicRequestDetailScreen
-      request={request}
-      currentUserId={currentUserId}
-      isMember={isMember}
-      showJoinButton={showJoinButton}
-      memberCount={displayMemberCount}
+      requestId={requestId}
+      viewModel={viewModel}
     />
   );
 }
