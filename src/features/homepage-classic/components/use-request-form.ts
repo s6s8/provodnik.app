@@ -25,7 +25,7 @@ export function useRequestForm() {
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: {
-      mode: "assembly",
+      mode: "private",
       interests: [] as TravelerRequest["interests"],
       requestedLanguages: ["Русский"],
       destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
