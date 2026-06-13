@@ -46,12 +46,6 @@ export const travelerRequestSchema = z
       .min(1, "Минимум 1 путешественник.")
       .max(20, "Максимум 20 путешественников.")
       .optional(),
-    groupMax: z
-      .number()
-      .int("Укажите целое число.")
-      .min(1, "Минимум 1.")
-      .max(50, "Максимум 50.")
-      .optional(),
     // private mode counter
     groupSize: z
       .number()
@@ -97,5 +91,9 @@ export const travelerRequestSchema = z
     }
   });
 
-export type TravelerRequest = z.infer<typeof travelerRequestSchema>;
+type TravelerRequestReadFields = {
+  groupMax?: number;
+};
+
+export type TravelerRequest = z.infer<typeof travelerRequestSchema> & TravelerRequestReadFields;
 export type TravelerRequestInput = z.input<typeof travelerRequestSchema>;

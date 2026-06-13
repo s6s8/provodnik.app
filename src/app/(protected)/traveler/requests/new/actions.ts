@@ -60,7 +60,6 @@ export async function createRequestAction(
     ...(isAssembly
       ? {
           groupSizeCurrent: Number(formData.get("groupSizeCurrent") ?? 1),
-          groupMax: formData.get("groupMax") ? Number(formData.get("groupMax")) : undefined,
         }
       : {
           groupSize: Number(formData.get("groupSize") ?? 1),
