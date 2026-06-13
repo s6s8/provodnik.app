@@ -139,24 +139,10 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 4. Сколько вас + Сборная группа */}
+      {/* 4. Сборная группа + Сколько вас */}
       <div className="grid gap-3">
         <div className="grid grid-cols-2 items-start gap-2">
-          {/* Left: groupSize */}
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
-            <Input
-              id="groupSize"
-              type="text"
-              inputMode="numeric"
-              placeholder="2"
-              aria-invalid={Boolean(errors.groupSize)}
-              {...register("groupSize", { valueAsNumber: true })}
-            />
-            <FieldError id="groupSize-error" message={errors.groupSize?.message} />
-          </div>
-
-          {/* Right: Сборная группа labeled toggle */}
+          {/* Left: Сборная группа labeled toggle */}
           <div className="grid gap-2">
             <FieldLabel>Сборная группа</FieldLabel>
             <button
@@ -177,6 +163,20 @@ export function HomepageRequestForm({ destinations }: Props) {
             >
               {isAssembly ? "Сборная" : "Своя"}
             </button>
+          </div>
+
+          {/* Right: groupSize */}
+          <div className="grid gap-2">
+            <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
+            <Input
+              id="groupSize"
+              type="text"
+              inputMode="numeric"
+              placeholder="2"
+              aria-invalid={Boolean(errors.groupSize)}
+              {...register("groupSize", { valueAsNumber: true })}
+            />
+            <FieldError id="groupSize-error" message={errors.groupSize?.message} />
           </div>
         </div>
 

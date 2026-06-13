@@ -277,9 +277,9 @@ describe("HomepageRequestForm UI affordances", () => {
     const assemblyButton = getAssemblyButton();
     expect(assemblyButton).toHaveClass("cursor-pointer");
     expect(assemblyButton).not.toHaveAttribute("title");
-    expect(assemblyButton).toHaveClass("border-purple-200", "bg-purple-100");
+    expect(assemblyButton).toHaveClass("border-sky-200", "bg-sky-100");
     fireEvent.click(assemblyButton);
-    expect(assemblyButton).toHaveClass("border-sky-200", "text-sky-700");
+    expect(assemblyButton).toHaveClass("border-purple-200", "text-purple-700");
   });
 
   it("renders topic chips as horizontal icon and label rows", () => {
