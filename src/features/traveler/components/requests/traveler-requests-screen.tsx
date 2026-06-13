@@ -82,11 +82,6 @@ function formatPrice(budgetMinor: number | null): string {
   return `${new Intl.NumberFormat('ru-RU').format(rub)} ₽ / чел`
 }
 
-function formatPriceGroup(minor: number, count: number): string {
-  const rub = (minor / 100) * count
-  return `~${new Intl.NumberFormat('ru-RU').format(rub)} ₽ за группу`
-}
-
 function formatPublishedAt(iso: string): string {
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return ''
@@ -111,10 +106,9 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
     members,
     participantCount: request.participants_count,
     price: formatPrice(request.budget_minor),
-    priceGroup:
-      request.budget_minor != null && request.participants_count != null
-        ? formatPriceGroup(request.budget_minor, request.participants_count)
-        : undefined,
+    groupPrice: request.budget_minor != null
+      ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(request.budget_minor * request.participants_count / 100))} ₽ за группу`
+      : undefined,
     publishedAt: request.created_at ? formatPublishedAt(request.created_at) : undefined,
     unreadOfferCount: request.unread_offer_count,
   }

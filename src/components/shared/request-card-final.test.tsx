@@ -29,6 +29,7 @@ describe("RequestCardFinal", () => {
           { id: "oleg", displayName: "Олег", initials: "О" },
         ]}
         price="6 800 ₽ / чел"
+        groupPrice="~13 600 ₽ за группу"
       />,
     );
 
@@ -42,10 +43,16 @@ describe("RequestCardFinal", () => {
     const price = screen.getByText("6 800 ₽ / чел");
     expect(price).toBeInTheDocument();
     expect(price).toHaveClass("shrink-0", "whitespace-nowrap");
+    const groupPrice = screen.getByText("~13 600 ₽ за группу");
+    expect(groupPrice).toBeInTheDocument();
+    expect(groupPrice).toHaveClass("shrink-0", "whitespace-nowrap");
 
     const foodChip = screen.getByText("Гастрономия").closest("span");
     expect(foodChip).toHaveClass("border", "border-border", "text-ink-2");
-    const bottomRow = price.parentElement;
+    const priceColumn = price.parentElement;
+    expect(priceColumn).toContainElement(price);
+    expect(priceColumn).toContainElement(groupPrice);
+    const bottomRow = priceColumn?.parentElement;
     expect(bottomRow).toContainElement(screen.getByTitle("Тамар"));
     expect(bottomRow).toContainElement(price);
     expect(bottomRow).not.toContainElement(foodChip);
@@ -70,5 +77,6 @@ describe("RequestCardFinal", () => {
     expect(screen.getByText(/·\s*0\s*чел\./)).toBeInTheDocument();
     expect(screen.queryByText("Гибкие даты")).not.toBeInTheDocument();
     expect(screen.getByText("По договоренности")).toBeInTheDocument();
+    expect(screen.queryByText(/₽ за группу/)).not.toBeInTheDocument();
   });
 });

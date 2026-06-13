@@ -50,6 +50,9 @@ export function HomePageDiscovery({ requests }: Props) {
                 members={req.members}
                 participantCount={req.groupSize}
                 price={formatPrice(req.budgetRub)}
+                groupPrice={req.budgetRub
+                  ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(req.budgetRub * req.groupSize))} ₽ за группу`
+                  : undefined}
               />
             ))
           )}
