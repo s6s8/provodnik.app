@@ -159,12 +159,20 @@ export function DestinationDetailScreen({
                   : Math.round(
                       (request.group.sizeCurrent / request.group.sizeTarget) * 100,
                     );
+                const spotsLabel = isOpenGroup
+                  ? `${request.group.sizeCurrent} ${pluralize(
+                      request.group.sizeCurrent,
+                      "человек",
+                      "человека",
+                      "человек",
+                    )}`
+                  : `${request.group.sizeCurrent} / ${request.group.sizeTarget} мест`;
                 return (
                   <ReqCard
                     key={request.id}
                     href={`/requests/${request.id}`}
                     location={location}
-                    spotsLabel={`${request.group.sizeCurrent} / ${request.group.sizeTarget} мест`}
+                    spotsLabel={spotsLabel}
                     title={request.highlights[0] ?? request.destinationLabel}
                     date={request.dateRangeLabel}
                     desc={request.highlights[1]}

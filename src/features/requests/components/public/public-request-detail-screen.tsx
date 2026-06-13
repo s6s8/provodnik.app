@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { JoinGroupButton } from "@/features/requests/components/join-group-button";
 import { PostJoinPanel } from "@/features/requests/components/post-join-panel";
+import { pluralize } from "@/lib/utils";
 
 type GuideOffer = {
   id: string;
@@ -127,6 +128,12 @@ export function PublicRequestDetailScreen({
 
   // Current active size for highlighting
   const activeMemberCount = memberCount ?? request.group.sizeCurrent;
+  const memberCountLabel = `${request.group.sizeCurrent} ${pluralize(
+    request.group.sizeCurrent,
+    "человек",
+    "человека",
+    "человек",
+  )}`;
 
   // Find the highlighted column — closest to current member count
   const highlightedSize =
@@ -217,8 +224,9 @@ export function PublicRequestDetailScreen({
                       </div>
                     )}
                     <span className="text-[0.875rem] text-on-surface-muted">
-                      {request.group.sizeCurrent} из {request.group.sizeTarget}{" "}
-                      мест занято
+                      {isOpenGroup
+                        ? memberCountLabel
+                        : `${request.group.sizeCurrent} из ${request.group.sizeTarget} мест занято`}
                     </span>
                   </div>
                 </div>
@@ -343,7 +351,10 @@ export function PublicRequestDetailScreen({
                   <JoinGroupButton
                     requestId={request.id}
                     className="w-full"
-                    disabled={request.group.sizeCurrent >= request.group.sizeTarget}
+                    disabled={
+                      !isOpenGroup &&
+                      request.group.sizeCurrent >= request.group.sizeTarget
+                    }
                   />
                 ) : !currentUserId ? (
                   <Button asChild className="w-full justify-center">
