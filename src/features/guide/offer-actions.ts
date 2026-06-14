@@ -8,9 +8,9 @@ import {
   hasGuideOffered,
   createOfferInputSchema,
 } from "@/lib/supabase/offers";
-import type { SubmitOfferResult } from "./actions-types";
+import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 
-export type { SubmitOfferResult } from "./actions-types";
+export type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 
 export type LockEnforcementRequest = {
   date_locked?: boolean | null;

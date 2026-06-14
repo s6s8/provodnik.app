@@ -13,7 +13,7 @@ const { guidePhotos, guideTemplates, submitOfferAction, verificationStatus } = v
   verificationStatus: { value: "approved" as string | null },
 }));
 
-vi.mock("@/app/(protected)/guide/inbox/[requestId]/offer/actions", () => ({
+vi.mock("@/features/guide/offer-actions", () => ({
   submitOfferAction,
 }));
 

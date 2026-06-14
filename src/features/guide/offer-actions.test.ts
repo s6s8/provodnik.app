@@ -12,7 +12,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
 }));
 
-import { checkOfferAgainstLocks, submitOfferAction } from "./actions";
+import { checkOfferAgainstLocks, submitOfferAction } from "@/features/guide/offer-actions";
 
 const baseRequest = {
   date_locked: true,

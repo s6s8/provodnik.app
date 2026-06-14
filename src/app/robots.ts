@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/admin/", "/api/", "/traveler/", "/guide/"],
+      disallow: ["/admin/", "/api/", "/guide/", "/trips", "/account", "/bookings/"],
     },
     sitemap: "https://provodnik.app/sitemap.xml",
   };
