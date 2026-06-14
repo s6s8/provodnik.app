@@ -48,6 +48,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: "/guide/excursions", destination: "/guide/listings", permanent: true },
+      { source: "/guide/orders", destination: "/guide/bookings", permanent: true },
       { source: "/traveler", destination: "/trips", permanent: true },
       { source: "/traveler/requests", destination: "/trips", permanent: true },
       { source: "/traveler/requests/:id", destination: "/requests/:id", permanent: true },
