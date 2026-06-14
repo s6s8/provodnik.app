@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { GuideAboutForm } from "@/app/(protected)/profile/guide/about/guide-about-form";
+import { GuideAboutForm } from "@/features/guide/components/profile/guide-about-form";
 import { LegalInformationForm } from "@/features/profile/components/LegalInformationForm";
 import {
   LicenseManager,
@@ -24,7 +24,7 @@ import {
   confirmGuideAssetUpload,
   getUploadUrl,
   submitForVerification,
-} from "@/app/(protected)/guide/verification/actions";
+} from "@/features/guide/verification-actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { roleHasAccess } from "@/lib/auth/role-routing";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";

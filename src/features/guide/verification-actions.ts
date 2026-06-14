@@ -13,14 +13,14 @@ import type {
   VerificationAssetConfirmResult,
   VerificationDocumentLinkResult,
   VerificationUploadUrlResult,
-} from "./actions-types";
+} from "@/features/guide/verification-action-types";
 
 export type {
   SubmitVerificationResult,
   VerificationAssetConfirmResult,
   VerificationDocumentLinkResult,
   VerificationUploadUrlResult,
-} from "./actions-types";
+} from "@/features/guide/verification-action-types";
 
 const guideDocumentTypeSchema = z.enum(guideVerificationDocumentTypes);
 

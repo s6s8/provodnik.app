@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useController, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
+import { createRequestAction } from "@/features/requests/create-request-actions";
 import {
   travelerRequestSchema,
   type TravelerRequest,

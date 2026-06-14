@@ -27,7 +27,7 @@ vi.mock("@/lib/supabase/server", () => ({
 
 import { revalidatePath } from "next/cache";
 
-import { saveGuideAboutAction } from "./actions";
+import { saveGuideAboutAction } from "./profile-actions";
 
 function makeFormData(overrides?: Partial<Record<string, string | string[]>>) {
   const fd = new FormData();

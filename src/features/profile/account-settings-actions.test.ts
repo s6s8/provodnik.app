@@ -33,7 +33,7 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
-import { updateTravelerProfile } from "./actions";
+import { updateTravelerProfile } from "./account-settings-actions";
 
 describe("updateTravelerProfile", () => {
   beforeEach(() => {

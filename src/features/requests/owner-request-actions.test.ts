@@ -32,7 +32,7 @@ vi.mock("@/lib/supabase/bookings", () => ({
   createBooking: vi.fn(),
 }));
 
-import { cancelRequestAction } from "./actions";
+import { cancelRequestAction } from "./owner-request-actions";
 
 function buildFormData(requestId: string) {
   const formData = new FormData();

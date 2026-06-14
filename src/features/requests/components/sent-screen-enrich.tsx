@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { updateRequestDetailsAction } from "@/app/(protected)/traveler/requests/sent-actions";
+import { updateRequestDetailsAction } from "@/features/requests/sent-request-actions";
 import { cn } from "@/lib/utils";
 
 const NOTES_MAX_LENGTH = 800;

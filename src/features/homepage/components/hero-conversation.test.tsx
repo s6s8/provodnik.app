@@ -19,7 +19,7 @@ vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: () => ({ auth: { getUser: mockGetUser } }),
 }));
 
-vi.mock("@/app/(protected)/traveler/requests/new/actions", () => ({
+vi.mock("@/features/requests/create-request-actions", () => ({
   createRequestAction: vi.fn().mockResolvedValue({ error: null }),
 }));
 

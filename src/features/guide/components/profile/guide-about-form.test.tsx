@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
   useRouter: () => ({ refresh: refreshMock }),
 }));
 
-vi.mock("./actions", () => ({
+vi.mock("@/features/guide/profile-actions", () => ({
   saveGuideAboutAction: saveGuideAboutActionMock,
 }));
 

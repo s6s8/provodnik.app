@@ -6,7 +6,7 @@ vi.mock("@/lib/notifications/triggers", () => ({
   notifyGuidesNewRequest: vi.fn(),
 }));
 
-import { buildRequestInsertPayload } from "./actions";
+import { buildRequestInsertPayload } from "./create-request-actions";
 
 const baseInput: TravelerRequest = {
   mode: "private",

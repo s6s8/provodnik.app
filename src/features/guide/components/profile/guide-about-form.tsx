@@ -10,7 +10,7 @@ import {
   formatGuideRegionsInput,
   parseGuideRegionsInput,
 } from "@/lib/profile/guide-regions";
-import { saveGuideAboutAction } from "./actions";
+import { saveGuideAboutAction } from "@/features/guide/profile-actions";
 
 interface GuideAboutFormProps {
   initialBio: string;

@@ -23,7 +23,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
 }));
 
-vi.mock("@/app/(protected)/profile/guide/about/guide-about-form", () => ({
+vi.mock("@/features/guide/components/profile/guide-about-form", () => ({
   GuideAboutForm: ({ isLocked }: { isLocked?: boolean }) => (
     <form aria-label="О себе" data-locked={String(Boolean(isLocked))} />
   ),
@@ -49,7 +49,7 @@ vi.mock("@/features/profile/components/LicenseAddButton", () => ({
   ),
 }));
 
-vi.mock("@/app/(protected)/guide/verification/actions", () => ({
+vi.mock("@/features/guide/verification-actions", () => ({
   confirmDocumentUpload: vi.fn(),
   confirmGuideAssetUpload: vi.fn(),
   getUploadUrl: vi.fn(),

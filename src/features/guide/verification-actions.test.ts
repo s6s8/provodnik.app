@@ -21,7 +21,7 @@ vi.mock("@/lib/supabase/server", () => ({
 import {
   confirmGuideAssetUpload,
   getUploadUrl,
-} from "./actions";
+} from "./verification-actions";
 
 describe("guide verification actions", () => {
   beforeEach(() => {

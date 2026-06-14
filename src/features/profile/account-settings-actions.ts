@@ -36,7 +36,7 @@ export async function updateTravelerProfile(
       languages,
       birth_year: birthYear,
     });
-    revalidatePath("/profile/personal");
+    revalidatePath("/account");
     return { ok: true };
   }
 
@@ -59,6 +59,6 @@ export async function updateTravelerProfile(
     .eq("id", user.id);
 
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/profile/personal");
+  revalidatePath("/account");
   return { ok: true };
 }

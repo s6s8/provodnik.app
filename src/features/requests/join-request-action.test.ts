@@ -23,7 +23,7 @@ vi.mock("@/lib/supabase/request-members", () => ({
   joinRequest,
 }));
 
-import { joinRequestAction } from "./join-action";
+import { joinRequestAction } from "./join-request-action";
 
 describe("joinRequestAction", () => {
   it("preserves the request return path when redirecting unauthenticated users", async () => {

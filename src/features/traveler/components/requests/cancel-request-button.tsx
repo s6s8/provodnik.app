@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import type { TravelerRequestStatus } from "@/data/traveler-request/types";
-import { cancelRequestAction } from "@/app/(protected)/traveler/requests/[requestId]/actions";
+import { cancelRequestAction } from "@/features/requests/owner-request-actions";
 
 const CANCELLABLE: TravelerRequestStatus[] = [
   "submitted",
