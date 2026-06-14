@@ -4,10 +4,10 @@ import { cache } from "react";
 
 import { getRequestById, type RequestRecord } from "@/data/supabase/queries";
 import {
-  PublicRequestDetailScreen,
   type PublicRequestDetailViewModel,
   type PublicRequestJoinState,
-} from "@/features/requests/components/public/public-request-detail-screen";
+  RequestDetailScreen,
+} from "@/features/requests/components/request-detail-screen";
 import { cityImage } from "@/lib/city-image";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember } from "@/lib/supabase/request-members";
@@ -147,7 +147,8 @@ export default async function RequestDetailPage({
   });
 
   return (
-    <PublicRequestDetailScreen
+    <RequestDetailScreen
+      viewerRole="public"
       requestId={requestId}
       viewModel={viewModel}
     />

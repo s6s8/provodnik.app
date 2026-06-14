@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { getRequestById } from "@/data/supabase/queries";
-import { GuideRequestDetailScreen } from "@/features/guide/components/requests/guide-request-detail-screen";
 import type { OfferMeta } from "@/features/guide/components/requests/offer-meta";
+import { RequestDetailScreen } from "@/features/requests/components/request-detail-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function generateMetadata({
@@ -77,7 +77,8 @@ export default async function GuideRequestDetailPage({
   const viewsCount = typeof viewsData === "number" ? viewsData : 0;
 
   return (
-    <GuideRequestDetailScreen
+    <RequestDetailScreen
+      viewerRole="guide"
       request={result.data}
       isApproved={isApproved}
       existingOfferId={existingOfferId}

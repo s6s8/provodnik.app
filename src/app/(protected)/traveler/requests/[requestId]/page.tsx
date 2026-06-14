@@ -6,9 +6,7 @@ import {
   getOrCreateQaThreadAction,
   sendQaMessageAction,
 } from "@/features/traveler/actions/qa-actions";
-import { MarkOffersRead } from "@/features/traveler/components/requests/mark-offers-read";
-import { OfferCard } from "@/features/traveler/components/requests/offer-card";
-import { TravelerRequestDetailScreen } from "@/features/traveler/components/requests/traveler-request-detail-screen";
+import { RequestDetailScreen } from "@/features/requests/components/request-detail-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getOffersForRequest } from "@/lib/supabase/offers";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -136,55 +134,19 @@ export default async function TravelerRequestDetailPage({
               : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}
           </div>
         ) : null}
-        <TravelerRequestDetailScreen
-          record={mapTravelerRequestRow(requestRow)}
+        <RequestDetailScreen
+          viewerRole="owner"
+          requestId={requestId}
+          ownerRecord={mapTravelerRequestRow(requestRow)}
+          ownerRequestRow={requestRow}
+          ownerOffers={offers.map((offer) => ({
+            offer,
+            guideInfo: guideInfoMap.get(offer.guide_id) ?? null,
+            qaThread: qaThreadMap.get(offer.id) ?? null,
+          }))}
+          onSendQa={sendQa}
+          onGetOrCreateQaThread={getOrCreateThread}
         />
-        <MarkOffersRead requestId={requestId} hasOffers={offers.length > 0} />
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold leading-none text-foreground">
-              Предложения гидов
-            </h2>
-            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
-              {offers.filter((o) => o.status === "pending").length}
-            </span>
-          </div>
-
-          {offers.filter((o) => o.status === "pending").length === 0 ? (
-            <div className="rounded-xl border bg-card p-6">
-              <p className="text-sm text-muted-foreground">
-                Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {offers
-                .filter((o) => o.status === "pending")
-                .map((offer) => (
-                  <OfferCard
-                    key={offer.id}
-                    offer={offer}
-                    guideInfo={guideInfoMap.get(offer.guide_id) ?? null}
-                    qaThread={qaThreadMap.get(offer.id) ?? null}
-                    requestId={requestId}
-                    requestStatus={requestRow.status}
-                    onSendQa={sendQa}
-                    onGetOrCreateQaThread={getOrCreateThread}
-                    travelerDateLocked={requestRow.date_locked ?? true}
-                    travelerTimeLocked={requestRow.time_locked ?? true}
-                    travelerCountLocked={requestRow.count_locked ?? true}
-                    travelerBudgetLocked={requestRow.budget_locked ?? true}
-                    travelerStartsOn={requestRow.starts_on ?? null}
-                    travelerStartTime={requestRow.start_time ?? null}
-                    travelerEndTime={requestRow.end_time ?? null}
-                    travelerOpenToJoin={requestRow.open_to_join}
-                    travelerCount={requestRow.participants_count ?? 1}
-                    travelerBudgetPerPersonRub={requestRow.budget_minor ? Math.round(requestRow.budget_minor / 100) : null}
-                  />
-                ))}
-            </div>
-          )}
-        </section>
       </div>
     );
   } catch {
