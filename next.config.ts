@@ -52,6 +52,8 @@ const nextConfig: NextConfig = {
       { source: "/guide/inbox/:id", destination: "/requests/:id", permanent: true },
       { source: "/traveler/requests/:id/sent", destination: "/requests/:id", permanent: true },
       { source: "/traveler/bookings/:id", destination: "/bookings/:id", permanent: true },
+      { source: "/traveler/bookings/:id/review", destination: "/bookings/:id/review", permanent: true },
+      { source: "/traveler/bookings/:id/dispute", destination: "/bookings/:id/dispute", permanent: true },
       { source: "/guide/bookings/:id", destination: "/bookings/:id", permanent: true },
       { source: "/traveler/bookings", destination: "/traveler/requests", permanent: true },
       { source: "/guide/settings", destination: "/guide/profile", permanent: true },

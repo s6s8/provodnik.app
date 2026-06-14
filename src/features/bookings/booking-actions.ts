@@ -77,3 +77,4 @@ export async function openBookingThreadAction(formData: FormData) {
 
   return { threadId: thread.id };
 }
+

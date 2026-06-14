@@ -1,13 +1,12 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
+import { openBookingThreadAction } from "@/features/bookings/booking-actions";
 import { BookingDetailScreen } from "@/features/bookings/components/booking-detail-screen";
 import { getBooking } from "@/lib/supabase/bookings";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-
-import { openBookingThreadAction } from "./actions";
 
 export const metadata: Metadata = {
   title: "Бронирование",

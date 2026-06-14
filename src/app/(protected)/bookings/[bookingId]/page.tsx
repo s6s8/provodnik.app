@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
 import { BookingDetailScreen } from "@/features/bookings/components/booking-detail-screen";
+import { openBookingThreadAction } from "@/features/bookings/booking-actions";
 import { viewerRoleForBooking } from "@/lib/auth/viewer-role-for-booking";
 import { getBooking } from "@/lib/supabase/bookings";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { openBookingThreadAction } from "@/app/(protected)/traveler/bookings/[bookingId]/actions";
 
 type BookingPageProps = {
   params: Promise<{ bookingId: string }>;

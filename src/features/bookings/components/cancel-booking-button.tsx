@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
-import { cancelBookingAsTravelerAction } from "@/app/(protected)/traveler/bookings/[bookingId]/actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,6 +15,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { cancelBookingAsTravelerAction } from "@/features/bookings/booking-actions";
 
 export function CancelBookingButton({ bookingId }: { bookingId: string }) {
   const router = useRouter();
