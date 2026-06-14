@@ -53,7 +53,7 @@ export async function joinRequestAction(
         kind: "admin_alert",
         title: `${joinerName} присоединился к вашей группе`,
         body: `К запросу «${destination}» присоединился новый участник.`,
-        href: `/traveler/requests/${requestId}`,
+        href: `/requests/${requestId}`,
       }).catch((error) => {
         console.error("[joinRequestAction] notification skipped:", error);
       });

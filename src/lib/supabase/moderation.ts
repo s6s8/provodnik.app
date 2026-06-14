@@ -400,7 +400,7 @@ async function getNotificationRecipient(
 
     return {
       userId: moderationCase.guide_id,
-      href: "/guide/verification",
+      href: "/guide/profile#verification",
       title: "Обновление по проверке гида",
       body: `Администратор обновил статус проверки анкеты ${name}.`,
     };
@@ -413,7 +413,7 @@ async function getNotificationRecipient(
 
     return {
       userId: listing.guide_id,
-      href: "/guide/excursions",
+      href: "/guide/listings",
       title: "Обновление по проверке листинга",
       body: `Проверка листинга «${listing.title}» была обновлена администратором.`,
     };

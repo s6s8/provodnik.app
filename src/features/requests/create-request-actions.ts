@@ -125,5 +125,5 @@ export async function createRequestAction(
     // notification errors are non-fatal — traveler redirect proceeds
   }
 
-  redirect(`/traveler/requests/${requestId}?created=1&mode=${input.mode}`);
+  redirect(`/requests/${requestId}?created=1&mode=${input.mode}`);
 }

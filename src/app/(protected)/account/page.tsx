@@ -130,7 +130,7 @@ export default async function PersonalSettingsPage() {
           profile={travelerProfile}
         />
         <Button asChild variant="outline">
-          <Link href="/traveler/requests">Мои запросы</Link>
+          <Link href="/trips">Мои запросы</Link>
         </Button>
       </div>
     );

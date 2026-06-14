@@ -109,7 +109,7 @@ describe("readAuthContextFromServer", () => {
     expect(auth.role).toBe("traveler");
     expect(auth.fullName).toBe("Анна Демо");
     expect(auth.userId).toBe("usr_traveler_you");
-    expect(auth.canonicalRedirectTo).toBe("/traveler/requests");
+    expect(auth.canonicalRedirectTo).toBe("/trips");
   });
 
   it("ignores demo cookies when Supabase env is configured and session is absent", async () => {

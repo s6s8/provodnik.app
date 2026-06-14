@@ -58,7 +58,7 @@ export default async function TravelerBookingDisputePage({
   const booking = await getBooking(bookingId);
   if (!booking) notFound();
   if (booking.traveler_id !== user.id) {
-    redirect("/traveler/requests");
+    redirect("/trips");
   }
   if (booking.status !== "confirmed") {
     redirect(`/bookings/${bookingId}`);

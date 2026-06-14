@@ -486,7 +486,7 @@ function TravelerRequestSummary({ record }: { record: TravelerRequestRecord }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between gap-3">
         <Button asChild variant="ghost" className="-ml-3 px-3">
-          <Link href="/traveler/requests">
+          <Link href="/trips">
             <ArrowLeft className="size-4" />
             {"Мои запросы"}
           </Link>
@@ -853,7 +853,7 @@ function GuideDetailBranch({
                 Доступно после верификации
               </Button>
               <Link
-                href="/guide/verification"
+                href="/guide/profile#verification"
                 className="text-xs text-primary underline-offset-2 hover:underline"
               >
                 Пройти верификацию →

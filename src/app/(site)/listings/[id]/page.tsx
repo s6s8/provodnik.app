@@ -28,6 +28,9 @@ export async function generateMetadata({
   return {
     title: data?.title ?? "Предложение",
     description: safeDesc,
+    alternates: {
+      canonical: `/listings/${ref}`,
+    },
   };
 }
 

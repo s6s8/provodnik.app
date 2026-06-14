@@ -40,5 +40,5 @@ export async function sendQaMessageAction(
     if (msg === "qa_thread_at_limit") throw new Error("Достигнут лимит сообщений (8). Примите предложение, чтобы продолжить.")
     throw new Error("Не удалось отправить сообщение. Попробуйте ещё раз.")
   }
-  revalidatePath(`/traveler/requests/${requestId}`);
+  revalidatePath(`/requests/${requestId}`);
 }

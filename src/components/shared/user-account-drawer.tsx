@@ -37,7 +37,7 @@ export function UserAccountDrawer({
   role,
 }: UserAccountDrawerProps) {
   const displayName = fullName?.trim().split(/\s+/)[0] || email || "Гость";
-  const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
+  const profileHref = role === "guide" ? "/guide/profile" : "/account";
   const roleSwitch =
     role === "guide"
       ? { href: "/trips", label: "Переключиться на путешественника" }
@@ -102,7 +102,7 @@ export function UserAccountDrawer({
           {role === "guide" && (
             <>
               <Link
-                href="/guide/excursions"
+                href="/guide/listings"
                 onClick={closeAndNavigate}
                 className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
               >

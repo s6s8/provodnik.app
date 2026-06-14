@@ -27,7 +27,7 @@ const offerThreadSchema = z.object({
  * 3. Updates request status → 'booked'.
  * 4. Updates the accepted offer status → 'accepted'.
  * 5. Rejects all other pending offers on this request.
- * 6. Redirects to /traveler/bookings/[bookingId].
+ * 6. Redirects to /bookings/[bookingId].
  */
 export async function acceptOfferAction(
   _prev: AcceptOfferActionState,
@@ -149,7 +149,7 @@ export async function acceptOfferAction(
   }
 
   redirect(
-    `/traveler/requests/${requestId}/accepted?booking_id=${booking.id}&guide_id=${guideId}`,
+    `/requests/${requestId}/accepted?booking_id=${booking.id}&guide_id=${guideId}`,
   );
 }
 
@@ -251,7 +251,7 @@ export async function rejectOfferAction(
     return { error: "Не удалось отклонить предложение." };
   }
 
-  revalidatePath(`/traveler/requests/${requestId}`);
+  revalidatePath(`/requests/${requestId}`);
   return { error: null };
 }
 
@@ -374,5 +374,5 @@ export async function cancelRequestAction(
     );
   }
 
-  redirect("/traveler/requests");
+  redirect("/trips");
 }

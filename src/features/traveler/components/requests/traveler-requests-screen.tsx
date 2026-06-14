@@ -94,7 +94,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
   const members: RequestCardFinalMember[] = []
 
   return {
-    href: `/traveler/requests/${request.id}`,
+    href: `/requests/${request.id}`,
     location: request.destination,
     date: formatDateRange(request.starts_on, request.ends_on),
     time: request.start_time ? `${request.start_time.slice(0, 5)}${request.end_time ? `–${request.end_time.slice(0, 5)}` : ''}` : undefined,
@@ -203,7 +203,7 @@ function RequestsCategoryTabs({
           <CategoryEmptyState>
             <p className="mb-4">У вас ещё нет запросов</p>
             <Button asChild>
-              <Link href="/traveler/requests/new">Создать первый запрос</Link>
+              <Link href="/">Создать первый запрос</Link>
             </Button>
           </CategoryEmptyState>
         )}

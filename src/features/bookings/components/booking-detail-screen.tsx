@@ -337,7 +337,7 @@ function TravelerBookingDetailView({
               <SupportSidebar bookingId={booking.id} />
 
               <Link
-                href="/traveler/requests"
+                href="/trips"
                 className="font-sans text-sm font-medium text-primary no-underline inline-flex items-center gap-1 hover:underline"
               >
                 ← К моим поездкам

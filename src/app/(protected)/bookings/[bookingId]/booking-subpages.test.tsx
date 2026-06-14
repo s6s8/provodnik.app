@@ -142,7 +142,7 @@ describe("canonical booking review and dispute pages", () => {
   });
 
   it("keeps the canonical copied files free of old traveler booking URLs", () => {
-    const oldTravelerBookingPath = ["/traveler", "bookings"].join("/");
+    const oldTravelerBookingPath = ["/", "traveler", "/bookings"].join("");
     const files = [
       "./review/page.tsx",
       "./review/actions.ts",

@@ -90,7 +90,12 @@ describe("TripsPage", () => {
   });
 
   it("uses the traveler home metadata title", () => {
-    expect(metadata).toEqual({ title: "Кабинет путешественника" });
+    expect(metadata).toEqual({
+      title: "Кабинет путешественника",
+      alternates: {
+        canonical: "/trips",
+      },
+    });
   });
 
   it("redirects anonymous travelers to auth with the trips return path", async () => {

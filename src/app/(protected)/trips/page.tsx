@@ -13,6 +13,9 @@ import {
 
 export const metadata: Metadata = {
   title: "Кабинет путешественника",
+  alternates: {
+    canonical: "/trips",
+  },
 };
 
 export default async function TripsPage() {

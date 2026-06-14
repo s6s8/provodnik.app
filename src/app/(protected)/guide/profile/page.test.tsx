@@ -213,14 +213,14 @@ describe("GuideProfilePage", () => {
       isAuthenticated: true,
       userId: "t1",
       role: "traveler",
-      canonicalRedirectTo: "/traveler/requests",
+      canonicalRedirectTo: "/trips",
       email: "traveler@example.com",
     });
     createSupabaseServerClientMock.mockImplementation(makeSupabaseClient);
 
     await GuideProfilePage();
 
-    expect(redirectMock).toHaveBeenCalledWith("/traveler/requests");
+    expect(redirectMock).toHaveBeenCalledWith("/trips");
   });
 
   it("keeps the editor available for an approved guide while locking verified sections", async () => {

@@ -39,7 +39,7 @@ const navLinks = [
 ] as const;
 
 const travelerNavLinks = [
-  { href: "/traveler/requests", label: "Мои запросы" },
+  { href: "/trips", label: "Мои запросы" },
   { href: "/requests", label: "Открытые группы" },
   { href: "/listings", label: "Готовые экскурсии" },
   { href: "/destinations", label: "Направления" },
@@ -47,7 +47,7 @@ const travelerNavLinks = [
 
 const guideNavLinks = [
   { href: "/guide", label: "Запросы" },
-  { href: "/guide/excursions", label: "Мои экскурсии" },
+  { href: "/guide/listings", label: "Мои экскурсии" },
 ] as const;
 
 const publicNavLinks = [
@@ -91,8 +91,8 @@ export function SiteHeader({
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const logoutFormRef = React.useRef<HTMLFormElement>(null);
 
-  const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
-  const primaryCtaHref = role === "guide" ? "/requests" : "/form";
+  const profileHref = role === "guide" ? "/guide/profile" : "/account";
+  const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
   const accountLabel = fullName?.trim().split(/\s+/)[0] || (role ? roleLabels[role] : "Аккаунт");
   const messagesLabel =

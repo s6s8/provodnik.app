@@ -63,7 +63,7 @@ describe("roleHasAccess", () => {
 describe("getRequiredRoleForPathname", () => {
   it("requires guide role for the guide profile editor", () => {
     expect(getRequiredRoleForPathname("/guide/profile")).toBe("guide");
-    expect(getRequiredRoleForPathname("/profile/guide/about")).toBe("guide");
+    expect(getRequiredRoleForPathname("/guide/profile/about")).toBe("guide");
   });
 });
 

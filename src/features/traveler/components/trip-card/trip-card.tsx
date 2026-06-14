@@ -349,7 +349,7 @@ export function TripCard({
     const hasUnread = (trip.unreadOfferCount ?? 0) > 0;
     return (
       <Link
-        href={`/traveler/requests/${trip.id}`}
+        href={`/requests/${trip.id}`}
         className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
       >
         <article className="space-y-3">
@@ -360,7 +360,7 @@ export function TripCard({
   }
 
   return (
-    <Link href={`/traveler/bookings/${trip.id}`} className={cardClassName}>
+    <Link href={`/bookings/${trip.id}`} className={cardClassName}>
       <article className="space-y-3">
         <TripCardContent phase={phase} trip={trip} />
       </article>

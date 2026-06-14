@@ -115,7 +115,7 @@ describe("cancelRequestAction", () => {
     const { bookingUpdateQuery, bookingsQuery, requestId, travelerId } = buildSupabaseMock("booked");
 
     await expect(cancelRequestAction({ error: null }, buildFormData(requestId))).rejects.toThrow(
-      "NEXT_REDIRECT:/traveler/requests",
+      "NEXT_REDIRECT:/trips",
     );
 
     expect(bookingsQuery.update).toHaveBeenCalledWith({ status: "cancelled" });
@@ -125,17 +125,17 @@ describe("cancelRequestAction", () => {
       "awaiting_guide_confirmation",
       "confirmed",
     ]);
-    expect(redirect).toHaveBeenCalledWith("/traveler/requests");
+    expect(redirect).toHaveBeenCalledWith("/trips");
   });
 
   it("does not update bookings when cancelling an open request", async () => {
     const { bookingsQuery, requestId } = buildSupabaseMock("open");
 
     await expect(cancelRequestAction({ error: null }, buildFormData(requestId))).rejects.toThrow(
-      "NEXT_REDIRECT:/traveler/requests",
+      "NEXT_REDIRECT:/trips",
     );
 
     expect(bookingsQuery.update).not.toHaveBeenCalled();
-    expect(redirect).toHaveBeenCalledWith("/traveler/requests");
+    expect(redirect).toHaveBeenCalledWith("/trips");
   });
 });

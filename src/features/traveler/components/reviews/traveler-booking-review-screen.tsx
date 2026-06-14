@@ -34,7 +34,7 @@ export function TravelerBookingReviewScreen({
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" className="-ml-3 px-3">
-        <Link href={`/traveler/bookings/${booking.id}`}>
+        <Link href={`/bookings/${booking.id}`}>
           <ArrowLeft className="size-4" />
           Вернуться к поездке
         </Link>

@@ -102,7 +102,7 @@ describe("protected role layouts", () => {
     readAuthContextFromServerMock.mockResolvedValueOnce(
       makeAuthContext({
         role: "traveler",
-        canonicalRedirectTo: "/traveler/requests",
+        canonicalRedirectTo: "/trips",
       }),
     );
 

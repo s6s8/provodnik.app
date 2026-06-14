@@ -400,7 +400,7 @@ export function GuideRequestsInboxScreen() {
                                 Доступно после верификации
                               </Button>
                               <Link
-                                href="/guide/verification"
+                                href="/guide/profile#verification"
                                 className="text-xs text-primary underline-offset-2 hover:underline"
                               >
                                 Пройти верификацию →
