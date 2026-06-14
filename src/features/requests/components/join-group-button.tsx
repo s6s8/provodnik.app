@@ -4,7 +4,7 @@ import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 import { COPY } from "@/lib/copy";
-import { joinRequestAction } from "@/app/(protected)/traveler/requests/join-action";
+import { joinRequestAction } from "@/features/requests/join-request-action";
 import { PostJoinPanel } from "@/features/requests/components/post-join-panel";
 
 interface JoinGroupButtonProps {

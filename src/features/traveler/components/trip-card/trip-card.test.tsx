@@ -132,7 +132,7 @@ describe("TripCard", () => {
     );
 
     const cardLink = screen.getByRole("link", { name: /Липецк/ });
-    expect(cardLink).toHaveAttribute("href", "/traveler/requests/request-42");
+    expect(cardLink).toHaveAttribute("href", "/requests/request-42");
     expect(screen.getByText("1 июля 2026 – 3 июля 2026")).toBeInTheDocument();
     const budgetLabel = new Intl.NumberFormat("ru-RU", {
       style: "currency",
@@ -242,16 +242,16 @@ describe("TripCard", () => {
     expect(screen.getByText("ул. Ленина, 1")).toBeInTheDocument();
   });
 
-  it("links confirmed booking phases to the traveler booking detail route", () => {
+  it("links confirmed booking phases to the booking detail route", () => {
     render(<TripCard phase="upcoming" trip={{ ...baseTrip, id: "booking-42" }} />);
 
     expect(screen.getByRole("link")).toHaveAttribute(
       "href",
-      "/traveler/bookings/booking-42",
+      "/bookings/booking-42",
     );
   });
 
-  it("links request phases to the traveler request detail route", () => {
+  it("links request phases to the request detail route", () => {
     render(
       <TripCard
         phase="awaiting_decision"
@@ -261,7 +261,7 @@ describe("TripCard", () => {
 
     expect(screen.getByRole("link")).toHaveAttribute(
       "href",
-      "/traveler/requests/request-7",
+      "/requests/request-7",
     );
   });
 

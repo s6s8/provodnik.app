@@ -88,7 +88,7 @@ export function DestinationDetailScreen({
 
             <div className="mt-5 flex flex-wrap gap-2.5">
               <Button asChild>
-                <Link href="/form">Найти гида</Link>
+                <Link href="/">Найти гида</Link>
               </Button>
               <Button
                 variant="outline"

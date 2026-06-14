@@ -10,8 +10,8 @@ import { Lock, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { RequestRecord } from "@/data/supabase/queries";
-import { submitOfferAction } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions";
-import type { SubmitOfferResult } from "@/app/(protected)/guide/inbox/[requestId]/offer/actions-types";
+import { submitOfferAction } from "@/features/guide/offer-actions";
+import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 import type { GuideTemplateRow } from "@/lib/supabase/types";
 import { useGuideCatalog } from "./use-guide-catalog";
 

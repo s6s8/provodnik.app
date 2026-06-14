@@ -2,18 +2,24 @@ import { hasAdminRole } from "@/lib/auth/admin-access";
 import type { AppRole } from "@/lib/auth/types";
 
 export const ROLE_DASHBOARD_PATHS = {
-  traveler: "/traveler/requests",
+  traveler: "/trips",
   guide: "/guide",
   admin: "/admin/dashboard",
 } as const satisfies Record<AppRole, string>;
 
 export const ROLE_WORKSPACE_PREFIXES = {
-  traveler: "/traveler",
+  traveler: "/trips",
   guide: "/guide",
   admin: "/admin",
 } as const satisfies Record<AppRole, `/${string}`>;
 
 const ROLE_ORDER: AppRole[] = ["traveler", "guide", "admin"];
+const LEGACY_TRAVELER_WORKSPACE_PREFIX = ["/", "traveler"].join("");
+const TRAVELER_ROLE_PREFIXES = [
+  ROLE_WORKSPACE_PREFIXES.traveler,
+  "/bookings",
+  LEGACY_TRAVELER_WORKSPACE_PREFIX,
+] as const;
 
 function isPathWithinTree(pathname: string, root: string): boolean {
   return pathname === root || pathname.startsWith(`${root}/`);
@@ -34,11 +40,16 @@ export function getWorkspacePrefixForRole(role: AppRole | null | undefined): str
 export function getRequiredRoleForPathname(pathname: string | null | undefined): AppRole | null {
   if (!pathname) return null;
 
-  if (isPathWithinTree(pathname, "/profile/guide")) {
+  if (isPathWithinTree(pathname, "/guide/profile")) {
     return "guide";
   }
 
+  if (TRAVELER_ROLE_PREFIXES.some((prefix) => isPathWithinTree(pathname, prefix))) {
+    return "traveler";
+  }
+
   for (const role of ROLE_ORDER) {
+    if (role === "traveler") continue;
     if (isPathWithinTree(pathname, ROLE_WORKSPACE_PREFIXES[role])) {
       return role;
     }

@@ -23,7 +23,7 @@ vi.mock("@/components/shared/guide-bottom-nav", () => ({
 }));
 
 import GuideLayout from "./guide/layout";
-import TravelerLayout from "./traveler/layout";
+import TripsLayout from "./trips/layout";
 
 function makeAuthContext(overrides: Partial<AuthContext>): AuthContext {
   return {
@@ -67,7 +67,7 @@ describe("protected role layouts", () => {
     expect(screen.queryByText("Guide workspace")).not.toBeInTheDocument();
   });
 
-  it("redirects unresolved traveler sessions without rendering children", async () => {
+  it("redirects unresolved trips sessions without rendering children", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce(
       makeAuthContext({
         role: null,
@@ -76,13 +76,13 @@ describe("protected role layouts", () => {
     );
 
     await expect(
-      TravelerLayout({
-        children: <div>Traveler workspace</div>,
+      TripsLayout({
+        children: <div>Trips workspace</div>,
       }),
     ).rejects.toThrow("NEXT_REDIRECT:/auth?error=missing-role");
 
     expect(redirectMock).toHaveBeenCalledWith("/auth?error=missing-role");
-    expect(screen.queryByText("Traveler workspace")).not.toBeInTheDocument();
+    expect(screen.queryByText("Trips workspace")).not.toBeInTheDocument();
   });
 
   it("renders the guide layout for guide sessions", async () => {
@@ -98,20 +98,20 @@ describe("protected role layouts", () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it("renders the traveler layout for traveler sessions", async () => {
+  it("renders the trips layout for traveler sessions", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce(
       makeAuthContext({
         role: "traveler",
-        canonicalRedirectTo: "/traveler/requests",
+        canonicalRedirectTo: "/trips",
       }),
     );
 
-    const ui = await TravelerLayout({
-      children: <div>Traveler workspace</div>,
+    const ui = await TripsLayout({
+      children: <div>Trips workspace</div>,
     });
     render(ui);
 
-    expect(screen.getByText("Traveler workspace")).toBeInTheDocument();
+    expect(screen.getByText("Trips workspace")).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
   });
 });

@@ -47,6 +47,62 @@ describe("UserAccountDrawer", () => {
     expect(screen.getByText("Мой профиль")).toBeInTheDocument();
   });
 
+  it("links guides to the traveler experience", () => {
+    render(
+      <UserAccountDrawer
+        open
+        onOpenChange={vi.fn()}
+        email="guide@example.com"
+        role="guide"
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Переключиться на путешественника" }),
+    ).toHaveAttribute("href", "/trips");
+  });
+
+  it("links travelers to the guide experience", () => {
+    render(
+      <UserAccountDrawer
+        open
+        onOpenChange={vi.fn()}
+        email="traveler@example.com"
+        role="traveler"
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", { name: "Переключиться на гида" }),
+    ).toHaveAttribute("href", "/guide");
+  });
+
+  it("does not render a role switch for admins", () => {
+    render(
+      <UserAccountDrawer
+        open
+        onOpenChange={vi.fn()}
+        email="admin@example.com"
+        role="admin"
+      />,
+    );
+
+    expect(screen.queryByText(/Переключиться на/)).not.toBeInTheDocument();
+  });
+
+  it("does not render a role switch before role resolution", () => {
+    render(
+      <UserAccountDrawer
+        open
+        onOpenChange={vi.fn()}
+        email="pending@example.com"
+        role={null}
+      />,
+    );
+
+    expect(screen.queryByText(/Переключиться на/)).not.toBeInTheDocument();
+  });
+
   it("submits logout with POST", () => {
     render(
       <UserAccountDrawer

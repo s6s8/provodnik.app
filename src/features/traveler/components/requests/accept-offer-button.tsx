@@ -5,7 +5,7 @@ import { useActionState } from "react";
 import {
   acceptOfferAction,
   type AcceptOfferActionState,
-} from "@/app/(protected)/traveler/requests/[requestId]/actions";
+} from "@/features/requests/owner-request-actions";
 import { Button } from "@/components/ui/button";
 
 const initialState: AcceptOfferActionState = { error: null };

@@ -186,7 +186,7 @@ export async function notifyNewOffer(
     kind: "new_offer",
     title: `Новое предложение от ${guideName}`,
     body: `${requestRow.destination} · ${formatShortDate(requestRow.starts_on)} · ${requestRow.participants_count} чел.`,
-    href: `/traveler/requests/${requestRow.id}`,
+    href: `/requests/${requestRow.id}`,
     payload: {
       actor_id: offerRow.guide_id,
       actor_name: guideName,
@@ -203,7 +203,7 @@ export async function notifyNewOffer(
       if (to) {
         const { subject, html } = renderNewOfferEmail({
           guideName,
-          requestUrl: `${getSiteUrl()}/traveler/requests/${requestRow.id}`,
+          requestUrl: `${getSiteUrl()}/requests/${requestRow.id}`,
         });
         await sendNotificationEmail({
           kind: "new_offer",
@@ -288,7 +288,7 @@ export async function notifyBookingConfirmed(bookingId: string): Promise<void> {
     kind: "booking_confirmed",
     title: `${guideName} подтвердил бронирование`,
     body: "Можно готовиться к поездке",
-    href: `/traveler/bookings/${bookingRow.id}`,
+    href: `/bookings/${bookingRow.id}`,
     payload: {
       actor_id: bookingRow.guide_id,
       actor_name: guideName,
@@ -341,7 +341,9 @@ export async function notifyBookingCancelled(
         kind: "booking_cancelled",
         title: "Бронирование отменено",
         body,
-        href: `/${recipient.role}/bookings/${bookingRow.id}`,
+        href: recipient.role === "traveler"
+          ? `/bookings/${bookingRow.id}`
+          : `/guide/bookings/${bookingRow.id}`,
         payload: {
           booking_id: parsedBookingId,
           cancelled_by: role,
@@ -362,7 +364,9 @@ export async function notifyBookingCancelled(
       const to = await getUserEmail(recipient.userId);
       if (!to) continue;
       const { subject, html } = renderBookingCancelledEmail({
-        bookingUrl: `${getSiteUrl()}/${recipient.role}/bookings/${bookingRow.id}`,
+        bookingUrl: recipient.role === "traveler"
+          ? `${getSiteUrl()}/bookings/${bookingRow.id}`
+          : `${getSiteUrl()}/guide/bookings/${bookingRow.id}`,
       });
       await sendNotificationEmail({
         kind: "booking_cancelled",
@@ -399,7 +403,7 @@ export async function notifyReviewRequested(bookingId: string): Promise<void> {
     kind: "review_requested",
     title: `Как прошёл тур с ${guideName}?`,
     body: "Поделитесь впечатлениями — это важно для других путешественников",
-    href: `/traveler/bookings/${bookingRow.id}/review`,
+    href: `/bookings/${bookingRow.id}/review`,
     payload: {
       booking_id: parsedBookingId,
       actor_id: bookingRow.guide_id,

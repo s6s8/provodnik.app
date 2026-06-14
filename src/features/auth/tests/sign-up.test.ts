@@ -137,7 +137,7 @@ describe("signUpAction — public signup roles", () => {
 
     const result = await signUpAction({ ...baseInput, role: "traveler" });
 
-    expect(result).toEqual({ ok: true, dashboardPath: "/traveler/requests" });
+    expect(result).toEqual({ ok: true, dashboardPath: "/trips" });
     expect(createUserMock).toHaveBeenCalledWith(
       expect.objectContaining({
         user_metadata: { role: "traveler", full_name: baseInput.fullName },

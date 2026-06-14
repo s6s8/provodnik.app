@@ -3,7 +3,7 @@ export type AppRole = "traveler" | "guide" | "admin";
 export type AuthSource = "supabase" | "demo" | "none";
 
 export type AuthRedirectTarget =
-  | "/traveler/requests"
+  | "/trips"
   | "/guide"
   | "/admin/dashboard";
 

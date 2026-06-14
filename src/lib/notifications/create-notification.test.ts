@@ -35,7 +35,7 @@ describe("createNotification", () => {
             kind: "new_offer",
             title: "Новое предложение",
             body: null,
-            href: "/traveler/requests/req-1",
+            href: "/requests/req-1",
             is_read: false,
             created_at: "2026-06-02T00:00:00.000Z",
           },
@@ -52,7 +52,7 @@ describe("createNotification", () => {
       userId: "22222222-2222-4222-8222-222222222222",
       kind: "new_offer",
       title: "Новое предложение",
-      href: "/traveler/requests/req-1",
+      href: "/requests/req-1",
     });
 
     expect(createSupabaseAdminClient).toHaveBeenCalled();

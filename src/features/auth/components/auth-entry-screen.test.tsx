@@ -123,7 +123,7 @@ describe("AuthEntryScreen traveler sign-in", () => {
     fireEvent.click(screen.getByRole("button", { name: "Войти" }));
 
     await waitFor(() => {
-      expect(assignMock).toHaveBeenCalledWith("/traveler/requests");
+      expect(assignMock).toHaveBeenCalledWith("/trips");
     });
     expect(getSessionMock).toHaveBeenCalled();
   });
@@ -343,7 +343,7 @@ describe("AuthEntryScreen traveler sign-in", () => {
     fireEvent.click(screen.getByRole("button", { name: "Войти" }));
 
     await waitFor(() => {
-      expect(assignMock).toHaveBeenCalledWith("/traveler/requests");
+      expect(assignMock).toHaveBeenCalledWith("/trips");
     });
   });
 });

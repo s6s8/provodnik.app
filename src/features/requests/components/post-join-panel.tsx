@@ -53,7 +53,7 @@ export function PostJoinPanel({ className }: PostJoinPanelProps) {
       </ol>
 
       <Button asChild variant="outline" size="sm" className="mt-4 w-full justify-center">
-        <Link href="/traveler/requests">{COPY.postJoin.ctaToMyRequests}</Link>
+        <Link href="/trips">{COPY.postJoin.ctaToMyRequests}</Link>
       </Button>
     </div>
   );

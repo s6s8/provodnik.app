@@ -61,7 +61,7 @@ describe("AdminLayout", () => {
       makeAuthContext({
         role: "traveler",
         email: "traveler@example.com",
-        canonicalRedirectTo: "/traveler/requests",
+        canonicalRedirectTo: "/trips",
       }),
     );
 
@@ -77,7 +77,7 @@ describe("AdminLayout", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Вернуться в свой кабинет" })).toHaveAttribute(
       "href",
-      "/traveler/requests",
+      "/trips",
     );
     expect(screen.queryByText("Секретная админка")).not.toBeInTheDocument();
     expect(getAdminNavCountsMock).not.toHaveBeenCalled();

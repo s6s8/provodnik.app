@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
+import { createRequestAction } from "@/features/requests/create-request-actions";
 import { Button } from "@/components/ui/button";
 import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -259,7 +259,7 @@ export function HeroConversation() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Предпочитаете заполнить вручную?{" "}
-          <Link href="/form" className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link href="/" className="font-medium text-primary underline-offset-2 hover:underline">
             Обычная форма
           </Link>
         </p>

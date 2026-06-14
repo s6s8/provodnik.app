@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/app/(protected)/traveler/requests/sent-actions", () => ({
+vi.mock("@/features/requests/sent-request-actions", () => ({
   updateRequestDetailsAction: vi.fn(),
 }));
 

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, HelpCircle, LogOut, Map, User } from "lucide-react";
+import { ArrowLeftRight, Calendar, HelpCircle, LogOut, Map, User } from "lucide-react";
 
 import {
   Sheet,
@@ -37,7 +37,13 @@ export function UserAccountDrawer({
   role,
 }: UserAccountDrawerProps) {
   const displayName = fullName?.trim().split(/\s+/)[0] || email || "Гость";
-  const profileHref = role === "guide" ? "/guide/profile" : "/profile/personal";
+  const profileHref = role === "guide" ? "/guide/profile" : "/account";
+  const roleSwitch =
+    role === "guide"
+      ? { href: "/trips", label: "Переключиться на путешественника" }
+      : role === "traveler"
+        ? { href: "/guide", label: "Переключиться на гида" }
+        : null;
 
   function closeAndNavigate() {
     onOpenChange(false);
@@ -80,10 +86,23 @@ export function UserAccountDrawer({
             <User className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
             Мой профиль
           </Link>
+          {roleSwitch ? (
+            <>
+              <Link
+                href={roleSwitch.href}
+                onClick={closeAndNavigate}
+                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+              >
+                <ArrowLeftRight className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+                {roleSwitch.label}
+              </Link>
+              <div className="h-px bg-border my-2" />
+            </>
+          ) : null}
           {role === "guide" && (
             <>
               <Link
-                href="/guide/excursions"
+                href="/guide/listings"
                 onClick={closeAndNavigate}
                 className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
               >

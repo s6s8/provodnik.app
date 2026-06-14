@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-import { markOffersReadAction } from "@/app/(protected)/traveler/requests/[requestId]/actions";
+import { markOffersReadAction } from "@/features/requests/owner-request-actions";
 
 interface MarkOffersReadProps {
   requestId: string;

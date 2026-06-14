@@ -21,7 +21,7 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-vi.mock("@/app/(protected)/traveler/requests/new/actions", () => ({
+vi.mock("@/features/requests/create-request-actions", () => ({
   createRequestAction: vi.fn().mockResolvedValue({ error: null }),
 }));
 
@@ -40,7 +40,7 @@ vi.mock("./homepage-auth-gate", () => ({
 
 import { HomepageRequestForm } from "./homepage-request-form";
 import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
-import { createRequestAction } from "@/app/(protected)/traveler/requests/new/actions";
+import { createRequestAction } from "@/features/requests/create-request-actions";
 
 beforeAll(() => {
   class ResizeObserverMock {

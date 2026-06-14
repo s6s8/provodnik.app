@@ -3,7 +3,6 @@ import { redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { ReviewsList } from "@/features/reviews/components/ReviewsList";
-import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   ReviewRatingsBreakdownRow,
@@ -43,10 +42,6 @@ function toListItem(raw: RawReview, guideId: string): ReviewRow & {
 }
 
 export default async function GuideReviewsPage() {
-  if (!flags.FEATURE_TR_REPUTATION) {
-    redirect("/guide");
-  }
-
   let items: (ReviewRow & {
     breakdown: ReviewRatingsBreakdownRow[];
     reply: ReviewReplyRow | null;

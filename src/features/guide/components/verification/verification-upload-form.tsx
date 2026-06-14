@@ -11,7 +11,7 @@ import type {
   VerificationAssetConfirmResult,
   VerificationDocumentLinkResult,
   VerificationUploadUrlResult,
-} from "@/app/(protected)/guide/verification/actions-types";
+} from "@/features/guide/verification-action-types";
 import { DocumentUploadCard } from "./document-upload-card";
 import type { UploadedGuideDocument } from "./verification-types";
 

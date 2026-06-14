@@ -56,6 +56,9 @@ export async function generateMetadata({
   return {
     title: guideResult.data.fullName,
     description: guideResult.data.bio,
+    alternates: {
+      canonical: `/guides/${slug}`,
+    },
   };
 }
 

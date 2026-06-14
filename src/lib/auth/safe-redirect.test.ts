@@ -64,7 +64,7 @@ describe("isAdminWorkspacePath", () => {
 
 describe("resolvePostAuthRedirectPath", () => {
   test("returns role dashboard when next is absent", () => {
-    expect(resolvePostAuthRedirectPath("traveler", null)).toBe("/traveler/requests");
+    expect(resolvePostAuthRedirectPath("traveler", null)).toBe("/trips");
     expect(resolvePostAuthRedirectPath("guide", undefined)).toBe("/guide");
   });
 
@@ -77,13 +77,13 @@ describe("resolvePostAuthRedirectPath", () => {
 
   test("falls back to dashboard when next is an open-redirect attempt", () => {
     expect(resolvePostAuthRedirectPath("traveler", "https://evil.com")).toBe(
-      "/traveler/requests",
+      "/trips",
     );
   });
 
   test("falls back to dashboard when next requires another role", () => {
     expect(resolvePostAuthRedirectPath("traveler", "/guide/profile")).toBe(
-      "/traveler/requests",
+      "/trips",
     );
   });
 

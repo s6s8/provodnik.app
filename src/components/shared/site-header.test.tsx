@@ -1,7 +1,7 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-let mockPathname = "/traveler/requests";
+let mockPathname = "/trips";
 let mockUnreadCount = 0;
 const { useUnreadCountMock } = vi.hoisted(() => ({
   useUnreadCountMock: vi.fn(() => ({
@@ -40,7 +40,7 @@ async function openAccountMenu() {
 describe("SiteHeader desktop account menu", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockPathname = "/traveler/requests";
+    mockPathname = "/trips";
     mockUnreadCount = 0;
     useUnreadCountMock.mockImplementation(() => ({
       unreadCount: mockUnreadCount,
@@ -178,14 +178,14 @@ describe("SiteHeader desktop account menu", () => {
     expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
   });
 
-  it("«Мой профиль» for traveler links to /profile/personal", async () => {
+  it("«Мой профиль» for traveler links to /account", async () => {
     renderAuthenticatedHeader("traveler");
 
     await openAccountMenu();
 
     expect(await screen.findByRole("menuitem", { name: "Мой профиль" })).toHaveAttribute(
       "href",
-      "/profile/personal",
+      "/account",
     );
   });
 

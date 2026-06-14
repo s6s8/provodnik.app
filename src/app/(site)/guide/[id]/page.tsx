@@ -17,9 +17,11 @@ export default async function LegacyGuideRedirectPage({
     .maybeSingle();
   if (error) throw error;
 
-  if (!data?.slug) {
+  const guideSlug = data?.slug;
+
+  if (!guideSlug) {
     notFound();
   }
 
-  permanentRedirect(`/guides/${data.slug}`);
+  permanentRedirect(`/guides/${guideSlug}`);
 }
