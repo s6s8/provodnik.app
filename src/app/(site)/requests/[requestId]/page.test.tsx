@@ -105,6 +105,7 @@ describe("RequestDetailPage", () => {
 
     const rendered = await RequestDetailPage({
       params: Promise.resolve({ requestId: "assembly-request" }),
+      searchParams: Promise.resolve({}),
     });
 
     expect(cityImage).toHaveBeenCalledWith("Элиста");
@@ -133,6 +134,7 @@ describe("RequestDetailPage", () => {
     await expect(
       RequestDetailPage({
         params: Promise.resolve({ requestId: "private-request" }),
+        searchParams: Promise.resolve({}),
       }),
     ).rejects.toThrow("NEXT_NOT_FOUND");
 
