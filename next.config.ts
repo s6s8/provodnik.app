@@ -48,6 +48,15 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      { source: "/form", destination: "/", permanent: true },
+      { source: "/tours", destination: "/listings", permanent: true },
+      { source: "/requests/new", destination: "/", permanent: true },
+      { source: "/traveler/requests/new", destination: "/", permanent: true },
+      { source: "/partner", destination: "/referrals", permanent: true },
+      { source: "/guide/verification", destination: "/guide/profile#verification", permanent: true },
+      { source: "/profile/guide/about", destination: "/guide/profile", permanent: true },
+      { source: "/profile/guide/license", destination: "/guide/profile#license", permanent: true },
+      { source: "/profile/guide/legal-information", destination: "/guide/profile#legal", permanent: true },
       { source: "/guide/excursions", destination: "/guide/listings", permanent: true },
       { source: "/guide/orders", destination: "/guide/bookings", permanent: true },
       { source: "/traveler", destination: "/trips", permanent: true },
