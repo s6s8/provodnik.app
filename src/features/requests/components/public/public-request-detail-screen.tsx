@@ -214,10 +214,11 @@ export function PublicRequestDetailScreen({ requestId, viewModel }: PublicReques
         <Image
           src={viewModel.cityImageUrl}
           alt={viewModel.title}
-          fill
+          width={1800}
+          height={600}
           priority
           sizes="100vw"
-          className="object-cover"
+          className="h-[240px] w-full object-cover md:h-[300px]"
         />
         <div
           className="absolute inset-0 bg-gradient-to-b from-foreground/10 via-transparent to-foreground/80"
