@@ -232,15 +232,18 @@ export function AuthEntryScreen({
     : "Нет аккаунта? Создать профиль";
 
   return (
-    <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
+    <div className="relative z-10 w-[min(100%,26rem)] rounded-[var(--card-radius)] border border-[var(--outline-variant)] bg-white p-8 font-sans text-[var(--on-surface)] shadow-[var(--card-shadow)]">
       <div>
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-3">
             <Link
               href="/"
-              className="inline-flex w-fit items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
+              className="inline-flex w-fit items-center gap-3 text-[var(--on-surface)] transition-colors duration-200 hover:text-[var(--primary)]"
             >
-              Provodnik
+              <span className="flex size-10 items-center justify-center rounded-[14px] bg-[var(--primary)] text-base font-bold text-white">
+                P
+              </span>
+              <span className="text-xl font-bold tracking-[-0.02em]">Provodnik</span>
             </Link>
           </div>
         </div>
@@ -248,7 +251,7 @@ export function AuthEntryScreen({
 
       <div>
         {!hasSupabaseEnv() ? (
-          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
+          <div className="mt-8 flex items-start gap-3 rounded-[14px] border border-[var(--outline-variant)] bg-[var(--brand-50)] px-4 py-3 text-sm leading-6 text-[var(--on-surface-muted)]">
             <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
             <p>
               Вход временно недоступен. Напишите в поддержку.
@@ -257,7 +260,7 @@ export function AuthEntryScreen({
         ) : null}
 
         {errorCode === "missing-role" ? (
-          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+          <div className="mt-8 flex items-start gap-3 rounded-[14px] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             <p>
               Не удалось определить роль аккаунта. Выйдите и войдите снова или
@@ -267,7 +270,7 @@ export function AuthEntryScreen({
         ) : null}
 
         {errorCode === "admin-access-denied" ? (
-          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
+          <div className="mt-8 flex items-start gap-3 rounded-[14px] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
             <AlertCircle className="mt-0.5 size-4 shrink-0" />
             <p>
               Для входа в админку нужен аккаунт с ролью администратора. Войдите
@@ -280,11 +283,11 @@ export function AuthEntryScreen({
           {isSignUp ? (
             <>
               <div className="grid gap-2.5">
-                <label htmlFor="full-name" className="text-sm font-medium text-foreground">
+                <label htmlFor="full-name" className="text-sm font-medium text-[var(--on-surface)]">
                   Как к вам обращаться
                 </label>
                 <div className="relative">
-                  <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--on-surface-muted)]" />
                   <Input
                     id="full-name"
                     type="text"
@@ -292,16 +295,16 @@ export function AuthEntryScreen({
                     placeholder="Например, Анна Смирнова"
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
-                    className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                    className="min-h-[3.25rem] w-full rounded-[14px] border border-[var(--outline-variant)] bg-white pl-11 text-[var(--on-surface)] shadow-none placeholder:text-[var(--on-surface-muted)] focus-visible:border-[var(--primary)] focus-visible:ring-3 focus-visible:ring-primary/20"
                   />
                 </div>
               </div>
               <div className="grid gap-2.5">
-                <label htmlFor="phone" className="text-sm font-medium text-foreground">
+                <label htmlFor="phone" className="text-sm font-medium text-[var(--on-surface)]">
                   Телефон (необязательно)
                 </label>
                 <div className="relative">
-                  <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                  <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--on-surface-muted)]" />
                   <Input
                     id="phone"
                     type="tel"
@@ -309,7 +312,7 @@ export function AuthEntryScreen({
                     placeholder="+7 900 123-45-67"
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
-                    className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                    className="min-h-[3.25rem] w-full rounded-[14px] border border-[var(--outline-variant)] bg-white pl-11 text-[var(--on-surface)] shadow-none placeholder:text-[var(--on-surface-muted)] focus-visible:border-[var(--primary)] focus-visible:ring-3 focus-visible:ring-primary/20"
                   />
                 </div>
               </div>
@@ -317,11 +320,11 @@ export function AuthEntryScreen({
           ) : null}
 
           <div className="grid gap-2.5">
-            <label htmlFor="email" className="text-sm font-medium text-foreground">
+            <label htmlFor="email" className="text-sm font-medium text-[var(--on-surface)]">
               Email
             </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--on-surface-muted)]" />
               <Input
                 id="email"
                 type="email"
@@ -329,17 +332,17 @@ export function AuthEntryScreen({
                 placeholder="you@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                className="min-h-[3.25rem] w-full rounded-[14px] border border-[var(--outline-variant)] bg-white pl-11 text-[var(--on-surface)] shadow-none placeholder:text-[var(--on-surface-muted)] focus-visible:border-[var(--primary)] focus-visible:ring-3 focus-visible:ring-primary/20"
               />
             </div>
           </div>
 
           <div className="grid gap-2.5">
-            <label htmlFor="password" className="text-sm font-medium text-foreground">
+            <label htmlFor="password" className="text-sm font-medium text-[var(--on-surface)]">
               {isSignUp ? "Создайте пароль" : "Пароль"}
             </label>
             <div className="relative">
-              <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-[var(--on-surface-muted)]" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -347,12 +350,12 @@ export function AuthEntryScreen({
                 placeholder={isSignUp ? "Минимум 6 символов" : "Введите пароль"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
+                className="min-h-[3.25rem] w-full rounded-[14px] border border-[var(--outline-variant)] bg-white pl-11 pr-14 text-[var(--on-surface)] shadow-none placeholder:text-[var(--on-surface-muted)] focus-visible:border-[var(--primary)] focus-visible:ring-3 focus-visible:ring-primary/20"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
-                className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center text-[var(--on-surface-muted)] transition-colors duration-200 hover:text-[var(--on-surface)]"
                 aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                 aria-pressed={showPassword}
               >
@@ -369,7 +372,7 @@ export function AuthEntryScreen({
             <div className="flex justify-end">
               <Link
                 href="/auth/forgot-password"
-                className="text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                className="text-sm font-medium text-[var(--primary)] transition-colors duration-200 hover:underline"
               >
                 Забыли пароль?
               </Link>
@@ -377,14 +380,14 @@ export function AuthEntryScreen({
           ) : null}
 
           {error ? (
-            <div className="flex items-start gap-2 rounded-[1.4rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div className="flex items-start gap-2 rounded-[14px] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <p>{error}</p>
             </div>
           ) : null}
 
           {success ? (
-            <div className="flex items-start gap-2 rounded-[1.4rem] border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-foreground">
+            <div className="flex items-start gap-2 rounded-[14px] border border-primary/15 bg-[var(--brand-50)] px-4 py-3 text-sm text-[var(--on-surface)]">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
               <p>{success}</p>
             </div>
@@ -392,7 +395,7 @@ export function AuthEntryScreen({
 
           <Button
             type="submit"
-            className="h-12 w-full rounded-full"
+            className="h-12 w-full rounded-[14px] border-transparent bg-[var(--primary)] font-semibold text-white shadow-[0_10px_24px_-18px_rgba(10,40,28,0.45)] hover:-translate-y-0.5 hover:bg-[var(--primary-hover)] hover:shadow-[0_18px_32px_-22px_rgba(10,40,28,0.45)]"
             disabled={isSubmitting || !hasSupabaseEnv() || !hydrated}
           >
             {isSubmitting ? `${ctaLabel}...` : ctaLabel}
@@ -402,7 +405,7 @@ export function AuthEntryScreen({
         <button
           type="button"
           onClick={() => handleModeChange(isSignUp ? "sign-in" : "sign-up")}
-          className="mt-6 inline-flex w-fit items-center text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+          className="mt-6 inline-flex w-fit items-center text-sm font-medium text-[var(--primary)] transition-colors duration-200 hover:underline"
         >
           {toggleLabel}
         </button>
