@@ -121,66 +121,35 @@ export function HeroConversation() {
 
   return (
     <section
-      className="relative flex min-h-[calc(100svh-var(--nav-h))] flex-col items-center justify-center overflow-hidden px-[clamp(20px,4vw,48px)] py-12"
+      className="relative flex min-h-[calc(100svh-var(--nav-h))] flex-col items-center justify-center overflow-hidden bg-[var(--surface)] px-[clamp(20px,4vw,48px)] py-[clamp(72px,10vw,128px)] font-display"
       aria-label="Создать запрос гида"
     >
-      {/* Frosted full-bleed background: heavily blurred + light-washed photo → soft texture, not a vivid hero */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-[#eaf1ec]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "url('/hero-valley.jpg')",
-            backgroundPosition: "center 42%",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            filter: "blur(13px) saturate(0.92) brightness(1.04)",
-            transform: "scale(1.14)",
-          }}
-        />
-        {/* Light wash → keeps text legible over the photo (frosted lens at center) */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(74% 46% at 50% 47%, rgba(248,251,247,0.90) 0%, rgba(248,251,247,0.55) 40%, rgba(248,251,247,0.14) 66%, transparent 82%), linear-gradient(180deg, rgba(243,248,244,0.36) 0%, rgba(243,248,244,0.04) 26%, transparent 56%, rgba(233,242,236,0.44) 100%)",
-          }}
-        />
-        {/* Subtle gold glow, top-right */}
-        <div
-          className="absolute inset-0"
-          style={{ background: "radial-gradient(38% 26% at 84% 10%, rgba(224,161,38,0.12), transparent 60%)" }}
-        />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+        <div className="absolute left-1/2 top-0 h-[420px] w-[min(760px,90vw)] -translate-x-1/2 rounded-full bg-[radial-gradient(circle_at_center,rgba(31,122,92,0.16),rgba(238,247,242,0.42)_38%,transparent_72%)]" />
       </div>
 
-      <div className="mx-auto flex w-full max-w-xl flex-col items-center">
+      <div className="mx-auto flex w-full max-w-3xl flex-col items-center">
         <h1
-          className="animate-in fade-in-50 slide-in-from-bottom-2 mb-3 text-center font-display text-[clamp(2rem,6vw,3.25rem)] leading-[1.08] duration-700"
-          style={{
-            backgroundImage: "linear-gradient(135deg,#2E9B74 0%,#1F7A5C 50%,#145C44 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
+          className="animate-in fade-in-50 slide-in-from-bottom-2 mb-4 text-center text-[clamp(2.5rem,7vw,4.5rem)] font-semibold leading-[1.02] tracking-[-0.04em] text-[var(--on-surface)] duration-700"
         >
-          Расскажите о поездке
+          Расскажите <span className="text-[var(--primary)]">о поездке</span>
         </h1>
 
         <p
-          className="animate-in fade-in-50 mb-7 flex min-h-[2.5rem] items-center justify-center text-center text-[15px] leading-snug text-muted-foreground duration-700"
+          className="animate-in fade-in-50 mb-8 flex min-h-[2.5rem] max-w-2xl items-center justify-center text-center text-[clamp(1rem,2vw,1.125rem)] leading-relaxed text-[var(--on-surface-muted)] duration-700"
           aria-live="polite"
         >
           {assistantMessage}
         </p>
 
-        {/* The one bar — frosted glass */}
         <form
           onSubmit={handleSend}
           className="animate-in fade-in-50 slide-in-from-bottom-3 w-full duration-700"
         >
           <div
             className={cn(
-              "flex items-center gap-2 rounded-2xl border border-white/80 bg-[rgba(255,255,255,0.62)] p-2 pl-4 shadow-panel backdrop-blur-xl backdrop-saturate-150 transition-shadow",
-              "focus-within:border-primary/50",
+              "flex items-center gap-3 rounded-[20px] border border-[var(--outline)] bg-white p-3 pl-5 shadow-[0_18px_48px_-28px_rgba(10,40,28,0.38),0_4px_24px_rgba(10,40,28,0.08)] transition-shadow",
+              "focus-within:border-[var(--primary)] focus-within:shadow-[0_20px_54px_-28px_rgba(10,40,28,0.45),0_0_0_4px_rgba(31,122,92,0.10)]",
             )}
           >
             <input
@@ -191,19 +160,19 @@ export function HeroConversation() {
               autoFocus
               placeholder="Москва, завтра, вдвоём, 5000 ₽, история и еда"
               aria-label="Опишите вашу поездку"
-              className="min-w-0 flex-1 bg-transparent text-[16px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
+              className="min-w-0 flex-1 bg-transparent py-2 text-[16px] font-normal leading-6 text-[var(--on-surface)] placeholder:text-[var(--on-surface-muted)] focus:outline-none"
             />
             <Button
               type="submit"
               size="icon"
               disabled={isParsing || !input.trim()}
               aria-label="Отправить"
-              className="h-11 w-11 shrink-0 rounded-xl"
+              className="h-12 w-12 shrink-0 rounded-[14px] bg-[var(--primary)] text-white shadow-[0_12px_24px_-16px_rgba(10,39,30,0.7)] transition-all hover:-translate-y-0.5 hover:bg-[var(--primary-hover)] hover:text-white focus-visible:ring-[rgba(31,122,92,0.30)]"
             >
               {isParsing ? (
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
+                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
               ) : (
-                <span aria-hidden="true" className="text-lg leading-none">
+                <span aria-hidden="true" className="text-xl leading-none">
                   ↑
                 </span>
               )}
@@ -211,7 +180,7 @@ export function HeroConversation() {
           </div>
         </form>
 
-        <p className="mt-3 text-center text-xs text-muted-foreground">
+        <p className="mt-4 text-center text-xs font-medium text-[var(--on-surface-muted)]">
           Бесплатно · без регистрации · местный гид, а не турбюро
         </p>
 
@@ -221,17 +190,15 @@ export function HeroConversation() {
           </p>
         )}
 
-        <SlotChips fields={fields} className="mt-8 w-full" />
+        <SlotChips
+          fields={fields}
+          className="mt-8 w-full [&_[data-filled]]:border-[var(--outline)] [&_[data-filled]]:px-4 [&_[data-filled]]:py-2 [&_[data-filled]]:font-semibold [&_[data-filled]]:text-[var(--primary)] [&_[data-filled=false]]:border-solid [&_[data-filled=false]]:bg-white [&_[data-filled=true]]:bg-[var(--brand-50)] [&_p]:font-medium [&_p]:text-[var(--on-surface-muted)]"
+        />
 
         {/* Honest, deferred urgency — appears only once a date is set; the deadline is the traveler's own */}
         {fields.startDate && !complete && (
           <p
-            className="animate-in fade-in-50 mt-6 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-center text-[13px] leading-snug duration-500"
-            style={{
-              color: "#8A6A12",
-              background: "rgba(224,161,38,0.12)",
-              border: "1px solid rgba(224,161,38,0.3)",
-            }}
+            className="animate-in fade-in-50 mt-6 flex items-center justify-center gap-2 rounded-[14px] border border-[rgba(224,161,38,0.30)] bg-[rgba(224,161,38,0.12)] px-3 py-2 text-center text-[13px] leading-snug text-[#8A6A12] duration-500"
           >
             <span aria-hidden="true">⏳</span>
             На популярные даты гидов разбирают быстро — отправьте запрос, пока выбор большой.
@@ -250,16 +217,16 @@ export function HeroConversation() {
               type="button"
               onClick={handleCreate}
               disabled={isCreating}
-              className="h-14 w-full rounded-2xl text-base"
+              className="h-14 w-full rounded-[14px] bg-[var(--primary)] text-base font-semibold text-white shadow-[0_16px_34px_-22px_rgba(10,39,30,0.75)] transition-all hover:-translate-y-0.5 hover:bg-[var(--primary-hover)] hover:text-white"
             >
               {isCreating ? "Отправляем…" : "Подобрать гида"}
             </Button>
           </div>
         )}
 
-        <p className="mt-6 text-center text-xs text-muted-foreground">
+        <p className="mt-6 text-center text-xs text-[var(--on-surface-muted)]">
           Предпочитаете заполнить вручную?{" "}
-          <Link href="/" className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link href="/" className="font-semibold text-[var(--primary)] underline-offset-2 hover:underline">
             Обычная форма
           </Link>
         </p>
