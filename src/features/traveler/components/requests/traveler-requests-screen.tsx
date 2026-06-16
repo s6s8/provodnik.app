@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 
@@ -16,10 +17,7 @@ import type {
   JoinedGroupSummary,
 } from '@/lib/supabase/traveler-requests'
 
-import {
-  EmptyCabinet,
-  type Inspiration,
-} from '../empty-cabinet/empty-cabinet'
+import type { Inspiration } from '../empty-cabinet/empty-cabinet'
 import { TripCard } from '../trip-card/trip-card'
 import {
   mapBookingToTrip,
@@ -147,6 +145,59 @@ function CategoryEmptyState({
 
 function CategoryGrid({ children }: { children: ReactNode }) {
   return <div className="grid gap-4">{children}</div>
+}
+
+function TravelerRequestsEmptyState({
+  inspirations,
+}: {
+  inspirations: Inspiration[]
+}) {
+  return (
+    <section className="bg-[var(--surface)] px-4 py-10 text-[var(--on-surface)]">
+      <div className="mx-auto max-w-3xl rounded-[var(--card-radius)] border border-[var(--outline)] bg-[var(--surface-lowest)] p-8 text-center shadow-[var(--card-shadow)] md:p-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--primary)]">
+          Первый маршрут
+        </p>
+        <h1 className="mt-3 text-[clamp(30px,4.4vw,44px)] font-semibold leading-[1.04] text-[var(--on-surface)]">
+          Куда поедем?
+        </h1>
+        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-[var(--on-surface-muted)]">
+          Опишите поездку, а мы поможем собрать понятные предложения под ваш маршрут.
+        </p>
+        <Link
+          href="/"
+          className="mt-6 inline-flex rounded-[14px] bg-[var(--primary)] px-6 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2"
+        >
+          Создать запрос
+        </Link>
+
+        {inspirations.length > 0 ? (
+          <div className="mt-8 grid gap-3 text-left md:grid-cols-3">
+            {inspirations.map((destination) => (
+              <Link
+                key={destination.slug}
+                href={`/destinations/${destination.slug}`}
+                className="overflow-hidden rounded-[20px] border border-[var(--outline)] bg-[var(--surface-lowest)] transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-[var(--card-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2"
+              >
+                <div className="relative aspect-video">
+                  <Image
+                    src={destination.imageUrl}
+                    alt={destination.label}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 767px) 100vw, 240px"
+                  />
+                </div>
+                <p className="p-3 font-semibold text-[var(--on-surface)]">
+                  {destination.label}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )
 }
 
 function RequestsCategoryTabs({
@@ -283,11 +334,7 @@ export function TravelerRequestsScreen({
     joinedGroups.length > 0
 
   if (!hasTrips) {
-    return (
-      <section className="bg-[var(--surface)] px-4 py-8 text-[var(--on-surface)]">
-        <EmptyCabinet inspirations={inspirations} />
-      </section>
-    )
+    return <TravelerRequestsEmptyState inspirations={inspirations} />
   }
 
   return (

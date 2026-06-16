@@ -422,16 +422,16 @@ export function TripCard({
     phase === "waiting_offers" || phase === "awaiting_decision";
 
   const cardClassName =
-    "block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+    "block cursor-pointer rounded-[var(--card-radius)] border border-[var(--outline)] bg-[var(--surface-lowest)] p-5 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-[var(--lift-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2";
 
   if (isRequestBacked) {
     const hasUnread = (trip.unreadOfferCount ?? 0) > 0;
     return (
       <Link
         href={`/requests/${trip.id}`}
-        className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
+        className={cn(cardClassName, hasUnread && "border-l-4 border-l-[var(--primary)]")}
       >
-        <article className="space-y-3">
+        <article className="space-y-4">
           <TripCardContent phase={phase} trip={trip} />
         </article>
       </Link>
@@ -440,7 +440,7 @@ export function TripCard({
 
   return (
     <Link href={`/bookings/${trip.id}`} className={cardClassName}>
-      <article className="space-y-3">
+      <article className="space-y-4">
         <TripCardContent phase={phase} trip={trip} />
       </article>
     </Link>
