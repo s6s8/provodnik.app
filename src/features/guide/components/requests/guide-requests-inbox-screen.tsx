@@ -216,7 +216,7 @@ export function GuideRequestsInboxScreen() {
               Биржа запросов
             </p>
             <div className="space-y-2">
-              <h1 className="font-[family:var(--font-rubik)] text-[clamp(30px,4.4vw,44px)] font-semibold leading-[1.04] text-[var(--on-surface)]">
+              <h1 className="font-sans text-[clamp(30px,4.4vw,44px)] font-semibold leading-[1.04] text-[var(--on-surface)]">
                 Открытые запросы, на которые можно откликнуться сейчас
               </h1>
               <p className="max-w-2xl text-sm leading-6 text-[var(--on-surface-muted)] sm:text-base">
