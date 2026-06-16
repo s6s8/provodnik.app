@@ -39,34 +39,37 @@ export function PublicGuideCard({
     <Link
       href={`/guides/${guide.slug}`}
       className={cn(
-        "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex gap-4 rounded-[1.5rem] p-4 transition-all duration-300",
-        "items-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
-        "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg",
+        "flex gap-4 rounded-[var(--card-radius)] border border-[var(--outline)] bg-[var(--surface-lowest)] p-4 shadow-[var(--card-shadow)] transition-all duration-200",
+        "items-start text-[var(--on-surface)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2",
+        "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-[0_18px_44px_-22px_rgba(10,40,28,0.22)]",
         className,
       )}
     >
-      <div className="relative size-14 shrink-0 overflow-hidden rounded-full border border-border/40 bg-muted">
+      <div className="relative size-16 shrink-0 overflow-hidden rounded-full border-2 border-white bg-[var(--brand-50)] shadow-[0_0_0_1px_var(--outline)]">
         <Image
           src={guide.avatarUrl}
           alt=""
           fill
           className="object-cover"
-          sizes="56px"
+          sizes="64px"
         />
       </div>
 
       <div className="min-w-0 flex-1 space-y-2">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-base font-semibold text-foreground">
+          <span className="text-base font-semibold text-[var(--on-surface)]">
             {guide.name}
           </span>
           {hasRating ? (
-            <span className="text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
+            <span
+              className="text-sm font-semibold text-[var(--gold)]"
+              aria-label={`Рейтинг ${ratingLabel}`}
+            >
               ★ {ratingLabel}
             </span>
           ) : null}
           {hasTours ? (
-            <span className="text-xs text-muted-foreground">
+            <span className="text-xs font-medium text-[var(--on-surface-muted)]">
               {guide.tourCount} {toursWord(guide.tourCount)}
             </span>
           ) : null}
@@ -78,7 +81,7 @@ export function PublicGuideCard({
               <Badge
                 key={s}
                 variant="outline"
-                className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-normal normal-case"
+                className="rounded-full border-transparent bg-[var(--brand-50)] px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-normal text-[var(--primary)] normal-case"
               >
                 {s}
               </Badge>
@@ -87,7 +90,9 @@ export function PublicGuideCard({
         ) : null}
 
         {guide.cities.length > 0 ? (
-          <p className="text-xs text-muted-foreground">{guide.cities.join(" · ")}</p>
+          <p className="text-xs text-[var(--on-surface-muted)]">
+            {guide.cities.join(" · ")}
+          </p>
         ) : null}
       </div>
     </Link>
