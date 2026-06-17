@@ -816,7 +816,7 @@ export async function getGuideBySlug(
   try {
     const { data, error } = await client
       .from("guide_profiles")
-      .select("*, profiles:user_id!guide_profiles_user_id_fkey(id, full_name, avatar_url)")
+      .select("*, profiles!guide_profiles_user_id_fkey(id, full_name, avatar_url)")
       .eq("slug", slug)
       .maybeSingle();
 
