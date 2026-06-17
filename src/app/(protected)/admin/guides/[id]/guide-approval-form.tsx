@@ -23,6 +23,8 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
   );
 
   const error = approveState.error ?? rejectState.error ?? changesState.error;
+  const success =
+    approveState.success ?? rejectState.success ?? changesState.success;
 
   return (
     <form className="mt-4 space-y-4">
@@ -36,6 +38,12 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
       {error ? (
         <div className="rounded-[1rem] border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {error}
+        </div>
+      ) : null}
+
+      {success ? (
+        <div className="rounded-[1rem] border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
+          {success}
         </div>
       ) : null}
 

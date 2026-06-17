@@ -8,7 +8,7 @@ import {
   requireAdminSession,
 } from "@/lib/supabase/moderation";
 
-export type ActionState = { error: string | null; success?: boolean };
+export type ActionState = { error: string | null; success?: string };
 
 function readNote(formData: FormData) {
   const value = formData.get("note");
@@ -31,7 +31,7 @@ export async function approveGuide(
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin/guides");
     revalidatePath(`/admin/guides/${guideId}`);
-    return { error: null, success: true };
+    return { error: null, success: "Гид одобрен" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Неизвестная ошибка при одобрении" };
   }
@@ -58,7 +58,7 @@ export async function rejectGuide(
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin/guides");
     revalidatePath(`/admin/guides/${guideId}`);
-    return { error: null, success: true };
+    return { error: null, success: "Гид отклонён" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Неизвестная ошибка при отклонении" };
   }
@@ -85,7 +85,7 @@ export async function requestChanges(
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin/guides");
     revalidatePath(`/admin/guides/${guideId}`);
-    return { error: null, success: true };
+    return { error: null, success: "Запрошены правки" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Неизвестная ошибка при запросе изменений" };
   }

@@ -54,6 +54,18 @@ function verificationLabel(status: string) {
   }
 }
 
+const MODERATION_DECISION_LABELS: Record<string, string> = {
+  approve: "Одобрено",
+  reject: "Отклонено",
+  request_changes: "Запрошены правки",
+  hide: "Скрыто",
+  restore: "Восстановлено",
+};
+
+function moderationDecisionLabel(decision: string) {
+  return MODERATION_DECISION_LABELS[decision] ?? decision;
+}
+
 function legalStatusLabel(status: string | null) {
   switch (status) {
     case "self_employed":
@@ -423,8 +435,8 @@ export default async function AdminGuideDetailPage({
                       className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4"
                     >
                       <div className="flex items-center justify-between gap-3">
-                        <div className="font-medium capitalize text-foreground">
-                          {action.decision.replace("_", " ")}
+                        <div className="font-medium text-foreground">
+                          {moderationDecisionLabel(action.decision)}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {formatDateTime(action.created_at)}

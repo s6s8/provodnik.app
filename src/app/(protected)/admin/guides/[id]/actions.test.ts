@@ -34,7 +34,7 @@ describe("guide approval actions", () => {
 
     const result = await approveGuide("guide-1", { error: null }, new FormData());
 
-    expect(result).toEqual({ error: null, success: true });
+    expect(result).toEqual({ error: null, success: "Гид одобрен" });
     expect(performModerationActionMock).toHaveBeenCalledWith(
       "case-1",
       "admin-1",
