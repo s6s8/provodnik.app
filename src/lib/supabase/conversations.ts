@@ -38,6 +38,7 @@ export type ConversationThreadWithParticipants = ConversationThreadRow & {
 export type Message = MessageRow;
 export type MessageWithSender = MessageRow & {
   sender_profile: SenderProfile | null;
+  sender_display_name: string | null;
 };
 export type UserThreadSummary = ConversationThreadRow & {
   participants: ThreadParticipantRow[];
@@ -458,16 +459,36 @@ export async function getThreadMessages(
   const { data, error } = await query;
   if (error) throw error;
 
-  return ((data as Array<Record<string, unknown>>) ?? []).map((row) => ({
-    id: row.id as Uuid,
-    thread_id: row.thread_id as Uuid,
-    sender_id: (row.sender_id as Uuid | null) ?? null,
-    sender_role: row.sender_role as MessageSenderRole,
-    body: row.body as string,
-    metadata: row.metadata ?? {},
-    created_at: row.created_at as string,
-    sender_profile: normalizeRelation<SenderProfile>(row.sender_profile),
-  }));
+  const rows = (data as Array<Record<string, unknown>>) ?? [];
+
+  const guideSenderIds = rows
+    .filter((row) => row.sender_role === "guide")
+    .map((row) => (row.sender_id as Uuid | null) ?? null)
+    .filter((value): value is Uuid => Boolean(value));
+  const guideDisplayNames = await listGuideDisplayNames(guideSenderIds);
+
+  return rows.map((row) => {
+    const senderProfile = normalizeRelation<SenderProfile>(row.sender_profile);
+    const senderId = (row.sender_id as Uuid | null) ?? null;
+    const senderRole = row.sender_role as MessageSenderRole;
+    const fullName = senderProfile?.full_name?.trim() || null;
+    const guideName =
+      senderRole === "guide" && senderId
+        ? guideDisplayNames.get(senderId) ?? null
+        : null;
+
+    return {
+      id: row.id as Uuid,
+      thread_id: row.thread_id as Uuid,
+      sender_id: senderId,
+      sender_role: senderRole,
+      body: row.body as string,
+      metadata: row.metadata ?? {},
+      created_at: row.created_at as string,
+      sender_profile: senderProfile,
+      sender_display_name: fullName ?? guideName,
+    };
+  });
 }
 
 export async function getUserThreads(userId: string): Promise<UserThreadSummary[]> {

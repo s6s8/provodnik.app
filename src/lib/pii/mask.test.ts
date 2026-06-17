@@ -109,7 +109,25 @@ describe("maskMessageBodies", () => {
       sender_role: row.sender_role,
       body: HIDDEN,
       created_at: row.created_at,
+      sender_display_name: null,
     });
+  });
+
+  it("preserves a resolved sender_display_name through the whitelist", () => {
+    const row = {
+      id: "00000000-0000-4000-8000-000000000006",
+      thread_id: "00000000-0000-4000-8000-000000000007",
+      sender_id: "00000000-0000-4000-8000-000000000008",
+      sender_role: "guide" as const,
+      body: "Здравствуйте!",
+      metadata: {},
+      created_at: "2025-01-18T08:30:00.000Z",
+      sender_profile: null as null,
+      sender_display_name: "Гид Дмитрий",
+    };
+    const [out] = maskMessageBodies([row]);
+    expect(out).toMatchObject({ sender_display_name: "Гид Дмитрий" });
+    expect(out).not.toHaveProperty("sender_profile");
   });
 
   it("round-trips an empty array", () => {

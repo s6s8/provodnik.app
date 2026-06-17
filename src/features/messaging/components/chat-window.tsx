@@ -15,7 +15,11 @@ import { MessageBubble } from "./message-bubble";
 type MarkReadAction = (threadId: string) => Promise<void>;
 
 function formatSenderName(message: MessageWithSender) {
-  return message.sender_profile?.full_name?.trim() || "Участник";
+  return (
+    message.sender_profile?.full_name?.trim() ||
+    message.sender_display_name?.trim() ||
+    "Участник"
+  );
 }
 
 interface ChatWindowProps {
@@ -54,6 +58,7 @@ export function ChatWindow({
             {
               ...message,
               sender_profile: null,
+              sender_display_name: null,
             },
           ];
         },
