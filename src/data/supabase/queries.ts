@@ -486,7 +486,9 @@ async function fetchMembersForRequests(
 }
 
 function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknown> | null): GuideRecord {
-  const fullName = resolveDisplayName("guide", { full_name: profile?.full_name as string | null | undefined });
+  const fullName = resolveDisplayName("guide", {
+    full_name: (profile?.full_name as string | null | undefined) ?? (gp.display_name as string | null | undefined),
+  });
   const regions = (gp.regions as string[]) ?? [];
   return {
     id: gp.user_id as string,
@@ -814,7 +816,7 @@ export async function getGuideBySlug(
   try {
     const { data, error } = await client
       .from("guide_profiles")
-      .select("*, profiles:user_id(id, full_name, avatar_url)")
+      .select("*, profiles:user_id!guide_profiles_user_id_fkey(id, full_name, avatar_url)")
       .eq("slug", slug)
       .maybeSingle();
 
