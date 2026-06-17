@@ -48,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ru" className={`${rubik.variable} ${geistMono.variable}`}>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased" suppressHydrationWarning>
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

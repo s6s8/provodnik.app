@@ -259,7 +259,7 @@ export function HeroConversation() {
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
           Предпочитаете заполнить вручную?{" "}
-          <Link href="/" className="font-medium text-primary underline-offset-2 hover:underline">
+          <Link href="/form" className="font-medium text-primary underline-offset-2 hover:underline">
             Обычная форма
           </Link>
         </p>

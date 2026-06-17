@@ -398,21 +398,18 @@ describe("HomepageRequestForm UI affordances", () => {
   });
 });
 
-describe("HomepageRequestFormClassic repaired layout", () => {
-  it("keeps the approved group, budget, details, and topic expansion layout", () => {
+describe("HomepageRequestFormClassic icon-toggle layout", () => {
+  it("renders the icon assembly toggle, budget in the group row, and topic expansion", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
 
     const groupSizeInput = screen.getByLabelText("Сколько вас");
     const groupRow = groupSizeInput.closest("div")?.parentElement;
     expect(groupRow).toHaveClass("grid-cols-2");
 
-    const assemblyLabel = within(groupRow!).getByText("Сборная группа");
-    const assemblyCell = assemblyLabel.closest("div");
-    expect(assemblyCell?.parentElement).toBe(groupRow);
-    expect(within(assemblyCell!).getByRole("button")).toBeInTheDocument();
+    const groupLabelRow = screen.getByText("Сколько вас").closest("div");
+    expect(within(groupLabelRow!).getByRole("button")).toBeInTheDocument();
 
-    expect(within(groupRow!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
-    expect(screen.getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
+    expect(within(groupRow!).getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
 
     const details = screen.getByText("Добавить детали").closest("details");
     expect(details).not.toBeNull();
