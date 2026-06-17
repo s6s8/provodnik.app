@@ -576,55 +576,96 @@ function OwnerDetailBranch({
   onSendQa,
   onGetOrCreateQaThread,
 }: Extract<RequestDetailScreenProps, { viewerRole: "owner" }>) {
+  const acceptedOffers = ownerOffers.filter(({ offer }) => offer.status === "accepted");
+  const declinedOffers = ownerOffers.filter(({ offer }) => offer.status === "declined");
   const pendingOffers = ownerOffers.filter(({ offer }) => offer.status === "pending");
+  const acceptedOffer = acceptedOffers[0] ?? null;
+
+  const renderOfferCard = ({ offer, guideInfo, qaThread }: OwnerOfferItem) => (
+    <OfferCard
+      key={offer.id}
+      offer={offer}
+      guideInfo={guideInfo}
+      qaThread={qaThread}
+      requestId={requestId}
+      requestStatus={ownerRequestRow.status}
+      onSendQa={onSendQa}
+      onGetOrCreateQaThread={onGetOrCreateQaThread}
+      travelerDateLocked={ownerRequestRow.date_locked ?? true}
+      travelerTimeLocked={ownerRequestRow.time_locked ?? true}
+      travelerCountLocked={ownerRequestRow.count_locked ?? true}
+      travelerBudgetLocked={ownerRequestRow.budget_locked ?? true}
+      travelerStartsOn={ownerRequestRow.starts_on ?? null}
+      travelerStartTime={ownerRequestRow.start_time ?? null}
+      travelerEndTime={ownerRequestRow.end_time ?? null}
+      travelerOpenToJoin={ownerRequestRow.open_to_join}
+      travelerCount={ownerRequestRow.participants_count ?? 1}
+      travelerBudgetPerPersonRub={ownerRequestRow.budget_minor ? Math.round(kopecksToRub(ownerRequestRow.budget_minor)) : null}
+    />
+  );
 
   return (
     <div className="flex flex-col gap-8">
       <TravelerRequestSummary record={ownerRecord} />
       <MarkOffersRead requestId={requestId} hasOffers={ownerOffers.length > 0} />
-      <section className="flex flex-col gap-4">
-        <div className="flex items-center gap-3">
-          <h2 className="text-xl font-semibold leading-none text-foreground">
-            Предложения гидов
-          </h2>
-          <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
-            {pendingOffers.length}
-          </span>
-        </div>
+      {acceptedOffer ? (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold leading-none text-foreground">
+              Вы выбрали гида
+            </h2>
+            <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 font-sans text-xs font-semibold text-success">
+              <Check className="size-3.5" aria-hidden="true" />
+              Бронь
+            </span>
+          </div>
 
-        {pendingOffers.length === 0 ? (
-          <div className="rounded-xl border bg-card p-6">
-            <p className="text-sm text-muted-foreground">
-              Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
-            </p>
+          <div className="rounded-2xl border border-success/40 bg-success/5 p-1">
+            {renderOfferCard(acceptedOffer)}
           </div>
-        ) : (
-          <div className="flex flex-col gap-4">
-            {pendingOffers.map(({ offer, guideInfo, qaThread }) => (
-              <OfferCard
-                key={offer.id}
-                offer={offer}
-                guideInfo={guideInfo}
-                qaThread={qaThread}
-                requestId={requestId}
-                requestStatus={ownerRequestRow.status}
-                onSendQa={onSendQa}
-                onGetOrCreateQaThread={onGetOrCreateQaThread}
-                travelerDateLocked={ownerRequestRow.date_locked ?? true}
-                travelerTimeLocked={ownerRequestRow.time_locked ?? true}
-                travelerCountLocked={ownerRequestRow.count_locked ?? true}
-                travelerBudgetLocked={ownerRequestRow.budget_locked ?? true}
-                travelerStartsOn={ownerRequestRow.starts_on ?? null}
-                travelerStartTime={ownerRequestRow.start_time ?? null}
-                travelerEndTime={ownerRequestRow.end_time ?? null}
-                travelerOpenToJoin={ownerRequestRow.open_to_join}
-                travelerCount={ownerRequestRow.participants_count ?? 1}
-                travelerBudgetPerPersonRub={ownerRequestRow.budget_minor ? Math.round(kopecksToRub(ownerRequestRow.budget_minor)) : null}
-              />
-            ))}
+
+          {declinedOffers.length > 0 ? (
+            <div className="flex flex-col gap-4">
+              <h3 className="text-sm font-semibold text-muted-foreground">
+                Другие предложения
+              </h3>
+              <div className="flex flex-col gap-4 opacity-60">
+                {declinedOffers.map(({ offer, guideInfo, qaThread }) => (
+                  <div key={offer.id} className="relative">
+                    <span className="absolute right-3 top-3 z-10 inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 font-sans text-xs font-medium text-muted-foreground">
+                      Отклонено
+                    </span>
+                    {renderOfferCard({ offer, guideInfo, qaThread })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </section>
+      ) : (
+        <section className="flex flex-col gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold leading-none text-foreground">
+              Предложения гидов
+            </h2>
+            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
+              {pendingOffers.length}
+            </span>
           </div>
-        )}
-      </section>
+
+          {pendingOffers.length === 0 ? (
+            <div className="rounded-xl border bg-card p-6">
+              <p className="text-sm text-muted-foreground">
+                Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-4">
+              {pendingOffers.map((item) => renderOfferCard(item))}
+            </div>
+          )}
+        </section>
+      )}
     </div>
   );
 }
