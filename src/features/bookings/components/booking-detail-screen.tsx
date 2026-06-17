@@ -36,6 +36,8 @@ import { cn } from "@/lib/utils";
 import {
   confirmBookingAction,
   completeBookingAction,
+  declineBooking,
+  noShowBookingAction,
   getGuideBookingDetailAction,
 } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
 
@@ -420,21 +422,32 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     });
   }, [bookingId, record, router]);
 
-  const performLocalAction = React.useCallback(
+  const performServerAction = React.useCallback(
     (action: Exclude<GuideBookingAction, "confirm" | "complete">) => {
       if (!record) return;
       const currentGuideStatus = mapDbStatusToGuideStatus(record.status);
       const nextStatus = nextStatusForAction(currentGuideStatus, action);
       if (!nextStatus) return;
 
-      setRecord({
-        ...record,
-        status: nextStatus,
-        travelerName: nextStatus === "confirmed" ? record.travelerName : "Путешественник",
+      setErrorMessage(null);
+      startTransition(async () => {
+        const result =
+          action === "cancel"
+            ? await declineBooking(bookingId)
+            : await noShowBookingAction(bookingId);
+        if (result.ok) {
+          const refreshed = await getGuideBookingDetailAction(bookingId);
+          setRecord((prev) =>
+            refreshed.ok ? refreshed.booking : prev ? { ...prev, status: result.status } : prev,
+          );
+          setActionResult({ action, nextStatus });
+          router.refresh();
+        } else {
+          setErrorMessage(result.error);
+        }
       });
-      setActionResult({ action, nextStatus });
     },
-    [record],
+    [bookingId, record, router],
   );
 
   if (!record) {
@@ -553,14 +566,14 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
               description="Зафиксировать отмену со стороны гида или гостя."
               icon={<XCircle className="size-4" />}
               disabled={!canCancel || isPending}
-              onClick={() => performLocalAction("cancel")}
+              onClick={() => performServerAction("cancel")}
             />
             <ActionButton
               label="Неявка"
               description="Гости не пришли к старту экскурсии."
               icon={<ShieldAlert className="size-4" />}
               disabled={!canNoShow || isPending}
-              onClick={() => performLocalAction("no_show")}
+              onClick={() => performServerAction("no_show")}
             />
           </div>
 

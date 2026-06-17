@@ -80,6 +80,12 @@ export async function declineBooking(
   return transitionAction(bookingId, "cancelled", "Не удалось отклонить бронирование");
 }
 
+export async function noShowBookingAction(
+  bookingId: string,
+): Promise<ConfirmBookingResult> {
+  return transitionAction(bookingId, "no_show", "Не удалось отметить неявку");
+}
+
 export async function getGuideBookingDetailAction(
   bookingId: string,
 ): Promise<GuideBookingDetailResult> {
