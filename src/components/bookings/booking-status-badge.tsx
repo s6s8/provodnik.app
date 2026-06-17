@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
 
-const STATUS_LABELS: Record<BookingStatus, string> = {
+export const BOOKING_STATUS_LABELS: Record<BookingStatus, string> = {
   pending: "Ожидает",
   awaiting_guide_confirmation: "Ожидает гида",
   confirmed: "Подтверждено",
@@ -36,7 +36,7 @@ export function BookingStatusBadge({ status }: BookingStatusBadgeProps) {
 
   return (
     <Badge {...badgeProps}>
-      {STATUS_LABELS[status]}
+      {BOOKING_STATUS_LABELS[status]}
     </Badge>
   );
 }

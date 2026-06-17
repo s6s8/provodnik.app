@@ -52,7 +52,7 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
       <textarea
         id="chat-message-body"
         className="w-full min-h-[7rem] resize-y p-3.5 px-4 rounded-[1.5rem] border border-glass-border bg-surface-high/[0.82] text-foreground outline-none focus:border-primary"
-        placeholder="Напишите сообщение гиду"
+        placeholder="Напишите сообщение…"
         value={body}
         onChange={(event) => setBody(event.target.value)}
         onKeyDown={(event) => {

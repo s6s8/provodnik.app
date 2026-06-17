@@ -43,11 +43,21 @@ export async function generateMetadata({
   const { requestId } = await params;
   const result = await getRequestDetail(requestId);
 
-  if (!result.data || result.data.mode !== "assembly") {
+  if (!result.data) {
     return {
       title: "Запрос не найден",
       alternates: { canonical: `/requests/${requestId}` },
     };
+  }
+
+  if (result.data.mode !== "assembly") {
+    const viewerRole = await viewerRoleForRequest(requestId);
+    if (viewerRole !== "owner" && viewerRole !== "guide") {
+      return {
+        title: "Запрос не найден",
+        alternates: { canonical: `/requests/${requestId}` },
+      };
+    }
   }
 
   return {

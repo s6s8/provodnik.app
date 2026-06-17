@@ -5,7 +5,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { BOOKING_STATUS_LABELS } from "@/components/bookings/booking-status-badge";
+import type { BookingStatus } from "@/lib/bookings/state-machine";
 import type { DisputeDetail } from "@/lib/supabase/disputes";
+
+function bookingStatusLabel(status: string | undefined): string {
+  if (!status) return "—";
+  return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
+}
 
 import {
   addDisputeNoteAction,
@@ -90,7 +97,7 @@ export function DisputeCaseDetail({
                 <span className="text-muted-foreground/50">·</span>
                 <span>{booking ? formatRub(booking.subtotalMinor) : "—"}</span>
                 <span className="text-muted-foreground/50">·</span>
-                <span>Статус брони: {booking?.status ?? "—"}</span>
+                <span>Статус брони: {bookingStatusLabel(booking?.status)}</span>
               </CardDescription>
             </div>
 
