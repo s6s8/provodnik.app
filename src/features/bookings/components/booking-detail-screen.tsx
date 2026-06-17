@@ -42,7 +42,9 @@ import {
 } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
 
 type GuideBookingAction = "confirm" | "complete" | "cancel" | "no_show";
-type OpenBookingThreadAction = (formData: FormData) => Promise<void>;
+type OpenBookingThreadAction = (
+  bookingId: string,
+) => Promise<{ threadId?: string; error?: string }>;
 
 type BookingDetailScreenProps =
   | {
@@ -120,12 +122,23 @@ function TravelerBookingDetailView({
   openBookingThreadAction?: OpenBookingThreadAction;
   showTravelerPanel: boolean;
 }) {
+  const router = useRouter();
+  const [isOpeningThread, startOpenThread] = React.useTransition();
+
   const guideProfile = booking.guide_profile;
   const guideProfileData = guideProfile?.profile ?? null;
   const guideName = resolveDisplayName("guide", { full_name: guideProfileData?.full_name });
-  const guidePhone = guideProfileData?.phone ?? null;
+  const guidePhone = booking.guide_phone ?? null;
   const guideAvatarUrl = guideProfileData?.avatar_url ?? null;
   const isVerified = guideProfile?.verification_status === "approved";
+
+  const handleOpenThread = React.useCallback(() => {
+    if (!openBookingThreadAction) return;
+    startOpenThread(async () => {
+      const result = await openBookingThreadAction(booking.id);
+      router.push(result.threadId ? `/messages/${result.threadId}` : "/messages");
+    });
+  }, [openBookingThreadAction, booking.id, router]);
 
   const request = booking.traveler_request;
   const offer = booking.guide_offer;
@@ -294,19 +307,23 @@ function TravelerBookingDetailView({
                           {guidePhone}
                         </a>
                       </p>
-                    ) : null}
+                    ) : (
+                      <p className="font-sans text-sm text-muted-foreground">
+                        Контакт появится в чате
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row">
                   {openBookingThreadAction ? (
-                    <form
-                      action={openBookingThreadAction}
-                      className="flex"
+                    <Button
+                      type="button"
+                      onClick={handleOpenThread}
+                      disabled={isOpeningThread}
                     >
-                      <input type="hidden" name="booking_id" value={booking.id} />
-                      <Button type="submit">Написать гиду</Button>
-                    </form>
+                      {isOpeningThread ? "Открываю чат…" : "Написать гиду"}
+                    </Button>
                   ) : null}
 
                   {(booking.status === "confirmed" || booking.status === "completed") ? (

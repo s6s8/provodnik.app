@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * bookings.ts — Booking service layer (server-only)
  *
@@ -8,6 +10,8 @@
  * from client input.
  */
 
+import { hasSupabaseAdminEnv } from "@/lib/env";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BookingRow, GuideOfferRow, GuideProfileRow, TravelerRequestRow, Uuid } from "@/lib/supabase/types";
 
@@ -35,6 +39,11 @@ export type BookingWithDetails = BookingRow & {
   guide_profile: (GuideProfileRow & {
     profile: { full_name: string | null; phone: string | null; avatar_url: string | null } | null;
   }) | null;
+  /**
+   * Guide phone, revealed ONLY to the booking's own traveler (off-platform handoff).
+   * Null for any other viewer or when not yet resolvable.
+   */
+  guide_phone: string | null;
   traveler_request: Pick<
     TravelerRequestRow,
     | "destination"
@@ -151,9 +160,47 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
       : Promise.resolve({ data: null, error: null }),
   ]);
 
+  const guideProfile = (guideProfileRes.data as BookingWithDetails["guide_profile"]) ?? null;
+
+  // Off-platform handoff: reveal the guide's real identity + contact, but ONLY to
+  // this booking's own traveler. profiles.full_name / phone are RLS-null when a
+  // traveler reads a guide's profile, so resolve them with the admin client behind
+  // a strict traveler_id gate. (guide_profiles.display_name was dropped in
+  // 20260528154254 — profiles.full_name is now the canonical name.)
+  let guidePhone: string | null = null;
+  let guideFullName: string | null = null;
+  if (hasSupabaseAdminEnv()) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (user && user.id === booking.traveler_id) {
+      const admin = createSupabaseAdminClient();
+      const { data: guideContact } = await admin
+        .from("profiles")
+        .select("full_name, phone")
+        .eq("id", booking.guide_id)
+        .maybeSingle();
+      guideFullName = guideContact?.full_name ?? null;
+      guidePhone = guideContact?.phone ?? null;
+    }
+  }
+
+  const resolvedGuideProfile =
+    guideProfile && guideFullName
+      ? {
+          ...guideProfile,
+          profile: {
+            full_name: guideFullName,
+            phone: guidePhone ?? guideProfile.profile?.phone ?? null,
+            avatar_url: guideProfile.profile?.avatar_url ?? null,
+          },
+        }
+      : guideProfile;
+
   return {
     ...booking,
-    guide_profile: (guideProfileRes.data as BookingWithDetails["guide_profile"]) ?? null,
+    guide_profile: resolvedGuideProfile,
+    guide_phone: guidePhone,
     traveler_request: (travelerRequestRes.data as BookingWithDetails["traveler_request"]) ?? null,
     guide_offer: (guideOfferRes.data as BookingWithDetails["guide_offer"]) ?? null,
   };
