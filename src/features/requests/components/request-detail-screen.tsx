@@ -67,6 +67,9 @@ type OwnerOfferItem = {
     guide_id: string;
     full_name: string | null;
     avatar_url: string | null;
+    rating: number | null;
+    review_count: number | null;
+    verified: boolean;
   } | null;
   qaThread: QaThread | null;
 };

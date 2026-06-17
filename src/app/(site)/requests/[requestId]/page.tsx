@@ -153,7 +153,14 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
   let offers: GuideOfferRow[] = [];
   const guideInfoMap = new Map<
     string,
-    { guide_id: string; full_name: string | null; avatar_url: string | null }
+    {
+      guide_id: string;
+      full_name: string | null;
+      avatar_url: string | null;
+      rating: number | null;
+      review_count: number | null;
+      verified: boolean;
+    }
   >();
   const qaThreadMap = new Map<string, QaThread | null>();
 
@@ -162,16 +169,23 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
 
     if (offers.length > 0) {
       const guideIds = [...new Set(offers.map((o) => o.guide_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("id, full_name, avatar_url")
-        .in("id", guideIds);
+      // profiles RLS закрывает чтение чужого профиля от лица путешественника,
+      // поэтому имя и рейтинг гида берём из анонимно-читаемого представления.
+      // Гид может оставить отклик только после проверки → присутствие в нём = «проверен».
+      const { data: guidePublicProfiles } = await supabase
+        .from("v_guide_public_profile")
+        .select("user_id, full_name, average_rating, review_count")
+        .in("user_id", guideIds);
 
-      for (const p of profiles ?? []) {
-        guideInfoMap.set(p.id, {
-          guide_id: p.id,
-          full_name: p.full_name,
-          avatar_url: p.avatar_url ?? null,
+      for (const g of guidePublicProfiles ?? []) {
+        if (!g.user_id) continue;
+        guideInfoMap.set(g.user_id, {
+          guide_id: g.user_id,
+          full_name: g.full_name,
+          avatar_url: null,
+          rating: g.average_rating,
+          review_count: g.review_count,
+          verified: true,
         });
       }
 

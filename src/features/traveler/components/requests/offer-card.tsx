@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { CalendarDays, ChevronLeft, ChevronRight, Clock, Users, Wallet, X } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, Clock, Star, Users, Wallet, X } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -21,6 +21,9 @@ interface GuideInfo {
   guide_id: string;
   full_name: string | null;
   avatar_url: string | null;
+  rating: number | null;
+  review_count: number | null;
+  verified: boolean;
 }
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
@@ -102,6 +105,8 @@ export function OfferCard({
   travelerBudgetPerPersonRub,
 }: Props) {
   const guideName = resolveDisplayName("guide", { full_name: guideInfo?.full_name ?? null });
+  const guideRating = guideInfo?.rating ?? null;
+  const showGuideRating = guideRating != null && guideRating > 0;
   const canAccept = requestStatus === "open" && offer.status === "pending";
 
   const offerCount = offer.capacity > 0 ? offer.capacity : (travelerCount ?? 1);
@@ -182,8 +187,25 @@ export function OfferCard({
           <AvatarFallback>{guideName.charAt(0).toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-medium">{guideName}</p>
-          <p className="text-xs text-muted-foreground">{formatOfferDate(offer.created_at)}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="truncate font-medium">{guideName}</p>
+            {guideInfo?.verified ? (
+              <Badge variant="outline" className={cn(BADGE_CLASS, "shrink-0 border-success/30 bg-success/10 text-success")}>
+                <BadgeCheck className="size-3.5" />
+                Проверен
+              </Badge>
+            ) : null}
+          </div>
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+            {showGuideRating ? (
+              <span className="flex items-center gap-1 font-medium text-foreground">
+                <Star className="size-3.5 fill-primary text-primary" />
+                {guideRating.toFixed(1)}
+                {guideInfo?.review_count ? ` · ${guideInfo.review_count} отзывов` : ""}
+              </span>
+            ) : null}
+            <span>{formatOfferDate(offer.created_at)}</span>
+          </div>
         </div>
         {offer.status === "accepted" ? (
           <Badge variant="default">Принято</Badge>
