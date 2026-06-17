@@ -312,12 +312,21 @@ export function OfferCard({
         </div>
       ) : null}
 
-      {/* PII disclosure banner */}
-      <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
-        <p className="text-xs text-warning">
-          Контактные данные скрыты до принятия предложения
-        </p>
-      </div>
+      {/* Contact disclosure — hidden until the traveler accepts this offer */}
+      {offer.status === "accepted" ? (
+        <div className="rounded-md border border-success/30 bg-success/10 px-3 py-2">
+          <p className="text-xs text-success">
+            Вы выбрали этого гида. Контактные данные открыты — напишите гиду,
+            чтобы согласовать детали.
+          </p>
+        </div>
+      ) : offer.status === "pending" ? (
+        <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
+          <p className="text-xs text-warning">
+            Контактные данные скрыты до принятия предложения
+          </p>
+        </div>
+      ) : null}
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2">

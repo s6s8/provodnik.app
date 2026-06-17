@@ -332,6 +332,22 @@ function TripCardContent({
   );
 }
 
+function resolveTripHref(phase: TripPhase, trip: TripCardModel): string {
+  if (trip.kind === "booking") {
+    return `/bookings/${trip.id}`;
+  }
+  if (trip.kind === "request") {
+    return `/requests/${trip.id}`;
+  }
+
+  // No explicit discriminator: infer from phase. Only request-backed phases
+  // (waiting_offers / awaiting_decision) carry a request id; everything else
+  // is a confirmed booking.
+  const isRequestBacked =
+    phase === "waiting_offers" || phase === "awaiting_decision";
+  return isRequestBacked ? `/requests/${trip.id}` : `/bookings/${trip.id}`;
+}
+
 export function TripCard({
   phase,
   trip,
@@ -341,26 +357,16 @@ export function TripCard({
 }) {
   const isRequestBacked =
     phase === "waiting_offers" || phase === "awaiting_decision";
+  const hasUnread = isRequestBacked && (trip.unreadOfferCount ?? 0) > 0;
 
   const cardClassName =
     "block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
-  if (isRequestBacked) {
-    const hasUnread = (trip.unreadOfferCount ?? 0) > 0;
-    return (
-      <Link
-        href={`/requests/${trip.id}`}
-        className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
-      >
-        <article className="space-y-3">
-          <TripCardContent phase={phase} trip={trip} />
-        </article>
-      </Link>
-    );
-  }
-
   return (
-    <Link href={`/bookings/${trip.id}`} className={cardClassName}>
+    <Link
+      href={resolveTripHref(phase, trip)}
+      className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
+    >
       <article className="space-y-3">
         <TripCardContent phase={phase} trip={trip} />
       </article>
