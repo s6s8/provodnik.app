@@ -161,7 +161,7 @@ describe("getUserThreads", () => {
         user_id: guideId,
         joined_at: "2026-06-10T08:10:00.000Z",
         last_read_at: null,
-        profile: { id: guideId, full_name: "  Guide One  " },
+        profile: { id: guideId, full_name: null },
       },
       {
         thread_id: middleThreadId,
@@ -205,9 +205,14 @@ describe("getUserThreads", () => {
       data: participantProfileRows,
       error: null,
     });
+    const guideProfilesQuery = createQuery({
+      data: [{ user_id: guideId, display_name: "Guide One" }],
+      error: null,
+    });
     let threadParticipantQueryCount = 0;
     const from = vi.fn((table: string) => {
       if (table === "conversation_threads") return latestMessagesQuery;
+      if (table === "guide_profiles") return guideProfilesQuery;
       if (table === "thread_participants") {
         threadParticipantQueryCount += 1;
         return threadParticipantQueryCount === 1

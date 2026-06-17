@@ -293,6 +293,32 @@ async function listParticipantsWithProfiles(
   return grouped;
 }
 
+async function listGuideDisplayNames(
+  userIds: Uuid[],
+): Promise<Map<Uuid, string>> {
+  const result = new Map<Uuid, string>();
+  const uniqueIds = [...new Set(userIds)];
+  if (!uniqueIds.length) return result;
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("guide_profiles")
+    .select("user_id, display_name")
+    .in("user_id", uniqueIds);
+
+  if (error) throw error;
+
+  for (const row of (data as Array<Record<string, unknown>>) ?? []) {
+    const displayName = (row.display_name as string | null)?.trim();
+    if (displayName) {
+      result.set(row.user_id as Uuid, displayName);
+    }
+  }
+
+  return result;
+}
+
 export async function getOrCreateThread(
   subjectType: ThreadSubject,
   subjectId: string,
@@ -476,6 +502,12 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
     listParticipantsWithProfiles(threadIds),
   ]);
 
+  const otherParticipantIds = [...participantsByThread.values()]
+    .flat()
+    .filter((participant) => participant.user_id !== input.userId)
+    .map((participant) => participant.user_id);
+  const guideDisplayNames = await listGuideDisplayNames(otherParticipantIds);
+
   const summaries = participantRows
     .map((row) => {
       if (!row.thread) return null;
@@ -485,7 +517,12 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
 
       const otherParticipantNames = participants
         .filter((participant) => participant.user_id !== input.userId)
-        .map((participant) => participant.profile?.full_name?.trim() || "Участник");
+        .map(
+          (participant) =>
+            participant.profile?.full_name?.trim() ||
+            guideDisplayNames.get(participant.user_id) ||
+            "Участник",
+        );
 
       return {
         ...row.thread,
