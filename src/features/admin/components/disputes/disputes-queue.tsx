@@ -4,7 +4,14 @@ import { AlertTriangle, Clock, Snowflake, ShieldAlert } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { BOOKING_STATUS_LABELS } from "@/components/bookings/booking-status-badge";
+import type { BookingStatus } from "@/lib/bookings/state-machine";
 import type { DisputeListItem } from "@/lib/supabase/disputes";
+
+function bookingStatusLabel(status: string | undefined): string {
+  if (!status) return "—";
+  return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
+}
 
 function formatAt(iso: string) {
   const date = new Date(iso);
@@ -124,7 +131,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
                     <span>·</span>
                     <span>Обновлено {formatAt(item.updatedAt)}</span>
                     <span>·</span>
-                    <span>Текущий статус брони: {booking?.status ?? "—"}</span>
+                    <span>Текущий статус брони: {bookingStatusLabel(booking?.status)}</span>
                   </div>
                 </CardContent>
               </Card>

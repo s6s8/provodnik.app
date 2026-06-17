@@ -232,7 +232,7 @@ export function DisputeCaseDetail({
               <p>Путешественник: {booking?.travelerName ?? "—"}</p>
               <p>Гид: {booking?.guideName ?? "—"}</p>
               <p>Маршрут: {booking?.listingTitle ?? booking?.destination ?? "—"}</p>
-              <p>Статус спора: {dispute.status}</p>
+              <p>Статус спора: {badge.label}</p>
               {dispute.resolutionSummary ? <p className="whitespace-pre-wrap">{dispute.resolutionSummary}</p> : null}
             </CardContent>
           </Card>
