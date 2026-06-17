@@ -41,8 +41,14 @@ describe('createBooking', () => {
       select: vi.fn().mockReturnThis(),
       single: vi.fn().mockResolvedValue({ data: insertedBooking, error: null }),
     }
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: { participants_count: 3 }, error: null }),
+    }
     const from = vi.fn((table: string) => {
       if (table === 'bookings') return bookingQuery
+      if (table === 'traveler_requests') return requestQuery
       throw new Error(`Unexpected table: ${table}`)
     })
     createSupabaseServerClient.mockResolvedValue({ from })
@@ -62,6 +68,63 @@ describe('createBooking', () => {
       status: 'confirmed',
       subtotal_minor: 150000,
       currency: 'RUB',
+      party_size: 3,
     })
+  })
+
+  it('derives party_size from the request participants_count', async () => {
+    const bookingQuery = {
+      insert: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: { id: 'booking-2' }, error: null }),
+    }
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: { participants_count: 5 }, error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingQuery
+      if (table === 'traveler_requests') return requestQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    await createBooking({
+      request_id: 'request-1',
+      offer_id: 'offer-1',
+      guide_id: 'guide-1',
+      subtotal_minor: 150000,
+    }, 'traveler-1')
+
+    expect(requestQuery.select).toHaveBeenCalledWith('participants_count')
+    expect(bookingQuery.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ party_size: 5 }),
+    )
+  })
+
+  it('respects an explicitly provided party_size', async () => {
+    const bookingQuery = {
+      insert: vi.fn().mockReturnThis(),
+      select: vi.fn().mockReturnThis(),
+      single: vi.fn().mockResolvedValue({ data: { id: 'booking-3' }, error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    await createBooking({
+      request_id: 'request-1',
+      offer_id: 'offer-1',
+      guide_id: 'guide-1',
+      subtotal_minor: 150000,
+      party_size: 2,
+    }, 'traveler-1')
+
+    expect(bookingQuery.insert).toHaveBeenCalledWith(
+      expect.objectContaining({ party_size: 2 }),
+    )
   })
 })

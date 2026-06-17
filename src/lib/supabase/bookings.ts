@@ -21,6 +21,8 @@ export type CreateBookingInput = {
   guide_id: Uuid;
   /** Total price in minor units (kopecks). Sourced from the accepted offer. */
   subtotal_minor: number;
+  /** Number of people. When omitted, derived from the request's participants_count. */
+  party_size?: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -73,6 +75,17 @@ export async function createBooking(
 ): Promise<Booking> {
   const supabase = await createSupabaseServerClient();
 
+  let partySize = data.party_size;
+  if (partySize === undefined && data.request_id) {
+    const { data: request, error: requestError } = await supabase
+      .from("traveler_requests")
+      .select("participants_count")
+      .eq("id", data.request_id)
+      .maybeSingle();
+    if (requestError) throw requestError;
+    partySize = request?.participants_count ?? 1;
+  }
+
   const { data: row, error } = await supabase
     .from("bookings")
     .insert({
@@ -83,6 +96,7 @@ export async function createBooking(
       status: "confirmed" as const,
       subtotal_minor: data.subtotal_minor,
       currency: "RUB",
+      ...(partySize !== undefined ? { party_size: partySize } : {}),
     })
     .select(BOOKING_SELECT)
     .single();
