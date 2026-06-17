@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 
@@ -16,10 +17,7 @@ import type {
   JoinedGroupSummary,
 } from '@/lib/supabase/traveler-requests'
 
-import {
-  EmptyCabinet,
-  type Inspiration,
-} from '../empty-cabinet/empty-cabinet'
+import type { Inspiration } from '../empty-cabinet/empty-cabinet'
 import { TripCard } from '../trip-card/trip-card'
 import {
   mapBookingToTrip,
@@ -139,14 +137,67 @@ function CategoryEmptyState({
   children: ReactNode
 }) {
   return (
-    <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+    <div className="rounded-[var(--card-radius)] border border-dashed border-[var(--outline)] bg-[var(--surface-lowest)] p-8 text-center text-sm text-[var(--on-surface-muted)] shadow-[var(--card-shadow)]">
       {children}
     </div>
   )
 }
 
 function CategoryGrid({ children }: { children: ReactNode }) {
-  return <div className="grid gap-3">{children}</div>
+  return <div className="grid gap-4">{children}</div>
+}
+
+function TravelerRequestsEmptyState({
+  inspirations,
+}: {
+  inspirations: Inspiration[]
+}) {
+  return (
+    <section className="bg-[var(--surface)] px-4 py-10 text-[var(--on-surface)]">
+      <div className="mx-auto max-w-3xl rounded-[var(--card-radius)] border border-[var(--outline)] bg-[var(--surface-lowest)] p-8 text-center shadow-[var(--card-shadow)] md:p-10">
+        <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--primary)]">
+          Первый маршрут
+        </p>
+        <h1 className="mt-3 text-[clamp(30px,4.4vw,44px)] font-semibold leading-[1.04] text-[var(--on-surface)]">
+          Куда поедем?
+        </h1>
+        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-[var(--on-surface-muted)]">
+          Опишите поездку, а мы поможем собрать понятные предложения под ваш маршрут.
+        </p>
+        <Link
+          href="/"
+          className="mt-6 inline-flex rounded-[14px] bg-[var(--primary)] px-6 py-3 font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2"
+        >
+          Создать запрос
+        </Link>
+
+        {inspirations.length > 0 ? (
+          <div className="mt-8 grid gap-3 text-left md:grid-cols-3">
+            {inspirations.map((destination) => (
+              <Link
+                key={destination.slug}
+                href={`/destinations/${destination.slug}`}
+                className="overflow-hidden rounded-[20px] border border-[var(--outline)] bg-[var(--surface-lowest)] transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-[var(--card-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2"
+              >
+                <div className="relative aspect-video">
+                  <Image
+                    src={destination.imageUrl}
+                    alt={destination.label}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 767px) 100vw, 240px"
+                  />
+                </div>
+                <p className="p-3 font-semibold text-[var(--on-surface)]">
+                  {destination.label}
+                </p>
+              </Link>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  )
 }
 
 function RequestsCategoryTabs({
@@ -175,19 +226,28 @@ function RequestsCategoryTabs({
 
   return (
     <Tabs value={categoryTab} onValueChange={handleCategoryTabChange}>
-      <TabsList className="mb-4 grid w-full grid-cols-3">
-        <TabsTrigger value="active" onClick={() => setCategoryTab('active')}>
+      <TabsList className="mb-5 grid h-auto w-full grid-cols-3 gap-1 rounded-[18px] border border-[var(--outline)] bg-[var(--surface-lowest)] p-1 shadow-[var(--card-shadow)]">
+        <TabsTrigger
+          value="active"
+          onClick={() => setCategoryTab('active')}
+          className="rounded-[14px] px-3 py-2.5 text-sm font-semibold text-[var(--on-surface-muted)] transition-colors data-[state=active]:bg-[var(--brand-50)] data-[state=active]:text-[var(--primary)] data-[state=active]:shadow-none"
+        >
           Активные
           {activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
         </TabsTrigger>
         <TabsTrigger
           value="confirmed"
           onClick={() => setCategoryTab('confirmed')}
+          className="rounded-[14px] px-3 py-2.5 text-sm font-semibold text-[var(--on-surface-muted)] transition-colors data-[state=active]:bg-[var(--brand-50)] data-[state=active]:text-[var(--primary)] data-[state=active]:shadow-none"
         >
           Подтверждённые
           {confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
         </TabsTrigger>
-        <TabsTrigger value="joined" onClick={() => setCategoryTab('joined')}>
+        <TabsTrigger
+          value="joined"
+          onClick={() => setCategoryTab('joined')}
+          className="rounded-[14px] px-3 py-2.5 text-sm font-semibold text-[var(--on-surface-muted)] transition-colors data-[state=active]:bg-[var(--brand-50)] data-[state=active]:text-[var(--primary)] data-[state=active]:shadow-none"
+        >
           Мои группы
           {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
         </TabsTrigger>
@@ -201,8 +261,13 @@ function RequestsCategoryTabs({
           </CategoryGrid>
         ) : (
           <CategoryEmptyState>
-            <p className="mb-4">У вас ещё нет запросов</p>
-            <Button asChild>
+            <p className="mb-4 text-base font-medium text-[var(--on-surface)]">
+              У вас ещё нет запросов
+            </p>
+            <Button
+              asChild
+              className="rounded-[14px] bg-[var(--primary)] px-6 py-3 font-semibold text-white shadow-none transition hover:-translate-y-0.5 hover:bg-[var(--primary-hover)]"
+            >
               <Link href="/">Создать первый запрос</Link>
             </Button>
           </CategoryEmptyState>
@@ -221,7 +286,9 @@ function RequestsCategoryTabs({
           </CategoryGrid>
         ) : (
           <CategoryEmptyState>
-            <p>Подтверждённых поездок пока нет</p>
+            <p className="text-base font-medium text-[var(--on-surface)]">
+              Подтверждённых поездок пока нет
+            </p>
           </CategoryEmptyState>
         )}
       </TabsContent>
@@ -238,10 +305,14 @@ function RequestsCategoryTabs({
           </CategoryGrid>
         ) : (
           <CategoryEmptyState>
-            <p className="mb-4">
+            <p className="mb-4 text-base font-medium text-[var(--on-surface)]">
               Вы пока не присоединились ни к одной группе
             </p>
-            <Button asChild variant="outline">
+            <Button
+              asChild
+              variant="outline"
+              className="rounded-[14px] border-[var(--outline)] bg-[var(--surface-lowest)] px-6 py-3 font-semibold text-[var(--primary)] transition hover:-translate-y-0.5 hover:bg-[var(--brand-50)]"
+            >
               <Link href="/requests">Найти группу</Link>
             </Button>
           </CategoryEmptyState>
@@ -263,16 +334,31 @@ export function TravelerRequestsScreen({
     joinedGroups.length > 0
 
   if (!hasTrips) {
-    return <EmptyCabinet inspirations={inspirations} />
+    return <TravelerRequestsEmptyState inspirations={inspirations} />
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
-      <RequestsCategoryTabs
-        activeRequests={activeRequests}
-        confirmedBookings={confirmedBookings}
-        joinedGroups={joinedGroups}
-      />
-    </div>
+    <section className="bg-[var(--surface)] px-4 py-8 text-[var(--on-surface)]">
+      <div className="mx-auto max-w-3xl space-y-7">
+        <header className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.1em] text-[var(--primary)]">
+            Кабинет путешественника
+          </p>
+          <div className="space-y-2">
+            <h1 className="text-[clamp(30px,4.4vw,44px)] font-semibold leading-[1.04] text-[var(--on-surface)]">
+              Мои поездки
+            </h1>
+            <p className="max-w-2xl text-base leading-7 text-[var(--on-surface-muted)]">
+              Статусы запросов, предложений и подтверждённых поездок собраны в одном месте.
+            </p>
+          </div>
+        </header>
+        <RequestsCategoryTabs
+          activeRequests={activeRequests}
+          confirmedBookings={confirmedBookings}
+          joinedGroups={joinedGroups}
+        />
+      </div>
+    </section>
   )
 }

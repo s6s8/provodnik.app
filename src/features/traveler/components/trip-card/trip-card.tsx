@@ -2,8 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { CalendarDays, Clock, Users, Wallet } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { BADGE_CLASS } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
 import type { TripCardModel, TripPhase } from "./trip-card-types";
@@ -62,6 +60,59 @@ function formatTimeLabel(time: string) {
   return time.slice(0, 5);
 }
 
+const factChipClassName =
+  "inline-flex items-center gap-2 rounded-full border border-[var(--outline)] bg-[var(--surface-lowest)] px-3 py-1.5 text-xs font-semibold text-[var(--on-surface-muted)]";
+
+const brandChipClassName =
+  "inline-flex items-center gap-1.5 rounded-full bg-[var(--brand-50)] px-3 py-1 text-xs font-semibold text-[var(--primary)]";
+
+const neutralChipClassName =
+  "inline-flex items-center gap-1.5 rounded-full border border-[var(--outline)] bg-[var(--surface-lowest)] px-3 py-1 text-xs font-semibold text-[var(--on-surface-muted)]";
+
+const statusBaseClassName =
+  "inline-flex shrink-0 items-center rounded-full px-3 py-1 text-xs font-semibold";
+
+function getStatusBadge(phase: TripPhase): { label: string; className: string } {
+  if (phase === "awaiting_decision") {
+    return {
+      label: "Есть предложения",
+      className: `${statusBaseClassName} bg-[var(--gold)] text-white`,
+    };
+  }
+
+  if (phase === "waiting_offers") {
+    return {
+      label: "Набирается",
+      className: `${statusBaseClassName} bg-[var(--brand-50)] text-[var(--primary)]`,
+    };
+  }
+
+  if (phase === "today") {
+    return {
+      label: "Сегодня",
+      className: `${statusBaseClassName} bg-[var(--gold)] text-white`,
+    };
+  }
+
+  if (phase === "completed") {
+    return {
+      label: "Завершено",
+      className: `${statusBaseClassName} border border-[var(--outline)] bg-[var(--surface-lowest)] text-[var(--on-surface-muted)]`,
+    };
+  }
+
+  return {
+    label: "Подтверждено",
+    className: `${statusBaseClassName} bg-[var(--brand-50)] text-[var(--primary)]`,
+  };
+}
+
+function TripStatus({ phase }: { phase: TripPhase }) {
+  const status = getStatusBadge(phase);
+
+  return <span className={status.className}>{status.label}</span>;
+}
+
 function TripPhoto({
   phase,
   trip,
@@ -73,7 +124,7 @@ function TripPhoto({
     const slots = [0, 1, 2].map((i) => trip.topOffersPhotos?.[i] ?? null);
 
     return (
-      <div className="grid grid-cols-3 gap-1">
+      <div className="grid overflow-hidden rounded-[20px] border border-[var(--outline)] bg-[var(--surface)] grid-cols-3 gap-1">
         {slots.map((url, i) => (
           <div key={i} data-testid="photo-slot" className="aspect-square">
             {url ? (
@@ -86,7 +137,7 @@ function TripPhoto({
                 className="h-full w-full object-cover"
               />
             ) : (
-              <div className="h-full w-full bg-muted" />
+              <div className="h-full w-full bg-[var(--surface)]" />
             )}
           </div>
         ))}
@@ -108,7 +159,7 @@ function TripPhoto({
       alt={trip.destination}
       width={1200}
       height={675}
-      className="aspect-video w-full object-cover"
+      className="aspect-video w-full rounded-[20px] object-cover"
     />
   );
 }
@@ -134,25 +185,25 @@ function FlexPills({
   if (!openToJoin && !datesFlexible && !groupType) return null;
 
   return (
-    <div className="flex flex-wrap gap-1.5">
+    <div className="flex flex-wrap gap-2">
       {groupType ? (
         <span
           className={
             groupType === "assembly"
-              ? "rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700"
-              : "rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
+              ? brandChipClassName
+              : neutralChipClassName
           }
         >
           {groupType === "assembly" ? "Сборная группа" : "Своя группа"}
         </span>
       ) : null}
       {openToJoin ? (
-        <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
+        <span className={brandChipClassName}>
           + к группе
         </span>
       ) : null}
       {datesFlexible ? (
-        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+        <span className="inline-flex items-center rounded-full bg-[var(--gold)] px-3 py-1 text-xs font-semibold text-white">
           ± даты
         </span>
       ) : null}
@@ -175,7 +226,7 @@ function RequestMetaRow({ trip }: { trip: TripCardModel }) {
         groupType={trip.groupType}
       />
       {publishedAt ? (
-        <p className="shrink-0 whitespace-nowrap text-xs text-muted-foreground">
+        <p className="shrink-0 whitespace-nowrap text-xs text-muted-foreground text-[var(--on-surface-muted)]">
           Опубликован: {publishedAt}
         </p>
       ) : null}
@@ -190,33 +241,32 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Badge variant="outline" className={BADGE_CLASS}>
-        <CalendarDays className="size-3.5" />
+      <span className={factChipClassName}>
+        <CalendarDays className="size-3.5 text-[var(--primary)]" />
         {formatDateRange(trip.startsOn, trip.endsOn)}
-      </Badge>
+      </span>
       {trip.startTime ? (
-        <Badge variant="outline" className={BADGE_CLASS}>
-          <Clock className="size-3.5" />
+        <span className={factChipClassName}>
+          <Clock className="size-3.5 text-[var(--primary)]" />
           {formatTimeLabel(trip.startTime)}
-        </Badge>
+        </span>
       ) : null}
       {shouldShowParticipants ? (
-        <Badge variant="outline" className={BADGE_CLASS}>
-          <Users className="size-3.5" />
+        <span className={factChipClassName}>
+          <Users className="size-3.5 text-[var(--primary)]" />
           {formatPeople(participantsCount)}
-        </Badge>
+        </span>
       ) : null}
       {budgetRub != null ? (
-        <Badge
-          variant="outline"
+        <span
           className={cn(
-            BADGE_CLASS,
-            "border-success/30 bg-success/10 text-success",
+            factChipClassName,
+            "border-[var(--primary)] bg-[var(--brand-50)] text-[var(--primary)]",
           )}
         >
           <Wallet className="size-3.5" />
           {formatRub(budgetRub)}
-        </Badge>
+        </span>
       ) : null}
     </div>
   );
@@ -235,9 +285,9 @@ function OfferCount({ count }: { count?: number }) {
         : "откликов";
 
   return (
-    <Badge variant="secondary" className="text-xs font-semibold">
+    <span className="inline-flex w-fit items-center rounded-full bg-[var(--gold)] px-3 py-1 text-xs font-semibold text-white">
       {count} {noun}
-    </Badge>
+    </span>
   );
 }
 
@@ -251,83 +301,112 @@ function TripCardContent({
   const meetingPoint = trip.routeStops?.[0]?.address;
   const isRequestBacked =
     phase === "waiting_offers" || phase === "awaiting_decision";
+  const actionLabel = isRequestBacked ? "Смотреть запрос" : "Смотреть поездку";
 
   return (
     <>
       <TripPhoto phase={phase} trip={trip} />
-      <h3 className="text-lg font-medium">{trip.destination}</h3>
-      {isRequestBacked ? (
-        <>
-          <RequestFacts trip={trip} />
-          <RequestMetaRow trip={trip} />
-          {phase === "awaiting_decision" ? (
-            <OfferCount count={trip.offerCount} />
-          ) : null}
-        </>
-      ) : (
-        <FlexPills
-          openToJoin={trip.openToJoin}
-          datesFlexible={trip.datesFlexible}
-          groupType={trip.groupType}
-        />
-      )}
-      {!trip.isOwnRequest && trip.organizerName && (
-        <p className="text-sm">
-          Сборная группа · организатор: {trip.organizerName}
-        </p>
-      )}
-      {shouldShowMeetingPoint(phase, trip.startsOn) && meetingPoint && (
-        <p className="text-sm">{meetingPoint}</p>
-      )}
-      {phase === "upcoming" &&
-        trip.routeStops &&
-        trip.routeStops.length >= 3 && (
+      <div className="space-y-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 space-y-1">
+            <h3 className="truncate text-xl font-semibold leading-7 text-[var(--on-surface)]">
+              {trip.destination}
+            </h3>
+          </div>
+          <TripStatus phase={phase} />
+        </div>
+
+        <RequestFacts trip={trip} />
+
+        {isRequestBacked ? (
           <>
-            <div className="flex gap-1">
-              {trip.routeStops.slice(0, 3).map((stop, i) => (
-                <Image
-                  key={i}
-                  unoptimized
-                  src={stop.photoUrl}
-                  alt=""
-                  width={48}
-                  height={48}
-                  className="size-12 rounded object-cover"
-                />
-              ))}
-            </div>
-            {trip.inclusions && (
-              <p className="text-sm">
-                Что входит: {trip.inclusions.join(", ")}
-              </p>
-            )}
-            {trip.guideName && (
-              <div className="flex items-center gap-2">
-                {trip.guideAvatarUrl && (
-                  <Image
-                    unoptimized
-                    src={trip.guideAvatarUrl}
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="size-8 rounded-full object-cover"
-                  />
-                )}
-                <span>{trip.guideName}</span>
-              </div>
-            )}
-            <span className="text-sm font-medium text-primary">Написать гиду</span>
-            {trip.price && (
-              <p>{(trip.price.amount / 100).toLocaleString("ru-RU")} ₽</p>
-            )}
+            <RequestMetaRow trip={trip} />
+            {phase === "awaiting_decision" ? (
+              <OfferCount count={trip.offerCount} />
+            ) : null}
           </>
-        )}
-      {phase === "completed" &&
-        (trip.hasReview ? (
-          <p>Ваш отзыв · ★ {trip.reviewRating}</p>
         ) : (
-          <span className="text-sm font-medium text-primary">Оставить отзыв</span>
-        ))}
+          <FlexPills
+            openToJoin={trip.openToJoin}
+            datesFlexible={trip.datesFlexible}
+            groupType={trip.groupType}
+          />
+        )}
+
+        {!trip.isOwnRequest && trip.organizerName && (
+          <p className="text-sm font-medium text-[var(--on-surface)]">
+            Сборная группа · организатор: {trip.organizerName}
+          </p>
+        )}
+        {shouldShowMeetingPoint(phase, trip.startsOn) && meetingPoint && (
+          <p className="rounded-[14px] bg-[var(--brand-50)] px-3 py-2 text-sm font-medium text-[var(--primary)]">
+            {meetingPoint}
+          </p>
+        )}
+        {phase === "upcoming" &&
+          trip.routeStops &&
+          trip.routeStops.length >= 3 && (
+            <>
+              <div className="flex gap-2">
+                {trip.routeStops.slice(0, 3).map((stop, i) => (
+                  <Image
+                    key={i}
+                    unoptimized
+                    src={stop.photoUrl}
+                    alt=""
+                    width={48}
+                    height={48}
+                    className="size-12 rounded-[14px] object-cover"
+                  />
+                ))}
+              </div>
+              {trip.inclusions && (
+                <p className="text-sm leading-6 text-[var(--on-surface-muted)]">
+                  Что входит: {trip.inclusions.join(", ")}
+                </p>
+              )}
+              {trip.guideName && (
+                <div className="flex items-center gap-2 text-sm font-medium text-[var(--on-surface)]">
+                  {trip.guideAvatarUrl && (
+                    <Image
+                      unoptimized
+                      src={trip.guideAvatarUrl}
+                      alt=""
+                      width={32}
+                      height={32}
+                      className="size-8 rounded-full object-cover"
+                    />
+                  )}
+                  <span>{trip.guideName}</span>
+                </div>
+              )}
+              <span className="text-sm font-semibold text-[var(--primary)]">
+                Написать гиду
+              </span>
+              {trip.price && (
+                <p className="text-lg font-semibold text-[var(--on-surface)]">
+                  {(trip.price.amount / 100).toLocaleString("ru-RU")} ₽
+                </p>
+              )}
+            </>
+          )}
+        {phase === "completed" &&
+          (trip.hasReview ? (
+            <p className="text-sm font-medium text-[var(--on-surface)]">
+              Ваш отзыв · ★ {trip.reviewRating}
+            </p>
+          ) : (
+            <span className="text-sm font-semibold text-[var(--primary)]">
+              Оставить отзыв
+            </span>
+          ))}
+
+        <div className="flex items-center justify-between border-t border-[var(--outline)] pt-4">
+          <span className="text-sm font-semibold text-[var(--primary)]">
+            {actionLabel}
+          </span>
+        </div>
+      </div>
     </>
   );
 }
@@ -343,16 +422,16 @@ export function TripCard({
     phase === "waiting_offers" || phase === "awaiting_decision";
 
   const cardClassName =
-    "block cursor-pointer rounded-lg border bg-card p-4 transition-colors hover:bg-accent/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+    "block cursor-pointer rounded-[var(--card-radius)] border border-[var(--outline)] bg-[var(--surface-lowest)] p-5 shadow-[var(--card-shadow)] transition hover:-translate-y-0.5 hover:border-[var(--primary)] hover:shadow-[var(--lift-shadow)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)] focus-visible:ring-offset-2";
 
   if (isRequestBacked) {
     const hasUnread = (trip.unreadOfferCount ?? 0) > 0;
     return (
       <Link
         href={`/requests/${trip.id}`}
-        className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
+        className={cn(cardClassName, hasUnread && "border-l-4 border-l-[var(--primary)]")}
       >
-        <article className="space-y-3">
+        <article className="space-y-4">
           <TripCardContent phase={phase} trip={trip} />
         </article>
       </Link>
@@ -361,7 +440,7 @@ export function TripCard({
 
   return (
     <Link href={`/bookings/${trip.id}`} className={cardClassName}>
-      <article className="space-y-3">
+      <article className="space-y-4">
         <TripCardContent phase={phase} trip={trip} />
       </article>
     </Link>

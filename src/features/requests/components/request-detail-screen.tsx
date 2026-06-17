@@ -134,6 +134,10 @@ const assemblyChip = `${chipBase} bg-sky-100 text-sky-700`;
 const privateChip = `${chipBase} bg-purple-100 text-purple-700`;
 const flexibleChip = `${chipBase} bg-emerald-100 text-emerald-700`;
 const exactChip = `${chipBase} bg-rose-100 text-rose-700`;
+const publicCardClassName =
+  "rounded-[24px] border border-[var(--outline-variant)] bg-[var(--surface-lowest)] p-6 shadow-[var(--card-shadow)] md:p-[26px]";
+const publicEyebrowClassName =
+  "mb-4 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--primary)]";
 
 function formatPublicPrice(pricePerPersonRub: number | null): string {
   if (!pricePerPersonRub) return "Цена уточняется";
@@ -165,7 +169,7 @@ function JoinCta({
   compact?: boolean;
 }) {
   const className = cn(
-    "w-full cursor-pointer rounded-[14px] border-primary/60 bg-primary py-4 text-base font-semibold text-primary-foreground shadow-glass hover:bg-primary-hover",
+    "w-full cursor-pointer rounded-[14px] border border-[var(--primary)] bg-[var(--primary)] py-4 text-base font-semibold text-white shadow-[0_14px_28px_-18px_rgba(10,39,30,0.55)] transition duration-200 hover:-translate-y-0.5 hover:bg-[var(--primary-hover)] hover:shadow-[0_18px_36px_-20px_rgba(10,39,30,0.65)]",
     compact && "py-3.5 text-sm",
   );
 
@@ -210,7 +214,7 @@ function ThemeChips({ themes }: { themes: string[] }) {
         return (
           <span
             key={theme}
-            className="inline-flex rounded-full bg-surface-low px-3.5 py-1.5 text-[0.84rem] font-medium text-foreground"
+            className="inline-flex rounded-full bg-[var(--brand-50)] px-3.5 py-1.5 text-[0.84rem] font-semibold text-[var(--primary)]"
           >
             {themeData?.label ?? theme}
           </span>
@@ -221,7 +225,7 @@ function ThemeChips({ themes }: { themes: string[] }) {
 }
 
 function AvatarGroupVisual({ children }: { children: ReactNode }) {
-  return <div className="flex -space-x-2.5">{children}</div>;
+  return <div className="flex -space-x-3">{children}</div>;
 }
 
 function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["members"] }) {
@@ -230,7 +234,10 @@ function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["mem
       {members.slice(0, 5).map((member, index) => (
         <Avatar
           key={member.id}
-          className="size-[42px] border-[2.5px] border-background shadow-sm"
+          className={cn(
+            "size-[44px] border-[2.5px] border-white shadow-sm",
+            index === 0 && "ring-2 ring-[var(--gold)] ring-offset-2 ring-offset-white",
+          )}
           title={member.displayName}
         >
           {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
@@ -254,23 +261,45 @@ function DecisionCard({
 
   return (
     <aside className="lg:sticky lg:top-[108px]">
-      <div className="rounded-[22px] border border-border bg-surface-high p-6 shadow-glass">
-        <div className="font-display text-[2rem] font-bold leading-none tracking-[-0.02em] text-foreground">
+      <div className={cn(publicCardClassName, "lg:p-7")}>
+        <p className="mb-3 text-[12px] font-semibold uppercase tracking-[0.1em] text-[var(--primary)]">
+          Бронирование
+        </p>
+        <div className="font-display text-[clamp(2rem,4vw,2.55rem)] font-bold leading-none tracking-[-0.03em] text-[var(--on-surface)]">
           {price}{" "}
           {viewModel.pricePerPersonRub ? (
-            <small className="text-base font-medium text-muted-foreground">/ с человека</small>
+            <small className="text-base font-medium tracking-normal text-[var(--on-surface-muted)]">
+              / с человека
+            </small>
           ) : null}
         </div>
-        <p className="mt-3 text-sm leading-[1.55] text-muted-foreground">
-          Добор открыт: группа сейчас {viewModel.memberCount}{" "}
-          {pluralize(viewModel.memberCount, "человек", "человека", "человек")}. Финальную цену предложат гиды.
-        </p>
+        <div className="mt-4 rounded-[16px] bg-[var(--brand-50)] px-4 py-3 text-sm font-medium leading-[1.5] text-[var(--primary)]">
+          Ничего не платите сейчас. Финальную цену предложат гиды.
+        </div>
+        <div className="mt-5 flex items-center gap-3 rounded-[18px] border border-[var(--outline-variant)] bg-white px-4 py-3">
+          <MemberAvatars members={viewModel.members} />
+          <div className="min-w-0 text-sm leading-[1.4] text-[var(--on-surface-muted)]">
+            <span className="mr-1 inline-flex size-2 rounded-full bg-[var(--gold)] shadow-[0_0_0_5px_rgba(224,161,38,0.18)]" />
+            Сейчас в группе {viewModel.memberCount}{" "}
+            {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
+          </div>
+        </div>
         <div className="mt-5 hidden lg:block">
           <JoinCta requestId={requestId} joinState={viewModel.joinState} />
         </div>
-        <div className="mt-4 flex items-center gap-2 border-t border-border pt-4 text-[0.84rem] text-muted-foreground">
-          <Eye className="size-4 text-primary" aria-hidden="true" />
-          Гиды уже видят этот запрос
+        <div className="mt-5 grid gap-3 border-t border-[var(--outline-variant)] pt-5 text-[0.84rem] font-medium text-[var(--on-surface-muted)]">
+          <div className="flex items-center gap-2">
+            <span className="flex size-8 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+              <Eye className="size-4" aria-hidden="true" />
+            </span>
+            Гиды уже видят этот запрос
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="flex size-8 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+              <Check className="size-4" aria-hidden="true" />
+            </span>
+            Присоединиться можно без предоплаты
+          </div>
         </div>
       </div>
     </aside>
@@ -288,115 +317,153 @@ function PublicDetailBranch({
   const hasAbout = viewModel.notes.trim().length > 0;
 
   return (
-    <div className="bg-surface pb-24 lg:pb-0">
-      <section className="relative h-[240px] overflow-hidden bg-foreground md:h-[300px]">
-        <Image
-          src={viewModel.cityImageUrl}
-          alt={viewModel.title}
-          width={1800}
-          height={600}
-          priority
-          sizes="100vw"
-          className="h-[240px] w-full object-cover md:h-[300px]"
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-foreground/10 via-transparent to-foreground/80"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-x-0 bottom-0 z-[2]">
-          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pb-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/15 px-3.5 py-1.5 text-[0.82rem] font-medium text-primary-foreground backdrop-blur-[8px]">
-              <span className="size-2 rounded-full bg-success shadow-[0_0_0_3px_rgba(127,227,182,0.25)]" aria-hidden="true" />
+    <div className="bg-[var(--surface)] pb-24 lg:pb-0">
+      <section className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-6">
+        <div className="relative h-[320px] overflow-hidden rounded-[28px] bg-[var(--brand-950)] shadow-[var(--card-shadow)] md:h-[420px]">
+          <Image
+            src={viewModel.cityImageUrl}
+            alt={viewModel.title}
+            width={1800}
+            height={720}
+            priority
+            sizes="(min-width: 1200px) 1120px, calc(100vw - 40px)"
+            className="h-full w-full object-cover"
+          />
+          <div
+            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,39,30,.12),rgba(10,39,30,.66))]"
+            aria-hidden="true"
+          />
+          <div className="absolute inset-x-0 bottom-0 z-[2] p-[clamp(22px,4vw,44px)]">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[0.82rem] font-semibold text-[var(--primary)] shadow-[0_10px_24px_rgba(10,39,30,0.16)]">
+              <span className="size-2 rounded-full bg-[var(--gold)] shadow-[0_0_0_4px_rgba(224,161,38,0.18)]" aria-hidden="true" />
               Сборная группа
             </span>
-            <h1 className="mt-3 font-display text-[clamp(2.1rem,5vw,2.9rem)] font-bold leading-[1.05] tracking-[-0.02em] text-primary-foreground">
+            <h1 className="mt-4 font-display text-[clamp(2.75rem,7vw,5.25rem)] font-bold leading-[0.96] tracking-[-0.045em] text-white">
               {viewModel.title}
             </h1>
-            <p className="mt-1 text-sm text-primary-foreground/80">{viewModel.regionLabel}</p>
+            <p className="mt-3 text-base font-medium text-white/85 md:text-lg">{viewModel.regionLabel}</p>
           </div>
         </div>
       </section>
 
       <div className="mx-auto grid w-full max-w-page grid-cols-1 gap-8 px-[clamp(20px,4vw,48px)] py-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-9 lg:pb-24">
-        <main>
-          <div className="mb-8 flex flex-wrap gap-2.5">
-            <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-high px-3.5 py-2 text-sm font-medium text-foreground shadow-sm">
-              <CalendarDays className="size-4 text-primary" aria-hidden="true" />
-              {viewModel.dateLabel}
+        <main className="space-y-8">
+          <div className="flex flex-wrap gap-3">
+            <span className="inline-flex items-center gap-3 rounded-full border border-[var(--outline-variant)] bg-white px-4 py-3 text-sm font-semibold text-[var(--on-surface)] shadow-[var(--card-shadow)]">
+              <span className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+                <CalendarDays className="size-4" aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--on-surface-muted)]">
+                  Когда
+                </span>
+                {viewModel.dateLabel}
+              </span>
             </span>
             {viewModel.timeLabel ? (
-              <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-high px-3.5 py-2 text-sm font-medium text-foreground shadow-sm">
-                <Clock3 className="size-4 text-primary" aria-hidden="true" />
-                {viewModel.timeLabel}
+              <span className="inline-flex items-center gap-3 rounded-full border border-[var(--outline-variant)] bg-white px-4 py-3 text-sm font-semibold text-[var(--on-surface)] shadow-[var(--card-shadow)]">
+                <span className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+                  <Clock3 className="size-4" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--on-surface-muted)]">
+                    Время
+                  </span>
+                  {viewModel.timeLabel}
+                </span>
               </span>
             ) : null}
+            <span className="inline-flex items-center gap-3 rounded-full border border-[var(--outline-variant)] bg-white px-4 py-3 text-sm font-semibold text-[var(--on-surface)] shadow-[var(--card-shadow)]">
+              <span className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+                <Users className="size-4" aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--on-surface-muted)]">
+                  В группе
+                </span>
+                {viewModel.memberCount} {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
+              </span>
+            </span>
+            <span className="inline-flex items-center gap-3 rounded-full border border-[var(--outline-variant)] bg-white px-4 py-3 text-sm font-semibold text-[var(--primary)] shadow-[var(--card-shadow)]">
+              <span className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+                <UserPlus className="size-4" aria-hidden="true" />
+              </span>
+              <span>
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--on-surface-muted)]">
+                  Статус
+                </span>
+                Открыта для добора
+              </span>
+            </span>
             {viewModel.datesFlexible ? (
-              <span className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3.5 py-2 text-sm font-medium text-primary shadow-sm">
-                <ListChecks className="size-4" aria-hidden="true" />
-                Гибкие даты
+              <span className="inline-flex items-center gap-3 rounded-full border border-[var(--outline-variant)] bg-white px-4 py-3 text-sm font-semibold text-[var(--primary)] shadow-[var(--card-shadow)]">
+                <span className="flex size-9 items-center justify-center rounded-full bg-[var(--brand-50)] text-[var(--primary)]">
+                  <ListChecks className="size-4" aria-hidden="true" />
+                </span>
+                <span>
+                  <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-[var(--on-surface-muted)]">
+                    Даты
+                  </span>
+                  Гибкие
+                </span>
               </span>
             ) : null}
           </div>
 
-          <section className="mb-8">
-            <h2 className="mb-3.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              Кто едет
-            </h2>
-            <div className="rounded-[22px] border border-border bg-surface-high p-6 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="text-[1.2rem] font-semibold text-foreground">
-                  В группе сейчас {viewModel.memberCount}{" "}
-                  {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
-                </p>
-                <MemberAvatars members={viewModel.members} />
-              </div>
-              <p className="mt-3.5 text-sm text-muted-foreground">
-                Организатор — <b className="font-semibold text-foreground">{viewModel.organizerName}</b>
-              </p>
-              <div className="mt-3.5 inline-flex items-center gap-1.5 text-[0.84rem] font-medium text-primary">
-                <UserPlus className="size-4" aria-hidden="true" />
-                Группа открыта — можно присоединиться
-              </div>
-            </div>
-          </section>
-
           {hasAbout ? (
-            <section className="mb-8">
-              <h2 className="mb-3.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                О поездке
-              </h2>
+            <section className={publicCardClassName}>
+              <h2 className={publicEyebrowClassName}>О поездке</h2>
               <ThemeChips themes={viewModel.themes} />
-              <p className="max-w-[60ch] text-[0.97rem] leading-[1.7] text-foreground/85">{viewModel.notes}</p>
+              <p className="max-w-[64ch] text-[1rem] leading-[1.75] text-[var(--ink-2)]">{viewModel.notes}</p>
             </section>
           ) : null}
 
-          <section className="mb-8">
-            <h2 className="mb-3.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              Как это работает
-            </h2>
+          <section className={publicCardClassName}>
+            <h2 className={publicEyebrowClassName}>Кто едет</h2>
+            <div className="flex flex-wrap items-center justify-between gap-5">
+              <div>
+                <p className="font-display text-[1.45rem] font-semibold leading-tight text-[var(--on-surface)]">
+                  В группе сейчас {viewModel.memberCount}{" "}
+                  {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
+                </p>
+                <p className="mt-2 text-sm text-[var(--on-surface-muted)]">
+                  Организатор — <b className="font-semibold text-[var(--on-surface)]">{viewModel.organizerName}</b>
+                </p>
+              </div>
+              <MemberAvatars members={viewModel.members} />
+            </div>
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-[var(--brand-50)] px-4 py-2 text-[0.9rem] font-semibold text-[var(--primary)]">
+              <UserPlus className="size-4" aria-hidden="true" />
+              Группа открыта — можно присоединиться
+            </div>
+          </section>
+
+          <section className={publicCardClassName}>
+            <h2 className={publicEyebrowClassName}>Как это работает</h2>
             <div className="grid gap-3.5 sm:grid-cols-3">
               {["Присоединяешься к группе", "Гиды предлагают условия и цену", "Группа подтверждает бронь"].map(
                 (step, index) => (
-                  <div key={step} className="rounded-2xl border border-border bg-surface-high p-4 shadow-sm">
-                    <div className="mb-2.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                  <div key={step} className="rounded-[18px] bg-[var(--brand-50)] p-4">
+                    <div className="mb-3 flex size-9 items-center justify-center rounded-full bg-white text-sm font-bold text-[var(--primary)] shadow-sm">
                       {index + 1}
                     </div>
-                    <p className="text-sm leading-[1.45] text-foreground">{step}</p>
+                    <p className="text-sm font-medium leading-[1.5] text-[var(--on-surface)]">{step}</p>
                   </div>
                 ),
               )}
             </div>
           </section>
 
-          <section>
-            <div className="border-t border-border">
+          <section className={publicCardClassName}>
+            <h2 className={publicEyebrowClassName}>FAQ</h2>
+            <div className="space-y-3">
               {faqItems.map((item) => (
-                <details key={item.question} className="group border-b border-border">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.97rem] font-medium text-foreground marker:hidden">
+                <details key={item.question} className="group rounded-[18px] bg-[var(--brand-50)] px-4">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.97rem] font-semibold text-[var(--on-surface)] marker:hidden">
                     {item.question}
-                    <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+                    <ChevronDown className="size-4 text-[var(--primary)] transition-transform group-open:rotate-180" aria-hidden="true" />
                   </summary>
-                  <p className="pb-4 text-sm leading-[1.6] text-muted-foreground">{item.answer}</p>
+                  <p className="pb-4 text-sm leading-[1.65] text-[var(--on-surface-muted)]">{item.answer}</p>
                 </details>
               ))}
             </div>
@@ -406,11 +473,11 @@ function PublicDetailBranch({
         <DecisionCard requestId={requestId} viewModel={viewModel} />
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-border bg-surface-high px-4 py-3 shadow-[0_-6px_24px_rgba(10,40,28,0.10)] lg:hidden">
-        <div className="shrink-0 font-display text-lg font-bold text-foreground">
+      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-[var(--outline-variant)] bg-white px-4 py-3 shadow-[0_-10px_30px_rgba(10,40,28,0.12)] lg:hidden">
+        <div className="shrink-0 font-display text-lg font-bold text-[var(--on-surface)]">
           {price}
           {viewModel.pricePerPersonRub ? (
-            <small className="block text-xs font-medium text-muted-foreground">с человека</small>
+            <small className="block text-xs font-medium text-[var(--on-surface-muted)]">с человека</small>
           ) : null}
         </div>
         <div className="min-w-0 flex-1">

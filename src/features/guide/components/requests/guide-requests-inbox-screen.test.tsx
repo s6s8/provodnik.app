@@ -191,7 +191,7 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     });
   });
 
-  it("keeps the request time inline with the date meta row", () => {
+  it("keeps the request time inline with the date meta card", () => {
     const source = readFileSync(
       join(
         process.cwd(),
@@ -202,11 +202,11 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     const metaBlock = source.match(/\{\/\* Meta \*\/\}([\s\S]*?)\{\/\* Actions \*\/\}/)?.[1];
 
     expect(metaBlock).toContain(
-      'className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground"',
+      'className="mt-4 grid gap-3 text-sm leading-relaxed text-[var(--on-surface-muted)] sm:grid-cols-3"',
     );
     expect(metaBlock).not.toContain("sm:grid-cols-2");
     expect(metaBlock).toMatch(
-      /<p>[\s\S]*Даты:[\s\S]*formatTimeRange\(item\.startTime, item\.endTime\)[\s\S]*Время:[\s\S]*<\/p>/,
+      /<p[\s\S]*Даты[\s\S]*formatTimeRange\(item\.startTime, item\.endTime\)[\s\S]*Время:[\s\S]*<\/p>/,
     );
   });
 

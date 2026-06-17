@@ -55,11 +55,8 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   }
 
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-[clamp(20px,4vw,48px)] py-16">
-      {/* Background layers */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-950 via-brand-900 to-brand-950" />
-      <div className="pointer-events-none absolute inset-x-1/4 top-0 h-1/2 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-primary/10 to-transparent" />
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--surface)] px-[clamp(20px,4vw,48px)] py-16">
+      <div className="pointer-events-none absolute inset-x-0 top-[-18rem] mx-auto h-[34rem] max-w-[46rem] rounded-full bg-[radial-gradient(circle_at_center,rgba(214,236,224,0.72),rgba(238,247,242,0.28)_48%,rgba(247,250,246,0)_72%)]" />
       <AuthEntryScreen
         role={signupRole}
         next={next}

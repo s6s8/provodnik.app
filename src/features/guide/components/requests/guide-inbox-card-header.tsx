@@ -33,41 +33,41 @@ export function GuideInboxCardHeader({
   );
 
   return (
-    <div className="flex items-start gap-3">
-      <ProfileAvatar
-        profile={{
-          full_name: item.requesterName ?? null,
-          avatar_url: item.requesterAvatarUrl ?? null,
-        }}
-        size={40}
-        className="shrink-0"
-      />
-      <div className="min-w-0 flex-1 space-y-0.5">
-        <p className="truncate text-sm font-semibold leading-snug text-foreground">
-          {travelerDisplayName}
-        </p>
-        <p className="text-sm leading-snug text-muted-foreground">
-          в{" "}
-          <span className="font-medium text-foreground">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="flex min-w-0 items-start gap-3">
+        <ProfileAvatar
+          profile={{
+            full_name: item.requesterName ?? null,
+            avatar_url: item.requesterAvatarUrl ?? null,
+          }}
+          size={44}
+          className="shrink-0 ring-2 ring-white"
+        />
+        <div className="min-w-0 flex-1 space-y-1">
+          <p className="truncate text-sm font-semibold leading-snug text-[var(--on-surface-muted)]">
+            {travelerDisplayName}
+          </p>
+          <p className="text-xl font-semibold leading-tight text-[var(--on-surface)]">
             {item.destination}
-          </span>
-        </p>
+          </p>
+        </div>
       </div>
-      <div className="flex shrink-0 flex-col items-end gap-1.5 pt-0.5">
+      <div className="flex shrink-0 flex-col items-start gap-2 sm:items-end">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--surface)] px-3 py-1 text-xs font-semibold text-[var(--on-surface-muted)]">
+          <span className="size-2 rounded-full bg-[var(--gold)]" aria-hidden="true" />
+          Новый · {formatPublishedAt(item.createdAt)}
+        </span>
         {item.interests.length > 0 ? (
           <span
             className={
               matched
-                ? "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary"
-                : "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground"
+                ? "inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-[var(--brand-50)] px-3 py-1 text-xs font-semibold text-[var(--primary)]"
+                : "inline-flex items-center gap-1.5 whitespace-normal rounded-full border border-[var(--outline)] bg-[var(--surface-lowest)] px-3 py-1 text-xs font-semibold text-[var(--on-surface-muted)]"
             }
           >
             {item.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s).join(" · ")}
           </span>
         ) : null}
-        <span className="text-xs text-muted-foreground/60">
-          {formatPublishedAt(item.createdAt)}
-        </span>
       </div>
     </div>
   );

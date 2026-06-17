@@ -74,9 +74,9 @@
   --card-shadow: 0 4px 24px rgba(10, 40, 28, 0.08);
   --card-radius: 24px;
 
-  --font-display: var(--font-cormorant-garamond);
-  --font-ui: var(--font-dm-sans);
-  --font-serif: var(--font-cormorant-garamond);
+  --font-display: var(--font-rubik);
+  --font-ui: var(--font-rubik);
+  --font-serif: var(--font-rubik);
   --font-mono: var(--font-geist-mono);
 
   --success: #1E9E63;
