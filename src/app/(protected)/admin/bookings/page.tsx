@@ -26,18 +26,44 @@ export default async function BookingsPage() {
     .order("created_at", { ascending: false })
     .limit(50);
 
+  const bookingRows = bookings ?? [];
+  const profileIds = [
+    ...new Set(
+      bookingRows
+        .flatMap((booking) => [booking.traveler_id, booking.guide_id])
+        .filter((id): id is string => Boolean(id)),
+    ),
+  ];
+
+  const nameById = new Map<string, string | null>();
+  if (profileIds.length > 0) {
+    const { data: profiles } = await adminClient
+      .from("profiles")
+      .select("id, full_name")
+      .in("id", profileIds);
+    for (const profile of profiles ?? []) {
+      nameById.set(profile.id, profile.full_name);
+    }
+  }
+
+  function resolveName(id: string | null) {
+    if (!id) return "—";
+    const name = nameById.get(id)?.trim();
+    return name && name.length > 0 ? name : id.slice(0, 8);
+  }
+
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold text-ink">Бронирования</h1>
 
-      {!bookings || bookings.length === 0 ? (
+      {bookingRows.length === 0 ? (
         <EmptyState
           title="Бронирований пока нет"
           description="Новые бронирования появятся здесь после оформления."
         />
       ) : (
         <ul className="space-y-3">
-          {bookings.map((booking) => {
+          {bookingRows.map((booking) => {
             const amount =
               booking.subtotal_minor
                 ? `${kopecksToRub(booking.subtotal_minor).toLocaleString("ru-RU")} ₽`
@@ -47,8 +73,8 @@ export default async function BookingsPage() {
             );
             const statusLabel =
               STATUS_LABELS[booking.status] ?? booking.status;
-            const travelerId = booking.traveler_id?.slice(0, 8) ?? "—";
-            const guideId = booking.guide_id?.slice(0, 8) ?? "—";
+            const travelerName = resolveName(booking.traveler_id);
+            const guideName = resolveName(booking.guide_id);
 
             return (
               <li
@@ -60,12 +86,10 @@ export default async function BookingsPage() {
                     {statusLabel}
                   </span>
                   <span className="text-ink-2">
-                    Турист:{" "}
-                    <span className="font-mono text-ink">{travelerId}</span>
+                    Турист: <span className="text-ink">{travelerName}</span>
                   </span>
                   <span className="text-ink-2">
-                    Гид:{" "}
-                    <span className="font-mono text-ink">{guideId}</span>
+                    Гид: <span className="text-ink">{guideName}</span>
                   </span>
                   <span className="font-medium text-ink">{amount}</span>
                   <span className="text-ink-2">{date}</span>

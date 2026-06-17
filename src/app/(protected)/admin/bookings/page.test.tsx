@@ -57,6 +57,13 @@ function createBookingsQuery(data: unknown[]) {
   return { select, order, limit };
 }
 
+function createProfilesQuery(data: unknown[]) {
+  const inFilter = vi.fn().mockResolvedValue({ data, error: null });
+  const select = vi.fn(() => ({ in: inFilter }));
+
+  return { select, in: inFilter };
+}
+
 describe("BookingsPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -89,8 +96,14 @@ describe("BookingsPage", () => {
         guide_id: "guide-123456789",
       },
     ]);
+    const profilesQuery = createProfilesQuery([
+      { id: "traveler-123456789", full_name: "Иван Турист" },
+      { id: "guide-123456789", full_name: "Пётр Гид" },
+    ]);
     const adminClient = {
-      from: vi.fn(() => bookingsQuery),
+      from: vi.fn((table: string) =>
+        table === "profiles" ? profilesQuery : bookingsQuery,
+      ),
     };
     const serverClient = {
       from: vi.fn(() => createBookingsQuery([])),
@@ -105,10 +118,13 @@ describe("BookingsPage", () => {
     expect(requireAdminSession).toHaveBeenCalledOnce();
     expect(createSupabaseServerClient).not.toHaveBeenCalled();
     expect(adminClient.from).toHaveBeenCalledWith("bookings");
+    expect(adminClient.from).toHaveBeenCalledWith("profiles");
     expect(serverClient.from).not.toHaveBeenCalled();
     expect(html).toContain("Ожидает подтверждения");
     expect(html).toContain("1\u00a0250 ₽");
     expect(html).toContain("Подтвердить бронирование");
     expect(html).not.toContain("Подтвердить оплату");
+    expect(html).toContain("Иван Турист");
+    expect(html).toContain("Пётр Гид");
   });
 });
