@@ -823,7 +823,17 @@ export async function getGuideBySlug(
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
-    return { data: mapGuideRow(data, data.profiles as Record<string, unknown> | null), error: null };
+    const record = mapGuideRow(data, data.profiles as Record<string, unknown> | null);
+
+    const { data: stats } = await client
+      .from("v_guide_public_profile")
+      .select("average_rating, review_count")
+      .eq("user_id", record.id)
+      .maybeSingle();
+    record.rating = stats?.average_rating ?? 0;
+    record.reviewCount = stats?.review_count ?? 0;
+
+    return { data: record, error: null };
   } catch (error) {
     return { data: null, error: makeError(error) };
   }
