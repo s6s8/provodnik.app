@@ -38,6 +38,7 @@ export type ConversationThreadWithParticipants = ConversationThreadRow & {
 export type Message = MessageRow;
 export type MessageWithSender = MessageRow & {
   sender_profile: SenderProfile | null;
+  sender_display_name: string | null;
 };
 export type UserThreadSummary = ConversationThreadRow & {
   participants: ThreadParticipantRow[];
@@ -293,6 +294,32 @@ async function listParticipantsWithProfiles(
   return grouped;
 }
 
+async function listGuideDisplayNames(
+  userIds: Uuid[],
+): Promise<Map<Uuid, string>> {
+  const result = new Map<Uuid, string>();
+  const uniqueIds = [...new Set(userIds)];
+  if (!uniqueIds.length) return result;
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data, error } = await supabase
+    .from("guide_profiles")
+    .select("user_id, display_name")
+    .in("user_id", uniqueIds);
+
+  if (error) throw error;
+
+  for (const row of (data as Array<Record<string, unknown>>) ?? []) {
+    const displayName = (row.display_name as string | null)?.trim();
+    if (displayName) {
+      result.set(row.user_id as Uuid, displayName);
+    }
+  }
+
+  return result;
+}
+
 export async function getOrCreateThread(
   subjectType: ThreadSubject,
   subjectId: string,
@@ -432,16 +459,36 @@ export async function getThreadMessages(
   const { data, error } = await query;
   if (error) throw error;
 
-  return ((data as Array<Record<string, unknown>>) ?? []).map((row) => ({
-    id: row.id as Uuid,
-    thread_id: row.thread_id as Uuid,
-    sender_id: (row.sender_id as Uuid | null) ?? null,
-    sender_role: row.sender_role as MessageSenderRole,
-    body: row.body as string,
-    metadata: row.metadata ?? {},
-    created_at: row.created_at as string,
-    sender_profile: normalizeRelation<SenderProfile>(row.sender_profile),
-  }));
+  const rows = (data as Array<Record<string, unknown>>) ?? [];
+
+  const guideSenderIds = rows
+    .filter((row) => row.sender_role === "guide")
+    .map((row) => (row.sender_id as Uuid | null) ?? null)
+    .filter((value): value is Uuid => Boolean(value));
+  const guideDisplayNames = await listGuideDisplayNames(guideSenderIds);
+
+  return rows.map((row) => {
+    const senderProfile = normalizeRelation<SenderProfile>(row.sender_profile);
+    const senderId = (row.sender_id as Uuid | null) ?? null;
+    const senderRole = row.sender_role as MessageSenderRole;
+    const fullName = senderProfile?.full_name?.trim() || null;
+    const guideName =
+      senderRole === "guide" && senderId
+        ? guideDisplayNames.get(senderId) ?? null
+        : null;
+
+    return {
+      id: row.id as Uuid,
+      thread_id: row.thread_id as Uuid,
+      sender_id: senderId,
+      sender_role: senderRole,
+      body: row.body as string,
+      metadata: row.metadata ?? {},
+      created_at: row.created_at as string,
+      sender_profile: senderProfile,
+      sender_display_name: fullName ?? guideName,
+    };
+  });
 }
 
 export async function getUserThreads(userId: string): Promise<UserThreadSummary[]> {
@@ -476,6 +523,12 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
     listParticipantsWithProfiles(threadIds),
   ]);
 
+  const otherParticipantIds = [...participantsByThread.values()]
+    .flat()
+    .filter((participant) => participant.user_id !== input.userId)
+    .map((participant) => participant.user_id);
+  const guideDisplayNames = await listGuideDisplayNames(otherParticipantIds);
+
   const summaries = participantRows
     .map((row) => {
       if (!row.thread) return null;
@@ -485,7 +538,12 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
 
       const otherParticipantNames = participants
         .filter((participant) => participant.user_id !== input.userId)
-        .map((participant) => participant.profile?.full_name?.trim() || "Участник");
+        .map(
+          (participant) =>
+            participant.profile?.full_name?.trim() ||
+            guideDisplayNames.get(participant.user_id) ||
+            "Участник",
+        );
 
       return {
         ...row.thread,

@@ -36,11 +36,15 @@ import { cn } from "@/lib/utils";
 import {
   confirmBookingAction,
   completeBookingAction,
+  declineBooking,
+  noShowBookingAction,
   getGuideBookingDetailAction,
 } from "@/app/(protected)/guide/bookings/[bookingId]/actions";
 
 type GuideBookingAction = "confirm" | "complete" | "cancel" | "no_show";
-type OpenBookingThreadAction = (formData: FormData) => Promise<void>;
+type OpenBookingThreadAction = (
+  bookingId: string,
+) => Promise<{ threadId?: string; error?: string }>;
 
 type BookingDetailScreenProps =
   | {
@@ -118,12 +122,23 @@ function TravelerBookingDetailView({
   openBookingThreadAction?: OpenBookingThreadAction;
   showTravelerPanel: boolean;
 }) {
+  const router = useRouter();
+  const [isOpeningThread, startOpenThread] = React.useTransition();
+
   const guideProfile = booking.guide_profile;
   const guideProfileData = guideProfile?.profile ?? null;
   const guideName = resolveDisplayName("guide", { full_name: guideProfileData?.full_name });
-  const guidePhone = guideProfileData?.phone ?? null;
+  const guidePhone = booking.guide_phone ?? null;
   const guideAvatarUrl = guideProfileData?.avatar_url ?? null;
   const isVerified = guideProfile?.verification_status === "approved";
+
+  const handleOpenThread = React.useCallback(() => {
+    if (!openBookingThreadAction) return;
+    startOpenThread(async () => {
+      const result = await openBookingThreadAction(booking.id);
+      router.push(result.threadId ? `/messages/${result.threadId}` : "/messages");
+    });
+  }, [openBookingThreadAction, booking.id, router]);
 
   const request = booking.traveler_request;
   const offer = booking.guide_offer;
@@ -292,19 +307,23 @@ function TravelerBookingDetailView({
                           {guidePhone}
                         </a>
                       </p>
-                    ) : null}
+                    ) : (
+                      <p className="font-sans text-sm text-muted-foreground">
+                        Контакт появится в чате
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2 sm:flex-row">
                   {openBookingThreadAction ? (
-                    <form
-                      action={openBookingThreadAction}
-                      className="flex"
+                    <Button
+                      type="button"
+                      onClick={handleOpenThread}
+                      disabled={isOpeningThread}
                     >
-                      <input type="hidden" name="booking_id" value={booking.id} />
-                      <Button type="submit">Написать гиду</Button>
-                    </form>
+                      {isOpeningThread ? "Открываю чат…" : "Написать гиду"}
+                    </Button>
                   ) : null}
 
                   {(booking.status === "confirmed" || booking.status === "completed") ? (
@@ -420,21 +439,32 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     });
   }, [bookingId, record, router]);
 
-  const performLocalAction = React.useCallback(
+  const performServerAction = React.useCallback(
     (action: Exclude<GuideBookingAction, "confirm" | "complete">) => {
       if (!record) return;
       const currentGuideStatus = mapDbStatusToGuideStatus(record.status);
       const nextStatus = nextStatusForAction(currentGuideStatus, action);
       if (!nextStatus) return;
 
-      setRecord({
-        ...record,
-        status: nextStatus,
-        travelerName: nextStatus === "confirmed" ? record.travelerName : "Путешественник",
+      setErrorMessage(null);
+      startTransition(async () => {
+        const result =
+          action === "cancel"
+            ? await declineBooking(bookingId)
+            : await noShowBookingAction(bookingId);
+        if (result.ok) {
+          const refreshed = await getGuideBookingDetailAction(bookingId);
+          setRecord((prev) =>
+            refreshed.ok ? refreshed.booking : prev ? { ...prev, status: result.status } : prev,
+          );
+          setActionResult({ action, nextStatus });
+          router.refresh();
+        } else {
+          setErrorMessage(result.error);
+        }
       });
-      setActionResult({ action, nextStatus });
     },
-    [record],
+    [bookingId, record, router],
   );
 
   if (!record) {
@@ -553,14 +583,14 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
               description="Зафиксировать отмену со стороны гида или гостя."
               icon={<XCircle className="size-4" />}
               disabled={!canCancel || isPending}
-              onClick={() => performLocalAction("cancel")}
+              onClick={() => performServerAction("cancel")}
             />
             <ActionButton
               label="Неявка"
               description="Гости не пришли к старту экскурсии."
               icon={<ShieldAlert className="size-4" />}
               disabled={!canNoShow || isPending}
-              onClick={() => performLocalAction("no_show")}
+              onClick={() => performServerAction("no_show")}
             />
           </div>
 

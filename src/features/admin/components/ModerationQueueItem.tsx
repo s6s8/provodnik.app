@@ -67,6 +67,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
   const [reason, setReason] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [success, setSuccess] = React.useState<string | null>(null);
 
   const maskedDescription = maskPii(listing.description);
 
@@ -76,9 +77,11 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
 
   async function handleApprove() {
     setError(null);
+    setSuccess(null);
     setBusy(true);
     try {
       await approveListing(listing.id);
+      setSuccess("Объявление одобрено");
       runAfterSuccess();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось одобрить");
@@ -94,11 +97,13 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
       return;
     }
     setError(null);
+    setSuccess(null);
     setBusy(true);
     try {
       await rejectListing(listing.id, trimmed);
       setShowReject(false);
       setReason("");
+      setSuccess("Объявление отклонено");
       runAfterSuccess();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось отклонить");
@@ -134,6 +139,13 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
           <Alert variant="destructive">
             <AlertTitle>Ошибка</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        ) : null}
+
+        {success ? (
+          <Alert className="border-success/30 bg-success/10 text-success">
+            <AlertTitle>Готово</AlertTitle>
+            <AlertDescription className="text-success/90">{success}</AlertDescription>
           </Alert>
         ) : null}
 
@@ -191,7 +203,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
         <Button
           type="button"
           size="sm"
-          disabled={busy || showReject}
+          disabled={busy || showReject || success !== null}
           className="border-success/30 bg-success/10 text-success hover:bg-success/20"
           onClick={() => void handleApprove()}
         >
@@ -201,7 +213,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
           type="button"
           variant="destructive"
           size="sm"
-          disabled={busy}
+          disabled={busy || success !== null}
           onClick={() => {
             setShowReject(true);
             setError(null);

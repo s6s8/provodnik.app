@@ -148,9 +148,7 @@ export async function acceptOfferAction(
     // Notification delivery must not block booking creation.
   }
 
-  redirect(
-    `/requests/${requestId}/accepted?booking_id=${booking.id}&guide_id=${guideId}`,
-  );
+  redirect(`/bookings/${booking.id}`);
 }
 
 export type RejectOfferActionState = { error: string | null };

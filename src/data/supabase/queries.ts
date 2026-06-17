@@ -758,12 +758,31 @@ export async function getGuides(
       countMap[gid] = (countMap[gid] ?? 0) + 1;
     }
 
+    const { data: statRows } = await client
+      .from("v_guide_public_profile")
+      .select("user_id, average_rating, review_count")
+      .in("user_id", guideIds);
+
+    const ratingMap = new Map<string, { rating: number; reviewCount: number }>();
+    for (const row of statRows ?? []) {
+      ratingMap.set(row.user_id as string, {
+        rating: (row.average_rating as number | null) ?? 0,
+        reviewCount: (row.review_count as number | null) ?? 0,
+      });
+    }
+
     return {
       data: applyGuideFilters(
-        rows.map((row) => ({
-          ...mapGuideRow(row, profileMap.get(row.user_id as string) ?? null),
-          listingCount: countMap[row.user_id as string] ?? 0,
-        })),
+        rows.map((row) => {
+          const userId = row.user_id as string;
+          const stats = ratingMap.get(userId);
+          return {
+            ...mapGuideRow(row, profileMap.get(userId) ?? null),
+            listingCount: countMap[userId] ?? 0,
+            rating: stats?.rating ?? 0,
+            reviewCount: stats?.reviewCount ?? 0,
+          };
+        }),
         filters,
       ),
       error: null,
@@ -823,7 +842,17 @@ export async function getGuideBySlug(
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
-    return { data: mapGuideRow(data, data.profiles as Record<string, unknown> | null), error: null };
+    const record = mapGuideRow(data, data.profiles as Record<string, unknown> | null);
+
+    const { data: stats } = await client
+      .from("v_guide_public_profile")
+      .select("average_rating, review_count")
+      .eq("user_id", record.id)
+      .maybeSingle();
+    record.rating = stats?.average_rating ?? 0;
+    record.reviewCount = stats?.review_count ?? 0;
+
+    return { data: record, error: null };
   } catch (error) {
     return { data: null, error: makeError(error) };
   }

@@ -5,13 +5,14 @@ import type { BookingWithDetails } from "@/lib/supabase/bookings";
 
 import { BookingDetailScreen } from "./booking-detail-screen";
 
-const { getGuideBookingDetailAction, refresh } = vi.hoisted(() => ({
+const { getGuideBookingDetailAction, refresh, push } = vi.hoisted(() => ({
   getGuideBookingDetailAction: vi.fn(),
   refresh: vi.fn(),
+  push: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ refresh }),
+  useRouter: () => ({ refresh, push }),
 }));
 
 vi.mock("@/lib/flags", () => ({
@@ -69,6 +70,7 @@ const booking = {
   meeting_point: "Площадь Ленина",
   created_at: "2026-06-01T00:00:00.000Z",
   updated_at: "2026-06-01T00:00:00.000Z",
+  guide_phone: "+79990000000",
   guide_profile: {
     user_id: "guide-1",
     bio: "",
@@ -140,7 +142,7 @@ describe("BookingDetailScreen", () => {
         booking={booking}
         existingReview={null}
         listingTitle="Городская прогулка"
-        openBookingThreadAction={async () => {}}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
 

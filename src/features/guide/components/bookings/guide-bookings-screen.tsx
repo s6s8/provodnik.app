@@ -10,7 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getGuideBookings, type BookingRecord } from "@/data/supabase/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/guide-booking-status";
+import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
+import type { BookingStatus } from "@/lib/bookings/state-machine";
 
 export function GuideBookingsScreen() {
   const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
@@ -183,7 +184,7 @@ function BookingCard({ record }: { record: BookingRecord }) {
               {record.dateLabel}
             </p>
           </div>
-          <GuideBookingStatusBadge status={record.status as import("@/data/guide-booking/types").GuideBookingStatus} />
+          <BookingStatusBadge status={record.status as BookingStatus} />
         </div>
 
         <Separator />

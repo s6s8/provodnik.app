@@ -200,7 +200,14 @@ describe("RequestDetailScreen", () => {
         ownerOffers={[
           {
             offer,
-            guideInfo: { guide_id: "guide-1", full_name: "Анна", avatar_url: null },
+            guideInfo: {
+              guide_id: "guide-1",
+              full_name: "Анна",
+              avatar_url: null,
+              rating: 4.8,
+              review_count: 12,
+              verified: true,
+            },
             qaThread: null as QaThread | null,
           },
         ]}

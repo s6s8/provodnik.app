@@ -7,6 +7,13 @@ export type TripPhase =
 
 export type TripCardModel = {
   id: string;
+  /**
+   * What `id` points at, so the card links to the right detail route:
+   * - "booking" → /bookings/[id]
+   * - "request" → /requests/[id] (own request or joined «сборная» group)
+   * When omitted, the card infers the route from `phase` (back-compat).
+   */
+  kind?: "request" | "booking";
   destination: string;
   startsOn: string; // ISO date
   endsOn?: string | null;

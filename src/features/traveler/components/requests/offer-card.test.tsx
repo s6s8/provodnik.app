@@ -45,6 +45,9 @@ const guideInfo = {
   guide_id: "guide-1",
   full_name: "Иван Петров",
   avatar_url: null,
+  rating: 4.8,
+  review_count: 12,
+  verified: true,
 };
 
 const onSendQa = vi.fn();

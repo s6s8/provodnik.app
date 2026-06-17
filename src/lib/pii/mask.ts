@@ -66,6 +66,7 @@ export function maskMessageBodies<T extends { body: string }>(messages: T[]): T[
       sender_role: row.sender_role,
       body: maskPii(message.body),
       created_at: row.created_at,
+      sender_display_name: (row.sender_display_name as string | null) ?? null,
     } as unknown as T;
   });
 }

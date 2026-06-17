@@ -8,7 +8,7 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient,
 }));
 
-import { getUserThreads } from "./conversations";
+import { getThreadMessages, getUserThreads } from "./conversations";
 import type { UserThreadSummary } from "./conversations";
 
 type QueryResult = {
@@ -161,7 +161,7 @@ describe("getUserThreads", () => {
         user_id: guideId,
         joined_at: "2026-06-10T08:10:00.000Z",
         last_read_at: null,
-        profile: { id: guideId, full_name: "  Guide One  " },
+        profile: { id: guideId, full_name: null },
       },
       {
         thread_id: middleThreadId,
@@ -205,9 +205,14 @@ describe("getUserThreads", () => {
       data: participantProfileRows,
       error: null,
     });
+    const guideProfilesQuery = createQuery({
+      data: [{ user_id: guideId, display_name: "Guide One" }],
+      error: null,
+    });
     let threadParticipantQueryCount = 0;
     const from = vi.fn((table: string) => {
       if (table === "conversation_threads") return latestMessagesQuery;
+      if (table === "guide_profiles") return guideProfilesQuery;
       if (table === "thread_participants") {
         threadParticipantQueryCount += 1;
         return threadParticipantQueryCount === 1
@@ -262,5 +267,56 @@ describe("getUserThreads", () => {
       last_message_created_at: "2026-06-10T10:30:00.000Z",
       unread: false,
     });
+  });
+});
+
+describe("getThreadMessages", () => {
+  it("resolves a guide sender name from guide_profiles.display_name when full_name is RLS-null", async () => {
+    const threadId = "10000000-0000-4000-8000-000000000099";
+    const guideId = "00000000-0000-4000-8000-0000000000aa";
+    const travelerId = "00000000-0000-4000-8000-0000000000bb";
+
+    const messageRows = [
+      {
+        id: "msg-1",
+        thread_id: threadId,
+        sender_id: travelerId,
+        sender_role: "traveler",
+        body: "Здравствуйте!",
+        metadata: {},
+        created_at: "2026-06-10T08:00:00.000Z",
+        sender_profile: { full_name: "Анна", avatar_url: null },
+      },
+      {
+        id: "msg-2",
+        thread_id: threadId,
+        sender_id: guideId,
+        sender_role: "guide",
+        body: "Готов помочь с маршрутом.",
+        metadata: {},
+        created_at: "2026-06-10T08:05:00.000Z",
+        sender_profile: { full_name: null, avatar_url: null },
+      },
+    ];
+
+    const messagesQuery = createQuery({ data: messageRows, error: null });
+    const guideProfilesQuery = createQuery({
+      data: [{ user_id: guideId, display_name: "Гид Дмитрий" }],
+      error: null,
+    });
+    const from = vi.fn((table: string) => {
+      if (table === "messages") return messagesQuery;
+      if (table === "guide_profiles") return guideProfilesQuery;
+      throw new Error(`Unexpected table: ${table}`);
+    });
+    createSupabaseServerClient.mockResolvedValue({ from });
+
+    const messages = await getThreadMessages(threadId);
+
+    expect(messages.map((message) => message.sender_display_name)).toEqual([
+      "Анна",
+      "Гид Дмитрий",
+    ]);
+    expect(from).toHaveBeenCalledWith("guide_profiles");
   });
 });

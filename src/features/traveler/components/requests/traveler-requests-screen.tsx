@@ -117,6 +117,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
 function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
   return {
     id: group.id,
+    kind: "request",
     destination: group.destination,
     startsOn: group.starts_on,
     endsOn: group.ends_on,
@@ -215,7 +216,7 @@ function RequestsCategoryTabs({
               <TripCard
                 key={booking.booking_id}
                 phase="upcoming"
-                trip={mapBookingToTrip(booking)}
+                trip={{ ...mapBookingToTrip(booking), kind: "booking" }}
               />
             ))}
           </CategoryGrid>

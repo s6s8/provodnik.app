@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { BookingDetailScreen } from "@/features/bookings/components/booking-detail-screen";
 import { openBookingThreadAction } from "@/features/bookings/booking-actions";
@@ -83,13 +83,11 @@ export default async function BookingDetailPage({
       listingTitle={listingTitle}
       reviewStatus={reviewStatus}
       disputeStatus={disputeStatus}
-      openBookingThreadAction={async (formData: FormData) => {
+      openBookingThreadAction={async (bookingId: string) => {
         "use server";
-        const result = await openBookingThreadAction(formData);
-        if (result.error) {
-          redirect("/messages");
-        }
-        redirect(`/messages/${result.threadId}`);
+        const formData = new FormData();
+        formData.set("booking_id", bookingId);
+        return openBookingThreadAction(formData);
       }}
     />
   );
