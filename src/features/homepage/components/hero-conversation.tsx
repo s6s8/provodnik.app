@@ -148,7 +148,7 @@ export function HeroConversation() {
         {/* Subtle gold glow, top-right */}
         <div
           className="absolute inset-0"
-          style={{ background: "radial-gradient(38% 26% at 84% 10%, rgba(224,161,38,0.12), transparent 60%)" }}
+          style={{ background: "radial-gradient(38% 26% at 84% 10%, color-mix(in srgb, var(--gold) 12%, transparent), transparent 60%)" }}
         />
       </div>
 
@@ -156,7 +156,7 @@ export function HeroConversation() {
         <h1
           className="animate-in fade-in-50 slide-in-from-bottom-2 mb-3 text-center font-display text-[clamp(2rem,6vw,3.25rem)] leading-[1.08] duration-700"
           style={{
-            backgroundImage: "linear-gradient(135deg,#2E9B74 0%,#1F7A5C 50%,#145C44 100%)",
+            backgroundImage: "linear-gradient(135deg,var(--navy-500) 0%,var(--navy-600) 50%,var(--navy-700) 100%)",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
