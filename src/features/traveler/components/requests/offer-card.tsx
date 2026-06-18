@@ -51,6 +51,9 @@ interface Props {
   travelerOpenToJoin: boolean;
   travelerCount?: number;
   travelerBudgetPerPersonRub?: number | null;
+  /** Embedded under a GuideOfferCard: hide the duplicate guide header + inline accept
+   * (commit happens from the sticky action bar); keep details, reject and Q&A. */
+  embedded?: boolean;
 }
 
 const DEVIATION_BADGE_CLASS = cn(BADGE_CLASS, "border-blue-300 bg-blue-50 text-blue-600");
@@ -108,6 +111,7 @@ export function OfferCard({
   travelerOpenToJoin,
   travelerCount,
   travelerBudgetPerPersonRub,
+  embedded = false,
 }: Props) {
   const guideName = resolveDisplayName("guide", { full_name: guideInfo?.full_name ?? null });
   const guideRating = guideInfo?.rating ?? null;
@@ -184,38 +188,40 @@ export function OfferCard({
   };
 
   return (
-    <div className="space-y-3 rounded-xl border p-4 bg-card">
-      {/* Guide header */}
-      <div className="flex items-center gap-3">
-        <Avatar className="h-10 w-10">
-          <AvatarImage src={guideInfo?.avatar_url ?? undefined} alt={guideName} />
-          <AvatarFallback>{guideName.charAt(0).toUpperCase()}</AvatarFallback>
-        </Avatar>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5">
-            <p className="truncate font-medium">{guideName}</p>
-            {guideInfo?.verified ? (
-              <Badge variant="outline" className={cn(BADGE_CLASS, "shrink-0 border-success/30 bg-success/10 text-success")}>
-                <BadgeCheck className="size-3.5" />
-                Проверен
-              </Badge>
-            ) : null}
+    <div className={embedded ? "space-y-3" : "space-y-3 rounded-xl border p-4 bg-card"}>
+      {/* Guide header — hidden when embedded under a GuideOfferCard */}
+      {embedded ? null : (
+        <div className="flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={guideInfo?.avatar_url ?? undefined} alt={guideName} />
+            <AvatarFallback>{guideName.charAt(0).toUpperCase()}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <p className="truncate font-medium">{guideName}</p>
+              {guideInfo?.verified ? (
+                <Badge variant="outline" className={cn(BADGE_CLASS, "shrink-0 border-success/30 bg-success/10 text-success")}>
+                  <BadgeCheck className="size-3.5" />
+                  Проверен
+                </Badge>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+              {showGuideRating ? (
+                <span className="flex items-center gap-1 font-medium text-foreground">
+                  <Star className="size-3.5 fill-primary text-primary" />
+                  {guideRating.toFixed(1)}
+                  {guideInfo?.review_count ? ` · ${guideInfo.review_count} отзывов` : ""}
+                </span>
+              ) : null}
+              <span>{formatOfferDate(offer.created_at)}</span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
-            {showGuideRating ? (
-              <span className="flex items-center gap-1 font-medium text-foreground">
-                <Star className="size-3.5 fill-primary text-primary" />
-                {guideRating.toFixed(1)}
-                {guideInfo?.review_count ? ` · ${guideInfo.review_count} отзывов` : ""}
-              </span>
-            ) : null}
-            <span>{formatOfferDate(offer.created_at)}</span>
-          </div>
+          {offer.status === "accepted" ? (
+            <Badge variant="default">Принято</Badge>
+          ) : null}
         </div>
-        {offer.status === "accepted" ? (
-          <Badge variant="default">Принято</Badge>
-        ) : null}
-      </div>
+      )}
 
       {isCounterOffer ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -337,12 +343,14 @@ export function OfferCard({
       <div className="flex flex-wrap gap-2">
         {canAccept ? (
           <>
-            <AcceptOfferButton
-              offerId={offer.id}
-              requestId={requestId}
-              guideId={offer.guide_id}
-              priceMinor={offer.price_minor}
-            />
+            {embedded ? null : (
+              <AcceptOfferButton
+                offerId={offer.id}
+                requestId={requestId}
+                guideId={offer.guide_id}
+                priceMinor={offer.price_minor}
+              />
+            )}
             <RejectOfferButton offerId={offer.id} requestId={requestId} />
           </>
         ) : null}

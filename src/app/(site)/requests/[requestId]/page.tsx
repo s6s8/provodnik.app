@@ -362,26 +362,26 @@ export default async function RequestDetailPage({
         requestId,
         currentUserId,
       );
+      const ownerViewModel = buildViewModel({
+        request: result.data,
+        currentUserId,
+        isMember,
+        ownerId,
+      });
 
       return (
-        <div className="flex flex-col gap-8">
-          {justCreated ? (
-            <div className="rounded-lg border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
-              {createdMode === "assembly"
-                ? "Открытая экскурсия опубликована — гиды увидят ваш запрос и смогут присоединиться."
-                : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}
-            </div>
-          ) : null}
-          <RequestDetailScreen
-            viewerRole="owner"
-            requestId={requestId}
-            ownerRecord={mapTravelerRequestRow(requestRow)}
-            ownerRequestRow={requestRow}
-            ownerOffers={ownerOffers}
-            onSendQa={sendQa}
-            onGetOrCreateQaThread={getOrCreateThread}
-          />
-        </div>
+        <RequestDetailScreen
+          viewerRole="owner"
+          requestId={requestId}
+          ownerRecord={mapTravelerRequestRow(requestRow)}
+          ownerRequestRow={requestRow}
+          ownerOffers={ownerOffers}
+          viewModel={ownerViewModel}
+          justCreated={justCreated}
+          createdMode={createdMode}
+          onSendQa={sendQa}
+          onGetOrCreateQaThread={getOrCreateThread}
+        />
       );
     } catch {
       notFound();
