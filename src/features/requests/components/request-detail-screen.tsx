@@ -656,14 +656,18 @@ function OwnerDetailBranch({
     />
   );
 
-  const renderGuideCard = (item: OwnerOfferItem, selectable: boolean) => (
+  const renderGuideCard = (
+    item: OwnerOfferItem,
+    selectable: boolean,
+    forcedSelected = false,
+  ) => (
     <div key={item.offer.id} id={`guide-${item.offer.id}`}>
       <GuideOfferCard
         guide={cardInfo(item.guideInfo)}
         name={guideName(item.guideInfo)}
         quote={item.offer.message}
         perPersonPriceLabel={perPersonLabel(item.offer)}
-        selected={selectable ? selectedId === item.offer.id : true}
+        selected={selectable ? selectedId === item.offer.id : forcedSelected}
         onSelect={
           selectable
             ? () => setSelectedId((prev) => (prev === item.offer.id ? null : item.offer.id))
@@ -741,7 +745,7 @@ function OwnerDetailBranch({
                 Бронь
               </span>
             </div>
-            {renderGuideCard(acceptedOffer, false)}
+            {renderGuideCard(acceptedOffer, false, true)}
             {declinedOffers.length > 0 ? (
               <div className="flex flex-col gap-4">
                 <h3 className="text-sm font-semibold text-on-surface-muted">Другие предложения</h3>
