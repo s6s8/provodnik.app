@@ -48,6 +48,11 @@ const guideInfo = {
   rating: 4.8,
   review_count: 12,
   verified: true,
+  years_experience: 7,
+  trips_completed: 34,
+  recommend_pct: 96,
+  languages: ["Русский", "Английский"],
+  specialties: ["История", "Культура"],
 };
 
 const onSendQa = vi.fn();

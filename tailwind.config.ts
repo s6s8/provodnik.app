@@ -64,9 +64,9 @@ const config = {
         "surface-lowest": "var(--surface-lowest)",
       },
       fontFamily: {
-        serif: ["var(--font-serif)", "Georgia", "serif"],
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        display: ["var(--font-display)", "Georgia", "serif"],
+        serif: ["var(--font-onest)", "system-ui", "sans-serif"],
+        sans: ["var(--font-onest)", "system-ui", "sans-serif"],
+        display: ["var(--font-onest)", "system-ui", "sans-serif"],
       },
       spacing: {
         "nav-h": "var(--nav-h)",

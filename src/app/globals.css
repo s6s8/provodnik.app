@@ -4,11 +4,13 @@
 @import "tw-animate-css";
 
 @theme inline {
-  --font-sans:    var(--font-rubik);
-  --font-serif:   var(--font-rubik);
-  --font-display: var(--font-rubik);
+  --font-sans:    var(--font-onest);
+  --font-serif:   var(--font-onest);
+  --font-display: var(--font-onest);
   --font-mono:    var(--font-geist-mono);
 
+  --color-success: var(--success);
+  --color-amber: var(--gold);
   --color-background: var(--surface);
   --color-foreground: var(--on-surface);
   --color-card: var(--surface-lowest);
@@ -55,59 +57,72 @@
 }
 
 :root {
+  /* ───────── Layer 1: raw palette (hex literals live ONLY here) ───────── */
+  --navy-50:#EAF1FA; --navy-100:#D3E2F3; --navy-200:#A6C4E7; --navy-300:#7AA5DA;
+  --navy-400:#4A7FC4; --navy-500:#1A56A4; --navy-600:#15467F; --navy-700:#113A6A;
+  --navy-800:#0E2F57; --navy-900:#0A2543; --navy-950:#061827;
+  --amber-50:#FBF3E8; --amber-100:#F5E2C8; --amber-200:#ECC593; --amber-300:#E2A65C;
+  --amber-400:#D4872B; --amber-500:#B26F1E; --amber-600:#8F5817;
+  --green-50:#E9F5EF; --green-100:#CFE9DD; --green-500:#2F8F66; --green-600:#27764F;
+  --ink-raw:#141C28; --body-raw:#414B59; --muted-ink:#8A93A1; --faint:#AEB6C2;
+  --canvas:#FAFAF9; --surface-white:#FFFFFF; --surface-2:#F4F4F2;
+  --hairline:rgba(20,28,40,.08); --hairline-2:rgba(20,28,40,.12);
+
+  /* ───────── Layer 2: semantic tokens (existing names, repointed) ───────── */
   --nav-h: 88px;
-  --primary: #1F7A5C;
-  --primary-hover: #1A6149;
-  --surface: #F7FAF6;
-  --surface-low: #EDF2EE;
-  --surface-lowest: #FFFFFF;
-  --on-surface: #16241D;
-  --on-surface-muted: #5D7669;
-  --outline-variant: #DCE5DF;
-  --footer-bg: #0A271E;
+  --primary: var(--navy-500);
+  --primary-hover: var(--navy-600);
+  --surface: var(--canvas);
+  --surface-low: var(--surface-2);
+  --surface-lowest: var(--surface-white);
+  --on-surface: var(--ink-raw);
+  --on-surface-muted: var(--muted-ink);
+  --outline-variant: var(--hairline);
+  --footer-bg: var(--navy-950);
 
-  --glass-bg: rgba(247, 250, 246, 0.60);
-  --glass-border: rgba(31, 122, 92, 0.16);
-  --glass-blur: blur(20px);
-  --glass-shadow: 0 8px 32px rgba(10, 40, 28, 0.08);
-  --glass-radius: 28px;
-  --card-shadow: 0 4px 24px rgba(10, 40, 28, 0.08);
-  --card-radius: 24px;
+  --glass-bg: rgba(255, 255, 255, 0.97);
+  --glass-border: var(--hairline);
+  --glass-blur: blur(12px);
+  --glass-shadow: 0 26px 56px -22px rgba(8, 14, 24, 0.30);
+  --glass-radius: 16px;
+  --card-shadow: 0 1px 2px rgba(20, 28, 40, 0.04);
+  --card-radius: 16px;
+  --radius-btn: 10px;
 
-  --font-display: var(--font-cormorant-garamond);
-  --font-ui: var(--font-dm-sans);
-  --font-serif: var(--font-cormorant-garamond);
+  --font-display: var(--font-onest);
+  --font-ui: var(--font-onest);
+  --font-serif: var(--font-onest);
   --font-mono: var(--font-geist-mono);
 
-  --success: #1E9E63;
-  --warning: #E0A126;
+  --success: var(--green-500);
+  --warning: var(--amber-400);
 
-  --max-w: 1200px;
+  --max-w: 1160px;
   --sec-pad: 80px;
-  --px: clamp(20px, 4vw, 48px);
+  --px: clamp(20px, 4vw, 32px);
 
   --brand: var(--primary);
-  --brand-light: #EEF7F2;
-  --brand-mid: #2E8C68;
+  --brand-light: var(--navy-50);
+  --brand-mid: var(--navy-400);
   --ink: var(--on-surface);
-  --ink-2: #47584E;
-  --ink-3: var(--on-surface-muted);
+  --ink-2: var(--body-raw);
+  --ink-3: var(--muted-ink);
   --surface-high: var(--surface-lowest);
-  --nav-glass-bg: rgba(247, 250, 246, 0.72);
-  --nav-glass-border: rgba(31, 122, 92, 0.20);
+  --nav-glass-bg: rgba(255, 255, 255, 0.85);
+  --nav-glass-border: var(--hairline);
 
-  /* Gold — the single warm CTA / highlight accent */
-  --gold: #E0A126;
-  --gold-foreground: #1A1405;
-  --gold-hover: #C5871A;
-  /* Emerald brand ramp */
-  --brand-50:#EEF7F2; --brand-100:#D6ECE0; --brand-200:#AFDAC6; --brand-300:#7FC2A6;
-  --brand-400:#4DA381; --brand-500:#2E8C68; --brand-600:#1F7A5C; --brand-700:#1A6149;
-  --brand-800:#164D3B; --brand-900:#134032; --brand-950:#0A271E;
-  /* Gold ramp */
-  --gold-50:#FCF6E6; --gold-100:#F8E9C2; --gold-200:#F1D389; --gold-300:#EABB50;
-  --gold-400:#E0A126; --gold-500:#C5871A; --gold-600:#A06D16; --gold-700:#7C5413;
-  --gold-800:#5A3D0F; --gold-900:#3E2A0A; --gold-950:#241705;
+  /* Amber — the single warm CTA / highlight accent (keeps --gold-* utility names) */
+  --gold: var(--amber-400);
+  --gold-foreground: #FFFFFF;
+  --gold-hover: var(--amber-500);
+  /* Navy brand ramp — keeps bg-brand-* utilities */
+  --brand-50:var(--navy-50);   --brand-100:var(--navy-100); --brand-200:var(--navy-200); --brand-300:var(--navy-300);
+  --brand-400:var(--navy-400); --brand-500:var(--navy-500); --brand-600:var(--navy-600); --brand-700:var(--navy-700);
+  --brand-800:var(--navy-800); --brand-900:var(--navy-900); --brand-950:var(--navy-950);
+  /* Amber gold ramp — keeps bg-gold-* utilities */
+  --gold-50:var(--amber-50); --gold-100:var(--amber-100); --gold-200:var(--amber-200); --gold-300:var(--amber-300);
+  --gold-400:var(--amber-400); --gold-500:var(--amber-500); --gold-600:var(--amber-600); --gold-700:#6F4512;
+  --gold-800:#52330D; --gold-900:#3A2409; --gold-950:#231505;
 
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -130,24 +145,25 @@
 }
 
 .dark {
-  --surface: #0E1A14;
-  --surface-low: #14231B;
-  --surface-lowest: #1A2C22;
-  --on-surface: #E7EFE9;
-  --on-surface-muted: #94A89C;
-  --outline-variant: #28392F;
-  --footer-bg: #06120C;
-  --glass-bg: rgba(20, 35, 27, 0.72);
-  --glass-border: rgba(52, 168, 126, 0.16);
-  --nav-glass-bg: rgba(20, 35, 27, 0.82);
-  --nav-glass-border: rgba(52, 168, 126, 0.20);
-  --primary: #34A87E;
-  --primary-hover: #2E9B74;
-  --brand-mid: #5FBF98;
-  --brand-light: #143C2C;
-  --ink-2: #B6C6BC;
-  --gold: #E8B23E;
-  --gold-hover: #D69E2E;
+  --surface: #0E1726;
+  --surface-low: #15233A;
+  --surface-lowest: #1B2C46;
+  --on-surface: #E7EDF5;
+  --on-surface-muted: #94A1B5;
+  --outline-variant: #26344A;
+  --footer-bg: #061827;
+  --glass-bg: rgba(27, 44, 70, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --nav-glass-bg: rgba(14, 23, 38, 0.85);
+  --nav-glass-border: rgba(255, 255, 255, 0.08);
+  --primary: #4F8BD6;
+  --primary-hover: #6C9FDF;
+  --brand-mid: #6C9FDF;
+  --brand-light: #15233A;
+  --ink-2: #C3CDDB;
+  --gold: #E0A14B;
+  --gold-hover: #EAB868;
+  --success: #46A883;
 }
 
 @layer base {
@@ -203,7 +219,7 @@
   }
 
   ::selection {
-    background: color-mix(in srgb, var(--brand-light) 82%, white);
+    background: rgba(26, 86, 164, 0.16);
     color: var(--ink);
   }
 }

@@ -3011,6 +3011,7 @@ export type Database = {
       v_guide_public_profile: {
         Row: {
           average_rating: number | null
+          avatar_url: string | null
           bio: string | null
           contact_visibility_unlocked: boolean | null
           full_name: string | null
@@ -3018,12 +3019,15 @@ export type Database = {
           languages: string[] | null
           locale: string | null
           preferred_currency: string | null
+          recommend_pct: number | null
           regions: string[] | null
           response_rate: number | null
           review_count: number | null
           slug: string | null
           specialties: string[] | null
+          trips_completed: number | null
           user_id: string | null
+          years_experience: number | null
         }
         Relationships: [
           {

@@ -190,13 +190,14 @@ describe("RequestDetailScreen", () => {
     vi.clearAllMocks();
   });
 
-  it("renders owner offers with accept controls and not the guide bid form", () => {
+  it("renders the owner guide comparison with select→accept and not the guide bid form", () => {
     render(
       <RequestDetailScreen
         viewerRole="owner"
         requestId="request-1"
         ownerRecord={travelerRecord}
         ownerRequestRow={travelerRequestRow}
+        viewModel={publicViewModel}
         ownerOffers={[
           {
             offer,
@@ -207,6 +208,11 @@ describe("RequestDetailScreen", () => {
               rating: 4.8,
               review_count: 12,
               verified: true,
+              years_experience: 5,
+              trips_completed: 21,
+              recommend_pct: 94,
+              languages: ["Русский"],
+              specialties: ["Природа"],
             },
             qaThread: null as QaThread | null,
           },
@@ -216,9 +222,14 @@ describe("RequestDetailScreen", () => {
       />,
     );
 
-    expect(screen.getByText("Предложения гидов")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Принять предложение" })).toBeInTheDocument();
+    // New immersive comparison: heading + per-card select, no guide bid form
+    expect(screen.getByText(/Кто покажет вам/)).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Сделать предложение" })).not.toBeInTheDocument();
+
+    // Accept commits from the sticky bar, which appears only after selecting a guide
+    expect(screen.queryByRole("button", { name: "Принять предложение" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать гида" }));
+    expect(screen.getByRole("button", { name: "Принять предложение" })).toBeInTheDocument();
   });
 
   it("renders the guide bid form control and not owner accept controls", () => {
@@ -284,6 +295,7 @@ describe("RequestDetailScreen", () => {
           request: { ...travelerRecord.request, dateFlexibility: "few_days" },
         }}
         ownerRequestRow={travelerRequestRow}
+        viewModel={publicViewModel}
         ownerOffers={[]}
         onSendQa={async () => {}}
         onGetOrCreateQaThread={async () => "thread-1"}

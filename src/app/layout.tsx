@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
-import { Geist_Mono, Rubik } from "next/font/google";
+import { Geist_Mono, Onest } from "next/font/google";
 import { AppProviders } from "@/components/providers/app-providers";
 
 import "./globals.css";
 
-const rubik = Rubik({
+const onest = Onest({
   subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
-  variable: "--font-rubik",
+  variable: "--font-onest",
 });
 
 const geistMono = Geist_Mono({
@@ -47,7 +48,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru" className={`${rubik.variable} ${geistMono.variable}`}>
+    <html lang="ru" className={`${onest.variable} ${geistMono.variable}`}>
       <body className="font-sans antialiased">
         <AppProviders>{children}</AppProviders>
       </body>

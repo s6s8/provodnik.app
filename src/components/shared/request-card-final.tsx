@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Calendar, Check, Clock, Hand, Users } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { AvatarStack } from "@/components/shared/avatar-stack";
 import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export type RequestCardFinalGroupType = "private" | "assembly";
@@ -118,25 +118,6 @@ function GroupTypeBadge({
   );
 }
 
-function AvatarStack({ members }: { members: readonly RequestCardFinalMember[] }) {
-  return (
-    <div className="flex items-center">
-      {members.slice(0, 5).map((member) => (
-        <Avatar
-          key={member.id}
-          className="size-6 -ml-1.5 border-2 border-surface-high first:ml-0"
-          title={member.displayName}
-        >
-          {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
-          <AvatarFallback className="bg-surface-low text-[0.5rem] font-semibold">
-            {member.initials}
-          </AvatarFallback>
-        </Avatar>
-      ))}
-    </div>
-  );
-}
-
 function ThemeLabelChip({ slug }: { slug: ThemeSlug }) {
   const theme = getTheme(slug);
 
@@ -216,7 +197,7 @@ export function RequestCardFinal({
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
         <div className="flex flex-col gap-1">
-          <AvatarStack members={members} />
+          <AvatarStack members={members} size={24} overlap={6} />
           {publishedAt ? (
             <span className="text-xs text-muted-foreground">Опубликован: {publishedAt}</span>
           ) : null}

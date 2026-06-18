@@ -36,6 +36,11 @@ import { JoinGroupButton } from "@/features/requests/components/join-group-butto
 import { CancelRequestButton } from "@/features/traveler/components/requests/cancel-request-button";
 import { MarkOffersRead } from "@/features/traveler/components/requests/mark-offers-read";
 import { OfferCard } from "@/features/traveler/components/requests/offer-card";
+import { AcceptOfferButton } from "@/features/traveler/components/requests/accept-offer-button";
+import { ImmersiveHero } from "@/components/shared/immersive-hero";
+import { TripPanel } from "@/components/shared/trip-panel";
+import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-offer-card";
+import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
 import { formatTimeRange } from "@/lib/dates";
 import { BADGE_CLASS } from "@/lib/styles";
@@ -70,6 +75,11 @@ type OwnerOfferItem = {
     rating: number | null;
     review_count: number | null;
     verified: boolean;
+    years_experience: number | null;
+    trips_completed: number | null;
+    recommend_pct: number | null;
+    languages: string[];
+    specialties: string[];
   } | null;
   qaThread: QaThread | null;
 };
@@ -86,6 +96,9 @@ type RequestDetailScreenProps =
       ownerRecord: TravelerRequestRecord;
       ownerRequestRow: TravelerRequestRow;
       ownerOffers: OwnerOfferItem[];
+      viewModel: PublicRequestDetailViewModel;
+      justCreated?: boolean;
+      createdMode?: string | null;
       onSendQa: (threadId: string, body: string) => Promise<void>;
       onGetOrCreateQaThread: (offerId: string) => Promise<string>;
     }
@@ -576,17 +589,53 @@ function OwnerDetailBranch({
   ownerRecord,
   ownerRequestRow,
   ownerOffers,
+  viewModel,
+  justCreated,
+  createdMode,
   onSendQa,
   onGetOrCreateQaThread,
 }: Extract<RequestDetailScreenProps, { viewerRole: "owner" }>) {
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
+
   const acceptedOffers = ownerOffers.filter(({ offer }) => offer.status === "accepted");
   const declinedOffers = ownerOffers.filter(({ offer }) => offer.status === "declined");
   const pendingOffers = ownerOffers.filter(({ offer }) => offer.status === "pending");
   const acceptedOffer = acceptedOffers[0] ?? null;
 
-  const renderOfferCard = ({ offer, guideInfo, qaThread }: OwnerOfferItem) => (
+  const isOpen = ownerRequestRow.status === "open";
+  const seatsTotal = ownerRequestRow.open_to_join ? ownerRequestRow.group_capacity ?? null : null;
+  const seatsTaken = viewModel.memberCount;
+  const remaining = seatsTotal != null ? Math.max(0, seatsTotal - seatsTaken) : 0;
+
+  const perPersonLabel = (offer: GuideOfferRow): string => {
+    const count = offer.capacity > 0 ? offer.capacity : ownerRequestRow.participants_count ?? 1;
+    const perMinor = count > 0 ? Math.round(offer.price_minor / count) : offer.price_minor;
+    return new Intl.NumberFormat("ru-RU", {
+      style: "currency",
+      currency: offer.currency,
+      maximumFractionDigits: 0,
+    }).format(kopecksToRub(perMinor));
+  };
+
+  const cardInfo = (gi: OwnerOfferItem["guideInfo"]): GuideCardInfo => ({
+    full_name: gi?.full_name ?? null,
+    avatar_url: gi?.avatar_url ?? null,
+    rating: gi?.rating ?? null,
+    review_count: gi?.review_count ?? null,
+    verified: gi?.verified ?? false,
+    years_experience: gi?.years_experience ?? null,
+    trips_completed: gi?.trips_completed ?? null,
+    recommend_pct: gi?.recommend_pct ?? null,
+    languages: gi?.languages ?? [],
+    specialties: gi?.specialties ?? [],
+  });
+
+  const guideName = (gi: OwnerOfferItem["guideInfo"]): string =>
+    gi?.full_name && gi.full_name.trim() ? gi.full_name : "Гид";
+
+  const renderEmbeddedDetails = ({ offer, guideInfo, qaThread }: OwnerOfferItem) => (
     <OfferCard
-      key={offer.id}
+      embedded
       offer={offer}
       guideInfo={guideInfo}
       qaThread={qaThread}
@@ -607,69 +656,167 @@ function OwnerDetailBranch({
     />
   );
 
+  const renderGuideCard = (
+    item: OwnerOfferItem,
+    selectable: boolean,
+    forcedSelected = false,
+  ) => (
+    <div key={item.offer.id} id={`guide-${item.offer.id}`}>
+      <GuideOfferCard
+        guide={cardInfo(item.guideInfo)}
+        name={guideName(item.guideInfo)}
+        quote={item.offer.message}
+        perPersonPriceLabel={perPersonLabel(item.offer)}
+        selected={selectable ? selectedId === item.offer.id : forcedSelected}
+        onSelect={
+          selectable
+            ? () => setSelectedId((prev) => (prev === item.offer.id ? null : item.offer.id))
+            : undefined
+        }
+      >
+        {renderEmbeddedDetails(item)}
+      </GuideOfferCard>
+    </div>
+  );
+
+  const breadcrumb = [
+    { label: "Поездки" },
+    ...(viewModel.regionLabel ? [{ label: viewModel.regionLabel }] : []),
+    { label: viewModel.title },
+  ];
+
+  const selectedItem = pendingOffers.find(({ offer }) => offer.id === selectedId) ?? null;
+
+  const scrollToSelected = () => {
+    if (typeof document === "undefined" || !selectedId) return;
+    document
+      .getElementById(`guide-${selectedId}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
   return (
-    <div className="flex flex-col gap-8">
-      <TravelerRequestSummary record={ownerRecord} />
-      <MarkOffersRead requestId={requestId} hasOffers={ownerOffers.length > 0} />
-      {acceptedOffer ? (
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold leading-none text-foreground">
-              Вы выбрали гида
-            </h2>
-            <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 font-sans text-xs font-semibold text-success">
-              <Check className="size-3.5" aria-hidden="true" />
-              Бронь
-            </span>
-          </div>
+    <>
+      <ImmersiveHero
+        className="-mt-nav-h"
+        imageUrl={viewModel.cityImageUrl}
+        breadcrumb={breadcrumb}
+        title={viewModel.title}
+        intro={viewModel.notes || undefined}
+      >
+        <TripPanel
+          dateLabel={viewModel.dateLabel}
+          timeLabel={viewModel.timeLabel}
+          status={{ open: isOpen, label: isOpen ? "Группа открыта" : "Группа закрыта" }}
+          seatsTaken={seatsTaken}
+          seatsTotal={seatsTotal}
+          remainingLabel={
+            seatsTotal != null && remaining > 0
+              ? `Осталось ${remaining} ${pluralize(remaining, "место", "места", "мест")}`
+              : undefined
+          }
+          members={viewModel.members}
+          joinedLabel={
+            seatsTaken > 0
+              ? `Уже присоединились ${seatsTaken} ${pluralize(seatsTaken, "человек", "человека", "человек")}`
+              : undefined
+          }
+        />
+      </ImmersiveHero>
 
-          <div className="rounded-2xl border border-success/40 bg-success/5 p-1">
-            {renderOfferCard(acceptedOffer)}
+      <div className="mx-auto w-full max-w-page px-5 pb-32 md:px-8">
+        {justCreated ? (
+          <div className="mt-6 rounded-[12px] border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
+            {createdMode === "assembly"
+              ? "Открытая экскурсия опубликована — гиды увидят ваш запрос и смогут присоединиться."
+              : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}
           </div>
+        ) : null}
 
-          {declinedOffers.length > 0 ? (
-            <div className="flex flex-col gap-4">
-              <h3 className="text-sm font-semibold text-muted-foreground">
-                Другие предложения
-              </h3>
-              <div className="flex flex-col gap-4 opacity-60">
-                {declinedOffers.map(({ offer, guideInfo, qaThread }) => (
-                  <div key={offer.id} className="relative">
-                    <span className="absolute right-3 top-3 z-10 inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 font-sans text-xs font-medium text-muted-foreground">
-                      Отклонено
-                    </span>
-                    {renderOfferCard({ offer, guideInfo, qaThread })}
-                  </div>
-                ))}
+        <MarkOffersRead requestId={requestId} hasOffers={ownerOffers.length > 0} />
+
+        {acceptedOffer ? (
+          <section className="flex flex-col gap-5 pt-[54px]">
+            <div className="flex items-center gap-3">
+              <h2 className="text-[30px] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">
+                Вы выбрали гида
+              </h2>
+              <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 text-xs font-semibold text-success">
+                <Check className="size-3.5" aria-hidden="true" />
+                Бронь
+              </span>
+            </div>
+            {renderGuideCard(acceptedOffer, false, true)}
+            {declinedOffers.length > 0 ? (
+              <div className="flex flex-col gap-4">
+                <h3 className="text-sm font-semibold text-on-surface-muted">Другие предложения</h3>
+                <div className="flex flex-col gap-4 opacity-60">
+                  {declinedOffers.map((item) => renderGuideCard(item, false))}
+                </div>
+              </div>
+            ) : null}
+          </section>
+        ) : (
+          <section className="flex flex-col gap-6 pt-[54px]">
+            <div>
+              <div className="mb-[10px] text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">
+                Ваши проводники
+              </div>
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <h2 className="text-[30px] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">
+                  Кто покажет вам {viewModel.title}
+                </h2>
+                {pendingOffers.length > 0 ? (
+                  <span className="text-sm text-on-surface-muted">
+                    Нажмите на карточку, чтобы выбрать
+                  </span>
+                ) : null}
               </div>
             </div>
-          ) : null}
-        </section>
-      ) : (
-        <section className="flex flex-col gap-4">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-semibold leading-none text-foreground">
-              Предложения гидов
-            </h2>
-            <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-primary/12 px-1.5 font-sans text-xs font-semibold text-primary">
-              {pendingOffers.length}
-            </span>
-          </div>
 
-          {pendingOffers.length === 0 ? (
-            <div className="rounded-xl border bg-card p-6">
-              <p className="text-sm text-muted-foreground">
-                Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col gap-4">
-              {pendingOffers.map((item) => renderOfferCard(item))}
-            </div>
-          )}
+            {pendingOffers.length === 0 ? (
+              <div className="rounded-[16px] border border-border bg-card p-6">
+                <p className="text-sm text-on-surface-muted">
+                  Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {pendingOffers.map((item) => renderGuideCard(item, true))}
+              </div>
+            )}
+          </section>
+        )}
+
+        <section className="pt-12">
+          <h3 className="mb-4 text-lg font-semibold text-on-surface">Детали вашего запроса</h3>
+          <TravelerRequestSummary record={ownerRecord} />
         </section>
-      )}
-    </div>
+      </div>
+
+      {selectedItem && !acceptedOffer ? (
+        <StickyActionBar
+          avatarUrl={selectedItem.guideInfo?.avatar_url}
+          name={guideName(selectedItem.guideInfo)}
+          metaLabel={`${perPersonLabel(selectedItem.offer)} / чел.${
+            seatsTotal != null
+              ? ` · ${isOpen ? "группа открыта" : "группа закрыта"}, ${seatsTaken}/${seatsTotal}`
+              : ""
+          }`}
+          onMessage={scrollToSelected}
+          messageLabel="Написать"
+          primary={
+            isOpen ? (
+              <AcceptOfferButton
+                offerId={selectedItem.offer.id}
+                requestId={requestId}
+                guideId={selectedItem.offer.guide_id}
+                priceMinor={selectedItem.offer.price_minor}
+              />
+            ) : null
+          }
+        />
+      ) : null}
+    </>
   );
 }
 
