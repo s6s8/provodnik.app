@@ -24,6 +24,11 @@ interface GuideInfo {
   rating: number | null;
   review_count: number | null;
   verified: boolean;
+  years_experience: number | null;
+  trips_completed: number | null;
+  recommend_pct: number | null;
+  languages: string[];
+  specialties: string[];
 }
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };

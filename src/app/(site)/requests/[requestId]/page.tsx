@@ -160,6 +160,11 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
       rating: number | null;
       review_count: number | null;
       verified: boolean;
+      years_experience: number | null;
+      trips_completed: number | null;
+      recommend_pct: number | null;
+      languages: string[];
+      specialties: string[];
     }
   >();
   const qaThreadMap = new Map<string, QaThread | null>();
@@ -174,7 +179,9 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
       // Гид может оставить отклик только после проверки → присутствие в нём = «проверен».
       const { data: guidePublicProfiles } = await supabase
         .from("v_guide_public_profile")
-        .select("user_id, full_name, average_rating, review_count")
+        .select(
+          "user_id, full_name, avatar_url, average_rating, review_count, years_experience, trips_completed, recommend_pct, languages, specialties",
+        )
         .in("user_id", guideIds);
 
       for (const g of guidePublicProfiles ?? []) {
@@ -182,10 +189,15 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
         guideInfoMap.set(g.user_id, {
           guide_id: g.user_id,
           full_name: g.full_name,
-          avatar_url: null,
+          avatar_url: g.avatar_url,
           rating: g.average_rating,
           review_count: g.review_count,
           verified: true,
+          years_experience: g.years_experience,
+          trips_completed: g.trips_completed,
+          recommend_pct: g.recommend_pct,
+          languages: g.languages ?? [],
+          specialties: g.specialties ?? [],
         });
       }
 
