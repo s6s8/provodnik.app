@@ -12,7 +12,14 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
 }));
 
-import { checkOfferAgainstLocks, submitOfferAction } from "@/features/guide/offer-actions";
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
+import {
+  checkOfferAgainstLocks,
+  submitOfferAction,
+  withdrawOfferAction,
+  editOfferAction,
+} from "@/features/guide/offer-actions";
 
 const baseRequest = {
   date_locked: true,
@@ -107,5 +114,75 @@ describe("submitOfferAction", () => {
     expect(result).toEqual({ error: "Доступно после верификации" });
     expect(from).toHaveBeenCalledWith("guide_profiles");
     expect(eq).toHaveBeenCalledWith("user_id", "guide-1");
+  });
+});
+
+describe("withdrawOfferAction", () => {
+  it("sets a pending owned offer to withdrawn", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "offer-1", guide_id: "guide-1", status: "pending", request_id: "req-1" },
+    });
+    const selectEq = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ eq: selectEq });
+    const selectChain = { select };
+
+    const update = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockResolvedValue({ error: null }),
+      }),
+    });
+    const updateChain = { update };
+
+    const from = vi
+      .fn()
+      .mockReturnValueOnce(selectChain)
+      .mockReturnValueOnce(updateChain);
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
+        }),
+      },
+      from,
+    });
+
+    const result = await withdrawOfferAction("offer-1", "req-1");
+
+    expect(result).toEqual({ ok: true });
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "withdrawn" }),
+    );
+  });
+});
+
+describe("editOfferAction", () => {
+  it("rejects when the offer is not pending", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "offer-1", guide_id: "guide-1", status: "accepted", request_id: "req-1" },
+    });
+    const selectEq = vi.fn().mockReturnValue({ maybeSingle });
+    const select = vi.fn().mockReturnValue({ eq: selectEq });
+    const from = vi.fn().mockReturnValue({ select });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
+        }),
+      },
+      from,
+    });
+
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "обновлённое предложение достаточной длины");
+    fd.set("valid_until", "2027-01-01");
+
+    const res = await editOfferAction("offer-1", "req-1", fd);
+
+    expect("error" in res).toBe(true);
   });
 });

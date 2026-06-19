@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { rubToKopecks } from "@/data/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { notifyNewOffer } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
@@ -209,4 +211,154 @@ export async function submitOfferAction(
   }
 
   return { ok: true };
+}
+
+export async function withdrawOfferAction(
+  offerId: string,
+  requestId: string,
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const guideId = await getCurrentUserId();
+    const supabase = await createSupabaseServerClient();
+
+    const { data: offer } = await supabase
+      .from("guide_offers")
+      .select("id, guide_id, status, request_id")
+      .eq("id", offerId)
+      .maybeSingle();
+
+    if (!offer) return { error: "Предложение не найдено." };
+    if (offer.guide_id !== guideId) return { error: "Это не ваше предложение." };
+    if (offer.status !== "pending") return { error: "Можно отозвать только активное предложение." };
+
+    const { error } = await supabase
+      .from("guide_offers")
+      .update({ status: "withdrawn" })
+      .eq("id", offerId)
+      .eq("guide_id", guideId);
+
+    if (error) return { error: error.message };
+
+    revalidatePath(`/requests/${requestId}`);
+    revalidatePath("/guide/inbox");
+    return { ok: true };
+  } catch (err) {
+    const msg = typeof (err as { message?: unknown }).message === "string"
+      ? (err as { message: string }).message
+      : "Не удалось отозвать предложение.";
+    return { error: msg };
+  }
+}
+
+export async function editOfferAction(
+  offerId: string,
+  requestId: string,
+  formData: FormData,
+): Promise<SubmitOfferResult> {
+  try {
+    const guideId = await getCurrentUserId();
+    const supabase = await createSupabaseServerClient();
+
+    const { data: offer } = await supabase
+      .from("guide_offers")
+      .select("id, guide_id, status, request_id")
+      .eq("id", offerId)
+      .maybeSingle();
+
+    if (!offer) return { error: "Предложение не найдено." };
+    if (offer.guide_id !== guideId) return { error: "Это не ваше предложение." };
+    if (offer.status !== "pending") return { error: "Можно редактировать только активное предложение." };
+
+    let route_stops: unknown[] = [];
+    try {
+      const routeStopsRaw = formData.get("route_stops");
+      if (routeStopsRaw && typeof routeStopsRaw === "string") route_stops = JSON.parse(routeStopsRaw) as unknown[];
+    } catch {
+      // malformed JSON — treat as empty
+    }
+    const durationRaw = formData.get("route_duration_minutes");
+    const route_duration_minutes = durationRaw && String(durationRaw) !== "" ? Number(durationRaw) : undefined;
+
+    const startsAtRaw = formData.get("starts_at");
+    const endsAtRaw = formData.get("ends_at");
+    const starts_at = startsAtRaw && typeof startsAtRaw === "string" ? startsAtRaw : undefined;
+    const ends_at = endsAtRaw && typeof endsAtRaw === "string" ? endsAtRaw : undefined;
+
+    let inclusions: string[] = [];
+    try {
+      const inclusionsRaw = formData.get("inclusions");
+      if (inclusionsRaw && typeof inclusionsRaw === "string") {
+        const parsedInc = JSON.parse(inclusionsRaw) as unknown;
+        if (Array.isArray(parsedInc)) {
+          inclusions = parsedInc
+            .filter((v): v is string => typeof v === "string")
+            .map((v) => v.trim())
+            .filter((v) => v.length > 0);
+        }
+      }
+    } catch {
+      // malformed JSON — treat as empty
+    }
+
+    const capacityRaw = formData.get("capacity");
+    const capacity =
+      capacityRaw && String(capacityRaw) !== "" ? Number(capacityRaw) : undefined;
+
+    const raw = {
+      request_id: requestId,
+      price_total: Number(formData.get("price_total")),
+      message: String(formData.get("message") ?? ""),
+      valid_until: String(formData.get("valid_until") ?? ""),
+      route_stops,
+      route_duration_minutes,
+      starts_at,
+      ends_at,
+      inclusions,
+      capacity,
+    };
+
+    const parsed = createOfferInputSchema.safeParse(raw);
+    if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? "Ошибка валидации." };
+
+    const { data: requestRow } = await supabase
+      .from("traveler_requests")
+      .select("traveler_id, date_locked, time_locked, starts_on, start_time, end_time, date_flexibility")
+      .eq("id", requestId)
+      .maybeSingle();
+    if (!requestRow) return { error: "Заявка не найдена." };
+
+    const lockCheck = await checkOfferAgainstLocks({
+      startsAt: parsed.data.starts_at ?? undefined,
+      endsAt: parsed.data.ends_at ?? undefined,
+      request: { ...requestRow, date_locked: requestRow.date_flexibility === "few_days" ? false : requestRow.date_locked },
+    });
+    if ("error" in lockCheck) return { error: lockCheck.error };
+
+    const { error } = await supabase
+      .from("guide_offers")
+      .update({
+        price_minor: rubToKopecks(parsed.data.price_total),
+        message: parsed.data.message,
+        expires_at: new Date(parsed.data.valid_until).toISOString(),
+        capacity: parsed.data.capacity,
+        inclusions: parsed.data.inclusions,
+        route_stops: parsed.data.route_stops,
+        route_duration_minutes: parsed.data.route_duration_minutes ?? null,
+        starts_at: parsed.data.starts_at ?? null,
+        ends_at: parsed.data.ends_at ?? null,
+      })
+      .eq("id", offerId)
+      .eq("guide_id", guideId);
+    if (error) return { error: error.message };
+
+    revalidatePath(`/requests/${requestId}`);
+    revalidatePath("/guide/inbox");
+    return { ok: true };
+  } catch (err) {
+    if (err instanceof Error && err.message.startsWith("NEXT_")) throw err;
+    const msg = typeof (err as { message?: unknown }).message === "string"
+      ? (err as { message: string }).message
+      : "Не удалось обновить предложение.";
+    return { error: msg };
+  }
 }
