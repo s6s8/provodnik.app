@@ -17,6 +17,7 @@ import type {
   ListingTariffRow,
 } from "@/lib/supabase/types";
 import { maskPii } from "@/lib/pii/mask";
+import { arrowizeRoute } from "@/lib/utils";
 
 import { formatExcursionPriceFrom } from "./excursion-price";
 
@@ -66,7 +67,7 @@ interface Props {
 export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide }: Props) {
   const description = maskPii(listing.description);
   const idea = maskPii(listing.idea);
-  const routeText = maskPii(listing.route);
+  const routeText = arrowizeRoute(maskPii(listing.route));
   const theme = maskPii(listing.theme);
   const audience = maskPii(listing.audience);
   const facts = maskPii(listing.facts);
