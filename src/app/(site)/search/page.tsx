@@ -92,11 +92,19 @@ export default async function SearchPage({
         </Suspense>
         <ListingGrid listings={listings} />
         {listings.length === 0 ? (
-          <div className="mt-12 flex flex-col items-center gap-4 text-center">
-            <p className="text-muted-foreground">Ничего не найдено по вашему запросу</p>
-            <Button asChild variant="secondary">
-              <Link href="/search">Сбросить фильтры</Link>
-            </Button>
+          <div className="mt-12 flex flex-col items-center gap-3 text-center">
+            <p className="text-on-surface-muted">Ничего не нашли по вашему запросу</p>
+            <p className="max-w-[420px] text-sm text-on-surface-muted">
+              Опубликуйте запрос — местные гиды предложат варианты под вашу поездку.
+            </p>
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+              <Button asChild>
+                <Link href="/">Опубликовать запрос</Link>
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/search">Сбросить фильтры</Link>
+              </Button>
+            </div>
           </div>
         ) : null}
       </div>
