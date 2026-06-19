@@ -9,10 +9,11 @@ import { Lock, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
+import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
-import { submitOfferAction } from "@/features/guide/offer-actions";
+import { submitOfferAction, editOfferAction } from "@/features/guide/offer-actions";
 import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
-import type { GuideTemplateRow } from "@/lib/supabase/types";
+import type { GuideOfferRow, GuideTemplateRow } from "@/lib/supabase/types";
 import { useGuideCatalog } from "./use-guide-catalog";
 
 type RouteStop = { photoId: string; locationName: string; photoUrl: string; sortOrder: number };
@@ -70,23 +71,36 @@ function ProposedBadge() {
 interface BidFormPanelProps {
   requestId: string;
   request: RequestRecord;
+  editOffer?: GuideOfferRow;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
+const mskParts = (iso: string | null | undefined) => {
+  if (!iso) return null;
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return null;
+  const m = new Date(t + 3 * 60 * 60 * 1000).toISOString();
+  return { date: m.slice(0, 10), time: m.slice(11, 16) };
+};
+
 export function BidFormPanel({
   requestId,
   request,
+  editOffer,
   onClose,
   onSuccess,
 }: BidFormPanelProps) {
+  const isEdit = !!editOffer;
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const submitInFlight = React.useRef(false);
   const { guidePhotos, guideTemplates, guideVerificationStatus } = useGuideCatalog();
   const [selectedExcursion, setSelectedExcursion] = React.useState<GuideTemplateRow | null>(null);
   const [excursionPickerOpen, setExcursionPickerOpen] = React.useState(false);
-  const [routeStops, setRouteStops] = React.useState<RouteStop[]>([]);
+  const [routeStops, setRouteStops] = React.useState<RouteStop[]>(
+    Array.isArray(editOffer?.route_stops) ? (editOffer.route_stops as RouteStop[]) : [],
+  );
   const [activeCatalogRouteTab, setActiveCatalogRouteTab] = React.useState<CatalogRouteTab>("catalog");
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
@@ -103,14 +117,22 @@ export function BidFormPanel({
   } = useForm<OfferFormValues>({
     resolver: zodResolver(offerFormSchema),
     defaultValues: {
-      price_total: request.budgetRub > 0 ? request.budgetRub * travelerCount : undefined,
-      price_per_person: request.budgetRub > 0 ? request.budgetRub : undefined,
-      message: "",
-      valid_until: getDefaultValidUntil(),
-      excursion_date: travelerDate || undefined,
-      excursion_start_time: request.startTime ?? undefined,
-      excursion_end_time: request.endTime ?? undefined,
-      headcount: travelerCount,
+      price_total: editOffer
+        ? Math.round(kopecksToRub(editOffer.price_minor))
+        : request.budgetRub > 0
+          ? request.budgetRub * travelerCount
+          : undefined,
+      price_per_person: editOffer && editOffer.capacity
+        ? Math.round(kopecksToRub(editOffer.price_minor) / editOffer.capacity)
+        : request.budgetRub > 0
+          ? request.budgetRub
+          : undefined,
+      message: editOffer?.message ?? "",
+      valid_until: editOffer?.expires_at ? editOffer.expires_at.slice(0, 10) : getDefaultValidUntil(),
+      excursion_date: mskParts(editOffer?.starts_at)?.date ?? (travelerDate || undefined),
+      excursion_start_time: mskParts(editOffer?.starts_at)?.time ?? (request.startTime ?? undefined),
+      excursion_end_time: mskParts(editOffer?.ends_at)?.time ?? (request.endTime ?? undefined),
+      headcount: editOffer?.capacity ?? travelerCount,
     },
   });
 
@@ -204,7 +226,9 @@ export function BidFormPanel({
           }
         }
 
-        const result: SubmitOfferResult = await submitOfferAction(requestId, fd);
+        const result: SubmitOfferResult = isEdit && editOffer
+          ? await editOfferAction(editOffer.id, requestId, fd)
+          : await submitOfferAction(requestId, fd);
         if ("ok" in result && result.ok === true) {
           setSubmitted(true);
           onSuccess?.();
@@ -215,7 +239,7 @@ export function BidFormPanel({
         submitInFlight.current = false;
       }
     },
-    [requestId, onSuccess, routeStops, submitted, guideVerificationStatus],
+    [requestId, onSuccess, routeStops, submitted, guideVerificationStatus, isEdit, editOffer],
   );
 
   return (
@@ -235,7 +259,7 @@ export function BidFormPanel({
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
             <h2 className="font-sans text-base font-semibold text-foreground">
-              Сделать предложение
+              {isEdit ? "Редактировать предложение" : "Сделать предложение"}
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
               {request.destination} · {request.dateLabel} · {travelerCount} чел.
@@ -593,7 +617,17 @@ export function BidFormPanel({
             disabled={isSubmitting || submitted}
             className={submitted ? "border border-success/30 bg-success/10 text-success w-full" : "w-full"}
           >
-            {submitted ? "Отправлено" : isSubmitting ? "Отправляем…" : "Отправить предложение"}
+            {submitted
+              ? isEdit
+                ? "Сохранено"
+                : "Отправлено"
+              : isSubmitting
+                ? isEdit
+                  ? "Сохраняем…"
+                  : "Отправляем…"
+                : isEdit
+                  ? "Сохранить изменения"
+                  : "Отправить предложение"}
           </Button>
         </form>
       </div>

@@ -10,7 +10,6 @@ import {
   Check,
   ChevronDown,
   Clock,
-  Eye,
   LogIn,
   Users,
   Wallet,
@@ -19,7 +18,6 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -34,10 +32,13 @@ import { OfferCard } from "@/features/traveler/components/requests/offer-card";
 import { AcceptOfferButton } from "@/features/traveler/components/requests/accept-offer-button";
 import { BiddingGuidesTeaser } from "@/components/shared/bidding-guides-teaser";
 import { ImmersiveHero } from "@/components/shared/immersive-hero";
+import { RequestFactsPanel } from "@/components/shared/request-facts-panel";
 import { TripPanel } from "@/components/shared/trip-panel";
 import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-offer-card";
 import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
+import { withdrawOfferAction } from "@/features/guide/offer-actions";
+import { cityImage } from "@/lib/city-image";
 import { formatTimeRange } from "@/lib/dates";
 import { BADGE_CLASS } from "@/lib/styles";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -106,6 +107,7 @@ type RequestDetailScreenProps =
       isApproved: boolean;
       existingOfferId: string | null;
       offerMeta?: OfferMeta | null;
+      existingOffer?: GuideOfferRow | null;
       competingOffers: number;
       viewsCount: number;
     }
@@ -143,12 +145,6 @@ const avatarFallbackClassNames = [
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-const chipBase = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
-const assemblyChip = `${chipBase} bg-sky-100 text-sky-700`;
-const privateChip = `${chipBase} bg-purple-100 text-purple-700`;
-const flexibleChip = `${chipBase} bg-emerald-100 text-emerald-700`;
-const exactChip = `${chipBase} bg-rose-100 text-rose-700`;
 
 function formatPublicPrice(pricePerPersonRub: number | null): string {
   if (!pricePerPersonRub) return "Цена уточняется";
@@ -777,209 +773,136 @@ function GuideDetailBranch({
   isApproved,
   existingOfferId,
   offerMeta,
+  existingOffer,
   competingOffers,
   viewsCount,
 }: Extract<RequestDetailScreenProps, { viewerRole: "guide" }>) {
   const router = useRouter();
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
+  const [editMode, setEditMode] = React.useState(false);
+  const [withdrawing, setWithdrawing] = React.useState(false);
 
   React.useEffect(() => {
     setOfferId(existingOfferId);
   }, [existingOfferId]);
 
-  const interestsLabel = request.interests
-    .map((s) => INTEREST_LABEL_BY_ID[s] ?? s)
-    .join(" · ");
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
   const hasFlexibleDates =
     request.dateFlexibility === "few_days" || request.date_locked === false;
 
   return (
-    <div className="space-y-6">
-      <Link
-        href="/guide/inbox"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+    <>
+      <ImmersiveHero
+        className="-mt-nav-h"
+        imageUrl={cityImage(request.destination)}
+        breadcrumb={[{ label: "Запросы" }, { label: request.destination }]}
+        title={request.destination}
+        intro={request.description || undefined}
       >
-        <ArrowLeft className="size-4" />
-        Назад к запросам
-      </Link>
+        <RequestFactsPanel
+          dateLabel={request.dateLabel}
+          flexible={hasFlexibleDates}
+          timeLabel={formatTimeRange(request.startTime, request.endTime) || undefined}
+          groupLabel={`${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`}
+          budgetLabel={request.budgetLabel}
+          formatLabel={request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+          interests={request.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s)}
+          viewsLabel={formatViewsLabel(viewsCount)}
+          competingLabel={formatCompetingOffersLabel(competingOffers, validOfferId !== null)}
+        />
+      </ImmersiveHero>
 
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-2">
-          <div className="flex items-start gap-3">
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary text-base font-bold"
-              aria-hidden="true"
-            >
-              {request.requesterInitials}
+      <div className="mx-auto w-full max-w-page px-5 pb-24 md:px-8">
+        <div className="flex items-center gap-2 pt-[54px]">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/12 text-base font-bold text-primary" aria-hidden="true">
+            {request.requesterInitials}
+          </div>
+          <div>
+            <p className="text-[15px] font-semibold text-on-surface">{request.requesterName}</p>
+            <p className="text-[13px] text-on-surface-muted">Запрос от {formatDateTime(request.createdAt)}</p>
+          </div>
+        </div>
+
+        <div className="pt-7">
+          {/* ACTION ZONE — three states */}
+          {!isApproved ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="default" size="default" disabled>Доступно после верификации</Button>
+              <Link href="/guide/profile#verification" className="text-xs text-primary underline-offset-2 hover:underline">
+                Пройти верификацию →
+              </Link>
             </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg">{request.requesterName}</CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
-                в{" "}
-                <span className="font-medium text-foreground">
-                  {request.destination}
+          ) : validOfferId ? (
+            <div className="flex flex-col gap-4 rounded-[16px] border border-primary/25 bg-primary/5 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">Ваш отклик</p>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <Check className="size-3.5" aria-hidden="true" /> Предложение отправлено
                 </span>
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground shrink-0">
-              {formatDateTime(request.createdAt)}
-            </p>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-            Запрос путешественника
-          </p>
-
-          {interestsLabel ? (
-            <div>
-              <span className="inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary">
-                {interestsLabel}
-              </span>
-            </div>
-          ) : null}
-
-          <div className="flex flex-wrap gap-2">
-            <span className={request.mode === "assembly" ? assemblyChip : privateChip}>
-              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-            </span>
-            <span className={hasFlexibleDates ? flexibleChip : exactChip}>
-              {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <p className="text-sm">
-              <span className="font-medium text-foreground">Даты:</span>{" "}
-              <span className="text-muted-foreground">{request.dateLabel}</span>
-              {formatTimeRange(request.startTime, request.endTime) && (
-                <>
-                  {" · "}
-                  <span className="font-medium text-foreground">Время:</span>{" "}
-                  <span className="text-muted-foreground">
-                    {formatTimeRange(request.startTime, request.endTime)}
-                  </span>
-                </>
-              )}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium text-foreground">Бюджет:</span>{" "}
-              <span className="text-muted-foreground">
-                {request.budgetLabel} · {request.groupSize} чел.
-              </span>
-            </p>
-          </div>
-
-          <div className="border-t border-border/50 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
-              Описание
-            </p>
-            {request.description ? (
-              <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
-                {request.description}
-              </p>
-            ) : (
-              <p className="mt-2 text-sm italic text-muted-foreground/60">
-                Путешественник не оставил описание.
-              </p>
-            )}
-          </div>
-
-          <div
-            className="flex flex-col gap-1.5 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs text-muted-foreground"
-            aria-live="polite"
-          >
-            <div className="flex items-center gap-2">
-              <Eye className="size-3.5 shrink-0" aria-hidden="true" />
-              <span>{formatViewsLabel(viewsCount)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="size-3.5 shrink-0" aria-hidden="true" />
-              <span>{formatCompetingOffersLabel(competingOffers, validOfferId !== null)}</span>
-            </div>
-          </div>
-
-          {validOfferId ? (
-            <div className="rounded-lg border border-primary/25 bg-primary/5 p-4 space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">
-                Ваш отклик
-              </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
-                ✓ Предложение отправлено
-              </span>
-              {offerMeta &&
-                (offerMeta.starts_at != null ||
-                  offerMeta.capacity != null ||
-                  offerMeta.price_minor != null ||
-                  offerMeta.message != null) ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-foreground/80">
-                    {offerMeta.starts_at
-                      ? new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", {
-                          day: "numeric",
-                          month: "long",
-                        })
-                      : ""}
+              </div>
+              {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null || offerMeta.message != null) ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-on-surface/80">
+                    {offerMeta.starts_at ? new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" }) : ""}
                     {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
-                    {offerMeta.price_minor != null
-                      ? ` · ${Math.round(
-                          kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1),
-                        ).toLocaleString("ru-RU")} ₽/чел.`
-                      : ""}
+                    {offerMeta.price_minor != null ? ` · ${Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
                   </p>
                   {offerMeta.message ? (
-                    <div className="rounded-md border border-primary/15 bg-background/70 p-3">
-                      <p className="mb-1 text-xs font-medium text-primary/60">
-                        Сообщение путешественнику
-                      </p>
-                      <p className="text-sm whitespace-pre-line">{offerMeta.message}</p>
+                    <div className="rounded-[12px] border border-primary/15 bg-surface-lowest p-3">
+                      <p className="mb-1 text-xs font-medium text-primary/60">Сообщение путешественнику</p>
+                      <p className="whitespace-pre-line text-sm text-on-surface">{offerMeta.message}</p>
                     </div>
                   ) : null}
                 </div>
               ) : null}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="default"
+                  size="default"
+                  disabled={!existingOffer}
+                  onClick={() => { setEditMode(true); setPanelOpen(true); }}
+                >
+                  Редактировать
+                </Button>
+                <Button
+                  variant="outline"
+                  size="default"
+                  disabled={withdrawing}
+                  onClick={async () => {
+                    if (!window.confirm("Отозвать предложение? Путешественник больше его не увидит.")) return;
+                    setWithdrawing(true);
+                    const res = await withdrawOfferAction(validOfferId, request.id);
+                    setWithdrawing(false);
+                    if ("ok" in res) { setOfferId(null); router.refresh(); }
+                    else window.alert(res.error);
+                  }}
+                >
+                  {withdrawing ? "Отзываем…" : "Отозвать"}
+                </Button>
+              </div>
               <div className="border-t border-primary/15 pt-3">
                 <GuideOfferQaPanel offerId={validOfferId} />
               </div>
             </div>
-          ) : isApproved ? (
-            <Button
-              variant="default"
-              size="default"
-              onClick={() => setPanelOpen(true)}
-            >
+          ) : (
+            <Button variant="default" size="default" onClick={() => { setEditMode(false); setPanelOpen(true); }}>
               Сделать предложение
             </Button>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="default" size="default" disabled>
-                Доступно после верификации
-              </Button>
-              <Link
-                href="/guide/profile#verification"
-                className="text-xs text-primary underline-offset-2 hover:underline"
-              >
-                Пройти верификацию →
-              </Link>
-            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {panelOpen ? (
         <BidFormPanel
           requestId={request.id}
           request={request}
-          onClose={() => setPanelOpen(false)}
-          onSuccess={() => {
-            setPanelOpen(false);
-            router.refresh();
-          }}
+          editOffer={editMode ? existingOffer ?? undefined : undefined}
+          onClose={() => { setPanelOpen(false); setEditMode(false); }}
+          onSuccess={() => { setPanelOpen(false); setEditMode(false); router.refresh(); }}
         />
       ) : null}
-    </div>
+    </>
   );
 }
 

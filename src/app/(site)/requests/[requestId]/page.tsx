@@ -248,6 +248,7 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
   let isApproved = false;
   let existingOfferId: string | null = null;
   let offerMeta: OfferMeta | null = null;
+  let existingOffer: GuideOfferRow | null = null;
 
   if (guideId) {
     const { data: profile } = await supabase
@@ -259,11 +260,12 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
 
     const { data: offer } = await supabase
       .from("guide_offers")
-      .select("id, starts_at, capacity, price_minor, message")
+      .select("*")
       .eq("guide_id", guideId)
       .eq("request_id", requestId)
       .maybeSingle();
     existingOfferId = (offer?.id as string | undefined) ?? null;
+    existingOffer = (offer as GuideOfferRow | null) ?? null;
     offerMeta = offer
       ? {
           starts_at: offer.starts_at as string | null,
@@ -290,6 +292,7 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
     isApproved,
     existingOfferId,
     offerMeta,
+    existingOffer,
     competingOffers,
     viewsCount,
   };
@@ -399,6 +402,7 @@ export default async function RequestDetailPage({
         isApproved={guideData.isApproved}
         existingOfferId={guideData.existingOfferId}
         offerMeta={guideData.offerMeta}
+        existingOffer={guideData.existingOffer}
         competingOffers={guideData.competingOffers}
         viewsCount={guideData.viewsCount}
       />
