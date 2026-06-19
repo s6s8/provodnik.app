@@ -86,11 +86,13 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
           <p className="text-3xl font-semibold">
             {formatExcursionPriceFrom(listing.price_from_minor, listing.format)}
           </p>
-          <RatingDisplay
-            rating={listing.average_rating}
-            reviewCount={listing.review_count}
-            className="mt-1"
-          />
+          {listing.review_count && listing.review_count > 0 ? (
+            <RatingDisplay
+              rating={listing.average_rating}
+              reviewCount={listing.review_count}
+              className="mt-1"
+            />
+          ) : null}
         </div>
         <ul className="space-y-1 text-sm text-muted-foreground">
           {durationLabel ? <li>Длительность: {durationLabel}</li> : null}

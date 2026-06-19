@@ -92,11 +92,13 @@ export function TourShapeDetail({
       <div>
         <p className="text-3xl font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
         <p className="text-sm text-muted-foreground">на человека</p>
-        <RatingDisplay
-          rating={listing.average_rating}
-          reviewCount={listing.review_count}
-          className="mt-1"
-        />
+        {listing.review_count && listing.review_count > 0 ? (
+          <RatingDisplay
+            rating={listing.average_rating}
+            reviewCount={listing.review_count}
+            className="mt-1"
+          />
+        ) : null}
       </div>
       <Button asChild className="w-full">
         <Link href={`/listings/${listing.id}/book`}>Заказать тур</Link>
