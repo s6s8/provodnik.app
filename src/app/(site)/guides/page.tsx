@@ -49,10 +49,6 @@ export default async function GuidesPage({
   return (
     <section className="bg-surface pt-[110px] pb-20">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] font-semibold leading-[1.05] text-on-surface mb-12">
-          Гиды
-        </h1>
-
         {guides.length === 0 && activeSpecs.length === 0 && !rawQ ? (
           <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">

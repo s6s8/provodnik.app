@@ -10,4 +10,4 @@ coverage/
 .claude/prompts/out/
 .claude/worktrees/
 _archive/
-public/
+/public/
