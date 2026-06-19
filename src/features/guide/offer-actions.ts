@@ -10,6 +10,7 @@ import {
   hasGuideOffered,
   createOfferInputSchema,
 } from "@/lib/supabase/offers";
+import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 
 export type { SubmitOfferResult } from "@/features/guide/offer-action-types";
@@ -179,6 +180,14 @@ export async function submitOfferAction(
     }
 
     const offer = await createGuideOffer(parsed.data, guideId);
+
+    await logFunnelEvent({
+      event_type: "bid_placed",
+      scope: "request",
+      request_id: requestId,
+      actor_id: guideId,
+      summary: "Гид отправил предложение",
+    });
 
     try {
       await notifyNewOffer(requestId, offer.id);

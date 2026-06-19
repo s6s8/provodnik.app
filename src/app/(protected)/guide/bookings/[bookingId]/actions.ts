@@ -4,6 +4,7 @@ import { revealTravelerName, revealTravelerPhone, type BookingRecord } from "@/d
 import { transitionBooking, type BookingStatus } from "@/lib/bookings/state-machine";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 
 export type ConfirmBookingResult =
   | { ok: true; status: BookingStatus }
@@ -59,7 +60,23 @@ async function transitionAction(
 export async function confirmBookingAction(
   bookingId: string,
 ): Promise<ConfirmBookingResult> {
-  return transitionAction(bookingId, "confirmed", "Не удалось подтвердить бронирование");
+  const auth = await assertGuideOwns(bookingId);
+  if (!auth.ok) return auth;
+  try {
+    const updated = await transitionBooking(bookingId, "confirmed", auth.userId);
+    await logFunnelEvent({
+      event_type: "booking_confirmed",
+      scope: "booking",
+      booking_id: bookingId,
+      actor_id: auth.userId,
+      summary: "Бронирование подтверждено",
+    });
+    return { ok: true, status: updated.status };
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : "Не удалось подтвердить бронирование";
+    return { ok: false, error: message };
+  }
 }
 
 export async function confirmBooking(
