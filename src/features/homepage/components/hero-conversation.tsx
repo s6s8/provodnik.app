@@ -125,7 +125,7 @@ export function HeroConversation() {
       aria-label="Создать запрос гида"
     >
       {/* Frosted full-bleed background: heavily blurred + light-washed photo → soft texture, not a vivid hero */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-[#eaf1ec]">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-surface-low">
         <div
           className="absolute inset-0"
           style={{
@@ -213,6 +213,9 @@ export function HeroConversation() {
 
         <p className="mt-3 text-center text-xs text-muted-foreground">
           Бесплатно · без регистрации · местный гид, а не турбюро
+        </p>
+        <p className="mt-1.5 text-center text-[13px] text-on-surface-muted">
+          Гиды обычно отвечают в течение дня
         </p>
 
         {parseError && (
