@@ -11,6 +11,7 @@ import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { markOffersReadForRequest } from "@/lib/supabase/offers";
 import { createNotification } from "@/lib/notifications/create-notification";
+import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 
 export type AcceptOfferActionState = {
   error: string | null;
@@ -147,6 +148,14 @@ export async function acceptOfferAction(
   } catch {
     // Notification delivery must not block booking creation.
   }
+
+  await logFunnelEvent({
+    event_type: "offer_accepted",
+    scope: "booking",
+    booking_id: booking.id,
+    actor_id: user.id,
+    summary: "Путешественник принял предложение",
+  });
 
   redirect(`/bookings/${booking.id}`);
 }

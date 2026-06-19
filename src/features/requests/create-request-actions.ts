@@ -9,6 +9,7 @@ import { createTravelerRequest, type CreateRequestInput } from "@/lib/supabase/r
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/env";
 import { notifyGuidesNewRequest } from "@/lib/notifications/triggers";
+import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 
 export type CreateRequestState = {
   error: string | null;
@@ -124,6 +125,15 @@ export async function createRequestAction(
   } catch {
     // notification errors are non-fatal — traveler redirect proceeds
   }
+
+  await logFunnelEvent({
+    event_type: "request_created",
+    scope: "request",
+    request_id: requestId,
+    actor_id: travelerId,
+    summary: "Заявка создана",
+    payload: { mode: input.mode },
+  });
 
   redirect(`/requests/${requestId}?created=1&mode=${input.mode}`);
 }
