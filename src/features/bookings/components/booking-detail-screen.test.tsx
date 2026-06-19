@@ -180,4 +180,44 @@ describe("BookingDetailScreen", () => {
     expect(screen.queryByText(/Оцените поездку/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Открыть спор" })).not.toBeInTheDocument();
   });
+
+  it("shows a loading state while the fetch is pending, not a not-found message", async () => {
+    let resolveDetail: (value: unknown) => void = () => {};
+    getGuideBookingDetailAction.mockReturnValue(
+      new Promise((resolve) => {
+        resolveDetail = resolve;
+      }),
+    );
+
+    const { container } = render(
+      <BookingDetailScreen viewerRole="guide" bookingId="booking-1" />,
+    );
+
+    expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument();
+    expect(screen.queryByText("Бронирование не найдено")).not.toBeInTheDocument();
+
+    resolveDetail({
+      ok: true,
+      booking: {
+        id: "booking-1",
+        title: "Площадь Ленина",
+        destination: "Площадь Ленина",
+        dateLabel: "10 июня 2026",
+        priceRub: 6000,
+        travelerName: "Мария",
+        travelerPhone: "+79991234567",
+        status: "confirmed",
+      },
+    });
+
+    expect(await screen.findByText("Операции по бронированию")).toBeInTheDocument();
+  });
+
+  it("shows not-found only after the fetch resolves without a booking", async () => {
+    getGuideBookingDetailAction.mockResolvedValue({ ok: true, booking: null });
+
+    render(<BookingDetailScreen viewerRole="guide" bookingId="missing" />);
+
+    expect(await screen.findByText("Бронирование не найдено")).toBeInTheDocument();
+  });
 });

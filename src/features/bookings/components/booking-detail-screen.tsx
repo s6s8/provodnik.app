@@ -19,6 +19,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { BookingRecord } from "@/data/supabase/queries";
 import { getTheme } from "@/data/themes";
 import { BookingTicketTrigger } from "@/features/bookings/components/booking-ticket-trigger";
@@ -369,10 +370,59 @@ function TravelerBookingDetailView({
   );
 }
 
+function BookingLoadingCard() {
+  return (
+    <div className="space-y-6">
+      <Badge variant="outline">Кабинет гида</Badge>
+      <Card className="border-border/70 bg-card/90">
+        <CardHeader className="space-y-2">
+          <Skeleton className="h-7 w-2/3" />
+          <Skeleton className="h-4 w-1/2" />
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-5/6" />
+          <Skeleton className="h-4 w-3/4" />
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function BookingErrorCard({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="space-y-6">
+      <Badge variant="outline">Кабинет гида</Badge>
+      <Card className="border-border/70 bg-card/90">
+        <CardHeader className="space-y-2">
+          <CardTitle>Не удалось загрузить бронирование</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Данные не пришли. Попробуйте ещё раз.
+          </p>
+        </CardHeader>
+        <CardContent className="flex flex-col gap-2 sm:flex-row">
+          <Button type="button" onClick={onRetry}>
+            Повторить
+          </Button>
+          <Button asChild variant="secondary">
+            <Link href="/guide/bookings">
+              <ArrowLeft className="size-4" />
+              Назад к списку
+            </Link>
+          </Button>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
   const router = useRouter();
   const [isPending, startTransition] = React.useTransition();
   const [record, setRecord] = React.useState<BookingRecord | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState(false);
+  const [reloadKey, setReloadKey] = React.useState(0);
   const [actionResult, setActionResult] = React.useState<{
     action: GuideBookingAction;
     nextStatus: GuideBookingStatus;
@@ -383,6 +433,8 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     let ignore = false;
 
     async function load() {
+      setIsLoading(true);
+      setLoadError(false);
       try {
         const result = await getGuideBookingDetailAction(bookingId);
         if (ignore) return;
@@ -391,17 +443,21 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           setErrorMessage(null);
         } else {
           setErrorMessage(result.error);
+          setLoadError(true);
         }
       } catch (err) {
         if (!ignore) {
           setErrorMessage(err instanceof Error ? err.message : "Не удалось загрузить бронирование");
+          setLoadError(true);
         }
+      } finally {
+        if (!ignore) setIsLoading(false);
       }
     }
 
     void load();
     return () => { ignore = true; };
-  }, [bookingId]);
+  }, [bookingId, reloadKey]);
 
   const handleConfirm = React.useCallback(() => {
     if (!record) return;
@@ -466,6 +522,14 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     },
     [bookingId, record, router],
   );
+
+  if (isLoading) {
+    return <BookingLoadingCard />;
+  }
+
+  if (loadError) {
+    return <BookingErrorCard onRetry={() => setReloadKey((key) => key + 1)} />;
+  }
 
   if (!record) {
     return (
