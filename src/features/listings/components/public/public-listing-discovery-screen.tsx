@@ -2,10 +2,13 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Compass } from "lucide-react";
+import { Compass, Search } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ListHero } from "@/components/shared/list-hero";
 import { ListingCard } from "@/components/shared/listing-card";
+import { cn } from "@/lib/utils";
 import type { ListingRecord } from "@/data/supabase/queries";
 import type { PublicListing } from "@/data/public-listings/types";
 import { THEMES, type ThemeSlug } from "@/data/themes";
@@ -40,6 +43,15 @@ function mapListing(listing: PublicListing): ListingRecord {
   };
 }
 
+function pillClass(isActive: boolean): string {
+  return cn(
+    "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full px-5 text-[0.9rem] transition-colors",
+    isActive
+      ? "bg-primary font-semibold text-primary-foreground"
+      : "bg-surface-low font-medium text-on-surface-muted hover:bg-surface",
+  );
+}
+
 export function PublicListingDiscoveryScreen({
   listings,
   initialSearch = "",
@@ -49,6 +61,16 @@ export function PublicListingDiscoveryScreen({
 }) {
   const [activeFilter, setActiveFilter] = useState<"all" | ThemeSlug>("all");
   const [search, setSearch] = useState(initialSearch);
+
+  const themeCounts = useMemo(() => {
+    const counts = {} as Record<ThemeSlug, number>;
+    for (const theme of THEMES) {
+      counts[theme.slug] = listings.filter((listing) =>
+        listing.themes.includes(theme.slug),
+      ).length;
+    }
+    return counts;
+  }, [listings]);
 
   const filteredListings = useMemo(() => {
     const themeFiltered =
@@ -74,48 +96,47 @@ export function PublicListingDiscoveryScreen({
 
   return (
     <div className="space-y-10">
-      <section>
-        <h1 className="text-[clamp(2.5rem,5vw,4rem)] font-semibold leading-[1.05] text-ink">
-          Готовые экскурсии
-        </h1>
-      </section>
-
-      <div className="max-w-[32rem]">
-        <Input
-          type="search"
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Поиск по названию, описанию или направлению…"
-          aria-label="Поиск по экскурсиям"
-        />
-      </div>
+      <ListHero
+        imageUrl="/hero-valley.jpg"
+        title="Готовые экскурсии"
+        intro="Авторские экскурсии от местных гидов."
+      >
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface-muted"
+            aria-hidden
+          />
+          <Input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Поиск по названию, описанию или направлению…"
+            aria-label="Поиск по экскурсиям"
+            className="h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg"
+          />
+        </div>
+      </ListHero>
 
       <div className="flex flex-wrap gap-3">
         <button
           key="all"
           type="button"
           onClick={() => setActiveFilter("all")}
-          className={
-            activeFilter === "all"
-              ? "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
-              : "inline-flex h-10 cursor-pointer items-center justify-center rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2 transition-colors hover:bg-brand/10 hover:text-brand"
-          }
+          className={pillClass(activeFilter === "all")}
         >
           Все
+          <span className="tabular-nums opacity-60">{listings.length}</span>
         </button>
         {THEMES.map(({ slug, label, Icon }) => (
           <button
             key={slug}
             type="button"
             onClick={() => setActiveFilter(slug)}
-            className={
-              activeFilter === slug
-                ? "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-brand px-5 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
-                : "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full bg-surface-low px-5 text-[0.9rem] font-medium text-ink-2 transition-colors hover:bg-brand/10 hover:text-brand"
-            }
+            className={pillClass(activeFilter === slug)}
           >
             <Icon className="size-4 shrink-0" aria-hidden />
             {label}
+            <span className="tabular-nums opacity-60">{themeCounts[slug]}</span>
           </button>
         ))}
       </div>
@@ -131,20 +152,31 @@ export function PublicListingDiscoveryScreen({
           ))}
         </div>
       ) : (
-        <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
-          <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
+        <div className="flex flex-col items-center justify-center rounded-[1.5rem] border border-border bg-surface-lowest px-6 py-16 text-center">
+          <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
             <Compass className="size-6" strokeWidth={1.9} />
           </span>
-          <h2 className="mt-5 text-[1.35rem] font-semibold text-ink">Маршруты не найдены</h2>
-          <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-ink-2">
-            Попробуйте другой фильтр или создайте запрос на индивидуальный маршрут.
+          <h2 className="mt-5 text-[1.35rem] font-semibold text-on-surface">
+            Маршруты не найдены
+          </h2>
+          <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-on-surface-muted">
+            Не нашли подходящую экскурсию? Опубликуйте запрос — гиды предложат маршрут под вас.
           </p>
-          <Link
-            href="/"
-            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-brand px-6 text-[0.9rem] font-semibold text-white shadow-[0_8px_24px_rgba(0,88,190,0.28)]"
-          >
-            Создать запрос
-          </Link>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Button asChild>
+              <Link href="/">Опубликовать запрос</Link>
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setSearch("");
+                setActiveFilter("all");
+              }}
+            >
+              Сбросить
+            </Button>
+          </div>
         </div>
       )}
     </div>
