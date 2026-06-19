@@ -72,7 +72,7 @@ export function DestinationsGrid({
           {featured && (
             <Link
               href={`/destinations/${featured.slug}`}
-              className="relative block overflow-hidden rounded-glass bg-surface-low lg:row-span-2"
+              className="relative block min-h-[240px] overflow-hidden rounded-glass bg-surface-low lg:row-span-2"
             >
               <Image
                 src={
@@ -105,7 +105,7 @@ export function DestinationsGrid({
             <Link
               key={dest.slug}
               href={`/destinations/${dest.slug}`}
-              className="relative block overflow-hidden rounded-glass bg-surface-low"
+              className="relative block min-h-[240px] overflow-hidden rounded-glass bg-surface-low"
             >
               <Image
                 src={

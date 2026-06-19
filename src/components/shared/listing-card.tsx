@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import type { ListingRecord } from "@/data/supabase/queries";
+import { arrowizeRoute } from "@/lib/utils";
 
 function getFormatLabel(format: string): string {
   if (format === "private") return "Индивидуальный";
@@ -55,7 +56,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
 
         {/* Description */}
         <p className="max-w-sm text-sm leading-[1.55] text-primary-foreground/80 line-clamp-2">
-          {listing.description}
+          {arrowizeRoute(listing.description)}
         </p>
 
         {/* Bottom row */}
