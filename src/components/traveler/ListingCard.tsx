@@ -35,6 +35,7 @@ interface Props {
   listing: Pick<
     ListingRow,
     | "id"
+    | "slug"
     | "title"
     | "region"
     | "city"
@@ -53,7 +54,7 @@ export function ListingCard({ listing }: Props) {
   return (
     <Link
       className="group block rounded-glass focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-      href={`/listings/${listing.id}`}
+      href={`/listings/${listing.slug ?? listing.id}`}
     >
       <Card className="h-full gap-0 py-0 transition-shadow group-hover:shadow-md">
         <div
