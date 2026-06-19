@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { CalendarDays, Clock } from "lucide-react";
 
 import { AvatarStack, type AvatarStackMember } from "@/components/shared/avatar-stack";
@@ -17,6 +18,8 @@ type TripPanelProps = {
   /** Real joined members (open_request_members). No fabricated avatars. */
   members?: readonly AvatarStackMember[];
   joinedLabel?: string;
+  /** Optional footer slot (e.g. visitor price + Join CTA). */
+  footer?: ReactNode;
   className?: string;
 };
 
@@ -34,6 +37,7 @@ export function TripPanel({
   remainingLabel,
   members = [],
   joinedLabel,
+  footer,
   className,
 }: TripPanelProps) {
   const showAvailability = seatsTotal != null;
@@ -110,6 +114,10 @@ export function TripPanel({
             ) : null}
           </div>
         </>
+      ) : null}
+
+      {footer ? (
+        <div className="border-t border-border px-[22px] py-[18px]">{footer}</div>
       ) : null}
     </div>
   );

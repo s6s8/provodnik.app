@@ -3196,6 +3196,17 @@ export type Database = {
         Args: { p_listing_id: string }
         Returns: undefined
       }
+      get_bidding_guides_for_request: {
+        Args: { p_request_id: string }
+        Returns: {
+          user_id: string
+          full_name: string | null
+          avatar_url: string | null
+          average_rating: number | null
+          review_count: number | null
+          slug: string | null
+        }[]
+      }
       guide_offer_exists_for_counter: {
         Args: { p_guide_id: string; p_request_id: string }
         Returns: boolean

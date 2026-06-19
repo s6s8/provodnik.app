@@ -18,6 +18,7 @@ import { viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember } from "@/lib/supabase/request-members";
+import { getBiddingGuidesForRequest, type BiddingGuide } from "@/lib/supabase/requests-public";
 import { hasSupabaseEnv } from "@/lib/env";
 import { getOffersForRequest } from "@/lib/supabase/offers";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -247,6 +248,7 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
   let isApproved = false;
   let existingOfferId: string | null = null;
   let offerMeta: OfferMeta | null = null;
+  let existingOffer: GuideOfferRow | null = null;
 
   if (guideId) {
     const { data: profile } = await supabase
@@ -258,11 +260,12 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
 
     const { data: offer } = await supabase
       .from("guide_offers")
-      .select("id, starts_at, capacity, price_minor, message")
+      .select("*")
       .eq("guide_id", guideId)
       .eq("request_id", requestId)
       .maybeSingle();
     existingOfferId = (offer?.id as string | undefined) ?? null;
+    existingOffer = (offer as GuideOfferRow | null) ?? null;
     offerMeta = offer
       ? {
           starts_at: offer.starts_at as string | null,
@@ -289,6 +292,7 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
     isApproved,
     existingOfferId,
     offerMeta,
+    existingOffer,
     competingOffers,
     viewsCount,
   };
@@ -398,6 +402,7 @@ export default async function RequestDetailPage({
         isApproved={guideData.isApproved}
         existingOfferId={guideData.existingOfferId}
         offerMeta={guideData.offerMeta}
+        existingOffer={guideData.existingOffer}
         competingOffers={guideData.competingOffers}
         viewsCount={guideData.viewsCount}
       />
@@ -411,11 +416,22 @@ export default async function RequestDetailPage({
     ownerId,
   });
 
+  let biddingGuides: BiddingGuide[] = [];
+  if (hasSupabaseEnv()) {
+    try {
+      const sb = await createSupabaseServerClient();
+      biddingGuides = await getBiddingGuidesForRequest(sb, requestId);
+    } catch {
+      // non-fatal — teaser simply renders nothing
+    }
+  }
+
   return (
     <RequestDetailScreen
       viewerRole={viewerRole === "admin" ? "admin" : "public"}
       requestId={requestId}
       viewModel={viewModel}
+      biddingGuides={biddingGuides}
     />
   );
 }

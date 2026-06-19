@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import * as React from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -11,11 +10,7 @@ import {
   Check,
   ChevronDown,
   Clock,
-  Clock3,
-  Eye,
-  ListChecks,
   LogIn,
-  UserPlus,
   Users,
   Wallet,
 } from "lucide-react";
@@ -23,11 +18,9 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
-import { getTheme } from "@/data/themes";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { BidFormPanel } from "@/features/guide/components/requests/bid-form-panel-lazy";
 import { GuideOfferQaPanel } from "@/features/guide/components/requests/guide-offer-qa-panel";
@@ -37,14 +30,19 @@ import { CancelRequestButton } from "@/features/traveler/components/requests/can
 import { MarkOffersRead } from "@/features/traveler/components/requests/mark-offers-read";
 import { OfferCard } from "@/features/traveler/components/requests/offer-card";
 import { AcceptOfferButton } from "@/features/traveler/components/requests/accept-offer-button";
+import { BiddingGuidesTeaser } from "@/components/shared/bidding-guides-teaser";
 import { ImmersiveHero } from "@/components/shared/immersive-hero";
+import { RequestFactsPanel } from "@/components/shared/request-facts-panel";
 import { TripPanel } from "@/components/shared/trip-panel";
 import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-offer-card";
 import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
+import { withdrawOfferAction } from "@/features/guide/offer-actions";
+import { cityImage } from "@/lib/city-image";
 import { formatTimeRange } from "@/lib/dates";
 import { BADGE_CLASS } from "@/lib/styles";
 import type { QaThread } from "@/lib/supabase/qa-threads";
+import type { BiddingGuide } from "@/lib/supabase/requests-public";
 import type { GuideOfferRow, TravelerRequestRow } from "@/lib/supabase/types";
 import { cn, pluralize } from "@/lib/utils";
 
@@ -89,6 +87,7 @@ type RequestDetailScreenProps =
       viewerRole: "public";
       requestId: string;
       viewModel: PublicRequestDetailViewModel;
+      biddingGuides?: BiddingGuide[];
     }
   | {
       viewerRole: "owner";
@@ -108,6 +107,7 @@ type RequestDetailScreenProps =
       isApproved: boolean;
       existingOfferId: string | null;
       offerMeta?: OfferMeta | null;
+      existingOffer?: GuideOfferRow | null;
       competingOffers: number;
       viewsCount: number;
     }
@@ -115,6 +115,7 @@ type RequestDetailScreenProps =
       viewerRole: "admin";
       requestId?: string;
       viewModel?: PublicRequestDetailViewModel;
+      biddingGuides?: BiddingGuide[];
     };
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
@@ -144,12 +145,6 @@ const avatarFallbackClassNames = [
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
-const chipBase = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
-const assemblyChip = `${chipBase} bg-sky-100 text-sky-700`;
-const privateChip = `${chipBase} bg-purple-100 text-purple-700`;
-const flexibleChip = `${chipBase} bg-emerald-100 text-emerald-700`;
-const exactChip = `${chipBase} bg-rose-100 text-rose-700`;
 
 function formatPublicPrice(pricePerPersonRub: number | null): string {
   if (!pricePerPersonRub) return "Цена уточняется";
@@ -216,26 +211,6 @@ function JoinCta({
   );
 }
 
-function ThemeChips({ themes }: { themes: string[] }) {
-  if (themes.length === 0) return null;
-
-  return (
-    <div className="mb-4 flex flex-wrap gap-2">
-      {themes.map((theme) => {
-        const themeData = getTheme(theme);
-        return (
-          <span
-            key={theme}
-            className="inline-flex rounded-full bg-surface-low px-3.5 py-1.5 text-[0.84rem] font-medium text-foreground"
-          >
-            {themeData?.label ?? theme}
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
 function AvatarGroupVisual({ children }: { children: ReactNode }) {
   return <div className="flex -space-x-2.5">{children}</div>;
 }
@@ -259,181 +234,116 @@ function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["mem
   );
 }
 
-function DecisionCard({
-  requestId,
-  viewModel,
-}: {
-  requestId: string;
-  viewModel: PublicRequestDetailViewModel;
-}) {
-  const price = formatPublicPrice(viewModel.pricePerPersonRub);
-
-  return (
-    <aside className="lg:sticky lg:top-[108px]">
-      <div className="rounded-[22px] border border-border bg-surface-high p-6 shadow-glass">
-        <div className="font-display text-[2rem] font-bold leading-none tracking-[-0.02em] text-foreground">
-          {price}{" "}
-          {viewModel.pricePerPersonRub ? (
-            <small className="text-base font-medium text-muted-foreground">/ с человека</small>
-          ) : null}
-        </div>
-        <p className="mt-3 text-sm leading-[1.55] text-muted-foreground">
-          Добор открыт: группа сейчас {viewModel.memberCount}{" "}
-          {pluralize(viewModel.memberCount, "человек", "человека", "человек")}. Финальную цену предложат гиды.
-        </p>
-        <div className="mt-5 hidden lg:block">
-          <JoinCta requestId={requestId} joinState={viewModel.joinState} />
-        </div>
-        <div className="mt-4 flex items-center gap-2 border-t border-border pt-4 text-[0.84rem] text-muted-foreground">
-          <Eye className="size-4 text-primary" aria-hidden="true" />
-          Гиды уже видят этот запрос
-        </div>
-      </div>
-    </aside>
-  );
-}
-
 function PublicDetailBranch({
   requestId,
   viewModel,
+  biddingGuides,
 }: {
   requestId: string;
   viewModel: PublicRequestDetailViewModel;
+  biddingGuides: BiddingGuide[];
 }) {
   const price = formatPublicPrice(viewModel.pricePerPersonRub);
   const hasAbout = viewModel.notes.trim().length > 0;
 
   return (
-    <div className="bg-surface pb-24 lg:pb-0">
-      <section className="relative h-[240px] overflow-hidden bg-foreground md:h-[300px]">
-        <Image
-          src={viewModel.cityImageUrl}
-          alt={viewModel.title}
-          width={1800}
-          height={600}
-          priority
-          sizes="100vw"
-          className="h-[240px] w-full object-cover md:h-[300px]"
-        />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-foreground/10 via-transparent to-foreground/80"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-x-0 bottom-0 z-[2]">
-          <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pb-6">
-            <span className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/15 px-3.5 py-1.5 text-[0.82rem] font-medium text-primary-foreground backdrop-blur-[8px]">
-              <span className="size-2 rounded-full bg-success shadow-[0_0_0_3px_rgba(127,227,182,0.25)]" aria-hidden="true" />
-              Сборная группа
-            </span>
-            <h1 className="mt-3 font-display text-[clamp(2.1rem,5vw,2.9rem)] font-bold leading-[1.05] tracking-[-0.02em] text-primary-foreground">
-              {viewModel.title}
-            </h1>
-            <p className="mt-1 text-sm text-primary-foreground/80">{viewModel.regionLabel}</p>
-          </div>
-        </div>
-      </section>
-
-      <div className="mx-auto grid w-full max-w-page grid-cols-1 gap-8 px-[clamp(20px,4vw,48px)] py-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:items-start lg:gap-9 lg:pb-24">
-        <main>
-          <div className="mb-8 flex flex-wrap gap-2.5">
-            <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-high px-3.5 py-2 text-sm font-medium text-foreground shadow-sm">
-              <CalendarDays className="size-4 text-primary" aria-hidden="true" />
-              {viewModel.dateLabel}
-            </span>
-            {viewModel.timeLabel ? (
-              <span className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-high px-3.5 py-2 text-sm font-medium text-foreground shadow-sm">
-                <Clock3 className="size-4 text-primary" aria-hidden="true" />
-                {viewModel.timeLabel}
-              </span>
-            ) : null}
-            {viewModel.datesFlexible ? (
-              <span className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-3.5 py-2 text-sm font-medium text-primary shadow-sm">
-                <ListChecks className="size-4" aria-hidden="true" />
-                Гибкие даты
-              </span>
-            ) : null}
-          </div>
-
-          <section className="mb-8">
-            <h2 className="mb-3.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              Кто едет
-            </h2>
-            <div className="rounded-[22px] border border-border bg-surface-high p-6 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="text-[1.2rem] font-semibold text-foreground">
-                  В группе сейчас {viewModel.memberCount}{" "}
-                  {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
-                </p>
-                <MemberAvatars members={viewModel.members} />
+    <>
+      <ImmersiveHero
+        className="-mt-nav-h"
+        imageUrl={viewModel.cityImageUrl}
+        breadcrumb={[{ label: "Поездки" }, { label: viewModel.regionLabel }, { label: viewModel.title }]}
+        title={viewModel.title}
+        intro={hasAbout ? viewModel.notes : undefined}
+      >
+        <TripPanel
+          dateLabel={viewModel.dateLabel}
+          timeLabel={viewModel.timeLabel}
+          footer={
+            <div className="flex flex-col gap-3">
+              <div className="font-display text-[26px] font-bold leading-none tracking-[-0.02em] text-on-surface">
+                {price}
+                {viewModel.pricePerPersonRub ? (
+                  <span className="ml-1 text-[15px] font-medium text-on-surface-muted">/ с человека</span>
+                ) : null}
               </div>
-              <p className="mt-3.5 text-sm text-muted-foreground">
-                Организатор — <b className="font-semibold text-foreground">{viewModel.organizerName}</b>
+              <p className="text-[13px] leading-[1.5] text-on-surface-muted">
+                Добор открыт: в группе сейчас {viewModel.memberCount}{" "}
+                {pluralize(viewModel.memberCount, "человек", "человека", "человек")}. Финальную цену предложат гиды.
               </p>
-              <div className="mt-3.5 inline-flex items-center gap-1.5 text-[0.84rem] font-medium text-primary">
-                <UserPlus className="size-4" aria-hidden="true" />
-                Группа открыта — можно присоединиться
+              <div className="hidden lg:block">
+                <JoinCta requestId={requestId} joinState={viewModel.joinState} />
               </div>
             </div>
-          </section>
+          }
+        />
+      </ImmersiveHero>
 
-          {hasAbout ? (
-            <section className="mb-8">
-              <h2 className="mb-3.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-                О поездке
-              </h2>
-              <ThemeChips themes={viewModel.themes} />
-              <p className="max-w-[60ch] text-[0.97rem] leading-[1.7] text-foreground/85">{viewModel.notes}</p>
-            </section>
-          ) : null}
-
-          <section className="mb-8">
-            <h2 className="mb-3.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
-              Как это работает
-            </h2>
-            <div className="grid gap-3.5 sm:grid-cols-3">
-              {["Присоединяешься к группе", "Гиды предлагают условия и цену", "Группа подтверждает бронь"].map(
-                (step, index) => (
-                  <div key={step} className="rounded-2xl border border-border bg-surface-high p-4 shadow-sm">
-                    <div className="mb-2.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                      {index + 1}
-                    </div>
-                    <p className="text-sm leading-[1.45] text-foreground">{step}</p>
-                  </div>
-                ),
-              )}
+      <div className="mx-auto w-full max-w-page px-5 pb-32 md:px-8">
+        {/* Кто едет — preserve member social proof */}
+        <section className="flex flex-col gap-4 pt-[54px]">
+          <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">Кто едет</div>
+          <div className="rounded-[16px] border border-border bg-surface-lowest p-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <p className="text-[20px] font-semibold text-on-surface">
+                В группе сейчас {viewModel.memberCount}{" "}
+                {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
+              </p>
+              <MemberAvatars members={viewModel.members} />
             </div>
-          </section>
+            <p className="mt-3 text-sm text-on-surface-muted">
+              Организатор — <b className="font-semibold text-on-surface">{viewModel.organizerName}</b>
+            </p>
+          </div>
+        </section>
 
-          <section>
-            <div className="border-t border-border">
-              {faqItems.map((item) => (
-                <details key={item.question} className="group border-b border-border">
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.97rem] font-medium text-foreground marker:hidden">
-                    {item.question}
-                    <ChevronDown className="size-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
-                  </summary>
-                  <p className="pb-4 text-sm leading-[1.6] text-muted-foreground">{item.answer}</p>
-                </details>
-              ))}
-            </div>
-          </section>
-        </main>
+        {/* Social-proof teaser — renders nothing if no real bidders */}
+        <div className="pt-[54px]">
+          <BiddingGuidesTeaser guides={biddingGuides} />
+        </div>
 
-        <DecisionCard requestId={requestId} viewModel={viewModel} />
+        {/* Как это работает + off-platform reassurance */}
+        <section className="flex flex-col gap-4 pt-[54px]">
+          <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">Как это работает</div>
+          <div className="grid gap-3.5 sm:grid-cols-3">
+            {["Присоединяешься к группе", "Гиды предлагают условия и цену", "Группа подтверждает бронь"].map((step, index) => (
+              <div key={step} className="rounded-[16px] border border-border bg-surface-lowest p-4">
+                <div className="mb-2.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{index + 1}</div>
+                <p className="text-sm leading-[1.45] text-on-surface">{step}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-[13.5px] text-on-surface-muted">Договорённость и оплата — напрямую с гидом.</p>
+        </section>
+
+        {/* FAQ */}
+        <section className="pt-[54px]">
+          <div className="border-t border-border">
+            {faqItems.map((item) => (
+              <details key={item.question} className="group border-b border-border">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.97rem] font-medium text-on-surface marker:hidden">
+                  {item.question}
+                  <ChevronDown className="size-4 text-on-surface-muted transition-transform group-open:rotate-180" aria-hidden="true" />
+                </summary>
+                <p className="pb-4 text-sm leading-[1.6] text-on-surface-muted">{item.answer}</p>
+              </details>
+            ))}
+          </div>
+        </section>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-border bg-surface-high px-4 py-3 shadow-[0_-6px_24px_rgba(10,40,28,0.10)] lg:hidden">
-        <div className="shrink-0 font-display text-lg font-bold text-foreground">
+      {/* Mobile sticky join bar — preserved */}
+      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-border bg-surface-lowest px-4 py-3 shadow-glass lg:hidden">
+        <div className="shrink-0 font-display text-lg font-bold text-on-surface">
           {price}
           {viewModel.pricePerPersonRub ? (
-            <small className="block text-xs font-medium text-muted-foreground">с человека</small>
+            <small className="block text-xs font-medium text-on-surface-muted">с человека</small>
           ) : null}
         </div>
         <div className="min-w-0 flex-1">
           <JoinCta requestId={requestId} joinState={viewModel.joinState} compact />
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -863,223 +773,162 @@ function GuideDetailBranch({
   isApproved,
   existingOfferId,
   offerMeta,
+  existingOffer,
   competingOffers,
   viewsCount,
 }: Extract<RequestDetailScreenProps, { viewerRole: "guide" }>) {
   const router = useRouter();
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
+  const [editMode, setEditMode] = React.useState(false);
+  const [withdrawing, setWithdrawing] = React.useState(false);
 
   React.useEffect(() => {
     setOfferId(existingOfferId);
   }, [existingOfferId]);
 
-  const interestsLabel = request.interests
-    .map((s) => INTEREST_LABEL_BY_ID[s] ?? s)
-    .join(" · ");
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
   const hasFlexibleDates =
     request.dateFlexibility === "few_days" || request.date_locked === false;
 
   return (
-    <div className="space-y-6">
-      <Link
-        href="/guide/inbox"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+    <>
+      <ImmersiveHero
+        className="-mt-nav-h"
+        imageUrl={cityImage(request.destination)}
+        breadcrumb={[{ label: "Запросы" }, { label: request.destination }]}
+        title={request.destination}
+        intro={request.description || undefined}
       >
-        <ArrowLeft className="size-4" />
-        Назад к запросам
-      </Link>
+        <RequestFactsPanel
+          dateLabel={request.dateLabel}
+          flexible={hasFlexibleDates}
+          timeLabel={formatTimeRange(request.startTime, request.endTime) || undefined}
+          groupLabel={`${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`}
+          budgetLabel={request.budgetLabel}
+          formatLabel={request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+          interests={request.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s)}
+          viewsLabel={formatViewsLabel(viewsCount)}
+          competingLabel={formatCompetingOffersLabel(competingOffers, validOfferId !== null)}
+        />
+      </ImmersiveHero>
 
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-2">
-          <div className="flex items-start gap-3">
-            <div
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary/30 to-primary/10 text-primary text-base font-bold"
-              aria-hidden="true"
-            >
-              {request.requesterInitials}
+      <div className="mx-auto w-full max-w-page px-5 pb-24 md:px-8">
+        <div className="flex items-center gap-2 pt-[54px]">
+          <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/12 text-base font-bold text-primary" aria-hidden="true">
+            {request.requesterInitials}
+          </div>
+          <div>
+            <p className="text-[15px] font-semibold text-on-surface">{request.requesterName}</p>
+            <p className="text-[13px] text-on-surface-muted">Запрос от {formatDateTime(request.createdAt)}</p>
+          </div>
+        </div>
+
+        <div className="pt-7">
+          {/* ACTION ZONE — three states */}
+          {!isApproved ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="default" size="default" disabled>Доступно после верификации</Button>
+              <Link href="/guide/profile#verification" className="text-xs text-primary underline-offset-2 hover:underline">
+                Пройти верификацию →
+              </Link>
             </div>
-            <div className="flex-1 min-w-0">
-              <CardTitle className="text-lg">{request.requesterName}</CardTitle>
-              <p className="mt-1 text-sm text-muted-foreground">
-                в{" "}
-                <span className="font-medium text-foreground">
-                  {request.destination}
+          ) : validOfferId ? (
+            <div className="flex flex-col gap-4 rounded-[16px] border border-primary/25 bg-primary/5 p-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">Ваш отклик</p>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  <Check className="size-3.5" aria-hidden="true" /> Предложение отправлено
                 </span>
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground shrink-0">
-              {formatDateTime(request.createdAt)}
-            </p>
-          </div>
-        </CardHeader>
-
-        <CardContent className="space-y-5">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
-            Запрос путешественника
-          </p>
-
-          {interestsLabel ? (
-            <div>
-              <span className="inline-flex items-center gap-1.5 whitespace-normal rounded-full bg-primary/10 px-2.5 py-1 font-sans text-[11px] font-semibold tracking-[0.02em] text-primary">
-                {interestsLabel}
-              </span>
-            </div>
-          ) : null}
-
-          <div className="flex flex-wrap gap-2">
-            <span className={request.mode === "assembly" ? assemblyChip : privateChip}>
-              {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-            </span>
-            <span className={hasFlexibleDates ? flexibleChip : exactChip}>
-              {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
-            </span>
-          </div>
-
-          <div className="space-y-1.5">
-            <p className="text-sm">
-              <span className="font-medium text-foreground">Даты:</span>{" "}
-              <span className="text-muted-foreground">{request.dateLabel}</span>
-              {formatTimeRange(request.startTime, request.endTime) && (
-                <>
-                  {" · "}
-                  <span className="font-medium text-foreground">Время:</span>{" "}
-                  <span className="text-muted-foreground">
-                    {formatTimeRange(request.startTime, request.endTime)}
-                  </span>
-                </>
-              )}
-            </p>
-            <p className="text-sm">
-              <span className="font-medium text-foreground">Бюджет:</span>{" "}
-              <span className="text-muted-foreground">
-                {request.budgetLabel} · {request.groupSize} чел.
-              </span>
-            </p>
-          </div>
-
-          <div className="border-t border-border/50 pt-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
-              Описание
-            </p>
-            {request.description ? (
-              <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
-                {request.description}
-              </p>
-            ) : (
-              <p className="mt-2 text-sm italic text-muted-foreground/60">
-                Путешественник не оставил описание.
-              </p>
-            )}
-          </div>
-
-          <div
-            className="flex flex-col gap-1.5 rounded-md border border-border/50 bg-muted/30 px-3 py-2 text-xs text-muted-foreground"
-            aria-live="polite"
-          >
-            <div className="flex items-center gap-2">
-              <Eye className="size-3.5 shrink-0" aria-hidden="true" />
-              <span>{formatViewsLabel(viewsCount)}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Users className="size-3.5 shrink-0" aria-hidden="true" />
-              <span>{formatCompetingOffersLabel(competingOffers, validOfferId !== null)}</span>
-            </div>
-          </div>
-
-          {validOfferId ? (
-            <div className="rounded-lg border border-primary/25 bg-primary/5 p-4 space-y-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">
-                Ваш отклик
-              </p>
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-sans text-xs font-semibold tracking-[0.02em] text-primary">
-                ✓ Предложение отправлено
-              </span>
-              {offerMeta &&
-                (offerMeta.starts_at != null ||
-                  offerMeta.capacity != null ||
-                  offerMeta.price_minor != null ||
-                  offerMeta.message != null) ? (
-                <div className="space-y-2">
-                  <p className="text-sm text-foreground/80">
-                    {offerMeta.starts_at
-                      ? new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", {
-                          day: "numeric",
-                          month: "long",
-                        })
-                      : ""}
+              </div>
+              {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null || offerMeta.message != null) ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm text-on-surface/80">
+                    {offerMeta.starts_at ? new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" }) : ""}
                     {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
-                    {offerMeta.price_minor != null
-                      ? ` · ${Math.round(
-                          kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1),
-                        ).toLocaleString("ru-RU")} ₽/чел.`
-                      : ""}
+                    {offerMeta.price_minor != null ? ` · ${Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
                   </p>
                   {offerMeta.message ? (
-                    <div className="rounded-md border border-primary/15 bg-background/70 p-3">
-                      <p className="mb-1 text-xs font-medium text-primary/60">
-                        Сообщение путешественнику
-                      </p>
-                      <p className="text-sm whitespace-pre-line">{offerMeta.message}</p>
+                    <div className="rounded-[12px] border border-primary/15 bg-surface-lowest p-3">
+                      <p className="mb-1 text-xs font-medium text-primary/60">Сообщение путешественнику</p>
+                      <p className="whitespace-pre-line text-sm text-on-surface">{offerMeta.message}</p>
                     </div>
                   ) : null}
                 </div>
               ) : null}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="default"
+                  size="default"
+                  disabled={!existingOffer}
+                  onClick={() => { setEditMode(true); setPanelOpen(true); }}
+                >
+                  Редактировать
+                </Button>
+                <Button
+                  variant="outline"
+                  size="default"
+                  disabled={withdrawing}
+                  onClick={async () => {
+                    if (!window.confirm("Отозвать предложение? Путешественник больше его не увидит.")) return;
+                    setWithdrawing(true);
+                    const res = await withdrawOfferAction(validOfferId, request.id);
+                    setWithdrawing(false);
+                    if ("ok" in res) { setOfferId(null); router.refresh(); }
+                    else window.alert(res.error);
+                  }}
+                >
+                  {withdrawing ? "Отзываем…" : "Отозвать"}
+                </Button>
+              </div>
               <div className="border-t border-primary/15 pt-3">
                 <GuideOfferQaPanel offerId={validOfferId} />
               </div>
             </div>
-          ) : isApproved ? (
-            <Button
-              variant="default"
-              size="default"
-              onClick={() => setPanelOpen(true)}
-            >
+          ) : (
+            <Button variant="default" size="default" onClick={() => { setEditMode(false); setPanelOpen(true); }}>
               Сделать предложение
             </Button>
-          ) : (
-            <div className="flex flex-wrap items-center gap-2">
-              <Button variant="default" size="default" disabled>
-                Доступно после верификации
-              </Button>
-              <Link
-                href="/guide/profile#verification"
-                className="text-xs text-primary underline-offset-2 hover:underline"
-              >
-                Пройти верификацию →
-              </Link>
-            </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {panelOpen ? (
         <BidFormPanel
           requestId={request.id}
           request={request}
-          onClose={() => setPanelOpen(false)}
-          onSuccess={() => {
-            setPanelOpen(false);
-            router.refresh();
-          }}
+          editOffer={editMode ? existingOffer ?? undefined : undefined}
+          onClose={() => { setPanelOpen(false); setEditMode(false); }}
+          onSuccess={() => { setPanelOpen(false); setEditMode(false); router.refresh(); }}
         />
       ) : null}
-    </div>
+    </>
   );
 }
 
 export function RequestDetailScreen(props: RequestDetailScreenProps) {
   switch (props.viewerRole) {
     case "public":
-      return <PublicDetailBranch requestId={props.requestId} viewModel={props.viewModel} />;
+      return (
+        <PublicDetailBranch
+          requestId={props.requestId}
+          viewModel={props.viewModel}
+          biddingGuides={props.biddingGuides ?? []}
+        />
+      );
     case "owner":
       return <OwnerDetailBranch {...props} />;
     case "guide":
       return <GuideDetailBranch {...props} />;
     case "admin":
       if (props.requestId && props.viewModel) {
-        return <PublicDetailBranch requestId={props.requestId} viewModel={props.viewModel} />;
+        return (
+          <PublicDetailBranch
+            requestId={props.requestId}
+            viewModel={props.viewModel}
+            biddingGuides={props.biddingGuides ?? []}
+          />
+        );
       }
       return null;
   }

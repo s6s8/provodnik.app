@@ -274,12 +274,12 @@ describe("RequestDetailScreen", () => {
       />,
     );
 
-    expect(screen.getAllByText("Элиста")).toHaveLength(1);
-    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Элиста" })).toBeInTheDocument();
     expect(screen.getAllByText("Присоединиться к группе")).toHaveLength(2);
     expect(screen.getByText("Кто едет")).toBeInTheDocument();
     expect(screen.getByText("Как это работает")).toBeInTheDocument();
 
+    expect(screen.queryByText("Сборная группа")).not.toBeInTheDocument();
     expect(screen.queryByText(/мест занято/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Стоимость на человека/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/О маршруте/i)).not.toBeInTheDocument();
@@ -334,5 +334,30 @@ describe("RequestDetailScreen", () => {
     expect(refresh).toHaveBeenCalledOnce();
     expect(screen.queryByTestId("guide-qa-panel")).not.toBeInTheDocument();
     expect(screen.queryByText("Q&A for pending")).not.toBeInTheDocument();
+  });
+
+  it("renders guide edit and withdraw controls for an existing pending offer", () => {
+    const validOfferId = "d2000000-0000-4000-8000-000000000099";
+    render(
+      <RequestDetailScreen
+        viewerRole="guide"
+        request={guideRequest}
+        isApproved
+        existingOfferId={validOfferId}
+        existingOffer={{ ...offer, id: validOfferId }}
+        offerMeta={{
+          starts_at: offer.starts_at ?? null,
+          capacity: offer.capacity ?? null,
+          price_minor: offer.price_minor ?? null,
+          message: offer.message ?? null,
+        }}
+        competingOffers={0}
+        viewsCount={0}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Редактировать" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Отозвать" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Сделать предложение" })).not.toBeInTheDocument();
   });
 });
