@@ -80,17 +80,8 @@ export function DestinationDetailScreen({
             ) : null}
 
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <span className="inline-flex items-center rounded-full border border-primary-foreground/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
-                Лучший сезон: весна / лето / осень
-              </span>
-              <span className="inline-flex items-center rounded-full border border-primary-foreground/20 bg-glass px-3.5 py-1.5 text-sm font-semibold text-foreground leading-relaxed backdrop-blur-[12px]">
-                Природа · Культура · Гастрономия
-              </span>
-            </div>
-
-            <div className="mt-5 flex flex-wrap gap-2.5">
               <Button asChild>
-                <Link href="/">Найти гида</Link>
+                <Link href={`/guides?region=${encodeURIComponent(destination.region ?? "")}`}>Найти гида</Link>
               </Button>
               <Button
                 variant="outline"
