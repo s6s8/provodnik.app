@@ -18,6 +18,7 @@ import { viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember } from "@/lib/supabase/request-members";
+import { getBiddingGuidesForRequest, type BiddingGuide } from "@/lib/supabase/requests-public";
 import { hasSupabaseEnv } from "@/lib/env";
 import { getOffersForRequest } from "@/lib/supabase/offers";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -411,11 +412,22 @@ export default async function RequestDetailPage({
     ownerId,
   });
 
+  let biddingGuides: BiddingGuide[] = [];
+  if (hasSupabaseEnv()) {
+    try {
+      const sb = await createSupabaseServerClient();
+      biddingGuides = await getBiddingGuidesForRequest(sb, requestId);
+    } catch {
+      // non-fatal — teaser simply renders nothing
+    }
+  }
+
   return (
     <RequestDetailScreen
       viewerRole={viewerRole === "admin" ? "admin" : "public"}
       requestId={requestId}
       viewModel={viewModel}
+      biddingGuides={biddingGuides}
     />
   );
 }

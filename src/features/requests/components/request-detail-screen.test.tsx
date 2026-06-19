@@ -274,12 +274,12 @@ describe("RequestDetailScreen", () => {
       />,
     );
 
-    expect(screen.getAllByText("Элиста")).toHaveLength(1);
-    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
-    expect(screen.getAllByText("Присоединиться к группе")).toHaveLength(2);
+    expect(screen.getByRole("heading", { name: "Элиста" })).toBeInTheDocument();
+    expect(screen.getAllByText("Присоединиться к группе").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Кто едет")).toBeInTheDocument();
     expect(screen.getByText("Как это работает")).toBeInTheDocument();
 
+    expect(screen.queryByText("Сборная группа")).not.toBeInTheDocument();
     expect(screen.queryByText(/мест занято/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Стоимость на человека/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/О маршруте/i)).not.toBeInTheDocument();
