@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ensureOpenModerationCase,
@@ -36,17 +37,19 @@ function formatPrice(value: number, currency: string) {
   }).format(value / 100);
 }
 
-function statusBadgeClass(status: string) {
+function statusBadgeVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "published":
-      return "booking-badge booking-badge--confirmed";
+      return "default";
     case "rejected":
-      return "booking-badge booking-badge--cancelled";
+      return "destructive";
     case "open":
     case "pending_review":
-      return "booking-badge booking-badge--pending";
+      return "secondary";
     default:
-      return "booking-badge booking-badge--pending";
+      return "outline";
   }
 }
 
@@ -165,9 +168,9 @@ export default async function AdminListingsPage() {
                       {formatPrice(row.listing.price_from_minor, row.listing.currency)}
                     </td>
                     <td className="px-4 py-4">
-                      <span className={statusBadgeClass(displayStatus)}>
+                      <Badge variant={statusBadgeVariant(displayStatus)}>
                         {listingStatusLabel(displayStatus)}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="px-4 py-4 text-muted-foreground">
                       {formatDateTime(row.listing.created_at)}

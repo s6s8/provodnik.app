@@ -28,16 +28,18 @@ function formatDateTime(value: string) {
   });
 }
 
-function verificationBadgeClass(status: string) {
+function verificationBadgeVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "approved":
-      return "booking-badge booking-badge--completed";
+      return "default";
     case "rejected":
-      return "booking-badge booking-badge--cancelled";
+      return "destructive";
     case "submitted":
-      return "booking-badge booking-badge--pending";
+      return "secondary";
     default:
-      return "booking-badge booking-badge--pending";
+      return "outline";
   }
 }
 
@@ -124,9 +126,9 @@ export default async function AdminGuideDetailPage({
               <span>{detail.account?.email ?? "Email не указан"}</span>
               <span>{detail.profile.regions.join(", ") || "Регионы не указаны"}</span>
               <span>{detail.profile.languages.join(", ") || "Языки не указаны"}</span>
-              <span className={verificationBadgeClass(detail.profile.verification_status)}>
+              <Badge variant={verificationBadgeVariant(detail.profile.verification_status)}>
                 {verificationLabel(detail.profile.verification_status)}
-              </span>
+              </Badge>
             </div>
           </div>
         </div>

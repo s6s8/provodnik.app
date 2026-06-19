@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ensureOpenModerationCase,
@@ -29,16 +30,18 @@ function formatDateTime(value: string) {
   });
 }
 
-function verificationBadgeClass(status: string) {
+function verificationBadgeVariant(
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" {
   switch (status) {
     case "approved":
-      return "booking-badge booking-badge--completed";
+      return "default";
     case "rejected":
-      return "booking-badge booking-badge--cancelled";
+      return "destructive";
     case "submitted":
-      return "booking-badge booking-badge--pending";
+      return "secondary";
     default:
-      return "booking-badge booking-badge--pending";
+      return "outline";
   }
 }
 
@@ -192,13 +195,13 @@ export default async function AdminGuidesPage({
                       {item.profile.regions.join(", ") || "—"}
                     </td>
                     <td className="px-4 py-4">
-                      <span
-                        className={verificationBadgeClass(
+                      <Badge
+                        variant={verificationBadgeVariant(
                           item.profile.verification_status,
                         )}
                       >
                         {verificationLabel(item.profile.verification_status)}
-                      </span>
+                      </Badge>
                     </td>
                     <td className="px-4 py-4 text-muted-foreground">
                       {formatDateTime(item.profile.updated_at)}
