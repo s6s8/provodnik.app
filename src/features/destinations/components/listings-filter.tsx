@@ -5,26 +5,6 @@ import * as React from "react";
 import { TourCard } from "@/components/shared/tour-card";
 import type { ListingRecord } from "@/data/supabase/queries";
 
-const CATEGORIES = [
-  "Все",
-  "Необычные маршруты",
-  "Лучшие",
-  "Музеи и искусство",
-  "За городом",
-  "Уникальный опыт",
-  "Активности",
-  "Гастрономические",
-  "Монастыри и храмы",
-  "История и архитектура",
-  "Что ещё посмотреть",
-  "Активный отдых",
-  "Обзорные",
-  "Однодневные",
-  "Обзорные на автобусе",
-  "На автобусе",
-  "Ещё",
-] as const;
-
 type FormatFilter = "all" | "private" | "group";
 
 interface ListingsFilterProps {
@@ -32,40 +12,20 @@ interface ListingsFilterProps {
 }
 
 export function ListingsFilter({ listings }: ListingsFilterProps) {
-  const [category, setCategory] = React.useState<string>("Все");
   const [formatFilter, setFormatFilter] = React.useState<FormatFilter>("all");
 
   const filtered = React.useMemo(() => {
     return listings.filter((l) => {
-      const fmtOk =
+      return (
         formatFilter === "all" ||
         (formatFilter === "private" && l.format === "private") ||
-        (formatFilter === "group" && (l.format === "group" || l.format === "combo"));
-      // Category filter is visual only (no backend category field) — always pass
-      return fmtOk;
+        (formatFilter === "group" && (l.format === "group" || l.format === "combo"))
+      );
     });
   }, [listings, formatFilter]);
 
   return (
     <div className="space-y-4">
-      {/* Category pills */}
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-none">
-        {CATEGORIES.map((cat) => (
-          <button
-            key={cat}
-            type="button"
-            onClick={() => setCategory(cat)}
-            className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-              category === cat
-                ? "bg-foreground text-background"
-                : "border border-border/60 bg-background text-muted-foreground hover:border-border hover:text-foreground"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
       {/* Format filter */}
       <div className="flex gap-2">
         {(
@@ -82,7 +42,7 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
             className={`rounded-full px-3 py-1 text-sm transition-colors ${
               formatFilter === key
                 ? "bg-primary text-primary-foreground"
-                : "border border-border/60 bg-background text-muted-foreground hover:border-border hover:text-foreground"
+                : "bg-surface-low text-on-surface-muted"
             }`}
           >
             {label}
@@ -110,10 +70,7 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
           <p className="text-base text-muted-foreground">Туры по этому фильтру не найдены.</p>
           <button
             type="button"
-            onClick={() => {
-              setCategory("Все");
-              setFormatFilter("all");
-            }}
+            onClick={() => setFormatFilter("all")}
             className="mt-3 text-sm font-medium text-primary underline"
           >
             Сбросить фильтры
