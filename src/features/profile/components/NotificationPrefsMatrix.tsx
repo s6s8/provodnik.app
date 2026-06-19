@@ -113,15 +113,21 @@ export function NotificationPrefsMatrix({
                           checked={Boolean(telegramVal)}
                           onCheckedChange={(next) => onChange({ ...prefs, [telegramKey]: next })}
                           className={cn(
-                            "peer inline-flex h-[1.15rem] w-8 shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+                            "group inline-flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-md outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
                           )}
                           aria-label={`${event.label} — Telegram`}
                         >
-                          <SwitchPrimitive.Thumb
+                          <span
                             className={cn(
-                              "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
+                              "inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all group-data-[state=checked]:bg-primary group-data-[state=unchecked]:bg-input",
                             )}
-                          />
+                          >
+                            <SwitchPrimitive.Thumb
+                              className={cn(
+                                "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
+                              )}
+                            />
+                          </span>
                         </SwitchPrimitive.Root>
                       </div>
                     ) : (
@@ -143,15 +149,21 @@ export function NotificationPrefsMatrix({
                         checked={Boolean(emailVal)}
                         onCheckedChange={(next) => onChange({ ...prefs, [emailKey]: next })}
                         className={cn(
-                          "peer inline-flex h-[1.15rem] w-8 shrink-0 cursor-pointer items-center rounded-full border border-transparent shadow-xs outline-none transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input",
+                          "group inline-flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-md outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
                         )}
                         aria-label={`${event.label} — Email`}
                       >
-                        <SwitchPrimitive.Thumb
+                        <span
                           className={cn(
-                            "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
+                            "inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all group-data-[state=checked]:bg-primary group-data-[state=unchecked]:bg-input",
                           )}
-                        />
+                        >
+                          <SwitchPrimitive.Thumb
+                            className={cn(
+                              "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
+                            )}
+                          />
+                        </span>
                       </SwitchPrimitive.Root>
                     </div>
                   </td>
