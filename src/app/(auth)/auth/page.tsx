@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 
+import { Check } from "lucide-react";
+
 import { AuthEntryScreen } from "@/features/auth/components/auth-entry-screen";
 import {
   isAdminWorkspacePath,
@@ -54,17 +56,47 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     redirect(destination);
   }
 
+  const trustPoints = [
+    "Бесплатно для путешественников",
+    "Гиды проходят проверку",
+    "Честную цену предлагают сами гиды",
+    "Поддержка на каждом шаге",
+  ];
+
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden px-[clamp(20px,4vw,48px)] py-16">
-      {/* Background layers */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand-950 via-brand-900 to-brand-950" />
-      <div className="pointer-events-none absolute inset-x-1/4 top-0 h-1/2 rounded-full bg-primary/20 blur-3xl" />
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-primary/10 to-transparent" />
-      <AuthEntryScreen
-        role={signupRole}
-        next={next}
-        errorCode={needsAdminReauth ? "admin-access-denied" : error}
-      />
+    <section className="relative flex min-h-screen items-stretch justify-center bg-surface px-[clamp(20px,4vw,48px)] py-16">
+      <div className="mx-auto grid w-full max-w-5xl items-stretch gap-8 lg:grid-cols-2">
+        <aside className="hidden flex-col justify-center gap-8 rounded-glass bg-gradient-to-br from-brand-900 to-brand-950 p-[clamp(2rem,4vw,3.5rem)] text-white shadow-glass lg:flex">
+          <span className="text-lg font-semibold tracking-tight">Provodnik</span>
+          <div className="space-y-4">
+            <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight">
+              Найдите проверенного местного гида
+            </h1>
+            <p className="text-base leading-7 text-white/70">
+              Создайте профиль за минуту и планируйте поездку вместе с гидами,
+              которым доверяют.
+            </p>
+          </div>
+          <ul className="space-y-4">
+            {trustPoints.map((point) => (
+              <li key={point} className="flex items-start gap-3">
+                <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/10">
+                  <Check className="size-3.5 text-white" />
+                </span>
+                <span className="text-sm leading-6 text-white/85">{point}</span>
+              </li>
+            ))}
+          </ul>
+        </aside>
+
+        <div className="flex items-center justify-center">
+          <AuthEntryScreen
+            role={signupRole}
+            next={next}
+            errorCode={needsAdminReauth ? "admin-access-denied" : error}
+          />
+        </div>
+      </div>
     </section>
   );
 }
