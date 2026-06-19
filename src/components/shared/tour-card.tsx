@@ -46,7 +46,7 @@ export function TourCard({
         <div className="mt-3 grid gap-1.5 text-sm text-primary-foreground/80">
           <span>
             {guide}
-            {rating !== undefined ? ` · ${rating} ★` : null}
+            {rating !== undefined && rating > 0 ? ` · ${rating} ★` : null}
           </span>
         </div>
 
