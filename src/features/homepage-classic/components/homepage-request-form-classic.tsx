@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { ChevronDown, User, Users } from "lucide-react";
 
 import { LANGUAGES } from "@/data/languages";
 import { THEMES } from "@/data/themes";
@@ -89,8 +90,8 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                   className={cn(
                     "flex h-7 w-7 shrink-0 cursor-pointer select-none items-center justify-center rounded-md border text-sm font-bold leading-none transition-colors",
                     dateFlexibility !== "exact"
-                      ? "border-emerald-200 bg-emerald-100 text-emerald-700"
-                      : "border-rose-200 bg-rose-100 text-rose-700 hover:border-rose-300 hover:text-rose-800",
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border bg-surface text-on-surface-muted hover:border-primary/40 hover:text-on-surface",
                   )}
                 >
                   ≈
@@ -126,7 +127,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
         </div>
         <div className="grid gap-2">
           <div className="flex min-h-7 items-center">
-            <FieldLabel htmlFor="endTime">Конец <span className="font-normal text-muted-foreground">(необязательно)</span></FieldLabel>
+            <FieldLabel htmlFor="endTime">Конец <span className="font-normal text-on-surface-muted">(необязательно)</span></FieldLabel>
           </div>
           <Input
             id="endTime"
@@ -166,12 +167,17 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                 });
               }}
               className={cn(
-                "flex h-10 w-full cursor-pointer select-none items-center justify-center rounded-md border text-sm font-medium transition-colors",
+                "flex h-10 w-full cursor-pointer select-none items-center justify-center gap-1.5 rounded-md border text-sm font-medium transition-colors",
                 isAssembly
-                  ? "border-sky-200 bg-sky-100 text-sky-700"
-                  : "border-purple-200 bg-purple-100 text-purple-700",
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border bg-surface text-on-surface-muted hover:border-primary/40 hover:text-on-surface",
               )}
             >
+              {isAssembly ? (
+                <Users className="h-4 w-4 shrink-0" aria-hidden="true" />
+              ) : (
+                <User className="h-4 w-4 shrink-0" aria-hidden="true" />
+              )}
               {isAssembly ? "Сборная" : "Своя"}
             </button>
           </div>
@@ -225,8 +231,8 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                 className={cn(
                   "flex w-full flex-row items-center gap-2 rounded-xl border px-3 py-2.5 text-left text-xs transition-colors",
                   selected
-                    ? "border-primary bg-primary/8 text-primary ring-2 ring-primary/40"
-                    : "border-input bg-background text-muted-foreground hover:bg-muted/40",
+                    ? "border-primary bg-primary/10 text-primary ring-2 ring-primary/40"
+                    : "border-border bg-surface text-on-surface-muted hover:border-primary/40 hover:text-on-surface",
                 )}
               >
                 <Icon className="h-5 w-5 shrink-0" />
@@ -238,7 +244,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             <button
               type="button"
               onClick={() => setShowAllThemes(true)}
-              className="col-span-3 py-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="col-span-3 py-1 text-sm text-on-surface-muted transition-colors hover:text-on-surface"
             >
               Ещё темы →
             </button>
@@ -248,12 +254,11 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
       </div>
 
       {/* 8. Пожелания — expandable «+ Добавить детали», collapsed by default */}
-      <details className="group rounded-xl border border-input bg-background open:bg-muted/30">
-        <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-foreground select-none [&::-webkit-details-marker]:hidden">
-          <span aria-hidden="true" className="text-base leading-none group-open:hidden">+</span>
-          <span aria-hidden="true" className="hidden text-base leading-none group-open:inline">−</span>
+      <details className="group rounded-xl border border-border bg-surface open:bg-surface-low">
+        <summary className="flex cursor-pointer list-none items-center gap-1.5 px-3 py-2.5 text-sm font-medium text-on-surface select-none [&::-webkit-details-marker]:hidden">
+          <ChevronDown aria-hidden="true" className="h-4 w-4 shrink-0 transition-transform group-open:rotate-180" />
           <span>Добавить детали</span>
-          <span className="text-muted-foreground font-normal">(выбрать язык, написать пожелания)</span>
+          <span className="text-on-surface-muted font-normal">(выбрать язык, написать пожелания)</span>
         </summary>
         <div className="grid gap-3 px-3 pb-3 pt-1">
           <div className="grid gap-2">
@@ -305,7 +310,7 @@ function FieldLabel(props: React.ComponentProps<"label">) {
   return (
     <label
       {...props}
-      className={cn("text-sm font-medium text-foreground", props.className)}
+      className={cn("text-sm font-medium text-on-surface", props.className)}
     />
   );
 }
@@ -338,7 +343,7 @@ function TotalBudgetHint({
       : 0;
   if (safePer === 0 || safeCount === 0) {
     return (
-      <p id={id} className="text-xs text-muted-foreground">
+      <p id={id} className="text-xs text-on-surface-muted">
         Укажите бюджет и размер группы, чтобы увидеть итоговую сумму.
       </p>
     );
@@ -347,10 +352,10 @@ function TotalBudgetHint({
   return (
     <p
       id={id}
-      className="text-xs text-muted-foreground"
+      className="text-xs text-on-surface-muted"
       aria-live="polite"
     >
-      Итого: <span className="font-medium text-foreground">{total.toLocaleString("ru-RU")} ₽</span>
+      Итого: <span className="font-medium text-on-surface">{total.toLocaleString("ru-RU")} ₽</span>
       {" "}за группу из {safeCount} {pluralizePeopleGenitive(safeCount)}.
     </p>
   );
