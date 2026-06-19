@@ -5,6 +5,7 @@ import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { PhotoGallery } from "@/components/listing-detail/PhotoGallery";
 import { ScheduleDisplay } from "@/components/listing-detail/ScheduleDisplay";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
+import { RatingDisplay } from "@/components/shared/rating-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -85,6 +86,11 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
           <p className="text-3xl font-semibold">
             {formatExcursionPriceFrom(listing.price_from_minor, listing.format)}
           </p>
+          <RatingDisplay
+            rating={listing.average_rating}
+            reviewCount={listing.review_count}
+            className="mt-1"
+          />
         </div>
         <ul className="space-y-1 text-sm text-muted-foreground">
           {durationLabel ? <li>Длительность: {durationLabel}</li> : null}

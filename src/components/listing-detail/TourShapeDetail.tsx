@@ -6,6 +6,7 @@ import { PhotoGallery } from "@/components/listing-detail/PhotoGallery";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
 import { TourDeparturesList } from "@/components/listing-detail/TourDeparturesList";
 import { TourItineraryDisplay } from "@/components/listing-detail/TourItineraryDisplay";
+import { RatingDisplay } from "@/components/shared/rating-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -91,6 +92,11 @@ export function TourShapeDetail({
       <div>
         <p className="text-3xl font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
         <p className="text-sm text-muted-foreground">на человека</p>
+        <RatingDisplay
+          rating={listing.average_rating}
+          reviewCount={listing.review_count}
+          className="mt-1"
+        />
       </div>
       <Button asChild className="w-full">
         <Link href={`/listings/${listing.id}/book`}>Заказать тур</Link>
