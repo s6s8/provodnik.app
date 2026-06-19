@@ -1,6 +1,6 @@
 "use server";
 
-import { revealTravelerName, type BookingRecord } from "@/data/supabase/queries";
+import { revealTravelerName, revealTravelerPhone, type BookingRecord } from "@/data/supabase/queries";
 import { transitionBooking, type BookingStatus } from "@/lib/bookings/state-machine";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -110,16 +110,18 @@ export async function getGuideBookingDetailAction(
   if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
 
   let travelerName: string | undefined;
+  let travelerPhone: string | null = null;
   try {
     const admin = createSupabaseAdminClient();
     const { data: traveler } = await admin
       .from("profiles")
-      .select("full_name")
+      .select("full_name, phone")
       .eq("id", booking.traveler_id)
       .maybeSingle();
     travelerName = revealTravelerName(traveler?.full_name, booking.status);
+    travelerPhone = revealTravelerPhone(traveler?.phone, booking.status);
   } catch {
-    // admin env not configured — traveler name unavailable
+    // admin env not configured — traveler contact unavailable
   }
 
   return {
@@ -131,6 +133,7 @@ export async function getGuideBookingDetailAction(
       dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
       priceRub: Math.round((booking.subtotal_minor ?? 0) / 100),
       travelerName,
+      travelerPhone,
       status: booking.status,
     },
   };
