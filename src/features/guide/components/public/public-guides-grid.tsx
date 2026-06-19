@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { RatingDisplay } from "@/components/shared/rating-display";
 import { Input } from "@/components/ui/input";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
@@ -157,9 +158,7 @@ export function PublicGuidesGrid({
                   {guide.bio}
                 </p>
 
-                <p className="text-[0.8125rem] text-on-surface-muted">
-                  <span className="text-amber-500">★</span> {guide.rating} · {guide.reviewCount} отзывов
-                </p>
+                <RatingDisplay rating={guide.rating} reviewCount={guide.reviewCount} />
                 {guide.listingCount != null && (
                   <p className="text-[0.8125rem] text-on-surface-muted">
                     {pluralizeExcursions(guide.listingCount)}

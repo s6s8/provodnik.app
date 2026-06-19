@@ -1,5 +1,6 @@
 import Image from "next/image";
 
+import { RatingDisplay } from "@/components/shared/rating-display";
 import { TourCard } from "@/components/shared/tour-card";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { GuidePhotoGrid } from "./guide-photo-grid";
@@ -101,10 +102,8 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                 {guide.headline}
               </p>
 
-              <div className="mb-6 flex flex-wrap gap-2">
-                <span className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground">
-                  {rating.toFixed(1)} / 5 · {totalReviews} отзывов
-                </span>
+              <div className="mb-6 flex flex-wrap items-center gap-2">
+                <RatingDisplay rating={rating} reviewCount={totalReviews} verified />
                 <span className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground">
                   {guide.yearsExperience} лет опыта
                 </span>
@@ -113,19 +112,19 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               <div className="mb-7 grid w-fit grid-cols-3 gap-8 border-b border-outline-variant pb-7">
                 <div className="flex flex-col">
                   <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
-                    {rating.toFixed(1)}
+                    {totalReviews === 0 ? "—" : rating.toFixed(1)}
                   </strong>
                   <span className="mt-1 text-[0.8125rem] text-muted-foreground">рейтинг</span>
                 </div>
                 <div className="flex flex-col">
                   <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
-                    {totalReviews}
+                    {totalReviews === 0 ? "—" : totalReviews}
                   </strong>
                   <span className="mt-1 text-[0.8125rem] text-muted-foreground">поездок</span>
                 </div>
                 <div className="flex flex-col">
                   <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
-                    {guide.yearsExperience}
+                    {guide.yearsExperience > 0 ? guide.yearsExperience : "—"}
                   </strong>
                   <span className="mt-1 text-[0.8125rem] text-muted-foreground">лет опыта</span>
                 </div>

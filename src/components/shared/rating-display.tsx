@@ -1,23 +1,39 @@
-import { Star } from "lucide-react";
+import { Star, BadgeCheck } from "lucide-react";
+
+import { cn, pluralize } from "@/lib/utils";
 
 type RatingDisplayProps = {
-  rating: number;
-  reviewCount?: number;
+  rating?: number | null;
+  reviewCount?: number | null;
+  verified?: boolean;
   className?: string;
 };
 
-export function RatingDisplay({ rating, reviewCount, className }: RatingDisplayProps) {
-  if (rating === 0 || reviewCount === 0) {
-    return <div className={className ?? "text-sm text-ink-2"}>нет отзывов</div>;
-  }
-
-  return (
-    <div className={className ?? "flex items-center gap-2 text-sm text-ink-2"}>
-      <span className="flex items-center gap-1 font-semibold text-ink">
-        <Star className="size-4 fill-primary text-primary" />
-        {rating.toFixed(1)}
+/** Zero-review → "Новый гид" chip (+ optional verified), NEVER "★0/0.0". >0 → amber star + rating + count. */
+export function RatingDisplay({ rating, reviewCount, verified, className }: RatingDisplayProps) {
+  const count = reviewCount ?? 0;
+  if (count <= 0) {
+    return (
+      <span className={cn("inline-flex items-center gap-1.5 text-[12.5px] font-medium", className)}>
+        <span className="inline-flex items-center rounded-full bg-surface-low px-2 py-0.5 text-on-surface-muted">
+          Новый гид
+        </span>
+        {verified ? (
+          <span className="inline-flex items-center gap-1 text-success">
+            <BadgeCheck className="size-3.5" />
+            Проверен
+          </span>
+        ) : null}
       </span>
-      {typeof reviewCount === "number" ? <span>· {reviewCount} отзывов</span> : null}
-    </div>
+    );
+  }
+  return (
+    <span className={cn("inline-flex items-center gap-1 text-[12.5px] text-on-surface-muted", className)}>
+      <Star className="size-3.5 fill-current text-gold" />
+      <span className="font-medium text-on-surface">{(rating ?? 0).toFixed(1)}</span>
+      <span>
+        · {count} {pluralize(count, "отзыв", "отзыва", "отзывов")}
+      </span>
+    </span>
   );
 }
