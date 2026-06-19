@@ -1,5 +1,7 @@
 import Image from "next/image";
+import Link from "next/link";
 
+import { Button } from "@/components/ui/button";
 import { RatingDisplay } from "@/components/shared/rating-display";
 import { TourCard } from "@/components/shared/tour-card";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
@@ -65,6 +67,8 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
         }))
       : null;
 
+  const guideHasListings = Boolean(listings && listings.length > 0);
+
   const reviewCards: GuideReview[] = reviews && reviews.length > 0 ? reviews : [];
 
   return (
@@ -108,6 +112,20 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                   {guide.yearsExperience} лет опыта
                 </span>
               </div>
+
+              <div className="mt-5 flex flex-wrap items-center gap-3">
+                <Button asChild>
+                  <Link href="/">Оставить запрос</Link>
+                </Button>
+                {guideHasListings ? (
+                  <Button asChild variant="outline">
+                    <a href="#excursions">Смотреть экскурсии</a>
+                  </Button>
+                ) : null}
+              </div>
+              <p className="mt-2 mb-6 text-[13px] text-on-surface-muted">
+                Опишите поездку — гиды, включая этого, предложат программу и цену.
+              </p>
 
               <div className="mb-7 grid w-fit grid-cols-3 gap-8 border-b border-outline-variant pb-7">
                 <div className="flex flex-col">
@@ -166,7 +184,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
         </section>
       )}
 
-      <section className="bg-surface-low py-sec-pad">
+      <section id="excursions" className="bg-surface-low py-sec-pad">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Готовые экскурсии
