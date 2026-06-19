@@ -94,7 +94,9 @@ export function DestinationsGrid({
                 <p className="font-display text-[1.75rem] font-semibold leading-[1.1] text-primary-foreground">
                   {featured.name}
                 </p>
-                <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{featured.region}</p>
+                {featured.region && normalize(featured.region) !== normalize(featured.name) ? (
+                  <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{featured.region}</p>
+                ) : null}
               </div>
             </Link>
           )}
@@ -120,7 +122,9 @@ export function DestinationsGrid({
                 <p className="font-display text-[1.25rem] font-semibold leading-[1.1] text-primary-foreground">
                   {dest.name}
                 </p>
-                <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{dest.region}</p>
+                {dest.region && normalize(dest.region) !== normalize(dest.name) ? (
+                  <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{dest.region}</p>
+                ) : null}
               </div>
             </Link>
           ))}
