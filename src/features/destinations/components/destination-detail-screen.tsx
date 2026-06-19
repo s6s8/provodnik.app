@@ -61,7 +61,9 @@ export function DestinationDetailScreen({
 
         <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 text-primary-foreground">
           <div className="max-w-[720px]">
-            {destination.region ? (
+            {destination.region &&
+            destination.region.trim().toLowerCase() !==
+              destination.name.trim().toLowerCase() ? (
               <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-primary-foreground/70">
                 {destination.region}
               </p>
