@@ -5,21 +5,12 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
-import { ProfileAvatar } from "@/components/profile-avatar";
-import { RatingDisplay } from "@/components/shared/rating-display";
+import { ListHero } from "@/components/shared/list-hero";
+import { PublicGuideCard } from "@/components/shared/public-guide-card";
 import { Input } from "@/components/ui/input";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
 import { cn } from "@/lib/utils";
-
-function pluralizeExcursions(n: number): string {
-  const mod100 = n % 100;
-  const mod10 = n % 10;
-  if (mod100 >= 11 && mod100 <= 14) return `${n} экскурсий`;
-  if (mod10 === 1) return `${n} экскурсия`;
-  if (mod10 >= 2 && mod10 <= 4) return `${n} экскурсии`;
-  return `${n} экскурсий`;
-}
 
 function buildGuidesSearch(activeSpecs: string[], q: string): string {
   const params = new URLSearchParams();
@@ -65,14 +56,18 @@ export function PublicGuidesGrid({
 
   return (
     <>
-      <div className="mb-8 max-w-xl">
+      <ListHero
+        imageUrl="/hero-valley.jpg"
+        title="Гиды"
+        intro="Найдите проверенного местного гида."
+      >
         <form onSubmit={onSearchSubmit}>
           <label htmlFor="guide-search" className="sr-only">
             Поиск гида
           </label>
           <div className="relative">
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface-muted"
               aria-hidden="true"
             />
             <Input
@@ -81,13 +76,13 @@ export function PublicGuidesGrid({
               value={query}
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Иван, Казань, английский"
-              className="pl-9"
+              className="h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg"
             />
           </div>
         </form>
-      </div>
+      </ListHero>
 
-      <div className="mb-8">
+      <div className="mt-8 mb-8">
         <div className="mb-3 flex items-center gap-3">
           <p className="text-sm font-medium text-on-surface">Темы:</p>
           {activeSpecs.length > 0 && (
@@ -138,37 +133,31 @@ export function PublicGuidesGrid({
           )}
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {guides.map((guide) => (
-              <Link
+              <PublicGuideCard
                 key={guide.slug}
-                href={`/guides/${guide.slug}`}
-                className="block rounded-card bg-surface-high p-6 text-inherit no-underline shadow-card transition-transform hover:-translate-y-[3px]"
-              >
-                <div className="mb-4 flex items-center gap-4">
-                  <ProfileAvatar
-                    profile={{ full_name: guide.fullName, avatar_url: guide.avatarUrl ?? null }}
-                    size={56}
-                  />
-                  <div>
-                    <p className="text-base font-semibold text-on-surface">{guide.fullName}</p>
-                    <p className="text-[0.8125rem] text-on-surface-muted">{guide.homeBase}</p>
-                  </div>
-                </div>
-
-                <p className="mb-4 line-clamp-2 text-[0.875rem] leading-[1.55] text-on-surface-muted">
-                  {guide.bio}
-                </p>
-
-                <RatingDisplay rating={guide.rating} reviewCount={guide.reviewCount} />
-                {guide.listingCount != null && (
-                  <p className="text-[0.8125rem] text-on-surface-muted">
-                    {pluralizeExcursions(guide.listingCount)}
-                  </p>
-                )}
-              </Link>
+                slug={guide.slug}
+                fullName={guide.fullName}
+                initials={guide.initials}
+                avatarUrl={guide.avatarUrl}
+                homeBase={guide.homeBase}
+                rating={guide.rating}
+                reviewCount={guide.reviewCount}
+                experienceYears={guide.experienceYears}
+              />
             ))}
           </div>
         </>
       )}
+
+      <p className="mt-10 text-sm text-on-surface-muted">
+        Вы гид?{" "}
+        <Link
+          href="/become-a-guide"
+          className="underline underline-offset-2 hover:text-on-surface"
+        >
+          Станьте проводником →
+        </Link>
+      </p>
     </>
   );
 }
