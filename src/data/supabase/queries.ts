@@ -128,6 +128,7 @@ export type BookingRecord = {
   priceRub: number;
   guideName?: string;
   travelerName?: string;
+  travelerPhone?: string | null;
   status: string;
 };
 
@@ -355,7 +356,17 @@ export function revealTravelerName(
   bookingStatus: string | null | undefined,
 ): string {
   const trimmed = name?.trim();
-  return bookingStatus === "confirmed" && trimmed ? trimmed : "Путешественник";
+  return (bookingStatus === "confirmed" || bookingStatus === "completed") && trimmed
+    ? trimmed
+    : "Путешественник";
+}
+
+export function revealTravelerPhone(
+  phone: string | null | undefined,
+  bookingStatus: string | null | undefined,
+): string | null {
+  const trimmed = phone?.trim();
+  return (bookingStatus === "confirmed" || bookingStatus === "completed") && trimmed ? trimmed : null;
 }
 
 export function mapRequestRow(

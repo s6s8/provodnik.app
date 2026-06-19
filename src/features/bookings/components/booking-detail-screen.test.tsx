@@ -154,7 +154,7 @@ describe("BookingDetailScreen", () => {
     expect(screen.queryByRole("button", { name: "Подтвердить" })).not.toBeInTheDocument();
   });
 
-  it("renders guide controls and traveler contact without traveler review/dispute entry", async () => {
+  it("renders guide controls and revealed traveler contact on a confirmed booking", async () => {
     getGuideBookingDetailAction.mockResolvedValue({
       ok: true,
       booking: {
@@ -164,7 +164,8 @@ describe("BookingDetailScreen", () => {
         dateLabel: "10 июня 2026",
         priceRub: 6000,
         travelerName: "Мария",
-        status: "awaiting_guide_confirmation",
+        travelerPhone: "+79991234567",
+        status: "confirmed",
       },
     });
 
@@ -172,8 +173,10 @@ describe("BookingDetailScreen", () => {
 
     expect(await screen.findByText("Операции по бронированию")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Подтвердить" })).toBeInTheDocument();
-    expect(screen.getByText("Путешественник")).toBeInTheDocument();
+    expect(screen.getByText("Свяжитесь с путешественником")).toBeInTheDocument();
     expect(screen.getByText("Мария")).toBeInTheDocument();
+    const phoneLink = screen.getByRole("link", { name: "+79991234567" });
+    expect(phoneLink).toHaveAttribute("href", "tel:+79991234567");
     expect(screen.queryByText(/Оцените поездку/)).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Открыть спор" })).not.toBeInTheDocument();
   });

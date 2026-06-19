@@ -499,6 +499,8 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
   const canComplete = Boolean(nextStatusForAction(statusTyped, "complete"));
   const canCancel = Boolean(nextStatusForAction(statusTyped, "cancel"));
   const canNoShow = Boolean(nextStatusForAction(statusTyped, "no_show"));
+  const contactRevealed =
+    record.status === "confirmed" || record.status === "completed";
 
   return (
     <div className="space-y-8">
@@ -612,6 +614,39 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
         </CardContent>
       </Card>
 
+      {contactRevealed ? (
+        <Card className="border-border/70 bg-card/90">
+          <CardHeader className="space-y-1">
+            <CardTitle>Свяжитесь с путешественником</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Контакт открыт после подтверждения бронирования.
+            </p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col gap-[0.3rem]">
+              <p className="font-sans text-base font-semibold text-foreground">
+                {record.travelerName ?? "Путешественник"}
+              </p>
+              {record.travelerPhone ? (
+                <p className="font-sans text-sm text-muted-foreground">
+                  <span className="font-medium">Телефон:</span>{" "}
+                  <a
+                    href={`tel:${record.travelerPhone}`}
+                    className="text-primary no-underline hover:underline"
+                  >
+                    {record.travelerPhone}
+                  </a>
+                </p>
+              ) : (
+                <p className="font-sans text-sm text-muted-foreground">
+                  Контакт появится после подтверждения
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      ) : null}
+
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-1">
           <CardTitle>Деньги</CardTitle>
@@ -631,11 +666,13 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
               value={formatStatusLabelForSummary(mapDbStatusToGuideStatus(record.status))}
               helper={record.title}
             />
-            <StatCard
-              label="Путешественник"
-              value={record.travelerName ?? "Путешественник"}
-              helper="Имя раскрывается после подтверждения"
-            />
+            {!contactRevealed ? (
+              <StatCard
+                label="Путешественник"
+                value={record.travelerName ?? "Путешественник"}
+                helper="Имя и контакт раскрываются после подтверждения"
+              />
+            ) : null}
           </div>
         </CardContent>
       </Card>
