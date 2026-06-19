@@ -148,16 +148,6 @@ export function PublicGuidesGrid({
           </div>
         </>
       )}
-
-      <p className="mt-10 text-sm text-on-surface-muted">
-        Вы гид?{" "}
-        <Link
-          href="/become-a-guide"
-          className="underline underline-offset-2 hover:text-on-surface"
-        >
-          Станьте проводником →
-        </Link>
-      </p>
     </>
   );
 }
