@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { ListHero } from "@/components/shared/list-hero";
 import { FilterBar } from "@/components/traveler/FilterBar";
 import { ListingGrid } from "@/components/traveler/ListingGrid";
 import { Button } from "@/components/ui/button";
@@ -74,11 +75,13 @@ export default async function SearchPage({
     sp.q && sp.region ? `«${sp.q}» в ${sp.region}` : "Все предложения";
 
   return (
-    <section className="pb-20 pt-10">
-      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        <h1 className="mb-8 font-serif text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          {title}
-        </h1>
+    <section className="pb-20">
+      <ListHero
+        imageUrl="/hero-valley.jpg"
+        title={title}
+        intro="Фильтруйте по типу, формату и цене — или опубликуйте запрос, если не нашли."
+      />
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-10">
         <Suspense fallback={<Skeleton className="mb-8 h-28 w-full rounded-xl" />}>
           <FilterBar
             currentType={sp.type}

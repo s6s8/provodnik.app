@@ -3,7 +3,6 @@
 import { useCallback, useMemo } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -11,6 +10,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+
+const PILL_BASE =
+  "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
+
+function pillClass(selected: boolean): string {
+  return cn(
+    PILL_BASE,
+    selected
+      ? "bg-primary text-primary-foreground"
+      : "bg-surface-low text-on-surface-muted hover:bg-surface-low/80",
+  );
+}
 
 const TYPE_OPTIONS: { value: string; label: string }[] = [
   { value: "excursion", label: "Экскурсия" },
@@ -84,9 +96,9 @@ export function FilterBar({ currentType, currentFormat, currentSort }: FilterBar
           <button
             type="button"
             onClick={() => navigateWithPatch({ type: undefined })}
-            className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            className={pillClass(!currentType)}
           >
-            <Badge variant={!currentType ? "default" : "outline"}>Все</Badge>
+            Все
           </button>
           {TYPE_OPTIONS.map((opt) => {
             const selected = currentType === opt.value;
@@ -95,9 +107,9 @@ export function FilterBar({ currentType, currentFormat, currentSort }: FilterBar
                 key={opt.value}
                 type="button"
                 onClick={() => navigateWithPatch({ type: opt.value })}
-                className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className={pillClass(selected)}
               >
-                <Badge variant={selected ? "default" : "outline"}>{opt.label}</Badge>
+                {opt.label}
               </button>
             );
           })}
@@ -119,9 +131,9 @@ export function FilterBar({ currentType, currentFormat, currentSort }: FilterBar
                 key={opt.value || "any"}
                 type="button"
                 onClick={() => navigateWithPatch({ format: opt.value || undefined })}
-                className="shrink-0 rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className={pillClass(selected)}
               >
-                <Badge variant={selected ? "default" : "outline"}>{opt.label}</Badge>
+                {opt.label}
               </button>
             );
           })}
