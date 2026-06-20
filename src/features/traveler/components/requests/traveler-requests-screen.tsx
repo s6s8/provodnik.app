@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
+import { formatRussianDate, formatRussianDateTime } from '@/lib/dates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   RequestCardFinal,
@@ -66,28 +67,15 @@ function sortByPriority(
 }
 
 function formatDateRange(startsOn: string, endsOn?: string | null): string {
-  const start = new Date(startsOn)
-  if (Number.isNaN(start.getTime())) return startsOn
-  const opts: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short' }
-  const s = start.toLocaleDateString('ru-RU', opts)
-  if (!endsOn || endsOn === startsOn) return s
-  const end = new Date(endsOn)
-  if (Number.isNaN(end.getTime())) return s
-  return `${s} – ${end.toLocaleDateString('ru-RU', opts)}`
+  const start = formatRussianDate(startsOn)
+  if (!endsOn || endsOn === startsOn) return start
+  return `${start} — ${formatRussianDate(endsOn)}`
 }
 
 function formatPrice(budgetMinor: number | null): string {
   if (budgetMinor == null) return 'По договоренности'
   const rub = budgetMinor / 100
   return `${new Intl.NumberFormat('ru-RU').format(rub)} ₽ / чел`
-}
-
-function formatPublishedAt(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return ''
-  const date = d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
-  const time = d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
-  return `${date}, ${time}`
 }
 
 function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProps {
@@ -109,7 +97,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
     groupPrice: request.budget_minor != null
       ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(request.budget_minor * request.participants_count / 100))} ₽ за группу`
       : undefined,
-    publishedAt: request.created_at ? formatPublishedAt(request.created_at) : undefined,
+    publishedAt: request.created_at ? formatRussianDateTime(request.created_at) : undefined,
     unreadOfferCount: request.unread_offer_count,
   }
 }

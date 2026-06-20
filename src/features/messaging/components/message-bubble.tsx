@@ -1,6 +1,7 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatRussianTime } from "@/lib/dates";
 import type { GuideOfferRow, MessageRow } from "@/lib/supabase/types";
 
 import { OfferCard } from "./OfferCard";
@@ -8,13 +9,6 @@ import {
   SystemEventMessage,
   type SystemEventPayload,
 } from "./SystemEventMessage";
-
-function formatTime(timestamp: string) {
-  return new Date(timestamp).toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function getInitials(senderName: string) {
   return (
@@ -215,7 +209,7 @@ function UserBubble({
               {isOwn ? "Вы" : senderName}
             </p>
             <time className="text-xs text-muted-foreground" dateTime={timestamp}>
-              {formatTime(timestamp)}
+              {formatRussianTime(timestamp)}
             </time>
           </div>
         </div>
