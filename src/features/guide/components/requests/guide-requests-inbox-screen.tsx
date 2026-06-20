@@ -252,8 +252,8 @@ export function GuideRequestsInboxScreen() {
                       onClick={() => setFilter(tab.key)}
                       className={
                         isSelected
-                          ? "inline-flex items-center gap-2 rounded-full border border-transparent bg-foreground px-4 py-2 text-sm font-medium text-background transition"
-                          : "inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background"
+                          ? "inline-flex min-h-[44px] items-center gap-2 rounded-full border border-transparent bg-foreground px-4 py-2 text-sm font-medium text-background transition"
+                          : "inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background"
                       }
                     >
                       <span>{tab.label}</span>
@@ -277,7 +277,7 @@ export function GuideRequestsInboxScreen() {
                     <select
                       value={cityFilter}
                       onChange={(e) => setCityFilter(e.target.value)}
-                      className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+                      className="min-h-[44px] rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
                       aria-label="Фильтр по городу"
                     >
                       <option value="all">Все направления</option>
@@ -291,7 +291,7 @@ export function GuideRequestsInboxScreen() {
                   <select
                     value={sortKey}
                     onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
-                    className="rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
+                    className="min-h-[44px] rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
                     aria-label="Сортировка"
                   >
                     <option value="newest">Новые сначала</option>
@@ -317,9 +317,7 @@ export function GuideRequestsInboxScreen() {
                             <p className="font-medium text-foreground">{booking.destination}</p>
                             <p className="text-xs text-muted-foreground">{booking.dateLabel}</p>
                           </div>
-                          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                            Подтверждено
-                          </span>
+                          <Badge variant="secondary">Подтверждено</Badge>
                         </div>
                         {booking.priceRub > 0 ? (
                           <p className="mt-2 text-sm text-muted-foreground">
