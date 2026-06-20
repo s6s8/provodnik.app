@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { kopecksToRub } from "@/data/money";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { BADGE_CLASS } from "@/lib/styles";
-import { cn } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 
@@ -211,7 +211,9 @@ export function OfferCard({
                 <span className="flex items-center gap-1 font-medium text-foreground">
                   <Star className="size-3.5 fill-primary text-primary" />
                   {guideRating.toFixed(1)}
-                  {guideInfo?.review_count ? ` · ${guideInfo.review_count} отзывов` : ""}
+                  {guideInfo?.review_count
+                    ? ` · ${guideInfo.review_count} ${pluralize(guideInfo.review_count, "отзыв", "отзыва", "отзывов")}`
+                    : ""}
                 </span>
               ) : null}
               <span>{formatOfferDate(offer.created_at)}</span>
