@@ -1,9 +1,19 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import { MoreHorizontal } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ListRow } from "@/components/shared/list-row";
+import { formatRussianDateTime } from "@/lib/dates";
 import {
   ensureOpenModerationCase,
   getGuideReviewQueue,
@@ -16,19 +26,6 @@ import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 export const metadata: Metadata = {
   title: "Очередь верификации",
 };
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function verificationBadgeVariant(
   status: string,
@@ -56,6 +53,13 @@ function verificationLabel(status: string) {
     default:
       return "Черновик";
   }
+}
+
+function avatarInitials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "?";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
 function resolveSearchValue(value: string | string[] | undefined) {
@@ -136,7 +140,7 @@ export default async function AdminGuidesPage({
             view === "all" ? filterActiveClass : filterInactiveClass
           }`}
         >
-          Все
+          На проверке
         </Link>
         <Link
           href="/admin/guides?view=drafts"
@@ -149,118 +153,108 @@ export default async function AdminGuidesPage({
         </Link>
       </div>
 
-      <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-card">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border/70 text-sm">
-            <thead className="bg-surface-low text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-medium">Гид</th>
-                <th className="px-4 py-3 font-medium">Email</th>
-                <th className="px-4 py-3 font-medium">Регионы</th>
-                <th className="px-4 py-3 font-medium">Статус</th>
-                <th className="px-4 py-3 font-medium">Отправлено</th>
-                <th className="px-4 py-3 font-medium">Действия</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {guides.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={6}
-                    className="px-4 py-8 text-center text-sm text-muted-foreground"
+      {guides.length === 0 ? (
+        <div className="rounded-[1.75rem] border border-border/70 bg-card p-8 text-center text-sm text-muted-foreground shadow-card">
+          {emptyState}
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {guides.map((item) => {
+            const displayName =
+              resolveDisplayName("guide", { full_name: item.account?.full_name }) ||
+              item.account?.email ||
+              "Без имени";
+            const languagesText =
+              item.profile.languages.join(", ") || "Языки не указаны";
+            const regionsText = item.profile.regions.join(", ") || "—";
+            const isSubmitted = item.profile.verification_status === "submitted";
+
+            return (
+              <ListRow
+                key={item.profile.user_id}
+                leading={
+                  <Avatar size="lg">
+                    <AvatarImage src={item.account?.avatar_url ?? undefined} alt="" />
+                    <AvatarFallback>{avatarInitials(displayName)}</AvatarFallback>
+                  </Avatar>
+                }
+                title={displayName}
+                subtitle={
+                  <>
+                    <span className="block truncate">
+                      {languagesText} · {regionsText}
+                    </span>
+                    <span className="block truncate text-xs">
+                      {item.account?.email ?? "—"} · обновлено{" "}
+                      {formatRussianDateTime(item.profile.updated_at)}
+                    </span>
+                  </>
+                }
+                badge={
+                  <Badge
+                    variant={verificationBadgeVariant(
+                      item.profile.verification_status,
+                    )}
                   >
-                    {emptyState}
-                  </td>
-                </tr>
-              ) : null}
-
-              {guides.map((item) => {
-                const displayName =
-                  resolveDisplayName("guide", { full_name: item.account?.full_name }) ||
-                  item.account?.email ||
-                  "Без имени";
-
-                return (
-                  <tr key={item.profile.user_id} className="align-top">
-                    <td className="px-4 py-4">
-                      <div className="font-medium text-foreground">{displayName}</div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {item.profile.languages.join(", ") || "Языки не указаны"}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">
-                      {item.account?.email ?? "—"}
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">
-                      {item.profile.regions.join(", ") || "—"}
-                    </td>
-                    <td className="px-4 py-4">
-                      <Badge
-                        variant={verificationBadgeVariant(
-                          item.profile.verification_status,
-                        )}
-                      >
-                        {verificationLabel(item.profile.verification_status)}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">
-                      {formatDateTime(item.profile.updated_at)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                          asChild
-                          variant="outline"
-                          size="sm"
-                          className="min-w-[120px]"
-                        >
-                          <Link href={`/admin/guides/${item.profile.user_id}`}>
-                            Просмотреть
-                          </Link>
-                        </Button>
-                        {item.profile.verification_status === "submitted" ? (
-                          <>
-                            <form
-                              action={approveGuideAction.bind(
-                                null,
-                                item.profile.user_id,
-                              )}
-                            >
-                              <Button
+                    {verificationLabel(item.profile.verification_status)}
+                  </Badge>
+                }
+                actions={
+                  <>
+                    <Button asChild size="default">
+                      <Link href={`/admin/guides/${item.profile.user_id}`}>
+                        Проверить
+                      </Link>
+                    </Button>
+                    {isSubmitted ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            aria-label="Другие действия"
+                          >
+                            <MoreHorizontal />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <form
+                            action={approveGuideAction.bind(
+                              null,
+                              item.profile.user_id,
+                            )}
+                          >
+                            <DropdownMenuItem asChild>
+                              <button
                                 type="submit"
-                                variant="secondary"
-                                size="sm"
-                                className="min-w-[120px] border-success/30 bg-success/10 text-success hover:bg-success/20"
+                                className="w-full cursor-pointer text-success focus:text-success"
                               >
                                 Одобрить
-                              </Button>
-                            </form>
-                            <form
-                              action={rejectGuideAction.bind(
-                                null,
-                                item.profile.user_id,
-                              )}
-                            >
-                              <Button
-                                type="submit"
-                                variant="destructive"
-                                size="sm"
-                                className="min-w-[120px]"
-                              >
+                              </button>
+                            </DropdownMenuItem>
+                          </form>
+                          <form
+                            action={rejectGuideAction.bind(
+                              null,
+                              item.profile.user_id,
+                            )}
+                          >
+                            <DropdownMenuItem asChild variant="destructive">
+                              <button type="submit" className="w-full cursor-pointer">
                                 Отклонить
-                              </Button>
-                            </form>
-                          </>
-                        ) : null}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                              </button>
+                            </DropdownMenuItem>
+                          </form>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : null}
+                  </>
+                }
+              />
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 }

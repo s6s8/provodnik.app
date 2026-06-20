@@ -94,7 +94,7 @@ describe("AdminGuidesPage", () => {
     render(ui);
 
     expect(getGuideReviewQueueMock).toHaveBeenCalledWith({ view: "all" });
-    expect(screen.getByRole("link", { name: "Все" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "На проверке" })).toHaveAttribute(
       "href",
       "/admin/guides",
     );
@@ -102,7 +102,9 @@ describe("AdminGuidesPage", () => {
       "href",
       "/admin/guides?view=drafts",
     );
-    expect(screen.getByText("На проверке")).toBeInTheDocument();
+    expect(
+      screen.getByText("На проверке", { selector: '[data-slot="badge"]' }),
+    ).toBeInTheDocument();
   });
 
   it("uses the drafts view from search params", async () => {
