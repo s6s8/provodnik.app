@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/page-header";
 import { PersonalSettingsForm } from "@/features/profile/components/PersonalSettingsForm";
 import { TravelerProfileCompletionChecklist } from "@/features/profile/components/traveler-profile-completion-checklist";
 import {
@@ -107,14 +108,16 @@ export default async function PersonalSettingsPage() {
       travelerProfile.full_name?.trim() || displayNameFallback;
 
     return (
-      <div className="space-y-6">
-        <div className="space-y-2">
-          <Badge variant="outline">Кабинет путешественника</Badge>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Профиль
-          </h1>
-        </div>
-        <TravelerProfileCompletionChecklist profile={travelerProfile} />
+      <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
+        <PageHeader
+          eyebrow="Кабинет путешественника"
+          title="Профиль"
+          actions={
+            <Button asChild variant="outline">
+              <Link href="/trips">Мои запросы</Link>
+            </Button>
+          }
+        />
         <AvatarUploadBlock
           avatarUrl={travelerProfile.avatar_url}
           displayName={avatarDisplayName}
@@ -129,9 +132,7 @@ export default async function PersonalSettingsPage() {
           ].join("|")}
           profile={travelerProfile}
         />
-        <Button asChild variant="outline">
-          <Link href="/trips">Мои запросы</Link>
-        </Button>
+        <TravelerProfileCompletionChecklist profile={travelerProfile} />
       </div>
     );
   }
@@ -168,10 +169,8 @@ export default async function PersonalSettingsPage() {
       resolveDisplayName("guide", { full_name: auth.email ?? null }),
     );
     return (
-      <div className="mx-auto w-full max-w-3xl space-y-6 py-2">
-        <h1 className="font-display text-2xl text-foreground md:text-3xl">
-          Личные настройки
-        </h1>
+      <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
+        <PageHeader eyebrow="Личные настройки" title="Профиль" />
         <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
         <PersonalSettingsForm
           initialLocale={locale}
