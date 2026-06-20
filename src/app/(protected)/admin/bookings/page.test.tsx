@@ -122,7 +122,7 @@ describe("BookingsPage", () => {
     expect(serverClient.from).not.toHaveBeenCalled();
     expect(html).toContain("Администрирование");
     expect(html).toContain("Бронирования");
-    expect(html).toContain("#booking-");
+    expect(html).toContain("#ooking-1");
     expect(html).toContain("Ожидает подтверждения");
     expect(html).toContain("1\u00a0250\u00a0₽");
     expect(html).toContain("Подтвердить");

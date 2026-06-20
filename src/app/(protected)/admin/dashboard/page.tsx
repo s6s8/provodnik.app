@@ -42,7 +42,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-10">
       <PageHeader
-        eyebrow="Панель администратора"
+        eyebrow="Администрирование"
         title="Обзор"
         subtitle="Следите за очередью проверки, открытыми спорами и общей нагрузкой на админ-панель."
       />
