@@ -11,6 +11,7 @@
 
 import { z } from "zod";
 
+import { maskPii } from "@/lib/pii/mask";
 import type { Database } from "@/lib/supabase/database.types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -549,7 +550,7 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
         ...row.thread,
         participants: participants.map(({ profile: _profile, ...participant }) => participant),
         other_participant_names: [...new Set(otherParticipantNames)],
-        last_message_preview: latestMessage ? truncatePreview(latestMessage.body) : null,
+        last_message_preview: latestMessage ? truncatePreview(maskPii(latestMessage.body)) : null,
         last_message_created_at: latestMessage?.created_at ?? null,
         unread: isUnread(input.userId, row.last_read_at, latestMessage),
       } satisfies UserThreadSummary;
