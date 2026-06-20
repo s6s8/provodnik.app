@@ -19,7 +19,7 @@ describe("UserAccountDrawer", () => {
     ).toBeInTheDocument();
   });
 
-  it("hides «Настройки» for travellers (settings merged into profile)", () => {
+  it("hides «Настройки» for travellers (guides-only setting)", () => {
     render(
       <UserAccountDrawer
         open
@@ -30,10 +30,10 @@ describe("UserAccountDrawer", () => {
     );
 
     expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
-    expect(screen.getByText("Мой профиль")).toBeInTheDocument();
+    expect(screen.getByText("Профиль")).toBeInTheDocument();
   });
 
-  it("hides «Настройки» for guides too (settings merged into profile)", () => {
+  it("shows «Настройки» for guides", () => {
     render(
       <UserAccountDrawer
         open
@@ -43,8 +43,8 @@ describe("UserAccountDrawer", () => {
       />,
     );
 
-    expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
-    expect(screen.getByText("Мой профиль")).toBeInTheDocument();
+    expect(screen.getByText("Настройки")).toBeInTheDocument();
+    expect(screen.getByText("Профиль")).toBeInTheDocument();
   });
 
   it("links guides to the traveler experience", () => {

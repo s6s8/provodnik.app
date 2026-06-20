@@ -31,32 +31,17 @@ import { COPY } from "@/lib/copy";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
+import { accountMenu, headerPrimary, isNavActive, type NavItem } from "@/lib/navigation";
 
-const navLinks = [
-  { href: "/requests", label: "Запросы" },
-  { href: "/destinations", label: "Направления" },
-  { href: "/guides", label: "Гиды" },
-] as const;
-
-const travelerNavLinks = [
-  { href: "/trips", label: "Мои запросы" },
-  { href: "/requests", label: "Открытые группы" },
-  { href: "/listings", label: "Готовые экскурсии" },
-  { href: "/destinations", label: "Направления" },
-] as const;
-
-const guideNavLinks = [
-  { href: "/guide", label: "Запросы" },
-  { href: "/guide/listings", label: "Мои экскурсии" },
-] as const;
-
-const publicNavLinks = [
-  { href: "/requests", label: "Открытые группы" },
-  { href: "/listings", label: "Готовые экскурсии" },
-  { href: "/guides", label: "Гиды" },
-  { href: "/how-it-works", label: "Как это работает" },
-] as const;
-
+function resolveActiveHref(pathname: string, items: readonly NavItem[]): string | null {
+  let best: string | null = null;
+  for (const item of items) {
+    if (isNavActive(pathname, item) && (best === null || item.href.length > best.length)) {
+      best = item.href;
+    }
+  }
+  return best;
+}
 
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
@@ -91,12 +76,31 @@ export function SiteHeader({
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const logoutFormRef = React.useRef<HTMLFormElement>(null);
 
-  const profileHref = role === "guide" ? "/guide/profile" : "/account";
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
   const accountLabel = fullName?.trim().split(/\s+/)[0] || (role ? roleLabels[role] : "Аккаунт");
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
+
+  const primaryItems: readonly NavItem[] = !isAuthenticated
+    ? headerPrimary.anon
+    : role === "guide"
+      ? headerPrimary.guide
+      : role === "admin"
+        ? headerPrimary.admin
+        : role === "traveler"
+          ? headerPrimary.traveler
+          : headerPrimary.anon;
+  const activeHref = resolveActiveHref(pathname, primaryItems);
+
+  const accountItems: readonly NavItem[] =
+    role === "guide"
+      ? accountMenu.guide
+      : role === "admin"
+        ? accountMenu.admin
+        : role === "traveler"
+          ? accountMenu.traveler
+          : [];
 
   return (
     <>
@@ -110,42 +114,24 @@ export function SiteHeader({
         </Link>
 
         <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden" role="list">
-          {(isAuthenticated && role === "guide"
-            ? guideNavLinks
-            : isAuthenticated && role === "traveler"
-              ? travelerNavLinks
-              : isAuthenticated
-                ? navLinks
-                : publicNavLinks).map(
-            (link) => {
-              const isHashLink = link.href.includes("#");
-              let isActive: boolean;
-              if (link.href === "/guide") {
-                isActive = pathname === "/guide" ||
-                  pathname.startsWith("/guide/inbox") ||
-                  pathname.startsWith("/guide/bookings");
-              } else if (isHashLink) {
-                isActive = pathname === "/";
-              } else {
-                isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
-              }
+          {primaryItems.map((item) => {
+            const isActive = item.href === activeHref;
 
-              return (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className={cn(
-                      "relative text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
-                      isActive && "text-primary",
-                    )}
-                    aria-current={isActive ? "page" : undefined}
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              );
-            },
-          )}
+            return (
+              <li key={item.href}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "relative text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
+                    isActive && "text-primary",
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
         <div className="flex items-center justify-self-end gap-2">
@@ -168,19 +154,11 @@ export function SiteHeader({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{accountLabel}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                  <Link href={profileHref}>Мой профиль</Link>
-                </DropdownMenuItem>
-                {role === "guide" && (
-                  <>
-                    <DropdownMenuItem asChild>
-                      <Link href="/guide/calendar">Календарь</Link>
-                    </DropdownMenuItem>
-                  </>
-                )}
-                <DropdownMenuItem asChild>
-                  <Link href="/help">Помощь</Link>
-                </DropdownMenuItem>
+                {accountItems.map((item) => (
+                  <DropdownMenuItem asChild key={item.href}>
+                    <Link href={item.href}>{item.label}</Link>
+                  </DropdownMenuItem>
+                ))}
                 <DropdownMenuItem
                   onSelect={(event) => {
                     // Radix closes (and unmounts) the menu on select, which
@@ -280,36 +258,20 @@ export function SiteHeader({
                 </SheetDescription>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Мобильная навигация">
-                {(isAuthenticated && role === "guide"
-                ? guideNavLinks
-                : isAuthenticated && role === "traveler"
-                  ? travelerNavLinks
-                  : isAuthenticated
-                    ? navLinks
-                    : publicNavLinks).map((link) => {
-                  const isHashLink = link.href.includes("#");
-                  let isActive: boolean;
-                  if (link.href === "/guide") {
-                    isActive = pathname === "/guide" ||
-                      pathname.startsWith("/guide/inbox") ||
-                      pathname.startsWith("/guide/bookings");
-                  } else if (isHashLink) {
-                    isActive = pathname === "/";
-                  } else {
-                    isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
-                  }
+                {primaryItems.map((item) => {
+                  const isActive = item.href === activeHref;
 
                   return (
-                    <SheetClose asChild key={link.href}>
+                    <SheetClose asChild key={item.href}>
                       <Link
-                        href={link.href}
+                        href={item.href}
                         className={cn(
                           "w-full rounded-md px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-surface-high hover:text-primary",
                           isActive && "bg-surface-high text-primary",
                         )}
                         aria-current={isActive ? "page" : undefined}
                       >
-                        {link.label}
+                        {item.label}
                       </Link>
                     </SheetClose>
                   );

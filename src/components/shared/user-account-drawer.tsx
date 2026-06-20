@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeftRight, Calendar, HelpCircle, LogOut, Map, User } from "lucide-react";
+import { ArrowLeftRight, LogOut } from "lucide-react";
 
 import {
   Sheet,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import type { AppRole } from "@/lib/auth/types";
+import { accountMenu, type NavItem } from "@/lib/navigation";
 
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
@@ -37,7 +38,14 @@ export function UserAccountDrawer({
   role,
 }: UserAccountDrawerProps) {
   const displayName = fullName?.trim().split(/\s+/)[0] || email || "Гость";
-  const profileHref = role === "guide" ? "/guide/profile" : "/account";
+  const accountItems: readonly NavItem[] =
+    role === "guide"
+      ? accountMenu.guide
+      : role === "admin"
+        ? accountMenu.admin
+        : role === "traveler"
+          ? accountMenu.traveler
+          : [];
   const roleSwitch =
     role === "guide"
       ? { href: "/trips", label: "Переключиться на путешественника" }
@@ -78,55 +86,30 @@ export function UserAccountDrawer({
         </SheetHeader>
 
         <nav className="flex flex-col px-3 pt-3 flex-1" aria-label="Меню аккаунта">
-          <Link
-            href={profileHref}
-            onClick={closeAndNavigate}
-            className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
-          >
-            <User className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-            Мой профиль
-          </Link>
+          {accountItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeAndNavigate}
+                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+              >
+                <Icon className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+                {item.label}
+              </Link>
+            );
+          })}
           {roleSwitch ? (
-            <>
-              <Link
-                href={roleSwitch.href}
-                onClick={closeAndNavigate}
-                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
-              >
-                <ArrowLeftRight className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-                {roleSwitch.label}
-              </Link>
-              <div className="h-px bg-border my-2" />
-            </>
+            <Link
+              href={roleSwitch.href}
+              onClick={closeAndNavigate}
+              className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+            >
+              <ArrowLeftRight className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+              {roleSwitch.label}
+            </Link>
           ) : null}
-          {role === "guide" && (
-            <>
-              <Link
-                href="/guide/listings"
-                onClick={closeAndNavigate}
-                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
-              >
-                <Map className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-                Мои экскурсии
-              </Link>
-              <Link
-                href="/guide/calendar"
-                onClick={closeAndNavigate}
-                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
-              >
-                <Calendar className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-                Календарь
-              </Link>
-            </>
-          )}
-          <Link
-            href="/help"
-            onClick={closeAndNavigate}
-            className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
-          >
-            <HelpCircle className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-            Помощь и поддержка
-          </Link>
 
           <div className="h-px bg-border my-2" />
 

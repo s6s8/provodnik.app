@@ -136,7 +136,7 @@ describe("SiteHeader desktop account menu", () => {
 
     await openAccountMenu();
 
-    expect(await screen.findByText("Мой профиль")).toBeInTheDocument();
+    expect(await screen.findByText("Профиль")).toBeInTheDocument();
     expect(screen.getByText("Помощь")).toBeInTheDocument();
     expect(screen.getByText("Выйти")).toBeInTheDocument();
   });
@@ -161,12 +161,12 @@ describe("SiteHeader desktop account menu", () => {
     requestSubmit.mockRestore();
   });
 
-  it("hides «Настройки» in the desktop header dropdown for both travellers and guides (settings merged into profile)", async () => {
+  it("shows «Настройки» for guides but not travellers in the desktop header dropdown", async () => {
     const { unmount } = renderAuthenticatedHeader("traveler");
 
     await openAccountMenu();
 
-    expect(await screen.findByText("Мой профиль")).toBeInTheDocument();
+    expect(await screen.findByText("Профиль")).toBeInTheDocument();
     expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
 
     unmount();
@@ -174,27 +174,27 @@ describe("SiteHeader desktop account menu", () => {
 
     await openAccountMenu();
 
-    expect(await screen.findByText("Мой профиль")).toBeInTheDocument();
-    expect(screen.queryByText("Настройки")).not.toBeInTheDocument();
+    expect(await screen.findByText("Профиль")).toBeInTheDocument();
+    expect(screen.getByText("Настройки")).toBeInTheDocument();
   });
 
-  it("«Мой профиль» for traveler links to /account", async () => {
+  it("«Профиль» for traveler links to /account", async () => {
     renderAuthenticatedHeader("traveler");
 
     await openAccountMenu();
 
-    expect(await screen.findByRole("menuitem", { name: "Мой профиль" })).toHaveAttribute(
+    expect(await screen.findByRole("menuitem", { name: "Профиль" })).toHaveAttribute(
       "href",
       "/account",
     );
   });
 
-  it("«Мой профиль» for guide links to /guide/profile", async () => {
+  it("«Профиль» for guide links to /guide/profile", async () => {
     renderAuthenticatedHeader("guide");
 
     await openAccountMenu();
 
-    expect(await screen.findByRole("menuitem", { name: "Мой профиль" })).toHaveAttribute(
+    expect(await screen.findByRole("menuitem", { name: "Профиль" })).toHaveAttribute(
       "href",
       "/guide/profile",
     );
