@@ -7,15 +7,19 @@ import { AlertCircle, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ListRow } from "@/components/shared/list-row";
+import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
+import { PageHeader } from "@/components/shared/page-header";
 import { getGuideBookings, type BookingRecord } from "@/data/supabase/queries";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
-import type { BookingStatus } from "@/lib/bookings/state-machine";
+import { GuideBookingStatusBadge } from "./guide-booking-status";
+import type { GuideBookingStatus } from "@/data/guide-booking/types";
 
 export function GuideBookingsScreen() {
   const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
   const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
 
   const loadBookings = React.useCallback(async () => {
     setLoadError(null);
@@ -40,6 +44,10 @@ export function GuideBookingsScreen() {
       } catch {
         if (!ignore) {
           setLoadError("Не удалось загрузить бронирования.");
+        }
+      } finally {
+        if (!ignore) {
+          setLoading(false);
         }
       }
     }
@@ -88,45 +96,24 @@ export function GuideBookingsScreen() {
     };
   }, [bookings]);
 
+  const sortedBookings = React.useMemo(() => {
+    return [...bookings].sort(
+      (a, b) => statusPriority(a.status) - statusPriority(b.status),
+    );
+  }, [bookings]);
+
   return (
     <div className="space-y-8">
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-          <CardTitle>Итоги по бронированиям</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Быстрый взгляд на загрузку, выполненные экскурсии и ориентировочный оборот.
-          </p>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-4">
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Все бронирования</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.totalCount}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Активные сейчас</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.activeCount}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Завершено</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.completedCount}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-            <p className="text-xs text-muted-foreground">Сумма по экскурсиям</p>
-            <p className="mt-1 text-base font-semibold text-foreground">
-              {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <PageHeader eyebrow="Кабинет гида" title="Мои бронирования" />
 
       <div className="space-y-4">
-        {loadError ? (
+        {loading ? (
+          <div className="space-y-3" aria-busy="true">
+            <ListRowSkeleton />
+            <ListRowSkeleton />
+            <ListRowSkeleton />
+          </div>
+        ) : loadError ? (
           <Card className="border-border/70 bg-card/90">
             <CardHeader className="space-y-1">
               <CardTitle className="flex items-center gap-2">
@@ -144,70 +131,92 @@ export function GuideBookingsScreen() {
             </CardContent>
           </Card>
         ) : bookings.length === 0 ? (
-          <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-1">
-              <CardTitle>Пока нет бронирований</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Бронирование появится здесь после того, как путешественник примет ваше
-                предложение.
-              </p>
-            </CardHeader>
-            <CardContent>
+          <EmptyState
+            icon={<ArrowRight />}
+            title="Пока нет бронирований"
+            description="Бронирование появится после того, как путешественник примет ваше предложение."
+            action={
               <Button asChild variant="secondary">
-                <Link href="/guide/inbox">
-                  Перейти во входящие запросы
-                  <ArrowRight className="size-4" />
-                </Link>
+                <Link href="/guide/inbox">Перейти во входящие запросы</Link>
               </Button>
-            </CardContent>
-          </Card>
+            }
+          />
         ) : (
           <div className="grid gap-3">
-            {bookings.map((item) => (
-              <BookingCard key={item.id} record={item} />
+            {sortedBookings.map((record) => (
+              <ListRow
+                key={record.id}
+                href={`/guide/bookings/${record.id}`}
+                title={record.destination}
+                subtitle={record.dateLabel}
+                badge={
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{formatRub(record.priceRub)}</Badge>
+                    <GuideBookingStatusBadge status={record.status as GuideBookingStatus} />
+                  </div>
+                }
+              />
             ))}
           </div>
         )}
+      </div>
+
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Итоги
+        </p>
+        <Card className="border-border/70 bg-card/90">
+          <CardHeader className="space-y-1">
+            <CardTitle>Итоги по бронированиям</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Быстрый взгляд на загрузку, выполненные экскурсии и ориентировочный оборот.
+            </p>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-4">
+            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+              <p className="text-xs text-muted-foreground">Все бронирования</p>
+              <p className="mt-1 text-base font-semibold text-foreground">
+                {summary.totalCount}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+              <p className="text-xs text-muted-foreground">Активные сейчас</p>
+              <p className="mt-1 text-base font-semibold text-foreground">
+                {summary.activeCount}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+              <p className="text-xs text-muted-foreground">Завершено</p>
+              <p className="mt-1 text-base font-semibold text-foreground">
+                {summary.completedCount}
+              </p>
+            </div>
+            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+              <p className="text-xs text-muted-foreground">Сумма по экскурсиям</p>
+              <p className="mt-1 text-base font-semibold text-foreground">
+                {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
 }
 
-function BookingCard({ record }: { record: BookingRecord }) {
-  return (
-    <Card className="border-border/70 bg-card/90">
-      <CardHeader className="space-y-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="space-y-1">
-            <CardTitle className="text-base">{record.destination}</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              {record.dateLabel}
-            </p>
-          </div>
-          <BookingStatusBadge status={record.status as BookingStatus} />
-        </div>
-
-        <Separator />
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{formatRub(record.priceRub)}</Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted-foreground">
-          {record.title}
-        </p>
-        <Button asChild variant="secondary">
-          <Link href={`/guide/bookings/${record.id}`}>
-            Открыть
-            <ArrowRight className="size-4" />
-          </Link>
-        </Button>
-      </CardContent>
-    </Card>
-  );
+function statusPriority(status: BookingRecord["status"]) {
+  if (
+    status === "awaiting_confirmation" ||
+    status === "confirmed" ||
+    status === "in_progress"
+  ) {
+    return 0;
+  }
+  if (status === "completed") {
+    return 1;
+  }
+  return 2;
 }
-
 
 function formatRub(amount: number) {
   return new Intl.NumberFormat("ru-RU", {
@@ -217,4 +226,3 @@ function formatRub(amount: number) {
     maximumFractionDigits: 0,
   }).format(amount);
 }
-
