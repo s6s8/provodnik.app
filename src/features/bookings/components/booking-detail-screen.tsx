@@ -7,7 +7,6 @@ import {
   ArrowLeft,
   CalendarDays,
   CheckCircle2,
-  CreditCard,
   MapPin,
   ShieldAlert,
   XCircle,
@@ -15,11 +14,11 @@ import {
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { BookingRecord } from "@/data/supabase/queries";
 import { getTheme } from "@/data/themes";
@@ -35,7 +34,6 @@ import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
-import { cn } from "@/lib/utils";
 import {
   confirmBookingAction,
   completeBookingAction,
@@ -490,6 +488,7 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     nextStatus: GuideBookingStatus;
   } | null>(null);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const { confirm, ConfirmDialog: confirmDialog } = useConfirm();
 
   React.useEffect(() => {
     let ignore = false;
@@ -584,6 +583,28 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     },
     [bookingId, record, router],
   );
+
+  const handleCancel = React.useCallback(async () => {
+    const ok = await confirm({
+      title: "Отменить бронирование?",
+      description: "Это действие необратимо: бронирование будет отменено.",
+      confirmText: "Отменить бронирование",
+      cancelText: "Не отменять",
+      destructive: true,
+    });
+    if (ok) performServerAction("cancel");
+  }, [confirm, performServerAction]);
+
+  const handleNoShow = React.useCallback(async () => {
+    const ok = await confirm({
+      title: "Отметить неявку?",
+      description: "Гости не явились на экскурсию. Это действие необратимо.",
+      confirmText: "Отметить неявку",
+      cancelText: "Отмена",
+      destructive: true,
+    });
+    if (ok) performServerAction("no_show");
+  }, [confirm, performServerAction]);
 
   if (isLoading) {
     return <BookingLoadingCard />;
@@ -683,62 +704,57 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
         </div>
       ) : null}
 
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-          <CardTitle>Операции по бронированию</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Фиксируйте, как идёт экскурсия: подтверждение, завершение, отмены и неявки.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-            <ActionButton
-              label={isPending ? "Подтверждаю…" : "Подтвердить"}
-              description="Закрепить экскурсию и ожидать гостей."
-              icon={<CheckCircle2 className="size-4" />}
-              disabled={!canConfirm || isPending}
+      {(canConfirm || canComplete || canCancel || canNoShow) && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {canConfirm ? (
+            <Button
+              type="button"
+              disabled={isPending}
               onClick={handleConfirm}
-            />
-            <ActionButton
-              label={isPending ? "Завершаю…" : "Завершить"}
-              description="Отметить экскурсию как проведённую."
-              icon={<CheckCircle2 className="size-4" />}
-              disabled={!canComplete || isPending}
+              className="min-h-[44px] w-full sm:w-auto"
+            >
+              <CheckCircle2 className="size-4" />
+              {isPending ? "Подтверждаю…" : "Подтвердить"}
+            </Button>
+          ) : null}
+          {canComplete ? (
+            <Button
+              type="button"
+              disabled={isPending}
               onClick={handleComplete}
-            />
-            <ActionButton
-              label="Отменить"
-              description="Зафиксировать отмену со стороны гида или гостя."
-              icon={<XCircle className="size-4" />}
-              disabled={!canCancel || isPending}
-              onClick={() => performServerAction("cancel")}
-            />
-            <ActionButton
-              label="Неявка"
-              description="Гости не пришли к старту экскурсии."
-              icon={<ShieldAlert className="size-4" />}
-              disabled={!canNoShow || isPending}
-              onClick={() => performServerAction("no_show")}
-            />
-          </div>
-
-          {process.env.NODE_ENV !== "production" && (
-            <>
-              <Separator />
-
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <Button className="w-full sm:w-auto" disabled>
-                  <CreditCard className="size-4" />
-                  Взять залог (демо)
-                </Button>
-                <Button className="w-full sm:w-auto" variant="secondary" disabled>
-                  Выплата гиду (демо)
-                </Button>
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+              className="min-h-[44px] w-full sm:w-auto"
+            >
+              <CheckCircle2 className="size-4" />
+              {isPending ? "Завершаю…" : "Завершить"}
+            </Button>
+          ) : null}
+          {canCancel ? (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isPending}
+              onClick={handleCancel}
+              className="min-h-[44px] w-full sm:w-auto"
+            >
+              <XCircle className="size-4" />
+              Отменить
+            </Button>
+          ) : null}
+          {canNoShow ? (
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={isPending}
+              onClick={handleNoShow}
+              className="min-h-[44px] w-full sm:w-auto text-destructive hover:text-destructive"
+            >
+              <ShieldAlert className="size-4" />
+              Неявка
+            </Button>
+          ) : null}
+        </div>
+      )}
+      {confirmDialog}
 
       {contactRevealed ? (
         <Card className="border-border/70 bg-card/90">
@@ -772,89 +788,6 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           </CardContent>
         </Card>
       ) : null}
-
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-          <CardTitle>Деньги</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Ориентировочная экономика экскурсии. В этой версии нет реальных платежей.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid gap-3 sm:grid-cols-2">
-            <StatCard
-              label="Сумма по экскурсии"
-              value={formatRubForGuide(record.priceRub)}
-              helper="Ориентировочная стоимость"
-            />
-            <StatCard
-              label="Статус"
-              value={formatStatusLabelForSummary(mapDbStatusToGuideStatus(record.status))}
-              helper={record.title}
-            />
-            {!contactRevealed ? (
-              <StatCard
-                label="Путешественник"
-                value={record.travelerName ?? "Путешественник"}
-                helper="Имя и контакт раскрываются после подтверждения"
-              />
-            ) : null}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function ActionButton({
-  label,
-  description,
-  icon,
-  disabled,
-  onClick,
-}: {
-  label: string;
-  description: string;
-  icon: React.ReactNode;
-  disabled: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      disabled={disabled}
-      onClick={onClick}
-      className={cn(
-        "group flex w-full flex-col items-start gap-2 rounded-xl border border-border/70 bg-background/60 p-4 text-left transition-colors",
-        "hover:bg-background disabled:cursor-not-allowed disabled:opacity-60",
-      )}
-      aria-label={label}
-    >
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
-        <span className="inline-flex size-7 items-center justify-center rounded-md border border-border/70 bg-background">
-          {icon}
-        </span>
-        {label}
-      </div>
-      <p className="text-sm text-muted-foreground">{description}</p>
-    </button>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  helper,
-}: {
-  label: string;
-  value: string;
-  helper: string;
-}) {
-  return (
-    <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-base font-semibold text-foreground">{value}</p>
-      <p className="mt-1 text-xs text-muted-foreground">{helper}</p>
     </div>
   );
 }
@@ -867,15 +800,6 @@ function formatRub(minorUnits: number) {
     currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
   }).format(rub);
-}
-
-function formatRubForGuide(amount: number) {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "symbol",
-    maximumFractionDigits: 0,
-  }).format(amount);
 }
 
 function toStateMachineStatus(s: string): BookingStatus {
