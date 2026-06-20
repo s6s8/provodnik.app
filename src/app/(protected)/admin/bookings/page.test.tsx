@@ -120,9 +120,12 @@ describe("BookingsPage", () => {
     expect(adminClient.from).toHaveBeenCalledWith("bookings");
     expect(adminClient.from).toHaveBeenCalledWith("profiles");
     expect(serverClient.from).not.toHaveBeenCalled();
+    expect(html).toContain("Администрирование");
+    expect(html).toContain("Бронирования");
+    expect(html).toContain("#booking-");
     expect(html).toContain("Ожидает подтверждения");
-    expect(html).toContain("1\u00a0250 ₽");
-    expect(html).toContain("Подтвердить бронирование");
+    expect(html).toContain("1\u00a0250\u00a0₽");
+    expect(html).toContain("Подтвердить");
     expect(html).not.toContain("Подтвердить оплату");
     expect(html).toContain("Иван Турист");
     expect(html).toContain("Пётр Гид");

@@ -1,6 +1,18 @@
-import { kopecksToRub } from "@/data/money";
-import { requireAdminSession } from "@/lib/supabase/moderation";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { EmptyState } from "@/components/shared/empty-state";
+import { ListRow } from "@/components/shared/list-row";
+import { PageHeader } from "@/components/shared/page-header";
+import { kopecksToRub } from "@/data/money";
+import { formatRussianDateTime } from "@/lib/dates";
+import { requireAdminSession } from "@/lib/supabase/moderation";
 
 import { confirmPaymentAction } from "./actions";
 
@@ -16,13 +28,33 @@ const STATUS_LABELS: Record<string, string> = {
   no_show: "Не явился",
 };
 
-export default async function BookingsPage() {
+const ALL_STATUSES = "all";
+
+export default async function BookingsPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
+} = {}) {
   const { adminClient } = await requireAdminSession();
-  const { data: bookings } = await adminClient
+
+  const resolvedParams = searchParams ? await searchParams : {};
+  const statusParam = Array.isArray(resolvedParams.status)
+    ? resolvedParams.status[0]
+    : resolvedParams.status;
+  const activeStatus =
+    statusParam && statusParam in STATUS_LABELS ? statusParam : ALL_STATUSES;
+
+  const baseQuery = adminClient
     .from("bookings")
     .select(
       "id, status, subtotal_minor, currency, starts_at, created_at, traveler_id, guide_id",
-    )
+    );
+
+  const { data: bookings } = await (
+    activeStatus === ALL_STATUSES
+      ? baseQuery
+      : baseQuery.eq("status", activeStatus)
+  )
     .order("created_at", { ascending: false })
     .limit(50);
 
@@ -53,8 +85,35 @@ export default async function BookingsPage() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-ink">Бронирования</h1>
+    <div className="space-y-8">
+      <PageHeader eyebrow="Администрирование" title="Бронирования" />
+
+      <form method="get" className="flex flex-wrap items-center gap-3">
+        <Select name="status" defaultValue={activeStatus}>
+          <SelectTrigger
+            className="min-h-[44px] w-full sm:w-64"
+            aria-label="Фильтр по статусу"
+          >
+            <SelectValue placeholder="Все статусы" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_STATUSES}>Все</SelectItem>
+            {Object.entries(STATUS_LABELS).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Button
+          type="submit"
+          variant="outline"
+          size="default"
+          className="min-h-[44px]"
+        >
+          Применить
+        </Button>
+      </form>
 
       {bookingRows.length === 0 ? (
         <EmptyState
@@ -62,55 +121,59 @@ export default async function BookingsPage() {
           description="Новые бронирования появятся здесь после оформления."
         />
       ) : (
-        <ul className="space-y-3">
+        <div className="space-y-3">
           {bookingRows.map((booking) => {
-            const amount =
-              booking.subtotal_minor
-                ? `${kopecksToRub(booking.subtotal_minor).toLocaleString("ru-RU")} ₽`
-                : "—";
-            const date = new Date(booking.created_at).toLocaleDateString(
-              "ru-RU",
-            );
+            const priceText = booking.subtotal_minor
+              ? new Intl.NumberFormat("ru-RU", {
+                  style: "currency",
+                  currency: booking.currency,
+                  maximumFractionDigits: 0,
+                }).format(kopecksToRub(booking.subtotal_minor))
+              : "—";
             const statusLabel =
               STATUS_LABELS[booking.status] ?? booking.status;
             const travelerName = resolveName(booking.traveler_id);
             const guideName = resolveName(booking.guide_id);
 
             return (
-              <li
+              <ListRow
                 key={booking.id}
-                className="flex flex-col gap-3 rounded-2xl border border-glass-border bg-surface-high p-4 shadow-glass sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
-                  <span className="inline-flex items-center rounded-full bg-brand-light px-2.5 py-0.5 text-xs font-semibold text-brand">
-                    {statusLabel}
-                  </span>
-                  <span className="text-ink-2">
-                    Турист: <span className="text-ink">{travelerName}</span>
-                  </span>
-                  <span className="text-ink-2">
-                    Гид: <span className="text-ink">{guideName}</span>
-                  </span>
-                  <span className="font-medium text-ink">{amount}</span>
-                  <span className="text-ink-2">{date}</span>
-                </div>
-
-                {booking.status === "awaiting_guide_confirmation" && (
-                  <form
-                    action={confirmPaymentAction.bind(null, booking.id)}
-                  >
-                    <button
-                      type="submit"
-                      className="rounded-xl bg-brand px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand/90"
-                    >
-                      Подтвердить бронирование
-                    </button>
-                  </form>
-                )}
-              </li>
+                title={`#${booking.id.slice(0, 8)}`}
+                subtitle={
+                  <>
+                    <span className="block truncate">
+                      Турист: {travelerName} · Гид: {guideName}
+                    </span>
+                    <span className="block truncate text-xs">
+                      {formatRussianDateTime(booking.created_at)}
+                    </span>
+                  </>
+                }
+                badge={
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge>{statusLabel}</Badge>
+                    <span className="text-xs font-medium text-foreground">
+                      {priceText}
+                    </span>
+                  </div>
+                }
+                actions={
+                  booking.status === "awaiting_guide_confirmation" ? (
+                    <form action={confirmPaymentAction.bind(null, booking.id)}>
+                      <Button
+                        type="submit"
+                        size="default"
+                        className="min-h-[44px]"
+                      >
+                        Подтвердить
+                      </Button>
+                    </form>
+                  ) : undefined
+                }
+              />
             );
           })}
-        </ul>
+        </div>
       )}
     </div>
   );
