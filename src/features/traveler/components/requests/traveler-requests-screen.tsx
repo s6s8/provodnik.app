@@ -1,10 +1,14 @@
 'use client'
 
 import Link from 'next/link'
+import { CalendarCheck, FileText, Users } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/button'
-import { formatRussianDate, formatRussianDateTime } from '@/lib/dates'
+import { EmptyState } from '@/components/shared/empty-state'
+import { PageHeader } from '@/components/shared/page-header'
+import { kopecksToRub } from '@/data/money'
+import { formatRussianDateRange, formatRussianDateTime } from '@/lib/dates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   RequestCardFinal,
@@ -66,15 +70,9 @@ function sortByPriority(
   })
 }
 
-function formatDateRange(startsOn: string, endsOn?: string | null): string {
-  const start = formatRussianDate(startsOn)
-  if (!endsOn || endsOn === startsOn) return start
-  return `${start} — ${formatRussianDate(endsOn)}`
-}
-
 function formatPrice(budgetMinor: number | null): string {
   if (budgetMinor == null) return 'По договоренности'
-  const rub = budgetMinor / 100
+  const rub = kopecksToRub(budgetMinor)
   return `${new Intl.NumberFormat('ru-RU').format(rub)} ₽ / чел`
 }
 
@@ -84,7 +82,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
   return {
     href: `/requests/${request.id}`,
     location: request.destination,
-    date: formatDateRange(request.starts_on, request.ends_on),
+    date: formatRussianDateRange(request.starts_on, request.ends_on),
     time: request.start_time ? `${request.start_time.slice(0, 5)}${request.end_time ? `–${request.end_time.slice(0, 5)}` : ''}` : undefined,
     groupType: request.mode,
     guideState: request.status === 'booked' ? 'found' : request.offer_count > 0 ? 'offers' : 'waiting',
@@ -95,7 +93,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
     participantCount: request.participants_count,
     price: formatPrice(request.budget_minor),
     groupPrice: request.budget_minor != null
-      ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(request.budget_minor * request.participants_count / 100))} ₽ за группу`
+      ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(kopecksToRub(request.budget_minor) * request.participants_count))} ₽ за группу`
       : undefined,
     publishedAt: request.created_at ? formatRussianDateTime(request.created_at) : undefined,
     unreadOfferCount: request.unread_offer_count,
@@ -120,18 +118,6 @@ function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
     guideAvatarUrl: null,
     organizerName: group.owner_name,
   }
-}
-
-function CategoryEmptyState({
-  children,
-}: {
-  children: ReactNode
-}) {
-  return (
-    <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-      {children}
-    </div>
-  )
 }
 
 function CategoryGrid({ children }: { children: ReactNode }) {
@@ -189,12 +175,16 @@ function RequestsCategoryTabs({
             ))}
           </CategoryGrid>
         ) : (
-          <CategoryEmptyState>
-            <p className="mb-4">У вас ещё нет запросов</p>
-            <Button asChild>
-              <Link href="/">Создать первый запрос</Link>
-            </Button>
-          </CategoryEmptyState>
+          <EmptyState
+            icon={<FileText className="size-6" />}
+            title="У вас ещё нет запросов"
+            description="Создайте запрос — гиды предложат свои условия, а вы выберете лучшее."
+            action={
+              <Button asChild>
+                <Link href="/">Создать запрос</Link>
+              </Button>
+            }
+          />
         )}
       </TabsContent>
       <TabsContent value="confirmed">
@@ -209,9 +199,11 @@ function RequestsCategoryTabs({
             ))}
           </CategoryGrid>
         ) : (
-          <CategoryEmptyState>
-            <p>Подтверждённых поездок пока нет</p>
-          </CategoryEmptyState>
+          <EmptyState
+            icon={<CalendarCheck className="size-6" />}
+            title="Подтверждённых поездок пока нет"
+            description="Когда вы примете предложение гида, поездка появится здесь."
+          />
         )}
       </TabsContent>
       <TabsContent value="joined">
@@ -226,14 +218,16 @@ function RequestsCategoryTabs({
             ))}
           </CategoryGrid>
         ) : (
-          <CategoryEmptyState>
-            <p className="mb-4">
-              Вы пока не присоединились ни к одной группе
-            </p>
-            <Button asChild variant="outline">
-              <Link href="/requests">Найти группу</Link>
-            </Button>
-          </CategoryEmptyState>
+          <EmptyState
+            icon={<Users className="size-6" />}
+            title="Вы пока не присоединились ни к одной группе"
+            description="Найдите сборную группу по душе и присоединяйтесь к попутчикам."
+            action={
+              <Button asChild variant="outline">
+                <Link href="/requests">Найти группу</Link>
+              </Button>
+            }
+          />
         )}
       </TabsContent>
     </Tabs>
@@ -257,6 +251,7 @@ export function TravelerRequestsScreen({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
+      <PageHeader title="Мои запросы" />
       <RequestsCategoryTabs
         activeRequests={activeRequests}
         confirmedBookings={confirmedBookings}
