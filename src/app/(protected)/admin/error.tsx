@@ -1,5 +1,6 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
 import Link from "next/link";
 import { useEffect } from "react";
 import { AlertCircle } from "lucide-react";
@@ -30,7 +31,7 @@ function resolveAdminErrorMessage(error: Error): string {
 
 export default function AdminError({ error, reset }: AdminErrorProps) {
   useEffect(() => {
-    console.error(error);
+    Sentry.captureException(error);
   }, [error]);
 
   const copy = resolveAdminErrorMessage(error);
