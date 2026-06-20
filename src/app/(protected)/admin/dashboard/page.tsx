@@ -1,116 +1,111 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AlertTriangle, ClipboardList, UserCheck } from "lucide-react";
 
 import { getAdminDashboardStats } from "@/lib/supabase/moderation";
+import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Панель администратора",
 };
 
-const statCards = [
+const actionableCards = [
+  {
+    key: "openDisputes",
+    label: "Открытые споры",
+    href: "/admin/disputes",
+    Icon: AlertTriangle,
+  },
   {
     key: "pendingGuideApplications",
     label: "Заявки гидов",
     href: "/admin/guides",
+    Icon: UserCheck,
   },
   {
     key: "pendingListingReviews",
     label: "Проверка листингов",
     href: "/admin/listings",
-  },
-  {
-    key: "openDisputes",
-    label: "Открытые споры",
-    href: "/admin/disputes",
-  },
-  {
-    key: "totalBookings",
-    label: "Всего бронирований",
-    href: "/admin/bookings",
+    Icon: ClipboardList,
   },
 ] as const;
+
+function formatDelta(delta: number) {
+  return `${delta > 0 ? `+${delta}` : delta} за неделю`;
+}
 
 export default async function AdminDashboardPage() {
   const stats = await getAdminDashboardStats();
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
-        <Badge variant="outline">Панель администратора</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Обзор модерации
-        </h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Следите за очередью проверки, открытыми спорами и общей нагрузкой на
-          админ-панель.
-        </p>
-      </div>
+    <div className="space-y-10">
+      <PageHeader
+        eyebrow="Панель администратора"
+        title="Обзор"
+        subtitle="Следите за очередью проверки, открытыми спорами и общей нагрузкой на админ-панель."
+      />
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {statCards.map((card) => {
-          const delta = stats.weeklyDelta[card.key];
-          return (
-            <Link
-              key={card.key}
-              href={card.href}
-              className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card transition-transform hover:-translate-y-0.5"
-            >
-              <div className="text-sm text-muted-foreground">{card.label}</div>
-              <div className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
-                {stats[card.key]}
+      <section className="space-y-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
+          Требует действий
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-3">
+          {actionableCards.map((card) => {
+            const count = stats[card.key];
+            const delta = stats.weeklyDelta[card.key];
+            const { Icon } = card;
+            return (
+              <Link key={card.key} href={card.href} className="group block">
+                <Card className="h-full py-6 transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-md">
+                  <CardContent className="px-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="text-sm text-muted-foreground">
+                        {card.label}
+                      </div>
+                      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <Icon className="size-5" aria-hidden />
+                      </span>
+                    </div>
+                    <div className="mt-3 text-4xl font-semibold tracking-tight text-foreground">
+                      {count}
+                    </div>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>{formatDelta(delta)}</span>
+                      {count > 0 ? <Badge variant="destructive">Ждёт</Badge> : null}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="space-y-4">
+        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
+          Статистика
+        </h2>
+        <Link href="/admin/bookings" className="group block sm:max-w-xs">
+          <Card
+            size="sm"
+            className="h-full transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-md"
+          >
+            <CardContent>
+              <div className="text-sm text-muted-foreground">
+                Всего бронирований
               </div>
-              <div className="mt-2 text-xs text-muted-foreground">
-                {delta > 0 ? `+${delta}` : delta} за неделю
+              <div className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
+                {stats.totalBookings}
               </div>
-              <div className="mt-4 text-sm font-medium text-primary">
-                Открыть раздел
+              <div className="mt-1 text-xs text-muted-foreground">
+                {formatDelta(stats.weeklyDelta.totalBookings)}
               </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Link
-          href="/admin/guides"
-          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card"
-        >
-          <div className="text-sm font-medium text-foreground">
-            Гиды ждут проверки
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Сейчас в очереди {stats.pendingGuideApplications} анкет. Проверьте
-            документы и статус верификации.
-          </p>
+            </CardContent>
+          </Card>
         </Link>
-
-        <Link
-          href="/admin/listings"
-          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card"
-        >
-          <div className="text-sm font-medium text-foreground">
-            Листинги на модерации
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            В проверке {stats.pendingListingReviews} предложений. Подтвердите
-            публикацию или отклоните проблемные карточки.
-          </p>
-        </Link>
-
-        <Link
-          href="/admin/disputes"
-          className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card"
-        >
-          <div className="text-sm font-medium text-foreground">
-            Очередь споров
-          </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Открытых кейсов: {stats.openDisputes}. Раздел споров остается
-            отдельным рабочим потоком.
-          </p>
-        </Link>
-      </div>
+      </section>
     </div>
   );
 }
