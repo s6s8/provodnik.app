@@ -75,3 +75,7 @@ supabase/.temp/
 
 .playwright-mcp/
 /*.png
+.claude/loop-state.md
+.claude/settings.json
+docs/superpowers/plans/
+docs/superpowers/research/
