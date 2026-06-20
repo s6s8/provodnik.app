@@ -1,3 +1,5 @@
+import { notFound } from "next/navigation";
+
 import { Check, ChevronRight, MoreHorizontal, X as XIcon } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -362,6 +364,8 @@ function PhotoPickerPreview() {
 }
 
 export default function GuideTemplatesWireframePage() {
+  if (process.env.NODE_ENV === "production") notFound();
+
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { Calendar, Check, Hand, Users } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -279,6 +280,8 @@ function CountPrototypeSection({
 }
 
 export default function DevReqCardsPage() {
+  if (process.env.NODE_ENV === "production") notFound();
+
   return (
     <main className="mx-auto max-w-page px-4 py-10">
       <div className="mb-8">
