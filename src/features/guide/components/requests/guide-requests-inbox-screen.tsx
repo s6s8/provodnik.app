@@ -8,10 +8,14 @@ import { type RequestRecord, type BookingRecord, getGuideBookings } from "@/data
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
+import { COPY } from "@/lib/copy";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 
 import { BidFormPanel } from "./bid-form-panel-lazy";
@@ -29,21 +33,20 @@ import type { OfferMeta } from "./offer-meta";
 interface OffersByRequest {
   offeredIds: Set<string>;
   offerIdByRequestId: Map<string, OfferMeta>;
+  error?: string | null;
 }
 
-const requestChipClassName = "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium";
-const assemblyChipClassName = `${requestChipClassName} bg-sky-100 text-sky-700`;
-const privateChipClassName = `${requestChipClassName} bg-purple-100 text-purple-700`;
-const flexibleDatesChipClassName = `${requestChipClassName} bg-emerald-100 text-emerald-700`;
-const exactDateChipClassName = `${requestChipClassName} bg-rose-100 text-rose-700`;
+const LOAD_ERROR_MESSAGE = "Не удалось загрузить запросы. Попробуйте обновить страницу.";
 
 async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest> {
   const supabase = createSupabaseBrowserClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("guide_offers")
     .select("id, request_id, starts_at, capacity, price_minor")
     .eq("guide_id", guideId);
-  if (!data) return { offeredIds: new Set(), offerIdByRequestId: new Map() };
+  if (error || !data) {
+    return { offeredIds: new Set(), offerIdByRequestId: new Map(), error: error?.message ?? null };
+  }
   const offeredIds = new Set(data.map((row) => row.request_id as string));
   const offerIdByRequestId = new Map(
     data.map((row) => [
@@ -56,13 +59,14 @@ async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest>
       },
     ]),
   );
-  return { offeredIds, offerIdByRequestId };
+  return { offeredIds, offerIdByRequestId, error: null };
 }
 
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
   const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [loadError, setLoadError] = React.useState<string | null>(null);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
   const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, OfferMeta>>(new Map());
   const [guideId, setGuideId] = React.useState<string | null>(null);
@@ -85,19 +89,21 @@ export function GuideRequestsInboxScreen() {
     const supabase = createSupabaseBrowserClient();
 
     async function loadOffersForGuide(guideId: string) {
-      const { offeredIds: ids, offerIdByRequestId: offerMap } = await fetchOfferedRequestIds(guideId);
+      const { offeredIds: ids, offerIdByRequestId: offerMap, error } = await fetchOfferedRequestIds(guideId);
       if (ignore) return;
+      if (error) setLoadError(LOAD_ERROR_MESSAGE);
       setOfferedIds(ids);
       setOfferIdByRequestId(offerMap);
     }
 
     async function loadGuideProfileForGuide(guideId: string) {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("guide_profiles")
         .select("specializations, base_city, verification_status")
         .eq("user_id", guideId)
         .maybeSingle();
       if (ignore) return;
+      if (error) setLoadError(LOAD_ERROR_MESSAGE);
       setSpecializations(Array.isArray(data?.specializations) ? data.specializations : []);
       setBaseCity(typeof data?.base_city === "string" && data.base_city.trim() !== "" ? data.base_city : null);
       setVerificationStatus(typeof data?.verification_status === "string" ? data.verification_status : null);
@@ -105,7 +111,8 @@ export function GuideRequestsInboxScreen() {
 
     async function loadInitial() {
       try {
-        const { data } = await loadGuideInboxRequests();
+        const { data, error } = await loadGuideInboxRequests();
+        if (!ignore && error) setLoadError(LOAD_ERROR_MESSAGE);
         if (!ignore && data) setItems(data);
 
         const {
@@ -119,6 +126,7 @@ export function GuideRequestsInboxScreen() {
           if (!ignore && bookingData) setBookings(bookingData);
         }
       } catch (err) {
+        if (!ignore) setLoadError(LOAD_ERROR_MESSAGE);
         console.warn("[inbox] initial load failed:", err);
       } finally {
         if (!ignore) setIsLoading(false);
@@ -211,12 +219,15 @@ export function GuideRequestsInboxScreen() {
 
   return (
     <div className="space-y-6">
+      <PageHeader eyebrow={COPY.guide} title="Входящие запросы" />
       <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-        </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 pt-6">
           {isLoading ? (
             <p className="text-sm text-muted-foreground">Загрузка запросов…</p>
+          ) : loadError ? (
+            <Alert variant="destructive">
+              <AlertDescription>{loadError}</AlertDescription>
+            </Alert>
           ) : items.length === 0 ? (
             <EmptyState
               icon={<Inbox className="size-7" strokeWidth={1.5} />}
@@ -338,12 +349,12 @@ export function GuideRequestsInboxScreen() {
                         <GuideInboxCardHeader item={item} matched={matched} />
 
                         <div className="mt-3 flex flex-wrap gap-2">
-                          <span className={item.mode === "assembly" ? assemblyChipClassName : privateChipClassName}>
+                          <Badge variant={item.mode === "assembly" ? "secondary" : "outline"}>
                             {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-                          </span>
-                          <span className={hasFlexibleDates ? flexibleDatesChipClassName : exactDateChipClassName}>
+                          </Badge>
+                          <Badge variant={hasFlexibleDates ? "default" : "outline"}>
                             {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
-                          </span>
+                          </Badge>
                         </div>
 
                         {/* Meta */}
@@ -374,9 +385,7 @@ export function GuideRequestsInboxScreen() {
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {alreadyOffered ? (
                             <div className="flex flex-col gap-2">
-                              <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary">
-                                ✓ Предложение отправлено
-                              </span>
+                              <Badge variant="secondary">Предложение отправлено</Badge>
                               {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
                                 <p className="text-xs leading-relaxed text-muted-foreground">
                                   Вы предложили:
@@ -387,33 +396,22 @@ export function GuideRequestsInboxScreen() {
                               ) : null}
                             </div>
                           ) : isApproved ? (
-                            <Button
-                              variant="default"
-                              size="sm"
-                              onClick={() => setPanelRequestId(item.id)}
-                            >
+                            <Button onClick={() => setPanelRequestId(item.id)}>
                               Сделать предложение
                             </Button>
                           ) : (
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Button variant="default" size="sm" disabled>
-                                Доступно после верификации
-                              </Button>
-                              <Link
-                                href="/guide/profile#verification"
-                                className="text-xs text-primary underline-offset-2 hover:underline"
-                              >
-                                Пройти верификацию →
-                              </Link>
-                            </div>
+                            <Button variant="outline" asChild>
+                              <Link href="/guide/profile#verification">Пройти верификацию</Link>
+                            </Button>
                           )}
-                          <Link
-                            href={`/guide/inbox/${item.id}`}
-                            className="ml-auto text-sm font-medium text-primary underline-offset-2 hover:underline"
-                            aria-label={`Открыть полный запрос: ${item.destination}`}
-                          >
-                            Подробнее →
-                          </Link>
+                          <Button variant="ghost" asChild className="ml-auto min-h-[44px]">
+                            <Link
+                              href={`/guide/inbox/${item.id}`}
+                              aria-label={`Открыть полный запрос: ${item.destination}`}
+                            >
+                              Подробнее
+                            </Link>
+                          </Button>
                         </div>
 
                         {/* Q&A panel — shown when guide has sent an offer */}
