@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ShieldCheck } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
@@ -19,7 +20,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import type { ListingRow } from "@/lib/supabase/types";
 
@@ -116,10 +116,11 @@ function isNextRedirectError(value: unknown): boolean {
 
 function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
   const searchParams = useSearchParams();
-  const defaultTab =
-    searchParams.get("tab") === "question" ? "question" : (initialTab ?? "order");
+  const questionRequested =
+    searchParams.get("tab") === "question" || initialTab === "question";
 
   const [actionError, setActionError] = React.useState<string | null>(null);
+  const [showQuestion, setShowQuestion] = React.useState(questionRequested);
   const [isPending, startTransition] = React.useTransition();
 
   const orderSchema = React.useMemo(
@@ -216,119 +217,132 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
         </Alert>
       ) : null}
 
-      <Tabs defaultValue={defaultTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="order">Заказать</TabsTrigger>
-          <TabsTrigger value="question">Задать вопрос</TabsTrigger>
-        </TabsList>
+      <form className="grid gap-5" onSubmit={onSubmitOrder} noValidate>
+        <div className="grid gap-2">
+          <Label htmlFor="booking-starts-on">Дата начала</Label>
+          <Input
+            id="booking-starts-on"
+            type="date"
+            min={todayStr}
+            {...orderForm.register("starts_on")}
+          />
+          {orderForm.formState.errors.starts_on ? (
+            <p className="text-sm text-destructive">
+              {orderForm.formState.errors.starts_on.message}
+            </p>
+          ) : null}
+        </div>
 
-        <TabsContent value="order" className="mt-6">
-          <form className="grid gap-5" onSubmit={onSubmitOrder} noValidate>
-            <div className="grid gap-2">
-              <Label htmlFor="booking-starts-on">Дата начала</Label>
-              <Input
-                id="booking-starts-on"
-                type="date"
-                min={todayStr}
-                {...orderForm.register("starts_on")}
-              />
-              {orderForm.formState.errors.starts_on ? (
-                <p className="text-sm text-destructive">
-                  {orderForm.formState.errors.starts_on.message}
-                </p>
-              ) : null}
-            </div>
+        <div className="grid gap-2">
+          <Label htmlFor="booking-ends-on">Дата окончания (необязательно)</Label>
+          <Input
+            id="booking-ends-on"
+            type="date"
+            min={startsOnWatch || todayStr}
+            {...orderForm.register("ends_on")}
+          />
+          {orderForm.formState.errors.ends_on ? (
+            <p className="text-sm text-destructive">
+              {orderForm.formState.errors.ends_on.message}
+            </p>
+          ) : null}
+        </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="booking-ends-on">Дата окончания (необязательно)</Label>
-              <Input
-                id="booking-ends-on"
-                type="date"
-                min={startsOnWatch || todayStr}
-                {...orderForm.register("ends_on")}
-              />
-              {orderForm.formState.errors.ends_on ? (
-                <p className="text-sm text-destructive">
-                  {orderForm.formState.errors.ends_on.message}
-                </p>
-              ) : null}
-            </div>
+        <div className="grid gap-2">
+          <Label htmlFor="booking-participants">Число участников</Label>
+          <Input
+            id="booking-participants"
+            type="number"
+            min={1}
+            max={listing.max_group_size}
+            {...orderForm.register("participants_count", { valueAsNumber: true })}
+          />
+          {orderForm.formState.errors.participants_count ? (
+            <p className="text-sm text-destructive">
+              {orderForm.formState.errors.participants_count.message}
+            </p>
+          ) : null}
+        </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="booking-participants">Число участников</Label>
-              <Input
-                id="booking-participants"
-                type="number"
-                min={1}
-                max={listing.max_group_size}
-                {...orderForm.register("participants_count", { valueAsNumber: true })}
-              />
-              {orderForm.formState.errors.participants_count ? (
-                <p className="text-sm text-destructive">
-                  {orderForm.formState.errors.participants_count.message}
-                </p>
-              ) : null}
-            </div>
+        <div className="grid gap-2">
+          <Label htmlFor="booking-format">Формат</Label>
+          <Controller
+            name="format_preference"
+            control={orderForm.control}
+            render={({ field }) => (
+              <Select
+                value={field.value ?? "any"}
+                onValueChange={(v) =>
+                  field.onChange(v as OrderFormValues["format_preference"])
+                }
+              >
+                <SelectTrigger id="booking-format" className="w-full">
+                  <SelectValue placeholder="Любой формат" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="any">Любой формат</SelectItem>
+                  <SelectItem value="group">Групповой</SelectItem>
+                  <SelectItem value="private">Индивидуальный</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="booking-format">Формат</Label>
-              <Controller
-                name="format_preference"
-                control={orderForm.control}
-                render={({ field }) => (
-                  <Select
-                    value={field.value ?? "any"}
-                    onValueChange={(v) =>
-                      field.onChange(v as OrderFormValues["format_preference"])
-                    }
-                  >
-                    <SelectTrigger id="booking-format" className="w-full">
-                      <SelectValue placeholder="Любой формат" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="any">Любой формат</SelectItem>
-                      <SelectItem value="group">Групповой</SelectItem>
-                      <SelectItem value="private">Индивидуальный</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
-              />
-            </div>
+        {listing.duration_minutes != null ? (
+          <div className="text-sm text-muted-foreground">
+            Продолжительность: {listing.duration_minutes} мин.
+          </div>
+        ) : null}
 
-            {listing.duration_minutes != null ? (
-              <div className="text-sm text-muted-foreground">
-                Продолжительность: {listing.duration_minutes} мин.
-              </div>
-            ) : null}
+        {"meeting_point" in listing ? (
+          <div className="text-sm text-muted-foreground">
+            Место встречи:{" "}
+            {listing.meeting_point ? listing.meeting_point : "уточняется"}
+          </div>
+        ) : null}
 
-            {"meeting_point" in listing ? (
-              <div className="text-sm text-muted-foreground">
-                Место встречи:{" "}
-                {listing.meeting_point ? listing.meeting_point : "уточняется"}
-              </div>
-            ) : null}
+        <div className="grid gap-2">
+          <Label htmlFor="booking-notes">Пожелания, вопросы, особые потребности</Label>
+          <Textarea id="booking-notes" rows={4} {...orderForm.register("notes")} />
+          {orderForm.formState.errors.notes ? (
+            <p className="text-sm text-destructive">
+              {orderForm.formState.errors.notes.message}
+            </p>
+          ) : null}
+        </div>
 
-            <div className="grid gap-2">
-              <Label htmlFor="booking-notes">Пожелания, вопросы, особые потребности</Label>
-              <Textarea id="booking-notes" rows={4} {...orderForm.register("notes")} />
-              {orderForm.formState.errors.notes ? (
-                <p className="text-sm text-destructive">
-                  {orderForm.formState.errors.notes.message}
-                </p>
-              ) : null}
-            </div>
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Отправка…" : "Отправить заявку"}
+        </Button>
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Отправка…" : "Отправить заявку"}
-            </Button>
-          </form>
-        </TabsContent>
+        <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <ShieldCheck className="h-3.5 w-3.5 text-green-600 shrink-0" />
+          Заявка бесплатна · Гид отвечает в течение 24 ч
+        </p>
+      </form>
 
-        <TabsContent value="question" className="mt-6">
-          <form className="grid gap-5" onSubmit={onSubmitQuestion} noValidate>
+      <div className="grid gap-3">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="justify-self-start"
+          aria-expanded={showQuestion}
+          onClick={() => setShowQuestion((prev) => !prev)}
+        >
+          Задать вопрос
+        </Button>
+
+        {showQuestion ? (
+          <form className="grid gap-3" onSubmit={onSubmitQuestion} noValidate>
             <div className="grid gap-2">
               <Label htmlFor="booking-question-notes">Ваш вопрос</Label>
-              <Textarea id="booking-question-notes" rows={5} {...questionForm.register("notes")} />
+              <Textarea
+                id="booking-question-notes"
+                rows={5}
+                {...questionForm.register("notes")}
+              />
               {questionForm.formState.errors.notes ? (
                 <p className="text-sm text-destructive">
                   {questionForm.formState.errors.notes.message}
@@ -340,8 +354,8 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
               {isPending ? "Отправка…" : "Отправить вопрос"}
             </Button>
           </form>
-        </TabsContent>
-      </Tabs>
+        ) : null}
+      </div>
     </div>
   );
 }
