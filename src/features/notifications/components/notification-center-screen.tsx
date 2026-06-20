@@ -4,15 +4,17 @@ import * as React from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { ArrowRight, Check, Circle } from "lucide-react";
+import { ArrowRight, Bell, Check, Circle } from "lucide-react";
 
+import { EmptyState } from "@/components/shared/empty-state";
+import { ListRow } from "@/components/shared/list-row";
+import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
+import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type { NotificationRecord, NotificationSeverity } from "@/data/notifications/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { cn } from "@/lib/utils";
 
 import { isUnreadNotification } from "./NotificationBell";
 
@@ -45,6 +47,7 @@ export function NotificationCenterScreen() {
   const [unreadCount, setUnreadCount] = React.useState(0);
   const [userId, setUserId] = React.useState<string | null>(null);
   const [loadError, setLoadError] = React.useState(false);
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     let ignore = false;
@@ -75,6 +78,8 @@ export function NotificationCenterScreen() {
         setUnreadCount(mapped.filter((n) => n.readAt === null).length);
       } catch {
         if (!ignore) setLoadError(true);
+      } finally {
+        if (!ignore) setLoading(false);
       }
     }
 
@@ -166,79 +171,71 @@ export function NotificationCenterScreen() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <Badge variant="outline">Центр уведомлений</Badge>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            Уведомления
-          </h1>
-          <p className="max-w-3xl text-base text-muted-foreground">
-            Единая лента по заявкам, бронированиям и событиям модерации.
-          </p>
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            size="sm"
-            variant={filter === "all" ? "secondary" : "outline"}
-            onClick={() => setFilter("all")}
-          >
-            Все
-            <Badge variant="outline" className="ml-2 bg-background">
-              {notifications.length}
-            </Badge>
-          </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={filter === "unread" ? "secondary" : "outline"}
-            onClick={() => setFilter("unread")}
-          >
-            Непрочитанные
-            <Badge
-              variant={unreadCount === 0 ? "outline" : "secondary"}
-              className="ml-2 bg-background"
+      <PageHeader
+        eyebrow="Центр уведомлений"
+        title="Уведомления"
+        subtitle="Единая лента по заявкам, бронированиям и событиям модерации."
+        actions={
+          unreadCount > 0 ? (
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={() => void markAllRead()}
             >
-              {unreadCount}
-            </Badge>
-          </Button>
-        </div>
+              Прочитать всё
+              <Check className="size-4" />
+            </Button>
+          ) : undefined
+        }
+      />
 
+      <div className="flex flex-wrap items-center gap-2">
         <Button
           type="button"
           size="sm"
-          variant="secondary"
-          disabled={unreadCount === 0}
-          onClick={() => void markAllRead()}
+          variant={filter === "all" ? "secondary" : "outline"}
+          onClick={() => setFilter("all")}
         >
-          Прочитать всё
-          <Check className="size-4" />
+          Все
+          <Badge variant="outline" className="ml-2 bg-background">
+            {notifications.length}
+          </Badge>
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          variant={filter === "unread" ? "secondary" : "outline"}
+          onClick={() => setFilter("unread")}
+        >
+          Непрочитанные
+          <Badge
+            variant={unreadCount === 0 ? "outline" : "secondary"}
+            className="ml-2 bg-background"
+          >
+            {unreadCount}
+          </Badge>
         </Button>
       </div>
 
       <div className="space-y-3">
         {loadError ? (
-          <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-1">
-              <CardTitle>Не удалось загрузить уведомления.</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Попробуйте обновить страницу позже.
-              </p>
-            </CardHeader>
-          </Card>
+          <EmptyState
+            title="Не удалось загрузить"
+            description="Попробуйте обновить страницу."
+          />
+        ) : loading ? (
+          <div className="space-y-3">
+            <ListRowSkeleton />
+            <ListRowSkeleton />
+            <ListRowSkeleton />
+          </div>
         ) : visible.length === 0 ? (
-          <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-1">
-              <CardTitle>Пока пусто</CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Новые события появятся здесь, когда в кабинете будут заявки,
-                бронирования и сообщения.
-              </p>
-            </CardHeader>
-          </Card>
+          <EmptyState
+            icon={<Bell />}
+            title="Пока пусто"
+            description="Новые события появятся здесь"
+          />
         ) : (
           <div className="space-y-6">
             {grouped.map((group) => (
@@ -249,7 +246,7 @@ export function NotificationCenterScreen() {
                 </div>
                 <div className="grid gap-3">
                   {group.items.map((item) => (
-                    <NotificationCard
+                    <NotificationRow
                       key={item.id}
                       notification={item}
                       onMarkRead={markRead}
@@ -266,7 +263,7 @@ export function NotificationCenterScreen() {
   );
 }
 
-function NotificationCard({
+function NotificationRow({
   notification,
   onMarkRead,
   onMarkUnread,
@@ -279,54 +276,51 @@ function NotificationCard({
   const severityVariant = getSeverityBadgeVariant(notification.severity);
 
   return (
-    <Card
-      className={cn(
-        "border-border/70 bg-card/90",
-        isUnread && "border-primary/40 bg-background",
-      )}
-    >
-      <CardHeader className="space-y-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant={severityVariant}>{labelSeverity(notification.severity)}</Badge>
-              <Badge variant="outline" className="bg-background">
-                {labelKind(notification.kind)}
-              </Badge>
-              {isUnread ? (
-                <span className="inline-flex items-center gap-1 text-xs font-medium text-foreground">
-                  <Circle className="size-2 fill-primary text-primary" />
-                  Новое
-                </span>
-              ) : (
-                <span className="text-xs text-muted-foreground">Прочитано</span>
-              )}
-            </div>
-            <CardTitle className={cn("text-base", isUnread && "font-semibold")}>
-              {notification.title}
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">{notification.body}</p>
-          </div>
-
-          <div className="flex shrink-0 flex-col items-end gap-2">
-            <p className="text-xs text-muted-foreground">{formatTimestamp(notification.createdAt)}</p>
-            <Button
-              type="button"
-              size="sm"
-              variant={isUnread ? "secondary" : "outline"}
-              onClick={() => {
-                if (isUnread) onMarkRead(notification.id);
-                else onMarkUnread(notification.id);
-              }}
-            >
-              {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
-            </Button>
-          </div>
+    <ListRow
+      leading={
+        isUnread ? (
+          <span className="inline-flex items-center">
+            <Circle className="size-2.5 fill-primary text-primary" />
+            <span className="sr-only">Новое</span>
+          </span>
+        ) : (
+          <span className="inline-flex items-center">
+            <Circle className="size-2.5 text-muted-foreground/50" />
+            <span className="sr-only">Прочитано</span>
+          </span>
+        )
+      }
+      title={
+        <span className={isUnread ? "font-semibold text-foreground" : undefined}>
+          {notification.title}
+        </span>
+      }
+      subtitle={notification.body}
+      badge={
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <Badge variant={severityVariant}>{labelSeverity(notification.severity)}</Badge>
+          <Badge variant="outline" className="bg-background">
+            {labelKind(notification.kind)}
+          </Badge>
+          <span className="whitespace-nowrap text-xs text-muted-foreground">
+            {formatTimestamp(notification.createdAt)}
+          </span>
         </div>
-
-        {notification.href ? (
-          <div className="flex items-center justify-between gap-3">
-            <Separator className="flex-1" />
+      }
+      actions={
+        <>
+          <Button
+            type="button"
+            size="sm"
+            variant={isUnread ? "secondary" : "outline"}
+            onClick={() => {
+              if (isUnread) onMarkRead(notification.id);
+              else onMarkUnread(notification.id);
+            }}
+          >
+            {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
+          </Button>
+          {notification.href ? (
             <Button asChild size="sm" variant="ghost">
               <Link
                 href={notification.href}
@@ -338,11 +332,10 @@ function NotificationCard({
                 <ArrowRight className="size-4" />
               </Link>
             </Button>
-          </div>
-        ) : null}
-      </CardHeader>
-      <CardContent className="pt-0" />
-    </Card>
+          ) : null}
+        </>
+      }
+    />
   );
 }
 

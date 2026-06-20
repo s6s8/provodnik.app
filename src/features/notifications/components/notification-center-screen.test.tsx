@@ -128,7 +128,7 @@ describe("NotificationCenterScreen", () => {
     render(<NotificationCenterScreen />);
 
     expect(
-      await screen.findByText("Не удалось загрузить уведомления."),
+      await screen.findByText("Не удалось загрузить"),
     ).toBeInTheDocument();
     expect(screen.queryByText("Пока пусто")).not.toBeInTheDocument();
   });
