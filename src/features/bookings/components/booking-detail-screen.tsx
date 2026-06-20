@@ -15,6 +15,7 @@ import {
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +31,7 @@ import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/gu
 import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReviewForm";
 import type { GuideBookingStatus } from "@/data/guide-booking/types";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
+import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
@@ -72,16 +74,6 @@ const ACTION_LABEL_RU: Record<string, string> = {
   complete: "Завершение",
   cancel: "Отмена",
   no_show: "Неявка",
-};
-
-const BOOKING_HEADINGS: Record<BookingStatus, string> = {
-  pending: "Бронирование ожидает подтверждения",
-  awaiting_guide_confirmation: "Ожидает подтверждения гида",
-  confirmed: "Бронирование подтверждено",
-  completed: "Поездка завершена",
-  cancelled: "Бронирование отменено",
-  disputed: "Открыт спор по бронированию",
-  no_show: "Гость не явился",
 };
 
 const CANCELLABLE_FOR_TRAVELER: BookingStatus[] = ["pending", "confirmed"];
@@ -144,13 +136,16 @@ function TravelerBookingDetailView({
   const request = booking.traveler_request;
   const offer = booking.guide_offer;
   const destination = request?.destination ?? "Маршрут";
-  const dateRange = formatDateRange(
-    request?.starts_on ?? null,
-    request?.ends_on ?? null,
-  );
+  const dateRange = request?.starts_on
+    ? formatRussianDateRange(request.starts_on, request.ends_on)
+    : "";
   const resolvedListingTitle = listingTitle || (dateRange ? `${destination}, ${dateRange}` : destination);
 
-  const meetingTime = formatTime(offer?.starts_at ?? request?.start_time);
+  const meetingTime = offer?.starts_at
+    ? formatRussianTime(offer.starts_at)
+    : request?.start_time
+      ? request.start_time.slice(0, 5)
+      : "";
   const meetingPlace = booking.meeting_point ?? null;
 
   const priceMinor = offer?.price_minor ?? booking.subtotal_minor ?? 0;
@@ -169,6 +164,77 @@ function TravelerBookingDetailView({
   const canCancel = CANCELLABLE_FOR_TRAVELER.includes(status);
   const canOpenDispute =
     booking.status === "confirmed" || booking.status === "completed";
+  const canShowTicket =
+    booking.status === "confirmed" ||
+    booking.status === "completed" ||
+    booking.status === "disputed";
+
+  const messageGuideButton = (primary: boolean) =>
+    openBookingThreadAction ? (
+      <Button
+        key="message"
+        type="button"
+        variant={primary ? "default" : "outline"}
+        onClick={handleOpenThread}
+        disabled={isOpeningThread}
+      >
+        {isOpeningThread ? "Открываю чат…" : "Написать гиду"}
+      </Button>
+    ) : null;
+
+  const ticketButton = canShowTicket ? (
+    <BookingTicketTrigger
+      key="ticket"
+      bookingId={booking.id}
+      listingTitle={resolvedListingTitle}
+      guideName={guideName}
+      guidePhone={guidePhone}
+      dateRange={dateRange}
+    />
+  ) : null;
+
+  const cancelButton = canCancel ? (
+    <CancelBookingButton key="cancel" bookingId={booking.id} />
+  ) : null;
+
+  const disputeButton =
+    flags.FEATURE_TR_DISPUTES && booking.status !== "disputed" && canOpenDispute ? (
+      <OpenDisputeButton key="dispute" bookingId={booking.id} />
+    ) : null;
+
+  let primaryCTA: React.ReactNode = null;
+  let secondaryActions: Array<React.ReactNode> = [];
+  if (showTravelerPanel) {
+    switch (status) {
+      case "confirmed":
+        primaryCTA = messageGuideButton(true);
+        secondaryActions = [ticketButton, cancelButton, disputeButton];
+        break;
+      case "completed":
+        if (existingReview) {
+          primaryCTA = messageGuideButton(true);
+          secondaryActions = [ticketButton];
+        } else {
+          // The review form below is the primary surface for this state.
+          secondaryActions = [messageGuideButton(false), ticketButton, disputeButton];
+        }
+        break;
+      case "disputed":
+        primaryCTA = messageGuideButton(true);
+        secondaryActions = [ticketButton];
+        break;
+      case "cancelled":
+      case "no_show":
+        break;
+      default:
+        // pending / awaiting_guide_confirmation: cancel is the only action.
+        primaryCTA = cancelButton;
+        break;
+    }
+  }
+  const secondaryButtons = secondaryActions.filter(Boolean);
+  const showReviewForm =
+    showTravelerPanel && booking.status === "completed" && !existingReview;
 
   return (
     <div className="space-y-6">
@@ -196,156 +262,139 @@ function TravelerBookingDetailView({
 
       <div className="py-12">
         <div className="max-w-[640px] mx-auto px-[var(--px)] flex flex-col gap-6">
-          <div className="flex items-start gap-3 flex-wrap justify-between">
-            <div className="flex items-center gap-4 flex-wrap">
-              <h1 className="font-display text-[clamp(1.875rem,4vw,2.5rem)] font-semibold leading-[1.05] text-foreground">{BOOKING_HEADINGS[status]}</h1>
-              <BookingStatusBadge status={status} />
-            </div>
-            {showTravelerPanel && canCancel ? <CancelBookingButton bookingId={booking.id} /> : null}
-          </div>
+          <header className="space-y-3">
+            <BookingStatusBadge status={status} />
+            <PageHeader title={resolvedListingTitle || "Бронирование"} actions={primaryCTA} />
+          </header>
 
-          <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-2">
-            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
-            <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
-            {dateRange ? (
-              <p className="font-sans text-sm text-muted-foreground">
-                {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
-              </p>
-            ) : null}
-            {meetingPlace ? (
-              <p className="font-sans text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
-              </p>
-            ) : null}
-            {themeLabels.length > 0 ? (
-              <div className="flex flex-wrap gap-1.5 mt-1">
-                {themeLabels.map((label) => (
-                  <Badge key={label} variant="secondary" className="text-xs">{label}</Badge>
-                ))}
-              </div>
-            ) : null}
-            {partySize > 0 ? (
-              <p className="font-sans text-sm text-muted-foreground">
-                {partySize} {partySize === 1 ? "человек" : partySize < 5 ? "человека" : "человек"}
-                {request?.open_to_join ? " · сборная группа" : ""}
-              </p>
-            ) : null}
-          </div>
-
-          {(description || inclusions.length > 0 || offer?.title) ? (
-            <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-3">
-              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Что вас ждёт</p>
-              {offer?.title ? (
-                <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
+          <Card className="border-border/70 bg-card/90">
+            <CardContent className="flex flex-col gap-2 p-5">
+              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
+              <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
+              {dateRange ? (
+                <p className="font-sans text-sm text-muted-foreground">
+                  {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
+                </p>
               ) : null}
-              {description ? (
-                <p className="font-sans text-sm text-foreground leading-[1.6] whitespace-pre-line">{description}</p>
+              {meetingPlace ? (
+                <p className="font-sans text-sm text-muted-foreground">
+                  <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
+                </p>
               ) : null}
-              {inclusions.length > 0 ? (
-                <div>
-                  <p className="font-sans text-xs font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1.5">Включено</p>
-                  <ul className="flex flex-col gap-1">
-                    {inclusions.map((item) => (
-                      <li key={item} className="font-sans text-sm text-foreground flex items-start gap-2">
-                        <span className="text-primary mt-0.5">✓</span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
+              {themeLabels.length > 0 ? (
+                <div className="flex flex-wrap gap-1.5 mt-1">
+                  {themeLabels.map((label) => (
+                    <Badge key={label} variant="secondary" className="text-xs">{label}</Badge>
+                  ))}
                 </div>
               ) : null}
-            </div>
+              {partySize > 0 ? (
+                <p className="font-sans text-sm text-muted-foreground">
+                  {partySize} {partySize === 1 ? "человек" : partySize < 5 ? "человека" : "человек"}
+                  {request?.open_to_join ? " · сборная группа" : ""}
+                </p>
+              ) : null}
+            </CardContent>
+          </Card>
+
+          {(description || inclusions.length > 0 || offer?.title) ? (
+            <Card className="border-border/70 bg-card/90">
+              <CardContent className="flex flex-col gap-3 p-5">
+                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Что вас ждёт</p>
+                {offer?.title ? (
+                  <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
+                ) : null}
+                {description ? (
+                  <p className="font-sans text-sm text-foreground leading-[1.6] whitespace-pre-line">{description}</p>
+                ) : null}
+                {inclusions.length > 0 ? (
+                  <div>
+                    <p className="font-sans text-xs font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1.5">Включено</p>
+                    <ul className="flex flex-col gap-1">
+                      {inclusions.map((item) => (
+                        <li key={item} className="font-sans text-sm text-foreground flex items-start gap-2">
+                          <span className="text-primary mt-0.5">✓</span>
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+              </CardContent>
+            </Card>
           ) : null}
 
-          <div className="bg-surface-high rounded-card p-5 px-6 shadow-card flex flex-col gap-1.5">
-            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
-            {partySize > 1 ? (
-              <>
-                <p className="font-sans text-sm text-muted-foreground">
-                  {formatRub(pricePerPersonMinor)} <span className="text-muted-foreground/70">/ человек</span>
-                </p>
-                <p className="font-sans text-[1.125rem] font-semibold text-foreground">
-                  Итого: {formatRub(priceMinor)}
-                </p>
-              </>
-            ) : (
-              <p className="font-sans text-[1.125rem] font-semibold text-foreground">{formatRub(priceMinor)}</p>
-            )}
-          </div>
+          <Card className="border-border/70 bg-card/90">
+            <CardContent className="flex flex-col gap-1.5 p-5">
+              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
+              {partySize > 1 ? (
+                <>
+                  <p className="font-sans text-sm text-muted-foreground">
+                    {formatRub(pricePerPersonMinor)} <span className="text-muted-foreground/70">/ человек</span>
+                  </p>
+                  <p className="font-sans text-[1.125rem] font-semibold text-foreground">
+                    Итого: {formatRub(priceMinor)}
+                  </p>
+                </>
+              ) : (
+                <p className="font-sans text-[1.125rem] font-semibold text-foreground">{formatRub(priceMinor)}</p>
+              )}
+            </CardContent>
+          </Card>
 
           {showTravelerPanel ? (
             <>
-              <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass p-5 px-6 flex flex-col gap-3.5">
-                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
-                <div className="flex items-center gap-3.5">
-                  <ProfileAvatar
-                    profile={{
-                      full_name: guideProfileData?.full_name ?? null,
-                      avatar_url: guideAvatarUrl,
-                    }}
-                    size={52}
-                    className="border-2 border-glass-border"
-                  />
-                  <div className="flex-1 min-w-0 flex flex-col gap-[0.3rem]">
-                    <p className="font-sans text-base font-semibold text-foreground flex items-center gap-1.5">
-                      {guideName}
-                      {isVerified ? (
-                        <span
-                          className="inline-flex items-center justify-center size-[18px] rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold shrink-0"
-                          aria-label="Верифицирован"
-                        >
-                          ✓
-                        </span>
-                      ) : null}
-                    </p>
-                    {guidePhone ? (
-                      <p className="font-sans text-sm text-muted-foreground">
-                        <span className="font-medium">Телефон:</span>{" "}
-                        <a
-                          href={`tel:${guidePhone}`}
-                          className="text-primary no-underline hover:underline"
-                        >
-                          {guidePhone}
-                        </a>
-                      </p>
-                    ) : (
-                      <p className="font-sans text-sm text-muted-foreground">
-                        Контакт появится в чате
-                      </p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  {openBookingThreadAction ? (
-                    <Button
-                      type="button"
-                      onClick={handleOpenThread}
-                      disabled={isOpeningThread}
-                    >
-                      {isOpeningThread ? "Открываю чат…" : "Написать гиду"}
-                    </Button>
-                  ) : null}
-
-                  {(booking.status === "confirmed" || booking.status === "completed") ? (
-                    <BookingTicketTrigger
-                      bookingId={booking.id}
-                      listingTitle={resolvedListingTitle}
-                      guideName={guideName}
-                      guidePhone={guidePhone}
-                      dateRange={dateRange}
+              <Card className="border-border/70 bg-card/90">
+                <CardContent className="flex flex-col gap-3.5 p-5">
+                  <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
+                  <div className="flex items-center gap-3.5">
+                    <ProfileAvatar
+                      profile={{
+                        full_name: guideProfileData?.full_name ?? null,
+                        avatar_url: guideAvatarUrl,
+                      }}
+                      size={52}
+                      className="border-2 border-border/70"
                     />
-                  ) : null}
+                    <div className="flex-1 min-w-0 flex flex-col gap-[0.3rem]">
+                      <p className="font-sans text-base font-semibold text-foreground flex items-center gap-1.5">
+                        {guideName}
+                        {isVerified ? (
+                          <span
+                            className="inline-flex items-center justify-center size-[18px] rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold shrink-0"
+                            aria-label="Верифицирован"
+                          >
+                            ✓
+                          </span>
+                        ) : null}
+                      </p>
+                      {guidePhone ? (
+                        <p className="font-sans text-sm text-muted-foreground">
+                          <span className="font-medium">Телефон:</span>{" "}
+                          <a
+                            href={`tel:${guidePhone}`}
+                            className="text-primary no-underline hover:underline"
+                          >
+                            {guidePhone}
+                          </a>
+                        </p>
+                      ) : (
+                        <p className="font-sans text-sm text-muted-foreground">
+                          Контакт появится в чате
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-                  {flags.FEATURE_TR_DISPUTES &&
-                  booking.status !== "disputed" &&
-                  canOpenDispute ? (
-                    <OpenDisputeButton bookingId={booking.id} />
-                  ) : null}
+              {secondaryButtons.length > 0 ? (
+                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                  {secondaryButtons}
                 </div>
-              </div>
+              ) : null}
 
-              {booking.status === "completed" && !existingReview ? (
+              {showReviewForm ? (
                 <FourAxisReviewForm
                   bookingId={booking.id}
                   guideId={booking.guide_id}
@@ -816,35 +865,14 @@ function formatRubForGuide(amount: number) {
   }).format(amount);
 }
 
-function formatDateRange(startsOn: string | null, endsOn: string | null) {
-  if (!startsOn) return "";
-  const fmt = (iso: string) =>
-    new Date(iso).toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  if (!endsOn || endsOn === startsOn) return fmt(startsOn);
-  return `${fmt(startsOn)} — ${fmt(endsOn)}`;
-}
-
-function formatTime(isoOrTime: string | null | undefined): string {
-  if (!isoOrTime) return "";
-  if (/^\d{2}:\d{2}/.test(isoOrTime)) return isoOrTime.slice(0, 5);
-  try {
-    return new Date(isoOrTime).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-  } catch {
-    return "";
-  }
-}
-
-function toStateMachineStatus(s: string) {
+function toStateMachineStatus(s: string): BookingStatus {
   const allowed: BookingStatus[] = [
     "pending",
     "confirmed",
     "completed",
     "cancelled",
     "disputed",
+    "no_show",
   ];
   if (allowed.includes(s as BookingStatus)) return s as BookingStatus;
   if (s === "awaiting_guide_confirmation") return "pending";
