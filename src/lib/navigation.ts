@@ -72,7 +72,7 @@ export const footerNav = {
   about:   [ROUTES.howItWorks, ROUTES.trust, ROUTES.becomeGuide, ROUTES.forBusiness],
   support: [ROUTES.help,
             { href: "https://t.me/provodnik_help", label: "Telegram-поддержка", icon: MessageSquare, external: true } as NavItem,
-            { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app", icon: MessageSquare, external: true } as NavItem],
+            { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app", icon: MessageSquare } as NavItem],
   legal:   [
     { href: "/policies/terms",   label: "Условия использования", icon: ScrollText } as NavItem,
     { href: "/policies/privacy", label: "Конфиденциальность",    icon: ScrollText } as NavItem,
