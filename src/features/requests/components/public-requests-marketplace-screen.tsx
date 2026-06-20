@@ -1,9 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
+import { ChevronDown, Compass, X } from "lucide-react";
 
+import { EmptyState } from "@/components/shared/empty-state";
+import { ListHero } from "@/components/shared/list-hero";
 import { RequestCardFinal } from "@/components/shared/request-card-final";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -26,36 +30,16 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { THEMES } from "@/data/themes";
 import { todayMoscowISODate } from "@/lib/dates";
 
-const CATEGORY_PILLS = [
-  "Все",
-  "История и культура",
-  "Природа",
-  "Гастрономия",
-  "Искусство",
-  "Необычные маршруты",
-  "Ночные прогулки",
-  "Активный отдых",
-  "Водные прогулки",
-  "Религия и духовность",
-] as const;
-type CategoryPill = (typeof CATEGORY_PILLS)[number];
-type CategoryFilter = Exclude<CategoryPill, "Все">;
+type CategoryFilter = (typeof THEMES)[number]["label"];
 
-const CATEGORY_FILTERS = CATEGORY_PILLS.filter((pill): pill is CategoryFilter => pill !== "Все");
+const CATEGORY_FILTERS: CategoryFilter[] = THEMES.map((theme) => theme.label);
 
-const CATEGORY_INTEREST_SLUGS: Partial<Record<CategoryFilter, string>> = {
-  "История и культура": "history_culture",
-  Природа: "nature",
-  Гастрономия: "food",
-  Искусство: "art",
-  "Необычные маршруты": "unusual",
-  "Ночные прогулки": "night",
-  "Активный отдых": "active",
-  "Водные прогулки": "water",
-  "Религия и духовность": "religion",
-};
+const CATEGORY_INTEREST_SLUGS = Object.fromEntries(
+  THEMES.map((theme) => [theme.label, theme.slug] as const),
+) as Record<CategoryFilter, string>;
 
 const MONTHS_GENITIVE = [
   "января", "февраля", "марта", "апреля", "мая", "июня",
@@ -161,9 +145,9 @@ function FilterControl({ label, title, description, children }: FilterControlPro
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const trigger = (
-    <Button type="button" variant="outline" className="w-full cursor-pointer justify-between">
-      <span>{label}</span>
-      <span aria-hidden="true">▾</span>
+    <Button type="button" variant="outline" className="w-full min-w-0 cursor-pointer justify-between">
+      <span className="truncate">{label}</span>
+      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
     </Button>
   );
 
@@ -323,13 +307,13 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
   return (
     <div>
-      <section className="bg-surface py-sec-pad">
-        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] text-center">
-          <h1 className="mx-auto max-w-[780px] font-display text-[clamp(2.5rem,5vw,4.5rem)] font-semibold leading-[1.02] text-foreground">
-            Открытые запросы на экскурсию
-          </h1>
-
-          <div className="mx-auto mt-7 max-w-[640px]">
+      <ListHero
+        imageUrl="/hero-valley.jpg"
+        title="Открытые запросы"
+        intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
+      >
+        <div className="flex flex-col gap-4">
+          <div>
             <label htmlFor="requests-search" className="sr-only">
               Поиск по запросам
             </label>
@@ -342,8 +326,13 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
               className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
             />
           </div>
+          <div>
+            <Button asChild>
+              <Link href="/requests/new">Опубликовать запрос</Link>
+            </Button>
+          </div>
         </div>
-      </section>
+      </ListHero>
 
       <section className="bg-surface-low py-8">
         <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-[clamp(20px,4vw,48px)]">
@@ -467,7 +456,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     className="cursor-pointer text-muted-foreground hover:text-foreground"
                     aria-label={`Очистить город ${activeCity}`}
                   >
-                    ✕
+                    <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
@@ -480,7 +469,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     className="cursor-pointer text-muted-foreground hover:text-foreground"
                     aria-label={`Очистить период ${getWhenLabel(activeWhen)}`}
                   >
-                    ✕
+                    <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
@@ -493,7 +482,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     className="cursor-pointer text-muted-foreground hover:text-foreground"
                     aria-label={`Очистить период ${formatDateRangeLabel(activeDateRange)}`}
                   >
-                    ✕
+                    <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
@@ -506,7 +495,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     className="cursor-pointer text-muted-foreground hover:text-foreground"
                     aria-label={`Очистить тему ${category}`}
                   >
-                    ✕
+                    <X className="h-3 w-3" />
                   </button>
                 </Badge>
               ))}
@@ -553,14 +542,21 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
             </div>
             </div>
           ) : (
-            <div className="rounded-card bg-surface-high p-8 text-center shadow-card">
-              <p className="font-display text-[1.5rem] font-semibold text-foreground">
-                Подходящих запросов пока нет
-              </p>
-              <p className="mx-auto mt-2 max-w-[460px] text-sm leading-[1.6] text-muted-foreground">
-                Попробуйте изменить направление или выбрать другую тематику.
-              </p>
-            </div>
+            <EmptyState
+              icon={<Compass className="h-10 w-10 text-muted-foreground" />}
+              title="Подходящих запросов пока нет"
+              description="Попробуйте изменить направление или выбрать другую тематику."
+              action={
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={resetDropdownFilters}>
+                    Сбросить фильтры
+                  </Button>
+                  <Button asChild>
+                    <Link href="/requests/new">Опубликовать запрос</Link>
+                  </Button>
+                </div>
+              }
+            />
           )}
         </div>
       </section>
