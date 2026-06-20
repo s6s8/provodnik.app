@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { ArrowRight } from "lucide-react";
+
 import { ReqCard } from "@/components/shared/req-card";
 import { Button } from "@/components/ui/button";
 import type { DestinationSummary } from "@/data/destinations/types";
@@ -138,8 +140,9 @@ export function DestinationDetailScreen({
                   Путешественники ищут компанию
                 </h2>
               </div>
-              <Link href="/requests" className="text-sm font-semibold text-primary">
-                Все запросы по направлению →
+              <Link href="/requests" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+                Все запросы по направлению
+                <ArrowRight className="size-4" />
               </Link>
             </div>
 
@@ -191,8 +194,9 @@ export function DestinationDetailScreen({
                 Авторские маршруты с гидами
               </h2>
             </div>
-            <Link href="/listings" className="text-sm font-semibold text-primary">
-              Все туры →
+            <Link href="/listings" className="inline-flex items-center gap-1 text-sm font-semibold text-primary">
+              Все туры
+              <ArrowRight className="size-4" />
             </Link>
           </div>
 
@@ -214,9 +218,10 @@ export function DestinationDetailScreen({
             </div>
             <Link
               href={`/requests?city=${encodeURIComponent(destination.name)}`}
-              className="shrink-0 text-sm font-semibold text-primary"
+              className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary"
             >
-              Все запросы →
+              Все запросы
+              <ArrowRight className="size-4" />
             </Link>
           </div>
 

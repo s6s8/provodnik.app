@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+import { Calendar, MapPin, Tag, Users } from "lucide-react";
+
 import { THEMES } from "@/data/themes";
 import { cn } from "@/lib/utils";
 
@@ -23,15 +25,15 @@ function pluralPeople(n: number): string {
   return "человек";
 }
 
-type Chip = { key: string; icon: string; empty: string; value: string | null };
+type Chip = { key: string; icon: React.ReactNode; empty: string; value: string | null };
 
 function buildChips(f: ExtractedFields): Chip[] {
   return [
-    { key: "destination", icon: "📍", empty: "Город", value: f.destination },
-    { key: "startDate", icon: "📅", empty: "Дата", value: f.startDate ? formatDate(f.startDate) : null },
+    { key: "destination", icon: <MapPin className="size-4" />, empty: "Город", value: f.destination },
+    { key: "startDate", icon: <Calendar className="size-4" />, empty: "Дата", value: f.startDate ? formatDate(f.startDate) : null },
     {
       key: "groupSize",
-      icon: "👥",
+      icon: <Users className="size-4" />,
       empty: "Сколько",
       value: f.groupSize ? `${f.groupSize} ${pluralPeople(f.groupSize)}` : null,
     },
@@ -43,7 +45,7 @@ function buildChips(f: ExtractedFields): Chip[] {
     },
     {
       key: "interests",
-      icon: "🏷",
+      icon: <Tag className="size-4" />,
       empty: "Темы",
       value: f.interests.length
         ? f.interests.map((s) => THEME_LABEL.get(s) ?? s).join(", ")
