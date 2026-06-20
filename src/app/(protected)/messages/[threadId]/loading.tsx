@@ -12,7 +12,7 @@ export default function ThreadLoading() {
         <Skeleton className="h-11 w-28 rounded-full" />
       </div>
 
-      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
+      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm">
         <div className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto">
           {Array.from({ length: 5 }).map((_, index) => (
             <div
@@ -21,7 +21,7 @@ export default function ThreadLoading() {
                 index % 2 === 0 ? "flex justify-start" : "flex justify-end"
               }
             >
-              <div className="grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass">
+              <div className="grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-card border border-border shadow-sm">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-56" />
                 <Skeleton className="h-4 w-32" />
@@ -29,8 +29,8 @@ export default function ThreadLoading() {
             </div>
           ))}
         </div>
-        <div className="grid gap-3 p-4 border-t border-glass-border">
-          <Skeleton className="h-28 w-full rounded-[1.5rem]" />
+        <div className="grid gap-3 p-4 border-t border-border">
+          <Skeleton className="h-11 w-full rounded-[1.4rem]" />
         </div>
       </div>
     </section>

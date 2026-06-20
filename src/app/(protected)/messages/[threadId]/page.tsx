@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/features/messaging/components/chat-input";
 import { ChatWindow } from "@/features/messaging/components/chat-window";
@@ -26,19 +27,11 @@ export default async function ThreadPage({
   if (!hasSupabaseEnv()) {
     return (
       <section className="grid gap-6">
-        <div className="flex items-end justify-between gap-4 flex-wrap">
-          <div>
-            <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">
-              Сообщения
-            </p>
-            <h1 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
-              Сообщения
-            </h1>
-            <p className="max-w-[42rem] text-[0.9375rem] leading-[1.65] text-muted-foreground">
-              Чат станет доступен после подключения Supabase.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          eyebrow="Сообщения"
+          title="Сообщения"
+          subtitle="Чат станет доступен после подключения Supabase."
+        />
       </section>
     );
   }
@@ -80,24 +73,18 @@ export default async function ThreadPage({
 
   return (
     <section className="grid gap-6">
-      <div className="flex items-end justify-between gap-4 flex-wrap">
-        <div>
-          <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-2">
-            Сообщения
-          </p>
-          <h1 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
-            {participantTitle}
-          </h1>
-          <p className="max-w-[42rem] text-[0.9375rem] leading-[1.65] text-muted-foreground">
-            История переписки по текущей поездке и связанным деталям.
-          </p>
-        </div>
-        <Button variant="outline" asChild>
-          <Link href="/messages">Все диалоги</Link>
-        </Button>
-      </div>
+      <PageHeader
+        eyebrow="Сообщения"
+        title={participantTitle}
+        subtitle="История переписки по текущей поездке и связанным деталям."
+        actions={
+          <Button variant="outline" asChild>
+            <Link href="/messages">Все диалоги</Link>
+          </Button>
+        }
+      />
 
-      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
+      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm">
         <ChatWindow
           threadId={threadId}
           currentUserId={user.id}

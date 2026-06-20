@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 type SendMessageAction = (
   threadId: string,
@@ -45,14 +46,12 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
   };
 
   return (
-    <div className="grid gap-3 p-4 border-t border-glass-border">
-      <label className="text-xs font-semibold tracking-[0.08em] uppercase text-muted-foreground" htmlFor="chat-message-body">
-        Новое сообщение
-      </label>
-      <textarea
+    <div className="grid gap-3 p-4 border-t border-border">
+      <Textarea
         id="chat-message-body"
-        className="w-full min-h-[7rem] resize-y p-3.5 px-4 rounded-[1.5rem] border border-glass-border bg-surface-high/[0.82] text-foreground outline-none focus:border-primary"
+        className="min-h-[2.75rem] resize-none"
         placeholder="Напишите сообщение…"
+        rows={1}
         value={body}
         onChange={(event) => setBody(event.target.value)}
         onKeyDown={(event) => {
@@ -61,7 +60,6 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
             handleSubmit();
           }
         }}
-        rows={3}
       />
       <div className="flex items-center justify-between gap-3 flex-wrap">
         {error ? (
