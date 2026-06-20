@@ -16,11 +16,16 @@ vi.mock("@/lib/supabase/server", () => ({
 import AdminAuditPage from "./page";
 
 function createQueryResult(data: unknown[]) {
-  const limit = vi.fn().mockResolvedValue({ data, error: null });
-  const order = vi.fn(() => ({ limit }));
-  const select = vi.fn(() => ({ order }));
+  const result = { data, error: null };
+  const builder: Record<string, ReturnType<typeof vi.fn>> = {};
+  builder.select = vi.fn(() => builder);
+  builder.eq = vi.fn(() => builder);
+  builder.ilike = vi.fn(() => builder);
+  builder.order = vi.fn(() => builder);
+  builder.range = vi.fn().mockResolvedValue(result);
+  builder.limit = vi.fn().mockResolvedValue(result);
 
-  return { select, order, limit };
+  return builder;
 }
 
 describe("AdminAuditPage", () => {
