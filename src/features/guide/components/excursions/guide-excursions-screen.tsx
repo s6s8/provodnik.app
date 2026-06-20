@@ -3,12 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { BookOpen, Check, ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, type SubmitErrorHandler } from "react-hook-form";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { useConfirm } from "@/components/shared/confirm-dialog";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ListRow } from "@/components/shared/list-row";
+import { PageHeader } from "@/components/shared/page-header";
 import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
 import { kopecksToRub } from "@/data/money";
 import { THEMES } from "@/data/themes";
@@ -32,6 +39,7 @@ const FIELD_CLASS =
   "mt-1.5 min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm outline-none focus:border-primary";
 
 export function GuideExcursionsScreen() {
+  const { confirm, ConfirmDialog } = useConfirm();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [authenticatedGuideId, setAuthenticatedGuideId] = useState<Uuid | null>(null);
   const [templates, setTemplates] = useState<GuideTemplateRow[]>([]);
@@ -45,6 +53,7 @@ export function GuideExcursionsScreen() {
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"excursions" | "photos">("excursions");
   const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
   const { register, handleSubmit, reset, setValue, getValues, control } = useForm<
@@ -212,13 +221,20 @@ export function GuideExcursionsScreen() {
   }
 
   async function handleDeleteTemplate(template: GuideTemplateRow) {
-    if (!window.confirm(`Удалить экскурсию «${template.title}»?`)) return;
+    const ok = await confirm({
+      title: `Удалить «${template.title}»?`,
+      description: "Отменить это действие нельзя.",
+      confirmText: "Удалить",
+      destructive: true,
+    });
+    if (!ok) return;
     setDeletingTemplateId(template.id);
+    setDeleteError(null);
     try {
       await deleteGuideTemplate(template.id);
       setTemplates((prev) => prev.filter((item) => item.id !== template.id));
     } catch (err) {
-      window.alert(err instanceof Error ? err.message : "Не удалось удалить экскурсию.");
+      setDeleteError(err instanceof Error ? err.message : "Не удалось удалить экскурсию.");
     } finally {
       setDeletingTemplateId(null);
     }
@@ -226,20 +242,24 @@ export function GuideExcursionsScreen() {
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <div className="mb-6">
-        <Link
-          href="/guide"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          ← В кабинет
-        </Link>
-      </div>
+      <PageHeader
+        title="Мои экскурсии"
+        className="mb-6"
+        actions={
+          <>
+            <Button asChild variant="ghost" size="icon" aria-label="В кабинет">
+              <Link href="/guide">
+                <ChevronLeft className="size-4" />
+              </Link>
+            </Button>
+            <Button onClick={openCreateSheet}>
+              <Plus className="size-4" /> Создать экскурсию
+            </Button>
+          </>
+        }
+      />
 
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold">Мои экскурсии</h1>
-      </div>
-
-      <div className="mb-6 flex gap-1 rounded-xl bg-muted p-1">
+      <div className="mb-6 mt-6 flex gap-1 rounded-xl bg-muted p-1">
         <button
           type="button"
           onClick={() => setActiveTab("excursions")}
@@ -275,80 +295,55 @@ export function GuideExcursionsScreen() {
       ) : loadError ? (
         <p className="text-sm text-destructive">{loadError}</p>
       ) : templates.length === 0 ? (
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            Экскурсий пока нет. Добавьте первую.
-          </p>
-          <button
-            type="button"
-            onClick={openCreateSheet}
-            className="flex w-full items-center justify-center rounded-xl border border-border bg-surface-high px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            + Добавить экскурсию
-          </button>
-        </div>
+        <EmptyState
+          icon={<BookOpen />}
+          title="Экскурсий пока нет"
+          description="Добавьте первую экскурсию, чтобы откликаться на заявки туристов."
+          action={
+            <Button variant="outline" onClick={openCreateSheet}>
+              <Plus className="size-4" /> Добавить экскурсию
+            </Button>
+          }
+        />
       ) : (
         <div className="space-y-2">
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
           {templates.map((template) => (
-            <div
+            <ListRow
               key={template.id}
-              className="flex items-center justify-between gap-3 rounded-xl border border-border bg-surface-high px-4 py-3"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span className="truncate text-sm font-medium text-foreground">
-                    {template.title}
-                  </span>
-                  <span
-                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[0.65rem] font-medium ${
-                      template.status === "published"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}
+              title={template.title}
+              subtitle={[template.duration_text, template.meeting_point]
+                .filter(Boolean)
+                .join(" · ")}
+              badge={
+                <Badge variant={template.status === "published" ? "default" : "secondary"}>
+                  {template.status === "published" ? "Опубл." : "Черновик"}
+                </Badge>
+              }
+              actions={
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Изменить"
+                    onClick={() => openEditSheet(template)}
                   >
-                    {template.status === "published" ? "Опубл." : "Черновик"}
-                  </span>
-                  <span className="shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[0.65rem] font-medium text-muted-foreground">
-                    {template.photo_urls.length} фото
-                  </span>
-                </div>
-                {template.duration_text && (
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {template.duration_text}
-                  </p>
-                )}
-                {template.meeting_point && (
-                  <span className="block text-xs text-muted-foreground">
-                    {template.meeting_point}
-                  </span>
-                )}
-              </div>
-              <div className="flex shrink-0 items-center gap-1">
-                <button
-                  type="button"
-                  onClick={() => openEditSheet(template)}
-                  className="rounded-lg px-2 py-1 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                >
-                  Изменить
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeleteTemplate(template)}
-                  disabled={deletingTemplateId === template.id}
-                  className="rounded-lg px-2 py-1 text-xs text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
-                >
-                  {deletingTemplateId === template.id ? "…" : "Удалить"}
-                </button>
-              </div>
-            </div>
+                    <Pencil size={16} />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Удалить"
+                    disabled={deletingTemplateId === template.id}
+                    onClick={() => handleDeleteTemplate(template)}
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </>
+              }
+              onClick={() => openEditSheet(template)}
+            />
           ))}
-          <button
-            type="button"
-            onClick={openCreateSheet}
-            className="flex w-full items-center justify-center rounded-xl border border-border bg-surface-high px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
-          >
-            + Добавить экскурсию
-          </button>
         </div>
       )}
 
@@ -366,7 +361,7 @@ export function GuideExcursionsScreen() {
                 id="tpl-title"
                 type="text"
                 maxLength={120}
-                placeholder="Например: Тбилиси за один день"
+                placeholder="Например: Прогулка по центру Казани"
                 className={FIELD_CLASS}
                 {...register("title")}
               />
@@ -433,7 +428,7 @@ export function GuideExcursionsScreen() {
                 id="tpl-region"
                 type="text"
                 maxLength={100}
-                placeholder="Например: Тбилиси, Грузия"
+                placeholder="Например: Казань, Татарстан"
                 className={FIELD_CLASS}
                 {...register("region")}
               />
@@ -505,8 +500,8 @@ export function GuideExcursionsScreen() {
                                 className="object-cover"
                               />
                               {selected && (
-                                <span className="absolute inset-0 flex items-center justify-center bg-primary/20 text-lg font-bold text-primary">
-                                  ✓
+                                <span className="absolute inset-0 flex items-center justify-center bg-primary/20">
+                                  <Check className="size-4 text-primary" />
                                 </span>
                               )}
                             </button>
@@ -580,6 +575,7 @@ export function GuideExcursionsScreen() {
           </div>
         </SheetContent>
       </Sheet>
+      {ConfirmDialog}
     </div>
   );
 }
