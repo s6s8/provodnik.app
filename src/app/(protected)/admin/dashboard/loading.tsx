@@ -1,60 +1,28 @@
-const queueSlots = Array.from({ length: 4 });
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="space-y-8" role="status" aria-busy="true" aria-live="polite">
+    <div className="space-y-10" role="status" aria-busy="true" aria-live="polite">
       <span className="sr-only">Загрузка панели администратора</span>
 
       <div className="space-y-3">
-        <div className="h-3 w-28 rounded-full bg-muted/70 animate-pulse" />
-        <div className="h-9 w-full max-w-xl rounded-2xl bg-muted/70 animate-pulse" />
-        <div className="h-5 w-full max-w-3xl rounded-full bg-muted/60 animate-pulse" />
+        <Skeleton className="h-3 w-40 rounded-full" />
+        <Skeleton className="h-8 w-44 rounded-xl" />
+        <Skeleton className="h-5 w-full max-w-md rounded-full" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[240px_minmax(0,1fr)] gap-8 mt-8">
-        <aside className="bg-surface-high rounded-card shadow-card p-5 lg:sticky lg:top-24 self-start max-lg:static space-y-4">
-          <div className="h-4 w-24 rounded-full bg-muted/70 animate-pulse" />
-          <div className="space-y-3">
-            <div className="h-10 rounded-xl bg-muted/60 animate-pulse" />
-            <div className="h-10 rounded-xl bg-muted/60 animate-pulse" />
-            <div className="h-10 rounded-xl bg-muted/60 animate-pulse" />
-          </div>
-          <div className="rounded-lg border border-border/70 bg-background/60 p-4">
-            <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
-            <div className="mt-3 h-14 rounded-2xl bg-muted/60 animate-pulse" />
-          </div>
-        </aside>
+      <div className="space-y-4">
+        <Skeleton className="h-3 w-36 rounded-full" />
+        <div className="grid gap-4 sm:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <Skeleton key={index} className="h-40 rounded-glass" />
+          ))}
+        </div>
+      </div>
 
-        <section className="space-y-6">
-          <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
-            <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
-            <div className="h-8 w-full max-w-lg rounded-2xl bg-muted/70 animate-pulse" />
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="h-20 rounded-2xl bg-muted/60 animate-pulse" />
-              <div className="h-20 rounded-2xl bg-muted/60 animate-pulse" />
-              <div className="h-20 rounded-2xl bg-muted/60 animate-pulse" />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {queueSlots.map((_, index) => (
-              <div
-                key={index}
-                className="rounded-2xl border border-border/70 bg-card/90 p-5 shadow-soft"
-              >
-                <div className="flex items-center justify-between gap-4">
-                  <div className="space-y-2">
-                    <div className="h-3 w-20 rounded-full bg-muted/70 animate-pulse" />
-                    <div className="h-5 w-64 rounded-full bg-muted/70 animate-pulse" />
-                  </div>
-                  <div className="h-8 w-24 rounded-full bg-muted/60 animate-pulse" />
-                </div>
-                <div className="mt-4 h-4 w-full rounded-full bg-muted/60 animate-pulse" />
-                <div className="mt-2 h-4 w-3/4 rounded-full bg-muted/60 animate-pulse" />
-              </div>
-            ))}
-          </div>
-        </section>
+      <div className="space-y-4">
+        <Skeleton className="h-3 w-28 rounded-full" />
+        <Skeleton className="h-28 rounded-glass sm:max-w-xs" />
       </div>
     </div>
   );
