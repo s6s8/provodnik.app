@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -5,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { GuideProfileRow } from "@/lib/supabase/types";
 import { maskPii } from "@/lib/pii/mask";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import { pluralize } from "@/lib/utils";
 
 function initials(name: string | null | undefined): string {
   if (!name?.trim()) return "?";
@@ -41,7 +43,7 @@ export function GuideCard({
           <p className="font-medium leading-tight">{guideName}</p>
           {guide.review_count > 0 ? (
             <p className="text-sm text-muted-foreground">
-              ★ {guide.average_rating.toFixed(1)} · {guide.review_count} отзывов
+              <Star className="size-3.5 fill-amber-400 text-amber-400" /> {guide.average_rating.toFixed(1)} · {guide.review_count} {pluralize(guide.review_count, "отзыв", "отзыва", "отзывов")}
             </p>
           ) : null}
           {bio ? (

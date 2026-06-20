@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import Link from "next/link";
 
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
@@ -18,7 +19,7 @@ import type {
   ListingTariffRow,
 } from "@/lib/supabase/types";
 import { maskPii } from "@/lib/pii/mask";
-import { arrowizeRoute } from "@/lib/utils";
+import { arrowizeRoute, pluralize } from "@/lib/utils";
 
 import { formatExcursionPriceFrom } from "./excursion-price";
 
@@ -132,7 +133,7 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
               {durationLabel ? <Badge variant="outline">{durationLabel}</Badge> : null}
               {listing.review_count > 0 ? (
                 <span className="text-sm text-muted-foreground">
-                  ★ {listing.average_rating.toFixed(1)} · {listing.review_count} отзывов
+                  <Star className="size-3.5 fill-amber-400 text-amber-400" /> {listing.average_rating.toFixed(1)} · {listing.review_count} {pluralize(listing.review_count, "отзыв", "отзыва", "отзывов")}
                 </span>
               ) : null}
             </div>

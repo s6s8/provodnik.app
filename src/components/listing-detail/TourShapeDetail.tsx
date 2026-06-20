@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import Link from "next/link";
 
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
@@ -21,6 +22,7 @@ import type {
   ListingTourDepartureRow,
 } from "@/lib/supabase/types";
 import { maskPii } from "@/lib/pii/mask";
+import { pluralize } from "@/lib/utils";
 
 const DIFFICULTY_LABELS: Record<string, string> = {
   easy: "Лёгкий",
@@ -123,7 +125,7 @@ export function TourShapeDetail({
         ) : null}
         {listing.review_count > 0 ? (
           <span className="text-sm text-muted-foreground">
-            ★ {listing.average_rating.toFixed(1)} · {listing.review_count} отзывов
+            <Star className="size-3.5 fill-amber-400 text-amber-400" /> {listing.average_rating.toFixed(1)} · {listing.review_count} {pluralize(listing.review_count, "отзыв", "отзыва", "отзывов")}
           </span>
         ) : null}
       </div>
