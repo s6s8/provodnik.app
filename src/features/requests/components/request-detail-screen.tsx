@@ -39,7 +39,7 @@ import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
 import { withdrawOfferAction } from "@/features/guide/offer-actions";
 import { cityImage } from "@/lib/city-image";
-import { formatTimeRange } from "@/lib/dates";
+import { formatRussianDate, formatRussianDateTime, formatTimeRange } from "@/lib/dates";
 import { BADGE_CLASS } from "@/lib/styles";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
@@ -356,32 +356,10 @@ function formatRub(amount: number) {
   }).format(amount);
 }
 
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  const monthDay = d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
-  return `${monthDay} ${d.getFullYear()}`;
-}
-
-function formatPublishedAt(iso: string) {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  const date = d.toLocaleDateString("ru-RU", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-  const time = d.toLocaleTimeString("ru-RU", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  return `Опубликован ${date}, ${time}`;
-}
-
 function TravelerRequestSummary({ record }: { record: TravelerRequestRecord }) {
   const request = record.request;
 
-  const dateLabel = formatDate(request.startDate);
+  const dateLabel = formatRussianDate(request.startDate);
   const timeLabel = request.startTime
     ? request.endTime
       ? `${request.startTime} – ${request.endTime}`
@@ -405,7 +383,7 @@ function TravelerRequestSummary({ record }: { record: TravelerRequestRecord }) {
       ? "Бюджет не указан"
       : `${formatRub(request.budgetPerPersonRub)} на чел.`;
 
-  const publishedAt = formatPublishedAt(record.createdAt);
+  const publishedAt = `Опубликован ${formatRussianDateTime(record.createdAt)}`;
   const interests = request.interests ?? [];
 
   return (
@@ -730,17 +708,6 @@ function OwnerDetailBranch({
   );
 }
 
-function formatDateTime(value: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleString("ru-RU", {
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
 function formatViewsLabel(count: number): string {
   if (count <= 0) return "Вы первый, кто открыл этот запрос";
   const mod10 = count % 10;
@@ -820,7 +787,7 @@ function GuideDetailBranch({
           </div>
           <div>
             <p className="text-[15px] font-semibold text-on-surface">{request.requesterName}</p>
-            <p className="text-[13px] text-on-surface-muted">Запрос от {formatDateTime(request.createdAt)}</p>
+            <p className="text-[13px] text-on-surface-muted">Запрос от {formatRussianDateTime(request.createdAt)}</p>
           </div>
         </div>
 
@@ -844,7 +811,7 @@ function GuideDetailBranch({
               {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null || offerMeta.message != null) ? (
                 <div className="flex flex-col gap-2">
                   <p className="text-sm text-on-surface/80">
-                    {offerMeta.starts_at ? new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" }) : ""}
+                    {offerMeta.starts_at ? formatRussianDate(offerMeta.starts_at) : ""}
                     {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
                     {offerMeta.price_minor != null ? ` · ${Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
                   </p>

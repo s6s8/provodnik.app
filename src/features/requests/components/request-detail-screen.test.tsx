@@ -308,7 +308,7 @@ describe("RequestDetailScreen", () => {
 
     expect(badgeTexts).toEqual([
       "Сборная группа",
-      "10 июня 2026",
+      "10 июня",
       "±пара дней",
       "—",
       "2 из 5 чел.",

@@ -78,6 +78,42 @@ export function todayMoscowISODate(): string {
 }
 
 /**
+ * Format an ISO timestamp/date as a Russian "day month" string, pinned to Moscow TZ.
+ * Pinning the timeZone keeps SSR (UTC) and client output identical — avoids hydration #418.
+ */
+export function formatRussianDate(iso: string): string {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    timeZone: MOSCOW_TZ,
+  }).format(new Date(iso));
+}
+
+/**
+ * Format an ISO timestamp as a Russian "day month, HH:MM" string, pinned to Moscow TZ.
+ */
+export function formatRussianDateTime(iso: string): string {
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "numeric",
+    month: "long",
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: MOSCOW_TZ,
+  }).format(new Date(iso));
+}
+
+/**
+ * Format an ISO timestamp as a Russian "HH:MM" time string, pinned to Moscow TZ.
+ */
+export function formatRussianTime(iso: string): string {
+  return new Intl.DateTimeFormat("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: MOSCOW_TZ,
+  }).format(new Date(iso));
+}
+
+/**
  * Format a duration in minutes as a human-readable Russian string.
  * Examples:
  *   formatDurationMinutes(0)  → ""

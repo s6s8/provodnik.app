@@ -4,28 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { formatRussianDate, formatRussianTime } from "@/lib/dates";
 import type { UserThreadSummary } from "@/lib/supabase/conversations";
+
+const moscowDayKey = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Moscow" });
 
 function formatThreadTimestamp(timestamp: string | null) {
   if (!timestamp) {
     return "Без сообщений";
   }
 
-  const date = new Date(timestamp);
-  const now = new Date();
-  const isSameDay = date.toDateString() === now.toDateString();
+  const isSameDay =
+    moscowDayKey.format(new Date(timestamp)) === moscowDayKey.format(new Date());
 
-  if (isSameDay) {
-    return date.toLocaleTimeString("ru-RU", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }
-
-  return date.toLocaleDateString("ru-RU", {
-    day: "numeric",
-    month: "short",
-  });
+  return isSameDay ? formatRussianTime(timestamp) : formatRussianDate(timestamp);
 }
 
 async function fetchThreads() {
