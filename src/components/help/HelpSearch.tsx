@@ -1,7 +1,9 @@
 "use client";
 
+import { Search } from "lucide-react";
 import { useMemo, useState, type ReactNode } from "react";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import type { HelpArticleRow } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
@@ -53,14 +55,20 @@ export function HelpSearch({ articles }: { articles: HelpArticleRow[] }) {
 
   return (
     <div className="relative mb-10">
-      <Input
-        type="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Поиск по справке..."
-        aria-label="Поиск по справке"
-        className="w-full max-w-md"
-      />
+      <div className="relative w-full max-w-md">
+        <Search
+          className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden
+        />
+        <Input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Поиск по справке..."
+          aria-label="Поиск по справке"
+          className="w-full pl-9"
+        />
+      </div>
       {query.trim().length > 0 ? (
         <div
           id="help-search-results"
@@ -70,7 +78,13 @@ export function HelpSearch({ articles }: { articles: HelpArticleRow[] }) {
           )}
         >
           {results.length === 0 ? (
-            <p className="px-3 py-3 text-sm text-muted-foreground">Ничего не найдено</p>
+            <div className="p-4">
+              <EmptyState
+                icon={<Search className="size-5" />}
+                title="Ничего не найдено"
+                description="Попробуйте другой запрос или напишите нам на support@provodnik.app"
+              />
+            </div>
           ) : (
             <ul className="py-1">
               {results.map((a) => (
