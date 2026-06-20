@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { GuideAboutForm } from "@/features/guide/components/profile/guide-about-form";
+import { GuideProfileChecklist } from "@/features/guide/components/profile/guide-profile-checklist";
+import type { ChecklistStep } from "@/features/guide/components/profile/guide-profile-checklist-types";
 import { LegalInformationForm } from "@/features/profile/components/LegalInformationForm";
 import {
   LicenseManager,
@@ -235,32 +237,70 @@ export default async function GuideProfilePage() {
     console.error("[GuideProfilePage] data fetch failed:", err);
   }
 
+  const avatarDone = avatarUrl != null;
+  const aboutDone =
+    (profile?.bio ?? "").trim().length > 0 &&
+    (profile?.specializations?.length ?? 0) > 0;
+  const legalDone = Boolean(
+    legalInitialData.legalStatus &&
+      legalInitialData.inn &&
+      legalInitialData.documentCountry,
+  );
+  const licenseDone = licenses.length > 0;
+  const verificationDone = verificationStatus !== "draft";
+
+  const lockedStatus: ChecklistStep["status"] = isVerifiedDataLocked
+    ? "locked"
+    : "todo";
+
+  const steps: ChecklistStep[] = [
+    {
+      id: "avatar",
+      label: "Аватар",
+      anchor: "avatar",
+      status: avatarDone ? "done" : "todo",
+    },
+    {
+      id: "about",
+      label: "О себе",
+      anchor: "about",
+      status: aboutDone ? "done" : lockedStatus,
+    },
+    {
+      id: "legal",
+      label: "Юр. данные",
+      anchor: "legal",
+      status: legalDone ? "done" : lockedStatus,
+    },
+    {
+      id: "license",
+      label: "Лицензия",
+      anchor: "license",
+      status: licenseDone ? "done" : lockedStatus,
+    },
+    {
+      id: "verification",
+      label: "Верификация",
+      anchor: "verification",
+      status: verificationDone ? "done" : "todo",
+    },
+  ];
+  const firstIncompleteStep = steps.find((step) => step.status !== "done") ?? null;
+
   return (
     <div className="space-y-10">
       <header className="space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Профиль гида</h1>
         <p className="text-sm text-muted-foreground">
-          Заполните разделы ниже — переходы ведут к блокам анкеты.
+          Заполните разделы ниже — мы подскажем следующий шаг.
         </p>
       </header>
 
-      <nav aria-label="Разделы профиля" className="flex flex-wrap gap-2">
-        {[
-          ["#avatar", "Фото"],
-          ["#about", "О себе"],
-          ["#legal", "Юридические данные"],
-          ["#license", "Квалификация"],
-          ["#verification", "Верификация"],
-        ].map(([href, label]) => (
-          <a
-            key={href}
-            href={href}
-            className="inline-flex h-9 items-center rounded-md border border-border/70 bg-background px-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-          >
-            {label}
-          </a>
-        ))}
-      </nav>
+      <GuideProfileChecklist
+        steps={steps}
+        firstIncompleteStep={firstIncompleteStep}
+        verificationStatus={verificationStatus}
+      />
 
       <GuideProfileSectionBoundary id="avatar" title="Фото">
         {() => <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />}

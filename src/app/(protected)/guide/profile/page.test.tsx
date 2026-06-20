@@ -146,7 +146,9 @@ describe("GuideProfilePage", () => {
       screen.getByRole("heading", { level: 1, name: "Профиль гида" }),
     ).toBeInTheDocument();
     expect(screen.getByLabelText("О себе")).toBeInTheDocument();
-    expect(screen.getByLabelText("Разделы профиля")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Готовность профиля" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByRole("heading", { name: "Документ о квалификации" }),
     ).toBeInTheDocument();
@@ -168,7 +170,6 @@ describe("GuideProfilePage", () => {
     const ui = await GuideProfilePage();
     render(ui);
 
-    expect(screen.getByRole("link", { name: "Квалификация" })).toHaveAttribute("href", "#license");
     expect(
       screen.getAllByRole("heading", { name: /^Документ о квалификации$/ }),
     ).toHaveLength(1);
