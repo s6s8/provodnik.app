@@ -13,6 +13,7 @@ describe("MonthlyCalendar", () => {
   it("requires an explicit listing selection before opening the day panel", () => {
     render(
       <MonthlyCalendar
+        todayStr="2026-01-15"
         schedules={[]}
         extras={[]}
         departures={[]}

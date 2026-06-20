@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { kopecksToRub } from "@/data/money";
 import { formatTimeRange } from "@/lib/dates";
 import type {
   ListingScheduleExtraRow,
@@ -34,7 +35,7 @@ function jsDayToDbWeekday(date: Date): number {
 }
 
 function formatRub(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(minor / 100));
+  return new Intl.NumberFormat("ru-RU").format(Math.round(kopecksToRub(minor)));
 }
 
 function departureStatusLabel(status: string): string {
@@ -45,6 +46,7 @@ function departureStatusLabel(status: string): string {
 }
 
 export type WeeklyCalendarProps = {
+  todayStr: string;
   schedules: ListingScheduleRow[];
   extras: ListingScheduleExtraRow[];
   departures: ListingTourDepartureRow[];
@@ -52,6 +54,7 @@ export type WeeklyCalendarProps = {
 };
 
 export function WeeklyCalendar({
+  todayStr,
   schedules,
   extras,
   departures,
@@ -66,10 +69,10 @@ export function WeeklyCalendar({
   }, [listings]);
 
   const anchor = useMemo(() => {
-    const d = new Date();
+    const d = new Date(`${todayStr}T00:00:00`);
     d.setDate(d.getDate() + weekOffset * 7);
     return d;
-  }, [weekOffset]);
+  }, [weekOffset, todayStr]);
 
   const monday = useMemo(() => startOfWeekMonday(anchor), [anchor]);
 

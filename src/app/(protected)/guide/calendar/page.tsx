@@ -33,7 +33,7 @@ function formatDateOnlyLocal(d: Date): string {
 }
 
 function rangeStartDate(range: DateRangePreset): Date {
-  const d = new Date();
+  const d = new Date(`${todayMoscowISODate()}T00:00:00`);
   if (range === "7d") d.setDate(d.getDate() - 7);
   else if (range === "90d") d.setDate(d.getDate() - 90);
   else d.setDate(d.getDate() - 30);
@@ -67,6 +67,8 @@ export default async function GuideCalendarPage({
   const rawRange = resolvedParams.range;
   const range: DateRangePreset =
     rawRange === "7d" || rawRange === "90d" ? rawRange : "30d";
+
+  const todayStr = todayMoscowISODate();
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -110,7 +112,6 @@ export default async function GuideCalendarPage({
 
     const listingIds = listings.map((l) => l.id);
 
-    const todayStr = todayMoscowISODate();
     const [todayYear, todayMonth] = todayStr.split("-").map(Number);
     const twoMonthsOut = new Date(todayYear ?? 0, (todayMonth ?? 1) - 1 + 2, 1);
     const twoMonthsOutStr = formatDateOnlyLocal(twoMonthsOut);
@@ -208,6 +209,7 @@ export default async function GuideCalendarPage({
                 </TabsList>
                 <TabsContent value="week" className="mt-0">
                   <WeeklyCalendar
+                    todayStr={todayStr}
                     schedules={schedules}
                     extras={extras}
                     departures={departures}
@@ -216,6 +218,7 @@ export default async function GuideCalendarPage({
                 </TabsContent>
                 <TabsContent value="month" className="mt-0">
                   <MonthlyCalendar
+                    todayStr={todayStr}
                     schedules={schedules}
                     extras={extras}
                     departures={departures}

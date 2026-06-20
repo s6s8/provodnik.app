@@ -23,6 +23,7 @@ function jsDayToDbWeekday(date: Date): number {
 }
 
 export type MonthlyCalendarProps = {
+  todayStr: string;
   schedules: ListingScheduleRow[];
   extras: ListingScheduleExtraRow[];
   departures: ListingTourDepartureRow[];
@@ -30,6 +31,7 @@ export type MonthlyCalendarProps = {
 };
 
 export function MonthlyCalendar({
+  todayStr,
   schedules,
   extras,
   departures,
@@ -61,12 +63,12 @@ export function MonthlyCalendar({
   }, [listings, selectedListingId]);
 
   const visibleMonth = React.useMemo(() => {
-    const d = new Date();
+    const d = new Date(`${todayStr}T00:00:00`);
     d.setMonth(d.getMonth() + monthOffset);
     d.setDate(1);
     d.setHours(0, 0, 0, 0);
     return d;
-  }, [monthOffset]);
+  }, [monthOffset, todayStr]);
 
   const monthTitle = React.useMemo(
     () =>
