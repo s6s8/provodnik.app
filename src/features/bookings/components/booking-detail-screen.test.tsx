@@ -171,8 +171,9 @@ describe("BookingDetailScreen", () => {
 
     render(<BookingDetailScreen viewerRole="guide" bookingId="booking-1" />);
 
-    expect(await screen.findByText("Операции по бронированию")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Подтвердить" })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Завершить" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Отменить" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Подтвердить" })).not.toBeInTheDocument();
     expect(screen.getByText("Свяжитесь с путешественником")).toBeInTheDocument();
     expect(screen.getByText("Мария")).toBeInTheDocument();
     const phoneLink = screen.getByRole("link", { name: "+79991234567" });
@@ -210,7 +211,7 @@ describe("BookingDetailScreen", () => {
       },
     });
 
-    expect(await screen.findByText("Операции по бронированию")).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: "Завершить" })).toBeInTheDocument();
   });
 
   it("shows not-found only after the fetch resolves without a booking", async () => {
