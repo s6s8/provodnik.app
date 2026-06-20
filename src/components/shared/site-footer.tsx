@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
 
 import { footerNav, type NavItem } from "@/lib/navigation";
 
@@ -13,54 +12,10 @@ const socialLinks = [
   { href: "https://t.me/provodnik_help", label: "Telegram", icon: TG_ICON },
 ] as const;
 
-const faqItems = [
-  {
-    q: "Могу ли я присоединиться к чужой группе?",
-    a: "Да. Выберите тип Сборная группа при создании запроса — или загляните в центр запросов и присоединяйтесь к чужому, если он подходит по датам и интересам.",
-  },
-  {
-    q: "Как долго ждать предложения?",
-    a: "Зависит от направления и сезона. Активные гиды обычно откликаются в течение нескольких часов или дня.",
-  },
-  {
-    q: "Что если гид не ответит?",
-    a: "Вы видите все предложения вместе — можно выбрать любое или отменить запрос в любой момент. Обязательств до принятия предложения нет.",
-  },
-  {
-    q: "Можно ли оплатить как юрлицо: счёт, договор, безналичная оплата, акт?",
-    a: "Корпоративные заявки оформляем индивидуально через поддержку: счёт на юрлицо, договор, безналичная оплата с расчётного счёта и закрывающие документы (акт, УПД) выставляет гид напрямую. Подробности — на странице «Для бизнеса» или напишите на support@provodnik.app с темой «Корпоративная заявка».",
-  },
-] as const;
-
 export function SiteFooter() {
   return (
     <footer className="bg-footer-bg pb-8 pt-14" role="contentinfo">
       <div className="mx-auto max-w-page px-[clamp(20px,4vw,48px)]">
-        <section aria-label="Частые вопросы" className="mb-10 border-b border-primary-foreground/10 pb-10">
-          <p className="mb-5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-primary-foreground/70">
-            Частые вопросы
-          </p>
-          <div className="flex flex-col gap-2">
-            {faqItems.map((item) => (
-              <details
-                key={item.q}
-                className="group rounded-md border border-primary-foreground/10 bg-primary-foreground/[0.02] px-4 py-3 transition-colors hover:bg-primary-foreground/[0.04]"
-              >
-                <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-primary-foreground/80 [&::-webkit-details-marker]:hidden">
-                  <span>{item.q}</span>
-                  <ChevronDown
-                    className="size-4 shrink-0 text-primary-foreground/40 transition-transform duration-150 group-open:rotate-180"
-                    aria-hidden="true"
-                  />
-                </summary>
-                <p className="mt-3 text-sm leading-relaxed text-primary-foreground/60">
-                  {item.a}
-                </p>
-              </details>
-            ))}
-          </div>
-        </section>
-
         <div className="mb-7 grid grid-cols-1 gap-7 pb-14 md:grid-cols-2 lg:grid-cols-3 lg:gap-10">
           <nav aria-label="О проекте">
             <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-primary-foreground/70">
