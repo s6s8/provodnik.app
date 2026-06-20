@@ -81,7 +81,7 @@ export default async function BookingsPage({
   function resolveName(id: string | null) {
     if (!id) return "—";
     const name = nameById.get(id)?.trim();
-    return name && name.length > 0 ? name : id.slice(0, 8);
+    return name && name.length > 0 ? name : id.slice(-8);
   }
 
   return (
@@ -138,7 +138,7 @@ export default async function BookingsPage({
             return (
               <ListRow
                 key={booking.id}
-                title={`#${booking.id.slice(0, 8)}`}
+                title={`#${booking.id.slice(-8)}`}
                 subtitle={
                   <>
                     <span className="block truncate">
