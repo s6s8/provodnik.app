@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Star } from "lucide-react";
 
 interface TourCardProps {
   href: string;
@@ -44,9 +45,15 @@ export function TourCard({
         <h3 className="font-display text-[2rem] font-semibold leading-[1.02]">{title}</h3>
 
         <div className="mt-3 grid gap-1.5 text-sm text-primary-foreground/80">
-          <span>
+          <span className="inline-flex items-center gap-1">
             {guide}
-            {rating !== undefined && rating > 0 ? ` · ${rating} ★` : null}
+            {rating !== undefined && rating > 0 ? (
+              <>
+                ·
+                <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                {rating}
+              </>
+            ) : null}
           </span>
         </div>
 

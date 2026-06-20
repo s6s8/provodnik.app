@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { CalendarDays, Clock, Users, Wallet } from "lucide-react";
+import { CalendarDays, Clock, Star, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { BADGE_CLASS } from "@/lib/styles";
@@ -324,7 +324,7 @@ function TripCardContent({
         )}
       {phase === "completed" &&
         (trip.hasReview ? (
-          <p>Ваш отзыв · ★ {trip.reviewRating}</p>
+          <p className="inline-flex items-center gap-1">Ваш отзыв · <Star className="size-3.5 fill-amber-400 text-amber-400" /> {trip.reviewRating}</p>
         ) : (
           <span className="text-sm font-medium text-primary">Оставить отзыв</span>
         ))}
