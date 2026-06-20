@@ -1,10 +1,13 @@
 "use client";
 
 import * as React from "react";
+import { useTransition } from "react";
 import Link from "next/link";
 import { ArrowLeft, CheckCircle2, Star } from "lucide-react";
 
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +33,7 @@ export function TravelerBookingReviewScreen({
   errorMessage?: string | null;
 }) {
   const [rating, setRating] = React.useState<1 | 2 | 3 | 4 | 5>(5);
+  const [isPending, startTransition] = useTransition();
 
   return (
     <div className="space-y-6">
@@ -40,24 +44,17 @@ export function TravelerBookingReviewScreen({
         </Link>
       </Button>
 
-      <div className="space-y-2">
-        <p className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Кабинет путешественника</p>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Оставить отзыв
-        </h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Короткий и конкретный отзыв помогает другим путешественникам выбрать
-          поездку и лучше понимать, чего ожидать.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Кабинет путешественника"
+        title="Оставить отзыв"
+        subtitle="Короткий и конкретный отзыв помогает другим путешественникам выбрать поездку и лучше понимать, чего ожидать."
+      />
 
       {errorMessage ? (
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Не удалось отправить отзыв</CardTitle>
-            <p className="text-sm text-muted-foreground">{errorMessage}</p>
-          </CardHeader>
-        </Card>
+        <Alert variant="destructive">
+          <AlertTitle>Не удалось отправить отзыв</AlertTitle>
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       ) : null}
 
       <Card className="border-border/70 bg-card/90">
@@ -103,60 +100,82 @@ export function TravelerBookingReviewScreen({
           </p>
         </CardHeader>
         <CardContent>
-          <form action={action} className="grid gap-5">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const fd = new FormData(e.currentTarget);
+              startTransition(() => {
+                void action(fd);
+              });
+            }}
+            className="grid gap-5"
+          >
             <input type="hidden" name="rating" value={rating} />
 
             <div className="grid gap-2">
-              <p className="text-sm font-medium text-foreground">Оценка</p>
-              <div className="flex flex-wrap gap-2">
-                {([1, 2, 3, 4, 5] as const).map((value) => {
-                  const active = rating === value;
-                  return (
-                    <Button
-                      key={value}
-                      type="button"
-                      variant={active ? "default" : "secondary"}
-                      className="gap-2"
-                      onClick={() => setRating(value)}
-                      aria-pressed={active}
-                    >
-                      <Star className={active ? "size-4 fill-current" : "size-4"} />
-                      {value}
-                    </Button>
-                  );
-                })}
+              <p className="text-sm font-medium text-foreground">
+                Оценка <span className="text-destructive">*</span>
+              </p>
+              <div role="radiogroup" aria-label="Оценка" className="flex flex-wrap gap-1">
+                {([1, 2, 3, 4, 5] as const).map((value) => (
+                  <button
+                    key={value}
+                    type="button"
+                    role="radio"
+                    aria-checked={rating === value}
+                    aria-label={`${value} звезд`}
+                    onClick={() => setRating(value)}
+                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-colors hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Star
+                      className={
+                        value <= rating
+                          ? "size-7 fill-amber-400 text-amber-400"
+                          : "size-7 text-muted-foreground/40"
+                      }
+                    />
+                  </button>
+                ))}
               </div>
             </div>
 
-            <div className="grid gap-2">
-              <label htmlFor="title" className="text-sm font-medium text-foreground">
-                Заголовок
-              </label>
-              <Input
-                id="title"
-                name="title"
-                maxLength={100}
-                placeholder="Например: спокойный темп и хорошая организация"
-              />
-            </div>
+            <div className="grid gap-4 border-t border-border/40 pt-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                Необязательно
+              </p>
 
-            <div className="grid gap-2">
-              <label htmlFor="body" className="text-sm font-medium text-foreground">
-                Отзыв
-              </label>
-              <Textarea
-                id="body"
-                name="body"
-                maxLength={2000}
-                placeholder="Расскажите, что особенно понравилось и что можно улучшить."
-              />
+              <div className="grid gap-2">
+                <label htmlFor="title" className="text-sm text-muted-foreground">
+                  Заголовок
+                </label>
+                <Input
+                  id="title"
+                  name="title"
+                  maxLength={100}
+                  placeholder="Например: спокойный темп и хорошая организация"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <label htmlFor="body" className="text-sm text-muted-foreground">
+                  Отзыв
+                </label>
+                <Textarea
+                  id="body"
+                  name="body"
+                  maxLength={2000}
+                  placeholder="Расскажите, что особенно понравилось и что можно улучшить."
+                />
+              </div>
             </div>
 
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <p className="text-xs text-muted-foreground">
                 Отзыв отправится только после проверки права на публикацию.
               </p>
-              <Button type="submit">Отправить отзыв</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Отправляю..." : "Отправить отзыв"}
+              </Button>
             </div>
           </form>
         </CardContent>
@@ -164,4 +183,3 @@ export function TravelerBookingReviewScreen({
     </div>
   );
 }
-
