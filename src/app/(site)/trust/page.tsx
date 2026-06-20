@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/page-header";
 
 export function generateMetadata(): Metadata {
   return {
@@ -15,18 +15,15 @@ export function generateMetadata(): Metadata {
 
 export default function TrustPage() {
   return (
-    <div className="pt-[110px] pb-20 bg-surface">
-      <div className="mx-auto w-full max-w-[760px] px-[clamp(28px,5vw,56px)]">
-        <div className="space-y-10">
-      <div className="space-y-3">
-        <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
-          Правила сервиса
-        </Badge>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Доверие к бронированию — до оплаты, во время поездки и после неё
-          </h1>
-          <p className="max-w-prose text-sm text-muted-foreground">
+    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+      <div className="space-y-10">
+        <div>
+          <PageHeader
+            eyebrow="Правила сервиса"
+            title="Доверие к бронированию — до оплаты, во время поездки и после неё"
+            className="mb-10"
+          />
+          <p className="mt-2 max-w-[60ch] text-[15px] leading-[1.5] text-on-surface-muted">
             Provodnik — маркетплейс экскурсий по России с бронированием по запросу.
             Описанные ниже принципы определяют, как сервис защищает
             договорённости между путешественником и гидом. Полные условия
@@ -37,87 +34,91 @@ export default function TrustPage() {
             .
           </p>
         </div>
-      </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Card className="border-border/70 bg-card/80">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-base">Что видит путешественник</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <ul className="grid gap-2">
+                <li>
+                  До подтверждения брони вы видите программу по шагам: длительность,
+                  точки маршрута, что включено в стоимость и где могут появиться
+                  дополнительные расходы.
+                </li>
+                <li>
+                  Цена и условия поездки фиксируются письменно в чате с гидом.
+                </li>
+                <li>
+                  Договорённости видны обеим сторонам и таймстемпуются — это та
+                  «правда», на которую опирается платформа при разногласиях.
+                </li>
+                <li>
+                  Никаких &laquo;подмен&raquo; без согласия: если меняется гид или формат
+                  экскурсии, вы можете согласиться на изменение или отказаться.
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border/70 bg-card/80">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-base">Что получает гид</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3 text-sm text-muted-foreground">
+              <ul className="grid gap-2">
+                <li>
+                  Заявки приходят с контекстом: даты, размер группы, бюджет и пожелания,
+                  чтобы можно было быстро предложить реалистичный маршрут.
+                </li>
+                <li>
+                  Условия — даты, цена, маршрут — фиксируются письменно в чате с
+                  путешественником, без устных договорённостей задним числом.
+                </li>
+                <li>
+                  То, что не зафиксировано в переписке, в спорах не учитывается.
+                </li>
+                <li>
+                  Споры рассматриваются по фактам: опираемся на письменные подтверждения,
+                  таймстемпы и историю действий по конкретной экскурсии.
+                </li>
+              </ul>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card className="border-border/70 bg-card/80">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Что видит путешественник</CardTitle>
+            <CardTitle className="text-base">Границы ответственности</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-4 text-sm text-muted-foreground">
             <ul className="grid gap-2">
               <li>
-                До подтверждения брони вы видите программу по шагам: длительность,
-                точки маршрута, что включено в стоимость и где могут появиться
-                дополнительные расходы.
+                Provodnik не заменяет визу, страховку, соблюдение миграционных правил и
+                требований безопасности — за это всегда отвечает путешественник.
               </li>
               <li>
-                Цена и условия поездки фиксируются письменно в чате с гидом.
-                Договорённости видны обеим сторонам и таймстемпуются — это та
-                «правда», на которую опирается платформа при разногласиях.
+                Погода, инфраструктура и форс‑мажор могут влиять на маршрут.
               </li>
               <li>
-                Никаких &laquo;подмен&raquo; без согласия: если меняется гид или формат
-                экскурсии, вы можете согласиться на изменение или отказаться.
+                Гиды стараются предлагать разумные альтернативы и корректировки по договорённости.
+              </li>
+              <li>
+                При расхождении ожиданий с реальностью основным источником правды считается
+                письменное подтверждение бронирования.
               </li>
             </ul>
+            <p className="text-xs text-muted-foreground">Последнее обновление: март 2026.</p>
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Что получает гид</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
-              <li>
-                Заявки приходят с контекстом: даты, размер группы, бюджет и пожелания,
-                чтобы можно было быстро предложить реалистичный маршрут.
-              </li>
-              <li>
-                Условия — даты, цена, маршрут — фиксируются письменно в чате с
-                путешественником, без устных договорённостей задним числом. То,
-                что не зафиксировано в переписке, в спорах не учитывается.
-              </li>
-              <li>
-                Споры рассматриваются по фактам: опираемся на письменные подтверждения,
-                таймстемпы и историю действий по конкретной экскурсии.
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
+        <div className="mt-10">
+          <Button asChild size="lg">
+            <Link href="/listings">Смотреть экскурсии</Link>
+          </Button>
+        </div>
       </div>
-
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">Границы ответственности</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4 text-sm text-muted-foreground">
-          <ul className="grid gap-2">
-            <li>
-              Provodnik не заменяет визу, страховку, соблюдение миграционных правил и
-              требований безопасности — за это всегда отвечает путешественник.
-            </li>
-            <li>
-              Погода, инфраструктура и форс‑мажор могут влиять на маршрут. Гиды стараются
-              предлагать разумные альтернативы и корректировки по договорённости.
-            </li>
-            <li>
-              При расхождении ожиданий с реальностью основным источником правды считается
-              письменное подтверждение бронирования.
-            </li>
-          </ul>
-          <p className="text-xs text-muted-foreground">Последнее обновление: март 2026.</p>
-        </CardContent>
-      </Card>
-
-      <div className="flex flex-wrap gap-3">
-        <Button asChild size="sm">
-          <Link href="/listings">Смотреть экскурсии</Link>
-        </Button>
-      </div>
-    </div>
-    </div>
-    </div>
+    </article>
   );
 }
