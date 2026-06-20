@@ -1,3 +1,5 @@
+import { Star } from "lucide-react";
+
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ReplyComposer } from "@/features/reviews/components/ReplyComposer";
@@ -24,10 +26,18 @@ export type ReviewCardProps = {
   showReplyComposer?: boolean;
 };
 
-function Stars({ n }: { n: number }) {
+function StarRow({ n, size = "size-4" }: { n: number; size?: string }) {
   const clamped = Math.min(5, Math.max(0, Math.round(n)));
   return (
-    <span>{Array.from({ length: 5 }, (_, i) => (i < clamped ? "★" : "☆")).join("")}</span>
+    <span className="inline-flex items-center gap-0.5" role="img" aria-label={`${clamped} из 5`}>
+      {Array.from({ length: 5 }, (_, i) =>
+        i < clamped ? (
+          <Star key={i} className={`${size} fill-gold text-gold`} aria-hidden="true" />
+        ) : (
+          <Star key={i} className={`${size} text-muted-foreground/40`} aria-hidden="true" />
+        ),
+      )}
+    </span>
   );
 }
 
@@ -46,8 +56,8 @@ export function ReviewCard({
     <Card className="border-border/70">
       <CardHeader className="space-y-2 pb-2">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <div className="text-lg text-foreground">
-            <Stars n={review.rating} />
+          <div className="text-foreground">
+            <StarRow n={review.rating} />
           </div>
           <time className="text-sm text-muted-foreground" dateTime={review.created_at}>
             {new Date(review.created_at).toLocaleDateString("ru-RU")}
@@ -65,7 +75,7 @@ export function ReviewCard({
           {AXIS_ORDER.map((axis) => (
             <div key={axis} className="flex flex-wrap items-center gap-2">
               <span className="text-muted-foreground">{AXIS_LABELS[axis]}:</span>
-              <Stars n={byAxis.get(axis) ?? 0} />
+              <StarRow n={byAxis.get(axis) ?? 0} size="size-3" />
             </div>
           ))}
         </div>
