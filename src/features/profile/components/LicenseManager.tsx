@@ -1,12 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import { deleteLicense } from "@/features/profile/actions/licenseActions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 
 export type GuideLicenseView = {
   id: string;
@@ -31,15 +33,24 @@ type Props = {
 export function LicenseManager({ licenses, isLocked = false }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const { confirm, ConfirmDialog } = useConfirm();
 
-  function handleDelete(id: string) {
-    if (!window.confirm("Удалить этот документ?")) return;
+  async function handleDelete(id: string) {
+    const ok = await confirm({
+      title: "Удалить лицензию?",
+      description: "Это действие нельзя отменить.",
+      confirmText: "Удалить",
+      destructive: true,
+    });
+    if (!ok) return;
+    setDeleteError(null);
     startTransition(async () => {
       try {
         await deleteLicense(id);
         router.refresh();
       } catch (e) {
-        window.alert(e instanceof Error ? e.message : "Ошибка удаления");
+        setDeleteError(e instanceof Error ? e.message : "Ошибка при удалении");
       }
     });
   }
@@ -53,8 +64,14 @@ export function LicenseManager({ licenses, isLocked = false }: Props) {
   }
 
   return (
-    <ul className="space-y-4">
-      {licenses.map((lic) => (
+    <div className="space-y-4">
+      {deleteError ? (
+        <Alert variant="destructive">
+          <AlertDescription>{deleteError}</AlertDescription>
+        </Alert>
+      ) : null}
+      <ul className="space-y-4">
+        {licenses.map((lic) => (
         <li key={lic.id}>
           <Card className="border-border/80">
             <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-2">
@@ -72,7 +89,9 @@ export function LicenseManager({ licenses, isLocked = false }: Props) {
                 variant="destructive"
                 size="sm"
                 disabled={pending || isLocked}
-                onClick={() => handleDelete(lic.id)}
+                onClick={() => {
+                  void handleDelete(lic.id);
+                }}
               >
                 Удалить
               </Button>
@@ -95,7 +114,9 @@ export function LicenseManager({ licenses, isLocked = false }: Props) {
             </CardContent>
           </Card>
         </li>
-      ))}
-    </ul>
+        ))}
+      </ul>
+      {ConfirmDialog}
+    </div>
   );
 }
