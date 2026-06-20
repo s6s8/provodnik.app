@@ -206,7 +206,7 @@ describe("ReferralsPage", () => {
 
     expect(screen.getByText("Referral code")).toBeInTheDocument();
     expect(screen.getByText("Bonus ledger")).toBeInTheDocument();
-    expect(screen.getByText("Партнёрский кабинет")).toBeInTheDocument();
+    expect(screen.getByText("Партнёрский API")).toBeInTheDocument();
     expect(screen.getByText("API token manager")).toBeInTheDocument();
     expect(screen.getByText("Payouts ledger")).toBeInTheDocument();
     expect(apiTokenManagerMock).toHaveBeenCalledWith({
