@@ -314,13 +314,13 @@ describe("TripCard", () => {
     expect(screen.getByText("Оставить отзыв")).toBeInTheDocument();
   });
 
-  it("shows «Ваш отзыв · ★ N» for completed with review", () => {
+  it("shows «Ваш отзыв» with rating for completed with review", () => {
     render(
       <TripCard
         phase="completed"
         trip={{ ...baseTrip, hasReview: true, reviewRating: 5 }}
       />,
     );
-    expect(screen.getByText("Ваш отзыв · ★ 5")).toBeInTheDocument();
+    expect(screen.getByText("Ваш отзыв · 5")).toBeInTheDocument();
   });
 });

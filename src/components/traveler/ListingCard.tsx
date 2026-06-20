@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -93,8 +94,8 @@ export function ListingCard({ listing }: Props) {
             ) : null}
           </div>
           {listing.average_rating > 0 ? (
-            <p className="text-sm text-muted-foreground">
-              ★ {listing.average_rating.toFixed(1)}
+            <p className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+              <Star className="size-3.5 fill-amber-400 text-amber-400" /> {listing.average_rating.toFixed(1)}
             </p>
           ) : null}
         </CardContent>

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -61,8 +62,8 @@ export function PublicGuideCard({
             {guide.name}
           </span>
           {hasRating ? (
-            <span className="text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
-              ★ {ratingLabel}
+            <span className="inline-flex items-center gap-1 text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
+              <Star className="size-3.5 fill-amber-400 text-amber-400" /> {ratingLabel}
             </span>
           ) : null}
           {hasTours ? (

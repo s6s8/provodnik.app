@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Star } from "lucide-react";
 
 import type { ListingRecord } from "@/data/supabase/queries";
-import { arrowizeRoute } from "@/lib/utils";
+import { arrowizeRoute, pluralize } from "@/lib/utils";
 
 function getFormatLabel(format: string): string {
   if (format === "private") return "Индивидуальный";
@@ -64,8 +65,8 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
           <div className="space-y-0.5">
             <p className="text-sm font-medium text-primary-foreground/90">{listing.guideName}</p>
             {listing.rating > 0 ? (
-              <p className="text-xs text-primary-foreground/70">
-                ★ {listing.rating.toFixed(1)} · {listing.reviewCount} отзывов
+              <p className="inline-flex items-center gap-1 text-xs text-primary-foreground/70">
+                <Star className="size-3.5 fill-amber-400 text-amber-400" /> {listing.rating.toFixed(1)} · {listing.reviewCount} {pluralize(listing.reviewCount, "отзыв", "отзыва", "отзывов")}
               </p>
             ) : null}
           </div>
