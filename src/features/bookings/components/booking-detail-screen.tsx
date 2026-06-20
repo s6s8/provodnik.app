@@ -215,7 +215,18 @@ function TravelerBookingDetailView({
           primaryCTA = messageGuideButton(true);
           secondaryActions = [ticketButton];
         } else {
-          // The review form below is the primary surface for this state.
+          primaryCTA = (
+            <Button
+              type="button"
+              onClick={() =>
+                document
+                  .getElementById("review-form")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" })
+              }
+            >
+              Оставить отзыв
+            </Button>
+          );
           secondaryActions = [messageGuideButton(false), ticketButton, disputeButton];
         }
         break;
@@ -395,12 +406,14 @@ function TravelerBookingDetailView({
               ) : null}
 
               {showReviewForm ? (
-                <FourAxisReviewForm
-                  bookingId={booking.id}
-                  guideId={booking.guide_id}
-                  listingId={booking.listing_id ?? ""}
-                  listingTitle={resolvedListingTitle}
-                />
+                <div id="review-form">
+                  <FourAxisReviewForm
+                    bookingId={booking.id}
+                    guideId={booking.guide_id}
+                    listingId={booking.listing_id ?? ""}
+                    listingTitle={resolvedListingTitle}
+                  />
+                </div>
               ) : null}
 
               <SupportSidebar bookingId={booking.id} />
