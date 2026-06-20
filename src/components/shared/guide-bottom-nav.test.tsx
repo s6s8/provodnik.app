@@ -8,11 +8,11 @@ vi.mock("next/navigation", () => ({
 import { GuideBottomNav } from "./guide-bottom-nav";
 
 describe("GuideBottomNav", () => {
-  it("renders Запросы, Экскурсии, Подтверждённые and Отзывы nav items", () => {
+  it("renders Запросы, Экскурсии, Заказы and Отзывы nav items", () => {
     render(<GuideBottomNav />);
     expect(screen.getByRole("link", { name: "Запросы" })).toBeDefined();
     expect(screen.getByRole("link", { name: "Экскурсии" })).toBeDefined();
-    expect(screen.getByRole("link", { name: "Подтверждённые" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Заказы" })).toBeDefined();
     expect(screen.getByRole("link", { name: "Отзывы" })).toHaveAttribute("href", "/guide/reviews");
   });
 });

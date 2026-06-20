@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { BarChart3, CalendarCheck, ClipboardList, Flag, ScrollText, ShieldCheck, UserCheck } from "lucide-react";
-
+import { adminNav, isNavActive, type NavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type AdminNavCounts = {
@@ -12,76 +11,25 @@ type AdminNavCounts = {
   listings: number;
 };
 
-const adminNavItems = [
-  {
-    href: "/admin/dashboard",
-    label: "Обзор",
-    mobileLabel: "Обзор",
-    icon: BarChart3,
-    countKey: null,
-  },
-  {
-    href: "/admin/guides",
-    label: "Гиды",
-    mobileLabel: "Гиды",
-    icon: UserCheck,
-    countKey: "guides",
-  },
-  {
-    href: "/admin/listings",
-    label: "Листинги",
-    mobileLabel: "Листинги",
-    icon: ClipboardList,
-    countKey: "listings",
-  },
-  {
-    href: "/admin/moderation",
-    label: "Модерация",
-    mobileLabel: "Модерация",
-    icon: ShieldCheck,
-    countKey: null,
-  },
-  {
-    href: "/admin/disputes",
-    label: "Споры",
-    mobileLabel: "Споры",
-    icon: Flag,
-    countKey: null,
-  },
-  {
-    href: "/admin/bookings",
-    label: "Бронирования",
-    mobileLabel: "Брони",
-    icon: CalendarCheck,
-    countKey: null,
-  },
-  {
-    href: "/admin/audit",
-    label: "Аудит",
-    mobileLabel: "Аудит",
-    icon: ScrollText,
-    countKey: null,
-  },
-] as const;
-
-function isActivePath(pathname: string, href: string) {
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
+const countKeyByHref: Record<string, keyof AdminNavCounts> = {
+  "/admin/guides": "guides",
+  "/admin/listings": "listings",
+};
 
 function NavLink({
-  href,
-  label,
-  mobileLabel,
-  icon: Icon,
+  item,
   count,
   active,
-}: (typeof adminNavItems)[number] & {
+}: {
+  item: NavItem;
   active: boolean;
   count?: number;
 }) {
+  const Icon = item.icon;
+
   return (
     <Link
-      href={href}
+      href={item.href}
       aria-current={active ? "page" : undefined}
       className={cn(
         "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors",
@@ -91,8 +39,8 @@ function NavLink({
       )}
     >
       <Icon className="size-[18px] shrink-0" strokeWidth={1.8} />
-      <span className="hidden min-w-0 lg:block">{label}</span>
-      <span className="min-w-0 lg:hidden">{mobileLabel}</span>
+      <span className="hidden min-w-0 lg:block">{item.label}</span>
+      <span className="min-w-0 lg:hidden">{item.shortLabel ?? item.label}</span>
       {typeof count === "number" && count > 0 ? (
         <span className="ml-auto inline-flex min-w-6 items-center justify-center rounded-full bg-brand-light px-2 py-0.5 text-xs font-semibold text-brand">
           {count}
@@ -111,14 +59,17 @@ export function AdminSidebarNav({
 
   return (
     <nav className="space-y-2" aria-label="Admin workspace">
-      {adminNavItems.map((item) => (
-        <NavLink
-          key={item.href}
-          {...item}
-          count={item.countKey ? counts?.[item.countKey] : undefined}
-          active={isActivePath(pathname, item.href)}
-        />
-      ))}
+      {adminNav.map((item: NavItem) => {
+        const countKey = countKeyByHref[item.href];
+        return (
+          <NavLink
+            key={item.href}
+            item={item}
+            count={countKey ? counts?.[countKey] : undefined}
+            active={isNavActive(pathname, item)}
+          />
+        );
+      })}
     </nav>
   );
 }
@@ -135,10 +86,11 @@ export function AdminMobileTabs({
       className="fixed inset-x-3 bottom-3 z-[110] grid grid-cols-7 rounded-[1.5rem] border border-glass-border bg-nav-glass-bg p-1.5 shadow-glass backdrop-blur md:hidden"
       aria-label="Admin workspace mobile"
     >
-      {adminNavItems.map((item) => {
+      {adminNav.map((item: NavItem) => {
         const Icon = item.icon;
-        const active = isActivePath(pathname, item.href);
-        const count = item.countKey ? counts?.[item.countKey] : undefined;
+        const active = isNavActive(pathname, item);
+        const countKey = countKeyByHref[item.href];
+        const count = countKey ? counts?.[countKey] : undefined;
 
         return (
           <Link
@@ -153,7 +105,7 @@ export function AdminMobileTabs({
             )}
           >
             <Icon className="size-4" strokeWidth={1.9} />
-            <span className="truncate">{item.mobileLabel}</span>
+            <span className="truncate">{item.shortLabel ?? item.label}</span>
             {typeof count === "number" && count > 0 ? (
               <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-brand-light px-1.5 py-0.5 text-[10px] font-semibold text-brand">
                 {count}

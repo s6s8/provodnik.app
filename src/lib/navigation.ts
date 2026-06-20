@@ -72,7 +72,7 @@ export const footerNav = {
   about:   [ROUTES.howItWorks, ROUTES.trust, ROUTES.becomeGuide, ROUTES.forBusiness],
   support: [ROUTES.help,
             { href: "https://t.me/provodnik_help", label: "Telegram-поддержка", icon: MessageSquare, external: true } as NavItem,
-            { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app", icon: MessageSquare, external: true } as NavItem],
+            { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app", icon: MessageSquare } as NavItem],
   legal:   [
     { href: "/policies/terms",   label: "Условия использования", icon: ScrollText } as NavItem,
     { href: "/policies/privacy", label: "Конфиденциальность",    icon: ScrollText } as NavItem,
@@ -81,6 +81,8 @@ export const footerNav = {
 } as const;
 
 export function isNavActive(pathname: string, item: NavItem): boolean {
-  if (pathname === item.href || pathname.startsWith(`${item.href}/`)) return true;
-  return item.activePrefixes?.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ?? false;
+  if (item.activePrefixes) {
+    return pathname === item.href || item.activePrefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  }
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }

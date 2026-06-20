@@ -2,16 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BookCheck, ClipboardList, FileText, Star } from "lucide-react";
 
+import { guideBottomNav, isNavActive, type NavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-
-const items = [
-  { href: "/guide", label: "Запросы", Icon: FileText },
-  { href: "/guide/listings", label: "Экскурсии", Icon: ClipboardList },
-  { href: "/guide/bookings", label: "Подтверждённые", Icon: BookCheck },
-  { href: "/guide/reviews", label: "Отзывы", Icon: Star },
-] as const;
 
 export function GuideBottomNav() {
   const pathname = usePathname();
@@ -22,23 +15,16 @@ export function GuideBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="h-16 grid grid-cols-4">
-        {items.map((item) => {
-          let isActive: boolean;
-          if (item.href === "/guide") {
-            isActive =
-              pathname === "/guide" ||
-              pathname.startsWith("/guide/inbox");
-          } else {
-            isActive =
-              pathname === item.href ||
-              pathname.startsWith(`${item.href}/`);
-          }
+        {guideBottomNav.map((item: NavItem) => {
+          const isActive = isNavActive(pathname, item);
+          const label = item.shortLabel ?? item.label;
+          const Icon = item.icon;
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              aria-label={item.label}
+              aria-label={label}
               aria-current={isActive ? "page" : undefined}
               className={cn(
                 "relative flex flex-col items-center justify-center gap-0.5 min-h-[44px]",
@@ -53,7 +39,7 @@ export function GuideBottomNav() {
               )}
 
               <span className="relative">
-                <item.Icon
+                <Icon
                   size={22}
                   aria-hidden="true"
                   strokeWidth={isActive ? 2.25 : 1.75}
@@ -61,7 +47,7 @@ export function GuideBottomNav() {
               </span>
 
               <span className={cn("text-[11px]", isActive ? "font-bold" : "font-medium")}>
-                {item.label}
+                {label}
               </span>
             </Link>
           );
