@@ -39,7 +39,7 @@ describe("RequestCardFinal", () => {
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
     expect(screen.getByText("5 июля, 11:30")).toBeInTheDocument();
     expect(screen.queryByText(/2\s*\/\s*\d+/)).not.toBeInTheDocument();
-    expect(screen.getByText(/·\s*2\s*чел\./)).toBeInTheDocument();
+    expect(screen.getByText(/·\s*от\s*2\s*чел\./)).toBeInTheDocument();
     const price = screen.getByText("6 800 ₽ / чел");
     expect(price).toBeInTheDocument();
     expect(price).toHaveClass("shrink-0", "whitespace-nowrap");

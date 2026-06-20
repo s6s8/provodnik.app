@@ -111,9 +111,11 @@ function GroupTypeBadge({
       <span className={className}>
         <Users size={14} className={iconClassName} />
         {label}
-        {groupType === "assembly" && <span className="inline-block leading-none align-middle">≥</span>}
       </span>
-      <span className="text-xs font-medium text-ink-2">· {participantCount} чел.</span>
+      <span className="text-xs font-medium text-ink-2">
+        · {groupType === "assembly" ? "от " : ""}
+        {participantCount} чел.
+      </span>
     </div>
   );
 }
