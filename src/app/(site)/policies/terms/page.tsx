@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function generateMetadata(): Metadata {
@@ -10,6 +10,17 @@ export function generateMetadata(): Metadata {
       "Условия использования Provodnik для путешественников и гидов: правила работы маркетплейса, ограничения, споры и контакты.",
   };
 }
+
+const sections = [
+  { id: "subject", label: "Предмет" },
+  { id: "travelers", label: "Путешественники" },
+  { id: "guides", label: "Гиды" },
+  { id: "prohibited", label: "Запрещено" },
+  { id: "liability", label: "Ответственность" },
+  { id: "disputes", label: "Споры" },
+  { id: "changes", label: "Изменения" },
+  { id: "contacts", label: "Контакты" },
+];
 
 const travelerConditions = [
   "Путешественник обязан указывать достоверные контактные данные, состав группы, пожелания к маршруту и иные сведения, влияющие на исполнение заявки.",
@@ -42,52 +53,58 @@ const disputeSteps = [
 
 export default function TermsPage() {
   return (
-    <div className="space-y-10">
-      <div className="space-y-3">
-        <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
-          Правила сервиса
-        </Badge>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Пользовательское соглашение Provodnik
-          </h1>
-          <p className="max-w-prose text-sm text-muted-foreground">
-            Настоящее соглашение регулирует использование платформы Provodnik
-            пользователями, которые ищут туры и экскурсии по России, а также
-            гидами, размещающими свои предложения на платформе.
-          </p>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Правила сервиса"
+        title="Пользовательское соглашение Provodnik"
+        subtitle="Настоящее соглашение регулирует использование платформы Provodnik пользователями, которые ищут туры и экскурсии по России, а также гидами, размещающими свои предложения на платформе."
+      />
+      <p className="mt-1 text-xs text-on-surface-muted">Обновлено: 10 июня 2025 г.</p>
 
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">1. Предмет соглашения</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Provodnik предоставляет цифровую платформу, на которой
-            путешественники могут публиковать запросы на поездки, находить
-            экскурсии и связываться с гидами, а гиды могут размещать свои
-            предложения, отвечать на запросы и организовывать туры.
-          </p>
-          <p>
-            Платформа обеспечивает интерфейс для публикации информации,
-            обмена сообщениями, оформления бронирований и поддержки спорных
-            ситуаций. Мы не обещаем результат поиска, минимальный объём заказов
-            или постоянную доступность конкретного гида.
-          </p>
-        </CardContent>
-      </Card>
+      <nav
+        aria-label="Разделы"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
+      >
+        {sections.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-border/70 bg-card/80">
+      <div className="space-y-6">
+        <Card id="subject" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">1. Предмет соглашения</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <p>
+              Provodnik предоставляет цифровую платформу, на которой
+              путешественники могут публиковать запросы на поездки, находить
+              экскурсии и связываться с гидами, а гиды могут размещать свои
+              предложения, отвечать на запросы и организовывать туры.
+            </p>
+            <p>
+              Платформа обеспечивает интерфейс для публикации информации,
+              обмена сообщениями, оформления бронирований и поддержки спорных
+              ситуаций. Мы не обещаем результат поиска, минимальный объём заказов
+              или постоянную доступность конкретного гида.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card id="travelers" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               2. Условия использования для путешественников
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
               {travelerConditions.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -95,43 +112,41 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card id="guides" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               3. Условия использования для гидов
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
               {guideConditions.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
           </CardContent>
         </Card>
-      </div>
 
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">4. Запрещённые действия</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <ul className="grid gap-2">
-            {prohibitedActions.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
+        <Card id="prohibited" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">4. Запрещённые действия</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
+              {prohibitedActions.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-border/70 bg-card/80">
+        <Card id="liability" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               5. Ответственность платформы
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
             <p>
               Provodnik является маркетплейсом и информационной платформой, а
               не туроператором, турагентом или перевозчиком. Мы не формируем
@@ -151,58 +166,58 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card id="disputes" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               6. Споры и разрешение конфликтов
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
               {disputeSteps.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
           </CardContent>
         </Card>
+
+        <Card id="changes" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">7. Изменение условий</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <p>
+              Мы вправе обновлять настоящее соглашение по мере развития сервиса,
+              изменения законодательства или бизнес-процессов. Новая редакция
+              вступает в силу с момента публикации на этой странице, если в самой
+              редакции не указан иной срок.
+            </p>
+            <p>
+              Продолжение использования платформы после публикации изменений
+              означает согласие пользователя с новой редакцией условий.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card id="contacts" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">8. Контакты</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <p>
+              По вопросам применения настоящего соглашения, споров, блокировок и
+              правовых уведомлений пишите на{" "}
+              <a
+                href="mailto:support@provodnik.app"
+                className="underline underline-offset-4"
+              >
+                support@provodnik.app
+              </a>
+              .
+            </p>
+          </CardContent>
+        </Card>
       </div>
-
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">7. Изменение условий</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Мы вправе обновлять настоящее соглашение по мере развития сервиса,
-            изменения законодательства или бизнес-процессов. Новая редакция
-            вступает в силу с момента публикации на этой странице, если в самой
-            редакции не указан иной срок.
-          </p>
-          <p>
-            Продолжение использования платформы после публикации изменений
-            означает согласие пользователя с новой редакцией условий.
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">8. Контакты</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            По вопросам применения настоящего соглашения, споров, блокировок и
-            правовых уведомлений пишите на{" "}
-            <a
-              href="mailto:support@provodnik.app"
-              className="underline underline-offset-4"
-            >
-              support@provodnik.app
-            </a>
-            .
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

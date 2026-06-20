@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { Badge } from "@/components/ui/badge";
+import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function generateMetadata(): Metadata {
@@ -10,6 +10,16 @@ export function generateMetadata(): Metadata {
       "Как Provodnik собирает, использует, хранит и удаляет персональные данные пользователей платформы.",
   };
 }
+
+const sections = [
+  { id: "operator", label: "Оператор" },
+  { id: "collected", label: "Какие данные" },
+  { id: "purposes", label: "Цели" },
+  { id: "third-parties", label: "Третьи лица" },
+  { id: "rights", label: "Права" },
+  { id: "cookies", label: "Cookies" },
+  { id: "contacts", label: "Контакты" },
+];
 
 const collectedData = [
   "Данные учётной записи: email, имя, фотография профиля, роль пользователя, сведения о себе и иные данные, которые вы добровольно добавляете в профиль.",
@@ -32,100 +42,103 @@ const userRights = [
 
 export default function PrivacyPage() {
   return (
-    <div className="space-y-10">
-      <div className="space-y-3">
-        <Badge variant="outline" className="rounded-full px-3 py-1 text-xs">
-          Персональные данные
-        </Badge>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Политика конфиденциальности Provodnik
-          </h1>
-          <p className="max-w-prose text-sm text-muted-foreground">
-            Эта политика объясняет, какие данные мы собираем при использовании
-            Provodnik, зачем они нужны, кому передаются и как пользователь может
-            управлять своей информацией.
-          </p>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        eyebrow="Персональные данные"
+        title="Политика конфиденциальности Provodnik"
+        subtitle="Эта политика объясняет, какие данные мы собираем при использовании Provodnik, зачем они нужны, кому передаются и как пользователь может управлять своей информацией."
+      />
+      <p className="mt-1 text-xs text-on-surface-muted">Обновлено: 10 июня 2025 г.</p>
 
-      <Card
-        id="operator"
-        className="border-border/70 bg-card/80 scroll-mt-24"
+      <nav
+        aria-label="Разделы"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
       >
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">
-            Сведения об операторе персональных данных
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Оператором персональных данных в значении ст. 3 Федерального закона
-            от 27.07.2006 № 152-ФЗ «О персональных данных» выступает команда
-            проекта Provodnik (далее — «Оператор», «мы»). Контактный адрес для
-            всех вопросов обработки персональных данных, отзыва согласия и
-            направления обращений субъектов данных:{" "}
-            <a
-              href="mailto:support@provodnik.app"
-              className="underline underline-offset-4"
-            >
-              support@provodnik.app
-            </a>
-            .
-          </p>
-          <p>
-            <span className="font-medium text-foreground">Цели обработки:</span>{" "}
-            организация маркетплейса частных гидов по России, регистрация и
-            авторизация пользователей, оформление запросов и бронирований,
-            поддержка переписки между путешественниками и гидами, рассмотрение
-            обращений и обеспечение безопасности сервиса.
-          </p>
-          <p>
-            <span className="font-medium text-foreground">Правовое основание:</span>{" "}
-            согласие субъекта персональных данных (ст. 6 ч. 1 п. 1 152-ФЗ),
-            исполнение договора с пользователем (ст. 6 ч. 1 п. 5 152-ФЗ) и
-            законные интересы Оператора по обеспечению работы платформы.
-          </p>
-          <p>
-            <span className="font-medium text-foreground">Статус проекта.</span>{" "}
-            Provodnik находится на стадии запуска. До начала приёма
-            платежей на платформе расчёты между путешественником и гидом
-            ведутся напрямую без участия Provodnik. Полные регистрационные
-            сведения оператора (ОГРНИП/ОГРН, ИНН, юридический адрес,
-            наименование ИП или юридического лица, сведения о регистрации в
-            Реестре операторов персональных данных Роскомнадзора) будут
-            опубликованы на этой странице до момента запуска приёма платежей
-            на платформе. Запросы на актуальные регистрационные данные можно
-            направлять на{" "}
-            <a
-              href="mailto:support@provodnik.app"
-              className="underline underline-offset-4"
-            >
-              support@provodnik.app
-            </a>
-            .
-          </p>
-          <p>
-            <span className="font-medium text-foreground">
-              Место обработки данных:
-            </span>{" "}
-            Российская Федерация. Хранение и обработка персональных данных
-            граждан РФ осуществляется с использованием баз данных, размещённых
-            на территории Российской Федерации, в соответствии с требованиями
-            ч. 5 ст. 18 152-ФЗ.
-          </p>
-        </CardContent>
-      </Card>
+        {sections.map((s) => (
+          <a
+            key={s.id}
+            href={`#${s.id}`}
+            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+          >
+            {s.label}
+          </a>
+        ))}
+      </nav>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-border/70 bg-card/80">
+      <div className="space-y-6">
+        <Card id="operator" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">
+              Сведения об операторе персональных данных
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <p>
+              Оператором персональных данных в значении ст. 3 Федерального закона
+              от 27.07.2006 № 152-ФЗ «О персональных данных» выступает команда
+              проекта Provodnik (далее — «Оператор», «мы»). Контактный адрес для
+              всех вопросов обработки персональных данных, отзыва согласия и
+              направления обращений субъектов данных:{" "}
+              <a
+                href="mailto:support@provodnik.app"
+                className="underline underline-offset-4"
+              >
+                support@provodnik.app
+              </a>
+              .
+            </p>
+            <p>
+              <span className="font-medium text-foreground">Цели обработки:</span>{" "}
+              организация маркетплейса частных гидов по России, регистрация и
+              авторизация пользователей, оформление запросов и бронирований,
+              поддержка переписки между путешественниками и гидами, рассмотрение
+              обращений и обеспечение безопасности сервиса.
+            </p>
+            <p>
+              <span className="font-medium text-foreground">Правовое основание:</span>{" "}
+              согласие субъекта персональных данных (ст. 6 ч. 1 п. 1 152-ФЗ),
+              исполнение договора с пользователем (ст. 6 ч. 1 п. 5 152-ФЗ) и
+              законные интересы Оператора по обеспечению работы платформы.
+            </p>
+            <p>
+              <span className="font-medium text-foreground">Статус проекта.</span>{" "}
+              Provodnik находится на стадии запуска. До начала приёма
+              платежей на платформе расчёты между путешественником и гидом
+              ведутся напрямую без участия Provodnik. Полные регистрационные
+              сведения оператора (ОГРНИП/ОГРН, ИНН, юридический адрес,
+              наименование ИП или юридического лица, сведения о регистрации в
+              Реестре операторов персональных данных Роскомнадзора) будут
+              опубликованы на этой странице до момента запуска приёма платежей
+              на платформе. Запросы на актуальные регистрационные данные можно
+              направлять на{" "}
+              <a
+                href="mailto:support@provodnik.app"
+                className="underline underline-offset-4"
+              >
+                support@provodnik.app
+              </a>
+              .
+            </p>
+            <p>
+              <span className="font-medium text-foreground">
+                Место обработки данных:
+              </span>{" "}
+              Российская Федерация. Хранение и обработка персональных данных
+              граждан РФ осуществляется с использованием баз данных, размещённых
+              на территории Российской Федерации, в соответствии с требованиями
+              ч. 5 ст. 18 152-ФЗ.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card id="collected" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               1. Какие данные мы собираем
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
               {collectedData.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -133,63 +146,61 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card id="purposes" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               2. Для чего мы используем данные
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
               {dataPurposes.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
           </CardContent>
         </Card>
-      </div>
 
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">
-            3. Передача данных третьим лицам
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Мы передаём данные только в объёме, необходимом для работы
-            платформы и законных целей её обслуживания.
-          </p>
-          <ul className="grid gap-2">
-            <li>
-              <span className="font-medium text-foreground">Supabase</span> —
-              используется для хранения данных профиля, истории бронирований,
-              сообщений и иной информации, необходимой для функционирования
-              сервиса.
-            </li>
-            <li>
-              <span className="font-medium text-foreground">Resend</span> —
-              может использоваться для отправки служебных email-уведомлений,
-              включая подтверждения, напоминания и сообщения поддержки.
-            </li>
-            <li>
-              Мы можем раскрывать данные государственным органам, судам и иным
-              лицам, если такая передача требуется по закону или необходима для
-              защиты прав платформы и пользователей.
-            </li>
-          </ul>
-        </CardContent>
-      </Card>
+        <Card id="third-parties" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">
+              3. Передача данных третьим лицам
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <p>
+              Мы передаём данные только в объёме, необходимом для работы
+              платформы и законных целей её обслуживания.
+            </p>
+            <ul className="space-y-3 list-disc pl-5">
+              <li>
+                <span className="font-medium text-foreground">Supabase</span> —
+                используется для хранения данных профиля, истории бронирований,
+                сообщений и иной информации, необходимой для функционирования
+                сервиса.
+              </li>
+              <li>
+                <span className="font-medium text-foreground">Resend</span> —
+                может использоваться для отправки служебных email-уведомлений,
+                включая подтверждения, напоминания и сообщения поддержки.
+              </li>
+              <li>
+                Мы можем раскрывать данные государственным органам, судам и иным
+                лицам, если такая передача требуется по закону или необходима для
+                защиты прав платформы и пользователей.
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <Card className="border-border/70 bg-card/80">
+        <Card id="rights" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               4. Права пользователей
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <ul className="space-y-3 list-disc pl-5">
               {userRights.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -197,11 +208,11 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card id="cookies" className="border-border/70 bg-card/80 scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">5. Cookies</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm text-muted-foreground">
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
             <p>
               Мы используем cookie и аналогичные технологии для входа в
               учётную запись, сохранения пользовательских настроек, стабильной
@@ -214,33 +225,33 @@ export default function PrivacyPage() {
             </p>
           </CardContent>
         </Card>
-      </div>
 
-      <Card className="border-border/70 bg-card/80">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">
-            6. Контакты по вопросам данных
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3 text-sm text-muted-foreground">
-          <p>
-            Запросы на доступ, удаление, экспорт данных и вопросы по обработке
-            персональной информации можно направить на{" "}
-            <a
-              href="mailto:support@provodnik.app"
-              className="underline underline-offset-4"
-            >
-              support@provodnik.app
-            </a>
-            .
-          </p>
-          <p>
-            При обращении укажите email, связанный с аккаунтом, и кратко опишите
-            запрос, чтобы мы могли быстрее идентифицировать запись и ответить по
-            существу.
-          </p>
-        </CardContent>
-      </Card>
+        <Card id="contacts" className="border-border/70 bg-card/80 scroll-mt-24">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-base">
+              6. Контакты по вопросам данных
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+            <p>
+              Запросы на доступ, удаление, экспорт данных и вопросы по обработке
+              персональной информации можно направить на{" "}
+              <a
+                href="mailto:support@provodnik.app"
+                className="underline underline-offset-4"
+              >
+                support@provodnik.app
+              </a>
+              .
+            </p>
+            <p>
+              При обращении укажите email, связанный с аккаунтом, и кратко опишите
+              запрос, чтобы мы могли быстрее идентифицировать запись и ответить по
+              существу.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
