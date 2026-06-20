@@ -81,6 +81,8 @@ export const footerNav = {
 } as const;
 
 export function isNavActive(pathname: string, item: NavItem): boolean {
-  if (pathname === item.href || pathname.startsWith(`${item.href}/`)) return true;
-  return item.activePrefixes?.some((p) => pathname === p || pathname.startsWith(`${p}/`)) ?? false;
+  if (item.activePrefixes) {
+    return pathname === item.href || item.activePrefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+  }
+  return pathname === item.href || pathname.startsWith(`${item.href}/`);
 }

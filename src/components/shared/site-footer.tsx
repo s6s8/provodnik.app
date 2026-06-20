@@ -1,30 +1,13 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
+import { footerNav, type NavItem } from "@/lib/navigation";
+
 const TG_ICON = (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.93.43l-2.6-1.91-1.25 1.21c-.14.14-.26.26-.53.26l.19-2.66 4.84-4.37c.21-.19-.05-.29-.32-.1L7.97 14.37l-2.55-.8c-.55-.17-.56-.55.12-.82l9.95-3.84c.46-.17.86.11.15.89z" />
   </svg>
 );
-
-const projectLinks = [
-  { href: "/trust", label: "О нас" },
-  { href: "/how-it-works", label: "Как это работает" },
-  { href: "/guides", label: "Для гидов" },
-  { href: "/for-business", label: "Для бизнеса" },
-] as const;
-
-const supportLinks = [
-  { href: "/trust", label: "Доверие и безопасность" },
-  { href: "https://t.me/provodnik_help", label: "Telegram-поддержка", external: true },
-  { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app" },
-] as const;
-
-const policyLinks = [
-  { href: "/policies/terms", label: "Условия использования" },
-  { href: "/policies/privacy", label: "Конфиденциальность" },
-  { href: "/policies/cookies", label: "Cookies" },
-] as const;
 
 const socialLinks = [
   { href: "https://t.me/provodnik_help", label: "Telegram", icon: TG_ICON },
@@ -84,7 +67,7 @@ export function SiteFooter() {
               О проекте
             </p>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-              {projectLinks.map((link) => (
+              {footerNav.about.map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="flex min-h-11 items-center text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground md:min-h-0">
                     {link.label}
@@ -99,8 +82,8 @@ export function SiteFooter() {
               Поддержка
             </p>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-              {supportLinks.map((link) =>
-                "external" in link && link.external ? (
+              {footerNav.support.map((link: NavItem) =>
+                link.external ? (
                   <li key={link.label}>
                     <a
                       href={link.href}
@@ -131,7 +114,7 @@ export function SiteFooter() {
                 Правила
               </p>
               <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-                {policyLinks.map((link) => (
+                {footerNav.legal.map((link) => (
                   <li key={link.label}>
                     <Link href={link.href} className="flex min-h-11 items-center text-sm text-primary-foreground/60 transition-colors hover:text-primary-foreground md:min-h-0">
                       {link.label}
