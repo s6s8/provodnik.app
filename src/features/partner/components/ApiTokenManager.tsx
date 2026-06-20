@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useState, useTransition } from "react";
 
@@ -31,6 +32,7 @@ export function ApiTokenManager({
   const [pending, startTransition] = useTransition();
   const [revealedToken, setRevealedToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [tokenCopied, setTokenCopied] = useState(false);
 
   const runGenerate = useCallback(() => {
     setError(null);
@@ -55,13 +57,15 @@ export function ApiTokenManager({
     runGenerate();
   }, [hasExistingToken, runGenerate]);
 
-  const handleCopy = useCallback(async () => {
+  const handleCopy = useCallback(() => {
     if (!revealedToken) return;
-    try {
-      await navigator.clipboard.writeText(revealedToken);
-    } catch {
-      setError("Не удалось скопировать в буфер обмена");
-    }
+    navigator.clipboard
+      .writeText(revealedToken)
+      .then(() => {
+        setTokenCopied(true);
+        setTimeout(() => setTokenCopied(false), 2000);
+      })
+      .catch(() => setError("Не удалось скопировать в буфер обмена"));
   }, [revealedToken]);
 
   return (
@@ -88,7 +92,7 @@ export function ApiTokenManager({
           type="button"
           onClick={handleGenerateClick}
           disabled={pending}
-          variant={hasExistingToken ? "secondary" : "default"}
+          variant="secondary"
         >
           {hasExistingToken ? "Сгенерировать новый токен" : "Сгенерировать токен"}
         </Button>
@@ -116,8 +120,14 @@ export function ApiTokenManager({
                   value={revealedToken}
                   className="font-mono text-sm"
                 />
-                <Button type="button" variant="outline" onClick={handleCopy}>
-                  Копировать
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleCopy}
+                  className="h-11 shrink-0 gap-1.5"
+                >
+                  {tokenCopied ? <Check className="size-4" /> : <Copy className="size-4" />}
+                  {tokenCopied ? "Скопировано" : "Копировать"}
                 </Button>
               </div>
             </div>

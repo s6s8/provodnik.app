@@ -1,5 +1,6 @@
 "use client";
 
+import { Check, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState, useTransition } from "react";
 
@@ -26,6 +27,7 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
   const [code, setCode] = useState<string | null>(initialCode);
   const [redeemInput, setRedeemInput] = useState("");
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [copied, setCopied] = useState<"code" | "link" | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
@@ -52,12 +54,24 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
 
   const onCopyCode = useCallback(() => {
     if (!code) return;
-    void navigator.clipboard.writeText(code);
+    navigator.clipboard
+      .writeText(code)
+      .then(() => {
+        setCopied("code");
+        setTimeout(() => setCopied(null), 2000);
+      })
+      .catch(() => setMessage({ type: "err", text: "Не удалось скопировать в буфер обмена" }));
   }, [code]);
 
   const onCopyLink = useCallback(() => {
     if (!shareUrl) return;
-    void navigator.clipboard.writeText(shareUrl);
+    navigator.clipboard
+      .writeText(shareUrl)
+      .then(() => {
+        setCopied("link");
+        setTimeout(() => setCopied(null), 2000);
+      })
+      .catch(() => setMessage({ type: "err", text: "Не удалось скопировать в буфер обмена" }));
   }, [shareUrl]);
 
   const onRedeem = useCallback(() => {
@@ -102,8 +116,14 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
                   value={code}
                   className="font-mono text-lg tracking-wider"
                 />
-                <Button type="button" variant="secondary" onClick={onCopyCode}>
-                  Скопировать
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={onCopyCode}
+                  className="h-11 shrink-0 gap-1.5"
+                >
+                  {copied === "code" ? <Check className="size-4" /> : <Copy className="size-4" />}
+                  {copied === "code" ? "Скопировано" : "Скопировать"}
                 </Button>
               </div>
             </div>
@@ -111,8 +131,14 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
               <Label>Ссылка для приглашения</Label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input readOnly value={shareUrl} className="font-mono text-sm" />
-                <Button type="button" variant="outline" onClick={onCopyLink}>
-                  Скопировать ссылку
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCopyLink}
+                  className="h-11 shrink-0 gap-1.5"
+                >
+                  {copied === "link" ? <Check className="size-4" /> : <Copy className="size-4" />}
+                  {copied === "link" ? "Скопировано" : "Скопировать ссылку"}
                 </Button>
               </div>
             </div>

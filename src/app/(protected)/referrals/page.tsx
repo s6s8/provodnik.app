@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/shared/page-header";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { ApiTokenManager } from "@/features/partner/components/ApiTokenManager";
 import { PayoutsLedger } from "@/features/partner/components/PayoutsLedger";
@@ -90,26 +92,29 @@ export default async function ReferralsPage() {
 
   return (
     <section className="mx-auto grid max-w-3xl gap-8">
-      <div>
-        <h1 className="text-xl font-semibold text-foreground">Рефералы и бонусы</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Приглашайте друзей и копите бонусные баллы.
-        </p>
-      </div>
+      <PageHeader
+        title="Приглашения и бонусы"
+        subtitle="Приглашайте друзей — вы и друг получаете бонусные баллы."
+      />
       <ReferralCode code={myCodeRow?.code ?? null} redemptionCount={redemptionCount} />
       <BonusLedger ledger={ledger} />
       {flags.FEATURE_TR_PARTNER ? (
-        <div className="space-y-6">
-          <h2 className="text-xl font-semibold text-foreground">
-            Партнёрский кабинет
-          </h2>
-          <ApiTokenManager
-            hasExistingToken={hasPartnerAccount}
-            generatedAt={partnerAccountCreatedAt}
-          />
-          <Separator />
-          <PayoutsLedger ledger={partnerLedger} />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Партнёрский API</CardTitle>
+            <CardDescription>
+              Для интеграторов и агрегаторов. Управляйте токеном доступа к Partner API.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <ApiTokenManager
+              hasExistingToken={hasPartnerAccount}
+              generatedAt={partnerAccountCreatedAt}
+            />
+            <Separator />
+            <PayoutsLedger ledger={partnerLedger} />
+          </CardContent>
+        </Card>
       ) : null}
     </section>
   );
