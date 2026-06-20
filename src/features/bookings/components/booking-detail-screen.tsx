@@ -886,15 +886,17 @@ function nextStatusForAction(
   }
 
   if (action === "cancel") {
-    if (current === "completed" || current === "cancelled" || current === "no_show") {
-      return null;
+    // Mirror BOOKING_TRANSITIONS: cancellable from DB pending /
+    // awaiting_guide_confirmation (→ "awaiting_confirmation") and confirmed.
+    if (current === "awaiting_confirmation" || current === "confirmed") {
+      return "cancelled";
     }
-    return "cancelled";
+    return null;
   }
 
   if (action === "no_show") {
-    if (current === "completed" || current === "cancelled") return null;
-    return "no_show";
+    // BOOKING_TRANSITIONS allows no_show only from DB "confirmed".
+    return current === "confirmed" ? "no_show" : null;
   }
 
   return null;
