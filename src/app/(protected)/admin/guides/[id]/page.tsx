@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { ProfileAvatar } from "@/components/profile-avatar";
+import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { formatRussianDateRange, todayMoscowISODate } from "@/lib/dates";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  formatRussianDateRange,
+  formatRussianDateTime,
+  todayMoscowISODate,
+} from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
@@ -14,19 +25,6 @@ import { GuideApprovalForm } from "./guide-approval-form";
 export const metadata: Metadata = {
   title: "Верификация гида",
 };
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function verificationBadgeVariant(
   status: string,
@@ -108,37 +106,33 @@ export default async function AdminGuideDetailPage({
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
-          <ProfileAvatar
-            profile={avatarProfile}
-            size={64}
-            className="border border-border/70 text-xl text-foreground shadow-card"
-          />
-          <div className="space-y-2">
-            <Link href="/admin/guides" className="text-sm font-medium text-primary">
-              Назад к очереди гидов
-            </Link>
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-              {displayName}
-            </h1>
-            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-              <span>{detail.account?.email ?? "Email не указан"}</span>
-              <span>{detail.profile.regions.join(", ") || "Регионы не указаны"}</span>
-              <span>{detail.profile.languages.join(", ") || "Языки не указаны"}</span>
-              <Badge variant={verificationBadgeVariant(detail.profile.verification_status)}>
-                {verificationLabel(detail.profile.verification_status)}
-              </Badge>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+        <ProfileAvatar
+          profile={avatarProfile}
+          size={64}
+          className="border border-border/70 text-xl text-foreground shadow-card"
+        />
+        <PageHeader
+          className="flex-1"
+          eyebrow="Очередь гидов"
+          title={displayName}
+          subtitle={detail.account?.email ?? "Email не указан"}
+          actions={
+            <Badge variant={verificationBadgeVariant(detail.profile.verification_status)}>
+              {verificationLabel(detail.profile.verification_status)}
+            </Badge>
+          }
+        />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.9fr)]">
         <section className="space-y-6">
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-            <h2 className="text-lg font-semibold text-foreground">Профиль</h2>
-            <div className="mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Профиль</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+            <div>
               <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                 Описание
               </div>
@@ -147,7 +141,7 @@ export default async function AdminGuideDetailPage({
               </p>
             </div>
 
-            <dl className="mt-4 grid gap-4 md:grid-cols-2">
+            <dl className="grid gap-4 md:grid-cols-2">
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   Имя в профиле
@@ -207,15 +201,19 @@ export default async function AdminGuideDetailPage({
                   Обновлено
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {formatDateTime(detail.profile.updated_at)}
+                  {formatRussianDateTime(detail.profile.updated_at)}
                 </dd>
               </div>
             </dl>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-            <h2 className="text-lg font-semibold text-foreground">Юридические данные</h2>
-            <dl className="mt-4 grid gap-4 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Юридические данные</CardTitle>
+            </CardHeader>
+            <CardContent>
+            <dl className="grid gap-4 md:grid-cols-2">
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
                   Правовой статус
@@ -254,28 +252,33 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
             </dl>
-          </div>
+            </CardContent>
+          </Card>
 
           {detail.profile.verification_notes ? (
-            <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-              <h2 className="text-lg font-semibold text-foreground">Заметки модератора</h2>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-foreground">
-                {detail.profile.verification_notes}
-              </p>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Заметки модератора</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="whitespace-pre-wrap text-sm leading-6 text-foreground">
+                  {detail.profile.verification_notes}
+                </p>
+              </CardContent>
+            </Card>
           ) : null}
 
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-foreground">
-                Документ о квалификации
-              </h2>
-              <span className="text-sm text-muted-foreground">
-                {detail.licenses.length} шт.
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-3">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle className="text-lg">Документ о квалификации</CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  {detail.licenses.length} шт.
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent>
+            <div className="space-y-3">
               {detail.licenses.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   Пока нет добавленных документов о квалификации.
@@ -350,17 +353,20 @@ export default async function AdminGuideDetailPage({
                 </div>
               ))}
             </div>
-          </div>
+            </CardContent>
+          </Card>
 
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold text-foreground">Документы</h2>
-              <span className="text-sm text-muted-foreground">
-                {detail.documents.length} шт.
-              </span>
-            </div>
-
-            <div className="mt-4 space-y-3">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between gap-4">
+                <CardTitle className="text-lg">Документы</CardTitle>
+                <span className="text-sm text-muted-foreground">
+                  {detail.documents.length} шт.
+                </span>
+              </div>
+            </CardHeader>
+            <CardContent>
+            <div className="space-y-3">
               {detail.documents.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
                   Документы еще не загружены.
@@ -378,7 +384,7 @@ export default async function AdminGuideDetailPage({
                     </div>
                     <div className="mt-1 text-sm text-muted-foreground">
                       Статус: {verificationLabel(document.status)} · Загружен{" "}
-                      {formatDateTime(document.created_at)}
+                      {formatRussianDateTime(document.created_at)}
                     </div>
                   </div>
 
@@ -396,27 +402,31 @@ export default async function AdminGuideDetailPage({
                 </div>
               ))}
             </div>
-          </div>
+            </CardContent>
+          </Card>
         </section>
 
         <aside className="space-y-6">
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-            <h2 className="text-lg font-semibold text-foreground">Решение</h2>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Зафиксируйте решение по анкете. Для отклонения и запроса
-              документов можно добавить комментарий.
-            </p>
+          <Card className="border-primary/40 shadow-md">
+            <CardHeader>
+              <CardTitle className="text-lg">Решение</CardTitle>
+              <CardDescription>
+                Зафиксируйте решение по анкете. Для отклонения и запроса
+                документов можно добавить комментарий.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GuideApprovalForm guideId={id} />
+            </CardContent>
+          </Card>
 
-            <GuideApprovalForm guideId={id} />
-          </div>
-
-          <div className="rounded-[1.75rem] border border-border/70 bg-card p-6 shadow-card">
-            <h2 className="text-lg font-semibold text-foreground">
-              История модерации
-            </h2>
-
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">История модерации</CardTitle>
+            </CardHeader>
+            <CardContent>
             {detail.moderation_case ? (
-              <div className="mt-4 space-y-3">
+              <div className="space-y-3">
                 <div className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4">
                   <div className="text-sm font-medium text-foreground">
                     Причина очереди
@@ -441,7 +451,7 @@ export default async function AdminGuideDetailPage({
                           {moderationDecisionLabel(action.decision)}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {formatDateTime(action.created_at)}
+                          {formatRussianDateTime(action.created_at)}
                         </div>
                       </div>
                       {action.note ? (
@@ -454,11 +464,12 @@ export default async function AdminGuideDetailPage({
                 )}
               </div>
             ) : (
-              <div className="mt-4 text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground">
                 Кейс модерации еще не создан.
               </div>
             )}
-          </div>
+            </CardContent>
+          </Card>
         </aside>
       </div>
     </div>
