@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 
+import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { kopecksToRub } from "@/data/money";
 import { MonthlyCalendar } from "@/features/guide/components/calendar/MonthlyCalendar";
 import { WeeklyCalendar } from "@/features/guide/components/calendar/WeeklyCalendar";
 import {
@@ -9,6 +12,7 @@ import {
   type DateRangePreset,
 } from "@/features/guide/components/statistics/DateRangePicker";
 import { StatsChart } from "@/features/guide/components/statistics/StatsChart";
+import { todayMoscowISODate } from "@/lib/dates";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   BookingRow,
@@ -29,7 +33,7 @@ function formatDateOnlyLocal(d: Date): string {
 }
 
 function rangeStartDate(range: DateRangePreset): Date {
-  const d = new Date();
+  const d = new Date(`${todayMoscowISODate()}T00:00:00`);
   if (range === "7d") d.setDate(d.getDate() - 7);
   else if (range === "90d") d.setDate(d.getDate() - 90);
   else d.setDate(d.getDate() - 30);
@@ -57,11 +61,14 @@ export default async function GuideCalendarPage({
   let departures: ListingTourDepartureRow[] = [];
   let listings: { id: string; title: string; exp_type: string | null }[] = [];
   let bookings: BookingRow[] = [];
+  let loadFailed = false;
 
   const resolvedParams = await searchParams;
   const rawRange = resolvedParams.range;
   const range: DateRangePreset =
     rawRange === "7d" || rawRange === "90d" ? rawRange : "30d";
+
+  const todayStr = todayMoscowISODate();
 
   const supabase = await createSupabaseServerClient();
   const {
@@ -105,9 +112,8 @@ export default async function GuideCalendarPage({
 
     const listingIds = listings.map((l) => l.id);
 
-    const today = new Date();
-    const todayStr = formatDateOnlyLocal(today);
-    const twoMonthsOut = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+    const [todayYear, todayMonth] = todayStr.split("-").map(Number);
+    const twoMonthsOut = new Date(todayYear ?? 0, (todayMonth ?? 1) - 1 + 2, 1);
     const twoMonthsOutStr = formatDateOnlyLocal(twoMonthsOut);
     const rangeStart = formatDateOnlyLocal(rangeStartDate(range));
 
@@ -148,11 +154,7 @@ export default async function GuideCalendarPage({
       bookings = (bookingsRaw ?? []) as BookingRow[];
     }
   } catch {
-    schedules = [];
-    extras = [];
-    departures = [];
-    listings = [];
-    bookings = [];
+    loadFailed = true;
   }
 
   const listingSummaries = listings.map((l) => ({
@@ -168,89 +170,110 @@ export default async function GuideCalendarPage({
   );
   const completedBookings = bookings.filter((b) => b.status === "completed");
   const totalRevenue = completedBookings.reduce(
-    (sum, b) => sum + Math.round(b.subtotal_minor / 100),
+    (sum, b) => sum + kopecksToRub(b.subtotal_minor),
     0,
   );
   const chartData = groupByDay(bookings);
 
   return (
     <div className="space-y-6">
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader>
-          <CardTitle className="text-xl">Календарь</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Расписание слотов и даты отправлений по вашим активным экскурсиям.
-          </p>
-        </CardHeader>
-        <CardContent>
-          <Tabs defaultValue="week">
-            <TabsList className="mb-4 grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="week">Неделя</TabsTrigger>
-              <TabsTrigger value="month">Месяц</TabsTrigger>
-            </TabsList>
-            <TabsContent value="week" className="mt-0">
-              <WeeklyCalendar
-                schedules={schedules}
-                extras={extras}
-                departures={departures}
-                listings={listingSummaries}
-              />
-            </TabsContent>
-            <TabsContent value="month" className="mt-0">
-              <MonthlyCalendar
-                schedules={schedules}
-                extras={extras}
-                departures={departures}
-                listings={listingSummaries}
-              />
-            </TabsContent>
-          </Tabs>
-        </CardContent>
-      </Card>
+      <PageHeader eyebrow="Кабинет гида" title="Календарь" />
 
-      <section id="stats">
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader>
-            <CardTitle className="text-xl">Статистика</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Бронирования и оборот за выбранный период.
-            </p>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <DateRangePicker value={range} />
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Всего бронирований</p>
-                <p className="mt-1 text-base font-semibold">{bookings.length}</p>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Активных</p>
-                <p className="mt-1 text-base font-semibold">{activeBookings.length}</p>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Оборот (завершённые)</p>
-                <p className="mt-1 text-base font-semibold">
-                  {totalRevenue > 0
-                    ? new Intl.NumberFormat("ru-RU", {
-                        style: "currency",
-                        currency: "RUB",
-                        currencyDisplay: "symbol",
-                        maximumFractionDigits: 0,
-                      }).format(totalRevenue)
-                    : "—"}
-                </p>
-              </div>
-            </div>
-            {chartData.length > 0 ? (
-              <StatsChart data={chartData} label="Бронирований в день" />
-            ) : (
+      {loadFailed ? (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Ошибка загрузки календаря. Попробуйте обновить страницу.
+          </AlertDescription>
+        </Alert>
+      ) : null}
+
+      <Tabs defaultValue="calendar">
+        <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsTrigger value="calendar">Расписание</TabsTrigger>
+          <TabsTrigger value="stats">Статистика</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="calendar" className="mt-4">
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader>
+              <CardTitle className="text-xl">Расписание</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Нет данных за выбранный период.
+                Расписание слотов и даты отправлений по вашим активным экскурсиям.
               </p>
-            )}
-          </CardContent>
-        </Card>
-      </section>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="week">
+                <TabsList className="mb-4 grid w-full max-w-md grid-cols-2">
+                  <TabsTrigger value="week">Неделя</TabsTrigger>
+                  <TabsTrigger value="month">Месяц</TabsTrigger>
+                </TabsList>
+                <TabsContent value="week" className="mt-0">
+                  <WeeklyCalendar
+                    todayStr={todayStr}
+                    schedules={schedules}
+                    extras={extras}
+                    departures={departures}
+                    listings={listingSummaries}
+                  />
+                </TabsContent>
+                <TabsContent value="month" className="mt-0">
+                  <MonthlyCalendar
+                    todayStr={todayStr}
+                    schedules={schedules}
+                    extras={extras}
+                    departures={departures}
+                    listings={listingSummaries}
+                  />
+                </TabsContent>
+              </Tabs>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="stats" className="mt-4">
+          <Card id="stats" className="border-border/70 bg-card/90">
+            <CardHeader>
+              <CardTitle className="text-xl">Статистика</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Бронирования и оборот за выбранный период.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <DateRangePicker value={range} />
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                  <p className="text-xs text-muted-foreground">Всего бронирований</p>
+                  <p className="mt-1 text-base font-semibold">{bookings.length}</p>
+                </div>
+                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                  <p className="text-xs text-muted-foreground">Активных</p>
+                  <p className="mt-1 text-base font-semibold">{activeBookings.length}</p>
+                </div>
+                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                  <p className="text-xs text-muted-foreground">Оборот (завершённые)</p>
+                  <p className="mt-1 text-base font-semibold">
+                    {totalRevenue > 0
+                      ? new Intl.NumberFormat("ru-RU", {
+                          style: "currency",
+                          currency: "RUB",
+                          currencyDisplay: "symbol",
+                          maximumFractionDigits: 0,
+                        }).format(totalRevenue)
+                      : "—"}
+                  </p>
+                </div>
+              </div>
+              {chartData.length > 0 ? (
+                <StatsChart data={chartData} label="Бронирований в день" />
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Нет данных за выбранный период.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

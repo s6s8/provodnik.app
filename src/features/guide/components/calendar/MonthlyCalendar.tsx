@@ -10,15 +10,6 @@ import type {
 } from "@/lib/supabase/types";
 import { DayPanel } from "./day-panel";
 
-const LISTING_DOT_CLASSES = [
-  "bg-primary",
-  "bg-success",
-  "bg-warning",
-  "bg-destructive",
-  "bg-brand-500",
-  "bg-gold",
-] as const;
-
 function formatDateOnlyLocal(d: Date): string {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -32,6 +23,7 @@ function jsDayToDbWeekday(date: Date): number {
 }
 
 export type MonthlyCalendarProps = {
+  todayStr: string;
   schedules: ListingScheduleRow[];
   extras: ListingScheduleExtraRow[];
   departures: ListingTourDepartureRow[];
@@ -39,6 +31,7 @@ export type MonthlyCalendarProps = {
 };
 
 export function MonthlyCalendar({
+  todayStr,
   schedules,
   extras,
   departures,
@@ -55,10 +48,10 @@ export function MonthlyCalendar({
     return m;
   }, [listings]);
 
-  const listingColorClass = React.useMemo(() => {
+  const listingDotClass = React.useMemo(() => {
     const m = new Map<string, string>();
     listings.forEach((l, i) => {
-      m.set(l.id, LISTING_DOT_CLASSES[i % LISTING_DOT_CLASSES.length]!);
+      m.set(l.id, i % 2 === 0 ? "bg-primary" : "bg-primary/50");
     });
     return m;
   }, [listings]);
@@ -70,12 +63,12 @@ export function MonthlyCalendar({
   }, [listings, selectedListingId]);
 
   const visibleMonth = React.useMemo(() => {
-    const d = new Date();
+    const d = new Date(`${todayStr}T00:00:00`);
     d.setMonth(d.getMonth() + monthOffset);
     d.setDate(1);
     d.setHours(0, 0, 0, 0);
     return d;
-  }, [monthOffset]);
+  }, [monthOffset, todayStr]);
 
   const monthTitle = React.useMemo(
     () =>
@@ -193,7 +186,7 @@ export function MonthlyCalendar({
                 {[...listingIdsWithSlot].map((id) => (
                   <span
                     key={id}
-                    className={`size-1.5 shrink-0 rounded-full ${listingColorClass.get(id) ?? "bg-muted-foreground"}`}
+                    className={`size-1.5 shrink-0 rounded-full ${listingDotClass.get(id) ?? "bg-primary"}`}
                     title={titleByListingId.get(id) ?? ""}
                   />
                 ))}
@@ -207,6 +200,17 @@ export function MonthlyCalendar({
             </button>
           );
         })}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-1.5 shrink-0 rounded-full bg-primary" />
+          Слот
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          <span className="size-1.5 shrink-0 rounded-sm bg-gold ring-1 ring-gold/40" />
+          Отправление
+        </span>
       </div>
 
       {dayPanelDate && dayPanelListing && (
