@@ -1,8 +1,10 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { MessageSquare } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import { messagesApi } from "@/lib/api/messages";
 import { queryKeys } from "@/lib/query-keys";
 import type { MessageWithSender } from "@/lib/supabase/conversations";
@@ -96,11 +98,23 @@ export function ChatWindow({
               index % 2 === 0 ? "flex justify-start" : "flex justify-end"
             }
           >
-            <div className="grid gap-2.5 max-w-[min(100%,38rem)] px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass">
+            <div className="grid gap-2.5 max-w-[min(100%,38rem)] px-4 py-3.5 rounded-[1.5rem] bg-card border border-border shadow-sm">
               <div className="w-64 h-20 rounded-[1rem] bg-muted relative overflow-hidden" />
             </div>
           </div>
         ))}
+      </div>
+    );
+  }
+
+  if (!renderedMessages.length && !isFetching) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <EmptyState
+          icon={<MessageSquare className="size-6" />}
+          title="Нет сообщений"
+          description="Начните переписку — отправьте первое сообщение."
+        />
       </div>
     );
   }
