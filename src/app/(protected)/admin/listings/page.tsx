@@ -1,9 +1,21 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { revalidatePath } from "next/cache";
+import { ClipboardCheck, MoreHorizontal } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { EmptyState } from "@/components/shared/empty-state";
+import { ListRow } from "@/components/shared/list-row";
+import { PageHeader } from "@/components/shared/page-header";
+import { kopecksToRub } from "@/data/money";
+import { formatRussianDateTime } from "@/lib/dates";
 import {
   ensureOpenModerationCase,
   getPendingListingReviews,
@@ -15,27 +27,6 @@ import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 export const metadata: Metadata = {
   title: "Туры на проверке",
 };
-
-function formatDateTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatPrice(value: number, currency: string) {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency,
-    maximumFractionDigits: 0,
-  }).format(value / 100);
-}
 
 function statusBadgeVariant(
   status: string,
@@ -104,106 +95,110 @@ export default async function AdminListingsPage() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Листинги на проверке
-        </h1>
-        <p className="max-w-3xl text-sm text-muted-foreground">
-          Здесь только готовые экскурсии со статусом «На проверке». Черновики
-          карточек в очередь не попадают.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Администрирование"
+        title="Объявления на проверке"
+      />
 
-      <div className="overflow-hidden rounded-[1.75rem] border border-border/70 bg-card shadow-card">
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-border/70 text-sm">
-            <thead className="bg-surface-low text-left text-xs uppercase tracking-[0.18em] text-muted-foreground">
-              <tr>
-                <th className="px-4 py-3 font-medium">Листинг</th>
-                <th className="px-4 py-3 font-medium">Гид</th>
-                <th className="px-4 py-3 font-medium">Регион</th>
-                <th className="px-4 py-3 font-medium">Цена</th>
-                <th className="px-4 py-3 font-medium">Статус</th>
-                <th className="px-4 py-3 font-medium">Создан</th>
-                <th className="px-4 py-3 font-medium">Действия</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60">
-              {rows.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    className="px-4 py-8 text-center text-sm text-muted-foreground"
-                  >
-                    В очереди нет листингов.
-                  </td>
-                </tr>
-              ) : null}
+      {rows.length === 0 ? (
+        <EmptyState
+          icon={<ClipboardCheck className="size-6" />}
+          title="В очереди нет объявлений"
+          description="Готовые экскурсии со статусом «На проверке» появятся здесь. Черновики карточек в очередь не попадают."
+        />
+      ) : (
+        <div className="space-y-3">
+          {rows.map((row) => {
+            const guideName =
+              resolveDisplayName("guide", {
+                full_name: row.guide_account?.full_name,
+              }) ||
+              row.guide_account?.email ||
+              "Без имени";
+            const displayStatus =
+              row.moderation_case?.status === "open"
+                ? "open"
+                : row.listing.status;
+            const priceText = new Intl.NumberFormat("ru-RU", {
+              style: "currency",
+              currency: row.listing.currency,
+              maximumFractionDigits: 0,
+            }).format(kopecksToRub(row.listing.price_from_minor));
 
-              {rows.map((row) => {
-                const guideName =
-                  resolveDisplayName("guide", { full_name: row.guide_account?.full_name }) ||
-                  row.guide_account?.email ||
-                  "Без имени";
-                const displayStatus =
-                  row.moderation_case?.status === "open"
-                    ? "open"
-                    : row.listing.status;
-
-                return (
-                  <tr key={row.listing.id} className="align-top">
-                    <td className="px-4 py-4">
-                      <div className="font-medium text-foreground">
-                        {row.listing.title}
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {row.listing.category}
-                      </div>
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">{guideName}</td>
-                    <td className="px-4 py-4 text-muted-foreground">
-                      {row.listing.region}
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">
-                      {formatPrice(row.listing.price_from_minor, row.listing.currency)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <Badge variant={statusBadgeVariant(displayStatus)}>
-                        {listingStatusLabel(displayStatus)}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-4 text-muted-foreground">
-                      {formatDateTime(row.listing.created_at)}
-                    </td>
-                    <td className="px-4 py-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <Button asChild variant="outline" size="sm">
-                          <Link href={`/listings/${row.listing.slug}`}>Просмотреть</Link>
+            return (
+              <ListRow
+                key={row.listing.id}
+                title={row.listing.title}
+                subtitle={
+                  <>
+                    <span className="block truncate">
+                      {row.listing.region} · {guideName}
+                    </span>
+                    <span className="block truncate text-xs">
+                      {priceText}
+                    </span>
+                  </>
+                }
+                badge={
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant={statusBadgeVariant(displayStatus)}>
+                      {listingStatusLabel(displayStatus)}
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {formatRussianDateTime(row.listing.created_at)}
+                    </span>
+                  </div>
+                }
+                actions={
+                  <>
+                    <form action={approveListingAction.bind(null, row.listing.id)}>
+                      <Button
+                        type="submit"
+                        variant="secondary"
+                        size="default"
+                        className="border-success/30 bg-success/10 text-success hover:bg-success/20"
+                      >
+                        Одобрить
+                      </Button>
+                    </form>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label="Другие действия"
+                        >
+                          <MoreHorizontal />
                         </Button>
-                        <form action={approveListingAction.bind(null, row.listing.id)}>
-                          <Button
-                            type="submit"
-                            variant="secondary"
-                            size="sm"
-                            className="border-success/30 bg-success/10 text-success hover:bg-success/20"
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <form
+                          action={rejectListingAction.bind(null, row.listing.id)}
+                        >
+                          <DropdownMenuItem asChild variant="destructive">
+                            <button type="submit" className="w-full cursor-pointer">
+                              Отклонить
+                            </button>
+                          </DropdownMenuItem>
+                        </form>
+                        <DropdownMenuItem asChild>
+                          <Link
+                            href={`/listings/${row.listing.slug}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
                           >
-                            Одобрить
-                          </Button>
-                        </form>
-                        <form action={rejectListingAction.bind(null, row.listing.id)}>
-                          <Button type="submit" variant="destructive" size="sm">
-                            Отклонить
-                          </Button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                            Просмотреть
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </>
+                }
+              />
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
 }
