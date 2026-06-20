@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   AlertCircle,
+  ArrowLeft,
   CheckCircle2,
   Eye,
   EyeOff,
@@ -99,13 +101,22 @@ export function UpdatePasswordScreen() {
 
   return (
     <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-          Новый пароль
-        </h1>
-        <p className="max-w-sm text-sm leading-6 text-muted-foreground">
-          Введите новый пароль для вашего аккаунта.
-        </p>
+      <div className="space-y-3">
+        <Link
+          href="/auth"
+          className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
+        >
+          <ArrowLeft className="size-4" />
+          <span>Назад ко входу</span>
+        </Link>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+            Новый пароль
+          </h1>
+          <p className="max-w-sm text-sm leading-6 text-muted-foreground">
+            Введите новый пароль для вашего аккаунта.
+          </p>
+        </div>
       </div>
 
       {!hasEnv ? (
