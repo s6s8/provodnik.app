@@ -1,70 +1,114 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Check, MessageCircle, TrendingUp, Users } from "lucide-react";
+
+import { ListHero } from "@/components/shared/list-hero";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
   title: "Стать гидом",
 };
 
-const VALUE_PROPS = [
+const STEPS = [
+  "Заполните анкету и загрузите документы.",
+  "Проверка профиля за 24–48 часов — после одобрения открываем доступ к запросам.",
+  "Отвечайте на запросы и выбирайте подходящие по дате и цене.",
+] as const;
+
+const BENEFITS = [
   {
-    title: "Большая часть дохода остаётся вам",
+    icon: TrendingUp,
+    title: "Большая часть дохода — вам",
     description:
       "Вы оставляете себе большую часть выручки. Никаких скрытых сборов и платных подписок.",
   },
   {
-    title: "Эластичность аудитории",
-    description: "Выбираете комфортное для вас количество людей в группе",
-  },
-  {
-    title: "Принцип торга",
+    icon: Users,
+    title: "Ваш ритм и ваша группа",
     description:
-      "Выбираете подходящую вам цену за человека в группе или предлагаете в ответ свою",
+      "Выбираете комфортное количество людей в группе и берёте только те запросы, что подходят вам по дате и времени.",
   },
   {
-    title: "Время и комфорт",
-    description: "Вы выбираете какой запрос подходит вам по дате и времени экскурсии",
-  },
-  {
-    title: "Модерация за 24–48 часов",
+    icon: MessageCircle,
+    title: "Прозрачный торг по цене",
     description:
-      "После заполнения анкеты и загрузки документов мы проверяем профиль в течение 1–2 рабочих дней и открываем доступ к запросам.",
+      "Выбираете подходящую цену за человека в группе или предлагаете в ответ свою.",
   },
-  {
-    title: "Спрос от реальных путешественников",
-    description:
-      "Запросы поступают напрямую от путешественников с подтверждёнными контактами — вы видите дату, город и количество людей перед тем, как откликнуться.",
-  },
+] as const;
+
+const TRUST = [
+  "Профиль и документы проверяются вручную командой.",
+  "Запросы поступают с подтверждёнными контактами путешественника.",
+  "Условия фиксируются письменно — без устных договорённостей.",
 ] as const;
 
 export default function BecomeAGuidePage() {
   return (
-    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
-      <h1 className="mb-4 font-display text-[clamp(1.75rem,4vw,2.25rem)] font-semibold leading-[1.2] text-foreground">
-        Станьте гидом на Проводнике
-      </h1>
-      <p className="mb-10 text-base text-muted-foreground">
-        Размещайте свои экскурсии, отвечайте на запросы путешественников и работайте в удобном вам ритме.
-      </p>
+    <article>
+      <ListHero
+        imageUrl="/hero-valley.jpg"
+        title="Станьте гидом Проводника"
+        intro="Зарабатывайте на авторских экскурсиях — вы выбираете запросы, цену и ритм."
+      >
+        <Button asChild size="lg">
+          <Link href="/auth?role=guide">Стать гидом</Link>
+        </Button>
+      </ListHero>
 
-      <div className="mb-10 space-y-4">
-        {VALUE_PROPS.map((prop) => (
-          <div
-            key={prop.title}
-            className="rounded-xl border border-border/70 bg-card/90 p-5"
-          >
-            <p className="mb-1 text-sm font-semibold text-foreground">{prop.title}</p>
-            <p className="text-sm text-muted-foreground">{prop.description}</p>
+      <div className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+        <section className="mb-12">
+          <h2 className="mb-6 font-display text-[clamp(1.4rem,3vw,1.75rem)] font-semibold leading-[1.2] text-foreground">
+            Как стать гидом
+          </h2>
+          <ol className="space-y-5">
+            {STEPS.map((step, index) => (
+              <li key={step} className="flex items-start gap-4">
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
+                  {index + 1}
+                </span>
+                <p className="pt-1 text-sm text-foreground">{step}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section className="mb-12">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {BENEFITS.map((benefit) => {
+              const Icon = benefit.icon;
+              return (
+                <div
+                  key={benefit.title}
+                  className="rounded-xl border border-border/70 bg-card/90 p-5"
+                >
+                  <Icon className="mb-3 size-5 text-primary" aria-hidden="true" />
+                  <p className="mb-1 text-sm font-semibold text-foreground">{benefit.title}</p>
+                  <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                </div>
+              );
+            })}
           </div>
-        ))}
-      </div>
+        </section>
 
-      <div className="flex flex-col items-center gap-3">
-        <Link
-          href="/auth?role=guide"
-          className="inline-flex items-center justify-center rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          Зарегистрироваться
-        </Link>
+        <section className="mb-12 rounded-xl border border-border/70 bg-card/90 p-6">
+          <h2 className="mb-4 text-base font-semibold text-foreground">
+            Гиды Проводника — реальные специалисты
+          </h2>
+          <ul className="space-y-3">
+            {TRUST.map((item) => (
+              <li key={item} className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden="true" />
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <div className="flex justify-center">
+          <Button asChild size="lg">
+            <Link href="/auth?role=guide">Стать гидом</Link>
+          </Button>
+        </div>
       </div>
     </article>
   );
