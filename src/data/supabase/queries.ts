@@ -66,6 +66,11 @@ export type GuideRecord = {
   experienceYears: number;
   listingCount?: number;
   isPartialMatch: boolean;
+  specialties: string[];
+  tripsCompleted: number;
+  recommendPct: number | null;
+  verified: boolean;
+  languages: string[];
 };
 
 export type RequestMember = {
@@ -261,6 +266,8 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
   const imageUrl =
     (row.image_url as string | null) ??
     parseImageFromJson(row.description as string | null | undefined);
+  const profile =
+    (row.profiles as { full_name?: string | null; avatar_url?: string | null } | null) ?? null;
 
   return {
     id: row.id as string,
@@ -281,11 +288,11 @@ function mapListingRow(row: Record<string, unknown>): ListingRecord {
     inclusions: (row.inclusions as string[]) ?? [],
     exclusions: (row.exclusions as string[]) ?? [],
     guideSlug: normalizeSlug((row.guide_id as string) ?? ""),
-    guideName: "Локальный гид",
-    guideAvatarUrl: undefined,
+    guideName: profile?.full_name ?? "Локальный гид",
+    guideAvatarUrl: profile?.avatar_url ?? undefined,
     guideHomeBase: city || region,
-    rating: 0,
-    reviewCount: 0,
+    rating: typeof row.average_rating === "number" ? row.average_rating : 0,
+    reviewCount: typeof row.review_count === "number" ? row.review_count : 0,
     status: "active",
   };
 }
@@ -516,6 +523,11 @@ function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknow
     topListingTitle: undefined,
     experienceYears: (gp.years_experience as number) ?? 5,
     isPartialMatch: (gp.is_partial_match as boolean) ?? false,
+    specialties: (gp.specialties as string[] | null) ?? [],
+    languages: (gp.languages as string[] | null) ?? [],
+    tripsCompleted: 0,
+    recommendPct: null,
+    verified: false,
   };
 }
 
@@ -602,7 +614,7 @@ export async function getActiveListings(
   try {
     const { data, error } = await client
       .from("listings")
-      .select("*")
+      .select("*, profiles!listings_guide_id_fkey(full_name, avatar_url)")
       .eq("status", "published")
       .order("featured_rank", { ascending: true, nullsFirst: false });
 
@@ -771,14 +783,28 @@ export async function getGuides(
 
     const { data: statRows } = await client
       .from("v_guide_public_profile")
-      .select("user_id, average_rating, review_count")
+      .select("user_id, average_rating, review_count, trips_completed, recommend_pct, specialties, languages")
       .in("user_id", guideIds);
 
-    const ratingMap = new Map<string, { rating: number; reviewCount: number }>();
+    const ratingMap = new Map<
+      string,
+      {
+        rating: number;
+        reviewCount: number;
+        tripsCompleted: number;
+        recommendPct: number | null;
+        specialties: string[];
+        languages: string[];
+      }
+    >();
     for (const row of statRows ?? []) {
       ratingMap.set(row.user_id as string, {
         rating: (row.average_rating as number | null) ?? 0,
         reviewCount: (row.review_count as number | null) ?? 0,
+        tripsCompleted: (row.trips_completed as number | null) ?? 0,
+        recommendPct: (row.recommend_pct as number | null) ?? null,
+        specialties: (row.specialties as string[] | null) ?? [],
+        languages: (row.languages as string[] | null) ?? [],
       });
     }
 
@@ -787,11 +813,17 @@ export async function getGuides(
         rows.map((row) => {
           const userId = row.user_id as string;
           const stats = ratingMap.get(userId);
+          const base = mapGuideRow(row, profileMap.get(userId) ?? null);
           return {
-            ...mapGuideRow(row, profileMap.get(userId) ?? null),
+            ...base,
             listingCount: countMap[userId] ?? 0,
             rating: stats?.rating ?? 0,
             reviewCount: stats?.reviewCount ?? 0,
+            tripsCompleted: stats?.tripsCompleted ?? base.tripsCompleted,
+            recommendPct: stats?.recommendPct ?? base.recommendPct,
+            specialties: stats?.specialties ?? base.specialties,
+            languages: stats?.languages ?? base.languages,
+            verified: (row.verification_status as string | null) === "approved",
           };
         }),
         filters,
@@ -857,11 +889,15 @@ export async function getGuideBySlug(
 
     const { data: stats } = await client
       .from("v_guide_public_profile")
-      .select("average_rating, review_count")
+      .select("average_rating, review_count, trips_completed, recommend_pct, languages, specialties")
       .eq("user_id", record.id)
       .maybeSingle();
     record.rating = stats?.average_rating ?? 0;
     record.reviewCount = stats?.review_count ?? 0;
+    record.tripsCompleted = stats?.trips_completed ?? 0;
+    record.recommendPct = stats?.recommend_pct ?? null;
+    record.languages = stats?.languages ?? [];
+    record.specialties = stats?.specialties ?? [];
 
     return { data: record, error: null };
   } catch (error) {
