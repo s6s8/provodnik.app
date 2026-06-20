@@ -104,8 +104,8 @@ describe("GuideExcursionsScreen", () => {
   it("renders the empty state when the guide has no excursions", async () => {
     render(<GuideExcursionsScreen />);
 
-    expect(await screen.findByText("Экскурсий пока нет. Добавьте первую.")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "+ Добавить экскурсию" })).toBeInTheDocument();
+    expect(await screen.findByText("Экскурсий пока нет")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Добавить экскурсию" })).toBeInTheDocument();
   });
 
   it("renders existing excursions from loaded guide templates", async () => {
@@ -131,7 +131,7 @@ describe("GuideExcursionsScreen", () => {
   it("opens the create form with the current required fields and actions", async () => {
     render(<GuideExcursionsScreen />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "+ Добавить экскурсию" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Создать экскурсию" }));
 
     expect(screen.getByText("Новая экскурсия")).toBeInTheDocument();
     expect(screen.getByLabelText(/Название/)).toBeInTheDocument();
@@ -143,7 +143,7 @@ describe("GuideExcursionsScreen", () => {
   it("shows the current title validation error and does not save without a title", async () => {
     render(<GuideExcursionsScreen />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "+ Добавить экскурсию" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Создать экскурсию" }));
     fireEvent.change(screen.getByLabelText(/Цена от/), {
       target: { value: "1000" },
     });
@@ -157,7 +157,7 @@ describe("GuideExcursionsScreen", () => {
   it("saves a new excursion with the payload built from the form", async () => {
     render(<GuideExcursionsScreen />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "+ Добавить экскурсию" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Создать экскурсию" }));
     fireEvent.change(screen.getByLabelText(/Название/), {
       target: { value: "  Новый маршрут  " },
     });
