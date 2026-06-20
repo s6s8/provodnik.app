@@ -46,7 +46,6 @@ const ACTION_FILTERS = {
   approve: "Одобрено",
   reject: "Отклонено",
   request_changes: "Запрошены правки",
-  escalate: "Эскалация",
 } as const;
 
 const VALID_DECISIONS = new Set([
@@ -140,7 +139,7 @@ export default async function AdminAuditPage({
              )`,
           );
         if (activeSubject !== ALL) {
-          q = q.eq("moderation_cases.subject_type", activeSubject);
+          q = q.eq("case.subject_type", activeSubject);
         }
         if (activeAction !== ALL && VALID_DECISIONS.has(activeAction)) {
           q = q.eq(
