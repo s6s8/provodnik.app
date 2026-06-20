@@ -1,18 +1,20 @@
+"use client";
+
+import { useActionState } from "react";
 import { AlertTriangle, MessageSquareText, ShieldAlert, Snowflake } from "lucide-react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { BOOKING_STATUS_LABELS } from "@/components/bookings/booking-status-badge";
+import { PageHeader } from "@/components/shared/page-header";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
+import { formatRussianDateTime } from "@/lib/dates";
 import type { DisputeDetail } from "@/lib/supabase/disputes";
-
-function bookingStatusLabel(status: string | undefined): string {
-  if (!status) return "—";
-  return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
-}
 
 import {
   addDisputeNoteAction,
@@ -20,16 +22,9 @@ import {
   resolveDisputeAction,
 } from "@/app/(protected)/admin/disputes/[caseId]/actions";
 
-function formatAt(iso: string) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleString("ru-RU", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function bookingStatusLabel(status: string | undefined): string {
+  if (!status) return "—";
+  return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
 }
 
 function formatRub(minor: number) {
@@ -64,24 +59,13 @@ export function DisputeCaseDetail({
   const booking = dispute.booking;
   const isAssignedToMe = dispute.assignedAdminId === adminId;
 
+  const [assignState, assignAction, assignPending] = useActionState(assignDisputeToSelfAction, null);
+  const [noteState, noteAction, notePending] = useActionState(addDisputeNoteAction, null);
+  const [resolveState, resolveAction, resolvePending] = useActionState(resolveDisputeAction, null);
+
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Badge variant="outline">Админ-панель</Badge>
-        <div className="space-y-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-3xl font-semibold tracking-tight text-foreground">Карточка спора</h1>
-            <Badge variant={badge.variant}>
-              <badge.Icon className="mr-1 size-3.5" />
-              {badge.label}
-            </Badge>
-            <Badge variant="outline">{dispute.id}</Badge>
-          </div>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            Реальные данные спора, привязка к бронированию, заметки администраторов и итоговое решение.
-          </p>
-        </div>
-      </div>
+      <PageHeader eyebrow="Спор" title="Разбор спора" />
 
       <Card className="border-border/70 bg-card/90">
         <CardHeader className="space-y-3">
@@ -102,10 +86,14 @@ export function DisputeCaseDetail({
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
+              <Badge variant={badge.variant}>
+                <badge.Icon className="mr-1 size-3.5" />
+                {badge.label}
+              </Badge>
               {dispute.payoutFrozen ? <Badge variant="destructive">Выплата заморожена</Badge> : null}
               {dispute.assignedAdminId ? (
                 <Badge variant="outline">
-                  Назначен: {isAssignedToMe ? "вы" : dispute.assignedAdminId}
+                  {isAssignedToMe ? "Назначен: вы" : "Назначен другому администратору"}
                 </Badge>
               ) : (
                 <Badge variant="outline">Не назначен</Badge>
@@ -126,8 +114,8 @@ export function DisputeCaseDetail({
             </div>
             <div className="space-y-1">
               <p className="text-sm font-medium text-foreground">Тайминг</p>
-              <p className="text-sm text-muted-foreground">Создано {formatAt(dispute.createdAt)}</p>
-              <p className="text-sm text-muted-foreground">Обновлено {formatAt(dispute.updatedAt)}</p>
+              <p className="text-sm text-muted-foreground">Создано {formatRussianDateTime(dispute.createdAt)}</p>
+              <p className="text-sm text-muted-foreground">Обновлено {formatRussianDateTime(dispute.updatedAt)}</p>
             </div>
           </div>
         </CardHeader>
@@ -152,7 +140,7 @@ export function DisputeCaseDetail({
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="space-y-1">
                       <p className="text-sm font-medium text-foreground">{note.authorName}</p>
-                      <p className="text-xs text-muted-foreground">{formatAt(note.createdAt)}</p>
+                      <p className="text-xs text-muted-foreground">{formatRussianDateTime(note.createdAt)}</p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                       {note.internalOnly ? <Badge variant="outline">Только внутри</Badge> : <Badge variant="secondary">Видно всем</Badge>}
@@ -172,23 +160,34 @@ export function DisputeCaseDetail({
               <CardDescription>Назначить спор на себя, добавить заметку или закрыть его решением.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <form action={assignDisputeToSelfAction} className="space-y-3">
+              <form action={assignAction} className="space-y-3">
                 <input type="hidden" name="case_id" value={dispute.id} />
                 <input type="hidden" name="admin_id" value={adminId} />
-                <Button type="submit" variant="secondary" className="w-full" disabled={isAssignedToMe && dispute.status !== "open"}>
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="w-full"
+                  disabled={(isAssignedToMe && dispute.status !== "open") || assignPending}
+                >
                   {isAssignedToMe ? "Уже назначен на вас" : "Назначить себе"}
                 </Button>
+                {assignState?.error ? (
+                  <Alert variant="destructive">
+                    <AlertDescription>{assignState.error}</AlertDescription>
+                  </Alert>
+                ) : null}
               </form>
 
               <Separator />
 
-              <form action={addDisputeNoteAction} className="space-y-3">
+              <form action={noteAction} className="space-y-3">
                 <input type="hidden" name="case_id" value={dispute.id} />
                 <input type="hidden" name="author_id" value={adminId} />
                 <input type="hidden" name="internal_only" value="true" />
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">Добавить заметку</p>
+                  <Label htmlFor="note-input">Добавить заметку</Label>
                   <Textarea
+                    id="note-input"
                     name="note"
                     placeholder="Фиксируйте факты, ссылки на доказательства и промежуточный вывод."
                     minLength={1}
@@ -196,20 +195,26 @@ export function DisputeCaseDetail({
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" variant="ghost" className="w-full" disabled={notePending}>
                   <MessageSquareText className="mr-1 size-4" />
                   Сохранить заметку
                 </Button>
+                {noteState?.error ? (
+                  <Alert variant="destructive">
+                    <AlertDescription>{noteState.error}</AlertDescription>
+                  </Alert>
+                ) : null}
               </form>
 
               <Separator />
 
-              <form action={resolveDisputeAction} className="space-y-3">
+              <form action={resolveAction} className="space-y-3">
                 <input type="hidden" name="case_id" value={dispute.id} />
                 <input type="hidden" name="admin_id" value={adminId} />
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground">Итоговое решение</p>
+                  <Label htmlFor="resolution-input">Итоговое решение</Label>
                   <Textarea
+                    id="resolution-input"
                     name="resolution_summary"
                     placeholder="Кратко опишите итог и что происходит с бронированием."
                     minLength={1}
@@ -217,9 +222,14 @@ export function DisputeCaseDetail({
                     required
                   />
                 </div>
-                <Button type="submit" variant="secondary" className="w-full" disabled={dispute.status === "resolved"}>
+                <Button type="submit" className="w-full" disabled={dispute.status === "resolved" || resolvePending}>
                   Закрыть спор
                 </Button>
+                {resolveState?.error ? (
+                  <Alert variant="destructive">
+                    <AlertDescription>{resolveState.error}</AlertDescription>
+                  </Alert>
+                ) : null}
               </form>
             </CardContent>
           </Card>
