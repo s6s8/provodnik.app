@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Check, X } from "lucide-react";
+import { Check, Circle } from "lucide-react";
 
+import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { ContactVisibilityChip } from "@/components/guide/ContactVisibilityChip";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -14,7 +18,7 @@ export default async function ContactVisibilitySettingsPage() {
   const auth = await readAuthContextFromServer();
 
   if (!auth.isAuthenticated) {
-    redirect("/auth?next=/settings/contact-visibility");
+    redirect("/auth?next=/guide/settings/contact-visibility");
   }
 
   if (auth.role && auth.role !== "guide") {
@@ -24,6 +28,7 @@ export default async function ContactVisibilitySettingsPage() {
   let unlocked = false;
   let averageRating: number | null = null;
   let responseRate: number | null = null;
+  let loadError = false;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -49,7 +54,7 @@ export default async function ContactVisibilitySettingsPage() {
       }
     }
   } catch {
-    // Supabase unavailable — show locked state with empty metrics
+    loadError = true;
   }
 
   const ratingMet = (averageRating ?? 0) >= 4.0;
@@ -61,9 +66,15 @@ export default async function ContactVisibilitySettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-2xl space-y-8 py-8">
-      <h1 className="font-display text-2xl text-foreground md:text-3xl">
-        Видимость контактов
-      </h1>
+      <PageHeader eyebrow="Кабинет гида" title="Видимость контактов" />
+
+      {loadError && (
+        <Alert variant="destructive">
+          <AlertDescription>
+            Не удалось загрузить данные. Попробуйте обновить страницу.
+          </AlertDescription>
+        </Alert>
+      )}
 
       <ContactVisibilityChip
         unlocked={unlocked}
@@ -98,9 +109,9 @@ export default async function ContactVisibilitySettingsPage() {
                 className="mt-0.5 size-5 shrink-0 text-success"
               />
             ) : (
-              <X
+              <Circle
                 aria-hidden
-                className="mt-0.5 size-5 shrink-0 text-destructive"
+                className="mt-0.5 size-5 shrink-0 text-muted-foreground"
               />
             )}
             <div className="min-w-0 space-y-1">
@@ -117,9 +128,9 @@ export default async function ContactVisibilitySettingsPage() {
                 className="mt-0.5 size-5 shrink-0 text-success"
               />
             ) : (
-              <X
+              <Circle
                 aria-hidden
-                className="mt-0.5 size-5 shrink-0 text-destructive"
+                className="mt-0.5 size-5 shrink-0 text-muted-foreground"
               />
             )}
             <div className="min-w-0 space-y-1">
@@ -130,6 +141,12 @@ export default async function ContactVisibilitySettingsPage() {
             </div>
           </li>
         </ul>
+
+        {!unlocked && (
+          <Button asChild>
+            <Link href="/guide/listings">Перейти к объявлениям</Link>
+          </Button>
+        )}
       </section>
 
       <p className="text-sm text-ink-3">
