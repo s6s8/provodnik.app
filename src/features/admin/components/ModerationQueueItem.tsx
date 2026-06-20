@@ -3,22 +3,31 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { MoreVertical } from "lucide-react";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
+import { ListRow } from "@/components/shared/list-row";
 import {
   approveListing,
   rejectListing,
 } from "@/features/admin/actions/moderateListing";
+import { formatRussianDateTime } from "@/lib/dates";
 import { maskPii } from "@/lib/pii/mask";
 import type { ListingRow } from "@/lib/supabase/types";
 
@@ -50,7 +59,7 @@ export function ModerationQueueList({
 }) {
   const router = useRouter();
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {listings.map((listing) => (
         <ModerationQueueItem
           key={listing.id}
@@ -63,26 +72,20 @@ export function ModerationQueueList({
 }
 
 export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemProps) {
-  const [showReject, setShowReject] = React.useState(false);
+  const [rejectOpen, setRejectOpen] = React.useState(false);
   const [reason, setReason] = React.useState("");
   const [busy, setBusy] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
-  const [success, setSuccess] = React.useState<string | null>(null);
 
   const maskedDescription = maskPii(listing.description);
-
-  function runAfterSuccess() {
-    onAction();
-  }
+  const subtitle = [listing.region, listing.exp_type].filter(Boolean).join(" · ");
 
   async function handleApprove() {
     setError(null);
-    setSuccess(null);
     setBusy(true);
     try {
       await approveListing(listing.id);
-      setSuccess("Объявление одобрено");
-      runAfterSuccess();
+      onAction();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось одобрить");
     } finally {
@@ -97,14 +100,12 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
       return;
     }
     setError(null);
-    setSuccess(null);
     setBusy(true);
     try {
       await rejectListing(listing.id, trimmed);
-      setShowReject(false);
+      setRejectOpen(false);
       setReason("");
-      setSuccess("Объявление отклонено");
-      runAfterSuccess();
+      onAction();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось отклонить");
     } finally {
@@ -113,115 +114,130 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
   }
 
   return (
-    <Card className="border-border/70 bg-card/90">
-      <CardHeader className="space-y-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-          <div className="min-w-0 space-y-2">
-            <CardTitle className="text-lg leading-snug">{listing.title}</CardTitle>
-            <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-              <span>{listing.region}</span>
-              {listing.exp_type ? (
-                <Badge variant="secondary">{listing.exp_type}</Badge>
-              ) : null}
-            </div>
+    <div className="space-y-1.5">
+      <ListRow
+        title={listing.title}
+        subtitle={subtitle}
+        badge={
+          <div className="flex items-center gap-2">
+            <Badge>На проверке</Badge>
+            <span className="text-xs text-muted-foreground">
+              {formatRussianDateTime(listing.created_at)}
+            </span>
           </div>
-          <Button asChild variant="outline" size="sm" className="shrink-0">
-            <Link href={`/listings/${listing.id}`}>Посмотреть объявление</Link>
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {maskedDescription ? (
-          <p className="line-clamp-3 text-sm text-muted-foreground">{maskedDescription}</p>
-        ) : null}
-
-        {error ? (
-          <Alert variant="destructive">
-            <AlertTitle>Ошибка</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        {success ? (
-          <Alert className="border-success/30 bg-success/10 text-success">
-            <AlertTitle>Готово</AlertTitle>
-            <AlertDescription className="text-success/90">{success}</AlertDescription>
-          </Alert>
-        ) : null}
-
-        {showReject ? (
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-foreground">Причина отклонения</p>
-            <div className="flex flex-wrap gap-2">
-              {CANNED_REJECTION_REASONS.map((label) => (
+        }
+        actions={
+          <>
+            <Button
+              type="button"
+              size="sm"
+              disabled={busy}
+              className="border-success/30 bg-success/10 text-success hover:bg-success/20"
+              onClick={() => void handleApprove()}
+            >
+              Одобрить
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
-                  key={label}
                   type="button"
                   variant="outline"
-                  size="sm"
-                  onClick={() => setReason(label)}
+                  size="icon"
+                  aria-label="Ещё действия"
+                  disabled={busy}
                 >
-                  {label}
+                  <MoreVertical />
                 </Button>
-              ))}
-            </div>
-            <Textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Текст причины…"
-              aria-label="Причина отклонения"
-              rows={4}
-            />
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                disabled={busy}
-                onClick={() => void handleConfirmReject()}
-              >
-                Подтвердить отклонение
-              </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                disabled={busy}
-                onClick={() => {
-                  setShowReject(false);
-                  setReason("");
-                  setError(null);
-                }}
-              >
-                Отмена
-              </Button>
-            </div>
-          </div>
-        ) : null}
-      </CardContent>
-      <CardFooter className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          size="sm"
-          disabled={busy || showReject || success !== null}
-          className="border-success/30 bg-success/10 text-success hover:bg-success/20"
-          onClick={() => void handleApprove()}
-        >
-          Одобрить
-        </Button>
-        <Button
-          type="button"
-          variant="destructive"
-          size="sm"
-          disabled={busy || success !== null}
-          onClick={() => {
-            setShowReject(true);
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => {
+                    setError(null);
+                    setRejectOpen(true);
+                  }}
+                >
+                  Отклонить
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href={`/listings/${listing.id}`}>Посмотреть объявление</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        }
+      />
+
+      {error && !rejectOpen ? (
+        <p className="px-1 text-sm text-destructive">{error}</p>
+      ) : null}
+
+      <Dialog
+        open={rejectOpen}
+        onOpenChange={(open) => {
+          setRejectOpen(open);
+          if (!open) {
+            setReason("");
             setError(null);
-          }}
-        >
-          Отклонить
-        </Button>
-      </CardFooter>
-    </Card>
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Отклонить объявление</DialogTitle>
+            <DialogDescription>
+              Укажите причину отклонения — выберите готовую или впишите свою.
+            </DialogDescription>
+          </DialogHeader>
+
+          {maskedDescription ? (
+            <p className="line-clamp-3 text-sm text-muted-foreground">{maskedDescription}</p>
+          ) : null}
+
+          <div className="flex flex-wrap gap-2">
+            {CANNED_REJECTION_REASONS.map((label) => (
+              <Button
+                key={label}
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setReason(label)}
+              >
+                {label}
+              </Button>
+            ))}
+          </div>
+
+          <Textarea
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="Текст причины…"
+            aria-label="Причина отклонения"
+            rows={4}
+          />
+
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="ghost"
+              disabled={busy}
+              onClick={() => setRejectOpen(false)}
+            >
+              Отмена
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={busy}
+              onClick={() => void handleConfirmReject()}
+            >
+              Подтвердить отклонение
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

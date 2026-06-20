@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 
+import { EmptyState } from "@/components/shared/empty-state";
+import { ListRow } from "@/components/shared/list-row";
+import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModerationQueueList } from "@/features/admin/components/ModerationQueueItem";
+import { formatRussianDateTime } from "@/lib/dates";
+import { maskPii } from "@/lib/pii/mask";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 
 export const metadata: Metadata = {
@@ -26,40 +32,58 @@ export default async function ModerationQueuePage() {
     .limit(20);
 
   const listingRows = listings ?? [];
+  const replyRows = replies ?? [];
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-2xl font-bold">Очередь модерации</h1>
+      <PageHeader eyebrow="Администратор" title="Очередь модерации" />
 
-      <section className="mb-10">
-        <h2 className="mb-4 text-lg font-semibold">
-          Объявления ({listingRows.length})
-        </h2>
-        {listingRows.length === 0 ? (
-          <p className="text-muted-foreground">Нет объявлений на проверке</p>
-        ) : (
-          <ModerationQueueList listings={listingRows} />
-        )}
-      </section>
+      <Tabs defaultValue="listings" className="mt-8">
+        <TabsList>
+          <TabsTrigger value="listings">
+            Объявления
+            <Badge variant="secondary">{listingRows.length}</Badge>
+          </TabsTrigger>
+          <TabsTrigger value="replies">
+            Ответы на отзывы
+            <Badge variant="secondary">{replyRows.length}</Badge>
+          </TabsTrigger>
+        </TabsList>
 
-      {replies && replies.length > 0 ? (
-        <section>
-          <h2 className="mb-4 text-lg font-semibold">
-            Ответы на отзывы ({replies.length})
-          </h2>
-          <div className="space-y-2">
-            {replies.map((reply) => (
-              <div
-                key={reply.id}
-                className="flex items-start gap-4 rounded-card border border-border p-4"
-              >
-                <p className="line-clamp-2 flex-1 text-sm">{reply.body}</p>
-                <Badge variant="secondary">На проверке</Badge>
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : null}
+        <TabsContent value="listings">
+          {listingRows.length === 0 ? (
+            <EmptyState
+              title="Очередь пуста"
+              description="Нет объявлений на проверке."
+            />
+          ) : (
+            <ModerationQueueList listings={listingRows} />
+          )}
+        </TabsContent>
+
+        <TabsContent value="replies">
+          {replyRows.length === 0 ? (
+            <EmptyState
+              title="Очередь пуста"
+              description="Нет ответов на отзывы на проверке."
+            />
+          ) : (
+            <div className="space-y-2">
+              <p className="text-sm text-muted-foreground">
+                Ответы модерируются вручную — действия в разработке.
+              </p>
+              {replyRows.map((reply) => (
+                <ListRow
+                  key={reply.id}
+                  title={maskPii(reply.body)}
+                  subtitle={formatRussianDateTime(reply.submitted_at)}
+                  badge={<Badge>На проверке</Badge>}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

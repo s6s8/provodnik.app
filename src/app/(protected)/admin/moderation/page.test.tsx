@@ -78,7 +78,10 @@ describe("ModerationQueuePage", () => {
     expect(adminClient.from).toHaveBeenCalledWith("listings");
     expect(adminClient.from).toHaveBeenCalledWith("review_replies");
     expect(serverClient.from).not.toHaveBeenCalled();
+
     expect(screen.getByTestId("moderation-queue")).toHaveTextContent("Ладога на каяке");
-    expect(screen.getByText("Спасибо за отзыв")).toBeInTheDocument();
+
+    expect(screen.getByRole("tab", { name: /Объявления/ })).toHaveTextContent("1");
+    expect(screen.getByRole("tab", { name: /Ответы на отзывы/ })).toHaveTextContent("1");
   });
 });
