@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { ArrowLeft, Home } from "lucide-react";
+import { Home } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { RouteFeedbackShell } from "@/components/shared/route-feedback-shell";
@@ -16,28 +16,22 @@ export default function NotFound() {
     <RouteFeedbackShell
       eyebrow="404"
       title="Страница кабинета не найдена"
-      description="Ссылка устарела, путь был изменён или у вас нет доступа к этому адресу. Можно вернуться на главную или открыть страницу входа."
+      description="Ссылка устарела, путь был изменён или у вас нет доступа к этому адресу. Можно вернуться на главную или открыть другой раздел кабинета."
       asideTitle="Куда дальше"
       asideItems={[
         "Проверьте адрес и попробуйте открыть его ещё раз.",
-        "Войдите в Provodnik, чтобы попасть в свой кабинет.",
+        "Откройте нужный раздел из меню кабинета.",
         "Если ссылка из старой закладки, обновите её до новой версии.",
       ]}
       actions={
         <>
-          <Button asChild>
-            <Link href="/auth">
-              <ArrowLeft className="size-4" />
-              К входу
-            </Link>
-          </Button>
-          <Button variant="outline" asChild>
+          <Button size="lg" asChild>
             <Link href="/">
               <Home className="size-4" />
               На главную
             </Link>
           </Button>
-          <Button variant="outline" asChild>
+          <Button variant="outline" size="lg" asChild>
             <a href="mailto:support@provodnik.app">Связаться с поддержкой</a>
           </Button>
         </>
