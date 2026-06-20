@@ -57,10 +57,13 @@ export function GuideBookingsScreen() {
   }, [loadBookings]);
 
   const handleRetry = React.useCallback(async () => {
+    setLoading(true);
     try {
       await loadBookings();
     } catch {
       setLoadError("Не удалось загрузить бронирования.");
+    } finally {
+      setLoading(false);
     }
   }, [loadBookings]);
 
@@ -161,45 +164,53 @@ export function GuideBookingsScreen() {
         )}
       </div>
 
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
-          Итоги
-        </p>
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-1">
-            <CardTitle>Итоги по бронированиям</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Быстрый взгляд на загрузку, выполненные экскурсии и ориентировочный оборот.
-            </p>
-          </CardHeader>
-          <CardContent className="grid gap-3 sm:grid-cols-4">
-            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Все бронирования</p>
-              <p className="mt-1 text-base font-semibold text-foreground">
-                {summary.totalCount}
+      {!loading && (
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+            Итоги
+          </p>
+          <Card className="border-border/70 bg-card/90">
+            <CardHeader className="space-y-1">
+              <CardTitle>Итоги по бронированиям</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Быстрый взгляд на загрузку, выполненные экскурсии и ориентировочный оборот.
               </p>
-            </div>
-            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Активные сейчас</p>
-              <p className="mt-1 text-base font-semibold text-foreground">
-                {summary.activeCount}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Завершено</p>
-              <p className="mt-1 text-base font-semibold text-foreground">
-                {summary.completedCount}
-              </p>
-            </div>
-            <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-              <p className="text-xs text-muted-foreground">Сумма по экскурсиям</p>
-              <p className="mt-1 text-base font-semibold text-foreground">
-                {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-4">
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Все бронирования</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {summary.totalCount}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Активные сейчас</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {summary.activeCount}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Завершено</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {summary.completedCount}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Отменено</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {summary.cancelledCount}
+                </p>
+              </div>
+              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
+                <p className="text-xs text-muted-foreground">Сумма по экскурсиям</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
