@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { formatTimeRange } from "@/lib/dates";
 import type {
   ListingScheduleExtraRow,
   ListingScheduleRow,
@@ -30,13 +31,6 @@ function startOfWeekMonday(base: Date): Date {
 function jsDayToDbWeekday(date: Date): number {
   const js = date.getDay();
   return js === 0 ? 6 : js - 1;
-}
-
-function formatTime(t: string | null): string {
-  if (!t) return "—";
-  const parts = t.split(":");
-  if (parts.length >= 2) return `${parts[0]}:${parts[1]}`;
-  return t;
 }
 
 function formatRub(minor: number): string {
@@ -126,7 +120,7 @@ export function WeeklyCalendar({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-7">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 md:grid-cols-7">
         {weekDays.map((day, idx) => {
           const iso = formatDateOnlyLocal(day);
           const dbWeekday = jsDayToDbWeekday(day);
@@ -155,7 +149,8 @@ export function WeeklyCalendar({
                       {titleByListingId.get(s.listing_id) ?? "Экскурсия"}
                     </span>
                     <span className="block text-muted-foreground">
-                      Еженедельно · {formatTime(s.time_start)}–{formatTime(s.time_end)}
+                      Еженедельно ·{" "}
+                      {formatTimeRange(s.time_start.slice(0, 5), s.time_end.slice(0, 5))}
                     </span>
                   </li>
                 ))}
@@ -167,7 +162,7 @@ export function WeeklyCalendar({
                     <span className="block text-muted-foreground">
                       Особая дата ·{" "}
                       {e.time_start && e.time_end
-                        ? `${formatTime(e.time_start)}–${formatTime(e.time_end)}`
+                        ? formatTimeRange(e.time_start.slice(0, 5), e.time_end.slice(0, 5))
                         : "время не задано"}
                     </span>
                   </li>
