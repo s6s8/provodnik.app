@@ -2,8 +2,12 @@ import { DisputeAdminResolve } from "@/features/disputes/components/dispute-admi
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { formatRussianDateTime } from "@/lib/dates";
+import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { CheckCircle2, Circle, Clock } from "lucide-react";
 
 const STATUS_LABEL: Record<string, string> = {
   open: "Открыт",
@@ -49,7 +53,7 @@ export async function DisputeThread({
   const { data: dispute, error: disputeError } = await supabase
     .from("disputes")
     .select(
-      "id, booking_id, opened_by, status, resolution_summary, created_at, resolved_at",
+      "id, booking_id, opened_by, status, resolution_summary, reason, created_at, resolved_at",
     )
     .eq("id", disputeId)
     .maybeSingle();
@@ -90,26 +94,24 @@ export async function DisputeThread({
   const statusLabel = STATUS_LABEL[status] ?? status;
   const resolvedLike = status === "resolved" || status === "closed";
 
+  const timeline = events ?? [];
+
   return (
     <div className="mx-auto flex max-w-[640px] flex-col gap-6 px-[var(--px)] py-8">
-      <div className="flex flex-wrap items-center gap-3">
-        <h1 className="font-display text-2xl font-semibold text-foreground">
-          Спор #{disputeId.slice(0, 8)}
-        </h1>
-        <Badge variant="outline" className={statusBadgeClass(status)}>
-          {statusLabel}
-        </Badge>
-        {adminView && !resolvedLike ? (
-          <DisputeAdminResolve disputeId={disputeId} />
-        ) : null}
-      </div>
-
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-base">Бронирование</CardTitle>
-          <p className="text-sm text-muted-foreground">{destination}</p>
-        </CardHeader>
-      </Card>
+      <PageHeader
+        eyebrow="Спор"
+        title={`Спор по бронированию · ${destination}`}
+        actions={
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className={statusBadgeClass(status)}>
+              {statusLabel}
+            </Badge>
+            {adminView && !resolvedLike ? (
+              <DisputeAdminResolve disputeId={disputeId} />
+            ) : null}
+          </div>
+        }
+      />
 
       {!adminView ? (
         <Alert>
@@ -137,35 +139,47 @@ export async function DisputeThread({
         <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Хронология
         </h2>
-        <Card className="border-border/70 bg-card/90">
-          <CardContent className="pt-6">
-            {(events ?? []).length === 0 ? (
-              <p className="text-sm text-muted-foreground">Событий пока нет.</p>
-            ) : (
-              <ul className="flex flex-col gap-4">
-                {(events ?? []).map((ev, i) => (
-                  <li key={ev.id}>
-                    {i > 0 ? <Separator className="mb-4" /> : null}
-                    <p className="text-sm font-medium text-foreground">
-                      {formatEventLabel(ev.event_type)}
+        {timeline.length === 0 ? (
+          <EmptyState
+            icon={<Clock className="size-6" />}
+            title="Событий пока нет"
+            description="Здесь появятся обновления по вашему спору, как только администрация начнёт рассмотрение."
+          />
+        ) : (
+          <ol className="relative flex flex-col gap-0 border-l-2 border-border/50 pl-6">
+            {timeline.map((ev, index) => {
+              const isLatest = index === timeline.length - 1;
+              const reason =
+                ev.event_type === "dispute_opened" &&
+                ev.payload &&
+                typeof (ev.payload as { reason?: unknown }).reason === "string"
+                  ? maskPii((ev.payload as { reason: string }).reason)
+                  : null;
+              return (
+                <li key={ev.id} className="relative pb-6 last:pb-0">
+                  <span className="absolute -left-[31px] top-0 flex size-4 items-center justify-center rounded-full bg-background">
+                    {isLatest ? (
+                      <Circle className="size-4 text-primary" />
+                    ) : (
+                      <CheckCircle2 className="size-4 text-success" />
+                    )}
+                  </span>
+                  <p className="text-sm font-medium text-foreground">
+                    {formatEventLabel(ev.event_type)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {formatRussianDateTime(ev.created_at)}
+                  </p>
+                  {reason ? (
+                    <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
+                      {reason}
                     </p>
-                    <p className="text-xs text-muted-foreground">
-                      {new Date(ev.created_at).toLocaleString("ru-RU")}
-                    </p>
-                    {ev.event_type === "dispute_opened" &&
-                    ev.payload &&
-                    typeof (ev.payload as { reason?: unknown }).reason ===
-                      "string" ? (
-                      <p className="mt-2 whitespace-pre-wrap text-sm text-muted-foreground">
-                        {(ev.payload as { reason: string }).reason}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </CardContent>
-        </Card>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ol>
+        )}
       </div>
     </div>
   );
