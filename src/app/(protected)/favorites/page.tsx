@@ -1,5 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/shared/page-header";
 import { FavoritesManager } from "@/features/favorites/components/FavoritesManager";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { flags } from "@/lib/flags";
@@ -17,7 +18,7 @@ export default async function FavoritesPage() {
 
   const { data: folders } = await supabase
     .from("favorites_folders")
-    .select("*, favorites_items(*, listing:listings(id, title, image_url, price_from_minor, region))")
+    .select("*, favorites_items(*, listing:listings(id, slug, title, image_url, price_from_minor, region))")
     .eq("user_id", user.id)
     .order("position");
 
@@ -27,6 +28,7 @@ export default async function FavoritesPage() {
         | (FavoritesItemRow & {
             listing: {
               id: string;
+              slug: string | null;
               title: string;
               image_url: string | null;
               price_from_minor: number;
@@ -41,7 +43,7 @@ export default async function FavoritesPage() {
         const listing = it.listing as NonNullable<typeof it.listing>;
         return {
           ...it,
-          listing: { ...listing, region: listing.region ?? "" },
+          listing: { ...listing, slug: listing.slug ?? null, region: listing.region ?? "" },
         };
       })
       .sort((a, b) => (a.added_at < b.added_at ? 1 : -1));
@@ -49,8 +51,8 @@ export default async function FavoritesPage() {
   });
 
   return (
-    <div className="container py-8">
-      <h1 className="mb-6 text-2xl font-bold">Избранное</h1>
+    <div className="container space-y-6 py-8">
+      <PageHeader title="Избранное" />
       <FavoritesManager folders={normalized} />
     </div>
   );

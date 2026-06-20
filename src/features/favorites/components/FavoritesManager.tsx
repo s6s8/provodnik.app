@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Heart, Plus, Search, X } from "lucide-react";
 
 import { createFolder, deleteFolder, removeFromFolder } from "@/features/favorites/actions/favoritesActions";
 import { Button } from "@/components/ui/button";
@@ -14,9 +16,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { kopecksToRub } from "@/data/money";
 import { cn } from "@/lib/utils";
 import type { FavoritesFolderRow, FavoritesItemRow } from "@/lib/supabase/types";
 
@@ -25,6 +29,7 @@ export type FavoritesManagerProps = {
     items: (FavoritesItemRow & {
       listing: {
         id: string;
+        slug: string | null;
         title: string;
         image_url: string | null;
         price_from_minor: number;
@@ -33,11 +38,6 @@ export type FavoritesManagerProps = {
     })[];
   })[];
 };
-
-function formatPriceFromMinor(minor: number): string {
-  const rub = minor / 100;
-  return `от ${new Intl.NumberFormat("ru-RU").format(rub)} ₽`;
-}
 
 export function FavoritesManager({ folders }: FavoritesManagerProps) {
   const router = useRouter();
@@ -102,15 +102,24 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium text-muted-foreground">Папки</p>
           <Button size="sm" type="button" variant="outline" onClick={() => setCreateOpen(true)}>
-            + Создать папку
+            <Plus className="mr-1.5 h-4 w-4" />Создать папку
           </Button>
         </div>
         <Separator />
-        <ul className="space-y-1">
-          {folders.length === 0 ? (
-            <li className="text-sm text-muted-foreground">Нет папок</li>
-          ) : (
-            folders.map((folder) => (
+        {folders.length === 0 ? (
+          <EmptyState
+            icon={<Heart className="h-6 w-6" />}
+            title="Нет папок"
+            description="Создайте папку, чтобы сохранять понравившиеся экскурсии."
+            action={
+              <Button size="sm" variant="outline" onClick={() => setCreateOpen(true)}>
+                <Plus className="mr-1.5 h-4 w-4" />Создать папку
+              </Button>
+            }
+          />
+        ) : (
+          <ul className="space-y-1">
+            {folders.map((folder) => (
               <li key={folder.id} className="flex items-center gap-2">
                 <Button
                   className={cn(
@@ -131,54 +140,80 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
                   variant="ghost"
                   onClick={() => setDeleteTarget(folder)}
                 >
-                  ×
+                  <X className="h-4 w-4" />
                 </Button>
               </li>
-            ))
-          )}
-        </ul>
+            ))}
+          </ul>
+        )}
       </aside>
 
       <section className="min-w-0 flex-1 space-y-4">
         {!selected ? (
-          <p className="text-sm text-muted-foreground">Выберите папку или создайте новую.</p>
+          <EmptyState
+            icon={<Heart className="h-6 w-6" />}
+            title="Выберите папку"
+            description="Выберите папку слева или создайте новую."
+          />
         ) : selected.items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">В этой папке пока нет объявлений.</p>
+          <EmptyState
+            icon={<Search className="h-6 w-6" />}
+            title="В этой папке пока пусто"
+            description="Находите экскурсии и сохраняйте их сюда."
+            action={
+              <Button asChild size="sm">
+                <Link href="/listings">Найти экскурсию</Link>
+              </Button>
+            }
+          />
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {selected.items.map((item) => (
-              <Card className="gap-0 overflow-hidden py-0" key={item.listing_id}>
-                <div
-                  className={cn(
-                    "relative aspect-[4/3] w-full overflow-hidden",
-                    !item.listing.image_url && "bg-gradient-to-br from-surface-high to-border",
-                  )}
-                >
-                  {item.listing.image_url ? (
-                    <Image
-                      alt=""
-                      className="object-cover"
-                      src={item.listing.image_url}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  ) : null}
-                </div>
-                <CardContent className="flex flex-col gap-3 p-4">
-                  <h3 className="line-clamp-2 text-base font-semibold leading-snug">{item.listing.title}</h3>
-                  <p className="line-clamp-1 text-sm text-muted-foreground">{item.listing.region}</p>
-                  <p className="text-sm font-medium">{formatPriceFromMinor(item.listing.price_from_minor)}</p>
+              <Link
+                key={item.listing_id}
+                href={`/listings/${item.listing.slug ?? item.listing_id}`}
+                className="group block rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <Card className="relative gap-0 overflow-hidden py-0">
                   <Button
+                    aria-label="Удалить из папки"
+                    className="absolute right-2 top-2 z-10 bg-background/80 backdrop-blur-sm"
                     disabled={pending}
-                    size="sm"
+                    size="icon-sm"
                     type="button"
                     variant="outline"
-                    onClick={() => void handleRemove(item.listing_id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      void handleRemove(item.listing_id);
+                    }}
                   >
-                    Удалить из папки
+                    <X className="h-4 w-4" />
                   </Button>
-                </CardContent>
-              </Card>
+                  <div
+                    className={cn(
+                      "relative aspect-[4/3] w-full overflow-hidden",
+                      !item.listing.image_url && "bg-muted",
+                    )}
+                  >
+                    {item.listing.image_url ? (
+                      <Image
+                        alt={item.listing.title}
+                        className="object-cover"
+                        src={item.listing.image_url}
+                        fill
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      />
+                    ) : null}
+                  </div>
+                  <CardContent className="flex flex-col gap-3 p-4">
+                    <h3 className="line-clamp-2 text-base font-semibold leading-snug">{item.listing.title}</h3>
+                    <p className="line-clamp-1 text-sm text-muted-foreground">{item.listing.region}</p>
+                    <p className="text-sm font-medium">
+                      от {new Intl.NumberFormat("ru-RU").format(kopecksToRub(item.listing.price_from_minor))} ₽
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         )}
