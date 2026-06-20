@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { ChevronRight } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 
 export type HeroBreadcrumbItem = { label: string };
@@ -51,7 +53,7 @@ export function ImmersiveHero({
               <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-white/80">
                 {breadcrumb.map((item, index) => (
                   <span key={`${item.label}-${index}`} className="flex items-center gap-2">
-                    {index > 0 ? <span className="opacity-50">›</span> : null}
+                    {index > 0 ? <ChevronRight className="size-3.5 opacity-50" /> : null}
                     <span>{item.label}</span>
                   </span>
                 ))}
