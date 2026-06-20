@@ -88,6 +88,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
       onAction();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось одобрить");
+    } finally {
       setBusy(false);
     }
   }
@@ -107,6 +108,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
       onAction();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось отклонить");
+    } finally {
       setBusy(false);
     }
   }
