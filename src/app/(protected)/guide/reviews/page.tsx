@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import { MessageSquare } from "lucide-react";
 import { redirect } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/shared/empty-state";
+import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ReviewsList } from "@/features/reviews/components/ReviewsList";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
@@ -46,6 +49,7 @@ export default async function GuideReviewsPage() {
     breakdown: ReviewRatingsBreakdownRow[];
     reply: ReviewReplyRow | null;
   })[] = [];
+  let loadFailed = false;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -68,27 +72,29 @@ export default async function GuideReviewsPage() {
 
     items = ((reviews ?? []) as RawReview[]).map((row) => toListItem(row, guideId));
   } catch {
-    return (
-      <div className="space-y-4">
-        <Badge variant="outline">Кабинет гида</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Отзывы</h1>
-        <p className="text-sm text-muted-foreground">
-          Раздел временно недоступен. Напишите в поддержку.
-        </p>
-      </div>
-    );
+    loadFailed = true;
   }
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Badge variant="outline">Кабинет гида</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Отзывы</h1>
-        <p className="text-sm text-muted-foreground">
-          Опубликованные отзывы с оценками по четырём критериям и ответы гида.
-        </p>
-      </div>
-      <ReviewsList reviews={items} showReplyComposer />
+      <PageHeader
+        eyebrow="Кабинет гида"
+        title="Отзывы"
+        subtitle="Отзывы путешественников о ваших турах"
+      />
+      {loadFailed ? (
+        <Alert variant="destructive">
+          <AlertDescription>Не удалось загрузить отзывы</AlertDescription>
+        </Alert>
+      ) : items.length === 0 ? (
+        <EmptyState
+          icon={<MessageSquare />}
+          title="Отзывов пока нет"
+          description="Они появятся после первых завершённых поездок"
+        />
+      ) : (
+        <ReviewsList reviews={items} showReplyComposer />
+      )}
     </div>
   );
 }

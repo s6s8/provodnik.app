@@ -110,7 +110,7 @@ describe("GuideReviewsPage", () => {
 
     render(await GuideReviewsPage());
 
-    expect(screen.getByText("Нет отзывов в этой категории.")).toBeInTheDocument();
+    expect(screen.getByText("Отзывов пока нет")).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalledWith("/guide");
   });
 });

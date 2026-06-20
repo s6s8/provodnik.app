@@ -3,7 +3,7 @@
 import * as React from "react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ReviewCard } from "@/features/reviews/components/ReviewCard";
 import type {
   ReviewRatingsBreakdownRow,
@@ -42,44 +42,32 @@ export function ReviewsList({ reviews, showReplyComposer }: ReviewsListProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-2">
-        <Button
-          type="button"
-          variant={bucket === "all" ? "default" : "outline"}
-          size="sm"
-          className="gap-2"
-          onClick={() => setBucket("all")}
-        >
-          Все
-          <Badge variant="secondary" className="tabular-nums">
-            {counts.all}
-          </Badge>
-        </Button>
-        <Button
-          type="button"
-          variant={bucket === "positive" ? "default" : "outline"}
-          size="sm"
-          className="gap-2"
-          onClick={() => setBucket("positive")}
-        >
-          Положительные (4–5 ★)
-          <Badge variant="secondary" className="tabular-nums">
-            {counts.positive}
-          </Badge>
-        </Button>
-        <Button
-          type="button"
-          variant={bucket === "critical" ? "default" : "outline"}
-          size="sm"
-          className="gap-2"
-          onClick={() => setBucket("critical")}
-        >
-          Критические (1–3 ★)
-          <Badge variant="secondary" className="tabular-nums">
-            {counts.critical}
-          </Badge>
-        </Button>
-      </div>
+      <Tabs
+        defaultValue="all"
+        value={bucket}
+        onValueChange={(value) => setBucket(value as Bucket)}
+      >
+        <TabsList>
+          <TabsTrigger value="all" className="min-h-[44px] gap-2">
+            Все
+            <Badge variant="secondary" className="tabular-nums">
+              {counts.all}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="positive" className="min-h-[44px] gap-2">
+            Положительные
+            <Badge variant="secondary" className="tabular-nums">
+              {counts.positive}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="critical" className="min-h-[44px] gap-2">
+            Критические
+            <Badge variant="secondary" className="tabular-nums">
+              {counts.critical}
+            </Badge>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
 
       {visible.length === 0 ? (
         <p className="text-sm text-muted-foreground">Нет отзывов в этой категории.</p>
