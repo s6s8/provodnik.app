@@ -53,6 +53,7 @@ export function GuideExcursionsScreen() {
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"excursions" | "photos">("excursions");
   const [photoPickerOpen, setPhotoPickerOpen] = useState(false);
   const { register, handleSubmit, reset, setValue, getValues, control } = useForm<
@@ -228,11 +229,12 @@ export function GuideExcursionsScreen() {
     });
     if (!ok) return;
     setDeletingTemplateId(template.id);
+    setDeleteError(null);
     try {
       await deleteGuideTemplate(template.id);
       setTemplates((prev) => prev.filter((item) => item.id !== template.id));
     } catch (err) {
-      setLoadError(err instanceof Error ? err.message : "Не удалось удалить экскурсию.");
+      setDeleteError(err instanceof Error ? err.message : "Не удалось удалить экскурсию.");
     } finally {
       setDeletingTemplateId(null);
     }
@@ -305,6 +307,7 @@ export function GuideExcursionsScreen() {
         />
       ) : (
         <div className="space-y-2">
+          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
           {templates.map((template) => (
             <ListRow
               key={template.id}
@@ -321,7 +324,7 @@ export function GuideExcursionsScreen() {
                 <>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     aria-label="Изменить"
                     onClick={() => openEditSheet(template)}
                   >
@@ -329,7 +332,7 @@ export function GuideExcursionsScreen() {
                   </Button>
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     aria-label="Удалить"
                     disabled={deletingTemplateId === template.id}
                     onClick={() => handleDeleteTemplate(template)}
