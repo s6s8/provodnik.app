@@ -156,7 +156,7 @@ export default async function AdminListingsPage() {
                         type="submit"
                         variant="secondary"
                         size="default"
-                        className="border-success/30 bg-success/10 text-success hover:bg-success/20"
+                        className="min-h-[44px] border-success/30 bg-success/10 text-success hover:bg-success/20"
                       >
                         Одобрить
                       </Button>
@@ -172,15 +172,15 @@ export default async function AdminListingsPage() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <form
-                          action={rejectListingAction.bind(null, row.listing.id)}
-                        >
-                          <DropdownMenuItem asChild variant="destructive">
-                            <button type="submit" className="w-full cursor-pointer">
-                              Отклонить
-                            </button>
-                          </DropdownMenuItem>
-                        </form>
+                        <DropdownMenuItem asChild variant="destructive">
+                          <button
+                            type="submit"
+                            formAction={rejectListingAction.bind(null, row.listing.id)}
+                            className="w-full cursor-pointer"
+                          >
+                            Отклонить
+                          </button>
+                        </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link
                             href={`/listings/${row.listing.slug}`}
