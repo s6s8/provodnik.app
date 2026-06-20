@@ -107,7 +107,7 @@ export function ForgotPasswordScreen() {
                   id="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="you@example.com"
+                  placeholder="ваш@email.ru"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
