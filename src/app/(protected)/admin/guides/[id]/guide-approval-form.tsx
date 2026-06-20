@@ -3,6 +3,8 @@
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 import { approveGuide, rejectGuide, requestChanges, type ActionState } from "./actions";
 
@@ -27,13 +29,16 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
     approveState.success ?? rejectState.success ?? changesState.success;
 
   return (
-    <form className="mt-4 space-y-4">
-      <textarea
-        name="note"
-        rows={6}
-        className="w-full rounded-[1.25rem] border border-input bg-surface-lowest px-4 py-3 text-sm text-foreground outline-none focus:border-primary"
-        placeholder="Комментарий для гида или внутренней истории модерации"
-      />
+    <form className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="guide-note">Комментарий для гида</Label>
+        <Textarea
+          id="guide-note"
+          name="note"
+          rows={4}
+          placeholder="Для отклонения / запроса изменений — обязателен"
+        />
+      </div>
 
       {error ? (
         <div className="rounded-[1rem] border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
@@ -47,29 +52,31 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
         </div>
       ) : null}
 
-      <div className="flex flex-wrap gap-2">
+      <div className="space-y-2">
         <Button
           formAction={approveAction}
           type="submit"
-          variant="secondary"
-          className="border-success/30 bg-success/10 text-success hover:bg-success/20"
+          variant="default"
+          className="w-full"
         >
           Одобрить гида
         </Button>
-        <Button
-          formAction={changesAction}
-          type="submit"
-          variant="secondary"
-        >
-          Запросить доп. документы
-        </Button>
-        <Button
-          formAction={rejectAction}
-          type="submit"
-          variant="destructive"
-        >
-          Отклонить
-        </Button>
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            formAction={changesAction}
+            type="submit"
+            variant="outline"
+          >
+            Запросить изменения
+          </Button>
+          <Button
+            formAction={rejectAction}
+            type="submit"
+            variant="destructive"
+          >
+            Отклонить
+          </Button>
+        </div>
       </div>
     </form>
   );
