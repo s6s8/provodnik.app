@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowUp, Clock } from "lucide-react";
 
 import { createRequestAction } from "@/features/requests/create-request-actions";
 import { Button } from "@/components/ui/button";
@@ -203,9 +204,7 @@ export function HeroConversation() {
               {isParsing ? (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
               ) : (
-                <span aria-hidden="true" className="text-lg leading-none">
-                  ↑
-                </span>
+                <ArrowUp className="h-5 w-5" aria-hidden="true" />
               )}
             </Button>
           </div>
@@ -236,7 +235,7 @@ export function HeroConversation() {
               border: "1px solid rgba(224,161,38,0.3)",
             }}
           >
-            <span aria-hidden="true">⏳</span>
+            <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             На популярные даты гидов разбирают быстро — отправьте запрос, пока выбор большой.
           </p>
         )}
