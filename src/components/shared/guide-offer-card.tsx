@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { BadgeCheck, Check, MapPin, Star } from "lucide-react";
 
