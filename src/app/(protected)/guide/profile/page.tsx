@@ -238,9 +238,7 @@ export default async function GuideProfilePage() {
   }
 
   const avatarDone = avatarUrl != null;
-  const aboutDone =
-    (profile?.bio ?? "").trim().length > 0 &&
-    (profile?.specializations?.length ?? 0) > 0;
+  const aboutDone = (profile?.bio ?? "").trim().length > 0;
   const legalDone = Boolean(
     legalInitialData.legalStatus &&
       legalInitialData.inn &&
@@ -248,6 +246,7 @@ export default async function GuideProfilePage() {
   );
   const licenseDone = licenses.length > 0;
   const verificationDone = verificationStatus !== "draft";
+  const isAnketaComplete = aboutDone && legalDone && licenseDone;
 
   const lockedStatus: ChecklistStep["status"] = isVerifiedDataLocked
     ? "locked"
@@ -415,6 +414,7 @@ export default async function GuideProfilePage() {
                   ) : null}
                   <VerificationUploadForm
                     initialDocuments={documents}
+                    isAnketaComplete={isAnketaComplete}
                     actions={{
                       getUploadUrl,
                       confirmGuideAssetUpload,

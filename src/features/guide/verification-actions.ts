@@ -265,7 +265,7 @@ export async function submitForVerification(): Promise<SubmitVerificationResult>
 
     const { data: profile, error: profileError } = await supabase
       .from("guide_profiles")
-      .select("user_id")
+      .select("user_id, bio, legal_status, inn, document_country")
       .eq("user_id", guideId)
       .maybeSingle();
 
@@ -275,6 +275,29 @@ export async function submitForVerification(): Promise<SubmitVerificationResult>
 
     if (!profile) {
       return { error: "Сначала заполните профиль гида." };
+    }
+
+    if (!(profile.bio ?? "").trim()) {
+      return { error: "Заполните раздел «О себе» перед отправкой." };
+    }
+
+    if (!(profile.legal_status && profile.inn && profile.document_country)) {
+      return { error: "Заполните юридические данные перед отправкой." };
+    }
+
+    const { count: licenseCount, error: licenseError } = await supabase
+      .from("guide_licenses")
+      .select("id", { count: "exact", head: true })
+      .eq("guide_id", guideId);
+
+    if (licenseError) {
+      throw licenseError;
+    }
+
+    if (!licenseCount) {
+      return {
+        error: "Добавьте хотя бы один документ о квалификации перед отправкой.",
+      };
     }
 
     const { error: guideError } = await supabase
