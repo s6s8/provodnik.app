@@ -2,6 +2,8 @@
 
 import * as React from "react";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import type {
   ListingScheduleExtraRow,
@@ -124,7 +126,8 @@ export function MonthlyCalendar({
             size="sm"
             onClick={() => setMonthOffset((o) => o - 1)}
           >
-            ← Предыдущий месяц
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            Предыдущий месяц
           </Button>
           <Button
             type="button"
@@ -132,7 +135,8 @@ export function MonthlyCalendar({
             size="sm"
             onClick={() => setMonthOffset((o) => o + 1)}
           >
-            Следующий →
+            Следующий
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </div>
