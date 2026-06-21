@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { kopecksToRub } from "@/data/money";
 import { formatTimeRange } from "@/lib/dates";
@@ -110,7 +112,8 @@ export function WeeklyCalendar({
             size="sm"
             onClick={() => setWeekOffset((o) => o - 1)}
           >
-            ← Предыдущая неделя
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            Предыдущая неделя
           </Button>
           <Button
             type="button"
@@ -118,7 +121,8 @@ export function WeeklyCalendar({
             size="sm"
             onClick={() => setWeekOffset((o) => o + 1)}
           >
-            Следующая неделя →
+            Следующая неделя
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </div>
