@@ -1,10 +1,12 @@
-import Image from "next/image";
 import Link from "next/link";
+import { BadgeCheck, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { RatingDisplay } from "@/components/shared/rating-display";
+import { ImmersiveHero } from "@/components/shared/immersive-hero";
 import { TourCard } from "@/components/shared/tour-card";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
+import { formatRussianDate } from "@/lib/dates";
+import { pluralize } from "@/lib/utils";
 import { GuidePhotoGrid } from "./guide-photo-grid";
 
 interface GuideListing {
@@ -48,10 +50,23 @@ function getInitials(name: string, fallback?: string): string {
     .toUpperCase();
 }
 
+function Dot() {
+  return <span className="size-[3px] rounded-full bg-on-surface-muted/60" />;
+}
+
 export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Props) {
   const initials = getInitials(guide.displayName, guide.avatarInitials);
   const rating = guide.reviewsSummary.averageRating;
   const totalReviews = guide.reviewsSummary.totalReviews;
+  const tripsCompleted = guide.tripsCompleted ?? guide.completedTours;
+  const recommendPct = guide.recommendPct ?? null;
+  const isVerified = guide.verificationStatus === "approved";
+
+  const showRating = rating > 0;
+  const showReviews = totalReviews > 0;
+  const showTrips = tripsCompleted > 0;
+  const showRecommend = recommendPct != null && recommendPct > 0;
+  const hasStats = showRating || showReviews || showTrips || showRecommend;
 
   const tourCards =
     listings && listings.length > 0
@@ -73,105 +88,127 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
   return (
     <div>
-      <section className="bg-surface pt-[110px] pb-16">
-        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-[380px_minmax(0,1fr)] lg:gap-14">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-[28px] bg-surface-low">
-              {guide.avatarImageUrl ? (
-                <Image
-                  src={guide.avatarImageUrl.replace("w=400&h=400", "w=600&h=800")}
-                  alt={guide.displayName}
-                  fill
-                  sizes="(max-width: 767px) 100vw, 380px"
-                  className="object-cover object-top"
-                  priority
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center font-display text-[4rem] text-primary">
-                  {initials}
-                </div>
-              )}
+      {guide.avatarImageUrl ? (
+        <ImmersiveHero
+          imageUrl={guide.avatarImageUrl}
+          imagePosition="center top"
+          breadcrumb={[{ label: guide.homeBase }]}
+          title={guide.displayName}
+          intro={guide.headline}
+        />
+      ) : (
+        <section className="relative w-full overflow-hidden bg-surface-low">
+          <div className="relative mx-auto flex min-h-[480px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:h-[560px] md:px-8">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[clamp(6rem,18vw,12rem)] leading-none text-on-surface-muted/15"
+            >
+              {initials}
             </div>
-
-            <div className="pt-2">
-              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
-                {guide.homeBase}
-              </p>
-
-              <h1 className="mt-2 mb-4 font-display text-[clamp(2.5rem,5vw,3.5rem)] leading-[1.05] text-foreground">
+            <div className="relative md:absolute md:bottom-12 md:left-8 md:max-w-[540px]">
+              <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-on-surface-muted">
+                <span>{guide.homeBase}</span>
+              </div>
+              <h1 className="mb-4 text-[clamp(2.75rem,8vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-on-surface">
                 {guide.displayName}
               </h1>
-
-              <p className="mb-6 max-w-[36rem] text-[1.0625rem] leading-[1.65] text-muted-foreground">
+              <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-on-surface-muted">
                 {guide.headline}
               </p>
+            </div>
+          </div>
+        </section>
+      )}
 
-              <div className="mb-6 flex flex-wrap items-center gap-2">
-                <RatingDisplay rating={rating} reviewCount={totalReviews} verified />
-                <span className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground">
-                  {guide.yearsExperience} лет опыта
-                </span>
-              </div>
+      <section className="bg-surface">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-12">
+          <div className="mx-auto flex max-w-[720px] flex-col items-center text-center">
+            {isVerified ? (
+              <span className="mb-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-success">
+                <BadgeCheck className="size-4 text-success" strokeWidth={2.3} />
+                Проверен
+              </span>
+            ) : null}
 
-              <div className="mt-5 flex flex-wrap items-center gap-3">
-                <Button asChild>
-                  <Link href="/">Оставить запрос</Link>
-                </Button>
-                {guideHasListings ? (
-                  <Button asChild variant="outline">
-                    <a href="#excursions">Смотреть экскурсии</a>
-                  </Button>
+            {hasStats ? (
+              <div className="flex flex-wrap items-center justify-center gap-[9px] text-[13.5px] text-on-surface-muted">
+                {showRating ? (
+                  <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
+                    <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
+                    {rating.toLocaleString("ru-RU", {
+                      minimumFractionDigits: 1,
+                      maximumFractionDigits: 1,
+                    })}
+                  </span>
+                ) : null}
+                {showReviews ? (
+                  <>
+                    {showRating ? <Dot /> : null}
+                    <span>
+                      {totalReviews} {pluralize(totalReviews, "отзыв", "отзыва", "отзывов")}
+                    </span>
+                  </>
+                ) : null}
+                {showTrips ? (
+                  <>
+                    {showRating || showReviews ? <Dot /> : null}
+                    <span>
+                      {tripsCompleted} {pluralize(tripsCompleted, "поездка", "поездки", "поездок")}
+                    </span>
+                  </>
+                ) : null}
+                {showRecommend ? (
+                  <>
+                    {showRating || showReviews || showTrips ? <Dot /> : null}
+                    <span>{recommendPct}% рекомендуют</span>
+                  </>
                 ) : null}
               </div>
-              <p className="mt-2 mb-6 text-[13px] text-on-surface-muted">
-                Опишите поездку — гиды, включая этого, предложат программу и цену.
-              </p>
+            ) : null}
 
-              <div className="mb-7 grid w-fit grid-cols-3 gap-8 border-b border-outline-variant pb-7">
-                <div className="flex flex-col">
-                  <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
-                    {totalReviews === 0 ? "—" : rating.toFixed(1)}
-                  </strong>
-                  <span className="mt-1 text-[0.8125rem] text-muted-foreground">рейтинг</span>
-                </div>
-                <div className="flex flex-col">
-                  <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
-                    {totalReviews === 0 ? "—" : totalReviews}
-                  </strong>
-                  <span className="mt-1 text-[0.8125rem] text-muted-foreground">поездок</span>
-                </div>
-                <div className="flex flex-col">
-                  <strong className="font-sans text-[2rem] font-semibold leading-[1] tabular-nums text-foreground">
-                    {guide.yearsExperience > 0 ? guide.yearsExperience : "—"}
-                  </strong>
-                  <span className="mt-1 text-[0.8125rem] text-muted-foreground">лет опыта</span>
-                </div>
-              </div>
+            <p className="mt-6 max-w-[38rem] leading-[1.7] text-muted-foreground">
+              {guide.bio}
+            </p>
 
-              <p className="mb-6 max-w-[38rem] leading-[1.7] text-muted-foreground">
-                {guide.bio}
-              </p>
-
-              <div className="mb-8 flex flex-wrap gap-2">
-                {guide.languages.map((lang) => (
-                  <span
-                    key={lang}
-                    className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground"
-                  >
-                    {lang}
-                  </span>
-                ))}
+            {guide.specialties.length > 0 ? (
+              <div className="mt-6 flex flex-wrap justify-center gap-[7px]">
                 {guide.specialties.map((specialty) => (
                   <span
                     key={specialty}
-                    className="inline-flex items-center rounded-full bg-surface-low px-3.5 py-1.5 text-[0.8125rem] text-muted-foreground"
+                    className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[5px] text-[12.5px] font-medium text-ink-2"
                   >
                     {specialty}
                   </span>
                 ))}
               </div>
+            ) : null}
 
+            {guide.languages.length > 0 ? (
+              <div className="mt-3 flex flex-wrap justify-center gap-[7px]">
+                {guide.languages.map((lang) => (
+                  <span
+                    key={lang}
+                    className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[5px] text-[12.5px] font-medium text-on-surface-muted"
+                  >
+                    {lang}
+                  </span>
+                ))}
+              </div>
+            ) : null}
+
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+              <Button asChild>
+                <Link href="/">Оставить запрос</Link>
+              </Button>
+              {guideHasListings ? (
+                <Button asChild variant="outline">
+                  <a href="#excursions">Смотреть экскурсии</a>
+                </Button>
+              ) : null}
             </div>
+            <p className="mt-3 text-[13px] text-on-surface-muted">
+              Опишите поездку — гиды, включая этого, предложат программу и цену.
+            </p>
           </div>
         </div>
       </section>
@@ -233,33 +270,45 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                     : "??");
                 const reviewName =
                   rev.name || rev.author?.displayName || "Путешественник";
-                const reviewDate =
-                  rev.date ||
-                  (rev.createdAt
-                    ? new Date(rev.createdAt).toLocaleDateString("ru-RU", {
-                        month: "long",
-                        year: "numeric",
-                      })
-                    : "");
+                const reviewDate = rev.createdAt ? formatRussianDate(rev.createdAt) : rev.date ?? "";
                 const reviewRating = rev.rating ?? 5;
+                const reviewTitle = rev.title && rev.title !== "Отзыв" ? rev.title : "";
                 const reviewBody = rev.body || rev.title || "";
 
                 return (
-                  <article key={rev.id} className="flex items-start gap-3.5">
-                    <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-low text-xs font-semibold text-primary">
-                      {reviewInitials}
-                    </div>
-                    <div>
-                      <strong className="mb-1 block">{reviewName}</strong>
-                      <small className="mb-2 block text-muted-foreground">
-                        {reviewDate}
-                        {reviewDate ? " · " : ""}
+                  <article
+                    key={rev.id}
+                    className="rounded-[16px] border border-border bg-card p-5 shadow-card"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-full bg-surface-low text-xs font-semibold text-primary">
+                          {reviewInitials}
+                        </div>
+                        <div className="min-w-0">
+                          <strong className="block truncate text-[15px] text-on-surface">
+                            {reviewName}
+                          </strong>
+                          {reviewDate ? (
+                            <small className="block text-[12.5px] text-on-surface-muted">
+                              {reviewDate}
+                            </small>
+                          ) : null}
+                        </div>
+                      </div>
+                      <span className="inline-flex shrink-0 items-center gap-[5px] text-[13.5px] font-semibold text-on-surface">
+                        <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
                         {reviewRating.toFixed(1)}
-                      </small>
-                      <p className="text-[0.9375rem] leading-[1.65] text-muted-foreground">
-                        {reviewBody}
-                      </p>
+                      </span>
                     </div>
+                    {reviewTitle ? (
+                      <strong className="mt-4 block text-[15px] text-on-surface">
+                        {reviewTitle}
+                      </strong>
+                    ) : null}
+                    <p className="mt-2 text-[0.9375rem] leading-[1.65] text-muted-foreground">
+                      {reviewBody}
+                    </p>
                   </article>
                 );
               })}
