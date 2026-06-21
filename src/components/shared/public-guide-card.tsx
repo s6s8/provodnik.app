@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, Star } from "lucide-react";
 
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn, pluralize } from "@/lib/utils";
 
 export type PublicGuideCardProps = {
@@ -65,21 +64,21 @@ export function PublicGuideCard({
         className,
       )}
     >
-      <div className="relative aspect-[3/4] overflow-hidden rounded-[12px]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-[12px]">
         {avatarUrl ? (
           <Image
             src={avatarUrl}
             alt={fullName}
             fill
             sizes="(max-width:640px) 100vw,(max-width:1024px) 50vw,33vw"
-            className="object-cover"
+            className="object-cover object-[center_25%]"
           />
         ) : (
-          <Avatar className="size-full rounded-[12px]">
-            <AvatarFallback className="size-full rounded-[12px] bg-surface-low text-3xl font-semibold text-on-surface-muted">
+          <div className="flex size-full items-center justify-center rounded-[12px] bg-surface-low">
+            <span className="flex size-16 items-center justify-center rounded-full bg-background text-xl font-semibold text-on-surface-muted">
               {initials}
-            </AvatarFallback>
-          </Avatar>
+            </span>
+          </div>
         )}
       </div>
 
