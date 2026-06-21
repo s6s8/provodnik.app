@@ -139,10 +139,14 @@ export function PublicGuidesGrid({
                 fullName={guide.fullName}
                 initials={guide.initials}
                 avatarUrl={guide.avatarUrl}
-                homeBase={guide.homeBase}
                 rating={guide.rating}
                 reviewCount={guide.reviewCount}
                 experienceYears={guide.experienceYears}
+                specialties={guide.specialties}
+                tripsCompleted={guide.tripsCompleted}
+                recommendPct={guide.recommendPct}
+                verified={guide.verified}
+                languages={guide.languages}
               />
             ))}
           </div>
