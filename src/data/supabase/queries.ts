@@ -783,7 +783,7 @@ export async function getGuides(
 
     const { data: statRows } = await client
       .from("v_guide_public_profile")
-      .select("user_id, average_rating, review_count, trips_completed, recommend_pct, specialties, languages")
+      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages")
       .in("user_id", guideIds);
 
     const ratingMap = new Map<
@@ -795,6 +795,7 @@ export async function getGuides(
         recommendPct: number | null;
         specialties: string[];
         languages: string[];
+        avatarUrl: string | null;
       }
     >();
     for (const row of statRows ?? []) {
@@ -805,6 +806,7 @@ export async function getGuides(
         recommendPct: (row.recommend_pct as number | null) ?? null,
         specialties: (row.specialties as string[] | null) ?? [],
         languages: (row.languages as string[] | null) ?? [],
+        avatarUrl: (row.avatar_url as string | null) ?? null,
       });
     }
 
@@ -817,6 +819,7 @@ export async function getGuides(
           return {
             ...base,
             listingCount: countMap[userId] ?? 0,
+            avatarUrl: stats?.avatarUrl ?? base.avatarUrl ?? undefined,
             rating: stats?.rating ?? 0,
             reviewCount: stats?.reviewCount ?? 0,
             tripsCompleted: stats?.tripsCompleted ?? base.tripsCompleted,
