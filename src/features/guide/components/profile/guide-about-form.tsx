@@ -42,15 +42,9 @@ export function GuideAboutForm({
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const trimmedBaseCity = baseCity.trim();
-    if (!isLocked && trimmedBaseCity === "") {
-      setErrorMsg("Укажите базовый город");
-      setStatus("error");
-      return;
-    }
 
     if (!isLocked) {
-      formData.set("base_city", trimmedBaseCity);
+      formData.set("base_city", baseCity.trim());
     }
     setStatus("saving");
     const result = await saveGuideAboutAction(formData);
