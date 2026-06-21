@@ -69,8 +69,9 @@ function getDateFlexibilityButton() {
 }
 
 function getAssemblyButton() {
-  const assemblyLabel = screen.getByText("Сборная группа");
-  return within(assemblyLabel.closest("div")!).getByRole("button");
+  return screen.getByRole("button", {
+    name: /сделать (закрытой|открытой)/i,
+  });
 }
 
 describe("HomepageRequestForm onSubmit", () => {
@@ -277,9 +278,17 @@ describe("HomepageRequestForm UI affordances", () => {
     const assemblyButton = getAssemblyButton();
     expect(assemblyButton).toHaveClass("cursor-pointer");
     expect(assemblyButton).not.toHaveAttribute("title");
-    expect(assemblyButton).toHaveClass("border-purple-200", "bg-purple-100");
+    // Default open (assembly): the lock control offers to make the group closed
+    expect(assemblyButton).toHaveAttribute(
+      "aria-label",
+      "Открытая группа — нажмите, чтобы сделать закрытой",
+    );
     fireEvent.click(assemblyButton);
-    expect(assemblyButton).toHaveClass("border-sky-200", "text-sky-700");
+    expect(
+      screen.getByRole("button", {
+        name: "Закрытая группа — нажмите, чтобы сделать открытой",
+      }),
+    ).toBeInTheDocument();
   });
 
   it("renders topic chips as horizontal icon and label rows", () => {
@@ -316,20 +325,20 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(hint).toHaveTextContent(/за группу из 1 человека\./);
   });
 
-  it("renders group size and assembly toggle in grid-cols-2 row; budget in separate full-width row", () => {
+  it("renders group size as a single full-width field with an inline lock toggle; budget in a separate full-width row", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const groupSizeInput = screen.getByLabelText("Сколько вас");
-    // input → div.grid.gap-2 → div.grid-cols-2
-    const groupRow = groupSizeInput.closest("div")?.parentElement;
-    expect(groupRow).toHaveClass("grid-cols-2");
-    // Budget is NOT inside the grid-cols-2 row
-    expect(within(groupRow!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
-    // Budget exists in the form outside the row
+    // input → relative flex wrapper that also holds the inline lock toggle
+    const wrapper = groupSizeInput.closest("div");
+    expect(wrapper).toHaveClass("relative", "flex", "items-center");
+    expect(
+      within(wrapper!).getByRole("button", { name: /сделать (закрытой|открытой)/i }),
+    ).toBeInTheDocument();
+    // The old separate «Сборная группа» toggle is gone
+    expect(screen.queryByText("Сборная группа")).toBeNull();
+    // Budget is its own full-width field, outside the group field
+    expect(within(wrapper!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
     expect(screen.getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
-    // Assembly toggle shares the same grid-cols-2 row
-    const assemblyButton = getAssemblyButton();
-    expect(assemblyButton.closest("div")?.parentElement).toBe(groupRow);
-    expect(within(assemblyButton.parentElement!).getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.queryByLabelText("Открыт к увеличению группы")).toBeNull();
     expect(screen.queryByText(/попутчиков/i)).toBeNull();
     expect(screen.queryByText(/−10%/)).toBeNull();
@@ -403,15 +412,14 @@ describe("HomepageRequestFormClassic repaired layout", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
 
     const groupSizeInput = screen.getByLabelText("Сколько вас");
-    const groupRow = groupSizeInput.closest("div")?.parentElement;
-    expect(groupRow).toHaveClass("grid-cols-2");
+    const wrapper = groupSizeInput.closest("div");
+    expect(wrapper).toHaveClass("relative", "flex", "items-center");
+    expect(
+      within(wrapper!).getByRole("button", { name: /сделать (закрытой|открытой)/i }),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Сборная группа")).toBeNull();
 
-    const assemblyLabel = within(groupRow!).getByText("Сборная группа");
-    const assemblyCell = assemblyLabel.closest("div");
-    expect(assemblyCell?.parentElement).toBe(groupRow);
-    expect(within(assemblyCell!).getByRole("button")).toBeInTheDocument();
-
-    expect(within(groupRow!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
+    expect(within(wrapper!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
     expect(screen.getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
 
     const details = screen.getByText("Добавить детали").closest("details");

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Lock, LockOpen } from "lucide-react";
 
 import { LANGUAGES } from "@/data/languages";
 import { THEMES } from "@/data/themes";
@@ -139,45 +140,56 @@ export function HomepageRequestForm({ destinations }: Props) {
         </div>
       </div>
 
-      {/* 4. Сколько вас + Сборная группа */}
+      {/* 4. Сколько вас (замок: открытая/закрытая группа) */}
       <div className="grid gap-3">
-        <div className="grid grid-cols-2 items-start gap-2">
-          {/* Left: groupSize */}
-          <div className="grid gap-2">
-            <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
+        <div className="grid gap-2">
+          <FieldLabel htmlFor="groupSize">Сколько вас</FieldLabel>
+          <div className="relative flex items-center">
             <Input
               id="groupSize"
               type="text"
               inputMode="numeric"
               placeholder="2"
+              className="pr-10"
               aria-invalid={Boolean(errors.groupSize)}
               {...register("groupSize", { valueAsNumber: true })}
             />
-            <FieldError id="groupSize-error" message={errors.groupSize?.message} />
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const current = form.getValues("mode");
+                    form.setValue("mode", current === "assembly" ? "private" : "assembly", {
+                      shouldValidate: false,
+                      shouldDirty: true,
+                    });
+                  }}
+                  aria-label={
+                    isAssembly
+                      ? "Открытая группа — нажмите, чтобы сделать закрытой"
+                      : "Закрытая группа — нажмите, чтобы сделать открытой"
+                  }
+                  className={cn(
+                    "absolute right-2 flex h-7 w-7 cursor-pointer select-none items-center justify-center rounded-md transition-colors",
+                    isAssembly
+                      ? "text-muted-foreground hover:text-foreground"
+                      : "text-purple-700",
+                  )}
+                >
+                  {isAssembly ? (
+                    <LockOpen className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <Lock className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </button>
+              </TooltipTrigger>
+              <TooltipContent className="text-sm">
+                <p>{isAssembly ? "Открытая группа (сборная)" : "Закрытая группа (своя)"}</p>
+              </TooltipContent>
+            </Tooltip>
           </div>
-
-          {/* Right: Сборная группа labeled toggle */}
-          <div className="grid gap-2">
-            <FieldLabel>Сборная группа</FieldLabel>
-            <button
-              type="button"
-              onClick={() => {
-                const current = form.getValues("mode");
-                form.setValue("mode", current === "assembly" ? "private" : "assembly", {
-                  shouldValidate: false,
-                  shouldDirty: true,
-                });
-              }}
-              className={cn(
-                "flex h-10 w-full cursor-pointer select-none items-center justify-center rounded-md border text-sm font-medium transition-colors",
-                isAssembly
-                  ? "border-sky-200 bg-sky-100 text-sky-700"
-                  : "border-purple-200 bg-purple-100 text-purple-700",
-              )}
-            >
-              {isAssembly ? "Сборная" : "Своя"}
-            </button>
-          </div>
+          <FieldError id="groupSize-error" message={errors.groupSize?.message} />
         </div>
 
         {/* Budget — separate row, full-width */}
