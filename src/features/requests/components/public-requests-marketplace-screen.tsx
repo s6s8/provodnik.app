@@ -308,7 +308,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   return (
     <div>
       <ListHero
-        imageUrl="/hero-valley.jpg"
+        imageUrl="https://images.unsplash.com/photo-1657293493705-557ab000afe1?auto=format&fit=crop&w=1600&h=1200&q=80"
         title="Открытые запросы"
         intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
       >

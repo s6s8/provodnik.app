@@ -98,7 +98,7 @@ export function PublicListingDiscoveryScreen({
   return (
     <div className="space-y-10">
       <ListHero
-        imageUrl="/hero-valley.jpg"
+        imageUrl="https://images.unsplash.com/photo-1513326738677-b964603b136d?auto=format&fit=crop&w=1600&h=1200&q=80"
         title="Готовые экскурсии"
         intro="Авторские экскурсии от местных гидов."
       >

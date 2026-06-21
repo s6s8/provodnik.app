@@ -57,7 +57,7 @@ export function PublicGuidesGrid({
   return (
     <>
       <ListHero
-        imageUrl="/hero-valley.jpg"
+        imageUrl="https://images.unsplash.com/photo-1664358201853-d1274b84cbbe?auto=format&fit=crop&w=1600&h=1200&q=80"
         title="Гиды"
         intro="Найдите проверенного местного гида."
       >
