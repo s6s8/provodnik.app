@@ -77,7 +77,7 @@ export default async function SearchPage({
   return (
     <section className="pb-20">
       <ListHero
-        imageUrl="/hero-valley.jpg"
+        imageUrl="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=1200&q=80"
         title={title}
         intro="Фильтруйте по типу, формату и цене — или опубликуйте запрос, если не нашли."
       />
