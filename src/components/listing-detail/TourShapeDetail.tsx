@@ -3,10 +3,10 @@ import Link from "next/link";
 
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
-import { PhotoGallery } from "@/components/listing-detail/PhotoGallery";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
 import { TourDeparturesList } from "@/components/listing-detail/TourDeparturesList";
 import { TourItineraryDisplay } from "@/components/listing-detail/TourItineraryDisplay";
+import { ImmersiveHero } from "@/components/shared/immersive-hero";
 import { RatingDisplay } from "@/components/shared/rating-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,7 +56,11 @@ type GuidePickProps = Pick<
   | "review_count"
   | "contact_visibility_unlocked"
   | "is_tour_operator"
-> & { full_name?: string | null } | null;
+  | "years_experience"
+  | "specialties"
+  | "languages"
+  | "verification_status"
+> & { full_name?: string | null; avatar_url?: string | null } | null;
 
 interface Props {
   listing: ListingRow & { image_url?: string | null };
@@ -70,7 +74,6 @@ interface Props {
 
 export function TourShapeDetail({
   listing,
-  photos,
   tariffs,
   days,
   meals,
@@ -113,7 +116,16 @@ export function TourShapeDetail({
 
   return (
     <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pb-28 pt-6 md:pb-12">
-      <h1 className="mb-4 text-3xl font-semibold tracking-tight md:text-4xl">{listing.title}</h1>
+      <ImmersiveHero
+        imageUrl={coverUrl ?? "/hero-valley.jpg"}
+        imagePosition="center 44%"
+        breadcrumb={[
+          { label: "Объявления" },
+          ...(listing.region ? [{ label: listing.region }] : []),
+          { label: listing.title },
+        ]}
+        title={listing.title}
+      />
 
       <div className="mb-6 flex flex-wrap items-center gap-2">
         <Badge variant="outline">Тур</Badge>
@@ -141,8 +153,6 @@ export function TourShapeDetail({
 
             {/* ─── Описание ─────────────────────────────────────────── */}
             <TabsContent value="description" className="mt-6 space-y-6">
-              <PhotoGallery photos={photos} coverUrl={coverUrl} />
-
               {description ? (
                 <section className="space-y-2">
                   <h2 className="text-lg font-semibold tracking-tight">Описание</h2>

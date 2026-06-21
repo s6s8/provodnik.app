@@ -3,9 +3,9 @@ import Link from "next/link";
 
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
-import { PhotoGallery } from "@/components/listing-detail/PhotoGallery";
 import { ScheduleDisplay } from "@/components/listing-detail/ScheduleDisplay";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
+import { ImmersiveHero } from "@/components/shared/immersive-hero";
 import { RatingDisplay } from "@/components/shared/rating-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -63,10 +63,14 @@ interface Props {
     | "average_rating"
     | "review_count"
     | "contact_visibility_unlocked"
-  > & { full_name?: string | null } | null;
+    | "years_experience"
+    | "specialties"
+    | "languages"
+    | "verification_status"
+  > & { full_name?: string | null; avatar_url?: string | null } | null;
 }
 
-export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide }: Props) {
+export function ExcursionShapeDetail({ listing, schedule, tariffs, guide }: Props) {
   const description = maskPii(listing.description);
   const idea = maskPii(listing.idea);
   const routeText = arrowizeRoute(maskPii(listing.route));
@@ -122,7 +126,16 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
 
   return (
     <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pb-28 pt-6 md:pb-12">
-      <PhotoGallery photos={photos} coverUrl={coverUrl} />
+      <ImmersiveHero
+        imageUrl={coverUrl ?? "/hero-valley.jpg"}
+        imagePosition="center 44%"
+        breadcrumb={[
+          { label: "Объявления" },
+          ...(listing.region ? [{ label: listing.region }] : []),
+          { label: listing.title },
+        ]}
+        title={listing.title}
+      />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
         <div className="min-w-0 space-y-8">
@@ -137,7 +150,6 @@ export function ExcursionShapeDetail({ listing, photos, schedule, tariffs, guide
                 </span>
               ) : null}
             </div>
-            <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">{listing.title}</h1>
           </header>
 
           {description ? (
