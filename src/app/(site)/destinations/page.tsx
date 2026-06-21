@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { ListHero } from "@/components/shared/list-hero";
 import { DestinationsGrid } from "@/features/destinations/components/destinations-grid";
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -23,14 +24,16 @@ export default async function DestinationsPage() {
   }
 
   return (
-    <section className="bg-surface pt-24 pb-20">
-      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        <h1 className="mb-8 font-display text-[clamp(2.25rem,5vw,3.625rem)] font-semibold leading-[1.05] text-on-surface">
-          Направления
-        </h1>
-
+    <section className="pb-20">
+      <ListHero
+        imageUrl="/hero-valley.jpg"
+        imagePosition="center 50%"
+        title="Направления"
+        intro="Откройте города и регионы России — и найдите местного гида в каждом из них."
+      />
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-10">
         {destinations.length === 0 ? (
-          <p className="mt-8 text-on-surface-muted">Пока нет доступных направлений.</p>
+          <p className="mt-2 text-on-surface-muted">Пока нет доступных направлений.</p>
         ) : (
           <DestinationsGrid destinations={destinations} />
         )}
