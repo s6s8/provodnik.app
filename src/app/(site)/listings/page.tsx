@@ -37,6 +37,10 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
     ],
     inclusions: listing.inclusions as PublicListing["inclusions"],
     guideSlug: listing.guideSlug,
+    guideName: listing.guideName,
+    guideAvatarUrl: listing.guideAvatarUrl,
+    rating: listing.rating,
+    reviewCount: listing.reviewCount,
   };
 }
 

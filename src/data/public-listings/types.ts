@@ -35,5 +35,9 @@ export type PublicListing = {
   itinerary: readonly PublicListingItineraryItem[];
   inclusions: readonly PublicListingInclusion[];
   guideSlug: PublicGuideProfile["slug"];
+  guideName?: string;
+  guideAvatarUrl?: string;
+  rating?: number;
+  reviewCount?: number;
 };
 
