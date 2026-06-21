@@ -35,10 +35,11 @@ function mapListing(listing: PublicListing): ListingRecord {
     inclusions: [...listing.inclusions],
     exclusions: [],
     guideSlug: listing.guideSlug,
-    guideName: "Локальный гид",
+    guideName: listing.guideName ?? "Локальный гид",
+    guideAvatarUrl: listing.guideAvatarUrl,
     guideHomeBase: listing.city,
-    rating: 0,
-    reviewCount: 0,
+    rating: listing.rating ?? 0,
+    reviewCount: listing.reviewCount ?? 0,
     status: "active",
   };
 }
