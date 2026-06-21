@@ -18,6 +18,7 @@ import type { UploadedGuideDocument } from "./verification-types";
 type VerificationUploadFormProps = {
   initialDocuments: UploadedGuideDocument[];
   verificationStatus?: GuideVerificationStatusDb | null;
+  isAnketaComplete?: boolean;
   actions: {
     getUploadUrl: (
       bucket: string,
@@ -65,6 +66,7 @@ function hasRequiredLinkedDocuments(documents: Map<string, UploadedGuideDocument
 export function VerificationUploadForm({
   initialDocuments,
   verificationStatus = null,
+  isAnketaComplete = false,
   actions,
 }: VerificationUploadFormProps) {
   const router = useRouter();
@@ -73,6 +75,7 @@ export function VerificationUploadForm({
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const hasRequiredDocuments = hasRequiredLinkedDocuments(documents);
+  const canSubmit = hasRequiredDocuments && isAnketaComplete;
 
   const handleUploadComplete = React.useCallback((document: UploadedGuideDocument) => {
     setDocuments((current) => {
@@ -160,14 +163,16 @@ export function VerificationUploadForm({
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-2xl text-[0.9375rem] leading-[1.65] text-muted-foreground">
-          {hasRequiredDocuments
-            ? "Обязательные документы загружены. Можно отправлять профиль на проверку."
-            : "Кнопка станет активной после загрузки паспорта и селфи с документом."}
+          {!isAnketaComplete
+            ? "Заполните анкету полностью, чтобы отправить на проверку."
+            : hasRequiredDocuments
+              ? "Обязательные документы загружены. Можно отправлять профиль на проверку."
+              : "Кнопка станет активной после загрузки паспорта и селфи с документом."}
         </p>
         <Button
           type="button"
           onClick={handleSubmit}
-          disabled={!hasRequiredDocuments || isSubmitting}
+          disabled={!canSubmit || isSubmitting}
         >
           {isSubmitting ? "Отправляем..." : "Отправить на проверку"}
         </Button>

@@ -35,9 +35,42 @@ describe("VerificationUploadForm", () => {
     expect(screen.getByText("Сертификат / аттестат")).toBeInTheDocument();
   });
 
+  it("blocks submitting until the anketa is complete", () => {
+    render(
+      <VerificationUploadForm
+        initialDocuments={[
+          {
+            assetId: "passport-asset",
+            documentType: "passport",
+            objectPath: "guide/passport.jpg",
+            fileName: "passport.jpg",
+            status: "draft",
+          },
+          {
+            assetId: "selfie-asset",
+            documentType: "selfie",
+            objectPath: "guide/selfie.jpg",
+            fileName: "selfie.jpg",
+            status: "draft",
+          },
+        ]}
+        isAnketaComplete={false}
+        actions={actions}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Отправить на проверку" }),
+    ).toBeDisabled();
+    expect(
+      screen.getByText("Заполните анкету полностью, чтобы отправить на проверку."),
+    ).toBeInTheDocument();
+  });
+
   it("revalidates required linked documents before submitting", async () => {
     render(
       <VerificationUploadForm
+        isAnketaComplete
         initialDocuments={[
           {
             assetId: "passport-asset",
