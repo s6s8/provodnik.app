@@ -19,7 +19,7 @@ describe("PublicGuideCard", () => {
     const link = screen.getByRole("link", { name: /Тамар Гелашвили/ });
     expect(link).toHaveAttribute("href", "/guides/tamar");
     expect(screen.getByText("Тамар Гелашвили")).toBeInTheDocument();
-    expect(screen.getByText("4.8")).toBeInTheDocument();
+    expect(screen.getByText("4,8")).toBeInTheDocument();
     expect(screen.getByText(/12 отзывов/)).toBeInTheDocument();
     expect(screen.queryByText("Новый гид")).not.toBeInTheDocument();
   });
