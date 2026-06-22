@@ -27,7 +27,21 @@ type GuideOfferCardProps = {
   selected?: boolean;
   /** Whether to show the "Местный житель" badge (caller decides from real data). */
   isLocal?: boolean;
+  /** Short SLA line, e.g. «Отвечает в течение часа» (caller-provided from real data). */
+  responseTimeLabel?: string;
+  /** Link to the guide's public profile → renders «Профиль →». */
+  profileHref?: string;
+  /** Muted reminder of the traveler's per-person budget, shown above the price column. */
+  requestBudgetLabel?: string;
+  /** Group total, shown beneath the per-person price. */
+  groupTotalLabel?: string;
+  /** Guide with too little history for social proof → note + suppressed stats row. */
+  isNewGuide?: boolean;
+  /** Specialties that match the request — rendered bold with a check. */
+  matchingSpecialties?: string[];
   onSelect?: () => void;
+  /** Optional dismissal — renders a «Не подходит» ghost action when passed. */
+  onReject?: () => void;
   /** Full-width slot below the card head: deviation chips, route, inclusions, actions. */
   children?: ReactNode;
   className?: string;
@@ -67,7 +81,14 @@ export function GuideOfferCard({
   perPersonPriceLabel,
   selected = false,
   isLocal = false,
+  responseTimeLabel,
+  profileHref,
+  requestBudgetLabel,
+  groupTotalLabel,
+  isNewGuide = false,
+  matchingSpecialties,
   onSelect,
+  onReject,
   children,
   className,
 }: GuideOfferCardProps) {
@@ -75,7 +96,13 @@ export function GuideOfferCard({
   const showRating = guide.rating != null && guide.rating > 0;
   const showReviews = guide.review_count != null && guide.review_count > 0;
   const showTrips = guide.trips_completed != null && guide.trips_completed > 0;
-  const showRecommend = guide.recommend_pct != null && guide.recommend_pct > 0;
+  const showRecommend =
+    guide.recommend_pct != null &&
+    guide.recommend_pct > 0 &&
+    guide.review_count != null &&
+    guide.review_count >= 3;
+  const showStats = !isNewGuide && (showRating || showReviews || showTrips || showRecommend);
+  const matchSet = new Set(matchingSpecialties ?? []);
   const verifiedWord = "Проверен";
 
   return (
@@ -91,7 +118,8 @@ export function GuideOfferCard({
       tabIndex={0}
       aria-pressed={selected}
       className={cn(
-        "group relative cursor-pointer rounded-[16px] border border-border bg-card p-[22px] shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-[0_20px_38px_-22px_rgba(20,28,40,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group relative cursor-pointer rounded-[16px] border border-border p-[22px] shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-[0_20px_38px_-22px_rgba(20,28,40,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        selected ? "bg-gradient-to-b from-surface to-primary-tint/30" : "bg-card",
         className,
       )}
     >
@@ -137,24 +165,48 @@ export function GuideOfferCard({
             ) : null}
           </div>
           {roleLine ? (
-            <div className="mb-3 text-[13.5px] text-on-surface-muted">{roleLine}</div>
+            <div className="mb-1 text-[13.5px] text-on-surface-muted">{roleLine}</div>
           ) : null}
+          <div className="mb-3 flex flex-wrap items-center gap-x-[10px] gap-y-1 text-[13px] text-on-surface-muted">
+            {responseTimeLabel ? <span>{responseTimeLabel}</span> : null}
+            {profileHref ? (
+              <a
+                href={profileHref}
+                onClick={(e) => e.stopPropagation()}
+                className="font-semibold text-primary hover:underline"
+              >
+                Профиль →
+              </a>
+            ) : null}
+          </div>
           {quote ? (
             <p className="mb-[13px] max-w-[58ch] text-[15px] leading-[1.55] text-ink-2">{quote}</p>
           ) : null}
           {guide.specialties.length > 0 ? (
             <div className="mb-[14px] flex flex-wrap gap-[7px]">
-              {guide.specialties.map((tag) => (
-                <span
-                  key={tag}
-                  className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[5px] text-[12.5px] font-medium text-ink-2"
-                >
-                  {tag}
-                </span>
-              ))}
+              {guide.specialties.map((tag) => {
+                const matched = matchSet.has(tag);
+                return (
+                  <span
+                    key={tag}
+                    className={cn(
+                      "inline-flex items-center gap-[5px] rounded-full px-3 py-[5px] text-[12.5px] font-medium",
+                      matched ? "bg-primary-tint text-primary" : "bg-surface-low text-ink-2",
+                    )}
+                  >
+                    {matched ? <Check className="size-[13px]" strokeWidth={2.6} /> : null}
+                    <span className={matched ? "font-bold" : undefined}>{tag}</span>
+                  </span>
+                );
+              })}
             </div>
           ) : null}
-          {showRating || showReviews || showTrips || showRecommend ? (
+          {isNewGuide ? (
+            <div className="mt-auto text-[13.5px] font-medium text-on-surface-muted">
+              Новый гид — первые поездки
+            </div>
+          ) : null}
+          {showStats ? (
             <div className="mt-auto flex flex-wrap items-center gap-[9px] text-[13.5px] text-on-surface-muted">
               {showRating ? (
                 <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
@@ -181,7 +233,9 @@ export function GuideOfferCard({
               {showRecommend ? (
                 <>
                   {showRating || showReviews || showTrips ? <Dot /> : null}
-                  <span>{guide.recommend_pct}% рекомендуют</span>
+                  <span>
+                    {guide.recommend_pct}% рекомендуют (из {guide.review_count} отзывов)
+                  </span>
                 </>
               ) : null}
             </div>
@@ -190,14 +244,20 @@ export function GuideOfferCard({
 
         {/* Action */}
         <div className="flex flex-col justify-center border-t border-border pt-5 text-center md:border-l md:border-t-0 md:pl-[22px] md:pt-0">
+          {requestBudgetLabel ? (
+            <div className="mb-2 text-[12px] text-muted-foreground">{requestBudgetLabel}</div>
+          ) : null}
           <div className="text-[23px] font-bold leading-none tracking-[-0.02em] text-on-surface">
             {perPersonPriceLabel}
           </div>
-          <div className="mb-4 mt-[3px] text-[12.5px] text-on-surface-muted">с человека</div>
+          <div className="mt-[3px] text-[12.5px] text-on-surface-muted">с человека</div>
+          {groupTotalLabel ? (
+            <div className="mt-1 text-[12.5px] text-on-surface-muted">{groupTotalLabel}</div>
+          ) : null}
           <button
             type="button"
             className={cn(
-              "inline-flex h-[46px] w-full items-center justify-center gap-[7px] rounded-[10px] text-[14.5px] font-semibold transition-colors",
+              "mt-4 inline-flex h-[46px] w-full items-center justify-center gap-[7px] rounded-[10px] text-[14.5px] font-semibold transition-colors",
               selected
                 ? "border border-success/30 bg-success/12 text-success"
                 : "bg-primary text-white hover:bg-primary-hover",
@@ -212,6 +272,23 @@ export function GuideOfferCard({
               "Выбрать гида"
             )}
           </button>
+          {onSelect ? (
+            <div className="mt-2 text-[12px] text-muted-foreground">
+              после выбора откроются контакты и чат
+            </div>
+          ) : null}
+          {onReject ? (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onReject();
+              }}
+              className="mt-2 inline-flex h-9 w-full items-center justify-center rounded-[10px] text-[13.5px] font-medium text-on-surface-muted transition-colors hover:bg-surface-low"
+            >
+              Не подходит
+            </button>
+          ) : null}
         </div>
       </div>
 
