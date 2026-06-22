@@ -326,18 +326,13 @@ export function OfferCard({
         </div>
       ) : null}
 
-      {/* Contact disclosure — hidden until the traveler accepts this offer */}
+      {/* Contact disclosure — shown once the traveler accepts this offer.
+          The pending «контакты скрыты» note now lives once above the offer list. */}
       {offer.status === "accepted" ? (
         <div className="rounded-md border border-success/30 bg-success/10 px-3 py-2">
           <p className="text-xs text-success">
             Вы выбрали этого гида. Контактные данные открыты — напишите гиду,
             чтобы согласовать детали.
-          </p>
-        </div>
-      ) : offer.status === "pending" ? (
-        <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
-          <p className="text-xs text-warning">
-            Контактные данные скрыты до принятия предложения
           </p>
         </div>
       ) : null}
@@ -352,6 +347,7 @@ export function OfferCard({
                 requestId={requestId}
                 guideId={offer.guide_id}
                 priceMinor={offer.price_minor}
+                guideName={guideName}
               />
             )}
             <RejectOfferButton offerId={offer.id} requestId={requestId} />

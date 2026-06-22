@@ -285,35 +285,57 @@ describe("RequestDetailScreen", () => {
     expect(screen.queryByText(/О маршруте/i)).not.toBeInTheDocument();
   });
 
-  it("preserves owner request badges in canonical group-date-time-count-budget order", () => {
-    render(
+  it("renders the canon RequestFactsCard above the offer list with no rainbow badges", () => {
+    const { container } = render(
       <RequestDetailScreen
         viewerRole="owner"
         requestId="request-1"
-        ownerRecord={{
-          ...travelerRecord,
-          request: { ...travelerRecord.request, dateFlexibility: "few_days" },
-        }}
+        ownerRecord={travelerRecord}
         ownerRequestRow={travelerRequestRow}
         viewModel={publicViewModel}
-        ownerOffers={[]}
+        ownerOffers={[
+          {
+            offer,
+            guideInfo: {
+              guide_id: "guide-1",
+              full_name: "Анна",
+              avatar_url: null,
+              rating: 4.8,
+              review_count: 12,
+              verified: true,
+              years_experience: 5,
+              trips_completed: 21,
+              recommend_pct: 94,
+              languages: ["Русский"],
+              specialties: ["Природа"],
+            },
+            qaThread: null as QaThread | null,
+          },
+        ]}
         onSendQa={async () => {}}
         onGetOrCreateQaThread={async () => "thread-1"}
       />,
     );
 
-    const groupBadge = screen.getByText("Сборная группа").closest("[data-slot='badge']");
-    const badges = Array.from(groupBadge?.parentElement?.querySelectorAll("[data-slot='badge']") ?? []);
-    const badgeTexts = badges.map((badge) => badge.textContent);
+    // RequestFactsCard renders a Chip with the CalendarDays icon
+    expect(container.querySelector("[data-slot='chip'] .lucide-calendar-days")).toBeTruthy();
 
-    expect(badgeTexts).toEqual([
-      "Сборная группа",
-      "10 июня",
-      "±пара дней",
-      "—",
-      "2 из 5 чел.",
-      "Бюджет не указан",
-    ]);
+    // Zero rainbow badge classes in the owner output
+    expect(container.innerHTML).not.toMatch(/border-(sky|emerald|purple)-200/);
+
+    // Exactly one off-platform Alert, above the list and not inside a guide card
+    const alerts = container.querySelectorAll("[data-slot='alert']");
+    expect(alerts).toHaveLength(1);
+    const offPlatform = screen.getByText(/Оплата производится напрямую/);
+    expect(offPlatform.closest("article")).toBeNull();
+
+    // Single contact-reveal note (not per-card)
+    expect(screen.getAllByText(/После выбора гида откроются его контакты и чат\./)).toHaveLength(1);
+
+    // StickyActionBar receives onReject once a guide is selected
+    expect(screen.queryByRole("button", { name: "Не подходит" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать гида" }));
+    expect(screen.getByRole("button", { name: "Не подходит" })).toBeInTheDocument();
   });
 
   it("refreshes after guide offer submission without mounting Q&A with a placeholder offer id", () => {

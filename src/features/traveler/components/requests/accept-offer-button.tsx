@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState } from "react";
+import { startTransition, useActionState } from "react";
 
 import {
   acceptOfferAction,
   type AcceptOfferActionState,
 } from "@/features/requests/owner-request-actions";
 import { Button } from "@/components/ui/button";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 
 const initialState: AcceptOfferActionState = { error: null };
 
@@ -15,6 +16,9 @@ interface AcceptOfferButtonProps {
   requestId: string;
   guideId: string;
   priceMinor: number;
+  guideName: string;
+  /** Per-person price label shown in the confirm description, e.g. "3 200 ₽". */
+  perPersonLabel?: string;
 }
 
 export function AcceptOfferButton({
@@ -22,14 +26,35 @@ export function AcceptOfferButton({
   requestId,
   guideId,
   priceMinor,
+  guideName,
+  perPersonLabel,
 }: AcceptOfferButtonProps) {
   const [state, formAction, isPending] = useActionState(
     acceptOfferAction,
     initialState,
   );
+  const { confirm, ConfirmDialog } = useConfirm();
+
+  const description = `${
+    perPersonLabel ? `${perPersonLabel} / чел. · ` : ""
+  }Остальные предложения отклонятся автоматически. Действие нельзя отменить.`;
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const ok = await confirm({
+      title: `Выбрать ${guideName}?`,
+      description,
+      confirmText: "Подтвердить выбор",
+      cancelText: "Вернуться",
+    });
+    if (ok) {
+      startTransition(() => formAction(formData));
+    }
+  }
 
   return (
-    <form action={formAction}>
+    <form onSubmit={handleSubmit}>
       <input type="hidden" name="offer_id" value={offerId} />
       <input type="hidden" name="request_id" value={requestId} />
       <input type="hidden" name="guide_id" value={guideId} />
@@ -42,6 +67,7 @@ export function AcceptOfferButton({
       <Button type="submit" disabled={isPending}>
         {isPending ? "Обработка…" : "Принять предложение"}
       </Button>
+      {ConfirmDialog}
     </form>
   );
 }

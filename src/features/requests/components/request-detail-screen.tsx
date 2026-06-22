@@ -15,9 +15,13 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { Alert } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/chip";
+import { Tag } from "@/components/ui/tag";
+import { useConfirm } from "@/components/shared/confirm-dialog";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -38,9 +42,10 @@ import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-of
 import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { TravelerRequestStatusBadge } from "@/features/traveler/components/requests/traveler-request-status";
 import { withdrawOfferAction } from "@/features/guide/offer-actions";
+import { rejectOfferAction } from "@/features/requests/owner-request-actions";
 import { cityImage } from "@/lib/city-image";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { formatRussianDate, formatRussianDateTime, formatTimeRange } from "@/lib/dates";
-import { BADGE_CLASS } from "@/lib/styles";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
 import type { GuideOfferRow, TravelerRequestRow } from "@/lib/supabase/types";
@@ -356,10 +361,31 @@ function formatRub(amount: number) {
   }).format(amount);
 }
 
-function TravelerRequestSummary({ record }: { record: TravelerRequestRecord }) {
+/** Relative "Ответил N часов/дней назад" from a guide offer's created_at. */
+function formatResponseTime(iso: string): string {
+  const created = new Date(iso).getTime();
+  if (Number.isNaN(created)) return "";
+  const diffMs = Date.now() - created;
+  if (diffMs < 0) return "Только что ответил";
+  const hours = Math.floor(diffMs / 3_600_000);
+  if (hours < 1) return "Ответил меньше часа назад";
+  if (hours < 24) {
+    return `Ответил ${hours} ${pluralize(hours, "час", "часа", "часов")} назад`;
+  }
+  const days = Math.floor(hours / 24);
+  return `Ответил ${days} ${pluralize(days, "день", "дня", "дней")} назад`;
+}
+
+/**
+ * Owner-facing request facts — DS canon: format badge + chips + interest tags.
+ * Rendered above the offer list so the traveler keeps their own brief in view.
+ */
+function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
   const request = record.request;
 
   const dateLabel = formatRussianDate(request.startDate);
+  const flexible = Boolean(request.dateFlexibility && request.dateFlexibility !== "exact");
+  const dateValue = flexible ? `${dateLabel} · гибкие даты` : dateLabel;
   const timeLabel = request.startTime
     ? request.endTime
       ? `${request.startTime} – ${request.endTime}`
@@ -367,27 +393,19 @@ function TravelerRequestSummary({ record }: { record: TravelerRequestRecord }) {
     : "—";
 
   const isAssembly = request.mode === "assembly";
-  const capacity = isAssembly ? request.groupMax ?? null : null;
   const current = isAssembly ? request.groupSizeCurrent ?? 1 : request.groupSize ?? 1;
-  const hasCapacity = capacity != null;
-  const countLabel = hasCapacity ? `${current} из ${capacity} чел.` : `${current} чел.`;
-  const countFull = hasCapacity && current >= capacity;
-  const countColor = !hasCapacity
-    ? ""
-    : countFull
-      ? "border-success/30 bg-success/10 text-success"
-      : "border-warning/30 bg-warning/10 text-warning";
+  const countLabel = `${current} чел.`;
 
   const budgetLabel =
     request.budgetPerPersonRub == null
-      ? "Бюджет не указан"
-      : `${formatRub(request.budgetPerPersonRub)} на чел.`;
+      ? "не указан"
+      : `${formatRub(request.budgetPerPersonRub)} / чел.`;
 
   const publishedAt = `Опубликован ${formatRussianDateTime(record.createdAt)}`;
   const interests = request.interests ?? [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex items-center justify-between gap-3">
         <Button asChild variant="ghost" className="-ml-3 px-3">
           <Link href="/trips">
@@ -398,74 +416,53 @@ function TravelerRequestSummary({ record }: { record: TravelerRequestRecord }) {
         <TravelerRequestStatusBadge status={record.status} />
       </div>
 
-      <div className="space-y-3 rounded-lg border bg-card p-4">
+      <div className="space-y-4 rounded-[16px] border border-border bg-card p-6 shadow-card">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h1 className="text-3xl font-semibold text-foreground">
+            <h3 className="text-[22px] font-bold tracking-[-0.02em] text-on-surface">
               {request.destination}
-            </h1>
-            <p className="text-xs text-muted-foreground mt-1">{publishedAt}</p>
+            </h3>
+            <p className="mt-1 text-xs text-on-surface-muted">{publishedAt}</p>
           </div>
           <CancelRequestButton requestId={record.id} status={record.status} />
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2.5">
           <Badge
             variant="outline"
             className={cn(
-              BADGE_CLASS,
-              request.mode === "assembly"
-                ? "border-sky-200 bg-sky-100 text-sky-700"
-                : "border-purple-200 bg-purple-100 text-purple-700",
+              "rounded-full px-3 py-1 text-[13px] font-semibold normal-case tracking-normal",
+              isAssembly
+                ? "border-primary/20 bg-primary-tint text-primary"
+                : "border-border bg-surface-low text-muted-foreground",
             )}
           >
-            {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+            {isAssembly ? "Сборная группа" : "Своя группа"}
           </Badge>
-          <Badge variant="outline" className={BADGE_CLASS}>
-            <CalendarDays className="size-3.5" />
-            {dateLabel}
-          </Badge>
-          {request.dateFlexibility && request.dateFlexibility !== "exact" && (
-            <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
-              ±пара дней
-            </Badge>
-          )}
-          <Badge variant="outline" className={BADGE_CLASS}>
-            <Clock className="size-3.5" />
-            {timeLabel}
-          </Badge>
-          <Badge variant="outline" className={cn(BADGE_CLASS, countColor)}>
-            <Users className="size-3.5" />
-            {countLabel}
-          </Badge>
-          <Badge
-            variant="outline"
-            className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
-          >
-            <Wallet className="size-3.5" />
-            {budgetLabel}
-          </Badge>
-          {record.dateLocked === false && (
-            <Badge variant="outline" className={cn(BADGE_CLASS, "border-emerald-200 bg-emerald-100 text-emerald-700")}>
-              Гид может предлагать даты
-            </Badge>
-          )}
+          <Chip label="Дата" value={dateValue} icon={CalendarDays} />
+          <Chip label="Время" value={timeLabel} icon={Clock} />
+          <Chip label="Гостей" value={countLabel} icon={Users} />
+          <Chip label="Бюджет" value={budgetLabel} icon={Wallet} />
         </div>
+
+        {record.dateLocked === false ? (
+          <Tag color="primary">Гид может предлагать даты</Tag>
+        ) : null}
 
         {interests.length > 0 ? (
           <div className="flex flex-wrap gap-2">
             {interests.map((slug) => (
-              <Badge key={slug} variant="secondary" className={BADGE_CLASS}>
+              <Tag key={slug} color="primary">
                 {INTEREST_LABEL_BY_ID[slug] ?? slug}
-              </Badge>
+              </Tag>
             ))}
           </div>
         ) : null}
 
         {request.notes ? (
-          <div className="w-full max-w-[720px] whitespace-pre-line rounded-2xl border border-border/80 bg-card px-4 py-3 text-sm text-foreground">
+          <p className="max-w-[70ch] whitespace-pre-line text-[14.5px] leading-[1.6] text-ink-2">
             {request.notes}
-          </div>
+          </p>
         ) : null}
       </div>
     </div>
@@ -483,7 +480,9 @@ function OwnerDetailBranch({
   onSendQa,
   onGetOrCreateQaThread,
 }: Extract<RequestDetailScreenProps, { viewerRole: "owner" }>) {
+  const router = useRouter();
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
+  const [, startReject] = React.useTransition();
 
   const acceptedOffers = ownerOffers.filter(({ offer }) => offer.status === "accepted");
   const declinedOffers = ownerOffers.filter(({ offer }) => offer.status === "declined");
@@ -495,14 +494,37 @@ function OwnerDetailBranch({
   const seatsTaken = viewModel.memberCount;
   const remaining = seatsTotal != null ? Math.max(0, seatsTotal - seatsTaken) : 0;
 
-  const perPersonLabel = (offer: GuideOfferRow): string => {
-    const count = offer.capacity > 0 ? offer.capacity : ownerRequestRow.participants_count ?? 1;
+  const enrollmentOpen = ownerRequestRow.open_to_join;
+  const enrollmentLabel = enrollmentOpen ? "Набор открыт" : "Набор закрыт";
+
+  const requestInterests = ownerRequestRow.interests ?? [];
+  const requestBudgetLabel = ownerRequestRow.budget_minor
+    ? `Ваш бюджет ${new Intl.NumberFormat("ru-RU").format(
+        Math.round(kopecksToRub(ownerRequestRow.budget_minor)),
+      )} ₽ / чел.`
+    : undefined;
+
+  const offerCount = (offer: GuideOfferRow): number =>
+    offer.capacity > 0 ? offer.capacity : ownerRequestRow.participants_count ?? 1;
+
+  const perPersonRub = (offer: GuideOfferRow): number => {
+    const count = offerCount(offer);
     const perMinor = count > 0 ? Math.round(offer.price_minor / count) : offer.price_minor;
-    return new Intl.NumberFormat("ru-RU", {
+    return Math.round(kopecksToRub(perMinor));
+  };
+
+  const perPersonLabel = (offer: GuideOfferRow): string =>
+    new Intl.NumberFormat("ru-RU", {
       style: "currency",
       currency: offer.currency,
       maximumFractionDigits: 0,
-    }).format(kopecksToRub(perMinor));
+    }).format(perPersonRub(offer));
+
+  const groupTotalLabel = (offer: GuideOfferRow): string | undefined => {
+    const count = offerCount(offer);
+    if (count <= 1) return undefined;
+    const total = perPersonRub(offer) * count;
+    return `${new Intl.NumberFormat("ru-RU").format(total)} ₽ за группу · ${count} чел.`;
   };
 
   const cardInfo = (gi: OwnerOfferItem["guideInfo"]): GuideCardInfo => ({
@@ -519,7 +541,7 @@ function OwnerDetailBranch({
   });
 
   const guideName = (gi: OwnerOfferItem["guideInfo"]): string =>
-    gi?.full_name && gi.full_name.trim() ? gi.full_name : "Гид";
+    resolveDisplayName("guide", { full_name: gi?.full_name ?? null });
 
   const renderEmbeddedDetails = ({ offer, guideInfo, qaThread }: OwnerOfferItem) => (
     <OfferCard
@@ -544,28 +566,64 @@ function OwnerDetailBranch({
     />
   );
 
+  const matchingSpecialties = (gi: OwnerOfferItem["guideInfo"]): string[] =>
+    (gi?.specialties ?? []).filter((s) => requestInterests.includes(s));
+
   const renderGuideCard = (
     item: OwnerOfferItem,
     selectable: boolean,
     forcedSelected = false,
-  ) => (
-    <div key={item.offer.id} id={`guide-${item.offer.id}`}>
-      <GuideOfferCard
-        guide={cardInfo(item.guideInfo)}
-        name={guideName(item.guideInfo)}
-        quote={item.offer.message}
-        perPersonPriceLabel={perPersonLabel(item.offer)}
-        selected={selectable ? selectedId === item.offer.id : forcedSelected}
-        onSelect={
-          selectable
-            ? () => setSelectedId((prev) => (prev === item.offer.id ? null : item.offer.id))
-            : undefined
-        }
-      >
-        {renderEmbeddedDetails(item)}
-      </GuideOfferCard>
-    </div>
-  );
+  ) => {
+    const { offer, guideInfo } = item;
+    const trips = guideInfo?.trips_completed ?? null;
+    const dateDeviates =
+      offer.starts_at != null &&
+      ownerRequestRow.starts_on != null &&
+      offer.starts_at.slice(0, 10) !== ownerRequestRow.starts_on.slice(0, 10);
+
+    return (
+      <div key={offer.id} id={`guide-${offer.id}`}>
+        <GuideOfferCard
+          guide={cardInfo(guideInfo)}
+          name={guideName(guideInfo)}
+          quote={offer.message}
+          perPersonPriceLabel={perPersonLabel(offer)}
+          responseTimeLabel={formatResponseTime(offer.created_at)}
+          groupTotalLabel={groupTotalLabel(offer)}
+          requestBudgetLabel={requestBudgetLabel}
+          profileHref={guideInfo?.guide_id ? `/guides/${guideInfo.guide_id}` : undefined}
+          isNewGuide={trips == null || trips === 0}
+          matchingSpecialties={matchingSpecialties(guideInfo)}
+          selected={selectable ? selectedId === offer.id : forcedSelected}
+          onSelect={
+            selectable
+              ? () => setSelectedId((prev) => (prev === offer.id ? null : offer.id))
+              : undefined
+          }
+        >
+          {dateDeviates ? (
+            <div className="mb-3">
+              <Tag color="amber">Гид предложил другую дату</Tag>
+            </div>
+          ) : null}
+          {renderEmbeddedDetails(item)}
+        </GuideOfferCard>
+      </div>
+    );
+  };
+
+  const handleRejectSelected = () => {
+    if (!selectedItem) return;
+    const offerId = selectedItem.offer.id;
+    const formData = new FormData();
+    formData.set("offer_id", offerId);
+    formData.set("request_id", requestId);
+    startReject(async () => {
+      await rejectOfferAction({ error: null }, formData);
+      setSelectedId(null);
+      router.refresh();
+    });
+  };
 
   const breadcrumb = [
     { label: "Поездки" },
@@ -594,6 +652,8 @@ function OwnerDetailBranch({
         <TripPanel
           dateLabel={viewModel.dateLabel}
           timeLabel={viewModel.timeLabel}
+          enrollmentLabel={enrollmentLabel}
+          enrollmentOpen={enrollmentOpen}
           status={{ open: isOpen, label: isOpen ? "Группа открыта" : "Группа закрыта" }}
           seatsTaken={seatsTaken}
           seatsTotal={seatsTotal}
@@ -621,6 +681,10 @@ function OwnerDetailBranch({
         ) : null}
 
         <MarkOffersRead requestId={requestId} hasOffers={ownerOffers.length > 0} />
+
+        <section className="pt-[54px]">
+          <RequestFactsCard record={ownerRecord} />
+        </section>
 
         {acceptedOffer ? (
           <section className="flex flex-col gap-5 pt-[54px]">
@@ -668,17 +732,21 @@ function OwnerDetailBranch({
                 </p>
               </div>
             ) : (
-              <div className="flex flex-col gap-4">
-                {pendingOffers.map((item) => renderGuideCard(item, true))}
-              </div>
+              <>
+                <Alert variant="warning" className="text-[13px] leading-[1.5]">
+                  Оплата производится напрямую с гидом при встрече. Платформа не
+                  гарантирует возврат средств.
+                </Alert>
+                <p className="text-[13px] text-on-surface-muted">
+                  После выбора гида откроются его контакты и чат.
+                </p>
+                <div className="flex flex-col gap-4">
+                  {pendingOffers.map((item) => renderGuideCard(item, true))}
+                </div>
+              </>
             )}
           </section>
         )}
-
-        <section className="pt-12">
-          <h3 className="mb-4 text-lg font-semibold text-on-surface">Детали вашего запроса</h3>
-          <TravelerRequestSummary record={ownerRecord} />
-        </section>
       </div>
 
       {selectedItem && !acceptedOffer ? (
@@ -691,7 +759,8 @@ function OwnerDetailBranch({
               : ""
           }`}
           onMessage={scrollToSelected}
-          messageLabel="Написать"
+          messageLabel="Задать вопрос"
+          onReject={isOpen ? handleRejectSelected : undefined}
           primary={
             isOpen ? (
               <AcceptOfferButton
@@ -699,6 +768,8 @@ function OwnerDetailBranch({
                 requestId={requestId}
                 guideId={selectedItem.offer.guide_id}
                 priceMinor={selectedItem.offer.price_minor}
+                guideName={guideName(selectedItem.guideInfo)}
+                perPersonLabel={perPersonLabel(selectedItem.offer)}
               />
             ) : null
           }
@@ -745,6 +816,7 @@ function GuideDetailBranch({
   viewsCount,
 }: Extract<RequestDetailScreenProps, { viewerRole: "guide" }>) {
   const router = useRouter();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [panelOpen, setPanelOpen] = React.useState(false);
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
   const [editMode, setEditMode] = React.useState(false);
@@ -837,7 +909,14 @@ function GuideDetailBranch({
                   size="default"
                   disabled={withdrawing}
                   onClick={async () => {
-                    if (!window.confirm("Отозвать предложение? Путешественник больше его не увидит.")) return;
+                    const ok = await confirm({
+                      title: "Отозвать предложение?",
+                      description: "Путешественник больше его не увидит.",
+                      confirmText: "Отозвать",
+                      cancelText: "Отмена",
+                      destructive: true,
+                    });
+                    if (!ok) return;
                     setWithdrawing(true);
                     const res = await withdrawOfferAction(validOfferId, request.id);
                     setWithdrawing(false);
@@ -869,6 +948,7 @@ function GuideDetailBranch({
           onSuccess={() => { setPanelOpen(false); setEditMode(false); router.refresh(); }}
         />
       ) : null}
+      {ConfirmDialog}
     </>
   );
 }
