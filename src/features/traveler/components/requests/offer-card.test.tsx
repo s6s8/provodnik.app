@@ -101,7 +101,7 @@ describe("OfferCard", () => {
     const badges = Array.from(groupBadge?.parentElement?.querySelectorAll("[data-slot='badge']") ?? []);
     const badgeTexts = badges.map((badge) => badge.textContent);
 
-    expect(groupBadge).toHaveClass("border-sky-200", "bg-sky-100", "text-sky-700");
+    expect(groupBadge).toHaveClass("border-primary/20", "bg-primary-tint", "text-primary");
     expect(badgeTexts).toEqual([
       "Сборная группа",
       "15 июня",
@@ -267,8 +267,8 @@ describe("OfferCard", () => {
       "2 чел.",
       "12 000 ₽ за группу · 6 000 ₽ на чел.",
     ]);
-    expect(groupBadge).toHaveClass("border-purple-200", "bg-purple-100", "text-purple-700");
-    expect(dateBadge).toHaveClass("border-blue-300");
+    expect(groupBadge).toHaveClass("border-border", "bg-surface-low", "text-muted-foreground");
+    expect(dateBadge).toHaveClass("border-amber/40", "bg-amber-tint", "text-amber");
     // Нет стрелочных бейджей старого формата
     expect(screen.queryByText(/гибкая →/)).not.toBeInTheDocument();
   });

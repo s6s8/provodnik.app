@@ -8,7 +8,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { kopecksToRub } from "@/data/money";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
-import { BADGE_CLASS } from "@/lib/styles";
 import { cn, pluralize } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -56,8 +55,10 @@ interface Props {
   embedded?: boolean;
 }
 
-const DEVIATION_BADGE_CLASS = cn(BADGE_CLASS, "border-blue-300 bg-blue-50 text-blue-600");
-const NEUTRAL_BADGE_CLASS = cn(BADGE_CLASS, "border-slate-200 bg-slate-50 text-slate-600");
+const BADGE_BASE = "text-xs font-medium normal-case tracking-normal";
+const DEVIATION_BADGE = cn(BADGE_BASE, "border-amber/40 bg-amber-tint text-amber");
+const NEUTRAL_BADGE = cn(BADGE_BASE, "border-border bg-surface-low text-muted-foreground");
+const SUCCESS_BADGE = cn(BADGE_BASE, "border-success/30 bg-success/10 text-success");
 
 function formatPrice(minor: number, currency: string): string {
   return formatRub(kopecksToRub(minor), currency);
@@ -200,7 +201,7 @@ export function OfferCard({
             <div className="flex items-center gap-1.5">
               <p className="truncate font-medium">{guideName}</p>
               {guideInfo?.verified ? (
-                <Badge variant="outline" className={cn(BADGE_CLASS, "shrink-0 border-success/30 bg-success/10 text-success")}>
+                <Badge variant="outline" className={cn(SUCCESS_BADGE, "shrink-0")}>
                   <BadgeCheck className="size-3.5" />
                   Проверен
                 </Badge>
@@ -227,7 +228,7 @@ export function OfferCard({
 
       {isCounterOffer ? (
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-medium text-blue-600">Гид предложил другие условия</span>
+          <span className="text-xs font-medium text-amber">Гид предложил другие условия</span>
         </div>
       ) : null}
 
@@ -236,34 +237,34 @@ export function OfferCard({
         <Badge
           variant="outline"
           className={cn(
-            BADGE_CLASS,
+            BADGE_BASE,
             travelerOpenToJoin
-              ? "border-sky-200 bg-sky-100 text-sky-700"
-              : "border-purple-200 bg-purple-100 text-purple-700",
+              ? "border-primary/20 bg-primary-tint text-primary"
+              : "border-border bg-surface-low text-muted-foreground",
           )}
         >
           {groupTypeLabel}
         </Badge>
         {travelerStartsOn == null ? (
-          <Badge variant="outline" className={NEUTRAL_BADGE_CLASS}>
+          <Badge variant="outline" className={NEUTRAL_BADGE}>
             Гибкие даты
           </Badge>
         ) : null}
-        <Badge variant="outline" className={dateDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
+        <Badge variant="outline" className={dateDeviates ? DEVIATION_BADGE : NEUTRAL_BADGE}>
           <CalendarDays className="size-3.5" />
           {dateBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={timeDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
+        <Badge variant="outline" className={timeDeviates ? DEVIATION_BADGE : NEUTRAL_BADGE}>
           <Clock className="size-3.5" />
           {timeBadgeLabel}
         </Badge>
-        <Badge variant="outline" className={countDeviates ? DEVIATION_BADGE_CLASS : NEUTRAL_BADGE_CLASS}>
+        <Badge variant="outline" className={countDeviates ? DEVIATION_BADGE : NEUTRAL_BADGE}>
           <Users className="size-3.5" />
           {countBadgeLabel}
         </Badge>
         <Badge
           variant="outline"
-          className={budgetDeviates ? DEVIATION_BADGE_CLASS : cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
+          className={budgetDeviates ? DEVIATION_BADGE : SUCCESS_BADGE}
         >
           <Wallet className="size-3.5" />
           {priceLabel}
@@ -308,7 +309,7 @@ export function OfferCard({
               <Badge
                 key={`${label}-${idx}`}
                 variant="outline"
-                className={cn(BADGE_CLASS, "border-success/30 bg-success/10 text-success")}
+                className={SUCCESS_BADGE}
               >
                 ✓ {label}
               </Badge>
@@ -325,18 +326,13 @@ export function OfferCard({
         </div>
       ) : null}
 
-      {/* Contact disclosure — hidden until the traveler accepts this offer */}
+      {/* Contact disclosure — shown once the traveler accepts this offer.
+          The pending «контакты скрыты» note now lives once above the offer list. */}
       {offer.status === "accepted" ? (
         <div className="rounded-md border border-success/30 bg-success/10 px-3 py-2">
           <p className="text-xs text-success">
             Вы выбрали этого гида. Контактные данные открыты — напишите гиду,
             чтобы согласовать детали.
-          </p>
-        </div>
-      ) : offer.status === "pending" ? (
-        <div className="rounded-md border border-warning/30 bg-warning/10 px-3 py-2">
-          <p className="text-xs text-warning">
-            Контактные данные скрыты до принятия предложения
           </p>
         </div>
       ) : null}
@@ -351,6 +347,7 @@ export function OfferCard({
                 requestId={requestId}
                 guideId={offer.guide_id}
                 priceMinor={offer.price_minor}
+                guideName={guideName}
               />
             )}
             <RejectOfferButton offerId={offer.id} requestId={requestId} />

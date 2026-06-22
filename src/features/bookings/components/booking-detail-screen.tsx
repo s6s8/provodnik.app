@@ -6,20 +6,24 @@ import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CalendarDays,
+  Check,
   CheckCircle2,
-  MapPin,
   ShieldAlert,
+  Wallet,
   XCircle,
 } from "lucide-react";
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge";
-import { ProfileAvatar } from "@/components/profile-avatar";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { PageHeader } from "@/components/shared/page-header";
+import { ContactReveal } from "@/components/trust/contact-reveal";
+import { MoneyBreakdown } from "@/components/trust/money-breakdown";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { rubToKopecks } from "@/data/money";
 import type { BookingRecord } from "@/data/supabase/queries";
 import { getTheme } from "@/data/themes";
 import { BookingTicketTrigger } from "@/features/bookings/components/booking-ticket-trigger";
@@ -122,6 +126,16 @@ function TravelerBookingDetailView({
   const guidePhone = booking.guide_phone ?? null;
   const guideAvatarUrl = guideProfileData?.avatar_url ?? null;
   const isVerified = guideProfile?.verification_status === "approved";
+  const cancellationPolicy =
+    typeof booking.cancellation_policy_snapshot === "string"
+      ? booking.cancellation_policy_snapshot
+      : undefined;
+  const bookingStatusForReveal: "pending" | "confirmed" | "completed" =
+    booking.status === "confirmed"
+      ? "confirmed"
+      : booking.status === "completed"
+        ? "completed"
+        : "pending";
 
   const handleOpenThread = React.useCallback(() => {
     if (!openBookingThreadAction) return;
@@ -276,6 +290,14 @@ function TravelerBookingDetailView({
             <PageHeader title={resolvedListingTitle || "Бронирование"} actions={primaryCTA} />
           </header>
 
+          {showTravelerPanel ? (
+            <Alert variant="info">
+              <AlertDescription>
+                Оплата производится напрямую с гидом. Проводник не является посредником в денежных расчётах.
+              </AlertDescription>
+            </Alert>
+          ) : null}
+
           <Card className="border-border/70 bg-card/90">
             <CardContent className="flex flex-col gap-2 p-5">
               <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
@@ -322,7 +344,7 @@ function TravelerBookingDetailView({
                     <ul className="flex flex-col gap-1">
                       {inclusions.map((item) => (
                         <li key={item} className="font-sans text-sm text-foreground flex items-start gap-2">
-                          <span className="text-primary mt-0.5">✓</span>
+                          <Check className="size-4 text-primary shrink-0 mt-0.5" />
                           {item}
                         </li>
                       ))}
@@ -336,18 +358,14 @@ function TravelerBookingDetailView({
           <Card className="border-border/70 bg-card/90">
             <CardContent className="flex flex-col gap-1.5 p-5">
               <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
-              {partySize > 1 ? (
-                <>
-                  <p className="font-sans text-sm text-muted-foreground">
-                    {formatRub(pricePerPersonMinor)} <span className="text-muted-foreground/70">/ человек</span>
-                  </p>
-                  <p className="font-sans text-[1.125rem] font-semibold text-foreground">
-                    Итого: {formatRub(priceMinor)}
-                  </p>
-                </>
-              ) : (
-                <p className="font-sans text-[1.125rem] font-semibold text-foreground">{formatRub(priceMinor)}</p>
-              )}
+              <MoneyBreakdown
+                pricePerPerson={pricePerPersonMinor / 100}
+                partySize={partySize}
+                depositMinor={booking.deposit_minor ?? undefined}
+                remainderMinor={booking.remainder_minor ?? undefined}
+                cancellationPolicy={cancellationPolicy}
+                currency={booking.currency ?? "₽"}
+              />
             </CardContent>
           </Card>
 
@@ -356,44 +374,15 @@ function TravelerBookingDetailView({
               <Card className="border-border/70 bg-card/90">
                 <CardContent className="flex flex-col gap-3.5 p-5">
                   <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
-                  <div className="flex items-center gap-3.5">
-                    <ProfileAvatar
-                      profile={{
-                        full_name: guideProfileData?.full_name ?? null,
-                        avatar_url: guideAvatarUrl,
-                      }}
-                      size={52}
-                      className="border-2 border-border/70"
-                    />
-                    <div className="flex-1 min-w-0 flex flex-col gap-[0.3rem]">
-                      <p className="font-sans text-base font-semibold text-foreground flex items-center gap-1.5">
-                        {guideName}
-                        {isVerified ? (
-                          <span
-                            className="inline-flex items-center justify-center size-[18px] rounded-full bg-primary text-primary-foreground text-[0.625rem] font-bold shrink-0"
-                            aria-label="Верифицирован"
-                          >
-                            ✓
-                          </span>
-                        ) : null}
-                      </p>
-                      {guidePhone ? (
-                        <p className="font-sans text-sm text-muted-foreground">
-                          <span className="font-medium">Телефон:</span>{" "}
-                          <a
-                            href={`tel:${guidePhone}`}
-                            className="text-primary no-underline hover:underline"
-                          >
-                            {guidePhone}
-                          </a>
-                        </p>
-                      ) : (
-                        <p className="font-sans text-sm text-muted-foreground">
-                          Контакт появится в чате
-                        </p>
-                      )}
-                    </div>
-                  </div>
+                  <ContactReveal
+                    guide={{
+                      name: guideName,
+                      avatarUrl: guideAvatarUrl ?? undefined,
+                      verified: isVerified,
+                    }}
+                    contact={{ phone: guidePhone ?? undefined }}
+                    bookingStatus={bookingStatusForReveal}
+                  />
                 </CardContent>
               </Card>
 
@@ -426,6 +415,17 @@ function TravelerBookingDetailView({
           ) : null}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Route-level loading placeholder: header + two content cards. */
+export function BookingDetailSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton variant="card" className="h-24" />
+      <Skeleton variant="card" />
+      <Skeleton variant="card" />
     </div>
   );
 }
@@ -672,23 +672,21 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
               <CalendarDays className="size-4 text-muted-foreground" />
               {record.dateLabel}
             </span>
-            {process.env.NODE_ENV !== "production" && (
-              <span className="inline-flex items-center gap-2">
-                <MapPin className="size-4 text-muted-foreground" />
-                Модель выплат и залога — демо, без реальных списаний
-              </span>
-            )}
+            <span className="inline-flex items-center gap-2">
+              <Wallet className="size-4 text-muted-foreground" />
+              Выплата: {formatRub(rubToKopecks(record.priceRub))}
+            </span>
           </div>
+          <p className="text-xs text-muted-foreground">
+            Модель выплат и залога — демо, без реальных списаний
+          </p>
         </div>
       </div>
 
       {errorMessage ? (
-        <div
-          role="alert"
-          className="rounded-lg border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive"
-        >
-          {errorMessage}
-        </div>
+        <Alert variant="destructive">
+          <AlertDescription>{errorMessage}</AlertDescription>
+        </Alert>
       ) : null}
 
       {actionResult ? (

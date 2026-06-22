@@ -13,13 +13,14 @@ type ImmersiveHeroProps = {
   breadcrumb?: readonly HeroBreadcrumbItem[];
   title: string;
   intro?: string;
+  /** Status pill / badge rendered in the overlay near the title block. */
+  statusBadge?: ReactNode;
+  /** Subtle film-grain overlay. Defaults to true. */
+  grain?: boolean;
   /** Bottom-right slot (the floating trip / booking panel). */
   children?: ReactNode;
   className?: string;
 };
-
-const HERO_GRADIENT =
-  "linear-gradient(180deg,rgba(8,14,24,.5) 0%,rgba(8,14,24,.1) 22%,rgba(8,14,24,.14) 52%,rgba(8,14,24,.8) 100%)";
 
 /**
  * Full-bleed hero: background photo + dark bottom gradient, a centered content
@@ -32,21 +33,27 @@ export function ImmersiveHero({
   breadcrumb,
   title,
   intro,
+  statusBadge,
+  grain = true,
   children,
   className,
 }: ImmersiveHeroProps) {
   return (
     <section className={cn("relative w-full overflow-hidden", className)}>
-      <div className="relative min-h-[480px] md:h-[560px]">
+      <div className="relative min-h-[520px] sm:min-h-[632px]">
         <div
-          className="absolute inset-0 bg-surface-low bg-cover"
-          style={{ backgroundImage: `url('${imageUrl}')`, backgroundPosition: imagePosition }}
+          className="absolute inset-0 bg-surface-low bg-cover bg-[image:var(--hero-img)] bg-[position:var(--hero-pos)]"
+          style={{
+            ["--hero-img" as string]: `url('${imageUrl}')`,
+            ["--hero-pos" as string]: imagePosition,
+          }}
           role="img"
           aria-label={title}
         />
-        <div className="absolute inset-0" style={{ backgroundImage: HERO_GRADIENT }} />
+        <div className="hero-overlay absolute inset-0" />
+        {grain ? <div className="hero-grain pointer-events-none absolute inset-0 z-[1]" /> : null}
 
-        <div className="relative z-[2] mx-auto flex h-full min-h-[480px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:min-h-0 md:px-8 md:pb-0">
+        <div className="relative z-[2] mx-auto flex h-full min-h-[520px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:min-h-0 md:px-8 md:pb-0">
           {/* Title block — bottom-left on desktop */}
           <div className="md:absolute md:bottom-12 md:left-8 md:max-w-[540px]">
             {breadcrumb && breadcrumb.length > 0 ? (
@@ -59,7 +66,8 @@ export function ImmersiveHero({
                 ))}
               </div>
             ) : null}
-            <h1 className="mb-4 text-[clamp(2.75rem,8vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-white">
+            {statusBadge ? <div className="mb-4">{statusBadge}</div> : null}
+            <h1 className="mb-4 text-[clamp(46px,7vw,74px)] font-extrabold leading-[0.96] tracking-[-0.035em] text-white">
               {title}
             </h1>
             {intro ? (

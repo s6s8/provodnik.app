@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { BadgeCheck } from "lucide-react";
+
 import { PageHeader } from "@/components/shared/page-header";
+import { ProfileAvatar } from "@/components/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { ChatInput } from "@/features/messaging/components/chat-input";
 import { ChatWindow } from "@/features/messaging/components/chat-window";
@@ -71,18 +74,50 @@ export default async function ThreadPage({
   const participantTitle =
     currentThread.other_participant_names.join(", ") || "Диалог";
 
+  const otherParticipantId =
+    currentThread.participants.find((participant) => participant.user_id !== user.id)?.user_id ??
+    null;
+
+  let guidePublic: { avatar_url: string | null; full_name: string | null } | null = null;
+  if (otherParticipantId) {
+    try {
+      const { data } = await supabase
+        .from("v_guide_public_profile")
+        .select("avatar_url, full_name")
+        .eq("user_id", otherParticipantId)
+        .maybeSingle();
+      guidePublic = data;
+    } catch {
+      guidePublic = null;
+    }
+  }
+
+  const isVerifiedGuide = guidePublic !== null;
+
   return (
     <section className="grid gap-6">
-      <PageHeader
-        eyebrow="Сообщения"
-        title={participantTitle}
-        subtitle="История переписки по текущей поездке и связанным деталям."
-        actions={
-          <Button variant="outline" asChild>
-            <Link href="/messages">Все диалоги</Link>
-          </Button>
-        }
-      />
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <ProfileAvatar
+            profile={{ full_name: participantTitle, avatar_url: guidePublic?.avatar_url ?? null }}
+            size={34}
+          />
+          <div className="flex min-w-0 items-center gap-1.5">
+            <span className="truncate text-[15px] font-semibold text-on-surface">
+              {participantTitle}
+            </span>
+            {isVerifiedGuide ? (
+              <BadgeCheck className="size-4 shrink-0 text-success" strokeWidth={2.3} />
+            ) : null}
+          </div>
+        </div>
+        <Button variant="outline" asChild>
+          <Link href="/messages">Все диалоги</Link>
+        </Button>
+      </div>
+      <p className="text-[15px] text-muted-foreground">
+        История переписки по текущей поездке и связанным деталям.
+      </p>
 
       <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm">
         <ChatWindow

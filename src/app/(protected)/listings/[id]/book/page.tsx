@@ -4,13 +4,14 @@ import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { MoneyBreakdown } from "@/components/trust/money-breakdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { kopecksToRub } from "@/data/money";
 import { BookingFormTabs } from "@/features/bookings/components/BookingFormTabs";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Оформление бронирования",
+  title: "Подать заявку на экскурсию",
 };
 
 function formatLabel(format: string | null): string | null {
@@ -43,6 +44,23 @@ export default async function BookingPage({
 
   if (!listing) notFound();
 
+  let guidePublic:
+    | { full_name: string | null; average_rating: number | null; review_count: number | null }
+    | null = null;
+  try {
+    const { data } = await supabase
+      .from("v_guide_public_profile")
+      .select("full_name, average_rating, review_count")
+      .eq("user_id", listing.guide_id)
+      .maybeSingle();
+    guidePublic = data;
+  } catch {
+    guidePublic = null;
+  }
+
+  const guideName = guidePublic?.full_name?.trim() || "Проверенный гид";
+  const showRating = (guidePublic?.review_count ?? 0) > 0;
+
   const priceLabel = `${new Intl.NumberFormat("ru-RU").format(
     kopecksToRub(listing.price_from_minor),
   )} ₽`;
@@ -50,7 +68,7 @@ export default async function BookingPage({
 
   return (
     <div className="mx-auto max-w-lg py-8 px-4">
-      <PageHeader eyebrow="Оформление" title={listing.title} />
+      <PageHeader eyebrow="Заявка" title="Подать заявку на экскурсию" subtitle={listing.title} />
 
       <Card className="mt-6 mb-6">
         <CardContent className="grid gap-4">
@@ -76,6 +94,19 @@ export default async function BookingPage({
               от {priceLabel}
             </span>
           </div>
+          <div className="flex items-center gap-2 text-sm">
+            <span className="font-medium text-on-surface">{guideName}</span>
+            {showRating ? (
+              <span className="text-muted-foreground">
+                ★ {guidePublic?.average_rating} ({guidePublic?.review_count})
+              </span>
+            ) : null}
+          </div>
+          <MoneyBreakdown
+            pricePerPerson={kopecksToRub(listing.price_from_minor)}
+            partySize={1}
+            currency="₽"
+          />
         </CardContent>
       </Card>
 
