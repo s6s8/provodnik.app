@@ -59,7 +59,7 @@ export default async function TravelerBookingDisputePage({
   if (booking.traveler_id !== user.id) {
     redirect("/trips");
   }
-  if (booking.status !== "confirmed") {
+  if (booking.status !== "confirmed" && booking.status !== "completed") {
     redirect(`/bookings/${bookingId}`);
   }
 

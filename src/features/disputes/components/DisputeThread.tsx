@@ -35,10 +35,16 @@ function statusBadgeClass(status: string) {
   }
 }
 
-function formatEventLabel(eventType: string | null) {
+const EVENT_LABELS: Record<string, string> = {
+  dispute_opened: "Спор открыт",
+  admin_review: "На рассмотрении",
+  resolved: "Разрешён",
+  comment: "Сообщение",
+};
+
+function formatEventLabel(eventType: string | null): string {
   if (!eventType) return "Событие";
-  if (eventType === "dispute_opened") return "Спор открыт";
-  return eventType;
+  return EVENT_LABELS[eventType] ?? eventType;
 }
 
 export async function DisputeThread({
@@ -114,12 +120,20 @@ export async function DisputeThread({
       />
 
       {!adminView ? (
-        <Alert>
-          <AlertTitle>Статус</AlertTitle>
-          <AlertDescription>
-            Спор рассматривается администрацией. Текущий статус: {statusLabel}.
-          </AlertDescription>
-        </Alert>
+        <>
+          <Alert>
+            <AlertTitle>Статус</AlertTitle>
+            <AlertDescription>
+              Спор рассматривается администрацией. Текущий статус: {statusLabel}.
+            </AlertDescription>
+          </Alert>
+          <Alert variant="info">
+            <AlertDescription>
+              Дополнение к спору временно недоступно — наша команда рассматривает вашу
+              жалобу.
+            </AlertDescription>
+          </Alert>
+        </>
       ) : null}
 
       {dispute.resolution_summary ? (
