@@ -218,7 +218,7 @@ describe("SiteHeader mobile menu", () => {
     fireEvent.click(screen.getByRole("button", { name: "Открыть меню" }));
 
     expect(
-      screen.getByText("Навигация по разделам Provodnik."),
+      screen.getByText("Навигация по разделам Проводника."),
     ).toBeInTheDocument();
   });
 });

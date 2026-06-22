@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, MessageSquare } from "lucide-react";
+import { MapPin, Menu, MessageSquare } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -109,8 +109,11 @@ export function SiteHeader({
         className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-6 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
         aria-label="Основная навигация"
       >
-        <Link href="/" prefetch={false} className="inline-flex min-h-11 items-center font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
-          Provodnik
+        <Link href="/" prefetch={false} className="inline-flex min-h-11 items-center gap-2 font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
+          <span className="inline-flex size-7 items-center justify-center rounded-[10px] bg-primary text-primary-foreground">
+            <MapPin className="size-4" />
+          </span>
+          <span>«Проводник»</span>
         </Link>
 
         <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden" role="list">
@@ -254,7 +257,7 @@ export function SiteHeader({
               <SheetHeader>
                 <SheetTitle>Меню</SheetTitle>
                 <SheetDescription className="sr-only">
-                  Навигация по разделам Provodnik.
+                  Навигация по разделам Проводника.
                 </SheetDescription>
               </SheetHeader>
               <nav className="flex flex-col gap-1 px-2 pb-4" aria-label="Мобильная навигация">

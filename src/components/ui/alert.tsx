@@ -2,6 +2,7 @@ import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/lib/utils"
+import { AlertDismiss } from "@/components/ui/alert-dismiss"
 
 const alertVariants = cva(
   "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-left text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pr-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
@@ -11,6 +12,9 @@ const alertVariants = cva(
         default: "bg-card text-card-foreground",
         destructive:
           "bg-card text-destructive *:data-[slot=alert-description]:text-destructive/90 *:[svg]:text-current",
+        info: "bg-primary-tint text-primary",
+        success: "bg-green-tint text-success",
+        warning: "bg-amber-tint text-amber",
       },
     },
     defaultVariants: {
@@ -22,15 +26,31 @@ const alertVariants = cva(
 function Alert({
   className,
   variant,
+  dismissible,
+  onDismiss,
+  children,
   ...props
-}: React.ComponentProps<"div"> & VariantProps<typeof alertVariants>) {
+}: React.ComponentProps<"div"> &
+  VariantProps<typeof alertVariants> & {
+    dismissible?: boolean
+    onDismiss?: () => void
+  }) {
+  const polite = variant === "info" || variant === "success"
   return (
     <div
       data-slot="alert"
-      role="alert"
-      className={cn(alertVariants({ variant }), className)}
+      role={polite ? "status" : "alert"}
+      aria-live={polite ? "polite" : undefined}
+      className={cn(
+        alertVariants({ variant }),
+        dismissible && "pr-9",
+        className
+      )}
       {...props}
-    />
+    >
+      {children}
+      {dismissible ? <AlertDismiss onDismiss={onDismiss} /> : null}
+    </div>
   )
 }
 

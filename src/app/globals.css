@@ -54,6 +54,18 @@
   --color-gold-600: var(--gold-600);   --color-gold-700: var(--gold-700);
   --color-gold-800: var(--gold-800);   --color-gold-900: var(--gold-900);
   --color-gold-950: var(--gold-950);
+
+  --color-primary-tint: var(--primary-tint);
+  --color-amber-tint: var(--amber-tint);
+  --color-green-tint: var(--green-tint);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
+  --color-danger: #C2410C;
+  --color-info: var(--primary);
+  --radius-pill: var(--radius-pill);
+  --radius-step: var(--radius-step);
+  --radius-hero: var(--radius-hero);
+  --shadow-lift: var(--shadow-lift);
 }
 
 :root {
@@ -64,6 +76,8 @@
   --amber-50:#FBF3E8; --amber-100:#F5E2C8; --amber-200:#ECC593; --amber-300:#E2A65C;
   --amber-400:#D4872B; --amber-500:#B26F1E; --amber-600:#8F5817;
   --green-50:#E9F5EF; --green-100:#CFE9DD; --green-500:#2F8F66; --green-600:#27764F;
+  --primary-tint:#E8F0FB; --amber-tint:#FBEFDD; --green-tint:#E4F3EC;
+  --line:#E3E8EF; --line-2:#D5DCE6;
   --ink-raw:#141C28; --body-raw:#414B59; --muted-ink:#8A93A1; --faint:#AEB6C2;
   --canvas:#FAFAF9; --surface-white:#FFFFFF; --surface-2:#F4F4F2;
   --hairline:rgba(20,28,40,.08); --hairline-2:rgba(20,28,40,.12);
@@ -88,6 +102,10 @@
   --card-shadow: 0 1px 2px rgba(20, 28, 40, 0.04);
   --card-radius: 16px;
   --radius-btn: 10px;
+  --radius-pill: 999px;
+  --radius-step: 12px;
+  --radius-hero: 18px;
+  --shadow-lift: 0 18px 44px -24px rgb(15 27 45 / .30);
 
   --font-display: var(--font-onest);
   --font-ui: var(--font-onest);
