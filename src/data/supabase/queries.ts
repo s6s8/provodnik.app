@@ -69,6 +69,7 @@ export type GuideRecord = {
   specialties: string[];
   tripsCompleted: number;
   recommendPct: number | null;
+  responseRate?: number | null;
   verified: boolean;
   languages: string[];
 };
@@ -783,7 +784,7 @@ export async function getGuides(
 
     const { data: statRows } = await client
       .from("v_guide_public_profile")
-      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages")
+      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages, response_rate")
       .in("user_id", guideIds);
 
     const ratingMap = new Map<
@@ -793,6 +794,7 @@ export async function getGuides(
         reviewCount: number;
         tripsCompleted: number;
         recommendPct: number | null;
+        responseRate: number | null;
         specialties: string[];
         languages: string[];
         avatarUrl: string | null;
@@ -804,6 +806,7 @@ export async function getGuides(
         reviewCount: (row.review_count as number | null) ?? 0,
         tripsCompleted: (row.trips_completed as number | null) ?? 0,
         recommendPct: (row.recommend_pct as number | null) ?? null,
+        responseRate: (row.response_rate as number | null) ?? null,
         specialties: (row.specialties as string[] | null) ?? [],
         languages: (row.languages as string[] | null) ?? [],
         avatarUrl: (row.avatar_url as string | null) ?? null,
@@ -824,6 +827,7 @@ export async function getGuides(
             reviewCount: stats?.reviewCount ?? 0,
             tripsCompleted: stats?.tripsCompleted ?? base.tripsCompleted,
             recommendPct: stats?.recommendPct ?? base.recommendPct,
+            responseRate: stats?.responseRate ?? null,
             specialties: stats?.specialties ?? base.specialties,
             languages: stats?.languages ?? base.languages,
             verified: (row.verification_status as string | null) === "approved",
@@ -865,8 +869,31 @@ export async function getGuidesByDestination(
       rows.map((row) => row.user_id as string),
     );
 
+    const { data: statRows } = await client
+      .from("v_guide_public_profile")
+      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages, response_rate")
+      .in("user_id", rows.map((r) => r.user_id as string));
+    const statsMap = new Map<string, Record<string, unknown>>();
+    for (const s of statRows ?? []) statsMap.set(s.user_id as string, s);
+
     return {
-      data: rows.map((row) => mapGuideRow(row, profileMap.get(row.user_id as string) ?? null)),
+      data: rows.map((row) => {
+        const uid = row.user_id as string;
+        const s = statsMap.get(uid);
+        const base = mapGuideRow(row, profileMap.get(uid) ?? null);
+        return {
+          ...base,
+          avatarUrl: (s?.avatar_url as string) ?? base.avatarUrl ?? undefined,
+          rating: (s?.average_rating as number | null) ?? 0,
+          reviewCount: (s?.review_count as number | null) ?? 0,
+          tripsCompleted: (s?.trips_completed as number | null) ?? base.tripsCompleted,
+          recommendPct: (s?.recommend_pct as number | null) ?? null,
+          specialties: (s?.specialties as string[] | null) ?? base.specialties,
+          languages: (s?.languages as string[] | null) ?? base.languages,
+          responseRate: (s?.response_rate as number | null) ?? null,
+          verified: (row.verification_status as string | null) === "approved",
+        };
+      }),
       error: null,
     };
   } catch (error) {
@@ -892,7 +919,7 @@ export async function getGuideBySlug(
 
     const { data: stats } = await client
       .from("v_guide_public_profile")
-      .select("average_rating, review_count, trips_completed, recommend_pct, languages, specialties")
+      .select("average_rating, review_count, trips_completed, recommend_pct, languages, specialties, response_rate")
       .eq("user_id", record.id)
       .maybeSingle();
     record.rating = stats?.average_rating ?? 0;
@@ -901,6 +928,8 @@ export async function getGuideBySlug(
     record.recommendPct = stats?.recommend_pct ?? null;
     record.languages = stats?.languages ?? [];
     record.specialties = stats?.specialties ?? [];
+    record.responseRate = (stats?.response_rate as number | null) ?? null;
+    record.verified = (data.verification_status as string | null) === "approved";
 
     return { data: record, error: null };
   } catch (error) {

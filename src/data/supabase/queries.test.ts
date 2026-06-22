@@ -438,3 +438,75 @@ describe("query performance safeguards", () => {
     expect(destinationFilterIndex).toBeLessThan(limitIndex);
   });
 });
+
+describe("guide stats layering (no fabricated zeros)", () => {
+  it("layers real view stats and approved verification onto getGuideBySlug", async () => {
+    const client = createFakeClient({
+      guide_profiles: [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [
+        { average_rating: 4.6, review_count: 8, response_rate: 91 },
+      ],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.rating).toBe(4.6);
+    expect(result.data?.reviewCount).toBe(8);
+    expect(result.data?.responseRate).toBe(91);
+    expect(result.data?.verified).toBe(true);
+  });
+
+  it("keeps getGuideBySlug unverified with null responseRate when stats are absent", async () => {
+    const client = createFakeClient({
+      guide_profiles: [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "pending",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.verified).toBe(false);
+    expect(result.data?.rating).toBe(0);
+    expect(result.data?.responseRate).toBeNull();
+  });
+
+  it("layers real view stats and approved verification onto getGuidesByDestination", async () => {
+    const client = createFakeClient({
+      "rpc:search_guides": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          years_experience: 7,
+          verification_status: "approved",
+        },
+      ],
+      profiles: [],
+      v_guide_public_profile: [{ user_id: "guide-1", average_rating: 4.9 }],
+    });
+
+    const result = await getGuidesByDestination(client, "Москва");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.rating).toBe(4.9);
+    expect(result.data?.[0]?.verified).toBe(true);
+  });
+});
