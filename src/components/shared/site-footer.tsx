@@ -104,7 +104,7 @@ export function SiteFooter() {
         <div className="border-t border-primary-foreground/10 pt-7">
           <p className="text-[0.8125rem] leading-relaxed text-primary-foreground/55">
             <span className="font-medium text-primary-foreground/75">Оператор персональных данных:</span>{" "}
-            команда проекта Provodnik. Контакт по вопросам обработки данных и
+            команда проекта Проводник. Контакт по вопросам обработки данных и
             юридическим уведомлениям —{" "}
             <a
               href="mailto:support@provodnik.app"
@@ -112,7 +112,7 @@ export function SiteFooter() {
             >
               support@provodnik.app
             </a>
-            . Provodnik находится на стадии запуска; полные
+            . Проводник находится на стадии запуска; полные
             регистрационные сведения оператора (ОГРНИП/ОГРН, ИНН,
             юридический адрес) публикуются{" "}
             <Link
@@ -126,7 +126,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-6 flex items-center justify-between gap-3 max-md:flex-col max-md:items-start">
-          <p className="text-[0.8125rem] text-primary-foreground/35">© 2026 Provodnik. Все права защищены.</p>
+          <p className="text-[0.8125rem] text-primary-foreground/35">© 2026 Проводник. Все права защищены.</p>
           <a
             href="mailto:support@provodnik.app"
             className="inline-flex min-h-11 items-center text-[0.8125rem] text-primary-foreground/35 transition-colors hover:text-primary-foreground/70 md:min-h-0"
