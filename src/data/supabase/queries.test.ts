@@ -25,6 +25,8 @@ import {
   mapRequestRow,
   getOffersForRequest,
   getOpenRequests,
+  getOpenRequestsByDestination,
+  getPlatformStats,
   getListingReviews,
   getListingsByDestination,
   getListingsByGuide,
@@ -508,5 +510,81 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.error).toBeNull();
     expect(result.data?.[0]?.rating).toBe(4.9);
     expect(result.data?.[0]?.verified).toBe(true);
+  });
+});
+
+describe("getPlatformStats", () => {
+  it("maps the single platform_stats view row to camelCase counts", async () => {
+    const client = createFakeClient({
+      platform_stats: [{ guides_active: 15, listings_total: 12, trips_total: 10 }],
+    });
+
+    const result = await getPlatformStats(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({ guidesActive: 15, listingsTotal: 12, tripsTotal: 10 });
+  });
+
+  it("returns the error when the view query fails", async () => {
+    const statsError = new Error("platform_stats policy denied");
+    const client = createFakeClient({}, { platform_stats: statsError });
+
+    const result = await getPlatformStats(client);
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBeTruthy();
+  });
+
+  it("returns null data without an error when no row is present", async () => {
+    const client = createFakeClient({ platform_stats: [] });
+
+    const result = await getPlatformStats(client);
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBeNull();
+  });
+});
+
+describe("getOpenRequestsByDestination", () => {
+  it("returns mapped open requests for the given region", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "request-1",
+          destination: "Элиста",
+          region: "Калмыкия",
+          budget_minor: 100_000,
+          participants_count: 2,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-1",
+        },
+        {
+          id: "request-2",
+          destination: "Городовиковск",
+          region: "Калмыкия",
+          budget_minor: 80_000,
+          participants_count: 1,
+          status: "open",
+          created_at: "2026-06-02T00:00:00Z",
+          traveler_id: "traveler-2",
+        },
+      ],
+    });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toHaveLength(2);
+    expect(result.data?.every((rec) => rec.status === "open")).toBe(true);
+  });
+
+  it("returns an empty list when no open requests match the region", async () => {
+    const client = createFakeClient({ traveler_requests: [] });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual([]);
   });
 });

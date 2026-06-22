@@ -74,6 +74,12 @@ export type GuideRecord = {
   languages: string[];
 };
 
+export type PlatformStats = {
+  guidesActive: number;
+  listingsTotal: number;
+  tripsTotal: number;
+};
+
 export type RequestMember = {
   id: string;
   displayName: string;
@@ -604,6 +610,29 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
   }
 }
 
+export async function getPlatformStats(
+  client: SupabaseClient,
+): Promise<QueryResult<PlatformStats | null>> {
+  try {
+    const { data, error } = await client
+      .from("platform_stats")
+      .select("guides_active, listings_total, trips_total")
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return { data: null, error: null };
+    return {
+      data: {
+        guidesActive: (data.guides_active as number | null) ?? 0,
+        listingsTotal: (data.listings_total as number | null) ?? 0,
+        tripsTotal: (data.trips_total as number | null) ?? 0,
+      },
+      error: null,
+    };
+  } catch (error) {
+    return { data: null, error: makeError(error) };
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Listings (public.listings — RLS: published are readable)
 // ---------------------------------------------------------------------------
@@ -701,6 +730,38 @@ export async function getOpenRequests(
     }
 
     return { data: applyRequestFilters(records, filters), error: null };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
+export async function getOpenRequestsByDestination(
+  client: SupabaseClient,
+  region: string,
+): Promise<QueryResult<RequestRecord[]>> {
+  try {
+    const db = client;
+    const { data, error } = await db
+      .from("traveler_requests")
+      .select("*")
+      .eq("status", "open")
+      .ilike("region", `%${region}%`)
+      .order("created_at", { ascending: false })
+      .limit(12);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return { data: [], error: null };
+
+    const records = data.map((row) => mapRequestRow(row));
+    const membersMap = await fetchMembersForRequests(
+      db,
+      data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+    );
+    for (const rec of records) {
+      rec.members = membersMap.get(rec.id) ?? [];
+    }
+
+    return { data: records, error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
