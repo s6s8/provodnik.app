@@ -118,7 +118,9 @@ export async function getGuideBookingDetailAction(
 
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
-    .select("id, traveler_id, guide_id, meeting_point, starts_at, ends_at, subtotal_minor, status")
+    .select(
+      "id, traveler_id, guide_id, request_id, meeting_point, starts_at, ends_at, subtotal_minor, status, traveler_request:traveler_requests!bookings_request_id_fkey(destination)",
+    )
     .eq("id", bookingId)
     .maybeSingle();
 
@@ -141,12 +143,17 @@ export async function getGuideBookingDetailAction(
     // admin env not configured — traveler contact unavailable
   }
 
+  const travelerRequest = Array.isArray(booking.traveler_request)
+    ? booking.traveler_request[0]
+    : booking.traveler_request;
+  const requestDestination = travelerRequest?.destination ?? null;
+
   return {
     ok: true,
     booking: {
       id: booking.id,
-      title: booking.meeting_point ?? "Бронирование",
-      destination: booking.meeting_point ?? "Маршрут",
+      title: requestDestination ?? booking.meeting_point ?? "Маршрут",
+      destination: requestDestination ?? booking.meeting_point ?? "Маршрут",
       dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
       priceRub: Math.round((booking.subtotal_minor ?? 0) / 100),
       travelerName,

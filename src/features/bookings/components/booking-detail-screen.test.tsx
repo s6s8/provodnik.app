@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
 
-import { BookingDetailScreen } from "./booking-detail-screen";
+import { BookingDetailScreen, BookingDetailSkeleton } from "./booking-detail-screen";
 
 const { getGuideBookingDetailAction, refresh, push } = vi.hoisted(() => ({
   getGuideBookingDetailAction: vi.fn(),
@@ -220,5 +220,119 @@ describe("BookingDetailScreen", () => {
     render(<BookingDetailScreen viewerRole="guide" bookingId="missing" />);
 
     expect(await screen.findByText("Бронирование не найдено")).toBeInTheDocument();
+  });
+
+  it("renders MoneyBreakdown deposit and remainder rows when both are present", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.getByText("Итого")).toBeInTheDocument();
+    expect(screen.getByText("Депозит")).toBeInTheDocument();
+    expect(screen.getByText("Остаток")).toBeInTheDocument();
+  });
+
+  it("omits deposit and remainder rows when both are null, keeping Итого", () => {
+    const bookingNoSplit = {
+      ...booking,
+      deposit_minor: null,
+      remainder_minor: null,
+    } as unknown as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={bookingNoSplit}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.getByText("Итого")).toBeInTheDocument();
+    expect(screen.queryByText("Депозит")).not.toBeInTheDocument();
+    expect(screen.queryByText("Остаток")).not.toBeInTheDocument();
+  });
+
+  it("reveals guide identity and contact via ContactReveal on a completed booking", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.getByText("Проверен")).toBeInTheDocument();
+    const phoneLink = screen.getByRole("link", { name: "+79990000000" });
+    expect(phoneLink).toHaveAttribute("href", "tel:+79990000000");
+  });
+
+  it("shows the off-platform payment disclosure for travelers", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(
+      screen.getByText(/посредником в денежных расчётах/),
+    ).toBeInTheDocument();
+  });
+
+  it("does not render raw checkmark or contact glyphs in the traveler view", () => {
+    const { container } = render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(container.textContent ?? "").not.toMatch(/[✓✉✈]/);
+  });
+
+  it("always renders the guide payout line, independent of NODE_ENV", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    getGuideBookingDetailAction.mockResolvedValue({
+      ok: true,
+      booking: {
+        id: "booking-1",
+        title: "Элиста",
+        destination: "Элиста",
+        dateLabel: "10 июня 2026",
+        priceRub: 6000,
+        travelerName: "Мария",
+        travelerPhone: "+79991234567",
+        status: "confirmed",
+      },
+    });
+
+    render(<BookingDetailScreen viewerRole="guide" bookingId="booking-1" />);
+
+    expect(await screen.findByText(/Выплата:/)).toBeInTheDocument();
+    vi.unstubAllEnvs();
+  });
+
+  it("renders BookingDetailSkeleton placeholder blocks", () => {
+    const { container } = render(<BookingDetailSkeleton />);
+
+    expect(
+      container.querySelectorAll('[data-slot="skeleton"]').length,
+    ).toBeGreaterThanOrEqual(3);
   });
 });
