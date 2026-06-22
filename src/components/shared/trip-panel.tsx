@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CalendarDays, Clock } from "lucide-react";
 
 import { AvatarStack, type AvatarStackMember } from "@/components/shared/avatar-stack";
+import { Tag } from "@/components/ui/tag";
 import { cn } from "@/lib/utils";
 
 type TripPanelProps = {
@@ -9,6 +10,10 @@ type TripPanelProps = {
   timeLabel?: string;
   /** e.g. "≈ 8 часов" — shown muted next to the time. */
   durationLabel?: string;
+  /** Enrollment pill near the panel top, e.g. "Набор открыт". */
+  enrollmentLabel?: string;
+  /** Tints the enrollment pill green when open, navy otherwise. */
+  enrollmentOpen?: boolean;
   /** Group availability. Omit `seatsTotal` to hide the availability section (private trips). */
   status?: { open: boolean; label: string };
   seatsTaken?: number;
@@ -18,7 +23,9 @@ type TripPanelProps = {
   /** Real joined members (open_request_members). No fabricated avatars. */
   members?: readonly AvatarStackMember[];
   joinedLabel?: string;
-  /** Optional footer slot (e.g. visitor price + Join CTA). */
+  /** Headline price (e.g. "~4 500 ₽ с человека"), rendered at 25px/800. */
+  price?: ReactNode;
+  /** Optional footer slot (e.g. price caption + Join CTA). */
   footer?: ReactNode;
   className?: string;
 };
@@ -31,12 +38,15 @@ export function TripPanel({
   dateLabel,
   timeLabel,
   durationLabel,
+  enrollmentLabel,
+  enrollmentOpen,
   status,
   seatsTaken,
   seatsTotal,
   remainingLabel,
   members = [],
   joinedLabel,
+  price,
   footer,
   className,
 }: TripPanelProps) {
@@ -55,7 +65,12 @@ export function TripPanel({
     >
       {/* Trip facts */}
       <div className="px-[22px] py-5">
-        <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-on-surface-muted">
+        {enrollmentLabel ? (
+          <div className="mb-3">
+            <Tag color={enrollmentOpen ? "green" : "primary"}>{enrollmentLabel}</Tag>
+          </div>
+        ) : null}
+        <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-primary">
           Детали поездки
         </div>
         <div className="flex flex-col gap-[11px]">
@@ -116,8 +131,15 @@ export function TripPanel({
         </>
       ) : null}
 
-      {footer ? (
-        <div className="border-t border-border px-[22px] py-[18px]">{footer}</div>
+      {price || footer ? (
+        <div className="border-t border-border px-[22px] py-[18px]">
+          {price ? (
+            <div className="mb-2 font-display font-extrabold leading-none tracking-[-0.02em] text-[25px] text-on-surface">
+              {price}
+            </div>
+          ) : null}
+          {footer}
+        </div>
       ) : null}
     </div>
   );
