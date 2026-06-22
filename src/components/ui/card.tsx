@@ -5,14 +5,40 @@ import { cn } from "@/lib/utils"
 function Card({
   className,
   size = "default",
+  variant = "flat",
+  padding = "default",
+  shadow = true,
+  border = true,
   ...props
-}: React.ComponentProps<"div"> & { size?: "default" | "sm" }) {
+}: React.ComponentProps<"div"> & {
+  size?: "default" | "sm"
+  variant?: "flat" | "glass"
+  padding?: "sm" | "default" | "lg"
+  shadow?: boolean
+  border?: boolean
+}) {
+  const isGlass = variant === "glass"
+
   return (
     <div
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass flex flex-col gap-5 overflow-hidden py-5 text-sm text-card-foreground has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-4 data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-glass *:[img:last-child]:rounded-b-glass",
+        "group/card flex flex-col overflow-hidden text-sm text-card-foreground gap-5 has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:has-data-[slot=card-footer]:pb-0",
+        padding === "lg" && "py-6 data-[size=sm]:py-4",
+        padding === "default" && "py-5 data-[size=sm]:py-4",
+        padding === "sm" && "py-4 data-[size=sm]:py-4",
+        isGlass
+          ? cn(
+              "bg-glass backdrop-blur-[20px] rounded-glass *:[img:first-child]:rounded-t-glass *:[img:last-child]:rounded-b-glass",
+              border && "border border-glass-border",
+              shadow && "shadow-glass"
+            )
+          : cn(
+              "bg-card rounded-lg",
+              border && "border border-line",
+              shadow && "shadow-soft"
+            ),
         className
       )}
       {...props}
