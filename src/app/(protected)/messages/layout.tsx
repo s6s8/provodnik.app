@@ -26,10 +26,12 @@ export default async function MessagesLayout({
 
   return (
     <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-6 lg:items-start">
-      <aside className="hidden lg:block lg:sticky lg:top-24">
-        <ConversationList initialThreads={threads} error={loadError} />
+      <aside className="hidden min-w-0 lg:block">
+        <div className="lg:sticky lg:top-24">
+          <ConversationList initialThreads={threads} error={loadError} />
+        </div>
       </aside>
-      {children}
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }
