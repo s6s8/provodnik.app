@@ -10,6 +10,7 @@ import { PublicGuideCard } from "@/components/shared/public-guide-card";
 import { Input } from "@/components/ui/input";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
+import { brandGradient } from "@/lib/city-image";
 import { cn } from "@/lib/utils";
 
 function buildGuidesSearch(activeSpecs: string[], q: string): string {
@@ -57,7 +58,7 @@ export function PublicGuidesGrid({
   return (
     <>
       <ListHero
-        imageUrl="https://images.unsplash.com/photo-1664358201853-d1274b84cbbe?auto=format&fit=crop&w=1600&h=1200&q=80"
+        imageUrl={brandGradient("guides")}
         title="Гиды"
         intro="Найдите проверенного местного гида."
       >

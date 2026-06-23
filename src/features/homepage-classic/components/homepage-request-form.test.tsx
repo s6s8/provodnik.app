@@ -405,6 +405,18 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(endTime).toHaveAttribute("type", "time");
     expect((endTime as HTMLInputElement).defaultValue).toBe("12:00");
   });
+
+  it("renders an opaque mobile sticky CTA bar with bottom clearance so fields never show through", () => {
+    render(<HomepageRequestForm destinations={[]} />);
+    const submit = screen.getByRole("button", { name: /отправить запрос/i });
+    const bar = submit.parentElement!;
+    // Solid surface on mobile — never translucent over budget/themes fields
+    expect(bar).toHaveClass("bg-background");
+    expect(bar).not.toHaveClass("bg-background/95");
+    // Form reserves bottom clearance on mobile so the last fields scroll clear of the bar
+    const form = submit.closest("form");
+    expect(form).toHaveClass("pb-28", "sm:pb-0");
+  });
 });
 
 describe("HomepageRequestFormClassic repaired layout", () => {
@@ -434,5 +446,15 @@ describe("HomepageRequestFormClassic repaired layout", () => {
     fireEvent.click(screen.getByRole("button", { name: "Ещё темы →" }));
 
     expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
+  });
+
+  it("renders an opaque mobile sticky CTA bar with bottom clearance", () => {
+    render(<HomepageRequestFormClassic destinations={[]} />);
+    const submit = screen.getByRole("button", { name: /отправить запрос/i });
+    const bar = submit.parentElement!;
+    expect(bar).toHaveClass("bg-background");
+    expect(bar).not.toHaveClass("bg-background/95");
+    const form = submit.closest("form");
+    expect(form).toHaveClass("pb-28", "sm:pb-0");
   });
 });

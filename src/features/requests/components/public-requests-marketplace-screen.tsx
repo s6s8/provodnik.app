@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sheet";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { THEMES } from "@/data/themes";
+import { brandGradient } from "@/lib/city-image";
 import { todayMoscowISODate } from "@/lib/dates";
 
 type CategoryFilter = (typeof THEMES)[number]["label"];
@@ -308,7 +309,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   return (
     <div>
       <ListHero
-        imageUrl="https://images.unsplash.com/photo-1657293493705-557ab000afe1?auto=format&fit=crop&w=1600&h=1200&q=80"
+        imageUrl={brandGradient("requests")}
         title="Открытые запросы"
         intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
       >

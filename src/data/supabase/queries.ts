@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
+import { brandGradient } from "@/lib/city-image";
 import { formatRussianDateRange } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
@@ -159,8 +160,7 @@ export type DestinationOption = {
 // Helpers
 // ---------------------------------------------------------------------------
 
-const fallbackHeroImage =
-  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=2400&q=80";
+const fallbackHeroImage = brandGradient("listing");
 
 export function makeError(error: unknown) {
   return error instanceof Error ? error : new Error("Unknown Supabase error");

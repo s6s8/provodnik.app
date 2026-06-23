@@ -66,18 +66,18 @@ export default async function PublicListingsPage({
   const initialSearch = (params.q ?? "").trim();
 
   return (
-    <section className="pt-[110px] pb-20">
-      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        {loadError ? (
+    <section className="pb-20">
+      {loadError ? (
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+2rem)]">
           <Alert variant="destructive">
             <AlertDescription>
               Не удалось загрузить экскурсии. Попробуйте обновить страницу.
             </AlertDescription>
           </Alert>
-        ) : (
-          <PublicListingDiscoveryScreen listings={listings} initialSearch={initialSearch} />
-        )}
-      </div>
+        </div>
+      ) : (
+        <PublicListingDiscoveryScreen listings={listings} initialSearch={initialSearch} />
+      )}
     </section>
   );
 }

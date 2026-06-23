@@ -16,7 +16,6 @@ export function HomePageShell2Classic({ destinations }: Props) {
     <>
       <div className="mx-auto w-full max-w-2xl px-5 py-10 md:px-8">
         <PageHeader
-          eyebrow="ЗАЯВКА"
           title="Заполните заявку вручную"
           subtitle="Опишите поездку — местные гиды предложат варианты."
         />

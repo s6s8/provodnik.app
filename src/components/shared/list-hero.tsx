@@ -13,10 +13,12 @@ type ListHeroProps = {
   className?: string;
 };
 
-const HERO_GRADIENT =
-  "linear-gradient(180deg,rgba(8,14,24,.55) 0%,rgba(8,14,24,.2) 38%,rgba(8,14,24,.35) 70%,rgba(8,14,24,.78) 100%)";
-
-/** Compact full-bleed hero for catalog/list pages: photo + scrim + centered title + a search slot. */
+/**
+ * Compact full-bleed hero for catalog/list pages: photo + canon scrim + centered
+ * title + a search slot. Bleeds to the very top of the viewport under the floating
+ * overlay header — the same `-mt-nav-h` breakout the canon ImmersiveHero uses — so
+ * there is no dead nav-gap above the photo.
+ */
 export function ListHero({
   imageUrl,
   imagePosition = "center 45%",
@@ -26,16 +28,16 @@ export function ListHero({
   className,
 }: ListHeroProps) {
   return (
-    <section className={cn("relative w-full overflow-hidden", className)}>
+    <section className={cn("relative -mt-nav-h w-full overflow-hidden", className)}>
       <div
         className="absolute inset-0 bg-surface-low bg-cover"
         style={{ backgroundImage: `url('${imageUrl}')`, backgroundPosition: imagePosition }}
         role="img"
         aria-label={title}
       />
-      <div className="absolute inset-0" style={{ backgroundImage: HERO_GRADIENT }} />
+      <div className="hero-overlay absolute inset-0" />
 
-      <div className="relative z-[2] mx-auto flex min-h-[300px] w-full max-w-page flex-col justify-center gap-5 px-5 md:min-h-[340px] md:px-8">
+      <div className="relative z-[2] mx-auto flex min-h-[380px] w-full max-w-page flex-col justify-center gap-5 px-5 pt-nav-h md:min-h-[420px] md:px-8">
         <h1 className="text-[clamp(2rem,5vw,44px)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
           {title}
         </h1>

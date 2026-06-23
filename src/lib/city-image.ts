@@ -1,13 +1,3 @@
-const CITY_IMAGES = [
-  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1800&q=80",
-  "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1800&q=80",
-  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1800&q=80",
-  "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=1800&q=80",
-  "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1800&q=80",
-  "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=1800&q=80",
-  "https://images.unsplash.com/photo-1527489377706-5bf97e608852?auto=format&fit=crop&w=1800&q=80",
-] as const;
-
 function hashDestination(destination: string): number {
   return Array.from(destination.trim().toLocaleLowerCase("ru-RU")).reduce(
     (hash, char) => (hash * 31 + char.charCodeAt(0)) >>> 0,
@@ -15,8 +5,50 @@ function hashDestination(destination: string): number {
   );
 }
 
+/**
+ * Deterministic on-canon backdrop. Returns a soft navy gradient (with one quiet
+ * amber accent) as an inline SVG data-URI, so it drops straight into
+ * `background-image: url(...)`. No external photos: a foreign stock shot for,
+ * say, a Kalmykia city was a truth + brand bug. Seed varies the gradient
+ * deterministically, so distinct seeds (heroes, cards) read as distinct.
+ */
+export function brandGradient(seed = "provodnik"): string {
+  const hash = hashDestination(seed);
+
+  const angle = hash % 360;
+  const amberX = (0.18 + ((hash >>> 3) % 64) / 100).toFixed(2);
+  const amberY = (0.12 + ((hash >>> 7) % 48) / 100).toFixed(2);
+  const glowX = (0.22 + ((hash >>> 11) % 56) / 100).toFixed(2);
+  const glowY = (0.4 + ((hash >>> 15) % 50) / 100).toFixed(2);
+
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">` +
+    `<defs>` +
+    `<linearGradient id="b" gradientTransform="rotate(${angle} 0.5 0.5)">` +
+    `<stop offset="0" stop-color="#1A56A4"/>` +
+    `<stop offset="1" stop-color="#15467F"/>` +
+    `</linearGradient>` +
+    `<radialGradient id="n" cx="${glowX}" cy="${glowY}" r="0.75">` +
+    `<stop offset="0" stop-color="#15467F" stop-opacity="0.55"/>` +
+    `<stop offset="1" stop-color="#15467F" stop-opacity="0"/>` +
+    `</radialGradient>` +
+    `<radialGradient id="a" cx="${amberX}" cy="${amberY}" r="0.6">` +
+    `<stop offset="0" stop-color="#D4872B" stop-opacity="0.3"/>` +
+    `<stop offset="1" stop-color="#D4872B" stop-opacity="0"/>` +
+    `</radialGradient>` +
+    `</defs>` +
+    `<rect width="1600" height="900" fill="url(#b)"/>` +
+    `<rect width="1600" height="900" fill="url(#n)"/>` +
+    `<rect width="1600" height="900" fill="url(#a)"/>` +
+    `</svg>`;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Deterministic on-canon backdrop for request heroes/cards, keyed by a
+ * destination name. Thin alias over {@link brandGradient}.
+ */
 export function cityImage(destination: string): string {
-  // TODO: replace with curated per-city CDN
-  const hash = hashDestination(destination);
-  return CITY_IMAGES[hash % CITY_IMAGES.length];
+  return brandGradient(destination);
 }

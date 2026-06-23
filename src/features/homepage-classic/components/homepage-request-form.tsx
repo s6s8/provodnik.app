@@ -47,7 +47,7 @@ export function HomepageRequestForm({ destinations }: Props) {
   return (
     <TooltipProvider>
       <form
-        className="grid gap-5 pb-24 sm:pb-0"
+        className="grid gap-5 pb-28 sm:pb-0"
         onSubmit={handleSubmit(submit)}
         aria-label="Создать запрос"
         noValidate
@@ -306,7 +306,7 @@ export function HomepageRequestForm({ destinations }: Props) {
       />
 
       {/* 9. Sticky submit button */}
-      <div className="fixed inset-x-0 bottom-0 z-10 border-t bg-background/95 p-4 backdrop-blur sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-8">
+      <div className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-background p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] sm:relative sm:bottom-auto sm:inset-x-auto sm:border-t-0 sm:bg-transparent sm:p-0 sm:pt-8">
         <Button type="submit" disabled={isLoading} className="w-full">
           {isLoading ? "Отправляем…" : "Отправить запрос гидам"}
         </Button>
