@@ -9,6 +9,7 @@ import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
 import { PublicGuideCard } from "@/features/guide/components/public/public-guide-card";
+import { ROUTES } from "@/lib/navigation";
 import { pluralize } from "@/lib/utils";
 
 import { ListingsFilter } from "./listings-filter";
@@ -226,14 +227,27 @@ export function DestinationDetailScreen({
           </div>
 
           <div className="flex flex-col gap-3">
-            <p className="text-sm text-muted-foreground">
-              Сейчас нет активных запросов по этому направлению.
-            </p>
+            {formingGroupCount > 0 ? (
+              <p className="text-base text-foreground">
+                Сейчас {formingGroupCount}{" "}
+                {pluralize(
+                  formingGroupCount,
+                  "активный запрос",
+                  "активных запроса",
+                  "активных запросов",
+                )}{" "}
+                — путешественники ищут гида в {destination.name}.
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Сейчас нет активных запросов по этому направлению.
+              </p>
+            )}
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
-              href={`/?destination=${encodeURIComponent(destination.name)}`}
+              href={ROUTES.newRequest.href}
               className="inline-flex items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
             >
               Создать запрос

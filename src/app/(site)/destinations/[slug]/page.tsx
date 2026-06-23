@@ -6,6 +6,7 @@ import {
   getDestinationBySlug,
   getGuidesByDestination,
   getListingsByDestination,
+  getOpenRequestsByDestination,
   type GuideRecord,
   type ListingRecord,
 } from "@/data/supabase/queries";
@@ -22,14 +23,16 @@ const getDestinationPageData = cache(async (slug: string) => {
   ]);
 
   const region = destinationResult.data?.region ?? null;
-  const guidesResult = region
-    ? await getGuidesByDestination(supabase, region)
-    : { data: [] };
+  const [guidesResult, openRequestsResult] = await Promise.all([
+    region ? getGuidesByDestination(supabase, region) : Promise.resolve({ data: [] }),
+    region ? getOpenRequestsByDestination(supabase, region) : Promise.resolve({ data: [] }),
+  ]);
 
   return {
     destinationResult,
     listings: listingsResult.data ?? [],
     guides: guidesResult.data ?? [],
+    openRequestCount: openRequestsResult.data?.length ?? 0,
   };
 });
 
@@ -59,7 +62,8 @@ export default async function DestinationDetailPage({
 }) {
   const { slug } = await params;
 
-  const { destinationResult, listings, guides } = await getDestinationPageData(slug);
+  const { destinationResult, listings, guides, openRequestCount } =
+    await getDestinationPageData(slug);
 
   if (!destinationResult.data) notFound();
 
@@ -71,7 +75,7 @@ export default async function DestinationDetailPage({
     imageUrl: d.heroImageUrl,
     description: d.description,
     listingCount: d.listingCount,
-    openRequestCount: 0,
+    openRequestCount,
   };
 
   const jsonLd = {
