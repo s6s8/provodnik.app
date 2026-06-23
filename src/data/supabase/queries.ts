@@ -20,7 +20,7 @@ export type DestinationRecord = {
   heroImageUrl: string;
   listingCount: number;
   guidesCount: number;
-  avgRating: number;
+  avgRating: number | null;
 };
 
 export type ListingRecord = {
@@ -565,7 +565,7 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
     if (!data || data.length === 0) return { data: [], error: null };
 
     return {
-      data: data.map((row, index) => ({
+      data: data.map((row) => ({
         id: row.id,
         slug: row.slug,
         name: row.name,
@@ -575,7 +575,7 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
         heroImageUrl: row.hero_image_url ?? fallbackHeroImage,
         listingCount: row.listing_count ?? 0,
         guidesCount: row.guides_count ?? 0,
-        avgRating: row.rating ?? 4.7 + ((index % 3) * 0.1),
+        avgRating: typeof row.rating === "number" ? row.rating : null,
       })),
       error: null,
     };
@@ -601,7 +601,7 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
         heroImageUrl: data.hero_image_url ?? fallbackHeroImage,
         listingCount: data.listing_count ?? 0,
         guidesCount: data.guides_count ?? 0,
-        avgRating: data.rating ?? 4.8,
+        avgRating: typeof data.rating === "number" ? data.rating : null,
       },
       error: null,
     };

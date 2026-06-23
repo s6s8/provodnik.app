@@ -513,6 +513,34 @@ describe("guide stats layering (no fabricated zeros)", () => {
   });
 });
 
+describe("destination ratings (no fabricated stars)", () => {
+  it("keeps the real rating and returns null when no rating exists in getDestinations", async () => {
+    const client = createFakeClient({
+      destinations: [
+        { id: "dest-1", slug: "moscow", name: "Москва", rating: 4.2 },
+        { id: "dest-2", slug: "kazan", name: "Казань", rating: null },
+      ],
+    });
+
+    const result = await getDestinations(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.avgRating).toBe(4.2);
+    expect(result.data?.[1]?.avgRating).toBeNull();
+  });
+
+  it("returns null avgRating from getDestinationBySlug when the row has no rating", async () => {
+    const client = createFakeClient({
+      destinations: [{ id: "dest-1", slug: "moscow", name: "Москва", rating: null }],
+    });
+
+    const result = await getDestinationBySlug(client, "moscow");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.avgRating).toBeNull();
+  });
+});
+
 describe("getPlatformStats", () => {
   it("maps the single platform_stats view row to camelCase counts", async () => {
     const client = createFakeClient({
