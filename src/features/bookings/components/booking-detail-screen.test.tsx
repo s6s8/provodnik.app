@@ -68,6 +68,8 @@ const booking = {
   currency: "RUB",
   cancellation_policy_snapshot: null,
   meeting_point: "Площадь Ленина",
+  payment_method: "in_person",
+  payment_status: "pending",
   created_at: "2026-06-01T00:00:00.000Z",
   updated_at: "2026-06-01T00:00:00.000Z",
   guide_phone: "+79990000000",

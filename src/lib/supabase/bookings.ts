@@ -68,7 +68,7 @@ export type BookingWithDetails = BookingRow & {
 // ---------------------------------------------------------------------------
 
 const BOOKING_SELECT =
-  "id, traveler_id, guide_id, request_id, offer_id, listing_id, status, party_size, starts_at, ends_at, subtotal_minor, deposit_minor, remainder_minor, currency, cancellation_policy_snapshot, meeting_point, created_at, updated_at";
+  "id, traveler_id, guide_id, request_id, offer_id, listing_id, status, party_size, starts_at, ends_at, subtotal_minor, deposit_minor, remainder_minor, currency, cancellation_policy_snapshot, meeting_point, payment_method, payment_status, created_at, updated_at";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -111,6 +111,21 @@ export async function createBooking(
     .single();
 
   if (error) throw error;
+
+  // Seed the face-to-face payment agreement (agreed price + pay-in-person).
+  // Best-effort: booking creation must stay an atomic success, so a failed
+  // agreement insert is logged but never propagated.
+  try {
+    await supabase.from("payment_agreements").insert({
+      booking_id: row.id,
+      agreed_total_minor: data.subtotal_minor,
+      currency: "RUB",
+      method: "in_person",
+    });
+  } catch (e) {
+    console.warn("[createBooking] payment_agreement seed failed", e);
+  }
+
   return row as Booking;
 }
 
