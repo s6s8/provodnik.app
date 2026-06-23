@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
@@ -47,17 +48,32 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
 
 export default async function RequestsPage() {
   let initialData: OpenRequestRecord[] | null = null;
+  let loadError = false;
 
   try {
     const supabase = await createSupabaseServerClient();
     const result = await getOpenRequests(supabase, undefined, ["open"]);
-    if (result.data && result.data.length > 0) {
+    if (result.error) {
+      loadError = true;
+    } else if (result.data && result.data.length > 0) {
       initialData = result.data
         .filter((request) => request.mode === "assembly")
         .map(mapToOpenRequestRecord);
     }
   } catch {
-    initialData = null;
+    loadError = true;
+  }
+
+  if (loadError) {
+    return (
+      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-10">
+        <Alert variant="destructive">
+          <AlertDescription>
+            Не удалось загрузить запросы. Попробуйте обновить страницу.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   return <PublicRequestsMarketplaceScreen initialData={initialData} />;
