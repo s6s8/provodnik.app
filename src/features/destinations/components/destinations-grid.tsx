@@ -1,21 +1,12 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { Search } from "lucide-react";
+import { Compass, Search } from "lucide-react";
 
 import type { DestinationRecord } from "@/data/supabase/queries";
+import { DestinationCard } from "@/components/discovery/DestinationCard";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
-
-function toursWord(n: number) {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod100 >= 11 && mod100 <= 14) return "туров";
-  if (mod10 === 1) return "тур";
-  if (mod10 >= 2 && mod10 <= 4) return "тура";
-  return "туров";
-}
 
 function normalize(value: string) {
   return value.trim().toLowerCase();
@@ -37,7 +28,15 @@ export function DestinationsGrid({
     });
   }, [destinations, query]);
 
-  const [featured, ...rest] = filtered;
+  if (destinations.length === 0) {
+    return (
+      <EmptyState
+        icon={Compass}
+        title="Пока нет доступных направлений"
+        description="Загляните позже — мы добавляем новые города и регионы."
+      />
+    );
+  }
 
   return (
     <>
@@ -61,72 +60,24 @@ export function DestinationsGrid({
         </div>
       </div>
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 ? (
         <p className="mt-8 text-on-surface-muted">
           Ничего не найдено. Попробуйте другой запрос.
         </p>
-      )}
-
-      {filtered.length > 0 && (
-        <div className="mt-12 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-[1.35fr_1fr_1fr] lg:grid-rows-[280px_280px]">
-          {featured && (
-            <Link
-              href={`/destinations/${featured.slug}`}
-              className="relative block min-h-[240px] overflow-hidden rounded-glass bg-surface-low lg:row-span-2"
-            >
-              <Image
-                src={
-                  featured.heroImageUrl ||
-                  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1600&q=80"
-                }
-                alt={featured.name}
-                fill
-                style={{ objectFit: "cover" }}
-                sizes="(max-width: 767px) 100vw, (max-width: 1023px) 100vw, 560px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-foreground/10" />
-              <div className="absolute inset-0 z-[1] flex flex-col justify-end p-6">
-                {featured.listingCount ? (
-                  <span className="mb-2.5 inline-flex w-fit items-center gap-1.5 rounded-full border border-primary-foreground/20 bg-primary-foreground/15 px-3 py-1 text-xs font-medium text-primary-foreground/90 backdrop-blur-[12px]">
-                    {featured.listingCount} {toursWord(featured.listingCount)}
-                  </span>
-                ) : null}
-                <p className="font-display text-[1.75rem] font-semibold leading-[1.1] text-primary-foreground">
-                  {featured.name}
-                </p>
-                {featured.region && normalize(featured.region) !== normalize(featured.name) ? (
-                  <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{featured.region}</p>
-                ) : null}
-              </div>
-            </Link>
-          )}
-
-          {rest.slice(0, 4).map((dest) => (
-            <Link
-              key={dest.slug}
-              href={`/destinations/${dest.slug}`}
-              className="relative block min-h-[240px] overflow-hidden rounded-glass bg-surface-low"
-            >
-              <Image
-                src={
-                  dest.heroImageUrl ||
-                  "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80"
-                }
-                alt={dest.name}
-                fill
-                style={{ objectFit: "cover" }}
-                sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 320px"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 to-foreground/10" />
-              <div className="absolute inset-0 z-[1] flex flex-col justify-end p-6">
-                <p className="font-display text-[1.25rem] font-semibold leading-[1.1] text-primary-foreground">
-                  {dest.name}
-                </p>
-                {dest.region && normalize(dest.region) !== normalize(dest.name) ? (
-                  <p className="mt-1 text-[0.8125rem] text-primary-foreground/70">{dest.region}</p>
-                ) : null}
-              </div>
-            </Link>
+      ) : (
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((d, index) => (
+            <DestinationCard
+              key={d.slug}
+              name={d.name}
+              slug={d.slug}
+              photoUrl={d.heroImageUrl}
+              guidesCount={d.guidesCount}
+              tourCount={d.listingCount}
+              category={d.category}
+              rating={d.avgRating}
+              featured={index === 0}
+            />
           ))}
         </div>
       )}

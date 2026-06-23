@@ -45,7 +45,7 @@ export function GuideCard({
   const roleLine = roleParts.join(" · ");
 
   return (
-    <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
+    <Card className="bg-surface border border-line shadow-sm rounded-card">
       <CardContent className="flex gap-4 p-4">
         <Avatar className="size-[72px] shrink-0 rounded-[12px]">
           <AvatarImage src={guide.avatar_url ?? undefined} alt={guideName} className="object-cover" />

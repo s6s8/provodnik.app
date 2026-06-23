@@ -2,10 +2,13 @@ import Link from "next/link";
 import { BadgeCheck, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Tag } from "@/components/ui/tag";
 import { ImmersiveHero } from "@/components/shared/immersive-hero";
 import { TourCard } from "@/components/shared/tour-card";
+import { NewGuideFrame } from "@/components/discovery/NewGuideFrame";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { formatRussianDate } from "@/lib/dates";
+import { ROUTES } from "@/lib/navigation";
 import { pluralize } from "@/lib/utils";
 import { GuidePhotoGrid } from "./guide-photo-grid";
 
@@ -166,6 +169,13 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               </div>
             ) : null}
 
+            {totalReviews === 0 ? (
+              <NewGuideFrame
+                guideName={guide.displayName}
+                className="mt-6 w-full max-w-[38rem] text-left"
+              />
+            ) : null}
+
             <p className="mt-6 max-w-[38rem] leading-[1.7] text-muted-foreground">
               {guide.bio}
             </p>
@@ -173,12 +183,9 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             {guide.specialties.length > 0 ? (
               <div className="mt-6 flex flex-wrap justify-center gap-[7px]">
                 {guide.specialties.map((specialty) => (
-                  <span
-                    key={specialty}
-                    className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[5px] text-[12.5px] font-medium text-ink-2"
-                  >
+                  <Tag key={specialty} color="primary">
                     {specialty}
-                  </span>
+                  </Tag>
                 ))}
               </div>
             ) : null}
@@ -188,7 +195,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                 {guide.languages.map((lang) => (
                   <span
                     key={lang}
-                    className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[5px] text-[12.5px] font-medium text-on-surface-muted"
+                    className="rounded-full border border-line bg-surface-low px-3 py-[5px] text-[12.5px] font-medium text-on-surface-muted"
                   >
                     {lang}
                   </span>
@@ -198,7 +205,9 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               <Button asChild>
-                <Link href="/">Оставить запрос</Link>
+                <Link href={`${ROUTES.newRequest.href}?guide=${guide.slug}`}>
+                  Запросить этого гида
+                </Link>
               </Button>
               {guideHasListings ? (
                 <Button asChild variant="outline">

@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { Users } from "lucide-react";
 import Link from "next/link";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { PublicGuidesGrid } from "@/features/guide/components/public/public-guides-grid";
 import { getGuides, type GuideRecord } from "@/data/supabase/queries";
 import { INTEREST_CHIPS } from "@/data/interests";
@@ -33,6 +35,7 @@ export default async function GuidesPage({
   const cappedForFilter = rawQ ? rawQ.slice(0, 80) : undefined;
 
   let guides: GuideRecord[] = [];
+  let loadError = false;
 
   const auth = await readAuthContextFromServer();
   try {
@@ -41,24 +44,27 @@ export default async function GuidesPage({
       specializations: activeSpecs,
       ...(cappedForFilter ? { q: cappedForFilter } : {}),
     });
-    if (result.data) guides = result.data;
+    if (result.error) loadError = true;
+    else guides = result.data ?? [];
   } catch {
-    // guides stays []
+    loadError = true;
   }
 
   return (
     <section className="bg-surface pt-[110px] pb-20">
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-        {guides.length === 0 && activeSpecs.length === 0 && !rawQ ? (
-          <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex flex-col items-center justify-center rounded-[1.5rem] px-6 py-16 text-center">
-            <span className="flex size-14 items-center justify-center rounded-full bg-brand-light text-brand">
-              <Users className="size-6" strokeWidth={1.9} />
-            </span>
-            <h2 className="mt-5 text-[1.35rem] font-semibold text-ink">Пока нет гидов</h2>
-            <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-ink-2">
-              В этом разделе пока пусто. Если вы гид — добавьте свой профиль, и путешественники найдут вас.
-            </p>
-          </div>
+        {loadError ? (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Не удалось загрузить гидов. Попробуйте обновить страницу.
+            </AlertDescription>
+          </Alert>
+        ) : guides.length === 0 && activeSpecs.length === 0 && !rawQ ? (
+          <EmptyState
+            icon={Users}
+            title="Пока нет гидов"
+            description="В этом разделе пока пусто. Если вы гид — добавьте свой профиль, и путешественники найдут вас."
+          />
         ) : (
           <PublicGuidesGrid
             guides={guides}

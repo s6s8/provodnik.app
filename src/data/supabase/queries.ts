@@ -20,7 +20,7 @@ export type DestinationRecord = {
   heroImageUrl: string;
   listingCount: number;
   guidesCount: number;
-  avgRating: number;
+  avgRating: number | null;
 };
 
 export type ListingRecord = {
@@ -69,8 +69,15 @@ export type GuideRecord = {
   specialties: string[];
   tripsCompleted: number;
   recommendPct: number | null;
+  responseRate?: number | null;
   verified: boolean;
   languages: string[];
+};
+
+export type PlatformStats = {
+  guidesActive: number;
+  listingsTotal: number;
+  tripsTotal: number;
 };
 
 export type RequestMember = {
@@ -558,7 +565,7 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
     if (!data || data.length === 0) return { data: [], error: null };
 
     return {
-      data: data.map((row, index) => ({
+      data: data.map((row) => ({
         id: row.id,
         slug: row.slug,
         name: row.name,
@@ -568,7 +575,7 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
         heroImageUrl: row.hero_image_url ?? fallbackHeroImage,
         listingCount: row.listing_count ?? 0,
         guidesCount: row.guides_count ?? 0,
-        avgRating: row.rating ?? 4.7 + ((index % 3) * 0.1),
+        avgRating: typeof row.rating === "number" ? row.rating : null,
       })),
       error: null,
     };
@@ -594,7 +601,30 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
         heroImageUrl: data.hero_image_url ?? fallbackHeroImage,
         listingCount: data.listing_count ?? 0,
         guidesCount: data.guides_count ?? 0,
-        avgRating: data.rating ?? 4.8,
+        avgRating: typeof data.rating === "number" ? data.rating : null,
+      },
+      error: null,
+    };
+  } catch (error) {
+    return { data: null, error: makeError(error) };
+  }
+}
+
+export async function getPlatformStats(
+  client: SupabaseClient,
+): Promise<QueryResult<PlatformStats | null>> {
+  try {
+    const { data, error } = await client
+      .from("platform_stats")
+      .select("guides_active, listings_total, trips_total")
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) return { data: null, error: null };
+    return {
+      data: {
+        guidesActive: (data.guides_active as number | null) ?? 0,
+        listingsTotal: (data.listings_total as number | null) ?? 0,
+        tripsTotal: (data.trips_total as number | null) ?? 0,
       },
       error: null,
     };
@@ -705,6 +735,38 @@ export async function getOpenRequests(
   }
 }
 
+export async function getOpenRequestsByDestination(
+  client: SupabaseClient,
+  region: string,
+): Promise<QueryResult<RequestRecord[]>> {
+  try {
+    const db = client;
+    const { data, error } = await db
+      .from("traveler_requests")
+      .select("*")
+      .eq("status", "open")
+      .ilike("region", `%${region}%`)
+      .order("created_at", { ascending: false })
+      .limit(12);
+
+    if (error) throw error;
+    if (!data || data.length === 0) return { data: [], error: null };
+
+    const records = data.map((row) => mapRequestRow(row));
+    const membersMap = await fetchMembersForRequests(
+      db,
+      data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+    );
+    for (const rec of records) {
+      rec.members = membersMap.get(rec.id) ?? [];
+    }
+
+    return { data: records, error: null };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
 export async function getRequestById(
   client: SupabaseClient,
   id: string,
@@ -783,7 +845,7 @@ export async function getGuides(
 
     const { data: statRows } = await client
       .from("v_guide_public_profile")
-      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages")
+      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages, response_rate")
       .in("user_id", guideIds);
 
     const ratingMap = new Map<
@@ -793,6 +855,7 @@ export async function getGuides(
         reviewCount: number;
         tripsCompleted: number;
         recommendPct: number | null;
+        responseRate: number | null;
         specialties: string[];
         languages: string[];
         avatarUrl: string | null;
@@ -804,6 +867,7 @@ export async function getGuides(
         reviewCount: (row.review_count as number | null) ?? 0,
         tripsCompleted: (row.trips_completed as number | null) ?? 0,
         recommendPct: (row.recommend_pct as number | null) ?? null,
+        responseRate: (row.response_rate as number | null) ?? null,
         specialties: (row.specialties as string[] | null) ?? [],
         languages: (row.languages as string[] | null) ?? [],
         avatarUrl: (row.avatar_url as string | null) ?? null,
@@ -824,6 +888,7 @@ export async function getGuides(
             reviewCount: stats?.reviewCount ?? 0,
             tripsCompleted: stats?.tripsCompleted ?? base.tripsCompleted,
             recommendPct: stats?.recommendPct ?? base.recommendPct,
+            responseRate: stats?.responseRate ?? null,
             specialties: stats?.specialties ?? base.specialties,
             languages: stats?.languages ?? base.languages,
             verified: (row.verification_status as string | null) === "approved",
@@ -865,8 +930,31 @@ export async function getGuidesByDestination(
       rows.map((row) => row.user_id as string),
     );
 
+    const { data: statRows } = await client
+      .from("v_guide_public_profile")
+      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages, response_rate")
+      .in("user_id", rows.map((r) => r.user_id as string));
+    const statsMap = new Map<string, Record<string, unknown>>();
+    for (const s of statRows ?? []) statsMap.set(s.user_id as string, s);
+
     return {
-      data: rows.map((row) => mapGuideRow(row, profileMap.get(row.user_id as string) ?? null)),
+      data: rows.map((row) => {
+        const uid = row.user_id as string;
+        const s = statsMap.get(uid);
+        const base = mapGuideRow(row, profileMap.get(uid) ?? null);
+        return {
+          ...base,
+          avatarUrl: (s?.avatar_url as string) ?? base.avatarUrl ?? undefined,
+          rating: (s?.average_rating as number | null) ?? 0,
+          reviewCount: (s?.review_count as number | null) ?? 0,
+          tripsCompleted: (s?.trips_completed as number | null) ?? base.tripsCompleted,
+          recommendPct: (s?.recommend_pct as number | null) ?? null,
+          specialties: (s?.specialties as string[] | null) ?? base.specialties,
+          languages: (s?.languages as string[] | null) ?? base.languages,
+          responseRate: (s?.response_rate as number | null) ?? null,
+          verified: (row.verification_status as string | null) === "approved",
+        };
+      }),
       error: null,
     };
   } catch (error) {
@@ -892,7 +980,7 @@ export async function getGuideBySlug(
 
     const { data: stats } = await client
       .from("v_guide_public_profile")
-      .select("average_rating, review_count, trips_completed, recommend_pct, languages, specialties")
+      .select("average_rating, review_count, trips_completed, recommend_pct, languages, specialties, response_rate")
       .eq("user_id", record.id)
       .maybeSingle();
     record.rating = stats?.average_rating ?? 0;
@@ -901,6 +989,8 @@ export async function getGuideBySlug(
     record.recommendPct = stats?.recommend_pct ?? null;
     record.languages = stats?.languages ?? [];
     record.specialties = stats?.specialties ?? [];
+    record.responseRate = (stats?.response_rate as number | null) ?? null;
+    record.verified = (data.verification_status as string | null) === "approved";
 
     return { data: record, error: null };
   } catch (error) {

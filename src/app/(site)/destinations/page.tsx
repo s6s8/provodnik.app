@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { ListHero } from "@/components/shared/list-hero";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DestinationsGrid } from "@/features/destinations/components/destinations-grid";
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -14,13 +15,15 @@ export function generateMetadata(): Metadata {
 
 export default async function DestinationsPage() {
   let destinations: DestinationRecord[] = [];
+  let loadError = false;
 
   try {
     const supabase = await createSupabaseServerClient();
     const result = await getDestinations(supabase);
-    if (result.data) destinations = result.data;
+    if (result.error) loadError = true;
+    else destinations = result.data ?? [];
   } catch {
-    // destinations stays []
+    loadError = true;
   }
 
   return (
@@ -32,8 +35,12 @@ export default async function DestinationsPage() {
         intro="Откройте города и регионы России — и найдите местного гида в каждом из них."
       />
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-10">
-        {destinations.length === 0 ? (
-          <p className="mt-2 text-on-surface-muted">Пока нет доступных направлений.</p>
+        {loadError ? (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Не удалось загрузить направления. Попробуйте обновить страницу.
+            </AlertDescription>
+          </Alert>
         ) : (
           <DestinationsGrid destinations={destinations} />
         )}

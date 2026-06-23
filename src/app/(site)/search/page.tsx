@@ -5,10 +5,13 @@ import { Suspense } from "react";
 import { ListHero } from "@/components/shared/list-hero";
 import { FilterBar } from "@/components/traveler/FilterBar";
 import { ListingGrid } from "@/components/traveler/ListingGrid";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ROUTES } from "@/lib/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ListingRow } from "@/lib/supabase/types";
+import { pluralize } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Поиск и направления",
@@ -32,6 +35,8 @@ export default async function SearchPage({
   };
 
   let listings: ListingRow[] = [];
+  let totalCount = 0;
+  let loadError = false;
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -39,6 +44,7 @@ export default async function SearchPage({
       .from("listings")
       .select(
         "id, slug, title, region, city, exp_type, format, duration_minutes, price_from_minor, currency, average_rating, review_count, image_url, languages, difficulty_level",
+        { count: "exact" },
       )
       .eq("status", "published");
 
@@ -61,14 +67,17 @@ export default async function SearchPage({
     else if (sort === "rating") query = query.order("average_rating", { ascending: false });
     else query = query.order("featured_rank", { ascending: true, nullsFirst: false });
 
-    const { data, error } = await query.limit(48);
+    const { data, error, count } = await query.limit(48);
     if (error) {
       const Sentry = await import("@sentry/nextjs");
       Sentry.captureException(error);
+      loadError = true;
     }
     listings = (data ?? []) as ListingRow[];
+    totalCount = count ?? 0;
   } catch {
     listings = [];
+    loadError = true;
   }
 
   const title =
@@ -93,23 +102,39 @@ export default async function SearchPage({
             region={sp.region}
           />
         </Suspense>
-        <ListingGrid listings={listings} />
-        {listings.length === 0 ? (
-          <div className="mt-12 flex flex-col items-center gap-3 text-center">
-            <p className="text-on-surface-muted">Ничего не нашли по вашему запросу</p>
-            <p className="max-w-[420px] text-sm text-on-surface-muted">
-              Опубликуйте запрос — местные гиды предложат варианты под вашу поездку.
-            </p>
-            <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-              <Button asChild>
-                <Link href="/">Опубликовать запрос</Link>
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/search">Сбросить фильтры</Link>
-              </Button>
-            </div>
-          </div>
-        ) : null}
+        {loadError ? (
+          <Alert variant="destructive">
+            <AlertDescription>
+              Не удалось выполнить поиск. Попробуйте обновить страницу.
+            </AlertDescription>
+          </Alert>
+        ) : (
+          <>
+            {totalCount > 0 ? (
+              <p className="mb-4 text-sm text-on-surface-muted">
+                Найдено {totalCount}{" "}
+                {pluralize(totalCount, "предложение", "предложения", "предложений")}
+              </p>
+            ) : null}
+            <ListingGrid listings={listings} />
+            {listings.length === 0 ? (
+              <div className="mt-12 flex flex-col items-center gap-3 text-center">
+                <p className="text-on-surface-muted">Ничего не нашли по вашему запросу</p>
+                <p className="max-w-[420px] text-sm text-on-surface-muted">
+                  Опубликуйте запрос — местные гиды предложат варианты под вашу поездку.
+                </p>
+                <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+                  <Button asChild>
+                    <Link href={ROUTES.newRequest.href}>Опубликовать запрос</Link>
+                  </Button>
+                  <Button asChild variant="outline">
+                    <Link href="/search">Сбросить фильтры</Link>
+                  </Button>
+                </div>
+              </div>
+            ) : null}
+          </>
+        )}
       </div>
     </section>
   );

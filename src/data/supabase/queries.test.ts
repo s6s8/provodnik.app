@@ -25,6 +25,8 @@ import {
   mapRequestRow,
   getOffersForRequest,
   getOpenRequests,
+  getOpenRequestsByDestination,
+  getPlatformStats,
   getListingReviews,
   getListingsByDestination,
   getListingsByGuide,
@@ -436,5 +438,181 @@ describe("query performance safeguards", () => {
     expect(destinationFilterIndex).toBeGreaterThan(-1);
     expect(limitIndex).toBeGreaterThan(-1);
     expect(destinationFilterIndex).toBeLessThan(limitIndex);
+  });
+});
+
+describe("guide stats layering (no fabricated zeros)", () => {
+  it("layers real view stats and approved verification onto getGuideBySlug", async () => {
+    const client = createFakeClient({
+      guide_profiles: [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [
+        { average_rating: 4.6, review_count: 8, response_rate: 91 },
+      ],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.rating).toBe(4.6);
+    expect(result.data?.reviewCount).toBe(8);
+    expect(result.data?.responseRate).toBe(91);
+    expect(result.data?.verified).toBe(true);
+  });
+
+  it("keeps getGuideBySlug unverified with null responseRate when stats are absent", async () => {
+    const client = createFakeClient({
+      guide_profiles: [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "pending",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.verified).toBe(false);
+    expect(result.data?.rating).toBe(0);
+    expect(result.data?.responseRate).toBeNull();
+  });
+
+  it("layers real view stats and approved verification onto getGuidesByDestination", async () => {
+    const client = createFakeClient({
+      "rpc:search_guides": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          years_experience: 7,
+          verification_status: "approved",
+        },
+      ],
+      profiles: [],
+      v_guide_public_profile: [{ user_id: "guide-1", average_rating: 4.9 }],
+    });
+
+    const result = await getGuidesByDestination(client, "Москва");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.rating).toBe(4.9);
+    expect(result.data?.[0]?.verified).toBe(true);
+  });
+});
+
+describe("destination ratings (no fabricated stars)", () => {
+  it("keeps the real rating and returns null when no rating exists in getDestinations", async () => {
+    const client = createFakeClient({
+      destinations: [
+        { id: "dest-1", slug: "moscow", name: "Москва", rating: 4.2 },
+        { id: "dest-2", slug: "kazan", name: "Казань", rating: null },
+      ],
+    });
+
+    const result = await getDestinations(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.avgRating).toBe(4.2);
+    expect(result.data?.[1]?.avgRating).toBeNull();
+  });
+
+  it("returns null avgRating from getDestinationBySlug when the row has no rating", async () => {
+    const client = createFakeClient({
+      destinations: [{ id: "dest-1", slug: "moscow", name: "Москва", rating: null }],
+    });
+
+    const result = await getDestinationBySlug(client, "moscow");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.avgRating).toBeNull();
+  });
+});
+
+describe("getPlatformStats", () => {
+  it("maps the single platform_stats view row to camelCase counts", async () => {
+    const client = createFakeClient({
+      platform_stats: [{ guides_active: 15, listings_total: 12, trips_total: 10 }],
+    });
+
+    const result = await getPlatformStats(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual({ guidesActive: 15, listingsTotal: 12, tripsTotal: 10 });
+  });
+
+  it("returns the error when the view query fails", async () => {
+    const statsError = new Error("platform_stats policy denied");
+    const client = createFakeClient({}, { platform_stats: statsError });
+
+    const result = await getPlatformStats(client);
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBeTruthy();
+  });
+
+  it("returns null data without an error when no row is present", async () => {
+    const client = createFakeClient({ platform_stats: [] });
+
+    const result = await getPlatformStats(client);
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBeNull();
+  });
+});
+
+describe("getOpenRequestsByDestination", () => {
+  it("returns mapped open requests for the given region", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "request-1",
+          destination: "Элиста",
+          region: "Калмыкия",
+          budget_minor: 100_000,
+          participants_count: 2,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-1",
+        },
+        {
+          id: "request-2",
+          destination: "Городовиковск",
+          region: "Калмыкия",
+          budget_minor: 80_000,
+          participants_count: 1,
+          status: "open",
+          created_at: "2026-06-02T00:00:00Z",
+          traveler_id: "traveler-2",
+        },
+      ],
+    });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toHaveLength(2);
+    expect(result.data?.every((rec) => rec.status === "open")).toBe(true);
+  });
+
+  it("returns an empty list when no open requests match the region", async () => {
+    const client = createFakeClient({ traveler_requests: [] });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toEqual([]);
   });
 });
