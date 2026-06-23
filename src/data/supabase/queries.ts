@@ -739,6 +739,19 @@ export async function getOpenRequestsByDestination(
     if (!data || data.length === 0) return { data: [], error: null };
 
     const records = data.map((row) => mapRequestRow(row));
+    const ids = records.map((r) => r.id);
+    const { data: offerRows, error: offerError } = await db
+      .from("guide_offers")
+      .select("request_id")
+      .in("request_id", ids);
+    if (offerError) throw offerError;
+    const offerCountMap: Record<string, number> = {};
+    for (const row of offerRows ?? []) {
+      const rid = row.request_id as string;
+      offerCountMap[rid] = (offerCountMap[rid] ?? 0) + 1;
+    }
+    for (const rec of records) rec.offerCount = offerCountMap[rec.id] ?? 0;
+
     const membersMap = await fetchMembersForRequests(
       db,
       data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
@@ -768,6 +781,13 @@ export async function getRequestById(
     if (!data) return { data: null, error: null };
 
     const record = mapRequestRow(data);
+    const { count: offerCount, error: offerError } = await db
+      .from("guide_offers")
+      .select("id", { count: "exact", head: true })
+      .eq("request_id", id);
+    if (offerError) throw offerError;
+    record.offerCount = offerCount ?? 0;
+
     const membersMap = await fetchMembersForRequests(db, [{ id, creatorId: data.traveler_id as string }]);
     record.members = membersMap.get(id) ?? [];
 
