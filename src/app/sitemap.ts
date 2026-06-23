@@ -27,6 +27,7 @@ function buildEntry(
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [
     buildEntry("/", 1.0, "weekly"),
+    buildEntry("/ai", 0.9, "weekly"),
     buildEntry("/destinations", 0.9, "weekly"),
     buildEntry("/listings", 0.9, "daily"),
     buildEntry("/guides", 0.9, "weekly"),

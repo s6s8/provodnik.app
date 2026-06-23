@@ -111,7 +111,7 @@ export default async function ThreadPage({
             ) : null}
           </div>
         </div>
-        <Button variant="outline" asChild>
+        <Button variant="outline" asChild className="lg:hidden">
           <Link href="/messages">Все диалоги</Link>
         </Button>
       </div>

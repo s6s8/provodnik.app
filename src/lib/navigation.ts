@@ -21,7 +21,7 @@ export const ROUTES = {
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
   search:       { href: "/search",       label: "Поиск",             icon: Search },
-  newRequest:   { href: "/form",         label: "Создать запрос",    icon: ClipboardList },
+  newRequest:   { href: "/",             label: "Создать запрос",    icon: ClipboardList },
   howItWorks:   { href: "/how-it-works", label: "Как это работает",  icon: Route },
   becomeGuide:  { href: "/become-a-guide", label: "Стать гидом",     icon: BadgeCheck },
   trust:        { href: "/trust",        label: "Доверие и безопасность", icon: ShieldCheck },

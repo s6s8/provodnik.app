@@ -1,23 +1,37 @@
 import type { Metadata } from "next";
 
+import { getActiveGuideDestinations, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
-import { SiteFooter } from "@/components/shared/site-footer";
-import { HeroConversation } from "@/features/homepage/components/hero-conversation";
+import { HomePageShell2Classic } from "@/features/homepage-classic/components/homepage-shell2-classic";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
-  title: "Проводник — опишите поездку",
+  title: "Проводник — местные гиды по вашему запросу",
   description:
-    "Опишите поездку своими словами — подберём местного гида под ваш запрос.",
+    "Опишите поездку — подберём проверенного местного гида. Заявки, направления и живые отклики.",
 };
 
-export default function HomePage() {
+export default async function HomePage() {
+  let destinations: DestinationOption[] = [];
+  let requests: RequestRecord[] = [];
+  try {
+    const supabase = await createSupabaseServerClient();
+    const [destResult, reqResult] = await Promise.all([
+      getActiveGuideDestinations(supabase),
+      getHomepageRequests(supabase),
+    ]);
+    destinations = destResult.data ?? [];
+    requests = reqResult.data ?? [];
+  } catch {
+    // both stay []
+  }
+
   return (
     <>
       <SiteHeaderServer />
       <main className="pt-nav-h">
-        <HeroConversation />
+        <HomePageShell2Classic destinations={destinations} requests={requests} />
       </main>
-      <SiteFooter />
     </>
   );
 }
