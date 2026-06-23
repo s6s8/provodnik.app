@@ -23,9 +23,9 @@ import {
   getGuidesByDestination,
   getHomepageRequests,
   mapRequestRow,
-  getOffersForRequest,
   getOpenRequests,
   getOpenRequestsByDestination,
+  getRequestById,
   getPlatformStats,
   getListingReviews,
   getListingsByDestination,
@@ -41,6 +41,8 @@ type FakeClient = SupabaseClient & {
 };
 
 class FakeQuery {
+  private countMode = false;
+
   constructor(
     private readonly calls: string[],
     private readonly fixtures: FixtureMap,
@@ -48,8 +50,9 @@ class FakeQuery {
     private readonly table: string,
   ) {}
 
-  select(columns?: string) {
+  select(columns?: string, options?: { count?: string; head?: boolean }) {
     this.calls.push(`${this.table}.select:${columns ?? "*"}`);
+    if (options?.count) this.countMode = true;
     return this;
   }
 
@@ -106,14 +109,16 @@ class FakeQuery {
   }
 
   then<TResult1 = unknown, TResult2 = never>(
-    onfulfilled?: ((value: { data: unknown[] | null; error: Error | null }) => TResult1 | PromiseLike<TResult1>) | null,
+    onfulfilled?: ((value: { data: unknown[] | null; error: Error | null; count: number | null }) => TResult1 | PromiseLike<TResult1>) | null,
     onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ) {
     const error = this.errors[this.table] ?? null;
-    return Promise.resolve({ data: error ? null : (this.fixtures[this.table] ?? []), error }).then(
-      onfulfilled,
-      onrejected,
-    );
+    const rows = this.fixtures[this.table] ?? [];
+    return Promise.resolve({
+      data: error ? null : rows,
+      error,
+      count: error ? null : (this.countMode ? rows.length : null),
+    }).then(onfulfilled, onrejected);
   }
 }
 
@@ -156,7 +161,6 @@ describe("public Supabase query helpers", () => {
     { name: "getGuideLocationPhotos", run: (client) => getGuideLocationPhotos(client, "guide-1") },
     { name: "getListingReviews", run: (client) => getListingReviews(client, "listing-1") },
     { name: "getGuideReviews", run: (client) => getGuideReviews(client, "guide-1") },
-    { name: "getOffersForRequest", run: (client) => getOffersForRequest(client, "request-1") },
     {
       name: "getHomepageRequests",
       run: (client) => getHomepageRequests(client),
@@ -360,30 +364,6 @@ describe("PII-safe Supabase query mapping", () => {
 
     expect(result.data).toEqual([]);
     expect(result.error).toBe(offerError);
-  });
-
-  it("masks contact details in offer messages returned for a request", async () => {
-    const client = createFakeClient({
-      guide_offers: [
-        {
-          id: "offer-1",
-          request_id: "request-1",
-          guide_id: "guide-1",
-          title: "Байкальский гид",
-          price_minor: 200_000,
-          capacity: 4,
-          message: "Пишите guide@example.com или звоните +79991234567",
-          status: "pending",
-        },
-      ],
-    });
-
-    const result = await getOffersForRequest(client, "request-1");
-
-    expect(result.error).toBeNull();
-    expect(result.data?.[0]?.message).toBe(
-      "Пишите [контакт скрыт] или звоните [контакт скрыт]",
-    );
   });
 
   it("surfaces open request member query errors instead of dropping member rows silently", async () => {
@@ -614,5 +594,119 @@ describe("getOpenRequestsByDestination", () => {
 
     expect(result.error).toBeNull();
     expect(result.data).toEqual([]);
+  });
+
+  it("layers the real guide_offers count per request (no fabricated zeros)", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "request-1",
+          destination: "Элиста",
+          region: "Калмыкия",
+          budget_minor: 100_000,
+          participants_count: 2,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-1",
+        },
+        {
+          id: "request-2",
+          destination: "Городовиковск",
+          region: "Калмыкия",
+          budget_minor: 80_000,
+          participants_count: 1,
+          status: "open",
+          created_at: "2026-06-02T00:00:00Z",
+          traveler_id: "traveler-2",
+        },
+      ],
+      guide_offers: [
+        { request_id: "request-1" },
+        { request_id: "request-1" },
+        { request_id: "request-2" },
+      ],
+    });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    const byId = new Map(result.data?.map((rec) => [rec.id, rec]));
+    expect(byId.get("request-1")?.offerCount).toBe(2);
+    expect(byId.get("request-2")?.offerCount).toBe(1);
+  });
+
+  it("surfaces guide_offers count errors instead of returning zero offers", async () => {
+    const offerError = new Error("offer policy denied");
+    const client = createFakeClient(
+      {
+        traveler_requests: [
+          {
+            id: "request-1",
+            destination: "Элиста",
+            region: "Калмыкия",
+            budget_minor: 100_000,
+            participants_count: 2,
+            status: "open",
+            created_at: "2026-06-03T00:00:00Z",
+            traveler_id: "traveler-1",
+          },
+        ],
+      },
+      { guide_offers: offerError },
+    );
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.data).toEqual([]);
+    expect(result.error).toBe(offerError);
+  });
+});
+
+describe("getRequestById", () => {
+  const requestFixture = {
+    id: "request-1",
+    destination: "Москва",
+    budget_minor: 100_000,
+    participants_count: 2,
+    status: "open",
+    created_at: "2026-06-03T00:00:00Z",
+    traveler_id: "traveler-1",
+  };
+
+  it("layers the real guide_offers count onto the request", async () => {
+    const client = createFakeClient({
+      traveler_requests: [requestFixture],
+      guide_offers: [{ id: "offer-1" }, { id: "offer-2" }, { id: "offer-3" }],
+    });
+
+    const result = await getRequestById(client, "request-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.offerCount).toBe(3);
+  });
+
+  it("reports offerCount 0 when the request has no guide offers", async () => {
+    const client = createFakeClient({
+      traveler_requests: [requestFixture],
+      guide_offers: [],
+    });
+
+    const result = await getRequestById(client, "request-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.offerCount).toBe(0);
+  });
+
+  it("surfaces guide_offers count errors instead of returning zero offers", async () => {
+    const offerError = new Error("offer policy denied");
+    const client = createFakeClient(
+      { traveler_requests: [requestFixture] },
+      { guide_offers: offerError },
+    );
+
+    const result = await getRequestById(client, "request-1");
+
+    expect(result.data).toBeNull();
+    expect(result.error).toBe(offerError);
   });
 });

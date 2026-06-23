@@ -82,4 +82,23 @@ describe("buildRequestInsertPayload", () => {
     const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
     expect(payload.requested_languages).toEqual([]);
   });
+
+  it("persists the real ends_on from endDate when provided", async () => {
+    const payload = await buildRequestInsertPayload(
+      { ...baseInput, startDate: "2026-08-01", endDate: "2026-08-07" },
+      { allowGuideSuggestions: true },
+    );
+
+    expect(payload.starts_on).toBe("2026-08-01");
+    expect(payload.ends_on).toBe("2026-08-07");
+  });
+
+  it("falls back ends_on to startDate when endDate is absent", async () => {
+    const payload = await buildRequestInsertPayload(
+      { ...baseInput, startDate: "2026-08-01", endDate: undefined },
+      { allowGuideSuggestions: true },
+    );
+
+    expect(payload.ends_on).toBe("2026-08-01");
+  });
 });
