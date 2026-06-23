@@ -305,157 +305,168 @@ function TravelerBookingDetailView({
       ) : null}
 
       <div className="py-12">
-        <div className="max-w-[640px] mx-auto px-[var(--px)] flex flex-col gap-6">
-          <header className="space-y-3">
-            <BookingStatusBadge status={status} />
-            <PageHeader title={resolvedListingTitle || "Бронирование"} actions={primaryCTA} />
-          </header>
+        <div className="mx-auto flex max-w-[640px] flex-col gap-6 px-[var(--px)] lg:grid lg:max-w-[1080px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8">
+          {/* left: trip content (top) */}
+          <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-1 lg:min-w-0">
+            <header className="space-y-3">
+              <BookingStatusBadge status={status} />
+              <PageHeader title={resolvedListingTitle || "Бронирование"} actions={primaryCTA} />
+            </header>
 
-          {showTravelerPanel ? (
-            <Alert variant="info">
-              <AlertDescription>
-                Оплата производится напрямую с гидом. Проводник не является посредником в денежных расчётах.
-              </AlertDescription>
-            </Alert>
-          ) : null}
+            {showTravelerPanel ? (
+              <Alert variant="info">
+                <AlertDescription>
+                  Оплата производится напрямую с гидом. Проводник не является посредником в денежных расчётах.
+                </AlertDescription>
+              </Alert>
+            ) : null}
 
-          <Card className="border-border/70 bg-card/90">
-            <CardContent className="flex flex-col gap-2 p-5">
-              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
-              <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
-              {dateRange ? (
-                <p className="font-sans text-sm text-muted-foreground">
-                  {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
-                </p>
-              ) : null}
-              {meetingPlace ? (
-                <p className="font-sans text-sm text-muted-foreground">
-                  <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
-                </p>
-              ) : null}
-              {themeLabels.length > 0 ? (
-                <div className="flex flex-wrap gap-1.5 mt-1">
-                  {themeLabels.map((label) => (
-                    <Badge key={label} variant="secondary" className="text-xs">{label}</Badge>
-                  ))}
-                </div>
-              ) : null}
-              {partySize > 0 ? (
-                <p className="font-sans text-sm text-muted-foreground">
-                  {partySize} {partySize === 1 ? "человек" : partySize < 5 ? "человека" : "человек"}
-                  {request?.open_to_join ? " · сборная группа" : ""}
-                </p>
-              ) : null}
-            </CardContent>
-          </Card>
-
-          {(description || inclusions.length > 0 || offer?.title) ? (
             <Card className="border-border/70 bg-card/90">
-              <CardContent className="flex flex-col gap-3 p-5">
-                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Что вас ждёт</p>
-                {offer?.title ? (
-                  <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
+              <CardContent className="flex flex-col gap-2 p-5">
+                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
+                <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
+                {dateRange ? (
+                  <p className="font-sans text-sm text-muted-foreground">
+                    {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
+                  </p>
                 ) : null}
-                {description ? (
-                  <p className="font-sans text-sm text-foreground leading-[1.6] whitespace-pre-line">{description}</p>
+                {meetingPlace ? (
+                  <p className="font-sans text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
+                  </p>
                 ) : null}
-                {inclusions.length > 0 ? (
-                  <div>
-                    <p className="font-sans text-xs font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1.5">Включено</p>
-                    <ul className="flex flex-col gap-1">
-                      {inclusions.map((item) => (
-                        <li key={item} className="font-sans text-sm text-foreground flex items-start gap-2">
-                          <Check className="size-4 text-primary shrink-0 mt-0.5" />
-                          {item}
-                        </li>
-                      ))}
-                    </ul>
+                {themeLabels.length > 0 ? (
+                  <div className="flex flex-wrap gap-1.5 mt-1">
+                    {themeLabels.map((label) => (
+                      <Badge key={label} variant="secondary" className="text-xs">{label}</Badge>
+                    ))}
                   </div>
                 ) : null}
-              </CardContent>
-            </Card>
-          ) : null}
-
-          <Card className="border-border/70 bg-card/90">
-            <CardContent className="flex flex-col gap-1.5 p-5">
-              <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
-              <MoneyBreakdown
-                pricePerPerson={pricePerPersonMinor / 100}
-                partySize={partySize}
-                depositMinor={booking.deposit_minor ?? undefined}
-                remainderMinor={booking.remainder_minor ?? undefined}
-                cancellationPolicy={cancellationPolicy}
-                currency={booking.currency ?? "₽"}
-              />
-            </CardContent>
-          </Card>
-
-          {paymentAgreement ? (
-            <Card className="border-border/70 bg-card/90">
-              <CardContent className="flex flex-col gap-3 p-5">
-                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Договорённость об оплате</p>
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">
-                    {formatRub(paymentAgreement.agreedTotalMinor)}
-                  </span>
-                  {paymentAgreement.method === "in_person" ? (
-                    <span className="font-sans text-sm text-muted-foreground">Оплата при встрече</span>
-                  ) : null}
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <PaymentAgreementRow
-                    label="Путешественник"
-                    confirmedAt={paymentAgreement.travelerConfirmedAt}
-                  />
-                  <PaymentAgreementRow
-                    label="Гид"
-                    confirmedAt={paymentAgreement.guideConfirmedAt}
-                  />
-                </div>
-                {showTravelerPanel && !paymentAgreement.travelerConfirmedAt ? (
-                  <>
-                    {agreementError ? (
-                      <Alert variant="destructive">
-                        <AlertDescription>{agreementError}</AlertDescription>
-                      </Alert>
-                    ) : null}
-                    <Button
-                      type="button"
-                      onClick={handleConfirmAgreement}
-                      disabled={isConfirmingAgreement}
-                      className="min-h-[44px] w-full sm:w-auto"
-                    >
-                      {isConfirmingAgreement ? "Подтверждаю…" : "Подтвердить договорённость"}
-                    </Button>
-                  </>
+                {partySize > 0 ? (
+                  <p className="font-sans text-sm text-muted-foreground">
+                    {partySize} {partySize === 1 ? "человек" : partySize < 5 ? "человека" : "человек"}
+                    {request?.open_to_join ? " · сборная группа" : ""}
+                  </p>
                 ) : null}
               </CardContent>
             </Card>
-          ) : null}
 
-          {showTravelerPanel ? (
-            <>
+            {(description || inclusions.length > 0 || offer?.title) ? (
               <Card className="border-border/70 bg-card/90">
-                <CardContent className="flex flex-col gap-3.5 p-5">
-                  <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
-                  <ContactReveal
-                    guide={{
-                      name: guideName,
-                      avatarUrl: guideAvatarUrl ?? undefined,
-                      verified: isVerified,
-                    }}
-                    contact={{ phone: guidePhone ?? undefined }}
-                    bookingStatus={bookingStatusForReveal}
-                  />
+                <CardContent className="flex flex-col gap-3 p-5">
+                  <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Что вас ждёт</p>
+                  {offer?.title ? (
+                    <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
+                  ) : null}
+                  {description ? (
+                    <p className="font-sans text-sm text-foreground leading-[1.6] whitespace-pre-line">{description}</p>
+                  ) : null}
+                  {inclusions.length > 0 ? (
+                    <div>
+                      <p className="font-sans text-xs font-medium text-muted-foreground uppercase tracking-[0.12em] mb-1.5">Включено</p>
+                      <ul className="flex flex-col gap-1">
+                        {inclusions.map((item) => (
+                          <li key={item} className="font-sans text-sm text-foreground flex items-start gap-2">
+                            <Check className="size-4 text-primary shrink-0 mt-0.5" />
+                            {item}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
                 </CardContent>
               </Card>
+            ) : null}
+          </div>
 
-              {secondaryButtons.length > 0 ? (
-                <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                  {secondaryButtons}
-                </div>
-              ) : null}
+          {/* right: money + agreement + contact + actions (sticky on desktop) */}
+          <aside className="flex flex-col gap-6 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-24">
+            <Card className="border-border/70 bg-card/90">
+              <CardContent className="flex flex-col gap-1.5 p-5">
+                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
+                <MoneyBreakdown
+                  pricePerPerson={pricePerPersonMinor / 100}
+                  partySize={partySize}
+                  depositMinor={booking.deposit_minor ?? undefined}
+                  remainderMinor={booking.remainder_minor ?? undefined}
+                  cancellationPolicy={cancellationPolicy}
+                  currency={booking.currency ?? "₽"}
+                />
+              </CardContent>
+            </Card>
 
+            {paymentAgreement ? (
+              <Card className="border-border/70 bg-card/90">
+                <CardContent className="flex flex-col gap-3 p-5">
+                  <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Договорённость об оплате</p>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <span className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">
+                      {formatRub(paymentAgreement.agreedTotalMinor)}
+                    </span>
+                    {paymentAgreement.method === "in_person" ? (
+                      <span className="font-sans text-sm text-muted-foreground">Оплата при встрече</span>
+                    ) : null}
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <PaymentAgreementRow
+                      label="Путешественник"
+                      confirmedAt={paymentAgreement.travelerConfirmedAt}
+                    />
+                    <PaymentAgreementRow
+                      label="Гид"
+                      confirmedAt={paymentAgreement.guideConfirmedAt}
+                    />
+                  </div>
+                  {showTravelerPanel && !paymentAgreement.travelerConfirmedAt ? (
+                    <>
+                      {agreementError ? (
+                        <Alert variant="destructive">
+                          <AlertDescription>{agreementError}</AlertDescription>
+                        </Alert>
+                      ) : null}
+                      <Button
+                        type="button"
+                        onClick={handleConfirmAgreement}
+                        disabled={isConfirmingAgreement}
+                        className="min-h-[44px] w-full sm:w-auto"
+                      >
+                        {isConfirmingAgreement ? "Подтверждаю…" : "Подтвердить договорённость"}
+                      </Button>
+                    </>
+                  ) : null}
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {showTravelerPanel ? (
+              <>
+                <Card className="border-border/70 bg-card/90">
+                  <CardContent className="flex flex-col gap-3.5 p-5">
+                    <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
+                    <ContactReveal
+                      guide={{
+                        name: guideName,
+                        avatarUrl: guideAvatarUrl ?? undefined,
+                        verified: isVerified,
+                      }}
+                      contact={{ phone: guidePhone ?? undefined }}
+                      bookingStatus={bookingStatusForReveal}
+                    />
+                  </CardContent>
+                </Card>
+
+                {secondaryButtons.length > 0 ? (
+                  <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+                    {secondaryButtons}
+                  </div>
+                ) : null}
+              </>
+            ) : null}
+          </aside>
+
+          {/* left: trip content (bottom) — review, support, back link */}
+          {showTravelerPanel ? (
+            <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-2 lg:min-w-0">
               {showReviewForm ? (
                 <div id="review-form">
                   <FourAxisReviewForm
@@ -475,7 +486,7 @@ function TravelerBookingDetailView({
               >
                 ← К моим поездкам
               </Link>
-            </>
+            </div>
           ) : null}
         </div>
       </div>

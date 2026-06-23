@@ -142,7 +142,7 @@ const booking = {
 
 describe("BookingDetailScreen", () => {
   it("renders traveler review, dispute, payment/contact blocks without guide controls", () => {
-    render(
+    const { container } = render(
       <BookingDetailScreen
         viewerRole="traveler"
         booking={booking}
@@ -158,6 +158,17 @@ describe("BookingDetailScreen", () => {
     expect(screen.getByRole("button", { name: "Открыть спор" })).toBeInTheDocument();
     expect(screen.queryByText("Операции по бронированию")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Подтвердить" })).not.toBeInTheDocument();
+
+    // Desktop sticky-rail layout: container becomes a 2-col grid at lg; the
+    // decision cluster (money + agreement + actions) lives in a sticky aside.
+    expect(
+      container.querySelector(
+        '[class*="lg:grid-cols-[minmax(0,1fr)_360px]"]',
+      ),
+    ).not.toBeNull();
+    expect(
+      container.querySelector('aside[class*="lg:sticky"]'),
+    ).not.toBeNull();
   });
 
   it("renders guide controls and revealed traveler contact on a confirmed booking", async () => {
