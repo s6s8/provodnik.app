@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 
 import { EmptyState } from "@/components/shared/empty-state";
-import { ListRow } from "@/components/shared/list-row";
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ModerationQueueList } from "@/features/admin/components/ModerationQueueItem";
-import { formatRussianDateTime } from "@/lib/dates";
-import { maskPii } from "@/lib/pii/mask";
+import { ReplyModerationList } from "@/features/admin/components/ReplyModerationItem";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 
 export const metadata: Metadata = {
@@ -68,19 +66,7 @@ export default async function ModerationQueuePage() {
               description="Нет ответов на отзывы на проверке."
             />
           ) : (
-            <div className="space-y-2">
-              <p className="text-sm text-muted-foreground">
-                Ответы модерируются вручную — действия в разработке.
-              </p>
-              {replyRows.map((reply) => (
-                <ListRow
-                  key={reply.id}
-                  title={maskPii(reply.body)}
-                  subtitle={formatRussianDateTime(reply.submitted_at)}
-                  badge={<Badge>На проверке</Badge>}
-                />
-              ))}
-            </div>
+            <ReplyModerationList replies={replyRows} />
           )}
         </TabsContent>
       </Tabs>

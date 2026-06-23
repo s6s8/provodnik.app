@@ -15,6 +15,21 @@ vi.mock("@/features/admin/components/ModerationQueueItem", () => ({
     </div>
   ),
 }));
+vi.mock("@/features/admin/components/ReplyModerationItem", () => ({
+  ReplyModerationList: ({
+    replies,
+  }: {
+    replies: Array<{ id: string; body: string }>;
+  }) => (
+    <div data-testid="reply-moderation-queue">
+      {replies.map((reply) => (
+        <button key={reply.id} type="button">
+          Опубликовать
+        </button>
+      ))}
+    </div>
+  ),
+}));
 vi.mock("@/lib/supabase/moderation", () => ({
   requireAdminSession,
 }));
@@ -83,5 +98,7 @@ describe("ModerationQueuePage", () => {
 
     expect(screen.getByRole("tab", { name: /Объявления/ })).toHaveTextContent("1");
     expect(screen.getByRole("tab", { name: /Ответы на отзывы/ })).toHaveTextContent("1");
+
+    expect(screen.queryByText(/действия в разработке/)).not.toBeInTheDocument();
   });
 });
