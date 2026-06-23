@@ -1,13 +1,17 @@
 import { DisputeAdminResolve } from "@/features/disputes/components/dispute-admin-resolve";
+import { postDisputeMessage } from "@/features/disputes/dispute-message-actions";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { formatRussianDateTime } from "@/lib/dates";
 import { maskPii } from "@/lib/pii/mask";
+import { cn } from "@/lib/utils";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { CheckCircle2, Circle, Clock } from "lucide-react";
+import { CheckCircle2, Circle, Clock, MessageCircle } from "lucide-react";
 
 const STATUS_LABEL: Record<string, string> = {
   open: "Открыт",
@@ -45,6 +49,22 @@ const EVENT_LABELS: Record<string, string> = {
 function formatEventLabel(eventType: string | null): string {
   if (!eventType) return "Событие";
   return EVENT_LABELS[eventType] ?? eventType;
+}
+
+const COMMENT_ROLE_LABELS: Record<string, string> = {
+  traveler: "Путешественник",
+  guide: "Гид",
+  admin: "Поддержка",
+};
+
+function readComment(
+  payload: unknown,
+): { body: string; role: string } | null {
+  if (!payload || typeof payload !== "object") return null;
+  const candidate = payload as { body?: unknown; role?: unknown };
+  if (typeof candidate.body !== "string" || !candidate.body.trim()) return null;
+  const role = typeof candidate.role === "string" ? candidate.role : "";
+  return { body: candidate.body, role };
 }
 
 export async function DisputeThread({
@@ -120,20 +140,12 @@ export async function DisputeThread({
       />
 
       {!adminView ? (
-        <>
-          <Alert>
-            <AlertTitle>Статус</AlertTitle>
-            <AlertDescription>
-              Спор рассматривается администрацией. Текущий статус: {statusLabel}.
-            </AlertDescription>
-          </Alert>
-          <Alert variant="info">
-            <AlertDescription>
-              Дополнение к спору временно недоступно — наша команда рассматривает вашу
-              жалобу.
-            </AlertDescription>
-          </Alert>
-        </>
+        <Alert>
+          <AlertTitle>Статус</AlertTitle>
+          <AlertDescription>
+            Спор рассматривается администрацией. Текущий статус: {statusLabel}.
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {dispute.resolution_summary ? (
@@ -163,6 +175,41 @@ export async function DisputeThread({
           <ol className="relative flex flex-col gap-0 border-l-2 border-border/50 pl-6">
             {timeline.map((ev, index) => {
               const isLatest = index === timeline.length - 1;
+              if (ev.event_type === "comment") {
+                const comment = readComment(ev.payload);
+                if (!comment) return null;
+                const isSupport = comment.role === "admin";
+                return (
+                  <li key={ev.id} className="relative pb-6 last:pb-0">
+                    <span className="absolute -left-[31px] top-0 flex size-4 items-center justify-center rounded-full bg-background">
+                      <MessageCircle
+                        className={cn(
+                          "size-4",
+                          isSupport ? "text-primary" : "text-muted-foreground",
+                        )}
+                      />
+                    </span>
+                    <div
+                      className={cn(
+                        "rounded-card border px-4 py-3",
+                        isSupport
+                          ? "border-primary/30 bg-primary-tint"
+                          : "border-border/70 bg-card",
+                      )}
+                    >
+                      <p className="text-xs font-medium text-muted-foreground">
+                        {COMMENT_ROLE_LABELS[comment.role] ?? "Участник"}
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-foreground">
+                        {maskPii(comment.body)}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {formatRussianDateTime(ev.created_at)}
+                      </p>
+                    </div>
+                  </li>
+                );
+              }
               const reason =
                 ev.event_type === "dispute_opened" &&
                 ev.payload &&
@@ -195,6 +242,37 @@ export async function DisputeThread({
           </ol>
         )}
       </div>
+
+      {resolvedLike ? (
+        <Alert>
+          <AlertTitle>Спор закрыт</AlertTitle>
+          <AlertDescription>
+            Добавить новое сообщение нельзя — спор завершён.
+          </AlertDescription>
+        </Alert>
+      ) : (
+        <form
+          action={async (formData: FormData) => {
+            "use server";
+            await postDisputeMessage(
+              disputeId,
+              String(formData.get("body") ?? ""),
+            );
+          }}
+          className="flex flex-col gap-3"
+        >
+          <Textarea
+            name="body"
+            required
+            maxLength={2000}
+            aria-label="Сообщение по спору"
+            placeholder="Напишите сообщение второй стороне или поддержке…"
+          />
+          <Button type="submit" className="min-h-11 self-end">
+            Отправить
+          </Button>
+        </form>
+      )}
     </div>
   );
 }
