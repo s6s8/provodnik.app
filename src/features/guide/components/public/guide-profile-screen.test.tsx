@@ -49,12 +49,12 @@ describe("GuideProfileScreen", () => {
     expect(specialty.className).not.toContain("rgba");
   });
 
-  it("points the request CTA at /form?guide=<slug>", () => {
+  it("points the request CTA at /?guide=<slug>", () => {
     const { getByText } = render(<GuideProfileScreen guide={makeGuide()} />);
 
     expect(getByText("Запросить этого гида").closest("a")).toHaveAttribute(
       "href",
-      "/form?guide=ivan-petrov",
+      "/?guide=ivan-petrov",
     );
   });
 });

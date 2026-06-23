@@ -39,11 +39,11 @@ describe("DestinationDetailScreen — requests section", () => {
     );
   });
 
-  it("points the «Создать запрос» CTA at /form", () => {
+  it("points the «Создать запрос» CTA at /", () => {
     const { getByText } = render(
       <DestinationDetailScreen destination={makeDestination()} />,
     );
 
-    expect(getByText("Создать запрос").closest("a")).toHaveAttribute("href", "/form");
+    expect(getByText("Создать запрос").closest("a")).toHaveAttribute("href", "/");
   });
 });

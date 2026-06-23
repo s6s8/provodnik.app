@@ -25,7 +25,7 @@ export function HomePageShell2Classic({ destinations }: Props) {
         </div>
         <div className="mt-6 text-center">
           <Link
-            href="/"
+            href="/ai"
             className="text-sm text-on-surface-muted transition-colors hover:text-on-surface"
           >
             Быстрый подбор через вопросы →
