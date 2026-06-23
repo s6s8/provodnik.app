@@ -1,3 +1,4 @@
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -75,12 +76,36 @@ describe("RequestsPage", () => {
     expect(rendered.props.initialData[0].group.openToMoreMembers).toBe(true);
   });
 
-  it("renders fallback data when the initial requests load fails", async () => {
+  it("passes null initialData to the catalog when the board is empty", async () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
-    getOpenRequests.mockRejectedValue(new Error("database unavailable"));
+    getOpenRequests.mockResolvedValue({ data: [], error: null });
 
     const rendered = await RequestsPage();
 
     expect(rendered.props.initialData).toBeNull();
+  });
+
+  it("renders the error Alert when the query returns an error", async () => {
+    createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
+    getOpenRequests.mockResolvedValue({ data: null, error: new Error("boom") });
+
+    render(await RequestsPage());
+
+    expect(
+      screen.getByText("Не удалось загрузить запросы. Попробуйте обновить страницу."),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("marketplace")).not.toBeInTheDocument();
+  });
+
+  it("renders the error Alert when the load throws", async () => {
+    createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
+    getOpenRequests.mockRejectedValue(new Error("database unavailable"));
+
+    render(await RequestsPage());
+
+    expect(
+      screen.getByText("Не удалось загрузить запросы. Попробуйте обновить страницу."),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("marketplace")).not.toBeInTheDocument();
   });
 });
