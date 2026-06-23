@@ -13,6 +13,10 @@ vi.mock("@/features/disputes/components/dispute-admin-resolve", () => ({
   DisputeAdminResolve: () => <div>Resolve</div>,
 }));
 
+vi.mock("@/features/disputes/dispute-message-actions", () => ({
+  postDisputeMessage: vi.fn(),
+}));
+
 import { DisputeThread } from "./DisputeThread";
 
 const dispute = {
@@ -94,14 +98,62 @@ describe("DisputeThread event labels", () => {
     expect(screen.getByText("weird_unknown_event")).toBeInTheDocument();
   });
 
-  it("shows the read-only addition notice for the traveler view", async () => {
+  it("renders a comment event as a message bubble with body and role label", async () => {
+    mockClient([
+      {
+        id: "event-comment",
+        event_type: "comment",
+        payload: { body: "Подскажите статус возврата", role: "traveler" },
+        created_at: "2026-06-10T12:00:00.000Z",
+        actor_id: "traveler-1",
+      },
+    ]);
+
+    const ui = await DisputeThread({ disputeId: "dispute-1" });
+    render(ui);
+
+    expect(screen.getByText("Подскажите статус возврата")).toBeInTheDocument();
+    expect(screen.getByText("Путешественник")).toBeInTheDocument();
+  });
+
+  it("renders a support comment with the «Поддержка» role label", async () => {
+    mockClient([
+      {
+        id: "event-comment-admin",
+        event_type: "comment",
+        payload: { body: "Мы проверяем вашу жалобу", role: "admin" },
+        created_at: "2026-06-10T12:30:00.000Z",
+        actor_id: "admin-1",
+      },
+    ]);
+
+    const ui = await DisputeThread({ disputeId: "dispute-1" });
+    render(ui);
+
+    expect(screen.getByText("Мы проверяем вашу жалобу")).toBeInTheDocument();
+    expect(screen.getByText("Поддержка")).toBeInTheDocument();
+  });
+
+  it("renders the composer (textarea + «Отправить») for an open dispute", async () => {
+    mockClient([eventOf("dispute_opened")]);
+
+    const ui = await DisputeThread({ disputeId: "dispute-1" });
+    render(ui);
+
+    expect(screen.getByRole("button", { name: "Отправить" })).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Сообщение по спору"),
+    ).toBeInTheDocument();
+  });
+
+  it("replaces the read-only «недоступно» notice with the composer", async () => {
     mockClient([eventOf("dispute_opened")]);
 
     const ui = await DisputeThread({ disputeId: "dispute-1" });
     render(ui);
 
     expect(
-      screen.getByText(/Дополнение к спору временно недоступно/),
-    ).toBeInTheDocument();
+      screen.queryByText(/Дополнение к спору временно недоступно/),
+    ).not.toBeInTheDocument();
   });
 });
