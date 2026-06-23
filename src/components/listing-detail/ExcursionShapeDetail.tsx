@@ -85,7 +85,7 @@ export function ExcursionShapeDetail({ listing, schedule, tariffs, guide }: Prop
   const coverUrl = listing.image_url ?? null;
 
   const bookingCard = (
-    <Card className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass">
+    <Card className="bg-surface border border-line shadow-sm rounded-card">
       <CardContent className="space-y-4 p-5">
         <div>
           <p className="text-3xl font-semibold">

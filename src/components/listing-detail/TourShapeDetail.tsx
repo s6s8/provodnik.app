@@ -93,7 +93,7 @@ export function TourShapeDetail({
   );
 
   const bookingCard = (
-    <div className="rounded-[28px] border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px] space-y-4">
+    <div className="rounded-card border border-line bg-surface p-5 shadow-sm space-y-4">
       <div>
         <p className="text-3xl font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
         <p className="text-sm text-muted-foreground">на человека</p>

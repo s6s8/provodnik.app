@@ -59,7 +59,7 @@ export function TourDeparturesList({
           return (
             <Card
               key={dep.id}
-              className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass"
+              className="bg-surface border border-line shadow-sm rounded-card"
             >
               <CardContent className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-2">
