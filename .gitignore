@@ -79,3 +79,5 @@ supabase/.temp/
 .claude/settings.json
 docs/superpowers/plans/
 docs/superpowers/research/
+audit/screens/
+audit/manifest.json
