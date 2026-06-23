@@ -69,7 +69,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
         <aside className="hidden flex-col justify-center gap-8 rounded-glass bg-gradient-to-br from-brand-900 to-brand-950 p-[clamp(2rem,4vw,3.5rem)] text-white shadow-glass lg:flex">
           <span className="text-lg font-semibold tracking-tight">Provodnik</span>
           <div className="space-y-4">
-            <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight">
+            <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
               Найдите проверенного местного гида
             </h1>
             <p className="text-base leading-7 text-white/70">
