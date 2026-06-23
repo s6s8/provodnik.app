@@ -5,6 +5,7 @@ import { BookingDetailScreen } from "@/features/bookings/components/booking-deta
 import { openBookingThreadAction } from "@/features/bookings/booking-actions";
 import { viewerRoleForBooking } from "@/lib/auth/viewer-role-for-booking";
 import { getBooking } from "@/lib/supabase/bookings";
+import { getPaymentAgreementForBooking } from "@/lib/supabase/payment-agreements";
 import { getReviewForBooking } from "@/lib/supabase/reviews";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -46,6 +47,10 @@ export default async function BookingDetailPage({
   const booking = await getBooking(bookingId);
   if (!booking) notFound();
 
+  const paymentAgreement = await getPaymentAgreementForBooking(bookingId).catch(
+    () => null,
+  );
+
   const supabase = await createSupabaseServerClient();
   let listingTitle: string | undefined;
   if (booking.listing_id) {
@@ -65,6 +70,7 @@ export default async function BookingDetailPage({
         viewerRole="admin"
         booking={booking}
         listingTitle={listingTitle}
+        paymentAgreement={paymentAgreement}
       />
     );
   }
@@ -81,6 +87,7 @@ export default async function BookingDetailPage({
       booking={booking}
       existingReview={existingReview}
       listingTitle={listingTitle}
+      paymentAgreement={paymentAgreement}
       reviewStatus={reviewStatus}
       disputeStatus={disputeStatus}
       openBookingThreadAction={async (bookingId: string) => {

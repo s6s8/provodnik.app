@@ -51,6 +51,10 @@ vi.mock("@/app/(protected)/guide/bookings/[bookingId]/actions", () => ({
   getGuideBookingDetailAction,
 }));
 
+vi.mock("@/features/bookings/payment-agreement-actions", () => ({
+  confirmPaymentAgreementAction: vi.fn().mockResolvedValue({ ok: true }),
+}));
+
 const booking = {
   id: "booking-1",
   traveler_id: "traveler-1",
@@ -68,6 +72,8 @@ const booking = {
   currency: "RUB",
   cancellation_policy_snapshot: null,
   meeting_point: "Площадь Ленина",
+  payment_method: "in_person",
+  payment_status: "pending",
   created_at: "2026-06-01T00:00:00.000Z",
   updated_at: "2026-06-01T00:00:00.000Z",
   guide_phone: "+79990000000",
@@ -326,6 +332,75 @@ describe("BookingDetailScreen", () => {
 
     expect(await screen.findByText(/Выплата:/)).toBeInTheDocument();
     vi.unstubAllEnvs();
+  });
+
+  it("renders the payment agreement card with a confirm button when the traveler has not confirmed", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        paymentAgreement={{
+          id: "agreement-1",
+          bookingId: "booking-1",
+          agreedTotalMinor: 600000,
+          currency: "RUB",
+          method: "in_person",
+          travelerConfirmedAt: null,
+          guideConfirmedAt: null,
+        }}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.getByText("Договорённость об оплате")).toBeInTheDocument();
+    expect(screen.getByText("Оплата при встрече")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Подтвердить договорённость" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows the confirmed state and hides the button once the traveler has confirmed", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        paymentAgreement={{
+          id: "agreement-1",
+          bookingId: "booking-1",
+          agreedTotalMinor: 600000,
+          currency: "RUB",
+          method: "in_person",
+          travelerConfirmedAt: "2026-06-23T10:00:00Z",
+          guideConfirmedAt: null,
+        }}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.getByText("Договорённость об оплате")).toBeInTheDocument();
+    expect(screen.getByText("подтвердил")).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Подтвердить договорённость" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("omits the payment agreement card when no agreement exists", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listingTitle="Городская прогулка"
+        paymentAgreement={null}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.queryByText("Договорённость об оплате")).not.toBeInTheDocument();
   });
 
   it("renders BookingDetailSkeleton placeholder blocks", () => {

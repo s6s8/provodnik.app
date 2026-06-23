@@ -38,6 +38,8 @@ import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
+import type { PaymentAgreement } from "@/lib/supabase/payment-agreements";
+import { confirmPaymentAgreementAction } from "@/features/bookings/payment-agreement-actions";
 import {
   confirmBookingAction,
   completeBookingAction,
@@ -57,6 +59,7 @@ type BookingDetailScreenProps =
       booking: BookingWithDetails;
       existingReview: unknown | null;
       listingTitle?: string;
+      paymentAgreement?: PaymentAgreement | null;
       reviewStatus?: string;
       disputeStatus?: string;
       openBookingThreadAction: OpenBookingThreadAction;
@@ -69,6 +72,7 @@ type BookingDetailScreenProps =
       viewerRole: "admin";
       booking: BookingWithDetails;
       listingTitle?: string;
+      paymentAgreement?: PaymentAgreement | null;
     };
 
 const ACTION_LABEL_RU: Record<string, string> = {
@@ -90,6 +94,7 @@ export function BookingDetailScreen(props: BookingDetailScreenProps) {
       booking={props.booking}
       existingReview={props.viewerRole === "traveler" ? props.existingReview : null}
       listingTitle={props.listingTitle}
+      paymentAgreement={props.paymentAgreement ?? null}
       reviewStatus={props.viewerRole === "traveler" ? props.reviewStatus : undefined}
       disputeStatus={props.viewerRole === "traveler" ? props.disputeStatus : undefined}
       openBookingThreadAction={
@@ -104,6 +109,7 @@ function TravelerBookingDetailView({
   booking,
   existingReview,
   listingTitle,
+  paymentAgreement,
   reviewStatus,
   disputeStatus,
   openBookingThreadAction,
@@ -112,6 +118,7 @@ function TravelerBookingDetailView({
   booking: BookingWithDetails;
   existingReview: unknown | null;
   listingTitle?: string;
+  paymentAgreement?: PaymentAgreement | null;
   reviewStatus?: string;
   disputeStatus?: string;
   openBookingThreadAction?: OpenBookingThreadAction;
@@ -119,6 +126,20 @@ function TravelerBookingDetailView({
 }) {
   const router = useRouter();
   const [isOpeningThread, startOpenThread] = React.useTransition();
+  const [isConfirmingAgreement, startConfirmAgreement] = React.useTransition();
+  const [agreementError, setAgreementError] = React.useState<string | null>(null);
+
+  const handleConfirmAgreement = React.useCallback(() => {
+    setAgreementError(null);
+    startConfirmAgreement(async () => {
+      const result = await confirmPaymentAgreementAction(booking.id);
+      if (result.ok) {
+        router.refresh();
+      } else {
+        setAgreementError(result.error ?? "Не удалось подтвердить договорённость.");
+      }
+    });
+  }, [booking.id, router]);
 
   const guideProfile = booking.guide_profile;
   const guideProfileData = guideProfile?.profile ?? null;
@@ -368,6 +389,49 @@ function TravelerBookingDetailView({
               />
             </CardContent>
           </Card>
+
+          {paymentAgreement ? (
+            <Card className="border-border/70 bg-card/90">
+              <CardContent className="flex flex-col gap-3 p-5">
+                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Договорённость об оплате</p>
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+                  <span className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">
+                    {formatRub(paymentAgreement.agreedTotalMinor)}
+                  </span>
+                  {paymentAgreement.method === "in_person" ? (
+                    <span className="font-sans text-sm text-muted-foreground">Оплата при встрече</span>
+                  ) : null}
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <PaymentAgreementRow
+                    label="Путешественник"
+                    confirmedAt={paymentAgreement.travelerConfirmedAt}
+                  />
+                  <PaymentAgreementRow
+                    label="Гид"
+                    confirmedAt={paymentAgreement.guideConfirmedAt}
+                  />
+                </div>
+                {showTravelerPanel && !paymentAgreement.travelerConfirmedAt ? (
+                  <>
+                    {agreementError ? (
+                      <Alert variant="destructive">
+                        <AlertDescription>{agreementError}</AlertDescription>
+                      </Alert>
+                    ) : null}
+                    <Button
+                      type="button"
+                      onClick={handleConfirmAgreement}
+                      disabled={isConfirmingAgreement}
+                      className="min-h-[44px] w-full sm:w-auto"
+                    >
+                      {isConfirmingAgreement ? "Подтверждаю…" : "Подтвердить договорённость"}
+                    </Button>
+                  </>
+                ) : null}
+              </CardContent>
+            </Card>
+          ) : null}
 
           {showTravelerPanel ? (
             <>
@@ -786,6 +850,28 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           </CardContent>
         </Card>
       ) : null}
+    </div>
+  );
+}
+
+function PaymentAgreementRow({
+  label,
+  confirmedAt,
+}: {
+  label: string;
+  confirmedAt: string | null;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3">
+      <span className="font-sans text-sm text-foreground">{label}</span>
+      {confirmedAt ? (
+        <span className="inline-flex items-center gap-1 font-sans text-sm font-medium text-success">
+          <Check className="size-4 text-success" />
+          подтвердил
+        </span>
+      ) : (
+        <span className="font-sans text-sm text-muted-foreground">ожидает</span>
+      )}
     </div>
   );
 }
