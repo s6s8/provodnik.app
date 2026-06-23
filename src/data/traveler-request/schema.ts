@@ -28,6 +28,7 @@ export const travelerRequestSchema = z
           .max(80, "Не больше 80 символов."),
       ),
     startDate: z.string().min(1, "Укажите дату начала."),
+    endDate: z.string().optional().or(z.literal("")),
     dateFlexibility: z.enum(["exact", "few_days"]).default("exact"),
     startTime: z
       .string()
@@ -77,6 +78,14 @@ export const travelerRequestSchema = z
         code: "custom",
         path: ["startDate"],
         message: "Дата начала указана неверно.",
+      });
+    }
+
+    if (value.endDate && value.endDate < value.startDate) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["endDate"],
+        message: "Дата окончания не может быть раньше даты начала.",
       });
     }
 

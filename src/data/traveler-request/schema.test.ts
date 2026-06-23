@@ -71,4 +71,58 @@ describe("travelerRequestSchema", () => {
 
     expect(result.success).toBe(true);
   });
+
+  it("accepts an endDate on or after startDate", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
+      destination: "Москва",
+      startDate: "2026-08-01",
+      endDate: "2026-08-07",
+      dateFlexibility: "exact",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      notes: "",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects an endDate earlier than startDate", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
+      destination: "Москва",
+      startDate: "2026-08-07",
+      endDate: "2026-08-01",
+      dateFlexibility: "exact",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      notes: "",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) {
+      throw new Error("Expected schema validation to fail");
+    }
+
+    expect(result.error.flatten().fieldErrors.endDate).toContain(
+      "Дата окончания не может быть раньше даты начала.",
+    );
+  });
+
+  it("treats an omitted endDate as valid (optional)", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
+      destination: "Москва",
+      startDate: "2026-08-01",
+      dateFlexibility: "exact",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      notes: "",
+    });
+
+    expect(result.success).toBe(true);
+  });
 });
