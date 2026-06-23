@@ -35,4 +35,24 @@ describe("ListHero", () => {
     expect(photo).toHaveStyle({ backgroundImage: "url('/photo.jpg')" });
     expect(photo).toHaveStyle({ backgroundPosition: "center 30%" });
   });
+
+  it("does not use the off-canon dark inline scrim", () => {
+    const { container } = render(<ListHero imageUrl="/photo.jpg" title="Готовые экскурсии" />);
+
+    expect(container.innerHTML).not.toContain("rgba(8,14,24");
+  });
+
+  it("uses the canon hero-overlay scrim", () => {
+    const { container } = render(<ListHero imageUrl="/photo.jpg" title="Готовые экскурсии" />);
+
+    expect(container.querySelector(".hero-overlay")).not.toBeNull();
+  });
+
+  it("top-bleeds under the nav by cancelling the layout pt-nav-h", () => {
+    const { container } = render(<ListHero imageUrl="/photo.jpg" title="Готовые экскурсии" />);
+
+    const section = container.querySelector("section");
+    expect(section).not.toBeNull();
+    expect(section).toHaveClass("-mt-nav-h");
+  });
 });
