@@ -8,6 +8,7 @@ import { ListingGrid } from "@/components/traveler/ListingGrid";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { brandGradient } from "@/lib/city-image";
 import { ROUTES } from "@/lib/navigation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ListingRow } from "@/lib/supabase/types";
@@ -86,7 +87,7 @@ export default async function SearchPage({
   return (
     <section className="pb-20">
       <ListHero
-        imageUrl="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&h=1200&q=80"
+        imageUrl={brandGradient("search")}
         title={title}
         intro="Фильтруйте по типу, формату и цене — или опубликуйте запрос, если не нашли."
       />

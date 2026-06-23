@@ -9,6 +9,7 @@ import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
 import { PublicGuideCard } from "@/features/guide/components/public/public-guide-card";
+import { brandGradient } from "@/lib/city-image";
 import { ROUTES } from "@/lib/navigation";
 import { pluralize } from "@/lib/utils";
 
@@ -32,9 +33,7 @@ export function DestinationDetailScreen({
   listings = [],
   guides = [],
 }: Props) {
-  const heroImage =
-    destination.imageUrl ||
-    "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1800&q=80";
+  const heroImage = destination.imageUrl || brandGradient(destination.name ?? "destination");
 
   const listingCount = listings.length > 0 ? listings.length : (destination.listingCount ?? 0);
   const formingGroupCount =

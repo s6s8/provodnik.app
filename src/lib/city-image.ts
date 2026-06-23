@@ -6,13 +6,14 @@ function hashDestination(destination: string): number {
 }
 
 /**
- * Deterministic on-canon backdrop for request heroes/cards. Returns a soft
- * navy gradient (with one quiet amber accent) as an inline SVG data-URI, so it
- * drops straight into `background-image: url(...)`. No external photos: a
- * foreign stock shot for, say, a Kalmykia city was a truth + brand bug.
+ * Deterministic on-canon backdrop. Returns a soft navy gradient (with one quiet
+ * amber accent) as an inline SVG data-URI, so it drops straight into
+ * `background-image: url(...)`. No external photos: a foreign stock shot for,
+ * say, a Kalmykia city was a truth + brand bug. Seed varies the gradient
+ * deterministically, so distinct seeds (heroes, cards) read as distinct.
  */
-export function cityImage(destination: string): string {
-  const hash = hashDestination(destination);
+export function brandGradient(seed = "provodnik"): string {
+  const hash = hashDestination(seed);
 
   const angle = hash % 360;
   const amberX = (0.18 + ((hash >>> 3) % 64) / 100).toFixed(2);
@@ -42,4 +43,12 @@ export function cityImage(destination: string): string {
     `</svg>`;
 
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+/**
+ * Deterministic on-canon backdrop for request heroes/cards, keyed by a
+ * destination name. Thin alias over {@link brandGradient}.
+ */
+export function cityImage(destination: string): string {
+  return brandGradient(destination);
 }
