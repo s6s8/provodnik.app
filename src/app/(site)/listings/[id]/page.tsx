@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import type { ListingSlotRow } from "@/components/listing-detail/AvailabilitySection";
 import { ExcursionShapeDetail, type ListingDetailRow } from "@/components/listing-detail/ExcursionShapeDetail";
 import { TourShapeDetail } from "@/components/listing-detail/TourShapeDetail";
 import { maskPii } from "@/lib/pii/mask";
@@ -54,9 +55,17 @@ export default async function ListingDetailPage({
 
   if (listing.exp_type === "transfer") notFound();
 
-  const [photosRes, scheduleRes, tariffsRes, guideRes] = await Promise.all([
+  const [photosRes, scheduleRes, slotsRes, tariffsRes, guideRes] = await Promise.all([
     supabase.from("listing_photos").select("*").eq("listing_id", id).order("position"),
     supabase.from("listing_schedule").select("*").eq("listing_id", id).order("weekday"),
+    supabase
+      .from("listing_slots")
+      .select("id, starts_at, ends_at, capacity, seats_taken, status")
+      .eq("listing_id", id)
+      .eq("status", "open")
+      .gte("starts_at", new Date().toISOString())
+      .order("starts_at", { ascending: true })
+      .limit(6),
     supabase.from("listing_tariffs").select("*").eq("listing_id", id),
     supabase
       .from("guide_profiles")
@@ -67,6 +76,7 @@ export default async function ListingDetailPage({
 
   const photos = photosRes.data ?? [];
   const schedule = scheduleRes.data ?? [];
+  const slots = (slotsRes.data ?? []) as ListingSlotRow[];
   const tariffs = tariffsRes.data ?? [];
   const guideRaw = guideRes.data as
     | (NonNullable<typeof guideRes.data> & {
@@ -122,6 +132,7 @@ export default async function ListingDetailPage({
       listing={listing}
       photos={photos}
       schedule={schedule}
+      slots={slots}
       tariffs={tariffs}
       guide={guide}
     />

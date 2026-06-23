@@ -2,6 +2,7 @@ import { Star } from "lucide-react";
 import Link from "next/link";
 
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
+import { AvailabilitySection, type ListingSlotRow } from "@/components/listing-detail/AvailabilitySection";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { ScheduleDisplay } from "@/components/listing-detail/ScheduleDisplay";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
@@ -54,6 +55,7 @@ interface Props {
   listing: ListingDetailRow;
   photos: ListingPhotoRow[];
   schedule: ListingScheduleRow[];
+  slots: ListingSlotRow[];
   tariffs: ListingTariffRow[];
   guide: Pick<
     GuideProfileRow,
@@ -70,7 +72,7 @@ interface Props {
   > & { full_name?: string | null; avatar_url?: string | null } | null;
 }
 
-export function ExcursionShapeDetail({ listing, schedule, tariffs, guide }: Props) {
+export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide }: Props) {
   const description = maskPii(listing.description);
   const idea = maskPii(listing.idea);
   const routeText = arrowizeRoute(maskPii(listing.route));
@@ -186,6 +188,8 @@ export function ExcursionShapeDetail({ listing, schedule, tariffs, guide }: Prop
           />
 
           <ScheduleDisplay schedule={schedule} />
+
+          <AvailabilitySection slots={slots} />
 
           {audience ? (
             <section className="space-y-2">
