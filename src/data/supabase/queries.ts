@@ -3,7 +3,6 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 import { formatRussianDateRange } from "@/lib/dates";
-import { maskPii } from "@/lib/pii/mask";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
@@ -117,19 +116,6 @@ export type RequestRecord = {
   imageUrl: string;
   members: RequestMember[];
   dateFlexibility?: 'exact' | 'few_days';
-};
-
-export type OfferRecord = {
-  id: string;
-  requestId: string;
-  guideSlug: string;
-  guideName: string;
-  guideAvatarUrl?: string;
-  guideRating: number;
-  priceRub: number;
-  capacity: number;
-  message: string;
-  status: "pending" | "accepted" | "declined" | "expired" | "withdrawn";
 };
 
 export type BookingRecord = {
@@ -1031,38 +1017,6 @@ export async function getGuideLocationPhotos(
     return { data: mapped, error: null };
   } catch (error) {
     return { data: null, error: makeError(error) };
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Offers (public.guide_offers)
-// ---------------------------------------------------------------------------
-
-export async function getOffersForRequest(
-  client: SupabaseClient,
-  requestId: string,
-): Promise<QueryResult<OfferRecord[]>> {
-  try {
-    const { data, error } = await client.from("guide_offers").select("*").eq("request_id", requestId);
-    if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
-
-    return {
-      data: data.map((row) => ({
-        id: row.id,
-        requestId: row.request_id,
-        guideSlug: normalizeSlug(row.guide_id),
-        guideName: row.title ?? "Локальный гид",
-        priceRub: Math.round(row.price_minor / 100),
-        capacity: row.capacity,
-        message: maskPii(row.message ?? ""),
-        guideRating: 4.8,
-        status: row.status,
-      })),
-      error: null,
-    };
-  } catch (error) {
-    return { data: [], error: makeError(error) };
   }
 }
 

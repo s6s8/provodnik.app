@@ -23,7 +23,6 @@ import {
   getGuidesByDestination,
   getHomepageRequests,
   mapRequestRow,
-  getOffersForRequest,
   getOpenRequests,
   getOpenRequestsByDestination,
   getPlatformStats,
@@ -156,7 +155,6 @@ describe("public Supabase query helpers", () => {
     { name: "getGuideLocationPhotos", run: (client) => getGuideLocationPhotos(client, "guide-1") },
     { name: "getListingReviews", run: (client) => getListingReviews(client, "listing-1") },
     { name: "getGuideReviews", run: (client) => getGuideReviews(client, "guide-1") },
-    { name: "getOffersForRequest", run: (client) => getOffersForRequest(client, "request-1") },
     {
       name: "getHomepageRequests",
       run: (client) => getHomepageRequests(client),
@@ -360,30 +358,6 @@ describe("PII-safe Supabase query mapping", () => {
 
     expect(result.data).toEqual([]);
     expect(result.error).toBe(offerError);
-  });
-
-  it("masks contact details in offer messages returned for a request", async () => {
-    const client = createFakeClient({
-      guide_offers: [
-        {
-          id: "offer-1",
-          request_id: "request-1",
-          guide_id: "guide-1",
-          title: "Байкальский гид",
-          price_minor: 200_000,
-          capacity: 4,
-          message: "Пишите guide@example.com или звоните +79991234567",
-          status: "pending",
-        },
-      ],
-    });
-
-    const result = await getOffersForRequest(client, "request-1");
-
-    expect(result.error).toBeNull();
-    expect(result.data?.[0]?.message).toBe(
-      "Пишите [контакт скрыт] или звоните [контакт скрыт]",
-    );
   });
 
   it("surfaces open request member query errors instead of dropping member rows silently", async () => {
