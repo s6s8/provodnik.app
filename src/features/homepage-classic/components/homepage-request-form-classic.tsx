@@ -31,8 +31,9 @@ const FBX =
   "flex items-center gap-[11px] rounded-[13px] border border-border bg-surface px-[13px] py-[9px] transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(26,86,164,0.12)]";
 const KIN =
   "mb-[3px] block text-[9.5px] font-bold uppercase leading-none tracking-[0.07em] text-muted-foreground";
-const FIN =
-  "w-full border-0 bg-transparent p-0 text-[15.5px] font-bold leading-tight text-foreground outline-none placeholder:font-semibold placeholder:text-[#C2C9D3]";
+const FIN_BASE =
+  "border-0 bg-transparent p-0 text-[15.5px] font-bold leading-tight text-foreground outline-none placeholder:font-semibold placeholder:text-[#C2C9D3]";
+const FIN = cn(FIN_BASE, "w-full");
 
 export function HomepageRequestFormClassic({ destinations }: Props) {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
@@ -84,43 +85,68 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
       </div>
       <FieldError message={errors.destination?.message} />
 
-      {/* Когда + гибкость · Гостей + замок */}
-      <div className="grid grid-cols-2 gap-2.5">
-        <div className={FBX}>
-          <Calendar className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <span className={KIN} aria-hidden="true">Когда</span>
-            <input
-              className={FIN}
-              type="date"
-              min={todayMoscowISODate()}
-              aria-label="Когда"
-              aria-invalid={Boolean(errors.startDate)}
-              {...register("startDate")}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              const current = form.getValues("dateFlexibility");
-              form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
-                shouldDirty: true,
-              });
-            }}
-            title="Гибкие даты (±2–3 дня)"
-            aria-label="Переключить гибкие даты"
-            aria-pressed={dateFlexibility !== "exact"}
-            className={cn(
-              "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
-              dateFlexibility !== "exact"
-                ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
-                : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
-            )}
-          >
-            ≈
-          </button>
+      {/* Когда + гибкость (full width — native date control needs room) */}
+      <div className={FBX}>
+        <Calendar className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <span className={KIN} aria-hidden="true">Когда</span>
+          <input
+            className={FIN}
+            type="date"
+            min={todayMoscowISODate()}
+            aria-label="Когда"
+            aria-invalid={Boolean(errors.startDate)}
+            {...register("startDate")}
+          />
         </div>
+        <button
+          type="button"
+          onClick={() => {
+            const current = form.getValues("dateFlexibility");
+            form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+              shouldDirty: true,
+            });
+          }}
+          title="Гибкие даты (±2–3 дня)"
+          aria-label="Переключить гибкие даты"
+          aria-pressed={dateFlexibility !== "exact"}
+          className={cn(
+            "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
+            dateFlexibility !== "exact"
+              ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
+              : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
+          )}
+        >
+          ≈
+        </button>
+      </div>
+      <FieldError message={errors.startDate?.message} />
 
+      {/* Время (full width — two native time pickers need room) */}
+      <div className={FBX}>
+        <Clock className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <span className={KIN} aria-hidden="true">Время</span>
+          <span className="flex items-center gap-2">
+            <input
+              className={cn(FIN_BASE, "w-[124px]")}
+              type="time"
+              aria-label="Время начала"
+              {...register("startTime")}
+            />
+            <span className="font-bold text-muted-foreground">–</span>
+            <input
+              className={cn(FIN_BASE, "w-[124px]")}
+              type="time"
+              aria-label="Время окончания"
+              {...register("endTime")}
+            />
+          </span>
+        </div>
+      </div>
+
+      {/* Гостей + замок · Бюджет (short fields — 2 columns) */}
+      <div className="grid grid-cols-2 gap-2.5">
         <div className={FBX}>
           <Users className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
@@ -163,31 +189,6 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
               <Lock className="h-[14px] w-[14px]" aria-hidden="true" />
             )}
           </button>
-        </div>
-      </div>
-
-      {/* Время · Бюджет */}
-      <div className="grid grid-cols-2 gap-2.5">
-        <div className={FBX}>
-          <Clock className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <span className={KIN} aria-hidden="true">Время</span>
-            <span className="flex items-center gap-1.5">
-              <input
-                className={cn(FIN, "min-w-0 flex-1")}
-                type="time"
-                aria-label="Время начала"
-                {...register("startTime")}
-              />
-              <span className="font-bold text-muted-foreground">–</span>
-              <input
-                className={cn(FIN, "min-w-0 flex-1")}
-                type="time"
-                aria-label="Время окончания"
-                {...register("endTime")}
-              />
-            </span>
-          </div>
         </div>
 
         <div className={FBX}>
