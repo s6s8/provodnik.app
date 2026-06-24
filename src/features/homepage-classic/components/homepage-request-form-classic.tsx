@@ -14,8 +14,8 @@ import {
 } from "lucide-react";
 
 import { LANGUAGES } from "@/data/languages";
-import { THEMES } from "@/data/themes";
 import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
+import { ThemeMultiSelect } from "@/components/shared/theme-multi-select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
@@ -35,7 +35,6 @@ const FIN =
   "w-full border-0 bg-transparent p-0 text-[15.5px] font-bold leading-tight text-foreground outline-none placeholder:font-semibold placeholder:text-[#C2C9D3]";
 
 export function HomepageRequestFormClassic({ destinations }: Props) {
-  const [showAllThemes, setShowAllThemes] = React.useState(false);
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const {
     form,
@@ -54,7 +53,6 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
     serverError,
     isLoading,
   } = useRequestForm();
-  const visibleThemes = showAllThemes ? THEMES : THEMES.slice(0, 4);
 
   return (
     <form
@@ -176,14 +174,14 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             <span className={KIN} aria-hidden="true">Время</span>
             <span className="flex items-center gap-1.5">
               <input
-                className={cn(FIN, "w-[58px]")}
+                className={cn(FIN, "min-w-0 flex-1")}
                 type="time"
                 aria-label="Время начала"
                 {...register("startTime")}
               />
               <span className="font-bold text-muted-foreground">–</span>
               <input
-                className={cn(FIN, "w-[58px]")}
+                className={cn(FIN, "min-w-0 flex-1")}
                 type="time"
                 aria-label="Время окончания"
                 {...register("endTime")}
@@ -208,59 +206,29 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
       </div>
       <FieldError message={errors.groupSize?.message ?? errors.budgetPerPersonRub?.message} />
 
-      {/* Темы (чипы) + Детали */}
-      <div className="mt-0.5 flex flex-wrap items-center justify-between gap-2.5">
-        <div className="flex flex-wrap items-center gap-1.5">
-          {visibleThemes.map((theme) => {
-            const selected = selectedInterests.includes(theme.slug);
-            const Icon = theme.Icon;
-            return (
-              <button
-                key={theme.slug}
-                type="button"
-                aria-pressed={selected}
-                onClick={() => {
-                  const current = interestsField.value;
-                  interestsField.onChange(
-                    selected ? current.filter((s) => s !== theme.slug) : [...current, theme.slug],
-                  );
-                }}
-                className={cn(
-                  "inline-flex h-6 items-center gap-1.5 rounded-full border px-2.5 text-[11px] font-semibold transition",
-                  selected
-                    ? "border-primary bg-primary/10 text-primary shadow-[0_0_0_3px_rgba(26,86,164,0.12)]"
-                    : "border-border bg-surface text-muted-foreground hover:border-primary/40 hover:text-foreground",
-                )}
-              >
-                <Icon className="h-2.5 w-2.5" aria-hidden="true" />
-                {theme.label}
-              </button>
-            );
-          })}
-          {!showAllThemes && (
-            <button
-              type="button"
-              onClick={() => setShowAllThemes(true)}
-              className="inline-flex h-6 items-center rounded-full border border-primary/30 px-2.5 text-[11px] font-semibold text-primary transition hover:bg-primary/10"
-            >
-              Ещё
-            </button>
-          )}
-        </div>
-        <button
-          type="button"
-          onClick={() => setDetailsOpen((open) => !open)}
-          aria-expanded={detailsOpen}
-          className="inline-flex items-center gap-1.5 whitespace-nowrap text-[11px] font-semibold text-ink-2"
-        >
-          <ChevronDown
-            className={cn("h-[11px] w-[11px] transition-transform", detailsOpen && "rotate-180")}
-            aria-hidden="true"
-          />
-          Детали
-        </button>
+      {/* Темы */}
+      <div>
+        <span className={cn(KIN, "mb-1.5")} aria-hidden="true">Темы</span>
+        <ThemeMultiSelect
+          value={selectedInterests}
+          onChange={interestsField.onChange}
+        />
       </div>
       <FieldError message={errors.interests?.message} />
+
+      {/* Детали */}
+      <button
+        type="button"
+        onClick={() => setDetailsOpen((open) => !open)}
+        aria-expanded={detailsOpen}
+        className="inline-flex items-center gap-1.5 self-start whitespace-nowrap text-[11px] font-semibold text-ink-2"
+      >
+        <ChevronDown
+          className={cn("h-[11px] w-[11px] transition-transform", detailsOpen && "rotate-180")}
+          aria-hidden="true"
+        />
+        Детали
+      </button>
 
       {/* Детали */}
       {detailsOpen && (

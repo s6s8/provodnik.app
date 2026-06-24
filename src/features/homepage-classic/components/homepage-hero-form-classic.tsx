@@ -33,7 +33,7 @@ export function HomepageHeroFormClassic({ destinations }: Props) {
           Куда отправимся?
         </h1>
 
-        <div className="w-full max-w-[440px] rounded-[22px] bg-surface p-5 text-left shadow-[0_30px_64px_-24px_rgba(8,14,24,0.55)]">
+        <div className="w-full max-w-[480px] rounded-[22px] bg-surface p-5 text-left shadow-[0_30px_64px_-24px_rgba(8,14,24,0.55)]">
           <HomepageRequestFormClassic destinations={destinations} />
         </div>
 

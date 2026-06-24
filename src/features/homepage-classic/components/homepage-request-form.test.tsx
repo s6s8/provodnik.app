@@ -420,7 +420,7 @@ describe("HomepageRequestForm UI affordances", () => {
 });
 
 describe("HomepageRequestFormClassic inset-label layout", () => {
-  it("renders the inset-label brief fields with the mode toggle and topic expansion", () => {
+  it("renders the inset-label brief fields with the mode toggle, themes dropdown and details", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
 
     // Inset-label fields, addressed by their accessible labels.
@@ -432,19 +432,14 @@ describe("HomepageRequestFormClassic inset-label layout", () => {
       screen.getByRole("button", { name: /сделать (закрытой|открытой)/i }),
     ).toBeInTheDocument();
 
+    // Themes use the same dropdown control as languages — no inline chip grid / «Ещё».
+    expect(screen.getByRole("button", { name: "Выбрать темы" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Ещё" })).toBeNull();
+
     // «Детали» disclosure is collapsed by default; languages appear once opened.
     expect(screen.queryByText("Языки экскурсии")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Детали" }));
     expect(screen.getByText("Языки экскурсии")).toBeInTheDocument();
-
-    // First four themes are shown inline; the rest sit behind «Ещё».
-    expect(screen.getByRole("button", { name: /история и культура/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /искусство/i })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /религия и духовность/i })).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "Ещё" }));
-
-    expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
   });
 
   it("uses the «Найти гида» submit with no sticky mobile bar", () => {
