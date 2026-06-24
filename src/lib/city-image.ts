@@ -46,9 +46,31 @@ export function brandGradient(seed = "provodnik"): string {
 }
 
 /**
- * Deterministic on-canon backdrop for request heroes/cards, keyed by a
- * destination name. Thin alias over {@link brandGradient}.
+ * Curated, real, ON-PLACE photography per destination — the "replace the
+ * gradient with a real city photo" the product always wanted. Foreign stock is
+ * banned (a Moscow/alpine shot for a Kalmykia city was a truth + brand bug); only
+ * verified-correct local imagery goes here. Keys are normalized (lowercase, ru-RU)
+ * and matched by substring, so "Элиста" and "Элиста, Калмыкия" both resolve.
+ */
+const CURATED_CITY_IMAGES: Record<string, string> = {
+  // Элиста — Золотая обитель Будды Шакьямуни (Golden Abode), the city's landmark.
+  "элиста":
+    "https://images.unsplash.com/photo-1657293493705-557ab000afe1?auto=format&fit=crop&w=1600&h=900&q=80",
+};
+
+function normalizeCity(s: string): string {
+  return s.trim().toLocaleLowerCase("ru-RU");
+}
+
+/**
+ * Backdrop for request heroes/cards, keyed by a destination name. Returns
+ * curated real photography for known cities; otherwise an on-canon branded
+ * gradient (never foreign stock).
  */
 export function cityImage(destination: string): string {
+  const key = normalizeCity(destination);
+  for (const [city, url] of Object.entries(CURATED_CITY_IMAGES)) {
+    if (key.includes(city)) return url;
+  }
   return brandGradient(destination);
 }
