@@ -8,8 +8,7 @@ import { ChevronDown, Compass, X } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListHero } from "@/components/shared/list-hero";
-import { RequestCardFinal } from "@/components/shared/request-card-final";
-import { formatRubNumber } from "@/data/money";
+import { OpenGroupCard } from "@/components/shared/open-group-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -32,8 +31,9 @@ import {
 } from "@/components/ui/sheet";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { THEMES } from "@/data/themes";
-import { brandGradient } from "@/lib/city-image";
+import { brandGradient, cityImage } from "@/lib/city-image";
 import { todayMoscowISODate } from "@/lib/dates";
+import { pluralize } from "@/lib/utils";
 
 type CategoryFilter = (typeof THEMES)[number]["label"];
 
@@ -80,15 +80,6 @@ function deriveMonthsFromDateLabel(label: string): number[] {
     if (lower.includes(m)) matched.push(idx);
   });
   return matched;
-}
-
-function derivePrice(budgetPerPersonRub?: number): string {
-  if (!budgetPerPersonRub) return "По договоренности";
-  return `${formatRubNumber(budgetPerPersonRub)} ₽ / чел`;
-}
-
-function deriveGuideState(status: OpenRequestRecord["status"]) {
-  return status === "matched" ? "found" : "waiting";
 }
 
 function getSearchText(request: OpenRequestRecord): string {
@@ -518,26 +509,33 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
           {filteredRequests.length > 0 ? (
             <div className="mx-auto max-w-2xl">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {filteredRequests.map((request) => {
+              {filteredRequests.map((request, index) => {
                 const location = request.destinationLabel.split(",")[0].trim();
+                const matched = request.status === "matched";
+                const sizeCurrent = request.group.sizeCurrent;
+                const organizer = request.members?.[0];
 
                 return (
-                  <RequestCardFinal
+                  <OpenGroupCard
                     key={request.id}
                     href={`/requests/${request.id}`}
-                    location={location}
+                    city={location}
+                    region={request.regionLabel}
+                    imageUrl={request.cityImageUrl || request.imageUrl || cityImage(location)}
+                    status={matched ? "selected" : "waiting"}
+                    minPeople={`от ${request.group.sizeTarget} чел.`}
                     date={request.dateRangeLabel}
-                    time={request.timeLabel}
-                    groupType={request.group.openToMoreMembers ? "assembly" : "private"}
                     datesFlexible={request.datesFlexible}
-                    guideState={deriveGuideState(request.status)}
+                    time={request.timeLabel}
                     interests={request.interests}
-                    members={request.members}
-                    participantCount={request.group.sizeCurrent}
-                    price={derivePrice(request.budgetPerPersonRub)}
-                    groupPrice={request.budgetPerPersonRub != null
-                      ? `~${formatRubNumber(Math.round(request.budgetPerPersonRub * request.group.sizeCurrent))} ₽ за группу`
-                      : undefined}
+                    avatarUrl={organizer?.avatarUrl ?? null}
+                    avatarInitials={organizer?.initials}
+                    footerText={
+                      matched
+                        ? "Гид найден"
+                        : `${sizeCurrent} ${pluralize(sizeCurrent, "участник", "участника", "участников")}`
+                    }
+                    priority={index < 3}
                   />
                 );
               })}

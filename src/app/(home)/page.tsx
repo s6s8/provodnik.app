@@ -29,7 +29,7 @@ export default async function HomePage() {
   return (
     <>
       <SiteHeaderServer />
-      <main className="pt-nav-h">
+      <main>
         <HomePageShell2Classic destinations={destinations} requests={requests} />
       </main>
     </>
