@@ -24,3 +24,11 @@ export function pluralize(n: number, form1: string, form2: string, form3: string
 
   return form3;
 }
+
+/** Genitive "человек(а)" form used after a number (e.g. "до 5 человек"). */
+export function pluralizePeopleGenitive(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod10 === 1 && mod100 !== 11) return "человека";
+  return "человек";
+}
