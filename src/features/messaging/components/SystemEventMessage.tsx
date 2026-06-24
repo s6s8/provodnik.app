@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { Separator } from "@/components/ui/separator";
+import { formatRubNumber } from "@/data/money";
 
 export type SystemEventType =
   | "offer_sent"
@@ -51,7 +52,7 @@ function formatChangedFields(fields: Record<string, string | number>): React.Rea
     if (!first) parts.push(", ");
     const label = FIELD_LABELS[key] ?? key;
     const displayValue = key === "price" && typeof value === "number"
-      ? `${new Intl.NumberFormat("ru-RU").format(value)} ₽`
+      ? `${formatRubNumber(value)} ₽`
       : String(value);
     parts.push(
       <React.Fragment key={key}>
@@ -81,7 +82,7 @@ const EVENT_LABELS: Record<SystemEventType, (p: SystemEventPayload) => React.Rea
     bid_submitted: (p) => (
       <>
         {`Гид${p.guide_name ? ` ${p.guide_name}` : ""} отправил предложение`}
-        {p.price ? <> — <strong>Цена:</strong> {new Intl.NumberFormat("ru-RU").format(p.price)} ₽</> : null}
+        {p.price ? <> — <strong>Цена:</strong> {formatRubNumber(p.price)} ₽</> : null}
         {p.date ? <>, <strong>Дата:</strong> {p.date}</> : null}
       </>
     ),

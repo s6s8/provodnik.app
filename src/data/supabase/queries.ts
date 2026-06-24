@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { kopecksToRub } from "@/data/money";
+import { formatRubNumber, kopecksToRub } from "@/data/money";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 import { brandGradient } from "@/lib/city-image";
 import { formatRussianDateRange } from "@/lib/dates";
@@ -191,7 +191,7 @@ function titleToCategory(title: string): DestinationCategory {
 }
 
 function formatRub(value: number) {
-  return `${new Intl.NumberFormat("ru-RU").format(value)} ₽`;
+  return `${formatRubNumber(value)} ₽`;
 }
 
 function formatDateLabel(start: string, end?: string | null) {

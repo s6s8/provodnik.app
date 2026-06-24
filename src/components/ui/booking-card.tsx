@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 
 import { AvatarStack } from "@/components/ui/avatar-stack"
 import { Badge } from "@/components/ui/badge"
+import { formatRubNumber } from "@/data/money"
 import { cn } from "@/lib/utils"
 
 type BookingCardProps = {
@@ -15,8 +16,6 @@ type BookingCardProps = {
   action: ReactNode
   className?: string
 }
-
-const priceFormatter = new Intl.NumberFormat("ru-RU")
 
 function BookingCard({
   eyebrow,
@@ -40,7 +39,7 @@ function BookingCard({
 
       <div className="flex items-baseline gap-2">
         <span className="text-4xl font-extrabold tracking-[-0.03em] text-on-surface">
-          {priceFormatter.format(price)} ₽
+          {formatRubNumber(price)} ₽
         </span>
         <span className="text-sm text-muted-foreground">{priceSuffix}</span>
       </div>

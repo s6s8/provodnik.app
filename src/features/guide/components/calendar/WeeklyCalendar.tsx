@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { kopecksToRub } from "@/data/money";
+import { formatRubNumber, kopecksToRub } from "@/data/money";
 import { formatTimeRange } from "@/lib/dates";
 import type {
   ListingScheduleExtraRow,
@@ -37,7 +37,7 @@ function jsDayToDbWeekday(date: Date): number {
 }
 
 function formatRub(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(kopecksToRub(minor)));
+  return formatRubNumber(Math.round(kopecksToRub(minor)));
 }
 
 function departureStatusLabel(status: string): string {

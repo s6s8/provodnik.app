@@ -9,6 +9,7 @@ import { ChevronDown, Compass, X } from "lucide-react";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListHero } from "@/components/shared/list-hero";
 import { RequestCardFinal } from "@/components/shared/request-card-final";
+import { formatRubNumber } from "@/data/money";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -83,7 +84,7 @@ function deriveMonthsFromDateLabel(label: string): number[] {
 
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договоренности";
-  return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
+  return `${formatRubNumber(budgetPerPersonRub)} ₽ / чел`;
 }
 
 function deriveGuideState(status: OpenRequestRecord["status"]) {
@@ -535,7 +536,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     participantCount={request.group.sizeCurrent}
                     price={derivePrice(request.budgetPerPersonRub)}
                     groupPrice={request.budgetPerPersonRub != null
-                      ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(request.budgetPerPersonRub * request.group.sizeCurrent))} ₽ за группу`
+                      ? `~${formatRubNumber(Math.round(request.budgetPerPersonRub * request.group.sizeCurrent))} ₽ за группу`
                       : undefined}
                   />
                 );

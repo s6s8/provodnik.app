@@ -1,9 +1,10 @@
 import { RequestCardFinal } from "@/components/shared/request-card-final";
+import { formatRubNumber } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
 
 function formatPrice(budgetRub: number): string {
   if (!budgetRub) return "По договоренности";
-  return `${new Intl.NumberFormat("ru-RU").format(budgetRub)} ₽ / чел`;
+  return `${formatRubNumber(budgetRub)} ₽ / чел`;
 }
 
 function deriveGuideState(status: RequestRecord["status"], offerCount: number) {
@@ -51,7 +52,7 @@ export function HomePageDiscovery({ requests }: Props) {
                 participantCount={req.groupSize}
                 price={formatPrice(req.budgetRub)}
                 groupPrice={req.budgetRub
-                  ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(req.budgetRub * req.groupSize))} ₽ за группу`
+                  ? `~${formatRubNumber(Math.round(req.budgetRub * req.groupSize))} ₽ за группу`
                   : undefined}
               />
             ))

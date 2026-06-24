@@ -20,7 +20,7 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { kopecksToRub } from "@/data/money";
+import { formatRubNumber, kopecksToRub } from "@/data/money";
 import { cn } from "@/lib/utils";
 import type { FavoritesFolderRow, FavoritesItemRow } from "@/lib/supabase/types";
 
@@ -209,7 +209,7 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
                     <h3 className="line-clamp-2 text-base font-semibold leading-snug">{item.listing.title}</h3>
                     <p className="line-clamp-1 text-sm text-muted-foreground">{item.listing.region}</p>
                     <p className="text-sm font-medium">
-                      от {new Intl.NumberFormat("ru-RU").format(kopecksToRub(item.listing.price_from_minor))} ₽
+                      от {formatRubNumber(kopecksToRub(item.listing.price_from_minor))} ₽
                     </p>
                   </CardContent>
                 </Card>
