@@ -419,42 +419,41 @@ describe("HomepageRequestForm UI affordances", () => {
   });
 });
 
-describe("HomepageRequestFormClassic repaired layout", () => {
-  it("keeps the approved group, budget, details, and topic expansion layout", () => {
+describe("HomepageRequestFormClassic inset-label layout", () => {
+  it("renders the inset-label brief fields with the mode toggle and topic expansion", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
 
-    const groupSizeInput = screen.getByLabelText("Сколько вас");
-    const wrapper = groupSizeInput.closest("div");
-    expect(wrapper).toHaveClass("relative", "flex", "items-center");
+    // Inset-label fields, addressed by their accessible labels.
+    expect(screen.getByLabelText("Направление")).toBeInTheDocument();
+    expect(screen.getByLabelText("Когда")).toBeInTheDocument();
+    expect(screen.getByLabelText("Гостей")).toBeInTheDocument();
+    expect(screen.getByLabelText("Бюджет на человека")).toBeInTheDocument();
     expect(
-      within(wrapper!).getByRole("button", { name: /сделать (закрытой|открытой)/i }),
+      screen.getByRole("button", { name: /сделать (закрытой|открытой)/i }),
     ).toBeInTheDocument();
-    expect(screen.queryByText("Сборная группа")).toBeNull();
 
-    expect(within(wrapper!).queryByLabelText("Бюджет на человека (₽)")).toBeNull();
-    expect(screen.getByLabelText("Бюджет на человека (₽)")).toBeInTheDocument();
+    // «Детали» disclosure is collapsed by default; languages appear once opened.
+    expect(screen.queryByText("Языки экскурсии")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Детали" }));
+    expect(screen.getByText("Языки экскурсии")).toBeInTheDocument();
 
-    const details = screen.getByText("Добавить детали").closest("details");
-    expect(details).not.toBeNull();
-    expect(within(details!).getByText("Языки экскурсии")).toBeInTheDocument();
-
+    // First four themes are shown inline; the rest sit behind «Ещё».
     expect(screen.getByRole("button", { name: /история и культура/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /природа/i })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /гастрономия/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /искусство/i })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /религия и духовность/i })).toBeNull();
 
-    fireEvent.click(screen.getByRole("button", { name: "Ещё темы →" }));
+    fireEvent.click(screen.getByRole("button", { name: "Ещё" }));
 
     expect(screen.getByRole("button", { name: /религия и духовность/i })).toBeInTheDocument();
   });
 
-  it("renders an opaque mobile sticky CTA bar with bottom clearance", () => {
+  it("uses the «Найти гида» submit with no sticky mobile bar", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
-    const submit = screen.getByRole("button", { name: /отправить запрос/i });
-    const bar = submit.parentElement!;
-    expect(bar).toHaveClass("bg-background");
-    expect(bar).not.toHaveClass("bg-background/95");
+    const submit = screen.getByRole("button", { name: /найти гида/i });
+    expect(submit.getAttribute("type")).toBe("submit");
     const form = submit.closest("form");
-    expect(form).toHaveClass("pb-28", "sm:pb-0");
+    expect(form).not.toHaveClass("pb-28");
+    // Submit sits directly in the form flow, not inside a fixed sticky bar.
+    expect(submit.parentElement).toBe(form);
   });
 });
