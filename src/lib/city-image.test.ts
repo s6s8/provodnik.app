@@ -32,8 +32,16 @@ describe("brandGradient", () => {
 });
 
 describe("cityImage", () => {
-  it("returns an on-canon inline SVG gradient, never foreign stock", () => {
+  it("returns curated real on-place photography for known cities", () => {
     const result = cityImage("Элиста");
+
+    // Curated Golden Abode photo — a real, correct local image, not foreign stock.
+    expect(result).not.toMatch(/^data:image\/svg/);
+    expect(result).toContain("images.unsplash.com");
+  });
+
+  it("falls back to an on-canon SVG gradient for cities without curated imagery", () => {
+    const result = cityImage("Казань");
 
     expect(result).toMatch(/^data:image\/svg\+xml,/);
     expect(result).not.toContain("unsplash.com");
