@@ -1,6 +1,7 @@
 import { Star } from "lucide-react";
 import Link from "next/link";
 
+import { formatRubNumber } from "@/data/money";
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
@@ -44,7 +45,7 @@ const MEAL_STATUS_LABELS: Record<string, string> = {
 };
 
 function formatRubMinor(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(minor / 100));
+  return formatRubNumber(Math.round(minor / 100));
 }
 
 type GuidePickProps = Pick<

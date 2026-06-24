@@ -5,6 +5,7 @@ import { AvatarStack } from "@/components/ui/avatar-stack"
 import { Badge } from "@/components/ui/badge"
 import { Chip } from "@/components/ui/chip"
 import { Tag } from "@/components/ui/tag"
+import { formatRubNumber } from "@/data/money"
 import { cn } from "@/lib/utils"
 
 type ListingCardProps = {
@@ -27,7 +28,7 @@ type ListingCardProps = {
   className?: string
 }
 
-const fmt = (n: number) => new Intl.NumberFormat("ru-RU").format(n)
+const fmt = formatRubNumber
 
 function ListingCard({ listing, className }: ListingCardProps) {
   const guide = listing.guide
