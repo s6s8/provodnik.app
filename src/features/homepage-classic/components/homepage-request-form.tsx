@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { cn } from "@/lib/utils";
+import { cn, pluralizePeopleGenitive } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import type { DestinationOption } from "@/data/supabase/queries";
 import { HomepageAuthGate } from "./homepage-auth-gate";
@@ -369,11 +369,4 @@ function TotalBudgetHint({
       {" "}за группу из {safeCount} {pluralizePeopleGenitive(safeCount)}.
     </p>
   );
-}
-
-function pluralizePeopleGenitive(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return "человека";
-  return "человек";
 }

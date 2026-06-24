@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatRubNumber } from "@/data/money";
 import type { ListingRow } from "@/lib/supabase/types";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +21,7 @@ const EXP_TYPE_LABELS: Record<NonNullable<ListingRow["exp_type"]>, string> = {
 
 function formatPriceFromMinor(minor: number): string {
   const rub = minor / 100;
-  return `от ${new Intl.NumberFormat("ru-RU").format(rub)} ₽`;
+  return `от ${formatRubNumber(rub)} ₽`;
 }
 
 function formatDuration(minutes: number | null): string {

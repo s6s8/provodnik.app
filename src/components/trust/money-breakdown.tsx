@@ -1,3 +1,5 @@
+import { formatRubNumber } from "@/data/money";
+
 type MoneyBreakdownProps = {
   pricePerPerson: number;
   partySize: number;
@@ -18,7 +20,7 @@ export function MoneyBreakdown({
   cancellationPolicy,
   currency,
 }: MoneyBreakdownProps) {
-  const fmt = (n: number) => `${new Intl.NumberFormat("ru-RU").format(n)} ${currency ?? "₽"}`;
+  const fmt = (n: number) => `${formatRubNumber(n)} ${currency ?? "₽"}`;
 
   return (
     <div className="grid gap-2">

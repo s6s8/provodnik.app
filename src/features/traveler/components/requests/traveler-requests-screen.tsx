@@ -7,7 +7,7 @@ import { useState, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { EmptyState } from '@/components/shared/empty-state'
 import { PageHeader } from '@/components/shared/page-header'
-import { kopecksToRub } from '@/data/money'
+import { formatRubNumber, kopecksToRub } from '@/data/money'
 import { formatRussianDateRange, formatRussianDateTime } from '@/lib/dates'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -73,7 +73,7 @@ function sortByPriority(
 function formatPrice(budgetMinor: number | null): string {
   if (budgetMinor == null) return 'По договоренности'
   const rub = kopecksToRub(budgetMinor)
-  return `${new Intl.NumberFormat('ru-RU').format(rub)} ₽ / чел`
+  return `${formatRubNumber(rub)} ₽ / чел`
 }
 
 function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProps {
@@ -93,7 +93,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
     participantCount: request.participants_count,
     price: formatPrice(request.budget_minor),
     groupPrice: request.budget_minor != null
-      ? `~${new Intl.NumberFormat('ru-RU').format(Math.round(kopecksToRub(request.budget_minor) * request.participants_count))} ₽ за группу`
+      ? `~${formatRubNumber(Math.round(kopecksToRub(request.budget_minor) * request.participants_count))} ₽ за группу`
       : undefined,
     publishedAt: request.created_at ? formatRussianDateTime(request.created_at) : undefined,
     unreadOfferCount: request.unread_offer_count,

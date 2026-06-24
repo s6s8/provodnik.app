@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
 
-import { arrowizeRoute } from "./utils";
+import { arrowizeRoute, pluralizePeopleGenitive } from "./utils";
+
+describe("pluralizePeopleGenitive", () => {
+  it("returns the genitive forms used after a number", () => {
+    expect(pluralizePeopleGenitive(1)).toBe("человека");
+    expect(pluralizePeopleGenitive(2)).toBe("человек");
+    expect(pluralizePeopleGenitive(5)).toBe("человек");
+    expect(pluralizePeopleGenitive(11)).toBe("человек");
+    expect(pluralizePeopleGenitive(21)).toBe("человека");
+  });
+});
 
 describe("arrowizeRoute", () => {
   it("replaces ASCII arrows with → and normalizes spacing", () => {

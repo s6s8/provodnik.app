@@ -3,6 +3,7 @@ import Link from "next/link"
 import { AvatarStack } from "@/components/ui/avatar-stack"
 import { Badge } from "@/components/ui/badge"
 import { StatStrip } from "@/components/ui/stat-strip"
+import { formatRubNumber } from "@/data/money"
 import { cn } from "@/lib/utils"
 
 type GuideCardProps = {
@@ -25,7 +26,7 @@ type GuideCardProps = {
   className?: string
 }
 
-const fmt = (n: number) => new Intl.NumberFormat("ru-RU").format(n)
+const fmt = formatRubNumber
 
 function GuideCard({ guide, className }: GuideCardProps) {
   const summary = guide.headline ?? guide.bio

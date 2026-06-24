@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { formatRubNumber } from "@/data/money";
 import type { ListingRecord } from "@/data/supabase/queries";
 import { pluralize } from "@/lib/utils";
 
@@ -91,7 +92,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
 
         <div className="mt-auto flex items-baseline gap-2 border-t border-[rgba(20,28,40,.07)] pt-3">
           <span className="text-[1.05rem] font-bold text-on-surface">
-            от {new Intl.NumberFormat("ru-RU").format(listing.priceRub)} ₽
+            от {formatRubNumber(listing.priceRub)} ₽
           </span>
           <span className="text-[13px] text-on-surface-muted">с человека</span>
         </div>

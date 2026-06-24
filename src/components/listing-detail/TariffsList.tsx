@@ -1,7 +1,8 @@
+import { formatRubNumber } from "@/data/money";
 import type { ListingTariffRow } from "@/lib/supabase/types";
 
 function formatRub(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(minor / 100));
+  return formatRubNumber(Math.round(minor / 100));
 }
 
 function groupLabel(min: number | null, max: number | null): string {

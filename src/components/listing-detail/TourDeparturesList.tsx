@@ -3,10 +3,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatRubNumber } from "@/data/money";
 import type { ListingTourDepartureRow } from "@/lib/supabase/types";
 
 function formatRub(minor: number): string {
-  return new Intl.NumberFormat("ru-RU").format(Math.round(minor / 100));
+  return formatRubNumber(Math.round(minor / 100));
 }
 
 function formatDate(iso: string): string {

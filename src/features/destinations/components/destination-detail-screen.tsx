@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 
 import { ReqCard } from "@/components/shared/req-card";
 import { Button } from "@/components/ui/button";
+import { formatRubNumber } from "@/data/money";
 import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
@@ -17,7 +18,7 @@ import { ListingsFilter } from "./listings-filter";
 
 function derivePrice(budgetPerPersonRub?: number): string {
   if (!budgetPerPersonRub) return "По договорённости";
-  return `${new Intl.NumberFormat("ru-RU").format(budgetPerPersonRub)} ₽ / чел`;
+  return `${formatRubNumber(budgetPerPersonRub)} ₽ / чел`;
 }
 
 interface Props {
@@ -110,7 +111,7 @@ export function DestinationDetailScreen({
             <div>
               <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 {minPrice
-                  ? `${new Intl.NumberFormat("ru-RU").format(Math.round(minPrice / 1000))} тыс. ₽`
+                  ? `${formatRubNumber(Math.round(minPrice / 1000))} тыс. ₽`
                   : listingCount > 0 ? "Скоро" : "—"}
               </strong>
               <span className="text-sm text-muted-foreground">бюджет от</span>

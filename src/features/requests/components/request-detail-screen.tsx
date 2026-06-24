@@ -23,7 +23,7 @@ import { Chip } from "@/components/ui/chip";
 import { Tag } from "@/components/ui/tag";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { INTEREST_CHIPS } from "@/data/interests";
-import { kopecksToRub } from "@/data/money";
+import { formatRubNumber, kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
 import { BidFormPanel } from "@/features/guide/components/requests/bid-form-panel-lazy";
@@ -153,7 +153,7 @@ const UUID_RE =
 
 function formatPublicPrice(pricePerPersonRub: number | null): string {
   if (!pricePerPersonRub) return "Цена уточняется";
-  return `~${new Intl.NumberFormat("ru-RU").format(pricePerPersonRub)} ₽`;
+  return `~${formatRubNumber(pricePerPersonRub)} ₽`;
 }
 
 function ctaLabel(joinState: PublicRequestJoinState): string {
@@ -499,7 +499,7 @@ function OwnerDetailBranch({
 
   const requestInterests = ownerRequestRow.interests ?? [];
   const requestBudgetLabel = ownerRequestRow.budget_minor
-    ? `Ваш бюджет ${new Intl.NumberFormat("ru-RU").format(
+    ? `Ваш бюджет ${formatRubNumber(
         Math.round(kopecksToRub(ownerRequestRow.budget_minor)),
       )} ₽ / чел.`
     : undefined;
@@ -524,7 +524,7 @@ function OwnerDetailBranch({
     const count = offerCount(offer);
     if (count <= 1) return undefined;
     const total = perPersonRub(offer) * count;
-    return `${new Intl.NumberFormat("ru-RU").format(total)} ₽ за группу · ${count} чел.`;
+    return `${formatRubNumber(total)} ₽ за группу · ${count} чел.`;
   };
 
   const cardInfo = (gi: OwnerOfferItem["guideInfo"]): GuideCardInfo => ({

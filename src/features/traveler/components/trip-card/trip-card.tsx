@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CalendarDays, Clock, Star, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { formatRubNumber } from "@/data/money";
 import { BADGE_CLASS } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -318,7 +319,7 @@ function TripCardContent({
             )}
             <span className="text-sm font-medium text-primary">Написать гиду</span>
             {trip.price && (
-              <p>{(trip.price.amount / 100).toLocaleString("ru-RU")} ₽</p>
+              <p>{formatRubNumber(trip.price.amount / 100)} ₽</p>
             )}
           </>
         )}

@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn, pluralize } from "@/lib/utils"
 
 type SeatProgressBarProps = {
   taken: number
@@ -6,20 +6,11 @@ type SeatProgressBarProps = {
   className?: string
 }
 
-function pluralizeParticipants(count: number): string {
-  const mod100 = Math.abs(count) % 100
-  const mod10 = mod100 % 10
-  if (mod100 >= 11 && mod100 <= 14) return "участников"
-  if (mod10 === 1) return "участник"
-  if (mod10 >= 2 && mod10 <= 4) return "участника"
-  return "участников"
-}
-
 function SeatProgressBar({ taken, max, className }: SeatProgressBarProps) {
   if (max === null) {
     return (
       <p className={cn("text-sm font-medium text-on-surface", className)}>
-        {taken} {pluralizeParticipants(taken)}
+        {taken} {pluralize(taken, "участник", "участника", "участников")}
       </p>
     )
   }
