@@ -85,68 +85,43 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
       </div>
       <FieldError message={errors.destination?.message} />
 
-      {/* Когда + гибкость (full width — native date control needs room) */}
-      <div className={FBX}>
-        <Calendar className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-        <div className="min-w-0 flex-1">
-          <span className={KIN} aria-hidden="true">Когда</span>
-          <input
-            className={FIN}
-            type="date"
-            min={todayMoscowISODate()}
-            aria-label="Когда"
-            aria-invalid={Boolean(errors.startDate)}
-            {...register("startDate")}
-          />
-        </div>
-        <button
-          type="button"
-          onClick={() => {
-            const current = form.getValues("dateFlexibility");
-            form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
-              shouldDirty: true,
-            });
-          }}
-          title="Гибкие даты (±2–3 дня)"
-          aria-label="Переключить гибкие даты"
-          aria-pressed={dateFlexibility !== "exact"}
-          className={cn(
-            "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
-            dateFlexibility !== "exact"
-              ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
-              : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
-          )}
-        >
-          ≈
-        </button>
-      </div>
-      <FieldError message={errors.startDate?.message} />
-
-      {/* Время (full width — two native time pickers need room) */}
-      <div className={FBX}>
-        <Clock className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-        <div className="min-w-0 flex-1">
-          <span className={KIN} aria-hidden="true">Время</span>
-          <span className="flex items-center gap-2">
+      {/* Когда + гибкость · Гостей + замок */}
+      <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
+        <div className={FBX}>
+          <Calendar className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <span className={KIN} aria-hidden="true">Когда</span>
             <input
-              className={cn(FIN_BASE, "w-[124px]")}
-              type="time"
-              aria-label="Время начала"
-              {...register("startTime")}
+              className={FIN}
+              type="date"
+              min={todayMoscowISODate()}
+              aria-label="Когда"
+              aria-invalid={Boolean(errors.startDate)}
+              {...register("startDate")}
             />
-            <span className="font-bold text-muted-foreground">–</span>
-            <input
-              className={cn(FIN_BASE, "w-[124px]")}
-              type="time"
-              aria-label="Время окончания"
-              {...register("endTime")}
-            />
-          </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              const current = form.getValues("dateFlexibility");
+              form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+                shouldDirty: true,
+              });
+            }}
+            title="Гибкие даты (±2–3 дня)"
+            aria-label="Переключить гибкие даты"
+            aria-pressed={dateFlexibility !== "exact"}
+            className={cn(
+              "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
+              dateFlexibility !== "exact"
+                ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
+                : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
+            )}
+          >
+            ≈
+          </button>
         </div>
-      </div>
 
-      {/* Гостей + замок · Бюджет (short fields — 2 columns) */}
-      <div className="grid grid-cols-2 gap-2.5">
         <div className={FBX}>
           <Users className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
           <div className="min-w-0 flex-1">
@@ -190,6 +165,31 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             )}
           </button>
         </div>
+      </div>
+
+      {/* Время · Бюджет */}
+      <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
+        <div className={FBX}>
+          <Clock className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
+          <div className="min-w-0 flex-1">
+            <span className={KIN} aria-hidden="true">Время</span>
+            <span className="flex items-center gap-1.5">
+              <input
+                className={cn(FIN_BASE, "min-w-0 flex-1")}
+                type="time"
+                aria-label="Время начала"
+                {...register("startTime")}
+              />
+              <span className="font-bold text-muted-foreground">–</span>
+              <input
+                className={cn(FIN_BASE, "min-w-0 flex-1")}
+                type="time"
+                aria-label="Время окончания"
+                {...register("endTime")}
+              />
+            </span>
+          </div>
+        </div>
 
         <div className={FBX}>
           <Wallet className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -205,7 +205,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
           </div>
         </div>
       </div>
-      <FieldError message={errors.groupSize?.message ?? errors.budgetPerPersonRub?.message} />
+      <FieldError message={errors.startDate?.message ?? errors.groupSize?.message ?? errors.budgetPerPersonRub?.message} />
 
       {/* Темы */}
       <div>

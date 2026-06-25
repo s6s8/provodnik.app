@@ -2,21 +2,21 @@ import Image from "next/image";
 import { ArrowDown } from "lucide-react";
 
 import type { DestinationOption } from "@/data/supabase/queries";
-import { cityImage } from "@/lib/city-image";
 
 import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
+
+const HERO_IMAGE =
+  "https://yjzpshutgmhxizosbeef.supabase.co/storage/v1/object/public/listing-media/site/hero-provodnik.png";
 
 interface Props {
   destinations: DestinationOption[];
 }
 
 export function HomepageHeroFormClassic({ destinations }: Props) {
-  const heroImage = cityImage(destinations[0]?.name ?? "Байкал");
-
   return (
     <section className="relative flex min-h-[100svh] flex-col overflow-hidden bg-[#0c1622]">
       <Image
-        src={heroImage}
+        src={HERO_IMAGE}
         alt=""
         fill
         priority
@@ -33,7 +33,7 @@ export function HomepageHeroFormClassic({ destinations }: Props) {
           Куда отправимся?
         </h1>
 
-        <div className="w-full max-w-[480px] rounded-[22px] bg-surface p-5 text-left shadow-[0_30px_64px_-24px_rgba(8,14,24,0.55)]">
+        <div className="w-full max-w-[540px] rounded-[22px] bg-surface p-5 text-left shadow-[0_30px_64px_-24px_rgba(8,14,24,0.55)]">
           <HomepageRequestFormClassic destinations={destinations} />
         </div>
 
