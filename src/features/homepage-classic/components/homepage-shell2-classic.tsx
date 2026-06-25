@@ -54,7 +54,7 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
                   href={`/requests/${req.id}`}
                   city={city}
                   region={req.destinationRegion}
-                  imageUrl={req.imageUrl || cityImage(city)}
+                  imageUrl={cityImage(city)}
                   status={selected ? "selected" : "waiting"}
                   minPeople={`от ${req.capacity ?? req.groupSize} чел.`}
                   date={req.dateLabel}

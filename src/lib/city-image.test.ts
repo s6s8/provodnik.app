@@ -32,16 +32,18 @@ describe("brandGradient", () => {
 });
 
 describe("cityImage", () => {
-  it("returns curated real on-place photography for known cities", () => {
+  it("returns curated real on-place city imagery for known cities", () => {
     const result = cityImage("Элиста");
 
-    // Curated Golden Abode photo — a real, correct local image, not foreign stock.
+    // Curated branded city plate hosted in Supabase Storage — a real, correct
+    // local image, not a gradient and not foreign stock.
     expect(result).not.toMatch(/^data:image\/svg/);
-    expect(result).toContain("images.unsplash.com");
+    expect(result).toContain("/site/cities/elista.png");
+    expect(result).not.toContain("unsplash.com");
   });
 
   it("falls back to an on-canon SVG gradient for cities without curated imagery", () => {
-    const result = cityImage("Казань");
+    const result = cityImage("Дербент");
 
     expect(result).toMatch(/^data:image\/svg\+xml,/);
     expect(result).not.toContain("unsplash.com");
@@ -56,7 +58,7 @@ describe("cityImage", () => {
   });
 
   it("varies the gradient across different destinations", () => {
-    expect(cityImage("Элиста")).not.toBe(cityImage("Казань"));
+    expect(cityImage("Дербент")).not.toBe(cityImage("Мурманск"));
   });
 
   it("stays on the canon navy/amber palette (no off-palette colors)", () => {

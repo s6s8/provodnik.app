@@ -52,10 +52,16 @@ export function brandGradient(seed = "provodnik"): string {
  * verified-correct local imagery goes here. Keys are normalized (lowercase, ru-RU)
  * and matched by substring, so "Элиста" and "Элиста, Калмыкия" both resolve.
  */
+const SUPABASE_CITY_BASE =
+  "https://yjzpshutgmhxizosbeef.supabase.co/storage/v1/object/public/listing-media/site/cities";
+
 const CURATED_CITY_IMAGES: Record<string, string> = {
-  // Элиста — Золотая обитель Будды Шакьямуни (Golden Abode), the city's landmark.
-  "элиста":
-    "https://images.unsplash.com/photo-1657293493705-557ab000afe1?auto=format&fit=crop&w=1600&h=900&q=80",
+  // Branded architectural-typography city plates (the city name built from its
+  // own landmarks), hosted in Supabase Storage (listing-media/site/cities).
+  "москва": `${SUPABASE_CITY_BASE}/moscow.png`,
+  "элиста": `${SUPABASE_CITY_BASE}/elista.png`,
+  "казань": `${SUPABASE_CITY_BASE}/kazan.png`,
+  "сочи": `${SUPABASE_CITY_BASE}/sochi.png`,
 };
 
 function normalizeCity(s: string): string {
