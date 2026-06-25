@@ -529,9 +529,9 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     interests={request.interests}
                     members={request.members}
                     participantCount={sizeCurrent}
-                    groupPrice={
+                    price={
                       request.budgetPerPersonRub
-                        ? `~${formatRubNumber(Math.round(request.budgetPerPersonRub * sizeCurrent))} ₽ за группу`
+                        ? `${formatRubNumber(request.budgetPerPersonRub)} ₽ / чел`
                         : undefined
                     }
                     priority={index < 3}

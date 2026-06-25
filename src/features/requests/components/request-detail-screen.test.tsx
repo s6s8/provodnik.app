@@ -111,6 +111,8 @@ const travelerRecord: TravelerRequestRecord = {
     destination: "Элиста",
     startDate: "2026-06-10",
     dateFlexibility: "exact",
+    startTime: "10:00",
+    endTime: "18:00",
     groupSizeCurrent: 2,
     groupMax: 5,
     openToJoin: false,

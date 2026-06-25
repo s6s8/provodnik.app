@@ -62,11 +62,7 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
                   offerCount={req.offerCount}
                   members={req.members}
                   participantCount={req.groupSize}
-                  groupPrice={
-                    req.budgetRub
-                      ? `~${formatRubNumber(Math.round(req.budgetRub * req.groupSize))} ₽ за группу`
-                      : undefined
-                  }
+                  price={req.budgetRub ? `${formatRubNumber(req.budgetRub)} ₽ / чел` : undefined}
                   priority={index === 0}
                 />
               );

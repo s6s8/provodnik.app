@@ -39,8 +39,8 @@ export interface OpenGroupCardProps {
   participantCount?: number;
   /** e.g. "Опубликован: 30 июня" */
   publishedAt?: string;
-  /** group total budget, e.g. "~19 200 ₽ за группу" */
-  groupPrice?: string;
+  /** per-person budget, e.g. "3 000 ₽ / чел" */
+  price?: string;
   /** unread offers → left accent border */
   unread?: boolean;
   joinHref?: string;
@@ -70,7 +70,7 @@ export function OpenGroupCard({
   members,
   participantCount,
   publishedAt,
-  groupPrice,
+  price,
   unread,
   joinHref,
   joinLabel = "Присоединиться",
@@ -191,8 +191,8 @@ export function OpenGroupCard({
               <span className="truncate text-[11px] font-medium text-muted-foreground">{publishedAt}</span>
             ) : null}
           </div>
-          {groupPrice ? (
-            <span className="shrink-0 whitespace-nowrap text-xs font-semibold text-ink-2">{groupPrice}</span>
+          {price ? (
+            <span className="shrink-0 whitespace-nowrap text-xs font-semibold text-foreground">{price}</span>
           ) : null}
         </div>
 
