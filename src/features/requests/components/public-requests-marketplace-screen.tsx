@@ -33,7 +33,7 @@ import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { THEMES } from "@/data/themes";
 import { brandGradient, cityImage } from "@/lib/city-image";
 import { todayMoscowISODate } from "@/lib/dates";
-import { pluralize } from "@/lib/utils";
+import { formatRubNumber } from "@/data/money";
 
 type CategoryFilter = (typeof THEMES)[number]["label"];
 
@@ -513,7 +513,6 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                 const location = request.destinationLabel.split(",")[0].trim();
                 const matched = request.status === "matched";
                 const sizeCurrent = request.group.sizeCurrent;
-                const organizer = request.members?.[0];
 
                 return (
                   <OpenGroupCard
@@ -528,12 +527,12 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     datesFlexible={request.datesFlexible}
                     time={request.timeLabel}
                     interests={request.interests}
-                    avatarUrl={organizer?.avatarUrl ?? null}
-                    avatarInitials={organizer?.initials}
-                    footerText={
-                      matched
-                        ? "Гид найден"
-                        : `${sizeCurrent} ${pluralize(sizeCurrent, "участник", "участника", "участников")}`
+                    members={request.members}
+                    participantCount={sizeCurrent}
+                    groupPrice={
+                      request.budgetPerPersonRub
+                        ? `~${formatRubNumber(Math.round(request.budgetPerPersonRub * sizeCurrent))} ₽ за группу`
+                        : undefined
                     }
                     priority={index < 3}
                   />

@@ -172,10 +172,10 @@ describe("HomepageRequestForm UI affordances", () => {
     expect(createRequestAction).not.toHaveBeenCalled();
   });
 
-  it("defaults the destination input to «Москва» on first render", () => {
+  it("leaves the destination input empty on first render (no default city)", () => {
     render(<HomepageRequestForm destinations={[]} />);
     const input = screen.getByLabelText(/куда хотите/i) as HTMLInputElement;
-    expect(input.value).toBe("Москва");
+    expect(input.value).toBe("");
   });
 
   it("does not render the umbrella «Когда» label above the date/time fields", () => {
@@ -420,10 +420,10 @@ describe("HomepageRequestForm UI affordances", () => {
 });
 
 describe("HomepageRequestFormClassic inset-label layout", () => {
-  it("renders the inset-label brief fields with the mode toggle, themes dropdown and details", () => {
+  it("renders the icon-only brief fields with the mode toggle, themes & languages selects", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
 
-    // Inset-label fields, addressed by their accessible labels.
+    // Fields have no visible labels — addressed by their accessible (aria) labels.
     expect(screen.getByLabelText("Направление")).toBeInTheDocument();
     expect(screen.getByLabelText("Когда")).toBeInTheDocument();
     expect(screen.getByLabelText("Гостей")).toBeInTheDocument();
@@ -432,14 +432,17 @@ describe("HomepageRequestFormClassic inset-label layout", () => {
       screen.getByRole("button", { name: /сделать (закрытой|открытой)/i }),
     ).toBeInTheDocument();
 
-    // Themes use the same dropdown control as languages — no inline chip grid / «Ещё».
+    // Themes and languages are side-by-side multi-selects (no inline chips / «Ещё»).
     expect(screen.getByRole("button", { name: "Выбрать темы" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Выбрать языки экскурсии" }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Ещё" })).toBeNull();
 
-    // «Детали» disclosure is collapsed by default; languages appear once opened.
-    expect(screen.queryByText("Языки экскурсии")).toBeNull();
+    // «Детали» disclosure is collapsed by default; the notes field appears once opened.
+    expect(screen.queryByLabelText("Пожелания")).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Детали" }));
-    expect(screen.getByText("Языки экскурсии")).toBeInTheDocument();
+    expect(screen.getByLabelText("Пожелания")).toBeInTheDocument();
   });
 
   it("uses the «Найти гида» submit with no sticky mobile bar", () => {

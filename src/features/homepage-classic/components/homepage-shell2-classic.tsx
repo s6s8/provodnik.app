@@ -2,9 +2,9 @@ import { DestinationTile } from "@/components/shared/destination-tile";
 import { OpenGroupCard } from "@/components/shared/open-group-card";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { SiteFooter } from "@/components/shared/site-footer";
+import { formatRubNumber } from "@/data/money";
 import type { DestinationOption, RequestRecord } from "@/data/supabase/queries";
 import { cityImage } from "@/lib/city-image";
-import { pluralize } from "@/lib/utils";
 
 import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
 
@@ -24,11 +24,6 @@ const HOW_IT_WORKS = [
 
 const SECTION = "mx-auto w-full max-w-[1180px] px-[clamp(20px,4vw,44px)]";
 
-function offersFooter(offerCount: number): string {
-  if (offerCount <= 0) return "Пока нет откликов";
-  return `${offerCount} ${pluralize(offerCount, "отклик", "отклика", "откликов")}`;
-}
-
 export function HomePageShell2Classic({ destinations, requests }: Props) {
   const openGroups = requests.slice(0, 3);
   const popularDestinations = destinations.slice(0, 6);
@@ -41,7 +36,6 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
         <section className={`${SECTION} pb-6 pt-[clamp(40px,6vw,62px)]`} aria-label="Открытые группы">
           <SectionHeading
             title="Открытые группы"
-            subtitle="Займите место рядом с местным гидом"
             action={{ label: "Все группы", href: "/requests" }}
           />
           <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
@@ -65,9 +59,14 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
                       : undefined
                   }
                   interests={req.interests}
-                  avatarUrl={req.requesterAvatarUrl}
-                  avatarInitials={req.requesterInitials}
-                  footerText={selected ? "Гид найден" : offersFooter(req.offerCount)}
+                  offerCount={req.offerCount}
+                  members={req.members}
+                  participantCount={req.groupSize}
+                  groupPrice={
+                    req.budgetRub
+                      ? `~${formatRubNumber(Math.round(req.budgetRub * req.groupSize))} ₽ за группу`
+                      : undefined
+                  }
                   priority={index === 0}
                 />
               );

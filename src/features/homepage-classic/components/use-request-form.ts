@@ -28,7 +28,7 @@ export function useRequestForm() {
       mode: "assembly",
       interests: [] as TravelerRequest["interests"],
       requestedLanguages: ["Русский"],
-      destination: process.env.NEXT_PUBLIC_PHASE_A_CITY ?? "Москва",
+      destination: "",
       startDate: "",
       dateFlexibility: "exact",
       startTime: "10:00",
