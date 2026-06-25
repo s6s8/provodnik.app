@@ -30,16 +30,8 @@ export const travelerRequestSchema = z
     startDate: z.string().min(1, "Укажите дату начала."),
     endDate: z.string().optional().or(z.literal("")),
     dateFlexibility: z.enum(["exact", "few_days"]).default("exact"),
-    startTime: z
-      .string()
-      .regex(timeRegex, "Формат времени: ЧЧ:ММ")
-      .optional()
-      .or(z.literal("")),
-    endTime: z
-      .string()
-      .regex(timeRegex, "Формат времени: ЧЧ:ММ")
-      .optional()
-      .or(z.literal("")),
+    startTime: z.string().regex(timeRegex, "Укажите время начала (ЧЧ:ММ)."),
+    endTime: z.string().regex(timeRegex, "Укажите время окончания (ЧЧ:ММ)."),
     // assembly mode counters
     groupSizeCurrent: z
       .number()

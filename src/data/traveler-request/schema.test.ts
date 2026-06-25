@@ -7,6 +7,8 @@ describe("travelerRequestSchema", () => {
     const parsed = travelerRequestSchema.parse({
       mode: "private",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "МоскваМосква placeholder=Москва autocomplete=list",
       startDate: "2026-05-10",
       dateFlexibility: "exact",
@@ -23,6 +25,8 @@ describe("travelerRequestSchema", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "private",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "placeholder=Москва autocomplete=list",
       startDate: "2026-05-10",
       dateFlexibility: "exact",
@@ -46,6 +50,8 @@ describe("travelerRequestSchema", () => {
     const parsed = travelerRequestSchema.parse({
       mode: "private",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "Москва",
       startDate: "2026-05-10",
       groupSize: 2,
@@ -61,6 +67,8 @@ describe("travelerRequestSchema", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "assembly",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "Москва",
       startDate: "2026-05-10",
       dateFlexibility: "exact",
@@ -76,6 +84,8 @@ describe("travelerRequestSchema", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "private",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "Москва",
       startDate: "2026-08-01",
       endDate: "2026-08-07",
@@ -92,6 +102,8 @@ describe("travelerRequestSchema", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "private",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "Москва",
       startDate: "2026-08-07",
       endDate: "2026-08-01",
@@ -115,6 +127,8 @@ describe("travelerRequestSchema", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "private",
       interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
       destination: "Москва",
       startDate: "2026-08-01",
       dateFlexibility: "exact",
