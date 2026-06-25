@@ -1,14 +1,15 @@
 "use client";
 
-import type { JSX } from "react";
+import type { JSX, ReactNode } from "react";
 
-import { TagMultiSelect } from "./tag-multi-select";
+import { TagMultiSelect, type TagOption } from "./tag-multi-select";
 
 type LanguageMultiSelectProps = {
   value: string[];
   onChange: (next: string[]) => void;
   options: readonly string[];
   placeholder?: string;
+  leading?: ReactNode;
 };
 
 export function LanguageMultiSelect({
@@ -16,16 +17,20 @@ export function LanguageMultiSelect({
   onChange,
   options,
   placeholder = "Любой язык",
+  leading,
 }: LanguageMultiSelectProps): JSX.Element {
+  const opts: TagOption[] = options.map((l) => ({ value: l, label: l }));
   return (
     <TagMultiSelect
       value={value}
       onChange={onChange}
-      options={options}
+      options={opts}
       placeholder={placeholder}
       ariaLabel="Выбрать языки экскурсии"
       searchPlaceholder="Поиск языка…"
       emptyLabel="Ничего не найдено"
+      leading={leading}
+      maxVisibleChips={1}
     />
   );
 }

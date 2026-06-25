@@ -1,17 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
-import {
-  Calendar,
-  CheckCircle2,
-  Clock,
-  MapPin,
-  Star,
-  Users,
-} from "lucide-react";
+import { Calendar, CheckCircle2, Clock, MapPin, Users } from "lucide-react";
 
+import { AvatarStack, type AvatarStackMember } from "@/components/shared/avatar-stack";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 
 const THEME_BY_SLUG = new Map(THEMES.map((t) => [t.slug, t] as const));
+
+function pluralOffers(n: number): string {
+  const mod10 = n % 10;
+  const mod100 = n % 100;
+  if (mod100 >= 11 && mod100 <= 14) return `${n} откликов`;
+  if (mod10 === 1) return `${n} отклик`;
+  if (mod10 >= 2 && mod10 <= 4) return `${n} отклика`;
+  return `${n} откликов`;
+}
 
 export interface OpenGroupCardProps {
   href: string;
@@ -20,6 +23,8 @@ export interface OpenGroupCardProps {
   imageUrl: string;
   /** "selected" = a guide is chosen (booked); "waiting" = still open. */
   status: "selected" | "waiting";
+  /** open offers count — drives the "N откликов" badge when waiting. */
+  offerCount?: number;
   /** e.g. "от 6 чел." */
   minPeople?: string;
   date?: string;
@@ -28,14 +33,16 @@ export interface OpenGroupCardProps {
   time?: string;
   /** theme slugs — resolved to icon + label */
   interests?: string[];
-  avatarUrl?: string | null;
-  avatarInitials?: string;
-  /** shown next to the avatar when present (e.g. a chosen guide's name) */
-  personName?: string;
-  /** shown after the name when present */
-  personRating?: number | string;
-  /** shown instead of a name (e.g. "4 отклика") */
-  footerText?: string;
+  /** traveller avatars (overlap stack + "+N") */
+  members?: readonly AvatarStackMember[];
+  /** total participant count (for the "+N" overflow) */
+  participantCount?: number;
+  /** e.g. "Опубликован: 30 июня" */
+  publishedAt?: string;
+  /** group total budget, e.g. "~19 200 ₽ за группу" */
+  groupPrice?: string;
+  /** unread offers → left accent border */
+  unread?: boolean;
   joinHref?: string;
   joinLabel?: string;
   priority?: boolean;
@@ -43,10 +50,10 @@ export interface OpenGroupCardProps {
 
 /**
  * Open-group card (homepage "Открытые группы" + /requests marketplace).
- * Photo + region pill, city title with a status badge (Гид выбран / Ждёт гида),
- * Сборная-группа pill, date/flex/time, interest tags, an organizer/guide row,
- * and a "Присоединиться" CTA. Intentionally has NO per-person price and NO
- * seats progress bar (mockup spec).
+ * Photo + region pill, status badge (Гид выбран / N откликов / Ждёт гида),
+ * Сборная-группа pill, date/flex/time, interest tags, traveller avatar stack +
+ * publish date, the group total budget, and a "Присоединиться" CTA. No
+ * per-person price (intentionally).
  */
 export function OpenGroupCard({
   href,
@@ -54,16 +61,17 @@ export function OpenGroupCard({
   region,
   imageUrl,
   status,
+  offerCount = 0,
   minPeople,
   date,
   datesFlexible,
   time,
   interests,
-  avatarUrl,
-  avatarInitials = "П",
-  personName,
-  personRating,
-  footerText,
+  members,
+  participantCount,
+  publishedAt,
+  groupPrice,
+  unread,
   joinHref,
   joinLabel = "Присоединиться",
   priority,
@@ -72,9 +80,14 @@ export function OpenGroupCard({
     .map((slug) => THEME_BY_SLUG.get(slug as ThemeSlug))
     .filter((t): t is (typeof THEMES)[number] => Boolean(t))
     .slice(0, 3);
+  const memberList = members ?? [];
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+    <div
+      className={`flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm${
+        unread ? " border-l-4 border-l-primary" : ""
+      }`}
+    >
       <div className="relative h-[148px] bg-surface-low">
         <Image
           src={imageUrl}
@@ -102,9 +115,13 @@ export function OpenGroupCard({
             {city}
           </div>
           {status === "selected" ? (
-            <span className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap text-xs font-bold text-[#2F8F66]">
+            <span className="inline-flex h-6 shrink-0 items-center gap-1 whitespace-nowrap text-xs font-bold text-[#2F8F66]">
               <CheckCircle2 className="h-[14px] w-[14px]" aria-hidden="true" />
               Гид выбран
+            </span>
+          ) : offerCount > 0 ? (
+            <span className="inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full bg-primary/10 px-2.5 text-[11.5px] font-bold text-primary">
+              {pluralOffers(offerCount)}
             </span>
           ) : (
             <span className="inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[rgba(212,135,43,0.14)] px-2.5 text-[11.5px] font-bold text-[#9A5712]">
@@ -162,34 +179,21 @@ export function OpenGroupCard({
         ) : null}
 
         <div className="mt-auto flex items-end justify-between gap-2.5 pt-3.5">
-          <div className="flex items-center gap-2">
-            {avatarUrl ? (
-              <Image
-                src={avatarUrl}
-                alt={personName ?? "Организатор"}
-                width={30}
-                height={30}
-                className="h-[30px] w-[30px] rounded-full object-cover"
-              />
+          <div className="flex min-w-0 flex-col gap-1">
+            {memberList.length > 0 ? (
+              <AvatarStack members={memberList} size={26} overlap={9} totalCount={participantCount} />
             ) : (
               <span className="grid h-[30px] w-[30px] place-items-center rounded-full border border-border bg-surface-low text-xs font-bold text-muted-foreground">
-                {avatarInitials}
+                П
               </span>
             )}
-            {personName ? (
-              <div className="leading-tight">
-                <div className="text-[12.5px] font-bold text-foreground">{personName}</div>
-                {personRating != null ? (
-                  <div className="flex items-center gap-1 text-[11.5px] font-semibold text-muted-foreground">
-                    <Star className="h-3 w-3 fill-[#D4872B] text-[#D4872B]" aria-hidden="true" />
-                    {personRating}
-                  </div>
-                ) : null}
-              </div>
-            ) : footerText ? (
-              <span className="text-xs font-semibold text-muted-foreground">{footerText}</span>
+            {publishedAt ? (
+              <span className="truncate text-[11px] font-medium text-muted-foreground">{publishedAt}</span>
             ) : null}
           </div>
+          {groupPrice ? (
+            <span className="shrink-0 whitespace-nowrap text-xs font-semibold text-ink-2">{groupPrice}</span>
+          ) : null}
         </div>
 
         <Link

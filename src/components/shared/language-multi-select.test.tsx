@@ -24,7 +24,7 @@ describe("LanguageMultiSelect", () => {
     expect(screen.getByText("Любой язык")).toBeInTheDocument();
   });
 
-  it("renders selected languages as chips", () => {
+  it("renders selected languages compactly with a +N overflow", () => {
     render(
       <LanguageMultiSelect
         options={LANGUAGES}
@@ -33,8 +33,8 @@ describe("LanguageMultiSelect", () => {
       />,
     );
 
-    expect(screen.getByText("Русский")).toBeInTheDocument();
-    expect(screen.getByText("Хинди")).toBeInTheDocument();
+    // Fixed single line: the first selection shows as a chip; the rest collapse into "+N".
+    expect(screen.getByText("+1")).toBeInTheDocument();
   });
 
   it("toggles an option without dropping the prior selection", () => {
@@ -89,37 +89,38 @@ describe("LanguageMultiSelect", () => {
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
-  it("removes a chip without opening the dropdown", () => {
+  it("removes a selected language by unchecking it in the dropdown", () => {
     const onChange = vi.fn();
     render(
       <LanguageMultiSelect
         options={LANGUAGES}
-        value={["Русский"]}
+        value={["Русский", "Хинди"]}
         onChange={onChange}
       />,
     );
 
-    fireEvent.click(screen.getByLabelText("Убрать Русский"));
+    fireEvent.click(
+      screen.getByRole("button", { name: "Выбрать языки экскурсии" }),
+    );
+    // "Хинди" is in the "+1" overflow (not a visible chip), so this targets the menu item.
+    fireEvent.click(screen.getByText("Хинди"));
 
-    expect(onChange).toHaveBeenCalledWith([]);
-    expect(screen.queryByPlaceholderText("Поиск языка…")).not.toBeInTheDocument();
+    expect(onChange).toHaveBeenCalledWith(["Русский"]);
   });
 
-  it("exposes selected language removal as a keyboard-operable button", () => {
-    const onChange = vi.fn();
+  it("opens the dropdown from a keyboard-operable trigger button", () => {
     render(
       <LanguageMultiSelect
         options={LANGUAGES}
         value={["Русский"]}
-        onChange={onChange}
+        onChange={vi.fn()}
       />,
     );
 
-    const removeButton = screen.getByRole("button", { name: "Убрать Русский" });
-    removeButton.focus();
-    fireEvent.click(removeButton);
+    const trigger = screen.getByRole("button", { name: "Выбрать языки экскурсии" });
+    expect(trigger.tagName).toBe("BUTTON");
+    fireEvent.click(trigger);
 
-    expect(removeButton.tagName).toBe("BUTTON");
-    expect(onChange).toHaveBeenCalledWith([]);
+    expect(screen.getByPlaceholderText("Поиск языка…")).toBeInTheDocument();
   });
 });

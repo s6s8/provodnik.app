@@ -5,18 +5,27 @@ import {
   Calendar,
   ChevronDown,
   Clock,
+  Languages,
   Lock,
   LockOpen,
   MapPin,
   Send,
+  Tag,
   Users,
   Wallet,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { LANGUAGES } from "@/data/languages";
 import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { ThemeMultiSelect } from "@/components/shared/theme-multi-select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import type { DestinationOption } from "@/data/supabase/queries";
@@ -28,12 +37,36 @@ interface Props {
 }
 
 const FBX =
-  "flex items-center gap-[11px] rounded-[13px] border border-border bg-surface px-[13px] py-[9px] transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(26,86,164,0.12)]";
-const KIN =
-  "mb-[3px] block text-[9.5px] font-bold uppercase leading-none tracking-[0.07em] text-muted-foreground";
+  "flex items-center gap-[11px] rounded-[13px] border border-border bg-surface px-[13px] py-[11px] transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(26,86,164,0.12)]";
 const FIN_BASE =
   "border-0 bg-transparent p-0 text-[15.5px] font-bold leading-tight text-foreground outline-none placeholder:font-semibold placeholder:text-[#C2C9D3]";
 const FIN = cn(FIN_BASE, "w-full");
+
+/** Field icon + hover tooltip (labels are otherwise hidden for a clean look). */
+function FieldIcon({
+  icon: Icon,
+  label,
+  className,
+}: {
+  icon: LucideIcon;
+  label: string;
+  className?: string;
+}) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span className="flex shrink-0 cursor-default items-center" aria-hidden="true">
+          <Icon className={cn("h-[18px] w-[18px] text-muted-foreground", className)} />
+        </span>
+      </TooltipTrigger>
+      <TooltipContent className="text-xs">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function openPicker(e: React.MouseEvent<HTMLInputElement>) {
+  e.currentTarget.showPicker?.();
+}
 
 export function HomepageRequestFormClassic({ destinations }: Props) {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
@@ -56,228 +89,224 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
   } = useRequestForm();
 
   return (
-    <form
-      className="flex flex-col gap-2.5"
-      onSubmit={handleSubmit(submit)}
-      aria-label="Создать запрос"
-      noValidate
-    >
-      {/* Направление */}
-      <div className={cn(FBX, "px-[15px] py-[11px]")}>
-        <MapPin className="h-[21px] w-[21px] shrink-0 text-primary" aria-hidden="true" />
-        <div className="min-w-0 flex-1">
-          <span className={KIN} aria-hidden="true">Направление</span>
-          <input
-            className={cn(FIN, "text-[18px]")}
-            list="destination-options"
-            placeholder="Куда едете?"
-            autoComplete="off"
-            aria-label="Направление"
-            aria-invalid={Boolean(errors.destination)}
-            {...register("destination")}
+    <TooltipProvider delayDuration={150}>
+      <form
+        className="flex flex-col gap-2.5"
+        onSubmit={handleSubmit(submit)}
+        aria-label="Создать запрос"
+        noValidate
+      >
+        {/* Направление */}
+        <div className={cn(FBX, "px-[15px]")}>
+          <FieldIcon icon={MapPin} label="Направление" className="h-[21px] w-[21px] text-primary" />
+          <div className="min-w-0 flex-1">
+            <input
+              className={cn(FIN, "text-[18px]")}
+              list="destination-options"
+              placeholder="Куда едете?"
+              autoComplete="off"
+              aria-label="Направление"
+              aria-invalid={Boolean(errors.destination)}
+              {...register("destination")}
+            />
+            <datalist id="destination-options">
+              {destinations.map((d) => (
+                <option key={d.name} value={d.name} />
+              ))}
+            </datalist>
+          </div>
+        </div>
+        <FieldError message={errors.destination?.message} />
+
+        {/* Когда · Гостей */}
+        <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
+          <div className={FBX}>
+            <FieldIcon icon={Calendar} label="Когда" />
+            <div className="min-w-0 flex-1">
+              <input
+                className={cn(FIN, "native-picker-hidden")}
+                type="date"
+                min={todayMoscowISODate()}
+                aria-label="Когда"
+                aria-invalid={Boolean(errors.startDate)}
+                onClick={openPicker}
+                {...register("startDate")}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const current = form.getValues("dateFlexibility");
+                form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+                  shouldDirty: true,
+                });
+              }}
+              title="Гибкие даты (±2–3 дня)"
+              aria-label="Переключить гибкие даты"
+              aria-pressed={dateFlexibility !== "exact"}
+              className={cn(
+                "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
+                dateFlexibility !== "exact"
+                  ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
+                  : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
+              )}
+            >
+              ≈
+            </button>
+          </div>
+
+          <div className={FBX}>
+            <FieldIcon icon={Users} label="Гостей" />
+            <div className="min-w-0 flex-1">
+              <input
+                className={FIN}
+                inputMode="numeric"
+                placeholder="2"
+                aria-label="Гостей"
+                aria-invalid={Boolean(errors.groupSize)}
+                {...register("groupSize", { valueAsNumber: true })}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                const current = form.getValues("mode");
+                form.setValue("mode", current === "assembly" ? "private" : "assembly", {
+                  shouldValidate: false,
+                  shouldDirty: true,
+                });
+              }}
+              title={isAssembly ? "Открытая группа (сборная)" : "Закрытая группа (своя)"}
+              aria-label={
+                isAssembly
+                  ? "Открытая группа — нажмите, чтобы сделать закрытой"
+                  : "Закрытая группа — нажмите, чтобы сделать открытой"
+              }
+              aria-pressed={!isAssembly}
+              className={cn(
+                "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border transition",
+                !isAssembly
+                  ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
+                  : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
+              )}
+            >
+              {isAssembly ? (
+                <LockOpen className="h-[14px] w-[14px]" aria-hidden="true" />
+              ) : (
+                <Lock className="h-[14px] w-[14px]" aria-hidden="true" />
+              )}
+            </button>
+          </div>
+        </div>
+
+        {/* Время · Бюджет */}
+        <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
+          <div className={FBX}>
+            <FieldIcon icon={Clock} label="Время" />
+            <div className="min-w-0 flex-1">
+              <span className="flex items-center gap-1.5">
+                <input
+                  className={cn(FIN_BASE, "native-picker-hidden min-w-0 flex-1")}
+                  type="time"
+                  aria-label="Время начала"
+                  onClick={openPicker}
+                  {...register("startTime")}
+                />
+                <span className="font-bold text-muted-foreground">–</span>
+                <input
+                  className={cn(FIN_BASE, "native-picker-hidden min-w-0 flex-1")}
+                  type="time"
+                  aria-label="Время окончания"
+                  onClick={openPicker}
+                  {...register("endTime")}
+                />
+              </span>
+            </div>
+          </div>
+
+          <div className={FBX}>
+            <FieldIcon icon={Wallet} label="Бюджет ₽/чел" />
+            <div className="min-w-0 flex-1">
+              <input
+                className={FIN}
+                inputMode="numeric"
+                aria-label="Бюджет на человека"
+                aria-invalid={Boolean(errors.budgetPerPersonRub)}
+                {...register("budgetPerPersonRub", { valueAsNumber: true })}
+              />
+            </div>
+          </div>
+        </div>
+        <FieldError
+          message={
+            errors.startDate?.message ?? errors.groupSize?.message ?? errors.budgetPerPersonRub?.message
+          }
+        />
+
+        {/* Темы · Языки */}
+        <div className="grid grid-cols-2 gap-2.5">
+          <ThemeMultiSelect
+            value={selectedInterests}
+            onChange={interestsField.onChange}
+            leading={<FieldIcon icon={Tag} label="Темы" />}
           />
-          <datalist id="destination-options">
-            {destinations.map((d) => (
-              <option key={d.name} value={d.name} />
-            ))}
-          </datalist>
+          <LanguageMultiSelect
+            options={LANGUAGES}
+            value={requestedLanguagesField.value ?? []}
+            onChange={requestedLanguagesField.onChange}
+            placeholder="Языки"
+            leading={<FieldIcon icon={Languages} label="Языки экскурсии" />}
+          />
         </div>
-      </div>
-      <FieldError message={errors.destination?.message} />
+        <FieldError message={errors.interests?.message} />
 
-      {/* Когда + гибкость · Гостей + замок */}
-      <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
-        <div className={FBX}>
-          <Calendar className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <span className={KIN} aria-hidden="true">Когда</span>
-            <input
-              className={FIN}
-              type="date"
-              min={todayMoscowISODate()}
-              aria-label="Когда"
-              aria-invalid={Boolean(errors.startDate)}
-              {...register("startDate")}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              const current = form.getValues("dateFlexibility");
-              form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
-                shouldDirty: true,
-              });
-            }}
-            title="Гибкие даты (±2–3 дня)"
-            aria-label="Переключить гибкие даты"
-            aria-pressed={dateFlexibility !== "exact"}
-            className={cn(
-              "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
-              dateFlexibility !== "exact"
-                ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
-                : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
-            )}
-          >
-            ≈
-          </button>
-        </div>
-
-        <div className={FBX}>
-          <Users className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <span className={KIN} aria-hidden="true">Гостей</span>
-            <input
-              className={FIN}
-              inputMode="numeric"
-              placeholder="2"
-              aria-label="Гостей"
-              aria-invalid={Boolean(errors.groupSize)}
-              {...register("groupSize", { valueAsNumber: true })}
-            />
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              const current = form.getValues("mode");
-              form.setValue("mode", current === "assembly" ? "private" : "assembly", {
-                shouldValidate: false,
-                shouldDirty: true,
-              });
-            }}
-            title={isAssembly ? "Открытая группа (сборная)" : "Закрытая группа (своя)"}
-            aria-label={
-              isAssembly
-                ? "Открытая группа — нажмите, чтобы сделать закрытой"
-                : "Закрытая группа — нажмите, чтобы сделать открытой"
-            }
-            aria-pressed={!isAssembly}
-            className={cn(
-              "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border transition",
-              !isAssembly
-                ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
-                : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
-            )}
-          >
-            {isAssembly ? (
-              <LockOpen className="h-[14px] w-[14px]" aria-hidden="true" />
-            ) : (
-              <Lock className="h-[14px] w-[14px]" aria-hidden="true" />
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Время · Бюджет */}
-      <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
-        <div className={FBX}>
-          <Clock className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <span className={KIN} aria-hidden="true">Время</span>
-            <span className="flex items-center gap-1.5">
-              <input
-                className={cn(FIN_BASE, "min-w-0 flex-1")}
-                type="time"
-                aria-label="Время начала"
-                {...register("startTime")}
-              />
-              <span className="font-bold text-muted-foreground">–</span>
-              <input
-                className={cn(FIN_BASE, "min-w-0 flex-1")}
-                type="time"
-                aria-label="Время окончания"
-                {...register("endTime")}
-              />
-            </span>
-          </div>
-        </div>
-
-        <div className={FBX}>
-          <Wallet className="h-[18px] w-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
-          <div className="min-w-0 flex-1">
-            <span className={KIN} aria-hidden="true">Бюджет ₽/чел</span>
-            <input
-              className={FIN}
-              inputMode="numeric"
-              aria-label="Бюджет на человека"
-              aria-invalid={Boolean(errors.budgetPerPersonRub)}
-              {...register("budgetPerPersonRub", { valueAsNumber: true })}
-            />
-          </div>
-        </div>
-      </div>
-      <FieldError message={errors.startDate?.message ?? errors.groupSize?.message ?? errors.budgetPerPersonRub?.message} />
-
-      {/* Темы */}
-      <div>
-        <span className={cn(KIN, "mb-1.5")} aria-hidden="true">Темы</span>
-        <ThemeMultiSelect
-          value={selectedInterests}
-          onChange={interestsField.onChange}
-        />
-      </div>
-      <FieldError message={errors.interests?.message} />
-
-      {/* Детали */}
-      <button
-        type="button"
-        onClick={() => setDetailsOpen((open) => !open)}
-        aria-expanded={detailsOpen}
-        className="inline-flex items-center gap-1.5 self-start whitespace-nowrap text-[11px] font-semibold text-ink-2"
-      >
-        <ChevronDown
-          className={cn("h-[11px] w-[11px] transition-transform", detailsOpen && "rotate-180")}
-          aria-hidden="true"
-        />
-        Детали
-      </button>
-
-      {/* Детали */}
-      {detailsOpen && (
-        <div className="flex flex-col gap-3">
-          <div>
-            <span className={cn(KIN, "mb-1.5")} aria-hidden="true">Языки экскурсии</span>
-            <LanguageMultiSelect
-              options={LANGUAGES}
-              value={requestedLanguagesField.value ?? []}
-              onChange={requestedLanguagesField.onChange}
-            />
-          </div>
-          <div>
-            <span className={cn(KIN, "mb-1.5")} aria-hidden="true">Пожелания</span>
-            <Textarea
-              id="notes"
-              aria-label="Пожелания"
-              placeholder="Особые пожелания, ограничения по здоровью или другие детали."
-              {...register("notes")}
-            />
-          </div>
-        </div>
-      )}
-
-      {serverError && (
-        <div
-          role="alert"
-          className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+        {/* Детали → пожелания */}
+        <button
+          type="button"
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          className="inline-flex items-center gap-1.5 self-start whitespace-nowrap text-[11px] font-semibold text-ink-2"
         >
-          {serverError}
-        </div>
-      )}
+          <ChevronDown
+            className={cn("h-[11px] w-[11px] transition-transform", detailsOpen && "rotate-180")}
+            aria-hidden="true"
+          />
+          Детали
+        </button>
+        {detailsOpen && (
+          <Textarea
+            id="notes"
+            aria-label="Пожелания"
+            placeholder="Особые пожелания, ограничения по здоровью или другие детали."
+            {...register("notes")}
+          />
+        )}
 
-      <HomepageAuthGate
-        open={authGateOpen}
-        onOpenChange={setAuthGateOpen}
-        onAuthSuccess={handleAuthSuccess}
-      />
+        {serverError && (
+          <div
+            role="alert"
+            className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {serverError}
+          </div>
+        )}
 
-      <button
-        type="submit"
-        disabled={isLoading}
-        className="mt-0.5 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-primary text-[15px] font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        <Send className="h-[18px] w-[18px]" aria-hidden="true" strokeWidth={2.2} />
-        {isLoading ? "Отправляем…" : "Найти гида"}
-      </button>
-    </form>
+        <HomepageAuthGate
+          open={authGateOpen}
+          onOpenChange={setAuthGateOpen}
+          onAuthSuccess={handleAuthSuccess}
+        />
+
+        <button
+          type="submit"
+          disabled={isLoading}
+          className="mt-0.5 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-primary text-[15px] font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Send className="h-[18px] w-[18px]" aria-hidden="true" strokeWidth={2.2} />
+          {isLoading ? "Отправляем…" : "Найти гида"}
+        </button>
+      </form>
+    </TooltipProvider>
   );
 }
 

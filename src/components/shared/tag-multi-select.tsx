@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, type JSX } from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import { useState, type JSX, type ReactNode } from "react";
+import { ChevronsUpDown } from "lucide-react";
 
 import {
   Command,
@@ -18,20 +18,32 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+export type TagOption = {
+  value: string;
+  label: string;
+  /** Optional compact icon shown inside the selected chip. */
+  icon?: ReactNode;
+};
+
 type TagMultiSelectProps = {
   value: string[];
   onChange: (next: string[]) => void;
-  options: readonly string[];
+  options: readonly TagOption[];
   placeholder?: string;
   ariaLabel?: string;
   searchPlaceholder?: string;
   emptyLabel?: string;
+  /** Leading field icon (already wrapped with a tooltip by the caller). */
+  leading?: ReactNode;
+  /** How many chips to show before collapsing the rest into "+N". */
+  maxVisibleChips?: number;
 };
 
 /**
- * Generic searchable multi-select. Shows selected values as removable chips and
- * opens a searchable popover menu for the rest. Domain-specific wrappers
- * (LanguageMultiSelect, ThemeMultiSelect) set the labels.
+ * Generic searchable multi-select with a FIXED single-line trigger: selected
+ * items render as compact chips, and anything beyond `maxVisibleChips`
+ * collapses into a "+N" pill (so the control never grows or jumps). The popover
+ * menu shows a single right-aligned tick per item (from CommandItem).
  */
 export function TagMultiSelect({
   value,
@@ -41,6 +53,8 @@ export function TagMultiSelect({
   ariaLabel = "Выбрать значения",
   searchPlaceholder = "Поиск…",
   emptyLabel = "Ничего не найдено",
+  leading,
+  maxVisibleChips = 2,
 }: TagMultiSelectProps): JSX.Element {
   const [open, setOpen] = useState(false);
 
@@ -52,63 +66,52 @@ export function TagMultiSelect({
     );
   };
 
+  const selected = options.filter((o) => value.includes(o.value));
+  const visible = selected.slice(0, maxVisibleChips);
+  const overflow = selected.length - visible.length;
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <div className="flex min-h-11 w-full flex-wrap items-center gap-1.5 rounded-lg border border-border bg-background px-3 py-2 text-left text-sm transition-colors hover:bg-muted/40 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
-        {value.length === 0 ? (
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              aria-label={ariaLabel}
-              className="flex min-h-6 flex-1 cursor-pointer items-center justify-between gap-2 text-left focus-visible:outline-none"
-            >
-              <span className="text-muted-foreground">{placeholder}</span>
-              <ChevronsUpDown
-                aria-hidden="true"
-                className={cn(
-                  "size-4 shrink-0 text-muted-foreground transition-transform",
-                  open && "rotate-180",
-                )}
-              />
-            </button>
-          </PopoverTrigger>
-        ) : (
-          <>
-            {value.map((item) => (
-              <span
-                key={item}
-                className="flex items-center gap-1 rounded-full bg-primary/10 py-0.5 pl-2 pr-1 text-xs text-primary"
-              >
-                {item}
-                <button
-                  type="button"
-                  aria-label={`Убрать ${item}`}
-                  className="inline-flex min-h-6 min-w-6 items-center justify-center rounded-full text-primary transition-colors hover:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-                  onClick={(event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    toggle(item);
-                  }}
-                >
-                  <X aria-hidden="true" className="size-3" />
-                </button>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={ariaLabel}
+          className="flex h-[46px] w-full items-center gap-[11px] overflow-hidden rounded-[13px] border border-border bg-surface px-[13px] text-left transition-[border-color,box-shadow] focus:border-primary focus:shadow-[0_0_0_3px_rgba(26,86,164,0.12)] focus:outline-none"
+        >
+          {leading}
+          <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
+            {selected.length === 0 ? (
+              <span className="truncate text-[15px] font-semibold text-[#C2C9D3]">
+                {placeholder}
               </span>
-            ))}
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                aria-label={ariaLabel}
-                className="ml-auto flex min-h-6 min-w-6 flex-1 cursor-pointer items-center justify-end rounded-full text-muted-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-              >
-                <ChevronsUpDown
-                  aria-hidden="true"
-                  className={cn("size-4 transition-transform", open && "rotate-180")}
-                />
-              </button>
-            </PopoverTrigger>
-          </>
-        )}
-      </div>
+            ) : (
+              <>
+                {visible.map((o) => (
+                  <span
+                    key={o.value}
+                    className="inline-flex h-6 max-w-[110px] shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 text-[11px] font-semibold text-primary"
+                  >
+                    {o.icon}
+                    <span className="truncate">{o.label}</span>
+                  </span>
+                ))}
+                {overflow > 0 ? (
+                  <span className="inline-flex h-6 shrink-0 items-center rounded-full bg-primary/10 px-2 text-[11px] font-bold text-primary">
+                    +{overflow}
+                  </span>
+                ) : null}
+              </>
+            )}
+          </span>
+          <ChevronsUpDown
+            aria-hidden="true"
+            className={cn(
+              "size-4 shrink-0 text-muted-foreground transition-transform",
+              open && "rotate-180",
+            )}
+          />
+        </button>
+      </PopoverTrigger>
       <PopoverContent
         align="start"
         className="min-w-64 w-[var(--radix-popover-trigger-width)] p-0"
@@ -124,27 +127,17 @@ export function TagMultiSelect({
           <CommandList>
             <CommandEmpty>{emptyLabel}</CommandEmpty>
             <CommandGroup>
-              {options.map((item) => {
-                const selected = value.includes(item);
-
-                return (
-                  <CommandItem
-                    key={item}
-                    value={item}
-                    data-checked={selected}
-                    onSelect={() => toggle(item)}
-                  >
-                    <Check
-                      aria-hidden="true"
-                      className={cn(
-                        "mr-2 size-4",
-                        selected ? "opacity-100" : "opacity-0",
-                      )}
-                    />
-                    {item}
-                  </CommandItem>
-                );
-              })}
+              {options.map((o) => (
+                <CommandItem
+                  key={o.value}
+                  value={o.label}
+                  data-checked={value.includes(o.value)}
+                  onSelect={() => toggle(o.value)}
+                >
+                  {o.icon}
+                  {o.label}
+                </CommandItem>
+              ))}
             </CommandGroup>
           </CommandList>
           <div className="flex items-center justify-between border-t border-border px-3 py-2 text-xs text-muted-foreground">
