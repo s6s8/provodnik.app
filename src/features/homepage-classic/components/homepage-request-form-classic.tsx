@@ -162,8 +162,8 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
         noValidate
       >
         {/* Направление */}
-        <div className={cn(FBX, "px-[15px]")}>
-          <FieldIcon icon={MapPin} label="Направление" className="h-[21px] w-[21px] text-primary" />
+        <div className={FBX}>
+          <FieldIcon icon={MapPin} label="Направление" className="text-primary" />
           <div className="min-w-0 flex-1">
             <input
               className={cn(FIN, "text-[18px]")}
