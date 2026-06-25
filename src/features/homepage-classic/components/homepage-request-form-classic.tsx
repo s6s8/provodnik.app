@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { ru } from "date-fns/locale";
 import {
-  Calendar,
+  Calendar as CalendarIcon,
   ChevronDown,
   Clock,
   Languages,
@@ -19,6 +20,8 @@ import type { LucideIcon } from "lucide-react";
 import { LANGUAGES } from "@/data/languages";
 import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { ThemeMultiSelect } from "@/components/shared/theme-multi-select";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -68,6 +71,67 @@ function openPicker(e: React.MouseEvent<HTMLInputElement>) {
   e.currentTarget.showPicker?.();
 }
 
+function isoToDate(iso: string): Date | undefined {
+  if (!iso) return undefined;
+  const [y, m, d] = iso.split("-").map(Number);
+  if (!y || !m || !d) return undefined;
+  return new Date(y, m - 1, d);
+}
+
+function dateToISO(d: Date): string {
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${month}-${day}`;
+}
+
+/** Custom date field — a calendar popover (Russian, no native widget jitter). */
+function DateField({
+  value,
+  onChange,
+  min,
+}: {
+  value: string;
+  onChange: (iso: string) => void;
+  min?: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const selected = isoToDate(value);
+  const minDate = min ? isoToDate(min) : undefined;
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label="Когда"
+          className="w-full truncate text-left text-[15.5px] font-bold leading-tight text-foreground outline-none"
+        >
+          {selected ? (
+            selected.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
+          ) : (
+            <span className="font-semibold text-[#C2C9D3]">Когда</span>
+          )}
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-0">
+        <Calendar
+          mode="single"
+          locale={ru}
+          selected={selected}
+          onSelect={(d) => {
+            if (d) {
+              onChange(dateToISO(d));
+              setOpen(false);
+            }
+          }}
+          disabled={minDate ? { before: minDate } : undefined}
+          autoFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
 export function HomepageRequestFormClassic({ destinations }: Props) {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const {
@@ -87,6 +151,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
     serverError,
     isLoading,
   } = useRequestForm();
+  const startDate = form.watch("startDate");
 
   return (
     <TooltipProvider delayDuration={150}>
@@ -121,16 +186,14 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
         {/* Когда · Гостей */}
         <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
           <div className={FBX}>
-            <FieldIcon icon={Calendar} label="Когда" />
+            <FieldIcon icon={CalendarIcon} label="Когда" />
             <div className="min-w-0 flex-1">
-              <input
-                className={cn(FIN, "native-picker-hidden")}
-                type="date"
+              <DateField
+                value={startDate ?? ""}
+                onChange={(iso) =>
+                  form.setValue("startDate", iso, { shouldDirty: true, shouldValidate: true })
+                }
                 min={todayMoscowISODate()}
-                aria-label="Когда"
-                aria-invalid={Boolean(errors.startDate)}
-                onClick={openPicker}
-                {...register("startDate")}
               />
             </div>
             <button
@@ -206,7 +269,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             <div className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5">
                 <input
-                  className={cn(FIN_BASE, "native-picker-hidden min-w-0 flex-1")}
+                  className={cn(FIN_BASE, "native-picker-hidden w-auto")}
                   type="time"
                   aria-label="Время начала"
                   onClick={openPicker}
@@ -214,7 +277,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                 />
                 <span className="font-bold text-muted-foreground">–</span>
                 <input
-                  className={cn(FIN_BASE, "native-picker-hidden min-w-0 flex-1")}
+                  className={cn(FIN_BASE, "native-picker-hidden w-auto")}
                   type="time"
                   aria-label="Время окончания"
                   onClick={openPicker}
