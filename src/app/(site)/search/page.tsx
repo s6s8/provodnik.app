@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { Search } from "lucide-react";
 
 import { ListHero } from "@/components/shared/list-hero";
 import { FilterBar } from "@/components/traveler/FilterBar";
@@ -90,7 +91,34 @@ export default async function SearchPage({
         imageUrl={brandGradient("search")}
         title={title}
         intro="Фильтруйте по типу, формату и цене — или опубликуйте запрос, если не нашли."
-      />
+      >
+        {/* Server-rendered search fills the hero's right-side dead space and gives
+            the page a text-search affordance the filter pills below don't cover.
+            GET to /search preserves the active region/type/format/sort filters. */}
+        <form
+          action="/search"
+          method="get"
+          role="search"
+          className="flex w-full items-center gap-2 rounded-full border border-white/30 bg-surface/95 p-1.5 pl-4 shadow-lift backdrop-blur-sm"
+        >
+          {sp.region ? <input type="hidden" name="region" value={sp.region} /> : null}
+          {sp.type ? <input type="hidden" name="type" value={sp.type} /> : null}
+          {sp.format ? <input type="hidden" name="format" value={sp.format} /> : null}
+          {sp.sort ? <input type="hidden" name="sort" value={sp.sort} /> : null}
+          <Search className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <input
+            type="search"
+            name="q"
+            defaultValue={sp.q ?? ""}
+            placeholder="Город, тип экскурсии или интерес…"
+            aria-label="Поиск предложений"
+            className="min-w-0 flex-1 bg-transparent text-[15px] text-foreground placeholder:text-muted-foreground focus:outline-none"
+          />
+          <Button type="submit" className="shrink-0 rounded-full px-5">
+            Найти
+          </Button>
+        </form>
+      </ListHero>
       <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-10">
         <Suspense fallback={<Skeleton className="mb-8 h-28 w-full rounded-xl" />}>
           <FilterBar
