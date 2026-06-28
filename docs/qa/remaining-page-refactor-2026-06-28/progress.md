@@ -11,8 +11,8 @@ Homepage is the design SOT (cleanliness + token discipline). No homepage redesig
 | B — feature-gated linked pages (hide nav links) | P0/P1 | ✅ done (commit) |
 | C — `/ai` visual polish | P1 | ✅ done (commit) |
 | D — `/search` hero density | P1 | ✅ done (commit) |
-| E — `/admin` loading heading | P2 | pending |
-| F — demo seed note | P2 | pending |
+| E — `/admin` loading heading | P2 | ✅ done (commit) |
+| F — demo seed note | P2 | ✅ done (doc note) |
 
 ## Log
 
@@ -59,3 +59,16 @@ Homepage is the design SOT (cleanliness + token discipline). No homepage redesig
   untouched.
 - File: `src/app/(site)/search/page.tsx`.
 - Screenshots: `search-1280.png`, `search-375.png`. Search page tests still pass; no overflow.
+
+### Task E — /admin loading heading
+- Issue: admin dashboard loading skeleton had only an sr-only label, no visible h1 mid-load.
+- Fix: render the real `PageHeader` (eyebrow "Администрирование" + h1 "Обзор" + subtitle) in
+  `loading.tsx`, skeletonizing only the data blocks below → stable heading, no layout shift
+  vs. the loaded page. `/admin` itself already redirects to `/admin/dashboard`.
+- Files: `src/app/(protected)/admin/dashboard/loading.tsx` (+ `loading.test.tsx`).
+
+### Task F — demo seed scope note (doc only)
+- Touching seed SQL is schema-sensitive and out of scope for a safe bounded run.
+- Deliverable: `seed-scope-notes.md` in this folder — concrete, schema-aware seed TODOs for
+  the thin areas the audit flagged (zero category counts, empty messages/reviews/bookings,
+  sparse admin queues). No seed scripts modified.
