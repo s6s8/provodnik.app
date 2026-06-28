@@ -1,0 +1,28 @@
+{
+  "projectId": "3a9ed626-213c-479d-b8d0-1a81435b8f2b",
+  "pkg": "provodnik-app",
+  "globalName": "Provodnik",
+  "shape": "package",
+  "tsconfig": "tsconfig.sync.json",
+  "srcDir": "src/components",
+  "cssEntry": "ds-styles.css",
+  "runtimeFontPrefixes": [
+    "Onest",
+    "Geist"
+  ],
+  "extraEntries": [
+    "./.design-sync/shims/ds-provider.tsx"
+  ],
+  "provider": {
+    "component": "DsProvider"
+  },
+  "readmeHeader": ".design-sync/conventions.md",
+  "componentSrcMap": {
+    "AvatarStack": null,
+    "EmptyState": null,
+    "FilterBar": null,
+    "GuideCard": null,
+    "ListingCard": null,
+    "StatStrip": null
+  }
+}

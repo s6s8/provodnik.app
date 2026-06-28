@@ -22,7 +22,7 @@ const HOW_IT_WORKS = [
   },
 ] as const;
 
-const SECTION = "mx-auto w-full max-w-[1180px] px-[clamp(20px,4vw,44px)]";
+const SECTION = "mx-auto w-full max-w-page px-gutter";
 
 export function HomePageShell2Classic({ destinations, requests }: Props) {
   const openGroups = requests.slice(0, 3);
@@ -33,12 +33,12 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
       <HomepageHeroFormClassic destinations={destinations} />
 
       {openGroups.length > 0 && (
-        <section className={`${SECTION} pb-6 pt-[clamp(40px,6vw,62px)]`} aria-label="Открытые группы">
+        <section className={`${SECTION} pb-6 pt-14`} aria-label="Открытые группы">
           <SectionHeading
             title="Открытые группы"
             action={{ label: "Все группы", href: "/requests" }}
           />
-          <div className="grid gap-[18px] sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {openGroups.map((req, index) => {
               const city = req.destination.split(",")[0].trim();
               const selected = req.status === "booked";
@@ -72,7 +72,7 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
       )}
 
       {popularDestinations.length > 0 && (
-        <section className={`${SECTION} pb-6 pt-[30px]`} aria-label="Популярные направления">
+        <section className={`${SECTION} pb-6 pt-8`} aria-label="Популярные направления">
           <SectionHeading
             title="Популярные направления"
             action={{ label: "Все направления", href: "/destinations" }}
@@ -91,21 +91,21 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
         </section>
       )}
 
-      <section className="mt-[30px] border-y border-border bg-surface">
-        <div className={`${SECTION} py-[54px]`}>
+      <section className="mt-8 border-y border-border bg-surface">
+        <div className={`${SECTION} py-14`}>
           <div className="mb-9 text-center">
-            <h2 className="text-[clamp(24px,3vw,30px)] font-extrabold tracking-[-0.03em] text-foreground">
+            <h2 className="text-section font-extrabold tracking-tight text-foreground">
               Как это работает
             </h2>
           </div>
           <div className="grid gap-6 sm:grid-cols-3">
             {HOW_IT_WORKS.map((step, index) => (
               <div key={step.title} className="flex flex-col items-center gap-2.5 text-center">
-                <span className="grid h-12 w-12 place-items-center rounded-[14px] bg-primary/10 text-[19px] font-extrabold text-primary">
+                <span className="grid size-12 place-items-center rounded-step bg-primary/10 text-lg font-extrabold text-primary">
                   {index + 1}
                 </span>
-                <div className="text-[17px] font-bold text-foreground">{step.title}</div>
-                <p className="m-0 max-w-[26ch] text-sm font-medium leading-relaxed text-muted-foreground">
+                <div className="text-base font-bold text-foreground">{step.title}</div>
+                <p className="m-0 max-w-xs text-sm font-medium leading-relaxed text-muted-foreground">
                   {step.body}
                 </p>
               </div>

@@ -1,53 +1,78 @@
 @import "tailwindcss";
-@config "../../tailwind.config.ts";
 
 @import "tw-animate-css";
 
+/* ─────────────────────────────────────────────────────────────────────────
+   SINGLE SOURCE OF TRUTH
+   Raw palette + semantic vars live in :root / .dark below (the ONLY place hex
+   literals exist). This @theme block maps them to Tailwind utilities — it is
+   the whole design vocabulary. tailwind.config.ts has been retired; nothing is
+   defined in two places.
+   ───────────────────────────────────────────────────────────────────────── */
 @theme inline {
-  --font-sans:    var(--font-onest);
-  --font-serif:   var(--font-onest);
-  --font-display: var(--font-onest);
+  /* Fonts ----------------------------------------------------------------- */
+  --font-sans:    var(--font-onest), system-ui, sans-serif;
+  --font-serif:   var(--font-onest), system-ui, sans-serif;
+  --font-display: var(--font-onest), system-ui, sans-serif;
   --font-mono:    var(--font-geist-mono);
 
+  /* Type scale — the two responsive display steps. Everything else uses the
+     native Tailwind text-* scale (text-xs … text-xl). */
+  --text-section: clamp(24px, 3vw, 30px);
+  --text-display: clamp(46px, 6vw, 68px);
+
+  /* Layout — one container width, one fluid gutter ------------------------ */
+  --container-page: var(--max-w);
+  --spacing-gutter: clamp(20px, 4vw, 48px);
+  --spacing-nav-h:  var(--nav-h);
+  --spacing-sec-pad: var(--sec-pad);
+
+  /* Colors — semantic roles (the only color utilities components may use) -- */
   --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-amber: var(--gold);
   --color-background: var(--surface);
   --color-foreground: var(--on-surface);
+  --color-surface: var(--surface);
+  --color-surface-low: var(--surface-low);
+  --color-surface-high: var(--surface-high);
+  --color-surface-lowest: var(--surface-lowest);
   --color-card: var(--surface-lowest);
   --color-card-foreground: var(--on-surface);
   --color-popover: var(--surface-lowest);
   --color-popover-foreground: var(--on-surface);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: #ffffff;
-  --color-gold: var(--gold);
-  --color-gold-foreground: var(--gold-foreground);
-  --color-gold-hover: var(--gold-hover);
   --color-secondary: var(--surface-lowest);
   --color-secondary-foreground: var(--on-surface);
   --color-muted: var(--surface-low);
   --color-muted-foreground: var(--on-surface-muted);
   --color-accent: var(--surface-low);
   --color-accent-foreground: var(--on-surface);
-  --color-destructive: #b91c1c;
+  --color-destructive: var(--destructive);
   --color-destructive-foreground: #ffffff;
   --color-border: var(--outline-variant);
   --color-input: var(--outline-variant);
   --color-ring: var(--primary);
+  --color-placeholder: var(--placeholder);
+  --color-overlay: var(--overlay);
 
-  --radius-sm: calc(var(--card-radius) - 0.5rem);
-  --radius-md: calc(var(--card-radius) - 0.25rem);
-  --radius-lg: var(--card-radius);
-  --radius-xl: var(--glass-radius);
-
-  --shadow-soft: var(--card-shadow);
-  --shadow-panel: var(--glass-shadow);
-
+  /* Brand (navy) */
+  --color-brand: var(--brand);
+  --color-brand-mid: var(--brand-mid);
+  --color-brand-light: var(--brand-light);
   --color-brand-50: var(--brand-50);   --color-brand-100: var(--brand-100);
   --color-brand-200: var(--brand-200); --color-brand-300: var(--brand-300);
   --color-brand-400: var(--brand-400); --color-brand-500: var(--brand-500);
   --color-brand-600: var(--brand-600); --color-brand-700: var(--brand-700);
   --color-brand-800: var(--brand-800); --color-brand-900: var(--brand-900);
   --color-brand-950: var(--brand-950);
+
+  /* Amber accent (keeps the gold-* utility names) */
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-gold-hover: var(--gold-hover);
   --color-gold-50: var(--gold-50);     --color-gold-100: var(--gold-100);
   --color-gold-200: var(--gold-200);   --color-gold-300: var(--gold-300);
   --color-gold-400: var(--gold-400);   --color-gold-500: var(--gold-500);
@@ -55,16 +80,48 @@
   --color-gold-800: var(--gold-800);   --color-gold-900: var(--gold-900);
   --color-gold-950: var(--gold-950);
 
+  /* Ink scale */
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+
+  /* Glass (nav only) */
+  --color-glass: var(--glass-bg);
+  --color-glass-border: var(--glass-border);
+  --color-nav-glass-bg: var(--nav-glass-bg);
+  --color-nav-glass-border: var(--nav-glass-border);
+
+  /* On-surface + lines + footer */
+  --color-on-surface: var(--on-surface);
+  --color-on-surface-muted: var(--on-surface-muted);
+  --color-outline-variant: var(--outline-variant);
+  --color-footer-bg: var(--footer-bg);
+  --color-line: var(--line);
+  --color-line-2: var(--line-2);
   --color-primary-tint: var(--primary-tint);
   --color-amber-tint: var(--amber-tint);
   --color-green-tint: var(--green-tint);
-  --color-line: var(--line);
-  --color-line-2: var(--line-2);
-  --color-danger: #C2410C;
+  --color-danger: var(--danger);
   --color-info: var(--primary);
+
+  /* Radii ----------------------------------------------------------------- */
+  --radius-sm: calc(var(--card-radius) - 0.5rem);
+  --radius-md: calc(var(--card-radius) - 0.25rem);
+  --radius-lg: var(--card-radius);
+  --radius-xl: var(--glass-radius);
+  --radius-card: var(--card-radius);
+  --radius-glass: var(--glass-radius);
+  --radius-btn: var(--radius-btn);
   --radius-pill: var(--radius-pill);
   --radius-step: var(--radius-step);
   --radius-hero: var(--radius-hero);
+
+  /* Elevation ------------------------------------------------------------- */
+  --shadow-soft: var(--card-shadow);
+  --shadow-card: var(--card-shadow);
+  --shadow-panel: var(--glass-shadow);
+  --shadow-glass: var(--glass-shadow);
+  --shadow-editorial: 0 28px 80px rgba(33, 49, 63, 0.14);
   --shadow-lift: var(--shadow-lift);
 }
 
@@ -82,7 +139,7 @@
   --canvas:#FAFAF9; --surface-white:#FFFFFF; --surface-2:#F4F4F2;
   --hairline:rgba(20,28,40,.08); --hairline-2:rgba(20,28,40,.12);
 
-  /* ───────── Layer 2: semantic tokens (existing names, repointed) ───────── */
+  /* ───────── Layer 2: semantic tokens ───────── */
   --nav-h: 88px;
   --primary: var(--navy-500);
   --primary-hover: var(--navy-600);
@@ -91,6 +148,8 @@
   --surface-lowest: var(--surface-white);
   --on-surface: var(--ink-raw);
   --on-surface-muted: var(--muted-ink);
+  --placeholder: var(--faint);
+  --overlay: #080E18;
   --outline-variant: var(--hairline);
   --footer-bg: var(--navy-950);
 
@@ -117,7 +176,7 @@
 
   --max-w: 1160px;
   --sec-pad: 80px;
-  --px: clamp(20px, 4vw, 32px);
+  --px: clamp(20px, 4vw, 48px);
 
   --brand: var(--primary);
   --brand-light: var(--navy-50);
@@ -141,6 +200,8 @@
   --gold-50:var(--amber-50); --gold-100:var(--amber-100); --gold-200:var(--amber-200); --gold-300:var(--amber-300);
   --gold-400:var(--amber-400); --gold-500:var(--amber-500); --gold-600:var(--amber-600); --gold-700:#6F4512;
   --gold-800:#52330D; --gold-900:#3A2409; --gold-950:#231505;
+
+  --danger: #C2410C;
 
   --background: var(--surface);
   --foreground: var(--on-surface);
@@ -168,6 +229,8 @@
   --surface-lowest: #1B2C46;
   --on-surface: #E7EDF5;
   --on-surface-muted: #94A1B5;
+  --placeholder: #6B7891;
+  --overlay: #060B14;
   --outline-variant: #26344A;
   --footer-bg: #061827;
   --glass-bg: rgba(27, 44, 70, 0.92);
@@ -239,6 +302,29 @@
   ::selection {
     background: rgba(26, 86, 164, 0.16);
     color: var(--ink);
+  }
+}
+
+/* Image scrims — photo legibility overlays (use via the Scrim atom, not inline
+   gradients). One recipe for all photo cards, one stronger recipe for the hero. */
+@layer components {
+  .scrim {
+    background-image: linear-gradient(
+      180deg,
+      rgba(8, 14, 24, 0.30) 0%,
+      rgba(8, 14, 24, 0) 42%,
+      rgba(8, 14, 24, 0.62) 100%
+    );
+  }
+
+  .scrim-hero {
+    background-image: linear-gradient(
+      180deg,
+      rgba(8, 14, 22, 0.66) 0%,
+      rgba(8, 14, 22, 0.22) 28%,
+      rgba(8, 14, 22, 0.3) 58%,
+      rgba(8, 14, 22, 0.82) 100%
+    );
   }
 }
 

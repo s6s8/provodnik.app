@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "jsx": "preserve",
+    "allowJs": true,
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "next/image": [
+        "./.design-sync/shims/next-image.tsx"
+      ],
+      "next/link": [
+        "./.design-sync/shims/next-link.tsx"
+      ],
+      "next/navigation": [
+        "./.design-sync/shims/next-navigation.tsx"
+      ],
+      "next/font/google": [
+        "./.design-sync/shims/next-font.tsx"
+      ],
+      "next/font/local": [
+        "./.design-sync/shims/next-font.tsx"
+      ],
+      "server-only": [
+        "./.design-sync/shims/empty.ts"
+      ]
+    }
+  },
+  "include": [
+    "src/components/**/*.ts",
+    "src/components/**/*.tsx",
+    ".design-sync/shims/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    ".next",
+    "ds-bundle",
+    ".ds-sync",
+    "**/*.test.tsx",
+    "**/*.test.ts"
+  ]
+}
