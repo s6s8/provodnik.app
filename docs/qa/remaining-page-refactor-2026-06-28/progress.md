@@ -9,8 +9,8 @@ Homepage is the design SOT (cleanliness + token discipline). No homepage redesig
 |---|---|---|
 | A — admin `/account` role handling | P0 | ✅ done (commit) |
 | B — feature-gated linked pages (hide nav links) | P0/P1 | ✅ done (commit) |
-| C — `/ai` visual polish | P1 | pending |
-| D — `/search` hero density | P1 | pending |
+| C — `/ai` visual polish | P1 | ✅ done (commit) |
+| D — `/search` hero density | P1 | ✅ done (commit) |
 | E — `/admin` loading heading | P2 | pending |
 | F — demo seed note | P2 | pending |
 
@@ -37,3 +37,25 @@ Homepage is the design SOT (cleanliness + token discipline). No homepage redesig
 - Note: `/account/notifications` settings is gated by FEATURE_TR_NOTIFICATIONS; the bell is
   already prop-gated via `notificationsEnabled` and the account menu links to `/notifications`
   (not gated), so no broken entry point there.
+- Verified visually: footer "Помощь" link no longer renders (see `ai-1280.png`).
+
+### Task C — /ai visual polish
+- Issue: muddy, low-res blurred background (`blur(13px)` on a scaled raster) felt weaker
+  than the homepage.
+- Fix: render `/hero-valley.jpg` via optimized `next/image` (crisp, `priority`) at low
+  opacity with a light 5px frost instead of the heavy 13px blur; strengthen the central
+  light wash and the input-bar contrast/focus (white 0.62→0.82, focus ring + lift shadow).
+  Conversation flow / server action untouched.
+- File: `src/features/homepage/components/hero-conversation.tsx`.
+- Screenshots: `ai-1280.png`, `ai-375.png`. No app console errors (only dev HMR ws noise),
+  no 375px overflow.
+
+### Task D — /search hero density
+- Issue: large navy `ListHero` had dead right-side space; page also had no text-search UI
+  (the `q` param was only reachable via deep links — FilterBar only has type/format/sort).
+- Fix: add a server-rendered GET search form into the hero's `children` slot. Fills the
+  dead space and adds the missing text-search affordance; preserves active
+  region/type/format/sort via hidden inputs. Shared `ListHero` and other catalog pages
+  untouched.
+- File: `src/app/(site)/search/page.tsx`.
+- Screenshots: `search-1280.png`, `search-375.png`. Search page tests still pass; no overflow.
