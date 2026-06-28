@@ -46,7 +46,7 @@ values
    'Санкт-Петербург','Санкт-Петербург','Водная прогулка','waterwalk','group',
    'Неспешный вечерний маршрут по воде с видами на разводные мосты и набережные.',
    90, 12, 250000, 'RUB', 'published',
-   'https://images.unsplash.com/photo-1556610961-2f64217e5a40', true, true, false,
+   'https://images.unsplash.com/photo-1502602898657-3e91760cbb34', true, true, false,
    'Причал у Эрмитажа', 9),
   ('a0000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000002',
    'sochi-airport-transfer-comfort','Сочи: комфортный трансфер из аэропорта к отелю',
@@ -74,6 +74,42 @@ on conflict (id) do update set
   image_url = excluded.image_url, updated_at = now();
 
 -- ---------------------------------------------------------------------------
+-- 2b. Image backfill — the base-seed listings shipped with an empty image_url,
+--     so catalog cards rendered grey placeholders. Set verified stock images
+--     ONLY where none is present (never clobbers a real upload, prod-safe).
+-- ---------------------------------------------------------------------------
+update public.listings set image_url = 'https://images.unsplash.com/photo-1513326738677-b964603b136d' where id = '20000000-0000-4000-8000-000000000001' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1543783207-ec64e4d95325' where id = '20000000-0000-4000-8000-000000000002' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1547448415-e9f5b28e570d' where id = '20000000-0000-4000-8000-000000000003' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1520106212299-d99c443e4568' where id = '20000000-0000-4000-8000-000000000004' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1565008447742-97f6f38c985c' where id = '20000000-0000-4000-8000-000000000005' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1551634979-2b11f8c946fe' where id = '20000000-0000-4000-8000-000000000006' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1499678329028-101435549a4e' where id = '20000000-0000-4000-8000-000000000007' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd' where id = '20000000-0000-4000-8000-000000000008' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1605281317010-fe5ffe798166' where id = '20000000-0000-4000-8000-000000000009' and coalesce(image_url,'') = '';
+update public.listings set image_url = 'https://images.unsplash.com/photo-1512495039889-52a3b799c9bc' where id = '20000000-0000-4000-8000-000000000010' and coalesce(image_url,'') = '';
+
+-- Saint Petersburg destination shipped with a dead Unsplash hero (404 in the
+-- browser). Replace only that exact broken URL — leaves any corrected value be.
+update public.destinations
+  set hero_image_url = 'https://images.unsplash.com/photo-1547448415-e9f5b28e570d'
+  where slug = 'saint-petersburg' and hero_image_url like '%photo-1520637836862%';
+
+-- ---------------------------------------------------------------------------
+-- 2c. A second open request for the demo traveler so the pending booking below
+--     has a backing request (the traveler "Подтверждённые" list derives its
+--     destination from the request join, see getConfirmedBookings).
+-- ---------------------------------------------------------------------------
+insert into public.traveler_requests
+  (id, traveler_id, destination, region, starts_on, ends_on, budget_minor,
+   participants_count, interests, status, date_window, open_to_join)
+values
+  ('30000000-0000-4000-8000-000000000010','00000000-0000-4000-8000-000000000003',
+   'Казань, Россия','Татарстан', current_date + 18, current_date + 19, 350000,
+   2, '{"Гастрономическая экскурсия"}', 'open', 'week', false)
+on conflict (id) do nothing;
+
+-- ---------------------------------------------------------------------------
 -- 3. Bookings in multiple statuses (variety for /trips, /guide/bookings,
 --    /admin/bookings). Completed bookings back the reviews in section 4.
 -- ---------------------------------------------------------------------------
@@ -92,6 +128,12 @@ values
   ('62000000-0000-4000-8000-000000000002','10000000-0000-4000-8000-000000000205','10000000-0000-4000-8000-000000000101','20000000-0000-4000-8000-000000000001','completed', 2, now() - interval '40 days', now() - interval '40 days' + interval '4 hours', 560000, 0, 560000, 'RUB','Чистые пруды'),
   ('62000000-0000-4000-8000-000000000003','10000000-0000-4000-8000-000000000206','10000000-0000-4000-8000-000000000102','20000000-0000-4000-8000-000000000002','disputed',  4, now() - interval '12 days', now() - interval '12 days' + interval '3 hours', 720000, 0, 720000, 'RUB','Казань, кремль')
 on conflict (id) do update set status = excluded.status, updated_at = now();
+
+-- Link the pending demo booking to its backing request so it renders a
+-- destination (not "—") in the traveler confirmed-bookings list.
+update public.bookings
+  set request_id = '30000000-0000-4000-8000-000000000010'
+  where id = '61000000-0000-4000-8000-000000000001';
 
 -- ---------------------------------------------------------------------------
 -- 4. Reviews on completed bookings (populate /guide/reviews + listing ratings

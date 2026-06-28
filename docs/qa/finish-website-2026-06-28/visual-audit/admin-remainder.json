@@ -1,0 +1,81 @@
+[
+  {
+    "path": "/admin/guides",
+    "role": "admin",
+    "vp": "desktop",
+    "status": 200,
+    "file": "audit/screens/admin/admin_guides__desktop.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/guides",
+    "role": "admin",
+    "vp": "mobile",
+    "status": 200,
+    "file": "audit/screens/admin/admin_guides__mobile.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/guides/d0000000-0000-4000-8000-000000000101",
+    "role": "admin",
+    "vp": "desktop",
+    "status": 200,
+    "file": "audit/screens/admin/admin_guides_d0000000_0000_4000_8000_000000000101__desktop.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/guides/d0000000-0000-4000-8000-000000000101",
+    "role": "admin",
+    "vp": "mobile",
+    "status": 200,
+    "file": "audit/screens/admin/admin_guides_d0000000_0000_4000_8000_000000000101__mobile.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/listings",
+    "role": "admin",
+    "vp": "desktop",
+    "status": 200,
+    "file": "audit/screens/admin/admin_listings__desktop.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/listings",
+    "role": "admin",
+    "vp": "mobile",
+    "status": 200,
+    "file": "audit/screens/admin/admin_listings__mobile.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/moderation",
+    "role": "admin",
+    "vp": "desktop",
+    "status": 200,
+    "file": "audit/screens/admin/admin_moderation__desktop.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/moderation",
+    "role": "admin",
+    "vp": "mobile",
+    "status": 200,
+    "file": "audit/screens/admin/admin_moderation__mobile.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/disputes",
+    "role": "admin",
+    "vp": "desktop",
+    "status": 200,
+    "file": "audit/screens/admin/admin_disputes__desktop.png",
+    "consoleErrors": []
+  },
+  {
+    "path": "/admin/disputes",
+    "role": "admin",
+    "vp": "mobile",
+    "error": "page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"http://127.0.0.1:3000/admin/disputes\", waiting until \"domcontentloaded\"\n",
+    "consoleErrors": []
+  }
+]

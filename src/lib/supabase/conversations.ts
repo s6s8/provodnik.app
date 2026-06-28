@@ -304,16 +304,20 @@ async function listGuideDisplayNames(
 
   const supabase = await createSupabaseServerClient();
 
+  // guide_profiles.display_name was dropped (20260528154254); the canonical
+  // guide name now lives in profiles.full_name and is exposed for approved
+  // guides via the public v_guide_public_profile view (readable even when the
+  // viewer can't read the guide's profiles row directly under RLS).
   const { data, error } = await supabase
-    .from("guide_profiles")
-    .select("user_id, display_name")
+    .from("v_guide_public_profile")
+    .select("user_id, full_name")
     .in("user_id", uniqueIds);
 
   if (error) throw error;
 
   for (const row of (data as Array<Record<string, unknown>>) ?? []) {
-    const displayName = (row.display_name as string | null)?.trim();
-    if (displayName) {
+    const displayName = (row.full_name as string | null)?.trim();
+    if (displayName && row.user_id) {
       result.set(row.user_id as Uuid, displayName);
     }
   }

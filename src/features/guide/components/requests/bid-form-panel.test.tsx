@@ -46,6 +46,18 @@ vi.mock("@/data/guide-templates/supabase-client", () => ({
   listGuideTemplates: async () => guideTemplates.value,
 }));
 
+vi.mock("./use-guide-catalog", () => ({
+  useGuideCatalog: () => ({
+    guidePhotos: guidePhotos.value.map((photo) => ({
+      id: photo.id,
+      location_name: photo.location_name,
+      photoUrl: `/photos/${photo.object_path}`,
+    })),
+    guideTemplates: guideTemplates.value.filter((template) => template.status === "published"),
+    guideVerificationStatus: verificationStatus.value,
+  }),
+}));
+
 import { BidFormPanel } from "./bid-form-panel";
 
 beforeEach(() => {

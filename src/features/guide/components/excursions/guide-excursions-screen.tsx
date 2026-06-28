@@ -8,9 +8,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, type SubmitErrorHandler } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -351,6 +357,9 @@ export function GuideExcursionsScreen() {
         <SheetContent side="right" className="w-full max-w-md">
           <SheetHeader>
             <SheetTitle>{editingTemplate ? "Изменить экскурсию" : "Новая экскурсия"}</SheetTitle>
+            <SheetDescription>
+              Заполните маршрут, стоимость и фото, чтобы сохранить экскурсию в кабинете гида.
+            </SheetDescription>
           </SheetHeader>
           <div className="mt-5 space-y-4 px-4">
             <div>
@@ -469,6 +478,9 @@ export function GuideExcursionsScreen() {
                     <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-md">
                       <DialogHeader>
                         <DialogTitle>Выбрать фото маршрута</DialogTitle>
+                        <DialogDescription>
+                          Выберите одно или несколько фото из портфолио для карточки экскурсии.
+                        </DialogDescription>
                       </DialogHeader>
                       <div className="grid grid-cols-4 gap-2 pt-2">
                         {portfolioPhotos.map((photo) => {

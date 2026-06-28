@@ -175,12 +175,15 @@ export function BidFormPanel({
 
   // When headcount changes, hold per-person fixed and recompute the group total.
   const perPersonVal = useWatch({ control, name: "price_per_person" });
+  const totalVal = useWatch({ control, name: "price_total" });
   React.useEffect(() => {
     if (perPersonVal != null && !Number.isNaN(perPersonVal) && count > 0) {
-      setValue("price_total", perPersonVal * count, { shouldValidate: true });
+      const nextTotal = perPersonVal * count;
+      if (totalVal !== nextTotal) {
+        setValue("price_total", nextTotal, { shouldValidate: true });
+      }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [count]);
+  }, [count, perPersonVal, setValue, totalVal]);
 
   const onSubmit = React.useCallback(
     async (values: OfferFormValues) => {
