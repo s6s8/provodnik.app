@@ -77,7 +77,7 @@ export default function TermsPage() {
       </nav>
 
       <div className="space-y-6">
-        <Card id="subject" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="subject" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">1. Предмет соглашения</CardTitle>
           </CardHeader>
@@ -97,7 +97,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="travelers" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="travelers" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               2. Условия использования для путешественников
@@ -112,7 +112,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="guides" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="guides" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               3. Условия использования для гидов
@@ -127,7 +127,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="prohibited" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="prohibited" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">4. Запрещённые действия</CardTitle>
           </CardHeader>
@@ -140,7 +140,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="liability" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="liability" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               5. Ответственность платформы
@@ -166,7 +166,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="disputes" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="disputes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               6. Споры и разрешение конфликтов
@@ -181,7 +181,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="changes" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="changes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">7. Изменение условий</CardTitle>
           </CardHeader>
@@ -199,7 +199,7 @@ export default function TermsPage() {
           </CardContent>
         </Card>
 
-        <Card id="contacts" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="contacts" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">8. Контакты</CardTitle>
           </CardHeader>

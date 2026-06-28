@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, MessageCircle, TrendingUp, Users } from "lucide-react";
 
+import { ArticleShell } from "@/components/shared/article-shell";
+import { StepCard } from "@/components/shared/step-card";
 import { ListHero } from "@/components/shared/list-hero";
 import { Button } from "@/components/ui/button";
 
@@ -55,21 +57,18 @@ export default function BecomeAGuidePage() {
         </Button>
       </ListHero>
 
-      <div className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+      <ArticleShell>
         <section className="mb-12">
-          <h2 className="mb-6 font-display text-[clamp(1.4rem,3vw,1.75rem)] font-semibold leading-[1.2] text-foreground">
+          <h2 className="mb-6 text-section font-extrabold tracking-tight text-foreground">
             Как стать гидом
           </h2>
-          <ol className="space-y-5">
+          <div className="space-y-3">
             {STEPS.map((step, index) => (
-              <li key={step} className="flex items-start gap-4">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {index + 1}
-                </span>
-                <p className="pt-1 text-sm text-foreground">{step}</p>
-              </li>
+              <StepCard key={step} step={index + 1}>
+                {step}
+              </StepCard>
             ))}
-          </ol>
+          </div>
         </section>
 
         <section className="mb-12">
@@ -79,7 +78,7 @@ export default function BecomeAGuidePage() {
               return (
                 <div
                   key={benefit.title}
-                  className="rounded-xl border border-border/70 bg-card/90 p-5"
+                  className="rounded-card border border-border bg-card p-5 shadow-card"
                 >
                   <Icon className="mb-3 size-5 text-primary" aria-hidden="true" />
                   <p className="mb-1 text-sm font-semibold text-foreground">{benefit.title}</p>
@@ -90,7 +89,7 @@ export default function BecomeAGuidePage() {
           </div>
         </section>
 
-        <section className="mb-12 rounded-xl border border-border/70 bg-card/90 p-6">
+        <section className="mb-12 rounded-card border border-border bg-card p-6 shadow-card">
           <h2 className="mb-4 text-base font-semibold text-foreground">
             Гиды Проводника — реальные специалисты
           </h2>
@@ -109,7 +108,7 @@ export default function BecomeAGuidePage() {
             <Link href="/auth?role=guide">Стать гидом</Link>
           </Button>
         </div>
-      </div>
+      </ArticleShell>
     </article>
   );
 }

@@ -145,7 +145,7 @@ export default async function HelpPage() {
 
   return (
     <section className="pb-20 pt-10">
-      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
+      <div className="mx-auto w-full max-w-page px-gutter">
         <PageHeader
           title="Центр помощи"
           subtitle="Ответы на частые вопросы о бронировании, гидах и аккаунте"
@@ -158,7 +158,7 @@ export default async function HelpPage() {
             if (inCategory.length === 0) return null;
             return (
               <section key={category}>
-                <h2 className="mb-4 text-xl font-semibold text-foreground md:text-2xl">
+                <h2 className="mb-4 text-section font-extrabold tracking-tight text-foreground">
                   {CATEGORY_LABELS[category] ?? category}
                 </h2>
                 <Accordion.Root type="single" collapsible className="w-full">

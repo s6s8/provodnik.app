@@ -2,8 +2,8 @@ import type { ReactNode } from "react";
 
 export default function PoliciesLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="pt-[96px] pb-16 bg-surface">
-      <div className="mx-auto w-full max-w-[760px] px-[clamp(28px,5vw,56px)]">
+    <div className="py-16 bg-surface">
+      <div className="mx-auto w-full max-w-[760px] px-gutter">
         {children}
       </div>
     </div>
