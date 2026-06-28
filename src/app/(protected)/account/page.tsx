@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,12 @@ async function fetchAvatar(userId: string | null | undefined, fallbackName: stri
 
 export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
+
+  // Admins have no traveler/guide profile surface here; send them to their
+  // workspace instead of the unauthenticated "Войдите в аккаунт" fallback.
+  if (auth.isAuthenticated && auth.role === "admin") {
+    redirect("/admin/dashboard");
+  }
 
   if (auth.isAuthenticated && auth.role === "traveler") {
     const displayNameFallback =
