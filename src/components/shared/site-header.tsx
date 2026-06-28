@@ -32,10 +32,11 @@ import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
 import {
-  accountMenu,
+  accountMenuByRole,
   filterNavItemsByHiddenHrefs,
-  headerPrimary,
   isNavActive,
+  primaryNavByRole,
+  publicPrimaryNav,
   type NavItem,
 } from "@/lib/navigation";
 
@@ -90,25 +91,12 @@ export function SiteHeader({
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
 
-  const primaryItems: readonly NavItem[] = !isAuthenticated
-    ? headerPrimary.anon
-    : role === "guide"
-      ? headerPrimary.guide
-      : role === "admin"
-        ? headerPrimary.admin
-        : role === "traveler"
-          ? headerPrimary.traveler
-          : headerPrimary.anon;
+  const primaryItems: readonly NavItem[] =
+    isAuthenticated && role ? primaryNavByRole[role] : publicPrimaryNav;
   const activeHref = resolveActiveHref(pathname, primaryItems);
 
   const accountItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
-    role === "guide"
-      ? accountMenu.guide
-      : role === "admin"
-        ? accountMenu.admin
-        : role === "traveler"
-          ? accountMenu.traveler
-          : [],
+    role ? accountMenuByRole[role] : [],
     hiddenNavHrefs,
   );
 

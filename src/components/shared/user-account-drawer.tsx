@@ -13,8 +13,9 @@ import {
 import { ProfileAvatar } from "@/components/profile-avatar";
 import type { AppRole } from "@/lib/auth/types";
 import {
-  accountMenu,
+  accountMenuByRole,
   filterNavItemsByHiddenHrefs,
+  roleSwitchByRole,
   type NavItem,
 } from "@/lib/navigation";
 
@@ -45,20 +46,14 @@ export function UserAccountDrawer({
 }: UserAccountDrawerProps) {
   const displayName = fullName?.trim().split(/\s+/)[0] || email || "Гость";
   const accountItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
-    role === "guide"
-      ? accountMenu.guide
-      : role === "admin"
-        ? accountMenu.admin
-        : role === "traveler"
-          ? accountMenu.traveler
-          : [],
+    role ? accountMenuByRole[role] : [],
     hiddenNavHrefs,
   );
   const roleSwitch =
     role === "guide"
-      ? { href: "/trips", label: "Переключиться на путешественника" }
+      ? roleSwitchByRole.guide
       : role === "traveler"
-        ? { href: "/guide", label: "Переключиться на гида" }
+        ? roleSwitchByRole.traveler
         : null;
 
   function closeAndNavigate() {

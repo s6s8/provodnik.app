@@ -174,7 +174,7 @@ describe("SiteHeader desktop account menu", () => {
 
     await openAccountMenu();
 
-    expect(await screen.findByText("Профиль")).toBeInTheDocument();
+    expect(await screen.findByText("Профиль гида")).toBeInTheDocument();
     expect(screen.getByText("Настройки")).toBeInTheDocument();
   });
 
@@ -189,15 +189,24 @@ describe("SiteHeader desktop account menu", () => {
     );
   });
 
-  it("«Профиль» for guide links to /guide/profile", async () => {
+  it("«Профиль гида» for guide links to /guide/profile", async () => {
     renderAuthenticatedHeader("guide");
 
     await openAccountMenu();
 
-    expect(await screen.findByRole("menuitem", { name: "Профиль" })).toHaveAttribute(
-      "href",
-      "/guide/profile",
-    );
+    expect(
+      await screen.findByRole("menuitem", { name: "Профиль гида" }),
+    ).toHaveAttribute("href", "/guide/profile");
+  });
+
+  it("does not duplicate trips/notifications in the traveler avatar menu", async () => {
+    renderAuthenticatedHeader("traveler");
+
+    await openAccountMenu();
+
+    expect(await screen.findByText("Профиль")).toBeInTheDocument();
+    expect(screen.queryByText("Уведомления")).not.toBeInTheDocument();
+    expect(screen.queryByText("Поездки")).not.toBeInTheDocument();
   });
 
   it("includes unread message count in the messages link label", () => {

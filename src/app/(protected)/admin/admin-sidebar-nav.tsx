@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { adminNav, isNavActive, type NavItem } from "@/lib/navigation";
+import { adminPrimaryNav, isNavActive, type NavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 type AdminNavCounts = {
@@ -59,7 +59,7 @@ export function AdminSidebarNav({
 
   return (
     <nav className="space-y-2" aria-label="Admin workspace">
-      {adminNav.map((item: NavItem) => {
+      {adminPrimaryNav.map((item: NavItem) => {
         const countKey = countKeyByHref[item.href];
         return (
           <NavLink
@@ -86,7 +86,7 @@ export function AdminMobileTabs({
       className="fixed inset-x-3 bottom-3 z-[110] grid grid-cols-7 rounded-[1.5rem] border border-glass-border bg-nav-glass-bg p-1.5 shadow-glass backdrop-blur md:hidden"
       aria-label="Admin workspace mobile"
     >
-      {adminNav.map((item: NavItem) => {
+      {adminPrimaryNav.map((item: NavItem) => {
         const Icon = item.icon;
         const active = isNavActive(pathname, item);
         const countKey = countKeyByHref[item.href];

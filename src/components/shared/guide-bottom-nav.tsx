@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { guideBottomNav, isNavActive, type NavItem } from "@/lib/navigation";
+import { isNavActive, mobileBottomNavByRole, type NavItem } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
 export function GuideBottomNav() {
@@ -15,7 +15,7 @@ export function GuideBottomNav() {
       style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="h-16 grid grid-cols-4">
-        {guideBottomNav.map((item: NavItem) => {
+        {mobileBottomNavByRole.guide.map((item: NavItem) => {
           const isActive = isNavActive(pathname, item);
           const label = item.shortLabel ?? item.label;
           const Icon = item.icon;

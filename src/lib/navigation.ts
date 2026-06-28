@@ -35,14 +35,14 @@ export const ROUTES = {
   favorites:    { href: "/favorites",    label: "Избранное",         icon: Heart },
   messages:     { href: "/messages",     label: "Сообщения",         icon: MessageSquare, activePrefixes: ["/messages"] },
   notifications:{ href: "/notifications",label: "Уведомления",       icon: Bell },
-  referrals:    { href: "/referrals",    label: "Приглашения",       icon: Gift },
+  referrals:    { href: "/referrals",    label: "Пригласить друга",  icon: Gift },
   account:      { href: "/account",      label: "Профиль",           icon: User },
-  guideInbox:   { href: "/guide",          label: "Запросы",         icon: Inbox, activePrefixes: ["/guide/inbox"] },
+  guideInbox:   { href: "/guide/inbox",    label: "Запросы",         icon: Inbox },
   guideListings:{ href: "/guide/listings", label: "Мои экскурсии", shortLabel: "Экскурсии", icon: Compass },
   guideBookings:{ href: "/guide/bookings", label: "Заказы",          icon: BookCheck },
   guideReviews: { href: "/guide/reviews",  label: "Отзывы",          icon: Star },
   guideCalendar:{ href: "/guide/calendar", label: "Календарь",       icon: Calendar },
-  guideProfile: { href: "/guide/profile",  label: "Профиль",         icon: User },
+  guideProfile: { href: "/guide/profile",  label: "Профиль гида",    icon: User },
   guideSettings:{ href: "/guide/settings/contact-visibility", label: "Настройки", icon: Settings },
   adminDashboard: { href: "/admin/dashboard",  label: "Обзор",        icon: BarChart3 },
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
@@ -55,21 +55,85 @@ export const ROUTES = {
 
 const adminBridge: NavItem = { ...ROUTES.adminDashboard, label: "Админка" };
 
-export const headerPrimary = {
-  anon:     [ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.destinations, ROUTES.howItWorks],
-  traveler: [ROUTES.requests, ROUTES.listings, ROUTES.destinations, ROUTES.trips],
-  guide:    [ROUTES.guideInbox, ROUTES.guideListings, ROUTES.guideBookings, ROUTES.guideReviews],
-  admin:    [ROUTES.requests, ROUTES.guides, ROUTES.destinations, adminBridge],
+// ---------------------------------------------------------------------------
+// Role-based navigation — single source of truth.
+//
+// Primary nav = the visible top/workspace nav for a role. Account menus =
+// private account utilities only (no primary-nav duplicates). Each surface
+// (SiteHeader, UserAccountDrawer, GuideBottomNav, AdminSidebarNav) consumes the
+// matching grouped export below so a role's nav is defined in exactly one place.
+// ---------------------------------------------------------------------------
+
+/** Anonymous / public marketplace discovery (max 5 items). */
+export const publicPrimaryNav = [
+  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.destinations, ROUTES.howItWorks,
+] as const;
+
+/** Traveler: marketplace + personal trips. */
+export const travelerPrimaryNav = [
+  ROUTES.requests, ROUTES.listings, ROUTES.destinations, ROUTES.trips,
+] as const;
+
+/** Guide workspace (also drives the mobile bottom nav). */
+export const guidePrimaryNav = [
+  ROUTES.guideInbox, ROUTES.guideListings, ROUTES.guideBookings, ROUTES.guideReviews,
+] as const;
+
+/** Admin workspace (drives the admin sidebar + mobile tabs). */
+export const adminPrimaryNav = [
+  ROUTES.adminDashboard, ROUTES.adminGuides, ROUTES.adminListings,
+  ROUTES.adminModeration, ROUTES.adminDisputes, ROUTES.adminBookings, ROUTES.adminAudit,
+] as const;
+
+/**
+ * Global SiteHeader nav for admins. The admin workspace owns its own sidebar
+ * (`adminPrimaryNav`); the top header keeps marketplace discovery plus a single
+ * bridge into the workspace, so the header is not a redundant copy of the
+ * sidebar at desktop widths.
+ */
+export const adminHeaderNav = [
+  ROUTES.requests, ROUTES.guides, ROUTES.destinations, adminBridge,
+] as const;
+
+/** Visible top-header nav per authenticated role (anon handled separately). */
+export const primaryNavByRole = {
+  traveler: travelerPrimaryNav,
+  guide: guidePrimaryNav,
+  admin: adminHeaderNav,
 } as const;
 
-export const accountMenu = {
-  traveler: [ROUTES.account, ROUTES.myBookings, ROUTES.favorites, ROUTES.notifications, ROUTES.referrals, ROUTES.help],
-  guide:    [ROUTES.guideProfile, ROUTES.guideCalendar, ROUTES.guideSettings, ROUTES.help],
-  admin:    [adminBridge, ROUTES.account, ROUTES.help],
+// --- Account/avatar menus: private utilities only. -------------------------
+
+/** Traveler avatar menu. Flag-gated items filtered via hidden hrefs. */
+export const travelerAccountMenu = [
+  ROUTES.account, ROUTES.favorites, ROUTES.help, ROUTES.referrals,
+] as const;
+
+/** Guide avatar menu (workspace items live in `guidePrimaryNav`, not here). */
+export const guideAccountMenu = [
+  ROUTES.guideProfile, ROUTES.guideCalendar, ROUTES.guideSettings, ROUTES.help,
+] as const;
+
+/** Admin avatar menu (workspace items live in `adminPrimaryNav`, not here). */
+export const adminAccountMenu = [ROUTES.account, ROUTES.help] as const;
+
+export const accountMenuByRole = {
+  traveler: travelerAccountMenu,
+  guide: guideAccountMenu,
+  admin: adminAccountMenu,
 } as const;
 
-export const guideBottomNav = [ROUTES.guideInbox, ROUTES.guideListings, ROUTES.guideBookings, ROUTES.guideReviews] as const;
-export const adminNav = [ROUTES.adminDashboard, ROUTES.adminGuides, ROUTES.adminListings, ROUTES.adminModeration, ROUTES.adminDisputes, ROUTES.adminBookings, ROUTES.adminAudit] as const;
+/** Account-drawer role switch targets. */
+export const roleSwitchByRole = {
+  guide: { href: ROUTES.trips.href, label: "Переключиться на путешественника" },
+  traveler: { href: "/guide", label: "Переключиться на гида" },
+} as const;
+
+// --- Mobile bottom navigation (workspace roles only). ----------------------
+export const mobileBottomNavByRole = {
+  guide: guidePrimaryNav,
+  admin: adminPrimaryNav,
+} as const;
 
 export const footerNav = {
   about:   [ROUTES.howItWorks, ROUTES.trust, ROUTES.becomeGuide, ROUTES.forBusiness],
