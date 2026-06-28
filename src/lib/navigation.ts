@@ -1,4 +1,6 @@
 import type { LucideIcon } from "lucide-react";
+
+import type { FlagName } from "@/lib/flags";
 import {
   Users, Compass, UserSearch, Map, Search, Route, BadgeCheck, ShieldCheck,
   Briefcase, HelpCircle, LogIn, ClipboardList, Luggage, Heart, MessageSquare,
@@ -80,6 +82,38 @@ export const footerNav = {
     { href: "/policies/cookies", label: "Cookies",               icon: ScrollText } as NavItem,
   ],
 } as const;
+
+/**
+ * Nav hrefs whose destination page is feature-gated (renders `notFound()` when
+ * the flag is off). Links to these routes must be hidden when the flag is
+ * disabled so demo/QA navigation never lands on a "не найдена" page.
+ */
+export const NAV_FLAG_BY_HREF = {
+  "/help": "FEATURE_TR_HELP",
+  "/favorites": "FEATURE_TR_FAVORITES",
+  "/referrals": "FEATURE_TR_REFERRALS",
+} as const satisfies Partial<Record<string, FlagName>>;
+
+/**
+ * Hrefs that must be hidden given a set of resolved feature flags. Flag values
+ * are resolved server-side (env is server-only) and the resulting list is the
+ * serializable contract passed to client nav components.
+ */
+export function hiddenNavHrefsForFlags(
+  isEnabled: (flag: FlagName) => boolean,
+): string[] {
+  return Object.entries(NAV_FLAG_BY_HREF)
+    .filter(([, flag]) => !isEnabled(flag))
+    .map(([href]) => href);
+}
+
+export function filterNavItemsByHiddenHrefs(
+  items: readonly NavItem[],
+  hiddenHrefs: readonly string[],
+): NavItem[] {
+  if (hiddenHrefs.length === 0) return [...items];
+  return items.filter((item) => !hiddenHrefs.includes(item.href));
+}
 
 export function isNavActive(pathname: string, item: NavItem): boolean {
   if (item.activePrefixes) {

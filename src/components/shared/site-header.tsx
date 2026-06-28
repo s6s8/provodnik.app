@@ -31,7 +31,13 @@ import { COPY } from "@/lib/copy";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
-import { accountMenu, headerPrimary, isNavActive, type NavItem } from "@/lib/navigation";
+import {
+  accountMenu,
+  filterNavItemsByHiddenHrefs,
+  headerPrimary,
+  isNavActive,
+  type NavItem,
+} from "@/lib/navigation";
 
 function resolveActiveHref(pathname: string, items: readonly NavItem[]): string | null {
   let best: string | null = null;
@@ -58,6 +64,7 @@ interface SiteHeaderProps {
   canonicalRedirectTo?: AuthRedirectTarget | null;
   userId?: string | null;
   notificationsEnabled?: boolean;
+  hiddenNavHrefs?: readonly string[];
 }
 
 export function SiteHeader({
@@ -68,6 +75,7 @@ export function SiteHeader({
   avatarUrl = null,
   userId = null,
   notificationsEnabled = false,
+  hiddenNavHrefs = [],
 }: SiteHeaderProps) {
   const pathname = usePathname();
   const showAccountIdentity = isAuthenticated;
@@ -93,14 +101,16 @@ export function SiteHeader({
           : headerPrimary.anon;
   const activeHref = resolveActiveHref(pathname, primaryItems);
 
-  const accountItems: readonly NavItem[] =
+  const accountItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
     role === "guide"
       ? accountMenu.guide
       : role === "admin"
         ? accountMenu.admin
         : role === "traveler"
           ? accountMenu.traveler
-          : [];
+          : [],
+    hiddenNavHrefs,
+  );
 
   return (
     <>
@@ -315,6 +325,7 @@ export function SiteHeader({
       fullName={fullName}
       avatarUrl={avatarUrl}
       role={role ?? null}
+      hiddenNavHrefs={hiddenNavHrefs}
     />
     </>
   );

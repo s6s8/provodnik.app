@@ -1,5 +1,6 @@
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { flags } from "@/lib/flags";
+import { hiddenNavHrefsForFlags } from "@/lib/navigation";
 
 import { SiteHeader } from "./site-header";
 
@@ -16,6 +17,7 @@ export async function SiteHeaderServer() {
       canonicalRedirectTo={auth.canonicalRedirectTo}
       userId={auth.userId}
       notificationsEnabled={flags.FEATURE_TR_NOTIFICATIONS}
+      hiddenNavHrefs={hiddenNavHrefsForFlags((flag) => flags[flag])}
     />
   );
 }

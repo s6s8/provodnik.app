@@ -1,6 +1,12 @@
 import Link from "next/link";
 
-import { footerNav, type NavItem } from "@/lib/navigation";
+import { flags } from "@/lib/flags";
+import {
+  filterNavItemsByHiddenHrefs,
+  footerNav,
+  hiddenNavHrefsForFlags,
+  type NavItem,
+} from "@/lib/navigation";
 
 const TG_ICON = (
   <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -13,6 +19,9 @@ const socialLinks = [
 ] as const;
 
 export function SiteFooter() {
+  const hiddenHrefs = hiddenNavHrefsForFlags((flag) => flags[flag]);
+  const supportLinks = filterNavItemsByHiddenHrefs(footerNav.support, hiddenHrefs);
+
   return (
     <footer className="bg-footer-bg pb-8 pt-14" role="contentinfo">
       <div className="mx-auto max-w-page px-[clamp(20px,4vw,48px)]">
@@ -37,7 +46,7 @@ export function SiteFooter() {
               Поддержка
             </p>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-              {footerNav.support.map((link: NavItem) =>
+              {supportLinks.map((link: NavItem) =>
                 link.external ? (
                   <li key={link.label}>
                     <a
