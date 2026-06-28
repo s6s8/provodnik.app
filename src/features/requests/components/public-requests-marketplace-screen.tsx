@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { ChevronDown, Compass, X } from "lucide-react";
@@ -54,6 +54,7 @@ const WHEN_PRESETS = [
   { value: "next-month", label: "В следующем месяце" },
   { value: "flexible", label: "Гибкие даты" },
 ] as const;
+const REQUESTS_PAGE_SIZE = 9;
 type WhenPreset = (typeof WHEN_PRESETS)[number]["value"];
 type ActiveDateRange = { from?: Date; to?: Date };
 
@@ -177,6 +178,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(null);
   const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(null);
   const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(REQUESTS_PAGE_SIZE);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const requests = useMemo(() => initialData ?? [], [initialData]);
 
@@ -261,6 +264,33 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       return matchesQuery && matchesCategory && matchesCity && matchesWhen;
     });
   }, [activeCategories, query, requests, activeCity, activeWhen, activeDateRange]);
+
+  const visibleRequests = useMemo(
+    () => filteredRequests.slice(0, visibleCount),
+    [filteredRequests, visibleCount]
+  );
+  const hasMoreRequests = visibleCount < filteredRequests.length;
+
+  useEffect(() => {
+    setVisibleCount(REQUESTS_PAGE_SIZE);
+  }, [activeCategories, query, activeCity, activeWhen, activeDateRange]);
+
+  useEffect(() => {
+    const loadMoreNode = loadMoreRef.current;
+    if (!loadMoreNode || !hasMoreRequests) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length));
+        }
+      },
+      { rootMargin: "480px 0px" }
+    );
+
+    observer.observe(loadMoreNode);
+    return () => observer.disconnect();
+  }, [filteredRequests.length, hasMoreRequests]);
 
   const hasActiveDropdownFilter =
     activeCity != null || activeWhen != null || activeDateRange != null || activeCategories.length > 0;
@@ -507,9 +537,9 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       <section className="py-sec-pad">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           {filteredRequests.length > 0 ? (
-            <div className="mx-auto max-w-2xl">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {filteredRequests.map((request, index) => {
+            <div className="mx-auto max-w-6xl">
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {visibleRequests.map((request, index) => {
                 const location = request.destinationLabel.split(",")[0].trim();
                 const matched = request.status === "matched";
                 const sizeCurrent = request.group.sizeCurrent;
@@ -537,8 +567,21 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     priority={index < 3}
                   />
                 );
-              })}
-            </div>
+                })}
+              </div>
+              {hasMoreRequests ? (
+                <div ref={loadMoreRef} className="flex justify-center pt-8">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length))
+                    }
+                  >
+                    Показать ещё
+                  </Button>
+                </div>
+              ) : null}
             </div>
           ) : (
             <EmptyState
