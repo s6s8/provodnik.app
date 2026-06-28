@@ -1,5 +1,11 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/image", () => ({
+  default: ({ src, alt }: { src: string; alt: string }) => (
+    <span role="img" aria-label={alt} data-src={src} />
+  ),
+}));
 
 import { MarketingHeader } from "../marketing-header";
 
@@ -17,8 +23,8 @@ describe("MarketingHeader", () => {
       <MarketingHeader title="Эльбрус" photo="/photo.jpg" />,
     );
 
-    const img = container.querySelector("img");
-    expect(img?.getAttribute("src")).toBe("/photo.jpg");
+    const img = container.querySelector("[data-src]");
+    expect(img?.getAttribute("data-src")).toBe("/photo.jpg");
 
     const scrim = container.querySelector(".bg-gradient-to-t");
     expect(scrim).not.toBeNull();

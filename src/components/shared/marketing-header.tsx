@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { cn } from "@/lib/utils";
@@ -24,7 +25,7 @@ export function MarketingHeader({ photo, title, eyebrow, cta, className }: Marke
     >
       {photo ? (
         <>
-          <img src={photo} alt="" className="absolute inset-0 size-full object-cover" />
+          <Image src={photo} alt="" fill className="object-cover" sizes="100vw" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-black/20" />
         </>
       ) : null}
