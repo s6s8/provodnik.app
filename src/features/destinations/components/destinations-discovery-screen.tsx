@@ -2,11 +2,23 @@
 
 import * as React from "react";
 
-import { DiscoveryHero, DiscoveryShell } from "@/components/shared/discovery-shell";
+import {
+  DiscoveryFacetChip,
+  DiscoveryFacetRail,
+  DiscoveryHero,
+  DiscoveryResultsCount,
+  DiscoveryShell,
+  DiscoveryToolbar,
+} from "@/components/shared/discovery-shell";
 import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DestinationsGrid } from "@/features/destinations/components/destinations-grid";
-import type { DestinationRecord } from "@/data/supabase/queries";
+import {
+  DestinationsGrid,
+  DESTINATION_CATEGORY_LABELS,
+} from "@/features/destinations/components/destinations-grid";
+import type { DestinationCategory, DestinationRecord } from "@/data/supabase/queries";
+
+const DESTINATION_CATEGORY_ORDER: readonly DestinationCategory[] = ["city", "nature", "culture"];
 
 /**
  * Discovery screen for `/destinations`. Owns the hero + search + results in one
@@ -22,6 +34,22 @@ export function DestinationsDiscoveryScreen({
   loadError?: boolean;
 }) {
   const [query, setQuery] = React.useState("");
+  const [category, setCategory] = React.useState<DestinationCategory | "all">("all");
+
+  const categoryCounts = React.useMemo(() => {
+    const counts = { city: 0, nature: 0, culture: 0 } as Record<DestinationCategory, number>;
+    for (const dest of destinations) counts[dest.category] += 1;
+    return counts;
+  }, [destinations]);
+
+  const visibleCount = React.useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return destinations.filter((d) => {
+      if (category !== "all" && d.category !== category) return false;
+      if (!q) return true;
+      return `${d.name} ${d.region ?? ""} ${d.description ?? ""}`.toLowerCase().includes(q);
+    }).length;
+  }, [destinations, query, category]);
 
   return (
     <>
@@ -40,6 +68,38 @@ export function DestinationsDiscoveryScreen({
         />
       </DiscoveryHero>
 
+      {!loadError && destinations.length > 0 ? (
+        <DiscoveryToolbar
+          facets={
+            <DiscoveryFacetRail label="Категории направлений">
+              <DiscoveryFacetChip
+                active={category === "all"}
+                count={destinations.length}
+                onClick={() => setCategory("all")}
+              >
+                Все
+              </DiscoveryFacetChip>
+              {DESTINATION_CATEGORY_ORDER.filter((slug) => categoryCounts[slug] > 0).map((slug) => (
+                <DiscoveryFacetChip
+                  key={slug}
+                  active={category === slug}
+                  count={categoryCounts[slug]}
+                  onClick={() => setCategory(slug)}
+                >
+                  {DESTINATION_CATEGORY_LABELS[slug]}
+                </DiscoveryFacetChip>
+              ))}
+            </DiscoveryFacetRail>
+          }
+          count={
+            <DiscoveryResultsCount
+              count={visibleCount}
+              noun={["направление", "направления", "направлений"]}
+            />
+          }
+        />
+      ) : null}
+
       <DiscoveryShell>
         {loadError ? (
           <Alert variant="destructive">
@@ -48,7 +108,7 @@ export function DestinationsDiscoveryScreen({
             </AlertDescription>
           </Alert>
         ) : (
-          <DestinationsGrid destinations={destinations} query={query} />
+          <DestinationsGrid destinations={destinations} query={query} category={category} />
         )}
       </DiscoveryShell>
     </>

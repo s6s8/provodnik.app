@@ -38,10 +38,11 @@ describe("PublicGuidesGrid", () => {
     expect(heroSection?.querySelector("h1")?.textContent).toBe("Гиды");
   });
 
-  it("renders the topic chips in the shared DiscoveryFilterBar, not in the results shell", () => {
+  it("renders the topic facet rail in the shared discovery toolbar band, not in the results shell", () => {
     render(<PublicGuidesGrid guides={[makeGuide(0)]} activeSpecs={[]} />);
 
-    const label = screen.getByText("Темы:");
-    expect(label.closest(".bg-surface-low")).not.toBeNull();
+    // The unified toolbar leads with an "Все" facet chip on the bg-surface-low band.
+    const allChip = screen.getByRole("button", { name: "Все" });
+    expect(allChip.closest(".bg-surface-low")).not.toBeNull();
   });
 });

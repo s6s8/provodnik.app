@@ -5,10 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import {
-  DiscoveryFilterBar,
+  DiscoveryFacetChip,
+  DiscoveryFacetRail,
   DiscoveryGrid,
   DiscoveryHero,
+  DiscoveryResultsCount,
   DiscoveryShell,
+  DiscoveryToolbar,
 } from "@/components/shared/discovery-shell";
 import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { PublicGuideCard } from "@/components/shared/public-guide-card";
@@ -17,7 +20,6 @@ import { Button } from "@/components/ui/button";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
 import { brandGradient } from "@/lib/city-image";
-import { cn } from "@/lib/utils";
 
 function buildGuidesSearch(activeSpecs: string[], q: string): string {
   const params = new URLSearchParams();
@@ -83,42 +85,36 @@ export function PublicGuidesGrid({
         </form>
       </DiscoveryHero>
 
-      <DiscoveryFilterBar>
-        <div className="mb-3 flex items-center gap-3">
-          <p className="text-sm font-medium text-on-surface">Темы:</p>
-          {activeSpecs.length > 0 && (
-            <Link
-              href="/guides"
-              className="text-sm text-on-surface-muted underline underline-offset-2 hover:text-on-surface"
+      <DiscoveryToolbar
+        facets={
+          <DiscoveryFacetRail label="Темы">
+            <DiscoveryFacetChip
+              active={activeSpecs.length === 0}
+              onClick={() => pushGuides([], query)}
             >
-              Сбросить
-            </Link>
-          )}
-        </div>
-        <div className="-mx-[clamp(20px,4vw,48px)] overflow-x-auto px-[clamp(20px,4vw,48px)]">
-          <div className="flex flex-nowrap gap-2 whitespace-nowrap">
+              Все
+            </DiscoveryFacetChip>
             {INTEREST_CHIPS.map((chip) => {
               const pressed = activeSpecs.includes(chip.id);
               return (
-                <button
+                <DiscoveryFacetChip
                   key={chip.id}
-                  type="button"
-                  aria-pressed={pressed}
+                  active={pressed}
+                  pressed={pressed}
                   onClick={() => toggleSpec(chip.id)}
-                  className={cn(
-                    "inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                    pressed
-                      ? "border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-surface text-on-surface hover:bg-surface-high",
-                  )}
                 >
                   {chip.label}
-                </button>
+                </DiscoveryFacetChip>
               );
             })}
-          </div>
-        </div>
-      </DiscoveryFilterBar>
+          </DiscoveryFacetRail>
+        }
+        count={
+          !loadError && guides.length > 0 ? (
+            <DiscoveryResultsCount count={guides.length} noun={["гид", "гида", "гидов"]} />
+          ) : null
+        }
+      />
 
       <DiscoveryShell>
         {loadError ? (

@@ -6,15 +6,17 @@ import { Compass } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
-  DiscoveryFilterBar,
+  DiscoveryFacetChip,
+  DiscoveryFacetRail,
   DiscoveryGrid,
   DiscoveryHero,
+  DiscoveryResultsCount,
   DiscoveryShell,
+  DiscoveryToolbar,
 } from "@/components/shared/discovery-shell";
 import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { ListingCard } from "@/components/shared/listing-card";
 import { brandGradient } from "@/lib/city-image";
-import { cn } from "@/lib/utils";
 import type { ListingRecord } from "@/data/supabase/queries";
 import type { PublicListing } from "@/data/public-listings/types";
 import { THEMES, type ThemeSlug } from "@/data/themes";
@@ -46,15 +48,6 @@ function mapListing(listing: PublicListing): ListingRecord {
     reviewCount: listing.reviewCount ?? 0,
     status: "active",
   };
-}
-
-function pillClass(isActive: boolean): string {
-  return cn(
-    "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full px-5 text-[0.9rem] transition-colors",
-    isActive
-      ? "bg-primary font-semibold text-primary-foreground"
-      : "bg-surface-low font-medium text-on-surface-muted hover:bg-surface",
-  );
 }
 
 export function PublicListingDiscoveryScreen({
@@ -114,31 +107,36 @@ export function PublicListingDiscoveryScreen({
         />
       </DiscoveryHero>
 
-      <DiscoveryFilterBar>
-        <div className="flex flex-wrap gap-3">
-          <button
-            key="all"
-            type="button"
-            onClick={() => setActiveFilter("all")}
-            className={pillClass(activeFilter === "all")}
-          >
-            Все
-            <span className="tabular-nums opacity-60">{listings.length}</span>
-          </button>
-          {THEMES.map(({ slug, label, Icon }) => (
-            <button
-              key={slug}
-              type="button"
-              onClick={() => setActiveFilter(slug)}
-              className={pillClass(activeFilter === slug)}
+      <DiscoveryToolbar
+        facets={
+          <DiscoveryFacetRail label="Темы экскурсий">
+            <DiscoveryFacetChip
+              active={activeFilter === "all"}
+              count={listings.length}
+              onClick={() => setActiveFilter("all")}
             >
-              <Icon className="size-4 shrink-0" aria-hidden />
-              {label}
-              <span className="tabular-nums opacity-60">{themeCounts[slug]}</span>
-            </button>
-          ))}
-        </div>
-      </DiscoveryFilterBar>
+              Все
+            </DiscoveryFacetChip>
+            {THEMES.filter(({ slug }) => themeCounts[slug] > 0).map(({ slug, label, Icon }) => (
+              <DiscoveryFacetChip
+                key={slug}
+                icon={Icon}
+                active={activeFilter === slug}
+                count={themeCounts[slug]}
+                onClick={() => setActiveFilter(slug)}
+              >
+                {label}
+              </DiscoveryFacetChip>
+            ))}
+          </DiscoveryFacetRail>
+        }
+        count={
+          <DiscoveryResultsCount
+            count={filteredListings.length}
+            noun={["экскурсия", "экскурсии", "экскурсий"]}
+          />
+        }
+      />
 
       <DiscoveryShell>
         {filteredListings.length > 0 ? (
