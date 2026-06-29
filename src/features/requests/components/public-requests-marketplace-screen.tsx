@@ -336,25 +336,14 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
   return (
     <div>
-      <DiscoveryHero
-        imageUrl={brandGradient("requests")}
-        title="Запросы"
-        intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
-      >
-        <div className="flex flex-col gap-4">
-          <DiscoverySearchInput
-            id="requests-search"
-            label="Поиск по запросам"
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="Ключевые слова: формат, детали, пожелания"
-          />
-          <div>
-            <Button asChild>
-              <Link href="/requests/new">Опубликовать запрос</Link>
-            </Button>
-          </div>
-        </div>
+      <DiscoveryHero imageUrl={brandGradient("requests")} title="Запросы">
+        <DiscoverySearchInput
+          id="requests-search"
+          label="Поиск по запросам"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Ключевые слова: формат, детали, пожелания"
+        />
       </DiscoveryHero>
 
       <DiscoveryFilterBar>
