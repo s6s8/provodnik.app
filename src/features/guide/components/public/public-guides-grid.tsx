@@ -3,17 +3,17 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
 
 import {
+  DiscoveryFilterBar,
   DiscoveryGrid,
   DiscoveryHero,
   DiscoveryShell,
 } from "@/components/shared/discovery-shell";
+import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { PublicGuideCard } from "@/components/shared/public-guide-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
 import { brandGradient } from "@/lib/city-image";
@@ -73,64 +73,54 @@ export function PublicGuidesGrid({
         intro="Найдите проверенного местного гида."
       >
         <form onSubmit={onSearchSubmit}>
-          <label htmlFor="guide-search" className="sr-only">
-            Поиск гида
-          </label>
-          <div className="relative">
-            <Search
-              className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface-muted"
-              aria-hidden="true"
-            />
-            <Input
-              id="guide-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Иван, Казань, английский"
-              className="h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg"
-            />
-          </div>
+          <DiscoverySearchInput
+            id="guide-search"
+            label="Поиск гида"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Иван, Казань, английский"
+          />
         </form>
       </DiscoveryHero>
 
-      <DiscoveryShell>
-        <div>
-          <div className="mb-3 flex items-center gap-3">
-            <p className="text-sm font-medium text-on-surface">Темы:</p>
-            {activeSpecs.length > 0 && (
-              <Link
-                href="/guides"
-                className="text-sm text-on-surface-muted underline underline-offset-2 hover:text-on-surface"
-              >
-                Сбросить
-              </Link>
-            )}
-          </div>
-          <div className="-mx-[clamp(20px,4vw,48px)] overflow-x-auto px-[clamp(20px,4vw,48px)] sm:mx-0 sm:px-0">
-            <div className="flex flex-nowrap gap-2 whitespace-nowrap">
-              {INTEREST_CHIPS.map((chip) => {
-                const pressed = activeSpecs.includes(chip.id);
-                return (
-                  <button
-                    key={chip.id}
-                    type="button"
-                    aria-pressed={pressed}
-                    onClick={() => toggleSpec(chip.id)}
-                    className={cn(
-                      "inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-                      pressed
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-border bg-surface text-on-surface hover:bg-surface-high",
-                    )}
-                  >
-                    {chip.label}
-                  </button>
-                );
-              })}
-            </div>
+      <DiscoveryFilterBar>
+        <div className="mb-3 flex items-center gap-3">
+          <p className="text-sm font-medium text-on-surface">Темы:</p>
+          {activeSpecs.length > 0 && (
+            <Link
+              href="/guides"
+              className="text-sm text-on-surface-muted underline underline-offset-2 hover:text-on-surface"
+            >
+              Сбросить
+            </Link>
+          )}
+        </div>
+        <div className="-mx-[clamp(20px,4vw,48px)] overflow-x-auto px-[clamp(20px,4vw,48px)]">
+          <div className="flex flex-nowrap gap-2 whitespace-nowrap">
+            {INTEREST_CHIPS.map((chip) => {
+              const pressed = activeSpecs.includes(chip.id);
+              return (
+                <button
+                  key={chip.id}
+                  type="button"
+                  aria-pressed={pressed}
+                  onClick={() => toggleSpec(chip.id)}
+                  className={cn(
+                    "inline-flex min-h-11 shrink-0 items-center justify-center rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+                    pressed
+                      ? "border-primary bg-primary text-primary-foreground"
+                      : "border-border bg-surface text-on-surface hover:bg-surface-high",
+                  )}
+                >
+                  {chip.label}
+                </button>
+              );
+            })}
           </div>
         </div>
+      </DiscoveryFilterBar>
 
+      <DiscoveryShell>
         {loadError ? (
           <Alert variant="destructive">
             <AlertDescription>
@@ -149,7 +139,7 @@ export function PublicGuidesGrid({
                 Точных совпадений нет, показываем близкие
               </p>
             )}
-            <DiscoveryGrid className="gap-6">
+            <DiscoveryGrid>
               {guides.map((guide) => (
                 <PublicGuideCard
                   key={guide.slug}

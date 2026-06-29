@@ -2,11 +2,16 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Compass, Search } from "lucide-react";
+import { Compass } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DiscoveryGrid, DiscoveryHero, DiscoveryShell } from "@/components/shared/discovery-shell";
+import {
+  DiscoveryFilterBar,
+  DiscoveryGrid,
+  DiscoveryHero,
+  DiscoveryShell,
+} from "@/components/shared/discovery-shell";
+import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { ListingCard } from "@/components/shared/listing-card";
 import { brandGradient } from "@/lib/city-image";
 import { cn } from "@/lib/utils";
@@ -101,23 +106,15 @@ export function PublicListingDiscoveryScreen({
         title="Экскурсии"
         intro="Авторские экскурсии от местных гидов."
       >
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface-muted"
-            aria-hidden
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Поиск по названию, описанию или направлению…"
-            aria-label="Поиск по экскурсиям"
-            className="h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg"
-          />
-        </div>
+        <DiscoverySearchInput
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Поиск по названию, описанию или направлению…"
+          aria-label="Поиск по экскурсиям"
+        />
       </DiscoveryHero>
 
-      <DiscoveryShell>
+      <DiscoveryFilterBar>
         <div className="flex flex-wrap gap-3">
           <button
             key="all"
@@ -141,7 +138,9 @@ export function PublicListingDiscoveryScreen({
             </button>
           ))}
         </div>
+      </DiscoveryFilterBar>
 
+      <DiscoveryShell>
         {filteredListings.length > 0 ? (
           <DiscoveryGrid>
             {filteredListings.map((listing, index) => (

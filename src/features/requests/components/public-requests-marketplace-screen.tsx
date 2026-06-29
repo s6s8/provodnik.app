@@ -12,6 +12,7 @@ import {
   DiscoveryHero,
   DiscoveryShell,
 } from "@/components/shared/discovery-shell";
+import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { EmptyState } from "@/components/shared/empty-state";
 import { OpenGroupCard } from "@/components/shared/open-group-card";
 import { Badge } from "@/components/ui/badge";
@@ -341,19 +342,13 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
         intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
       >
         <div className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="requests-search" className="sr-only">
-              Поиск по запросам
-            </label>
-            <input
-              id="requests-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Ключевые слова: формат, детали, пожелания"
-              className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
-            />
-          </div>
+          <DiscoverySearchInput
+            id="requests-search"
+            label="Поиск по запросам"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Ключевые слова: формат, детали, пожелания"
+          />
           <div>
             <Button asChild>
               <Link href="/requests/new">Опубликовать запрос</Link>

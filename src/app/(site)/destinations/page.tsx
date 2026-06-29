@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 
-import { DiscoveryHero, DiscoveryShell } from "@/components/shared/discovery-shell";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { DestinationsGrid } from "@/features/destinations/components/destinations-grid";
+import { DestinationsDiscoveryScreen } from "@/features/destinations/components/destinations-discovery-screen";
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -26,25 +24,5 @@ export default async function DestinationsPage() {
     loadError = true;
   }
 
-  return (
-    <>
-      <DiscoveryHero
-        imageUrl="/hero-valley.jpg"
-        imagePosition="center 50%"
-        title="Направления"
-        intro="Откройте города и регионы России — и найдите местного гида в каждом из них."
-      />
-      <DiscoveryShell>
-        {loadError ? (
-          <Alert variant="destructive">
-            <AlertDescription>
-              Не удалось загрузить направления. Попробуйте обновить страницу.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <DestinationsGrid destinations={destinations} />
-        )}
-      </DiscoveryShell>
-    </>
-  );
+  return <DestinationsDiscoveryScreen destinations={destinations} loadError={loadError} />;
 }
