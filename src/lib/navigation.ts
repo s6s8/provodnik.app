@@ -18,8 +18,8 @@ export type NavItem = {
 };
 
 export const ROUTES = {
-  requests:     { href: "/requests",     label: "Открытые группы",   icon: Users },
-  listings:     { href: "/listings",     label: "Готовые экскурсии", icon: Compass },
+  requests:     { href: "/requests",     label: "Запросы",           icon: Users },
+  listings:     { href: "/listings",     label: "Экскурсии",         icon: Compass },
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
   search:       { href: "/search",       label: "Поиск",             icon: Search },
@@ -30,7 +30,7 @@ export const ROUTES = {
   forBusiness:  { href: "/for-business", label: "Для бизнеса",       icon: Briefcase },
   help:         { href: "/help",         label: "Помощь",            icon: HelpCircle },
   auth:         { href: "/auth",         label: "Войти",             icon: LogIn },
-  trips:        { href: "/trips",        label: "Мои запросы",       icon: ClipboardList },
+  trips:        { href: "/trips",        label: "Мои поездки",       icon: ClipboardList },
   myBookings:   { href: "/bookings",     label: "Поездки",           icon: Luggage },
   favorites:    { href: "/favorites",    label: "Избранное",         icon: Heart },
   messages:     { href: "/messages",     label: "Сообщения",         icon: MessageSquare, activePrefixes: ["/messages"] },
@@ -38,7 +38,7 @@ export const ROUTES = {
   referrals:    { href: "/referrals",    label: "Пригласить друга",  icon: Gift },
   account:      { href: "/account",      label: "Профиль",           icon: User },
   guideInbox:   { href: "/guide/inbox",    label: "Запросы",         icon: Inbox },
-  guideListings:{ href: "/guide/listings", label: "Мои экскурсии", shortLabel: "Экскурсии", icon: Compass },
+  guideListings:{ href: "/guide/listings", label: "Экскурсии", shortLabel: "Экскурсии", icon: Compass },
   guideBookings:{ href: "/guide/bookings", label: "Заказы",          icon: BookCheck },
   guideReviews: { href: "/guide/reviews",  label: "Отзывы",          icon: Star },
   guideCalendar:{ href: "/guide/calendar", label: "Календарь",       icon: Calendar },

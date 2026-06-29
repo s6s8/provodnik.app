@@ -116,5 +116,20 @@ describe("role-based nav groups", () => {
       "/destinations",
       "/trips",
     ]);
+    expect(travelerPrimaryNav.map((item) => item.label)).toEqual([
+      "Запросы",
+      "Экскурсии",
+      "Направления",
+      "Мои поездки",
+    ]);
+  });
+
+  it("uses the simplified guide workspace labels", () => {
+    expect(guidePrimaryNav.map((item) => item.label)).toEqual([
+      "Запросы",
+      "Экскурсии",
+      "Заказы",
+      "Отзывы",
+    ]);
   });
 });
