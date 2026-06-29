@@ -35,7 +35,7 @@ import { MarkOffersRead } from "@/features/traveler/components/requests/mark-off
 import { OfferCard } from "@/features/traveler/components/requests/offer-card";
 import { AcceptOfferButton } from "@/features/traveler/components/requests/accept-offer-button";
 import { BiddingGuidesTeaser } from "@/components/shared/bidding-guides-teaser";
-import { ImmersiveHero } from "@/components/shared/immersive-hero";
+import { ImmersiveHero, type HeroBreadcrumbItem } from "@/components/shared/immersive-hero";
 import { RequestFactsPanel } from "@/components/shared/request-facts-panel";
 import { TripPanel } from "@/components/shared/trip-panel";
 import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-offer-card";
@@ -52,6 +52,26 @@ import type { GuideOfferRow, TravelerRequestRow } from "@/lib/supabase/types";
 import { cn, pluralize } from "@/lib/utils";
 
 export type PublicRequestJoinState = "anon" | "can-join" | "member" | "owner" | "closed";
+
+/**
+ * Request-detail breadcrumb. Root is the public requests marketplace ("Запросы",
+ * matching ROUTES.requests) and is clickable; the country-only fallback "Россия"
+ * is dropped, "Калмыкия · Россия"-style labels are trimmed to the region, and a
+ * region equal to the city is omitted. The city is the current, non-clickable
+ * crumb. Replaces the old non-clickable "Поездки > Россия > Москва".
+ */
+function buildRequestDetailBreadcrumb(
+  regionLabel: string,
+  title: string,
+): HeroBreadcrumbItem[] {
+  const items: HeroBreadcrumbItem[] = [{ label: "Запросы", href: "/requests" }];
+  const region = (regionLabel.split("·")[0] ?? "").trim();
+  if (region && region !== "Россия" && region !== title) {
+    items.push({ label: region });
+  }
+  items.push({ label: title, current: true });
+  return items;
+}
 
 export type PublicRequestDetailViewModel = {
   title: string;
@@ -256,7 +276,7 @@ function PublicDetailBranch({
       <ImmersiveHero
         className="-mt-nav-h"
         imageUrl={viewModel.cityImageUrl}
-        breadcrumb={[{ label: "Поездки" }, { label: viewModel.regionLabel }, { label: viewModel.title }]}
+        breadcrumb={buildRequestDetailBreadcrumb(viewModel.regionLabel, viewModel.title)}
         title={viewModel.title}
         intro={hasAbout ? viewModel.notes : undefined}
       >
@@ -625,11 +645,10 @@ function OwnerDetailBranch({
     });
   };
 
-  const breadcrumb = [
-    { label: "Поездки" },
-    ...(viewModel.regionLabel ? [{ label: viewModel.regionLabel }] : []),
-    { label: viewModel.title },
-  ];
+  const breadcrumb = buildRequestDetailBreadcrumb(
+    viewModel.regionLabel,
+    viewModel.title,
+  );
 
   const selectedItem = pendingOffers.find(({ offer }) => offer.id === selectedId) ?? null;
 
@@ -835,7 +854,7 @@ function GuideDetailBranch({
       <ImmersiveHero
         className="-mt-nav-h"
         imageUrl={cityImage(request.destination)}
-        breadcrumb={[{ label: "Запросы" }, { label: request.destination }]}
+        breadcrumb={buildRequestDetailBreadcrumb(request.destination, request.destination)}
         title={request.destination}
         intro={request.description || undefined}
       >

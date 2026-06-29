@@ -267,6 +267,28 @@ describe("RequestDetailScreen", () => {
     expect(screen.queryByRole("button", { name: "Сделать предложение" })).not.toBeInTheDocument();
   });
 
+  it("renders a clickable «Запросы» breadcrumb, trims the country fallback, and marks the city current", () => {
+    render(
+      <RequestDetailScreen
+        viewerRole="public"
+        requestId="request-1"
+        viewModel={publicViewModel}
+      />,
+    );
+
+    // Root crumb links to the requests marketplace, not the old "Поездки".
+    const root = screen.getByRole("link", { name: "Запросы" });
+    expect(root).toHaveAttribute("href", "/requests");
+    expect(screen.queryByText("Поездки")).not.toBeInTheDocument();
+
+    // "Калмыкия · Россия" is trimmed to the region; the bare country never shows.
+    expect(screen.getByText("Калмыкия")).toBeInTheDocument();
+    expect(screen.queryByText("Россия")).not.toBeInTheDocument();
+
+    // The city is the current page — present as a heading but not a link.
+    expect(screen.queryByRole("link", { name: "Элиста" })).not.toBeInTheDocument();
+  });
+
   it("preserves the public сборная join page contract without deleted sections", () => {
     render(
       <RequestDetailScreen

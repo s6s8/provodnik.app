@@ -2366,6 +2366,7 @@ export type Database = {
           full_name: string | null
           id: string
           phone: string | null
+          phone_normalized: string | null
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string
         }

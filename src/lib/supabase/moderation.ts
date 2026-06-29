@@ -721,7 +721,12 @@ export async function getGuideReviewQueue(filters?: {
       : profile.verification_status === "submitted",
   );
   const guideIds = guideProfiles.map((profile) => profile.user_id);
-  const [accounts, casesResult] = await Promise.all([
+
+  // Secondary metadata (account display info, moderation cases, latest actions)
+  // must not collapse the whole queue: a guide application that arrived is more
+  // important than its decorations. Mirror getGuideReviewDetail's resilience and
+  // degrade these to empty with a logged warning instead of throwing.
+  const [accountsResult, casesResult] = await Promise.allSettled([
     getProfilesByIds(adminClient, guideIds),
     guideIds.length
       ? adminClient
@@ -735,19 +740,40 @@ export async function getGuideReviewQueue(filters?: {
       : Promise.resolve({ data: [], error: null }),
   ]);
 
-  if (casesResult.error) throw casesResult.error;
+  const accounts =
+    accountsResult.status === "fulfilled"
+      ? accountsResult.value
+      : new Map<Uuid, ProfileLite>();
+  if (accountsResult.status === "rejected") {
+    console.error("[getGuideReviewQueue] account lookup failed:", accountsResult.reason);
+  }
+
+  const casesData =
+    casesResult.status === "fulfilled" && !casesResult.value.error
+      ? ((casesResult.value.data ?? []) as ModerationCaseRow[])
+      : [];
+  if (casesResult.status === "rejected") {
+    console.error("[getGuideReviewQueue] moderation cases lookup failed:", casesResult.reason);
+  } else if (casesResult.status === "fulfilled" && casesResult.value.error) {
+    console.error("[getGuideReviewQueue] moderation cases query error:", casesResult.value.error);
+  }
 
   const latestCaseByGuide = new Map<Uuid, ModerationCaseRow>();
-  for (const moderationCase of (casesResult.data ?? []) as ModerationCaseRow[]) {
+  for (const moderationCase of casesData) {
     if (moderationCase.guide_id && !latestCaseByGuide.has(moderationCase.guide_id)) {
       latestCaseByGuide.set(moderationCase.guide_id, moderationCase);
     }
   }
 
-  const latestActions = await getLatestActionMap(
-    adminClient,
-    [...latestCaseByGuide.values()].map((item) => item.id),
-  );
+  let latestActions = new Map<Uuid, ModerationActionRow>();
+  try {
+    latestActions = await getLatestActionMap(
+      adminClient,
+      [...latestCaseByGuide.values()].map((item) => item.id),
+    );
+  } catch (actionError) {
+    console.error("[getGuideReviewQueue] latest action lookup failed:", actionError);
+  }
 
   return guideProfiles
     .map((profile) => {

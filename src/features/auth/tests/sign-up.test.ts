@@ -6,6 +6,7 @@ const {
   deleteUserMock,
   _getUserByIdMock,
   upsertMock,
+  phoneLookupMaybeSingleMock,
   fromMock,
   signInWithPasswordMock,
   createSupabaseAdminClient,
@@ -16,7 +17,12 @@ const {
   const deleteUserMock = vi.fn();
   const _getUserByIdMock = vi.fn().mockResolvedValue({ data: { user: { created_at: new Date().toISOString() } } });
   const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
-  const fromMock = vi.fn(() => ({ upsert: upsertMock }));
+  // Phone-uniqueness pre-check: from("profiles").select("id").eq(...).maybeSingle()
+  const phoneLookupMaybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: null });
+  const selectMock = vi.fn(() => ({
+    eq: vi.fn(() => ({ maybeSingle: phoneLookupMaybeSingleMock })),
+  }));
+  const fromMock = vi.fn(() => ({ upsert: upsertMock, select: selectMock }));
   const signInWithPasswordMock = vi.fn();
 
   const adminClient = {
@@ -41,6 +47,7 @@ const {
     deleteUserMock,
     _getUserByIdMock,
     upsertMock,
+    phoneLookupMaybeSingleMock,
     fromMock,
     signInWithPasswordMock,
     createSupabaseAdminClient: vi.fn(() => adminClient),
@@ -149,6 +156,33 @@ describe("signUpAction — public signup roles", () => {
     expect(updateUserByIdMock).toHaveBeenCalledWith("user-1", {
       app_metadata: { role: "traveler" },
     });
+  });
+
+  it("rejects signup when the phone is already attached to another account", async () => {
+    mockSuccessfulRegistration();
+    phoneLookupMaybeSingleMock.mockResolvedValueOnce({
+      data: { id: "existing-owner" },
+      error: null,
+    });
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "phone_taken" });
+    // The duplicate is caught before any auth user is created.
+    expect(createUserMock).not.toHaveBeenCalled();
+  });
+
+  it("skips the phone uniqueness lookup when no phone is provided", async () => {
+    mockSuccessfulRegistration();
+
+    const result = await signUpAction({
+      ...baseInput,
+      phone: undefined,
+      role: "traveler",
+    });
+
+    expect(result).toEqual({ ok: true, dashboardPath: "/trips" });
+    expect(phoneLookupMaybeSingleMock).not.toHaveBeenCalled();
   });
 });
 

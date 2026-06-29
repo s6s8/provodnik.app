@@ -23,7 +23,7 @@ describe("getTravelerProfileSection2Checklist", () => {
   it("marks the name item incomplete when full_name is absent", () => {
     const checklist = getTravelerProfileSection2Checklist({ full_name: null });
 
-    expect(checklist.sectionTitle).toBe("Профиль путешественника");
+    expect(checklist.sectionTitle).toBe("Готовность профиля");
     expect(checklist.complete).toBe(false);
     expect(checklist.items).toEqual([
       { id: "name", label: "Имя путешественника", complete: false },

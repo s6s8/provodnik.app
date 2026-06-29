@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 
-import { Alert } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { COUNTRIES } from "@/lib/data/countries";
 import { updateLegalInformation } from "@/features/profile/actions/updateLegalInformation";
 
@@ -73,13 +71,13 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-xl space-y-6">
       {isLocked && (
         <p className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           Профиль одобрен. Юридические данные недоступны для редактирования — для изменений напишите администраторам.
         </p>
       )}
-      <fieldset disabled={isLocked} className="space-y-4 border-0 p-0 m-0">
+      <fieldset disabled={isLocked} className="space-y-5 border-0 p-0 m-0">
         {/* Legal status */}
         <div className="space-y-2">
           <Label htmlFor="legal-status">Правовой статус</Label>
@@ -126,55 +124,57 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
           </Select>
         </div>
 
-        <Separator />
-
-        {/* Tour operator toggle */}
-        <div className="flex items-center gap-3">
-          <input
-            id="is-tour-operator"
-            type="checkbox"
-            checked={isTourOperator}
-            onChange={(e) => setIsTourOperator(e.target.checked)}
-            className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
-          />
-          <Label htmlFor="is-tour-operator" className="cursor-pointer">
-            Туроператор
-          </Label>
-        </div>
-
-        {/* Tour operator registry number — shown only when isTourOperator */}
-        {isTourOperator && (
-          <div className="space-y-2">
-            <Label htmlFor="registry-number">
-              Номер в реестре туроператоров
-            </Label>
-            <Input
-              id="registry-number"
-              type="text"
-              value={tourOperatorRegistryNumber}
-              onChange={(e) => setTourOperatorRegistryNumber(e.target.value)}
-              placeholder="Введите номер реестра"
+        {/* Tour operator toggle — explicit, tappable row with helper text */}
+        <div className="rounded-lg border border-border bg-background px-4 py-3">
+          <label
+            htmlFor="is-tour-operator"
+            className="flex cursor-pointer items-start gap-3"
+          >
+            <input
+              id="is-tour-operator"
+              type="checkbox"
+              checked={isTourOperator}
+              onChange={(e) => setIsTourOperator(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-border accent-primary cursor-pointer"
             />
-          </div>
-        )}
+            <span className="space-y-1">
+              <span className="block text-sm font-medium text-foreground">
+                Я зарегистрирован как туроператор
+              </span>
+              <span className="block text-xs text-muted-foreground">
+                Отметьте, если у вас есть запись в реестре туроператоров.
+              </span>
+            </span>
+          </label>
+
+          {/* Registry number — shown only when isTourOperator */}
+          {isTourOperator && (
+            <div className="mt-4 space-y-2">
+              <Label htmlFor="registry-number">
+                Номер в реестре туроператоров
+              </Label>
+              <Input
+                id="registry-number"
+                type="text"
+                value={tourOperatorRegistryNumber}
+                onChange={(e) => setTourOperatorRegistryNumber(e.target.value)}
+                placeholder="Например: РТО 000000"
+              />
+            </div>
+          )}
+        </div>
       </fieldset>
 
-      {saved && (
-        <Alert className="border-success/40 text-success bg-success/10">
-          Сохранено
-        </Alert>
-      )}
-      {errorMsg && (
-        <Alert className="border-destructive text-destructive bg-destructive/10">
-          {errorMsg}
-        </Alert>
-      )}
-
-      {!isLocked && (
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Сохранение…" : "Сохранить"}
-        </Button>
-      )}
+      {/* Save footer — clearly separated from the form fields */}
+      <div className="flex flex-col gap-3 border-t border-border/60 pt-5 sm:flex-row sm:items-center">
+        {!isLocked && (
+          <Button type="submit" disabled={isPending}>
+            {isPending ? "Сохранение…" : "Сохранить"}
+          </Button>
+        )}
+        {saved && <p className="text-sm text-success">Сохранено</p>}
+        {errorMsg && <p className="text-sm text-destructive">{errorMsg}</p>}
+      </div>
     </form>
   );
 }

@@ -57,10 +57,23 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   }
 
   const trustPoints = [
-    "Бесплатно для путешественников",
-    "Гиды проходят проверку",
-    "Честную цену предлагают сами гиды",
-    "Поддержка на каждом шаге",
+    {
+      title: "Регистрация и заявка бесплатны",
+      description: "Создайте профиль и отправьте запрос без оплаты.",
+    },
+    {
+      title: "Только проверенные гиды",
+      description:
+        "Проверяем профиль и документы гида перед работой на платформе.",
+    },
+    {
+      title: "Условия видны заранее",
+      description: "Гид предлагает цену и формат поездки до вашего решения.",
+    },
+    {
+      title: "Поможем с заявкой и бронированием",
+      description: "Подскажем по входу, откликам и оформлению поездки.",
+    },
   ];
 
   return (
@@ -70,20 +83,27 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           <span className="text-lg font-semibold tracking-tight">Provodnik</span>
           <div className="space-y-4">
             <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
-              Найдите проверенного местного гида
+              Найдите проверенного гида для поездки
             </h1>
-            <p className="text-base leading-7 text-white/70">
-              Создайте профиль за минуту и планируйте поездку вместе с гидами,
-              которым доверяют.
+            <p className="text-base leading-7 text-white/80">
+              Создайте профиль, отправьте запрос и сравните предложения гидов
+              до бронирования.
             </p>
           </div>
           <ul className="space-y-4">
             {trustPoints.map((point) => (
-              <li key={point} className="flex items-start gap-3">
+              <li key={point.title} className="flex items-start gap-3">
                 <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/10">
                   <Check className="size-3.5 text-white" />
                 </span>
-                <span className="text-sm leading-6 text-white/85">{point}</span>
+                <span className="space-y-0.5">
+                  <span className="block text-sm font-medium leading-6 text-white">
+                    {point.title}
+                  </span>
+                  <span className="block text-xs leading-5 text-white/70">
+                    {point.description}
+                  </span>
+                </span>
               </li>
             ))}
           </ul>

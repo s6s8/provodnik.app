@@ -13,7 +13,7 @@ export type TravelerProfileChecklistItem = {
   complete: boolean;
 };
 
-export const TRAVELER_PROFILE_SECTION_2_TITLE = "Профиль путешественника";
+export const TRAVELER_PROFILE_SECTION_2_TITLE = "Готовность профиля";
 
 export function getTravelerProfileSection2Checklist(
   profile: Pick<TravelerProfile, "full_name">,

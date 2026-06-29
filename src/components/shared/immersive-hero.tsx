@@ -1,11 +1,18 @@
 import type { ReactNode } from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export type HeroBreadcrumbItem = { label: string };
+export type HeroBreadcrumbItem = {
+  label: string;
+  /** When set, the crumb renders as a link to this route. */
+  href?: string;
+  /** Marks the current page (non-clickable, announced via aria-current). */
+  current?: boolean;
+};
 
 type ImmersiveHeroProps = {
   imageUrl: string;
@@ -79,7 +86,18 @@ export function ImmersiveHero({
                 {breadcrumb.map((item, index) => (
                   <span key={`${item.label}-${index}`} className="flex items-center gap-2">
                     {index > 0 ? <ChevronRight className="size-3.5 opacity-50" /> : null}
-                    <span>{item.label}</span>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="rounded-sm transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span aria-current={item.current ? "page" : undefined}>
+                        {item.label}
+                      </span>
+                    )}
                   </span>
                 ))}
               </div>

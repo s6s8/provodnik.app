@@ -104,9 +104,14 @@ export const primaryNavByRole = {
 
 // --- Account/avatar menus: private utilities only. -------------------------
 
-/** Traveler avatar menu. Flag-gated items filtered via hidden hrefs. */
+/**
+ * Traveler avatar menu — account utilities only. Favorites/Referrals are
+ * feature-flagged side surfaces and were removed from the avatar menu (Excel
+ * review: "зачем эта страница?"); notifications live in the header bell, not
+ * here, so the menu carries no duplicate or dead links.
+ */
 export const travelerAccountMenu = [
-  ROUTES.account, ROUTES.favorites, ROUTES.help, ROUTES.referrals,
+  ROUTES.account, ROUTES.help,
 ] as const;
 
 /** Guide avatar menu (workspace items live in `guidePrimaryNav`, not here). */

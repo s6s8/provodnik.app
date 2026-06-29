@@ -332,7 +332,8 @@ export default async function GuideProfilePage() {
             <CardHeader>
               <CardTitle className="text-xl">Юридические данные</CardTitle>
               <p className="text-sm text-muted-foreground">
-                ИНН, статус, страна документа.
+                Нужны для проверки статуса гида и допуска к заявкам. После
+                одобрения профиля изменить их можно через администратора.
               </p>
             </CardHeader>
             <CardContent>

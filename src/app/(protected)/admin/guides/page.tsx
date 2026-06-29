@@ -20,7 +20,10 @@ import {
   performModerationAction,
   requireAdminSession,
 } from "@/lib/supabase/moderation";
-import type { GuideReviewQueueView } from "@/lib/supabase/moderation";
+import type {
+  GuideReviewQueueItem,
+  GuideReviewQueueView,
+} from "@/lib/supabase/moderation";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export const metadata: Metadata = {
@@ -66,6 +69,43 @@ function resolveSearchValue(value: string | string[] | undefined) {
   return Array.isArray(value) ? value[0] : value;
 }
 
+function GuideQueueLoadError({ view }: { view: GuideReviewQueueView }) {
+  const retryHref = view === "drafts" ? "/admin/guides?view=drafts" : "/admin/guides";
+  return (
+    <div
+      role="alert"
+      className="rounded-[1.75rem] border border-destructive/30 bg-destructive/10 p-6 shadow-card"
+    >
+      <p className="text-sm font-semibold text-destructive">
+        Заявки гидов не загрузились
+      </p>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        Не удалось получить очередь анкет со статусом «На проверке». Заявка могла
+        прийти, но список сейчас недоступен. Обновите страницу или проверьте
+        черновики и журнал аудита.
+      </p>
+      <p className="mt-2 max-w-2xl text-xs leading-5 text-muted-foreground">
+        Если число рядом с «Гиды» в меню больше нуля, в системе есть заявки — но
+        таблица очереди сейчас не открылась.
+      </p>
+      <div className="mt-5 flex flex-wrap gap-2">
+        <Button asChild>
+          <Link href={retryHref}>Повторить загрузку</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/admin/guides?view=drafts">Открыть черновики</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/admin/audit">К аудиту</Link>
+        </Button>
+        <Button asChild variant="outline">
+          <Link href="/admin/dashboard">К панели</Link>
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 function resolveQueueView(value: string | string[] | undefined): GuideReviewQueueView {
   return resolveSearchValue(value) === "drafts" ? "drafts" : "all";
 }
@@ -109,11 +149,22 @@ export default async function AdminGuidesPage({
 }) {
   const resolvedSearchParams = (await searchParams) ?? {};
   const view = resolveQueueView(resolvedSearchParams.view);
-  const guides = await getGuideReviewQueue({ view });
+
+  // A queue load failure must not collapse into the generic admin error
+  // boundary ("Действие не выполнено") — that wrongly reads as a failed
+  // approve/reject action and leaves the admin unable to tell whether an
+  // application arrived. Catch here and render a queue-specific inline state
+  // while keeping the page header + filters usable.
+  let guides: GuideReviewQueueItem[] | null = null;
+  try {
+    guides = await getGuideReviewQueue({ view });
+  } catch (error) {
+    console.error("[AdminGuidesPage] guide queue load failed:", error);
+  }
   const emptyState =
     view === "drafts"
       ? "Нет черновиков анкет гидов."
-      : "Нет анкет в очереди верификации.";
+      : "Нет заявок на проверке. Если гид только начал анкету, проверьте вкладку «Черновики».";
   const filterBaseClass =
     "rounded-full px-4 py-2 text-sm font-medium transition-colors";
   const filterInactiveClass =
@@ -153,7 +204,9 @@ export default async function AdminGuidesPage({
         </Link>
       </div>
 
-      {guides.length === 0 ? (
+      {guides === null ? (
+        <GuideQueueLoadError view={view} />
+      ) : guides.length === 0 ? (
         <div className="rounded-[1.75rem] border border-border/70 bg-card p-8 text-center text-sm text-muted-foreground shadow-card">
           {emptyState}
         </div>

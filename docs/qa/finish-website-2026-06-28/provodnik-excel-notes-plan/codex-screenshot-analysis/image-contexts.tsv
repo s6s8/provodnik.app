@@ -1,0 +1,9 @@
+image1.png	Login A1	/auth left trust panel	Confusing auth trust copy: free for travelers, honest price, vague support.
+image2.png	Login A33	/auth form	Auth form/layout visual issue: page looks crooked/awkward plus phone uniqueness note belongs to this area.
+image3.png	Sheet5 A2	/account traveler profile	Traveler profile page: repeated profile/cabinet headings and possible second cursor/input glitch.
+image4.png	Sheet7 A4	/become-a-guide hero	Hero claim “Зарабатывайте на авторских экскурсиях” should be removed; accreditation positioning needed.
+image5.png	Sheet7 A22	/become-a-guide benefits	Unrealistic guide benefits/income block should be removed or replaced with truthful accreditation flow.
+image6.png	Sheet8 A7	/guide/profile legal/details area	Save button/layout overlap/spacing issue in guide profile form.
+image7.png	Sheet8 A26	/guide/profile about/themes	Saving “О себе” triggers guide_specializations_valid DB constraint; selected themes visible.
+image8.png	Sheet9 A4	/requests/[requestId] detail	Wrong breadcrumb “Поездки > Россия > Москва”; not clickable and wrong public context.
+image9.png	Sheet10 A2	/admin/guides	Admin guide queue/action shows red failure card; admin cannot tell whether verification application arrived.

@@ -117,8 +117,8 @@ export default async function PersonalSettingsPage() {
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
         <PageHeader
-          eyebrow="Кабинет путешественника"
-          title="Профиль"
+          title="Профиль путешественника"
+          subtitle="Эти данные видят гиды, когда отвечают на ваши запросы."
           actions={
             <Button asChild variant="outline">
               <Link href="/trips">Мои запросы</Link>

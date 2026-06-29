@@ -9,6 +9,11 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const canonThemeSlugs = new Set<string>(THEMES.map((t) => t.slug));
 
+// User-facing copy for unexpected persistence failures — never surface raw
+// Postgres/Supabase error text (e.g. constraint names) to guides.
+const SAVE_FAILED_MESSAGE =
+  "Не удалось сохранить профиль. Обновите страницу и попробуйте снова.";
+
 export type GuideProfileUpdatePayload = {
   bio: string;
   base_city: string;
@@ -43,7 +48,10 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
       .update({ bio: bio ?? "" })
       .eq("user_id", user.id);
 
-    if (error) return { ok: false, error: error.message };
+    if (error) {
+      console.error("[saveGuideAboutAction] bio update failed:", error);
+      return { ok: false, error: SAVE_FAILED_MESSAGE };
+    }
     revalidatePath("/guide/profile");
     return { ok: true, regions: statusRow?.regions ?? [] };
   }
@@ -84,7 +92,10 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
     .select("user_id")
     .maybeSingle();
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[saveGuideAboutAction] profile update failed:", error);
+    return { ok: false, error: SAVE_FAILED_MESSAGE };
+  }
 
   if (!updatedRow) {
     const { data: insertedRow, error: insertError } = await supabase
@@ -94,10 +105,8 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
       .maybeSingle();
 
     if (insertError || !insertedRow) {
-      return {
-        ok: false,
-        error: insertError?.message ?? "Не удалось сохранить профиль гида.",
-      };
+      console.error("[saveGuideAboutAction] profile insert failed:", insertError);
+      return { ok: false, error: SAVE_FAILED_MESSAGE };
     }
   }
 

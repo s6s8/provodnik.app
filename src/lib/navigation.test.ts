@@ -67,7 +67,7 @@ describe("role-based nav groups", () => {
     const travelerHrefs = travelerAccountMenu.map((item) => item.href);
     expect(travelerHrefs).not.toContain("/notifications");
     expect(travelerHrefs).not.toContain("/bookings");
-    expect(travelerHrefs).toEqual(["/account", "/favorites", "/help", "/referrals"]);
+    expect(travelerHrefs).toEqual(["/account", "/help"]);
 
     // Guide workspace items belong in the primary nav, not the avatar menu.
     const guideHrefs = guideAccountMenu.map((item) => item.href);
@@ -82,9 +82,12 @@ describe("role-based nav groups", () => {
     expect(adminHrefs.some((href) => href.startsWith("/admin"))).toBe(false);
   });
 
-  it("uses the renamed «Пригласить друга» referral label", () => {
-    const referral = travelerAccountMenu.find((item) => item.href === "/referrals");
-    expect(referral?.label).toBe("Пригласить друга");
+  it("keeps Favorites/Referrals out of the traveler avatar menu", () => {
+    // Excel review: these flag-gated side surfaces read as "зачем эта страница?"
+    // in the avatar menu; they stay reachable by route but no longer clutter it.
+    const travelerHrefs = travelerAccountMenu.map((item) => item.href);
+    expect(travelerHrefs).not.toContain("/favorites");
+    expect(travelerHrefs).not.toContain("/referrals");
   });
 
   it("labels the guide profile entry «Профиль гида» in the avatar menu", () => {

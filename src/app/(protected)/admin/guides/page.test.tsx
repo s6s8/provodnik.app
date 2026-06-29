@@ -128,7 +128,9 @@ describe("AdminGuidesPage", () => {
     render(ui);
 
     expect(getGuideReviewQueueMock).toHaveBeenCalledWith({ view: "all" });
-    expect(screen.getByText("Нет анкет в очереди верификации.")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Нет заявок на проверке/),
+    ).toBeInTheDocument();
   });
 
   it("shows a drafts-specific empty state", async () => {
@@ -140,5 +142,20 @@ describe("AdminGuidesPage", () => {
     render(ui);
 
     expect(screen.getByText("Нет черновиков анкет гидов.")).toBeInTheDocument();
+  });
+
+  it("renders a queue-specific error (not a raw failure) when the load throws", async () => {
+    getGuideReviewQueueMock.mockRejectedValueOnce(new Error("relation does not exist"));
+
+    const ui = await AdminGuidesPage({
+      searchParams: Promise.resolve({}),
+    });
+    render(ui);
+
+    // Queue-specific copy, header + filters preserved, no raw backend error.
+    expect(screen.getByText("Заявки гидов не загрузились")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "На проверке" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Повторить загрузку" })).toBeInTheDocument();
+    expect(screen.queryByText(/relation does not exist/)).not.toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, MessageCircle, TrendingUp, Users } from "lucide-react";
+import { Check, FileCheck2, MessageCircle, ShieldCheck } from "lucide-react";
 
 import { InfoHero, InfoPageShell, InfoSection } from "@/components/shared/info-shell";
 import { StepCard } from "@/components/shared/step-card";
@@ -11,35 +11,35 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  "Заполните анкету и загрузите документы.",
-  "Проверка профиля за 24–48 часов — после одобрения открываем доступ к запросам.",
-  "Отвечайте на запросы и выбирайте подходящие по дате и цене.",
+  "Заполните анкету, добавьте документы и подтверждение квалификации.",
+  "Мы проверяем профиль и документы вручную. После одобрения открываем доступ к запросам.",
+  "Отвечайте на подходящие запросы и предлагайте формат, дату и цену.",
 ] as const;
 
 const BENEFITS = [
   {
-    icon: TrendingUp,
-    title: "Большая часть дохода — вам",
+    icon: ShieldCheck,
+    title: "Только после проверки",
     description:
-      "Вы оставляете себе большую часть выручки. Никаких скрытых сборов и платных подписок.",
+      "Проверяем анкету, документы и квалификацию до доступа к запросам путешественников.",
   },
   {
-    icon: Users,
-    title: "Ваш ритм и ваша группа",
+    icon: FileCheck2,
+    title: "Понятный статус заявки",
     description:
-      "Выбираете комфортное количество людей в группе и берёте только те запросы, что подходят вам по дате и времени.",
+      "После отправки анкета попадает на ручную проверку — обычно это занимает 1–2 рабочих дня.",
   },
   {
     icon: MessageCircle,
-    title: "Прозрачный торг по цене",
+    title: "Запросы с понятными условиями",
     description:
-      "Выбираете подходящую цену за человека в группе или предлагаете в ответ свою.",
+      "После одобрения вы отвечаете на подходящие запросы и фиксируете условия письменно.",
   },
 ] as const;
 
 const TRUST = [
-  "Профиль и документы проверяются вручную командой.",
-  "Запросы поступают с подтверждёнными контактами путешественника.",
+  "Только гиды с аккредитацией или подтверждающими документами.",
+  "Профиль и документы проверяются вручную перед доступом к запросам.",
   "Условия фиксируются письменно — без устных договорённостей.",
 ] as const;
 
@@ -49,10 +49,10 @@ export default function BecomeAGuidePage() {
       <InfoHero
         eyebrow="Для гидов"
         title="Станьте гидом Проводника"
-        subtitle="Зарабатывайте на авторских экскурсиях — вы выбираете запросы, цену и ритм."
+        subtitle="Проводник работает только с аккредитированными гидами. После проверки профиля вы сможете отвечать на подходящие запросы путешественников и предлагать свои условия."
         actions={
           <Button asChild size="lg">
-            <Link href="/auth?role=guide">Стать гидом</Link>
+            <Link href="/auth?role=guide">Подать заявку</Link>
           </Button>
         }
       />
@@ -87,7 +87,7 @@ export default function BecomeAGuidePage() {
 
         <section className="mb-12 rounded-card border border-border bg-card p-6 shadow-card">
           <h2 className="mb-4 text-base font-semibold text-foreground">
-            Гиды Проводника — реальные специалисты
+            Кто может работать в Проводнике
           </h2>
           <ul className="space-y-3">
             {TRUST.map((item) => (
@@ -101,7 +101,7 @@ export default function BecomeAGuidePage() {
 
         <div className="flex justify-center">
           <Button asChild size="lg">
-            <Link href="/auth?role=guide">Стать гидом</Link>
+            <Link href="/auth?role=guide">Подать заявку</Link>
           </Button>
         </div>
     </InfoPageShell>
