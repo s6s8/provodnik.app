@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Check, MessageCircle, TrendingUp, Users } from "lucide-react";
 
-import { ArticleShell } from "@/components/shared/article-shell";
+import { InfoHero, InfoPageShell, InfoSection } from "@/components/shared/info-shell";
 import { StepCard } from "@/components/shared/step-card";
-import { ListHero } from "@/components/shared/list-hero";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -46,33 +45,30 @@ const TRUST = [
 
 export default function BecomeAGuidePage() {
   return (
-    <article>
-      <ListHero
-        imageUrl="/hero-valley.jpg"
+    <InfoPageShell>
+      <InfoHero
+        eyebrow="Для гидов"
         title="Станьте гидом Проводника"
-        intro="Зарабатывайте на авторских экскурсиях — вы выбираете запросы, цену и ритм."
-      >
-        <Button asChild size="lg">
-          <Link href="/auth?role=guide">Стать гидом</Link>
-        </Button>
-      </ListHero>
+        subtitle="Зарабатывайте на авторских экскурсиях — вы выбираете запросы, цену и ритм."
+        actions={
+          <Button asChild size="lg">
+            <Link href="/auth?role=guide">Стать гидом</Link>
+          </Button>
+        }
+      />
 
-      <ArticleShell>
-        <section className="mb-12">
-          <h2 className="mb-6 text-section font-extrabold tracking-tight text-foreground">
-            Как стать гидом
-          </h2>
-          <div className="space-y-3">
-            {STEPS.map((step, index) => (
-              <StepCard key={step} step={index + 1}>
-                {step}
-              </StepCard>
-            ))}
-          </div>
-        </section>
+      <InfoSection title="Как стать гидом">
+        <div className="space-y-3">
+          {STEPS.map((step, index) => (
+            <StepCard key={step} step={index + 1}>
+              {step}
+            </StepCard>
+          ))}
+        </div>
+      </InfoSection>
 
-        <section className="mb-12">
-          <div className="grid gap-4 sm:grid-cols-3">
+      <InfoSection>
+        <div className="grid gap-4 sm:grid-cols-3">
             {BENEFITS.map((benefit) => {
               const Icon = benefit.icon;
               return (
@@ -87,7 +83,7 @@ export default function BecomeAGuidePage() {
               );
             })}
           </div>
-        </section>
+        </InfoSection>
 
         <section className="mb-12 rounded-card border border-border bg-card p-6 shadow-card">
           <h2 className="mb-4 text-base font-semibold text-foreground">
@@ -108,7 +104,6 @@ export default function BecomeAGuidePage() {
             <Link href="/auth?role=guide">Стать гидом</Link>
           </Button>
         </div>
-      </ArticleShell>
-    </article>
+    </InfoPageShell>
   );
 }

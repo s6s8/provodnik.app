@@ -6,7 +6,7 @@ import { Compass, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ListHero } from "@/components/shared/list-hero";
+import { DiscoveryGrid, DiscoveryHero, DiscoveryShell } from "@/components/shared/discovery-shell";
 import { ListingCard } from "@/components/shared/listing-card";
 import { brandGradient } from "@/lib/city-image";
 import { cn } from "@/lib/utils";
@@ -96,9 +96,9 @@ export function PublicListingDiscoveryScreen({
 
   return (
     <>
-      <ListHero
+      <DiscoveryHero
         imageUrl={brandGradient("listings")}
-        title="Готовые экскурсии"
+        title="Экскурсии"
         intro="Авторские экскурсии от местных гидов."
       >
         <div className="relative">
@@ -115,9 +115,9 @@ export function PublicListingDiscoveryScreen({
             className="h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg"
           />
         </div>
-      </ListHero>
+      </DiscoveryHero>
 
-      <div className="mx-auto w-full max-w-page space-y-10 px-[clamp(20px,4vw,48px)] pt-10">
+      <DiscoveryShell>
         <div className="flex flex-wrap gap-3">
           <button
             key="all"
@@ -143,7 +143,7 @@ export function PublicListingDiscoveryScreen({
         </div>
 
         {filteredListings.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <DiscoveryGrid>
             {filteredListings.map((listing, index) => (
               <ListingCard
                 key={listing.slug}
@@ -151,7 +151,7 @@ export function PublicListingDiscoveryScreen({
                 priority={index === 0}
               />
             ))}
-          </div>
+          </DiscoveryGrid>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-[1.5rem] border border-border bg-surface-lowest px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -180,7 +180,7 @@ export function PublicListingDiscoveryScreen({
             </div>
           </div>
         )}
-      </div>
+      </DiscoveryShell>
     </>
   );
 }

@@ -5,6 +5,7 @@ import { Compass, Search } from "lucide-react";
 
 import type { DestinationRecord } from "@/data/supabase/queries";
 import { DestinationCard } from "@/components/discovery/DestinationCard";
+import { DiscoveryGrid } from "@/components/shared/discovery-shell";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Input } from "@/components/ui/input";
 
@@ -40,7 +41,7 @@ export function DestinationsGrid({
 
   return (
     <>
-      <div className="mt-8 max-w-xl">
+      <div className="max-w-xl">
         <label htmlFor="dest-search" className="sr-only">
           Поиск направления
         </label>
@@ -65,7 +66,7 @@ export function DestinationsGrid({
           Ничего не найдено. Попробуйте другой запрос.
         </p>
       ) : (
-        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <DiscoveryGrid className="mt-8">
           {filtered.map((d, index) => (
             <DestinationCard
               key={d.slug}
@@ -79,7 +80,7 @@ export function DestinationsGrid({
               featured={index === 0}
             />
           ))}
-        </div>
+        </DiscoveryGrid>
       )}
     </>
   );

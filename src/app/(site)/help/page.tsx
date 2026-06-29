@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { ChevronDown, Mail } from "lucide-react";
 import { Accordion } from "radix-ui";
 
 import { HelpArticle } from "@/components/help/HelpArticle";
 import { HelpSearch } from "@/components/help/HelpSearch";
-import { PageHeader } from "@/components/shared/page-header";
+import { InfoHero, InfoPageShell } from "@/components/shared/info-shell";
 import { Button } from "@/components/ui/button";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -120,10 +119,6 @@ function articlesForCategory(articles: HelpArticleRow[], category: string): Help
 }
 
 export default async function HelpPage() {
-  if (!flags.FEATURE_TR_HELP) {
-    notFound();
-  }
-
   let articles: HelpArticleRow[] = [];
 
   const supabase = await createSupabaseServerClient();
@@ -144,15 +139,14 @@ export default async function HelpPage() {
   const categories = orderedCategories(enabledArticles);
 
   return (
-    <section className="pb-20 pt-10">
-      <div className="mx-auto w-full max-w-page px-gutter">
-        <PageHeader
-          title="Центр помощи"
-          subtitle="Ответы на частые вопросы о бронировании, гидах и аккаунте"
-          className="mb-6"
-        />
-        <HelpSearch articles={enabledArticles} />
-        <div className="space-y-12">
+    <InfoPageShell width="wide">
+      <InfoHero
+        eyebrow="Поддержка"
+        title="Центр помощи"
+        subtitle="Ответы на частые вопросы о бронировании, гидах и аккаунте"
+      />
+      <HelpSearch articles={enabledArticles} />
+      <div className="mt-8 space-y-12">
           {categories.map((category) => {
             const inCategory = articlesForCategory(enabledArticles, category);
             if (inCategory.length === 0) return null;
@@ -194,18 +188,17 @@ export default async function HelpPage() {
               </section>
             );
           })}
-        </div>
-        <div className="mt-16 flex flex-col items-center gap-3 rounded-card border border-border bg-card px-6 py-8 text-center">
-          <p className="text-base font-semibold text-foreground">Не нашли ответ?</p>
-          <p className="text-sm text-muted-foreground">Напишите нам — ответим в течение рабочего дня.</p>
-          <Button asChild>
-            <a href="mailto:support@provodnik.app">
-              <Mail aria-hidden />
-              Написать в поддержку
-            </a>
-          </Button>
-        </div>
       </div>
-    </section>
+      <div className="mt-16 flex flex-col items-center gap-3 rounded-card border border-border bg-card px-6 py-8 text-center">
+        <p className="text-base font-semibold text-foreground">Не нашли ответ?</p>
+        <p className="text-sm text-muted-foreground">Напишите нам — ответим в течение рабочего дня.</p>
+        <Button asChild>
+          <a href="mailto:support@provodnik.app">
+            <Mail aria-hidden />
+            Написать в поддержку
+          </a>
+        </Button>
+      </div>
+    </InfoPageShell>
   );
 }

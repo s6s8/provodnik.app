@@ -51,6 +51,9 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       { source: "/tours", destination: "/listings", permanent: true },
+      // `/search` was a third marketplace template duplicating `/listings`.
+      // Fold it into the canonical discovery page (query params pass through).
+      { source: "/search", destination: "/listings", permanent: true },
       { source: "/requests/new", destination: "/", permanent: true },
       { source: "/traveler/requests/new", destination: "/", permanent: true },
       { source: "/partner", destination: "/referrals", permanent: true },

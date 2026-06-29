@@ -9,7 +9,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function generateMetadata(): Metadata {
   return {
-    title: "Центр запросов",
+    title: "Запросы",
     description: "Запросы путешественников — предложите свои услуги гида",
   };
 }

@@ -37,17 +37,21 @@ describe("filterNavItemsByHiddenHrefs", () => {
     const hrefs = filtered.map((item) => item.href);
     expect(hrefs).not.toContain("/favorites");
     expect(hrefs).not.toContain("/referrals");
-    expect(hrefs).not.toContain("/help");
     // Non-gated links stay.
     expect(hrefs).toContain("/account");
   });
 
-  it("drops the footer help link when FEATURE_TR_HELP is off", () => {
-    const hidden = hiddenNavHrefsForFlags((flag) => flag !== "FEATURE_TR_HELP");
-    const filtered = filterNavItemsByHiddenHrefs(footerNav.support, hidden);
-    expect(filtered.some((item) => item.href === "/help")).toBe(false);
-    // External support channels are untouched.
-    expect(filtered.some((item) => item.href.startsWith("https://t.me/"))).toBe(true);
+  it("keeps the help link visible — /help is a core, always-on page", () => {
+    // /help renders a real help center (FAQ + support), so it is no longer
+    // feature-gated and must never be hidden from nav/footer surfaces.
+    expect(Object.keys(NAV_FLAG_BY_HREF)).not.toContain("/help");
+
+    const hidden = hiddenNavHrefsForFlags(() => false);
+    const supportLinks = filterNavItemsByHiddenHrefs(footerNav.support, hidden);
+    expect(supportLinks.some((item) => item.href === "/help")).toBe(true);
+
+    const travelerLinks = filterNavItemsByHiddenHrefs(travelerAccountMenu, hidden);
+    expect(travelerLinks.some((item) => item.href === "/help")).toBe(true);
   });
 
   it("returns a copy when nothing is hidden", () => {

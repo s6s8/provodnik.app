@@ -153,7 +153,6 @@ export const footerNav = {
  * disabled so demo/QA navigation never lands on a "не найдена" page.
  */
 export const NAV_FLAG_BY_HREF = {
-  "/help": "FEATURE_TR_HELP",
   "/favorites": "FEATURE_TR_FAVORITES",
   "/referrals": "FEATURE_TR_REFERRALS",
 } as const satisfies Partial<Record<string, FlagName>>;

@@ -6,8 +6,13 @@ import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { ChevronDown, Compass, X } from "lucide-react";
 
+import {
+  DiscoveryFilterBar,
+  DiscoveryGrid,
+  DiscoveryHero,
+  DiscoveryShell,
+} from "@/components/shared/discovery-shell";
 import { EmptyState } from "@/components/shared/empty-state";
-import { ListHero } from "@/components/shared/list-hero";
 import { OpenGroupCard } from "@/components/shared/open-group-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -330,9 +335,9 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
   return (
     <div>
-      <ListHero
+      <DiscoveryHero
         imageUrl={brandGradient("requests")}
-        title="Открытые запросы"
+        title="Запросы"
         intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
       >
         <div className="flex flex-col gap-4">
@@ -355,10 +360,10 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
             </Button>
           </div>
         </div>
-      </ListHero>
+      </DiscoveryHero>
 
-      <section className="bg-surface-low py-8">
-        <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-[clamp(20px,4vw,48px)]">
+      <DiscoveryFilterBar>
+        <div className="flex w-full flex-col gap-4">
           <div className="mx-auto grid grid-cols-2 gap-2 sm:grid-cols-3 md:max-w-[560px] md:gap-3">
             <FilterControl
               label="Город"
@@ -532,14 +537,13 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
             </div>
           )}
         </div>
-      </section>
+      </DiscoveryFilterBar>
 
-      <section className="py-sec-pad">
-        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          {filteredRequests.length > 0 ? (
-            <div className="mx-auto max-w-6xl">
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                {visibleRequests.map((request, index) => {
+      <DiscoveryShell>
+        {filteredRequests.length > 0 ? (
+          <div>
+            <DiscoveryGrid>
+              {visibleRequests.map((request, index) => {
                 const location = request.destinationLabel.split(",")[0].trim();
                 const matched = request.status === "matched";
                 const sizeCurrent = request.group.sizeCurrent;
@@ -568,7 +572,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                   />
                 );
                 })}
-              </div>
+            </DiscoveryGrid>
               {hasMoreRequests ? (
                 <div ref={loadMoreRef} className="flex justify-center pt-8">
                   <Button
@@ -582,26 +586,25 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                   </Button>
                 </div>
               ) : null}
-            </div>
-          ) : (
-            <EmptyState
-              icon={<Compass className="h-10 w-10 text-muted-foreground" />}
-              title="Подходящих запросов пока нет"
-              description="Попробуйте изменить направление или выбрать другую тематику."
-              action={
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={resetDropdownFilters}>
-                    Сбросить фильтры
-                  </Button>
-                  <Button asChild>
-                    <Link href="/requests/new">Опубликовать запрос</Link>
-                  </Button>
-                </div>
-              }
-            />
-          )}
-        </div>
-      </section>
+          </div>
+        ) : (
+          <EmptyState
+            icon={<Compass className="h-10 w-10 text-muted-foreground" />}
+            title="Подходящих запросов пока нет"
+            description="Попробуйте изменить направление или выбрать другую тематику."
+            action={
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={resetDropdownFilters}>
+                  Сбросить фильтры
+                </Button>
+                <Button asChild>
+                  <Link href="/requests/new">Опубликовать запрос</Link>
+                </Button>
+              </div>
+            }
+          />
+        )}
+      </DiscoveryShell>
     </div>
   );
 }

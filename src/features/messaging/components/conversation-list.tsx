@@ -70,7 +70,7 @@ export function ConversationList({
         description="Здесь появятся переписки с гидами."
         action={
           <Button asChild>
-            <Link href="/search">Найти тур</Link>
+            <Link href="/listings">Найти тур</Link>
           </Button>
         }
       />

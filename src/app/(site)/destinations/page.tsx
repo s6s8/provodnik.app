@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { ListHero } from "@/components/shared/list-hero";
+import { DiscoveryHero, DiscoveryShell } from "@/components/shared/discovery-shell";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { DestinationsGrid } from "@/features/destinations/components/destinations-grid";
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
@@ -27,14 +27,14 @@ export default async function DestinationsPage() {
   }
 
   return (
-    <section className="pb-20">
-      <ListHero
+    <>
+      <DiscoveryHero
         imageUrl="/hero-valley.jpg"
         imagePosition="center 50%"
         title="Направления"
         intro="Откройте города и регионы России — и найдите местного гида в каждом из них."
       />
-      <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-10">
+      <DiscoveryShell>
         {loadError ? (
           <Alert variant="destructive">
             <AlertDescription>
@@ -44,7 +44,7 @@ export default async function DestinationsPage() {
         ) : (
           <DestinationsGrid destinations={destinations} />
         )}
-      </div>
-    </section>
+      </DiscoveryShell>
+    </>
   );
 }
