@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
 
 import { ChevronRight } from "lucide-react";
 
@@ -38,18 +39,35 @@ export function ImmersiveHero({
   children,
   className,
 }: ImmersiveHeroProps) {
+  // Real photos (http/local) load through next/image with priority so the hero
+  // paints immediately on cold navigation instead of flashing the grey
+  // placeholder while the browser fetches a CSS background-image. SVG-gradient
+  // data URLs (brandGradient fallback) keep the lightweight CSS background.
+  const isPhoto = /^(https?:|\/)/.test(imageUrl);
   return (
     <section className={cn("relative w-full overflow-hidden", className)}>
       <div className="relative min-h-[520px] sm:min-h-[632px]">
-        <div
-          className="absolute inset-0 bg-surface-low bg-cover bg-[image:var(--hero-img)] bg-[position:var(--hero-pos)]"
-          style={{
-            ["--hero-img" as string]: `url('${imageUrl}')`,
-            ["--hero-pos" as string]: imagePosition,
-          }}
-          role="img"
-          aria-label={title}
-        />
+        {isPhoto ? (
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            priority
+            sizes="100vw"
+            className="absolute inset-0 bg-surface-low object-cover"
+            style={{ objectPosition: imagePosition }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-surface-low bg-cover bg-[image:var(--hero-img)] bg-[position:var(--hero-pos)]"
+            style={{
+              ["--hero-img" as string]: `url('${imageUrl}')`,
+              ["--hero-pos" as string]: imagePosition,
+            }}
+            role="img"
+            aria-label={title}
+          />
+        )}
         <div className="hero-overlay absolute inset-0" />
         {grain ? <div className="hero-grain pointer-events-none absolute inset-0 z-[1]" /> : null}
 

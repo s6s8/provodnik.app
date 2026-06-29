@@ -246,6 +246,42 @@ export function applyGuideFilters(guides: GuideRecord[], filters?: GuideFilters)
   );
 }
 
+/**
+ * profiles.full_name is null for guide accounts — guides set their public name on
+ * guide_profiles.display_name (the anon-readable source). Enrich raw listing rows
+ * with that name so cards and detail pages show the real guide ("Гиляна Очирова")
+ * instead of the "Локальный гид" role fallback. Mutates and returns the rows.
+ */
+export async function attachGuideDisplayNames(
+  client: SupabaseClient,
+  rows: Array<Record<string, unknown>>,
+): Promise<Array<Record<string, unknown>>> {
+  const guideIds = [...new Set(rows.map((r) => r.guide_id as string).filter(Boolean))];
+  if (guideIds.length === 0) return rows;
+
+  const { data } = await client
+    .from("guide_profiles")
+    .select("user_id, display_name")
+    .in("user_id", guideIds);
+
+  const nameById = new Map(
+    (data ?? []).map((g) => [g.user_id as string, g.display_name as string | null]),
+  );
+
+  for (const row of rows) {
+    const display = nameById.get(row.guide_id as string);
+    if (!display) continue;
+    const existing =
+      (row.profiles as { full_name?: string | null; avatar_url?: string | null } | null) ?? null;
+    row.profiles = {
+      full_name: existing?.full_name ?? display,
+      avatar_url: existing?.avatar_url ?? null,
+    };
+  }
+
+  return rows;
+}
+
 // ---------------------------------------------------------------------------
 // Row mappers (match actual DB schema)
 // ---------------------------------------------------------------------------

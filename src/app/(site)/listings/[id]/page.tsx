@@ -69,7 +69,7 @@ export default async function ListingDetailPage({
     supabase.from("listing_tariffs").select("*").eq("listing_id", id),
     supabase
       .from("guide_profiles")
-      .select("user_id, slug, bio, average_rating, review_count, contact_visibility_unlocked, is_tour_operator, years_experience, specialties, languages, verification_status, profile:profiles!guide_profiles_user_id_fkey(full_name, avatar_url)")
+      .select("user_id, slug, display_name, bio, average_rating, review_count, contact_visibility_unlocked, is_tour_operator, years_experience, specialties, languages, verification_status, profile:profiles!guide_profiles_user_id_fkey(full_name, avatar_url)")
       .eq("user_id", listing.guide_id)
       .maybeSingle(),
   ]);
@@ -92,7 +92,9 @@ export default async function ListingDetailPage({
   const guide = guideRaw
     ? {
         ...guideRaw,
-        full_name: guideProfile?.full_name ?? null,
+        // profiles.full_name is null for guide accounts (the public name lives on
+        // guide_profiles.display_name), so fall back to it before the role label.
+        full_name: guideProfile?.full_name ?? guideRaw.display_name ?? null,
         avatar_url: guideProfile?.avatar_url ?? null,
       }
     : null;

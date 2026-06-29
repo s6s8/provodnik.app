@@ -11,6 +11,8 @@ import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
 interface Props {
   destinations: DestinationOption[];
   requests: RequestRecord[];
+  /** Destination name (lowercased) → catalog slug, for deep-linking tiles. */
+  destinationSlugs?: Record<string, string>;
 }
 
 const HOW_IT_WORKS = [
@@ -24,7 +26,7 @@ const HOW_IT_WORKS = [
 
 const SECTION = "mx-auto w-full max-w-page px-gutter";
 
-export function HomePageShell2Classic({ destinations, requests }: Props) {
+export function HomePageShell2Classic({ destinations, requests, destinationSlugs = {} }: Props) {
   const openGroups = requests.slice(0, 3);
   const popularDestinations = destinations.slice(0, 6);
 
@@ -78,15 +80,18 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
             action={{ label: "Все направления", href: "/destinations" }}
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {popularDestinations.map((d) => (
-              <DestinationTile
-                key={`${d.name}-${d.region}`}
-                href={`/listings?q=${encodeURIComponent(d.name)}`}
-                name={d.name}
-                imageUrl={cityImage(d.name)}
-                guidesCount={d.guideCount}
-              />
-            ))}
+            {popularDestinations.map((d) => {
+              const slug = destinationSlugs[d.name.trim().toLowerCase()];
+              return (
+                <DestinationTile
+                  key={`${d.name}-${d.region}`}
+                  href={slug ? `/destinations/${slug}` : `/listings?q=${encodeURIComponent(d.name)}`}
+                  name={d.name}
+                  imageUrl={cityImage(d.name)}
+                  guidesCount={d.guideCount}
+                />
+              );
+            })}
           </div>
         </section>
       )}

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import { ru } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
@@ -67,8 +68,49 @@ function FieldIcon({
   );
 }
 
-function openPicker(e: React.MouseEvent<HTMLInputElement>) {
-  e.currentTarget.showPicker?.();
+/**
+ * Normalise free typed digits into a 24h "HH:MM" string. Native
+ * `<input type="time">` renders AM/PM under non-RU browser locales (and ignores
+ * the `lang` attribute in some Chromium builds), so we drive a plain text field
+ * to guarantee 24h display for this Russian-language product.
+ */
+function formatTime(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  let h = Number(digits.slice(0, 2));
+  if (h > 23) h = 23;
+  const hh = String(h).padStart(2, "0");
+  const minRaw = digits.slice(2);
+  // Keep a half-typed minute ("08:1") un-padded so the second digit still fits
+  // under maxLength; only pad/clamp once both minute digits are present.
+  if (minRaw.length === 1) return `${hh}:${minRaw}`;
+  const m = Math.min(Number(minRaw), 59);
+  return `${hh}:${String(m).padStart(2, "0")}`;
+}
+
+function TimeField({
+  registration,
+  ariaLabel,
+}: {
+  registration: UseFormRegisterReturn;
+  ariaLabel: string;
+}) {
+  return (
+    <input
+      className={cn(FIN_BASE, "w-[3.25rem] tabular-nums")}
+      type="text"
+      inputMode="numeric"
+      autoComplete="off"
+      placeholder="10:00"
+      maxLength={5}
+      aria-label={ariaLabel}
+      {...registration}
+      onChange={(e) => {
+        e.target.value = formatTime(e.target.value);
+        return registration.onChange(e);
+      }}
+    />
+  );
 }
 
 function isoToDate(iso: string): Date | undefined {
@@ -268,21 +310,9 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             <FieldIcon icon={Clock} label="Время" />
             <div className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5">
-                <input
-                  className={cn(FIN_BASE, "native-picker-hidden w-auto")}
-                  type="time"
-                  aria-label="Время начала"
-                  onClick={openPicker}
-                  {...register("startTime")}
-                />
+                <TimeField registration={register("startTime")} ariaLabel="Время начала" />
                 <span className="font-bold text-muted-foreground">–</span>
-                <input
-                  className={cn(FIN_BASE, "native-picker-hidden w-auto")}
-                  type="time"
-                  aria-label="Время окончания"
-                  onClick={openPicker}
-                  {...register("endTime")}
-                />
+                <TimeField registration={register("endTime")} ariaLabel="Время окончания" />
               </span>
             </div>
           </FieldShell>

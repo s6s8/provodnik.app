@@ -1,4 +1,4 @@
-import { cn } from "@/lib/utils"
+import { cn, pluralize } from "@/lib/utils"
 
 type StatStripProps = {
   guides: number
@@ -12,10 +12,16 @@ function safeCount(value: number): number {
 }
 
 function StatStrip({ guides, tours, activeGroups, className }: StatStripProps) {
+  const guidesCount = safeCount(guides)
+  const toursCount = safeCount(tours)
+  const groupsCount = safeCount(activeGroups)
   const parts: Array<{ value: number; label: string }> = [
-    { value: safeCount(guides), label: "гидов" },
-    { value: safeCount(tours), label: "экскурсий" },
-    { value: safeCount(activeGroups), label: "активных групп" },
+    { value: guidesCount, label: pluralize(guidesCount, "гид", "гида", "гидов") },
+    { value: toursCount, label: pluralize(toursCount, "экскурсия", "экскурсии", "экскурсий") },
+    {
+      value: groupsCount,
+      label: pluralize(groupsCount, "активная группа", "активные группы", "активных групп"),
+    },
   ]
 
   return (

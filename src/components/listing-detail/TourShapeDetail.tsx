@@ -121,7 +121,7 @@ export function TourShapeDetail({
         imageUrl={coverUrl ?? "/hero-valley.jpg"}
         imagePosition="center 44%"
         breadcrumb={[
-          { label: "Объявления" },
+          { label: "Экскурсии" },
           ...(listing.region ? [{ label: listing.region }] : []),
           { label: listing.title },
         ]}

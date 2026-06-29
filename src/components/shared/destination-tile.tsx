@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Scrim } from "@/components/ui/scrim";
+import { pluralize } from "@/lib/utils";
 
 interface DestinationTileProps {
   href: string;
@@ -42,7 +43,8 @@ export function DestinationTile({
       <div className="absolute bottom-3.5 left-4 right-4 text-white">
         <div className="text-xl font-bold leading-tight tracking-tight">{name}</div>
         <div className="mt-0.5 text-xs font-medium text-white/85">
-          {guidesCount} гидов{fromPrice ? ` · от ${fromPrice}` : ""}
+          {guidesCount} {pluralize(guidesCount, "гид", "гида", "гидов")}
+          {fromPrice ? ` · от ${fromPrice}` : ""}
         </div>
       </div>
     </Link>

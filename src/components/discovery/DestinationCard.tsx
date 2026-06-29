@@ -3,7 +3,7 @@ import Link from "next/link"
 import { Compass, Star, Users } from "lucide-react"
 
 import { Tag } from "@/components/ui/tag"
-import { cn } from "@/lib/utils"
+import { cn, pluralize } from "@/lib/utils"
 
 type DestinationCardProps = {
   name: string
@@ -75,11 +75,11 @@ function DestinationCard({
           <div className="mt-1 flex items-center gap-4 text-sm text-primary-foreground/80">
             <span className="inline-flex items-center gap-1.5">
               <Users className="size-4" aria-hidden="true" />
-              {guidesCount} гидов
+              {guidesCount} {pluralize(guidesCount, "гид", "гида", "гидов")}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Compass className="size-4" aria-hidden="true" />
-              {tourCount} экскурсий
+              {tourCount} {pluralize(tourCount, "экскурсия", "экскурсии", "экскурсий")}
             </span>
           </div>
         </div>

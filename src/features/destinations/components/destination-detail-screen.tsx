@@ -111,7 +111,7 @@ export function DestinationDetailScreen({
             <div>
               <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 {minPrice
-                  ? `${formatRubNumber(Math.round(minPrice / 1000))} тыс. ₽`
+                  ? `${formatRubNumber(minPrice)} ₽`
                   : listingCount > 0 ? "Скоро" : "—"}
               </strong>
               <span className="text-sm text-muted-foreground">бюджет от</span>
@@ -132,7 +132,7 @@ export function DestinationDetailScreen({
       {openRequests.length > 0 && (
         <section className="py-sec-pad" id="groups">
           <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-            <div className="mb-7 flex items-end justify-between gap-4">
+            <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
                   Открытые группы
@@ -186,7 +186,7 @@ export function DestinationDetailScreen({
 
       <section className="bg-surface-low py-sec-pad" id="tours">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          <div className="mb-7 flex items-end justify-between gap-4">
+          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 Готовые туры
@@ -208,7 +208,7 @@ export function DestinationDetailScreen({
       {/* Open requests for this city */}
       <section className="py-sec-pad" id="requests">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          <div className="mb-7 flex items-end justify-between gap-4">
+          <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 Активные запросы
@@ -246,12 +246,9 @@ export function DestinationDetailScreen({
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link
-              href={ROUTES.newRequest.href}
-              className="inline-flex items-center rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-opacity hover:opacity-90"
-            >
-              Создать запрос
-            </Link>
+            <Button asChild>
+              <Link href={ROUTES.newRequest.href}>Создать запрос</Link>
+            </Button>
           </div>
         </div>
       </section>

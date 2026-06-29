@@ -42,7 +42,7 @@ export function TourCard({
 
       {/* Content */}
       <div className="relative z-[2] w-full p-6 text-primary-foreground">
-        <h3 className="font-display text-[2rem] font-semibold leading-[1.02]">{title}</h3>
+        <h3 className="line-clamp-2 font-display text-[1.5rem] font-semibold leading-[1.1]">{title}</h3>
 
         <div className="mt-3 grid gap-1.5 text-sm text-primary-foreground/80">
           <span className="inline-flex items-center gap-1">

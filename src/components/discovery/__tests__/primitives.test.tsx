@@ -85,9 +85,11 @@ describe("StatStrip", () => {
     expect(container.textContent).toContain("12")
     expect(container.textContent).toContain("34")
     expect(container.textContent).toContain("3")
+    // Counts use Russian plural agreement: 12 → "гидов", 34 → "экскурсии",
+    // 3 → "активные группы".
     expect(container.textContent).toContain("гидов")
-    expect(container.textContent).toContain("экскурсий")
-    expect(container.textContent).toContain("активных групп")
+    expect(container.textContent).toContain("экскурсии")
+    expect(container.textContent).toContain("активные группы")
   })
 
   it("never renders literal null/undefined, even with all zeros", () => {
