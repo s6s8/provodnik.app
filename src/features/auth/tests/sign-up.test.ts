@@ -17,11 +17,10 @@ const {
   const deleteUserMock = vi.fn();
   const _getUserByIdMock = vi.fn().mockResolvedValue({ data: { user: { created_at: new Date().toISOString() } } });
   const upsertMock = vi.fn().mockResolvedValue({ data: null, error: null });
-  // Phone-uniqueness pre-check: from("profiles").select("id").eq(...).maybeSingle()
+  // Phone-uniqueness pre-check: from("profiles").select("id, phone").not(...)
   const phoneLookupMaybeSingleMock = vi.fn().mockResolvedValue({ data: null, error: null });
-  const selectMock = vi.fn(() => ({
-    eq: vi.fn(() => ({ maybeSingle: phoneLookupMaybeSingleMock })),
-  }));
+  const notMock = vi.fn(() => phoneLookupMaybeSingleMock());
+  const selectMock = vi.fn(() => ({ not: notMock }));
   const fromMock = vi.fn(() => ({ upsert: upsertMock, select: selectMock }));
   const signInWithPasswordMock = vi.fn();
 
@@ -70,6 +69,7 @@ const baseInput = {
   password: "super-secret",
   fullName: "Анна Смирнова",
   phone: "+7 900 123-45-67",
+  guideType: "individual_guide",
 } as const;
 
 function assertNoSupabaseSideEffects() {
@@ -111,10 +111,14 @@ describe("signUpAction — public signup roles", () => {
 
     const result = await signUpAction({ ...baseInput, role: "guide" });
 
-    expect(result).toEqual({ ok: true, dashboardPath: "/guide" });
+    expect(result).toEqual({ ok: true, dashboardPath: "/guide/profile" });
     expect(createUserMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        user_metadata: { role: "guide", full_name: baseInput.fullName },
+        user_metadata: {
+          role: "guide",
+          full_name: baseInput.fullName,
+          guide_type: "individual_guide",
+        },
       }),
     );
     expect(upsertMock).toHaveBeenCalledWith(
@@ -158,10 +162,23 @@ describe("signUpAction — public signup roles", () => {
     });
   });
 
+  it("requires phone and guide type for guide signup before Supabase side-effects", async () => {
+    const noPhone = await signUpAction({ ...baseInput, phone: undefined, role: "guide" });
+    expect(noPhone).toEqual({ ok: false, error: "phone_required" });
+
+    const noType = await signUpAction({
+      ...baseInput,
+      guideType: undefined,
+      role: "guide",
+    });
+    expect(noType).toEqual({ ok: false, error: "guide_type_required" });
+    assertNoSupabaseSideEffects();
+  });
+
   it("rejects signup when the phone is already attached to another account", async () => {
     mockSuccessfulRegistration();
     phoneLookupMaybeSingleMock.mockResolvedValueOnce({
-      data: { id: "existing-owner" },
+      data: [{ id: "existing-owner", phone: "+7 (900) 123-45-67" }],
       error: null,
     });
 

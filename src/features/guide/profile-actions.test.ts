@@ -9,18 +9,25 @@ const mockEq = vi.fn();
 const mockUpdate = vi.fn();
 const mockInsert = vi.fn();
 
+const guideProfilesTable = {
+  select: mockSelect,
+  update: mockUpdate,
+  insert: mockInsert,
+};
+
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn(async () => ({
     auth: { getUser: mockGetUser },
+  })),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createSupabaseAdminClient: vi.fn(() => ({
     from: vi.fn((table: string) => {
       if (table !== "guide_profiles") {
         throw new Error(`unexpected table: ${table}`);
       }
-      return {
-        select: mockSelect,
-        update: mockUpdate,
-        insert: mockInsert,
-      };
+      return guideProfilesTable;
     }),
   })),
 }));

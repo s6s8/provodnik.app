@@ -16,6 +16,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DEFAULT_GUIDE_TYPE, GUIDE_TYPES, type GuideType } from "@/features/auth/guide-type";
 import { resolveCanonicalRole } from "@/lib/auth/role-routing";
 import {
   isAdminWorkspacePath,
@@ -42,6 +43,10 @@ function getFriendlyAuthError(code: string): string {
       return "Регистрация для этой роли недоступна.";
     case "phone_taken":
       return "Этот телефон уже привязан к другому аккаунту. Войдите в существующий аккаунт или укажите другой номер.";
+    case "phone_required":
+      return "Укажите телефон — он нужен для связи с путешественниками и проверки профиля.";
+    case "guide_type_required":
+      return "Выберите формат работы: индивидуальный гид, агентство или команда гидов.";
   }
 
   const normalized = code.toLowerCase();
@@ -87,6 +92,7 @@ export function AuthEntryScreen({
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [guideType, setGuideType] = useState<GuideType>(DEFAULT_GUIDE_TYPE);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -122,6 +128,10 @@ export function AuthEntryScreen({
     }
     if (mode === "sign-up" && !trimmedFullName) {
       setError("Укажите имя, которое нужно сохранить в профиле.");
+      return;
+    }
+    if (mode === "sign-up" && role === "guide" && !phone.replace(/\D/g, "")) {
+      setError("Укажите телефон — он нужен для связи с путешественниками и проверки профиля.");
       return;
     }
 
@@ -210,6 +220,7 @@ export function AuthEntryScreen({
         role,
         fullName: trimmedFullName,
         phone: phone.trim() || undefined,
+        guideType: role === "guide" ? guideType : undefined,
       });
 
       if (!result.ok) {
@@ -217,9 +228,7 @@ export function AuthEntryScreen({
         return;
       }
 
-      window.location.assign(
-        resolvePostAuthRedirectPath(role, next) ?? result.dashboardPath,
-      );
+      window.location.assign(result.dashboardPath ?? resolvePostAuthRedirectPath(role, next));
     } catch {
       setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");
     } finally {
@@ -299,7 +308,7 @@ export function AuthEntryScreen({
               </div>
               <div className="grid gap-2.5">
                 <label htmlFor="phone" className="text-sm font-medium text-foreground">
-                  Телефон (необязательно)
+                  {role === "guide" ? "Телефон для проверки" : "Телефон (необязательно)"}
                 </label>
                 <div className="relative">
                   <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -313,7 +322,35 @@ export function AuthEntryScreen({
                     className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
                   />
                 </div>
+                {role === "guide" ? (
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    Нужен для связи и ручной проверки. Путешественникам он не показывается без вашего решения.
+                  </p>
+                ) : null}
               </div>
+              {role === "guide" ? (
+                <div className="grid gap-2.5">
+                  <p className="text-sm font-medium text-foreground">Кто будет проводить экскурсии</p>
+                  <div className="grid gap-2">
+                    {GUIDE_TYPES.map((type) => (
+                      <label
+                        key={type.id}
+                        className="flex cursor-pointer items-center gap-3 rounded-[1.2rem] border border-input bg-surface-high/[0.78] px-4 py-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                      >
+                        <input
+                          type="radio"
+                          name="guide-type"
+                          value={type.id}
+                          checked={guideType === type.id}
+                          onChange={() => setGuideType(type.id)}
+                          className="size-4 accent-primary"
+                        />
+                        <span>{type.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </>
           ) : null}
 

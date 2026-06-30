@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import type { ThemeSlug } from "@/data/themes";
 import { THEMES } from "@/data/themes";
 import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const canonThemeSlugs = new Set<string>(THEMES.map((t) => t.slug));
@@ -35,7 +36,9 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   } = await supabase.auth.getUser();
   if (authError || !user) return { ok: false, error: "Требуется вход" };
 
-  const { data: statusRow } = await supabase
+  const admin = createSupabaseAdminClient();
+
+  const { data: statusRow } = await admin
     .from("guide_profiles")
     .select("verification_status, regions")
     .eq("user_id", user.id)
@@ -43,7 +46,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
 
   const bio = formData.get("bio") as string | null;
   if (isGuideProfileConfirmed(statusRow?.verification_status)) {
-    const { error } = await supabase
+    const { error } = await admin
       .from("guide_profiles")
       .update({ bio: bio ?? "" })
       .eq("user_id", user.id);
@@ -85,7 +88,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
     update.years_experience = Number(yearsExperience);
   }
 
-  const { data: updatedRow, error } = await supabase
+  const { data: updatedRow, error } = await admin
     .from("guide_profiles")
     .update(update)
     .eq("user_id", user.id)
@@ -98,7 +101,7 @@ export async function saveGuideAboutAction(formData: FormData): Promise<SaveAbou
   }
 
   if (!updatedRow) {
-    const { data: insertedRow, error: insertError } = await supabase
+    const { data: insertedRow, error: insertError } = await admin
       .from("guide_profiles")
       .insert({ user_id: user.id, ...update })
       .select("user_id")

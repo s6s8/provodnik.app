@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { UseFormRegisterReturn } from "react-hook-form";
+import { useWatch, type UseFormRegisterReturn } from "react-hook-form";
 import { ru } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
@@ -160,6 +160,12 @@ function DateField({
           mode="single"
           locale={ru}
           selected={selected}
+          onDayClick={(d) => {
+            if (!minDate || d >= minDate) {
+              onChange(dateToISO(d));
+              setOpen(false);
+            }
+          }}
           onSelect={(d) => {
             if (d) {
               onChange(dateToISO(d));
@@ -193,7 +199,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
     serverError,
     isLoading,
   } = useRequestForm();
-  const startDate = form.watch("startDate");
+  const startDate = useWatch({ control: form.control, name: "startDate" });
 
   return (
     <TooltipProvider delayDuration={150}>

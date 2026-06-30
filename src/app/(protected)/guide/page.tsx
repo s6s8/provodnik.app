@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
 export default function GuidePage() {
-  redirect("/guide/inbox");
+  redirect("/guide/profile");
 }

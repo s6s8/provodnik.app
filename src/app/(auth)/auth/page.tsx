@@ -56,25 +56,51 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     redirect(destination);
   }
 
-  const trustPoints = [
-    {
-      title: "Регистрация и заявка бесплатны",
-      description: "Создайте профиль и отправьте запрос без оплаты.",
-    },
-    {
-      title: "Только проверенные гиды",
-      description:
-        "Проверяем профиль и документы гида перед работой на платформе.",
-    },
-    {
-      title: "Условия видны заранее",
-      description: "Гид предлагает цену и формат поездки до вашего решения.",
-    },
-    {
-      title: "Поможем с заявкой и бронированием",
-      description: "Подскажем по входу, откликам и оформлению поездки.",
-    },
-  ];
+  const isGuideSignup = signupRole === "guide";
+  const heroTitle = isGuideSignup
+    ? "Станьте проверенным гидом"
+    : "Найдите проверенного гида для поездки";
+  const heroDescription = isGuideSignup
+    ? "Заполните профиль, покажите опыт и получайте запросы от путешественников после проверки."
+    : "Создайте профиль, отправьте запрос и сравните предложения гидов до бронирования.";
+  const trustPoints = isGuideSignup
+    ? [
+        {
+          title: "Профиль вместо анкеты вслепую",
+          description: "Сразу собираем контакты, формат работы и базовую информацию для проверки.",
+        },
+        {
+          title: "Проверка перед заявками",
+          description: "Сначала подтверждаем профиль и документы, потом открываем поток запросов.",
+        },
+        {
+          title: "Вы задаёте формат работы",
+          description: "Индивидуальный гид, агентство или команда — выбирайте честно на старте.",
+        },
+        {
+          title: "Без лишнего шума",
+          description: "Путешественники видят только готовый профиль, а не черновик регистрации.",
+        },
+      ]
+    : [
+        {
+          title: "Регистрация и заявка бесплатны",
+          description: "Создайте профиль и отправьте запрос без оплаты.",
+        },
+        {
+          title: "Только проверенные гиды",
+          description:
+            "Проверяем профиль и документы гида перед работой на платформе.",
+        },
+        {
+          title: "Условия видны заранее",
+          description: "Гид предлагает цену и формат поездки до вашего решения.",
+        },
+        {
+          title: "Поможем с заявкой и бронированием",
+          description: "Подскажем по входу, откликам и оформлению поездки.",
+        },
+      ];
 
   return (
     <section className="relative flex min-h-screen items-stretch justify-center bg-surface px-[clamp(20px,4vw,48px)] py-16">
@@ -83,11 +109,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
           <span className="text-lg font-semibold tracking-tight">Provodnik</span>
           <div className="space-y-4">
             <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
-              Найдите проверенного гида для поездки
+              {heroTitle}
             </h1>
             <p className="text-base leading-7 text-white/80">
-              Создайте профиль, отправьте запрос и сравните предложения гидов
-              до бронирования.
+              {heroDescription}
             </p>
           </div>
           <ul className="space-y-4">

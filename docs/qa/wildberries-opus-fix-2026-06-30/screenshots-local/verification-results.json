@@ -1,0 +1,68 @@
+{
+  "base": "http://127.0.0.1:3000",
+  "guideEmail": "wb-guide-1782824412123@example.com",
+  "phone": "+7 933 123-12-44",
+  "results": [
+    {
+      "name": "guide signup without phone is blocked",
+      "ok": true,
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/01-guide-no-phone-blocked.png"
+    },
+    {
+      "name": "guide signup form shows guide-specific copy and guide type choice",
+      "ok": true,
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/02-guide-signup-form.png"
+    },
+    {
+      "name": "guide signup with phone succeeds and lands on profile",
+      "ok": true,
+      "url": "http://127.0.0.1:3000/guide/profile",
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/03-guide-profile-after-signup.png"
+    },
+    {
+      "name": "DB user/profile rows exist after signup",
+      "ok": true,
+      "profile": {
+        "id": "ff9a81b4-9b95-4d32-9838-3103ae378ce9",
+        "role": "guide",
+        "phone": "+7 933 123-12-44",
+        "email": "wb-guide-1782824412123@example.com"
+      },
+      "guideProfile": {
+        "user_id": "ff9a81b4-9b95-4d32-9838-3103ae378ce9",
+        "base_city": null,
+        "verification_status": "draft"
+      }
+    },
+    {
+      "name": "guide first profile block saves via logged-in UI",
+      "ok": true,
+      "saved": {
+        "base_city": "Тбилиси",
+        "regions": [
+          "Тбилиси",
+          "Кахетия"
+        ],
+        "years_experience": 7
+      },
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/04-guide-profile-save-success.png"
+    },
+    {
+      "name": "duplicate phone is blocked before second account",
+      "ok": true,
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/05-guide-duplicate-phone-blocked.png"
+    },
+    {
+      "name": "homepage date picker applies selected date",
+      "ok": true,
+      "label": "30 июня",
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/06-home-date-selected.png"
+    },
+    {
+      "name": "admin can log in and inspect guide queue/drafts",
+      "ok": true,
+      "url": "http://127.0.0.1:3000/admin/guides?view=drafts",
+      "screenshot": "/Users/idev/provodnik/docs/qa/wildberries-opus-fix-2026-06-30/screenshots-local/07-admin-guides-drafts.png"
+    }
+  ]
+}
