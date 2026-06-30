@@ -209,13 +209,6 @@ export function HeroConversation() {
           </div>
         </form>
 
-        <p className="mt-3 text-center text-xs text-muted-foreground">
-          Бесплатно · без регистрации · местный гид, а не турбюро
-        </p>
-        <p className="mt-1.5 text-center text-[13px] text-on-surface-muted">
-          Гиды обычно отвечают в течение дня
-        </p>
-
         {parseError && (
           <p role="alert" className="mt-3 text-center text-sm text-destructive">
             {parseError}

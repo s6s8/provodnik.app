@@ -119,14 +119,10 @@ describe("role-based nav groups", () => {
   it("keeps the traveler primary nav focused on marketplace + trips", () => {
     expect(travelerPrimaryNav.map((item) => item.href)).toEqual([
       "/requests",
-      "/listings",
-      "/destinations",
       "/trips",
     ]);
     expect(travelerPrimaryNav.map((item) => item.label)).toEqual([
       "Запросы",
-      "Экскурсии",
-      "Направления",
       "Мои поездки",
     ]);
   });

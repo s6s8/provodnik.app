@@ -132,7 +132,7 @@ export default function ForBusinessPage() {
             </a>
           </Button>
           <Button asChild size="lg" variant="outline">
-            <Link href="/listings">Смотреть экскурсии</Link>
+            <Link href="/">Создать запрос</Link>
           </Button>
         </div>
       </div>

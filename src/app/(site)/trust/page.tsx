@@ -115,7 +115,7 @@ export default function TrustPage() {
 
         <div className="mt-10">
           <Button asChild size="lg">
-            <Link href="/listings">Смотреть экскурсии</Link>
+            <Link href="/">Создать запрос</Link>
           </Button>
         </div>
       </div>

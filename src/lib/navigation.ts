@@ -66,12 +66,12 @@ const adminBridge: NavItem = { ...ROUTES.adminDashboard, label: "Админка"
 
 /** Anonymous / public marketplace discovery (max 5 items). */
 export const publicPrimaryNav = [
-  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.destinations, ROUTES.howItWorks,
+  ROUTES.requests, ROUTES.guides, ROUTES.howItWorks,
 ] as const;
 
 /** Traveler: marketplace + personal trips. */
 export const travelerPrimaryNav = [
-  ROUTES.requests, ROUTES.listings, ROUTES.destinations, ROUTES.trips,
+  ROUTES.requests, ROUTES.trips,
 ] as const;
 
 /** Guide workspace (also drives the mobile bottom nav). */
@@ -92,7 +92,7 @@ export const adminPrimaryNav = [
  * sidebar at desktop widths.
  */
 export const adminHeaderNav = [
-  ROUTES.requests, ROUTES.guides, ROUTES.destinations, adminBridge,
+  ROUTES.requests, ROUTES.guides, adminBridge,
 ] as const;
 
 /** Visible top-header nav per authenticated role (anon handled separately). */

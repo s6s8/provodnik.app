@@ -35,9 +35,6 @@ export function HomepageHeroFormClassic({ destinations }: Props) {
           <HomepageRequestFormClassic destinations={destinations} />
         </div>
 
-        <p className="mt-4 text-sm font-medium text-white/80">
-          Бесплатно · без регистрации · гиды обычно отвечают в течение дня
-        </p>
       </div>
 
       <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1.5 text-xs font-semibold tracking-wider text-white/75">
