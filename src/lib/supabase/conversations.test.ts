@@ -205,14 +205,14 @@ describe("getUserThreads", () => {
       data: participantProfileRows,
       error: null,
     });
-    const guideProfilesQuery = createQuery({
-      data: [{ user_id: guideId, display_name: "Guide One" }],
+    const publicGuideProfilesQuery = createQuery({
+      data: [{ user_id: guideId, full_name: "Guide One" }],
       error: null,
     });
     let threadParticipantQueryCount = 0;
     const from = vi.fn((table: string) => {
       if (table === "conversation_threads") return latestMessagesQuery;
-      if (table === "guide_profiles") return guideProfilesQuery;
+      if (table === "v_guide_public_profile") return publicGuideProfilesQuery;
       if (table === "thread_participants") {
         threadParticipantQueryCount += 1;
         return threadParticipantQueryCount === 1
@@ -271,7 +271,7 @@ describe("getUserThreads", () => {
 });
 
 describe("getThreadMessages", () => {
-  it("resolves a guide sender name from guide_profiles.display_name when full_name is RLS-null", async () => {
+  it("resolves a guide sender name from the public guide profile view when full_name is RLS-null", async () => {
     const threadId = "10000000-0000-4000-8000-000000000099";
     const guideId = "00000000-0000-4000-8000-0000000000aa";
     const travelerId = "00000000-0000-4000-8000-0000000000bb";
@@ -300,13 +300,13 @@ describe("getThreadMessages", () => {
     ];
 
     const messagesQuery = createQuery({ data: messageRows, error: null });
-    const guideProfilesQuery = createQuery({
-      data: [{ user_id: guideId, display_name: "Гид Дмитрий" }],
+    const publicGuideProfilesQuery = createQuery({
+      data: [{ user_id: guideId, full_name: "Гид Дмитрий" }],
       error: null,
     });
     const from = vi.fn((table: string) => {
       if (table === "messages") return messagesQuery;
-      if (table === "guide_profiles") return guideProfilesQuery;
+      if (table === "v_guide_public_profile") return publicGuideProfilesQuery;
       throw new Error(`Unexpected table: ${table}`);
     });
     createSupabaseServerClient.mockResolvedValue({ from });
@@ -317,6 +317,6 @@ describe("getThreadMessages", () => {
       "Анна",
       "Гид Дмитрий",
     ]);
-    expect(from).toHaveBeenCalledWith("guide_profiles");
+    expect(from).toHaveBeenCalledWith("v_guide_public_profile");
   });
 });

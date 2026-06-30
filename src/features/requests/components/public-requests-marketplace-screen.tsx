@@ -1,15 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { ChevronDown, Compass, X } from "lucide-react";
+import { Compass } from "lucide-react";
 
+import {
+  DiscoveryActiveFilters,
+  DiscoveryFacetChip,
+  DiscoveryFacetRail,
+  DiscoveryGrid,
+  DiscoveryHero,
+  DiscoveryResultsCount,
+  DiscoveryShell,
+  DiscoveryToolbar,
+} from "@/components/shared/discovery-shell";
+import { DiscoveryFilterSheet } from "@/components/shared/discovery-filter-sheet";
+import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { EmptyState } from "@/components/shared/empty-state";
-import { ListHero } from "@/components/shared/list-hero";
 import { OpenGroupCard } from "@/components/shared/open-group-card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,15 +30,6 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { THEMES } from "@/data/themes";
 import { brandGradient, cityImage } from "@/lib/city-image";
@@ -43,6 +44,37 @@ const CATEGORY_INTEREST_SLUGS = Object.fromEntries(
   THEMES.map((theme) => [theme.label, theme.slug] as const),
 ) as Record<CategoryFilter, string>;
 
+const CATEGORY_TOKENS: Record<CategoryFilter, string[]> = {
+  "История и культура": [
+    "история",
+    "исторический",
+    "музей",
+    "крепость",
+    "памятник",
+    "летопись",
+    "архитектур",
+    "усадьба",
+    "зодчество",
+    "особняк",
+    "дворец",
+  ],
+  Природа: ["байкал", "алтай", "карелия", "камчатка", "природа", "лес", "гора", "степь", "озеро"],
+  Гастрономия: ["гастроном", "кухня", "ресторан", "рынок", "еда", "дегустац"],
+  Искусство: ["искусство", "театр", "галерея", "выставка", "художник"],
+  "Необычные маршруты": ["необычн", "квест", "приключен", "мистик", "тайн", "экстрим"],
+  "Ночные прогулки": ["ноч", "вечер", "огни", "закат", "рассвет"],
+  "Активный отдых": ["актив", "спорт", "поход", "велосипед", "дети", "ребёнок", "семья", "семейн", "детск"],
+  "Водные прогулки": ["вода", "лодка", "катер", "река", "канал", "море", "озеро"],
+  "Религия и духовность": ["монастырь", "церковь", "храм", "мечеть", "собор", "паломничество", "религи"],
+};
+
+function requestMatchesCategory(request: OpenRequestRecord, category: CategoryFilter): boolean {
+  const slug = CATEGORY_INTEREST_SLUGS[category] ?? "";
+  if (request.interests?.includes(slug)) return true;
+  const searchText = getSearchText(request);
+  return CATEGORY_TOKENS[category].some((token) => searchText.includes(token));
+}
+
 const MONTHS_GENITIVE = [
   "января", "февраля", "марта", "апреля", "мая", "июня",
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
@@ -54,18 +86,12 @@ const WHEN_PRESETS = [
   { value: "next-month", label: "В следующем месяце" },
   { value: "flexible", label: "Гибкие даты" },
 ] as const;
+const REQUESTS_PAGE_SIZE = 9;
 type WhenPreset = (typeof WHEN_PRESETS)[number]["value"];
 type ActiveDateRange = { from?: Date; to?: Date };
 
 type Props = {
   initialData: OpenRequestRecord[] | null;
-};
-
-type FilterControlProps = {
-  label: string;
-  title: string;
-  description: string;
-  children: (close: () => void) => ReactNode;
 };
 
 function deriveCityFromDestination(label: string): string {
@@ -133,43 +159,6 @@ function formatDateRangeLabel(range: ActiveDateRange): string {
   return `${format(range.from, "d MMMM", { locale: ru })} – ${format(range.to, "d MMMM", { locale: ru })}`;
 }
 
-function FilterControl({ label, title, description, children }: FilterControlProps) {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
-
-  const trigger = (
-    <Button type="button" variant="outline" className="w-full min-w-0 cursor-pointer justify-between">
-      <span className="truncate">{label}</span>
-      <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
-    </Button>
-  );
-
-  return (
-    <>
-      <div className="hidden md:block">
-        <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-          <PopoverTrigger asChild>{trigger}</PopoverTrigger>
-          <PopoverContent align="start" className="w-[320px] p-0">
-            {children(() => setIsPopoverOpen(false))}
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="md:hidden">
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>{trigger}</SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[85vh] rounded-t-card p-0">
-            <SheetHeader>
-              <SheetTitle>{title}</SheetTitle>
-              <SheetDescription>{description}</SheetDescription>
-            </SheetHeader>
-            <div className="overflow-y-auto px-4 pb-4">{children(() => setIsSheetOpen(false))}</div>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </>
-  );
-}
-
 export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const [query, setQuery] = useState("");
   const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
@@ -177,6 +166,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(null);
   const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(null);
   const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(REQUESTS_PAGE_SIZE);
+  const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
   const requests = useMemo(() => initialData ?? [], [initialData]);
 
@@ -204,31 +195,18 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
     }
   }, [cityOptions, hasLoadedStoredCity]);
 
+  const categoryCounts = useMemo(() => {
+    const counts = {} as Record<CategoryFilter, number>;
+    for (const category of CATEGORY_FILTERS) {
+      counts[category] = requests.filter((request) =>
+        requestMatchesCategory(request, category),
+      ).length;
+    }
+    return counts;
+  }, [requests]);
+
   const filteredRequests = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
-    const categoryMap: Record<CategoryFilter, string[]> = {
-      "История и культура": [
-        "история",
-        "исторический",
-        "музей",
-        "крепость",
-        "памятник",
-        "летопись",
-        "архитектур",
-        "усадьба",
-        "зодчество",
-        "особняк",
-        "дворец",
-      ],
-      Природа: ["байкал", "алтай", "карелия", "камчатка", "природа", "лес", "гора", "степь", "озеро"],
-      Гастрономия: ["гастроном", "кухня", "ресторан", "рынок", "еда", "дегустац"],
-      Искусство: ["искусство", "театр", "галерея", "выставка", "художник"],
-      "Необычные маршруты": ["необычн", "квест", "приключен", "мистик", "тайн", "экстрим"],
-      "Ночные прогулки": ["ноч", "вечер", "огни", "закат", "рассвет"],
-      "Активный отдых": ["актив", "спорт", "поход", "велосипед", "дети", "ребёнок", "семья", "семейн", "детск"],
-      "Водные прогулки": ["вода", "лодка", "катер", "река", "канал", "море", "озеро"],
-      "Религия и духовность": ["монастырь", "церковь", "храм", "мечеть", "собор", "паломничество", "религи"],
-    };
 
     return requests.filter((request) => {
       const searchText = getSearchText(request);
@@ -236,10 +214,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
       const matchesQuery = !normalizedQuery || searchText.includes(normalizedQuery);
       const matchesCategory =
         activeCategories.length === 0 ||
-        activeCategories.some((category) => {
-          const slug = CATEGORY_INTEREST_SLUGS[category] ?? "";
-          return request.interests?.includes(slug) || categoryMap[category].some((token) => searchText.includes(token));
-        });
+        activeCategories.some((category) => requestMatchesCategory(request, category));
       const matchesCity =
         activeCity == null ||
         deriveCityFromDestination(request.destinationLabel) === activeCity;
@@ -262,8 +237,51 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
     });
   }, [activeCategories, query, requests, activeCity, activeWhen, activeDateRange]);
 
-  const hasActiveDropdownFilter =
-    activeCity != null || activeWhen != null || activeDateRange != null || activeCategories.length > 0;
+  const visibleRequests = useMemo(
+    () => filteredRequests.slice(0, visibleCount),
+    [filteredRequests, visibleCount]
+  );
+  const hasMoreRequests = visibleCount < filteredRequests.length;
+
+  useEffect(() => {
+    setVisibleCount(REQUESTS_PAGE_SIZE);
+  }, [activeCategories, query, activeCity, activeWhen, activeDateRange]);
+
+  useEffect(() => {
+    const loadMoreNode = loadMoreRef.current;
+    if (!loadMoreNode || !hasMoreRequests) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length));
+        }
+      },
+      { rootMargin: "480px 0px" }
+    );
+
+    observer.observe(loadMoreNode);
+    return () => observer.disconnect();
+  }, [filteredRequests.length, hasMoreRequests]);
+
+  const advancedFilterCount =
+    (activeCity != null ? 1 : 0) + (activeWhen != null || activeDateRange != null ? 1 : 0);
+
+  const advancedActiveFilters = [
+    activeCity
+      ? { key: "city", label: activeCity, onRemove: clearCity }
+      : null,
+    activeWhen
+      ? { key: "when", label: getWhenLabel(activeWhen), onRemove: () => setActiveWhen(null) }
+      : null,
+    activeDateRange
+      ? {
+          key: "date",
+          label: formatDateRangeLabel(activeDateRange),
+          onRemove: () => setActiveDateRange(null),
+        }
+      : null,
+  ].filter((entry): entry is { key: string; label: string; onRemove: () => void } => entry !== null);
 
   function selectCity(city: string): void {
     setActiveCity(city);
@@ -300,73 +318,80 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
   return (
     <div>
-      <ListHero
-        imageUrl={brandGradient("requests")}
-        title="Открытые запросы"
-        intro="Гиды — выбирайте запросы и предлагайте тур. Путешественники — присоединяйтесь к сборным группам."
-      >
-        <div className="flex flex-col gap-4">
-          <div>
-            <label htmlFor="requests-search" className="sr-only">
-              Поиск по запросам
-            </label>
-            <input
-              id="requests-search"
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Ключевые слова: формат, детали, пожелания"
-              className="h-12 w-full rounded-full border border-border bg-surface-high px-5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
-            />
-          </div>
-          <div>
-            <Button asChild>
-              <Link href="/requests/new">Опубликовать запрос</Link>
-            </Button>
-          </div>
-        </div>
-      </ListHero>
+      <DiscoveryHero imageUrl={brandGradient("requests")} title="Запросы">
+        <DiscoverySearchInput
+          id="requests-search"
+          label="Поиск по запросам"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Ключевые слова: формат, детали, пожелания"
+        />
+      </DiscoveryHero>
 
-      <section className="bg-surface-low py-8">
-        <div className="mx-auto flex w-full max-w-page flex-col gap-4 px-[clamp(20px,4vw,48px)]">
-          <div className="mx-auto grid grid-cols-2 gap-2 sm:grid-cols-3 md:max-w-[560px] md:gap-3">
-            <FilterControl
-              label="Город"
-              title="Город"
-              description="Найдите город в текущих запросах"
+      <DiscoveryToolbar
+        facets={
+          <DiscoveryFacetRail label="Темы запросов">
+            <DiscoveryFacetChip
+              active={activeCategories.length === 0}
+              count={requests.length}
+              onClick={() => setActiveCategories([])}
             >
-              {(close) => (
-                <Command>
-                  <CommandInput placeholder="Куда едете?" />
-                  <CommandList>
-                    <CommandEmpty>Город не найден</CommandEmpty>
-                    <CommandGroup heading="Города">
-                      {cityOptions.map((city) => (
-                        <CommandItem
-                          key={city}
-                          value={city}
-                          data-checked={city === activeCity}
-                          onSelect={() => {
-                            selectCity(city);
-                            close();
-                          }}
-                        >
-                          {city}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              )}
-            </FilterControl>
+              Все
+            </DiscoveryFacetChip>
+            {CATEGORY_FILTERS.filter((category) => categoryCounts[category] > 0).map((category) => {
+              const pressed = activeCategories.includes(category);
+              return (
+                <DiscoveryFacetChip
+                  key={category}
+                  active={pressed}
+                  pressed={pressed}
+                  count={categoryCounts[category]}
+                  onClick={() => toggleCategory(category)}
+                >
+                  {category}
+                </DiscoveryFacetChip>
+              );
+            })}
+          </DiscoveryFacetRail>
+        }
+        count={
+          <DiscoveryResultsCount
+            count={filteredRequests.length}
+            noun={["запрос", "запроса", "запросов"]}
+          />
+        }
+        actions={
+          <DiscoveryFilterSheet
+            title="Фильтры"
+            description="Уточните город и даты"
+            activeCount={advancedFilterCount}
+          >
+            {(close) => (
+              <div className="flex flex-col gap-4 p-3">
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium text-foreground">Город</p>
+                  <Command className="rounded-lg border border-border">
+                    <CommandInput placeholder="Куда едете?" />
+                    <CommandList>
+                      <CommandEmpty>Город не найден</CommandEmpty>
+                      <CommandGroup heading="Города">
+                        {cityOptions.map((city) => (
+                          <CommandItem
+                            key={city}
+                            value={city}
+                            data-checked={city === activeCity}
+                            onSelect={() => selectCity(city)}
+                          >
+                            {city}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </div>
 
-            <FilterControl
-              label="Когда"
-              title="Когда"
-              description="Выберите один временной пресет"
-            >
-              {(close) => (
-                <div className="flex flex-col gap-2 p-1">
+                <div className="flex flex-col gap-2">
+                  <p className="text-sm font-medium text-foreground">Когда</p>
                   {WHEN_PRESETS.map((option) => (
                     <button
                       key={option.value}
@@ -375,7 +400,6 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                       onClick={() => {
                         setActiveWhen(option.value);
                         setActiveDateRange(null);
-                        close();
                       }}
                       className={`flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
                         activeWhen === option.value
@@ -387,8 +411,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                       {activeWhen === option.value && <span aria-hidden="true">✓</span>}
                     </button>
                   ))}
-                  <div className="my-2 h-px bg-border" />
-                  <div className="px-3 pt-1 text-sm font-medium text-foreground">Точные даты</div>
+                  <div className="my-1 h-px bg-border" />
+                  <div className="px-1 text-sm font-medium text-foreground">Точные даты</div>
                   <Calendar
                     mode="range"
                     locale={ru}
@@ -402,114 +426,34 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                       setActiveWhen(null);
                     }}
                   />
-                  <p className="px-3 pb-2 text-xs leading-[1.5] text-muted-foreground">
+                  <p className="px-1 text-xs leading-[1.5] text-muted-foreground">
                     Сопоставление по месяцам выбранного периода
                   </p>
                 </div>
-              )}
-            </FilterControl>
 
-            <FilterControl
-              label={activeCategories.length ? `Тема · ${activeCategories.length}` : "Тема"}
-              title="Тема"
-              description="Можно выбрать несколько тем"
-            >
-              {(close) => (
-                <div className="flex flex-col gap-2 p-1">
-                  {CATEGORY_FILTERS.map((category) => (
-                    <label
-                      key={category}
-                      className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-sm text-foreground transition-colors hover:bg-muted"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={activeCategories.includes(category)}
-                        onChange={() => toggleCategory(category)}
-                        className="size-4 rounded border-border accent-primary"
-                      />
-                      <span>{category}</span>
-                    </label>
-                  ))}
-                  <Button type="button" variant="outline" size="sm" className="mt-2 cursor-pointer" onClick={close}>
-                    Готово
-                  </Button>
-                </div>
-              )}
-            </FilterControl>
-          </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="cursor-pointer"
+                  onClick={close}
+                >
+                  Готово
+                </Button>
+              </div>
+            )}
+          </DiscoveryFilterSheet>
+        }
+        activeFilters={
+          <DiscoveryActiveFilters filters={advancedActiveFilters} onReset={resetDropdownFilters} />
+        }
+      />
 
-          {hasActiveDropdownFilter && (
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              {activeCity && (
-                <Badge variant="outline" className="normal-case tracking-normal">
-                  {activeCity}
-                  <button
-                    type="button"
-                    onClick={clearCity}
-                    className="cursor-pointer text-muted-foreground hover:text-foreground"
-                    aria-label={`Очистить город ${activeCity}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {activeWhen && (
-                <Badge variant="outline" className="normal-case tracking-normal">
-                  {getWhenLabel(activeWhen)}
-                  <button
-                    type="button"
-                    onClick={() => setActiveWhen(null)}
-                    className="cursor-pointer text-muted-foreground hover:text-foreground"
-                    aria-label={`Очистить период ${getWhenLabel(activeWhen)}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {activeDateRange && (
-                <Badge variant="outline" className="normal-case tracking-normal">
-                  {formatDateRangeLabel(activeDateRange)}
-                  <button
-                    type="button"
-                    onClick={() => setActiveDateRange(null)}
-                    className="cursor-pointer text-muted-foreground hover:text-foreground"
-                    aria-label={`Очистить период ${formatDateRangeLabel(activeDateRange)}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {activeCategories.map((category) => (
-                <Badge key={category} variant="outline" className="normal-case tracking-normal">
-                  {category}
-                  <button
-                    type="button"
-                    onClick={() => toggleCategory(category)}
-                    className="cursor-pointer text-muted-foreground hover:text-foreground"
-                    aria-label={`Очистить тему ${category}`}
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
-              <button
-                type="button"
-                onClick={resetDropdownFilters}
-                className="cursor-pointer px-2 text-sm font-semibold text-primary underline-offset-4 hover:underline"
-              >
-                Сбросить всё
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      <section className="py-sec-pad">
-        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
-          {filteredRequests.length > 0 ? (
-            <div className="mx-auto max-w-2xl">
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              {filteredRequests.map((request, index) => {
+      <DiscoveryShell>
+        {filteredRequests.length > 0 ? (
+          <div>
+            <DiscoveryGrid>
+              {visibleRequests.map((request, index) => {
                 const location = request.destinationLabel.split(",")[0].trim();
                 const matched = request.status === "matched";
                 const sizeCurrent = request.group.sizeCurrent;
@@ -537,28 +481,40 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     priority={index < 3}
                   />
                 );
-              })}
-            </div>
-            </div>
-          ) : (
-            <EmptyState
-              icon={<Compass className="h-10 w-10 text-muted-foreground" />}
-              title="Подходящих запросов пока нет"
-              description="Попробуйте изменить направление или выбрать другую тематику."
-              action={
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={resetDropdownFilters}>
-                    Сбросить фильтры
-                  </Button>
-                  <Button asChild>
-                    <Link href="/requests/new">Опубликовать запрос</Link>
+                })}
+            </DiscoveryGrid>
+              {hasMoreRequests ? (
+                <div ref={loadMoreRef} className="flex justify-center pt-8">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length))
+                    }
+                  >
+                    Показать ещё
                   </Button>
                 </div>
-              }
-            />
-          )}
-        </div>
-      </section>
+              ) : null}
+          </div>
+        ) : (
+          <EmptyState
+            icon={<Compass className="h-10 w-10 text-muted-foreground" />}
+            title="Подходящих запросов пока нет"
+            description="Попробуйте изменить направление или выбрать другую тематику."
+            action={
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={resetDropdownFilters}>
+                  Сбросить фильтры
+                </Button>
+                <Button asChild>
+                  <Link href="/requests/new">Опубликовать запрос</Link>
+                </Button>
+              </div>
+            }
+          />
+        )}
+      </DiscoveryShell>
     </div>
   );
 }

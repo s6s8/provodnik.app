@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/sheet";
 import { ProfileAvatar } from "@/components/profile-avatar";
 import type { AppRole } from "@/lib/auth/types";
-import { accountMenu, type NavItem } from "@/lib/navigation";
+import {
+  accountMenuByRole,
+  filterNavItemsByHiddenHrefs,
+  roleSwitchByRole,
+  type NavItem,
+} from "@/lib/navigation";
 
 const roleLabels: Record<AppRole, string> = {
   traveler: "Путешественник",
@@ -27,6 +32,7 @@ type UserAccountDrawerProps = {
   fullName?: string | null;
   avatarUrl?: string | null;
   role: AppRole | null;
+  hiddenNavHrefs?: readonly string[];
 };
 
 export function UserAccountDrawer({
@@ -36,21 +42,18 @@ export function UserAccountDrawer({
   fullName,
   avatarUrl,
   role,
+  hiddenNavHrefs = [],
 }: UserAccountDrawerProps) {
   const displayName = fullName?.trim().split(/\s+/)[0] || email || "Гость";
-  const accountItems: readonly NavItem[] =
-    role === "guide"
-      ? accountMenu.guide
-      : role === "admin"
-        ? accountMenu.admin
-        : role === "traveler"
-          ? accountMenu.traveler
-          : [];
+  const accountItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
+    role ? accountMenuByRole[role] : [],
+    hiddenNavHrefs,
+  );
   const roleSwitch =
     role === "guide"
-      ? { href: "/trips", label: "Переключиться на путешественника" }
+      ? roleSwitchByRole.guide
       : role === "traveler"
-        ? { href: "/guide", label: "Переключиться на гида" }
+        ? roleSwitchByRole.traveler
         : null;
 
   function closeAndNavigate() {

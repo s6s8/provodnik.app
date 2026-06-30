@@ -1,5 +1,11 @@
 import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("next/image", () => ({
+  default: ({ src, alt }: { src: string; alt: string }) => (
+    <span role="img" aria-label={alt} data-src={src} />
+  ),
+}));
 
 import { AvatarStack } from "../avatar-stack";
 
@@ -23,10 +29,10 @@ describe("AvatarStack", () => {
     const { container } = render(
       <AvatarStack users={[{ name: "Айдар", avatarUrl: "/a.jpg" }]} />
     );
-    const img = container.querySelector("img");
+    const img = container.querySelector("[data-src]");
 
-    expect(img?.getAttribute("src")).toBe("/a.jpg");
-    expect(img?.getAttribute("alt")).toBe("Айдар");
+    expect(img?.getAttribute("data-src")).toBe("/a.jpg");
+    expect(img?.getAttribute("aria-label")).toBe("Айдар");
   });
 
   it("clamps to max and renders an overflow badge", () => {

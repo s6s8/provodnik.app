@@ -3,6 +3,10 @@ import Link from "next/link";
 import { Calendar, CheckCircle2, Clock, MapPin, Users } from "lucide-react";
 
 import { AvatarStack, type AvatarStackMember } from "@/components/shared/avatar-stack";
+import { InterestTag } from "@/components/shared/interest-tag";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Scrim } from "@/components/ui/scrim";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 
 const THEME_BY_SLUG = new Map(THEMES.map((t) => [t.slug, t] as const));
@@ -50,10 +54,9 @@ export interface OpenGroupCardProps {
 
 /**
  * Open-group card (homepage "Открытые группы" + /requests marketplace).
- * Photo + region pill, status badge (Гид выбран / N откликов / Ждёт гида),
- * Сборная-группа pill, date/flex/time, interest tags, traveller avatar stack +
- * publish date, the group total budget, and a "Присоединиться" CTA. No
- * per-person price (intentionally).
+ * Photo + region badge, status badge (Гид выбран / N откликов / Ждёт гида),
+ * Сборная-группа badge, date/flex/time, interest tags, traveller avatar stack +
+ * publish date, the group total budget, and a "Присоединиться" CTA.
  */
 export function OpenGroupCard({
   href,
@@ -84,11 +87,11 @@ export function OpenGroupCard({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm${
+      className={`flex flex-col overflow-hidden rounded-card border border-border bg-card shadow-card${
         unread ? " border-l-4 border-l-primary" : ""
       }`}
     >
-      <div className="relative h-[148px] bg-surface-low">
+      <div className="relative h-36 bg-surface-low">
         <Image
           src={imageUrl}
           alt={city}
@@ -97,65 +100,58 @@ export function OpenGroupCard({
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           className="object-cover"
         />
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-[rgba(8,14,24,0.28)] via-transparent to-[rgba(8,14,24,0.4)]"
-          aria-hidden="true"
-        />
+        <Scrim />
         {region ? (
-          <span className="absolute left-2.5 top-2.5 inline-flex h-[25px] items-center gap-1.5 rounded-full bg-[rgba(8,14,24,0.55)] px-2.5 text-[11px] font-semibold text-white">
-            <MapPin className="h-[11px] w-[11px]" aria-hidden="true" />
+          <Badge variant="overlay" className="absolute left-2.5 top-2.5 gap-1">
+            <MapPin aria-hidden="true" />
             {region}
-          </span>
+          </Badge>
         ) : null}
       </div>
 
       <div className="flex flex-1 flex-col px-4 pb-4 pt-3.5">
         <div className="flex items-start justify-between gap-2">
-          <div className="text-[18px] font-bold leading-tight tracking-[-0.02em] text-foreground">
+          <div className="text-lg font-bold leading-tight tracking-tight text-foreground">
             {city}
           </div>
           {status === "selected" ? (
-            <span className="inline-flex h-6 shrink-0 items-center gap-1 whitespace-nowrap text-xs font-bold text-[#2F8F66]">
-              <CheckCircle2 className="h-[14px] w-[14px]" aria-hidden="true" />
+            <Badge variant="success" className="shrink-0 gap-1">
+              <CheckCircle2 aria-hidden="true" />
               Гид выбран
-            </span>
+            </Badge>
           ) : offerCount > 0 ? (
-            <span className="inline-flex h-6 shrink-0 items-center whitespace-nowrap rounded-full bg-primary/10 px-2.5 text-[11.5px] font-bold text-primary">
+            <Badge variant="info" className="shrink-0">
               {pluralOffers(offerCount)}
-            </span>
+            </Badge>
           ) : (
-            <span className="inline-flex h-6 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full bg-[rgba(212,135,43,0.14)] px-2.5 text-[11.5px] font-bold text-[#9A5712]">
-              <Clock className="h-3 w-3" aria-hidden="true" />
+            <Badge variant="warning" className="shrink-0 gap-1">
+              <Clock aria-hidden="true" />
               Ждёт гида
-            </span>
+            </Badge>
           )}
         </div>
 
         <div className="mt-2 flex items-center gap-1.5">
-          <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-[#EAF1FA] px-2.5 text-[11.5px] font-semibold text-primary">
-            <Users className="h-3 w-3" aria-hidden="true" />
+          <Badge variant="info" className="gap-1">
+            <Users aria-hidden="true" />
             Сборная группа
-          </span>
+          </Badge>
           {minPeople ? (
             <span className="text-xs font-semibold text-muted-foreground">· {minPeople}</span>
           ) : null}
         </div>
 
-        <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-ink-2">
+        <div className="mt-2.5 flex flex-wrap items-center gap-2 text-xs font-medium text-ink-2">
           {date ? (
             <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-[13px] w-[13px] text-muted-foreground" aria-hidden="true" />
+              <Calendar className="size-3.5 text-muted-foreground" aria-hidden="true" />
               {date}
             </span>
           ) : null}
-          {datesFlexible ? (
-            <span className="inline-flex h-[22px] items-center rounded-full bg-[rgba(47,143,102,0.12)] px-2 text-[11px] font-bold text-[#1F7A52]">
-              Гибкие даты
-            </span>
-          ) : null}
+          {datesFlexible ? <Badge variant="success">Гибкие даты</Badge> : null}
           {time ? (
             <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-[13px] w-[13px] text-muted-foreground" aria-hidden="true" />
+              <Clock className="size-3.5 text-muted-foreground" aria-hidden="true" />
               {time}
             </span>
           ) : null}
@@ -163,18 +159,11 @@ export function OpenGroupCard({
 
         {themes.length > 0 ? (
           <div className="mt-2.5 flex flex-wrap gap-1.5">
-            {themes.map((theme) => {
-              const Icon = theme.Icon;
-              return (
-                <span
-                  key={theme.slug}
-                  className="inline-flex h-[26px] items-center gap-1.5 rounded-full border border-border px-2.5 text-xs font-semibold text-ink-2"
-                >
-                  <Icon className="h-[13px] w-[13px] text-muted-foreground" aria-hidden="true" />
-                  {theme.label}
-                </span>
-              );
-            })}
+            {themes.map((theme) => (
+              <InterestTag key={theme.slug} icon={theme.Icon}>
+                {theme.label}
+              </InterestTag>
+            ))}
           </div>
         ) : null}
 
@@ -183,12 +172,12 @@ export function OpenGroupCard({
             {memberList.length > 0 ? (
               <AvatarStack members={memberList} size={26} overlap={9} totalCount={participantCount} />
             ) : (
-              <span className="grid h-[30px] w-[30px] place-items-center rounded-full border border-border bg-surface-low text-xs font-bold text-muted-foreground">
+              <span className="grid size-8 place-items-center rounded-full border border-border bg-surface-low text-xs font-bold text-muted-foreground">
                 П
               </span>
             )}
             {publishedAt ? (
-              <span className="truncate text-[11px] font-medium text-muted-foreground">{publishedAt}</span>
+              <span className="truncate text-xs font-medium text-muted-foreground">{publishedAt}</span>
             ) : null}
           </div>
           {price ? (
@@ -196,12 +185,9 @@ export function OpenGroupCard({
           ) : null}
         </div>
 
-        <Link
-          href={joinHref ?? href}
-          className="mt-3 inline-flex h-[42px] w-full items-center justify-center rounded-[11px] bg-primary text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
-        >
-          {joinLabel}
-        </Link>
+        <Button asChild className="mt-3 w-full">
+          <Link href={joinHref ?? href}>{joinLabel}</Link>
+        </Button>
       </div>
     </div>
   );

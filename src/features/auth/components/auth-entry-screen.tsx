@@ -40,6 +40,8 @@ function getFriendlyAuthError(code: string): string {
       return "Аккаунт создан. Войдите по своему email и паролю.";
     case "forbidden_role":
       return "Регистрация для этой роли недоступна.";
+    case "phone_taken":
+      return "Этот телефон уже привязан к другому аккаунту. Войдите в существующий аккаунт или укажите другой номер.";
   }
 
   const normalized = code.toLowerCase();
@@ -227,9 +229,8 @@ export function AuthEntryScreen({
 
   const isSignUp = mode === "sign-up";
   const ctaLabel = isSignUp ? "Создать профиль" : "Войти";
-  const toggleLabel = isSignUp
-    ? "Уже есть аккаунт? Войти"
-    : "Нет аккаунта? Создать профиль";
+  const togglePrompt = isSignUp ? "Уже есть аккаунт?" : "Нет аккаунта?";
+  const toggleAction = isSignUp ? "Войти" : "Создать профиль";
 
   return (
     <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
@@ -399,13 +400,16 @@ export function AuthEntryScreen({
           </Button>
         </form>
 
-        <button
-          type="button"
-          onClick={() => handleModeChange(isSignUp ? "sign-in" : "sign-up")}
-          className="mt-6 inline-flex w-fit items-center text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
-        >
-          {toggleLabel}
-        </button>
+        <div className="mt-6 flex items-center justify-center gap-1.5 text-sm">
+          <span className="text-muted-foreground">{togglePrompt}</span>
+          <button
+            type="button"
+            onClick={() => handleModeChange(isSignUp ? "sign-in" : "sign-up")}
+            className="font-medium text-primary transition-colors duration-200 hover:text-primary/80"
+          >
+            {toggleAction}
+          </button>
+        </div>
       </div>
     </div>
   );

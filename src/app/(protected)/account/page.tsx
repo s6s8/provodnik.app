@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -67,6 +68,12 @@ async function fetchAvatar(userId: string | null | undefined, fallbackName: stri
 export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
 
+  // Admins have no traveler/guide profile surface here; send them to their
+  // workspace instead of the unauthenticated "Войдите в аккаунт" fallback.
+  if (auth.isAuthenticated && auth.role === "admin") {
+    redirect("/admin/dashboard");
+  }
+
   if (auth.isAuthenticated && auth.role === "traveler") {
     const displayNameFallback =
       auth.fullName?.trim() || auth.email || "Путешественник";
@@ -110,8 +117,8 @@ export default async function PersonalSettingsPage() {
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
         <PageHeader
-          eyebrow="Кабинет путешественника"
-          title="Профиль"
+          title="Профиль путешественника"
+          subtitle="Эти данные видят гиды, когда отвечают на ваши запросы."
           actions={
             <Button asChild variant="outline">
               <Link href="/trips">Мои запросы</Link>

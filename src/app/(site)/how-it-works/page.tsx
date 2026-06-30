@@ -9,8 +9,10 @@ import {
   Send,
   Users,
 } from "lucide-react";
+
+import { InfoHero, InfoPageShell, InfoSection } from "@/components/shared/info-shell";
+import { StepCard } from "@/components/shared/step-card";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/shared/page-header";
 
 export const metadata: Metadata = {
   title: "Как это работает",
@@ -54,31 +56,18 @@ const CATALOG_STEPS = [
 
 export default function HowItWorksPage() {
   return (
-    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
-      <PageHeader
+    <InfoPageShell>
+      <InfoHero
         title="Как это работает"
         subtitle="Два способа найти гида — выберите удобный"
-        className="mb-12"
       />
 
-      <section className="mb-12">
-        <h2 className="mb-6 text-lg font-semibold text-foreground">
-          Запрос гидам
-        </h2>
+      <InfoSection title="Запрос гидам">
         <div className="space-y-3">
           {REQUEST_STEPS.map((item) => (
-            <div
-              key={item.step}
-              className="flex gap-4 rounded-xl border border-border/70 bg-card/90 p-5"
-            >
-              <span className="mt-0.5 flex flex-col items-center gap-1.5 shrink-0">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                  {item.step}
-                </span>
-                <item.icon className="size-4 text-primary/60" />
-              </span>
-              <p className="text-sm text-foreground">{item.text}</p>
-            </div>
+            <StepCard key={item.step} step={item.step} icon={item.icon}>
+              {item.text}
+            </StepCard>
           ))}
         </div>
         <div className="mt-6">
@@ -86,26 +75,14 @@ export default function HowItWorksPage() {
             <Link href="/">Создать запрос</Link>
           </Button>
         </div>
-      </section>
+      </InfoSection>
 
-      <section>
-        <h2 className="mb-6 text-lg font-semibold text-foreground">
-          Готовые экскурсии
-        </h2>
+      <InfoSection title="Готовые экскурсии" className="mb-0">
         <div className="space-y-3">
           {CATALOG_STEPS.map((item) => (
-            <div
-              key={item.step}
-              className="flex gap-4 rounded-xl border border-border/70 bg-card/90 p-5"
-            >
-              <span className="mt-0.5 flex flex-col items-center gap-1.5 shrink-0">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                  {item.step}
-                </span>
-                <item.icon className="size-4 text-primary/60" />
-              </span>
-              <p className="text-sm text-foreground">{item.text}</p>
-            </div>
+            <StepCard key={item.step} step={item.step} icon={item.icon}>
+              {item.text}
+            </StepCard>
           ))}
         </div>
         <div className="mt-6">
@@ -113,7 +90,7 @@ export default function HowItWorksPage() {
             <Link href="/listings">Смотреть экскурсии</Link>
           </Button>
         </div>
-      </section>
+      </InfoSection>
 
       <div className="mt-12 flex flex-wrap items-center gap-3 border-t border-border/50 pt-8">
         <p className="text-sm text-muted-foreground">Вы гид?</p>
@@ -123,6 +100,6 @@ export default function HowItWorksPage() {
           </Link>
         </Button>
       </div>
-    </article>
+    </InfoPageShell>
   );
 }

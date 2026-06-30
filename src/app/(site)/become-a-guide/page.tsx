@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Check, MessageCircle, TrendingUp, Users } from "lucide-react";
+import { Check, FileCheck2, MessageCircle, ShieldCheck } from "lucide-react";
 
-import { ListHero } from "@/components/shared/list-hero";
+import { InfoHero, InfoPageShell, InfoSection } from "@/components/shared/info-shell";
+import { StepCard } from "@/components/shared/step-card";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -10,76 +11,70 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  "Заполните анкету и загрузите документы.",
-  "Проверка профиля за 24–48 часов — после одобрения открываем доступ к запросам.",
-  "Отвечайте на запросы и выбирайте подходящие по дате и цене.",
+  "Заполните анкету, добавьте документы и подтверждение квалификации.",
+  "Мы проверяем профиль и документы вручную. После одобрения открываем доступ к запросам.",
+  "Отвечайте на подходящие запросы и предлагайте формат, дату и цену.",
 ] as const;
 
 const BENEFITS = [
   {
-    icon: TrendingUp,
-    title: "Большая часть дохода — вам",
+    icon: ShieldCheck,
+    title: "Только после проверки",
     description:
-      "Вы оставляете себе большую часть выручки. Никаких скрытых сборов и платных подписок.",
+      "Проверяем анкету, документы и квалификацию до доступа к запросам путешественников.",
   },
   {
-    icon: Users,
-    title: "Ваш ритм и ваша группа",
+    icon: FileCheck2,
+    title: "Понятный статус заявки",
     description:
-      "Выбираете комфортное количество людей в группе и берёте только те запросы, что подходят вам по дате и времени.",
+      "После отправки анкета попадает на ручную проверку — обычно это занимает 1–2 рабочих дня.",
   },
   {
     icon: MessageCircle,
-    title: "Прозрачный торг по цене",
+    title: "Запросы с понятными условиями",
     description:
-      "Выбираете подходящую цену за человека в группе или предлагаете в ответ свою.",
+      "После одобрения вы отвечаете на подходящие запросы и фиксируете условия письменно.",
   },
 ] as const;
 
 const TRUST = [
-  "Профиль и документы проверяются вручную командой.",
-  "Запросы поступают с подтверждёнными контактами путешественника.",
+  "Только гиды с аккредитацией или подтверждающими документами.",
+  "Профиль и документы проверяются вручную перед доступом к запросам.",
   "Условия фиксируются письменно — без устных договорённостей.",
 ] as const;
 
 export default function BecomeAGuidePage() {
   return (
-    <article>
-      <ListHero
-        imageUrl="/hero-valley.jpg"
+    <InfoPageShell>
+      <InfoHero
+        eyebrow="Для гидов"
         title="Станьте гидом Проводника"
-        intro="Зарабатывайте на авторских экскурсиях — вы выбираете запросы, цену и ритм."
-      >
-        <Button asChild size="lg">
-          <Link href="/auth?role=guide">Стать гидом</Link>
-        </Button>
-      </ListHero>
+        subtitle="Проводник работает только с аккредитированными гидами. После проверки профиля вы сможете отвечать на подходящие запросы путешественников и предлагать свои условия."
+        actions={
+          <Button asChild size="lg">
+            <Link href="/auth?role=guide">Подать заявку</Link>
+          </Button>
+        }
+      />
 
-      <div className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
-        <section className="mb-12">
-          <h2 className="mb-6 font-display text-[clamp(1.4rem,3vw,1.75rem)] font-semibold leading-[1.2] text-foreground">
-            Как стать гидом
-          </h2>
-          <ol className="space-y-5">
-            {STEPS.map((step, index) => (
-              <li key={step} className="flex items-start gap-4">
-                <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {index + 1}
-                </span>
-                <p className="pt-1 text-sm text-foreground">{step}</p>
-              </li>
-            ))}
-          </ol>
-        </section>
+      <InfoSection title="Как стать гидом">
+        <div className="space-y-3">
+          {STEPS.map((step, index) => (
+            <StepCard key={step} step={index + 1}>
+              {step}
+            </StepCard>
+          ))}
+        </div>
+      </InfoSection>
 
-        <section className="mb-12">
-          <div className="grid gap-4 sm:grid-cols-3">
+      <InfoSection>
+        <div className="grid gap-4 sm:grid-cols-3">
             {BENEFITS.map((benefit) => {
               const Icon = benefit.icon;
               return (
                 <div
                   key={benefit.title}
-                  className="rounded-xl border border-border/70 bg-card/90 p-5"
+                  className="rounded-card border border-border bg-card p-5 shadow-card"
                 >
                   <Icon className="mb-3 size-5 text-primary" aria-hidden="true" />
                   <p className="mb-1 text-sm font-semibold text-foreground">{benefit.title}</p>
@@ -88,11 +83,11 @@ export default function BecomeAGuidePage() {
               );
             })}
           </div>
-        </section>
+        </InfoSection>
 
-        <section className="mb-12 rounded-xl border border-border/70 bg-card/90 p-6">
+        <section className="mb-12 rounded-card border border-border bg-card p-6 shadow-card">
           <h2 className="mb-4 text-base font-semibold text-foreground">
-            Гиды Проводника — реальные специалисты
+            Кто может работать в Проводнике
           </h2>
           <ul className="space-y-3">
             {TRUST.map((item) => (
@@ -106,10 +101,9 @@ export default function BecomeAGuidePage() {
 
         <div className="flex justify-center">
           <Button asChild size="lg">
-            <Link href="/auth?role=guide">Стать гидом</Link>
+            <Link href="/auth?role=guide">Подать заявку</Link>
           </Button>
         </div>
-      </div>
-    </article>
+    </InfoPageShell>
   );
 }

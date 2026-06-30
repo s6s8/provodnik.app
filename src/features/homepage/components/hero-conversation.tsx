@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowUp, Clock } from "lucide-react";
@@ -125,25 +126,23 @@ export function HeroConversation() {
       className="relative flex min-h-[calc(100svh-var(--nav-h))] flex-col items-center justify-center overflow-hidden px-[clamp(20px,4vw,48px)] py-12"
       aria-label="Создать запрос гида"
     >
-      {/* Frosted full-bleed background: heavily blurred + light-washed photo → soft texture, not a vivid hero */}
+      {/* Calm frosted background: a crisp, optimized photo softened by a light
+          frost + central wash — soft texture, not the old muddy heavy blur. */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden bg-surface-low">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: "url('/hero-valley.jpg')",
-            backgroundPosition: "center 42%",
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-            filter: "blur(13px) saturate(0.92) brightness(1.04)",
-            transform: "scale(1.14)",
-          }}
+        <Image
+          src="/hero-valley.jpg"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="scale-105 object-cover object-[center_42%] opacity-[0.42] [filter:blur(5px)_saturate(0.96)]"
         />
-        {/* Light wash → keeps text legible over the photo (frosted lens at center) */}
+        {/* Light wash → frosted lens at center keeps the form crisp and legible */}
         <div
           className="absolute inset-0"
           style={{
             background:
-              "radial-gradient(74% 46% at 50% 47%, rgba(248,251,247,0.90) 0%, rgba(248,251,247,0.55) 40%, rgba(248,251,247,0.14) 66%, transparent 82%), linear-gradient(180deg, rgba(243,248,244,0.36) 0%, rgba(243,248,244,0.04) 26%, transparent 56%, rgba(233,242,236,0.44) 100%)",
+              "radial-gradient(72% 48% at 50% 46%, rgba(248,251,247,0.92) 0%, rgba(248,251,247,0.60) 42%, rgba(248,251,247,0.18) 68%, transparent 84%), linear-gradient(180deg, rgba(243,248,244,0.42) 0%, rgba(243,248,244,0.05) 28%, transparent 58%, rgba(233,242,236,0.50) 100%)",
           }}
         />
         {/* Subtle gold glow, top-right */}
@@ -180,8 +179,8 @@ export function HeroConversation() {
         >
           <div
             className={cn(
-              "flex items-center gap-2 rounded-2xl border border-white/80 bg-[rgba(255,255,255,0.62)] p-2 pl-4 shadow-panel backdrop-blur-xl backdrop-saturate-150 transition-shadow",
-              "focus-within:border-primary/50",
+              "flex items-center gap-2 rounded-2xl border border-white/90 bg-[rgba(255,255,255,0.82)] p-2 pl-4 shadow-panel backdrop-blur-xl backdrop-saturate-150 transition-[box-shadow,border-color]",
+              "focus-within:border-primary/60 focus-within:shadow-lift",
             )}
           >
             <input

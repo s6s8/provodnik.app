@@ -31,7 +31,14 @@ import { COPY } from "@/lib/copy";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn } from "@/lib/utils";
 import { UserAccountDrawer } from "@/components/shared/user-account-drawer";
-import { accountMenu, headerPrimary, isNavActive, type NavItem } from "@/lib/navigation";
+import {
+  accountMenuByRole,
+  filterNavItemsByHiddenHrefs,
+  isNavActive,
+  primaryNavByRole,
+  publicPrimaryNav,
+  type NavItem,
+} from "@/lib/navigation";
 
 function resolveActiveHref(pathname: string, items: readonly NavItem[]): string | null {
   let best: string | null = null;
@@ -58,6 +65,7 @@ interface SiteHeaderProps {
   canonicalRedirectTo?: AuthRedirectTarget | null;
   userId?: string | null;
   notificationsEnabled?: boolean;
+  hiddenNavHrefs?: readonly string[];
 }
 
 export function SiteHeader({
@@ -68,6 +76,7 @@ export function SiteHeader({
   avatarUrl = null,
   userId = null,
   notificationsEnabled = false,
+  hiddenNavHrefs = [],
 }: SiteHeaderProps) {
   const pathname = usePathname();
   const showAccountIdentity = isAuthenticated;
@@ -82,25 +91,14 @@ export function SiteHeader({
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
 
-  const primaryItems: readonly NavItem[] = !isAuthenticated
-    ? headerPrimary.anon
-    : role === "guide"
-      ? headerPrimary.guide
-      : role === "admin"
-        ? headerPrimary.admin
-        : role === "traveler"
-          ? headerPrimary.traveler
-          : headerPrimary.anon;
+  const primaryItems: readonly NavItem[] =
+    isAuthenticated && role ? primaryNavByRole[role] : publicPrimaryNav;
   const activeHref = resolveActiveHref(pathname, primaryItems);
 
-  const accountItems: readonly NavItem[] =
-    role === "guide"
-      ? accountMenu.guide
-      : role === "admin"
-        ? accountMenu.admin
-        : role === "traveler"
-          ? accountMenu.traveler
-          : [];
+  const accountItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
+    role ? accountMenuByRole[role] : [],
+    hiddenNavHrefs,
+  );
 
   return (
     <>
@@ -315,6 +313,7 @@ export function SiteHeader({
       fullName={fullName}
       avatarUrl={avatarUrl}
       role={role ?? null}
+      hiddenNavHrefs={hiddenNavHrefs}
     />
     </>
   );

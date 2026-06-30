@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { UseFormRegisterReturn } from "react-hook-form";
 import { ru } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
@@ -20,7 +21,9 @@ import type { LucideIcon } from "lucide-react";
 import { LANGUAGES } from "@/data/languages";
 import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { ThemeMultiSelect } from "@/components/shared/theme-multi-select";
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { FieldShell } from "@/components/ui/field-shell";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -39,10 +42,8 @@ interface Props {
   destinations: DestinationOption[];
 }
 
-const FBX =
-  "flex items-center gap-[11px] rounded-[13px] border border-border bg-surface px-[13px] py-[11px] transition-[border-color,box-shadow] focus-within:border-primary focus-within:shadow-[0_0_0_3px_rgba(26,86,164,0.12)]";
 const FIN_BASE =
-  "border-0 bg-transparent p-0 text-[15.5px] font-bold leading-tight text-foreground outline-none placeholder:font-semibold placeholder:text-[#C2C9D3]";
+  "border-0 bg-transparent p-0 text-base font-bold leading-tight text-foreground outline-none placeholder:font-semibold placeholder:text-placeholder";
 const FIN = cn(FIN_BASE, "w-full");
 
 /** Field icon + hover tooltip (labels are otherwise hidden for a clean look). */
@@ -59,7 +60,7 @@ function FieldIcon({
     <Tooltip>
       <TooltipTrigger asChild>
         <span className="flex shrink-0 cursor-default items-center" aria-hidden="true">
-          <Icon className={cn("h-[18px] w-[18px] text-muted-foreground", className)} />
+          <Icon className={cn("size-4 text-muted-foreground", className)} />
         </span>
       </TooltipTrigger>
       <TooltipContent className="text-xs">{label}</TooltipContent>
@@ -67,8 +68,49 @@ function FieldIcon({
   );
 }
 
-function openPicker(e: React.MouseEvent<HTMLInputElement>) {
-  e.currentTarget.showPicker?.();
+/**
+ * Normalise free typed digits into a 24h "HH:MM" string. Native
+ * `<input type="time">` renders AM/PM under non-RU browser locales (and ignores
+ * the `lang` attribute in some Chromium builds), so we drive a plain text field
+ * to guarantee 24h display for this Russian-language product.
+ */
+function formatTime(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 4);
+  if (digits.length <= 2) return digits;
+  let h = Number(digits.slice(0, 2));
+  if (h > 23) h = 23;
+  const hh = String(h).padStart(2, "0");
+  const minRaw = digits.slice(2);
+  // Keep a half-typed minute ("08:1") un-padded so the second digit still fits
+  // under maxLength; only pad/clamp once both minute digits are present.
+  if (minRaw.length === 1) return `${hh}:${minRaw}`;
+  const m = Math.min(Number(minRaw), 59);
+  return `${hh}:${String(m).padStart(2, "0")}`;
+}
+
+function TimeField({
+  registration,
+  ariaLabel,
+}: {
+  registration: UseFormRegisterReturn;
+  ariaLabel: string;
+}) {
+  return (
+    <input
+      className={cn(FIN_BASE, "w-[3.25rem] tabular-nums")}
+      type="text"
+      inputMode="numeric"
+      autoComplete="off"
+      placeholder="10:00"
+      maxLength={5}
+      aria-label={ariaLabel}
+      {...registration}
+      onChange={(e) => {
+        e.target.value = formatTime(e.target.value);
+        return registration.onChange(e);
+      }}
+    />
+  );
 }
 
 function isoToDate(iso: string): Date | undefined {
@@ -104,12 +146,12 @@ function DateField({
         <button
           type="button"
           aria-label="Когда"
-          className="w-full truncate text-left text-[15.5px] font-bold leading-tight text-foreground outline-none"
+          className="w-full truncate text-left text-base font-bold leading-tight text-foreground outline-none"
         >
           {selected ? (
             selected.toLocaleDateString("ru-RU", { day: "numeric", month: "long" })
           ) : (
-            <span className="font-semibold text-[#C2C9D3]">Когда</span>
+            <span className="font-semibold text-placeholder">Когда</span>
           )}
         </button>
       </PopoverTrigger>
@@ -162,11 +204,11 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
         noValidate
       >
         {/* Направление */}
-        <div className={FBX}>
+        <FieldShell>
           <FieldIcon icon={MapPin} label="Направление" className="text-primary" />
           <div className="min-w-0 flex-1">
             <input
-              className={cn(FIN, "text-[18px]")}
+              className={cn(FIN, "text-lg")}
               list="destination-options"
               placeholder="Куда едете?"
               autoComplete="off"
@@ -180,12 +222,12 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
               ))}
             </datalist>
           </div>
-        </div>
+        </FieldShell>
         <FieldError message={errors.destination?.message} />
 
         {/* Когда · Гостей */}
-        <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
-          <div className={FBX}>
+        <div className="flex gap-2.5">
+          <FieldShell className="flex-1">
             <FieldIcon icon={CalendarIcon} label="Когда" />
             <div className="min-w-0 flex-1">
               <DateField
@@ -208,17 +250,17 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
               aria-label="Переключить гибкие даты"
               aria-pressed={dateFlexibility !== "exact"}
               className={cn(
-                "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border text-sm font-bold leading-none transition",
+                "grid size-8 shrink-0 cursor-pointer select-none place-items-center rounded-step border text-sm font-bold leading-none transition",
                 dateFlexibility !== "exact"
-                  ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
+                  ? "border-primary bg-primary text-white ring-2 ring-primary/25 hover:bg-primary/90"
                   : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
               )}
             >
               ≈
             </button>
-          </div>
+          </FieldShell>
 
-          <div className={FBX}>
+          <FieldShell className="w-40">
             <FieldIcon icon={Users} label="Гостей" />
             <div className="min-w-0 flex-1">
               <input
@@ -247,47 +289,35 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
               }
               aria-pressed={!isAssembly}
               className={cn(
-                "grid h-[30px] w-[30px] shrink-0 cursor-pointer select-none place-items-center rounded-lg border transition",
+                "grid size-8 shrink-0 cursor-pointer select-none place-items-center rounded-step border transition",
                 !isAssembly
-                  ? "border-primary bg-primary text-white shadow-[0_0_0_3px_rgba(26,86,164,0.18)] hover:bg-primary/90"
+                  ? "border-primary bg-primary text-white ring-2 ring-primary/25 hover:bg-primary/90"
                   : "border-primary/40 bg-primary/10 text-primary hover:bg-primary/20",
               )}
             >
               {isAssembly ? (
-                <LockOpen className="h-[14px] w-[14px]" aria-hidden="true" />
+                <LockOpen className="size-3.5" aria-hidden="true" />
               ) : (
-                <Lock className="h-[14px] w-[14px]" aria-hidden="true" />
+                <Lock className="size-3.5" aria-hidden="true" />
               )}
             </button>
-          </div>
+          </FieldShell>
         </div>
 
         {/* Время · Бюджет */}
-        <div className="grid gap-2.5" style={{ gridTemplateColumns: "1fr 163px" }}>
-          <div className={FBX}>
+        <div className="flex gap-2.5">
+          <FieldShell className="flex-1">
             <FieldIcon icon={Clock} label="Время" />
             <div className="min-w-0 flex-1">
               <span className="flex items-center gap-1.5">
-                <input
-                  className={cn(FIN_BASE, "native-picker-hidden w-auto")}
-                  type="time"
-                  aria-label="Время начала"
-                  onClick={openPicker}
-                  {...register("startTime")}
-                />
+                <TimeField registration={register("startTime")} ariaLabel="Время начала" />
                 <span className="font-bold text-muted-foreground">–</span>
-                <input
-                  className={cn(FIN_BASE, "native-picker-hidden w-auto")}
-                  type="time"
-                  aria-label="Время окончания"
-                  onClick={openPicker}
-                  {...register("endTime")}
-                />
+                <TimeField registration={register("endTime")} ariaLabel="Время окончания" />
               </span>
             </div>
-          </div>
+          </FieldShell>
 
-          <div className={FBX}>
+          <FieldShell className="w-40">
             <FieldIcon icon={Wallet} label="Бюджет ₽/чел" />
             <div className="min-w-0 flex-1">
               <input
@@ -298,7 +328,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                 {...register("budgetPerPersonRub", { valueAsNumber: true })}
               />
             </div>
-          </div>
+          </FieldShell>
         </div>
         <FieldError
           message={
@@ -328,10 +358,10 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
           type="button"
           onClick={() => setDetailsOpen((o) => !o)}
           aria-expanded={detailsOpen}
-          className="inline-flex items-center gap-1.5 self-start whitespace-nowrap text-[11px] font-semibold text-ink-2"
+          className="inline-flex items-center gap-1.5 self-start whitespace-nowrap text-xs font-semibold text-ink-2"
         >
           <ChevronDown
-            className={cn("h-[11px] w-[11px] transition-transform", detailsOpen && "rotate-180")}
+            className={cn("size-3 transition-transform", detailsOpen && "rotate-180")}
             aria-hidden="true"
           />
           Детали
@@ -348,7 +378,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
         {serverError && (
           <div
             role="alert"
-            className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+            className="rounded-step border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive"
           >
             {serverError}
           </div>
@@ -360,14 +390,10 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
           onAuthSuccess={handleAuthSuccess}
         />
 
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="mt-0.5 inline-flex h-[50px] w-full items-center justify-center gap-2 rounded-[13px] bg-primary text-[15px] font-bold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          <Send className="h-[18px] w-[18px]" aria-hidden="true" strokeWidth={2.2} />
+        <Button type="submit" size="lg" disabled={isLoading} className="mt-0.5 w-full">
+          <Send aria-hidden="true" strokeWidth={2.2} />
           {isLoading ? "Отправляем…" : "Найти гида"}
-        </button>
+        </Button>
       </form>
     </TooltipProvider>
   );

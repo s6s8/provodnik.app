@@ -41,6 +41,27 @@ describe("DestinationsGrid", () => {
     ).toBeNull();
   });
 
+  it("does not render its own search field (search is owned by the hero)", () => {
+    const destinations = [makeDestination(0)];
+
+    const { container } = render(<DestinationsGrid destinations={destinations} />);
+
+    expect(container.querySelector('input[type="search"]')).toBeNull();
+  });
+
+  it("filters the rendered cards by the query prop", () => {
+    const destinations = [
+      makeDestination(0, { name: "Казань", region: "Татарстан" }),
+      makeDestination(1, { name: "Сочи", region: "Краснодарский край" }),
+    ];
+
+    const { container } = render(
+      <DestinationsGrid destinations={destinations} query="Казань" />,
+    );
+
+    expect(container.querySelectorAll('[data-slot="destination-card"]')).toHaveLength(1);
+  });
+
   it("shows an empty state when there are no destinations", () => {
     const { container } = render(<DestinationsGrid destinations={[]} />);
 

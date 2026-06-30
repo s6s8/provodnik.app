@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { InfoHero, InfoPageShell } from "@/components/shared/info-shell";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader } from "@/components/shared/page-header";
 
 export function generateMetadata(): Metadata {
   return {
@@ -15,15 +15,15 @@ export function generateMetadata(): Metadata {
 
 export default function TrustPage() {
   return (
-    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+    <InfoPageShell width="wide">
       <div className="space-y-10">
         <div>
-          <PageHeader
+          <InfoHero
             eyebrow="Правила сервиса"
             title="Доверие к бронированию — до оплаты, во время поездки и после неё"
-            className="mb-10"
+            className="mb-6"
           />
-          <p className="mt-2 max-w-[60ch] text-[15px] leading-[1.5] text-on-surface-muted">
+          <p className="max-w-[60ch] text-[15px] leading-[1.5] text-on-surface-muted">
             Provodnik — маркетплейс экскурсий по России с бронированием по запросу.
             Описанные ниже принципы определяют, как сервис защищает
             договорённости между путешественником и гидом. Полные условия
@@ -36,7 +36,7 @@ export default function TrustPage() {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <Card className="border-border/70 bg-card/80">
+          <Card>
             <CardHeader className="space-y-1">
               <CardTitle className="text-base">Что видит путешественник</CardTitle>
             </CardHeader>
@@ -62,7 +62,7 @@ export default function TrustPage() {
             </CardContent>
           </Card>
 
-          <Card className="border-border/70 bg-card/80">
+          <Card>
             <CardHeader className="space-y-1">
               <CardTitle className="text-base">Что получает гид</CardTitle>
             </CardHeader>
@@ -88,7 +88,7 @@ export default function TrustPage() {
           </Card>
         </div>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">Границы ответственности</CardTitle>
           </CardHeader>
@@ -119,6 +119,6 @@ export default function TrustPage() {
           </Button>
         </div>
       </div>
-    </article>
+    </InfoPageShell>
   );
 }

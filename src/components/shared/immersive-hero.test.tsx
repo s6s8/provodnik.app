@@ -43,13 +43,22 @@ describe("ImmersiveHero", () => {
     expect(container.querySelector(".sm\\:min-h-\\[632px\\]")).toBeInTheDocument();
   });
 
-  it("exposes the dynamic background image via a CSS variable", () => {
+  it("renders real photos through next/image with priority", () => {
     const { container } = render(
       <ImmersiveHero imageUrl="/photo.jpg" title="Озеро Байкал" />,
     );
 
     const photo = screen.getByRole("img", { name: "Озеро Байкал" });
-    expect(photo).toHaveStyle({ "--hero-img": "url('/photo.jpg')" });
+    expect(photo.tagName).toBe("IMG");
+    expect(photo.getAttribute("src")).toContain("photo.jpg");
     expect(container.querySelector(".hero-overlay")).toBeInTheDocument();
+  });
+
+  it("falls back to a CSS background variable for gradient data URLs", () => {
+    const gradient = "data:image/svg+xml,gradient";
+    render(<ImmersiveHero imageUrl={gradient} title="Озеро Байкал" />);
+
+    const photo = screen.getByRole("img", { name: "Озеро Байкал" });
+    expect(photo).toHaveStyle({ "--hero-img": `url('${gradient}')` });
   });
 });

@@ -66,7 +66,7 @@ export default function CookiesPage() {
 
       <div className="space-y-6">
         {cookieTypes.map((type) => (
-          <Card key={type.name} id={type.id} className="border-border/70 bg-card/80 scroll-mt-24">
+          <Card key={type.name} id={type.id} className="border-border bg-card scroll-mt-24">
             <CardHeader className="space-y-1">
               <CardTitle className="text-base">{type.name}</CardTitle>
             </CardHeader>
@@ -80,7 +80,7 @@ export default function CookiesPage() {
           </Card>
         ))}
 
-        <Card id="management" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="management" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">Управление cookies</CardTitle>
           </CardHeader>

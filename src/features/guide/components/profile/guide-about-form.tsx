@@ -171,16 +171,23 @@ export function GuideAboutForm({
       </fieldset>
 
       </fieldset>
-      <div className="flex items-center gap-3">
-        <Button type="submit" disabled={status === "saving"}>
-          {status === "saving" ? "Сохраняем…" : "Сохранить"}
-        </Button>
-        {status === "saved" ? (
-          <p className="text-sm text-success">Сохранено</p>
-        ) : null}
+      <div className="mt-6 space-y-3">
         {status === "error" ? (
-          <p className="text-sm text-destructive">{errorMsg}</p>
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+          >
+            {errorMsg}
+          </p>
         ) : null}
+        <div className="flex items-center gap-3">
+          <Button type="submit" disabled={status === "saving"}>
+            {status === "saving" ? "Сохраняем…" : "Сохранить"}
+          </Button>
+          {status === "saved" ? (
+            <p className="text-sm text-success">Сохранено</p>
+          ) : null}
+        </div>
       </div>
     </form>
   );

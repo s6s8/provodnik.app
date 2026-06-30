@@ -50,6 +50,9 @@ export async function updateLegalInformation(data: {
     })
     .eq("user_id", user.id);
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("[updateLegalInformation] update failed:", error);
+    throw new Error("Не удалось сохранить юридические данные. Попробуйте снова.");
+  }
   return { success: true };
 }

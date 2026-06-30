@@ -1,6 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { Scrim } from "@/components/ui/scrim";
+import { pluralize } from "@/lib/utils";
+
 interface DestinationTileProps {
   href: string;
   name: string;
@@ -12,9 +15,8 @@ interface DestinationTileProps {
 }
 
 /**
- * Popular-destinations card (homepage). 172px photo with a bottom gradient,
- * city name + "{N} гидов · от {price}" caption. Image comes from the existing
- * city-image pipeline.
+ * Popular-destinations card (homepage). Photo with a bottom scrim, city name +
+ * "{N} гидов · от {price}" caption. Image comes from the city-image pipeline.
  */
 export function DestinationTile({
   href,
@@ -27,7 +29,7 @@ export function DestinationTile({
   return (
     <Link
       href={href}
-      className="relative block h-[172px] overflow-hidden rounded-2xl border border-border no-underline text-inherit transition-transform hover:-translate-y-[3px]"
+      className="relative block h-44 overflow-hidden rounded-card border border-border no-underline text-inherit transition-transform hover:-translate-y-0.5"
     >
       <Image
         src={imageUrl}
@@ -37,14 +39,12 @@ export function DestinationTile({
         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className="object-cover"
       />
-      <div
-        className="absolute inset-0 bg-gradient-to-b from-[rgba(8,14,24,0.1)] via-transparent to-[rgba(8,14,24,0.68)]"
-        aria-hidden="true"
-      />
+      <Scrim />
       <div className="absolute bottom-3.5 left-4 right-4 text-white">
-        <div className="text-xl font-bold leading-tight tracking-[-0.02em]">{name}</div>
-        <div className="mt-0.5 text-[12.5px] font-medium text-white/85">
-          {guidesCount} гидов{fromPrice ? ` · от ${fromPrice}` : ""}
+        <div className="text-xl font-bold leading-tight tracking-tight">{name}</div>
+        <div className="mt-0.5 text-xs font-medium text-white/85">
+          {guidesCount} {pluralize(guidesCount, "гид", "гида", "гидов")}
+          {fromPrice ? ` · от ${fromPrice}` : ""}
         </div>
       </div>
     </Link>

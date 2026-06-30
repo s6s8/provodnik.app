@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { ArticleShell } from "@/components/shared/article-shell";
+import { PageHeader } from "@/components/shared/page-header";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeader } from "@/components/shared/page-header";
 
 export function generateMetadata(): Metadata {
   return {
@@ -34,7 +35,7 @@ const HOW_TO_PROCEED = [
 
 export default function ForBusinessPage() {
   return (
-    <article className="mx-auto w-full max-w-2xl px-[clamp(20px,4vw,48px)] py-16">
+    <ArticleShell>
       <div className="space-y-10">
         <div>
           <PageHeader
@@ -50,7 +51,7 @@ export default function ForBusinessPage() {
           </p>
         </div>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               Что доступно прямо сейчас
@@ -65,7 +66,7 @@ export default function ForBusinessPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               Чего ещё нет (но скоро будет)
@@ -90,7 +91,7 @@ export default function ForBusinessPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               Как оформить корпоративную поездку
@@ -105,7 +106,7 @@ export default function ForBusinessPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border/70 bg-card/80">
+        <Card>
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">Контакт для бизнеса</CardTitle>
           </CardHeader>
@@ -135,6 +136,6 @@ export default function ForBusinessPage() {
           </Button>
         </div>
       </div>
-    </article>
+    </ArticleShell>
   );
 }

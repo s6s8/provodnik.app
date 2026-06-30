@@ -2,14 +2,21 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { Compass, Search } from "lucide-react";
+import { Compass } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ListHero } from "@/components/shared/list-hero";
+import {
+  DiscoveryFacetChip,
+  DiscoveryFacetRail,
+  DiscoveryGrid,
+  DiscoveryHero,
+  DiscoveryResultsCount,
+  DiscoveryShell,
+  DiscoveryToolbar,
+} from "@/components/shared/discovery-shell";
+import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
 import { ListingCard } from "@/components/shared/listing-card";
 import { brandGradient } from "@/lib/city-image";
-import { cn } from "@/lib/utils";
 import type { ListingRecord } from "@/data/supabase/queries";
 import type { PublicListing } from "@/data/public-listings/types";
 import { THEMES, type ThemeSlug } from "@/data/themes";
@@ -41,15 +48,6 @@ function mapListing(listing: PublicListing): ListingRecord {
     reviewCount: listing.reviewCount ?? 0,
     status: "active",
   };
-}
-
-function pillClass(isActive: boolean): string {
-  return cn(
-    "inline-flex h-10 cursor-pointer items-center gap-2 rounded-full px-5 text-[0.9rem] transition-colors",
-    isActive
-      ? "bg-primary font-semibold text-primary-foreground"
-      : "bg-surface-low font-medium text-on-surface-muted hover:bg-surface",
-  );
 }
 
 export function PublicListingDiscoveryScreen({
@@ -96,54 +94,53 @@ export function PublicListingDiscoveryScreen({
 
   return (
     <>
-      <ListHero
+      <DiscoveryHero
         imageUrl={brandGradient("listings")}
-        title="Готовые экскурсии"
+        title="Экскурсии"
         intro="Авторские экскурсии от местных гидов."
       >
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-on-surface-muted"
-            aria-hidden
-          />
-          <Input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Поиск по названию, описанию или направлению…"
-            aria-label="Поиск по экскурсиям"
-            className="h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg"
-          />
-        </div>
-      </ListHero>
+        <DiscoverySearchInput
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Поиск по названию, описанию или направлению…"
+          aria-label="Поиск по экскурсиям"
+        />
+      </DiscoveryHero>
 
-      <div className="mx-auto w-full max-w-page space-y-10 px-[clamp(20px,4vw,48px)] pt-10">
-        <div className="flex flex-wrap gap-3">
-          <button
-            key="all"
-            type="button"
-            onClick={() => setActiveFilter("all")}
-            className={pillClass(activeFilter === "all")}
-          >
-            Все
-            <span className="tabular-nums opacity-60">{listings.length}</span>
-          </button>
-          {THEMES.map(({ slug, label, Icon }) => (
-            <button
-              key={slug}
-              type="button"
-              onClick={() => setActiveFilter(slug)}
-              className={pillClass(activeFilter === slug)}
+      <DiscoveryToolbar
+        facets={
+          <DiscoveryFacetRail label="Темы экскурсий">
+            <DiscoveryFacetChip
+              active={activeFilter === "all"}
+              count={listings.length}
+              onClick={() => setActiveFilter("all")}
             >
-              <Icon className="size-4 shrink-0" aria-hidden />
-              {label}
-              <span className="tabular-nums opacity-60">{themeCounts[slug]}</span>
-            </button>
-          ))}
-        </div>
+              Все
+            </DiscoveryFacetChip>
+            {THEMES.filter(({ slug }) => themeCounts[slug] > 0).map(({ slug, label, Icon }) => (
+              <DiscoveryFacetChip
+                key={slug}
+                icon={Icon}
+                active={activeFilter === slug}
+                count={themeCounts[slug]}
+                onClick={() => setActiveFilter(slug)}
+              >
+                {label}
+              </DiscoveryFacetChip>
+            ))}
+          </DiscoveryFacetRail>
+        }
+        count={
+          <DiscoveryResultsCount
+            count={filteredListings.length}
+            noun={["экскурсия", "экскурсии", "экскурсий"]}
+          />
+        }
+      />
 
+      <DiscoveryShell>
         {filteredListings.length > 0 ? (
-          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">
+          <DiscoveryGrid>
             {filteredListings.map((listing, index) => (
               <ListingCard
                 key={listing.slug}
@@ -151,7 +148,7 @@ export function PublicListingDiscoveryScreen({
                 priority={index === 0}
               />
             ))}
-          </div>
+          </DiscoveryGrid>
         ) : (
           <div className="flex flex-col items-center justify-center rounded-[1.5rem] border border-border bg-surface-lowest px-6 py-16 text-center">
             <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
@@ -180,7 +177,7 @@ export function PublicListingDiscoveryScreen({
             </div>
           </div>
         )}
-      </div>
+      </DiscoveryShell>
     </>
   );
 }

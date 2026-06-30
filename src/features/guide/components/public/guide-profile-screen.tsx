@@ -7,6 +7,7 @@ import { ImmersiveHero } from "@/components/shared/immersive-hero";
 import { TourCard } from "@/components/shared/tour-card";
 import { NewGuideFrame } from "@/components/discovery/NewGuideFrame";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
+import { formatRubNumber } from "@/data/money";
 import { formatRussianDate } from "@/lib/dates";
 import { ROUTES } from "@/lib/navigation";
 import { pluralize } from "@/lib/utils";
@@ -80,7 +81,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
           guide: guide.displayName,
           rating: l.rating ?? guide.reviewsSummary.averageRating,
           price: l.priceFromRub
-            ? `от ${new Intl.NumberFormat("ru-RU").format(Math.round(l.priceFromRub / 1000))} тыс. ₽`
+            ? `от ${formatRubNumber(l.priceFromRub)} ₽`
             : l.price ?? "",
         }))
       : null;

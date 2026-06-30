@@ -1,10 +1,18 @@
 import type { ReactNode } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 import { ChevronRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-export type HeroBreadcrumbItem = { label: string };
+export type HeroBreadcrumbItem = {
+  label: string;
+  /** When set, the crumb renders as a link to this route. */
+  href?: string;
+  /** Marks the current page (non-clickable, announced via aria-current). */
+  current?: boolean;
+};
 
 type ImmersiveHeroProps = {
   imageUrl: string;
@@ -38,18 +46,35 @@ export function ImmersiveHero({
   children,
   className,
 }: ImmersiveHeroProps) {
+  // Real photos (http/local) load through next/image with priority so the hero
+  // paints immediately on cold navigation instead of flashing the grey
+  // placeholder while the browser fetches a CSS background-image. SVG-gradient
+  // data URLs (brandGradient fallback) keep the lightweight CSS background.
+  const isPhoto = /^(https?:|\/)/.test(imageUrl);
   return (
     <section className={cn("relative w-full overflow-hidden", className)}>
       <div className="relative min-h-[520px] sm:min-h-[632px]">
-        <div
-          className="absolute inset-0 bg-surface-low bg-cover bg-[image:var(--hero-img)] bg-[position:var(--hero-pos)]"
-          style={{
-            ["--hero-img" as string]: `url('${imageUrl}')`,
-            ["--hero-pos" as string]: imagePosition,
-          }}
-          role="img"
-          aria-label={title}
-        />
+        {isPhoto ? (
+          <Image
+            src={imageUrl}
+            alt={title}
+            fill
+            priority
+            sizes="100vw"
+            className="absolute inset-0 bg-surface-low object-cover"
+            style={{ objectPosition: imagePosition }}
+          />
+        ) : (
+          <div
+            className="absolute inset-0 bg-surface-low bg-cover bg-[image:var(--hero-img)] bg-[position:var(--hero-pos)]"
+            style={{
+              ["--hero-img" as string]: `url('${imageUrl}')`,
+              ["--hero-pos" as string]: imagePosition,
+            }}
+            role="img"
+            aria-label={title}
+          />
+        )}
         <div className="hero-overlay absolute inset-0" />
         {grain ? <div className="hero-grain pointer-events-none absolute inset-0 z-[1]" /> : null}
 
@@ -61,7 +86,18 @@ export function ImmersiveHero({
                 {breadcrumb.map((item, index) => (
                   <span key={`${item.label}-${index}`} className="flex items-center gap-2">
                     {index > 0 ? <ChevronRight className="size-3.5 opacity-50" /> : null}
-                    <span>{item.label}</span>
+                    {item.href ? (
+                      <Link
+                        href={item.href}
+                        className="rounded-sm transition-colors hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+                      >
+                        {item.label}
+                      </Link>
+                    ) : (
+                      <span aria-current={item.current ? "page" : undefined}>
+                        {item.label}
+                      </span>
+                    )}
                   </span>
                 ))}
               </div>

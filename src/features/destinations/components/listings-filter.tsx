@@ -3,6 +3,7 @@
 import * as React from "react";
 
 import { TourCard } from "@/components/shared/tour-card";
+import { formatRubNumber } from "@/data/money";
 import type { ListingRecord } from "@/data/supabase/queries";
 
 type FormatFilter = "all" | "private" | "group";
@@ -61,7 +62,7 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
               title={listing.title}
               guide={listing.guideName}
               rating={listing.rating}
-              price={`от ${new Intl.NumberFormat("ru-RU").format(Math.round(listing.priceRub / 1000))} тыс. ₽`}
+              price={`от ${formatRubNumber(listing.priceRub)} ₽`}
             />
           ))}
         </div>

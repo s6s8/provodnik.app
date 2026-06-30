@@ -44,7 +44,7 @@ describe("UserAccountDrawer", () => {
     );
 
     expect(screen.getByText("Настройки")).toBeInTheDocument();
-    expect(screen.getByText("Профиль")).toBeInTheDocument();
+    expect(screen.getByText("Профиль гида")).toBeInTheDocument();
   });
 
   it("links guides to the traveler experience", () => {

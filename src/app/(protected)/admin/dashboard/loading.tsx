@@ -1,3 +1,4 @@
+import { PageHeader } from "@/components/shared/page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
@@ -5,11 +6,12 @@ export default function Loading() {
     <div className="space-y-10" role="status" aria-busy="true" aria-live="polite">
       <span className="sr-only">Загрузка панели администратора</span>
 
-      <div className="space-y-3">
-        <Skeleton className="h-3 w-40 rounded-full" />
-        <Skeleton className="h-8 w-44 rounded-xl" />
-        <Skeleton className="h-5 w-full max-w-md rounded-full" />
-      </div>
+      {/* Real heading mid-load: stable h1 + no layout shift vs. the loaded page. */}
+      <PageHeader
+        eyebrow="Администрирование"
+        title="Обзор"
+        subtitle="Следите за очередью проверки, открытыми спорами и общей нагрузкой на админ-панель."
+      />
 
       <div className="space-y-4">
         <Skeleton className="h-3 w-36 rounded-full" />

@@ -48,7 +48,28 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   const { email, password, fullName, phone } = input;
   const safeRole = input.role;
 
+  // Digits-only canonical form mirrors the generated `profiles.phone_normalized`
+  // column (regexp_replace [^0-9]). Empty/blank phone stays optional and is never
+  // checked for uniqueness.
+  const normalizedPhone = phone ? phone.replace(/\D/g, "") : "";
+
   const admin = createSupabaseAdminClient();
+
+  if (normalizedPhone) {
+    const { data: phoneOwner, error: phoneLookupError } = await admin
+      .from("profiles")
+      .select("id")
+      .eq("phone_normalized", normalizedPhone)
+      .maybeSingle();
+
+    if (phoneLookupError) {
+      console.error("[signUpAction] phone lookup failed:", phoneLookupError);
+      return { ok: false, error: "internal" };
+    }
+    if (phoneOwner) {
+      return { ok: false, error: "phone_taken" };
+    }
+  }
 
   const { data: created, error: createError } = await admin.auth.admin.createUser({
     email,
@@ -85,6 +106,12 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
 
   if (profileError) {
     await rollbackRecentlyCreatedAuthUser(admin, userId);
+    // Backstop for the concurrent-signup race: the DB unique index on
+    // phone_normalized fired between the pre-check and the upsert.
+    const message = profileError.message?.toLowerCase() ?? "";
+    if (message.includes("phone_normalized")) {
+      return { ok: false, error: "phone_taken" };
+    }
     return { ok: false, error: "profile_failed" };
   }
 

@@ -11,6 +11,7 @@ import {
   destinationSearchFromSlug,
   fallbackHeroImage,
   fetchMembersForRequests,
+  attachGuideDisplayNames,
   fetchProfilesByUserIds,
   formatDateLabel,
   makeError,
@@ -131,7 +132,8 @@ export async function getActiveListings(
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
-    return { data: applyListingFilters(data.map(mapListingRow), filters), error: null };
+    const rows = await attachGuideDisplayNames(client, data);
+    return { data: applyListingFilters(rows.map(mapListingRow), filters), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -159,7 +161,8 @@ export async function getListingsByDestination(
     if (error) throw error;
     if (!data || data.length === 0) return { data: [], error: null };
 
-    return { data: data.map(mapListingRow), error: null };
+    const rows = await attachGuideDisplayNames(client, data);
+    return { data: rows.map(mapListingRow), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }

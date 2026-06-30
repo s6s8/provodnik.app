@@ -1,3 +1,5 @@
+import Image from "next/image"
+
 import { cn } from "@/lib/utils"
 
 type AvatarStackUser = {
@@ -35,10 +37,12 @@ function AvatarStack({ users, size = "default", max, className }: AvatarStackPro
           )}
         >
           {user.avatarUrl ? (
-            <img
+            <Image
               src={user.avatarUrl}
               alt={user.name}
-              className="size-full object-cover"
+              fill
+              className="object-cover"
+              sizes="46px"
             />
           ) : (
             <span>{user.name.charAt(0).toUpperCase()}</span>

@@ -66,7 +66,7 @@ export default function PrivacyPage() {
       </nav>
 
       <div className="space-y-6">
-        <Card id="operator" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="operator" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               Сведения об операторе персональных данных
@@ -131,7 +131,7 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card id="collected" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="collected" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               1. Какие данные мы собираем
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card id="purposes" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="purposes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               2. Для чего мы используем данные
@@ -161,7 +161,7 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card id="third-parties" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="third-parties" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               3. Передача данных третьим лицам
@@ -193,7 +193,7 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card id="rights" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="rights" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               4. Права пользователей
@@ -208,7 +208,7 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card id="cookies" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="cookies" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">5. Cookies</CardTitle>
           </CardHeader>
@@ -226,7 +226,7 @@ export default function PrivacyPage() {
           </CardContent>
         </Card>
 
-        <Card id="contacts" className="border-border/70 bg-card/80 scroll-mt-24">
+        <Card id="contacts" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
             <CardTitle className="text-base">
               6. Контакты по вопросам данных
