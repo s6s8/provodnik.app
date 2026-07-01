@@ -24,6 +24,7 @@ function unauthenticatedContext(hasEnv: boolean): AuthContext {
     isAuthenticated: false,
     source: "none",
     role: null,
+    accountStatus: null,
     email: null,
     fullName: null,
     avatarUrl: null,
@@ -44,6 +45,7 @@ async function demoAuthContext(demoSession: DemoSession): Promise<AuthContext> {
     isAuthenticated: true,
     source: "demo",
     role: demoSession.role,
+    accountStatus: "active",
     email: null,
     fullName: demoProfile?.full_name?.trim() || null,
     avatarUrl: null,
@@ -82,7 +84,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, role, full_name, avatar_url")
+    .select("id, role, account_status, full_name, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -131,6 +133,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     isAuthenticated: true,
     source: "supabase",
     role: profileRole,
+    accountStatus: (profile?.account_status as AuthContext["accountStatus"]) ?? "active",
     email: user.email ?? null,
     fullName:
       (profile?.full_name as string | null)?.trim() ||

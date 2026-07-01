@@ -45,6 +45,7 @@ export const ROUTES = {
   guideProfile: { href: "/guide/profile",  label: "Профиль гида",    icon: User },
   guideSettings:{ href: "/guide/settings/contact-visibility", label: "Настройки", icon: Settings },
   adminDashboard: { href: "/admin/dashboard",  label: "Обзор",        icon: BarChart3 },
+  adminUsers:     { href: "/admin/users",      label: "Пользователи", shortLabel: "Люди", icon: Users },
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
   adminListings:  { href: "/admin/listings",   label: "Листинги",     icon: ClipboardList },
   adminModeration:{ href: "/admin/moderation", label: "Модерация",    icon: ShieldCheck },
@@ -81,7 +82,7 @@ export const guidePrimaryNav = [
 
 /** Admin workspace (drives the admin sidebar + mobile tabs). */
 export const adminPrimaryNav = [
-  ROUTES.adminDashboard, ROUTES.adminGuides, ROUTES.adminListings,
+  ROUTES.adminDashboard, ROUTES.adminUsers, ROUTES.adminGuides, ROUTES.adminListings,
   ROUTES.adminModeration, ROUTES.adminDisputes, ROUTES.adminBookings, ROUTES.adminAudit,
 ] as const;
 

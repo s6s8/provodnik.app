@@ -40,6 +40,7 @@ function makeAuthContext(overrides: Partial<AuthContext>): AuthContext {
     isAuthenticated: true,
     source: "supabase",
     role: "admin",
+    accountStatus: "active",
     email: "admin@example.com",
     fullName: null,
     avatarUrl: null,

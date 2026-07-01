@@ -12,8 +12,104 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.4"
   }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
+      _bak_guide_specializations_20260701: {
+        Row: {
+          specializations: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          specializations?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          specializations?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      _bak_profiles_phone_20260701: {
+        Row: {
+          backed_up_at: string | null
+          id: string | null
+          phone: string | null
+        }
+        Insert: {
+          backed_up_at?: string | null
+          id?: string | null
+          phone?: string | null
+        }
+        Update: {
+          backed_up_at?: string | null
+          id?: string | null
+          phone?: string | null
+        }
+        Relationships: []
+      }
+      admin_audit_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          metadata: Json
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          target_id?: string | null
+          target_type?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_audit_log_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bonus_ledger: {
         Row: {
           created_at: string | null
@@ -54,6 +150,8 @@ export type Database = {
           meeting_point: string | null
           offer_id: string | null
           party_size: number
+          payment_method: string
+          payment_status: string
           remainder_minor: number
           request_id: string | null
           starts_at: string | null
@@ -74,6 +172,8 @@ export type Database = {
           meeting_point?: string | null
           offer_id?: string | null
           party_size?: number
+          payment_method?: string
+          payment_status?: string
           remainder_minor?: number
           request_id?: string | null
           starts_at?: string | null
@@ -94,6 +194,8 @@ export type Database = {
           meeting_point?: string | null
           offer_id?: string | null
           party_size?: number
+          payment_method?: string
+          payment_status?: string
           remainder_minor?: number
           request_id?: string | null
           starts_at?: string | null
@@ -167,6 +269,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      business_leads: {
+        Row: {
+          city: string | null
+          company: string | null
+          contact: string
+          created_at: string
+          dates: string | null
+          headcount: number | null
+          id: string
+          note: string | null
+        }
+        Insert: {
+          city?: string | null
+          company?: string | null
+          contact: string
+          created_at?: string
+          dates?: string | null
+          headcount?: number | null
+          id?: string
+          note?: string | null
+        }
+        Update: {
+          city?: string | null
+          company?: string | null
+          contact?: string
+          created_at?: string
+          dates?: string | null
+          headcount?: number | null
+          id?: string
+          note?: string | null
+        }
+        Relationships: []
       }
       conversation_threads: {
         Row: {
@@ -253,6 +388,7 @@ export type Database = {
           rating: number | null
           region: string
           slug: string
+          tagline: string | null
           updated_at: string
         }
         Insert: {
@@ -267,6 +403,7 @@ export type Database = {
           rating?: number | null
           region: string
           slug: string
+          tagline?: string | null
           updated_at?: string
         }
         Update: {
@@ -281,6 +418,7 @@ export type Database = {
           rating?: number | null
           region?: string
           slug?: string
+          tagline?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -806,6 +944,7 @@ export type Database = {
           starts_at: string | null
           status: Database["public"]["Enums"]["offer_status"]
           title: string | null
+          traveler_read_at: string | null
           updated_at: string
         }
         Insert: {
@@ -826,6 +965,7 @@ export type Database = {
           starts_at?: string | null
           status?: Database["public"]["Enums"]["offer_status"]
           title?: string | null
+          traveler_read_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -846,6 +986,7 @@ export type Database = {
           starts_at?: string | null
           status?: Database["public"]["Enums"]["offer_status"]
           title?: string | null
+          traveler_read_at?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -900,6 +1041,24 @@ export type Database = {
           },
         ]
       }
+      guide_offers_message_backup_20260612: {
+        Row: {
+          backed_up_at: string
+          offer_id: string
+          old_message: string
+        }
+        Insert: {
+          backed_up_at?: string
+          offer_id: string
+          old_message: string
+        }
+        Update: {
+          backed_up_at?: string
+          offer_id?: string
+          old_message?: string
+        }
+        Relationships: []
+      }
       guide_profiles: {
         Row: {
           attestation_status: string | null
@@ -907,9 +1066,13 @@ export type Database = {
           base_city: string | null
           bio: string | null
           completed_tours: number
+          contact_visibility_recalc_at: string | null
           contact_visibility_unlocked: boolean | null
           created_at: string
+          display_name: string | null
           document_country: string | null
+          guide_type: string | null
+          headline: string | null
           inn: string | null
           is_available: boolean
           is_tour_operator: boolean | null
@@ -941,9 +1104,13 @@ export type Database = {
           base_city?: string | null
           bio?: string | null
           completed_tours?: number
+          contact_visibility_recalc_at?: string | null
           contact_visibility_unlocked?: boolean | null
           created_at?: string
+          display_name?: string | null
           document_country?: string | null
+          guide_type?: string | null
+          headline?: string | null
           inn?: string | null
           is_available?: boolean
           is_tour_operator?: boolean | null
@@ -975,9 +1142,13 @@ export type Database = {
           base_city?: string | null
           bio?: string | null
           completed_tours?: number
+          contact_visibility_recalc_at?: string | null
           contact_visibility_unlocked?: boolean | null
           created_at?: string
+          display_name?: string | null
           document_country?: string | null
+          guide_type?: string | null
+          headline?: string | null
           inn?: string | null
           is_available?: boolean
           is_tour_operator?: boolean | null
@@ -1013,11 +1184,134 @@ export type Database = {
           },
         ]
       }
+      guide_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          duration_text: string | null
+          guide_id: string
+          id: string
+          max_participants: number | null
+          meeting_point: string | null
+          photo_urls: string[]
+          price_from_kopecks: number | null
+          region: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration_text?: string | null
+          guide_id: string
+          id?: string
+          max_participants?: number | null
+          meeting_point?: string | null
+          photo_urls?: string[]
+          price_from_kopecks?: number | null
+          region?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration_text?: string | null
+          guide_id?: string
+          id?: string
+          max_participants?: number | null
+          meeting_point?: string | null
+          photo_urls?: string[]
+          price_from_kopecks?: number | null
+          region?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_templates_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "guide_templates_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_search_result_row"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "guide_templates_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "public_guide_stats"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "guide_templates_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_dashboard_kpi"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "guide_templates_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_public_profile"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      guide_testimonials: {
+        Row: {
+          created_at: string
+          guide_id: string
+          id: string
+          is_published: boolean
+          payout_period: string | null
+          quote: string
+        }
+        Insert: {
+          created_at?: string
+          guide_id: string
+          id?: string
+          is_published?: boolean
+          payout_period?: string | null
+          quote: string
+        }
+        Update: {
+          created_at?: string
+          guide_id?: string
+          id?: string
+          is_published?: boolean
+          payout_period?: string | null
+          quote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_testimonials_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       help_articles: {
         Row: {
           body_md: string
           category: string | null
           id: string
+          is_published: boolean
           position: number | null
           slug: string
           title: string
@@ -1026,6 +1320,7 @@ export type Database = {
           body_md: string
           category?: string | null
           id?: string
+          is_published?: boolean
           position?: number | null
           slug: string
           title: string
@@ -1034,6 +1329,7 @@ export type Database = {
           body_md?: string
           category?: string | null
           id?: string
+          is_published?: boolean
           position?: number | null
           slug?: string
           title?: string
@@ -1093,6 +1389,66 @@ export type Database = {
           },
           {
             foreignKeyName: "listing_days_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_inclusions: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          listing_id: string
+          text: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind?: string
+          listing_id: string
+          text: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          listing_id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_inclusions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_inclusions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_inclusions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_inclusions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_inclusions_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "v_listing_detail_tour"
@@ -1533,6 +1889,75 @@ export type Database = {
           },
           {
             foreignKeyName: "listing_schedule_extras_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_slots: {
+        Row: {
+          capacity: number | null
+          created_at: string
+          ends_at: string | null
+          id: string
+          listing_id: string
+          seats_taken: number
+          starts_at: string
+          status: string
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          listing_id: string
+          seats_taken?: number
+          starts_at: string
+          status?: string
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string
+          ends_at?: string | null
+          id?: string
+          listing_id?: string
+          seats_taken?: number
+          starts_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_slots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_slots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "listing_slots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_slots_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_slots_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "v_listing_detail_tour"
@@ -2216,41 +2641,77 @@ export type Database = {
           },
         ]
       }
+      notification_email_log: {
+        Row: {
+          entity_id: string
+          kind: string
+          recipient: string
+          sent_at: string
+        }
+        Insert: {
+          entity_id: string
+          kind: string
+          recipient: string
+          sent_at?: string
+        }
+        Update: {
+          entity_id?: string
+          kind?: string
+          recipient?: string
+          sent_at?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
+          actor_avatar_url: string | null
+          amount: number | null
           body: string | null
           channel: string
           created_at: string
+          entity_id: string | null
+          entity_type: string | null
           href: string | null
           id: string
           is_read: boolean
           kind: Database["public"]["Enums"]["notification_kind"]
+          payload: Json | null
           read_at: string | null
           status: string
           title: string
           user_id: string
         }
         Insert: {
+          actor_avatar_url?: string | null
+          amount?: number | null
           body?: string | null
           channel?: string
           created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
           href?: string | null
           id?: string
           is_read?: boolean
           kind: Database["public"]["Enums"]["notification_kind"]
+          payload?: Json | null
           read_at?: string | null
           status?: string
           title: string
           user_id: string
         }
         Update: {
+          actor_avatar_url?: string | null
+          amount?: number | null
           body?: string | null
           channel?: string
           created_at?: string
+          entity_id?: string | null
+          entity_type?: string | null
           href?: string | null
           id?: string
           is_read?: boolean
           kind?: Database["public"]["Enums"]["notification_kind"]
+          payload?: Json | null
           read_at?: string | null
           status?: string
           title?: string
@@ -2358,39 +2819,129 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      payment_agreements: {
         Row: {
-          avatar_url: string | null
+          agreed_total_minor: number
+          booking_id: string
           created_at: string
-          email: string | null
-          full_name: string | null
+          currency: string
+          guide_confirmed_at: string | null
           id: string
-          phone: string | null
-          phone_normalized: string | null
-          role: Database["public"]["Enums"]["app_role"]
+          method: string
+          traveler_confirmed_at: string | null
           updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
+          agreed_total_minor: number
+          booking_id: string
           created_at?: string
-          email?: string | null
-          full_name?: string | null
-          id: string
-          phone?: string | null
-          role?: Database["public"]["Enums"]["app_role"]
+          currency?: string
+          guide_confirmed_at?: string | null
+          id?: string
+          method?: string
+          traveler_confirmed_at?: string | null
           updated_at?: string
         }
         Update: {
+          agreed_total_minor?: number
+          booking_id?: string
+          created_at?: string
+          currency?: string
+          guide_confirmed_at?: string | null
+          id?: string
+          method?: string
+          traveler_confirmed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_agreements_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          account_status: Database["public"]["Enums"]["account_status"]
+          avatar_url: string | null
+          bio: string | null
+          birth_year: number | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          group_preference: string | null
+          home_city: string | null
+          id: string
+          languages: string[]
+          notification_prefs: Json
+          phone: string | null
+          phone_normalized: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          status_changed_at: string | null
+          status_changed_by: string | null
+          status_reason: string | null
+          telegram_chat_id: string | null
+          travel_interests: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          account_status?: Database["public"]["Enums"]["account_status"]
           avatar_url?: string | null
+          bio?: string | null
+          birth_year?: number | null
           created_at?: string
           email?: string | null
           full_name?: string | null
-          id?: string
+          group_preference?: string | null
+          home_city?: string | null
+          id: string
+          languages?: string[]
+          notification_prefs?: Json
           phone?: string | null
+          phone_normalized?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          status_changed_at?: string | null
+          status_changed_by?: string | null
+          status_reason?: string | null
+          telegram_chat_id?: string | null
+          travel_interests?: string[] | null
           updated_at?: string
         }
-        Relationships: []
+        Update: {
+          account_status?: Database["public"]["Enums"]["account_status"]
+          avatar_url?: string | null
+          bio?: string | null
+          birth_year?: number | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          group_preference?: string | null
+          home_city?: string | null
+          id?: string
+          languages?: string[]
+          notification_prefs?: Json
+          phone?: string | null
+          phone_normalized?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          status_changed_at?: string | null
+          status_changed_by?: string | null
+          status_reason?: string | null
+          telegram_chat_id?: string | null
+          travel_interests?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_status_changed_by_fkey"
+            columns: ["status_changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       quality_snapshots: {
         Row: {
@@ -2443,6 +2994,33 @@ export type Database = {
           created_at?: string | null
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      referral_program_config: {
+        Row: {
+          id: number
+          invitee_reward_minor: number
+          inviter_reward_minor: number
+          is_active: boolean
+          redeem_mode: string
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          invitee_reward_minor?: number
+          inviter_reward_minor?: number
+          is_active?: boolean
+          redeem_mode?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          invitee_reward_minor?: number
+          inviter_reward_minor?: number
+          is_active?: boolean
+          redeem_mode?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2575,6 +3153,7 @@ export type Database = {
           title: string | null
           traveler_id: string
           updated_at: string
+          would_recommend: boolean | null
         }
         Insert: {
           body?: string | null
@@ -2588,6 +3167,7 @@ export type Database = {
           title?: string | null
           traveler_id: string
           updated_at?: string
+          would_recommend?: boolean | null
         }
         Update: {
           body?: string | null
@@ -2601,6 +3181,7 @@ export type Database = {
           title?: string | null
           traveler_id?: string
           updated_at?: string
+          would_recommend?: boolean | null
         }
         Relationships: [
           {
@@ -2752,6 +3333,7 @@ export type Database = {
           destination: string
           end_time: string | null
           ends_on: string | null
+          expires_at: string | null
           format_preference: string | null
           group_capacity: number | null
           id: string
@@ -2781,6 +3363,7 @@ export type Database = {
           destination: string
           end_time?: string | null
           ends_on?: string | null
+          expires_at?: string | null
           format_preference?: string | null
           group_capacity?: number | null
           id?: string
@@ -2810,6 +3393,7 @@ export type Database = {
           destination?: string
           end_time?: string | null
           ends_on?: string | null
+          expires_at?: string | null
           format_preference?: string | null
           group_capacity?: number | null
           id?: string
@@ -2845,9 +3429,12 @@ export type Database = {
           base_city: string | null
           bio: string | null
           completed_tours: number | null
+          contact_visibility_recalc_at: string | null
           contact_visibility_unlocked: boolean | null
           created_at: string | null
+          display_name: string | null
           document_country: string | null
+          headline: string | null
           inn: string | null
           is_available: boolean | null
           is_partial_match: boolean | null
@@ -2882,9 +3469,12 @@ export type Database = {
           base_city?: string | null
           bio?: string | null
           completed_tours?: number | null
+          contact_visibility_recalc_at?: string | null
           contact_visibility_unlocked?: boolean | null
           created_at?: string | null
+          display_name?: string | null
           document_country?: string | null
+          headline?: string | null
           inn?: string | null
           is_available?: boolean | null
           is_partial_match?: never
@@ -2919,9 +3509,12 @@ export type Database = {
           base_city?: string | null
           bio?: string | null
           completed_tours?: number | null
+          contact_visibility_recalc_at?: string | null
           contact_visibility_unlocked?: boolean | null
           created_at?: string | null
+          display_name?: string | null
           document_country?: string | null
+          headline?: string | null
           inn?: string | null
           is_available?: boolean | null
           is_partial_match?: never
@@ -2959,6 +3552,14 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_stats: {
+        Row: {
+          guides_active: number | null
+          listings_total: number | null
+          trips_total: number | null
+        }
+        Relationships: []
       }
       public_guide_stats: {
         Row: {
@@ -3011,8 +3612,8 @@ export type Database = {
       }
       v_guide_public_profile: {
         Row: {
-          average_rating: number | null
           avatar_url: string | null
+          average_rating: number | null
           bio: string | null
           contact_visibility_unlocked: boolean | null
           full_name: string | null
@@ -3129,9 +3730,14 @@ export type Database = {
       }
     }
     Functions: {
-      accept_offer: {
-        Args: { p_offer_id: string; p_traveler_id: string }
-        Returns: string
+      accept_offer: { Args: { p_offer_id: string }; Returns: string }
+      admin_set_account_status: {
+        Args: {
+          p_reason?: string
+          p_status: Database["public"]["Enums"]["account_status"]
+          p_target_user_id: string
+        }
+        Returns: undefined
       }
       can_access_booking_thread: {
         Args: { target_booking_id: string; target_user_id?: string }
@@ -3169,6 +3775,10 @@ export type Database = {
         Args: { p_request_id: string }
         Returns: number
       }
+      counter_offer: {
+        Args: { p_message: string; p_offer_id: string; p_price_minor: number }
+        Returns: string
+      }
       current_profile_role: {
         Args: never
         Returns: Database["public"]["Enums"]["app_role"]
@@ -3200,12 +3810,39 @@ export type Database = {
       get_bidding_guides_for_request: {
         Args: { p_request_id: string }
         Returns: {
+          avatar_url: string
+          average_rating: number
+          full_name: string
+          review_count: number
+          slug: string
           user_id: string
-          full_name: string | null
-          avatar_url: string | null
-          average_rating: number | null
-          review_count: number | null
-          slug: string | null
+        }[]
+      }
+      get_interacted_requester_display_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          full_name: string
+          request_id: string
+          requester_id: string
+        }[]
+      }
+      get_joined_request_owner_display_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          full_name: string
+          owner_id: string
+          request_id: string
+        }[]
+      }
+      get_traveler_booking_guide_display_profiles: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          booking_id: string
+          full_name: string
+          guide_id: string
         }[]
       }
       guide_offer_exists_for_counter: {
@@ -3215,6 +3852,31 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_guide: { Args: never; Returns: boolean }
       is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
+      open_dispute: {
+        Args: { p_booking_id: string; p_reason: string }
+        Returns: string
+      }
+      profile_account_status_for: {
+        Args: { target_user_id: string }
+        Returns: Database["public"]["Enums"]["account_status"]
+      }
+      profile_role_for: {
+        Args: { target_user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
+      record_marketplace_event: {
+        Args: {
+          p_booking_id?: string
+          p_detail?: string
+          p_dispute_id?: string
+          p_event_type?: string
+          p_payload?: Json
+          p_request_id?: string
+          p_scope: Database["public"]["Enums"]["event_scope"]
+          p_summary?: string
+        }
+        Returns: string
+      }
       record_request_view: { Args: { p_request_id: string }; Returns: number }
       search_guides: {
         Args: {
@@ -3229,9 +3891,12 @@ export type Database = {
           base_city: string | null
           bio: string | null
           completed_tours: number | null
+          contact_visibility_recalc_at: string | null
           contact_visibility_unlocked: boolean | null
           created_at: string | null
+          display_name: string | null
           document_country: string | null
+          headline: string | null
           inn: string | null
           is_available: boolean | null
           is_partial_match: boolean | null
@@ -3276,6 +3941,20 @@ export type Database = {
         }
         Returns: undefined
       }
+      submit_review: {
+        Args: {
+          p_body: string
+          p_booking_id: string
+          p_engagement: number
+          p_guide_id: string
+          p_knowledge: number
+          p_listing_id: string
+          p_material: number
+          p_overall: number
+          p_route: number
+        }
+        Returns: string
+      }
       user_has_role: {
         Args: {
           expected_role: Database["public"]["Enums"]["app_role"]
@@ -3285,6 +3964,7 @@ export type Database = {
       }
     }
     Enums: {
+      account_status: "active" | "suspended" | "archived"
       app_role: "traveler" | "guide" | "admin"
       booking_status:
         | "pending"
@@ -3347,6 +4027,456 @@ export type Database = {
         | "dispute-evidence"
         | "guide-portfolio"
       thread_subject: "request" | "offer" | "booking" | "dispute"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+  storage: {
+    Tables: {
+      buckets: {
+        Row: {
+          allowed_mime_types: string[] | null
+          avif_autodetection: boolean | null
+          created_at: string | null
+          file_size_limit: number | null
+          id: string
+          name: string
+          owner: string | null
+          owner_id: string | null
+          public: boolean | null
+          type: Database["storage"]["Enums"]["buckettype"]
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_mime_types?: string[] | null
+          avif_autodetection?: boolean | null
+          created_at?: string | null
+          file_size_limit?: number | null
+          id: string
+          name: string
+          owner?: string | null
+          owner_id?: string | null
+          public?: boolean | null
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_mime_types?: string[] | null
+          avif_autodetection?: boolean | null
+          created_at?: string | null
+          file_size_limit?: number | null
+          id?: string
+          name?: string
+          owner?: string | null
+          owner_id?: string | null
+          public?: boolean | null
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      buckets_analytics: {
+        Row: {
+          created_at: string
+          deleted_at: string | null
+          format: string
+          id: string
+          name: string
+          type: Database["storage"]["Enums"]["buckettype"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deleted_at?: string | null
+          format?: string
+          id?: string
+          name: string
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deleted_at?: string | null
+          format?: string
+          id?: string
+          name?: string
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      buckets_vectors: {
+        Row: {
+          created_at: string
+          id: string
+          type: Database["storage"]["Enums"]["buckettype"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          type?: Database["storage"]["Enums"]["buckettype"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      migrations: {
+        Row: {
+          executed_at: string | null
+          hash: string
+          id: number
+          name: string
+        }
+        Insert: {
+          executed_at?: string | null
+          hash: string
+          id: number
+          name: string
+        }
+        Update: {
+          executed_at?: string | null
+          hash?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
+      }
+      objects: {
+        Row: {
+          bucket_id: string | null
+          created_at: string | null
+          id: string
+          last_accessed_at: string | null
+          metadata: Json | null
+          name: string | null
+          owner: string | null
+          owner_id: string | null
+          path_tokens: string[] | null
+          updated_at: string | null
+          user_metadata: Json | null
+          version: string | null
+        }
+        Insert: {
+          bucket_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          metadata?: Json | null
+          name?: string | null
+          owner?: string | null
+          owner_id?: string | null
+          path_tokens?: string[] | null
+          updated_at?: string | null
+          user_metadata?: Json | null
+          version?: string | null
+        }
+        Update: {
+          bucket_id?: string | null
+          created_at?: string | null
+          id?: string
+          last_accessed_at?: string | null
+          metadata?: Json | null
+          name?: string | null
+          owner?: string | null
+          owner_id?: string | null
+          path_tokens?: string[] | null
+          updated_at?: string | null
+          user_metadata?: Json | null
+          version?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "objects_bucketId_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      s3_multipart_uploads: {
+        Row: {
+          bucket_id: string
+          created_at: string
+          id: string
+          in_progress_size: number
+          key: string
+          metadata: Json | null
+          owner_id: string | null
+          upload_signature: string
+          user_metadata: Json | null
+          version: string
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string
+          id: string
+          in_progress_size?: number
+          key: string
+          metadata?: Json | null
+          owner_id?: string | null
+          upload_signature: string
+          user_metadata?: Json | null
+          version: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string
+          id?: string
+          in_progress_size?: number
+          key?: string
+          metadata?: Json | null
+          owner_id?: string | null
+          upload_signature?: string
+          user_metadata?: Json | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      s3_multipart_uploads_parts: {
+        Row: {
+          bucket_id: string
+          created_at: string
+          etag: string
+          id: string
+          key: string
+          owner_id: string | null
+          part_number: number
+          size: number
+          upload_id: string
+          version: string
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string
+          etag: string
+          id?: string
+          key: string
+          owner_id?: string | null
+          part_number: number
+          size?: number
+          upload_id: string
+          version: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string
+          etag?: string
+          id?: string
+          key?: string
+          owner_id?: string | null
+          part_number?: number
+          size?: number
+          upload_id?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "s3_multipart_uploads_parts_bucket_id_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "s3_multipart_uploads_parts_upload_id_fkey"
+            columns: ["upload_id"]
+            isOneToOne: false
+            referencedRelation: "s3_multipart_uploads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vector_indexes: {
+        Row: {
+          bucket_id: string
+          created_at: string
+          data_type: string
+          dimension: number
+          distance_metric: string
+          id: string
+          metadata_configuration: Json | null
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          bucket_id: string
+          created_at?: string
+          data_type: string
+          dimension: number
+          distance_metric: string
+          id?: string
+          metadata_configuration?: Json | null
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          bucket_id?: string
+          created_at?: string
+          data_type?: string
+          dimension?: number
+          distance_metric?: string
+          id?: string
+          metadata_configuration?: Json | null
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vector_indexes_bucket_id_fkey"
+            columns: ["bucket_id"]
+            isOneToOne: false
+            referencedRelation: "buckets_vectors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      allow_any_operation: {
+        Args: { expected_operations: string[] }
+        Returns: boolean
+      }
+      allow_only_operation: {
+        Args: { expected_operation: string }
+        Returns: boolean
+      }
+      can_insert_object: {
+        Args: { bucketid: string; metadata: Json; name: string; owner: string }
+        Returns: undefined
+      }
+      extension: { Args: { name: string }; Returns: string }
+      filename: { Args: { name: string }; Returns: string }
+      foldername: { Args: { name: string }; Returns: string[] }
+      get_common_prefix: {
+        Args: { p_delimiter: string; p_key: string; p_prefix: string }
+        Returns: string
+      }
+      get_size_by_bucket: {
+        Args: never
+        Returns: {
+          bucket_id: string
+          size: number
+        }[]
+      }
+      list_multipart_uploads_with_delimiter: {
+        Args: {
+          bucket_id: string
+          delimiter_param: string
+          max_keys?: number
+          next_key_token?: string
+          next_upload_token?: string
+          prefix_param: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          key: string
+        }[]
+      }
+      list_objects_with_delimiter: {
+        Args: {
+          _bucket_id: string
+          delimiter_param: string
+          max_keys?: number
+          next_token?: string
+          prefix_param: string
+          sort_order?: string
+          start_after?: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
+      operation: { Args: never; Returns: string }
+      search: {
+        Args: {
+          bucketname: string
+          levels?: number
+          limits?: number
+          offsets?: number
+          prefix: string
+          search?: string
+          sortcolumn?: string
+          sortorder?: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
+      search_by_timestamp: {
+        Args: {
+          p_bucket_id: string
+          p_level: number
+          p_limit: number
+          p_prefix: string
+          p_sort_column: string
+          p_sort_column_after: string
+          p_sort_order: string
+          p_start_after: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          key: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
+      search_v2: {
+        Args: {
+          bucket_name: string
+          levels?: number
+          limits?: number
+          prefix: string
+          sort_column?: string
+          sort_column_after?: string
+          sort_order?: string
+          start_after?: string
+        }
+        Returns: {
+          created_at: string
+          id: string
+          key: string
+          last_accessed_at: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }[]
+      }
+    }
+    Enums: {
+      buckettype: "STANDARD" | "ANALYTICS" | "VECTOR"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3472,8 +4602,12 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
+      account_status: ["active", "suspended", "archived"],
       app_role: ["traveler", "guide", "admin"],
       booking_status: [
         "pending",
@@ -3542,6 +4676,11 @@ export const Constants = {
         "guide-portfolio",
       ],
       thread_subject: ["request", "offer", "booking", "dispute"],
+    },
+  },
+  storage: {
+    Enums: {
+      buckettype: ["STANDARD", "ANALYTICS", "VECTOR"],
     },
   },
 } as const
