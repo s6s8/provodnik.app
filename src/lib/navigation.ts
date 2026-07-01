@@ -147,6 +147,7 @@ export const footerNav = {
             { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app", icon: MessageSquare } as NavItem],
   legal:   [
     { href: "/policies/terms",   label: "Условия использования", icon: ScrollText } as NavItem,
+    { href: "/policies/offer",   label: "Публичная оферта",      icon: ScrollText } as NavItem,
     { href: "/policies/privacy", label: "Конфиденциальность",    icon: ScrollText } as NavItem,
     { href: "/policies/cookies", label: "Cookies",               icon: ScrollText } as NavItem,
   ],
