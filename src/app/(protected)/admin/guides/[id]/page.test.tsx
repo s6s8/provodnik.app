@@ -57,6 +57,7 @@ const guideDetail = {
     notification_prefs: {},
     base_city: "Петрозаводск",
     max_group_size: null,
+    guide_type: "individual_guide",
   },
   account: {
     id: "g1",
@@ -93,9 +94,12 @@ describe("AdminGuideDetailPage", () => {
       "ИНН",
       "Страна документа",
       "Туроператор",
+      "Тип гида",
     ]) {
       expect(screen.getByText(label)).toBeInTheDocument();
     }
+    // guide_type is localized from its stored id.
+    expect(screen.getByText("Индивидуальный гид")).toBeInTheDocument();
   });
 
   it("localizes legal status and avoids duplicate qualification document details", async () => {

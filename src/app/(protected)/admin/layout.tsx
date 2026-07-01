@@ -58,7 +58,7 @@ export default async function AdminLayout({
     redirect("/auth");
   }
 
-  if (auth.role !== "admin") {
+  if (auth.role !== "admin" || auth.accountStatus !== "active") {
     return <AdminAccessDenied returnTo={auth.canonicalRedirectTo} />;
   }
 

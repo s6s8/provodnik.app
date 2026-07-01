@@ -14,6 +14,7 @@ export type AuthContext = {
   isAuthenticated: boolean;
   source: AuthSource;
   role: AppRole | null;
+  accountStatus?: "active" | "suspended" | "archived" | null;
   email: string | null;
   fullName: string | null;
   avatarUrl: string | null;

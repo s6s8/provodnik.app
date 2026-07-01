@@ -61,22 +61,22 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
         >
           Одобрить гида
         </Button>
-        <div className="grid grid-cols-2 gap-2">
-          <Button
-            formAction={changesAction}
-            type="submit"
-            variant="outline"
-          >
-            Запросить изменения
-          </Button>
-          <Button
-            formAction={rejectAction}
-            type="submit"
-            variant="destructive"
-          >
-            Отклонить
-          </Button>
-        </div>
+        <Button
+          formAction={changesAction}
+          type="submit"
+          variant="outline"
+          className="w-full"
+        >
+          Запросить изменения
+        </Button>
+        <Button
+          formAction={rejectAction}
+          type="submit"
+          variant="destructive"
+          className="w-full"
+        >
+          Отклонить
+        </Button>
       </div>
     </form>
   );

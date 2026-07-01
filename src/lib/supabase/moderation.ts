@@ -221,15 +221,22 @@ async function requireAdminSession() {
 
   const { data: profile, error: profileError } = await supabase
     .from("profiles")
-    .select("id, role, full_name, email, avatar_url")
+    .select("id, role, account_status, full_name, email, avatar_url")
     .eq("id", user.id)
     .maybeSingle();
 
   if (profileError) throw profileError;
 
+  if (profile?.account_status === "suspended" || profile?.account_status === "archived") {
+    throw new Error("Доступ администратора заблокирован.");
+  }
+
   if (
     !hasAdminRole({
-      profileRole: profile?.role,
+      profileRole:
+        profile?.account_status === "suspended" || profile?.account_status === "archived"
+          ? null
+          : profile?.role,
       appMetadataRole: user.app_metadata?.role as string | undefined,
       userMetadataRole: user.user_metadata?.role as string | undefined,
     })

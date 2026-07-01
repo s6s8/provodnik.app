@@ -840,6 +840,7 @@ function GuideDetailBranch({
   const [offerId, setOfferId] = React.useState<string | null>(existingOfferId);
   const [editMode, setEditMode] = React.useState(false);
   const [withdrawing, setWithdrawing] = React.useState(false);
+  const [withdrawError, setWithdrawError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     setOfferId(existingOfferId);
@@ -936,16 +937,27 @@ function GuideDetailBranch({
                       destructive: true,
                     });
                     if (!ok) return;
+                    setWithdrawError(null);
                     setWithdrawing(true);
                     const res = await withdrawOfferAction(validOfferId, request.id);
                     setWithdrawing(false);
                     if ("ok" in res) { setOfferId(null); router.refresh(); }
-                    else window.alert(res.error);
+                    else setWithdrawError(res.error);
                   }}
                 >
                   {withdrawing ? "Отзываем…" : "Отозвать"}
                 </Button>
               </div>
+              {withdrawError ? (
+                <Alert
+                  variant="destructive"
+                  dismissible
+                  onDismiss={() => setWithdrawError(null)}
+                  className="text-[13px] leading-[1.5]"
+                >
+                  {withdrawError}
+                </Alert>
+              ) : null}
               <div className="border-t border-primary/15 pt-3">
                 <GuideOfferQaPanel offerId={validOfferId} />
               </div>

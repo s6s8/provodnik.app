@@ -58,6 +58,7 @@ function makeGuideProfile(
     notification_prefs: {},
     base_city: null,
     max_group_size: null,
+    guide_type: null,
   };
 }
 

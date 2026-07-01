@@ -3,6 +3,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDashboardPathForRole } from "@/lib/auth/role-routing";
+import { isGuideType } from "@/features/auth/guide-type";
 
 type SignUpInput = {
   email: string;
@@ -10,6 +11,7 @@ type SignUpInput = {
   role: string;
   fullName: string;
   phone?: string;
+  guideType?: string;
 };
 
 type SignUpResult =
@@ -47,11 +49,24 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
 
   const { email, password, fullName, phone } = input;
   const safeRole = input.role;
+  const isGuide = safeRole === "guide";
 
   // Digits-only canonical form mirrors the generated `profiles.phone_normalized`
   // column (regexp_replace [^0-9]). Empty/blank phone stays optional and is never
   // checked for uniqueness.
   const normalizedPhone = phone ? phone.replace(/\D/g, "") : "";
+
+  // Guides must be reachable by phone (offer/booking coordination) and must
+  // declare what kind of guide they are — both are gated here on the server, not
+  // only in the UI, so the API can't be bypassed.
+  if (isGuide && !normalizedPhone) {
+    return { ok: false, error: "phone_required" };
+  }
+
+  const guideType = isGuide ? input.guideType : undefined;
+  if (isGuide && !isGuideType(guideType)) {
+    return { ok: false, error: "guide_type_required" };
+  }
 
   const admin = createSupabaseAdminClient();
 
@@ -75,7 +90,11 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     email,
     password,
     email_confirm: true,
-    user_metadata: { role: safeRole, full_name: fullName },
+    user_metadata: {
+      role: safeRole,
+      full_name: fullName,
+      ...(isGuide ? { guide_type: guideType } : {}),
+    },
   });
 
   if (createError) {
@@ -136,6 +155,6 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     return { ok: false, error: "signin_after_signup_failed" };
   }
 
-  const dashboardPath = getDashboardPathForRole(safeRole) ?? "/";
+  const dashboardPath = safeRole === "guide" ? "/guide/profile" : getDashboardPathForRole(safeRole) ?? "/";
   return { ok: true, dashboardPath };
 }
