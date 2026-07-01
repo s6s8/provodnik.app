@@ -28,10 +28,6 @@ vi.mock("@/features/profile/components/traveler-profile-form", () => ({
   TravelerProfileForm: () => <form aria-label="Профиль путешественника" />,
 }));
 
-vi.mock("@/features/profile/components/traveler-profile-completion-checklist", () => ({
-  TravelerProfileCompletionChecklist: () => <div>Готовность профиля</div>,
-}));
-
 vi.mock("@/lib/demo-traveler-profile", () => ({
   readDemoTravelerProfileFromCookies: vi.fn().mockResolvedValue(null),
 }));

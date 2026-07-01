@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { PersonalSettingsForm } from "@/features/profile/components/PersonalSettingsForm";
-import { TravelerProfileCompletionChecklist } from "@/features/profile/components/traveler-profile-completion-checklist";
 import {
   TravelerProfileForm,
   type TravelerProfile,
@@ -139,7 +138,6 @@ export default async function PersonalSettingsPage() {
           ].join("|")}
           profile={travelerProfile}
         />
-        <TravelerProfileCompletionChecklist profile={travelerProfile} />
       </div>
     );
   }
