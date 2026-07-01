@@ -81,6 +81,15 @@ function verificationStatusLabel(status: GuideVerificationStatusDb): string {
   }
 }
 
+function documentStatusLabel(status: GuideVerificationStatusDb): string {
+  switch (status) {
+    case "approved": return "Подтверждён";
+    case "submitted": return "Отправлен";
+    case "rejected": return "Отклонён";
+    default: return "Не отправлен";
+  }
+}
+
 export default async function GuideProfilePage() {
   const auth = await readAuthContextFromServer();
   if (!auth.isAuthenticated || !auth.userId) {
@@ -406,7 +415,7 @@ export default async function GuideProfilePage() {
                         >
                           <span className="text-sm">{doc.fileName}</span>
                           <span className={getStatusBadgeClass(doc.status)}>
-                            {doc.status === "submitted" ? "Отправлено" : doc.status}
+                            {documentStatusLabel(doc.status)}
                           </span>
                         </li>
                       ))}

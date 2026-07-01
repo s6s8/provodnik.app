@@ -177,7 +177,11 @@ export default async function PersonalSettingsPage() {
     );
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
-        <PageHeader eyebrow="Личные настройки" title="Профиль" />
+        <PageHeader
+          eyebrow="Личные настройки"
+          title="Профиль"
+          subtitle="Язык, валюта и уведомления. Анкета гида — в разделе «Профиль гида»."
+        />
         <AvatarUploadBlock avatarUrl={avatar.url} displayName={avatar.name} />
         <PersonalSettingsForm
           initialLocale={locale}

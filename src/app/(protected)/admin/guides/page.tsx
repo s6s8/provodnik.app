@@ -180,6 +180,14 @@ export default async function AdminGuidesPage({
         <p className="max-w-3xl text-sm text-muted-foreground">
           В основной очереди только анкеты со статусом «На проверке». Черновики
           и уже решённые заявки скрыты; для диагностики откройте «Черновики».
+          Все пользователи и одобренные гиды — в разделе{" "}
+          <Link
+            href="/admin/users"
+            className="font-medium text-primary underline underline-offset-4 hover:text-primary/80"
+          >
+            «Пользователи»
+          </Link>
+          .
         </p>
       </div>
 

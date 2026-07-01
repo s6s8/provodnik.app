@@ -18,6 +18,7 @@ import {
   todayMoscowISODate,
 } from "@/lib/dates";
 import { GUIDE_TYPES } from "@/features/auth/guide-type";
+import { getTheme } from "@/data/themes";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
@@ -65,6 +66,10 @@ const MODERATION_DECISION_LABELS: Record<string, string> = {
 
 function moderationDecisionLabel(decision: string) {
   return MODERATION_DECISION_LABELS[decision] ?? decision;
+}
+
+function specializationLabel(slug: string) {
+  return getTheme(slug)?.label ?? slug;
 }
 
 function legalStatusLabel(status: string | null) {
@@ -158,6 +163,9 @@ export default async function AdminGuideDetailPage({
                 <dd className="mt-1 text-sm text-foreground">
                   {GUIDE_TYPES.find((t) => t.id === detail.profile.guide_type)?.label ?? "—"}
                 </dd>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Формат работы (индивидуальный гид, агентство или команда) — не путать с правовым статусом ниже.
+                </p>
               </div>
               <div>
                 <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
@@ -191,7 +199,7 @@ export default async function AdminGuideDetailPage({
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
                   {Array.isArray(detail.profile.specializations) && detail.profile.specializations.length > 0
-                    ? detail.profile.specializations.join(", ")
+                    ? detail.profile.specializations.map(specializationLabel).join(", ")
                     : "—"}
                 </dd>
               </div>

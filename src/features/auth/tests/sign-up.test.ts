@@ -109,12 +109,12 @@ describe("signUpAction — public signup roles", () => {
   it("registers role:guide with guide stamped on user, profile, and app_metadata", async () => {
     mockSuccessfulRegistration();
 
-    const result = await signUpAction({ ...baseInput, role: "guide" });
+    const result = await signUpAction({ ...baseInput, role: "guide", guideType: "individual_guide" });
 
-    expect(result).toEqual({ ok: true, dashboardPath: "/guide" });
+    expect(result).toEqual({ ok: true, dashboardPath: "/guide/profile" });
     expect(createUserMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        user_metadata: { role: "guide", full_name: baseInput.fullName },
+        user_metadata: { role: "guide", full_name: baseInput.fullName, guide_type: "individual_guide" },
       }),
     );
     expect(upsertMock).toHaveBeenCalledWith(
@@ -136,6 +136,25 @@ describe("signUpAction — public signup roles", () => {
     const result = await signUpAction({ ...baseInput, role: "hacker" });
 
     expect(result).toEqual({ ok: false, error: "forbidden_role" });
+    assertNoSupabaseSideEffects();
+  });
+
+  it("rejects guide signup without a phone", async () => {
+    const result = await signUpAction({
+      ...baseInput,
+      phone: undefined,
+      role: "guide",
+      guideType: "individual_guide",
+    });
+
+    expect(result).toEqual({ ok: false, error: "phone_required" });
+    assertNoSupabaseSideEffects();
+  });
+
+  it("rejects guide signup without a valid guide type", async () => {
+    const result = await signUpAction({ ...baseInput, role: "guide", guideType: "invalid" });
+
+    expect(result).toEqual({ ok: false, error: "guide_type_required" });
     assertNoSupabaseSideEffects();
   });
 
@@ -255,7 +274,7 @@ describe("signUpAction — failure rollback", () => {
     upsertMock.mockResolvedValue({ data: null, error: null });
     updateUserByIdMock.mockResolvedValue({ data: null, error: { message: "role failed" } });
 
-    const result = await signUpAction({ ...baseInput, role: "guide" });
+    const result = await signUpAction({ ...baseInput, role: "guide", guideType: "individual_guide" });
 
     expect(result).toEqual({ ok: false, error: "role_failed" });
     expect(deleteUserMock).toHaveBeenCalledWith("user-9");

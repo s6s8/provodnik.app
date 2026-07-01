@@ -1,6 +1,7 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Check } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 
 import { AuthEntryScreen } from "@/features/auth/components/auth-entry-screen";
 import {
@@ -78,9 +79,22 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
 
   return (
     <section className="relative flex min-h-screen items-stretch justify-center bg-surface px-[clamp(20px,4vw,48px)] py-16">
+      <Link
+        href="/"
+        className="absolute left-[clamp(20px,4vw,48px)] top-6 z-10 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground lg:hidden"
+      >
+        <ArrowLeft className="size-4" aria-hidden />
+        На главную
+      </Link>
       <div className="mx-auto grid w-full max-w-5xl items-stretch gap-8 lg:grid-cols-2">
         <aside className="hidden flex-col justify-center gap-8 rounded-glass bg-gradient-to-br from-brand-900 to-brand-950 p-[clamp(2rem,4vw,3.5rem)] text-white shadow-glass lg:flex">
-          <span className="text-lg font-semibold tracking-tight">Provodnik</span>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-white transition-colors hover:text-white/80"
+          >
+            <ArrowLeft className="size-4" aria-hidden />
+            Provodnik
+          </Link>
           <div className="space-y-4">
             <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
               Найдите проверенного гида для поездки
