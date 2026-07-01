@@ -399,7 +399,7 @@ export function GuideRequestsInboxScreen() {
                             </Button>
                           ) : (
                             <Button variant="outline" asChild>
-                              <Link href="/guide/profile#verification">Пройти верификацию</Link>
+                              <Link href="/guide/profile">Пройти верификацию</Link>
                             </Button>
                           )}
                           <Button variant="ghost" asChild className="ml-auto min-h-[44px]">

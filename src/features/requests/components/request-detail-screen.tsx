@@ -887,7 +887,7 @@ function GuideDetailBranch({
           {!isApproved ? (
             <div className="flex flex-wrap items-center gap-2">
               <Button variant="default" size="default" disabled>Доступно после верификации</Button>
-              <Link href="/guide/profile#verification" className="text-xs text-primary underline-offset-2 hover:underline">
+              <Link href="/guide/profile" className="text-xs text-primary underline-offset-2 hover:underline">
                 Пройти верификацию →
               </Link>
             </div>
