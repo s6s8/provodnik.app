@@ -17,6 +17,7 @@ import {
   formatRussianDateTime,
   todayMoscowISODate,
 } from "@/lib/dates";
+import { GUIDE_TYPES } from "@/features/auth/guide-type";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
@@ -148,6 +149,14 @@ export default async function AdminGuideDetailPage({
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
                   {detail.account?.full_name ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                  Тип гида
+                </dt>
+                <dd className="mt-1 text-sm text-foreground">
+                  {GUIDE_TYPES.find((t) => t.id === detail.profile.guide_type)?.label ?? "—"}
                 </dd>
               </div>
               <div>

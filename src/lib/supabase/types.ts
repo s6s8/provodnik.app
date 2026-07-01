@@ -248,6 +248,9 @@ export type GuideProfileRow = {
   notification_prefs: Record<string, unknown>;
   base_city: string | null;
   max_group_size: number | null;
+  // Kind of guide chosen at signup. Inlined literal (not imported from the
+  // auth feature) to respect the lib → features import boundary.
+  guide_type: "individual_guide" | "agency_representative" | "guide_team" | null;
 };
 
 export type GuideProfileOnboardingPersistenceRow = Pick<
