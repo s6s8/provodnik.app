@@ -713,7 +713,15 @@ export async function getGuideReviewQueue(filters?: {
     ascending: false,
   });
 
-  if (error) throw error;
+  // A primary-query failure must degrade to an empty queue, not throw: the
+  // caller renders a queue-specific empty state, whereas an uncaught throw
+  // collapses the whole admin segment into the generic "Действие не выполнено"
+  // error boundary (T18). The secondary metadata queries below already degrade
+  // via Promise.allSettled — mirror that here for the load itself.
+  if (error) {
+    console.error("[getGuideReviewQueue] guide_profiles query failed:", error);
+    return [];
+  }
 
   const guideProfiles = ((profiles ?? []) as GuideProfileRow[]).filter((profile) =>
     input.view === "drafts"
