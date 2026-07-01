@@ -238,7 +238,12 @@ export default async function GuideProfilePage() {
   }
 
   const avatarDone = avatarUrl != null;
-  const aboutDone = (profile?.bio ?? "").trim().length > 0;
+  // "О себе" is complete only when the guide has written a bio AND picked at
+  // least one theme — the theme chips feed guide search/filter and must not be
+  // left empty (T10: полная анкета или ничего).
+  const aboutDone =
+    (profile?.bio ?? "").trim().length > 0 &&
+    (profile?.specializations?.length ?? 0) > 0;
   const legalDone = Boolean(
     legalInitialData.legalStatus &&
       legalInitialData.inn &&

@@ -265,7 +265,7 @@ export async function submitForVerification(): Promise<SubmitVerificationResult>
 
     const { data: profile, error: profileError } = await supabase
       .from("guide_profiles")
-      .select("user_id, bio, legal_status, inn, document_country")
+      .select("user_id, bio, specializations, legal_status, inn, document_country")
       .eq("user_id", guideId)
       .maybeSingle();
 
@@ -279,6 +279,10 @@ export async function submitForVerification(): Promise<SubmitVerificationResult>
 
     if (!(profile.bio ?? "").trim()) {
       return { error: "Заполните раздел «О себе» перед отправкой." };
+    }
+
+    if (!(profile.specializations?.length ?? 0)) {
+      return { error: "Выберите хотя бы одну тему в разделе «О себе» перед отправкой." };
     }
 
     if (!(profile.legal_status && profile.inn && profile.document_country)) {
