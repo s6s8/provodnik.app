@@ -72,9 +72,10 @@ describe("HomepageRequestFormClassic inset-label layout", () => {
     expect(screen.queryByRole("button", { name: "Ещё" })).toBeNull();
 
     // «Детали» disclosure is collapsed by default; the notes field appears once opened.
-    expect(screen.queryByLabelText("Пожелания")).toBeNull();
-    fireEvent.click(screen.getByRole("button", { name: "Детали" }));
-    expect(screen.getByLabelText("Пожелания")).toBeInTheDocument();
+    // The trigger and field are explicitly marked optional (MVP request model).
+    expect(screen.queryByLabelText(/Пожелания/)).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /Детали/ }));
+    expect(screen.getByLabelText(/Пожелания/)).toBeInTheDocument();
   });
 
   it("uses the «Найти гида» submit with no sticky mobile bar", () => {

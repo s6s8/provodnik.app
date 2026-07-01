@@ -334,6 +334,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
                 {...register("budgetPerPersonRub", { valueAsNumber: true })}
               />
             </div>
+            <span className="shrink-0 text-sm font-semibold text-muted-foreground">₽/чел</span>
           </FieldShell>
         </div>
         <FieldError
@@ -357,7 +358,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             leading={<FieldIcon icon={Languages} label="Языки экскурсии" />}
           />
         </div>
-        <FieldError message={errors.interests?.message} />
+        <FieldError message={errors.requestedLanguages?.message ?? errors.interests?.message} />
 
         {/* Детали → пожелания */}
         <button
@@ -370,12 +371,12 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
             className={cn("size-3 transition-transform", detailsOpen && "rotate-180")}
             aria-hidden="true"
           />
-          Детали
+          Детали <span className="font-normal text-muted-foreground">· необязательно</span>
         </button>
         {detailsOpen && (
           <Textarea
             id="notes"
-            aria-label="Пожелания"
+            aria-label="Пожелания (необязательно)"
             placeholder="Особые пожелания, ограничения по здоровью или другие детали."
             {...register("notes")}
           />
