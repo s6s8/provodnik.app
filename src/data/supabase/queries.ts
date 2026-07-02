@@ -495,8 +495,12 @@ export async function getGuideBySlug(
     const slugCandidates = getSlugLookupCandidates(slug);
     const { data, error } = await client
       .from("guide_profiles")
-      .select("*, profiles!guide_profiles_user_id_fkey(id, full_name, avatar_url)")
+      .select("*, profiles!guide_profiles_user_id_fkey!inner(id, full_name, avatar_url, role, account_status)")
       .in("slug", slugCandidates)
+      .eq("verification_status", "approved")
+      .eq("is_available", true)
+      .eq("profiles.role", "guide")
+      .eq("profiles.account_status", "active")
       .limit(1)
       .maybeSingle();
 
