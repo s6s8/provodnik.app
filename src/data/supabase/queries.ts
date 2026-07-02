@@ -467,15 +467,37 @@ export async function getGuidesByDestination(
   }
 }
 
+function getSlugLookupCandidates(slug: string): string[] {
+  const candidates = new Set<string>();
+  const add = (value: string) => {
+    if (!value) return;
+    candidates.add(value);
+    candidates.add(value.normalize("NFC"));
+    candidates.add(value.normalize("NFKD"));
+  };
+
+  add(slug);
+
+  try {
+    add(decodeURIComponent(slug));
+  } catch {
+    // The route param can already be decoded; ignore malformed percent escapes.
+  }
+
+  return Array.from(candidates);
+}
+
 export async function getGuideBySlug(
   client: SupabaseClient,
   slug: string,
 ): Promise<QueryResult<GuideRecord>> {
   try {
+    const slugCandidates = getSlugLookupCandidates(slug);
     const { data, error } = await client
       .from("guide_profiles")
       .select("*, profiles!guide_profiles_user_id_fkey(id, full_name, avatar_url)")
-      .eq("slug", slug)
+      .in("slug", slugCandidates)
+      .limit(1)
       .maybeSingle();
 
     if (error) throw error;

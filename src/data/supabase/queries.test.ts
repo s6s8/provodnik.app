@@ -76,8 +76,8 @@ class FakeQuery {
     return this;
   }
 
-  in() {
-    this.calls.push(`${this.table}.in`);
+  in(column?: string, values?: unknown[]) {
+    this.calls.push(`${this.table}.in:${column ?? ""}:${JSON.stringify(values ?? [])}`);
     return this;
   }
 
@@ -445,6 +445,32 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.data?.reviewCount).toBe(8);
     expect(result.data?.responseRate).toBe(91);
     expect(result.data?.verified).toBe(true);
+  });
+
+  it("resolves public guide detail when Next passes an encoded slug", async () => {
+    const client = createFakeClient({
+      guide_profiles: [
+        {
+          user_id: "guide-1",
+          slug: "жюль-верников-69f18040",
+          display_name: "Жюль Верников",
+          regions: ["Волгоградская область"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuideBySlug(
+      client,
+      "%D0%B6%D1%8E%D0%BB%D1%8C-%D0%B2%D0%B5%D1%80%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2-69f18040",
+    );
+
+    expect(result.error).toBeNull();
+    expect(result.data?.fullName).toBe("Жюль Верников");
+    expect(client.calls).toContain(
+      'guide_profiles.in:slug:["%D0%B6%D1%8E%D0%BB%D1%8C-%D0%B2%D0%B5%D1%80%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2-69f18040","жюль-верников-69f18040"]',
+    );
   });
 
   it("keeps getGuideBySlug unverified with null responseRate when stats are absent", async () => {
