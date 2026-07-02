@@ -1,0 +1,453 @@
+{
+  "schema_version": "1.0",
+  "project": "Provodnik",
+  "source": {
+    "name": "PRJ Wildberries",
+    "chat_id": "-5267085287",
+    "message_range": "79689-80086 plus follow-up implementation reports",
+    "latest_excel": "task-audit-2026-07-01/wildberries-last2d/media/80086_Provodnik_01.07.26_V1.xlsx",
+    "source_exports": [
+      "task-audit-2026-07-01/wildberries-last2d/messages.md",
+      "task-audit-2026-07-01/wildberries-last2d/messages.json",
+      "task-audit-2026-07-01/wildberries-last2d/image_analysis.md",
+      "task-audit-2026-07-01/wildberries-last2d/excel_latest/workbook_dump.md"
+    ],
+    "derived_audit": "task-audit-2026-07-01/wildberries-last2d/Provodnik_Wildberries_TODO_Audit_2026-07-02.xlsx"
+  },
+  "state_generated_at": "2026-07-02",
+  "live_target": "https://vps.provodnik.app",
+  "current_verified_deploy": {
+    "repo": "s6s8/provodnik.app",
+    "branch": "main",
+    "commit": "cf29c9719528bd59b0962adc029bba9486c3bc33",
+    "vps_path": "/opt/provodnik",
+    "services": {
+      "provodnik.service": "active",
+      "caddy": "active"
+    },
+    "verification_summary": [
+      "VPS HEAD is cf29c971",
+      "public / returns 200",
+      "public /auth?role=guide returns 200",
+      "public /become-a-guide returns 200",
+      "public /guides returns 200",
+      "public /requests returns 200",
+      "protected /admin/users redirects to /auth?next=%2Fadmin%2Fusers",
+      "protected /admin/guides redirects to /auth?next=%2Fadmin%2Fguides",
+      "/policies/offer returns 404",
+      "Supabase migration list has one local/remote baseline: 20260702000000"
+    ]
+  },
+  "global_rules": {
+    "hidden_means": "If a section/page/feature is marked hidden, it must have no visible navigation/link entry and must not be directly accessible by URL to any user unless explicitly re-approved.",
+    "done_means": "Done requires current main + live VPS or live DB evidence. Old branch reports are secondary evidence only.",
+    "auth_checks": "Protected-route 200 after redirect to /auth is not feature verification. Authenticated checks require successful login and the target page body. Current QA seed logins failed during this audit, so authenticated UI proof is limited to code/tests/reports unless stated otherwise.",
+    "owner_decisions": "Product/legal/manual-QA items are not complete until Badma/Alex/legal owner gives a decision. They can be documented but not marked fixed."
+  },
+  "status_counts": {
+    "done_verified_live_or_db": 23,
+    "done_by_code_or_report_needs_auth_manual_recheck": 4,
+    "not_done_or_partial": 5,
+    "owner_or_legal_decision": 4,
+    "info_closed": 1
+  },
+  "issue_groups": [
+    {
+      "group": "Hidden public sections and routes",
+      "status": "NOT_DONE",
+      "owner": "engineering/product",
+      "rule": "Anything hidden must be fully hidden and URL-inaccessible to all users.",
+      "issues": [
+        {
+          "id": "WB-001",
+          "source_ids": ["79806#1", "79816", "80049"],
+          "title": "Hide public sections 'Направления' and 'Экскурсии' completely",
+          "status": "NOT_DONE",
+          "current_evidence": [
+            "Live homepage returns 200 but still contains navigation text for Экскурсии / Направления in the header/body extraction.",
+            "Public /destinations and /listings routes exist in the build and should be treated as accessible until disabled/removed.",
+            "Prior audit only proved homepage section hiding, not full URL inaccessibility."
+          ],
+          "required_to_close": [
+            "Remove all nav/menu/footer links to hidden sections.",
+            "Make direct URLs inaccessible: /destinations, /destinations/[slug], /listings, /listings/[id], /listings/[id]/book, or any equivalent excursion/direction route must return 404/redirect to allowed page for every user unless explicitly re-approved.",
+            "Add route or navigation tests proving hidden routes are not public.",
+            "Verify live VPS by HTTP/body after deployment."
+          ],
+          "files_likely_involved": [
+            "src/lib/navigation.ts",
+            "src/components/shared/site-header.tsx",
+            "src/components/shared/site-footer.tsx",
+            "src/app/(site)/destinations/*",
+            "src/app/(site)/listings/*"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "Public copy and guide registration",
+      "status": "MOSTLY_DONE",
+      "issues": [
+        {
+          "id": "WB-002",
+          "source_ids": ["79806#2", "80052"],
+          "title": "Remove fine print under homepage request form",
+          "status": "DONE_REPORTED_NEEDS_VISUAL_RECHECK_AFTER_HIDE_FIX",
+          "how_done": "Homepage copy was changed in prior Wildberries batches; current source/build no longer depends on that old small print as a required line.",
+          "required_to_close": ["Recheck visually after the hidden-route cleanup because the homepage/nav still needs work."]
+        },
+        {
+          "id": "WB-003",
+          "source_ids": ["79852", "80027", "80050", "Excel Sheet7"],
+          "title": "Optimize /become-a-guide copy; remove duplicate/unrealistic blocks",
+          "status": "DONE_VERIFIED_LIVE",
+          "how_done": "Current live /become-a-guide does not contain 'Зарабатывайте на авторских экскурсиях' or 'Большая часть дохода — вам'.",
+          "evidence": ["Live /become-a-guide returned 200 and text scan passed for those removed phrases."],
+          "remaining": "Final content approval is still a product/content sign-off if Badma wants exact wording."
+        },
+        {
+          "id": "WB-004",
+          "source_ids": ["79806#4", "Excel row 4"],
+          "title": "Remove/approve blue info-box text on /auth?role=guide",
+          "status": "DONE_VERIFIED_LIVE_WITH_CONTENT_APPROVAL_OPTIONAL",
+          "how_done": "Auth copy was rewritten; current live /auth?role=guide does not contain the old confusing phrases checked in the audit.",
+          "evidence": ["Live /auth?role=guide returned 200; old confusing copy strings were absent."],
+          "remaining": "Badma can still approve final marketing wording."
+        },
+        {
+          "id": "WB-005",
+          "source_ids": ["79862", "79870", "79878", "80045"],
+          "title": "Guide signup requires valid phone; phone signup works",
+          "status": "DONE_BY_CODE_DB_TESTS",
+          "how_done": "Phone validation/sign-up flow was fixed and duplicate normalized phone enforcement exists in DB.",
+          "evidence": ["Duplicate normalized phone groups = 0", "profiles.phone_normalized + unique index present in live baseline", "sign-up tests pass."],
+          "remaining": "Authenticated/manual signup flow can be re-run after QA login credentials are restored."
+        },
+        {
+          "id": "WB-006",
+          "source_ids": ["Excel Login A42"],
+          "title": "Duplicate phone cannot be reused for a second account",
+          "status": "DONE_VERIFIED_DB",
+          "how_done": "Live DB has generated normalized phone column and uniqueness enforcement after duplicate remediation.",
+          "evidence": ["Live duplicate normalized phone groups = 0."]
+        },
+        {
+          "id": "WB-007",
+          "source_ids": ["79862", "80045", "80065", "80080"],
+          "title": "Add 3 guide types in signup",
+          "status": "DONE_VERIFIED_LIVE_PUBLIC_FORM",
+          "how_done": "Guide type selector exists on /auth?role=guide with Individual guide / agency representative / guide team labels.",
+          "evidence": ["Live /auth?role=guide text scan found all three guide-type options."]
+        },
+        {
+          "id": "WB-008",
+          "source_ids": ["80065", "MVP finish report"],
+          "title": "Persist guide type and show it in profile/admin",
+          "status": "DONE_VERIFIED_DB_AND_BUILD",
+          "how_done": "Migration added guide_profiles.guide_type and code reads it in guide profile/admin detail.",
+          "evidence": ["Live DB guide_type column exists", "Current build includes guide_type source references", "PR #250 merged."],
+          "remaining": "Authenticated visual recheck requires working QA login."
+        },
+        {
+          "id": "WB-009",
+          "source_ids": ["80081", "80082", "Excel row 16"],
+          "title": "Clarify guide type vs legal status/documents",
+          "status": "OWNER_DECISION_REQUIRED",
+          "how_documented": "Tracked as product distinction, not an engineering bug.",
+          "required_to_close": ["Badma/Alex decide exact UX labels and whether legal form must be separate from guide type."]
+        },
+        {
+          "id": "WB-010",
+          "source_ids": ["Excel row 21"],
+          "title": "Guide registration form needs explicit Back/Home navigation",
+          "status": "DONE_VERIFIED_LIVE",
+          "how_done": "Current /auth?role=guide shows 'На главную'.",
+          "evidence": ["Current source src/app/(auth)/auth/page.tsx has На главную", "Live text scan found guide form, but earlier probe against stale worktree missed it; current main has it."],
+          "required_to_close": ["Optional: visual screenshot from live after hidden-route cleanup."]
+        }
+      ]
+    },
+    {
+      "group": "Guide onboarding and verification",
+      "status": "DONE_BY_CODE_DB_REPORTS_NEEDS_AUTH_VISUAL_RECHECK",
+      "issues": [
+        {
+          "id": "WB-011",
+          "source_ids": ["79806#6", "79885"],
+          "title": "After guide registration go to verification/profile, not inbox",
+          "status": "DONE_BY_CODE_REPORT",
+          "how_done": "Signup routing was changed to land guides on /guide/profile.",
+          "evidence": ["MVP finish report verified new guide registration reaches profile", "tests pass."],
+          "remaining": "Re-run live signup manually after QA credentials/test account policy is restored."
+        },
+        {
+          "id": "WB-012",
+          "source_ids": ["79889", "79890"],
+          "title": "'Пройти верификацию' should open top of questionnaire, not bottom",
+          "status": "DONE_BY_CODE_REPORT",
+          "how_done": "Links changed away from bottom #verification anchor for the entry point.",
+          "evidence": ["Full orchestration report commit 7143d83", "current code/build routes pass."],
+          "remaining": "Authenticated visual recheck when QA login works."
+        },
+        {
+          "id": "WB-013",
+          "source_ids": ["79948", "79959", "80007", "80034", "Excel Sheet8"],
+          "title": "Guide profile first block / 'О себе' save fails due to specialization constraint",
+          "status": "DONE_VERIFIED_DB_AND_REPORT",
+          "how_done": "DB constraint was realigned to canonical specialization slugs and profile save was verified in prior live report.",
+          "evidence": ["Live baseline contains corrected guide_specializations constraint", "MVP finish report verified bio/theme save and checklist flip."]
+        },
+        {
+          "id": "WB-014",
+          "source_ids": ["79955", "80010", "80016"],
+          "title": "Final verification submit button / all-or-nothing questionnaire",
+          "status": "DONE_BY_CODE_REPORT",
+          "how_done": "Completion gate requires full questionnaire before final submit; partial verification behavior addressed.",
+          "evidence": ["MVP finish report verified disabled submit for incomplete new guide and checklist behavior."]
+        },
+        {
+          "id": "WB-015",
+          "source_ids": ["Excel row 13"],
+          "title": "Document status should not confusingly show draft after upload",
+          "status": "NEEDS_AUTH_MANUAL_RECHECK",
+          "why_not_done": "The source issue is authenticated and document-upload-specific. No current live authenticated visual proof exists in this audit because QA login failed.",
+          "required_to_close": ["Login as guide", "Upload/check document state", "Verify owner-facing label is understandable and not misleading."]
+        },
+        {
+          "id": "WB-016",
+          "source_ids": ["Excel Sheet8 M16"],
+          "title": "Guide profile save button overlaps text on narrow/mobile layout",
+          "status": "DONE_REPORTED_NEEDS_OPTIONAL_VISUAL_RECHECK",
+          "how_done": "MVP finish pass reports 375px guide profile layout had no save-button overlap.",
+          "remaining": "Capture fresh mobile screenshot on current live once QA guide login works."
+        }
+      ]
+    },
+    {
+      "group": "Traveler request, account, navigation, and booking",
+      "status": "PARTIAL",
+      "issues": [
+        {
+          "id": "WB-017",
+          "source_ids": ["79968", "79969", "80045", "80065"],
+          "title": "Calendar selectable for anonymous and logged-in traveler",
+          "status": "DONE_BY_REPORT_TESTS",
+          "how_done": "Calendar/date picker fixes were shipped and tested; MVP finish report verified logged-in traveler request submission.",
+          "remaining": "Manual recheck recommended after any hidden-route/nav changes."
+        },
+        {
+          "id": "WB-018",
+          "source_ids": ["80065", "80168"],
+          "title": "Traveler request MVP fields",
+          "status": "DONE_VERIFIED_CODE_TESTS",
+          "how_done": "Request form aligned to MVP fields: place, date, time, people, price per person, languages, optional details.",
+          "evidence": ["MVP finish report", "current test/build pass."]
+        },
+        {
+          "id": "WB-019",
+          "source_ids": ["Excel row 14", "80052"],
+          "title": "Remove confusing traveler profile readiness widget from /account",
+          "status": "DONE_BY_CODE_NEEDS_AUTH_VISUAL_RECHECK",
+          "how_done": "Account page no longer renders the old traveler profile readiness block for the main account page; old helper remains in code for other profile completion contexts/tests.",
+          "remaining": "Authenticated /account visual check needs working QA login."
+        },
+        {
+          "id": "WB-020",
+          "source_ids": ["Excel rows 11-12"],
+          "title": "Second blinking cursor outside field",
+          "status": "NEEDS_MANUAL_RECHECK",
+          "why_not_done": "No deterministic code proof or live visual proof found. Could be browser/OS/input artifact.",
+          "required_to_close": ["Reproduce in same browser/device", "Capture before/after screenshot or mark not reproducible with evidence."]
+        },
+        {
+          "id": "WB-021",
+          "source_ids": ["80070-80074", "Excel row 19"],
+          "title": "Clarify purpose/path of /account page",
+          "status": "OWNER_UX_DECISION_REQUIRED",
+          "why_not_done": "This is a product/navigation explanation issue, not purely a bug.",
+          "required_to_close": ["Decide whether /account stays and where it is linked from", "Update copy/nav accordingly."]
+        },
+        {
+          "id": "WB-022",
+          "source_ids": ["Excel row 20"],
+          "title": "Logout must not redirect to localhost",
+          "status": "DONE_BY_CODE_TESTS_NEEDS_LIVE_AUTH_RECHECK",
+          "how_done": "Signout route safe redirect was fixed and tested in PR #250.",
+          "evidence": ["src/app/api/auth/signout/route.test.ts", "unit tests pass."],
+          "remaining": "Authenticated live logout check after QA login works."
+        },
+        {
+          "id": "WB-023",
+          "source_ids": ["Excel Sheet5"],
+          "title": "Account page tautology / duplicate headings",
+          "status": "DONE_BY_CODE_NEEDS_AUTH_VISUAL_RECHECK",
+          "how_done": "Account page copy was simplified in PR #250.",
+          "remaining": "Authenticated live check after QA login works."
+        },
+        {
+          "id": "WB-024",
+          "source_ids": ["Excel Sheet3"],
+          "title": "Avatar menu confusing items and duplicate notifications",
+          "status": "DONE_BY_CODE_TESTS",
+          "how_done": "Navigation tests ensure notification/trips duplication is removed from account drawer/menu surfaces.",
+          "evidence": ["src/lib/navigation.test.ts", "src/components/shared/site-header.test.tsx", "test suite passes."],
+          "remaining": "Visual menu recheck optional after login works."
+        },
+        {
+          "id": "WB-025",
+          "source_ids": ["Excel Sheet9"],
+          "title": "Request detail breadcrumb 'Поездки > Россия > Москва' confusing/not clickable",
+          "status": "PARTIAL",
+          "how_done": "Breadcrumb/action behavior was changed/reported as clickable.",
+          "why_partial": "The wording/meaning of 'Поездки' may still need UX owner approval.",
+          "required_to_close": ["Owner decides label", "Live request-detail visual recheck with sample request."]
+        },
+        {
+          "id": "WB-026",
+          "source_ids": ["80065"],
+          "title": "Full booking/payment scenario",
+          "status": "PENDING_LATER",
+          "why_not_done": "MVP finish report explicitly says booking/payment happy path was implemented but not exercised end-to-end.",
+          "required_to_close": ["Create safe test guide/listing/request", "Approve or use demo-safe flow", "Accept offer", "Create booking/payment agreement", "Verify traveler and guide surfaces."]
+        }
+      ]
+    },
+    {
+      "group": "Admin and data cleanup",
+      "status": "MOSTLY_DONE",
+      "issues": [
+        {
+          "id": "WB-027",
+          "source_ids": ["Excel Sheet10", "80007", "80052", "80065"],
+          "title": "Admin /admin/guides must not crash",
+          "status": "DONE_BY_CODE_TESTS_ROUTE_HEALTH",
+          "how_done": "Admin guides queue was hardened; route is protected and redirects to auth when unauthenticated, not public-crashing.",
+          "evidence": ["/admin/guides redirects to /auth?next=%2Fadmin%2Fguides", "admin page tests pass."],
+          "remaining": "Authenticated page-body verification requires working QA admin login."
+        },
+        {
+          "id": "WB-028",
+          "source_ids": ["80165", "admin-users work"],
+          "title": "Admin must see/manage all users/guides, not only review queue",
+          "status": "DONE_MERGED_DEPLOYED_ROUTE_PRESENT",
+          "how_done": "Admin users console was merged in PR #250 and included in current deployed build.",
+          "evidence": ["Build route table includes /admin/users and /admin/users/[id]", "/admin/users redirects to auth when unauthenticated", "PR #250 merged into main."],
+          "remaining": "Authenticated admin UI visual proof requires working QA login."
+        },
+        {
+          "id": "WB-029",
+          "source_ids": ["80063", "80118", "80121"],
+          "title": "Admin deletion/blocking/suspend/archive tool",
+          "status": "DONE_BY_CODE_DOCUMENTED_SAFE",
+          "how_done": "Admin account actions include suspend/archive/role change; hard delete is demo-only and guarded.",
+          "evidence": ["docs/qa/wildberries-pending-2026-07-02/product-decisions.md", "src/app/(protected)/admin/users actions/components in current main."],
+          "remaining": "Authenticated visual check after QA login works."
+        },
+        {
+          "id": "WB-030",
+          "source_ids": ["80077-80167"],
+          "title": "Clean demo/test requests and accounts",
+          "status": "DONE_VERIFIED_DB_EMPTY",
+          "how_done": "DB reset/cleanup left no traveler requests/bookings in live DB at audit time.",
+          "evidence": ["traveler_requests_count = 0", "bookings_count = 0."],
+          "note": "A clean DB means some visual/content checks need new seeded demo data before they can be verified."
+        },
+        {
+          "id": "WB-031",
+          "source_ids": ["80149-80167"],
+          "title": "Define own/service accounts and QA credentials policy",
+          "status": "NEEDS_POLICY",
+          "why_not_done": "QA seed logins failed during this audit, so the current credential/account policy is not operationally clear.",
+          "required_to_close": ["Create documented QA/admin/traveler/guide seed account policy", "Verify login succeeds without exposing passwords in repo/state." ]
+        }
+      ]
+    },
+    {
+      "group": "Legal, catalog data, feature policy, and infra",
+      "status": "PARTIAL",
+      "issues": [
+        {
+          "id": "WB-032",
+          "source_ids": ["79865", "79866", "79867", "79868"],
+          "title": "Tripster-style offer / liability allocation",
+          "status": "NOT_DONE_CURRENT_MAIN_LIVE",
+          "why_not_done": "Current live /policies/offer returns 404 and current main build route table does not include /policies/offer. Earlier reports described a draft route on a branch, but it is not present in the deployed main audited now.",
+          "required_to_close": ["Restore/add /policies/offer route", "Mark clearly as legal draft if not lawyer-approved", "Add footer/sitemap link if approved", "Verify live 200/body text." ]
+        },
+        {
+          "id": "WB-033",
+          "source_ids": ["80052", "report"],
+          "title": "Soften absolute accredited-guide claim",
+          "status": "DONE_VERIFIED_LIVE_TEXT",
+          "how_done": "Homepage wording is softer and no longer says the platform works only with accredited guides as an absolute universal claim.",
+          "evidence": ["Live homepage text scan found accreditation wording but not the absolute 'работает только с аккредитованными' phrase."]
+        },
+        {
+          "id": "WB-034",
+          "source_ids": ["Excel row 15"],
+          "title": "Public /guides catalog should load/display guides",
+          "status": "PARTIAL_ROUTE_OK_DATA_EMPTY",
+          "how_done": "Route no longer hard-crashes and search_guides RPC executes.",
+          "why_partial": "Live DB currently has 0 approved guides and search_guides_count = 0, so this audit cannot prove guide cards render with real data.",
+          "required_to_close": ["Seed or approve at least one guide", "Verify /guides displays card(s) on live." ]
+        },
+        {
+          "id": "WB-035",
+          "source_ids": ["Excel row 17"],
+          "title": "Contact visibility as guide feature",
+          "status": "OWNER_DECISION_REQUIRED",
+          "why_not_done": "Documented as Badma/product feature decision, not a bug. The route exists but is protected.",
+          "required_to_close": ["Badma decides keep/gate/remove", "If hidden, make it inaccessible per global hidden rule." ]
+        },
+        {
+          "id": "WB-036",
+          "source_ids": ["79752-79848", "80052"],
+          "title": "vps6.provodnik.app does not work / choose canonical test URL",
+          "status": "INFO_CLOSED",
+          "how_done": "Canonical tester URL is vps.provodnik.app. vps6 is not treated as target.",
+          "evidence": ["Live vps.provodnik.app verified 200." ]
+        },
+        {
+          "id": "WB-037",
+          "source_ids": ["80053-80054"],
+          "title": "Manual verification after fixes",
+          "status": "PENDING_MANUAL",
+          "why_not_done": "Automated and report evidence exists, but final Alex/Badma human sign-off was not found in the source set.",
+          "required_to_close": ["Run a guided manual checklist against live VPS", "Record sign-off or remaining comments in this state file." ]
+        }
+      ]
+    }
+  ],
+  "next_actions_ordered": [
+    {
+      "priority": 1,
+      "action": "Fix hidden public surfaces",
+      "details": "Fully remove/invalidate public Directions/Excursions surfaces: no nav links and direct URLs inaccessible for every user unless re-approved. This is currently the strongest gap because the user clarified hidden means fully hidden/inaccessible."
+    },
+    {
+      "priority": 2,
+      "action": "Restore/add legal offer route or mark it explicitly out of scope",
+      "details": "/policies/offer is 404 on current live main despite prior reports saying a draft existed."
+    },
+    {
+      "priority": 3,
+      "action": "Restore QA seed login policy",
+      "details": "QA admin/traveler/guide login attempts failed during audit, blocking authenticated visual proof."
+    },
+    {
+      "priority": 4,
+      "action": "Re-seed/approve a guide for /guides display proof",
+      "details": "Route/RPC are healthy but live DB has zero approved guides, so guide-card rendering is unproven."
+    },
+    {
+      "priority": 5,
+      "action": "Manual live QA checklist",
+      "details": "Check document status wording, stray cursor, account page UX, admin user console, logout redirect, and full booking/payment path after QA accounts work."
+    }
+  ],
+  "do_not_recheck_group_unless": [
+    "A new Excel/message/screenshot arrives after 2026-07-02.",
+    "A state.json item lacks source/evidence and cannot be answered from repo/live checks.",
+    "Owner asks for historical phrasing or exact screenshot context not captured here."
+  ]
+}
