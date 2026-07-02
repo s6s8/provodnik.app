@@ -31,6 +31,8 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import {
+  approveGuideAction,
+  bulkAction,
   hardDeleteDemoUserAction,
   setAccountStatusAction,
   setUserRoleAction,
@@ -43,11 +45,33 @@ function makeAdminClient() {
   const deleteUser = vi.fn().mockResolvedValue({ error: null });
   const updateUserById = vi.fn().mockResolvedValue({ error: null });
   const updateEq = vi.fn().mockResolvedValue({ error: null });
-  const from = vi.fn(() => ({ update: vi.fn(() => ({ eq: updateEq })) }));
+  const profileUpdate = vi.fn(() => ({ eq: updateEq }));
+  const guideUpdateEq = vi.fn().mockResolvedValue({ error: null });
+  const guideUpdate = vi.fn(() => ({ eq: guideUpdateEq }));
+  const guideUpsert = vi.fn().mockResolvedValue({ error: null });
+  const guideMaybeSingle = vi.fn().mockResolvedValue({
+    data: { user_id: TARGET_ID, verification_status: "submitted" },
+    error: null,
+  });
+  const guideSelectEq = vi.fn(() => ({ maybeSingle: guideMaybeSingle }));
+  const guideSelect = vi.fn(() => ({ eq: guideSelectEq }));
+  const from = vi.fn((table: string) => {
+    if (table === "guide_profiles") {
+      return { update: guideUpdate, upsert: guideUpsert, select: guideSelect };
+    }
+    return { update: profileUpdate };
+  });
   return {
     client: { auth: { admin: { deleteUser, updateUserById } }, from },
     deleteUser,
     updateUserById,
+    updateEq,
+    profileUpdate,
+    guideUpdate,
+    guideUpdateEq,
+    guideUpsert,
+    guideMaybeSingle,
+    from,
   };
 }
 
@@ -158,5 +182,116 @@ describe("setUserRoleAction", () => {
 
     expect(result.ok).toBe(false);
     expect(updateUserById).not.toHaveBeenCalled();
+  });
+
+  it("creates an inactive draft guide profile when promoting a traveler to guide", async () => {
+    const { client, guideUpsert } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "demo@example.com",
+      role: "traveler",
+      accountStatus: "active",
+    });
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "guide", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(guideUpsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        user_id: TARGET_ID,
+        verification_status: "draft",
+        is_available: false,
+      }),
+      { onConflict: "user_id" },
+    );
+  });
+
+  it("removes public availability when demoting a guide", async () => {
+    const { client, guideUpdate, guideUpdateEq } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "guide@example.com",
+      role: "guide",
+      accountStatus: "active",
+    });
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "traveler", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(guideUpdate).toHaveBeenCalledWith({ is_available: false });
+    expect(guideUpdateEq).toHaveBeenCalledWith("user_id", TARGET_ID);
+  });
+
+  it("rolls back auth and profile role if guide side-effect sync fails", async () => {
+    const { client, guideUpsert, updateUserById, profileUpdate } = makeAdminClient();
+    guideUpsert.mockResolvedValueOnce({ error: { message: "boom" } });
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "demo@example.com",
+      role: "traveler",
+      accountStatus: "active",
+    });
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "guide", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(updateUserById).toHaveBeenLastCalledWith(TARGET_ID, {
+      app_metadata: { role: "traveler" },
+    });
+    expect(profileUpdate).toHaveBeenLastCalledWith({ role: "traveler" });
+  });
+});
+
+describe("guide verification actions from admin users", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does not approve a suspended guide even if the button/action is invoked", async () => {
+    const { client } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "guide@example.com",
+      role: "guide",
+      accountStatus: "suspended",
+    });
+
+    const result = await approveGuideAction(TARGET_ID, null);
+
+    expect(result.ok).toBe(false);
+    expect(mocks.ensureOpenModerationCase).not.toHaveBeenCalled();
+    expect(mocks.performModerationAction).not.toHaveBeenCalled();
+  });
+
+  it("does not report bulk approve as applied when the guide profile is missing", async () => {
+    const { client, guideMaybeSingle } = makeAdminClient();
+    guideMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "guide@example.com",
+      role: "guide",
+      accountStatus: "active",
+    });
+
+    const result = await bulkAction(null, form({ action: "approve", userIds: TARGET_ID }));
+
+    expect(result.applied).toBe(0);
+    expect(result.skipped).toBe(1);
+    expect(mocks.ensureOpenModerationCase).not.toHaveBeenCalled();
   });
 });

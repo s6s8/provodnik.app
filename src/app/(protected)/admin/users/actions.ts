@@ -36,6 +36,62 @@ function ok(message: string): AdminActionResult {
   return { ok: true, message };
 }
 
+type AdminClient = Awaited<ReturnType<typeof requireAdminSession>>["adminClient"];
+
+async function syncRoleSideEffects(input: {
+  adminClient: AdminClient;
+  targetId: string;
+  targetEmail: string | null;
+  currentRole: string;
+  nextRole: string;
+}) {
+  if (input.nextRole === "guide") {
+    const fallbackName = input.targetEmail?.split("@")[0]?.trim() || "Гид";
+    const { error } = await input.adminClient.from("guide_profiles").upsert(
+      {
+        user_id: input.targetId,
+        display_name: fallbackName,
+        verification_status: "draft",
+        is_available: false,
+      },
+      { onConflict: "user_id" },
+    );
+    if (error) throw error;
+    return;
+  }
+
+  if (input.currentRole === "guide") {
+    const { error } = await input.adminClient
+      .from("guide_profiles")
+      .update({ is_available: false })
+      .eq("user_id", input.targetId);
+    if (error) throw error;
+  }
+}
+
+async function getGuideActionTarget(adminClient: AdminClient, guideId: string) {
+  const target = await getTargetForGuards(adminClient, guideId);
+  if (!target) return { ok: false as const, reason: "Пользователь не найден." };
+  if (target.role !== "guide") {
+    return { ok: false as const, reason: "Действие доступно только для аккаунта гида." };
+  }
+  if (target.accountStatus !== "active") {
+    return { ok: false as const, reason: "Нельзя проверять анкету заблокированного или архивного аккаунта." };
+  }
+
+  const { data: guideProfile, error } = await adminClient
+    .from("guide_profiles")
+    .select("user_id, verification_status")
+    .eq("user_id", guideId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!guideProfile) {
+    return { ok: false as const, reason: "У пользователя нет анкеты гида." };
+  }
+
+  return { ok: true as const, target, guideProfile };
+}
+
 function revalidateUsers(userId?: string) {
   revalidatePath("/admin/users");
   if (userId) revalidatePath(`/admin/users/${userId}`);
@@ -156,6 +212,24 @@ export async function setUserRoleAction(
       return fail("Не удалось обновить роль в профиле. Изменение отменено.");
     }
 
+    try {
+      await syncRoleSideEffects({
+        adminClient,
+        targetId: target.id,
+        targetEmail: target.email,
+        currentRole: target.role,
+        nextRole: parsed.data.role,
+      });
+    } catch {
+      await Promise.allSettled([
+        adminClient.auth.admin.updateUserById(target.id, {
+          app_metadata: { role: target.role },
+        }),
+        adminClient.from("profiles").update({ role: target.role }).eq("id", target.id),
+      ]);
+      return fail("Не удалось синхронизировать данные роли. Изменение отменено.");
+    }
+
     await logAdminAudit({
       actorId: adminId,
       action: "role.change",
@@ -225,7 +299,10 @@ export async function approveGuideAction(
   _prev: AdminActionResult | null,
 ): Promise<AdminActionResult> {
   try {
-    const { adminId } = await requireAdminSession();
+    const { adminId, adminClient } = await requireAdminSession();
+    const target = await getGuideActionTarget(adminClient, guideId);
+    if (!target.ok) return fail(target.reason);
+
     const moderationCase = await ensureOpenModerationCase({
       subjectType: "guide_profile",
       guideId,
@@ -247,7 +324,10 @@ export async function rejectGuideAction(
 ): Promise<AdminActionResult> {
   const note = typeof formData.get("reason") === "string" ? scrubAdminReason((formData.get("reason") as string).trim()) : "";
   try {
-    const { adminId } = await requireAdminSession();
+    const { adminId, adminClient } = await requireAdminSession();
+    const target = await getGuideActionTarget(adminClient, guideId);
+    if (!target.ok) return fail(target.reason);
+
     const moderationCase = await ensureOpenModerationCase({
       subjectType: "guide_profile",
       guideId,
@@ -310,7 +390,12 @@ export async function bulkAction(
       }
 
       if (action === "approve") {
-        if (target.role !== "guide") {
+        const guideTarget = await getGuideActionTarget(adminClient, userId);
+        if (!guideTarget.ok) {
+          skipped += 1;
+          continue;
+        }
+        if (guideTarget.guideProfile.verification_status === "approved") {
           skipped += 1;
           continue;
         }
