@@ -31,6 +31,7 @@ function makeAuthContext(overrides: Partial<AuthContext>): AuthContext {
     isAuthenticated: true,
     source: "supabase",
     role: "guide",
+    accountStatus: "active",
     email: "guide@example.com",
     fullName: null,
     avatarUrl: null,
@@ -82,6 +83,40 @@ describe("protected role layouts", () => {
     ).rejects.toThrow("NEXT_REDIRECT:/auth?error=missing-role");
 
     expect(redirectMock).toHaveBeenCalledWith("/auth?error=missing-role");
+    expect(screen.queryByText("Trips workspace")).not.toBeInTheDocument();
+  });
+
+  it("redirects suspended guide sessions without rendering children", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce(
+      makeAuthContext({ accountStatus: "suspended" }),
+    );
+
+    await expect(
+      GuideLayout({
+        children: <div>Guide workspace</div>,
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/auth?error=account-suspended");
+
+    expect(redirectMock).toHaveBeenCalledWith("/auth?error=account-suspended");
+    expect(screen.queryByText("Guide workspace")).not.toBeInTheDocument();
+  });
+
+  it("redirects archived traveler sessions without rendering children", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce(
+      makeAuthContext({
+        role: "traveler",
+        accountStatus: "archived",
+        canonicalRedirectTo: "/trips",
+      }),
+    );
+
+    await expect(
+      TripsLayout({
+        children: <div>Trips workspace</div>,
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/auth?error=account-suspended");
+
+    expect(redirectMock).toHaveBeenCalledWith("/auth?error=account-suspended");
     expect(screen.queryByText("Trips workspace")).not.toBeInTheDocument();
   });
 

@@ -17,6 +17,10 @@ export default async function GuideLayout({
     redirect("/auth?next=/guide/inbox");
   }
 
+  if (auth.accountStatus && auth.accountStatus !== "active") {
+    redirect("/auth?error=account-suspended");
+  }
+
   if (!auth.role) {
     redirect(auth.missingRoleRecoveryTo ?? "/auth?error=missing-role");
   }

@@ -15,6 +15,10 @@ export default async function TripsLayout({
     redirect("/auth?next=/trips");
   }
 
+  if (auth.accountStatus && auth.accountStatus !== "active") {
+    redirect("/auth?error=account-suspended");
+  }
+
   if (!auth.role) {
     redirect(auth.missingRoleRecoveryTo ?? "/auth?error=missing-role");
   }

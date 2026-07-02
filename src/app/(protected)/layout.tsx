@@ -1,12 +1,20 @@
 import { Suspense, type ReactNode } from "react";
+import { redirect } from "next/navigation";
 
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
+import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 
 export default async function ProtectedLayout({
   children,
 }: {
   children: ReactNode;
 }) {
+  const auth = await readAuthContextFromServer();
+
+  if (auth.isAuthenticated && auth.accountStatus && auth.accountStatus !== "active") {
+    redirect("/auth?error=account-suspended");
+  }
+
   return (
     <div className="min-h-screen pt-[88px]">
       <SiteHeaderServer />
