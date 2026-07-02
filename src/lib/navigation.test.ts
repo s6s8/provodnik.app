@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   adminAccountMenu,
+  adminHeaderNav,
   adminPrimaryNav,
   filterNavItemsByHiddenHrefs,
   footerNav,
@@ -10,6 +11,7 @@ import {
   hiddenNavHrefsForFlags,
   mobileBottomNavByRole,
   NAV_FLAG_BY_HREF,
+  publicPrimaryNav,
   travelerAccountMenu,
   travelerPrimaryNav,
 } from "@/lib/navigation";
@@ -118,18 +120,43 @@ describe("role-based nav groups", () => {
   });
 
   it("keeps the traveler primary nav focused on marketplace + trips", () => {
+    // The public catalog surfaces (/listings «Экскурсии», /destinations
+    // «Направления») are hidden per the Wildberries review, so discovery flows
+    // through requests + guides instead.
     expect(travelerPrimaryNav.map((item) => item.href)).toEqual([
       "/requests",
-      "/listings",
-      "/destinations",
+      "/guides",
       "/trips",
     ]);
     expect(travelerPrimaryNav.map((item) => item.label)).toEqual([
       "Запросы",
-      "Экскурсии",
-      "Направления",
+      "Гиды",
       "Мои поездки",
     ]);
+  });
+
+  it("hides the public catalog surfaces from every non-workspace nav", () => {
+    // Wildberries review: «Экскурсии» (/listings) and «Направления»
+    // (/destinations) must not surface in public/traveler/admin-header nav —
+    // no href and no label. Guide/admin *workspace* listing management keeps its
+    // own internal «Экскурсии»/«Листинги» labels and is intentionally excluded.
+    const HIDDEN_HREFS = ["/listings", "/destinations"];
+    const HIDDEN_LABELS = ["Экскурсии", "Направления"];
+
+    for (const nav of [publicPrimaryNav, travelerPrimaryNav, adminHeaderNav]) {
+      const hrefs = nav.map((item) => item.href);
+      const labels = nav.map((item) => item.label);
+      for (const href of HIDDEN_HREFS) expect(hrefs).not.toContain(href);
+      for (const label of HIDDEN_LABELS) expect(labels).not.toContain(label);
+    }
+
+    // Footer legal/support/about groups must not link the hidden catalog either.
+    const footerHrefs = [
+      ...footerNav.about,
+      ...footerNav.support,
+      ...footerNav.legal,
+    ].map((item) => item.href);
+    for (const href of HIDDEN_HREFS) expect(footerHrefs).not.toContain(href);
   });
 
   it("uses the simplified guide workspace labels", () => {

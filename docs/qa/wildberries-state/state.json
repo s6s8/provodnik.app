@@ -45,16 +45,21 @@
     "owner_decisions": "Product/legal/manual-QA items are not complete until Badma/Alex/legal owner gives a decision. They can be documented but not marked fixed."
   },
   "status_counts": {
-    "done_verified_live_or_db": 23,
-    "done_by_code_or_report_needs_auth_manual_recheck": 4,
-    "not_done_or_partial": 5,
+    "done_verified_live_or_db": 22,
+    "done_by_code_or_report_needs_auth_manual_recheck": 7,
+    "not_done_or_partial": 3,
     "owner_or_legal_decision": 4,
     "info_closed": 1
+  },
+  "pending_branch": {
+    "branch": "wildberries-fix-all-20260702",
+    "note": "Local branch (not pushed) that hides the public catalog behind FEATURE_PUBLIC_CATALOG, removes the homepage fine print, adds the /policies/offer draft, and keeps the guide-auth home link visible on all viewports. WB-001/002/010/017/032 are DONE_BY_CODE and require live VPS re-verification after deploy.",
+    "flag": "FEATURE_PUBLIC_CATALOG must stay unset (off) in prod for the catalog to remain hidden."
   },
   "issue_groups": [
     {
       "group": "Hidden public sections and routes",
-      "status": "NOT_DONE",
+      "status": "DONE_BY_CODE_NEEDS_LIVE_DEPLOY_VERIFICATION",
       "owner": "engineering/product",
       "rule": "Anything hidden must be fully hidden and URL-inaccessible to all users.",
       "issues": [
@@ -62,24 +67,33 @@
           "id": "WB-001",
           "source_ids": ["79806#1", "79816", "80049"],
           "title": "Hide public sections 'Направления' and 'Экскурсии' completely",
-          "status": "NOT_DONE",
-          "current_evidence": [
-            "Live homepage returns 200 but still contains navigation text for Экскурсии / Направления in the header/body extraction.",
-            "Public /destinations and /listings routes exist in the build and should be treated as accessible until disabled/removed.",
-            "Prior audit only proved homepage section hiding, not full URL inaccessibility."
+          "status": "DONE_BY_CODE_NEEDS_LIVE_DEPLOY_VERIFICATION",
+          "how_done": "Added a FEATURE_PUBLIC_CATALOG flag (default off). Removed «Экскурсии»/«Направления» from public/traveler/admin-header nav and the homepage popular-destinations section; repointed the public marketing CTAs (/for-business, /how-it-works, /trust) to /guides. Gated /destinations, /destinations/[slug], /listings, /listings/[id] and the protected /listings/[id]/book path with notFound() when the flag is off. Sitemap no longer emits /destinations* or /listings* when the flag is off.",
+          "evidence": [
+            "src/lib/flags.ts adds FEATURE_PUBLIC_CATALOG (off unless env = '1').",
+            "src/lib/navigation.ts publicPrimaryNav/travelerPrimaryNav/adminHeaderNav drop /listings + /destinations.",
+            "notFound() guards in src/app/(site)/destinations/page.tsx, destinations/[slug]/page.tsx, listings/page.tsx, listings/[id]/page.tsx, and (protected)/listings/[id]/book/page.tsx.",
+            "Tests: src/lib/navigation.test.ts (hidden catalog assertions), src/app/(site)/listings/page.test.tsx, src/app/(site)/destinations/page.test.tsx, (protected)/listings/[id]/book/page.test.tsx prove notFound when hidden.",
+            "src/app/sitemap.ts skips catalog URLs when the flag is off."
           ],
           "required_to_close": [
-            "Remove all nav/menu/footer links to hidden sections.",
-            "Make direct URLs inaccessible: /destinations, /destinations/[slug], /listings, /listings/[id], /listings/[id]/book, or any equivalent excursion/direction route must return 404/redirect to allowed page for every user unless explicitly re-approved.",
-            "Add route or navigation tests proving hidden routes are not public.",
-            "Verify live VPS by HTTP/body after deployment."
+            "Deploy branch wildberries-fix-all-20260702 to live VPS with FEATURE_PUBLIC_CATALOG unset.",
+            "Verify live VPS by HTTP/body: nav has no Экскурсии/Направления, and /destinations + /listings return 404."
           ],
-          "files_likely_involved": [
+          "files_involved": [
+            "src/lib/flags.ts",
             "src/lib/navigation.ts",
-            "src/components/shared/site-header.tsx",
-            "src/components/shared/site-footer.tsx",
-            "src/app/(site)/destinations/*",
-            "src/app/(site)/listings/*"
+            "src/app/(home)/page.tsx",
+            "src/features/homepage-classic/components/homepage-shell2-classic.tsx",
+            "src/app/(site)/destinations/page.tsx",
+            "src/app/(site)/destinations/[slug]/page.tsx",
+            "src/app/(site)/listings/page.tsx",
+            "src/app/(site)/listings/[id]/page.tsx",
+            "src/app/(protected)/listings/[id]/book/page.tsx",
+            "src/app/(site)/for-business/page.tsx",
+            "src/app/(site)/how-it-works/page.tsx",
+            "src/app/(site)/trust/page.tsx",
+            "src/app/sitemap.ts"
           ]
         }
       ]
@@ -92,9 +106,10 @@
           "id": "WB-002",
           "source_ids": ["79806#2", "80052"],
           "title": "Remove fine print under homepage request form",
-          "status": "DONE_REPORTED_NEEDS_VISUAL_RECHECK_AFTER_HIDE_FIX",
-          "how_done": "Homepage copy was changed in prior Wildberries batches; current source/build no longer depends on that old small print as a required line.",
-          "required_to_close": ["Recheck visually after the hidden-route cleanup because the homepage/nav still needs work."]
+          "status": "DONE_BY_CODE_NEEDS_LIVE_DEPLOY_VERIFICATION",
+          "how_done": "Removed the «Бесплатно · без регистрации · гиды обычно отвечают в течение дня» paragraph from the active hero form (src/features/homepage-classic/components/homepage-hero-form-classic.tsx).",
+          "evidence": ["Diff drops the fine-print <p> from homepage-hero-form-classic.tsx; homepage-shell2-classic is the active home shell used by src/app/(home)/page.tsx."],
+          "required_to_close": ["Deploy and visually confirm the fine print is gone on live /."]
         },
         {
           "id": "WB-003",
@@ -160,10 +175,10 @@
           "id": "WB-010",
           "source_ids": ["Excel row 21"],
           "title": "Guide registration form needs explicit Back/Home navigation",
-          "status": "DONE_VERIFIED_LIVE",
-          "how_done": "Current /auth?role=guide shows 'На главную'.",
-          "evidence": ["Current source src/app/(auth)/auth/page.tsx has На главную", "Live text scan found guide form, but earlier probe against stale worktree missed it; current main has it."],
-          "required_to_close": ["Optional: visual screenshot from live after hidden-route cleanup."]
+          "status": "DONE_BY_CODE_NEEDS_LIVE_DEPLOY_VERIFICATION",
+          "how_done": "The «На главную» back link in src/app/(auth)/auth/page.tsx no longer carries lg:hidden, so it is visible on desktop as well as mobile (previously desktop only showed the «Provodnik» aside link). Guide-type options are untouched.",
+          "evidence": ["src/app/(auth)/auth/page.tsx: absolute «На главную» Link has no lg:hidden class.", "WB-007 confirms the three guide-type options remain on /auth?role=guide."],
+          "required_to_close": ["Deploy and confirm «На главную» is visible on /auth?role=guide at 1280px and 375px."]
         }
       ]
     },
@@ -231,9 +246,10 @@
           "id": "WB-017",
           "source_ids": ["79968", "79969", "80045", "80065"],
           "title": "Calendar selectable for anonymous and logged-in traveler",
-          "status": "DONE_BY_REPORT_TESTS",
-          "how_done": "Calendar/date picker fixes were shipped and tested; MVP finish report verified logged-in traveler request submission.",
-          "remaining": "Manual recheck recommended after any hidden-route/nav changes."
+          "status": "DONE_BY_CODE_NEEDS_LIVE_DEPLOY_VERIFICATION",
+          "how_done": "The homepage DateField trigger already renders the picked date via toLocaleDateString('ru-RU') and only falls back to the «Когда» placeholder when empty (src/features/homepage-classic/components/homepage-request-form-classic.tsx). Added a focused unit test proving the trigger shows the formatted Russian date after a value is set and «Когда» only when empty.",
+          "evidence": ["src/features/homepage-classic/components/homepage-request-form-classic.date.test.tsx covers placeholder vs formatted-date display (#9)."],
+          "remaining": "Deploy and confirm on live that selecting a date replaces «Когда» with the formatted date."
         },
         {
           "id": "WB-018",
@@ -370,9 +386,10 @@
           "id": "WB-032",
           "source_ids": ["79865", "79866", "79867", "79868"],
           "title": "Tripster-style offer / liability allocation",
-          "status": "NOT_DONE_CURRENT_MAIN_LIVE",
-          "why_not_done": "Current live /policies/offer returns 404 and current main build route table does not include /policies/offer. Earlier reports described a draft route on a branch, but it is not present in the deployed main audited now.",
-          "required_to_close": ["Restore/add /policies/offer route", "Mark clearly as legal draft if not lawyer-approved", "Add footer/sitemap link if approved", "Verify live 200/body text." ]
+          "status": "DONE_BY_CODE_NEEDS_LIVE_DEPLOY_VERIFICATION",
+          "how_done": "Added src/app/(site)/policies/offer/page.tsx in the existing legal-page style (PageHeader + section nav + Cards). Draft Russian sections cover platform role (marketplace/tech intermediary, not tour operator), direct guide↔traveler contract, guide responsibility, traveler responsibility, payments/refunds, disputes, limitation of liability, data/privacy references, and a status/lawyer-review notice. A prominent «Черновик — требуется финальная юридическая проверка» alert marks it as a draft, and a «Публичная оферта» link was added to the footer legal group.",
+          "evidence": ["src/app/(site)/policies/offer/page.tsx", "src/lib/navigation.ts footerNav.legal includes /policies/offer."],
+          "required_to_close": ["Deploy and verify live /policies/offer returns 200 with the draft marketplace/liability text.", "Final lawyer review before the offer becomes binding / before payments launch."]
         },
         {
           "id": "WB-033",
@@ -421,13 +438,13 @@
   "next_actions_ordered": [
     {
       "priority": 1,
-      "action": "Fix hidden public surfaces",
-      "details": "Fully remove/invalidate public Directions/Excursions surfaces: no nav links and direct URLs inaccessible for every user unless re-approved. This is currently the strongest gap because the user clarified hidden means fully hidden/inaccessible."
+      "action": "Deploy + live-verify hidden public surfaces",
+      "details": "Code-complete on branch wildberries-fix-all-20260702 behind FEATURE_PUBLIC_CATALOG (default off): nav links removed and /destinations + /listings (+ book path) return 404. Deploy with the flag unset and confirm on live VPS by HTTP/body."
     },
     {
       "priority": 2,
-      "action": "Restore/add legal offer route or mark it explicitly out of scope",
-      "details": "/policies/offer is 404 on current live main despite prior reports saying a draft existed."
+      "action": "Deploy + live-verify legal offer route",
+      "details": "/policies/offer draft added on the same branch in the existing legal style with a lawyer-review notice and footer link. Deploy and confirm live 200/body, then route for final lawyer review."
     },
     {
       "priority": 3,

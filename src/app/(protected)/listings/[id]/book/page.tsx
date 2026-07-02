@@ -8,6 +8,7 @@ import { MoneyBreakdown } from "@/components/trust/money-breakdown";
 import { Card, CardContent } from "@/components/ui/card";
 import { kopecksToRub } from "@/data/money";
 import { BookingFormTabs } from "@/features/bookings/components/BookingFormTabs";
+import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -26,6 +27,10 @@ export default async function BookingPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // The public excursions catalog is hidden (Wildberries review); the catalog
+  // booking path is unreachable and returns 404 unless re-approved.
+  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+
   const { id } = await params;
   const supabase = await createSupabaseServerClient();
   const {

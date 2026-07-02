@@ -40,6 +40,9 @@ export default async function ListingDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  // Public excursions catalog is hidden (Wildberries review) unless re-approved.
+  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+
   const { id: ref } = await params;
   const supabase = await createSupabaseServerClient();
 

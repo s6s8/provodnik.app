@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 
 import { mapDbCategoryToThemeSlug } from "@/data/public-listings/mapper";
 import type { PublicListing } from "@/data/public-listings/types";
 import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
+import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
@@ -50,6 +52,9 @@ export default async function PublicListingsPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  // Public excursions catalog is hidden (Wildberries review) unless re-approved.
+  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+
   let listings: PublicListing[] = [];
   let loadError = false;
 

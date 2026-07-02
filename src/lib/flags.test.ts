@@ -17,6 +17,7 @@ describe("flags registry", () => {
       "FEATURE_TR_QUIZ",
       "FEATURE_TR_DISPUTES",
       "FEATURE_DEPOSITS",
+      "FEATURE_PUBLIC_CATALOG",
     ];
     expect(subs).toEqual(Object.keys(flags));
     for (const k of subs) {

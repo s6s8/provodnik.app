@@ -81,7 +81,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
     <section className="relative flex min-h-screen items-stretch justify-center bg-surface px-[clamp(20px,4vw,48px)] py-16">
       <Link
         href="/"
-        className="absolute left-[clamp(20px,4vw,48px)] top-6 z-10 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground lg:hidden"
+        className="absolute left-[clamp(20px,4vw,48px)] top-6 z-10 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
         На главную

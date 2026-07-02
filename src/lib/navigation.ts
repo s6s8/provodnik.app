@@ -65,14 +65,21 @@ const adminBridge: NavItem = { ...ROUTES.adminDashboard, label: "Админка"
 // matching grouped export below so a role's nav is defined in exactly one place.
 // ---------------------------------------------------------------------------
 
-/** Anonymous / public marketplace discovery (max 5 items). */
+/**
+ * Anonymous / public marketplace discovery (max 5 items).
+ *
+ * The public «Экскурсии» (/listings) and «Направления» (/destinations) catalog
+ * surfaces are hidden per the Wildberries review: they carry no nav entry and
+ * their routes are inaccessible unless `FEATURE_PUBLIC_CATALOG` is re-enabled.
+ * Discovery flows through requests + guides instead.
+ */
 export const publicPrimaryNav = [
-  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.destinations, ROUTES.howItWorks,
+  ROUTES.requests, ROUTES.guides, ROUTES.howItWorks,
 ] as const;
 
-/** Traveler: marketplace + personal trips. */
+/** Traveler: marketplace discovery + personal trips (catalog surfaces hidden). */
 export const travelerPrimaryNav = [
-  ROUTES.requests, ROUTES.listings, ROUTES.destinations, ROUTES.trips,
+  ROUTES.requests, ROUTES.guides, ROUTES.trips,
 ] as const;
 
 /** Guide workspace (also drives the mobile bottom nav). */
@@ -93,7 +100,7 @@ export const adminPrimaryNav = [
  * sidebar at desktop widths.
  */
 export const adminHeaderNav = [
-  ROUTES.requests, ROUTES.guides, ROUTES.destinations, adminBridge,
+  ROUTES.requests, ROUTES.guides, adminBridge,
 ] as const;
 
 /** Visible top-header nav per authenticated role (anon handled separately). */
@@ -148,6 +155,7 @@ export const footerNav = {
             { href: "mailto:support@provodnik.app", label: "Email: support@provodnik.app", icon: MessageSquare } as NavItem],
   legal:   [
     { href: "/policies/terms",   label: "Условия использования", icon: ScrollText } as NavItem,
+    { href: "/policies/offer",   label: "Публичная оферта",      icon: ScrollText } as NavItem,
     { href: "/policies/privacy", label: "Конфиденциальность",    icon: ScrollText } as NavItem,
     { href: "/policies/cookies", label: "Cookies",               icon: ScrollText } as NavItem,
   ],

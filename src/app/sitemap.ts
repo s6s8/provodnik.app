@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { hasSupabaseAdminEnv } from "@/lib/env";
+import { flags } from "@/lib/flags";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 const BASE_URL = "https://provodnik.app";
@@ -25,11 +26,19 @@ function buildEntry(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  // The public excursions/destinations catalog is hidden per the Wildberries
+  // review; when it is off we must not advertise those routes in the sitemap.
+  const catalogPublic = flags.FEATURE_PUBLIC_CATALOG;
+
   const entries: MetadataRoute.Sitemap = [
     buildEntry("/", 1.0, "weekly"),
     buildEntry("/ai", 0.9, "weekly"),
-    buildEntry("/destinations", 0.9, "weekly"),
-    buildEntry("/listings", 0.9, "daily"),
+    ...(catalogPublic
+      ? [
+          buildEntry("/destinations", 0.9, "weekly"),
+          buildEntry("/listings", 0.9, "daily"),
+        ]
+      : []),
     buildEntry("/guides", 0.9, "weekly"),
     buildEntry("/requests", 0.8, "daily"),
     buildEntry("/trust", 0.5, "monthly"),
@@ -64,7 +73,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .eq("status", "open"),
       ]);
 
-    if (!destinationsResult.error) {
+    if (catalogPublic && !destinationsResult.error) {
       entries.push(
         ...(destinationsResult.data ?? []).map((destination) =>
           buildEntry(
@@ -77,7 +86,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       );
     }
 
-    if (!listingsResult.error) {
+    if (catalogPublic && !listingsResult.error) {
       entries.push(
         ...(listingsResult.data ?? []).map((listing) =>
           buildEntry(
