@@ -16,6 +16,9 @@ const flagsSchema = z.object({
   FEATURE_TR_QUIZ: envFlag,
   FEATURE_TR_DISPUTES: envFlag,
   FEATURE_DEPOSITS: envFlag,
+  // Public excursions/destinations catalog. Hidden per Wildberries review:
+  // /listings & /destinations are inaccessible (404) unless this is set to "1".
+  FEATURE_PUBLIC_CATALOG: envFlag,
 });
 
 const env = (k: string): string | undefined =>
@@ -35,6 +38,7 @@ const rawFlags = {
   FEATURE_TR_QUIZ: env("FEATURE_TR_QUIZ"),
   FEATURE_TR_DISPUTES: env("FEATURE_TR_DISPUTES"),
   FEATURE_DEPOSITS: env("FEATURE_DEPOSITS"),
+  FEATURE_PUBLIC_CATALOG: env("FEATURE_PUBLIC_CATALOG"),
 };
 
 const parsed = flagsSchema.parse(rawFlags);
@@ -53,6 +57,7 @@ export const flags = {
   FEATURE_TR_QUIZ: parsed.FEATURE_TR_QUIZ === "1",
   FEATURE_TR_DISPUTES: parsed.FEATURE_TR_DISPUTES === "1",
   FEATURE_DEPOSITS: parsed.FEATURE_DEPOSITS === "1",
+  FEATURE_PUBLIC_CATALOG: parsed.FEATURE_PUBLIC_CATALOG === "1",
 } as const;
 
 export type FlagName = keyof typeof flags;

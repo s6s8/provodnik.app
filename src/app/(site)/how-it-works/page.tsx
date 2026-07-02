@@ -87,7 +87,7 @@ export default function HowItWorksPage() {
         </div>
         <div className="mt-6">
           <Button asChild variant="outline" className="w-full sm:w-auto">
-            <Link href="/listings">Смотреть экскурсии</Link>
+            <Link href="/guides">Смотреть гидов</Link>
           </Button>
         </div>
       </InfoSection>

@@ -12,6 +12,7 @@ import {
 } from "@/data/supabase/queries";
 import { DestinationDetailScreen } from "@/features/destinations/components/destination-detail-screen";
 import type { DestinationSummary } from "@/data/destinations/types";
+import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { serializeJsonLd } from "@/lib/seo/json-ld";
 
@@ -60,6 +61,9 @@ export default async function DestinationDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  // Public destinations catalog is hidden (Wildberries review) unless re-approved.
+  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+
   const { slug } = await params;
 
   const { destinationResult, listings, guides, openRequestCount } =

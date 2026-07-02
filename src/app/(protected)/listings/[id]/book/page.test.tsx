@@ -1,16 +1,21 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClientMock, notFoundMock, redirectMock } = vi.hoisted(() => ({
+const { createSupabaseServerClientMock, notFoundMock, redirectMock, flagsMock } = vi.hoisted(() => ({
   createSupabaseServerClientMock: vi.fn(),
-  notFoundMock: vi.fn(),
+  notFoundMock: vi.fn(() => {
+    throw new Error("NEXT_NOT_FOUND");
+  }),
   redirectMock: vi.fn(),
+  flagsMock: { FEATURE_PUBLIC_CATALOG: true },
 }));
 
 vi.mock("next/navigation", () => ({
   notFound: notFoundMock,
   redirect: redirectMock,
 }));
+
+vi.mock("@/lib/flags", () => ({ flags: flagsMock }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
@@ -62,7 +67,21 @@ describe("BookingPage honest title + trust", () => {
   beforeEach(() => {
     createSupabaseServerClientMock.mockReset();
     notFoundMock.mockReset();
+    notFoundMock.mockImplementation(() => {
+      throw new Error("NEXT_NOT_FOUND");
+    });
     redirectMock.mockReset();
+    flagsMock.FEATURE_PUBLIC_CATALOG = true;
+  });
+
+  it("returns notFound when the public catalog is hidden", async () => {
+    flagsMock.FEATURE_PUBLIC_CATALOG = false;
+
+    await expect(
+      BookingPage({ params: Promise.resolve({ id: "listing-1" }) }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+    expect(notFoundMock).toHaveBeenCalled();
+    expect(createSupabaseServerClientMock).not.toHaveBeenCalled();
   });
 
   it("uses the honest «Подать заявку» metadata title, not «Оформление»", () => {
