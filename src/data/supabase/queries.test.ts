@@ -130,8 +130,8 @@ function createFakeClient(fixtures: FixtureMap = {}, errors: ErrorMap = {}): Fak
       calls.push(`from:${table}`);
       return new FakeQuery(calls, fixtures, errors, table);
     },
-    rpc(name: string) {
-      calls.push(`rpc:${name}`);
+    rpc(name: string, args?: unknown) {
+      calls.push(`rpc:${name}:${JSON.stringify(args ?? {})}`);
       const error = errors[`rpc:${name}`] ?? null;
       return Promise.resolve({ data: error ? null : (fixtures[`rpc:${name}`] ?? []), error });
     },
@@ -469,7 +469,7 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.data?.responseRate).toBeNull();
   });
 
-  it("layers real view stats and approved verification onto getGuidesByDestination", async () => {
+  it("includes approved guides in destination blocks even before they have listings", async () => {
     const client = createFakeClient({
       "rpc:search_guides": [
         {
@@ -490,6 +490,35 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.error).toBeNull();
     expect(result.data?.[0]?.rating).toBe(4.9);
     expect(result.data?.[0]?.verified).toBe(true);
+    expect(client.calls).toContain(
+      'rpc:search_guides:{"q":"","p_region":"Москва","p_has_listings":false}',
+    );
+  });
+
+  it("includes approved guides in public guide search even before they have listings", async () => {
+    const client = createFakeClient({
+      "rpc:search_guides": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      profiles: [],
+      listings: [],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuides(client, { q: "Иван" });
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.fullName).toBe("Иван Гид");
+    expect(result.data?.[0]?.listingCount).toBe(0);
+    expect(client.calls).toContain(
+      'rpc:search_guides:{"q":"Иван","p_specializations":null,"p_has_listings":false}',
+    );
   });
 });
 
