@@ -142,7 +142,7 @@ export default async function BookingsPage({
                 subtitle={
                   <>
                     <span className="block truncate">
-                      Турист: {travelerName} · Гид: {guideName}
+                      Путешественник: {travelerName} · Гид: {guideName}
                     </span>
                     <span className="block truncate text-xs">
                       {formatRussianDateTime(booking.created_at)}

@@ -49,7 +49,7 @@ export async function checkOfferAgainstLocks(args: {
   const endsAt = toMoscowIsoParts(args.endsAt);
 
   if (args.request.date_locked && startsAt?.date !== args.request.starts_on) {
-    return { error: "Турист просит строго эту дату." };
+    return { error: "Путешественник просит строго эту дату." };
   }
 
   if (
@@ -57,7 +57,7 @@ export async function checkOfferAgainstLocks(args: {
     (startsAt?.time !== args.request.start_time?.slice(0, 5) ||
       endsAt?.time !== args.request.end_time?.slice(0, 5))
   ) {
-    return { error: "Турист просит строго это время." };
+    return { error: "Путешественник просит строго это время." };
   }
 
   return { ok: true };

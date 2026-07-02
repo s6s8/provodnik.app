@@ -1,5 +1,6 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
+import { CabinetSectionUnavailable } from "@/components/shared/cabinet-section-unavailable";
 import { PageHeader } from "@/components/shared/page-header";
 import { FavoritesManager } from "@/features/favorites/components/FavoritesManager";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
@@ -8,7 +9,14 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { FavoritesFolderRow, FavoritesItemRow } from "@/lib/supabase/types";
 
 export default async function FavoritesPage() {
-  if (!flags.FEATURE_TR_FAVORITES) notFound();
+  if (!flags.FEATURE_TR_FAVORITES) {
+    return (
+      <CabinetSectionUnavailable
+        title="Избранное"
+        description="Сохранение экскурсий в избранное появится в ближайших обновлениях. Пока вы можете находить гидов и оставлять запросы в кабинете."
+      />
+    );
+  }
 
   const supabase = await createSupabaseServerClient();
   const {

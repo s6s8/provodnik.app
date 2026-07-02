@@ -55,6 +55,12 @@ vi.mock("@/components/ui/separator", () => ({
   Separator: () => <hr />,
 }));
 
+vi.mock("@/components/shared/cabinet-section-unavailable", () => ({
+  CabinetSectionUnavailable: ({ title }: { title: string }) => (
+    <div>Раздел скоро появится: {title}</div>
+  ),
+}));
+
 vi.mock("@/features/partner/components/ApiTokenManager", () => ({
   ApiTokenManager: (props: { hasExistingToken: boolean; generatedAt?: string | null }) => {
     apiTokenManagerMock(props);
@@ -182,6 +188,17 @@ describe("ReferralsPage", () => {
     );
 
     expect(redirect).toHaveBeenCalledWith("/auth?next=%2Freferrals");
+  });
+
+  it("renders a useful empty state (not a cabinet 404) when the feature is disabled", async () => {
+    flags.FEATURE_TR_REFERRALS = false;
+
+    render(await ReferralsPage());
+
+    expect(screen.getByText(/Раздел скоро появится/)).toBeInTheDocument();
+    expect(screen.queryByText(/не найдена/i)).not.toBeInTheDocument();
+    expect(redirect).not.toHaveBeenCalled();
+    expect(createSupabaseServerClient).not.toHaveBeenCalled();
   });
 
   it("renders referral content without partner cabinet when the partner flag is off", async () => {

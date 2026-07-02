@@ -201,17 +201,31 @@ export async function getOpenRequests(
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
 
-    const records = data.map((row) => mapRequestRow(row));
-    const membersMap = await fetchMembersForRequests(
-      db,
-      data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
-    );
-    for (const rec of records) {
-      rec.members = membersMap.get(rec.id) ?? [];
+    if (data && data.length > 0) {
+      const records = data.map((row) => mapRequestRow(row));
+      const membersMap = await fetchMembersForRequests(
+        db,
+        data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+      );
+      for (const rec of records) {
+        rec.members = membersMap.get(rec.id) ?? [];
+      }
+
+      return { data: applyRequestFilters(records, filters), error: null };
     }
 
+    // Anonymous visitors cannot read the raw table (RLS requires a session).
+    // Fall back to the sanitized public view so logged-out discovery still works.
+    const { data: publicRows, error: publicError } = await db
+      .from("v_public_open_requests")
+      .select("*")
+      .in("status", statuses)
+      .order("created_at", { ascending: false });
+
+    if (publicError) throw publicError;
+
+    const records = (publicRows ?? []).map((row) => mapRequestRow(row));
     return { data: applyRequestFilters(records, filters), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
@@ -224,7 +238,7 @@ export async function getOpenRequestsByDestination(
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
     const db = client;
-    const { data, error } = await db
+    const { data: rawData, error } = await db
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
@@ -233,7 +247,23 @@ export async function getOpenRequestsByDestination(
       .limit(12);
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
+
+    // Anonymous visitors cannot read the raw table (RLS); fall back to the
+    // sanitized public view for logged-out destination discovery.
+    let data = rawData;
+    if (!data || data.length === 0) {
+      const { data: publicRows, error: publicError } = await db
+        .from("v_public_open_requests")
+        .select("*")
+        .eq("status", "open")
+        .ilike("region", `%${region}%`)
+        .order("created_at", { ascending: false })
+        .limit(12);
+      if (publicError) throw publicError;
+      data = publicRows ?? [];
+    }
+
+    if (data.length === 0) return { data: [], error: null };
 
     const records = data.map((row) => mapRequestRow(row));
     const ids = records.map((r) => r.id);
@@ -249,9 +279,13 @@ export async function getOpenRequestsByDestination(
     }
     for (const rec of records) rec.offerCount = offerCountMap[rec.id] ?? 0;
 
+    // Public-view rows carry no traveler_id (privacy); only resolve creator
+    // display data for raw-table rows that expose it.
     const membersMap = await fetchMembersForRequests(
       db,
-      data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+      data
+        .filter((row) => row.traveler_id != null)
+        .map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
     );
     for (const rec of records) {
       rec.members = membersMap.get(rec.id) ?? [];
@@ -269,12 +303,25 @@ export async function getRequestById(
 ): Promise<QueryResult<RequestRecord>> {
   try {
     const db = client;
-    const { data, error } = await db
+    const { data: rawData, error } = await db
       .from("traveler_requests")
       .select("*")
       .eq("id", id)
       .maybeSingle();
     if (error) throw error;
+
+    // Anonymous visitors cannot read the raw table (RLS); fall back to the
+    // sanitized public view so logged-out request detail still resolves for
+    // open requests. Owner/guide/admin keep full raw-table access above.
+    let data = rawData as Record<string, unknown> | null;
+    if (!data) {
+      const { data: publicRow } = await db
+        .from("v_public_open_requests")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+      data = (publicRow as Record<string, unknown> | null) ?? null;
+    }
     if (!data) return { data: null, error: null };
 
     const record = mapRequestRow(data);
@@ -285,8 +332,13 @@ export async function getRequestById(
     if (offerError) throw offerError;
     record.offerCount = offerCount ?? 0;
 
-    const membersMap = await fetchMembersForRequests(db, [{ id, creatorId: data.traveler_id as string }]);
-    record.members = membersMap.get(id) ?? [];
+    // Public-view rows carry no traveler_id; skip creator resolution for them.
+    if (data.traveler_id != null) {
+      const membersMap = await fetchMembersForRequests(db, [
+        { id, creatorId: data.traveler_id as string },
+      ]);
+      record.members = membersMap.get(id) ?? [];
+    }
 
     return { data: record, error: null };
   } catch (error) {
@@ -493,21 +545,25 @@ export async function getGuideBySlug(
 ): Promise<QueryResult<GuideRecord>> {
   try {
     const slugCandidates = getSlugLookupCandidates(slug);
-    const { data, error } = await client
-      .from("guide_profiles")
-      .select("*, profiles!guide_profiles_user_id_fkey!inner(id, full_name, avatar_url, role, account_status)")
-      .in("slug", slugCandidates)
-      .eq("verification_status", "approved")
-      .eq("is_available", true)
-      .eq("profiles.role", "guide")
-      .eq("profiles.account_status", "active")
-      .limit(1)
-      .maybeSingle();
+    // Anonymous visitors cannot read `profiles` under RLS, so a direct
+    // `profiles!inner` join returns nothing and the detail page 404s. Resolve
+    // the guide (and its active-account allowlist) through a SECURITY DEFINER
+    // RPC that mirrors `search_guides`.
+    const { data: rpcRows, error } = await client.rpc("get_public_guide_by_slug", {
+      p_slugs: slugCandidates,
+    });
 
     if (error) throw error;
+    const data = (Array.isArray(rpcRows) ? rpcRows[0] : rpcRows) as
+      | Record<string, unknown>
+      | null
+      | undefined;
     if (!data) return { data: null, error: null };
 
-    const record = mapGuideRow(data, data.profiles as Record<string, unknown> | null);
+    const record = mapGuideRow(data, {
+      full_name: data.full_name,
+      avatar_url: data.avatar_url,
+    });
 
     const { data: stats } = await client
       .from("v_guide_public_profile")

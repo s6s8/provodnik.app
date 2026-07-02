@@ -424,11 +424,11 @@ describe("query performance safeguards", () => {
 describe("guide stats layering (no fabricated zeros)", () => {
   it("layers real view stats and approved verification onto getGuideBySlug", async () => {
     const client = createFakeClient({
-      guide_profiles: [
+      "rpc:get_public_guide_by_slug": [
         {
           user_id: "guide-1",
           slug: "guide-1",
-          display_name: "Иван Гид",
+          full_name: "Иван Гид",
           regions: ["Москва"],
           verification_status: "approved",
         },
@@ -447,13 +447,13 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.data?.verified).toBe(true);
   });
 
-  it("resolves public guide detail when Next passes an encoded slug", async () => {
+  it("resolves public guide detail via the RPC when Next passes an encoded slug", async () => {
     const client = createFakeClient({
-      guide_profiles: [
+      "rpc:get_public_guide_by_slug": [
         {
           user_id: "guide-1",
           slug: "жюль-верников-69f18040",
-          display_name: "Жюль Верников",
+          full_name: "Жюль Верников",
           regions: ["Волгоградская область"],
           verification_status: "approved",
         },
@@ -468,20 +468,24 @@ describe("guide stats layering (no fabricated zeros)", () => {
 
     expect(result.error).toBeNull();
     expect(result.data?.fullName).toBe("Жюль Верников");
-    expect(client.calls).toContain(
-      'guide_profiles.in:slug:["%D0%B6%D1%8E%D0%BB%D1%8C-%D0%B2%D0%B5%D1%80%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2-69f18040","жюль-верников-69f18040"]',
+    // The RPC is asked for every slug candidate (encoded + decoded forms) so a
+    // Cyrillic slug still resolves regardless of how Next percent-encodes it.
+    const rpcCall = client.calls.find((c) => c.startsWith("rpc:get_public_guide_by_slug:"));
+    expect(rpcCall).toContain(
+      "%D0%B6%D1%8E%D0%BB%D1%8C-%D0%B2%D0%B5%D1%80%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2-69f18040",
     );
+    expect(rpcCall).toContain("жюль-верников-69f18040");
   });
 
-  it("keeps getGuideBySlug unverified with null responseRate when stats are absent", async () => {
+  it("keeps rating 0 and null responseRate when the stats view is absent", async () => {
     const client = createFakeClient({
-      guide_profiles: [
+      "rpc:get_public_guide_by_slug": [
         {
           user_id: "guide-1",
           slug: "guide-1",
-          display_name: "Иван Гид",
+          full_name: "Иван Гид",
           regions: ["Москва"],
-          verification_status: "pending",
+          verification_status: "approved",
         },
       ],
       v_guide_public_profile: [],
@@ -490,9 +494,18 @@ describe("guide stats layering (no fabricated zeros)", () => {
     const result = await getGuideBySlug(client, "guide-1");
 
     expect(result.error).toBeNull();
-    expect(result.data?.verified).toBe(false);
+    expect(result.data?.verified).toBe(true);
     expect(result.data?.rating).toBe(0);
     expect(result.data?.responseRate).toBeNull();
+  });
+
+  it("returns null (public 404) when the guide RPC yields no active guide", async () => {
+    const client = createFakeClient({ "rpc:get_public_guide_by_slug": [] });
+
+    const result = await getGuideBySlug(client, "suspended-guide");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toBeNull();
   });
 
   it("includes approved guides in destination blocks even before they have listings", async () => {
@@ -763,5 +776,81 @@ describe("getRequestById", () => {
 
     expect(result.data).toBeNull();
     expect(result.error).toBe(offerError);
+  });
+});
+
+describe("anonymous public request access uses the sanitized view", () => {
+  it("getOpenRequests falls back to v_public_open_requests when the raw table is empty", async () => {
+    const client = createFakeClient({
+      traveler_requests: [],
+      v_public_open_requests: [
+        {
+          id: "req-pub-1",
+          destination: "Казань",
+          budget_minor: 50_000,
+          participants_count: 2,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+        },
+      ],
+    });
+
+    const result = await getOpenRequests(client, undefined, ["open"]);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toHaveLength(1);
+    expect(result.data?.[0]?.id).toBe("req-pub-1");
+    // No traveler_id in the view row → no anonymous read of the raw table.
+    expect(client.calls).toContain("from:v_public_open_requests");
+    expect(result.data?.[0]?.members).toEqual([]);
+  });
+
+  it("getRequestById falls back to v_public_open_requests when the raw row is RLS-hidden", async () => {
+    const client = createFakeClient({
+      traveler_requests: [],
+      v_public_open_requests: [
+        {
+          id: "req-pub-2",
+          destination: "Сочи",
+          budget_minor: 0,
+          participants_count: 1,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+        },
+      ],
+      guide_offers: [],
+    });
+
+    const result = await getRequestById(client, "req-pub-2");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.id).toBe("req-pub-2");
+    expect(client.calls).toContain("from:v_public_open_requests");
+    expect(result.data?.members).toEqual([]);
+  });
+
+  it("getOpenRequestsByDestination falls back to the public view for anon discovery", async () => {
+    const client = createFakeClient({
+      traveler_requests: [],
+      v_public_open_requests: [
+        {
+          id: "req-pub-3",
+          destination: "Элиста",
+          region: "Калмыкия",
+          budget_minor: 80_000,
+          participants_count: 1,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+        },
+      ],
+      guide_offers: [],
+    });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    expect(result.data).toHaveLength(1);
+    expect(result.data?.[0]?.id).toBe("req-pub-3");
+    expect(client.calls).toContain("from:v_public_open_requests");
   });
 });

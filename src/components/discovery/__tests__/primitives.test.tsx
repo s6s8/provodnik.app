@@ -71,7 +71,7 @@ describe("NewGuideFrame", () => {
       <NewGuideFrame guideName="Алишер" />
     )
 
-    expect(getByText("Первые туры")).toBeTruthy()
+    expect(getByText("Первые экскурсии")).toBeTruthy()
     expect(container.textContent).toContain("Алишер")
   })
 })

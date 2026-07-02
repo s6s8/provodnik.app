@@ -19,7 +19,7 @@ function NewGuideFrame({ guideName, className }: NewGuideFrameProps) {
     >
       <Tag color="amber" className="gap-1.5">
         <Sparkles className="size-3.5" aria-hidden="true" />
-        Первые туры
+        Первые экскурсии
       </Tag>
       <p className="text-sm text-on-surface">
         {guideName} — новый гид на платформе. Будьте одним из первых, кто откроет

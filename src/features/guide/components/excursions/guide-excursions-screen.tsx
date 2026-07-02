@@ -304,7 +304,7 @@ export function GuideExcursionsScreen() {
         <EmptyState
           icon={<BookOpen />}
           title="Экскурсий пока нет"
-          description="Добавьте первую экскурсию, чтобы откликаться на заявки туристов."
+          description="Добавьте первую экскурсию, чтобы откликаться на запросы путешественников."
           action={
             <Button variant="outline" onClick={openCreateSheet}>
               <Plus className="size-4" /> Добавить экскурсию
