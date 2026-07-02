@@ -318,13 +318,14 @@ export async function getGuides(
   filters?: GuideFilters,
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
-    // OPT-001: Push specializations + has_listings filter server-side
+    // Public guide discovery must include approved/available guides even before
+    // they publish their first route. Listing counts are layered below.
     const { data: searchRows, error } = await client.rpc("search_guides", {
       q: filters?.q ?? "",
       p_specializations: (filters?.specializations && filters.specializations.length > 0)
         ? filters.specializations
         : null,
-      p_has_listings: true,
+      p_has_listings: false,
     });
 
     if (error) throw error;
@@ -411,11 +412,12 @@ export async function getGuidesByDestination(
   region: string,
 ): Promise<QueryResult<GuideRecord[]>> {
   try {
-    // OPT-001: Push region filter + has_listings server-side
+    // Destination guide blocks should also surface approved guides that have not
+    // published listings yet.
     const { data: searchRows, error } = await client.rpc("search_guides", {
       q: "",
       p_region: region,
-      p_has_listings: true,
+      p_has_listings: false,
     });
 
     if (error) throw error;

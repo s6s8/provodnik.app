@@ -31,6 +31,8 @@ export async function approveGuide(
     revalidatePath("/admin/dashboard");
     revalidatePath("/admin/guides");
     revalidatePath(`/admin/guides/${guideId}`);
+    revalidatePath("/guides");
+    revalidatePath("/destinations");
     return { error: null, success: "Гид одобрен" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Неизвестная ошибка при одобрении" };
