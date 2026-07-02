@@ -82,12 +82,16 @@ export async function proxy(request: NextRequest) {
   // was updated without refreshing the claim (see AP-038).
   const { data: profile, error: profileReadError } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, account_status")
     .eq("id", user.id)
     .maybeSingle();
 
   if (profileReadError) {
     return applyCookies(redirectTo(request, "/auth?error=missing-role"));
+  }
+
+  if (profile?.account_status && profile.account_status !== "active") {
+    return applyCookies(redirectTo(request, "/auth?error=account-suspended"));
   }
 
   const role: AppRole | null = resolveCanonicalRole({

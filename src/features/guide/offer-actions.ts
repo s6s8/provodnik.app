@@ -63,7 +63,7 @@ export async function checkOfferAgainstLocks(args: {
   return { ok: true };
 }
 
-async function getCurrentUserId(): Promise<string> {
+async function getCurrentActiveUserId(): Promise<string> {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -71,6 +71,16 @@ async function getCurrentUserId(): Promise<string> {
 
   if (!user?.id) {
     throw new Error("Не авторизован.");
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profile?.account_status && profile.account_status !== "active") {
+    throw new Error("Аккаунт заблокирован.");
   }
 
   return user.id;
@@ -81,7 +91,7 @@ export async function submitOfferAction(
   formData: FormData,
 ): Promise<SubmitOfferResult> {
   try {
-    const guideId = await getCurrentUserId();
+    const guideId = await getCurrentActiveUserId();
 
     // Verification gate. The enum is draft|submitted|approved|rejected; only
     // 'approved' may submit offers. Mirrored by RLS policy guide_offers_insert.
@@ -227,7 +237,7 @@ export async function withdrawOfferAction(
   requestId: string,
 ): Promise<{ ok: true } | { error: string }> {
   try {
-    const guideId = await getCurrentUserId();
+    const guideId = await getCurrentActiveUserId();
     const supabase = await createSupabaseServerClient();
 
     const { data: offer } = await supabase
@@ -265,7 +275,7 @@ export async function editOfferAction(
   formData: FormData,
 ): Promise<SubmitOfferResult> {
   try {
-    const guideId = await getCurrentUserId();
+    const guideId = await getCurrentActiveUserId();
     const supabase = await createSupabaseServerClient();
 
     const { data: offer } = await supabase

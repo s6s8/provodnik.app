@@ -251,12 +251,20 @@ async function getGuideDetailData(requestId: string, guideId: string | null) {
   let existingOffer: GuideOfferRow | null = null;
 
   if (guideId) {
-    const { data: profile } = await supabase
-      .from("guide_profiles")
-      .select("verification_status")
-      .eq("user_id", guideId)
-      .maybeSingle();
-    isApproved = profile?.verification_status === "approved";
+    const [{ data: profile }, { data: account }] = await Promise.all([
+      supabase
+        .from("guide_profiles")
+        .select("verification_status")
+        .eq("user_id", guideId)
+        .maybeSingle(),
+      supabase
+        .from("profiles")
+        .select("account_status")
+        .eq("id", guideId)
+        .maybeSingle(),
+    ]);
+    const isActiveAccount = !account?.account_status || account.account_status === "active";
+    isApproved = isActiveAccount && profile?.verification_status === "approved";
 
     const { data: offer } = await supabase
       .from("guide_offers")

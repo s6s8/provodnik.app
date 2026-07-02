@@ -92,12 +92,19 @@ describe("checkOfferAgainstLocks", () => {
 
 describe("submitOfferAction", () => {
   it("rejects unverified guide profiles before submitting an offer", async () => {
-    const maybeSingle = vi.fn().mockResolvedValue({
+    const guideMaybeSingle = vi.fn().mockResolvedValue({
       data: { verification_status: "draft" },
     });
-    const eq = vi.fn().mockReturnValue({ maybeSingle });
-    const select = vi.fn().mockReturnValue({ eq });
-    const from = vi.fn().mockReturnValue({ select });
+    const guideEq = vi.fn().mockReturnValue({ maybeSingle: guideMaybeSingle });
+    const guideSelect = vi.fn().mockReturnValue({ eq: guideEq });
+    const profileMaybeSingle = vi.fn().mockResolvedValue({ data: { account_status: "active" } });
+    const profileEq = vi.fn().mockReturnValue({ maybeSingle: profileMaybeSingle });
+    const profileSelect = vi.fn().mockReturnValue({ eq: profileEq });
+    const from = vi.fn((table: string) => {
+      if (table === "profiles") return { select: profileSelect };
+      if (table === "guide_profiles") return { select: guideSelect };
+      throw new Error(`unexpected table ${table}`);
+    });
 
     createSupabaseServerClientMock.mockResolvedValue({
       auth: {
@@ -112,31 +119,59 @@ describe("submitOfferAction", () => {
     const result = await submitOfferAction("request-1", new FormData());
 
     expect(result).toEqual({ error: "Доступно после верификации" });
+    expect(from).toHaveBeenCalledWith("profiles");
     expect(from).toHaveBeenCalledWith("guide_profiles");
-    expect(eq).toHaveBeenCalledWith("user_id", "guide-1");
+    expect(guideEq).toHaveBeenCalledWith("user_id", "guide-1");
+  });
+
+  it("rejects suspended guide accounts before submitting an offer", async () => {
+    const profileMaybeSingle = vi.fn().mockResolvedValue({ data: { account_status: "suspended" } });
+    const profileEq = vi.fn().mockReturnValue({ maybeSingle: profileMaybeSingle });
+    const profileSelect = vi.fn().mockReturnValue({ eq: profileEq });
+    const from = vi.fn((table: string) => {
+      if (table === "profiles") return { select: profileSelect };
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
+        }),
+      },
+      from,
+    });
+
+    const result = await submitOfferAction("request-1", new FormData());
+
+    expect(result).toEqual({ error: "Аккаунт заблокирован." });
+    expect(from).not.toHaveBeenCalledWith("guide_profiles");
   });
 });
 
 describe("withdrawOfferAction", () => {
   it("sets a pending owned offer to withdrawn", async () => {
-    const maybeSingle = vi.fn().mockResolvedValue({
+    const offerMaybeSingle = vi.fn().mockResolvedValue({
       data: { id: "offer-1", guide_id: "guide-1", status: "pending", request_id: "req-1" },
     });
-    const selectEq = vi.fn().mockReturnValue({ maybeSingle });
-    const select = vi.fn().mockReturnValue({ eq: selectEq });
-    const selectChain = { select };
+    const offerSelectEq = vi.fn().mockReturnValue({ maybeSingle: offerMaybeSingle });
+    const offerSelect = vi.fn().mockReturnValue({ eq: offerSelectEq });
 
     const update = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         eq: vi.fn().mockResolvedValue({ error: null }),
       }),
     });
-    const updateChain = { update };
 
-    const from = vi
-      .fn()
-      .mockReturnValueOnce(selectChain)
-      .mockReturnValueOnce(updateChain);
+    const profileMaybeSingle = vi.fn().mockResolvedValue({ data: { account_status: "active" } });
+    const profileEq = vi.fn().mockReturnValue({ maybeSingle: profileMaybeSingle });
+    const profileSelect = vi.fn().mockReturnValue({ eq: profileEq });
+    const from = vi.fn((table: string) => {
+      if (table === "profiles") return { select: profileSelect };
+      if (table === "guide_offers") return { select: offerSelect, update };
+      throw new Error(`unexpected table ${table}`);
+    });
 
     createSupabaseServerClientMock.mockResolvedValue({
       auth: {
@@ -159,12 +194,19 @@ describe("withdrawOfferAction", () => {
 
 describe("editOfferAction", () => {
   it("rejects when the offer is not pending", async () => {
-    const maybeSingle = vi.fn().mockResolvedValue({
+    const offerMaybeSingle = vi.fn().mockResolvedValue({
       data: { id: "offer-1", guide_id: "guide-1", status: "accepted", request_id: "req-1" },
     });
-    const selectEq = vi.fn().mockReturnValue({ maybeSingle });
-    const select = vi.fn().mockReturnValue({ eq: selectEq });
-    const from = vi.fn().mockReturnValue({ select });
+    const offerSelectEq = vi.fn().mockReturnValue({ maybeSingle: offerMaybeSingle });
+    const offerSelect = vi.fn().mockReturnValue({ eq: offerSelectEq });
+    const profileMaybeSingle = vi.fn().mockResolvedValue({ data: { account_status: "active" } });
+    const profileEq = vi.fn().mockReturnValue({ maybeSingle: profileMaybeSingle });
+    const profileSelect = vi.fn().mockReturnValue({ eq: profileEq });
+    const from = vi.fn((table: string) => {
+      if (table === "profiles") return { select: profileSelect };
+      if (table === "guide_offers") return { select: offerSelect };
+      throw new Error(`unexpected table ${table}`);
+    });
 
     createSupabaseServerClientMock.mockResolvedValue({
       auth: {
