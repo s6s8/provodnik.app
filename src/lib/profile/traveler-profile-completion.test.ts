@@ -26,7 +26,7 @@ describe("getTravelerProfileSection2Checklist", () => {
     expect(checklist.sectionTitle).toBe("Готовность профиля");
     expect(checklist.complete).toBe(false);
     expect(checklist.items).toEqual([
-      { id: "name", label: "Имя путешественника", complete: false },
+      { id: "name", label: "Профиль заполнен", complete: false },
     ]);
   });
 

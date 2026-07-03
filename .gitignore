@@ -52,6 +52,7 @@ supabase/.temp/
 /agent
 /output/
 /tmp/
+/.tmp/
 .env*.local
 
 # Sentry Config File

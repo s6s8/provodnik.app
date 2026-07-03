@@ -39,6 +39,22 @@ export function buildAuthLoginRedirect(nextPath: string | null | undefined): str
   return `/auth?next=${encodeURIComponent(safe)}`;
 }
 
+/** Resolve a safe, role-accessible `?next=` path; null when absent or rejected. */
+export function resolveSafeNextPath(
+  role: AppRole | null | undefined,
+  next: string | null | undefined,
+): string | null {
+  if (!role || !next?.trim()) return null;
+
+  const safeNext = safeRedirectPath(next);
+  if (safeNext === "/") return null;
+
+  const requiredRole = getRequiredRoleForPathname(safeNext);
+  if (requiredRole && !roleHasAccess(role, requiredRole)) return null;
+
+  return safeNext;
+}
+
 /** After login, prefer a safe ?next= path; otherwise fall back to the role dashboard. */
 export function resolvePostAuthRedirectPath(
   role: AppRole | null | undefined,
@@ -46,13 +62,5 @@ export function resolvePostAuthRedirectPath(
 ): string | null {
   const dashboard = getDashboardPathForRole(role);
   if (!role || !dashboard) return null;
-  if (!next?.trim()) return dashboard;
-
-  const safeNext = safeRedirectPath(next);
-  if (safeNext === "/") return dashboard;
-
-  const requiredRole = getRequiredRoleForPathname(safeNext);
-  if (requiredRole && !roleHasAccess(role, requiredRole)) return dashboard;
-
-  return safeNext;
+  return resolveSafeNextPath(role, next) ?? dashboard;
 }

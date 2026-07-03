@@ -29,7 +29,9 @@ export function getTravelerProfileSection2Checklist(
     items: [
       {
         id: "name",
-        label: "Имя путешественника",
+        // Owner-requested wording (Excel row 14): «Профиль заполнен» + галочка
+        // instead of the confusing «Имя путешественника».
+        label: "Профиль заполнен",
         complete: nameComplete,
       },
     ],

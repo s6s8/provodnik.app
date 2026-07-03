@@ -10,7 +10,7 @@ describe("TravelerProfileCompletionChecklist", () => {
     expect(
       screen.getByRole("region", { name: "Готовность профиля" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Имя путешественника")).toBeInTheDocument();
+    expect(screen.getByText("Профиль заполнен")).toBeInTheDocument();
     expect(
       screen.getByText(/чтобы гиды понимали, к кому обращаются/i),
     ).toBeInTheDocument();
