@@ -1,9 +1,9 @@
 {
-  "generatedAt": "2026-07-03T01:17:04.419Z",
+  "generatedAt": "2026-07-03T01:21:04.057Z",
   "eslintVersion": "9.39.4",
   "totals": {
     "errors": 0,
-    "warnings": 66
+    "warnings": 21
   },
   "byFile": {
     "src/data/guide-assets/supabase-client.ts": {
@@ -13,18 +13,6 @@
     "src/data/guide-templates/supabase-client.ts": {
       "errors": 0,
       "warnings": 9
-    },
-    "src/data/supabase/queries.test.ts": {
-      "errors": 0,
-      "warnings": 1
-    },
-    "src/data/supabase/queries.ts": {
-      "errors": 0,
-      "warnings": 39
-    },
-    "src/data/supabase/queries/core.ts": {
-      "errors": 0,
-      "warnings": 5
     }
   }
 }

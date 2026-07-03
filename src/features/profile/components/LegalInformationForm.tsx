@@ -12,7 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { COUNTRIES } from "@/lib/data/countries";
+import { COUNTRIES } from "@/data/countries";
 import { updateLegalInformation } from "@/features/profile/actions/updateLegalInformation";
 
 const NONE_VALUE = "__none__";

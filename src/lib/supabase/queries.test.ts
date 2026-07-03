@@ -31,7 +31,7 @@ import {
   getListingsByDestination,
   getListingsByGuide,
   getSimilarRequests,
-} from "@/data/supabase/queries";
+} from "@/lib/supabase/queries";
 
 type FixtureMap = Record<string, unknown[]>;
 type ErrorMap = Record<string, Error>;
