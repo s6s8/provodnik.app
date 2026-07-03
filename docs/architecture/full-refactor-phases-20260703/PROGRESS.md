@@ -28,9 +28,9 @@ Execution of `docs/architecture/refactor-plan-20260702/REFACTOR_PLAN.md`, phase 
 | Phase | Title | Status |
 |---|---|---|
 | 0 | Safety net (E2E + RLS + contract tests) | ✅ done (DB/E2E live-run = operator step) |
-| 1 | Enforce boundaries + remove safe dead code | pending |
-| 2 | Data-layer consolidation per domain | pending |
-| 3 | RLS / security hardening | pending |
+| 1 | Enforce boundaries + remove safe dead code | ✅ done (query-key factory deferred) |
+| 2 | Data-layer consolidation per domain | ✅ substantially done (browser-write rewrite deferred) |
+| 3 | RLS / security hardening | in progress |
 | 4 | Server actions / forms standardization | pending |
 | 5 | UI decomposition + terminology | pending |
 
@@ -65,5 +65,44 @@ Execution of `docs/architecture/refactor-plan-20260702/REFACTOR_PLAN.md`, phase 
 - **Verified**: typecheck ✅, lint ✅, `test:run` ✅ 1132 tests, `playwright --list` ✅ 16
   tests compile/discover. DB pgTAP + browser E2E live-run remain the operator step
   (sandbox shares another job's Supabase stack; see constraints above).
+
+### Phase 1 — done
+
+- **Boundary gate** (`chore(boundaries)`): warn-level `no-restricted-syntax` forbidding
+  `.from(`/`.rpc(` + supabase client imports in `src/data`/`src/components`; 79 offenders
+  grandfathered into `.eslint-baseline.json`; `lint:ratchet` wired into CI. Proven to bite
+  (a new `.from()` in `src/data` fails the ratchet).
+- **SAFE-NOW deletions** (`chore(cleanup)`, all grep-proven 0 non-test importers): dead
+  card/traveler/discovery component clusters, `features/quality`, 9 unused shadcn
+  primitives (+ tests); 4 dead deps (fontsource ×3, react-query-devtools); 6 zero-reader
+  flags + orphaned `ROUTES.search`; root clutter archived via `git mv`.
+- **Deferred**: query-key factory (G5) — low value without a full callsite migration
+  (medium blind-risk); the ratchet already prevents new drift. Left for Phase 4 tag work.
+- **Verified**: typecheck ✅, lint ✅, ratchet ✅, `test:run` ✅ 1086, build ✅.
+
+### Phase 2 — substantially done
+
+- **Collapsed dead triple-layered I/O** (`refactor(data)`): removed the superseded
+  `src/data/{reviews,guide-offer,notifications}/supabase.ts` + `marketplace-events/client.ts`
+  (0 non-test consumers — the live lifecycle is served by `src/lib/supabase/*` and
+  `src/lib/notifications/*`). Static schema/types/demo siblings kept.
+- **Relocated query I/O to canonical layer** (`refactor(data)`): `data/supabase/queries.ts`
+  + `queries/core.ts` → `src/lib/supabase/{queries,queries-core}.ts` with a re-export shim
+  (~44 importers unchanged). Static `lib/data/countries.ts` → `src/data/countries.ts`.
+- **Result**: `src/data` Supabase-I/O boundary warnings 79 → 21 (8 mislocated modules → 2);
+  ratchet floor lowered to 21 to lock the monotonic decrease.
+- **Deferred (documented) — R-05 ADAPTER-REWRITE**: `data/guide-assets/supabase-client.ts`
+  and `data/guide-templates/supabase-client.ts` are `createSupabaseBrowserClient` modules
+  doing **browser writes** (uploads/reservations/deletes). The correct fix is
+  server-action + presigned upload (pattern already exists in `src/lib/storage/upload.ts`
+  + `features/guide/verification-actions.ts`), which changes the client call contract
+  (sync browser call → async server action) and MUST be parity-verified via the browser
+  E2E net — an operator step in this sandbox. A cosmetic relocate would mask the
+  trust-boundary debt, so these are left in `src/data` where the boundary rule keeps
+  flagging them. **Next action**: with the seeded E2E stack up, rewrite each browser
+  write to a server action returning `ActionResult`, move the read helpers to
+  `lib/supabase/{guide-assets,guide-templates}.ts`, and add parity tests before deleting
+  the browser client usage.
+- **Verified**: typecheck ✅, lint ✅, ratchet ✅, `test:run` ✅ 1080, build ✅.
 </content>
 </invoke>
