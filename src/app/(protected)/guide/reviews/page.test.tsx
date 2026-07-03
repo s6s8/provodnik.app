@@ -16,12 +16,6 @@ vi.mock("next/navigation", () => ({
   redirect: redirectMock,
 }));
 
-vi.mock("@/lib/flags", () => ({
-  flags: {
-    FEATURE_TR_REPUTATION: false,
-  },
-}));
-
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
 }));
