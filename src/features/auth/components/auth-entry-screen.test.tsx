@@ -347,3 +347,58 @@ describe("AuthEntryScreen traveler sign-in", () => {
     });
   });
 });
+
+describe("AuthEntryScreen guide sign-up landing", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    hasSupabaseEnvMock.mockReturnValue(true);
+    assignMock.mockReset();
+    vi.stubGlobal("location", { assign: assignMock, href: "" });
+  });
+
+  async function submitGuideSignUp() {
+    fireEvent.change(screen.getByLabelText("Как к вам обращаться"), {
+      target: { value: "Иван Гид" },
+    });
+    fireEvent.change(screen.getByLabelText("Телефон для проверки"), {
+      target: { value: "+7 900 123-45-67" },
+    });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "guide@example.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Создайте пароль"), {
+      target: { value: "Guide1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Создать профиль" }));
+  }
+
+  it("sends a new guide to the verification anketa, not the guide dashboard", async () => {
+    const { signUpAction } = await import("@/features/auth/actions/signUpAction");
+    vi.mocked(signUpAction).mockResolvedValue({
+      ok: true,
+      dashboardPath: "/guide/profile",
+    });
+
+    render(<AuthEntryScreen role="guide" />);
+    await submitGuideSignUp();
+
+    await waitFor(() => {
+      expect(assignMock).toHaveBeenCalledWith("/guide/profile");
+    });
+  });
+
+  it("still honors an explicit ?next= over the anketa landing", async () => {
+    const { signUpAction } = await import("@/features/auth/actions/signUpAction");
+    vi.mocked(signUpAction).mockResolvedValue({
+      ok: true,
+      dashboardPath: "/guide/profile",
+    });
+
+    render(<AuthEntryScreen role="guide" next="/guide/inbox" />);
+    await submitGuideSignUp();
+
+    await waitFor(() => {
+      expect(assignMock).toHaveBeenCalledWith("/guide/inbox");
+    });
+  });
+});

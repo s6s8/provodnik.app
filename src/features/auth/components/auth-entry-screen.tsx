@@ -228,8 +228,11 @@ export function AuthEntryScreen({
         return;
       }
 
+      // New guides must land on the verification anketa (server-chosen
+      // dashboardPath), not the role dashboard; an explicit ?next= still wins.
       window.location.assign(
-        resolvePostAuthRedirectPath(role, next) ?? result.dashboardPath,
+        (next?.trim() ? resolvePostAuthRedirectPath(role, next) : null) ??
+          result.dashboardPath,
       );
     } catch {
       setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");
