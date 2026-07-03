@@ -30,7 +30,7 @@ Execution of `docs/architecture/refactor-plan-20260702/REFACTOR_PLAN.md`, phase 
 | 0 | Safety net (E2E + RLS + contract tests) | ✅ done (DB/E2E live-run = operator step) |
 | 1 | Enforce boundaries + remove safe dead code | ✅ done (query-key factory deferred) |
 | 2 | Data-layer consolidation per domain | ✅ substantially done (browser-write rewrite deferred) |
-| 3 | RLS / security hardening | in progress |
+| 3 | RLS / security hardening | ✅ core done (R-04/R-06 deferred with plans) |
 | 4 | Server actions / forms standardization | pending |
 | 5 | UI decomposition + terminology | pending |
 
@@ -104,5 +104,40 @@ Execution of `docs/architecture/refactor-plan-20260702/REFACTOR_PLAN.md`, phase 
   `lib/supabase/{guide-assets,guide-templates}.ts`, and add parity tests before deleting
   the browser client usage.
 - **Verified**: typecheck ✅, lint ✅, ratchet ✅, `test:run` ✅ 1080, build ✅.
+
+### Phase 3 — RLS / security hardening (core done)
+
+- **R-07 business_leads** (`fix(security)`): replaced the `WITH CHECK (true)` anon insert
+  with a shape-constrained policy. No app path inserts into this table, so only the
+  direct-API spam vector is closed. + pgTAP (valid insert ok; empty contact / oversized
+  note / out-of-range headcount rejected).
+- **R-08 storage buckets** (`fix(security)`): additive migration declaring all 6 buckets
+  + their `public` flag (source: `src/lib/storage/buckets.ts` + `guide_portfolio_public_read`);
+  publicness is now reproducible, not environment-drift. Idempotent (on-conflict reconciles
+  only `public`). + pgTAP asserting private/public flags.
+- Both migrations **validated against the live baseline schema in a rolled-back
+  transaction** (syntax + object refs + resulting policy/flags), plus rollbacks.
+- **R-03 (traveler_requests PII)**: already closed by the launch fix
+  (`v_public_open_requests` + tightened `traveler_requests_select`) and covered by
+  `public_launch_hardening_test.sql` + `request_display_rls_test.sql` (this branch added
+  the non-owner booking assertions). Verified.
+- **R-09 (SECURITY DEFINER tests)**: already present
+  (`security_definer_rpc_identity_test.sql`, `transactional_write_rpcs_test.sql`).
+- **Deferred — R-06 (`/api/requests/parse` auth)**: this is the **guest** homepage AI
+  request parser (north-star entry: a traveler posts a request without an account). It is
+  already guarded by IP rate-limit (20/min) + a global LLM budget. Hard auth breaks guest
+  UX; the sanctioned fix is a signed-token (server issues a short-lived HMAC token embedded
+  in the homepage, client sends it as a header, route validates HMAC + freshness, rate/
+  budget kept). That changes the homepage form contract and MUST be verified against the
+  live guest flow in a browser (operator step here). **Next action**: add `PARSE_HMAC_SECRET`
+  env, issue the token in the homepage RSC, send + validate it, keep the existing caps.
+- **Deferred — R-04 (admin RLS read-backstop)**: additive `is_admin()` SELECT policies are
+  safe (they only grant admins), but admin surfaces read via a service-role client that
+  bypasses RLS, so the policies are latent defense-in-depth of marginal current value, and
+  correctness across ~15 admin tables cannot be exercised without the admin E2E net (an
+  operator step here). Non-admin denial is already test-proven (`role_escalation_test.sql`).
+  **Next action**: with the admin E2E net running, add `is_admin()` SELECT policies
+  table-by-table behind pgTAP (admin authed-client can read; non-admin denied), keeping
+  service-role for legitimate bypass writes.
 </content>
 </invoke>
