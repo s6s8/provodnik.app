@@ -67,6 +67,9 @@ _archive/
 
 # Playwright run output — per-machine, ephemeral
 test-results/
+playwright-report/
+# Per-role storageState written by auth.setup.ts — contains live session tokens
+playwright/.auth/
 package-lock.json
 
 # local supabase CLI artifacts

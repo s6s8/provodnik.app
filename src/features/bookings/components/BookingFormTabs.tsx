@@ -94,7 +94,7 @@ function userMessageForError(code: string | undefined): string {
     case "listing_unavailable":
       return "Это предложение больше недоступно.";
     case "listing_no_price":
-      return "У этого тура ещё не указана цена.";
+      return "У этой экскурсии ещё не указана цена.";
     case "validation":
       return "Проверьте заполненные поля и попробуйте снова.";
     case "request_create_failed":

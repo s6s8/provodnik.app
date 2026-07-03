@@ -1,18 +1,18 @@
 {
-  "generatedAt": "2026-05-09T18:02:21.874Z",
+  "generatedAt": "2026-07-03T01:21:04.057Z",
   "eslintVersion": "9.39.4",
   "totals": {
     "errors": 0,
-    "warnings": 2
+    "warnings": 21
   },
   "byFile": {
-    "src/features/booking/components/BookingFormTabs.tsx": {
+    "src/data/guide-assets/supabase-client.ts": {
       "errors": 0,
-      "warnings": 1
+      "warnings": 12
     },
-    "src/features/profile/components/PersonalSettingsForm.tsx": {
+    "src/data/guide-templates/supabase-client.ts": {
       "errors": 0,
-      "warnings": 1
+      "warnings": 9
     }
   }
 }

@@ -1557,6 +1557,7 @@ SET default_table_access_method = "heap";
 CREATE TABLE IF NOT EXISTS "public"."guide_profiles" (
     "user_id" "uuid" NOT NULL,
     "slug" "text",
+    "display_name" "text",
     "bio" "text",
     "years_experience" integer,
     "regions" "text"[] DEFAULT '{}'::"text"[] NOT NULL,
@@ -1614,6 +1615,7 @@ COMMENT ON COLUMN "public"."guide_profiles"."guide_type" IS 'Kind of guide chose
 CREATE OR REPLACE VIEW "public"."guide_search_result_row" AS
  SELECT "user_id",
     "slug",
+    "display_name",
     "bio",
     "years_experience",
     "regions",
@@ -3513,7 +3515,7 @@ CREATE INDEX "guide_offers_guide_status_idx" ON "public"."guide_offers" USING "b
 
 
 
-CREATE UNIQUE INDEX "guide_offers_one_active_per_guide_request" ON "public"."guide_offers" USING "btree" ("request_id", "guide_id") WHERE ("status" = ANY (ARRAY['pending'::"public"."offer_status", 'bid_sent'::"public"."offer_status", 'counter_offered'::"public"."offer_status", 'accepted'::"public"."offer_status", 'confirmed'::"public"."offer_status", 'active'::"public"."offer_status"]));
+CREATE UNIQUE INDEX "guide_offers_one_active_per_guide_request" ON "public"."guide_offers" USING "btree" ("request_id", "guide_id") WHERE ("status" = ANY (ARRAY['pending'::"public"."offer_status", 'bid_sent'::"public"."offer_status", 'accepted'::"public"."offer_status", 'confirmed'::"public"."offer_status", 'active'::"public"."offer_status"]));
 
 
 

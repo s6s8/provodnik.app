@@ -80,7 +80,7 @@ export default async function GuideReviewsPage() {
       <PageHeader
         eyebrow="Кабинет гида"
         title="Отзывы"
-        subtitle="Отзывы путешественников о ваших турах"
+        subtitle="Отзывы путешественников о ваших экскурсиях"
       />
       {loadFailed ? (
         <Alert variant="destructive">

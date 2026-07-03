@@ -149,7 +149,9 @@ describe("TripCard", () => {
     expect(screen.getByText("Сборная группа")).toBeInTheDocument();
     expect(screen.getByText("+ к группе")).toBeInTheDocument();
     expect(screen.getByText("± даты")).toBeInTheDocument();
-    const publishedAt = screen.getByText(/^Опубликован: 3 июн\.?, 14:25$/);
+    // createdAt is 10:25Z; the suite pins TZ=UTC (see package.json test scripts)
+    // so this wall-clock assertion is deterministic across local + CI.
+    const publishedAt = screen.getByText(/^Опубликован: 3 июн\.?, 10:25$/);
     const metaRow = publishedAt.parentElement;
     expect(publishedAt).toHaveClass("text-xs", "text-muted-foreground");
     expect(metaRow).toHaveClass("flex", "flex-row", "justify-between");

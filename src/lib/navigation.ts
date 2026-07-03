@@ -2,7 +2,7 @@ import type { LucideIcon } from "lucide-react";
 
 import type { FlagName } from "@/lib/flags";
 import {
-  Users, Compass, UserSearch, Map, Search, Route, BadgeCheck, ShieldCheck,
+  Users, Compass, UserSearch, Map, Route, BadgeCheck, ShieldCheck,
   Briefcase, HelpCircle, LogIn, ClipboardList, Luggage, Heart, MessageSquare,
   Bell, Gift, User, Inbox, BookCheck, Star, Calendar, Settings,
   BarChart3, UserCheck, Flag, CalendarCheck, ScrollText,
@@ -22,7 +22,6 @@ export const ROUTES = {
   listings:     { href: "/listings",     label: "Экскурсии",         icon: Compass },
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
-  search:       { href: "/search",       label: "Поиск",             icon: Search },
   newRequest:   { href: "/",             label: "Создать запрос",    icon: ClipboardList },
   howItWorks:   { href: "/how-it-works", label: "Как это работает",  icon: Route },
   becomeGuide:  { href: "/become-a-guide", label: "Стать гидом",     icon: BadgeCheck },

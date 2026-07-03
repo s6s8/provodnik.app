@@ -66,7 +66,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
                 key={item.id}
                 href={`/admin/disputes/${item.id}`}
                 leading={<Badge variant={meta.variant}>{meta.label}</Badge>}
-                title={`${booking?.travelerName ?? "Турист"} vs ${booking?.guideName ?? "Гид"}`}
+                title={`${booking?.travelerName ?? "Путешественник"} vs ${booking?.guideName ?? "Гид"}`}
                 subtitle={`${route} · ${formatRussianDateTime(item.createdAt)}`}
                 badge={<span className="font-mono text-xs text-muted-foreground">#{item.id.slice(0, 8)}</span>}
               />

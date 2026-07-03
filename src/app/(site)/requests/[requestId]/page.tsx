@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { mapTravelerRequestRow } from "@/data/traveler-request/map";
@@ -319,7 +319,14 @@ export default async function RequestDetailPage({
   const createdMode = typeof sp.mode === "string" ? sp.mode : null;
   const result = await getRequestDetail(requestId);
 
-  if (!result.data) notFound();
+  if (!result.data) {
+    // A guide following an inbox "Подробнее" link to a request that is gone
+    // (withdrawn, deleted, or otherwise unreadable) should land back in their
+    // own inbox, not on the public "Запрос не найден" 404.
+    const missingViewerRole = await viewerRoleForRequest(requestId);
+    if (missingViewerRole === "guide") redirect("/guide/inbox");
+    notFound();
+  }
 
   let currentUserId: string | null = null;
   let isMember = false;

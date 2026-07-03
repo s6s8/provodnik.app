@@ -18,6 +18,8 @@ const {
   hasSupabaseEnv,
   cityImage,
   notFound,
+  redirect,
+  viewerRoleForRequest,
 } = vi.hoisted(() => ({
   createSupabaseServerClient: vi.fn(),
   getRequestById: vi.fn(),
@@ -27,11 +29,20 @@ const {
   notFound: vi.fn(() => {
     throw new Error("NEXT_NOT_FOUND");
   }),
+  redirect: vi.fn((url: string) => {
+    throw new Error(`NEXT_REDIRECT:${url}`);
+  }),
+  viewerRoleForRequest: vi.fn(async () => "public"),
 }));
 
 vi.mock("next/navigation", () => ({
   notFound,
+  redirect,
   useRouter: () => ({ refresh: vi.fn() }),
+}));
+
+vi.mock("@/lib/auth/viewer-role-for-request", () => ({
+  viewerRoleForRequest,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -179,6 +190,22 @@ describe("RequestDetailPage", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
 
     expect(notFound).toHaveBeenCalled();
+  });
+
+  it("redirects a guide to their inbox instead of a public 404 for a missing request", async () => {
+    createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
+    getRequestById.mockResolvedValue({ data: null });
+    hasSupabaseEnv.mockReturnValue(false);
+    viewerRoleForRequest.mockResolvedValueOnce("guide");
+
+    await expect(
+      RequestDetailPage({
+        params: Promise.resolve({ requestId: "gone-request" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/guide/inbox");
+
+    expect(redirect).toHaveBeenCalledWith("/guide/inbox");
   });
 });
 

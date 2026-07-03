@@ -28,7 +28,7 @@ describe("GuideProfileScreen", () => {
   it("renders the NewGuideFrame cold-start frame when there are no reviews", () => {
     const { container } = render(<GuideProfileScreen guide={makeGuide()} />);
 
-    expect(container.textContent).toContain("Первые туры");
+    expect(container.textContent).toContain("Первые экскурсии");
   });
 
   it("hides the cold-start frame once the guide has reviews", () => {
@@ -38,7 +38,7 @@ describe("GuideProfileScreen", () => {
       />,
     );
 
-    expect(container.textContent).not.toContain("Первые туры");
+    expect(container.textContent).not.toContain("Первые экскурсии");
   });
 
   it("renders specialties without retired tokens or raw rgba classes", () => {

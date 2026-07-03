@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
+import { CabinetSectionUnavailable } from "@/components/shared/cabinet-section-unavailable";
 import { PageHeader } from "@/components/shared/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -19,7 +20,14 @@ export const metadata: Metadata = {
 };
 
 export default async function ReferralsPage() {
-  if (!flags.FEATURE_TR_REFERRALS) notFound();
+  if (!flags.FEATURE_TR_REFERRALS) {
+    return (
+      <CabinetSectionUnavailable
+        title="Приглашения и бонусы"
+        description="Программа приглашений и бонусов появится в ближайших обновлениях. Пока вы можете находить гидов и оставлять запросы в кабинете."
+      />
+    );
+  }
 
   if (!hasSupabaseEnv()) {
     return (

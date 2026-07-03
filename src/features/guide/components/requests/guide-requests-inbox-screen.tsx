@@ -404,7 +404,7 @@ export function GuideRequestsInboxScreen() {
                           )}
                           <Button variant="ghost" asChild className="ml-auto min-h-[44px]">
                             <Link
-                              href={`/guide/inbox/${item.id}`}
+                              href={`/requests/${item.id}`}
                               aria-label={`Открыть полный запрос: ${item.destination}`}
                             >
                               Подробнее

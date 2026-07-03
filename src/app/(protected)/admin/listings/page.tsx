@@ -25,7 +25,7 @@ import {
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 export const metadata: Metadata = {
-  title: "Туры на проверке",
+  title: "Экскурсии на проверке",
 };
 
 function statusBadgeVariant(
