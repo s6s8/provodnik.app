@@ -3,7 +3,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(6);
+select plan(8);
 
 insert into auth.users (
   id,
@@ -346,6 +346,30 @@ select isnt_empty(
        and avatar_url = 'owner.jpg'
   $$,
   'joined travelers can read minimal owner display columns for joined requests'
+);
+
+-- Booking rows are party-scoped: a user who is neither the booking's traveler nor
+-- its guide cannot read the row directly, even when authenticated.
+select set_config('request.jwt.claim.sub', '5a000000-0000-4000-8000-000000000003', true);
+
+select is_empty(
+  $$
+    select 1
+      from public.bookings
+     where id = '5d000000-0000-4000-8000-000000000001'
+  $$,
+  'an unrelated guide cannot select another party''s booking'
+);
+
+select set_config('request.jwt.claim.sub', '5a000000-0000-4000-8000-000000000004', true);
+
+select is_empty(
+  $$
+    select 1
+      from public.bookings
+     where id = '5d000000-0000-4000-8000-000000000001'
+  $$,
+  'a traveler who is not the booking owner cannot select the booking'
 );
 
 select * from finish();

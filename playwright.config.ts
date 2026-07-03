@@ -25,9 +25,13 @@ export default defineConfig({
         },
       }),
   projects: [
+    // Role-fixture setup: logs in each role and writes storageState (see auth.setup.ts).
+    { name: "setup", testMatch: /auth\.setup\.ts/ },
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      testIgnore: /auth\.setup\.ts/,
+      dependencies: ["setup"],
     },
   ],
 });

@@ -20,4 +20,24 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
       - run: bun run lint
+      - run: bun run test:run
       - run: bun run build
+
+  # Database authorization (RLS / SECURITY DEFINER) safety net. These pgTAP suites
+  # are the coverage precondition for every data-layer move — they must run
+  # non-skipped on every PR, not just live-locally. Each suite self-seeds inside a
+  # BEGIN … ROLLBACK, so a fresh migrated stack is all they need.
+  db-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Start Supabase (applies migrations)
+        run: supabase db start
+      - name: Run pgTAP authorization suite
+        run: supabase test db

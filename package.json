@@ -23,6 +23,7 @@
     "types:remote": "supabase gen types typescript --linked > src/lib/supabase/database.types.ts",
     "playwright": "playwright test",
     "playwright:e2e": "playwright test tests/e2e/tripster-v1/",
+    "test:db": "supabase test db",
     "postinstall": "sh scripts/install-hooks.sh"
   },
   "dependencies": {
