@@ -25,32 +25,64 @@ test.describe("request-first lifecycle", () => {
     const form = page.getByRole("form", { name: "Создать запрос" }).first();
     await expect(form).toBeVisible();
 
-    // First interest chip + a start date + notes carrying the unique title, then submit.
-    await form.getByRole("button", { name: /категор/i }).first().click().catch(() => {});
-    await form.getByRole("button", { name: /отправить запрос/i }).click();
+    await form.getByLabel("Направление").fill("Элиста");
 
-    // A successful create leaves the guest/homepage form (redirect to auth-gate or trips).
-    await expect(page).not.toHaveURL(/error/);
+    await form.getByRole("button", { name: "Когда" }).click();
+    await page
+      .locator('[role="dialog"] button:not([disabled])')
+      .filter({ hasText: /^\d+$/ })
+      .first()
+      .click();
+
+    await form.getByRole("button", { name: /темы/i }).click();
+    await page.getByRole("option", { name: "История и культура" }).click();
+
+    await form.getByRole("button", { name: /найти гида|отправить запрос/i }).click();
+
+    // Successful create redirects to the newly created request detail.
+    await expect(page).toHaveURL(/\/requests\/.+created=1/, { timeout: 15_000 });
   });
 
   test("guide sees the open request and can open the bid form", async ({ page }) => {
     await loginAs(page, SEED_USERS.guide.email, SEED_USERS.guide.password);
 
     await page.goto("/guide/inbox");
-    const firstDetail = page.getByRole("link", { name: "Подробнее" }).first();
+    // The seeded (approved, base_city=Элиста) guide sees the open Элиста request and
+    // can bid on it. The "Подробнее" link carries an aria-label ("Открыть полный
+    // запрос: <dest>") that is its accessible name, so target that.
+    await expect(
+      page.getByRole("button", { name: "Сделать предложение" }).first(),
+    ).toBeVisible();
+    const firstDetail = page
+      .getByRole("link", { name: /Открыть полный запрос/i })
+      .first();
     await expect(firstDetail).toBeVisible();
     await firstDetail.click();
 
     await expect(page).toHaveURL(/\/requests\/.+/);
+
+    // Approved guide can open the bid form: the detail CTA opens the offer dialog
+    // whose submit is "Отправить предложение".
+    await page
+      .getByRole("button", { name: "Сделать предложение" })
+      .first()
+      .click();
+    await expect(
+      page.getByRole("dialog", { name: "Отправить предложение" }),
+    ).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Отправить предложение" }),
     ).toBeVisible();
   });
 
-  test("traveler sees the accept-offer control on their request", async ({ page }) => {
+  test("traveler sees their open request in the cabinet", async ({ page }) => {
     await loginAs(page, SEED_USERS.traveler.email, SEED_USERS.traveler.password);
 
     await page.goto("/trips");
-    await expect(page.getByTestId("trips-grid")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Мои запросы" })).toBeVisible();
+    // The just-created request shows in the traveler's active cabinet, awaiting a guide.
+    await expect(
+      page.getByRole("link", { name: /Ждёт гида/ }).first(),
+    ).toBeVisible();
   });
 });

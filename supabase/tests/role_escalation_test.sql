@@ -6,7 +6,61 @@ set search_path = public, extensions;
 select plan(5);
 
 delete from auth.users
-where id = '40000000-0000-4000-8000-000000000101'::uuid;
+where id in (
+  '20000000-0000-4000-8000-000000000001'::uuid,
+  '40000000-0000-4000-8000-000000000101'::uuid
+);
+
+insert into auth.users (
+  id,
+  instance_id,
+  aud,
+  role,
+  email,
+  encrypted_password,
+  email_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  is_sso_user,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  recovery_token
+)
+values (
+  '20000000-0000-4000-8000-000000000001',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated',
+  'authenticated',
+  'role-escalation-owner@example.test',
+  extensions.crypt('RoleLock123!', extensions.gen_salt('bf')),
+  timezone('utc', now()),
+  '{"provider":"email","providers":["email"]}'::jsonb,
+  '{}'::jsonb,
+  timezone('utc', now()),
+  timezone('utc', now()),
+  false,
+  '',
+  '',
+  '',
+  ''
+);
+
+insert into public.profiles (id, role, email, full_name)
+values (
+  '20000000-0000-4000-8000-000000000001',
+  'traveler',
+  'role-escalation-owner@example.test',
+  'Role Lock Original Name'
+)
+on conflict (id) do update set
+  role = excluded.role,
+  email = excluded.email,
+  full_name = excluded.full_name,
+  account_status = 'active',
+  updated_at = timezone('utc', now());
 
 set local role authenticated;
 select set_config('request.jwt.claim.sub', '20000000-0000-4000-8000-000000000001', true);

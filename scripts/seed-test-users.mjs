@@ -66,10 +66,16 @@ for (const acct of accounts) {
   if (roleMetaErr) throw new Error(`app_metadata ${acct.role}: ${roleMetaErr.message}`);
 
   if (acct.role === 'guide') {
+    // Eligible-guide fixture: approved + available so the guide legitimately sees
+    // open requests and can bid. base_city must match the lifecycle spec's request
+    // destination ("Элиста") — the inbox applies a base-city scope filter, so a
+    // mismatch here is what left the inbox empty ("Запросов пока нет").
     const { error: gpErr } = await supa.from('guide_profiles').upsert({
       user_id: userId,
       display_name: 'QA Guide Test',
-      base_city: 'Москва'
+      base_city: 'Элиста',
+      verification_status: 'approved',
+      is_available: true
     }, { onConflict: 'user_id' });
     if (gpErr) throw new Error(`guide_profiles upsert: ${gpErr.message}`);
 

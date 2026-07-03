@@ -41,4 +41,8 @@ jobs:
       - name: Start Supabase (applies migrations)
         run: supabase db start
       - name: Run pgTAP authorization suite
-        run: supabase test db
+        # Deterministic runner (scripts/run-pgtap.sh): pipes each test file over
+        # stdin into the supabase_db container and parses raw TAP. Unlike
+        # `supabase test db` it cannot pass vacuously — it exits non-zero on any
+        # `not ok`, SQL ERROR, plan mismatch, or zero discovered files.
+        run: bun run test:db

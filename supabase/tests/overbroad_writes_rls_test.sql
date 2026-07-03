@@ -190,7 +190,7 @@ values
     '2026-10-01 12:00+00',
     array['Guide'],
     timezone('utc', now()) + interval '7 days',
-    'pending'
+    'declined'
   ),
   (
     '53000000-0000-4000-8000-000000000002',
