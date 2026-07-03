@@ -22,4 +22,3 @@ Each row: decision, rationale, why it is safe under the north star.
   `storageState`-bound Playwright projects loadable in unseeded environments while the
   authenticated specs skip themselves — the suite never passes by pretending to be
   logged in.
-</content>

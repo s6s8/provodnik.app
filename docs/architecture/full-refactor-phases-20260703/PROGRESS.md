@@ -31,8 +31,8 @@ Execution of `docs/architecture/refactor-plan-20260702/REFACTOR_PLAN.md`, phase 
 | 1 | Enforce boundaries + remove safe dead code | ✅ done (query-key factory deferred) |
 | 2 | Data-layer consolidation per domain | ✅ substantially done (browser-write rewrite deferred) |
 | 3 | RLS / security hardening | ✅ core done (R-04/R-06 deferred with plans) |
-| 4 | Server actions / forms standardization | pending |
-| 5 | UI decomposition + terminology | pending |
+| 4 | Server actions / forms standardization | ⏸ gated (contract pinned; migration needs E2E net) |
+| 5 | UI decomposition + terminology | ◑ terminology ✅ verified; decomposition gated on visual net |
 
 ## Log
 
@@ -139,5 +139,41 @@ Execution of `docs/architecture/refactor-plan-20260702/REFACTOR_PLAN.md`, phase 
   **Next action**: with the admin E2E net running, add `is_admin()` SELECT policies
   table-by-table behind pgTAP (admin authed-client can read; non-admin denied), keeping
   service-role for legitimate bypass writes.
-</content>
-</invoke>
+
+### Phase 5 — terminology done; decomposition gated
+
+- **Terminology cleanup (copy) — ✅ verified clean.** A full sweep of `src/features`,
+  `src/components`, `src/app` (excluding legal `/policies/`, tests, comments) found **zero**
+  user-visible forbidden product terms (`турист`, `клиент`, `поставщик`, `исполнитель`,
+  `биржа`, `готовые туры`, `тур*`). The launch fix's terminology pass already unified the
+  copy to the glossary (`путешественник` / `гид` / `запросы` / `готовые экскурсии`). No
+  change needed — confirmed, not assumed.
+- **God-component decomposition — gated.** booking-detail (984 loc), bid-form-panel (639),
+  guide-excursions (593) have moderate component tests (14 / 13 / 6 cases) but are core
+  lifecycle screens. Blind extraction (maintainability-only, no user-facing gain) can't be
+  visually verified in this sandbox; the plan requires decomposition "behind existing
+  component tests + visual walkthrough at 1280px & 375px." **Next action**: with the visual
+  net, extract pure-presentational sub-components one at a time, re-running the component
+  test + a desktop/mobile screenshot after each split.
+
+### Phase 4 — gated (contract pinned)
+
+- The `createAction`/`ActionResult` contract is **pinned by Phase 0 tests** (7 cases) so the
+  migration is now safe to start. The migration itself is behavior-sensitive with high
+  caller fan-out (R-10: 51 actions, 3 return shapes) and changes form success/error
+  handling, which must be parity-verified via the form E2E net (operator step here). Doing
+  it blind risks silent form breakage. **Next action**: migrate one feature's actions at a
+  time (`createAction` + shared Zod + `revalidateTag`), keeping old signatures via adapters
+  until callers move, gated on the form E2E for that feature.
+
+## Final verification (HEAD)
+
+| Gate | Result |
+|---|---|
+| `bun run typecheck` | ✅ 0 errors |
+| `bun run lint` | ✅ 0 problems (exit 0) |
+| `bun run lint:ratchet` | ✅ 0 errors / 21 warnings (floor locked; was 79) |
+| `bun run test:run` | ✅ 215 files / 1080 tests |
+| `NEXT_TELEMETRY_DISABLED=1 bun run build` | ✅ all routes built |
+| `bunx playwright test --list` | ✅ 16 specs compile/discover |
+| DB pgTAP (`bun run test:db`) | ⏸ CI/operator (isolated stack); migrations rolled-back-validated |

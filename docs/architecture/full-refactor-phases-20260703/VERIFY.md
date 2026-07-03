@@ -23,6 +23,26 @@ All commands run in `/private/tmp/provodnik-opus-full-refactor` on branch
 | `bun run test:run` | ✅ 227 files / 1132 tests |
 | `bunx playwright test --list` | ✅ 16 tests across 5 files compile + discovered |
 
+## Phases 1–3 — final chain (@ HEAD)
+
+| Command | Result |
+|---|---|
+| `bun run typecheck` | ✅ 0 errors |
+| `bun run lint` | ✅ 0 problems (exit 0) |
+| `bun run lint:ratchet` | ✅ 0 errors / 21 warnings (floor was 79; monotonic ↓) |
+| `bun run test:run` | ✅ 215 files / 1080 tests |
+| `NEXT_TELEMETRY_DISABLED=1 bun run build` | ✅ all routes built |
+
+Test/file counts moved with the deletions: 227→215 files, 1132→1080 tests (dead-component
+and dead-I/O tests removed; +7 createAction/RLS assertions added).
+
+### Phase 3 migration validation (rolled-back against live baseline schema)
+
+Both new migrations were applied inside `BEGIN … ROLLBACK` against the running baseline DB
+(nothing persisted): the constrained `business_leads` policy took effect (valid insert ok,
+empty-contact insert → 42501), and the storage bucket public flags resolved as declared
+(guide-documents=false, guide-avatars/guide-portfolio=true). Full pgTAP runs in CI.
+
 ### Not executed in-sandbox (wired + documented; runs in CI / operator)
 
 - `bun run test:db` (pgTAP RLS suite) — sandbox shares another job's Supabase stack
@@ -32,4 +52,3 @@ All commands run in `/private/tmp/provodnik-opus-full-refactor` on branch
 - `bun run playwright` (browser E2E lifecycle) — needs seeded QA accounts
   (`bun scripts/seed-test-users.mjs <env>` with `QA_SEED_PASSWORD`) + a running app.
   Role-fixture setup project + honest specs are in place; live green is the operator step.
-</content>
