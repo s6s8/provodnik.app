@@ -21,6 +21,7 @@ import { resolveCanonicalRole } from "@/lib/auth/role-routing";
 import {
   isAdminWorkspacePath,
   resolvePostAuthRedirectPath,
+  resolveSafeNextPath,
 } from "@/lib/auth/safe-redirect";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -229,10 +230,10 @@ export function AuthEntryScreen({
       }
 
       // New guides must land on the verification anketa (server-chosen
-      // dashboardPath), not the role dashboard; an explicit ?next= still wins.
+      // dashboardPath), not the role dashboard; a safe, role-accessible
+      // ?next= still wins, but a rejected one must not degrade to /guide.
       window.location.assign(
-        (next?.trim() ? resolvePostAuthRedirectPath(role, next) : null) ??
-          result.dashboardPath,
+        resolveSafeNextPath(role, next) ?? result.dashboardPath,
       );
     } catch {
       setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");

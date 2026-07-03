@@ -401,4 +401,22 @@ describe("AuthEntryScreen guide sign-up landing", () => {
       expect(assignMock).toHaveBeenCalledWith("/guide/inbox");
     });
   });
+
+  it.each(["https://evil.com", "/admin", "/"])(
+    "falls back to the anketa, not the guide dashboard, when ?next=%s is rejected",
+    async (next) => {
+      const { signUpAction } = await import("@/features/auth/actions/signUpAction");
+      vi.mocked(signUpAction).mockResolvedValue({
+        ok: true,
+        dashboardPath: "/guide/profile",
+      });
+
+      render(<AuthEntryScreen role="guide" next={next} />);
+      await submitGuideSignUp();
+
+      await waitFor(() => {
+        expect(assignMock).toHaveBeenCalledWith("/guide/profile");
+      });
+    },
+  );
 });

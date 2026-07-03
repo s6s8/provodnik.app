@@ -3,6 +3,7 @@ import {
   buildAuthLoginRedirect,
   isAdminWorkspacePath,
   resolvePostAuthRedirectPath,
+  resolveSafeNextPath,
   safeRedirectPath,
 } from "./safe-redirect";
 
@@ -59,6 +60,28 @@ describe("isAdminWorkspacePath", () => {
     expect(isAdminWorkspacePath("https://evil.com/admin")).toBe(false);
     expect(isAdminWorkspacePath("/traveler/requests")).toBe(false);
     expect(isAdminWorkspacePath(null)).toBe(false);
+  });
+});
+
+describe("resolveSafeNextPath", () => {
+  test("returns the safe next path when accessible for the role", () => {
+    expect(resolveSafeNextPath("guide", "/guide/inbox")).toBe("/guide/inbox");
+  });
+
+  test("returns null when next is absent or blank", () => {
+    expect(resolveSafeNextPath("guide", null)).toBeNull();
+    expect(resolveSafeNextPath("guide", "  ")).toBeNull();
+  });
+
+  test("returns null (not the dashboard) when next is rejected", () => {
+    expect(resolveSafeNextPath("guide", "https://evil.com")).toBeNull();
+    expect(resolveSafeNextPath("guide", "//evil.com")).toBeNull();
+    expect(resolveSafeNextPath("guide", "/")).toBeNull();
+    expect(resolveSafeNextPath("guide", "/admin")).toBeNull();
+  });
+
+  test("returns null when role is missing", () => {
+    expect(resolveSafeNextPath(null, "/messages")).toBeNull();
   });
 });
 

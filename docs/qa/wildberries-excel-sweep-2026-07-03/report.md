@@ -1,6 +1,7 @@
 # СВОДКА — Wildberries Excel sweep (Provodnik_01.07.26_V1), 2026-07-03
 
-Source: `Provodnik_01.07.26_V1.xlsx` → Sheet1 rows 1–23, Sheet9, Sheet10.
+Source: `Provodnik_01.07.26_V1.xlsx` → Sheet1 rows 1–23 (строки 10 в исходнике нет — нумерация 9→11), Sheet9, Sheet10.
+Скриншоты: `docs/qa/screenshots/wildberries-excel-sweep-2026-07-03/`.
 Baseline: `origin/main` @ `6cc97bfb` — the exact commit running on `vps.provodnik.app` (verified via SSH: `/opt/provodnik` git HEAD = `6cc97bfb`, `provodnik.service` active).
 Branch with new fixes: `sweep/wildberries-excel-0703`.
 
@@ -46,6 +47,12 @@ ALREADY_FIXED + live-verified. Live под `qa-admin`: страница загр
 - `src/features/auth/components/auth-entry-screen.tsx` — редирект после регистрации гида на анкету (row 6).
 - `src/lib/profile/traveler-profile-completion.ts` — «Профиль заполнен» (row 14).
 - Тесты: +2 в `auth-entry-screen.test.tsx`, обновлены 2 assertion'а чек-листа.
+
+## Пост-ревью (2026-07-04, high-effort code review диффа)
+
+- **Fix:** отклонённый `?next=` (открытый редирект, чужая роль, `/`) больше не уводит нового гида на `/guide` вместо анкеты: валидация next вынесена в `resolveSafeNextPath()` (`safe-redirect.ts`), sign-up использует её напрямую (`?? result.dashboardPath`). `resolvePostAuthRedirectPath` переписан через хелпер — поведение для sign-in/сервера не изменилось. +4 unit-теста (`safe-redirect.test.ts`) и +3 параметризованных кейса (`auth-entry-screen.test.tsx`).
+- **Принятое ограничение:** при прерванной регистрации (вкладка закрыта до клиентского редиректа) серверный редирект `/auth` отправит уже-аутентифицированного гида на `/guide` (инбокс), а не на анкету. Не регрессия этого PR (поведение существовало до него); инбокс показывает CTA «Пройти верификацию» для неподтверждённых гидов. Серверный гейтинг неверифицированных гидов — отдельная задача.
+- **Hygiene:** скриншоты перенесены в каноничный `docs/qa/screenshots/<topic>/`; из PR убраны случайные `.tmp/*.sql`, `/.tmp/` в `.gitignore`.
 
 ## Верификация (worktree `sweep/wildberries-excel-0703`)
 
