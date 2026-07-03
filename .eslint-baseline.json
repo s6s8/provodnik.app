@@ -1,18 +1,46 @@
 {
-  "generatedAt": "2026-05-09T18:02:21.874Z",
+  "generatedAt": "2026-07-03T01:04:35.392Z",
   "eslintVersion": "9.39.4",
   "totals": {
     "errors": 0,
-    "warnings": 2
+    "warnings": 79
   },
   "byFile": {
-    "src/features/booking/components/BookingFormTabs.tsx": {
+    "src/data/guide-assets/supabase-client.ts": {
+      "errors": 0,
+      "warnings": 12
+    },
+    "src/data/guide-offer/supabase.ts": {
+      "errors": 0,
+      "warnings": 3
+    },
+    "src/data/guide-templates/supabase-client.ts": {
+      "errors": 0,
+      "warnings": 9
+    },
+    "src/data/marketplace-events/client.ts": {
+      "errors": 0,
+      "warnings": 2
+    },
+    "src/data/notifications/supabase.ts": {
+      "errors": 0,
+      "warnings": 3
+    },
+    "src/data/reviews/supabase.ts": {
+      "errors": 0,
+      "warnings": 5
+    },
+    "src/data/supabase/queries.test.ts": {
       "errors": 0,
       "warnings": 1
     },
-    "src/features/profile/components/PersonalSettingsForm.tsx": {
+    "src/data/supabase/queries.ts": {
       "errors": 0,
-      "warnings": 1
+      "warnings": 39
+    },
+    "src/data/supabase/queries/core.ts": {
+      "errors": 0,
+      "warnings": 5
     }
   }
 }

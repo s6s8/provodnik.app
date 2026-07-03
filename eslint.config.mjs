@@ -41,6 +41,45 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // Data-access boundary (refactor Phase 1 / task 4.5): Supabase I/O belongs in
+  // src/lib/supabase/<domain>.ts only. src/data is static-only; src/components is UI.
+  // Forbid `.from(` / `.rpc(` query calls and supabase client factory imports in those
+  // layers. warn-level + lint ratchet (.eslint-baseline.json) grandfathers the known
+  // pre-refactor offenders and fails the ratchet on any NEW violation, so drift can only
+  // shrink. Array.from / Object.from / Buffer.from are excluded (not data access).
+  {
+    files: ["src/data/**/*.{ts,tsx}", "src/components/**/*.{ts,tsx}"],
+    rules: {
+      // Folded into no-restricted-syntax (not no-restricted-imports) so it does not
+      // collide with / weaken the error-level `features` import ban on src/data above.
+      "no-restricted-syntax": [
+        "warn",
+        {
+          selector:
+            "CallExpression[callee.property.name='from'][callee.object.name!='Array'][callee.object.name!='Object'][callee.object.name!='Buffer']",
+          message:
+            "Supabase table/storage access (.from) is not allowed in src/data or src/components — move it to src/lib/supabase/<domain>.ts (data-access boundary).",
+        },
+        {
+          selector: "CallExpression[callee.property.name='rpc']",
+          message:
+            "Supabase .rpc() is not allowed in src/data or src/components — move it to src/lib/supabase/<domain>.ts (data-access boundary).",
+        },
+        {
+          selector:
+            "ImportDeclaration[source.value=/^@supabase\\/(ssr|supabase-js)$/]",
+          message:
+            "Do not create a Supabase client in src/data or src/components — I/O lives in src/lib/supabase/<domain>.ts.",
+        },
+        {
+          selector:
+            "ImportDeclaration[source.value=/^@\\/lib\\/supabase\\/(server|client)$/]",
+          message:
+            "Do not import the Supabase client factory in src/data or src/components — I/O lives in src/lib/supabase/<domain>.ts.",
+        },
+      ],
+    },
+  },
   // Design-token gate — files migrated onto the unified token system must not
   // reintroduce arbitrary color/radius/shadow values or raw color literals.
   // Everything goes through globals.css @theme + the atom layer. This list grows
