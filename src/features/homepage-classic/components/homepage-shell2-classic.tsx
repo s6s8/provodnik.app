@@ -10,6 +10,8 @@ import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
 interface Props {
   destinations: DestinationOption[];
   requests: RequestRecord[];
+  viewerId?: string | null;
+  preferredGuide?: { slug: string; name: string } | null;
 }
 
 const HOW_IT_WORKS = [
@@ -23,12 +25,12 @@ const HOW_IT_WORKS = [
 
 const SECTION = "mx-auto w-full max-w-page px-gutter";
 
-export function HomePageShell2Classic({ destinations, requests }: Props) {
+export function HomePageShell2Classic({ destinations, requests, viewerId, preferredGuide }: Props) {
   const openGroups = requests.slice(0, 3);
 
   return (
     <>
-      <HomepageHeroFormClassic destinations={destinations} />
+      <HomepageHeroFormClassic destinations={destinations} preferredGuide={preferredGuide} />
 
       {openGroups.length > 0 && (
         <section className={`${SECTION} pb-6 pt-14`} aria-label="Открытые группы">
@@ -60,6 +62,7 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
                   offerCount={req.offerCount}
                   members={req.members}
                   participantCount={req.groupSize}
+                  owner={req.travelerId != null && req.travelerId === viewerId}
                   price={req.budgetRub ? `${formatRubNumber(req.budgetRub)} ₽ / чел` : undefined}
                   priority={index === 0}
                 />

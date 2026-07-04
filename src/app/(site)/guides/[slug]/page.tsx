@@ -4,6 +4,7 @@ import { cache } from "react";
 
 import { getGuideBySlug, getListingsByGuide, getGuideReviews, getGuideLocationPhotos } from "@/data/supabase/queries";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
+import { THEMES } from "@/data/themes";
 import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { serializeJsonLd } from "@/lib/seo/json-ld";
@@ -74,10 +75,24 @@ export default async function PublicGuideProfilePage({
 
   const g = guideResult.data;
 
+  // Canonical theme slugs (specializations) → labels, merged with the guide's
+  // free-text specialties, deduped case-insensitively.
+  const themeLabelBySlug = new Map<string, string>(THEMES.map((t) => [t.slug, t.label]));
+  const specializationLabels = (g.specializations ?? [])
+    .map((slug) => themeLabelBySlug.get(slug))
+    .filter((label): label is string => Boolean(label));
+  const seenTags = new Set<string>();
+  const specialtyTags = [...specializationLabels, ...g.specialties].filter((tag) => {
+    const key = tag.trim().toLowerCase();
+    if (!key || seenTags.has(key)) return false;
+    seenTags.add(key);
+    return true;
+  });
+
   const guide: PublicGuideProfile = {
     slug: g.slug,
     displayName: g.fullName,
-    headline: g.bio.slice(0, 120),
+    headline: "",
     homeBase: g.homeBase,
     verificationStatus: g.verified ? "approved" : "draft",
     completedTours: g.tripsCompleted,
@@ -88,7 +103,7 @@ export default async function PublicGuideProfilePage({
     yearsExperience: g.experienceYears,
     regions: g.destinations,
     languages: g.languages,
-    specialties: g.specialties,
+    specialties: specialtyTags,
     bio: g.bio,
     reviewsSummary: {
       averageRating: g.rating,

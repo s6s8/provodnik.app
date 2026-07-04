@@ -61,6 +61,13 @@ export const travelerRequestSchema = z
       .max(800, "Не больше 800 символов.")
       .optional()
       .or(z.literal("")),
+    // Guide preselected via "Запросить этого гида" (guide public page CTA).
+    preferredGuideSlug: z
+      .string()
+      .trim()
+      .max(120)
+      .regex(/^\S+$/, "Некорректный идентификатор гида.")
+      .optional(),
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.startDate);

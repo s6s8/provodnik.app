@@ -14,9 +14,10 @@ export function generateMetadata(): Metadata {
   };
 }
 
-function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
+function mapToOpenRequestRecord(request: RequestRecord, viewerId: string | null): OpenRequestRecord {
   return {
     id: request.id,
+    isOwner: request.travelerId != null && request.travelerId === viewerId,
     status: request.status === "booked" ? "matched" : "open",
     visibility: "public",
     createdAt: request.createdAt,
@@ -53,12 +54,19 @@ export default async function RequestsPage() {
   try {
     const supabase = await createSupabaseServerClient();
     const result = await getOpenRequests(supabase, undefined, ["open"]);
+    let viewerId: string | null = null;
+    try {
+      const { data } = await supabase.auth.getUser();
+      viewerId = data.user?.id ?? null;
+    } catch {
+      // Anonymous viewers (or clients without auth) simply own nothing.
+    }
     if (result.error) {
       loadError = true;
     } else if (result.data && result.data.length > 0) {
       initialData = result.data
         .filter((request) => request.mode === "assembly")
-        .map(mapToOpenRequestRecord);
+        .map((request) => mapToOpenRequestRecord(request, viewerId));
     }
   } catch {
     loadError = true;

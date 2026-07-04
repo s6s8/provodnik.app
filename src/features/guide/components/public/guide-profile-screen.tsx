@@ -116,9 +116,11 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               <h1 className="mb-4 text-[clamp(2.75rem,8vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-on-surface">
                 {guide.displayName}
               </h1>
-              <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-on-surface-muted">
-                {guide.headline}
-              </p>
+              {guide.headline ? (
+                <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-on-surface-muted">
+                  {guide.headline}
+                </p>
+              ) : null}
             </div>
           </div>
         </section>

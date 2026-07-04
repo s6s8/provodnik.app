@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getActiveGuideDestinations, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
+import { getActiveGuideDestinations, getGuideBySlug, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
 import { HomePageShell2Classic } from "@/features/homepage-classic/components/homepage-shell2-classic";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -11,17 +11,30 @@ export const metadata: Metadata = {
     "Опишите поездку — подберём проверенного местного гида. Заявки, направления и живые отклики.",
 };
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ guide?: string }>;
+}) {
   let destinations: DestinationOption[] = [];
   let requests: RequestRecord[] = [];
+  let viewerId: string | null = null;
+  let preferredGuide: { slug: string; name: string } | null = null;
+  const { guide: guideParam } = await searchParams;
   try {
     const supabase = await createSupabaseServerClient();
-    const [destResult, reqResult] = await Promise.all([
+    const [destResult, reqResult, userResult, guideResult] = await Promise.all([
       getActiveGuideDestinations(supabase),
       getHomepageRequests(supabase),
+      supabase.auth.getUser().catch(() => ({ data: { user: null } })),
+      guideParam ? getGuideBySlug(supabase, guideParam) : Promise.resolve(null),
     ]);
     destinations = destResult.data ?? [];
     requests = reqResult.data ?? [];
+    viewerId = userResult.data.user?.id ?? null;
+    if (guideResult?.data) {
+      preferredGuide = { slug: guideResult.data.slug, name: guideResult.data.fullName };
+    }
   } catch {
     // all stay empty
   }
@@ -30,7 +43,12 @@ export default async function HomePage() {
     <>
       <SiteHeaderServer />
       <main>
-        <HomePageShell2Classic destinations={destinations} requests={requests} />
+        <HomePageShell2Classic
+          destinations={destinations}
+          requests={requests}
+          viewerId={viewerId}
+          preferredGuide={preferredGuide}
+        />
       </main>
     </>
   );
