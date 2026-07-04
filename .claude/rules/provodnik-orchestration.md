@@ -41,7 +41,7 @@ Use `/goal` for stop conditions:
 
 Use `/loop` only for explicit recurring maintenance or watch tasks. A loop must state the interval, stop condition, and exactly what may be changed.
 
-Use Context7 for library/API-sensitive work. Include the library id, docs topic, and version/signature used.
+Always use the Claude Code trio for non-trivial Provodnik work: Superpowers for workflow discipline, Ponytail for minimalism/review, and Context7 for library/API-sensitive evidence. Prompts/task packets must require all three explicitly; final reports must state how each was used. For Context7 include the library id, docs topic, and version/signature used.
 
 ## Verification
 
