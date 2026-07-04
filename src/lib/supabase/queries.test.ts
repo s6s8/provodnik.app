@@ -218,6 +218,33 @@ describe("PII-safe Supabase query mapping", () => {
     expect(mapRequestRow(row).format).toBe(expected);
   });
 
+  it("exposes traveler_id as travelerId for ownership checks (№32)", () => {
+    const row: Record<string, unknown> = {
+      id: "request-1",
+      traveler_id: "traveler-9",
+      destination: "Москва",
+      budget_minor: null,
+      participants_count: 2,
+      status: "open",
+      created_at: "2026-06-03T00:00:00Z",
+    };
+
+    expect(mapRequestRow(row).travelerId).toBe("traveler-9");
+  });
+
+  it("keeps travelerId null when the sanitized public view omits traveler_id", () => {
+    const row: Record<string, unknown> = {
+      id: "request-1",
+      destination: "Москва",
+      budget_minor: null,
+      participants_count: 2,
+      status: "open",
+      created_at: "2026-06-03T00:00:00Z",
+    };
+
+    expect(mapRequestRow(row).travelerId).toBeNull();
+  });
+
   it("maps group format preference to assembly mode even when open_to_join is false", () => {
     const row: Record<string, unknown> = {
       id: "request-1",
@@ -475,6 +502,50 @@ describe("guide stats layering (no fabricated zeros)", () => {
       "%D0%B6%D1%8E%D0%BB%D1%8C-%D0%B2%D0%B5%D1%80%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2-69f18040",
     );
     expect(rpcCall).toContain("жюль-верников-69f18040");
+  });
+
+  it("maps base_city and specializations from the detail RPC (№26/№27)", async () => {
+    const client = createFakeClient({
+      "rpc:get_public_guide_by_slug": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          full_name: "Иван Гид",
+          regions: ["Волгоградская область"],
+          base_city: "Волгоград",
+          specializations: ["history_culture", "nature"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.homeBase).toBe("Волгоградская область, Волгоград");
+    expect(result.data?.baseCity).toBe("Волгоград");
+    expect(result.data?.specializations).toEqual(["history_culture", "nature"]);
+  });
+
+  it("falls back homeBase to the region when base_city is absent", async () => {
+    const client = createFakeClient({
+      "rpc:get_public_guide_by_slug": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          full_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.data?.homeBase).toBe("Москва");
+    expect(result.data?.specializations).toEqual([]);
   });
 
   it("keeps rating 0 and null responseRate when the stats view is absent", async () => {

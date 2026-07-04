@@ -49,6 +49,8 @@ export interface OpenGroupCardProps {
   unread?: boolean;
   joinHref?: string;
   joinLabel?: string;
+  /** Viewer created this request — replace the join CTA with "Это ваша группа". */
+  owner?: boolean;
   priority?: boolean;
 }
 
@@ -77,6 +79,7 @@ export function OpenGroupCard({
   unread,
   joinHref,
   joinLabel = "Присоединиться",
+  owner,
   priority,
 }: OpenGroupCardProps) {
   const themes = (interests ?? [])
@@ -185,9 +188,15 @@ export function OpenGroupCard({
           ) : null}
         </div>
 
-        <Button asChild className="mt-3 w-full">
-          <Link href={joinHref ?? href}>{joinLabel}</Link>
-        </Button>
+        {owner ? (
+          <Button asChild variant="outline" className="mt-3 w-full">
+            <Link href={href}>Это ваша группа</Link>
+          </Button>
+        ) : (
+          <Button asChild className="mt-3 w-full">
+            <Link href={joinHref ?? href}>{joinLabel}</Link>
+          </Button>
+        )}
       </div>
     </div>
   );

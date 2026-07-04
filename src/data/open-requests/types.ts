@@ -41,5 +41,7 @@ export type OpenRequestRecord = {
   notes?: string;
   organizerName?: string;
   members?: Array<{ id: string; displayName: string; initials: string; avatarUrl?: string }>;
+  /** True when the current viewer created this request. */
+  isOwner?: boolean;
 };
 

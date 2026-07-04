@@ -16,7 +16,8 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 type FormValues = TravelerRequest;
 type FormInput = TravelerRequestInput;
 
-export function useRequestForm() {
+export function useRequestForm(options?: { preferredGuideSlug?: string | null }) {
+  const preferredGuideSlug = options?.preferredGuideSlug ?? null;
   const router = useRouter();
   const [authGateOpen, setAuthGateOpen] = React.useState(false);
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
@@ -97,6 +98,9 @@ export function useRequestForm() {
     }
     fd.set("budgetPerPersonRub", String(values.budgetPerPersonRub));
     fd.set("notes", values.notes ?? "");
+    if (preferredGuideSlug) {
+      fd.set("preferredGuideSlug", preferredGuideSlug);
+    }
 
     try {
       const supabase = createSupabaseBrowserClient();

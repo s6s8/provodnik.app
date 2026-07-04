@@ -76,6 +76,30 @@ describe("RequestsPage", () => {
     expect(rendered.props.initialData[0].group.openToMoreMembers).toBe(true);
   });
 
+  it("marks records owned by the signed-in viewer with isOwner (№32)", async () => {
+    const supabaseClient = {
+      from: vi.fn(),
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "traveler-9" } } }) },
+    };
+    createSupabaseServerClient.mockResolvedValue(supabaseClient);
+    getOpenRequests.mockResolvedValue({
+      data: [
+        requestRecord({ id: "own-request", travelerId: "traveler-9" }),
+        requestRecord({ id: "other-request", travelerId: "traveler-1" }),
+        requestRecord({ id: "anon-view-request", travelerId: null }),
+      ],
+    });
+
+    const rendered = await RequestsPage();
+
+    const byId = Object.fromEntries(
+      (rendered.props.initialData as Array<{ id: string; isOwner?: boolean }>).map((r) => [r.id, r.isOwner]),
+    );
+    expect(byId["own-request"]).toBe(true);
+    expect(byId["other-request"]).toBe(false);
+    expect(byId["anon-view-request"]).toBe(false);
+  });
+
   it("passes null initialData to the catalog when the board is empty", async () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getOpenRequests.mockResolvedValue({ data: [], error: null });

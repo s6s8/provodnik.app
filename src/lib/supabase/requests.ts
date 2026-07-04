@@ -65,6 +65,13 @@ export const createRequestInputSchema = z
       .nullable()
       .optional(),
     region: z.string().trim().max(80).nullable().optional(),
+    preferred_guide_slug: z
+      .string()
+      .trim()
+      .max(120)
+      .regex(/^\S+$/, "Некорректный идентификатор гида.")
+      .nullable()
+      .optional(),
     start_time: z
       .string()
       .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
@@ -126,7 +133,7 @@ export type TravelerRequest = TravelerRequestRow;
 // ---------------------------------------------------------------------------
 
 const SELECT_COLS =
-  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window";
+  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window, preferred_guide_slug";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -163,6 +170,7 @@ export async function createTravelerRequest(
       // DB column default. Closes bug 7 deterministically (prod schema-cache miss).
       // allow_guide_suggestions: input.allow_guide_suggestions,
       group_capacity: input.group_capacity ?? null,
+      preferred_guide_slug: input.preferred_guide_slug ?? null,
       start_time: input.start_time ?? null,
       end_time: input.end_time ?? null,
       date_flexibility: input.date_flexibility,

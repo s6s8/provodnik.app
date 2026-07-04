@@ -67,6 +67,10 @@ export type GuideRecord = {
   listingCount?: number;
   isPartialMatch: boolean;
   specialties: string[];
+  /** Canonical theme slugs from guide_profiles.specializations. */
+  specializations: string[];
+  /** Base city from guide_profiles.base_city (detail RPC only). */
+  baseCity: string | null;
   tripsCompleted: number;
   recommendPct: number | null;
   responseRate?: number | null;
@@ -89,6 +93,8 @@ export type RequestMember = {
 
 export type RequestRecord = {
   id: string;
+  /** Request owner (traveler_id); null/absent when read via the sanitized public view. */
+  travelerId?: string | null;
   destination: string;
   destinationSlug: string;
   destinationRegion: string;
@@ -428,6 +434,7 @@ export function mapRequestRow(
 
   return {
     id: row.id as string,
+    travelerId: (row.traveler_id as string | null) ?? null,
     destination: destinationLabel,
     destinationSlug: normalizeSlug(dest),
     destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "Россия",
@@ -537,13 +544,18 @@ export function mapGuideRow(gp: Record<string, unknown>, profile: Record<string,
     full_name: (profile?.full_name as string | null | undefined) ?? (gp.display_name as string | null | undefined),
   });
   const regions = (gp.regions as string[]) ?? [];
+  const baseCity = (gp.base_city as string | null) ?? null;
+  const region = regions[0];
   return {
     id: gp.user_id as string,
     slug: (gp.slug as string) ?? normalizeSlug(fullName),
     fullName,
     avatarUrl: (profile?.avatar_url as string) ?? undefined,
     initials: getInitials(fullName),
-    homeBase: regions[0] ?? "Россия",
+    homeBase:
+      baseCity && region && baseCity !== region
+        ? `${region}, ${baseCity}`
+        : baseCity ?? region ?? "Россия",
     bio: (gp.bio as string) ?? "Проводник по локальным маршрутам.",
     destinations: regions,
     destinationSlugs: regions.map(normalizeSlug),
@@ -553,6 +565,8 @@ export function mapGuideRow(gp: Record<string, unknown>, profile: Record<string,
     experienceYears: (gp.years_experience as number) ?? 5,
     isPartialMatch: (gp.is_partial_match as boolean) ?? false,
     specialties: (gp.specialties as string[] | null) ?? [],
+    specializations: (gp.specializations as string[] | null) ?? [],
+    baseCity,
     languages: (gp.languages as string[] | null) ?? [],
     tripsCompleted: 0,
     recommendPct: null,

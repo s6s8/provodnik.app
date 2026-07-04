@@ -11,9 +11,10 @@ const HERO_IMAGE =
 
 interface Props {
   destinations: DestinationOption[];
+  preferredGuide?: { slug: string; name: string } | null;
 }
 
-export function HomepageHeroFormClassic({ destinations }: Props) {
+export function HomepageHeroFormClassic({ destinations, preferredGuide }: Props) {
   return (
     <section className="relative flex min-h-svh flex-col overflow-hidden bg-overlay">
       <Image
@@ -32,7 +33,7 @@ export function HomepageHeroFormClassic({ destinations }: Props) {
         </h1>
 
         <div className="w-full max-w-lg rounded-hero bg-surface p-5 text-left shadow-lift">
-          <HomepageRequestFormClassic destinations={destinations} />
+          <HomepageRequestFormClassic destinations={destinations} preferredGuide={preferredGuide} />
         </div>
       </div>
 

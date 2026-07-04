@@ -473,6 +473,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                     interests={request.interests}
                     members={request.members}
                     participantCount={sizeCurrent}
+                    owner={request.isOwner}
                     price={
                       request.budgetPerPersonRub
                         ? `${formatRubNumber(request.budgetPerPersonRub)} ₽ / чел`

@@ -101,4 +101,19 @@ describe("buildRequestInsertPayload", () => {
 
     expect(payload.ends_on).toBe("2026-08-01");
   });
+
+  it("persists preferred_guide_slug from the guide-page CTA", async () => {
+    const payload = await buildRequestInsertPayload(
+      { ...baseInput, preferredGuideSlug: "жюль-верников-69f18040" },
+      { allowGuideSuggestions: true },
+    );
+
+    expect(payload.preferred_guide_slug).toBe("жюль-верников-69f18040");
+  });
+
+  it("writes preferred_guide_slug as null when no guide was preselected", async () => {
+    const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
+
+    expect(payload.preferred_guide_slug).toBeNull();
+  });
 });

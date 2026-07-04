@@ -176,6 +176,7 @@ export type TravelerRequestRow = {
   open_to_join: boolean;
   allow_guide_suggestions: boolean;
   group_capacity: number | null;
+  preferred_guide_slug?: string | null;
   start_time: string | null;
   end_time: string | null;
   date_flexibility: 'exact' | 'few_days';

@@ -3341,6 +3341,7 @@ export type Database = {
           notes: string | null
           open_to_join: boolean
           participants_count: number
+          preferred_guide_slug: string | null
           region: string | null
           requested_languages: string[]
           start_time: string | null
@@ -3371,6 +3372,7 @@ export type Database = {
           notes?: string | null
           open_to_join?: boolean
           participants_count?: number
+          preferred_guide_slug?: string | null
           region?: string | null
           requested_languages?: string[]
           start_time?: string | null
@@ -3401,6 +3403,7 @@ export type Database = {
           notes?: string | null
           open_to_join?: boolean
           participants_count?: number
+          preferred_guide_slug?: string | null
           region?: string | null
           requested_languages?: string[]
           start_time?: string | null

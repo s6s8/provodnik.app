@@ -13,8 +13,10 @@ import {
   MapPin,
   Send,
   Tag,
+  UserCheck,
   Users,
   Wallet,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -40,6 +42,8 @@ import { useRequestForm } from "./use-request-form";
 
 interface Props {
   destinations: DestinationOption[];
+  /** Guide preselected via "Запросить этого гида" on the guide's public page. */
+  preferredGuide?: { slug: string; name: string } | null;
 }
 
 const FIN_BASE =
@@ -174,8 +178,10 @@ export function DateField({
   );
 }
 
-export function HomepageRequestFormClassic({ destinations }: Props) {
+export function HomepageRequestFormClassic({ destinations, preferredGuide }: Props) {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
+  const [guideAttached, setGuideAttached] = React.useState(true);
+  const attachedGuide = guideAttached ? preferredGuide ?? null : null;
   const {
     form,
     register,
@@ -192,7 +198,7 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
     handleAuthSuccess,
     serverError,
     isLoading,
-  } = useRequestForm();
+  } = useRequestForm({ preferredGuideSlug: attachedGuide?.slug ?? null });
   const startDate = useWatch({ control: form.control, name: "startDate" });
 
   return (
@@ -203,6 +209,22 @@ export function HomepageRequestFormClassic({ destinations }: Props) {
         aria-label="Создать запрос"
         noValidate
       >
+        {attachedGuide ? (
+          <div className="flex items-center justify-between gap-2 rounded-step border border-primary/40 bg-primary/10 px-3 py-2">
+            <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-primary">
+              <UserCheck className="size-4 shrink-0" aria-hidden="true" />
+              <span className="truncate">Запрос гиду: {attachedGuide.name}</span>
+            </span>
+            <button
+              type="button"
+              onClick={() => setGuideAttached(false)}
+              aria-label="Убрать выбранного гида"
+              className="grid size-6 shrink-0 cursor-pointer place-items-center rounded-full text-primary transition hover:bg-primary/20"
+            >
+              <X className="size-3.5" aria-hidden="true" />
+            </button>
+          </div>
+        ) : null}
         {/* Направление */}
         <FieldShell>
           <FieldIcon icon={MapPin} label="Направление" className="text-primary" />
