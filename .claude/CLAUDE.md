@@ -33,7 +33,9 @@ Hermes/Quantumbek in Telegram topics owns coordination for product changes. The 
 
 ## Stack and conventions
 
-See `AGENTS.md` for stack details, module map, CSS rules, architecture rules, env vars, and verification. Hard rules from there:
+See `AGENTS.md` for stack details, module map, CSS rules, architecture rules, env vars, and verification. For non-trivial Claude Code work, always require the trio: Superpowers for workflow discipline, Ponytail for minimalism/review, and Context7 for library/API-sensitive evidence; prompts and final reports must mention all three.
+
+Hard rules from there:
 
 - Package manager: `bun` (never npm/yarn).
 - Verify chain: `bun run typecheck && bun run lint && bun run test:run && bun run playwright && bun run build`.
