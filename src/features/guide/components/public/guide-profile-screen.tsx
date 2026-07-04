@@ -1,9 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
-import { ImmersiveHero } from "@/components/shared/immersive-hero";
 import { TourCard } from "@/components/shared/tour-card";
 import { NewGuideFrame } from "@/components/discovery/NewGuideFrame";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
@@ -92,43 +92,46 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
   return (
     <div>
-      {guide.avatarImageUrl ? (
-        <ImmersiveHero
-          imageUrl={guide.avatarImageUrl}
-          imagePosition="center top"
-          breadcrumb={[{ label: guide.homeBase }]}
-          title={guide.displayName}
-          intro={guide.headline}
-        />
-      ) : (
-        <section className="relative w-full overflow-hidden bg-surface-low">
-          <div className="relative mx-auto flex min-h-[480px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:h-[560px] md:px-8">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[clamp(6rem,18vw,12rem)] leading-none text-on-surface-muted/15"
-            >
-              {initials}
-            </div>
-            <div className="relative md:absolute md:bottom-12 md:left-8 md:max-w-[540px]">
-              <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-on-surface-muted">
-                <span>{guide.homeBase}</span>
-              </div>
-              <h1 className="mb-4 text-[clamp(2.75rem,8vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-on-surface">
-                {guide.displayName}
-              </h1>
-              {guide.headline ? (
-                <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-on-surface-muted">
-                  {guide.headline}
-                </p>
-              ) : null}
-            </div>
+      {/* Avatar photos are small user uploads — never full-bleed hero material
+          (a ~500px selfie upscaled to 100vw reads as "stretched"). The hero is
+          always typographic; the photo renders below at a bounded size. */}
+      <section className="relative w-full overflow-hidden bg-surface-low">
+        <div className="relative mx-auto flex min-h-[480px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:h-[560px] md:px-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[clamp(6rem,18vw,12rem)] leading-none text-on-surface-muted/15"
+          >
+            {initials}
           </div>
-        </section>
-      )}
+          <div className="relative md:absolute md:bottom-12 md:left-8 md:max-w-[540px]">
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-on-surface-muted">
+              <span>{guide.homeBase}</span>
+            </div>
+            <h1 className="mb-4 text-[clamp(2.75rem,8vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-on-surface">
+              {guide.displayName}
+            </h1>
+            {guide.headline ? (
+              <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-on-surface-muted">
+                {guide.headline}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </section>
 
       <section className="bg-surface">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-12">
           <div className="mx-auto flex max-w-[720px] flex-col items-center text-center">
+            {guide.avatarImageUrl ? (
+              <Image
+                src={guide.avatarImageUrl}
+                alt={guide.displayName}
+                width={256}
+                height={256}
+                priority
+                className="mb-5 size-28 rounded-full border border-line object-cover object-top md:size-32"
+              />
+            ) : null}
             {isVerified ? (
               <span className="mb-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-success">
                 <BadgeCheck className="size-4 text-success" strokeWidth={2.3} />

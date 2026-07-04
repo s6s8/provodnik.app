@@ -1,0 +1,28 @@
+{
+  "finalUrl": "http://localhost:3100/guides/%D0%B6%D1%8E%D0%BB%D1%8C-%D0%B2%D0%B5%D1%80%D0%BD%D0%B8%D0%BA%D0%BE%D0%B2-69f18040",
+  "h1": "Жюль Верников",
+  "images1280": [
+    {
+      "src": "http://localhost:3100/_next/image?url=https%3A%2F%2Fyjzpshutgmhxizosbeef.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fguide-avatars%2F69f1",
+      "alt": "Жюль Верников",
+      "naturalWidth": 256,
+      "naturalHeight": 319,
+      "renderedWidth": 128,
+      "renderedHeight": 128,
+      "objectFit": "cover",
+      "objectPosition": "50% 0%"
+    }
+  ],
+  "images375": [
+    {
+      "src": "http://localhost:3100/_next/image?url=https%3A%2F%2Fyjzpshutgmhxizosbeef.supabase.co%2Fstorage%2Fv1%2Fobject%2Fpublic%2Fguide-avatars%2F69f1",
+      "alt": "Жюль Верников",
+      "naturalWidth": 256,
+      "naturalHeight": 319,
+      "renderedWidth": 112,
+      "renderedHeight": 112,
+      "objectFit": "cover",
+      "objectPosition": "50% 0%"
+    }
+  ]
+}

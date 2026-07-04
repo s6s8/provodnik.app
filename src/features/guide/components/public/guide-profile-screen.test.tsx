@@ -49,6 +49,20 @@ describe("GuideProfileScreen", () => {
     expect(specialty.className).not.toContain("rgba");
   });
 
+  it("renders the avatar as a bounded circle, never as a full-bleed hero image", () => {
+    const { container } = render(
+      <GuideProfileScreen
+        guide={makeGuide({ avatarImageUrl: "https://example.com/avatar.webp" })}
+      />,
+    );
+
+    const img = container.querySelector("img");
+    expect(img).not.toBeNull();
+    expect(img!.className).toContain("rounded-full");
+    expect(img!.className).toContain("object-cover");
+    expect(img!.className).not.toContain("absolute");
+  });
+
   it("points the request CTA at /?guide=<slug>", () => {
     const { getByText } = render(<GuideProfileScreen guide={makeGuide()} />);
 

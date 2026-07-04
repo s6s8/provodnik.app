@@ -1,0 +1,37 @@
+{
+  "steps": [
+    {
+      "label": "after-magiclink",
+      "finalUrl": "https://provodnik.app/guide"
+    },
+    {
+      "label": "jules-prod-guide-profile-1280",
+      "requested": "/guide/profile",
+      "finalUrl": "https://provodnik.app/guide/profile",
+      "h1": "Профиль гида",
+      "body": "«Проводник»\nЗапросы\nЭкскурсии\nЗаказы\nОтзывы\n4\nПрофиль гида\n\nЗаполните разделы ниже — мы подскажем следующий шаг.\n\nТип: Индивидуальный гид\n\nГотовность профиля\nЗаполните шаги ниже, чтобы отправить профи"
+    },
+    {
+      "label": "jules-prod-guide-bookings-1280",
+      "requested": "/guide/bookings",
+      "finalUrl": "https://provodnik.app/guide/bookings",
+      "h1": "Мои бронирования",
+      "body": "«Проводник»\nЗапросы\nЭкскурсии\nЗаказы\nОтзывы\n4\nКАБИНЕТ ГИДА\nМои бронирования\n\nПока нет бронирований\n\nБронирование появится после того, как путешественник примет ваше предложение.\n\nПерейти во входящие з"
+    },
+    {
+      "label": "jules-prod-guide-profile-375",
+      "requested": "/guide/profile",
+      "finalUrl": "https://provodnik.app/guide/profile",
+      "h1": "Профиль гида",
+      "body": "«Проводник»\n4\nПрофиль гида\n\nЗаполните разделы ниже — мы подскажем следующий шаг.\n\nТип: Индивидуальный гид\n\nГотовность профиля\nЗаполните шаги ниже, чтобы отправить профиль на проверку.\nАватар\nГотово\nО "
+    },
+    {
+      "label": "jules-prod-guide-bookings-375",
+      "requested": "/guide/bookings",
+      "finalUrl": "https://provodnik.app/guide/bookings",
+      "h1": "Мои бронирования",
+      "body": "«Проводник»\n4\nКАБИНЕТ ГИДА\nМои бронирования\n\nПока нет бронирований\n\nБронирование появится после того, как путешественник примет ваше предложение.\n\nПерейти во входящие запросы\n\nИТОГИ\n\nИтоги по брониров"
+    }
+  ],
+  "consoleErrors": []
+}
