@@ -91,7 +91,7 @@ Context7: `/vercel/next.js` — `next/image` `width`/`height` задают intri
 
 ## 6. Коммит
 
-Локальный коммит в ветке `fix/guide-access-image-fable-20260704`: `<COMMIT_HASH>` — **не запушен**, жду команды оператора.
+Локальный коммит в ветке `fix/guide-access-image-fable-20260704`: `aa112ecc` — **не запушен**, жду команды оператора.
 
 ## 7. Блокеры / ограничения / честные оговорки
 
