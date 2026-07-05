@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { E2E_READY, SEED_USERS } from "../fixtures";
+import { E2E_MUTATIONS_READY, SEED_USERS } from "../fixtures";
 import { loginAs } from "../helpers";
 
 // SKIPPED — see ERR-059 in .claude/sot/ERRORS.md and docs/qa/2026-05-10-e2e-spec-rot-fix.md.
@@ -7,7 +7,7 @@ import { loginAs } from "../helpers";
 // with password Guide1234!. Internal-form selectors (#title, #region, etc.) and several
 // data-testids are also unverified. Bek's first post-handover ticket fixes this end-to-end.
 test("guide creates an excursion listing", async ({ page }) => {
-  test.skip(!E2E_READY, "QA_SEED_PASSWORD not set");
+  test.skip(!E2E_MUTATIONS_READY, "tripster-v1 mutates real rows; needs an isolated DB + E2E_ALLOW_MUTATIONS=1 (local build targets prod)");
 
   // Login via the shared helper — the app redirects guides to /guide (the old
   // /guide/dashboard wait predates the route-group refactor and never resolves).

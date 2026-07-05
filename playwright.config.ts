@@ -1,6 +1,15 @@
 // Playwright end-to-end test runner configuration
 import { defineConfig, devices } from "@playwright/test";
 
+// Load .env.local so QA_SEED_PASSWORD (and other test env) reaches the specs.
+// Playwright does not read Next's env files; without this the seeded-login suites
+// silently skip. Native loader (Node 20.12+), no dependency. Optional in CI.
+try {
+  process.loadEnvFile(".env.local");
+} catch {
+  // .env.local absent (e.g. CI injects env directly) — not an error.
+}
+
 const baseURL = process.env.E2E_BASE_URL ?? "http://localhost:3000";
 
 export default defineConfig({

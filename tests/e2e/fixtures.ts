@@ -25,3 +25,10 @@ export const SEED_USERS: {
 };
 
 export const E2E_READY = QA_PASSWORD.length > 0;
+
+// The tripster-v1 suites create/modify real rows (listings, offers, bookings,
+// disputes, reviews). The local build talks to the LIVE Supabase, so running them
+// here would write junk into production. They only run when an isolated,
+// throwaway DB is wired and mutation is explicitly opted into. Gate, don't guess.
+export const E2E_MUTATIONS_READY =
+  E2E_READY && process.env.E2E_ALLOW_MUTATIONS === "1";
