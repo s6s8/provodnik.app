@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { rubToKopecks } from "@/data/money";
+import { friendlyError } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { notifyNewOffer } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
@@ -256,16 +257,13 @@ export async function withdrawOfferAction(
       .eq("id", offerId)
       .eq("guide_id", guideId);
 
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error, "Не удалось отозвать предложение.") };
 
     revalidatePath(`/requests/${requestId}`);
     revalidatePath("/guide/inbox");
     return { ok: true };
   } catch (err) {
-    const msg = typeof (err as { message?: unknown }).message === "string"
-      ? (err as { message: string }).message
-      : "Не удалось отозвать предложение.";
-    return { error: msg };
+    return { error: friendlyError(err, "Не удалось отозвать предложение.") };
   }
 }
 
@@ -368,16 +366,13 @@ export async function editOfferAction(
       })
       .eq("id", offerId)
       .eq("guide_id", guideId);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error, "Не удалось обновить предложение.") };
 
     revalidatePath(`/requests/${requestId}`);
     revalidatePath("/guide/inbox");
     return { ok: true };
   } catch (err) {
     if (err instanceof Error && err.message.startsWith("NEXT_")) throw err;
-    const msg = typeof (err as { message?: unknown }).message === "string"
-      ? (err as { message: string }).message
-      : "Не удалось обновить предложение.";
-    return { error: msg };
+    return { error: friendlyError(err, "Не удалось обновить предложение.") };
   }
 }

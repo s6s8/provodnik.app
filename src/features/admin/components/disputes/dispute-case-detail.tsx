@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { formatRubFromMinor } from "@/data/money";
 import { BOOKING_STATUS_LABELS } from "@/components/bookings/booking-status-badge";
 import { PageHeader } from "@/components/shared/page-header";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
@@ -25,14 +26,6 @@ import {
 function bookingStatusLabel(status: string | undefined): string {
   if (!status) return "—";
   return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
-}
-
-function formatRub(minor: number) {
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    maximumFractionDigits: 0,
-  }).format(minor / 100);
 }
 
 function statusBadge(status: DisputeDetail["status"]) {
@@ -79,7 +72,7 @@ export function DisputeCaseDetail({
                 <span className="text-muted-foreground/50">·</span>
                 <span>{booking?.listingTitle ?? booking?.destination ?? "Маршрут"}</span>
                 <span className="text-muted-foreground/50">·</span>
-                <span>{booking ? formatRub(booking.subtotalMinor) : "—"}</span>
+                <span>{booking ? formatRubFromMinor(booking.subtotalMinor) : "—"}</span>
                 <span className="text-muted-foreground/50">·</span>
                 <span>Статус брони: {bookingStatusLabel(booking?.status)}</span>
               </CardDescription>

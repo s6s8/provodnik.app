@@ -10,7 +10,7 @@ import { queryKeys } from "@/lib/query-keys";
 import type { MessageWithSender } from "@/lib/supabase/conversations";
 import type { MessageRow } from "@/lib/supabase/types";
 
-import { useRealtimeMessages } from "@/features/messaging/hooks/use-realtime-messages";
+import { mergeRealtimeMessage, useRealtimeMessages } from "@/features/messaging/hooks/use-realtime-messages";
 
 import { MessageBubble } from "./message-bubble";
 
@@ -50,20 +50,7 @@ export function ChatWindow({
     (message: MessageRow) => {
       queryClient.setQueryData<MessageWithSender[]>(
         queryKeys.messages.threadMessages(threadId),
-        (current = []) => {
-          if (current.some((item) => item.id === message.id)) {
-            return current;
-          }
-
-          return [
-            ...current,
-            {
-              ...message,
-              sender_profile: null,
-              sender_display_name: null,
-            },
-          ];
-        },
+        (current = []) => mergeRealtimeMessage(current, message),
       );
 
       void queryClient.invalidateQueries({

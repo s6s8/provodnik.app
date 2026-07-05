@@ -1,4 +1,3 @@
-import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const { readAuthContextFromServerMock, redirectMock, createSupabaseServerClientMock } =
@@ -58,7 +57,7 @@ describe("PersonalSettingsPage", () => {
     expect(redirectMock).toHaveBeenCalledWith("/admin/dashboard");
   });
 
-  it("shows the login prompt for an unauthenticated visitor", async () => {
+  it("redirects an unauthenticated visitor to /auth (PRD-016)", async () => {
     readAuthContextFromServerMock.mockResolvedValueOnce({
       isAuthenticated: false,
       role: null,
@@ -66,12 +65,8 @@ describe("PersonalSettingsPage", () => {
       source: "none",
     });
 
-    const ui = await PersonalSettingsPage();
-    render(ui);
+    await PersonalSettingsPage();
 
-    expect(
-      screen.getByRole("heading", { level: 1, name: "Войдите в аккаунт" }),
-    ).toBeInTheDocument();
-    expect(redirectMock).not.toHaveBeenCalled();
+    expect(redirectMock).toHaveBeenCalledWith("/auth?next=/account");
   });
 });

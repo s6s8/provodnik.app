@@ -68,6 +68,12 @@ async function fetchAvatar(userId: string | null | undefined, fallbackName: stri
 export default async function PersonalSettingsPage() {
   const auth = await readAuthContextFromServer();
 
+  // Anonymous visitors get the canonical redirect to /auth (matches /trips,
+  // /messages, /notifications) instead of an inline "Войдите" panel (PRD-016).
+  if (!auth.isAuthenticated) {
+    redirect("/auth?next=/account");
+  }
+
   // Admins have no traveler/guide profile surface here; send them to their
   // workspace instead of the unauthenticated "Войдите в аккаунт" fallback.
   if (auth.isAuthenticated && auth.role === "admin") {

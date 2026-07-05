@@ -205,6 +205,7 @@ describe("RequestDetailScreen", () => {
             offer,
             guideInfo: {
               guide_id: "guide-1",
+              slug: "anna-guide-1",
               full_name: "Анна",
               avatar_url: null,
               rating: 4.8,
@@ -322,6 +323,7 @@ describe("RequestDetailScreen", () => {
             offer,
             guideInfo: {
               guide_id: "guide-1",
+              slug: "anna-guide-1",
               full_name: "Анна",
               avatar_url: null,
               rating: 4.8,

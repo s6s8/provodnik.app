@@ -33,7 +33,7 @@ export async function approveListing(listingId: string) {
     .update({ status: "active" })
     .eq("id", listingId)
     .eq("status", "pending_review");
-  if (error) throw new Error(error.message);
+  if (error) throw new Error("Не удалось одобрить объявление.");
   return { success: true };
 }
 
@@ -46,6 +46,6 @@ export async function rejectListing(listingId: string, _reason: string) {
     .update({ status: "rejected" })
     .eq("id", listingId)
     .eq("status", "pending_review");
-  if (error) throw new Error(error.message);
+  if (error) throw new Error("Не удалось отклонить объявление.");
   return { success: true };
 }

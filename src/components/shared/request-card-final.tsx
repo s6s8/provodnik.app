@@ -5,7 +5,7 @@ import { AvatarStack } from "@/components/shared/avatar-stack";
 import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export type RequestCardFinalGroupType = "private" | "assembly";
-export type RequestCardFinalGuideState = "waiting" | "offers" | "found";
+export type RequestCardFinalGuideState = "waiting" | "offers" | "found" | "expired";
 
 export type RequestCardFinalMember = {
   id: string;
@@ -46,6 +46,8 @@ const offersGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
+const expiredGuideBadgeClassName =
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-ink-2";
 const themeLabelChipClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-border px-2 py-0.5 text-xs font-medium text-ink-2";
 
@@ -84,6 +86,14 @@ function GuideStatusBadge({ guideState, offerCount }: { guideState: RequestCardF
     return (
       <span className={offersGuideBadgeClassName}>
         {pluralOffers(offerCount ?? 0)}
+      </span>
+    );
+  }
+
+  if (guideState === "expired") {
+    return (
+      <span className={expiredGuideBadgeClassName}>
+        Истёк <Clock size={14} className="text-ink-2" />
       </span>
     );
   }

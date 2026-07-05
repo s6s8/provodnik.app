@@ -5,6 +5,7 @@ import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { cityImage } from "@/lib/city-image";
+import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function generateMetadata(): Metadata {
@@ -15,9 +16,12 @@ export function generateMetadata(): Metadata {
 }
 
 function mapToOpenRequestRecord(request: RequestRecord, viewerId: string | null): OpenRequestRecord {
+  const isOwner = request.travelerId != null && request.travelerId === viewerId;
+  // PII-012: mask contact details in the free-text for every non-owner viewer.
+  const maskedDescription = isOwner ? request.description : maskPii(request.description);
   return {
     id: request.id,
-    isOwner: request.travelerId != null && request.travelerId === viewerId,
+    isOwner,
     status: request.status === "booked" ? "matched" : "open",
     visibility: "public",
     createdAt: request.createdAt,
@@ -38,10 +42,10 @@ function mapToOpenRequestRecord(request: RequestRecord, viewerId: string | null)
       ? `${request.startTime}${request.endTime ? `–${request.endTime}` : ""}`
       : undefined,
     budgetPerPersonRub: request.budgetRub,
-    highlights: [request.title, request.description].filter(Boolean) as string[],
+    highlights: [request.title, maskedDescription].filter(Boolean) as string[],
     interests: request.interests,
     themes: request.interests,
-    notes: request.description,
+    notes: maskedDescription,
     organizerName: request.members[0]?.displayName ?? request.requesterName,
     members: request.members,
   };
