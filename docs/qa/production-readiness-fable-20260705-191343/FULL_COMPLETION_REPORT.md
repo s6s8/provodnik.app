@@ -93,9 +93,43 @@ d203f3a1  test(e2e): repair playwright suite and gate live-mutation specs
 
 `git diff --stat 0ece07a9..388644e8` (this pass): **34 files changed, 465 insertions(+), 156 deletions(-)**.
 
-## Pushed / PR / merge / deploy
+## Pushed / PR / merge / deploy — ship state
 
-See the "Ship state" section appended below after push.
+- **Committed:** `388644e8` (fixes) + `fc0051af` (this report) on `handover/prod-readiness-fixes`.
+- **Pushed:** ✅ `origin/handover/prod-readiness-fixes`.
+- **PR:** ✅ opened → https://github.com/s6s8/provodnik.app/pull/265 (base `main`).
+- **Live DB mutations:** ✅ already applied to production Supabase and verified
+  (they are independent of the code merge and are in effect now).
+- **Merge to main:** ⛔ **BLOCKED — not safe to auto-merge.** `main` advanced **40
+  commits** since this branch's base `0ece07a9`, including a major
+  `opus/full-refactor-phases` that **relocated the data-query layer** and added a
+  **`FEATURE_PUBLIC_CATALOG`** flag that already gates `/listings`, `/destinations`
+  and `/listings/[id]` with `notFound()` when off (main's own answer to PRD-021).
+  A trial merge produced **44 conflicting files**, several structural (moved
+  modules), and `FEATURE_PUBLIC_CATALOG` supersedes this branch's PRD-021 approach.
+  GitHub reports the PR `CONFLICTING`.
+- **Deploy:** ⛔ **BLOCKED** — depends on a merged `main`; not attempted.
+
+### Why not auto-resolve and deploy anyway
+Resolving 44 conflicts against a large data-layer refactor, then deploying the
+result straight to production unattended, is precisely the high-risk, hard-to-
+reverse action to avoid. The branch predates main's refactor; landing it safely
+means **rebasing/reworking these fixes onto main's new structure**, re-running the
+full verify chain, and reconciling overlapping items (PRD-021 vs
+`FEATURE_PUBLIC_CATALOG`; PRD-034 vs the relocated query module) — not a blind
+conflict-marker resolution.
+
+### Exact next action to land the code
+1. `git checkout handover/prod-readiness-fixes && git merge origin/main` (or rebase).
+2. Resolve the 44 conflicts, reworking against main's relocated data layer; for
+   PRD-021, defer to main's `FEATURE_PUBLIC_CATALOG` gating (drop this branch's
+   `/destinations` redirect) and keep only the still-relevant fixes.
+3. Re-run `typecheck && lint && test:run && build && playwright`.
+4. Merge PR #265 (protection: 0 required reviews, enforce_admins on, no required
+   status checks) and deploy from merged `main`.
+
+The **live-DB portion of the audit is already fixed in production**; only the
+code changes await this reconciliation.
 
 ## Remaining items / conscious deferrals
 
