@@ -224,10 +224,12 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
             id="booking-starts-on"
             type="date"
             min={todayStr}
+            aria-invalid={Boolean(orderForm.formState.errors.starts_on)}
+            aria-describedby={orderForm.formState.errors.starts_on ? "booking-starts-on-error" : undefined}
             {...orderForm.register("starts_on")}
           />
           {orderForm.formState.errors.starts_on ? (
-            <p className="text-sm text-destructive">
+            <p id="booking-starts-on-error" role="alert" className="text-sm text-destructive">
               {orderForm.formState.errors.starts_on.message}
             </p>
           ) : null}
@@ -239,10 +241,12 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
             id="booking-ends-on"
             type="date"
             min={startsOnWatch || todayStr}
+            aria-invalid={Boolean(orderForm.formState.errors.ends_on)}
+            aria-describedby={orderForm.formState.errors.ends_on ? "booking-ends-on-error" : undefined}
             {...orderForm.register("ends_on")}
           />
           {orderForm.formState.errors.ends_on ? (
-            <p className="text-sm text-destructive">
+            <p id="booking-ends-on-error" role="alert" className="text-sm text-destructive">
               {orderForm.formState.errors.ends_on.message}
             </p>
           ) : null}
@@ -255,10 +259,12 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
             type="number"
             min={1}
             max={listing.max_group_size}
+            aria-invalid={Boolean(orderForm.formState.errors.participants_count)}
+            aria-describedby={orderForm.formState.errors.participants_count ? "booking-participants-error" : undefined}
             {...orderForm.register("participants_count", { valueAsNumber: true })}
           />
           {orderForm.formState.errors.participants_count ? (
-            <p className="text-sm text-destructive">
+            <p id="booking-participants-error" role="alert" className="text-sm text-destructive">
               {orderForm.formState.errors.participants_count.message}
             </p>
           ) : null}
@@ -304,9 +310,15 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
 
         <div className="grid gap-2">
           <Label htmlFor="booking-notes">Пожелания, вопросы, особые потребности</Label>
-          <Textarea id="booking-notes" rows={4} {...orderForm.register("notes")} />
+          <Textarea
+            id="booking-notes"
+            rows={4}
+            aria-invalid={Boolean(orderForm.formState.errors.notes)}
+            aria-describedby={orderForm.formState.errors.notes ? "booking-notes-error" : undefined}
+            {...orderForm.register("notes")}
+          />
           {orderForm.formState.errors.notes ? (
-            <p className="text-sm text-destructive">
+            <p id="booking-notes-error" role="alert" className="text-sm text-destructive">
               {orderForm.formState.errors.notes.message}
             </p>
           ) : null}

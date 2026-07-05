@@ -43,7 +43,12 @@ export default async function ListingDetailPage({
   const { id: ref } = await params;
   const supabase = await createSupabaseServerClient();
 
-  const listingQuery = supabase.from("listings").select("*").eq("status", "published");
+  // No app-layer status filter: RLS (listings_select) is the boundary and only
+  // exposes published rows to the public while letting admins (and the owning
+  // guide) read non-published ones. That lets the admin moderation-queue preview
+  // link open a pending listing instead of 404ing, without leaking it to anyone
+  // else (PRD-015).
+  const listingQuery = supabase.from("listings").select("*");
   const { data: listingRaw } = listingRefIsUuid(ref)
     ? await listingQuery.eq("id", ref).maybeSingle()
     : await listingQuery.eq("slug", ref).maybeSingle();

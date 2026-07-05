@@ -62,7 +62,7 @@ describe("UserAccountDrawer", () => {
     ).toHaveAttribute("href", "/trips");
   });
 
-  it("links travelers to the guide experience", () => {
+  it("links travelers to guide onboarding (not the guarded /guide workspace)", () => {
     render(
       <UserAccountDrawer
         open
@@ -73,8 +73,8 @@ describe("UserAccountDrawer", () => {
     );
 
     expect(
-      screen.getByRole("link", { name: "Переключиться на гида" }),
-    ).toHaveAttribute("href", "/guide");
+      screen.getByRole("link", { name: "Стать гидом" }),
+    ).toHaveAttribute("href", "/become-a-guide");
   });
 
   it("does not render a role switch for admins", () => {

@@ -7,6 +7,7 @@ import {
   performModerationAction,
   requireAdminSession,
 } from "@/lib/supabase/moderation";
+import { friendlyError } from "@/lib/errors";
 
 export type ActionState = { error: string | null; success?: string };
 
@@ -35,7 +36,7 @@ export async function approveGuide(
     revalidatePath("/destinations");
     return { error: null, success: "Гид одобрен" };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при одобрении" };
+    return { error: friendlyError(err, "Неизвестная ошибка при одобрении") };
   }
 }
 
@@ -62,7 +63,7 @@ export async function rejectGuide(
     revalidatePath(`/admin/guides/${guideId}`);
     return { error: null, success: "Гид отклонён" };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при отклонении" };
+    return { error: friendlyError(err, "Неизвестная ошибка при отклонении") };
   }
 }
 
@@ -89,6 +90,6 @@ export async function requestChanges(
     revalidatePath(`/admin/guides/${guideId}`);
     return { error: null, success: "Запрошены правки" };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при запросе изменений" };
+    return { error: friendlyError(err, "Неизвестная ошибка при запросе изменений") };
   }
 }

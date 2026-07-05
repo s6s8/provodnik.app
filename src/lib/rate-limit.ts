@@ -61,16 +61,34 @@ function parseRateLimitScriptResult(result: unknown): RateLimitResult {
   };
 }
 
+// In-memory fallback so a missing/broken Redis can't degrade to "no limit at
+// all" (PRD-024). ponytail: per-instance sliding window — on serverless each
+// cold instance keeps its own map, so this is a floor, not a global cap. Redis
+// stays the authoritative limiter; the map only guards abuse when Redis is down.
+const memoryHits = new Map<string, number[]>();
+
+function memoryRateLimit(identifier: string, limit: number, window: number): RateLimitResult {
+  if (memoryHits.size > 10_000) memoryHits.clear(); // crude bound; fallback path only
+  const now = Date.now();
+  const windowStart = now - window * 1_000;
+  const key = getRateLimitKey(identifier, limit, window);
+  const hits = (memoryHits.get(key) ?? []).filter((t) => t > windowStart);
+  if (hits.length >= limit) {
+    memoryHits.set(key, hits);
+    return { success: false, remaining: 0 };
+  }
+  hits.push(now);
+  memoryHits.set(key, hits);
+  return { success: true, remaining: Math.max(0, limit - hits.length) };
+}
+
 export async function rateLimit(
   identifier: string,
   limit: number,
   window: number,
 ): Promise<RateLimitResult> {
-  if (!hasUpstashRedisEnv()) {
-    return {
-      success: true,
-      remaining: limit,
-    };
+  if (!hasUpstashRedisEnv() || !redis) {
+    return memoryRateLimit(identifier, limit, window);
   }
 
   const now = Date.now();
@@ -79,13 +97,6 @@ export async function rateLimit(
   const key = getRateLimitKey(identifier, limit, window);
 
   try {
-    if (!redis) {
-      return {
-        success: true,
-        remaining: limit,
-      };
-    }
-
     const result = await redis.eval(RATE_LIMIT_SCRIPT, [key], [
       windowStart,
       now,
@@ -96,24 +107,39 @@ export async function rateLimit(
 
     return parseRateLimitScriptResult(result);
   } catch {
-    return {
-      success: true,
-      remaining: limit,
-    };
+    // Redis errored — fall back to the in-memory floor rather than allowing all.
+    return memoryRateLimit(identifier, limit, window);
   }
+}
+
+// In-memory daily budget fallback (PRD-024). Same per-instance caveat as
+// memoryRateLimit: a floor when Redis is down, not a cluster-wide cap.
+const memoryBudget = new Map<string, { count: number; resetAt: number }>();
+
+function memoryCheckBudget(bucket: string, dailyLimit: number): { success: boolean; count: number } {
+  const now = Date.now();
+  const key = `budget:${bucket}`;
+  const cur = memoryBudget.get(key);
+  if (!cur || now >= cur.resetAt) {
+    memoryBudget.set(key, { count: 1, resetAt: now + 86_400_000 });
+    return { success: 1 <= dailyLimit, count: 1 };
+  }
+  cur.count += 1;
+  return { success: cur.count <= dailyLimit, count: cur.count };
 }
 
 /**
  * Daily GLOBAL budget counter for a shared, expensive resource (e.g. LLM calls).
  * Independent of per-IP rate limiting — caps total daily usage regardless of caller.
- * Fail-open: if Redis is not configured or errors, the request is allowed.
+ * When Redis is unavailable, falls back to a per-instance in-memory counter so an
+ * expensive anonymous endpoint can't burn unlimited credits (PRD-024).
  */
 export async function checkGlobalBudget(
   bucket: string,
   dailyLimit: number,
 ): Promise<{ success: boolean; count: number }> {
   if (!hasUpstashRedisEnv() || !redis) {
-    return { success: true, count: 0 };
+    return memoryCheckBudget(bucket, dailyLimit);
   }
 
   const key = `budget:${bucket}`;
@@ -126,6 +152,6 @@ export async function checkGlobalBudget(
 
     return { success: count <= dailyLimit, count };
   } catch {
-    return { success: true, count: 0 };
+    return memoryCheckBudget(bucket, dailyLimit);
   }
 }

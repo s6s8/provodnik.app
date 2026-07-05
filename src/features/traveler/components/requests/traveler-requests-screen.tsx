@@ -85,7 +85,7 @@ function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProp
     date: formatRussianDateRange(request.starts_on, request.ends_on),
     time: request.start_time ? `${request.start_time.slice(0, 5)}${request.end_time ? `–${request.end_time.slice(0, 5)}` : ''}` : undefined,
     groupType: request.mode,
-    guideState: request.status === 'booked' ? 'found' : request.offer_count > 0 ? 'offers' : 'waiting',
+    guideState: request.status === 'expired' ? 'expired' : request.status === 'booked' ? 'found' : request.offer_count > 0 ? 'offers' : 'waiting',
     offerCount: request.offer_count > 0 ? request.offer_count : undefined,
     datesFlexible: request.date_flexibility != null && request.date_flexibility !== 'exact',
     interests: request.interests,

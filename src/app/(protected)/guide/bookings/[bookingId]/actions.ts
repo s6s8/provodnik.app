@@ -34,7 +34,7 @@ async function assertGuideOwns(
     .eq("id", bookingId)
     .maybeSingle();
 
-  if (fetchError) return { ok: false, error: fetchError.message };
+  if (fetchError) return { ok: false, error: "Не удалось загрузить бронирование." };
   if (!booking) return { ok: false, error: "Бронирование не найдено" };
   if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
 
@@ -124,7 +124,7 @@ export async function getGuideBookingDetailAction(
     .eq("id", bookingId)
     .maybeSingle();
 
-  if (bookingError) return { ok: false, error: bookingError.message };
+  if (bookingError) return { ok: false, error: "Не удалось загрузить бронирование." };
   if (!booking) return { ok: false, error: "Бронирование не найдено" };
   if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
 

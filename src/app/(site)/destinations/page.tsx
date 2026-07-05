@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 
 import { DestinationsDiscoveryScreen } from "@/features/destinations/components/destinations-discovery-screen";
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
@@ -22,6 +23,12 @@ export default async function DestinationsPage() {
     else destinations = result.data ?? [];
   } catch {
     loadError = true;
+  }
+
+  // No destinations yet — avoid a dead empty catalog by direct URL; send home
+  // until real content exists. Self-heals once destinations are seeded (PRD-021).
+  if (!loadError && destinations.length === 0) {
+    redirect("/");
   }
 
   return <DestinationsDiscoveryScreen destinations={destinations} loadError={loadError} />;

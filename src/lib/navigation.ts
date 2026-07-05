@@ -2,8 +2,8 @@ import type { LucideIcon } from "lucide-react";
 
 import type { FlagName } from "@/lib/flags";
 import {
-  Users, Compass, UserSearch, Map, Search, Route, BadgeCheck, ShieldCheck,
-  Briefcase, HelpCircle, LogIn, ClipboardList, Luggage, Heart, MessageSquare,
+  Users, Compass, UserSearch, Map, Route, BadgeCheck, ShieldCheck,
+  Briefcase, HelpCircle, LogIn, ClipboardList, Heart, MessageSquare,
   Bell, Gift, User, Inbox, BookCheck, Star, Calendar, Settings,
   BarChart3, UserCheck, Flag, CalendarCheck, ScrollText,
 } from "lucide-react";
@@ -22,7 +22,6 @@ export const ROUTES = {
   listings:     { href: "/listings",     label: "Экскурсии",         icon: Compass },
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
-  search:       { href: "/search",       label: "Поиск",             icon: Search },
   newRequest:   { href: "/",             label: "Создать запрос",    icon: ClipboardList },
   howItWorks:   { href: "/how-it-works", label: "Как это работает",  icon: Route },
   becomeGuide:  { href: "/become-a-guide", label: "Стать гидом",     icon: BadgeCheck },
@@ -31,7 +30,6 @@ export const ROUTES = {
   help:         { href: "/help",         label: "Помощь",            icon: HelpCircle },
   auth:         { href: "/auth",         label: "Войти",             icon: LogIn },
   trips:        { href: "/trips",        label: "Мои поездки",       icon: ClipboardList },
-  myBookings:   { href: "/bookings",     label: "Поездки",           icon: Luggage },
   favorites:    { href: "/favorites",    label: "Избранное",         icon: Heart },
   messages:     { href: "/messages",     label: "Сообщения",         icon: MessageSquare, activePrefixes: ["/messages"] },
   notifications:{ href: "/notifications",label: "Уведомления",       icon: Bell },
@@ -131,7 +129,7 @@ export const accountMenuByRole = {
 /** Account-drawer role switch targets. */
 export const roleSwitchByRole = {
   guide: { href: ROUTES.trips.href, label: "Переключиться на путешественника" },
-  traveler: { href: "/guide", label: "Переключиться на гида" },
+  traveler: { href: ROUTES.becomeGuide.href, label: "Стать гидом" },
 } as const;
 
 // --- Mobile bottom navigation (workspace roles only). ----------------------

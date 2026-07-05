@@ -8,6 +8,7 @@ import {
   assignDisputeToAdmin,
   resolveDispute,
 } from "@/lib/supabase/disputes";
+import { friendlyError } from "@/lib/errors";
 
 const caseIdSchema = z.string().uuid("Некорректный идентификатор спора.");
 const noteSchema = z.string().trim().min(1, "Введите заметку.").max(4_000);
@@ -17,13 +18,6 @@ export type DisputeActionState = { error: string } | null;
 
 function parseCaseId(formData: FormData) {
   return caseIdSchema.parse(formData.get("case_id"));
-}
-
-function friendlyError(error: unknown, fallback: string): string {
-  if (error instanceof z.ZodError) {
-    return error.issues[0]?.message ?? fallback;
-  }
-  return fallback;
 }
 
 export async function assignDisputeToSelfAction(

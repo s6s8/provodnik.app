@@ -163,10 +163,14 @@ export async function getListingsByDestination(
     if (destError) throw destError;
     if (!dest) return { data: [], error: null };
 
+    // Strip PostgREST .or() grammar chars (comma/parens) from interpolated
+    // values so a destination name like "Ростов-на-Дону, обл." can't break or
+    // inject into the filter (PRD-034).
+    const orSafe = (value: string | null) => (value ?? "").replace(/[,()]/g, " ").trim();
     const { data, error } = await client
       .from("listings")
       .select("*")
-      .or(`city.ilike.%${dest.name}%,region.ilike.%${dest.region}%`)
+      .or(`city.ilike.%${orSafe(dest.name)}%,region.ilike.%${orSafe(dest.region)}%`)
       .eq("status", "published");
 
     if (error) throw error;

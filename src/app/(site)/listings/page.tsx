@@ -62,6 +62,10 @@ export default async function PublicListingsPage({
     loadError = true;
   }
 
+  // Empty catalog is handled in-page by PublicListingDiscoveryScreen's honest
+  // "Маршруты не найдены → опубликуйте запрос" empty state (with a CTA into the
+  // request-first flow), so /listings stays a valid target for the /tours and
+  // /search redirects without exposing a dead 0-content surface (PRD-021).
   const params = await searchParams;
   const initialSearch = (params.q ?? "").trim();
 
