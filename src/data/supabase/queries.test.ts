@@ -469,6 +469,29 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.data?.responseRate).toBeNull();
   });
 
+  it("decodes percent-encoded Cyrillic slugs before querying (PRD-001)", async () => {
+    const client = createFakeClient({
+      guide_profiles: [
+        {
+          user_id: "guide-1",
+          slug: "жюль-верников-69f18040",
+          display_name: "Жюль Верников",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    // Next.js delivers the param percent-encoded; the DB stores the raw Cyrillic.
+    const encoded = encodeURIComponent("жюль-верников-69f18040");
+    const result = await getGuideBySlug(client, encoded);
+
+    expect(result.error).toBeNull();
+    expect(result.data?.fullName).toBe("Жюль Верников");
+    expect(client.calls).toContain("guide_profiles.eq:slug:жюль-верников-69f18040");
+  });
+
   it("includes approved guides in destination blocks even before they have listings", async () => {
     const client = createFakeClient({
       "rpc:search_guides": [
