@@ -93,6 +93,7 @@ type OwnerOfferItem = {
   offer: GuideOfferRow;
   guideInfo: {
     guide_id: string;
+    slug: string | null;
     full_name: string | null;
     avatar_url: string | null;
     rating: number | null;
@@ -611,7 +612,7 @@ function OwnerDetailBranch({
           responseTimeLabel={formatResponseTime(offer.created_at)}
           groupTotalLabel={groupTotalLabel(offer)}
           requestBudgetLabel={requestBudgetLabel}
-          profileHref={guideInfo?.guide_id ? `/guides/${guideInfo.guide_id}` : undefined}
+          profileHref={guideInfo?.slug ? `/guides/${guideInfo.slug}` : undefined}
           isNewGuide={trips == null || trips === 0}
           matchingSpecialties={matchingSpecialties(guideInfo)}
           selected={selectable ? selectedId === offer.id : forcedSelected}

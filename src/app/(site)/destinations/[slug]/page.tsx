@@ -47,12 +47,16 @@ export async function generateMetadata({
   const { destinationResult } = await getDestinationPageData(slug);
 
   if (!destinationResult.data) {
-    return { title: "Направление не найдено" };
+    return {
+      title: "Направление не найдено",
+      alternates: { canonical: `/destinations/${slug}` },
+    };
   }
 
   return {
     title: destinationResult.data.name,
     description: destinationResult.data.description,
+    alternates: { canonical: `/destinations/${destinationResult.data.slug}` },
   };
 }
 

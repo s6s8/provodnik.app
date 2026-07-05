@@ -9,9 +9,11 @@ const {
   phoneLookupMaybeSingleMock,
   fromMock,
   signInWithPasswordMock,
+  rateLimitMock,
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } = vi.hoisted(() => {
+  const rateLimitMock = vi.fn(async () => ({ success: true }));
   const createUserMock = vi.fn();
   const updateUserByIdMock = vi.fn();
   const deleteUserMock = vi.fn();
@@ -50,6 +52,7 @@ const {
     phoneLookupMaybeSingleMock,
     fromMock,
     signInWithPasswordMock,
+    rateLimitMock,
     createSupabaseAdminClient: vi.fn(() => adminClient),
     createSupabaseServerClient: vi.fn(async () => serverClient),
   };
@@ -61,6 +64,14 @@ vi.mock("@/lib/supabase/admin", () => ({
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient,
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  rateLimit: rateLimitMock,
+}));
+
+vi.mock("next/headers", () => ({
+  headers: async () => ({ get: () => null }),
 }));
 
 import { signUpAction } from "@/features/auth/actions/signUpAction";
@@ -98,6 +109,7 @@ afterEach(() => {
 describe("signUpAction — public signup roles", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rateLimitMock.mockResolvedValue({ success: true });
     upsertMock.mockResolvedValue({ data: null, error: null });
     _getUserByIdMock.mockResolvedValue({
       data: { user: { created_at: new Date().toISOString() } },
@@ -203,11 +215,33 @@ describe("signUpAction — public signup roles", () => {
     expect(result).toEqual({ ok: true, dashboardPath: "/trips" });
     expect(phoneLookupMaybeSingleMock).not.toHaveBeenCalled();
   });
+
+  it("rejects invalid input (bad email / short password) with invalid_input before rate limiting", async () => {
+    const badEmail = await signUpAction({ ...baseInput, email: "not-an-email", role: "traveler" });
+    expect(badEmail).toEqual({ ok: false, error: "invalid_input" });
+
+    const shortPassword = await signUpAction({ ...baseInput, password: "short", role: "traveler" });
+    expect(shortPassword).toEqual({ ok: false, error: "invalid_input" });
+
+    expect(createUserMock).not.toHaveBeenCalled();
+    expect(rateLimitMock).not.toHaveBeenCalled();
+  });
+
+  it("returns rate_limited when the limiter trips, before any auth user is created", async () => {
+    mockSuccessfulRegistration();
+    rateLimitMock.mockResolvedValueOnce({ success: false });
+
+    const result = await signUpAction({ ...baseInput, role: "traveler" });
+
+    expect(result).toEqual({ ok: false, error: "rate_limited" });
+    expect(createUserMock).not.toHaveBeenCalled();
+  });
 });
 
 describe("signUpAction — failure rollback", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    rateLimitMock.mockResolvedValue({ success: true });
     upsertMock.mockResolvedValue({ data: null, error: null });
     _getUserByIdMock.mockResolvedValue({
       data: { user: { created_at: new Date().toISOString() } },

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { E2E_READY, SEED_USERS } from "../fixtures";
+import { E2E_MUTATIONS_READY, SEED_USERS } from "../fixtures";
 import { loginAs } from "../helpers";
 
 // Request-first lifecycle — the product core (north star): traveler posts a request →
@@ -14,7 +14,10 @@ import { loginAs } from "../helpers";
 // live-only step. Without those credentials the whole spec skips at the top, never green
 // by pretending.
 test.describe("request-first lifecycle", () => {
-  test.skip(!E2E_READY, "QA_SEED_PASSWORD not set — seeded accounts required");
+  // This suite creates real rows against the (live) Supabase the local build targets,
+  // so it is gated behind E2E_ALLOW_MUTATIONS=1 (E2E_MUTATIONS_READY) — not just the
+  // presence of QA_SEED_PASSWORD — to keep `bun run playwright` non-mutating by default.
+  test.skip(!E2E_MUTATIONS_READY, "live-mutation suite — set E2E_ALLOW_MUTATIONS=1 + QA_SEED_PASSWORD to run");
   // Multi-role handshake in one worker; run serially so state carries across steps.
   test.describe.configure({ mode: "serial" });
 

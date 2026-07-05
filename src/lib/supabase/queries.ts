@@ -39,6 +39,19 @@ import type {
 
 export * from "./queries-core";
 
+// Next.js hands dynamic route params percent-encoded, so Cyrillic slugs arrive
+// as %D0%B6… and never match the raw DB value. Decode every URL slug at the data
+// boundary. Malformed input (a lone %) is passed through untouched. (PRD-001)
+// The guide-detail path uses getSlugLookupCandidates instead (it also NFC/NFKD
+// normalizes for the RPC); this covers the simpler .eq() lookups.
+function decodeSlug(slug: string): string {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
     const { data, error } = await client.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
@@ -67,7 +80,7 @@ export async function getDestinations(client: SupabaseClient): Promise<QueryResu
 
 export async function getDestinationBySlug(client: SupabaseClient, slug: string): Promise<QueryResult<DestinationRecord>> {
   try {
-    const { data, error } = await client.from("destinations").select("*").eq("slug", slug).maybeSingle();
+    const { data, error } = await client.from("destinations").select("*").eq("slug", decodeSlug(slug)).maybeSingle();
     if (error) throw error;
     if (!data) return { data: null, error: null };
 
@@ -147,15 +160,19 @@ export async function getListingsByDestination(
     const { data: dest, error: destError } = await client
       .from("destinations")
       .select("name, region")
-      .eq("slug", slug)
+      .eq("slug", decodeSlug(slug))
       .maybeSingle();
     if (destError) throw destError;
     if (!dest) return { data: [], error: null };
 
+    // Strip PostgREST .or() grammar chars (comma/parens) from interpolated
+    // values so a destination name like "Ростов-на-Дону, обл." can't break or
+    // inject into the filter (PRD-034).
+    const orSafe = (value: string | null) => (value ?? "").replace(/[,()]/g, " ").trim();
     const { data, error } = await client
       .from("listings")
       .select("*")
-      .or(`city.ilike.%${dest.name}%,region.ilike.%${dest.region}%`)
+      .or(`city.ilike.%${orSafe(dest.name)}%,region.ilike.%${orSafe(dest.region)}%`)
       .eq("status", "published");
 
     if (error) throw error;
@@ -737,7 +754,7 @@ export async function toggleFavorite(
 export async function getListingReviews(client: SupabaseClient, listingSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
     // First resolve listing UUID from slug
-    const { data: listing } = await client.from("listings").select("id").eq("slug", listingSlug).maybeSingle();
+    const { data: listing } = await client.from("listings").select("id").eq("slug", decodeSlug(listingSlug)).maybeSingle();
     if (!listing) return { data: [], error: null };
 
     const { data, error } = await client
@@ -769,7 +786,7 @@ export async function getListingReviews(client: SupabaseClient, listingSlug: str
 export async function getGuideReviews(client: SupabaseClient, guideSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
     // First resolve guide UUID from slug
-    const { data: gp } = await client.from("guide_profiles").select("user_id").eq("slug", guideSlug).maybeSingle();
+    const { data: gp } = await client.from("guide_profiles").select("user_id").eq("slug", decodeSlug(guideSlug)).maybeSingle();
     if (!gp) return { data: [], error: null };
 
     const { data, error } = await client

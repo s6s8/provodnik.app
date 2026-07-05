@@ -16,7 +16,7 @@ interface Props {
 
 export function HomepageHeroFormClassic({ destinations, preferredGuide }: Props) {
   return (
-    <section className="relative flex min-h-svh flex-col overflow-hidden bg-overlay">
+    <section className="relative flex min-h-svh flex-col overflow-hidden bg-gradient-to-b from-brand-800 to-brand-950">
       <Image
         src={HERO_IMAGE}
         alt=""
@@ -38,7 +38,7 @@ export function HomepageHeroFormClassic({ destinations, preferredGuide }: Props)
       </div>
 
       <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1.5 text-xs font-semibold tracking-wider text-white/75">
-        <span>Открытые группы</span>
+        <span>Сборные группы</span>
         <ArrowDown className="size-4 motion-safe:animate-bounce" aria-hidden="true" />
       </div>
     </section>

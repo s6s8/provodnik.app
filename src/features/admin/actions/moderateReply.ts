@@ -33,7 +33,7 @@ export async function approveReply(replyId: string) {
     .update({ status: "published", published_at: new Date().toISOString() })
     .eq("id", replyId)
     .eq("status", "pending_review");
-  if (error) throw new Error(error.message);
+  if (error) throw new Error("Не удалось опубликовать ответ.");
   return { success: true };
 }
 
@@ -46,6 +46,6 @@ export async function rejectReply(replyId: string) {
     .update({ status: "draft" })
     .eq("id", replyId)
     .eq("status", "pending_review");
-  if (error) throw new Error(error.message);
+  if (error) throw new Error("Не удалось отклонить ответ.");
   return { success: true };
 }

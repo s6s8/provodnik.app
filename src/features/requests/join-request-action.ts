@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
+import { friendlyError } from "@/lib/errors";
 import { joinRequest, isRequestMember } from "@/lib/supabase/request-members";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Uuid } from "@/lib/supabase/types";
@@ -57,7 +58,7 @@ export async function joinRequestAction(
     await joinRequest(requestUuid, travelerId);
   } catch (err) {
     return {
-      error: err instanceof Error ? err.message : "Не удалось присоединиться.",
+      error: friendlyError(err, "Не удалось присоединиться."),
     };
   }
 

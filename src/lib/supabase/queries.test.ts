@@ -658,6 +658,19 @@ describe("destination ratings (no fabricated stars)", () => {
     expect(result.error).toBeNull();
     expect(result.data?.avgRating).toBeNull();
   });
+
+  it("decodes a percent-encoded Cyrillic destination slug before lookup (PRD-001)", async () => {
+    const client = createFakeClient({
+      destinations: [{ id: "dest-2", slug: "москва", name: "Москва", rating: 4 }],
+    });
+
+    // Next.js delivers the route param percent-encoded; the DB stores raw
+    // Cyrillic. Without decodeSlug the "%D0%BC…" input never matches and 404s.
+    const result = await getDestinationBySlug(client, encodeURIComponent("москва"));
+
+    expect(result.error).toBeNull();
+    expect(result.data?.name).toBe("Москва");
+  });
 });
 
 describe("getPlatformStats", () => {

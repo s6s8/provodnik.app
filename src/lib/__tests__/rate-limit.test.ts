@@ -51,14 +51,16 @@ describe("rateLimit", () => {
     });
   });
 
-  test("fails open when Redis is unavailable", async () => {
+  test("falls back to the in-memory limiter when Redis errors (PRD-024)", async () => {
     redisMock.eval.mockRejectedValueOnce(new Error("redis down"));
 
-    const result = await rateLimit("messages:127.0.0.1", 5, 60);
+    // Instead of the old fail-open (remaining = limit), the request is now
+    // counted by the per-instance in-memory floor: first hit consumes one slot.
+    const result = await rateLimit("rl-fallback:127.0.0.1", 5, 60);
 
     expect(result).toEqual({
       success: true,
-      remaining: 5,
+      remaining: 4,
     });
   });
 

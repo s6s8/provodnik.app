@@ -12,12 +12,13 @@ import { getPersonalSettings } from "@/features/profile/actions/getPersonalSetti
 import { updatePersonalSettings } from "@/features/profile/actions/updatePersonalSettings";
 import { flags } from "@/lib/flags";
 
-// Gate: feature flag check
-if (!flags.FEATURE_TR_NOTIFICATIONS) {
-  notFound();
-}
-
 export default function NotificationPreferencesPage() {
+  // Gate on the feature flag during render, not at module scope — a top-level
+  // notFound() throws when the module is merely imported (PRD-035).
+  if (!flags.FEATURE_TR_NOTIFICATIONS) {
+    notFound();
+  }
+
   const [prefs, setPrefs] = useState<Record<string, unknown>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [saving, setSaving] = useState(false);

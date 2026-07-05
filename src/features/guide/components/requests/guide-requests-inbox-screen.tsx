@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Inbox } from "lucide-react";
 
 import { type RequestRecord, type BookingRecord, getGuideBookings } from "@/data/supabase/queries";
+import { kopecksToRub, formatRubNumber } from "@/data/money";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
@@ -389,7 +390,7 @@ export function GuideRequestsInboxScreen() {
                                   Вы предложили:
                                   {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
                                   {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
-                                  {offerMeta.price_minor != null ? ` · ${Math.round(offerMeta.price_minor / 100 / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
+                                  {offerMeta.price_minor != null ? ` · ${formatRubNumber(Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)))} ₽/чел.` : ""}
                                 </p>
                               ) : null}
                             </div>

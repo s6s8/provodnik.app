@@ -14,7 +14,7 @@ export const travelerRequestSchema = z
       .array(
         z.enum(THEMES.map((t) => t.slug) as [ThemeSlug, ...ThemeSlug[]]),
       )
-      .min(1, { message: "Выберите хотя бы одну категорию" }),
+      .min(1, { message: "Выберите хотя бы одну категорию." }),
     requestedLanguages: z.array(z.string()).default([]),
     destination: z
       .string()

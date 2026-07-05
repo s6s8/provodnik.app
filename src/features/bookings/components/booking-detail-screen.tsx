@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { rubToKopecks } from "@/data/money";
+import { formatRubFromMinor, rubToKopecks } from "@/data/money";
 import type { BookingRecord } from "@/data/supabase/queries";
 import { getTheme } from "@/data/themes";
 import { BookingTicketTrigger } from "@/features/bookings/components/booking-ticket-trigger";
@@ -401,7 +401,7 @@ function TravelerBookingDetailView({
                   <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Договорённость об оплате</p>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <span className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">
-                      {formatRub(paymentAgreement.agreedTotalMinor)}
+                      {formatRubFromMinor(paymentAgreement.agreedTotalMinor)}
                     </span>
                     {paymentAgreement.method === "in_person" ? (
                       <span className="font-sans text-sm text-muted-foreground">Оплата при встрече</span>
@@ -749,7 +749,7 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
             </span>
             <span className="inline-flex items-center gap-2">
               <Wallet className="size-4 text-muted-foreground" />
-              Выплата: {formatRub(rubToKopecks(record.priceRub))}
+              Выплата: {formatRubFromMinor(rubToKopecks(record.priceRub))}
             </span>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -885,16 +885,6 @@ function PaymentAgreementRow({
       )}
     </div>
   );
-}
-
-function formatRub(minorUnits: number) {
-  const rub = Math.round(minorUnits / 100);
-  return new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    currencyDisplay: "narrowSymbol",
-    maximumFractionDigits: 0,
-  }).format(rub);
 }
 
 function toStateMachineStatus(s: string): BookingStatus {
