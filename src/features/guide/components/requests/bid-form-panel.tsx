@@ -530,6 +530,7 @@ export function BidFormPanel({
                 inputMode="numeric"
                 min={1}
                 max={50}
+                aria-label="Сколько человек готовы взять"
                 className={FIELD_CLASS}
                 disabled={submitted}
                 {...register("headcount", { valueAsNumber: true })}
@@ -548,6 +549,7 @@ export function BidFormPanel({
                   min={1000}
                   max={budgetCeilingPerPerson ? budgetCeilingPerPerson * count : undefined}
                   placeholder="За группу, ₽"
+                  aria-label="Цена за группу, ₽"
                   className={FIELD_CLASS}
                   aria-invalid={Boolean(errors.price_total)}
                   disabled={submitted}
@@ -565,6 +567,7 @@ export function BidFormPanel({
                   min={1}
                   max={budgetCeilingPerPerson ? budgetCeilingPerPerson : undefined}
                   placeholder="На человека, ₽"
+                  aria-label="Цена на человека, ₽"
                   className={FIELD_CLASS}
                   disabled={submitted}
                   {...register("price_per_person", {

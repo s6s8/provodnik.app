@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { Check } from "lucide-react";
+
+export const metadata: Metadata = {
+  title: "Вход",
+};
 
 import { AuthEntryScreen } from "@/features/auth/components/auth-entry-screen";
 import {

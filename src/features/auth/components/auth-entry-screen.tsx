@@ -256,6 +256,9 @@ export function AuthEntryScreen({
             >
               Provodnik
             </Link>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              {isSignUp ? "Создание профиля" : "Вход"}
+            </h1>
           </div>
         </div>
       </div>
@@ -371,6 +374,7 @@ export function AuthEntryScreen({
                 placeholder="you@example.com"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
+                aria-invalid={error ? true : undefined}
                 className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
               />
             </div>
@@ -386,9 +390,10 @@ export function AuthEntryScreen({
                 id="password"
                 type={showPassword ? "text" : "password"}
                 autoComplete={isSignUp ? "new-password" : "current-password"}
-                placeholder={isSignUp ? "Минимум 6 символов" : "Введите пароль"}
+                placeholder={isSignUp ? "Минимум 8 символов" : "Введите пароль"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
+                aria-invalid={error ? true : undefined}
                 className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
               />
               <button
@@ -419,7 +424,11 @@ export function AuthEntryScreen({
           ) : null}
 
           {error ? (
-            <div className="flex items-start gap-2 rounded-[1.4rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+            <div
+              role="alert"
+              aria-live="assertive"
+              className="flex items-start gap-2 rounded-[1.4rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+            >
               <AlertCircle className="mt-0.5 size-4 shrink-0" />
               <p>{error}</p>
             </div>

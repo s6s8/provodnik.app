@@ -105,7 +105,7 @@ export function DestinationDetailScreen({
               <strong className="block font-sans text-[2.25rem] font-semibold text-foreground">
                 {listingCount}
               </strong>
-              <span className="text-sm text-muted-foreground">готовых туров</span>
+              <span className="text-sm text-muted-foreground">готовых экскурсий</span>
             </div>
 
             <div>
@@ -135,7 +135,7 @@ export function DestinationDetailScreen({
             <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div>
                 <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
-                  Открытые группы
+                  Сборные группы
                 </p>
                 <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
                   Путешественники ищут компанию
@@ -189,7 +189,7 @@ export function DestinationDetailScreen({
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
-                Готовые туры
+                Готовые экскурсии
               </p>
               <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
                 Авторские маршруты с гидами

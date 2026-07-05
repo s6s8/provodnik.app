@@ -31,9 +31,9 @@ export function HomePageShell2Classic({ destinations, requests }: Props) {
       <HomepageHeroFormClassic destinations={destinations} />
 
       {openGroups.length > 0 && (
-        <section className={`${SECTION} pb-6 pt-14`} aria-label="Открытые группы">
+        <section className={`${SECTION} pb-6 pt-14`} aria-label="Сборные группы">
           <SectionHeading
-            title="Открытые группы"
+            title="Сборные группы"
             action={{ label: "Все группы", href: "/requests" }}
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
