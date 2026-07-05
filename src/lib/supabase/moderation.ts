@@ -598,6 +598,17 @@ export async function ensureOpenModerationCase(input: {
   return createModerationCase(input);
 }
 
+function slugifyGuideProfileName(value: string | null | undefined, guideId: string) {
+  const base = (value ?? "")
+    .normalize("NFKD")
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 56);
+  const suffix = guideId.replace(/-/g, "").slice(0, 8);
+  return `${base || "guide"}-${suffix}`;
+}
+
 export async function performModerationAction(
   caseId: string,
   adminId: string,
@@ -643,11 +654,31 @@ export async function performModerationAction(
 
   if (moderationCase.subject_type === "guide_profile" && moderationCase.guide_id) {
     if (input.decision === "approve" || input.decision === "reject") {
+      const nextVerificationStatus = input.decision === "approve" ? "approved" : "rejected";
+      const updatePayload: Record<string, unknown> = {
+        verification_status: nextVerificationStatus,
+        is_available: input.decision === "approve",
+      };
+
+      if (input.decision === "approve") {
+        const { data: guideProfile, error: guideProfileError } = await adminClient
+          .from("guide_profiles")
+          .select("slug, display_name")
+          .eq("user_id", moderationCase.guide_id)
+          .maybeSingle();
+
+        if (guideProfileError) throw guideProfileError;
+        if (!guideProfile?.slug) {
+          updatePayload.slug = slugifyGuideProfileName(
+            guideProfile?.display_name as string | null | undefined,
+            moderationCase.guide_id,
+          );
+        }
+      }
+
       const { error } = await adminClient
         .from("guide_profiles")
-        .update({
-          verification_status: input.decision === "approve" ? "approved" : "rejected",
-        })
+        .update(updatePayload)
         .eq("user_id", moderationCase.guide_id);
 
       if (error) throw error;

@@ -124,6 +124,8 @@ async function approveGuideAction(guideId: string) {
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/guides");
   revalidatePath(`/admin/guides/${guideId}`);
+  revalidatePath("/guides");
+  revalidatePath("/destinations");
 }
 
 async function rejectGuideAction(guideId: string) {
@@ -140,6 +142,8 @@ async function rejectGuideAction(guideId: string) {
   revalidatePath("/admin/dashboard");
   revalidatePath("/admin/guides");
   revalidatePath(`/admin/guides/${guideId}`);
+  revalidatePath("/guides");
+  revalidatePath("/destinations");
 }
 
 export default async function AdminGuidesPage({
