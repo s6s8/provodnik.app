@@ -1,9 +1,24 @@
 "use server";
 
+import { headers } from "next/headers";
+import { z } from "zod";
+
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDashboardPathForRole } from "@/lib/auth/role-routing";
+import { rateLimit } from "@/lib/rate-limit";
 import { isGuideType } from "@/features/auth/guide-type";
+
+// Bounds untrusted signup input server-side (the API can be called directly,
+// not only via the form). Role/guideType keep their dedicated error codes below.
+const SignUpSchema = z.object({
+  email: z.email(),
+  password: z.string().min(8).max(128),
+  fullName: z.string().trim().min(1).max(120),
+  phone: z.string().trim().max(32).optional(),
+  role: z.string(),
+  guideType: z.string().optional(),
+});
 
 type SignUpInput = {
   email: string;
@@ -47,7 +62,13 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     return { ok: false, error: "forbidden_role" };
   }
 
-  const { email, password, fullName, phone } = input;
+  const parsed = SignUpSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: "invalid_input" };
+  }
+
+  const { password, fullName, phone } = parsed.data;
+  const email = parsed.data.email.trim().toLowerCase();
   const safeRole = input.role;
   const isGuide = safeRole === "guide";
 
@@ -65,6 +86,23 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   const guideType = isGuide ? input.guideType : undefined;
   if (isGuide && !isGuideType(guideType)) {
     return { ok: false, error: "guide_type_required" };
+  }
+
+  // Throttle anonymous account creation by IP and by email (mirrors the
+  // forgot-password limiter) so the endpoint can't be used to mass-squat emails
+  // or spam the registry.
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    h.get("x-real-ip") ??
+    "unknown";
+  const ipLimit = await rateLimit(`signup:ip:${ip}`, 10, 3600);
+  if (!ipLimit.success) {
+    return { ok: false, error: "rate_limited" };
+  }
+  const emailLimit = await rateLimit(`signup:email:${email}`, 5, 3600);
+  if (!emailLimit.success) {
+    return { ok: false, error: "rate_limited" };
   }
 
   const admin = createSupabaseAdminClient();

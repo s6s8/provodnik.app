@@ -15,7 +15,7 @@ interface Props {
 
 export function HomepageHeroFormClassic({ destinations }: Props) {
   return (
-    <section className="relative flex min-h-svh flex-col overflow-hidden bg-overlay">
+    <section className="relative flex min-h-svh flex-col overflow-hidden bg-gradient-to-b from-brand-800 to-brand-950">
       <Image
         src={HERO_IMAGE}
         alt=""

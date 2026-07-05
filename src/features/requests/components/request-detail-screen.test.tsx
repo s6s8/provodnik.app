@@ -193,7 +193,7 @@ describe("RequestDetailScreen", () => {
   });
 
   it("renders the owner guide comparison with select→accept and not the guide bid form", () => {
-    render(
+    const { container } = render(
       <RequestDetailScreen
         viewerRole="owner"
         requestId="request-1"
@@ -205,6 +205,7 @@ describe("RequestDetailScreen", () => {
             offer,
             guideInfo: {
               guide_id: "guide-1",
+              slug: "anna-guide-1",
               full_name: "Анна",
               avatar_url: null,
               rating: 4.8,
@@ -232,6 +233,10 @@ describe("RequestDetailScreen", () => {
     expect(screen.queryByRole("button", { name: "Принять предложение" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Выбрать гида" }));
     expect(screen.getByRole("button", { name: "Принять предложение" })).toBeInTheDocument();
+
+    // PRD-007: the guide profile link uses the slug route, never the raw UUID.
+    expect(container.querySelector('a[href="/guides/anna-guide-1"]')).not.toBeNull();
+    expect(container.querySelector('a[href="/guides/guide-1"]')).toBeNull();
   });
 
   it("renders the guide bid form control and not owner accept controls", () => {
@@ -322,6 +327,7 @@ describe("RequestDetailScreen", () => {
             offer,
             guideInfo: {
               guide_id: "guide-1",
+              slug: "anna-guide-1",
               full_name: "Анна",
               avatar_url: null,
               rating: 4.8,

@@ -5,6 +5,7 @@ import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { cityImage } from "@/lib/city-image";
+import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function generateMetadata(): Metadata {
@@ -15,6 +16,9 @@ export function generateMetadata(): Metadata {
 }
 
 function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
+  // PII-012: public catalog viewer is never the owner — mask contact details in
+  // the free-text description before it reaches any card.
+  const maskedDescription = maskPii(request.description);
   return {
     id: request.id,
     status: request.status === "booked" ? "matched" : "open",
@@ -37,10 +41,10 @@ function mapToOpenRequestRecord(request: RequestRecord): OpenRequestRecord {
       ? `${request.startTime}${request.endTime ? `–${request.endTime}` : ""}`
       : undefined,
     budgetPerPersonRub: request.budgetRub,
-    highlights: [request.title, request.description].filter(Boolean) as string[],
+    highlights: [request.title, maskedDescription].filter(Boolean) as string[],
     interests: request.interests,
     themes: request.interests,
-    notes: request.description,
+    notes: maskedDescription,
     organizerName: request.members[0]?.displayName ?? request.requesterName,
     members: request.members,
   };

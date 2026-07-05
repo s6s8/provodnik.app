@@ -47,6 +47,10 @@ function getFriendlyAuthError(code: string): string {
       return "Укажите телефон — он нужен для связи с путешественниками и проверки профиля.";
     case "guide_type_required":
       return "Выберите формат работы: индивидуальный гид, агентство или команда гидов.";
+    case "invalid_input":
+      return "Проверьте введённые данные: email, пароль (минимум 8 символов) и имя.";
+    case "rate_limited":
+      return "Слишком много попыток регистрации. Подождите немного и попробуйте снова.";
   }
 
   const normalized = code.toLowerCase();

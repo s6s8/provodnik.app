@@ -16,6 +16,7 @@ import {
 } from "@/features/requests/components/request-detail-screen";
 import { viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
+import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember } from "@/lib/supabase/request-members";
 import { getBiddingGuidesForRequest, type BiddingGuide } from "@/lib/supabase/requests-public";
@@ -32,6 +33,12 @@ const getRequestDetail = cache(async (requestId: string) => {
   const supabase = await createSupabaseServerClient();
   return getRequestById(supabase, requestId);
 });
+
+// PII-012: everyone except the owner sees the request free-text with contact
+// details masked. Owner paths use the raw record; guide/public/admin use this.
+function maskRequestContacts(request: RequestRecord): RequestRecord {
+  return { ...request, description: maskPii(request.description) };
+}
 
 const travelerRequestSelect =
   "id, traveler_id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window";
@@ -156,6 +163,7 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
     string,
     {
       guide_id: string;
+      slug: string | null;
       full_name: string | null;
       avatar_url: string | null;
       rating: number | null;
@@ -181,7 +189,7 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
       const { data: guidePublicProfiles } = await supabase
         .from("v_guide_public_profile")
         .select(
-          "user_id, full_name, avatar_url, average_rating, review_count, years_experience, trips_completed, recommend_pct, languages, specialties",
+          "user_id, slug, full_name, avatar_url, average_rating, review_count, years_experience, trips_completed, recommend_pct, languages, specialties",
         )
         .in("user_id", guideIds);
 
@@ -189,6 +197,7 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
         if (!g.user_id) continue;
         guideInfoMap.set(g.user_id, {
           guide_id: g.user_id,
+          slug: (g.slug as string | null) ?? null,
           full_name: g.full_name,
           avatar_url: g.avatar_url,
           rating: g.average_rating,
@@ -398,7 +407,7 @@ export default async function RequestDetailPage({
     return (
       <RequestDetailScreen
         viewerRole="guide"
-        request={result.data}
+        request={maskRequestContacts(result.data)}
         isApproved={guideData.isApproved}
         existingOfferId={guideData.existingOfferId}
         offerMeta={guideData.offerMeta}
@@ -410,7 +419,7 @@ export default async function RequestDetailPage({
   }
 
   const viewModel = buildViewModel({
-    request: result.data,
+    request: maskRequestContacts(result.data),
     currentUserId,
     isMember,
     ownerId,

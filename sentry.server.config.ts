@@ -19,8 +19,8 @@ if (!sentryDisabled) {
       return 0.1;
     },
 
-    // Enable sending user PII (Personally Identifiable Information)
+    // Do NOT send user PII: keeps auth cookies, headers and IP out of Sentry.
     // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-    sendDefaultPii: true,
+    sendDefaultPii: false,
   });
 }
