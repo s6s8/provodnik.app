@@ -120,6 +120,10 @@ _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. 
 - AP-038 — reading auth role from JWT app_metadata.role alone without profiles.role fallback (proxy + client login were both bound to JWT-only — half the system disagreed with server-auth) — see ERR-096
 - AP-039 — verification clicks on react-hook-form controlled inputs via JS document-level click() do not propagate to RHF state — false-positive screenshots
 - AP-040 — symptom-fixing a layout regression by adjusting downstream classes (items-end, whitespace-nowrap, character-shaving) instead of naming the constraint that produces the visual; when a CSS regression appears right after a fix, treat the previous fix as having moved the problem — see ERR-100, ID-005
+- AP-041 — Supabase `.update()`/`.delete()` without `.select()` treats a 0-row write (RLS block / no matching row) as success — append `.select()` and assert non-empty (row #39, `ef8c380f`)
+- AP-042 — returning an `Error` instance / dropping the PostgREST message across a `"use server"` boundary; PG errors are plain objects, `Error` isn't cleanly serializable — preserve message+code, return a plain shape (row #40, `5309bf4c`)
+- AP-043 — one-shot error-banner state set but never cleared and no retry; split fatal vs peripheral, clear on reload (row #40)
+- AP-044 — suspending by only flipping `account_status` (no GoTrue `ban_duration`, no DB write guard); session stays valid + SECURITY DEFINER RPCs bypass RLS — ban in GoTrue AND `assert_active_account()` in every write RPC/policy (row #35, `251179db`)
 
 ## Decisions (see DECISIONS.md)
 
