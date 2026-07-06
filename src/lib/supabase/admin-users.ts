@@ -27,6 +27,10 @@ export type AdminUserGuideInfo = {
 export type AdminUserListItem = {
   id: Uuid;
   fullName: string | null;
+  // Real contact — admins need it to reach users. Masked variants kept as a
+  // null-safe fallback. Audit-timeline actor display stays masked (see
+  // getUserAuditTimeline). PII-012 governs message-body masking, not this.
+  email: string | null;
   maskedEmail: string;
   maskedPhone: string;
   role: AppRole;
@@ -193,6 +197,7 @@ export async function listAdminUsers(filter: AdminUsersFilter): Promise<AdminUse
   const items: AdminUserListItem[] = rows.map((row) => ({
     id: row.id,
     fullName: row.full_name,
+    email: row.email,
     maskedEmail: maskEmail(row.email),
     maskedPhone: maskPhone(row.phone),
     role: row.role,
