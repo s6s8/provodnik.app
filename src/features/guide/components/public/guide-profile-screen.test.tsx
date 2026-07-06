@@ -63,6 +63,24 @@ describe("GuideProfileScreen", () => {
     expect(img!.className).not.toContain("absolute");
   });
 
+  it("does not render initials as oversized public guide hero artwork", () => {
+    const { container } = render(<GuideProfileScreen guide={makeGuide({ avatarInitials: "ИП" })} />);
+
+    const hero = container.querySelector("section");
+    expect(hero?.textContent).toContain("Иван Петров");
+    expect(hero?.textContent).not.toContain("ИП");
+    expect(container.querySelector(".pointer-events-none")).toBeNull();
+  });
+
+  it("left-aligns guide description and badge rows instead of centering the profile body", () => {
+    const { getByText } = render(<GuideProfileScreen guide={makeGuide()} />);
+
+    const bio = getByText("Вожу группы по горам уже несколько лет.");
+    expect(bio.closest("div")?.className).toContain("items-start");
+    expect(bio.closest("div")?.className).toContain("text-left");
+    expect(getByText("Треккинг").parentElement?.className).toContain("justify-start");
+  });
+
   it("points the request CTA at /?guide=<slug>", () => {
     const { getByText } = render(<GuideProfileScreen guide={makeGuide()} />);
 
