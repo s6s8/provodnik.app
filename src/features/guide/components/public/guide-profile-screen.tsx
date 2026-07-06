@@ -43,23 +43,11 @@ interface Props {
   photos?: { id: string; locationName: string; imageUrl: string }[];
 }
 
-function getInitials(name: string, fallback?: string): string {
-  if (fallback) return fallback;
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("")
-    .toUpperCase();
-}
-
 function Dot() {
   return <span className="size-[3px] rounded-full bg-on-surface-muted/60" />;
 }
 
 export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Props) {
-  const initials = getInitials(guide.displayName, guide.avatarInitials);
   const rating = guide.reviewsSummary.averageRating;
   const totalReviews = guide.reviewsSummary.totalReviews;
   const tripsCompleted = guide.tripsCompleted ?? guide.completedTours;
@@ -92,18 +80,12 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
   return (
     <div>
-      {/* Avatar photos are small user uploads — never full-bleed hero material
-          (a ~500px selfie upscaled to 100vw reads as "stretched"). The hero is
-          always typographic; the photo renders below at a bounded size. */}
+      {/* Public guide detail uses a clean typographic hero. Do not render initials as
+          oversized artwork: when a real guide photo is unavailable, the page should
+          stay neutral instead of replacing the photo with a giant monogram. */}
       <section className="relative w-full overflow-hidden bg-surface-low">
-        <div className="relative mx-auto flex min-h-[480px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:h-[560px] md:px-8">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-[clamp(6rem,18vw,12rem)] leading-none text-on-surface-muted/15"
-          >
-            {initials}
-          </div>
-          <div className="relative md:absolute md:bottom-12 md:left-8 md:max-w-[540px]">
+        <div className="relative mx-auto flex min-h-[360px] max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-24 md:min-h-[460px] md:px-8">
+          <div className="relative max-w-[640px]">
             <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-on-surface-muted">
               <span>{guide.homeBase}</span>
             </div>
@@ -121,7 +103,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
       <section className="bg-surface">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-12">
-          <div className="mx-auto flex max-w-[720px] flex-col items-center text-center">
+          <div className="mx-auto flex max-w-[720px] flex-col items-start text-left">
             {guide.avatarImageUrl ? (
               <Image
                 src={guide.avatarImageUrl}
@@ -140,7 +122,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             ) : null}
 
             {hasStats ? (
-              <div className="flex flex-wrap items-center justify-center gap-[9px] text-[13.5px] text-on-surface-muted">
+              <div className="flex flex-wrap items-center justify-start gap-[9px] text-[13.5px] text-on-surface-muted">
                 {showRating ? (
                   <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
                     <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
@@ -187,7 +169,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             </p>
 
             {guide.specialties.length > 0 ? (
-              <div className="mt-6 flex flex-wrap justify-center gap-[7px]">
+              <div className="mt-6 flex flex-wrap justify-start gap-[7px]">
                 {guide.specialties.map((specialty) => (
                   <Tag key={specialty} color="primary">
                     {specialty}
@@ -197,7 +179,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             ) : null}
 
             {guide.languages.length > 0 ? (
-              <div className="mt-3 flex flex-wrap justify-center gap-[7px]">
+              <div className="mt-3 flex flex-wrap justify-start gap-[7px]">
                 {guide.languages.map((lang) => (
                   <span
                     key={lang}
@@ -209,7 +191,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               </div>
             ) : null}
 
-            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
               <Button asChild>
                 <Link href={`${ROUTES.newRequest.href}?guide=${guide.slug}`}>
                   Запросить этого гида
