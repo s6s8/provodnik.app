@@ -9,7 +9,6 @@ import { ArrowUp, Clock } from "lucide-react";
 import { createRequestAction } from "@/features/requests/create-request-actions";
 import { Button } from "@/components/ui/button";
 import { todayMoscowISODate } from "@/lib/dates";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 import { HomepageAuthGate } from "@/features/homepage-classic/components/homepage-auth-gate";
 
@@ -86,29 +85,21 @@ export function HeroConversation() {
     try {
       // On success the server action redirects; only the error branch returns.
       const result = await createRequestAction({ error: null }, fd);
-      if (result?.error) setServerError(result.error);
+      // Gate to auth only when the server confirms the caller is signed out —
+      // never on a browser getUser() pre-check that races cookie refresh (#34).
+      if (result?.code === "auth_required") {
+        pendingFormData.current = fd;
+        setAuthGateOpen(true);
+      } else if (result?.error) {
+        setServerError(result.error);
+      }
     } finally {
       setIsCreating(false);
     }
   }, []);
 
   const handleCreate = React.useCallback(async () => {
-    const fd = buildFormData(fields);
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (user) {
-        await submitWithFormData(fd);
-      } else {
-        pendingFormData.current = fd;
-        setAuthGateOpen(true);
-      }
-    } catch {
-      pendingFormData.current = fd;
-      setAuthGateOpen(true);
-    }
+    await submitWithFormData(buildFormData(fields));
   }, [fields, submitWithFormData]);
 
   const handleAuthSuccess = React.useCallback(async () => {

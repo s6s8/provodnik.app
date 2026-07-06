@@ -48,8 +48,8 @@ export default async function AdminUsersPage({
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Пользователи</h1>
         <p className="max-w-3xl text-sm text-muted-foreground">
           Поиск, фильтрация и безопасное управление аккаунтами: статусы, роли, проверка
-          гидов и массовые действия. Контактные данные скрыты — открывайте карточку для
-          деталей.
+          гидов и массовые действия. Контактные данные видны — открывайте карточку для
+          полной информации.
         </p>
       </div>
 

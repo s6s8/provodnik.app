@@ -307,7 +307,7 @@ export function UsersConsole({
                       >
                         {user.fullName?.trim() || "Без имени"}
                       </Link>
-                      <span className="text-xs text-muted-foreground">{user.maskedEmail}</span>
+                      <span className="text-xs text-muted-foreground">{user.email ?? user.maskedEmail}</span>
                       <span className="mt-1 flex gap-1.5 sm:hidden">
                         <RoleBadge role={user.role} />
                         {user.isDemo ? (

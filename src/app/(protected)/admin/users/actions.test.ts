@@ -159,6 +159,52 @@ describe("setAccountStatusAction", () => {
     expect(result.ok).toBe(false);
     expect(mocks.createSupabaseServerClient).not.toHaveBeenCalled();
   });
+
+  it("bans the GoTrue session when suspending so the status change is not cosmetic (#35)", async () => {
+    const { client, updateUserById } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "traveler@example.com",
+      role: "traveler",
+      accountStatus: "active",
+    });
+    mocks.countOtherActiveAdmins.mockResolvedValue(3);
+    mocks.createSupabaseServerClient.mockResolvedValue({
+      rpc: vi.fn().mockResolvedValue({ error: null }),
+    });
+
+    const result = await setAccountStatusAction(
+      null,
+      form({ targetUserId: TARGET_ID, status: "suspended", reason: "abuse" }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(updateUserById).toHaveBeenCalledWith(TARGET_ID, { ban_duration: "876000h" });
+  });
+
+  it("clears the GoTrue ban when reactivating (#35)", async () => {
+    const { client, updateUserById } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue({
+      id: TARGET_ID,
+      email: "traveler@example.com",
+      role: "traveler",
+      accountStatus: "suspended",
+    });
+    mocks.countOtherActiveAdmins.mockResolvedValue(3);
+    mocks.createSupabaseServerClient.mockResolvedValue({
+      rpc: vi.fn().mockResolvedValue({ error: null }),
+    });
+
+    const result = await setAccountStatusAction(
+      null,
+      form({ targetUserId: TARGET_ID, status: "active", reason: "restored" }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(updateUserById).toHaveBeenCalledWith(TARGET_ID, { ban_duration: "none" });
+  });
 });
 
 describe("setUserRoleAction", () => {

@@ -11,7 +11,6 @@ import {
   type TravelerRequest,
   type TravelerRequestInput,
 } from "@/data/traveler-request/schema";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type FormValues = TravelerRequest;
 type FormInput = TravelerRequestInput;
@@ -69,7 +68,15 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
     setServerError(null);
     try {
       const result = await createRequestAction({ error: null }, fd);
-      if (result?.error) setServerError(result.error);
+      // Gate to the auth flow only when the server confirms the caller is not
+      // signed in — never on a browser-side getUser() pre-check, which races
+      // proxy.ts's cookie refresh and forces spurious re-logins (row #34).
+      if (result?.code === "auth_required") {
+        setPendingFormData(fd);
+        setAuthGateOpen(true);
+      } else if (result?.error) {
+        setServerError(result.error);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -102,22 +109,7 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
       fd.set("preferredGuideSlug", preferredGuideSlug);
     }
 
-    try {
-      const supabase = createSupabaseBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        await submitWithFormData(fd);
-      } else {
-        setPendingFormData(fd);
-        setAuthGateOpen(true);
-      }
-    } catch {
-      setPendingFormData(fd);
-      setAuthGateOpen(true);
-    }
+    await submitWithFormData(fd);
   };
 
   const handleAuthSuccess = async () => {

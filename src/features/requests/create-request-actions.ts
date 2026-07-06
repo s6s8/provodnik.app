@@ -14,6 +14,10 @@ import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 export type CreateRequestState = {
   error: string | null;
   fieldErrors?: Partial<Record<string, string[]>>;
+  // Set only when the request failed because the caller is not signed in.
+  // The client gates to the auth flow on this code alone — never on a
+  // browser-side getUser() pre-check, which races the cookie refresh.
+  code?: "auth_required";
 };
 
 export async function buildRequestInsertPayload(
@@ -102,7 +106,7 @@ export async function createRequestAction(
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      return { error: "Необходимо войти в систему для создания запроса." };
+      return { error: "Необходимо войти в систему для создания запроса.", code: "auth_required" };
     }
 
     const { data: profile, error: profileError } = await supabase
@@ -121,7 +125,7 @@ export async function createRequestAction(
 
     travelerId = user.id;
   } catch {
-    return { error: "Ошибка авторизации. Попробуйте обновить страницу." };
+    return { error: "Ошибка авторизации. Попробуйте обновить страницу.", code: "auth_required" };
   }
 
   let requestId: string;

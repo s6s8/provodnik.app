@@ -430,7 +430,7 @@ This is the data we need to prioritize hardening. Backfill historical entries on
 
 ### ERR-030: Browser `supabase.auth.signOut()` cannot clear HTTP-only SSR cookies → logout hang
 - **Symptom:** Clicking "Выйти" appeared to do nothing for up to 10 minutes; user remained logged in
-- **Root Cause:** `@supabase/ssr` stores the session in HTTP-only cookies set by the server. The browser client's `signOut()` can only clear in-memory/localStorage state — it has no access to HTTP-only cookies. The server middleware kept seeing a valid cookie and re-hydrating the session.
+- **Root Cause:** The browser client's `signOut()` clears its own storage adapter but does not reliably clear the server-written auth cookies, so the server middleware kept re-hydrating the session. **CORRECTION (2026-07-06):** the original write below claimed these are HTTP-only cookies the browser cannot touch — that is false. `@supabase/ssr` writes auth cookies with `httpOnly=false` by default (the browser client must read them). The real reason is that the browser and server clients use different cookie-writing paths and the browser `signOut()` does not remove all chunks the server set; the durable fix is unchanged — clear them server-side.
 - **Fix:** Created `/api/auth/signout` GET route handler that calls `supabase.auth.signOut()` server-side (which has cookie access), then redirects to `/`. Both desktop and mobile logout buttons now navigate to this endpoint via `window.location.href`.
 - **Files Affected:** `src/app/api/auth/signout/route.ts` (new), `src/components/shared/site-header.tsx`
 - **Date:** 2026-04-20

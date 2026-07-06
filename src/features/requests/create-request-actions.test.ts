@@ -6,7 +6,15 @@ vi.mock("@/lib/notifications/triggers", () => ({
   notifyGuidesNewRequest: vi.fn(),
 }));
 
-import { buildRequestInsertPayload } from "./create-request-actions";
+const getUserMock = vi.fn();
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: vi.fn(async () => ({
+    auth: { getUser: getUserMock },
+  })),
+}));
+vi.mock("@/lib/env", () => ({ hasSupabaseEnv: () => true }));
+
+import { buildRequestInsertPayload, createRequestAction } from "./create-request-actions";
 
 const baseInput: TravelerRequest = {
   mode: "private",
@@ -115,5 +123,41 @@ describe("buildRequestInsertPayload", () => {
     const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
 
     expect(payload.preferred_guide_slug).toBeNull();
+  });
+});
+
+function validRequestFormData(): FormData {
+  const fd = new FormData();
+  fd.set("mode", "private");
+  fd.append("interests[]", "history_culture");
+  fd.set("destination", "Элиста");
+  fd.set("startDate", "2026-09-10");
+  fd.set("dateFlexibility", "exact");
+  fd.set("startTime", "10:00");
+  fd.set("endTime", "12:00");
+  fd.set("groupSize", "4");
+  fd.set("budgetPerPersonRub", "5000");
+  return fd;
+}
+
+describe("createRequestAction — auth gating (#34)", () => {
+  it("returns code 'auth_required' when the server sees no signed-in user", async () => {
+    // Server is authoritative: no browser getUser() pre-check. When getUser
+    // resolves without a user, the action signals auth_required so the client
+    // gates to login only on real, server-confirmed auth failure.
+    getUserMock.mockResolvedValueOnce({ data: { user: null }, error: null });
+
+    const result = await createRequestAction({ error: null }, validRequestFormData());
+
+    expect(result.code).toBe("auth_required");
+    expect(result.error).toBeTruthy();
+  });
+
+  it("returns code 'auth_required' when getUser throws (mid-refresh token)", async () => {
+    getUserMock.mockRejectedValueOnce(new Error("token refresh in flight"));
+
+    const result = await createRequestAction({ error: null }, validRequestFormData());
+
+    expect(result.code).toBe("auth_required");
   });
 });

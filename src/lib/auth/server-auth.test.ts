@@ -225,6 +225,37 @@ describe("readAuthContextFromServer", () => {
     expect(auth.canonicalRedirectTo).toBe("/guide");
   });
 
+  // Row #37: a getUser() failure during layout SSR must degrade to an
+  // unauthenticated context, never throw — an uncaught throw in a layout 500s
+  // the whole tree (the blank "critical error" seen after signup).
+  it("degrades to unauthenticated when getUser returns an auth error", async () => {
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: null },
+          error: { message: "invalid claim: missing sub claim" },
+        }),
+      },
+    });
+
+    const auth = await readAuthContextFromServer();
+
+    expect(auth.isAuthenticated).toBe(false);
+    expect(auth.role).toBeNull();
+  });
+
+  it("degrades to unauthenticated when getUser throws instead of 500ing SSR", async () => {
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockRejectedValue(new Error("network reset mid-refresh")),
+      },
+    });
+
+    await expect(readAuthContextFromServer()).resolves.toMatchObject({
+      isAuthenticated: false,
+    });
+  });
+
   it("fails closed and logs telemetry when the profile role read errors", async () => {
     createSupabaseServerClientMock.mockResolvedValue({
       auth: {

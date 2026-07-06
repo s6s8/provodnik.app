@@ -84,13 +84,22 @@ export async function uploadAvatarAction(formData: FormData): Promise<AvatarUplo
     }
 
     const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    const { error: profileError } = await supabase
+    // .select() forces PostgREST to return the affected rows: without it a
+    // 0-row UPDATE (RLS block, or auth user with no profiles row) resolves
+    // error:null and the upload would report success while the avatar never
+    // persists — the silent failure behind row #39.
+    const { data: updated, error: profileError } = await supabase
       .from("profiles")
       .update({ avatar_url: data.publicUrl })
-      .eq("id", auth.userId);
+      .eq("id", auth.userId)
+      .select("id");
 
     if (profileError) {
       throw profileError;
+    }
+
+    if (!updated || updated.length === 0) {
+      throw new Error(`Avatar update affected 0 rows for user ${auth.userId}`);
     }
 
     return { ok: true, message: AVATAR_SUCCESS };

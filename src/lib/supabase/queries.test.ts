@@ -548,6 +548,26 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.data?.specializations).toEqual([]);
   });
 
+  it("maps avatar_url from the guide RPC so the profile shows the photo, not initials (#24)", async () => {
+    const client = createFakeClient({
+      "rpc:get_public_guide_by_slug": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          full_name: "Иван Гид",
+          avatar_url: "https://cdn.test/guide-1.png",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      v_guide_public_profile: [],
+    });
+
+    const result = await getGuideBySlug(client, "guide-1");
+
+    expect(result.data?.avatarUrl).toBe("https://cdn.test/guide-1.png");
+  });
+
   it("keeps rating 0 and null responseRate when the stats view is absent", async () => {
     const client = createFakeClient({
       "rpc:get_public_guide_by_slug": [
