@@ -168,8 +168,19 @@ export type DestinationOption = {
 
 export const fallbackHeroImage = brandGradient("listing");
 
-export function makeError(error: unknown) {
-  return error instanceof Error ? error : new Error("Unknown Supabase error");
+export function makeError(error: unknown): Error {
+  if (error instanceof Error) return error;
+  // supabase-js / PostgREST reject with a plain object ({message, details,
+  // hint, code}), not an Error instance — the old `instanceof` check threw all
+  // of that away and logged "Unknown Supabase error" (row #40). Preserve the
+  // real message and carry the PG code on `.name` so logs are actionable.
+  if (error && typeof error === "object" && "message" in error) {
+    const e = error as { message?: unknown; code?: unknown };
+    const err = new Error(String(e.message ?? "Unknown Supabase error"));
+    if (e.code != null) err.name = String(e.code);
+    return err;
+  }
+  return new Error("Unknown Supabase error");
 }
 
 export function normalizeSlug(value: string) {
