@@ -8,6 +8,11 @@ const sentryDisabled =
 const nextConfig: NextConfig = {
   reactCompiler: true,
   allowedDevOrigins: ["dev.provodnik.app"],
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
   images: {
     remotePatterns: [
       {

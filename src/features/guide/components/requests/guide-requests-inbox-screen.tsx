@@ -68,6 +68,7 @@ export function GuideRequestsInboxScreen() {
   const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [loadError, setLoadError] = React.useState<string | null>(null);
+  const [peripheralWarning, setPeripheralWarning] = React.useState<string | null>(null);
   const [offeredIds, setOfferedIds] = React.useState<Set<string>>(new Set());
   const [offerIdByRequestId, setOfferIdByRequestId] = React.useState<Map<string, OfferMeta>>(new Map());
   const [guideId, setGuideId] = React.useState<string | null>(null);
@@ -92,7 +93,7 @@ export function GuideRequestsInboxScreen() {
     async function loadOffersForGuide(guideId: string) {
       const { offeredIds: ids, offerIdByRequestId: offerMap, error } = await fetchOfferedRequestIds(guideId);
       if (ignore) return;
-      if (error) setLoadError(LOAD_ERROR_MESSAGE);
+      if (error) setPeripheralWarning("Запросы загружены, но часть данных по откликам временно недоступна.");
       setOfferedIds(ids);
       setOfferIdByRequestId(offerMap);
     }
@@ -104,7 +105,7 @@ export function GuideRequestsInboxScreen() {
         .eq("user_id", guideId)
         .maybeSingle();
       if (ignore) return;
-      if (error) setLoadError(LOAD_ERROR_MESSAGE);
+      if (error) setPeripheralWarning("Запросы загружены, но часть данных по откликам временно недоступна.");
       setSpecializations(Array.isArray(data?.specializations) ? data.specializations : []);
       setBaseCity(typeof data?.base_city === "string" && data.base_city.trim() !== "" ? data.base_city : null);
       setVerificationStatus(typeof data?.verification_status === "string" ? data.verification_status : null);
@@ -237,6 +238,11 @@ export function GuideRequestsInboxScreen() {
             />
           ) : (
             <>
+              {peripheralWarning ? (
+                <Alert>
+                  <AlertDescription>{peripheralWarning}</AlertDescription>
+                </Alert>
+              ) : null}
               <div
                 role="tablist"
                 aria-label="Фильтр запросов"

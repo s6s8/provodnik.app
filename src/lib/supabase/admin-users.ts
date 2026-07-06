@@ -55,6 +55,8 @@ export type AdminAuditEntry = {
 export type AdminUserDetail = {
   id: Uuid;
   fullName: string | null;
+  email: string | null;
+  phone: string | null;
   maskedEmail: string;
   maskedPhone: string;
   role: AppRole;
@@ -299,6 +301,8 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
   return {
     id: row.id,
     fullName: row.full_name,
+    email: row.email,
+    phone: row.phone,
     maskedEmail: maskEmail(row.email),
     maskedPhone: maskPhone(row.phone),
     role: row.role,

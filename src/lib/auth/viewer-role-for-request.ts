@@ -1,15 +1,23 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { hasAdminRole } from "@/lib/auth/admin-access";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type RequestViewerRole = "public" | "owner" | "guide" | "admin";
 
-export async function viewerRoleForRequest(
+export type RequestViewerContext = {
+  role: RequestViewerRole;
+  userId: string | null;
+  authReadFailed: boolean;
+};
+
+export const getRequestViewerContext = cache(async (
   requestId: string,
-): Promise<RequestViewerRole> {
-  if (!hasSupabaseEnv()) return "public";
+): Promise<RequestViewerContext> => {
+  if (!hasSupabaseEnv()) return { role: "public", userId: null, authReadFailed: false };
 
   try {
     const supabase = await createSupabaseServerClient();
@@ -18,7 +26,7 @@ export async function viewerRoleForRequest(
       error: userError,
     } = await supabase.auth.getUser();
 
-    if (userError || !user) return "public";
+    if (userError || !user) return { role: "public", userId: null, authReadFailed: false };
 
     const [requestResult, profileResult, guideProfileResult] = await Promise.all([
       supabase
@@ -41,7 +49,7 @@ export async function viewerRoleForRequest(
     const travelerId =
       (requestResult.data as { traveler_id: string | null } | null)?.traveler_id ??
       null;
-    if (travelerId === user.id) return "owner";
+    if (travelerId === user.id) return { role: "owner", userId: user.id, authReadFailed: false };
 
     const profileRole =
       (profileResult.data as { role: string | null } | null)?.role ?? null;
@@ -51,16 +59,26 @@ export async function viewerRoleForRequest(
         appMetadataRole: user.app_metadata?.role as string | undefined,
       })
     ) {
-      return "admin";
+      return { role: "admin", userId: user.id, authReadFailed: false };
     }
 
     const verificationStatus =
       (guideProfileResult.data as { verification_status: string | null } | null)
         ?.verification_status ?? null;
-    if (verificationStatus === "approved") return "guide";
+    if (verificationStatus === "approved") {
+      return { role: "guide", userId: user.id, authReadFailed: false };
+    }
 
-    return "public";
-  } catch {
-    return "public";
+    return { role: "public", userId: user.id, authReadFailed: false };
+  } catch (error) {
+    console.error("[viewer-role-for-request] auth/read failed", { requestId, error });
+    return { role: "public", userId: null, authReadFailed: true };
   }
+});
+
+export async function viewerRoleForRequest(
+  requestId: string,
+): Promise<RequestViewerRole> {
+  return (await getRequestViewerContext(requestId)).role;
 }
+

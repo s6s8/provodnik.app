@@ -20,6 +20,7 @@ const {
   notFound,
   redirect,
   viewerRoleForRequest,
+  getRequestViewerContext,
 } = vi.hoisted(() => ({
   createSupabaseServerClient: vi.fn(),
   getRequestById: vi.fn(),
@@ -33,6 +34,11 @@ const {
     throw new Error(`NEXT_REDIRECT:${url}`);
   }),
   viewerRoleForRequest: vi.fn(async () => "public"),
+  getRequestViewerContext: vi.fn(async () => ({
+    role: "public",
+    userId: "viewer",
+    authReadFailed: false,
+  })),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -43,6 +49,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/auth/viewer-role-for-request", () => ({
   viewerRoleForRequest,
+  getRequestViewerContext,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
