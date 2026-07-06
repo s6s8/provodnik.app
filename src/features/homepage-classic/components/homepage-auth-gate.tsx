@@ -110,6 +110,10 @@ export function HomepageAuthGate({
       }
 
       await onAuthSuccess();
+    } catch {
+      // Row #37: never let a thrown sign-in/sign-up/onAuthSuccess become an
+      // unhandled rejection that leaves the form stuck with no feedback.
+      setError("Что-то пошло не так. Попробуйте ещё раз.");
     } finally {
       setIsSubmitting(false);
     }
