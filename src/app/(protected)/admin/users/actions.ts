@@ -28,6 +28,20 @@ import {
   requireAdminSession,
 } from "@/lib/supabase/moderation";
 
+// GoTrue ban ≈ 100 years; "none" lifts it. Banning revokes refresh tokens so a
+// suspended/archived account cannot mint new access tokens (row #35).
+const BAN_FOREVER = "876000h";
+
+async function revokeOrRestoreSession(
+  adminClient: AdminClient,
+  userId: string,
+  status: AccountStatus,
+): Promise<void> {
+  await adminClient.auth.admin.updateUserById(userId, {
+    ban_duration: status === "active" ? "none" : BAN_FOREVER,
+  });
+}
+
 function fail(error: string): AdminActionResult {
   return { ok: false, error };
 }
@@ -145,6 +159,13 @@ export async function setAccountStatusAction(
       p_reason: parsed.data.reason ?? undefined,
     });
     if (error) return fail(messageForRpcError(error));
+
+    // Row #35: flipping account_status alone left the user's session valid —
+    // suspension was cosmetic. Ban in GoTrue to revoke refresh tokens so no new
+    // access token can be minted; clear the ban on reactivation. The proxy
+    // re-checks status every request, so the already-issued access token (≤ JWT
+    // TTL) is contained until it expires.
+    await revokeOrRestoreSession(adminClient, target.id, parsed.data.status);
 
     revalidateUsers(parsed.data.targetUserId);
     return ok(statusSuccessMessage(parsed.data.status));
@@ -439,6 +460,8 @@ export async function bulkAction(
       if (error) {
         skipped += 1;
       } else {
+        // Row #35: kill/restore the session in lockstep with the status flip.
+        await revokeOrRestoreSession(adminClient, userId, nextStatus);
         applied += 1;
       }
     }
