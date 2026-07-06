@@ -1,4 +1,6 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
+import type { User } from "@supabase/supabase-js";
 
 import { getDemoUserIdForRole } from "@/data/notifications/demo";
 import {
@@ -13,6 +15,14 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { AuthContext } from "@/lib/auth/types";
 
 const MISSING_ROLE_RECOVERY_TO = "/auth?error=missing-role";
+
+type ProfileAuthRow = {
+  id: string;
+  role: string | null;
+  account_status: string | null;
+  full_name: string | null;
+  avatar_url: string | null;
+};
 
 function getCanonicalRedirect(role: AuthContext["role"]): AuthContext["canonicalRedirectTo"] {
   return getDashboardPathForRole(role) as AuthContext["canonicalRedirectTo"];
@@ -55,7 +65,7 @@ async function demoAuthContext(demoSession: DemoSession): Promise<AuthContext> {
   };
 }
 
-export async function readAuthContextFromServer(): Promise<AuthContext> {
+async function readAuthContextFromServerUncached(): Promise<AuthContext> {
   const hasEnv = hasSupabaseEnv();
   const cookieStore = await cookies();
 
@@ -72,21 +82,43 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     return unauthenticatedContext(false);
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+  let supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  let user: User;
 
-  if (error || !user) {
+  try {
+    supabase = await createSupabaseServerClient();
+    const {
+      data: { user: authUser },
+      error,
+    } = await supabase.auth.getUser();
+
+    if (error || !authUser) {
+      return unauthenticatedContext(true);
+    }
+    user = authUser;
+  } catch (error) {
+    console.error("[server-auth] auth read failed", error);
     return unauthenticatedContext(true);
   }
 
-  const { data: profile, error: profileError } = await supabase
-    .from("profiles")
-    .select("id, role, account_status, full_name, avatar_url")
-    .eq("id", user.id)
-    .maybeSingle();
+  let profile: ProfileAuthRow | null = null;
+  let profileError: { message: string } | null = null;
+
+  try {
+    const profileResult = await supabase
+      .from("profiles")
+      .select("id, role, account_status, full_name, avatar_url")
+      .eq("id", user.id)
+      .maybeSingle();
+    profile = profileResult.data as ProfileAuthRow | null;
+    profileError = profileResult.error as typeof profileError;
+  } catch (error) {
+    console.error("[server-auth] profile read failed", {
+      userId: user.id,
+      error,
+    });
+    profileError = { message: "profile read failed" };
+  }
 
   if (profileError) {
     console.error("[server-auth] profile role read failed", {
@@ -110,7 +142,7 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
 
   const profileRole = resolveCanonicalRole({
     profileRole: profile?.role,
-    appMetadataRole: user.app_metadata?.role as string | undefined,
+    appMetadataRole: typeof user.app_metadata?.role === "string" ? user.app_metadata.role : undefined,
   });
 
   if (!profileRole) {
@@ -147,3 +179,5 @@ export async function readAuthContextFromServer(): Promise<AuthContext> {
     missingRoleRecoveryTo: null,
   };
 }
+
+export const readAuthContextFromServer = cache(readAuthContextFromServerUncached);

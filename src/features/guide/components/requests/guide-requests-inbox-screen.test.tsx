@@ -191,6 +191,52 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     });
   });
 
+
+  it("renders request rows when offers metadata fails", async () => {
+    createSupabaseBrowserClientMock.mockReturnValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
+        }),
+        onAuthStateChange: vi.fn(() => ({
+          data: { subscription: { unsubscribe: vi.fn() } },
+        })),
+      },
+      from: vi.fn((table: string) => {
+        if (table === "guide_offers") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn().mockResolvedValue({ data: null, error: { message: "offers down" } }),
+            })),
+          };
+        }
+        return {
+          select: vi.fn(() => ({
+            eq: vi.fn(() => ({
+              maybeSingle: vi.fn().mockResolvedValue({
+                data: {
+                  specializations: [],
+                  base_city: "Элиста",
+                  verification_status: "approved",
+                },
+                error: null,
+              }),
+            })),
+          })),
+        };
+      }),
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("Элиста, центр")).toBeInTheDocument();
+    expect(
+      screen.getByText("Запросы загружены, но часть данных по откликам временно недоступна."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText("Не удалось загрузить запросы. Попробуйте обновить страницу.")).toBeNull();
+  });
+
   it("keeps the request time inline with the date meta row", () => {
     const source = readFileSync(
       join(

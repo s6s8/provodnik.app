@@ -104,6 +104,21 @@ export async function createRequestAction(
     if (userError || !user) {
       return { error: "Необходимо войти в систему для создания запроса." };
     }
+
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("account_status")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    if (profileError) {
+      return { error: "Не удалось проверить статус аккаунта. Попробуйте ещё раз." };
+    }
+
+    if (profile?.account_status && profile.account_status !== "active") {
+      return { error: "Аккаунт ограничен. Создание новых запросов недоступно." };
+    }
+
     travelerId = user.id;
   } catch {
     return { error: "Ошибка авторизации. Попробуйте обновить страницу." };

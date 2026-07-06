@@ -14,7 +14,7 @@ import {
   type PublicRequestJoinState,
   RequestDetailScreen,
 } from "@/features/requests/components/request-detail-screen";
-import { viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
+import { getRequestViewerContext, viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -340,7 +340,10 @@ export default async function RequestDetailPage({
   let currentUserId: string | null = null;
   let isMember = false;
   let ownerId: string | null = null;
-  const viewerRole = await viewerRoleForRequest(requestId);
+  const viewerContext = await getRequestViewerContext(requestId);
+  const viewerRole = viewerContext.role;
+  currentUserId = viewerContext.userId;
+  ownerId = result.data.travelerId ?? null;
 
   if (
     result.data.mode !== "assembly" &&
@@ -350,27 +353,11 @@ export default async function RequestDetailPage({
     notFound();
   }
 
-  if (hasSupabaseEnv()) {
+  if (hasSupabaseEnv() && currentUserId) {
     try {
-      const supabase = await createSupabaseServerClient();
-
-      const [userResult, ownerResult] = await Promise.all([
-        supabase.auth.getUser(),
-        supabase
-          .from("traveler_requests")
-          .select("traveler_id")
-          .eq("id", requestId)
-          .maybeSingle(),
-      ]);
-
-      currentUserId = userResult.data.user?.id ?? null;
-      ownerId = (ownerResult.data as { traveler_id: string } | null)?.traveler_id ?? null;
-
-      if (currentUserId) {
-        isMember = await isRequestMember(requestId, currentUserId);
-      }
+      isMember = await isRequestMember(requestId, currentUserId);
     } catch {
-      // Degrade gracefully — auth or data unavailable
+      // Degrade gracefully — membership unavailable
     }
   }
 
@@ -385,35 +372,34 @@ export default async function RequestDetailPage({
       return getOrCreateQaThreadAction(offerId);
     }
 
+    let ownerData: Awaited<ReturnType<typeof getOwnerDetailData>>;
     try {
-      const { requestRow, ownerOffers } = await getOwnerDetailData(
-        requestId,
-        currentUserId,
-      );
-      const ownerViewModel = buildViewModel({
-        request: result.data,
-        currentUserId,
-        isMember,
-        ownerId,
-      });
-
-      return (
-        <RequestDetailScreen
-          viewerRole="owner"
-          requestId={requestId}
-          ownerRecord={mapTravelerRequestRow(requestRow)}
-          ownerRequestRow={requestRow}
-          ownerOffers={ownerOffers}
-          viewModel={ownerViewModel}
-          justCreated={justCreated}
-          createdMode={createdMode}
-          onSendQa={sendQa}
-          onGetOrCreateQaThread={getOrCreateThread}
-        />
-      );
+      ownerData = await getOwnerDetailData(requestId, currentUserId);
     } catch {
       notFound();
     }
+
+    const ownerViewModel = buildViewModel({
+      request: result.data,
+      currentUserId,
+      isMember,
+      ownerId,
+    });
+
+    return (
+      <RequestDetailScreen
+        viewerRole="owner"
+        requestId={requestId}
+        ownerRecord={mapTravelerRequestRow(ownerData.requestRow)}
+        ownerRequestRow={ownerData.requestRow}
+        ownerOffers={ownerData.ownerOffers}
+        viewModel={ownerViewModel}
+        justCreated={justCreated}
+        createdMode={createdMode}
+        onSendQa={sendQa}
+        onGetOrCreateQaThread={getOrCreateThread}
+      />
+    );
   }
 
   if (viewerRole === "guide") {

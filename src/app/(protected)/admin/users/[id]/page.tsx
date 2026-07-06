@@ -97,7 +97,7 @@ export default async function AdminUserDetailPage({
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
             {detail.fullName?.trim() || "Без имени"}
           </h1>
-          <p className="text-sm text-muted-foreground">{detail.maskedEmail}</p>
+          <p className="text-sm text-muted-foreground">{detail.email ?? detail.maskedEmail}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <RoleBadge role={detail.role} />
@@ -117,8 +117,8 @@ export default async function AdminUserDetailPage({
                 label="Статус"
                 value={ACCOUNT_STATUS_LABELS[detail.accountStatus]}
               />
-              <InfoRow label="Email" value={detail.maskedEmail} />
-              <InfoRow label="Телефон" value={detail.maskedPhone} />
+              <InfoRow label="Email" value={detail.email ?? detail.maskedEmail} />
+              <InfoRow label="Телефон" value={detail.phone ?? detail.maskedPhone} />
               <InfoRow label="Создан" value={formatRussianDateTime(detail.createdAt)} />
               {detail.statusReason ? (
                 <InfoRow label="Причина статуса" value={detail.statusReason} />

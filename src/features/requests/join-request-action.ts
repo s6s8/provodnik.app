@@ -26,6 +26,20 @@ export async function joinRequestAction(
     redirect(buildAuthLoginRedirect(`/requests/${requestId}`));
   }
 
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (profileError) {
+    return { error: "Не удалось проверить статус аккаунта. Попробуйте ещё раз." };
+  }
+
+  if (profile?.account_status && profile.account_status !== "active") {
+    return { error: "Аккаунт ограничен. Присоединение к запросам недоступно." };
+  }
+
   const travelerId = user.id as unknown as Uuid;
   const requestUuid = requestId as unknown as Uuid;
 
