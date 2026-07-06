@@ -26,6 +26,24 @@ The following entries from `provodnik.app/.claude/sot/HOT.md` are inlined verbat
 
 {{HOT_MD}}
 
+## REUSE GATE — before creating any component, hook, or helper
+
+Canonical implementations for the area this task touches (from `.claude/sot/CANON_COMPONENTS.md`):
+
+{{CANON_EXCERPT}}
+
+Rules:
+
+- If a concept above covers what you're about to write — import it. Creating a parallel
+  implementation of a listed concept is a defect and will be rejected at review.
+- If your concept is NOT listed: grep for a sibling first (name + the distinctive class string you
+  are about to write). A near-match means extend it (props / cva variant), not a second file.
+- Server actions return `{ ok: boolean; error?: string; data?: T }` — no new result dialects.
+- Money → `src/data/money.ts`; dates → `src/lib/dates.ts`; plurals → `pluralize` in `src/lib/utils.ts`.
+  `bun run lint:canon` and `bun run lint:dead` enforce this mechanically at commit time — code that
+  re-implements a canonical helper will not pass the verify chain, so don't write it.
+- A new component must be imported by real code in the same change (zero-importer components fail `lint:dead`).
+
 ## Task
 
 Numbered subtasks from the orchestrator's plan stage:

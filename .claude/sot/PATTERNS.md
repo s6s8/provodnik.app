@@ -2,6 +2,11 @@
 
 _Mined from actual code, not invented. 2026-04-06_
 
+> **Reuse before create:** these are *shapes*, not templates to paste. If a pattern below has a
+> component, import the component — never re-paste its JSX/class strings (that habit produced the
+> 24 duplication clusters in `docs/COMPONENT_AUDIT.md`). Canonical component/helper registry:
+> `.claude/sot/CANON_COMPONENTS.md`. Mechanical enforcement: `bun run lint:canon` + `bun run lint:dead`.
+
 ---
 
 ## Protected Page Pattern (Server Component)
@@ -36,10 +41,12 @@ const { data: requests } = await getUserRequests(supabase, user.id);
 ## Glass Card Pattern
 
 ```tsx
-<div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass p-6">
-  {/* content */}
-</div>
+import { GlassCard } from "@/components/shared/glass-card";
+
+<GlassCard className="p-6">{/* content */}</GlassCard>
 ```
+
+Never inline the `bg-glass backdrop-blur-[20px] …` class string — `lint:canon` blocks it in new files.
 
 ## shadcn/ui Card Pattern (preferred for dashboard sections)
 
@@ -131,7 +138,7 @@ export async function getFoo(
 - Tailwind utilities only — no custom CSS classes
 - No inline `style={{}}` for layout
 - `globals.css` has ONLY design tokens — never add custom classes
-- Glass: `bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass`
+- Glass: `<GlassCard>` from `src/components/shared/glass-card.tsx` (never the raw class string — lint:canon)
 
 ## Seed SQL Pattern
 

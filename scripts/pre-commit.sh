@@ -1,6 +1,6 @@
 #!/bin/sh
-# Pre-commit gate: typecheck → lint:ratchet → unit tests
-# All three must pass. lint:ratchet allows pre-existing legacy errors but blocks regressions.
+# Pre-commit gate: typecheck → lint:ratchet → lint:canon → lint:dead → unit tests
+# All must pass. Ratchet/canon/dead allow pre-existing legacy but block regressions.
 set -e
 
 ROOT="$(git rev-parse --show-toplevel)"
@@ -11,6 +11,12 @@ bun run typecheck
 
 echo "▸ lint:ratchet"
 bun run lint:ratchet
+
+echo "▸ lint:canon"
+bun run lint:canon
+
+echo "▸ lint:dead"
+bun run lint:dead
 
 echo "▸ tests"
 bun run test:run

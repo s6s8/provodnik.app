@@ -2,6 +2,8 @@
 
 _One-line lookup map for orchestrator. For the 8 priority landmines see HOT.md. For full context read the source file._
 
+> Reuse-first: canonical component/helper registry at `CANON_COMPONENTS.md` — inline the relevant rows into every dispatch that creates UI or formatting code (REUSE GATE in `.claude/prompts/skeleton.md`).
+
 ## Errors (see ERRORS.md)
 
 - ERR-001 — slug used directly in ilike data column query (destination listings returned 0)

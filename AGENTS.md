@@ -2,7 +2,7 @@
 
 ## Stack
 - Next.js 16, React 19, TypeScript
-- Tailwind CSS v4 + shadcn/ui (23 components in `src/components/ui/`)
+- Tailwind CSS v4 + shadcn/ui (`src/components/ui/` — count it, don't trust a stale number)
 - Supabase (PostgreSQL + RLS + Auth)
 - TanStack Query, React Hook Form + Zod
 - Package manager: **bun** (never npm or yarn)
@@ -23,21 +23,22 @@ bun run types              # regenerate src/types/supabase.ts
 - `src/app` — routes + layouts (App Router)
 - `src/features` — feature UI per role (home, listings, traveler, guide, admin)
 - `src/components/ui` — shadcn/ui primitives (stable — don't modify casually)
-- `src/components/shared` — shared app chrome (nav, footer, providers)
-- `src/data` — service layer functions (accept typed Supabase client, work server+client)
+- `src/components/shared` — cross-domain composed components (cards, headers, empty/confirm/skeleton states, app chrome)
+- `src/data` — static data + legacy read-side query layer (`src/data/supabase/queries.ts`); NEW Supabase I/O goes in `src/lib/supabase/<domain>.ts` (see `.claude/rules/data-layering.md`)
 - `src/lib` — env, utils, Supabase clients, flag registry (`src/lib/flags.ts`)
 - `src/lib/supabase/database.types.ts` — generated DB types (run `bun run types` after schema changes)
 
 ## CSS Rules
 - Tailwind utilities + shadcn/ui only — no custom CSS classes, no `<style>` blocks
 - `globals.css`: ONLY `:root` design tokens and global resets — never add custom classes
-- Glass pattern: `bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass`
+- Glass pattern: use `<GlassCard>` (`src/components/shared/glass-card.tsx`) — never inline the glass class string (enforced by `bun run lint:canon`)
 - Design tokens via `tailwind.config.ts` — use `bg-surface-high`, `text-primary`, `rounded-card`, not raw `var()`
 
 ## Architecture Rules
 - Server components fetch via `createServerClient` — no `useEffect` for SSR data
 - Interactive/filtered data: TanStack Query with Supabase cache helpers
-- Data queries: service functions in `src/data/` — accept typed Supabase client
+- Data queries: existing reads via `src/data/supabase/queries.ts`; new Supabase I/O in `src/lib/supabase/<domain>.ts`
+- Reuse before create: check `.claude/sot/CANON_COMPONENTS.md` for the canonical component/helper before writing a new one (enforced by `bun run lint:canon` + `bun run lint:dead`)
 - RLS is the security boundary — never rely on app-layer filtering alone
 - File uploads: presigned URL via Server Action → direct browser upload to Supabase Storage
 
