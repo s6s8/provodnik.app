@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { maskMessageBodies, maskPii, hasPii } from "./mask";
+import { maskMessageBodies, maskPii } from "./mask";
 
 const HIDDEN = "[контакт скрыт]";
 
@@ -63,15 +63,6 @@ describe("maskPii — edge cases", () => {
     const result = maskPii("Звоните +79161234567 или пишите guide@ya.ru");
     expect(result.split(HIDDEN).length).toBe(3); // two replacements → 3 parts
   });
-});
-
-describe("hasPii", () => {
-  it("detects phone", () => expect(hasPii("+79161234567")).toBe(true));
-  it("detects email", () => expect(hasPii("x@y.ru")).toBe(true));
-  it("detects telegram", () => expect(hasPii("@myhandle")).toBe(true));
-  it("returns false for clean text", () =>
-    expect(hasPii("Экскурсия по Москве 3 часа")).toBe(false));
-  it("returns false for null", () => expect(hasPii(null)).toBe(false));
 });
 
 describe("maskMessageBodies", () => {

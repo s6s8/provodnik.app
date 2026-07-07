@@ -36,19 +36,6 @@ export type RequestMember = {
 };
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function getInitials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-// ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
 
@@ -99,48 +86,6 @@ export async function joinRequest(
   });
 
   if (error) throw error;
-}
-
-/**
- * Fetch all active members for a request, with profile info.
- * Returns members sorted by join time ascending.
- */
-export async function getRequestMembers(
-  requestId: Uuid,
-): Promise<RequestMember[]> {
-  const supabase = await createSupabaseServerClient();
-
-  const { data, error } = await supabase
-    .from("open_request_members")
-    .select(
-      "request_id, traveler_id, status, joined_at, left_at, profiles:traveler_id(id, full_name, avatar_url)",
-    )
-    .eq("request_id", requestId)
-    .eq("status", "joined");
-
-  if (error) throw error;
-  if (!data) return [];
-
-  return (data as Array<Record<string, unknown>>)
-    .filter((row) => !row.left_at)
-    .map((row) => {
-      const profileRaw = row.profiles as unknown;
-      const profile = Array.isArray(profileRaw)
-        ? (profileRaw[0] as Record<string, unknown> | undefined)
-        : (profileRaw as Record<string, unknown> | null);
-
-      const fullName =
-        (profile?.full_name as string | null) ?? "Путешественник";
-
-      return {
-        travelerId: row.traveler_id as Uuid,
-        displayName: fullName,
-        initials: getInitials(fullName),
-        avatarUrl: (profile?.avatar_url as string | null) ?? null,
-        joinedAt: row.joined_at as string,
-      };
-    })
-    .sort((a, b) => a.joinedAt.localeCompare(b.joinedAt));
 }
 
 /**

@@ -36,10 +36,3 @@ export function getTravelerProfileSection2Checklist(
     complete: nameComplete,
   };
 }
-
-/** Normal profile completion for section 2 — requires a stored traveler name. */
-export function isTravelerProfileSection2Complete(
-  profile: Pick<TravelerProfile, "full_name">,
-): boolean {
-  return getTravelerProfileSection2Checklist(profile).complete;
-}

@@ -139,22 +139,6 @@ export async function getOffersForRequest(
 }
 
 /**
- * All offers submitted by a specific guide.
- */
-export async function getGuideOffers(guideId: Uuid): Promise<GuideOffer[]> {
-  const supabase = await createSupabaseServerClient();
-
-  const { data, error } = await supabase
-    .from("guide_offers")
-    .select("*")
-    .eq("guide_id", guideId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return (data as GuideOffer[]) ?? [];
-}
-
-/**
  * Mark all offers on a request as read by the traveler (sets traveler_read_at = now).
  * Only touches rows where traveler_read_at is still NULL.
  * Safe to call fire-and-forget; no-ops if the user doesn't own the request

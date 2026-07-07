@@ -41,18 +41,6 @@ export function maskPii(text: string | null | undefined): string {
 }
 
 /**
- * Returns true if the string contains any detectable PII.
- */
-export function hasPii(text: string | null | undefined): boolean {
-  if (!text) return false;
-  for (const pattern of PATTERNS) {
-    pattern.lastIndex = 0;
-    if (pattern.test(text)) return true;
-  }
-  return false;
-}
-
-/**
  * Visual-only masking for chat message rows: returns only fields needed for
  * rendering the message body so nested payloads cannot leak raw contact data.
  */

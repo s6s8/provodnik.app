@@ -1,16 +1,18 @@
 import { describe, expect, it } from "vitest";
 
-import { parseDemoSessionCookieValue, serializeDemoSessionCookieValue } from "./demo-session";
+import { parseDemoSessionCookieValue } from "./demo-session";
 
 describe("demo session cookie", () => {
-  it("round-trips a demo session", () => {
+  it("parses a serialized demo session", () => {
     const session = {
       mode: "demo" as const,
       role: "traveler" as const,
       createdAt: "2026-06-03T00:00:00.000Z",
     };
 
-    expect(parseDemoSessionCookieValue(serializeDemoSessionCookieValue(session))).toEqual(session);
+    expect(
+      parseDemoSessionCookieValue(encodeURIComponent(JSON.stringify(session))),
+    ).toEqual(session);
   });
 
   it("returns null for malformed percent encoding", () => {

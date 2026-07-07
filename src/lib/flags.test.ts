@@ -5,18 +5,13 @@ describe("flags registry", () => {
   it("exposes every registered sub-flag disabled by default", () => {
     const subs: FlagName[] = [
       "FEATURE_TR_TOURS",
-      "FEATURE_TR_KPI",
       "FEATURE_TR_NOTIFICATIONS",
       "FEATURE_TR_REPUTATION",
-      "FEATURE_TR_PERIPHERALS",
-      "FEATURE_TR_HELP",
       "FEATURE_TR_PAYMENT",
       "FEATURE_TR_FAVORITES",
       "FEATURE_TR_PARTNER",
       "FEATURE_TR_REFERRALS",
-      "FEATURE_TR_QUIZ",
       "FEATURE_TR_DISPUTES",
-      "FEATURE_DEPOSITS",
     ];
     expect(subs).toEqual(Object.keys(flags));
     for (const k of subs) {

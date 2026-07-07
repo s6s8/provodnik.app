@@ -42,14 +42,6 @@ export function parseDemoSessionCookieValue(value: string | undefined): DemoSess
   return { mode: "demo", role, createdAt };
 }
 
-export function serializeDemoSessionCookieValue(session: DemoSession): string {
-  return encodeURIComponent(JSON.stringify(session));
-}
-
-export function createDemoSession(role: DemoRole): DemoSession {
-  return { mode: "demo", role, createdAt: new Date().toISOString() };
-}
-
 export function readDemoSessionFromDocument(): DemoSession | null {
   if (typeof document === "undefined") return null;
   const match = document.cookie
@@ -61,14 +53,4 @@ export function readDemoSessionFromDocument(): DemoSession | null {
   return parseDemoSessionCookieValue(value);
 }
 
-export function writeDemoSessionToDocument(role: DemoRole) {
-  if (typeof document === "undefined") return;
-  const value = serializeDemoSessionCookieValue(createDemoSession(role));
-  document.cookie = `${DEMO_SESSION_COOKIE}=${value}; Path=/; SameSite=Lax`;
-}
-
-export function clearDemoSessionFromDocument() {
-  if (typeof document === "undefined") return;
-  document.cookie = `${DEMO_SESSION_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`;
-}
 

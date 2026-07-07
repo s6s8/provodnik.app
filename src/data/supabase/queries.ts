@@ -8,7 +8,6 @@ import {
   applyGuideFilters,
   applyListingFilters,
   applyRequestFilters,
-  destinationSearchFromSlug,
   fallbackHeroImage,
   fetchMembersForRequests,
   attachGuideDisplayNames,
@@ -30,7 +29,6 @@ import type {
   GuideRecord,
   ListingFilters,
   ListingRecord,
-  PlatformStats,
   QueryResult,
   RequestFilters,
   RequestRecord,
@@ -83,29 +81,6 @@ export async function getDestinationBySlug(client: SupabaseClient, slug: string)
         listingCount: data.listing_count ?? 0,
         guidesCount: data.guides_count ?? 0,
         avgRating: typeof data.rating === "number" ? data.rating : null,
-      },
-      error: null,
-    };
-  } catch (error) {
-    return { data: null, error: makeError(error) };
-  }
-}
-
-export async function getPlatformStats(
-  client: SupabaseClient,
-): Promise<QueryResult<PlatformStats | null>> {
-  try {
-    const { data, error } = await client
-      .from("platform_stats")
-      .select("guides_active, listings_total, trips_total")
-      .maybeSingle();
-    if (error) throw error;
-    if (!data) return { data: null, error: null };
-    return {
-      data: {
-        guidesActive: (data.guides_active as number | null) ?? 0,
-        listingsTotal: (data.listings_total as number | null) ?? 0,
-        tripsTotal: (data.trips_total as number | null) ?? 0,
       },
       error: null,
     };
@@ -291,21 +266,6 @@ export async function getRequestById(
     return { data: record, error: null };
   } catch (error) {
     return { data: null, error: makeError(error) };
-  }
-}
-
-export async function getUserRequests(
-  client: SupabaseClient,
-  userId: string,
-): Promise<QueryResult<RequestRecord[]>> {
-  try {
-    const { data, error } = await client.from("traveler_requests").select("*").eq("traveler_id", userId);
-    if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
-
-    return { data: data.map((row) => mapRequestRow(row, "Вы", "ВЫ")), error: null };
-  } catch (error) {
-    return { data: [], error: makeError(error) };
   }
 }
 
@@ -543,31 +503,6 @@ export async function getGuideLocationPhotos(
 // Bookings (public.bookings)
 // ---------------------------------------------------------------------------
 
-export async function getUserBookings(
-  client: SupabaseClient,
-  userId: string,
-): Promise<QueryResult<BookingRecord[]>> {
-  try {
-    const { data, error } = await client.from("bookings").select("*").eq("traveler_id", userId);
-    if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
-
-    return {
-      data: data.map((b) => ({
-        id: b.id,
-        title: b.meeting_point ?? "Бронирование",
-        destination: b.meeting_point ?? "Маршрут",
-        dateLabel: formatDateLabel(b.starts_at ?? "", b.ends_at),
-        priceRub: Math.round((b.subtotal_minor ?? 0) / 100),
-        status: b.status,
-      })),
-      error: null,
-    };
-  } catch (error) {
-    return { data: [], error: makeError(error) };
-  }
-}
-
 export async function getGuideBookings(
   client: SupabaseClient,
   guideId: string,
@@ -651,38 +586,6 @@ export async function toggleFavorite(
 // ---------------------------------------------------------------------------
 // Reviews (public.reviews — columns: booking_id, traveler_id, guide_id, listing_id)
 // ---------------------------------------------------------------------------
-
-export async function getListingReviews(client: SupabaseClient, listingSlug: string): Promise<QueryResult<ReviewRecord[]>> {
-  try {
-    // First resolve listing UUID from slug
-    const { data: listing } = await client.from("listings").select("id").eq("slug", listingSlug).maybeSingle();
-    if (!listing) return { data: [], error: null };
-
-    const { data, error } = await client
-      .from("reviews")
-      .select("*, profiles:traveler_id(full_name)")
-      .eq("listing_id", listing.id)
-      .eq("status", "published")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
-
-    return {
-      data: data.map((r) => ({
-        id: r.id,
-        authorName: (r.profiles as Record<string, unknown>)?.full_name as string ?? "Путешественник",
-        rating: r.rating,
-        title: r.title ?? "Отзыв",
-        body: r.body ?? "",
-        createdAt: r.created_at,
-      })),
-      error: null,
-    };
-  } catch (error) {
-    return { data: [], error: makeError(error) };
-  }
-}
 
 export async function getGuideReviews(client: SupabaseClient, guideSlug: string): Promise<QueryResult<ReviewRecord[]>> {
   try {
@@ -808,35 +711,6 @@ export async function getHomepageRequests(
     );
 
     return { data: filtered, error: null };
-  } catch (error) {
-    return { data: [], error: makeError(error) };
-  }
-}
-
-export async function getSimilarRequests(
-  client: SupabaseClient,
-  destinationSlug: string,
-  excludeId: string,
-): Promise<QueryResult<RequestRecord[]>> {
-  try {
-    const { data, error } = await client
-      .from("traveler_requests")
-      .select("*")
-      .eq("status", "open")
-      .neq("id", excludeId)
-      .ilike("destination", `%${destinationSearchFromSlug(destinationSlug)}%`)
-      .order("created_at", { ascending: false })
-      .limit(10);
-
-    if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
-
-    const records = data.map((row) => mapRequestRow(row));
-    const result = records
-      .filter((record) => record.destinationSlug === destinationSlug)
-      .slice(0, 3);
-
-    return { data: result, error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }

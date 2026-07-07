@@ -26,11 +26,8 @@ import {
   getOpenRequests,
   getOpenRequestsByDestination,
   getRequestById,
-  getPlatformStats,
-  getListingReviews,
   getListingsByDestination,
   getListingsByGuide,
-  getSimilarRequests,
 } from "@/data/supabase/queries";
 
 type FixtureMap = Record<string, unknown[]>;
@@ -159,7 +156,6 @@ describe("public Supabase query helpers", () => {
     { name: "getGuidesByDestination", run: (client) => getGuidesByDestination(client, "Москва") },
     { name: "getGuideBySlug", run: (client) => getGuideBySlug(client, "guide-1") },
     { name: "getGuideLocationPhotos", run: (client) => getGuideLocationPhotos(client, "guide-1") },
-    { name: "getListingReviews", run: (client) => getListingReviews(client, "listing-1") },
     { name: "getGuideReviews", run: (client) => getGuideReviews(client, "guide-1") },
     {
       name: "getHomepageRequests",
@@ -394,33 +390,6 @@ describe("PII-safe Supabase query mapping", () => {
   });
 });
 
-describe("query performance safeguards", () => {
-  it("filters similar requests by destination in SQL before applying the limit", async () => {
-    const client = createFakeClient({
-      traveler_requests: [
-        {
-          id: "request-1",
-          destination: "moscow",
-          budget_minor: 100_000,
-          status: "open",
-          created_at: "2026-06-03T00:00:00Z",
-        },
-      ],
-    });
-
-    const result = await getSimilarRequests(client, "moscow", "request-0");
-
-    expect(result.error).toBeNull();
-    const destinationFilterIndex = client.calls.findIndex((call) =>
-      call.startsWith("traveler_requests.ilike:destination:%moscow%"),
-    );
-    const limitIndex = client.calls.indexOf("traveler_requests.limit:10");
-    expect(destinationFilterIndex).toBeGreaterThan(-1);
-    expect(limitIndex).toBeGreaterThan(-1);
-    expect(destinationFilterIndex).toBeLessThan(limitIndex);
-  });
-});
-
 describe("guide stats layering (no fabricated zeros)", () => {
   it("layers real view stats and approved verification onto getGuideBySlug", async () => {
     const client = createFakeClient({
@@ -547,38 +516,6 @@ describe("destination ratings (no fabricated stars)", () => {
 
     expect(result.error).toBeNull();
     expect(result.data?.avgRating).toBeNull();
-  });
-});
-
-describe("getPlatformStats", () => {
-  it("maps the single platform_stats view row to camelCase counts", async () => {
-    const client = createFakeClient({
-      platform_stats: [{ guides_active: 15, listings_total: 12, trips_total: 10 }],
-    });
-
-    const result = await getPlatformStats(client);
-
-    expect(result.error).toBeNull();
-    expect(result.data).toEqual({ guidesActive: 15, listingsTotal: 12, tripsTotal: 10 });
-  });
-
-  it("returns the error when the view query fails", async () => {
-    const statsError = new Error("platform_stats policy denied");
-    const client = createFakeClient({}, { platform_stats: statsError });
-
-    const result = await getPlatformStats(client);
-
-    expect(result.data).toBeNull();
-    expect(result.error).toBeTruthy();
-  });
-
-  it("returns null data without an error when no row is present", async () => {
-    const client = createFakeClient({ platform_stats: [] });
-
-    const result = await getPlatformStats(client);
-
-    expect(result.data).toBeNull();
-    expect(result.error).toBeNull();
   });
 });
 

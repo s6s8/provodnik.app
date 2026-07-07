@@ -3,7 +3,6 @@ import { describe, expect, it } from "vitest";
 import {
   getTravelerProfileSection2Checklist,
   hasTravelerProfileName,
-  isTravelerProfileSection2Complete,
 } from "./traveler-profile-completion";
 
 describe("hasTravelerProfileName", () => {
@@ -35,6 +34,5 @@ describe("getTravelerProfileSection2Checklist", () => {
 
     expect(checklist.complete).toBe(true);
     expect(checklist.items[0]?.complete).toBe(true);
-    expect(isTravelerProfileSection2Complete({ full_name: "Анна" })).toBe(true);
   });
 });

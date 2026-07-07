@@ -350,18 +350,6 @@ export function getNotesPlainText(notes: string | null | undefined): string | nu
   }
 }
 
-export function formatCategory(cat: string): string {
-  switch (cat) {
-    case "city": return "Городская экскурсия";
-    case "nature": return "Природный маршрут";
-    case "culture": return "Культурный маршрут";
-    case "food": return "Гастрономический тур";
-    case "adventure": return "Активный отдых";
-    case "relax": return "Отдых";
-    default: return cat;
-  }
-}
-
 export function formatRequestPreference(value: string): string {
   switch (value) {
     case "group": return "Сборная";

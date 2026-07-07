@@ -220,19 +220,3 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     guide_offer: (guideOfferRes.data as BookingWithDetails["guide_offer"]) ?? null,
   };
 }
-
-/**
- * Fetch all bookings for a given traveler, ordered by most recently created.
- */
-export async function getTravelerBookings(travelerId: Uuid): Promise<Booking[]> {
-  const supabase = await createSupabaseServerClient();
-
-  const { data, error } = await supabase
-    .from("bookings")
-    .select(BOOKING_SELECT)
-    .eq("traveler_id", travelerId)
-    .order("created_at", { ascending: false });
-
-  if (error) throw error;
-  return (data as Booking[]) ?? [];
-}
