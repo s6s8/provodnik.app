@@ -86,7 +86,7 @@ for (const acct of accounts) {
     console.error(`[guide] seeded guide_profiles + 3 licenses`);
   }
 
-  results.push({ role: acct.role, email: acct.email, passwordSet: Boolean(password), userId });
+  results.push({ role: acct.role, email: acct.email, userId });
 }
 
 console.log(JSON.stringify(results, null, 2));
