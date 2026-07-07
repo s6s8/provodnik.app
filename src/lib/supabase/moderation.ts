@@ -8,6 +8,7 @@ import { createNotification } from "@/lib/notifications/create-notification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { firstRow } from "@/lib/utils";
 import type {
   GuideDocumentRow,
   GuideProfileRow,
@@ -247,14 +248,6 @@ async function requireAdminSession() {
     } satisfies ProfileLite,
     adminClient: createSupabaseAdminClient(),
   };
-}
-
-function _firstRelation<T>(value: T | T[] | null | undefined): T | null {
-  if (Array.isArray(value)) {
-    return value[0] ?? null;
-  }
-
-  return value ?? null;
 }
 
 function formatGuideName(
@@ -911,7 +904,7 @@ export async function getGuideReviewDetail(guideId: string): Promise<GuideReview
   const licenses = licensesRaw.map((license) => {
     const listingTitles =
       license.listing_licenses
-        ?.map((link) => _firstRelation(link.listings)?.title ?? null)
+        ?.map((link) => firstRow(link.listings)?.title ?? null)
         .filter((title): title is string => Boolean(title)) ?? [];
 
     return {

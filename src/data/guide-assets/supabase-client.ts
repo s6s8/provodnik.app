@@ -1,4 +1,5 @@
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { firstRow } from "@/lib/utils";
 import type {
   GuideDocumentRow,
   GuideLocationPhotoRow,
@@ -34,14 +35,6 @@ export type ListingMediaReservation = {
 
 function getSupabaseClient() {
   return createSupabaseBrowserClient();
-}
-
-function firstRelation<T>(value: T | T[] | null | undefined): T | null {
-  if (Array.isArray(value)) {
-    return value[0] ?? null;
-  }
-
-  return value ?? null;
 }
 
 async function upsertStorageAsset(input: {
@@ -102,7 +95,7 @@ export async function ensureGuideDocumentReservations(
   for (const row of (existingRows ?? []) as Array<
     GuideDocumentRow & { storage_assets: { object_path: string }[] | { object_path: string } }
   >) {
-    const storageAsset = firstRelation(row.storage_assets);
+    const storageAsset = firstRow(row.storage_assets);
     if (!storageAsset) continue;
     existingByType.set(row.document_type, {
       ...row,
@@ -140,7 +133,7 @@ export async function ensureGuideDocumentReservations(
     const normalizedDocument = insertedDocument as GuideDocumentRow & {
       storage_assets: { object_path: string }[] | { object_path: string };
     };
-    const storageAsset = firstRelation(normalizedDocument.storage_assets);
+    const storageAsset = firstRow(normalizedDocument.storage_assets);
 
     if (!storageAsset) {
       throw new Error("Guide document reservation did not return a storage path.");
@@ -189,7 +182,7 @@ export async function ensureListingCoverReservation(
       })
     | null;
 
-  const existingStorageAsset = existing ? firstRelation(existing.storage_assets) : null;
+  const existingStorageAsset = existing ? firstRow(existing.storage_assets) : null;
 
   if (existing && existingStorageAsset) {
     return {
@@ -229,7 +222,7 @@ export async function ensureListingCoverReservation(
   const media = insertedMedia as ListingMediaRow & {
     storage_assets: { object_path: string }[] | { object_path: string };
   };
-  const mediaStorageAsset = firstRelation(media.storage_assets);
+  const mediaStorageAsset = firstRow(media.storage_assets);
 
   if (!mediaStorageAsset) {
     throw new Error("Listing cover reservation did not return a storage path.");
@@ -267,7 +260,7 @@ export async function listGuideLocationPhotos(
       storage_assets: { object_path: string }[] | { object_path: string };
     }
   >) {
-    const storageAsset = firstRelation(row.storage_assets);
+    const storageAsset = firstRow(row.storage_assets);
     if (!storageAsset) continue;
     result.push({ ...row, object_path: storageAsset.object_path });
   }
@@ -372,7 +365,7 @@ export async function listListingMediaReservationsForGuide(
       listings: { guide_id: Uuid }[] | { guide_id: Uuid };
     }
   >) {
-    const storageAsset = firstRelation(row.storage_assets);
+    const storageAsset = firstRow(row.storage_assets);
     if (!storageAsset) continue;
     const current = grouped[row.listing_id] ?? [];
     current.push({

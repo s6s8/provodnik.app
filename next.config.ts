@@ -55,6 +55,7 @@ const nextConfig: NextConfig = {
       // Fold it into the canonical discovery page (query params pass through).
       { source: "/search", destination: "/listings", permanent: true },
       { source: "/requests/new", destination: "/", permanent: true },
+      { source: "/form", destination: "/", permanent: true },
       { source: "/traveler/requests/new", destination: "/", permanent: true },
       { source: "/partner", destination: "/referrals", permanent: true },
       { source: "/guide/verification", destination: "/guide/profile#verification", permanent: true },

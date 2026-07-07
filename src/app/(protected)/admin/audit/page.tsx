@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { firstRow } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -83,11 +84,6 @@ function profileDisplay(
 
 function firstParam(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
-}
-
-function first<T>(value: T | T[] | null | undefined): T | null {
-  if (Array.isArray(value)) return value[0] ?? null;
-  return value ?? null;
 }
 
 export default async function AdminAuditPage({
@@ -185,9 +181,9 @@ export default async function AdminAuditPage({
   const entries: AuditEntry[] = [];
 
   for (const row of actionsRows) {
-    const caseRow = first(row.case);
-    const adminRow = first(row.admin);
-    const listingRow = first(caseRow?.listing);
+    const caseRow = firstRow(row.case);
+    const adminRow = firstRow(row.admin);
+    const listingRow = firstRow(caseRow?.listing);
     let subjectHref: string | null = null;
     let subjectText = caseRow?.subject_type
       ? (subjectLabel[caseRow.subject_type] ?? caseRow.subject_type)
@@ -219,8 +215,8 @@ export default async function AdminAuditPage({
 
   for (const row of listingRows) {
     if (!row.created_at) continue;
-    const actorRow = first(row.actor);
-    const listingRow = first(row.listing);
+    const actorRow = firstRow(row.actor);
+    const listingRow = firstRow(row.listing);
     entries.push({
       id: `lme-${row.id}`,
       createdAt: row.created_at,
