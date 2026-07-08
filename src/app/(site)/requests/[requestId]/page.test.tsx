@@ -219,6 +219,11 @@ describe("RequestDetailPage", () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getRequestById.mockResolvedValue({ data: null });
     hasSupabaseEnv.mockReturnValue(false);
+    getRequestViewerContext.mockResolvedValueOnce({
+      role: "public",
+      userId: "",
+      authReadFailed: false,
+    });
     viewerRoleForRequest.mockResolvedValueOnce("owner");
 
     await expect(
@@ -229,6 +234,42 @@ describe("RequestDetailPage", () => {
     ).rejects.toThrow("NEXT_REDIRECT:/trips");
 
     expect(redirect).toHaveBeenCalledWith("/trips");
+  });
+
+  it("redirects stale owner offer notifications to the resulting booking", async () => {
+    const maybeSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: "booking-1",
+        traveler_id: "traveler-1",
+        guide_id: "guide-1",
+      },
+    });
+    const limit = vi.fn(() => ({ maybeSingle }));
+    const order = vi.fn(() => ({ limit }));
+    const or = vi.fn(() => ({ order }));
+    const eq = vi.fn(() => ({ or }));
+    const select = vi.fn(() => ({ eq }));
+    const from = vi.fn(() => ({ select }));
+
+    createSupabaseServerClient.mockResolvedValue({ from });
+    getRequestById.mockResolvedValue({ data: null });
+    getRequestViewerContext.mockResolvedValueOnce({
+      role: "public",
+      userId: "traveler-1",
+      authReadFailed: false,
+    });
+
+    await expect(
+      RequestDetailPage({
+        params: Promise.resolve({ requestId: "gone-request" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/bookings/booking-1");
+
+    expect(from).toHaveBeenCalledWith("bookings");
+    expect(eq).toHaveBeenCalledWith("request_id", "gone-request");
+    expect(or).toHaveBeenCalledWith("traveler_id.eq.traveler-1,guide_id.eq.traveler-1");
+    expect(redirect).toHaveBeenCalledWith("/bookings/booking-1");
   });
 });
 
