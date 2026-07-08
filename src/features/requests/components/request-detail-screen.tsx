@@ -30,6 +30,7 @@ import { BidFormPanel } from "@/features/guide/components/requests/bid-form-pane
 import { GuideOfferQaPanel } from "@/features/guide/components/requests/guide-offer-qa-panel";
 import type { OfferMeta } from "@/features/guide/components/requests/offer-meta";
 import { JoinGroupButton } from "@/features/requests/components/join-group-button";
+import { RequestGroupThread } from "@/features/requests/components/request-group-thread";
 import { CancelRequestButton } from "@/features/traveler/components/requests/cancel-request-button";
 import { MarkOffersRead } from "@/features/traveler/components/requests/mark-offers-read";
 import { OfferCard } from "@/features/traveler/components/requests/offer-card";
@@ -47,6 +48,7 @@ import { cityImage } from "@/lib/city-image";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { formatRussianDate, formatRussianDateTime, formatTimeRange } from "@/lib/dates";
 import type { QaThread } from "@/lib/supabase/qa-threads";
+import type { GroupMessage } from "@/lib/supabase/request-thread";
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
 import type { GuideOfferRow, TravelerRequestRow } from "@/lib/supabase/types";
 import { cn, pluralize } from "@/lib/utils";
@@ -108,14 +110,21 @@ type OwnerOfferItem = {
   qaThread: QaThread | null;
 };
 
+/** #42 — group discussion thread payload + composer action, shared by owner/member. */
+export type RequestGroupThreadProps = {
+  currentUserId: string;
+  groupThread: { messages: GroupMessage[] };
+  onSendGroupMessage: (body: string) => Promise<{ error: string | null }>;
+};
+
 type RequestDetailScreenProps =
-  | {
+  | ({
       viewerRole: "public";
       requestId: string;
       viewModel: PublicRequestDetailViewModel;
       biddingGuides?: BiddingGuide[];
-    }
-  | {
+    } & Partial<RequestGroupThreadProps>)
+  | ({
       viewerRole: "owner";
       requestId: string;
       ownerRecord: TravelerRequestRecord;
@@ -126,7 +135,7 @@ type RequestDetailScreenProps =
       createdMode?: string | null;
       onSendQa: (threadId: string, body: string) => Promise<void>;
       onGetOrCreateQaThread: (offerId: string) => Promise<string>;
-    }
+    } & Partial<RequestGroupThreadProps>)
   | {
       viewerRole: "guide";
       request: RequestRecord;
@@ -137,12 +146,12 @@ type RequestDetailScreenProps =
       competingOffers: number;
       viewsCount: number;
     }
-  | {
+  | ({
       viewerRole: "admin";
       requestId?: string;
       viewModel?: PublicRequestDetailViewModel;
       biddingGuides?: BiddingGuide[];
-    };
+    } & Partial<RequestGroupThreadProps>);
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
   INTEREST_CHIPS.map(({ id, label }) => [id, label]),
@@ -260,14 +269,30 @@ function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["mem
   );
 }
 
+/** Renders the #42 group discussion when the caller supplied the thread + action. */
+function GroupThreadSection({ group }: { group?: Partial<RequestGroupThreadProps> }) {
+  if (!group?.groupThread || !group.onSendGroupMessage || !group.currentUserId) {
+    return null;
+  }
+  return (
+    <RequestGroupThread
+      messages={group.groupThread.messages}
+      currentUserId={group.currentUserId}
+      onSend={group.onSendGroupMessage}
+    />
+  );
+}
+
 function PublicDetailBranch({
   requestId,
   viewModel,
   biddingGuides,
+  group,
 }: {
   requestId: string;
   viewModel: PublicRequestDetailViewModel;
   biddingGuides: BiddingGuide[];
+  group?: Partial<RequestGroupThreadProps>;
 }) {
   const price = formatPublicPrice(viewModel.pricePerPersonRub);
   const hasAbout = viewModel.notes.trim().length > 0;
@@ -334,6 +359,9 @@ function PublicDetailBranch({
             </div>
           </section>
         ) : null}
+
+        {/* Обсуждение группы — joined members coordinate in the open (#42) */}
+        {isMember ? <GroupThreadSection group={group} /> : null}
 
         {/* Кто едет — preserve member social proof */}
         <section className="flex flex-col gap-4 pt-[54px]">
@@ -530,6 +558,9 @@ function OwnerDetailBranch({
   createdMode,
   onSendQa,
   onGetOrCreateQaThread,
+  currentUserId,
+  groupThread,
+  onSendGroupMessage,
 }: Extract<RequestDetailScreenProps, { viewerRole: "owner" }>) {
   const router = useRouter();
   const [selectedId, setSelectedId] = React.useState<string | null>(null);
@@ -735,6 +766,11 @@ function OwnerDetailBranch({
         <section className="pt-[54px]">
           <RequestFactsCard record={ownerRecord} />
         </section>
+
+        {/* Обсуждение группы — owner coordinates with joined members (#42) */}
+        <GroupThreadSection
+          group={{ currentUserId, groupThread, onSendGroupMessage }}
+        />
 
         {acceptedOffer ? (
           <section className="flex flex-col gap-5 pt-[54px]">
@@ -1023,6 +1059,11 @@ export function RequestDetailScreen(props: RequestDetailScreenProps) {
           requestId={props.requestId}
           viewModel={props.viewModel}
           biddingGuides={props.biddingGuides ?? []}
+          group={{
+            currentUserId: props.currentUserId,
+            groupThread: props.groupThread,
+            onSendGroupMessage: props.onSendGroupMessage,
+          }}
         />
       );
     case "owner":

@@ -16,9 +16,15 @@ import {
 } from "@/features/requests/components/request-detail-screen";
 import { getRequestViewerContext, viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
+import { friendlyError } from "@/lib/errors";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isRequestMember } from "@/lib/supabase/request-members";
+import {
+  getOrCreateRequestThreadId,
+  getRequestGroupThread,
+  postRequestThreadMessage,
+} from "@/lib/supabase/request-thread";
 import { getBiddingGuidesForRequest, type BiddingGuide } from "@/lib/supabase/requests-public";
 import { hasSupabaseEnv } from "@/lib/env";
 import { getOffersForRequest } from "@/lib/supabase/offers";
@@ -26,7 +32,9 @@ import type { QaThread } from "@/lib/supabase/qa-threads";
 import { getQaMessages } from "@/lib/supabase/qa-threads";
 import type {
   GuideOfferRow,
+  MessageSenderRole,
   TravelerRequestRow,
+  Uuid,
 } from "@/lib/supabase/types";
 
 const getRequestDetail = cache(async (requestId: string) => {
@@ -137,6 +145,41 @@ function buildViewModel({
     notes: request.description,
     joinState: getJoinState({ request, currentUserId, isMember, ownerId }),
   };
+}
+
+// #42 — Post a message into the request group thread. Re-derives the viewer and
+// thread server-side from the session (never trusts client input beyond the body);
+// RLS enforces that only the owner/joined members/allowed guides can write.
+async function postGroupMessage(
+  requestId: string,
+  body: string,
+): Promise<{ error: string | null }> {
+  "use server";
+  const trimmed = body.trim();
+  if (!trimmed) return { error: "Введите сообщение." };
+  if (trimmed.length > 5000) return { error: "Сообщение слишком длинное." };
+
+  const viewer = await getRequestViewerContext(requestId);
+  if (!viewer.userId) return { error: "Требуется авторизация." };
+
+  const senderRole: MessageSenderRole =
+    viewer.role === "guide" ? "guide" : viewer.role === "admin" ? "admin" : "traveler";
+
+  try {
+    const threadId = await getOrCreateRequestThreadId(
+      requestId as Uuid,
+      viewer.userId as Uuid,
+    );
+    await postRequestThreadMessage({
+      threadId,
+      senderId: viewer.userId as Uuid,
+      senderRole,
+      body: trimmed,
+    });
+    return { error: null };
+  } catch (err) {
+    return { error: friendlyError(err, "Не удалось отправить сообщение.") };
+  }
 }
 
 async function getOwnerDetailData(requestId: string, currentUserId: string | null) {
@@ -415,6 +458,8 @@ export default async function RequestDetailPage({
       ownerId,
     });
 
+    const ownerGroupThread = await getRequestGroupThread(requestId as Uuid);
+
     return (
       <RequestDetailScreen
         viewerRole="owner"
@@ -427,6 +472,9 @@ export default async function RequestDetailPage({
         createdMode={createdMode}
         onSendQa={sendQa}
         onGetOrCreateQaThread={getOrCreateThread}
+        currentUserId={currentUserId ?? undefined}
+        groupThread={ownerGroupThread}
+        onSendGroupMessage={postGroupMessage.bind(null, requestId)}
       />
     );
   }
@@ -465,12 +513,20 @@ export default async function RequestDetailPage({
     }
   }
 
+  // #42 — joined members get the group discussion. Anonymous/prospective viewers
+  // do not (RLS would block them anyway); only load it for actual members.
+  const memberGroupThread =
+    isMember && currentUserId ? await getRequestGroupThread(requestId as Uuid) : undefined;
+
   return (
     <RequestDetailScreen
       viewerRole={viewerRole === "admin" ? "admin" : "public"}
       requestId={requestId}
       viewModel={viewModel}
       biddingGuides={biddingGuides}
+      currentUserId={currentUserId ?? undefined}
+      groupThread={memberGroupThread}
+      onSendGroupMessage={postGroupMessage.bind(null, requestId)}
     />
   );
 }
