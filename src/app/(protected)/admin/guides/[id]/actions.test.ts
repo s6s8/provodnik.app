@@ -4,10 +4,12 @@ const {
   ensureOpenModerationCaseMock,
   performModerationActionMock,
   requireAdminSessionMock,
+  setGuideAvailabilityByAdminMock,
 } = vi.hoisted(() => ({
   ensureOpenModerationCaseMock: vi.fn(),
   performModerationActionMock: vi.fn(),
   requireAdminSessionMock: vi.fn(),
+  setGuideAvailabilityByAdminMock: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/moderation", () => ({
@@ -16,11 +18,15 @@ vi.mock("@/lib/supabase/moderation", () => ({
   requireAdminSession: requireAdminSessionMock,
 }));
 
+vi.mock("@/lib/supabase/availability", () => ({
+  setGuideAvailabilityByAdmin: setGuideAvailabilityByAdminMock,
+}));
+
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-import { approveGuide, rejectGuide } from "./actions";
+import { approveGuide, rejectGuide, setGuideAvailability } from "./actions";
 
 describe("guide approval actions", () => {
   beforeEach(() => {
@@ -51,5 +57,24 @@ describe("guide approval actions", () => {
 
     expect(result.error).toBe("Доступ только для администраторов.");
     expect(performModerationActionMock).not.toHaveBeenCalled();
+  });
+
+  it("setGuideAvailability calls the admin service with the resolved admin id", async () => {
+    requireAdminSessionMock.mockResolvedValue({ adminId: "admin-1" });
+
+    const result = await setGuideAvailability("g2", false, { error: null }, new FormData());
+
+    expect(setGuideAvailabilityByAdminMock).toHaveBeenCalledWith("g2", false, "admin-1");
+    expect(result.error).toBeNull();
+    expect(result.success).toBe("Приём заявок приостановлен.");
+  });
+
+  it("setGuideAvailability returns an error when the service throws", async () => {
+    requireAdminSessionMock.mockResolvedValue({ adminId: "admin-1" });
+    setGuideAvailabilityByAdminMock.mockRejectedValueOnce(new Error("db down"));
+
+    const result = await setGuideAvailability("g2", true, { error: null }, new FormData());
+
+    expect(result.error).toBe("Не удалось изменить доступность гида.");
   });
 });

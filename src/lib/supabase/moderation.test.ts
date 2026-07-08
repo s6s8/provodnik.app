@@ -17,8 +17,34 @@ vi.mock("@/lib/notifications/create-notification", () => ({
   createNotification: vi.fn(),
 }));
 
-import { getGuideReviewQueue, getPendingListingReviews } from "./moderation";
+import {
+  buildGuideApprovalUpdate,
+  getGuideReviewQueue,
+  getPendingListingReviews,
+} from "./moderation";
 import type { GuideProfileRow, ListingRow, Uuid } from "./types";
+
+describe("buildGuideApprovalUpdate", () => {
+  it("first approval (previously submitted) publishes and backfills a slug", () => {
+    const payload = buildGuideApprovalUpdate(
+      { slug: null, display_name: "Иван Гид", verification_status: "submitted" },
+      "guide-1",
+    );
+    expect(payload.verification_status).toBe("approved");
+    expect(payload.is_available).toBe(true);
+    expect(typeof payload.slug).toBe("string");
+  });
+
+  it("re-approving an already-approved self-paused guide does NOT touch is_available or slug", () => {
+    const payload = buildGuideApprovalUpdate(
+      { slug: "ivan-guide", display_name: "Иван Гид", verification_status: "approved" },
+      "guide-1",
+    );
+    expect(payload).toEqual({ verification_status: "approved" });
+    expect("is_available" in payload).toBe(false);
+    expect("slug" in payload).toBe(false);
+  });
+});
 
 function makeGuideProfile(
   userId: string,

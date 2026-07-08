@@ -616,6 +616,32 @@ function slugifyGuideProfileName(value: string | null | undefined, guideId: stri
   return `${base || "guide"}-${suffix}`;
 }
 
+type GuideApprovalExisting = {
+  slug: string | null;
+  display_name: string | null;
+  verification_status: string | null;
+};
+
+/**
+ * Build the guide_profiles update for an APPROVE decision.
+ * Only the FIRST approval publishes (is_available=true); re-approving an
+ * already-approved guide leaves is_available untouched, so an admin re-approval
+ * never clobbers a guide's self-pause. First approval also backfills a slug.
+ */
+export function buildGuideApprovalUpdate(
+  existing: GuideApprovalExisting | null,
+  guideId: string,
+): Record<string, unknown> {
+  const payload: Record<string, unknown> = { verification_status: "approved" };
+  if (existing?.verification_status !== "approved") {
+    payload.is_available = true;
+  }
+  if (!existing?.slug) {
+    payload.slug = slugifyGuideProfileName(existing?.display_name, guideId);
+  }
+  return payload;
+}
+
 export async function performModerationAction(
   caseId: string,
   adminId: string,
@@ -660,28 +686,27 @@ export async function performModerationAction(
   if (caseError) throw caseError;
 
   if (moderationCase.subject_type === "guide_profile" && moderationCase.guide_id) {
-    if (input.decision === "approve" || input.decision === "reject") {
-      const nextVerificationStatus = input.decision === "approve" ? "approved" : "rejected";
-      const updatePayload: Record<string, unknown> = {
-        verification_status: nextVerificationStatus,
-        is_available: input.decision === "approve",
-      };
+    if (input.decision === "reject") {
+      // Reject always hides the guide from the catalog.
+      const { error } = await adminClient
+        .from("guide_profiles")
+        .update({ verification_status: "rejected", is_available: false })
+        .eq("user_id", moderationCase.guide_id);
 
-      if (input.decision === "approve") {
-        const { data: guideProfile, error: guideProfileError } = await adminClient
-          .from("guide_profiles")
-          .select("slug, display_name")
-          .eq("user_id", moderationCase.guide_id)
-          .maybeSingle();
+      if (error) throw error;
+    } else if (input.decision === "approve") {
+      const { data: existing, error: existingError } = await adminClient
+        .from("guide_profiles")
+        .select("slug, display_name, verification_status")
+        .eq("user_id", moderationCase.guide_id)
+        .maybeSingle();
 
-        if (guideProfileError) throw guideProfileError;
-        if (!guideProfile?.slug) {
-          updatePayload.slug = slugifyGuideProfileName(
-            guideProfile?.display_name as string | null | undefined,
-            moderationCase.guide_id,
-          );
-        }
-      }
+      if (existingError) throw existingError;
+
+      const updatePayload = buildGuideApprovalUpdate(
+        (existing as GuideApprovalExisting | null) ?? null,
+        moderationCase.guide_id,
+      );
 
       const { error } = await adminClient
         .from("guide_profiles")
