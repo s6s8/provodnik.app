@@ -47,6 +47,7 @@ export const ROUTES = {
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
   adminListings:  { href: "/admin/listings",   label: "Листинги",     icon: ClipboardList },
   adminModeration:{ href: "/admin/moderation", label: "Модерация",    icon: ShieldCheck },
+  adminPipeline:  { href: "/admin/pipeline",   label: "Заявки",       icon: Inbox },
   adminDisputes:  { href: "/admin/disputes",   label: "Споры",        icon: Flag },
   adminBookings:  { href: "/admin/bookings",   label: "Бронирования", shortLabel: "Брони", icon: CalendarCheck },
   adminAudit:     { href: "/admin/audit",      label: "Аудит",        icon: ScrollText },
@@ -87,8 +88,9 @@ export const guidePrimaryNav = [
 
 /** Admin workspace (drives the admin sidebar + mobile tabs). */
 export const adminPrimaryNav = [
-  ROUTES.adminDashboard, ROUTES.adminUsers, ROUTES.adminGuides, ROUTES.adminListings,
-  ROUTES.adminModeration, ROUTES.adminDisputes, ROUTES.adminBookings, ROUTES.adminAudit,
+  ROUTES.adminDashboard, ROUTES.adminUsers, ROUTES.adminGuides,
+  ROUTES.adminModeration, ROUTES.adminPipeline, ROUTES.adminDisputes,
+  ROUTES.adminBookings, ROUTES.adminAudit,
 ] as const;
 
 /**

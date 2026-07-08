@@ -27,7 +27,7 @@ const actionableCards = [
   {
     key: "pendingListingReviews",
     label: "Проверка листингов",
-    href: "/admin/listings",
+    href: "/admin/moderation",
     Icon: ClipboardList,
   },
 ] as const;
