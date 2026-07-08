@@ -19,6 +19,7 @@ vi.mock("./actions", () => ({
   approveGuide: vi.fn(),
   rejectGuide: vi.fn(),
   requestChanges: vi.fn(),
+  setGuideAvailability: vi.fn(),
 }));
 
 import AdminGuideDetailPage from "./page";

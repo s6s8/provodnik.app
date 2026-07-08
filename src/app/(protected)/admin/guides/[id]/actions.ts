@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { setGuideAvailabilityByAdmin } from "@/lib/supabase/availability";
 import {
   ensureOpenModerationCase,
   performModerationAction,
@@ -63,6 +64,26 @@ export async function rejectGuide(
     return { error: null, success: "Гид отклонён" };
   } catch (err) {
     return { error: err instanceof Error ? err.message : "Неизвестная ошибка при отклонении" };
+  }
+}
+
+export async function setGuideAvailability(
+  guideId: string,
+  available: boolean,
+  _prevState: ActionState,
+  _formData: FormData,
+): Promise<ActionState> {
+  try {
+    const { adminId } = await requireAdminSession();
+    await setGuideAvailabilityByAdmin(guideId, available, adminId);
+    revalidatePath(`/admin/guides/${guideId}`);
+    revalidatePath("/guides");
+    return {
+      error: null,
+      success: available ? "Гид снова принимает заявки." : "Приём заявок приостановлен.",
+    };
+  } catch {
+    return { error: "Не удалось изменить доступность гида." };
   }
 }
 

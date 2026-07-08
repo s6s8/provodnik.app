@@ -23,6 +23,7 @@ import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { getGuideReviewDetail } from "@/lib/supabase/moderation";
 
 import { GuideApprovalForm } from "./guide-approval-form";
+import { GuideAvailabilityControl } from "./guide-availability-control";
 
 export const metadata: Metadata = {
   title: "Верификация гида",
@@ -434,6 +435,22 @@ export default async function AdminGuideDetailPage({
             </CardHeader>
             <CardContent>
               <GuideApprovalForm guideId={id} />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg">Доступность</CardTitle>
+              <CardDescription>
+                Приём новых заявок. Гид управляет этим сам, админ может
+                переопределить. Не влияет на текущие бронирования и переписку.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <GuideAvailabilityControl
+                guideId={id}
+                available={detail.profile.is_available ?? false}
+              />
             </CardContent>
           </Card>
 
