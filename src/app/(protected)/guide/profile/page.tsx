@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { GUIDE_TYPES } from "@/features/auth/guide-type";
 import { GuideAboutForm } from "@/features/guide/components/profile/guide-about-form";
+import { GuideAvailabilityToggle } from "@/features/guide/components/profile/guide-availability-toggle";
 import { GuideProfileChecklist } from "@/features/guide/components/profile/guide-profile-checklist";
 import type { ChecklistStep } from "@/features/guide/components/profile/guide-profile-checklist-types";
 import { LegalInformationForm } from "@/features/profile/components/LegalInformationForm";
@@ -157,7 +158,7 @@ export default async function GuideProfilePage() {
       supabase
         .from("guide_profiles")
         .select(
-          "bio, base_city, languages, specializations, years_experience, regions, legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number, verification_status, verification_notes, guide_type",
+          "bio, base_city, languages, specializations, years_experience, regions, legal_status, inn, document_country, is_tour_operator, tour_operator_registry_number, verification_status, verification_notes, guide_type, is_available",
         )
         .eq("user_id", guideId)
         .maybeSingle(),
@@ -317,6 +318,10 @@ export default async function GuideProfilePage() {
         firstIncompleteStep={firstIncompleteStep}
         verificationStatus={verificationStatus}
       />
+
+      {verificationStatus === "approved" ? (
+        <GuideAvailabilityToggle available={profile?.is_available ?? false} />
+      ) : null}
 
       <GuideProfileSectionBoundary id="avatar" title="Фото">
         {() => <AvatarUploadBlock avatarUrl={avatarUrl} displayName={displayName} />}
