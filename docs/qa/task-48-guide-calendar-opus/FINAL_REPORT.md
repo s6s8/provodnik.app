@@ -68,7 +68,7 @@
 ## 2. Изменённые файлы
 
 **БД / миграция**
-- `supabase/migrations/20260708150000_guide_availability_blocks.sql` — новая
+- `supabase/migrations/20260708170000_guide_availability_blocks.sql` — новая
   таблица `guide_availability_blocks` (ключ на `guide_profiles.user_id`,
   отдельная таблица, а не колонка — иначе ломается замороженный тип
   `search_guides`, ошибка 42804), RLS (select/insert/update/delete),
