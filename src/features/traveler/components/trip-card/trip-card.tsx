@@ -4,6 +4,7 @@ import { CalendarDays, Clock, Star, Users, Wallet } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { formatRubNumber } from "@/data/money";
+import { formatRussianDate } from "@/lib/dates";
 import { BADGE_CLASS } from "@/lib/styles";
 import { cn } from "@/lib/utils";
 
@@ -280,10 +281,14 @@ function TripCardContent({
       {shouldShowMeetingPoint(phase, trip.startsOn) && meetingPoint && (
         <p className="text-sm">{meetingPoint}</p>
       )}
-      {phase === "upcoming" &&
-        trip.routeStops &&
-        trip.routeStops.length >= 3 && (
-          <>
+      {(phase === "upcoming" || phase === "today") && (
+        <>
+          {trip.startsOn && (
+            <p className="text-sm text-muted-foreground">
+              {formatRussianDate(trip.startsOn)}
+            </p>
+          )}
+          {trip.routeStops && trip.routeStops.length >= 3 && (
             <div className="flex gap-1">
               {trip.routeStops.slice(0, 3).map((stop, i) => (
                 <Image
@@ -297,32 +302,29 @@ function TripCardContent({
                 />
               ))}
             </div>
-            {trip.inclusions && (
-              <p className="text-sm">
-                Что входит: {trip.inclusions.join(", ")}
-              </p>
-            )}
-            {trip.guideName && (
-              <div className="flex items-center gap-2">
-                {trip.guideAvatarUrl && (
-                  <Image
-                    unoptimized
-                    src={trip.guideAvatarUrl}
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="size-8 rounded-full object-cover"
-                  />
-                )}
-                <span>{trip.guideName}</span>
-              </div>
-            )}
-            <span className="text-sm font-medium text-primary">Написать гиду</span>
-            {trip.price && (
-              <p>{formatRubNumber(trip.price.amount / 100)} ₽</p>
-            )}
-          </>
-        )}
+          )}
+          {trip.inclusions && (
+            <p className="text-sm">Что входит: {trip.inclusions.join(", ")}</p>
+          )}
+          {trip.guideName && (
+            <div className="flex items-center gap-2">
+              {trip.guideAvatarUrl && (
+                <Image
+                  unoptimized
+                  src={trip.guideAvatarUrl}
+                  alt=""
+                  width={32}
+                  height={32}
+                  className="size-8 rounded-full object-cover"
+                />
+              )}
+              <span>{trip.guideName}</span>
+            </div>
+          )}
+          <span className="text-sm font-medium text-primary">Написать гиду</span>
+          {trip.price && <p>{formatRubNumber(trip.price.amount / 100)} ₽</p>}
+        </>
+      )}
       {phase === "completed" &&
         (trip.hasReview ? (
           <p className="inline-flex items-center gap-1">Ваш отзыв · <Star className="size-3.5 fill-amber-400 text-amber-400" /> {trip.reviewRating}</p>
