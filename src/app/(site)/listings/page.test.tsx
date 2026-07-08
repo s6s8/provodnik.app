@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 
-const { notFoundMock, flagsMock } = vi.hoisted(() => ({
-  notFoundMock: vi.fn(() => {
-    throw new Error("NEXT_NOT_FOUND");
+const { redirectMock, flagsMock } = vi.hoisted(() => ({
+  redirectMock: vi.fn(() => {
+    throw new Error("NEXT_REDIRECT");
   }),
   flagsMock: { FEATURE_PUBLIC_CATALOG: true },
 }));
 
-vi.mock("next/navigation", () => ({ notFound: notFoundMock }));
+vi.mock("next/navigation", () => ({ redirect: redirectMock }));
 
 vi.mock("@/lib/flags", () => ({ flags: flagsMock }));
 
@@ -31,18 +31,18 @@ import PublicListingsPage from "./page";
 
 describe("PublicListingsPage", () => {
   beforeEach(() => {
-    notFoundMock.mockClear();
+    redirectMock.mockClear();
     getActiveListings.mockReset();
     flagsMock.FEATURE_PUBLIC_CATALOG = true;
   });
 
-  it("returns notFound when the public catalog is hidden (Wildberries review)", async () => {
+  it("redirects to /guides when the public catalog is hidden (Wildberries review)", async () => {
     flagsMock.FEATURE_PUBLIC_CATALOG = false;
 
     await expect(
       PublicListingsPage({ searchParams: Promise.resolve({}) }),
-    ).rejects.toThrow("NEXT_NOT_FOUND");
-    expect(notFoundMock).toHaveBeenCalled();
+    ).rejects.toThrow("NEXT_REDIRECT");
+    expect(redirectMock).toHaveBeenCalledWith("/guides");
     expect(getActiveListings).not.toHaveBeenCalled();
   });
 

@@ -87,7 +87,12 @@ export function LicenseAddButton({ listings, isLocked = false }: Props) {
 
   return (
     <>
-      <Button type="button" onClick={() => setOpen(true)} disabled={pending || isLocked}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setOpen(true)}
+        disabled={pending || isLocked}
+      >
         Добавить документ
       </Button>
 

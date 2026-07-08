@@ -168,11 +168,15 @@ function TravelerBookingDetailView({
 
   const request = booking.traveler_request;
   const offer = booking.guide_offer;
-  const destination = request?.destination ?? "Маршрут";
+  const hasRealDestination = Boolean(request?.destination?.trim());
+  const destination = request?.destination?.trim() || "Маршрут";
   const dateRange = request?.starts_on
     ? formatRussianDateRange(request.starts_on, request.ends_on)
     : "";
   const resolvedListingTitle = listingTitle || (dateRange ? `${destination}, ${dateRange}` : destination);
+  // Only surface the destination as a card heading when the H1 already shows a
+  // distinct listing title — otherwise it just repeats the page title (F-18).
+  const showCardDestination = Boolean(listingTitle) && hasRealDestination;
 
   const meetingTime = offer?.starts_at
     ? formatRussianTime(offer.starts_at)
@@ -306,8 +310,8 @@ function TravelerBookingDetailView({
 
       <div className="py-12">
         <div className="mx-auto flex max-w-[640px] flex-col gap-6 px-[var(--px)] lg:grid lg:max-w-[1080px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8">
-          {/* left: trip content (top) */}
-          <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-1 lg:min-w-0">
+          {/* left: trip content */}
+          <div className="flex flex-col gap-6 lg:col-start-1 lg:min-w-0">
             <header className="space-y-3">
               <BookingStatusBadge status={status} />
               <PageHeader title={resolvedListingTitle || "Бронирование"} actions={primaryCTA} />
@@ -324,7 +328,9 @@ function TravelerBookingDetailView({
             <Card className="border-border/70 bg-card/90">
               <CardContent className="flex flex-col gap-2 p-5">
                 <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
-                <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
+                {showCardDestination ? (
+                  <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
+                ) : null}
                 {dateRange ? (
                   <p className="font-sans text-sm text-muted-foreground">
                     {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
@@ -377,10 +383,34 @@ function TravelerBookingDetailView({
                 </CardContent>
               </Card>
             ) : null}
+
+            {showTravelerPanel ? (
+              <>
+                {showReviewForm ? (
+                  <div id="review-form">
+                    <FourAxisReviewForm
+                      bookingId={booking.id}
+                      guideId={booking.guide_id}
+                      listingId={booking.listing_id ?? ""}
+                      listingTitle={resolvedListingTitle}
+                    />
+                  </div>
+                ) : null}
+
+                <SupportSidebar bookingId={booking.id} />
+
+                <Link
+                  href="/trips"
+                  className="font-sans text-sm font-medium text-primary no-underline inline-flex items-center gap-1 hover:underline"
+                >
+                  ← К моим поездкам
+                </Link>
+              </>
+            ) : null}
           </div>
 
           {/* right: money + agreement + contact + actions (sticky on desktop) */}
-          <aside className="flex flex-col gap-6 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:sticky lg:top-24">
+          <aside className="flex flex-col gap-6 lg:col-start-2 lg:sticky lg:top-24">
             <Card className="border-border/70 bg-card/90">
               <CardContent className="flex flex-col gap-1.5 p-5">
                 <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
@@ -464,31 +494,6 @@ function TravelerBookingDetailView({
               </>
             ) : null}
           </aside>
-
-          {/* left: trip content (bottom) — review, support, back link */}
-          {showTravelerPanel ? (
-            <div className="flex flex-col gap-6 lg:col-start-1 lg:row-start-2 lg:min-w-0">
-              {showReviewForm ? (
-                <div id="review-form">
-                  <FourAxisReviewForm
-                    bookingId={booking.id}
-                    guideId={booking.guide_id}
-                    listingId={booking.listing_id ?? ""}
-                    listingTitle={resolvedListingTitle}
-                  />
-                </div>
-              ) : null}
-
-              <SupportSidebar bookingId={booking.id} />
-
-              <Link
-                href="/trips"
-                className="font-sans text-sm font-medium text-primary no-underline inline-flex items-center gap-1 hover:underline"
-              >
-                ← К моим поездкам
-              </Link>
-            </div>
-          ) : null}
         </div>
       </div>
     </div>

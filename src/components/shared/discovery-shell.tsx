@@ -174,7 +174,7 @@ export function DiscoveryFacetRail({ children, label, className }: DiscoveryFace
       role="group"
       aria-label={label}
       className={cn(
-        "flex snap-x gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "flex snap-x gap-2 overflow-x-auto pb-1 pr-6 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,#000_calc(100%-1.5rem),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         className,
       )}
     >

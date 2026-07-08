@@ -39,7 +39,7 @@ export function HomepageHeroFormClassic({ destinations, preferredGuide }: Props)
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1.5 text-xs font-semibold tracking-wider text-white/75">
+      <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1.5 text-xs font-semibold tracking-wider text-white drop-shadow-lg">
         <span>Сборные группы</span>
         <ArrowDown className="size-4 motion-safe:animate-bounce" aria-hidden="true" />
       </div>

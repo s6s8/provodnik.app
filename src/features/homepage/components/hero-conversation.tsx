@@ -180,7 +180,7 @@ export function HeroConversation() {
               onChange={(e) => setInput(e.target.value)}
               disabled={isParsing}
               autoFocus
-              placeholder="Москва, завтра, вдвоём, 5000 ₽, история и еда"
+              placeholder="Москва, завтра, вдвоём, 5000 ₽"
               aria-label="Опишите вашу поездку"
               className="min-w-0 flex-1 bg-transparent text-[16px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
             />

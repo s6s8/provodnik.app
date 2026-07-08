@@ -1,0 +1,38 @@
+{
+  "meta": {
+    "mission": "provodnik-opus-visual-self-heal-20260708",
+    "branch": "fix/visual-audit-self-heal-20260708",
+    "date": "2026-07-08",
+    "source_audit": "docs/qa/visual-audit-20260708/findings.json",
+    "counts": { "fixed": 16, "improved": 1, "verified_no_defect": 2, "blocked_by_design": 1, "total": 20 }
+  },
+  "verification": {
+    "typecheck": "pass (0 errors)",
+    "lint": "pass (0 errors, 21 pre-existing warnings in src/data/guide-* — untouched)",
+    "test": "pass (226 files / 1155 tests; +4 new)",
+    "build": "pass",
+    "playwright": "pass (screenshots captured 1280px + 375px, 0 console errors)"
+  },
+  "findings": [
+    { "id": "F-01", "severity": "high", "status": "fixed", "files": ["src/components/shared/immersive-hero.tsx"], "verified": "live", "note": "Desktop hero rail collapse fixed via in-flow md:flex-row items-end justify-between." },
+    { "id": "F-02", "severity": "high", "status": "fixed", "files": ["src/app/(protected)/account/notifications/page.tsx", "src/app/(protected)/account/notifications/notification-preferences-client.tsx"], "verified": "build+typecheck", "note": "Server-side redirect('/account') when flag off; removes React #419 from client notFound()." },
+    { "id": "F-03", "severity": "high", "status": "fixed", "files": ["src/app/(site)/destinations/page.tsx", "src/app/(site)/listings/page.tsx", "src/app/(site)/destinations/page.test.tsx", "src/app/(site)/listings/page.test.tsx"], "verified": "live", "note": "redirect('/guides') replaces soft-404 notFound()." },
+    { "id": "F-04", "severity": "medium", "status": "verified_no_defect", "files": [], "verified": "code", "note": "Bottom-nav padding already present/correct in guide/layout.tsx; overlap was a full-page-screenshot artifact." },
+    { "id": "F-05", "severity": "medium", "status": "verified_no_defect", "files": [], "verified": "code", "note": "Form fields already use space-y-2; cramped look was a screenshot artifact." },
+    { "id": "F-06", "severity": "medium", "status": "fixed", "files": ["src/components/ui/tabs.tsx", "src/features/traveler/components/requests/traveler-requests-screen.tsx"], "verified": "live", "note": "min-w-0 on TabsTrigger + truncate labels; active pill no longer overlaps neighbour." },
+    { "id": "F-07", "severity": "medium", "status": "fixed", "files": ["src/components/shared/list-row.tsx"], "verified": "unit+code", "note": "Title basis-full sm:basis-0 lets badge/actions wrap below on mobile." },
+    { "id": "F-08", "severity": "medium", "status": "fixed", "files": ["src/components/shared/open-group-card.tsx"], "verified": "live", "note": "Designed pin+city fallback on cards without a real photo." },
+    { "id": "F-09", "severity": "medium", "status": "fixed", "files": ["src/components/shared/immersive-hero.tsx"], "verified": "live", "note": "Mobile hero top padding clears the fixed header." },
+    { "id": "F-10", "severity": "low", "status": "fixed", "files": ["src/lib/supabase/queries-core.ts", "src/lib/supabase/queries-core.test.ts", "src/app/(site)/guides/[slug]/page.tsx"], "verified": "unit+code", "note": "App-level hide of qa- seed guides (catalog + profile). DB row still exists — data cleanup out of scope." },
+    { "id": "F-11", "severity": "low", "status": "improved", "files": ["src/components/shared/discovery-shell.tsx"], "verified": "code", "note": "Right-edge fade mask as scroll affordance on the single-row chip rail." },
+    { "id": "F-12", "severity": "low", "status": "fixed", "files": ["src/features/homepage/components/hero-conversation.tsx"], "verified": "live", "note": "Shortened placeholder so it fits mobile width, no clip by send button." },
+    { "id": "F-13", "severity": "low", "status": "fixed", "files": ["src/components/shared/site-footer.tsx"], "verified": "live", "note": "Footer bottom bar separator + visible link styling for 'Поддержка'." },
+    { "id": "F-14", "severity": "low", "status": "fixed", "files": ["src/features/guide/components/public/guide-profile-screen.tsx"], "verified": "code", "note": "Excursions section drops bottom padding when empty; removes the screen-height gap." },
+    { "id": "F-15", "severity": "low", "status": "fixed", "files": ["src/features/guide/components/excursions/guide-excursions-screen.tsx"], "verified": "typecheck+lint", "note": "Removed orphan chevron button + unused imports." },
+    { "id": "F-16", "severity": "low", "status": "fixed", "files": ["src/features/profile/components/LicenseAddButton.tsx"], "verified": "code", "note": "variant=outline for legible contrast vs washed-out disabled primary." },
+    { "id": "F-17", "severity": "low", "status": "blocked_by_design", "files": [], "verified": "n/a", "note": "Completion tied to full_name only is an explicit owner spec (Excel row 14, code comment). Left unchanged." },
+    { "id": "F-18", "severity": "low", "status": "fixed", "files": ["src/features/bookings/components/booking-detail-screen.tsx"], "verified": "unit+code", "note": "'Маршрут' shown once; merged split left-column grid rows to remove the dead gap." },
+    { "id": "F-19", "severity": "low", "status": "fixed", "files": ["src/features/requests/components/request-detail-screen.tsx"], "verified": "code", "note": "Sticky price bar px-5 + safe-area bottom padding." },
+    { "id": "F-20", "severity": "low", "status": "fixed", "files": ["src/features/homepage-classic/components/homepage-hero-form-classic.tsx"], "verified": "live", "note": "Scroll cue solid white + drop-shadow-lg for contrast." }
+  ]
+}

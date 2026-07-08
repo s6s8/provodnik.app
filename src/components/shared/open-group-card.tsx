@@ -87,6 +87,10 @@ export function OpenGroupCard({
     .filter((t): t is (typeof THEMES)[number] => Boolean(t))
     .slice(0, 3);
   const memberList = members ?? [];
+  // Real photos are http(s)/local paths; gradient fallbacks are data/SVG URLs.
+  // When there's no real photo, show a designed placeholder instead of a bare
+  // dark gradient that reads as "still loading" (F-08).
+  const isPhoto = /^(https?:|\/)/.test(imageUrl);
 
   return (
     <div
@@ -104,6 +108,12 @@ export function OpenGroupCard({
           className="object-cover"
         />
         <Scrim />
+        {!isPhoto ? (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 text-white/90">
+            <MapPin className="size-6 opacity-80" aria-hidden="true" />
+            <span className="text-sm font-semibold tracking-tight">{city}</span>
+          </div>
+        ) : null}
         {region ? (
           <Badge variant="overlay" className="absolute left-2.5 top-2.5 gap-1">
             <MapPin aria-hidden="true" />

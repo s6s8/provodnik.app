@@ -1,9 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { BookOpen, Check, ChevronLeft, Pencil, Plus, Trash2 } from "lucide-react";
+import { BookOpen, Check, Pencil, Plus, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useForm, useWatch, type SubmitErrorHandler } from "react-hook-form";
 import { Badge } from "@/components/ui/badge";
@@ -252,16 +251,9 @@ export function GuideExcursionsScreen() {
         title="Мои экскурсии"
         className="mb-6"
         actions={
-          <>
-            <Button asChild variant="ghost" size="icon" aria-label="В кабинет">
-              <Link href="/guide">
-                <ChevronLeft className="size-4" />
-              </Link>
-            </Button>
-            <Button onClick={openCreateSheet}>
-              <Plus className="size-4" /> Создать экскурсию
-            </Button>
-          </>
+          <Button onClick={openCreateSheet}>
+            <Plus className="size-4" /> Создать экскурсию
+          </Button>
         }
       />
 

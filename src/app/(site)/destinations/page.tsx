@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { DestinationsDiscoveryScreen } from "@/features/destinations/components/destinations-discovery-screen";
 import { getDestinations, type DestinationRecord } from "@/data/supabase/queries";
@@ -15,7 +15,8 @@ export function generateMetadata(): Metadata {
 
 export default async function DestinationsPage() {
   // Public destinations catalog is hidden (Wildberries review) unless re-approved.
-  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+  // Redirect to the live guide catalog instead of serving a soft-404 (HTTP 200 + 404 UI).
+  if (!flags.FEATURE_PUBLIC_CATALOG) redirect("/guides");
 
   let destinations: DestinationRecord[] = [];
   let loadError = false;

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { mapDbCategoryToThemeSlug } from "@/data/public-listings/mapper";
 import type { PublicListing } from "@/data/public-listings/types";
@@ -53,7 +53,8 @@ export default async function PublicListingsPage({
   searchParams: Promise<{ q?: string }>;
 }) {
   // Public excursions catalog is hidden (Wildberries review) unless re-approved.
-  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+  // Redirect to the live guide catalog instead of serving a soft-404 (HTTP 200 + 404 UI).
+  if (!flags.FEATURE_PUBLIC_CATALOG) redirect("/guides");
 
   let listings: PublicListing[] = [];
   let loadError = false;

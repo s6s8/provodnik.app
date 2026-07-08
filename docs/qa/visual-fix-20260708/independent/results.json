@@ -1,0 +1,34 @@
+[
+  {
+    "viewport": "desktop",
+    "path": "/ai",
+    "status": 200,
+    "url": "http://127.0.0.1:3017/ai",
+    "has404": false,
+    "errors": []
+  },
+  {
+    "viewport": "desktop",
+    "path": "/guides",
+    "status": 200,
+    "url": "http://127.0.0.1:3017/guides",
+    "has404": false,
+    "errors": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/ai",
+    "status": 200,
+    "url": "http://127.0.0.1:3017/ai",
+    "has404": false,
+    "errors": []
+  },
+  {
+    "viewport": "mobile",
+    "path": "/guides",
+    "status": 200,
+    "url": "http://127.0.0.1:3017/guides",
+    "has404": false,
+    "errors": []
+  }
+]

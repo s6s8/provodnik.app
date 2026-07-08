@@ -218,7 +218,10 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
         </section>
       )}
 
-      <section id="excursions" className="bg-surface-low py-sec-pad">
+      <section
+        id="excursions"
+        className={`bg-surface-low ${tourCards ? "py-sec-pad" : "pt-sec-pad pb-0"}`}
+      >
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <h2 className="mb-7 font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
             Готовые экскурсии
