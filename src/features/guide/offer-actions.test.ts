@@ -14,6 +14,11 @@ vi.mock("@/lib/supabase/server", () => ({
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
+const { isGuideIntervalBlocked } = vi.hoisted(() => ({
+  isGuideIntervalBlocked: vi.fn(async () => false),
+}));
+vi.mock("@/lib/supabase/guide-availability-blocks", () => ({ isGuideIntervalBlocked }));
+
 import {
   checkOfferAgainstLocks,
   submitOfferAction,
@@ -180,6 +185,77 @@ describe("submitOfferAction", () => {
       error: "Приём заявок приостановлен. Возобновите его в профиле, чтобы откликаться.",
     });
     expect(guideSelect).toHaveBeenCalledWith("verification_status, is_available");
+  });
+
+  it("rejects an offer whose interval overlaps the guide's own calendar block", async () => {
+    isGuideIntervalBlocked.mockResolvedValueOnce(true);
+
+    const guideMaybeSingle = vi.fn().mockResolvedValue({
+      data: { verification_status: "approved", is_available: true },
+    });
+    const guideSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ maybeSingle: guideMaybeSingle }),
+    });
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+    // hasGuideOffered: select("id").eq().eq().limit().maybeSingle() → not offered yet.
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }),
+        }),
+      }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            traveler_id: "trav-1",
+            date_locked: false,
+            time_locked: false,
+            starts_on: "2026-09-10",
+            start_time: null,
+            end_time: null,
+            date_flexibility: "exact",
+          },
+        }),
+      }),
+    });
+    const from = vi.fn((table: string) => {
+      if (table === "profiles") return { select: profileSelect };
+      if (table === "guide_profiles") return { select: guideSelect };
+      if (table === "guide_offers") return { select: offerSelect };
+      if (table === "traveler_requests") return { select: requestSelect };
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } }, error: null }),
+      },
+      from,
+    });
+
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "предложение достаточной длины для валидации");
+    fd.set("valid_until", "2027-01-01");
+    fd.set("starts_at", "2026-09-10T07:00:00.000Z");
+    fd.set("ends_at", "2026-09-10T10:00:00.000Z");
+
+    const result = await submitOfferAction("11111111-1111-4111-8111-111111111111", fd);
+
+    expect(result).toEqual({
+      error: "Этот период закрыт в вашем календаре. Откройте его в профиле или предложите другое время.",
+    });
+    expect(isGuideIntervalBlocked).toHaveBeenCalledWith(
+      "guide-1",
+      "2026-09-10T07:00:00.000Z",
+      "2026-09-10T10:00:00.000Z",
+    );
   });
 });
 
