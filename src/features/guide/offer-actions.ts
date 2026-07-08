@@ -11,6 +11,7 @@ import {
   hasGuideOffered,
   createOfferInputSchema,
 } from "@/lib/supabase/offers";
+import { isGuideIntervalBlocked } from "@/lib/supabase/guide-availability-blocks";
 import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 
@@ -27,6 +28,24 @@ export type LockEnforcementRequest = {
 type LockEnforcementResult = { ok: true } | { error: string };
 
 const MSK_OFFSET_MS = 3 * 60 * 60 * 1000;
+
+const CALENDAR_BLOCKED_ERROR =
+  "Этот период закрыт в вашем календаре. Откройте его в профиле или предложите другое время.";
+
+/**
+ * Layer B guard: a guide cannot offer a slot that overlaps their own calendar
+ * block. Mirrors the guide_offers_insert RLS conjunct so the UI shows a friendly
+ * message; the RLS policy is the real boundary against direct-API bypass.
+ * Date-less offers (no interval) are never calendar-blocked.
+ */
+async function calendarBlocks(
+  guideId: string,
+  startsAt: string | null | undefined,
+  endsAt: string | null | undefined,
+): Promise<boolean> {
+  if (!startsAt || !endsAt) return false;
+  return isGuideIntervalBlocked(guideId, startsAt, endsAt);
+}
 
 function toMoscowIsoParts(value: string | undefined) {
   if (!value) return null;
@@ -196,6 +215,10 @@ export async function submitOfferAction(
       return { error: lockCheck.error };
     }
 
+    if (await calendarBlocks(guideId, parsed.data.starts_at, parsed.data.ends_at)) {
+      return { error: CALENDAR_BLOCKED_ERROR };
+    }
+
     const offer = await createGuideOffer(parsed.data, guideId);
 
     await logFunnelEvent({
@@ -356,6 +379,10 @@ export async function editOfferAction(
       request: { ...requestRow, date_locked: requestRow.date_flexibility === "few_days" ? false : requestRow.date_locked },
     });
     if ("error" in lockCheck) return { error: lockCheck.error };
+
+    if (await calendarBlocks(guideId, parsed.data.starts_at, parsed.data.ends_at)) {
+      return { error: CALENDAR_BLOCKED_ERROR };
+    }
 
     const { error } = await supabase
       .from("guide_offers")

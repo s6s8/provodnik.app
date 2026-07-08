@@ -11,6 +11,10 @@ import {
 import { GUIDE_TYPES } from "@/features/auth/guide-type";
 import { GuideAboutForm } from "@/features/guide/components/profile/guide-about-form";
 import { GuideAvailabilityToggle } from "@/features/guide/components/profile/guide-availability-toggle";
+import {
+  GuideCalendarBlocks,
+  type CalendarBlock,
+} from "@/features/guide/components/profile/guide-calendar-blocks";
 import { GuideProfileChecklist } from "@/features/guide/components/profile/guide-profile-checklist";
 import type { ChecklistStep } from "@/features/guide/components/profile/guide-profile-checklist-types";
 import { LegalInformationForm } from "@/features/profile/components/LegalInformationForm";
@@ -30,6 +34,7 @@ import {
   submitForVerification,
 } from "@/features/guide/verification-actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { listOwnActiveBlocks } from "@/lib/supabase/guide-availability-blocks";
 import { roleHasAccess } from "@/lib/auth/role-routing";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
@@ -299,6 +304,15 @@ export default async function GuideProfilePage() {
   const guideTypeLabel =
     GUIDE_TYPES.find((t) => t.id === profile?.guide_type)?.label ?? null;
 
+  let calendarBlocks: CalendarBlock[] = [];
+  if (verificationStatus === "approved") {
+    try {
+      calendarBlocks = await listOwnActiveBlocks();
+    } catch (err) {
+      console.error("[GuideProfilePage] calendar blocks fetch failed:", err);
+    }
+  }
+
   return (
     <div className="space-y-10">
       <header className="space-y-2">
@@ -320,7 +334,10 @@ export default async function GuideProfilePage() {
       />
 
       {verificationStatus === "approved" ? (
-        <GuideAvailabilityToggle available={profile?.is_available ?? false} />
+        <div className="space-y-4">
+          <GuideAvailabilityToggle available={profile?.is_available ?? false} />
+          <GuideCalendarBlocks blocks={calendarBlocks} />
+        </div>
       ) : null}
 
       <GuideProfileSectionBoundary id="avatar" title="Фото">
