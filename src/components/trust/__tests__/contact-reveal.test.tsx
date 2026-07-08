@@ -27,12 +27,21 @@ describe("ContactReveal", () => {
     expect(tel).not.toBeNull();
   });
 
-  it("shows a destructive Alert when confirmed but no contact", () => {
-    const { container, getByText } = render(
+  it("shows an info Alert (not a false error) when confirmed but no contact and no load error", () => {
+    const { container, getByText, queryByText } = render(
       <ContactReveal guide={guide} bookingStatus="confirmed" />,
     );
 
     expect(container.querySelector('[data-slot="alert"]')).not.toBeNull();
+    expect(getByText("Гид ещё не указал контакты")).not.toBeNull();
+    expect(queryByText("Не удалось загрузить контакты")).toBeNull();
+  });
+
+  it("shows the destructive load-error Alert only when the fetch actually failed", () => {
+    const { getByText } = render(
+      <ContactReveal guide={guide} bookingStatus="confirmed" contactError />,
+    );
+
     expect(getByText("Не удалось загрузить контакты")).not.toBeNull();
   });
 
