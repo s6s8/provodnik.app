@@ -78,9 +78,11 @@ describe("AdminAuditPage", () => {
       },
     ]);
     const adminClient = {
-      from: vi.fn((table: string) =>
-        table === "moderation_actions" ? actionsQuery : listingEventsQuery,
-      ),
+      from: vi.fn((table: string) => {
+        if (table === "moderation_actions") return actionsQuery;
+        if (table === "listing_moderation_events") return listingEventsQuery;
+        return createQueryResult([]); // guide_availability_events
+      }),
     };
     const serverClient = {
       from: vi.fn(() => createQueryResult([])),
@@ -99,5 +101,36 @@ describe("AdminAuditPage", () => {
     expect(screen.getAllByText("Анна Админ")).toHaveLength(2);
     expect(screen.getByText(/Документы проверены/)).toBeInTheDocument();
     expect(screen.getByText("Листинг «Ладога на каяке»")).toBeInTheDocument();
+  });
+
+  it("surfaces guide availability pause events with a link to the guide", async () => {
+    const availabilityQuery = createQueryResult([
+      {
+        id: "gae-1",
+        created_at: "2026-06-03T10:00:00.000Z",
+        available: false,
+        guide_id: "guide-9",
+        actor_id: "guide-9",
+        actor: { full_name: "Гид Тест", email: "guide@example.com" },
+      },
+    ]);
+    const adminClient = {
+      from: vi.fn((table: string) => {
+        if (table === "guide_availability_events") return availabilityQuery;
+        return createQueryResult([]);
+      }),
+    };
+    requireAdminSession.mockResolvedValue({ adminClient });
+
+    const ui = await AdminAuditPage();
+    render(ui);
+
+    expect(adminClient.from).toHaveBeenCalledWith("guide_availability_events");
+    expect(screen.getByText("Приём приостановлен")).toBeInTheDocument();
+    expect(screen.getByText("Доступность гида")).toBeInTheDocument();
+    const links = screen.getAllByRole("link");
+    expect(
+      links.some((l) => l.getAttribute("href") === "/admin/guides/guide-9"),
+    ).toBe(true);
   });
 });
