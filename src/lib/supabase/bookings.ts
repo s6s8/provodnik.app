@@ -10,6 +10,8 @@ import "server-only";
  * from client input.
  */
 
+import * as Sentry from "@sentry/nextjs";
+
 import { hasSupabaseAdminEnv } from "@/lib/env";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -44,6 +46,11 @@ export type BookingWithDetails = BookingRow & {
    * Null for any other viewer or when not yet resolvable.
    */
   guide_phone: string | null;
+  /**
+   * true ONLY when the admin guide-contact query returned an error, so the UI
+   * can tell "guide has no phone on file" apart from "we failed to load it".
+   */
+  guide_contact_error: boolean;
   traveler_request: Pick<
     TravelerRequestRow,
     | "destination"
@@ -184,17 +191,24 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
   // 20260528154254 — profiles.full_name is now the canonical name.)
   let guidePhone: string | null = null;
   let guideFullName: string | null = null;
+  let contactError = false;
   if (hasSupabaseAdminEnv()) {
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (user && user.id === booking.traveler_id) {
       const admin = createSupabaseAdminClient();
-      const { data: guideContact } = await admin
+      const { data: guideContact, error: guideContactError } = await admin
         .from("profiles")
         .select("full_name, phone")
         .eq("id", booking.guide_id)
         .maybeSingle();
+      if (guideContactError) {
+        Sentry.captureException(guideContactError, {
+          tags: { context: "booking-guide-contact" },
+        });
+        contactError = true;
+      }
       guideFullName = guideContact?.full_name ?? null;
       guidePhone = guideContact?.phone ?? null;
     }
@@ -216,6 +230,7 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     ...booking,
     guide_profile: resolvedGuideProfile,
     guide_phone: guidePhone,
+    guide_contact_error: contactError,
     traveler_request: (travelerRequestRes.data as BookingWithDetails["traveler_request"]) ?? null,
     guide_offer: (guideOfferRes.data as BookingWithDetails["guide_offer"]) ?? null,
   };

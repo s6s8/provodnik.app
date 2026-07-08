@@ -451,6 +451,7 @@ function TravelerBookingDetailView({
                       }}
                       contact={{ phone: guidePhone ?? undefined }}
                       bookingStatus={bookingStatusForReveal}
+                      contactError={booking.guide_contact_error}
                     />
                   </CardContent>
                 </Card>

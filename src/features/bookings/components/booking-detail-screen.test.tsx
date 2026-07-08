@@ -77,6 +77,7 @@ const booking = {
   created_at: "2026-06-01T00:00:00.000Z",
   updated_at: "2026-06-01T00:00:00.000Z",
   guide_phone: "+79990000000",
+  guide_contact_error: false,
   guide_profile: {
     user_id: "guide-1",
     bio: "",
