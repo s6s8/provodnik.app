@@ -251,6 +251,31 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
   };
 }
 
+async function getBookingRedirectForMissingRequest(requestId: string): Promise<string | null> {
+  const viewerContext = await getRequestViewerContext(requestId);
+  if (!viewerContext.userId) return null;
+
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+      .from("bookings")
+      .select("id, traveler_id, guide_id")
+      .eq("request_id", requestId)
+      .or(`traveler_id.eq.${viewerContext.userId},guide_id.eq.${viewerContext.userId}`)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const booking = data as { id?: string | null; guide_id?: string | null } | null;
+    if (!booking?.id) return null;
+    return booking.guide_id === viewerContext.userId
+      ? `/guide/bookings/${booking.id}`
+      : `/bookings/${booking.id}`;
+  } catch {
+    return null;
+  }
+}
+
 async function getGuideDetailData(requestId: string, guideId: string | null) {
   const supabase = await createSupabaseServerClient();
 
@@ -329,11 +354,12 @@ export default async function RequestDetailPage({
   const result = await getRequestDetail(requestId);
 
   if (!result.data) {
-    // The request is gone (withdrawn, deleted, or unreadable). A guide following
-    // an inbox "Подробнее" link lands back in their inbox; an owner/traveler who
-    // followed a stale "Новое предложение" notification lands in their trips
-    // cabinet — never the public "Запрос не найден" 404. Anonymous/unrelated
-    // visitors still get the correct notFound().
+    // The request is gone (withdrawn, deleted, or unreadable). If it already
+    // turned into a booking, send the signed-in traveler/guide to that booking
+    // instead of dead-ending stale offer notifications on a public 404.
+    const bookingRedirect = await getBookingRedirectForMissingRequest(requestId);
+    if (bookingRedirect) redirect(bookingRedirect);
+
     const missingViewerRole = await viewerRoleForRequest(requestId);
     if (missingViewerRole === "guide") redirect("/guide/inbox");
     if (missingViewerRole === "owner") redirect("/trips");
