@@ -30,6 +30,12 @@ async function getAuthorizedUser() {
     throw new Error("Требуется авторизация.");
   }
 
+  // #35: suspended/archived users must not post messages. RLS (messages_insert)
+  // is the boundary; this returns a friendly error instead of a raw RLS failure.
+  if (auth.accountStatus && auth.accountStatus !== "active") {
+    throw new Error("Аккаунт ограничен. Отправка сообщений недоступна.");
+  }
+
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
