@@ -271,6 +271,11 @@ function PublicDetailBranch({
 }) {
   const price = formatPublicPrice(viewModel.pricePerPersonRub);
   const hasAbout = viewModel.notes.trim().length > 0;
+  // Joined members (and the owner, via OwnerDetailBranch) get the full trip
+  // brief below; anonymous/prospective viewers keep the teaser hero lead only.
+  const isMember = viewModel.joinState === "member";
+  const themes = viewModel.themes;
+  const showTripDetails = isMember && (hasAbout || themes.length > 0);
 
   return (
     <>
@@ -279,7 +284,7 @@ function PublicDetailBranch({
         imageUrl={viewModel.cityImageUrl}
         breadcrumb={buildRequestDetailBreadcrumb(viewModel.regionLabel, viewModel.title)}
         title={viewModel.title}
-        intro={hasAbout ? viewModel.notes : undefined}
+        intro={hasAbout && !isMember ? viewModel.notes : undefined}
       >
         <TripPanel
           dateLabel={viewModel.dateLabel}
@@ -305,6 +310,31 @@ function PublicDetailBranch({
       </ImmersiveHero>
 
       <div className="mx-auto w-full max-w-page px-5 pb-32 md:px-8">
+        {/* О поездке — full brief for joined members (owner sees it via RequestFactsCard) */}
+        {showTripDetails ? (
+          <section className="flex flex-col gap-4 pt-[54px]">
+            <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">
+              О поездке
+            </div>
+            <div className="space-y-4 rounded-[16px] border border-border bg-surface-lowest p-6">
+              {themes.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {themes.map((slug) => (
+                    <Tag key={slug} color="primary">
+                      {INTEREST_LABEL_BY_ID[slug] ?? slug}
+                    </Tag>
+                  ))}
+                </div>
+              ) : null}
+              {hasAbout ? (
+                <p className="max-w-[70ch] whitespace-pre-line text-[14.5px] leading-[1.6] text-on-surface">
+                  {viewModel.notes}
+                </p>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
         {/* Кто едет — preserve member social proof */}
         <section className="flex flex-col gap-4 pt-[54px]">
           <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">Кто едет</div>

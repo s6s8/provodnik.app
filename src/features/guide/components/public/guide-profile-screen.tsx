@@ -111,18 +111,18 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                 width={256}
                 height={256}
                 priority
-                className="mb-5 size-28 rounded-full border border-line object-cover object-top md:size-32"
+                className="mb-5 size-28 self-center rounded-full border border-line object-cover object-top md:size-32"
               />
             ) : null}
             {isVerified ? (
-              <span className="mb-4 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-success">
+              <span className="mb-4 inline-flex items-center gap-1.5 self-center text-[13.5px] font-semibold text-success">
                 <BadgeCheck className="size-4 text-success" strokeWidth={2.3} />
                 Проверен
               </span>
             ) : null}
 
             {hasStats ? (
-              <div className="flex flex-wrap items-center justify-start gap-[9px] text-[13.5px] text-on-surface-muted">
+              <div className="flex flex-wrap items-center justify-center gap-[9px] self-center text-[13.5px] text-on-surface-muted">
                 {showRating ? (
                   <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
                     <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
