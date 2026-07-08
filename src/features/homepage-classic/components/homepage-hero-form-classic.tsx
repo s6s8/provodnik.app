@@ -6,8 +6,10 @@ import type { DestinationOption } from "@/data/supabase/queries";
 
 import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
 
-const HERO_IMAGE =
-  "https://yjzpshutgmhxizosbeef.supabase.co/storage/v1/object/public/listing-media/site/hero-provodnik.png";
+// Served from /public (version-controlled) instead of a Supabase Storage object
+// that returned HTTP 400 because it was never uploaded. Swap for a branded
+// /hero-provodnik.png once that asset is committed.
+const HERO_IMAGE = "/hero-valley.jpg";
 
 interface Props {
   destinations: DestinationOption[];

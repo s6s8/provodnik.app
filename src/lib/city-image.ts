@@ -46,37 +46,15 @@ export function brandGradient(seed = "provodnik"): string {
 }
 
 /**
- * Curated, real, ON-PLACE photography per destination — the "replace the
- * gradient with a real city photo" the product always wanted. Foreign stock is
- * banned (a Moscow/alpine shot for a Kalmykia city was a truth + brand bug); only
- * verified-correct local imagery goes here. Keys are normalized (lowercase, ru-RU)
- * and matched by substring, so "Элиста" and "Элиста, Калмыкия" both resolve.
- */
-const SUPABASE_CITY_BASE =
-  "https://yjzpshutgmhxizosbeef.supabase.co/storage/v1/object/public/listing-media/site/cities";
-
-const CURATED_CITY_IMAGES: Record<string, string> = {
-  // Branded architectural-typography city plates (the city name built from its
-  // own landmarks), hosted in Supabase Storage (listing-media/site/cities).
-  "москва": `${SUPABASE_CITY_BASE}/moscow.png`,
-  "элиста": `${SUPABASE_CITY_BASE}/elista.png`,
-  "казань": `${SUPABASE_CITY_BASE}/kazan.png`,
-  "сочи": `${SUPABASE_CITY_BASE}/sochi.png`,
-};
-
-function normalizeCity(s: string): string {
-  return s.trim().toLocaleLowerCase("ru-RU");
-}
-
-/**
- * Backdrop for request heroes/cards, keyed by a destination name. Returns
- * curated real photography for known cities; otherwise an on-canon branded
- * gradient (never foreign stock).
+ * Backdrop for request heroes/cards, keyed by a destination name. Returns an
+ * on-canon branded gradient (never foreign stock).
+ *
+ * The former curated map pointed at Supabase Storage objects
+ * (listing-media/site/cities/*.png) that do not exist — every hit returned
+ * HTTP 400. Until branded city plates are committed to /public, the gradient
+ * is the correct, dependency-free backdrop; add a `/cities/<slug>.png` lookup
+ * here once those assets land.
  */
 export function cityImage(destination: string): string {
-  const key = normalizeCity(destination);
-  for (const [city, url] of Object.entries(CURATED_CITY_IMAGES)) {
-    if (key.includes(city)) return url;
-  }
   return brandGradient(destination);
 }
