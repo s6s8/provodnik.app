@@ -13,7 +13,9 @@ type AdminNavCounts = {
 
 const countKeyByHref: Record<string, keyof AdminNavCounts> = {
   "/admin/guides": "guides",
-  "/admin/listings": "listings",
+  // #43/#47: pending-listing count now rides the Moderation entry (the listings
+  // queue merged into the Moderation center).
+  "/admin/moderation": "listings",
 };
 
 function NavLink({

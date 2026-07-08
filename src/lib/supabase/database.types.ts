@@ -262,6 +262,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_open_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_traveler_id_fkey"
             columns: ["traveler_id"]
             isOneToOne: false
@@ -371,6 +378,13 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "conversation_threads_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_open_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -778,6 +792,76 @@ export type Database = {
           },
         ]
       }
+      guide_availability_events: {
+        Row: {
+          actor_id: string
+          actor_role: string
+          available: boolean
+          created_at: string
+          guide_id: string
+          id: string
+        }
+        Insert: {
+          actor_id: string
+          actor_role: string
+          available: boolean
+          created_at?: string
+          guide_id: string
+          id?: string
+        }
+        Update: {
+          actor_id?: string
+          actor_role?: string
+          available?: boolean
+          created_at?: string
+          guide_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_availability_events_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_availability_events_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_events_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_search_result_row"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_events_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "public_guide_stats"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_events_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_dashboard_kpi"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_events_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_public_profile"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       guide_documents: {
         Row: {
           admin_note: string | null
@@ -1037,6 +1121,13 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_open_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -2399,6 +2490,13 @@ export type Database = {
             referencedRelation: "traveler_requests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "marketplace_events_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_open_requests"
+            referencedColumns: ["id"]
+          },
         ]
       }
       messages: {
@@ -2758,6 +2856,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "open_request_members_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_open_requests"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "open_request_members_traveler_id_fkey"
             columns: ["traveler_id"]
             isOneToOne: false
@@ -3072,6 +3177,13 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "traveler_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "request_views_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_open_requests"
             referencedColumns: ["id"]
           },
         ]
@@ -3437,6 +3549,7 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           document_country: string | null
+          guide_type: string | null
           headline: string | null
           inn: string | null
           is_available: boolean | null
@@ -3477,6 +3590,7 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           document_country?: string | null
+          guide_type?: string | null
           headline?: string | null
           inn?: string | null
           is_available?: boolean | null
@@ -3517,6 +3631,7 @@ export type Database = {
           created_at?: string | null
           display_name?: string | null
           document_country?: string | null
+          guide_type?: string | null
           headline?: string | null
           inn?: string | null
           is_available?: boolean | null
@@ -3731,6 +3846,78 @@ export type Database = {
         }
         Relationships: []
       }
+      v_public_open_requests: {
+        Row: {
+          budget_minor: number | null
+          created_at: string | null
+          currency: string | null
+          date_flexibility: string | null
+          date_locked: boolean | null
+          destination: string | null
+          end_time: string | null
+          ends_on: string | null
+          format_preference: string | null
+          group_capacity: number | null
+          id: string | null
+          interests: string[] | null
+          notes: string | null
+          open_to_join: boolean | null
+          participants_count: number | null
+          region: string | null
+          requested_languages: string[] | null
+          start_time: string | null
+          starts_on: string | null
+          status: Database["public"]["Enums"]["request_status"] | null
+          time_locked: boolean | null
+        }
+        Insert: {
+          budget_minor?: number | null
+          created_at?: string | null
+          currency?: string | null
+          date_flexibility?: string | null
+          date_locked?: boolean | null
+          destination?: string | null
+          end_time?: string | null
+          ends_on?: string | null
+          format_preference?: string | null
+          group_capacity?: number | null
+          id?: string | null
+          interests?: string[] | null
+          notes?: never
+          open_to_join?: boolean | null
+          participants_count?: number | null
+          region?: string | null
+          requested_languages?: string[] | null
+          start_time?: string | null
+          starts_on?: string | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          time_locked?: boolean | null
+        }
+        Update: {
+          budget_minor?: number | null
+          created_at?: string | null
+          currency?: string | null
+          date_flexibility?: string | null
+          date_locked?: boolean | null
+          destination?: string | null
+          end_time?: string | null
+          ends_on?: string | null
+          format_preference?: string | null
+          group_capacity?: number | null
+          id?: string | null
+          interests?: string[] | null
+          notes?: never
+          open_to_join?: boolean | null
+          participants_count?: number | null
+          region?: string | null
+          requested_languages?: string[] | null
+          start_time?: string | null
+          starts_on?: string | null
+          status?: Database["public"]["Enums"]["request_status"] | null
+          time_locked?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_offer: { Args: { p_offer_id: string }; Returns: string }
@@ -3742,6 +3929,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      assert_active_account: { Args: never; Returns: undefined }
       can_access_booking_thread: {
         Args: { target_booking_id: string; target_user_id?: string }
         Returns: boolean
@@ -3839,6 +4027,24 @@ export type Database = {
           request_id: string
         }[]
       }
+      get_public_guide_by_slug: {
+        Args: { p_slugs: string[] }
+        Returns: {
+          avatar_url: string
+          base_city: string
+          bio: string
+          full_name: string
+          is_available: boolean
+          languages: string[]
+          regions: string[]
+          slug: string
+          specializations: string[]
+          specialties: string[]
+          user_id: string
+          verification_status: string
+          years_experience: number
+        }[]
+      }
       get_traveler_booking_guide_display_profiles: {
         Args: never
         Returns: {
@@ -3855,6 +4061,7 @@ export type Database = {
       is_admin: { Args: never; Returns: boolean }
       is_guide: { Args: never; Returns: boolean }
       is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
+      mask_public_contact_info: { Args: { p_text: string }; Returns: string }
       open_dispute: {
         Args: { p_booking_id: string; p_reason: string }
         Returns: string
@@ -3899,6 +4106,7 @@ export type Database = {
           created_at: string | null
           display_name: string | null
           document_country: string | null
+          guide_type: string | null
           headline: string | null
           inn: string | null
           is_available: boolean | null

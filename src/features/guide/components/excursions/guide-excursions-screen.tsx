@@ -252,7 +252,7 @@ export function GuideExcursionsScreen() {
         className="mb-6"
         actions={
           <Button onClick={openCreateSheet}>
-            <Plus className="size-4" /> Создать экскурсию
+            <Plus className="size-4" /> Добавить экскурсию
           </Button>
         }
       />
@@ -297,11 +297,6 @@ export function GuideExcursionsScreen() {
           icon={<BookOpen />}
           title="Экскурсий пока нет"
           description="Добавьте первую экскурсию, чтобы откликаться на запросы путешественников."
-          action={
-            <Button variant="outline" onClick={openCreateSheet}>
-              <Plus className="size-4" /> Добавить экскурсию
-            </Button>
-          }
         />
       ) : (
         <div className="space-y-2">
@@ -353,7 +348,7 @@ export function GuideExcursionsScreen() {
               Заполните маршрут, стоимость и фото, чтобы сохранить экскурсию в кабинете гида.
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-5 space-y-4 px-4">
+          <div className="mt-5 flex-1 min-h-0 space-y-4 overflow-y-auto px-4">
             <div>
               <Label htmlFor="tpl-title">
                 Название <span className="text-destructive">*</span>
@@ -560,7 +555,7 @@ export function GuideExcursionsScreen() {
             </div>
             {tplError && <p className="text-xs text-destructive">{tplError}</p>}
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-3 px-4 pb-4">
+          <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border px-4 pb-4 pt-4">
             <button
               type="button"
               onClick={() => setSheetOpen(false)}

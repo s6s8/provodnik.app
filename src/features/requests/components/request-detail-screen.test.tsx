@@ -310,6 +310,32 @@ describe("RequestDetailScreen", () => {
     expect(screen.queryByText(/О маршруте/i)).not.toBeInTheDocument();
   });
 
+  it("shows the О поездке brief (notes + interests) to a joined member but not to prospective joiners", () => {
+    const { rerender } = render(
+      <RequestDetailScreen
+        viewerRole="public"
+        requestId="request-1"
+        viewModel={{ ...publicViewModel, joinState: "member" }}
+      />,
+    );
+
+    // Joined member sees the full trip brief with the request notes rendered.
+    expect(screen.getByText("О поездке")).toBeInTheDocument();
+    expect(
+      screen.getByText("Едем небольшой компанией по Калмыкии."),
+    ).toBeInTheDocument();
+
+    // A prospective joiner (logged-in, not yet in the group) does not.
+    rerender(
+      <RequestDetailScreen
+        viewerRole="public"
+        requestId="request-1"
+        viewModel={{ ...publicViewModel, joinState: "can-join" }}
+      />,
+    );
+    expect(screen.queryByText("О поездке")).not.toBeInTheDocument();
+  });
+
   it("renders the canon RequestFactsCard above the offer list with no rainbow badges", () => {
     const { container } = render(
       <RequestDetailScreen
