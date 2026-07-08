@@ -41,11 +41,13 @@ async function fetchThreads() {
 interface ConversationListProps {
   initialThreads: UserThreadSummary[];
   error?: boolean;
+  viewerRole?: string | null;
 }
 
 export function ConversationList({
   initialThreads,
   error: serverError = false,
+  viewerRole = null,
 }: ConversationListProps) {
   const { data: threads = initialThreads, isError } = useQuery({
     queryKey: ["message-threads"],
@@ -63,15 +65,22 @@ export function ConversationList({
       );
     }
 
+    const isGuide = viewerRole === "guide";
     return (
       <EmptyState
         icon={<MessageSquare />}
         title="Пока нет сообщений"
-        description="Здесь появятся переписки с гидами."
+        description={
+          isGuide
+            ? "Здесь появятся переписки с путешественниками."
+            : "Здесь появятся переписки с гидами."
+        }
         action={
-          <Button asChild>
-            <Link href="/listings">Найти тур</Link>
-          </Button>
+          isGuide ? undefined : (
+            <Button asChild>
+              <Link href="/listings">Найти тур</Link>
+            </Button>
+          )
         }
       />
     );

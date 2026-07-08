@@ -232,4 +232,46 @@ describe('getConfirmedBookings', () => {
       booking_thread_id: 'thread-1',
     })
   })
+
+  it('falls back to a readable title (never a lone em-dash) when the request row is missing', async () => {
+    const bookingsQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'booking-2',
+          offer_id: 'offer-2',
+          request_id: 'request-gone',
+          subtotal_minor: 150000,
+          currency: 'RUB',
+          guide_id: 'guide-1',
+          created_at: '2026-06-08T10:00:00Z',
+        }],
+        error: null,
+      }),
+    }
+    const requestsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({ data: [], error: null }), // request row unreadable/gone
+    }
+    const threadsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingsQuery
+      if (table === 'traveler_requests') return requestsQuery
+      if (table === 'conversation_threads') return threadsQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    const rpc = vi.fn().mockResolvedValue({ data: [], error: null })
+
+    createSupabaseServerClient.mockResolvedValue({ from, rpc })
+
+    const [booking] = await getConfirmedBookings('traveler-confirmed-2')
+
+    expect(booking.destination).toBe('Поездка')
+    expect(booking.destination).not.toBe('—')
+  })
 })

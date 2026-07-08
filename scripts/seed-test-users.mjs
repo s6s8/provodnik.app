@@ -25,7 +25,9 @@ const supa = createClient(url, key, { auth: { autoRefreshToken: false, persistSe
 
 const accounts = [
   { role: 'admin',    email: 'qa-admin@example.com',    fullName: 'QA Admin' },
-  { role: 'guide',    email: 'qa-guide@example.com',    fullName: 'QA Guide' },
+  // Placeholder phone (never a real number) so /bookings/[id] can demonstrate the
+  // off-platform contact reveal for the confirmed-booking QA path.
+  { role: 'guide',    email: 'qa-guide@example.com',    fullName: 'QA Guide', phone: '+7 900 000-00-00' },
   { role: 'traveler', email: 'qa-traveler@example.com', fullName: 'QA Traveler' }
 ];
 
@@ -56,7 +58,8 @@ for (const acct of accounts) {
     id: userId,
     email: acct.email,
     full_name: acct.fullName,
-    role: acct.role
+    role: acct.role,
+    ...(acct.phone ? { phone: acct.phone } : {})
   }, { onConflict: 'id' });
   if (profErr) throw new Error(`profile upsert ${acct.role}: ${profErr.message}`);
 

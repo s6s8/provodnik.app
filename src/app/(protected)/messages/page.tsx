@@ -37,7 +37,11 @@ export default async function MessagesPage() {
   return (
     <section className="grid gap-6">
       <PageHeader eyebrow="Кабинет" title="Сообщения" />
-      <ConversationList initialThreads={threads} error={loadError} />
+      <ConversationList
+        initialThreads={threads}
+        error={loadError}
+        viewerRole={auth.role}
+      />
     </section>
   );
 }

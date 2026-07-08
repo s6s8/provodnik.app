@@ -40,6 +40,7 @@ const SUBJECT_FILTERS = {
   guide_profile: "Гиды",
   listing: "Объявления",
   review: "Отзывы",
+  availability: "Доступность",
 } as const;
 
 const ACTION_FILTERS = {
@@ -125,6 +126,10 @@ export default async function AdminAuditPage({
   const includeListingEvents =
     (activeSubject === ALL || activeSubject === "listing") &&
     activeAction === ALL;
+  // guide_availability_events have no decision either; they are their own subject.
+  const includeAvailabilityEvents =
+    (activeSubject === ALL || activeSubject === "availability") &&
+    activeAction === ALL;
 
   const actionsPromise = runActions
     ? (() => {
@@ -174,13 +179,27 @@ export default async function AdminAuditPage({
       })()
     : Promise.resolve({ data: [] as const });
 
-  const [actionsResult, listingEventsResult] = await Promise.all([
-    actionsPromise,
-    listingEventsPromise,
-  ]);
+  const availabilityEventsPromise = includeAvailabilityEvents
+    ? adminClient
+        .from("guide_availability_events")
+        .select(
+          `id, created_at, available, guide_id, actor_id,
+           actor:profiles!guide_availability_events_actor_id_fkey(full_name, email)`,
+        )
+        .order("created_at", { ascending: false })
+        .range(offset, offset + PAGE_SIZE - 1)
+    : Promise.resolve({ data: [] as const });
+
+  const [actionsResult, listingEventsResult, availabilityEventsResult] =
+    await Promise.all([
+      actionsPromise,
+      listingEventsPromise,
+      availabilityEventsPromise,
+    ]);
 
   const actionsRows = actionsResult.data ?? [];
   const listingRows = listingEventsResult.data ?? [];
+  const availabilityRows = availabilityEventsResult.data ?? [];
 
   const entries: AuditEntry[] = [];
 
@@ -236,11 +255,27 @@ export default async function AdminAuditPage({
     });
   }
 
+  for (const row of availabilityRows) {
+    if (!row.created_at) continue;
+    const actorRow = first(row.actor);
+    entries.push({
+      id: `gae-${row.id}`,
+      createdAt: row.created_at,
+      adminLabel: profileDisplay(actorRow, row.actor_id),
+      actionLabel: row.available ? "Приём возобновлён" : "Приём приостановлен",
+      subjectLabel: "Доступность гида",
+      subjectHref: `/admin/guides/${row.guide_id}`,
+      note: null,
+    });
+  }
+
   entries.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 
   const hasPrev = page > 1;
   const hasNext =
-    actionsRows.length === PAGE_SIZE || listingRows.length === PAGE_SIZE;
+    actionsRows.length === PAGE_SIZE ||
+    listingRows.length === PAGE_SIZE ||
+    availabilityRows.length === PAGE_SIZE;
 
   function pageHref(targetPage: number) {
     const params = new URLSearchParams();

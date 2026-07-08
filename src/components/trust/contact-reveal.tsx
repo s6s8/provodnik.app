@@ -12,11 +12,13 @@ type ContactRevealProps = {
   guide: { name: string; avatarUrl?: string; verified?: boolean };
   contact?: { phone?: string; telegram?: string };
   bookingStatus: "pending" | "confirmed" | "completed";
+  /** true only when the contact fetch actually errored (not merely empty). */
+  contactError?: boolean;
   className?: string;
 };
 
 /** Guide identity always shown; contact details gated by booking status. */
-export function ContactReveal({ guide, contact, bookingStatus, className }: ContactRevealProps) {
+export function ContactReveal({ guide, contact, bookingStatus, contactError, className }: ContactRevealProps) {
   const revealed = bookingStatus === "confirmed" || bookingStatus === "completed";
   const hasContact = Boolean(contact?.phone || contact?.telegram);
 
@@ -71,10 +73,17 @@ export function ContactReveal({ guide, contact, bookingStatus, className }: Cont
       ) : null}
 
       {revealed && !hasContact ? (
-        <Alert variant="destructive">
-          <TriangleAlert />
-          <AlertDescription>Не удалось загрузить контакты</AlertDescription>
-        </Alert>
+        contactError ? (
+          <Alert variant="destructive">
+            <TriangleAlert />
+            <AlertDescription>Не удалось загрузить контакты</AlertDescription>
+          </Alert>
+        ) : (
+          <Alert variant="info">
+            <Phone />
+            <AlertDescription>Гид ещё не указал контакты</AlertDescription>
+          </Alert>
+        )
       ) : null}
     </div>
   );

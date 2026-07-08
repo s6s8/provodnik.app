@@ -236,7 +236,10 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
     return {
       booking_id: b.id,
       request_id: b.request_id ?? b.id,
-      destination: req?.destination ?? '—',
+      // Never a lone em-dash: the card now shows guide/date/price, so a
+      // title-only fallback stays a readable card even when the request row
+      // is gone/unreadable (request_id is always set on offer-created bookings).
+      destination: req?.destination ?? 'Поездка',
       starts_on: req?.starts_on ?? '',
       price_minor: b.subtotal_minor ?? 0,
       currency: b.currency ?? 'RUB',

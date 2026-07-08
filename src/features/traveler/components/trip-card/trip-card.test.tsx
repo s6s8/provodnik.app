@@ -325,4 +325,35 @@ describe("TripCard", () => {
     );
     expect(screen.getByText("Ваш отзыв · 5")).toBeInTheDocument();
   });
+
+  it("renders destination, guide name, and price for an upcoming booking WITHOUT routeStops", () => {
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{
+          ...baseTrip,
+          destination: "Казань",
+          guideName: "QA Guide",
+          price: { amount: 1_000_000, currency: "RUB" }, // 10 000 ₽ in minor units
+          // NOTE: no routeStops — the exact shape getConfirmedBookings returns.
+        }}
+      />,
+    );
+    expect(screen.getByRole("heading", { name: "Казань" })).toBeInTheDocument();
+    expect(screen.getByText("QA Guide")).toBeInTheDocument();
+    expect(screen.getByText(/10\s?000\s?₽/)).toBeInTheDocument();
+    expect(screen.getByText(/Написать гиду/)).toBeInTheDocument();
+  });
+
+  it("never renders a lone em-dash title for a booking with a destination", () => {
+    render(
+      <TripCard
+        phase="upcoming"
+        trip={{ ...baseTrip, destination: "Казань", guideName: "QA Guide" }}
+      />,
+    );
+    expect(
+      screen.queryByRole("heading", { name: "—" }),
+    ).not.toBeInTheDocument();
+  });
 });

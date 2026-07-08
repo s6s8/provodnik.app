@@ -32,14 +32,18 @@ describe("brandGradient", () => {
 });
 
 describe("cityImage", () => {
-  it("returns curated real on-place city imagery for known cities", () => {
-    const result = cityImage("Элиста");
+  it("does not point curated cities at the broken Supabase listing-media host", () => {
+    const url = cityImage("Казань");
+    expect(url).not.toContain(
+      "supabase.co/storage/v1/object/public/listing-media/site/cities",
+    );
+  });
 
-    // Curated branded city plate hosted in Supabase Storage — a real, correct
-    // local image, not a gradient and not foreign stock.
-    expect(result).not.toMatch(/^data:image\/svg/);
-    expect(result).toContain("/site/cities/elista.png");
-    expect(result).not.toContain("unsplash.com");
+  it("returns a local static path or an inline gradient for a curated city", () => {
+    const url = cityImage("Казань");
+    expect(
+      url.startsWith("/cities/") || url.startsWith("data:image/svg"),
+    ).toBe(true);
   });
 
   it("falls back to an on-canon SVG gradient for cities without curated imagery", () => {
