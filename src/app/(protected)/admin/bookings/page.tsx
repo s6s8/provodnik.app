@@ -15,18 +15,9 @@ import { formatRussianDateTime } from "@/lib/dates";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 
 import { confirmPaymentAction } from "./actions";
+import { STATUS_LABELS } from "./status-labels";
 
 export const metadata = { title: "Бронирования" };
-
-const STATUS_LABELS: Record<string, string> = {
-  pending: "В ожидании",
-  awaiting_guide_confirmation: "Ожидает подтверждения",
-  confirmed: "Подтверждено",
-  cancelled: "Отменено",
-  completed: "Завершено",
-  disputed: "Спор",
-  no_show: "Не явился",
-};
 
 const ALL_STATUSES = "all";
 
@@ -138,6 +129,7 @@ export default async function BookingsPage({
             return (
               <ListRow
                 key={booking.id}
+                href={`/admin/bookings/${booking.id}`}
                 title={`#${booking.id.slice(-8)}`}
                 subtitle={
                   <>
