@@ -329,11 +329,14 @@ export default async function RequestDetailPage({
   const result = await getRequestDetail(requestId);
 
   if (!result.data) {
-    // A guide following an inbox "Подробнее" link to a request that is gone
-    // (withdrawn, deleted, or otherwise unreadable) should land back in their
-    // own inbox, not on the public "Запрос не найден" 404.
+    // The request is gone (withdrawn, deleted, or unreadable). A guide following
+    // an inbox "Подробнее" link lands back in their inbox; an owner/traveler who
+    // followed a stale "Новое предложение" notification lands in their trips
+    // cabinet — never the public "Запрос не найден" 404. Anonymous/unrelated
+    // visitors still get the correct notFound().
     const missingViewerRole = await viewerRoleForRequest(requestId);
     if (missingViewerRole === "guide") redirect("/guide/inbox");
+    if (missingViewerRole === "owner") redirect("/trips");
     notFound();
   }
 

@@ -214,6 +214,22 @@ describe("RequestDetailPage", () => {
 
     expect(redirect).toHaveBeenCalledWith("/guide/inbox");
   });
+
+  it("redirects an owner/traveler to /trips instead of a public 404 for a missing request", async () => {
+    createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
+    getRequestById.mockResolvedValue({ data: null });
+    hasSupabaseEnv.mockReturnValue(false);
+    viewerRoleForRequest.mockResolvedValueOnce("owner");
+
+    await expect(
+      RequestDetailPage({
+        params: Promise.resolve({ requestId: "gone-request" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/trips");
+
+    expect(redirect).toHaveBeenCalledWith("/trips");
+  });
 });
 
 const ownerConfirmViewModel: PublicRequestDetailViewModel = {
