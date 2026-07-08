@@ -1,0 +1,257 @@
+{
+  "generated_at": "2026-07-08",
+  "author": "opus",
+  "mode": "read-only-planning",
+  "base_ref": "2fbeae2c",
+  "branch": "plan/open-issues-33-47-20260708",
+  "product_code_touched": false,
+  "db_mutated": false,
+  "pushed": false,
+  "deliverables": [
+    "docs/qa/open-issues-20260708/OPUS_PLAN.md",
+    "docs/qa/open-issues-20260708/PLAN_STATUS.json"
+  ],
+  "trio": {
+    "superpowers": "brainstorming + root-cause discipline before fixes",
+    "ponytail": "smallest-diff recommendation per issue (reuse existing enum/RLS/components)",
+    "context7": "not required this run (no third-party library API surface)"
+  },
+  "priority_order": [35, 33, 45, 46, 41, 43, 47, 42, 44],
+  "issues": [
+    {
+      "id": 33,
+      "title": "Public guide profile centering",
+      "nature": "pure-css",
+      "effort": "XS",
+      "risk": "none",
+      "phase": 1,
+      "root_cause": "wrapper items-start/text-left governs all children; center avatar+badge+region per-element",
+      "files": [
+        "src/features/guide/components/public/guide-profile-screen.tsx"
+      ],
+      "db": false,
+      "needs_owner_decision": false,
+      "decision_ids": ["D-2"],
+      "live_verified": true,
+      "blocked": false
+    },
+    {
+      "id": 35,
+      "title": "Suspended user restrictions incomplete",
+      "nature": "security-rls-plus-ux",
+      "effort": "M",
+      "risk": "medium",
+      "phase": 3,
+      "root_cause": "core enforcement already shipped in DB post-report (assert_active_account + RLS on 5 RPCs/3 tables); remaining = untouched write policies + no app UX + prod-application unverified",
+      "files": [
+        "supabase/migrations/NEW_enforce_active_account_remaining_writes.sql",
+        "src/proxy.ts",
+        "src/lib/auth/server-auth.ts",
+        "src/lib/supabase/conversations.ts",
+        "src/lib/supabase/listings.ts"
+      ],
+      "db": true,
+      "migration_style": "targeted-sql-plus-ledger-repair-NO-db-push",
+      "already_shipped_migrations": [
+        "20260702143000_enforce_active_account_for_guide_offers.sql",
+        "20260706093000_enforce_active_traveler_request_mutations.sql",
+        "20260706120000_enforce_active_account_write_rpcs.sql"
+      ],
+      "remaining_ungated_policies": [
+        "bookings_update",
+        "messages_insert",
+        "dispute_events_insert",
+        "traveler_requests_update",
+        "listings_insert",
+        "listings_update",
+        "review_replies_insert",
+        "review_replies_update",
+        "guide_profiles_write",
+        "guide_documents_write",
+        "guide_licenses_write",
+        "favorites_write",
+        "referral_write",
+        "partner_accounts_write",
+        "profiles_update"
+      ],
+      "needs_owner_decision": false,
+      "decision_ids": ["D-3"],
+      "prod_verification_required": true,
+      "live_verified": false,
+      "live_note": "example request URL now 404s; cannot reproduce live, code/RLS audit stands",
+      "blocked": false
+    },
+    {
+      "id": 41,
+      "title": "Joined open group request detail lacks excursion details",
+      "nature": "render-gap",
+      "effort": "S",
+      "risk": "low",
+      "phase": 2,
+      "root_cause": "no 'member' viewer role; joined traveler -> PublicDetailBranch which never renders viewModel.notes (full) or viewModel.themes",
+      "files": [
+        "src/features/requests/components/request-detail-screen.tsx",
+        "src/app/(site)/requests/[requestId]/page.tsx",
+        "src/lib/auth/viewer-role-for-request.ts"
+      ],
+      "db": false,
+      "needs_owner_decision": true,
+      "decision_ids": ["B-4"],
+      "live_verified": true,
+      "blocked": false
+    },
+    {
+      "id": 42,
+      "title": "Open group request forum-style shared discussion",
+      "nature": "feature-rls",
+      "effort": "M-L",
+      "risk": "medium",
+      "phase": 5,
+      "root_cause": "request-subject thread already scaffolded in schema (enum+table+RLS fn) but unused by app; can_access_request_thread excludes joined members; no UI; no request-thread write path",
+      "files": [
+        "supabase/migrations/NEW_group_request_thread_rls.sql",
+        "src/lib/supabase/conversations.ts",
+        "src/lib/supabase/request-members.ts",
+        "src/features/requests/components/request-detail-screen.tsx",
+        "src/app/(site)/requests/[requestId]/page.tsx"
+      ],
+      "db": true,
+      "recommended_approach": "E1-single-shared-request-thread",
+      "needs_owner_decision": true,
+      "decision_ids": ["B-1"],
+      "live_verified": true,
+      "blocked": true,
+      "blocked_on": "B-1"
+    },
+    {
+      "id": 43,
+      "title": "Admin Listings purpose unclear",
+      "nature": "admin-naming-overlap",
+      "effort": "S",
+      "risk": "low",
+      "phase": 4,
+      "root_cause": "listings page is a pending_review moderation queue, near-duplicate of moderation page's Объявления tab",
+      "files": [
+        "src/app/(protected)/admin/listings/page.tsx",
+        "src/app/(protected)/admin/moderation/page.tsx",
+        "src/lib/navigation.ts",
+        "src/app/(protected)/admin/admin-sidebar-nav.tsx"
+      ],
+      "db": false,
+      "recommended_approach": "F1-merge-into-moderation",
+      "needs_owner_decision": true,
+      "decision_ids": ["B-2"],
+      "live_verified": false,
+      "live_note": "auth-gated; redirect to /auth",
+      "blocked": true,
+      "blocked_on": "B-2"
+    },
+    {
+      "id": 44,
+      "title": "Admin Bookings incomplete status coverage",
+      "nature": "admin-new-surface",
+      "effort": "M",
+      "risk": "medium",
+      "phase": 4,
+      "root_cause": "bookings filter already shows all statuses; pre-booking lifecycle lives in traveler_requests/guide_offers, never enters bookings table",
+      "files": [
+        "src/app/(protected)/admin/bookings/page.tsx",
+        "src/lib/navigation.ts"
+      ],
+      "db": false,
+      "recommended_approach": "G1-separate-pipeline-tab",
+      "needs_owner_decision": true,
+      "decision_ids": ["B-3"],
+      "live_verified": false,
+      "live_note": "auth-gated; redirect to /auth",
+      "blocked": true,
+      "blocked_on": "B-3"
+    },
+    {
+      "id": 45,
+      "title": "Duplicate guide listing buttons",
+      "nature": "pure-ui",
+      "effort": "XS",
+      "risk": "none",
+      "phase": 1,
+      "root_cause": "header 'Создать экскурсию' (always-visible, blue) and empty-state 'Добавить экскурсию' (outline) both call openCreateSheet; removing wrong one leaves populated state without add button",
+      "files": [
+        "src/features/guide/components/excursions/guide-excursions-screen.tsx"
+      ],
+      "db": false,
+      "needs_owner_decision": false,
+      "decision_ids": ["D-1"],
+      "live_verified": false,
+      "live_note": "auth-gated; code-confirmed",
+      "blocked": false
+    },
+    {
+      "id": 46,
+      "title": "Guide listing save button hidden below viewport",
+      "nature": "pure-ui",
+      "effort": "XS",
+      "risk": "low",
+      "phase": 1,
+      "root_cause": "SheetContent is flex-col h-full but body div is not a scroll region; footer overflows off-screen",
+      "files": [
+        "src/features/guide/components/excursions/guide-excursions-screen.tsx"
+      ],
+      "db": false,
+      "needs_owner_decision": false,
+      "decision_ids": [],
+      "live_verified": false,
+      "live_note": "auth-gated; code-confirmed",
+      "blocked": false
+    },
+    {
+      "id": 47,
+      "title": "Admin Moderation purpose unclear",
+      "nature": "admin-naming-overlap",
+      "effort": "S",
+      "risk": "low",
+      "phase": 4,
+      "root_cause": "moderation page overlaps listings (same pending_review dataset); unique content is review-replies queue",
+      "files": [
+        "src/app/(protected)/admin/moderation/page.tsx",
+        "src/app/(protected)/admin/listings/page.tsx",
+        "src/lib/navigation.ts"
+      ],
+      "db": false,
+      "recommended_approach": "F1-merge-into-moderation",
+      "needs_owner_decision": true,
+      "decision_ids": ["B-2"],
+      "live_verified": false,
+      "live_note": "auth-gated; code-confirmed",
+      "blocked": true,
+      "blocked_on": "B-2"
+    }
+  ],
+  "owner_decisions": {
+    "blocking": {
+      "B-1": "Issue 42 forum model: E1 single shared request thread (recommended) vs E2 mirror private per-guide offer-QA to members",
+      "B-2": "Issues 43/47: F1 merge into one Moderation center (recommended) vs F2 rename Listings + split",
+      "B-3": "Issue 44: G1 separate pipeline tab (recommended) vs G2 unified funnel view; confirm target statuses",
+      "B-4": "Issue 41: anonymous visitors see full description+interests or members-only (recommend members-only, keep anon teaser)"
+    },
+    "non_blocking_defaults": {
+      "D-1": "Issue 45 surviving button = 'Добавить экскурсию', blue, header, always visible",
+      "D-2": "Issue 33 stats row centers with identity cluster",
+      "D-3": "Issue 35 proxy blocks suspended on mutation/dashboard routes with logout+support allowlist (not full lockout)"
+    }
+  },
+  "rollout_phases": [
+    {"phase": 1, "name": "Trivial UI batch", "issues": [33, 45, 46], "db": false, "blocked": false},
+    {"phase": 2, "name": "Member trip details", "issues": [41], "db": false, "blocked": false},
+    {"phase": 3, "name": "Suspended-user hardening", "issues": [35], "db": true, "blocked": false, "prod_verify_first": true},
+    {"phase": 4, "name": "Admin clarity", "issues": [43, 47, 44], "db": false, "blocked_on": ["B-2", "B-3"]},
+    {"phase": 5, "name": "Group forum thread", "issues": [42], "db": true, "blocked_on": ["B-1"]}
+  ],
+  "key_landmines": [
+    "prod-migration-drift: verify shipped enforce_active_account migrations applied on VPS before 35 done; never db push on prod",
+    "42 RLS over-grant: can_access_request_thread already grants request_views viewer-guides; confirm audience before wiring writes",
+    "do not reuse send_qa_message for 42 (offer-only, 8-msg cap)",
+    "AP-014 client/server import boundary if splitting thread constants",
+    "most QA (33/35/41-47 auth pages) needs seeded admin/guide/traveler/suspended sessions; green build != done"
+  ],
+  "executor_status": "handoff-prompt-ready-DO-NOT-RUN-until-owner-approval"
+}
