@@ -792,6 +792,91 @@ export type Database = {
           },
         ]
       }
+      guide_availability_blocks: {
+        Row: {
+          all_day: boolean
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          end_at: string
+          guide_id: string
+          id: string
+          reason: string | null
+          source: string
+          start_at: string
+          updated_at: string
+        }
+        Insert: {
+          all_day?: boolean
+          created_at?: string
+          created_by: string
+          deleted_at?: string | null
+          end_at: string
+          guide_id: string
+          id?: string
+          reason?: string | null
+          source?: string
+          start_at: string
+          updated_at?: string
+        }
+        Update: {
+          all_day?: boolean
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          end_at?: string
+          guide_id?: string
+          id?: string
+          reason?: string | null
+          source?: string
+          start_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guide_availability_blocks_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guide_availability_blocks_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_blocks_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_search_result_row"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_blocks_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "public_guide_stats"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_blocks_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_dashboard_kpi"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "guide_availability_blocks_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_public_profile"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       guide_availability_events: {
         Row: {
           actor_id: string
@@ -4053,6 +4138,10 @@ export type Database = {
           full_name: string
           guide_id: string
         }[]
+      }
+      guide_interval_blocked: {
+        Args: { p_end: string; p_guide_id: string; p_start: string }
+        Returns: boolean
       }
       guide_offer_exists_for_counter: {
         Args: { p_guide_id: string; p_request_id: string }
