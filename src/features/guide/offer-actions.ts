@@ -99,12 +99,18 @@ export async function submitOfferAction(
     const supabaseAuth = await createSupabaseServerClient();
     const { data: guideProfile } = await supabaseAuth
       .from("guide_profiles")
-      .select("verification_status")
+      .select("verification_status, is_available")
       .eq("user_id", guideId)
       .maybeSingle();
 
     if (guideProfile?.verification_status !== "approved") {
       return { error: "Доступно после верификации" };
+    }
+    // Paused guides stop taking new work. Mirrored by RLS guide_offers_insert.
+    if (guideProfile?.is_available !== true) {
+      return {
+        error: "Приём заявок приостановлен. Возобновите его в профиле, чтобы откликаться.",
+      };
     }
 
     // Duplicate guard

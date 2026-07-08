@@ -148,6 +148,39 @@ describe("submitOfferAction", () => {
     expect(result).toEqual({ error: "Аккаунт заблокирован." });
     expect(from).not.toHaveBeenCalledWith("guide_profiles");
   });
+
+  it("rejects an approved but paused guide before submitting an offer", async () => {
+    const guideMaybeSingle = vi.fn().mockResolvedValue({
+      data: { verification_status: "approved", is_available: false },
+    });
+    const guideEq = vi.fn().mockReturnValue({ maybeSingle: guideMaybeSingle });
+    const guideSelect = vi.fn().mockReturnValue({ eq: guideEq });
+    const profileMaybeSingle = vi.fn().mockResolvedValue({ data: { account_status: "active" } });
+    const profileEq = vi.fn().mockReturnValue({ maybeSingle: profileMaybeSingle });
+    const profileSelect = vi.fn().mockReturnValue({ eq: profileEq });
+    const from = vi.fn((table: string) => {
+      if (table === "profiles") return { select: profileSelect };
+      if (table === "guide_profiles") return { select: guideSelect };
+      throw new Error(`unexpected table ${table}`);
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "guide-1" } },
+          error: null,
+        }),
+      },
+      from,
+    });
+
+    const result = await submitOfferAction("request-1", new FormData());
+
+    expect(result).toEqual({
+      error: "Приём заявок приостановлен. Возобновите его в профиле, чтобы откликаться.",
+    });
+    expect(guideSelect).toHaveBeenCalledWith("verification_status, is_available");
+  });
 });
 
 describe("withdrawOfferAction", () => {
