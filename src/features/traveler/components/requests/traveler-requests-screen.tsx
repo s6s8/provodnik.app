@@ -152,19 +152,25 @@ function RequestsCategoryTabs({
     <Tabs value={categoryTab} onValueChange={handleCategoryTabChange}>
       <TabsList className="mb-4 grid w-full grid-cols-3">
         <TabsTrigger value="active" onClick={() => setCategoryTab('active')}>
-          Активные
-          {activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
+          <span className="truncate">
+            Активные
+            {activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
+          </span>
         </TabsTrigger>
         <TabsTrigger
           value="confirmed"
           onClick={() => setCategoryTab('confirmed')}
         >
-          Подтверждённые
-          {confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
+          <span className="truncate">
+            Подтверждённые
+            {confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
+          </span>
         </TabsTrigger>
         <TabsTrigger value="joined" onClick={() => setCategoryTab('joined')}>
-          Мои группы
-          {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
+          <span className="truncate">
+            Мои группы
+            {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
+          </span>
         </TabsTrigger>
       </TabsList>
       <TabsContent value="active">

@@ -78,9 +78,9 @@ export function ImmersiveHero({
         <div className="hero-overlay absolute inset-0" />
         {grain ? <div className="hero-grain pointer-events-none absolute inset-0 z-[1]" /> : null}
 
-        <div className="relative z-[2] mx-auto flex h-full min-h-[520px] max-w-page flex-col justify-end gap-7 px-5 pb-10 md:min-h-0 md:px-8 md:pb-0">
+        <div className="relative z-[2] mx-auto flex min-h-[520px] max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-[calc(var(--nav-h)+16px)] sm:min-h-[632px] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-12 md:pt-0">
           {/* Title block — bottom-left on desktop */}
-          <div className="md:absolute md:bottom-12 md:left-8 md:max-w-[540px]">
+          <div className="min-w-0 md:max-w-[540px]">
             {breadcrumb && breadcrumb.length > 0 ? (
               <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-white/80">
                 {breadcrumb.map((item, index) => (
@@ -113,7 +113,7 @@ export function ImmersiveHero({
 
           {/* Panel slot — bottom-right on desktop, full-width stacked on mobile */}
           {children ? (
-            <div className="w-full md:absolute md:bottom-12 md:right-8 md:w-auto">{children}</div>
+            <div className="w-full md:w-auto md:shrink-0">{children}</div>
           ) : null}
         </div>
       </div>

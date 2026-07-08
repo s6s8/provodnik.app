@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { getGuideBySlug, getListingsByGuide, getGuideReviews, getGuideLocationPhotos } from "@/data/supabase/queries";
+import { isQaGuideSlug } from "@/lib/supabase/queries-core";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
 import { THEMES } from "@/data/themes";
 import { GuideProfileScreen } from "@/features/guide/components/public/guide-profile-screen";
@@ -69,6 +70,9 @@ export default async function PublicGuideProfilePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  // Seed/QA guide accounts must not be reachable in the public catalog (F-10).
+  if (isQaGuideSlug(slug)) notFound();
 
   const { guideResult, listingRecords, reviewRecords, photos } = await getGuidePageData(slug);
   if (!guideResult.data) notFound();

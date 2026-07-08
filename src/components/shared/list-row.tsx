@@ -35,7 +35,7 @@ export function ListRow({
   const inner = (
     <>
       {leading ? <div className="flex shrink-0 items-center">{leading}</div> : null}
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 basis-full sm:basis-0">
         <div className="truncate font-medium text-foreground">{title}</div>
         {subtitle ? (
           <div className="truncate text-sm text-muted-foreground">{subtitle}</div>

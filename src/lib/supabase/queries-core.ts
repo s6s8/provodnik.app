@@ -256,9 +256,17 @@ export function applyRequestFilters(requests: RequestRecord[], filters?: Request
   });
 }
 
+/** Seed/QA guide accounts use a "qa-" slug prefix and must stay out of public catalogs. */
+export const QA_GUIDE_SLUG_PREFIX = "qa-";
+
+export function isQaGuideSlug(slug: string | null | undefined): boolean {
+  return Boolean(slug && slug.toLowerCase().startsWith(QA_GUIDE_SLUG_PREFIX));
+}
+
 export function applyGuideFilters(guides: GuideRecord[], filters?: GuideFilters) {
-  if (!filters?.destination) return guides;
-  return guides.filter((guide) =>
+  const visible = guides.filter((guide) => !isQaGuideSlug(guide.slug));
+  if (!filters?.destination) return visible;
+  return visible.filter((guide) =>
     guide.destinations.some((d) => d.toLowerCase().includes(filters.destination!.toLowerCase())),
   );
 }

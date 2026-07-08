@@ -358,7 +358,7 @@ function PublicDetailBranch({
       </div>
 
       {/* Mobile sticky join bar — preserved */}
-      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-border bg-surface-lowest px-4 py-3 shadow-glass lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-border bg-surface-lowest px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-glass lg:hidden">
         <div className="shrink-0 font-display text-lg font-bold text-on-surface">
           {price}
           {viewModel.pricePerPersonRub ? (
