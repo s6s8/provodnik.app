@@ -56,13 +56,31 @@ export function ChatWindow({
       void queryClient.invalidateQueries({
         queryKey: queryKeys.messages.threads(),
       });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.unreadCount(),
+      });
 
       if (message.sender_id !== currentUserId) {
-        void markReadAction(threadId);
+        void markReadAction(threadId).then(() => {
+          void queryClient.invalidateQueries({
+            queryKey: queryKeys.messages.unreadCount(),
+          });
+        });
       }
     },
     [currentUserId, markReadAction, queryClient, threadId],
   );
+
+  useEffect(() => {
+    void markReadAction(threadId).then(() => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.unreadCount(),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.messages.threads(),
+      });
+    });
+  }, [markReadAction, queryClient, threadId]);
 
   useRealtimeMessages({
     threadId,

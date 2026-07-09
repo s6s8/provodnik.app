@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { messagesApi } from "@/lib/api/messages";
 import { hasSupabaseEnv } from "@/lib/env";
@@ -8,6 +9,7 @@ import { queryKeys } from "@/lib/query-keys";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 type UnreadCountQueryKey = ReturnType<typeof queryKeys.messages.unreadCount>;
+type UnreadCountPayload = { unreadCount: number; userId: string | null };
 
 function fetchUnreadCount(_queryKey: UnreadCountQueryKey) {
   return messagesApi.unreadCount();
@@ -18,35 +20,27 @@ function isMessageThreadNotification(row: { event_type?: string | null; kind?: s
   return eventName.includes("message") || eventName.includes("thread");
 }
 
+const EMPTY_UNREAD_COUNT: UnreadCountPayload = { unreadCount: 0, userId: null };
+
 export function useUnreadCount(enabled = true) {
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [userId, setUserId] = useState<string | null>(null);
   const unreadCountQueryKey = useMemo(() => queryKeys.messages.unreadCount(), []);
+  const queryClient = useQueryClient();
+  const canFetch = enabled;
 
-  const refetch = useCallback(async () => {
-    if (!enabled || !hasSupabaseEnv()) {
-      setUnreadCount(0);
-      setUserId(null);
-      return;
-    }
+  const { data = EMPTY_UNREAD_COUNT, refetch } = useQuery({
+    queryKey: unreadCountQueryKey,
+    queryFn: () => fetchUnreadCount(unreadCountQueryKey),
+    enabled: canFetch,
+    retry: false,
+    staleTime: 30_000,
+    placeholderData: EMPTY_UNREAD_COUNT,
+  });
 
-    try {
-      const payload = await fetchUnreadCount(unreadCountQueryKey);
-      setUnreadCount(payload.unreadCount);
-      setUserId(payload.userId);
-    } catch {
-      setUnreadCount(0);
-      setUserId(null);
-    }
-  }, [enabled, unreadCountQueryKey]);
+  const unreadCount = canFetch ? data.unreadCount : 0;
+  const userId = canFetch ? data.userId : null;
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void refetch();
-  }, [refetch]);
-
-  useEffect(() => {
-    if (!enabled || !userId || !hasSupabaseEnv()) {
+    if (!canFetch || !userId || !hasSupabaseEnv()) {
       return;
     }
 
@@ -61,11 +55,17 @@ export function useUnreadCount(enabled = true) {
           table: "notifications",
           filter: `user_id=eq.${userId}`,
         },
-        (payload) => {
-          if (!isMessageThreadNotification(payload.new as { event_type?: string | null; kind?: string | null })) {
+        (payload: { new: { event_type?: string | null; kind?: string | null } }) => {
+          if (!isMessageThreadNotification(payload.new)) {
             return;
           }
-          setUnreadCount((count) => count + 1);
+          queryClient.setQueryData<UnreadCountPayload>(
+            unreadCountQueryKey,
+            (current: UnreadCountPayload | undefined) => ({
+              unreadCount: (current?.unreadCount ?? 0) + 1,
+              userId,
+            }),
+          );
         },
       )
       .subscribe();
@@ -73,7 +73,7 @@ export function useUnreadCount(enabled = true) {
     return () => {
       void supabase.removeChannel(channel);
     };
-  }, [enabled, userId]);
+  }, [canFetch, queryClient, unreadCountQueryKey, userId]);
 
   return {
     unreadCount,

@@ -127,6 +127,11 @@ export function OfferQaSheet({
             <Textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
+              onKeyDown={(e) => {
+                // Keep Space/Enter inside the question field. Parent sheets/cards use
+                // keyboard handlers for shortcuts and must not steal text input.
+                e.stopPropagation();
+              }}
               placeholder="Ваш вопрос..."
               className="min-h-[60px] flex-1 resize-none text-sm"
               disabled={isPending}

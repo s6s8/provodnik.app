@@ -1,13 +1,19 @@
-import { act } from "react";
+import { act, createElement, type PropsWithChildren } from "react";
 import { renderHook, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from "vitest";
+
+import { messagesApi } from "@/lib/api/messages";
+import { useUnreadCount } from "./use-unread-count";
 
 vi.mock("@/lib/env", () => ({
   hasSupabaseEnv: () => true,
 }));
 
-const mockOn = vi.fn().mockReturnThis();
-const mockSubscribe = vi.fn().mockReturnValue({});
+const { mockOn, mockSubscribe } = vi.hoisted(() => ({
+  mockOn: vi.fn().mockReturnThis(),
+  mockSubscribe: vi.fn().mockReturnValue({}),
+}));
 
 vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: () => ({
@@ -19,7 +25,15 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-import { useUnreadCount } from "./use-unread-count";
+function renderUnreadCountHook() {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  function wrapper({ children }: PropsWithChildren) {
+    return createElement(QueryClientProvider, { client: queryClient }, children);
+  }
+  return renderHook(() => useUnreadCount(true), { wrapper });
+}
 
 describe("useUnreadCount", () => {
   beforeEach(() => {
@@ -32,47 +46,33 @@ describe("useUnreadCount", () => {
   });
 
   it("returns unreadCount 0 when fetch throws a network error", async () => {
-    vi.spyOn(global, "fetch").mockRejectedValueOnce(
-      new TypeError("Failed to fetch")
-    );
-    const { result } = renderHook(() => useUnreadCount(true));
+    vi.spyOn(messagesApi, "unreadCount").mockRejectedValueOnce(new TypeError("Failed to fetch"));
+    const { result } = renderUnreadCountHook();
     await waitFor(() => {
       expect(result.current.unreadCount).toBe(0);
     });
   });
 
   it("returns unreadCount 0 when fetch returns non-ok response", async () => {
-    vi.spyOn(global, "fetch").mockResolvedValueOnce(
-      new Response(null, { status: 500 })
-    );
-    const { result } = renderHook(() => useUnreadCount(true));
+    vi.spyOn(messagesApi, "unreadCount").mockRejectedValueOnce(new Error("request_failed:500"));
+    const { result } = renderUnreadCountHook();
     await waitFor(() => {
       expect(result.current.unreadCount).toBe(0);
     });
   });
 
   it("returns unreadCount from successful fetch", async () => {
-    vi.spyOn(global, "fetch").mockResolvedValueOnce(
-      new Response(JSON.stringify({ unreadCount: 3, userId: "u-1" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      })
-    );
-    const { result } = renderHook(() => useUnreadCount(true));
+    vi.spyOn(messagesApi, "unreadCount").mockResolvedValueOnce({ unreadCount: 3, userId: "u-1" });
+    const { result } = renderUnreadCountHook();
     await waitFor(() => {
       expect(result.current.unreadCount).toBe(3);
     });
   });
 
   it("increments realtime count only for message or thread notifications", async () => {
-    vi.spyOn(global, "fetch").mockResolvedValueOnce(
-      new Response(JSON.stringify({ unreadCount: 3, userId: "u-1" }), {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      })
-    );
+    vi.spyOn(messagesApi, "unreadCount").mockResolvedValueOnce({ unreadCount: 3, userId: "u-1" });
 
-    const { result } = renderHook(() => useUnreadCount(true));
+    const { result } = renderUnreadCountHook();
     await waitFor(() => {
       expect(result.current.unreadCount).toBe(3);
     });
@@ -89,6 +89,8 @@ describe("useUnreadCount", () => {
     await act(async () => {
       changeHandler({ new: { event_type: "thread_message_created" } });
     });
-    expect(result.current.unreadCount).toBe(4);
+    await waitFor(() => {
+      expect(result.current.unreadCount).toBe(4);
+    });
   });
 });

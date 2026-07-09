@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,22 +9,51 @@ import { PageHeader } from "@/components/shared/page-header";
 import { kopecksToRub } from "@/data/money";
 import { formatRussianDateTime } from "@/lib/dates";
 import { requireAdminSession } from "@/lib/supabase/moderation";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Заявки и предложения" };
 
 // #44: Bookings holds only confirmed rows (created at accept_offer). The
-// pre-booking funnel — open traveler requests and offers still awaiting a
-// traveler's decision — lives in traveler_requests / guide_offers. This surface
-// gives admins visibility into that funnel without touching the Bookings ledger.
+// pre-booking funnel — traveler requests in every status and offers still
+// awaiting a traveler's decision — lives in traveler_requests / guide_offers.
+// This surface gives admins full-funnel visibility, not just open requests.
 const REQUEST_STATUS_LABEL: Record<string, string> = {
   open: "Открыта",
+  booked: "Забронирована",
+  cancelled: "Отменена",
   expired: "Истекла",
 };
+
+const REQUEST_STATUS_FILTERS = ["open", "booked", "cancelled", "expired"] as const;
 
 const OFFER_STATUS_LABEL: Record<string, string> = {
   pending: "Ожидает ответа",
   counter_offered: "Встречное предложение",
 };
+
+function StatusChip({
+  label,
+  active,
+  href,
+}: {
+  label: string;
+  active: boolean;
+  href: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+        active
+          ? "border-primary bg-primary text-primary-foreground"
+          : "border-border bg-surface-low text-muted-foreground hover:bg-surface",
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
 
 function formatMinor(minor: number | null, currency: string | null): string {
   if (!minor) return "—";
@@ -34,18 +64,31 @@ function formatMinor(minor: number | null, currency: string | null): string {
   }).format(kopecksToRub(minor));
 }
 
-export default async function AdminPipelinePage() {
+export default async function AdminPipelinePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
   const { adminClient } = await requireAdminSession();
 
+  const { status: statusParam } = await searchParams;
+  const statusFilter = REQUEST_STATUS_FILTERS.includes(
+    statusParam as (typeof REQUEST_STATUS_FILTERS)[number],
+  )
+    ? statusParam
+    : null;
+
+  const requestsQuery = adminClient
+    .from("traveler_requests")
+    .select(
+      "id, traveler_id, destination, region, status, participants_count, budget_minor, currency, starts_on, open_to_join, created_at",
+    )
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (statusFilter) requestsQuery.eq("status", statusFilter);
+
   const [{ data: requests }, { data: offers }] = await Promise.all([
-    adminClient
-      .from("traveler_requests")
-      .select(
-        "id, traveler_id, destination, region, status, participants_count, budget_minor, currency, starts_on, created_at",
-      )
-      .in("status", ["open", "expired"])
-      .order("created_at", { ascending: false })
-      .limit(50),
+    requestsQuery,
     adminClient
       .from("guide_offers")
       .select(
@@ -59,10 +102,20 @@ export default async function AdminPipelinePage() {
   const requestRows = requests ?? [];
   const offerRows = offers ?? [];
 
+  const requestIds = requestRows.map((row) => row.id).filter(Boolean);
+  const { data: memberRows } = requestIds.length > 0
+    ? await adminClient
+        .from("open_request_members")
+        .select("request_id, traveler_id, status, joined_at")
+        .in("request_id", requestIds)
+        .order("joined_at", { ascending: true })
+    : { data: [] };
+
   const profileIds = [
     ...new Set(
       [
         ...requestRows.map((r) => r.traveler_id),
+        ...(memberRows ?? []).map((m) => m.traveler_id),
         ...offerRows.map((o) => o.guide_id),
       ].filter((id): id is string => Boolean(id)),
     ),
@@ -83,6 +136,14 @@ export default async function AdminPipelinePage() {
     if (!id) return "—";
     const name = nameById.get(id)?.trim();
     return name && name.length > 0 ? name : id.slice(-8);
+  }
+
+  const membersByRequestId = new Map<string, string[]>();
+  for (const member of memberRows ?? []) {
+    if (!member.request_id || !member.traveler_id) continue;
+    const list = membersByRequestId.get(member.request_id) ?? [];
+    list.push(`${resolveName(member.traveler_id)}${member.status ? ` (${member.status})` : ""}`);
+    membersByRequestId.set(member.request_id, list);
   }
 
   return (
@@ -106,10 +167,21 @@ export default async function AdminPipelinePage() {
         </TabsList>
 
         <TabsContent value="requests">
+          <div className="mb-4 flex flex-wrap gap-2">
+            <StatusChip label="Все" active={!statusFilter} href="/admin/pipeline" />
+            {REQUEST_STATUS_FILTERS.map((s) => (
+              <StatusChip
+                key={s}
+                label={REQUEST_STATUS_LABEL[s]}
+                active={statusFilter === s}
+                href={`/admin/pipeline?status=${s}`}
+              />
+            ))}
+          </div>
           {requestRows.length === 0 ? (
             <EmptyState
-              title="Открытых запросов нет"
-              description="Новые запросы путешественников появятся здесь, пока по ним нет брони."
+              title="Запросов нет"
+              description="Запросы путешественников появятся здесь по мере поступления."
             />
           ) : (
             <div className="space-y-3">
@@ -121,7 +193,11 @@ export default async function AdminPipelinePage() {
                   subtitle={
                     <>
                       <span className="block truncate">
-                        {[row.region, `Путешественник: ${resolveName(row.traveler_id)}`]
+                        {[
+                          row.region,
+                          row.open_to_join ? "Сборная группа" : "Своя группа",
+                          `Путешественник: ${resolveName(row.traveler_id)}`,
+                        ]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
@@ -130,6 +206,9 @@ export default async function AdminPipelinePage() {
                         {row.participants_count
                           ? ` · ${row.participants_count} чел.`
                           : ""}
+                      </span>
+                      <span className="block truncate text-xs">
+                        Участники: {membersByRequestId.get(row.id)?.join(", ") || "только автор"}
                       </span>
                     </>
                   }

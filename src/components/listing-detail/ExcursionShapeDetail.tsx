@@ -108,7 +108,7 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
         </ul>
         <ul className="space-y-1.5 text-sm text-muted-foreground">
           <li>Отправьте запрос — гид пришлёт предложение с ценой и деталями</li>
-          <li>Оплата напрямую гиду при встрече.</li>
+          <li>Бронирование подтверждается предоплатой на платформе.</li>
           <li>Контакты гида откроются после принятия предложения</li>
         </ul>
         {listing.instant_booking ? (

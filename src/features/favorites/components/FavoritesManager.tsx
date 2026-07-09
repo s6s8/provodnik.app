@@ -48,13 +48,16 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
   const [pending, setPending] = React.useState(false);
 
   React.useEffect(() => {
-    if (folders.length === 0) {
-      setSelectedId(null);
-      return;
-    }
-    if (!selectedId || !folders.some((f) => f.id === selectedId)) {
-      setSelectedId(folders[0]!.id);
-    }
+    const timer = window.setTimeout(() => {
+      if (folders.length === 0) {
+        setSelectedId(null);
+        return;
+      }
+      if (!selectedId || !folders.some((f) => f.id === selectedId)) {
+        setSelectedId(folders[0]!.id);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [folders, selectedId]);
 
   const selected = folders.find((f) => f.id === selectedId) ?? null;

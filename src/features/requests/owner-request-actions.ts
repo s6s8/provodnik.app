@@ -82,7 +82,7 @@ export async function acceptOfferAction(
   // Verify offer belongs to this request
   const { data: offerRow, error: offerError } = await supabase
     .from("guide_offers")
-    .select("id, guide_id, request_id, price_minor, status")
+    .select("id, guide_id, request_id, price_minor, status, starts_at, ends_at, capacity, meeting_point")
     .eq("id", offerId)
     .maybeSingle();
 
@@ -107,6 +107,10 @@ export async function acceptOfferAction(
         offer_id: offerId,
         guide_id: guideId,
         subtotal_minor: priceMinor,
+        party_size: offerRow.capacity ?? undefined,
+        starts_at: offerRow.starts_at ?? null,
+        ends_at: offerRow.ends_at ?? null,
+        meeting_point: offerRow.meeting_point ?? null,
       },
       user.id,
     );

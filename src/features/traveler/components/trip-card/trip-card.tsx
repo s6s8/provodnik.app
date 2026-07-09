@@ -321,7 +321,9 @@ function TripCardContent({
               <span>{trip.guideName}</span>
             </div>
           )}
-          <span className="text-sm font-medium text-primary">Написать гиду</span>
+          {trip.isOwnRequest && (
+            <span className="text-sm font-medium text-primary">Написать гиду</span>
+          )}
           {trip.price && <p>{formatRubNumber(trip.price.amount / 100)} ₽</p>}
         </>
       )}

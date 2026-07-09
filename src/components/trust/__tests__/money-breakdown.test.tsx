@@ -25,9 +25,9 @@ describe("MoneyBreakdown", () => {
     expect(getByText("500 ₽")).not.toBeNull();
   });
 
-  it("always renders the honest face-to-face payment note", () => {
+  it("renders the platform prepayment note", () => {
     const { getByText } = render(<MoneyBreakdown pricePerPerson={4500} partySize={3} />);
 
-    expect(getByText(/напрямую гиду/)).not.toBeNull();
+    expect(getByText(/предоплату на платформе/)).not.toBeNull();
   });
 });

@@ -295,7 +295,7 @@ describe("BookingDetailScreen", () => {
     expect(phoneLink).toHaveAttribute("href", "tel:+79990000000");
   });
 
-  it("shows the off-platform payment disclosure for travelers", () => {
+  it("shows the platform prepayment disclosure for travelers", () => {
     render(
       <BookingDetailScreen
         viewerRole="traveler"
@@ -306,9 +306,7 @@ describe("BookingDetailScreen", () => {
       />,
     );
 
-    expect(
-      screen.getByText(/посредником в денежных расчётах/),
-    ).toBeInTheDocument();
+    expect(screen.getAllByText(/предоплату на платформе/).length).toBeGreaterThan(0);
   });
 
   it("does not render raw checkmark or contact glyphs in the traveler view", () => {

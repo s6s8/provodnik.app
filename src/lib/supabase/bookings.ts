@@ -29,6 +29,12 @@ export type CreateBookingInput = {
   subtotal_minor: number;
   /** Number of people. When omitted, derived from the request's participants_count. */
   party_size?: number;
+  /** Accepted guide offer start datetime. Persisted so confirmed views do not fall back to TBD. */
+  starts_at?: string | null;
+  /** Accepted guide offer end datetime. */
+  ends_at?: string | null;
+  /** Accepted offer meeting point, when provided by the guide. */
+  meeting_point?: string | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -51,7 +57,7 @@ export type BookingWithDetails = BookingRow & {
    * can tell "guide has no phone on file" apart from "we failed to load it".
    */
   guide_contact_error: boolean;
-  traveler_request: Pick<
+  traveler_request: (Pick<
     TravelerRequestRow,
     | "destination"
     | "starts_on"
@@ -63,7 +69,7 @@ export type BookingWithDetails = BookingRow & {
     | "end_time"
     | "format_preference"
     | "open_to_join"
-  > | null;
+  > & { traveler_id?: string | null }) | null;
   guide_offer: Pick<
     GuideOfferRow,
     "price_minor" | "currency" | "message" | "title" | "inclusions" | "capacity" | "starts_at" | "ends_at"
@@ -113,6 +119,9 @@ export async function createBooking(
       subtotal_minor: data.subtotal_minor,
       currency: "RUB",
       ...(partySize !== undefined ? { party_size: partySize } : {}),
+      ...(data.starts_at ? { starts_at: data.starts_at } : {}),
+      ...(data.ends_at ? { ends_at: data.ends_at } : {}),
+      ...(data.meeting_point ? { meeting_point: data.meeting_point } : {}),
     })
     .select(BOOKING_SELECT)
     .single();
@@ -169,7 +178,7 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     booking.request_id
       ? supabase
           .from("traveler_requests")
-          .select("destination, starts_on, ends_on, participants_count, notes, interests, start_time, end_time, format_preference, open_to_join")
+          .select("destination, starts_on, ends_on, participants_count, notes, interests, start_time, end_time, format_preference, open_to_join, traveler_id")
           .eq("id", booking.request_id)
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),

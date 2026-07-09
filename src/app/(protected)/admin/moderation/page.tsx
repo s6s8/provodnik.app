@@ -34,7 +34,11 @@ export default async function ModerationQueuePage() {
 
   return (
     <div className="container mx-auto py-8">
-      <PageHeader eyebrow="Администрирование" title="Очередь модерации" />
+      <PageHeader
+        eyebrow="Администрирование"
+        title="Очередь модерации"
+        subtitle="Контент, ожидающий проверки перед публикацией: объявления гидов и ответы на отзывы."
+      />
 
       <Tabs defaultValue="listings" className="mt-8">
         <TabsList>

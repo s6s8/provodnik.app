@@ -62,6 +62,7 @@ type BookingDetailScreenProps =
       paymentAgreement?: PaymentAgreement | null;
       reviewStatus?: string;
       disputeStatus?: string;
+      canMessageGuide?: boolean;
       openBookingThreadAction: OpenBookingThreadAction;
     }
   | {
@@ -97,6 +98,7 @@ export function BookingDetailScreen(props: BookingDetailScreenProps) {
       paymentAgreement={props.paymentAgreement ?? null}
       reviewStatus={props.viewerRole === "traveler" ? props.reviewStatus : undefined}
       disputeStatus={props.viewerRole === "traveler" ? props.disputeStatus : undefined}
+      canMessageGuide={props.viewerRole === "traveler" ? (props.canMessageGuide ?? true) : false}
       openBookingThreadAction={
         props.viewerRole === "traveler" ? props.openBookingThreadAction : undefined
       }
@@ -112,6 +114,7 @@ function TravelerBookingDetailView({
   paymentAgreement,
   reviewStatus,
   disputeStatus,
+  canMessageGuide,
   openBookingThreadAction,
   showTravelerPanel,
 }: {
@@ -121,6 +124,7 @@ function TravelerBookingDetailView({
   paymentAgreement?: PaymentAgreement | null;
   reviewStatus?: string;
   disputeStatus?: string;
+  canMessageGuide: boolean;
   openBookingThreadAction?: OpenBookingThreadAction;
   showTravelerPanel: boolean;
 }) {
@@ -170,23 +174,27 @@ function TravelerBookingDetailView({
   const offer = booking.guide_offer;
   const hasRealDestination = Boolean(request?.destination?.trim());
   const destination = request?.destination?.trim() || "Маршрут";
-  const dateRange = request?.starts_on
-    ? formatRussianDateRange(request.starts_on, request.ends_on)
-    : "";
+  const bookingStartDate = booking.starts_at ?? offer?.starts_at ?? null;
+  const bookingEndDate = booking.ends_at ?? offer?.ends_at ?? null;
+  const dateRange = bookingStartDate
+    ? formatRussianDateRange(bookingStartDate, bookingEndDate)
+    : request?.starts_on
+      ? formatRussianDateRange(request.starts_on, request.ends_on)
+      : "";
   const resolvedListingTitle = listingTitle || (dateRange ? `${destination}, ${dateRange}` : destination);
   // Only surface the destination as a card heading when the H1 already shows a
   // distinct listing title — otherwise it just repeats the page title (F-18).
   const showCardDestination = Boolean(listingTitle) && hasRealDestination;
 
-  const meetingTime = offer?.starts_at
-    ? formatRussianTime(offer.starts_at)
+  const meetingTime = bookingStartDate
+    ? formatRussianTime(bookingStartDate)
     : request?.start_time
       ? request.start_time.slice(0, 5)
       : "";
   const meetingPlace = booking.meeting_point ?? null;
 
   const priceMinor = offer?.price_minor ?? booking.subtotal_minor ?? 0;
-  const partySize = booking.party_size ?? request?.participants_count ?? 1;
+  const partySize = booking.party_size ?? offer?.capacity ?? request?.participants_count ?? 1;
   const pricePerPersonMinor = partySize > 1 ? Math.round(priceMinor / partySize) : priceMinor;
 
   const inclusions: string[] = offer?.inclusions ?? [];
@@ -207,7 +215,7 @@ function TravelerBookingDetailView({
     booking.status === "disputed";
 
   const messageGuideButton = (primary: boolean) =>
-    openBookingThreadAction ? (
+    openBookingThreadAction && canMessageGuide ? (
       <Button
         key="message"
         type="button"
@@ -320,7 +328,7 @@ function TravelerBookingDetailView({
             {showTravelerPanel ? (
               <Alert variant="info">
                 <AlertDescription>
-                  Оплата производится напрямую с гидом. Проводник не является посредником в денежных расчётах.
+                  Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
                 </AlertDescription>
               </Alert>
             ) : null}

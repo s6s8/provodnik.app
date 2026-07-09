@@ -10,7 +10,7 @@ type MoneyBreakdownProps = {
   currency?: string;
 };
 
-/** Honest money rows — null rows omitted, face-to-face payment note always shown. Server-safe. */
+/** Honest money rows — null rows omitted, prepayment note always shown. Server-safe. */
 export function MoneyBreakdown({
   pricePerPerson,
   partySize,
@@ -63,7 +63,7 @@ export function MoneyBreakdown({
       ) : null}
 
       <p className="text-xs text-muted-foreground">
-        Оплата напрямую гиду при встрече. Проводник не обрабатывает оплату.
+        Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
       </p>
     </div>
   );

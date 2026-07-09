@@ -102,6 +102,30 @@ export async function joinRequest(
 }
 
 /**
+ * Soft-leave: mark the traveler's own membership as left. Preserves the audit
+ * row (status='left', left_at=now()) and auto-revokes group-thread access via
+ * can_access_request_thread. Idempotent: a no-op if not currently joined. RLS
+ * only permits updating one's own row.
+ */
+export async function leaveRequest(
+  requestId: Uuid,
+  travelerId: Uuid,
+): Promise<void> {
+  const input = joinRequestInputSchema.parse({ requestId, travelerId });
+
+  const supabase = await createSupabaseServerClient();
+
+  const { error } = await supabase
+    .from("open_request_members")
+    .update({ status: "left", left_at: new Date().toISOString() })
+    .eq("request_id", input.requestId)
+    .eq("traveler_id", input.travelerId)
+    .eq("status", "joined");
+
+  if (error) throw error;
+}
+
+/**
  * Fetch all active members for a request, with profile info.
  * Returns members sorted by join time ascending.
  */

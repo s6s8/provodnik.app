@@ -31,7 +31,8 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    setCode(initialCode);
+    const timer = window.setTimeout(() => setCode(initialCode), 0);
+    return () => window.clearTimeout(timer);
   }, [initialCode]);
 
   const shareUrl = code ? `${INVITE_BASE}/${code}` : "";
