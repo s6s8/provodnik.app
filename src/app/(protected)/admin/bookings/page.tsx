@@ -25,7 +25,7 @@ export default async function BookingsPage({
   searchParams,
 }: {
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
-} = {}) {
+}) {
   const { adminClient } = await requireAdminSession();
 
   const resolvedParams = searchParams ? await searchParams : {};

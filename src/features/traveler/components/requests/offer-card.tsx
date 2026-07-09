@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, Clock, Star, Users, Wallet, X } from "lucide-react";
+import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, Clock, Lock, Star, Users, Wallet, X } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -144,7 +144,8 @@ export function OfferCard({
     perPersonMinor > 0 && (travelerBudgetPerPersonRub == null || Math.round(perPersonMinor / 100) !== travelerBudgetPerPersonRub);
 
   const isCounterOffer = dateDeviates || timeDeviates || countDeviates || budgetDeviates;
-  const groupTypeLabel = travelerOpenToJoin ? "Сборная группа" : "Своя группа";
+  const privateGroupCount = travelerCount ?? offerCount;
+  const groupTypeLabel = travelerOpenToJoin ? "Сборная группа" : `Своя группа · ${privateGroupCount} чел.`;
 
   const routeStops = (Array.isArray(offer.route_stops) ? (offer.route_stops as RouteStop[]) : []).filter(
     (s) => s && typeof s === "object" && typeof s.photoUrl === "string",
@@ -243,6 +244,7 @@ export function OfferCard({
               : "border-border bg-surface-low text-muted-foreground",
           )}
         >
+          {travelerOpenToJoin ? null : <Lock className="size-3.5" />}
           {groupTypeLabel}
         </Badge>
         {travelerStartsOn == null ? (

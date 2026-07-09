@@ -76,7 +76,7 @@ describe("BookingsPage", () => {
     requireAdminSession.mockRejectedValue(new Error("Доступ только для администраторов."));
     const { default: BookingsPage } = await import("./page");
 
-    await expect(BookingsPage()).rejects.toThrow("Доступ только для администраторов.");
+    await expect(BookingsPage({})).rejects.toThrow("Доступ только для администраторов.");
 
     expect(requireAdminSession).toHaveBeenCalledOnce();
     expect(adminClient.from).not.toHaveBeenCalled();
@@ -112,7 +112,7 @@ describe("BookingsPage", () => {
     createSupabaseServerClient.mockResolvedValue(serverClient);
     const { default: BookingsPage } = await import("./page");
 
-    const ui = await BookingsPage();
+    const ui = await BookingsPage({});
     const html = renderToStaticMarkup(ui);
 
     expect(requireAdminSession).toHaveBeenCalledOnce();

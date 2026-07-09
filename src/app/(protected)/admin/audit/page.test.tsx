@@ -39,7 +39,7 @@ describe("AdminAuditPage", () => {
     };
     requireAdminSession.mockRejectedValue(new Error("Доступ только для администраторов."));
 
-    await expect(AdminAuditPage()).rejects.toThrow("Доступ только для администраторов.");
+    await expect(AdminAuditPage({})).rejects.toThrow("Доступ только для администраторов.");
 
     expect(requireAdminSession).toHaveBeenCalledOnce();
     expect(adminClient.from).not.toHaveBeenCalled();
@@ -90,7 +90,7 @@ describe("AdminAuditPage", () => {
     requireAdminSession.mockResolvedValue({ adminClient });
     createSupabaseServerClient.mockResolvedValue(serverClient);
 
-    const ui = await AdminAuditPage();
+    const ui = await AdminAuditPage({});
     render(ui);
 
     expect(requireAdminSession).toHaveBeenCalledOnce();
@@ -122,7 +122,7 @@ describe("AdminAuditPage", () => {
     };
     requireAdminSession.mockResolvedValue({ adminClient });
 
-    const ui = await AdminAuditPage();
+    const ui = await AdminAuditPage({});
     render(ui);
 
     expect(adminClient.from).toHaveBeenCalledWith("guide_availability_events");

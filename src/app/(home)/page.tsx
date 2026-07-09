@@ -20,6 +20,7 @@ export default async function HomePage({
   let requests: RequestRecord[] = [];
   let viewerId: string | null = null;
   let preferredGuide: { slug: string; name: string } | null = null;
+  const joinedRequestIds = new Set<string>();
   const { guide: guideParam } = await searchParams;
   try {
     const supabase = await createSupabaseServerClient();
@@ -35,6 +36,18 @@ export default async function HomePage({
     if (guideResult?.data) {
       preferredGuide = { slug: guideResult.data.slug, name: guideResult.data.fullName };
     }
+    if (viewerId && requests.length > 0) {
+      const { data: memberships } = await supabase
+        .from("open_request_members")
+        .select("request_id")
+        .eq("traveler_id", viewerId)
+        .eq("status", "joined")
+        .is("left_at", null)
+        .in("request_id", requests.map((request) => request.id));
+      for (const membership of memberships ?? []) {
+        if (membership.request_id) joinedRequestIds.add(membership.request_id as string);
+      }
+    }
   } catch {
     // all stay empty
   }
@@ -48,6 +61,7 @@ export default async function HomePage({
           requests={requests}
           viewerId={viewerId}
           preferredGuide={preferredGuide}
+          joinedRequestIds={joinedRequestIds}
         />
       </main>
     </>

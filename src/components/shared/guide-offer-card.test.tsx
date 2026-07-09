@@ -21,7 +21,6 @@ function renderCard(props: Partial<React.ComponentProps<typeof GuideOfferCard>> 
     <GuideOfferCard
       guide={baseGuide}
       name="Иван Петров"
-      perPersonPriceLabel="2 500 ₽"
       {...props}
     />,
   );
@@ -42,17 +41,6 @@ describe("GuideOfferCard", () => {
     expect(link).toHaveTextContent("Профиль →");
   });
 
-  it("renders requestBudgetLabel as muted text", () => {
-    renderCard({ requestBudgetLabel: "Бюджет заявки: 2 000 ₽" });
-    const budget = screen.getByText("Бюджет заявки: 2 000 ₽");
-    expect(budget).toBeInTheDocument();
-    expect(budget.className).toContain("text-muted-foreground");
-  });
-
-  it("renders groupTotalLabel below the per-person price", () => {
-    renderCard({ groupTotalLabel: "5 000 ₽ за группу" });
-    expect(screen.getByText(/5 000 ₽ за группу/)).toBeInTheDocument();
-  });
 
   it("shows the «Новый гид» note and suppresses the stats row for a new guide", () => {
     renderCard({
@@ -111,7 +99,6 @@ describe("GuideOfferCard", () => {
       <GuideOfferCard
         guide={baseGuide}
         name="Иван Петров"
-        perPersonPriceLabel="2 500 ₽"
         onReject={vi.fn()}
       />,
     );
@@ -124,8 +111,6 @@ describe("GuideOfferCard", () => {
       isLocal: true,
       responseTimeLabel: "Отвечает быстро",
       profileHref: "/guides/ivan",
-      requestBudgetLabel: "Бюджет: 2 000 ₽",
-      groupTotalLabel: "5 000 ₽ за группу",
       matchingSpecialties: ["История"],
       onSelect: vi.fn(),
       onReject: vi.fn(),

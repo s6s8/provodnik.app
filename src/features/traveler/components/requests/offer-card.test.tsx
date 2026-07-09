@@ -254,13 +254,13 @@ describe("OfferCard", () => {
     // Гибкие даты — бейдж появляется когда travelerStartsOn=null
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
     // Дата-бейдж (следующий после типа группы и "Гибкие даты") — синий (не error-семантика)
-    const groupBadge = screen.getByText("Своя группа").closest("[data-slot='badge']");
+    const groupBadge = screen.getByText(/Своя группа · 3 чел\./).closest("[data-slot='badge']");
     const badges = Array.from(groupBadge?.parentElement?.querySelectorAll("[data-slot='badge']") ?? []);
     const badgeTexts = badges.map((badge) => badge.textContent);
     const dateBadge = badges[2];
 
     expect(badgeTexts).toEqual([
-      "Своя группа",
+      "Своя группа · 3 чел.",
       "Гибкие даты",
       "15 июня",
       "10:30 – 12:00",
