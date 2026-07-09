@@ -162,9 +162,18 @@ describe("role-based nav groups", () => {
   it("uses the simplified guide workspace labels", () => {
     expect(guidePrimaryNav.map((item) => item.label)).toEqual([
       "Запросы",
+      "Мои бронирования",
       "Экскурсии",
-      "Заказы",
       "Отзывы",
+    ]);
+  });
+
+  it("keeps guide requests and bookings next to each other", () => {
+    expect(guidePrimaryNav.map((item) => item.href)).toEqual([
+      "/guide/inbox",
+      "/guide/bookings",
+      "/guide/listings",
+      "/guide/reviews",
     ]);
   });
 });

@@ -37,7 +37,7 @@ export const ROUTES = {
   account:      { href: "/account",      label: "Профиль",           icon: User },
   guideInbox:   { href: "/guide/inbox",    label: "Запросы",         icon: Inbox },
   guideListings:{ href: "/guide/listings", label: "Экскурсии", shortLabel: "Экскурсии", icon: Compass },
-  guideBookings:{ href: "/guide/bookings", label: "Заказы",          icon: BookCheck },
+  guideBookings:{ href: "/guide/bookings", label: "Мои бронирования", icon: BookCheck },
   guideReviews: { href: "/guide/reviews",  label: "Отзывы",          icon: Star },
   guideCalendar:{ href: "/guide/calendar", label: "Календарь",       icon: Calendar },
   guideProfile: { href: "/guide/profile",  label: "Профиль гида",    icon: User },
@@ -83,7 +83,7 @@ export const travelerPrimaryNav = [
 
 /** Guide workspace (also drives the mobile bottom nav). */
 export const guidePrimaryNav = [
-  ROUTES.guideInbox, ROUTES.guideListings, ROUTES.guideBookings, ROUTES.guideReviews,
+  ROUTES.guideInbox, ROUTES.guideBookings, ROUTES.guideListings, ROUTES.guideReviews,
 ] as const;
 
 /** Admin workspace (drives the admin sidebar + mobile tabs). */
