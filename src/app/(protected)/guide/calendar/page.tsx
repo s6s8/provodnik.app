@@ -11,8 +11,13 @@ import {
   DateRangePicker,
   type DateRangePreset,
 } from "@/features/guide/components/statistics/DateRangePicker";
+import {
+  GuideCalendarBlocks,
+  type CalendarBlock,
+} from "@/features/guide/components/profile/guide-calendar-blocks";
 import { StatsChart } from "@/features/guide/components/statistics/StatsChart";
 import { todayMoscowISODate } from "@/lib/dates";
+import { listOwnActiveBlocks } from "@/lib/supabase/guide-availability-blocks";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
   BookingRow,
@@ -61,6 +66,8 @@ export default async function GuideCalendarPage({
   let departures: ListingTourDepartureRow[] = [];
   let listings: { id: string; title: string; exp_type: string | null }[] = [];
   let bookings: BookingRow[] = [];
+  let calendarBlocks: CalendarBlock[] = [];
+  let canManageAvailabilityBlocks = false;
   let loadFailed = false;
 
   const resolvedParams = await searchParams;
@@ -95,20 +102,32 @@ export default async function GuideCalendarPage({
   try {
     const guideId = user.id;
 
-    const { data: listingsRaw } = await supabase
-      .from("listings")
-      .select("id, title, exp_type")
-      .eq("guide_id", guideId)
-      .eq("status", "active");
+    const [{ data: listingsRaw }, { data: guideProfileRaw }] = await Promise.all([
+      supabase
+        .from("listings")
+        .select("id, title, exp_type")
+        .eq("guide_id", guideId)
+        .eq("status", "active"),
+      supabase
+        .from("guide_profiles")
+        .select("verification_status")
+        .eq("user_id", guideId)
+        .maybeSingle(),
+    ]);
 
-    listings = (listingsRaw ?? []).map((l) => ({
+    canManageAvailabilityBlocks = guideProfileRaw?.verification_status === "approved";
+    if (canManageAvailabilityBlocks) {
+      calendarBlocks = await listOwnActiveBlocks();
+    }
+
+    listings = ((listingsRaw ?? []) as {
+      id: string;
+      title: string | null;
+      exp_type: string | null;
+    }[]).map((l) => ({
       ...l,
       title: l.title ?? "",
-    })) as {
-      id: string;
-      title: string;
-      exp_type: string | null;
-    }[];
+    }));
 
     const listingIds = listings.map((l) => l.id);
 
@@ -186,6 +205,8 @@ export default async function GuideCalendarPage({
           </AlertDescription>
         </Alert>
       ) : null}
+
+      {canManageAvailabilityBlocks ? <GuideCalendarBlocks blocks={calendarBlocks} /> : null}
 
       <Tabs defaultValue="calendar">
         <TabsList className="grid w-full max-w-md grid-cols-2">
