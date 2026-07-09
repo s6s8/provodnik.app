@@ -24,7 +24,7 @@ export type CalendarBlock = {
 const KINDS = [
   { id: "day", label: "Закрыть день" },
   { id: "range", label: "Закрыть даты" },
-  { id: "window", label: "Закрыть время" },
+  { id: "window", label: "Закрыть часы" },
 ] as const;
 type Kind = (typeof KINDS)[number]["id"];
 
@@ -54,6 +54,11 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
   const [message, setMessage] = React.useState<{ tone: "error" | "warning"; text: string } | null>(null);
   const [pending, startTransition] = React.useTransition();
 
+  function handleStartDateChange(value: string) {
+    setDate(value);
+    if (endDate < value) setEndDate(value);
+  }
+
   function submit() {
     setMessage(null);
     const reasonValue = reason.trim() ? reason.trim() : undefined;
@@ -62,7 +67,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
         ? { kind, date, reason: reasonValue }
         : kind === "range"
           ? { kind, startDate: date, endDate, reason: reasonValue }
-          : { kind, date, startTime, endTime, reason: reasonValue };
+          : { kind, startDate: date, endDate, startTime, endTime, reason: reasonValue };
 
     startTransition(async () => {
       const res = await createAvailabilityBlockAction(payload);
@@ -111,17 +116,17 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor="block-date">{kind === "range" ? "С" : "Дата"}</Label>
+          <Label htmlFor="block-date">{kind === "day" ? "Дата" : "С"}</Label>
           <Input
             id="block-date"
             type="date"
             min={today}
             value={date}
-            onChange={(e) => setDate(e.target.value)}
+            onChange={(e) => handleStartDateChange(e.target.value)}
           />
         </div>
 
-        {kind === "range" ? (
+        {kind === "range" || kind === "window" ? (
           <div className="space-y-1.5">
             <Label htmlFor="block-end-date">По</Label>
             <Input
@@ -137,7 +142,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
         {kind === "window" ? (
           <>
             <div className="space-y-1.5">
-              <Label htmlFor="block-start-time">Начало</Label>
+              <Label htmlFor="block-start-time">Время с</Label>
               <Input
                 id="block-start-time"
                 type="time"
@@ -146,7 +151,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
               />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="block-end-time">Конец</Label>
+              <Label htmlFor="block-end-time">Время по</Label>
               <Input
                 id="block-end-time"
                 type="time"

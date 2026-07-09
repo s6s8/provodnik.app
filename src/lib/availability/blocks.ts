@@ -15,6 +15,7 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
+const MAX_WINDOW_RANGE_DAYS = 366;
 
 const dateField = z.string().regex(DATE_RE, "Укажите дату.");
 const timeField = z.string().regex(TIME_RE, "Укажите время.");
@@ -30,7 +31,9 @@ export const createBlockInputSchema = z.discriminatedUnion("kind", [
   }),
   z.object({
     kind: z.literal("window"),
-    date: dateField,
+    date: dateField.optional(),
+    startDate: dateField.optional(),
+    endDate: dateField.optional(),
     startTime: timeField,
     endTime: timeField,
     reason: reasonField,
@@ -49,6 +52,42 @@ export const createBlockInputSchema = z.discriminatedUnion("kind", [
       message: "Время окончания должно быть позже начала.",
       path: ["endTime"],
     });
+  }
+  if (input.kind === "window") {
+    const startDate = input.startDate ?? input.date;
+    const endDate = input.endDate ?? startDate;
+    if (!startDate) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Укажите дату начала.",
+        path: ["startDate"],
+      });
+    }
+    if (!endDate) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Укажите дату окончания.",
+        path: ["endDate"],
+      });
+    }
+    if (startDate && endDate) {
+      if (endDate < startDate) {
+        ctx.addIssue({
+          code: "custom",
+          message: "Дата окончания раньше даты начала.",
+          path: ["endDate"],
+        });
+      } else {
+        const spanDays = Math.floor((moscowDayStart(endDate) - moscowDayStart(startDate)) / DAY_MS) + 1;
+        if (spanDays > MAX_WINDOW_RANGE_DAYS) {
+          ctx.addIssue({
+            code: "custom",
+            message: "Период для ежедневного окна не должен быть длиннее года.",
+            path: ["endDate"],
+          });
+        }
+      }
+    }
   }
 });
 
@@ -87,13 +126,51 @@ export function buildBlockInterval(input: CreateBlockInput): BlockInterval {
       };
     }
     case "window": {
+      const date = input.startDate ?? input.date;
+      if (!date) throw new Error("window_start_date_required");
       return {
-        startAt: new Date(`${input.date}T${input.startTime}:00${MSK_UTC_OFFSET}`).toISOString(),
-        endAt: new Date(`${input.date}T${input.endTime}:00${MSK_UTC_OFFSET}`).toISOString(),
+        startAt: new Date(`${date}T${input.startTime}:00${MSK_UTC_OFFSET}`).toISOString(),
+        endAt: new Date(`${date}T${input.endTime}:00${MSK_UTC_OFFSET}`).toISOString(),
         allDay: false,
       };
     }
   }
+}
+
+function formatDateOnlyLocal(d: Date): string {
+  const y = d.getUTCFullYear();
+  const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+/** Convert one user input into the stored interval rows it represents. */
+export function buildBlockIntervals(input: CreateBlockInput): BlockInterval[] {
+  if (input.kind !== "window") return [buildBlockInterval(input)];
+
+  const startDate = input.startDate ?? input.date;
+  const endDate = input.endDate ?? startDate;
+  if (!startDate || !endDate) throw new Error("window_date_range_required");
+
+  const start = moscowDayStart(startDate);
+  const end = moscowDayStart(endDate);
+  const spanDays = Math.floor((end - start) / DAY_MS) + 1;
+  const intervals: BlockInterval[] = [];
+  for (let offset = 0; offset < spanDays; offset += 1) {
+    const date = formatDateOnlyLocal(new Date(`${startDate}T00:00:00.000Z`));
+    const dateWithOffset = new Date(`${date}T00:00:00.000Z`);
+    dateWithOffset.setUTCDate(dateWithOffset.getUTCDate() + offset);
+    intervals.push(
+      buildBlockInterval({
+        kind: "window",
+        startDate: formatDateOnlyLocal(dateWithOffset),
+        endDate: formatDateOnlyLocal(dateWithOffset),
+        startTime: input.startTime,
+        endTime: input.endTime,
+      }),
+    );
+  }
+  return intervals;
 }
 
 /** Half-open overlap test: [aStart, aEnd) ∩ [bStart, bEnd) ≠ ∅. */

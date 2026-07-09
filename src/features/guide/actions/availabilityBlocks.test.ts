@@ -23,7 +23,8 @@ describe("createAvailabilityBlockAction", () => {
     createOwnBlock.mockClear();
     const res = await createAvailabilityBlockAction({
       kind: "window",
-      date: "2026-07-10",
+      startDate: "2026-07-10",
+      endDate: "2026-07-10",
       startTime: "18:00",
       endTime: "14:00",
     });
@@ -36,6 +37,25 @@ describe("createAvailabilityBlockAction", () => {
     const res = await createAvailabilityBlockAction({ kind: "day", date: "2026-07-10" });
     expect(res.ok).toBe(true);
     expect(res.ok && res.warning).toBeTruthy();
+  });
+
+  it("accepts a time-window date range", async () => {
+    createOwnBlock.mockClear();
+    const res = await createAvailabilityBlockAction({
+      kind: "window",
+      startDate: "2026-07-01",
+      endDate: "2026-07-20",
+      startTime: "15:00",
+      endTime: "20:00",
+    });
+    expect(res).toEqual({ ok: true });
+    expect(createOwnBlock).toHaveBeenCalledWith({
+      kind: "window",
+      startDate: "2026-07-01",
+      endDate: "2026-07-20",
+      startTime: "15:00",
+      endTime: "20:00",
+    });
   });
 
   it("returns the ActionError message when the service throws one", async () => {

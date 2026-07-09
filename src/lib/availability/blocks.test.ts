@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 
 import {
   buildBlockInterval,
+  buildBlockIntervals,
   intervalsOverlap,
   isIntervalBlocked,
   createBlockInputSchema,
@@ -31,13 +32,29 @@ describe("buildBlockInterval", () => {
   it("time-window block uses the Moscow wall-clock times", () => {
     const interval = buildBlockInterval({
       kind: "window",
-      date: "2026-07-10",
+      startDate: "2026-07-10",
+      endDate: "2026-07-10",
       startTime: "14:00",
       endTime: "18:00",
     });
     expect(interval.startAt).toBe("2026-07-10T11:00:00.000Z");
     expect(interval.endAt).toBe("2026-07-10T15:00:00.000Z");
     expect(interval.allDay).toBe(false);
+  });
+
+  it("time-window date range creates one daily window per Moscow date", () => {
+    const intervals = buildBlockIntervals({
+      kind: "window",
+      startDate: "2026-07-01",
+      endDate: "2026-07-03",
+      startTime: "15:00",
+      endTime: "20:00",
+    });
+    expect(intervals).toEqual([
+      { startAt: "2026-07-01T12:00:00.000Z", endAt: "2026-07-01T17:00:00.000Z", allDay: false },
+      { startAt: "2026-07-02T12:00:00.000Z", endAt: "2026-07-02T17:00:00.000Z", allDay: false },
+      { startAt: "2026-07-03T12:00:00.000Z", endAt: "2026-07-03T17:00:00.000Z", allDay: false },
+    ]);
   });
 });
 
@@ -65,7 +82,8 @@ describe("isIntervalBlocked (union of blocks)", () => {
   const day = buildBlockInterval({ kind: "day", date: "2026-07-10" });
   const window = buildBlockInterval({
     kind: "window",
-    date: "2026-07-12",
+    startDate: "2026-07-12",
+    endDate: "2026-07-12",
     startTime: "09:00",
     endTime: "12:00",
   });
@@ -96,9 +114,21 @@ describe("createBlockInputSchema", () => {
   it("rejects a window whose end is not after its start", () => {
     const res = createBlockInputSchema.safeParse({
       kind: "window",
-      date: "2026-07-10",
+      startDate: "2026-07-10",
+      endDate: "2026-07-10",
       startTime: "18:00",
       endTime: "14:00",
+    });
+    expect(res.success).toBe(false);
+  });
+
+  it("rejects a window range whose end date is before its start date", () => {
+    const res = createBlockInputSchema.safeParse({
+      kind: "window",
+      startDate: "2026-07-20",
+      endDate: "2026-07-01",
+      startTime: "15:00",
+      endTime: "20:00",
     });
     expect(res.success).toBe(false);
   });

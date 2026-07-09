@@ -1,10 +1,15 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
+const { createAvailabilityBlockAction, deleteAvailabilityBlockAction } = vi.hoisted(() => ({
+  createAvailabilityBlockAction: vi.fn(async () => ({ ok: true })),
+  deleteAvailabilityBlockAction: vi.fn(async () => ({ ok: true })),
+}));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("@/features/guide/actions/availabilityBlocks", () => ({
-  createAvailabilityBlockAction: vi.fn(async () => ({ ok: true })),
-  deleteAvailabilityBlockAction: vi.fn(async () => ({ ok: true })),
+  createAvailabilityBlockAction,
+  deleteAvailabilityBlockAction,
 }));
 
 import { GuideCalendarBlocks } from "./guide-calendar-blocks";
@@ -49,5 +54,29 @@ describe("GuideCalendarBlocks", () => {
       />,
     );
     expect(screen.getByText(/14:00\s*–\s*18:00/)).toBeInTheDocument();
+  });
+
+  it("submits a daily time window with start and end dates", async () => {
+    createAvailabilityBlockAction.mockClear();
+    render(<GuideCalendarBlocks blocks={[]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: /Закрыть часы/i }));
+    fireEvent.change(screen.getByLabelText("С"), { target: { value: "2026-07-01" } });
+    fireEvent.change(screen.getByLabelText("По"), { target: { value: "2026-07-20" } });
+    fireEvent.change(screen.getByLabelText("Время с"), { target: { value: "15:00" } });
+    fireEvent.change(screen.getByLabelText("Время по"), { target: { value: "20:00" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Закрыть период" }));
+
+    await waitFor(() => {
+      expect(createAvailabilityBlockAction).toHaveBeenCalledWith({
+        kind: "window",
+        startDate: "2026-07-01",
+        endDate: "2026-07-20",
+        startTime: "15:00",
+        endTime: "20:00",
+        reason: undefined,
+      });
+    });
   });
 });

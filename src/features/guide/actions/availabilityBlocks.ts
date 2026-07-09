@@ -26,7 +26,7 @@ export async function createAvailabilityBlockAction(
   }
   try {
     const { overlappingCommitments } = await createOwnBlock(parsed.data);
-    revalidatePath("/guide/profile");
+    revalidatePath("/guide/calendar");
     return overlappingCommitments > 0 ? { ok: true, warning: COMMITMENTS_WARNING } : { ok: true };
   } catch (err) {
     if (err instanceof ActionError) return { ok: false, error: err.message };
@@ -39,7 +39,7 @@ export async function deleteAvailabilityBlockAction(
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
     await softDeleteOwnBlock(blockId);
-    revalidatePath("/guide/profile");
+    revalidatePath("/guide/calendar");
     return { ok: true };
   } catch (err) {
     if (err instanceof ActionError) return { ok: false, error: err.message };
