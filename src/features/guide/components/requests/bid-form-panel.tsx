@@ -291,7 +291,7 @@ export function BidFormPanel({
           ) : null}
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5 px-6 py-6" noValidate>
+        <form onSubmit={(event) => { void handleSubmit(onSubmit)(event); }} className="flex flex-col gap-5 px-6 py-6" noValidate>
           {hasCatalog || hasRouteBuilder ? (
             <div className="grid gap-3">
               {showCatalogRouteTabs ? (

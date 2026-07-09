@@ -85,6 +85,7 @@ export default async function BookingDetailPage({
     <BookingDetailScreen
       viewerRole="traveler"
       booking={booking}
+      canMessageGuide={booking.traveler_request?.traveler_id === booking.traveler_id}
       existingReview={existingReview}
       listingTitle={listingTitle}
       paymentAgreement={paymentAgreement}

@@ -51,7 +51,7 @@ describe("GuideOfferCard", () => {
 
   it("renders groupTotalLabel below the per-person price", () => {
     renderCard({ groupTotalLabel: "5 000 ₽ за группу" });
-    expect(screen.getByText("5 000 ₽ за группу")).toBeInTheDocument();
+    expect(screen.getByText(/5 000 ₽ за группу/)).toBeInTheDocument();
   });
 
   it("shows the «Новый гид» note and suppresses the stats row for a new guide", () => {

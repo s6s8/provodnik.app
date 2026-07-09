@@ -183,16 +183,19 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   useEffect(() => {
     if (hasLoadedStoredCity || cityOptions.length === 0) return;
 
-    try {
-      const savedCity = window.localStorage.getItem("requests-city");
-      if (savedCity && cityOptions.includes(savedCity)) {
-        setActiveCity(savedCity);
+    const timer = window.setTimeout(() => {
+      try {
+        const savedCity = window.localStorage.getItem("requests-city");
+        if (savedCity && cityOptions.includes(savedCity)) {
+          setActiveCity(savedCity);
+        }
+      } catch {
+        // Best effort only: storage can be unavailable in private or restricted contexts.
+      } finally {
+        setHasLoadedStoredCity(true);
       }
-    } catch {
-      // Best effort only: storage can be unavailable in private or restricted contexts.
-    } finally {
-      setHasLoadedStoredCity(true);
-    }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [cityOptions, hasLoadedStoredCity]);
 
   const categoryCounts = useMemo(() => {
@@ -244,7 +247,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const hasMoreRequests = visibleCount < filteredRequests.length;
 
   useEffect(() => {
-    setVisibleCount(REQUESTS_PAGE_SIZE);
+    const timer = window.setTimeout(() => setVisibleCount(REQUESTS_PAGE_SIZE), 0);
+    return () => window.clearTimeout(timer);
   }, [activeCategories, query, activeCity, activeWhen, activeDateRange]);
 
   useEffect(() => {

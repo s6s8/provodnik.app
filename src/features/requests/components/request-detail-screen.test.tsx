@@ -375,11 +375,11 @@ describe("RequestDetailScreen", () => {
     // Zero rainbow badge classes in the owner output
     expect(container.innerHTML).not.toMatch(/border-(sky|emerald|purple)-200/);
 
-    // Exactly one off-platform Alert, above the list and not inside a guide card
+    // Payment disclosure is above the list and not inside a guide card
     const alerts = container.querySelectorAll("[data-slot='alert']");
-    expect(alerts).toHaveLength(1);
-    const offPlatform = screen.getByText(/Оплата производится напрямую/);
-    expect(offPlatform.closest("article")).toBeNull();
+    expect(alerts).toHaveLength(0);
+    const prepayment = screen.getByText(/предоплату на платформе/);
+    expect(prepayment.closest("article")).toBeNull();
 
     // Single contact-reveal note (not per-card)
     expect(screen.getAllByText(/После выбора гида откроются его контакты и чат\./)).toHaveLength(1);

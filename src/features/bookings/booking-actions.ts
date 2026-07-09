@@ -60,12 +60,23 @@ export async function openBookingThreadAction(formData: FormData) {
 
   const { data: booking, error } = await supabase
     .from("bookings")
-    .select("id, traveler_id, guide_id")
+    .select("id, traveler_id, guide_id, request_id")
     .eq("id", parsed.data.bookingId)
     .maybeSingle();
 
   if (error || !booking || booking.traveler_id !== user.id) {
     return { error: "Бронирование не найдено." };
+  }
+
+  if (booking.request_id) {
+    const { data: requestRow, error: requestError } = await supabase
+      .from("traveler_requests")
+      .select("traveler_id")
+      .eq("id", booking.request_id)
+      .maybeSingle();
+    if (requestError || requestRow?.traveler_id !== user.id) {
+      return { error: "Только автор запроса может писать гиду." };
+    }
   }
 
   const thread = await getOrCreateThread(

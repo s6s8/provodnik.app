@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Inbox } from "lucide-react";
 
-import { type RequestRecord, type BookingRecord, getGuideBookings } from "@/data/supabase/queries";
+import { type RequestRecord } from "@/data/supabase/queries";
 import { kopecksToRub, formatRubNumber } from "@/data/money";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -65,7 +65,6 @@ async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest>
 
 export function GuideRequestsInboxScreen() {
   const [items, setItems] = React.useState<RequestRecord[]>([]);
-  const [bookings, setBookings] = React.useState<BookingRecord[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [loadError, setLoadError] = React.useState<string | null>(null);
   const [peripheralWarning, setPeripheralWarning] = React.useState<string | null>(null);
@@ -124,8 +123,6 @@ export function GuideRequestsInboxScreen() {
           setGuideId(user.id);
           await loadOffersForGuide(user.id);
           await loadGuideProfileForGuide(user.id);
-          const { data: bookingData } = await getGuideBookings(supabase, user.id);
-          if (!ignore && bookingData) setBookings(bookingData);
         }
       } catch (err) {
         if (!ignore) setLoadError(LOAD_ERROR_MESSAGE);
@@ -180,10 +177,13 @@ export function GuideRequestsInboxScreen() {
     if (didAutoSelect) return;
     if (isLoading) return;
     if (items.length === 0) return;
-    if (newCount === 0 && myOffersCount > 0) {
-      setFilter("my-offers");
-    }
-    setDidAutoSelect(true);
+    const timer = window.setTimeout(() => {
+      if (newCount === 0 && myOffersCount > 0) {
+        setFilter("my-offers");
+      }
+      setDidAutoSelect(true);
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [didAutoSelect, isLoading, items.length, newCount, myOffersCount]);
 
   const filteredItems = React.useMemo(() => {
@@ -197,11 +197,6 @@ export function GuideRequestsInboxScreen() {
     });
   }, [filter, items, offeredIds, baseCity, cityFilter, sortKey, specializations]);
 
-  const activeBookings = React.useMemo(
-    () => bookings.filter((b) => b.status !== "cancelled" && b.status !== "no_show" && b.status !== "completed"),
-    [bookings],
-  );
-
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
     : null;
@@ -209,15 +204,12 @@ export function GuideRequestsInboxScreen() {
   const tabs: Array<{ key: GuideRequestsFilter; label: string; count: number }> = [
     { key: "new", label: "Новые", count: newCount },
     { key: "my-offers", label: "Мои отклики", count: myOffersCount },
-    { key: "confirmed", label: "Подтверждённые", count: activeBookings.length },
   ];
 
   const emptyText =
     filter === "new"
       ? "Новых запросов пока нет. Путешественники публикуют запросы каждый день."
-      : filter === "my-offers"
-      ? "У вас нет активных предложений."
-      : "Подтверждённых бронирований пока нет.";
+      : "У вас нет активных предложений.";
 
   return (
     <div className="space-y-6">
@@ -309,38 +301,12 @@ export function GuideRequestsInboxScreen() {
               ) : null}
 
               <div className="space-y-3">
-                {filter === "confirmed" ? (
-                  activeBookings.length === 0 ? (
-                    <p className="text-center text-sm text-muted-foreground">{emptyText}</p>
-                  ) : (
-                    activeBookings.map((booking) => (
-                      <Link
-                        key={booking.id}
-                        href={`/guide/bookings/${booking.id}`}
-                        className="block rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40"
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="space-y-1">
-                            <p className="font-medium text-foreground">{booking.destination}</p>
-                            <p className="text-xs text-muted-foreground">{booking.dateLabel}</p>
-                          </div>
-                          <Badge variant="secondary">Подтверждено</Badge>
-                        </div>
-                        {booking.priceRub > 0 ? (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {booking.priceRub.toLocaleString("ru-RU")} ₽
-                          </p>
-                        ) : null}
-                      </Link>
-                    ))
-                  )
-                ) : null}
-                {filter !== "confirmed" && filteredItems.length === 0 ? (
+                {filteredItems.length === 0 ? (
                   <p className="text-center text-sm text-muted-foreground">
                     {emptyText}
                   </p>
                 ) : null}
-                {filter !== "confirmed" && filteredItems.map((item, index) => {
+                {filteredItems.map((item, index) => {
                   const alreadyOffered = offeredIds.has(item.id);
                   const matched = isMatchedRequest(item, specializations);
                   const offerMeta = offerIdByRequestId.get(item.id);

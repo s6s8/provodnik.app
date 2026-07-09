@@ -9,7 +9,6 @@ import {
   CalendarDays,
   Check,
   ChevronDown,
-  Clock,
   LogIn,
   Users,
   Wallet,
@@ -30,6 +29,7 @@ import { BidFormPanel } from "@/features/guide/components/requests/bid-form-pane
 import { GuideOfferQaPanel } from "@/features/guide/components/requests/guide-offer-qa-panel";
 import type { OfferMeta } from "@/features/guide/components/requests/offer-meta";
 import { JoinGroupButton } from "@/features/requests/components/join-group-button";
+import { LeaveGroupButton } from "@/features/requests/components/leave-group-button";
 import { RequestGroupThread } from "@/features/requests/components/request-group-thread";
 import { CancelRequestButton } from "@/features/traveler/components/requests/cancel-request-button";
 import { MarkOffersRead } from "@/features/traveler/components/requests/mark-offers-read";
@@ -183,7 +183,7 @@ const UUID_RE =
 
 function formatPublicPrice(pricePerPersonRub: number | null): string {
   if (!pricePerPersonRub) return "Цена уточняется";
-  return `~${formatRubNumber(pricePerPersonRub)} ₽`;
+  return `${formatRubNumber(pricePerPersonRub)} ₽`;
 }
 
 function ctaLabel(joinState: PublicRequestJoinState): string {
@@ -377,6 +377,11 @@ function PublicDetailBranch({
             <p className="mt-3 text-sm text-on-surface-muted">
               Организатор — <b className="font-semibold text-on-surface">{viewModel.organizerName}</b>
             </p>
+            {isMember ? (
+              <div className="mt-4 border-t border-border pt-4">
+                <LeaveGroupButton requestId={requestId} className="-ml-3 text-on-surface-muted" />
+              </div>
+            ) : null}
           </div>
         </section>
 
@@ -396,7 +401,9 @@ function PublicDetailBranch({
               </div>
             ))}
           </div>
-          <p className="text-[13.5px] text-on-surface-muted">Договорённость и оплата — напрямую с гидом.</p>
+          <p className="text-[13.5px] text-on-surface-muted">
+            Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
+          </p>
         </section>
 
         {/* FAQ */}
@@ -462,15 +469,6 @@ function formatResponseTime(iso: string): string {
 function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
   const request = record.request;
 
-  const dateLabel = formatRussianDate(request.startDate);
-  const flexible = Boolean(request.dateFlexibility && request.dateFlexibility !== "exact");
-  const dateValue = flexible ? `${dateLabel} · гибкие даты` : dateLabel;
-  const timeLabel = request.startTime
-    ? request.endTime
-      ? `${request.startTime} – ${request.endTime}`
-      : request.startTime
-    : "—";
-
   const isAssembly = request.mode === "assembly";
   const current = isAssembly ? request.groupSizeCurrent ?? 1 : request.groupSize ?? 1;
   const countLabel = `${current} чел.`;
@@ -482,6 +480,9 @@ function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
 
   const publishedAt = `Опубликован ${formatRussianDateTime(record.createdAt)}`;
   const interests = request.interests ?? [];
+  const dateLabel = request.endDate && request.endDate !== request.startDate
+    ? `${formatRussianDate(request.startDate)} — ${formatRussianDate(request.endDate)}`
+    : formatRussianDate(request.startDate);
 
   return (
     <div className="space-y-6">
@@ -518,8 +519,7 @@ function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
           >
             {isAssembly ? "Сборная группа" : "Своя группа"}
           </Badge>
-          <Chip label="Дата" value={dateValue} icon={CalendarDays} />
-          <Chip label="Время" value={timeLabel} icon={Clock} />
+          <Chip label="Дата" value={dateLabel} icon={CalendarDays} />
           <Chip label="Гостей" value={countLabel} icon={Users} />
           <Chip label="Бюджет" value={budgetLabel} icon={Wallet} />
         </div>
@@ -658,10 +658,6 @@ function OwnerDetailBranch({
   ) => {
     const { offer, guideInfo } = item;
     const trips = guideInfo?.trips_completed ?? null;
-    const dateDeviates =
-      offer.starts_at != null &&
-      ownerRequestRow.starts_on != null &&
-      offer.starts_at.slice(0, 10) !== ownerRequestRow.starts_on.slice(0, 10);
 
     return (
       <div key={offer.id} id={`guide-${offer.id}`}>
@@ -683,11 +679,6 @@ function OwnerDetailBranch({
               : undefined
           }
         >
-          {dateDeviates ? (
-            <div className="mb-3">
-              <Tag color="amber">Гид предложил другую дату</Tag>
-            </div>
-          ) : null}
           {renderEmbeddedDetails(item)}
         </GuideOfferCard>
       </div>
@@ -819,10 +810,10 @@ function OwnerDetailBranch({
               </div>
             ) : (
               <>
-                <Alert variant="warning" className="text-[13px] leading-[1.5]">
-                  Оплата производится напрямую с гидом при встрече. Платформа не
-                  гарантирует возврат средств.
-                </Alert>
+                <p className="text-[13px] text-on-surface-muted">
+                  Бронирование подтверждается через предоплату на платформе.
+                  Финальные условия фиксируются в заявке и подтверждении.
+                </p>
                 <p className="text-[13px] text-on-surface-muted">
                   После выбора гида откроются его контакты и чат.
                 </p>
@@ -910,7 +901,8 @@ function GuideDetailBranch({
   const [withdrawError, setWithdrawError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
-    setOfferId(existingOfferId);
+    const timer = window.setTimeout(() => setOfferId(existingOfferId), 0);
+    return () => window.clearTimeout(timer);
   }, [existingOfferId]);
 
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;

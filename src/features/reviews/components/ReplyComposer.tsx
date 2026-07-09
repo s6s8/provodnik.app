@@ -26,8 +26,11 @@ export function ReplyComposer({ reviewId, existingReply }: ReplyComposerProps) {
   const status = reply?.status ?? null;
 
   React.useEffect(() => {
-    setReply(existingReply);
-    setBody(existingReply?.body ?? "");
+    const timer = window.setTimeout(() => {
+      setReply(existingReply);
+      setBody(existingReply?.body ?? "");
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, [existingReply]);
 
   const runSave = React.useCallback(async () => {
@@ -97,7 +100,7 @@ export function ReplyComposer({ reviewId, existingReply }: ReplyComposerProps) {
     } finally {
       setPending(null);
     }
-  }, [reviewId, body, reply?.id]);
+  }, [reviewId, body, reply]);
 
   if (status === "pending_review") {
     return (

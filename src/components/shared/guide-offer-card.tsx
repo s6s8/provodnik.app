@@ -127,7 +127,7 @@ export function GuideOfferCard({
         <div className="pointer-events-none absolute inset-0 rounded-[16px] border-2 border-primary shadow-[0_0_0_4px_rgba(26,86,164,.09)]" />
       ) : null}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-[128px_minmax(0,1fr)] md:grid-cols-[128px_minmax(0,1fr)_200px]">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-[128px_minmax(0,1fr)]">
         {/* Portrait */}
         <div className="relative">
           <Avatar className="h-[140px] w-full rounded-[12px] sm:h-full sm:min-h-[178px]">
@@ -242,60 +242,64 @@ export function GuideOfferCard({
           ) : null}
         </div>
 
-        {/* Action */}
-        <div className="flex flex-col justify-center border-t border-border pt-5 text-center md:border-l md:border-t-0 md:pl-[22px] md:pt-0">
+      </div>
+
+      {/* Action footer — price + centered full-width CTA under the card head (#33) */}
+      <div className="mt-5 flex flex-col items-center gap-3 border-t border-border pt-5 text-center">
+        <div className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1">
           {requestBudgetLabel ? (
-            <div className="mb-2 text-[12px] text-muted-foreground">{requestBudgetLabel}</div>
+            <span className="text-[12px] text-muted-foreground">{requestBudgetLabel}</span>
           ) : null}
-          <div className="text-[23px] font-bold leading-none tracking-[-0.02em] text-on-surface">
+          <span className="text-[23px] font-bold leading-none tracking-[-0.02em] text-on-surface">
             {perPersonPriceLabel}
-          </div>
-          <div className="mt-[3px] text-[12.5px] text-on-surface-muted">с человека</div>
+          </span>
+          <span className="text-[12.5px] text-on-surface-muted">с человека</span>
           {groupTotalLabel ? (
-            <div className="mt-1 text-[12.5px] text-on-surface-muted">{groupTotalLabel}</div>
-          ) : null}
-          <button
-            type="button"
-            className={cn(
-              "mt-4 inline-flex h-[46px] w-full items-center justify-center gap-[7px] rounded-[10px] text-[14.5px] font-semibold transition-colors",
-              selected
-                ? "border border-success/30 bg-success/12 text-success"
-                : "bg-primary text-white hover:bg-primary-hover",
-            )}
-          >
-            {selected ? (
-              <>
-                <Check className="size-[15px]" strokeWidth={2.6} />
-                Выбран
-              </>
-            ) : (
-              "Выбрать гида"
-            )}
-          </button>
-          {onSelect ? (
-            <div className="mt-2 text-[12px] text-muted-foreground">
-              после выбора откроются контакты и чат
-            </div>
-          ) : null}
-          {onReject ? (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onReject();
-              }}
-              className="mt-2 inline-flex h-9 w-full items-center justify-center rounded-[10px] text-[13.5px] font-medium text-on-surface-muted transition-colors hover:bg-surface-low"
-            >
-              Не подходит
-            </button>
+            <span className="text-[12.5px] text-on-surface-muted">· {groupTotalLabel}</span>
           ) : null}
         </div>
+        <button
+          type="button"
+          className={cn(
+            "inline-flex h-[46px] w-full max-w-sm items-center justify-center gap-[7px] rounded-[10px] text-[14.5px] font-semibold transition-colors",
+            selected
+              ? "border border-success/30 bg-success/12 text-success"
+              : "bg-primary text-white hover:bg-primary-hover",
+          )}
+        >
+          {selected ? (
+            <>
+              <Check className="size-[15px]" strokeWidth={2.6} />
+              Выбран
+            </>
+          ) : (
+            "Выбрать гида"
+          )}
+        </button>
+        {onSelect ? (
+          <div className="text-[12px] text-muted-foreground">
+            после выбора откроются контакты и чат
+          </div>
+        ) : null}
+        {onReject ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onReject();
+            }}
+            className="inline-flex h-9 w-full max-w-sm items-center justify-center rounded-[10px] text-[13.5px] font-medium text-on-surface-muted transition-colors hover:bg-surface-low"
+          >
+            Не подходит
+          </button>
+        ) : null}
       </div>
 
       {children ? (
         <div
           className="mt-5 border-t border-border pt-5"
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={(e) => e.stopPropagation()}
           role="presentation"
         >
           {children}

@@ -78,7 +78,7 @@ export function StickyActionBar({
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <div className="truncate text-[15px] font-bold tracking-[-0.01em] text-on-surface">
+          <div className="text-[15px] font-bold tracking-[-0.01em] text-on-surface">
             {name}
           </div>
           {metaLabel ? (

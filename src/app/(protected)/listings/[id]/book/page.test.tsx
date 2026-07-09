@@ -99,9 +99,7 @@ describe("BookingPage honest title + trust", () => {
       screen.getByRole("heading", { name: /Подать заявку/ }),
     ).toBeInTheDocument();
     expect(screen.queryByRole("heading", { name: /Оформление/ })).not.toBeInTheDocument();
-    expect(
-      screen.getByText("Оплата напрямую гиду при встрече. Проводник не обрабатывает оплату."),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/предоплату на платформе/)).toBeInTheDocument();
     expect(screen.getByText("Ирина Петрова")).toBeInTheDocument();
   });
 
