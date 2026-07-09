@@ -12,6 +12,7 @@ interface Props {
   requests: RequestRecord[];
   viewerId?: string | null;
   preferredGuide?: { slug: string; name: string } | null;
+  joinedRequestIds?: Set<string>;
 }
 
 const HOW_IT_WORKS = [
@@ -25,7 +26,7 @@ const HOW_IT_WORKS = [
 
 const SECTION = "mx-auto w-full max-w-page px-gutter";
 
-export function HomePageShell2Classic({ destinations, requests, viewerId, preferredGuide }: Props) {
+export function HomePageShell2Classic({ destinations, requests, viewerId, preferredGuide, joinedRequestIds = new Set() }: Props) {
   const openGroups = requests.slice(0, 3);
 
   return (
@@ -63,6 +64,7 @@ export function HomePageShell2Classic({ destinations, requests, viewerId, prefer
                   members={req.members}
                   participantCount={req.groupSize}
                   owner={req.travelerId != null && req.travelerId === viewerId}
+                  member={joinedRequestIds.has(req.id)}
                   price={req.budgetRub ? `${formatRubNumber(req.budgetRub)} ₽ / чел` : undefined}
                   priority={index === 0}
                 />

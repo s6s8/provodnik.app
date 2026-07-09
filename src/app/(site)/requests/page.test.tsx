@@ -57,6 +57,16 @@ function requestRecord(overrides: Partial<RequestRecord>): RequestRecord {
   };
 }
 
+function mockMembershipQuery(rows: Array<{ request_id: string }> = []) {
+  const query = {
+    select: vi.fn().mockReturnThis(),
+    eq: vi.fn().mockReturnThis(),
+    is: vi.fn().mockReturnThis(),
+    in: vi.fn().mockResolvedValue({ data: rows, error: null }),
+  };
+  return query;
+}
+
 describe("RequestsPage", () => {
   it("loads open requests and passes only сборная records to the catalog", async () => {
     const supabaseClient = { from: vi.fn() };
@@ -77,8 +87,9 @@ describe("RequestsPage", () => {
   });
 
   it("marks records owned by the signed-in viewer with isOwner (№32)", async () => {
+    const membershipQuery = mockMembershipQuery();
     const supabaseClient = {
-      from: vi.fn(),
+      from: vi.fn().mockReturnValue(membershipQuery),
       auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "traveler-9" } } }) },
     };
     createSupabaseServerClient.mockResolvedValue(supabaseClient);
@@ -98,6 +109,33 @@ describe("RequestsPage", () => {
     expect(byId["own-request"]).toBe(true);
     expect(byId["other-request"]).toBe(false);
     expect(byId["anon-view-request"]).toBe(false);
+  });
+
+  it("marks records already joined by the signed-in viewer with isMember", async () => {
+    const membershipQuery = mockMembershipQuery([{ request_id: "joined-request" }]);
+    const supabaseClient = {
+      from: vi.fn().mockReturnValue(membershipQuery),
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "traveler-9" } } }) },
+    };
+    createSupabaseServerClient.mockResolvedValue(supabaseClient);
+    getOpenRequests.mockResolvedValue({
+      data: [
+        requestRecord({ id: "joined-request", travelerId: "traveler-1" }),
+        requestRecord({ id: "other-request", travelerId: "traveler-2" }),
+      ],
+    });
+
+    const rendered = await RequestsPage();
+
+    expect(supabaseClient.from).toHaveBeenCalledWith("open_request_members");
+    expect(membershipQuery.eq).toHaveBeenCalledWith("traveler_id", "traveler-9");
+    expect(membershipQuery.eq).toHaveBeenCalledWith("status", "joined");
+    expect(membershipQuery.is).toHaveBeenCalledWith("left_at", null);
+    const byId = Object.fromEntries(
+      (rendered.props.initialData as Array<{ id: string; isMember?: boolean }>).map((r) => [r.id, r.isMember]),
+    );
+    expect(byId["joined-request"]).toBe(true);
+    expect(byId["other-request"]).toBe(false);
   });
 
   it("passes null initialData to the catalog when the board is empty", async () => {

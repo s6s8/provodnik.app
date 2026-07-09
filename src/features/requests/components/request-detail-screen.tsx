@@ -580,11 +580,6 @@ function OwnerDetailBranch({
   const enrollmentLabel = enrollmentOpen ? "Набор открыт" : "Набор закрыт";
 
   const requestInterests = ownerRequestRow.interests ?? [];
-  const requestBudgetLabel = ownerRequestRow.budget_minor
-    ? `Ваш бюджет ${formatRubNumber(
-        Math.round(kopecksToRub(ownerRequestRow.budget_minor)),
-      )} ₽ / чел.`
-    : undefined;
 
   const offerCount = (offer: GuideOfferRow): number =>
     offer.capacity > 0 ? offer.capacity : ownerRequestRow.participants_count ?? 1;
@@ -601,13 +596,6 @@ function OwnerDetailBranch({
       currency: offer.currency,
       maximumFractionDigits: 0,
     }).format(perPersonRub(offer));
-
-  const groupTotalLabel = (offer: GuideOfferRow): string | undefined => {
-    const count = offerCount(offer);
-    if (count <= 1) return undefined;
-    const total = perPersonRub(offer) * count;
-    return `${formatRubNumber(total)} ₽ за группу · ${count} чел.`;
-  };
 
   const cardInfo = (gi: OwnerOfferItem["guideInfo"]): GuideCardInfo => ({
     full_name: gi?.full_name ?? null,
@@ -665,10 +653,7 @@ function OwnerDetailBranch({
           guide={cardInfo(guideInfo)}
           name={guideName(guideInfo)}
           quote={offer.message}
-          perPersonPriceLabel={perPersonLabel(offer)}
           responseTimeLabel={formatResponseTime(offer.created_at)}
-          groupTotalLabel={groupTotalLabel(offer)}
-          requestBudgetLabel={requestBudgetLabel}
           profileHref={guideInfo?.slug ? `/guides/${guideInfo.slug}` : undefined}
           isNewGuide={trips == null || trips === 0}
           matchingSpecialties={matchingSpecialties(guideInfo)}

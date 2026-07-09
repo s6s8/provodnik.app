@@ -43,7 +43,7 @@ async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest>
   const supabase = createSupabaseBrowserClient();
   const { data, error } = await supabase
     .from("guide_offers")
-    .select("id, request_id, starts_at, capacity, price_minor")
+    .select("id, request_id, starts_at, capacity, price_minor, status")
     .eq("guide_id", guideId);
   if (error || !data) {
     return { offeredIds: new Set(), offerIdByRequestId: new Map(), error: error?.message ?? null };
@@ -57,6 +57,7 @@ async function fetchOfferedRequestIds(guideId: string): Promise<OffersByRequest>
         starts_at: (row.starts_at as string | null) ?? null,
         capacity: (row.capacity as number | null) ?? null,
         price_minor: (row.price_minor as number | null) ?? null,
+        status: (row.status as OfferMeta["status"]) ?? undefined,
       },
     ]),
   );
@@ -311,7 +312,9 @@ export function GuideRequestsInboxScreen() {
                   const matched = isMatchedRequest(item, specializations);
                   const offerMeta = offerIdByRequestId.get(item.id);
                   const offerId = offerMeta?.id;
-                  const showQaPanel = alreadyOffered && !!offerId;
+                  const offerStatus = offerMeta?.status ?? "pending";
+                  const isDeclinedOffer = offerStatus === "declined";
+                  const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
                   const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
                   return (
                     <div key={item.id} className="space-y-3">
@@ -356,7 +359,9 @@ export function GuideRequestsInboxScreen() {
                         <div className="mt-4 flex flex-wrap items-center gap-3">
                           {alreadyOffered ? (
                             <div className="flex flex-col gap-2">
-                              <Badge variant="secondary">Предложение отправлено</Badge>
+                              <Badge variant={isDeclinedOffer ? "destructive" : "secondary"}>
+                                {isDeclinedOffer ? "Отклонено автором" : "Предложение отправлено"}
+                              </Badge>
                               {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
                                 <p className="text-xs leading-relaxed text-muted-foreground">
                                   Вы предложили:

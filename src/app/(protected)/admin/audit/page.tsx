@@ -100,7 +100,7 @@ export default async function AdminAuditPage({
     q?: string | string[];
     page?: string | string[];
   }>;
-} = {}) {
+}) {
   const { adminClient } = await requireAdminSession();
 
   const resolved = searchParams ? await searchParams : {};

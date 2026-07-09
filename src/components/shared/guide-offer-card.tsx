@@ -23,7 +23,6 @@ type GuideOfferCardProps = {
   guide: GuideCardInfo;
   name: string;
   quote?: string | null;
-  perPersonPriceLabel: string;
   selected?: boolean;
   /** Whether to show the "Местный житель" badge (caller decides from real data). */
   isLocal?: boolean;
@@ -31,10 +30,6 @@ type GuideOfferCardProps = {
   responseTimeLabel?: string;
   /** Link to the guide's public profile → renders «Профиль →». */
   profileHref?: string;
-  /** Muted reminder of the traveler's per-person budget, shown above the price column. */
-  requestBudgetLabel?: string;
-  /** Group total, shown beneath the per-person price. */
-  groupTotalLabel?: string;
   /** Guide with too little history for social proof → note + suppressed stats row. */
   isNewGuide?: boolean;
   /** Specialties that match the request — rendered bold with a check. */
@@ -78,13 +73,10 @@ export function GuideOfferCard({
   guide,
   name,
   quote,
-  perPersonPriceLabel,
   selected = false,
   isLocal = false,
   responseTimeLabel,
   profileHref,
-  requestBudgetLabel,
-  groupTotalLabel,
   isNewGuide = false,
   matchingSpecialties,
   onSelect,
@@ -244,20 +236,8 @@ export function GuideOfferCard({
 
       </div>
 
-      {/* Action footer — price + centered full-width CTA under the card head (#33) */}
+      {/* Action footer — centered full-width CTA under the card head (#57) */}
       <div className="mt-5 flex flex-col items-center gap-3 border-t border-border pt-5 text-center">
-        <div className="flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1">
-          {requestBudgetLabel ? (
-            <span className="text-[12px] text-muted-foreground">{requestBudgetLabel}</span>
-          ) : null}
-          <span className="text-[23px] font-bold leading-none tracking-[-0.02em] text-on-surface">
-            {perPersonPriceLabel}
-          </span>
-          <span className="text-[12.5px] text-on-surface-muted">с человека</span>
-          {groupTotalLabel ? (
-            <span className="text-[12.5px] text-on-surface-muted">· {groupTotalLabel}</span>
-          ) : null}
-        </div>
         <button
           type="button"
           className={cn(

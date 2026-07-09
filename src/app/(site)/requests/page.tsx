@@ -15,13 +15,18 @@ export function generateMetadata(): Metadata {
   };
 }
 
-function mapToOpenRequestRecord(request: RequestRecord, viewerId: string | null): OpenRequestRecord {
+function mapToOpenRequestRecord(
+  request: RequestRecord,
+  viewerId: string | null,
+  joinedRequestIds: Set<string>,
+): OpenRequestRecord {
   const isOwner = request.travelerId != null && request.travelerId === viewerId;
   // PII-012: mask contact details in the free-text for every non-owner viewer.
   const maskedDescription = isOwner ? request.description : maskPii(request.description);
   return {
     id: request.id,
     isOwner,
+    isMember: joinedRequestIds.has(request.id),
     status: request.status === "booked" ? "matched" : "open",
     visibility: "public",
     createdAt: request.createdAt,
@@ -68,9 +73,23 @@ export default async function RequestsPage() {
     if (result.error) {
       loadError = true;
     } else if (result.data && result.data.length > 0) {
-      initialData = result.data
-        .filter((request) => request.mode === "assembly")
-        .map((request) => mapToOpenRequestRecord(request, viewerId));
+      const assemblyRequests = result.data.filter((request) => request.mode === "assembly");
+      const joinedRequestIds = new Set<string>();
+      if (viewerId && assemblyRequests.length > 0) {
+        const { data: memberships } = await supabase
+          .from("open_request_members")
+          .select("request_id")
+          .eq("traveler_id", viewerId)
+          .eq("status", "joined")
+          .is("left_at", null)
+          .in("request_id", assemblyRequests.map((request) => request.id));
+        for (const membership of memberships ?? []) {
+          if (membership.request_id) joinedRequestIds.add(membership.request_id as string);
+        }
+      }
+      initialData = assemblyRequests.map((request) =>
+        mapToOpenRequestRecord(request, viewerId, joinedRequestIds),
+      );
     }
   } catch {
     loadError = true;
