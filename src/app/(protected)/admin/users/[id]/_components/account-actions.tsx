@@ -130,8 +130,8 @@ function StatusActionDialog({
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               Отмена
             </Button>
-            <Button type="submit" variant={variant} disabled={pending}>
-              Подтвердить
+            <Button type="submit" variant={variant} disabled={pending} loading={pending}>
+              {pending ? "Сохраняем…" : "Подтвердить"}
             </Button>
           </DialogFooter>
         </form>
@@ -224,8 +224,8 @@ export function RoleControls({
         <Textarea id="role-reason" name="reason" required placeholder="Причина смены роли" />
       </div>
       <ResultLine result={state} />
-      <Button type="submit" disabled={pending || role === currentRole}>
-        Сменить роль
+      <Button type="submit" disabled={pending || role === currentRole} loading={pending}>
+        {pending ? "Сохраняем…" : "Сменить роль"}
       </Button>
     </form>
   );
@@ -249,8 +249,8 @@ export function GuideVerificationControls({ guideId }: { guideId: string }) {
     <div className="space-y-3">
       <div className="flex flex-wrap gap-2">
         <form action={approve}>
-          <Button type="submit" variant="default" size="sm" disabled={approvePending}>
-            Одобрить анкету
+          <Button type="submit" variant="default" size="sm" disabled={approvePending || rejectPending} loading={approvePending}>
+            {approvePending ? "Одобряем…" : "Одобрить анкету"}
           </Button>
         </form>
         <form action={reject} className="flex flex-1 flex-wrap items-end gap-2">
@@ -260,8 +260,8 @@ export function GuideVerificationControls({ guideId }: { guideId: string }) {
             </Label>
             <Textarea id="reject-reason" name="reason" rows={2} />
           </div>
-          <Button type="submit" variant="destructive" size="sm" disabled={rejectPending}>
-            Отклонить
+          <Button type="submit" variant="destructive" size="sm" disabled={approvePending || rejectPending} loading={rejectPending}>
+            {rejectPending ? "Отклоняем…" : "Отклонить"}
           </Button>
         </form>
       </div>
@@ -318,8 +318,8 @@ export function HardDeleteControl({ userId }: { userId: string }) {
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel type="button">Отмена</AlertDialogCancel>
-            <Button type="submit" variant="destructive" disabled={pending}>
-              Удалить навсегда
+            <Button type="submit" variant="destructive" disabled={pending} loading={pending}>
+              {pending ? "Удаляем…" : "Удалить навсегда"}
             </Button>
           </AlertDialogFooter>
         </form>

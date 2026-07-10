@@ -26,6 +26,8 @@ import type {
 } from "@/lib/supabase/moderation";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
+import { PendingMenuSubmitButton } from "../_components/pending-submit-button";
+
 export const metadata: Metadata = {
   title: "Очередь верификации",
 };
@@ -290,12 +292,12 @@ export default async function AdminGuidesPage({
                             )}
                           >
                             <DropdownMenuItem asChild>
-                              <button
-                                type="submit"
+                              <PendingMenuSubmitButton
                                 className="w-full cursor-pointer text-success focus:text-success"
+                                pendingLabel="Одобряем…"
                               >
                                 Одобрить
-                              </button>
+                              </PendingMenuSubmitButton>
                             </DropdownMenuItem>
                           </form>
                           <form
@@ -305,9 +307,9 @@ export default async function AdminGuidesPage({
                             )}
                           >
                             <DropdownMenuItem asChild variant="destructive">
-                              <button type="submit" className="w-full cursor-pointer">
+                              <PendingMenuSubmitButton pendingLabel="Отклоняем…">
                                 Отклонить
-                              </button>
+                              </PendingMenuSubmitButton>
                             </DropdownMenuItem>
                           </form>
                         </DropdownMenuContent>

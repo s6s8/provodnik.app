@@ -3,13 +3,13 @@ import { notFound } from "next/navigation";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { kopecksToRub } from "@/data/money";
 import { COPY } from "@/lib/copy";
 import { formatRussianDateTime } from "@/lib/dates";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 
+import { PendingSubmitButton } from "../../_components/pending-submit-button";
 import { confirmBookingAction } from "./actions";
 import { STATUS_LABELS } from "../status-labels";
 
@@ -133,9 +133,13 @@ export default async function AdminBookingDetailPage({
             </CardHeader>
             <CardContent>
               <form action={confirmBookingAction.bind(null, booking.id)}>
-                <Button type="submit" size="default" className="min-h-[44px]">
+                <PendingSubmitButton
+                  size="default"
+                  className="min-h-[44px]"
+                  pendingLabel="Подтверждаем…"
+                >
                   Подтвердить
-                </Button>
+                </PendingSubmitButton>
               </form>
             </CardContent>
           </Card>

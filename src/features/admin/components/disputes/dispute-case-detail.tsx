@@ -161,8 +161,13 @@ export function DisputeCaseDetail({
                   variant="outline"
                   className="w-full"
                   disabled={(isAssignedToMe && dispute.status !== "open") || assignPending}
+                  loading={assignPending}
                 >
-                  {isAssignedToMe ? "Уже назначен на вас" : "Назначить себе"}
+                  {assignPending
+                    ? "Назначаем…"
+                    : isAssignedToMe
+                      ? "Уже назначен на вас"
+                      : "Назначить себе"}
                 </Button>
                 {assignState?.error ? (
                   <Alert variant="destructive">
@@ -188,9 +193,15 @@ export function DisputeCaseDetail({
                     required
                   />
                 </div>
-                <Button type="submit" variant="ghost" className="w-full" disabled={notePending}>
+                <Button
+                  type="submit"
+                  variant="ghost"
+                  className="w-full"
+                  disabled={notePending}
+                  loading={notePending}
+                >
                   <MessageSquareText className="mr-1 size-4" />
-                  Сохранить заметку
+                  {notePending ? "Сохраняем…" : "Сохранить заметку"}
                 </Button>
                 {noteState?.error ? (
                   <Alert variant="destructive">
@@ -215,8 +226,13 @@ export function DisputeCaseDetail({
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={dispute.status === "resolved" || resolvePending}>
-                  Закрыть спор
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={dispute.status === "resolved" || resolvePending}
+                  loading={resolvePending}
+                >
+                  {resolvePending ? "Закрываем…" : "Закрыть спор"}
                 </Button>
                 {resolveState?.error ? (
                   <Alert variant="destructive">
