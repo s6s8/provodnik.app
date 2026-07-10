@@ -524,6 +524,7 @@ export function BidFormPanel({
                 {request.mode === "assembly" ? "Сколько человек готовы взять?" : "Группа сформирована"}
               </span>
             </div>
+            <p className="text-sm text-muted-foreground">В запросе: {travelerCount} чел.</p>
             {request.mode === "assembly" ? (
               <input
                 type="number"

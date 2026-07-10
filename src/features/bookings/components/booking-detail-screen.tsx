@@ -34,6 +34,7 @@ import { GuideBookingStatusBadge } from "@/features/guide/components/bookings/gu
 import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReviewForm";
 import type { GuideBookingStatus } from "@/data/guide-booking/types";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
+import { COPY } from "@/lib/copy";
 import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
@@ -451,7 +452,7 @@ function TravelerBookingDetailView({
                       confirmedAt={paymentAgreement.travelerConfirmedAt}
                     />
                     <PaymentAgreementRow
-                      label="Гид"
+                      label={COPY.guide}
                       confirmedAt={paymentAgreement.guideConfirmedAt}
                     />
                   </div>

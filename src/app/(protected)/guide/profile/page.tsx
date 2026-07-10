@@ -433,7 +433,7 @@ export default async function GuideProfilePage() {
                 <div className="space-y-4">
                   {verificationStatus === "rejected" ? (
                     <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                      <strong className="block text-foreground">Проверка отклонена.</strong>
+                      <strong className="block text-foreground">Нужны правки по анкете.</strong>
                       {verificationNotes ?? "Исправьте документы и отправьте их снова."}
                     </div>
                   ) : null}

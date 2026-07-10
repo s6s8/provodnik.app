@@ -1,5 +1,6 @@
 import { z } from "zod";
 
+import { COPY } from "@/lib/copy";
 import type { AppRole } from "@/lib/auth/types";
 
 /**
@@ -18,7 +19,7 @@ export const ACCOUNT_STATUS_LABELS: Record<AccountStatus, string> = {
 
 export const ROLE_LABELS: Record<AppRole, string> = {
   traveler: "Путешественник",
-  guide: "Гид",
+  guide: COPY.guide,
   admin: "Администратор",
 };
 

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
+import { COPY } from "@/lib/copy";
 import { formatRussianDateTime } from "@/lib/dates";
 import { maskPii } from "@/lib/pii/mask";
 import { cn } from "@/lib/utils";
@@ -53,7 +54,7 @@ function formatEventLabel(eventType: string | null): string {
 
 const COMMENT_ROLE_LABELS: Record<string, string> = {
   traveler: "Путешественник",
-  guide: "Гид",
+  guide: COPY.guide,
   admin: "Поддержка",
 };
 

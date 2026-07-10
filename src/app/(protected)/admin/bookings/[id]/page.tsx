@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { kopecksToRub } from "@/data/money";
+import { COPY } from "@/lib/copy";
 import { formatRussianDateTime } from "@/lib/dates";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 
@@ -96,7 +97,7 @@ export default async function AdminBookingDetailPage({
                 label="Путешественник"
                 value={resolveName(booking.traveler_id)}
               />
-              <DetailRow label="Гид" value={resolveName(booking.guide_id)} />
+              <DetailRow label={COPY.guide} value={resolveName(booking.guide_id)} />
               <DetailRow
                 label="Участников"
                 value={booking.party_size ?? "—"}

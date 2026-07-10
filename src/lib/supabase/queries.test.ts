@@ -172,6 +172,7 @@ describe("public Supabase query helpers", () => {
             budget_minor: 100_000,
             status: "open",
             created_at: "2026-06-03T00:00:00Z",
+            format_preference: "group",
           },
         ],
         guide_offers: [{ request_id: "request-1" }],
@@ -391,6 +392,42 @@ describe("PII-safe Supabase query mapping", () => {
 
     expect(result.data).toEqual([]);
     expect(result.error).toBe(offerError);
+  });
+
+  it("keeps private requests out of homepage open groups", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "private-request",
+          destination: "Москва",
+          budget_minor: 100_000,
+          participants_count: 2,
+          status: "open",
+          category: "city",
+          created_at: "2026-06-04T00:00:00Z",
+          traveler_id: "traveler-1",
+          format_preference: "private",
+        },
+        {
+          id: "group-request",
+          destination: "Казань",
+          budget_minor: 80_000,
+          participants_count: 1,
+          group_capacity: 4,
+          status: "open",
+          category: "city",
+          created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-2",
+          format_preference: "group",
+        },
+      ],
+      guide_offers: [],
+    });
+
+    const result = await getHomepageRequests(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data?.map((request) => request.id)).toEqual(["group-request"]);
   });
 
   it("surfaces open request member query errors instead of dropping member rows silently", async () => {
@@ -738,6 +775,7 @@ describe("getOpenRequestsByDestination", () => {
           status: "open",
           created_at: "2026-06-03T00:00:00Z",
           traveler_id: "traveler-1",
+          format_preference: "group",
         },
         {
           id: "request-2",
@@ -748,6 +786,7 @@ describe("getOpenRequestsByDestination", () => {
           status: "open",
           created_at: "2026-06-02T00:00:00Z",
           traveler_id: "traveler-2",
+          format_preference: "group",
         },
       ],
     });
@@ -780,6 +819,7 @@ describe("getOpenRequestsByDestination", () => {
           status: "open",
           created_at: "2026-06-03T00:00:00Z",
           traveler_id: "traveler-1",
+          format_preference: "group",
         },
         {
           id: "request-2",
@@ -790,6 +830,7 @@ describe("getOpenRequestsByDestination", () => {
           status: "open",
           created_at: "2026-06-02T00:00:00Z",
           traveler_id: "traveler-2",
+          format_preference: "group",
         },
       ],
       guide_offers: [
@@ -805,6 +846,42 @@ describe("getOpenRequestsByDestination", () => {
     const byId = new Map(result.data?.map((rec) => [rec.id, rec]));
     expect(byId.get("request-1")?.offerCount).toBe(2);
     expect(byId.get("request-2")?.offerCount).toBe(1);
+  });
+
+  it("keeps private requests out of destination open groups", async () => {
+    const client = createFakeClient({
+      traveler_requests: [
+        {
+          id: "private-request",
+          destination: "Элиста",
+          region: "Калмыкия",
+          budget_minor: 100_000,
+          participants_count: 2,
+          status: "open",
+          created_at: "2026-06-04T00:00:00Z",
+          traveler_id: "traveler-1",
+          format_preference: "private",
+        },
+        {
+          id: "group-request",
+          destination: "Элиста",
+          region: "Калмыкия",
+          budget_minor: 80_000,
+          participants_count: 1,
+          group_capacity: 4,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+          traveler_id: "traveler-2",
+          format_preference: "group",
+        },
+      ],
+      guide_offers: [],
+    });
+
+    const result = await getOpenRequestsByDestination(client, "Калмыкия");
+
+    expect(result.error).toBeNull();
+    expect(result.data?.map((request) => request.id)).toEqual(["group-request"]);
   });
 
   it("surfaces guide_offers count errors instead of returning zero offers", async () => {
@@ -944,6 +1021,8 @@ describe("anonymous public request access uses the sanitized view", () => {
           budget_minor: 80_000,
           participants_count: 1,
           status: "open",
+          format_preference: "group",
+          open_to_join: true,
           created_at: "2026-06-03T00:00:00Z",
         },
       ],

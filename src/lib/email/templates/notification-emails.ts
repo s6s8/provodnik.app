@@ -84,3 +84,27 @@ export function renderBookingCancelledEmail(args: {
     `,
   };
 }
+
+export function renderAdminAlertEmail(args: {
+  title: string;
+  body: string;
+  url: string;
+}): EmailTemplate {
+  const title = escapeHtml(args.title);
+  const body = escapeHtml(args.body);
+  const url = escapeHtml(args.url);
+
+  return {
+    subject: `${args.title} — Provodnik`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">${title}</h2>
+        <p style="color: #555; margin-bottom: 24px; white-space: pre-line;">${body}</p>
+        <a href="${url}"
+           style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500;">
+          Открыть кабинет
+        </a>
+      </div>
+    `,
+  };
+}

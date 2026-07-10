@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { COPY } from "@/lib/copy";
 import { formatRussianDateTime } from "@/lib/dates";
 import type { GroupMessage } from "@/lib/supabase/request-thread";
 import type { MessageSenderRole } from "@/lib/supabase/types";
@@ -17,7 +18,7 @@ function senderLabel(
   if (senderId && senderId === currentUserId) return "Вы";
   switch (senderRole) {
     case "guide":
-      return "Гид";
+      return COPY.guide;
     case "admin":
       return "Администратор";
     default:
