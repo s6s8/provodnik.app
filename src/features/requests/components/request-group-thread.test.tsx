@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { COPY } from "@/lib/copy";
 import { RequestGroupThread } from "./request-group-thread";
 import type { GroupMessage } from "@/lib/supabase/request-thread";
 
@@ -40,7 +41,7 @@ describe("RequestGroupThread", () => {
     expect(screen.getByText("Всем привет, я организатор.")).toBeInTheDocument();
     expect(screen.getByText("Готов показать маршрут.")).toBeInTheDocument();
     expect(screen.getByText("Вы")).toBeInTheDocument();
-    expect(screen.getByText("Гид")).toBeInTheDocument();
+    expect(screen.getByText(COPY.guide)).toBeInTheDocument();
 
     // Composer is disabled until there is text, then posts the trimmed body.
     const submit = screen.getByRole("button", { name: "Отправить" });

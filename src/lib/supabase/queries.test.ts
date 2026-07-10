@@ -1021,6 +1021,8 @@ describe("anonymous public request access uses the sanitized view", () => {
           budget_minor: 80_000,
           participants_count: 1,
           status: "open",
+          format_preference: "group",
+          open_to_join: true,
           created_at: "2026-06-03T00:00:00Z",
         },
       ],

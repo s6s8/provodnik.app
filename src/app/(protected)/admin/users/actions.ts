@@ -16,6 +16,7 @@ import {
   type AdminActionResult,
   type BulkActionResult,
 } from "@/data/admin-users";
+import { COPY } from "@/lib/copy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   countOtherActiveAdmins,
@@ -60,7 +61,7 @@ async function syncRoleSideEffects(input: {
   nextRole: string;
 }) {
   if (input.nextRole === "guide") {
-    const fallbackName = input.targetEmail?.split("@")[0]?.trim() || "Гид";
+    const fallbackName = input.targetEmail?.split("@")[0]?.trim() || COPY.guide;
     const { error } = await input.adminClient.from("guide_profiles").upsert(
       {
         user_id: input.targetId,
