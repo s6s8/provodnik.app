@@ -56,6 +56,20 @@ describe("SiteHeader desktop account menu", () => {
     ).toBeInTheDocument();
   });
 
+  it("does not duplicate the create-request CTA on the homepage", () => {
+    mockPathname = "/";
+    renderAuthenticatedHeader("traveler");
+
+    expect(screen.queryByRole("link", { name: "Создать запрос" })).toBeNull();
+  });
+
+  it("keeps the create-request CTA on non-home pages", () => {
+    mockPathname = "/destinations";
+    renderAuthenticatedHeader("traveler");
+
+    expect(screen.getByRole("link", { name: "Создать запрос" })).toHaveAttribute("href", "/");
+  });
+
   it.each(["/requests", "/destinations", "/how-it-works"])(
     "shows the account trigger on public route %s when authenticated",
     (pathname) => {
