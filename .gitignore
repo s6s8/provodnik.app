@@ -85,6 +85,7 @@ audit/manifest.json
 # LLM-compiled knowledge base (llm-wiki / /memo) — local working memory, not product code
 /kb/
 /.memo.yaml
+/graphify-out/
 .ds-sync/
 ds-bundle/
 .design-sync/.cache/

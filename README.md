@@ -27,6 +27,7 @@ bun run typecheck    # TS only
 bun run lint         # ESLint only
 bun run test:run     # vitest unit tests
 bun run playwright   # e2e suite
+bun run graph:build  # build local Graphify code graph for refactors
 bun run db:reset     # reset local Supabase + all migrations + seed
 bun run types        # regenerate src/types/supabase.ts
 ```
@@ -42,6 +43,18 @@ bun run types        # regenerate src/types/supabase.ts
 - `tests/` — vitest unit + Playwright e2e
 - `docs/` — product, architecture, business, design, qa, superpowers (specs + plans)
 - `.claude/` — SOT, prompt skeleton, checklists
+
+## Code graph
+
+For refactors and cross-role bug tracing, build a local Graphify graph:
+
+```bash
+bun run graph:build
+bun run graph:query -- "where are guide offers converted into bookings?"
+bun run graph:path -- "acceptOfferAction()" "createBooking()"
+```
+
+Outputs stay outside the repo by default at `/tmp/provodnik-graphify/graphify-out/`. See `docs/architecture/graphify.md`.
 
 ## Orchestration
 

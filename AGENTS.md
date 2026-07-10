@@ -14,6 +14,8 @@ bun run build              # production build
 bun run check              # typecheck + lint
 bun run typecheck          # TS only
 bun run lint               # ESLint only
+bun run graph:build        # rebuild Graphify code graph for refactor navigation
+bun run graph:query -- "..." # query graph after build
 bun run db:reset           # reset local Supabase + all migrations + seed
 bun run db:diff            # schema diff → new migration file
 bun run types              # regenerate src/types/supabase.ts
@@ -41,6 +43,12 @@ bun run types              # regenerate src/types/supabase.ts
 - Reuse before create: check `.claude/sot/CANON_COMPONENTS.md` for the canonical component/helper before writing a new one (enforced by `bun run lint:canon` + `bun run lint:dead`)
 - RLS is the security boundary — never rely on app-layer filtering alone
 - File uploads: presigned URL via Server Action → direct browser upload to Supabase Storage
+
+## Graphify Refactor Navigation
+- Use `bun run graph:build` before broad refactors or multi-role bug work.
+- Query with `bun run graph:query -- "question"`, `bun run graph:path -- "A" "B"`, or `bun run graph:affected -- "Symbol" --depth 2` before broad grep/read floods.
+- Graph output is local working memory under `/tmp/provodnik-graphify/graphify-out/` by default; do not commit generated graph files.
+- Graphify narrows where to inspect; still open the referenced files and verify product behavior with tests/browser/API proof.
 
 ## Environment
 Copy `.env.example` → `.env.local`. Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`. App shell runs without credentials (Supabase helpers throw only if called unconfigured).
