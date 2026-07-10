@@ -37,6 +37,12 @@ import type {
 
 export * from "./queries/core";
 
+function isPublicOpenGroupRequest(rec: RequestRecord): boolean {
+  if (rec.mode !== "assembly") return false;
+  if (rec.capacity == null) return true;
+  return rec.capacity - rec.groupSize > 0 || rec.offerCount > 0;
+}
+
 export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
     const { data, error } = await client.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
@@ -232,7 +238,7 @@ export async function getOpenRequestsByDestination(
       rec.members = membersMap.get(rec.id) ?? [];
     }
 
-    return { data: records, error: null };
+    return { data: records.filter(isPublicOpenGroupRequest), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -697,12 +703,7 @@ export async function getHomepageRequests(
       rec.members = membersMap.get(rec.id) ?? [];
     }
 
-    const filtered = records.filter((rec) => {
-      if (rec.mode !== "assembly") return true;
-      if (rec.capacity == null) return true;
-      const remaining = rec.capacity - rec.groupSize;
-      return remaining > 0 || rec.offerCount > 0;
-    });
+    const filtered = records.filter(isPublicOpenGroupRequest);
 
     filtered.sort(
       (a, b) =>
