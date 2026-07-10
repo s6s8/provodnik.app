@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PageHeader } from "@/components/shared/page-header";
 import { ListRow } from "@/components/shared/list-row";
 import { formatRussianDateTime } from "@/lib/dates";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { DisputeListItem } from "@/lib/supabase/disputes";
 
 type DisputeStatus = DisputeListItem["status"];
@@ -60,13 +61,15 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
             const meta = STATUS_META[item.status];
             const booking = item.booking;
             const route = booking?.listingTitle ?? booking?.destination ?? "—";
+            const travelerName = booking?.travelerName?.trim() || "Турист";
+            const guideName = resolveDisplayName("guide", { full_name: booking?.guideName });
 
             return (
               <ListRow
                 key={item.id}
                 href={`/admin/disputes/${item.id}`}
                 leading={<Badge variant={meta.variant}>{meta.label}</Badge>}
-                title={`${booking?.travelerName ?? "Путешественник"} vs ${booking?.guideName ?? "Гид"}`}
+                title={`${travelerName} vs ${guideName}`}
                 subtitle={`${route} · ${formatRussianDateTime(item.createdAt)}`}
                 badge={<span className="font-mono text-xs text-muted-foreground">#{item.id.slice(0, 8)}</span>}
               />
