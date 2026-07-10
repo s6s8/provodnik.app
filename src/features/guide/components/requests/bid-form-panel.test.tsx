@@ -106,7 +106,7 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(screen.getByText("Сборная группа")).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа · Сколько человек готовы взять?")).toBeInTheDocument();
     expect(screen.queryByText(/^Открытая группа$/)).toBeNull();
   });
 
@@ -119,7 +119,21 @@ describe("BidFormPanel — mode line", () => {
       />,
     );
 
-    expect(screen.getByText("Своя группа")).toBeInTheDocument();
+    expect(screen.getByText("Своя группа · Группа сформирована")).toBeInTheDocument();
+    expect(screen.getByText("4 чел.")).toBeInTheDocument();
+  });
+
+  it("keeps date and headcount out of the panel header", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, destination: "Сочи", dateLabel: "10 июня", groupSize: 4 }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(screen.getByText("Сочи")).toBeInTheDocument();
+    expect(screen.queryByText("Сочи · 10 июня · 4 чел.")).toBeNull();
   });
 });
 
@@ -178,7 +192,9 @@ describe("BidFormPanel — headcount field", () => {
       />,
     );
 
-    expect(screen.getByText("В запросе: 4 чел.")).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа · Сколько человек готовы взять?")).toBeInTheDocument();
+    expect(screen.getByText("4 чел.")).toBeInTheDocument();
+    expect(screen.queryByText("В запросе: 4 чел.")).toBeNull();
   });
 
   it("does not render the «предложено» badge when headcount changes", () => {
@@ -391,7 +407,7 @@ describe("BidFormPanel — form copy", () => {
 
     expect(screen.getByText("Начало")).toBeInTheDocument();
     expect(screen.getByText("Конец")).toBeInTheDocument();
-    expect(screen.getByText("Сколько человек готовы взять?")).toBeInTheDocument();
+    expect(screen.getByText("Сборная группа · Сколько человек готовы взять?")).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("Дополнительная информация об экскурсии, вопросы и условия"),
     ).toBeInTheDocument();

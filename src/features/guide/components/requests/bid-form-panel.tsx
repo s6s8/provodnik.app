@@ -265,7 +265,7 @@ export function BidFormPanel({
               {isEdit ? "Редактировать предложение" : "Сделать предложение"}
             </h2>
             <p className="mt-0.5 text-sm text-muted-foreground">
-              {request.destination} · {request.dateLabel} · {travelerCount} чел.
+              {request.destination}
             </p>
           </div>
           <button
@@ -512,19 +512,22 @@ export function BidFormPanel({
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
               <span
+                className="text-sm font-medium text-foreground"
+              >
+                {request.mode === "assembly"
+                  ? "Сборная группа · Сколько человек готовы взять?"
+                  : "Своя группа · Группа сформирована"}
+              </span>
+              <span
                 className={
                   request.mode === "assembly"
-                    ? "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-sky-100 text-sky-700"
-                    : "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700"
+                    ? "inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700"
+                    : "inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700"
                 }
               >
-                {request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-              </span>
-              <span className="text-sm font-medium text-foreground">
-                {request.mode === "assembly" ? "Сколько человек готовы взять?" : "Группа сформирована"}
+                {travelerCount} чел.
               </span>
             </div>
-            <p className="text-sm text-muted-foreground">В запросе: {travelerCount} чел.</p>
             {request.mode === "assembly" ? (
               <input
                 type="number"
