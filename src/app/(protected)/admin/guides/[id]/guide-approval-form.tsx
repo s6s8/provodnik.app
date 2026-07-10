@@ -11,18 +11,19 @@ import { approveGuide, rejectGuide, requestChanges, type ActionState } from "./a
 const INITIAL: ActionState = { error: null };
 
 export function GuideApprovalForm({ guideId }: { guideId: string }) {
-  const [approveState, approveAction] = React.useActionState(
+  const [approveState, approveAction, approvePending] = React.useActionState(
     approveGuide.bind(null, guideId),
     INITIAL,
   );
-  const [rejectState, rejectAction] = React.useActionState(
+  const [rejectState, rejectAction, rejectPending] = React.useActionState(
     rejectGuide.bind(null, guideId),
     INITIAL,
   );
-  const [changesState, changesAction] = React.useActionState(
+  const [changesState, changesAction, changesPending] = React.useActionState(
     requestChanges.bind(null, guideId),
     INITIAL,
   );
+  const anyPending = approvePending || rejectPending || changesPending;
 
   const error = approveState.error ?? rejectState.error ?? changesState.error;
   const success =
@@ -58,24 +59,30 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
           type="submit"
           variant="default"
           className="w-full"
+          disabled={anyPending}
+          loading={approvePending}
         >
-          Одобрить гида
+          {approvePending ? "Одобряем…" : "Одобрить гида"}
         </Button>
         <Button
           formAction={changesAction}
           type="submit"
           variant="outline"
           className="w-full"
+          disabled={anyPending}
+          loading={changesPending}
         >
-          Запросить изменения
+          {changesPending ? "Запрашиваем…" : "Запросить изменения"}
         </Button>
         <Button
           formAction={rejectAction}
           type="submit"
           variant="destructive"
           className="w-full"
+          disabled={anyPending}
+          loading={rejectPending}
         >
-          Отклонить
+          {rejectPending ? "Отклоняем…" : "Отклонить"}
         </Button>
       </div>
     </form>

@@ -364,7 +364,7 @@ export function UsersConsole({
                                 })
                               }
                             >
-                              Одобрить гида
+                              {rowPending ? "Одобряем…" : "Одобрить гида"}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -449,6 +449,7 @@ export function UsersConsole({
                     : "default"
                 }
                 disabled={bulkPending}
+                loading={bulkPending}
               >
                 {bulkPending ? "Применяем…" : "Подтвердить"}
               </Button>

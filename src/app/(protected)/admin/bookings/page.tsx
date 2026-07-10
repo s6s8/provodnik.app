@@ -14,6 +14,7 @@ import { kopecksToRub } from "@/data/money";
 import { formatRussianDateTime } from "@/lib/dates";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 
+import { PendingSubmitButton } from "../_components/pending-submit-button";
 import { confirmPaymentAction } from "./actions";
 import { STATUS_LABELS } from "./status-labels";
 
@@ -152,13 +153,13 @@ export default async function BookingsPage({
                 actions={
                   booking.status === "awaiting_guide_confirmation" ? (
                     <form action={confirmPaymentAction.bind(null, booking.id)}>
-                      <Button
-                        type="submit"
+                      <PendingSubmitButton
                         size="default"
                         className="min-h-[44px]"
+                        pendingLabel="Подтверждаем…"
                       >
                         Подтвердить
-                      </Button>
+                      </PendingSubmitButton>
                     </form>
                   ) : undefined
                 }
