@@ -87,6 +87,7 @@ export function SiteHeader({
 
   const primaryCtaHref = role === "guide" ? "/requests" : "/";
   const primaryCtaLabel = role === "guide" ? "Смотреть запросы" : "Создать запрос";
+  const showPrimaryCta = isAuthenticated && role !== "admin" && role !== "guide" && pathname !== "/";
   const accountLabel = fullName?.trim().split(/\s+/)[0] || (role ? roleLabels[role] : "Аккаунт");
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
@@ -215,7 +216,7 @@ export function SiteHeader({
               </Button>
             </div>
           )}
-          {isAuthenticated && role !== "admin" && role !== "guide" && (
+          {showPrimaryCta && (
             <Button asChild className="max-md:hidden">
               <Link href={primaryCtaHref}>{primaryCtaLabel}</Link>
             </Button>
