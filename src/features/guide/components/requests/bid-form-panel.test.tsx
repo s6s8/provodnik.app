@@ -169,6 +169,18 @@ describe("BidFormPanel — request context", () => {
 });
 
 describe("BidFormPanel — headcount field", () => {
+  it("shows the request traveler count in the offer sidebar", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, groupSize: 4 }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(screen.getByText("В запросе: 4 чел.")).toBeInTheDocument();
+  });
+
   it("does not render the «предложено» badge when headcount changes", () => {
     render(
       <BidFormPanel
