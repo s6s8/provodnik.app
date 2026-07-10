@@ -5,6 +5,11 @@ const { createSupabaseAdminClient, createSupabaseServerClient } = vi.hoisted(() 
   createSupabaseServerClient: vi.fn(),
 }));
 
+const { createNotification, sendNotificationEmail } = vi.hoisted(() => ({
+  createNotification: vi.fn(),
+  sendNotificationEmail: vi.fn(),
+}));
+
 vi.mock("@/lib/supabase/admin", () => ({
   createSupabaseAdminClient,
 }));
@@ -14,10 +19,19 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 vi.mock("@/lib/notifications/create-notification", () => ({
-  createNotification: vi.fn(),
+  createNotification,
 }));
 
-import { getGuideReviewQueue, getPendingListingReviews } from "./moderation";
+vi.mock("@/lib/email/send-notification-email", () => ({
+  sendNotificationEmail,
+}));
+
+vi.mock("@/lib/env", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/env")>()),
+  getSiteUrl: () => "https://provodnik.app",
+}));
+
+import { getGuideReviewQueue, getPendingListingReviews, performModerationAction } from "./moderation";
 import type { GuideProfileRow, ListingRow, Uuid } from "./types";
 
 function makeGuideProfile(
@@ -297,6 +311,143 @@ describe("getGuideReviewQueue", () => {
 
     expect(queue).toHaveLength(1);
     expect(queue[0]?.profile.user_id).toBe("submitted-guide");
+  });
+});
+
+describe("performModerationAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("puts requested guide changes into cabinet notifications and email", async () => {
+    const adminId = "11111111-1111-4111-8111-111111111111";
+    const guideId = "22222222-2222-4222-8222-222222222222";
+    const caseId = "33333333-3333-4333-8333-333333333333";
+    const actionId = "44444444-4444-4444-8444-444444444444";
+    const note = "Добавьте фото лицензии.";
+    const guideProfileUpdateEq = vi.fn().mockResolvedValue({ error: null });
+    const guideProfileUpdate = vi.fn(() => ({ eq: guideProfileUpdateEq }));
+    const moderationCaseUpdateEq = vi.fn().mockResolvedValue({ error: null });
+    const moderationCaseUpdate = vi.fn(() => ({ eq: moderationCaseUpdateEq }));
+
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: adminId, app_metadata: { role: "admin" } } },
+          error: null,
+        }),
+      },
+      from: vi.fn(() =>
+        makeQuery({
+          data: {
+            id: adminId,
+            role: "admin",
+            full_name: "Admin",
+            email: "admin@example.com",
+            avatar_url: null,
+          },
+          error: null,
+        }),
+      ),
+    });
+
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "moderation_cases") {
+          return {
+            select: vi.fn().mockReturnThis(),
+            eq: vi.fn().mockReturnThis(),
+            maybeSingle: vi.fn().mockResolvedValue({
+              data: {
+                id: caseId,
+                subject_type: "guide_profile",
+                guide_id: guideId,
+                listing_id: null,
+                review_id: null,
+                opened_by: null,
+                assigned_admin_id: null,
+                status: "open",
+                queue_reason: "Проверка анкеты гида",
+                risk_flags: [],
+                created_at: "2026-07-10T00:00:00.000Z",
+                updated_at: "2026-07-10T00:00:00.000Z",
+              },
+              error: null,
+            }),
+            update: moderationCaseUpdate,
+          };
+        }
+        if (table === "moderation_actions") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                order: vi.fn().mockResolvedValue({ data: [], error: null }),
+              })),
+            })),
+            insert: vi.fn(() => ({
+              select: vi.fn(() => ({
+                single: vi.fn().mockResolvedValue({
+                  data: {
+                    id: actionId,
+                    case_id: caseId,
+                    admin_id: adminId,
+                    decision: "request_changes",
+                    note,
+                    created_at: "2026-07-10T00:01:00.000Z",
+                  },
+                  error: null,
+                }),
+              })),
+            })),
+          };
+        }
+        if (table === "guide_profiles") {
+          return {
+            update: guideProfileUpdate,
+            select: vi.fn(() => ({
+              in: vi.fn().mockResolvedValue({
+                data: [makeGuideProfile(guideId, "submitted", "2026-07-10T00:00:00.000Z")],
+                error: null,
+              }),
+            })),
+          };
+        }
+        if (table === "profiles") {
+          return {
+            select: vi.fn(() => ({
+              in: vi.fn().mockResolvedValue({
+                data: [{ id: guideId, full_name: "Анна", email: "anna@example.com", avatar_url: null }],
+                error: null,
+              }),
+            })),
+          };
+        }
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    await performModerationAction(caseId, adminId, "request_changes", note);
+
+    expect(guideProfileUpdate).toHaveBeenCalledWith({
+      verification_status: "rejected",
+      is_available: false,
+      verification_notes: note,
+    });
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: guideId,
+        kind: "admin_alert",
+        href: "/guide/profile#verification",
+        body: expect.stringContaining(note),
+      }),
+    );
+    expect(sendNotificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({
+        kind: "admin_alert",
+        entityId: actionId,
+        to: "anna@example.com",
+      }),
+    );
   });
 });
 

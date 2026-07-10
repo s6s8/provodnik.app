@@ -2,6 +2,9 @@ import "server-only";
 
 import { z } from "zod";
 
+import { renderAdminAlertEmail } from "@/lib/email/templates/notification-emails";
+import { sendNotificationEmail } from "@/lib/email/send-notification-email";
+import { getSiteUrl } from "@/lib/env";
 import { hasAdminRole } from "@/lib/auth/admin-access";
 import { logError } from "@/lib/log";
 import { createNotification } from "@/lib/notifications/create-notification";
@@ -381,7 +384,13 @@ async function getReviewById(
 async function getNotificationRecipient(
   adminClient: ReturnType<typeof createSupabaseAdminClient>,
   moderationCase: ModerationCaseRow,
-): Promise<{ userId: Uuid | null; href: string | null; title: string; body: string } | null> {
+): Promise<{
+  userId: Uuid | null;
+  email: string | null;
+  href: string | null;
+  title: string;
+  body: string;
+} | null> {
   if (moderationCase.subject_type === "guide_profile" && moderationCase.guide_id) {
     const [guideProfiles, profiles] = await Promise.all([
       getGuideProfilesByIds(adminClient, [moderationCase.guide_id]),
@@ -393,6 +402,7 @@ async function getNotificationRecipient(
 
     return {
       userId: moderationCase.guide_id,
+      email: account?.email ?? null,
       href: "/guide/profile#verification",
       title: "Обновление по проверке гида",
       body: `Администратор обновил статус проверки анкеты ${name}.`,
@@ -406,6 +416,7 @@ async function getNotificationRecipient(
 
     return {
       userId: listing.guide_id,
+      email: null,
       href: "/guide/listings",
       title: "Обновление по проверке листинга",
       body: `Проверка листинга «${listing.title}» была обновлена администратором.`,
@@ -418,6 +429,7 @@ async function getNotificationRecipient(
 
     return {
       userId: review.traveler_id,
+      email: review.traveler?.email ?? null,
       href: review.listing_id ? `/listings/${review.listing_id}` : null,
       title: "Обновление по отзыву",
       body: "Администратор обновил статус вашего отзыва.",
@@ -610,6 +622,8 @@ export async function performModerationAction(
 ): Promise<ModerationActionRow> {
   const input = performModerationActionSchema.parse({ caseId, adminId, decision, note });
   const { adminId: currentAdminId, adminClient } = await requireAdminSession();
+  const requestChangesNote =
+    input.note?.trim() || "Администратор запросил правки. Обновите анкету и отправьте её повторно.";
 
   if (currentAdminId !== input.adminId) {
     throw new Error("Администратор сессии не совпадает с adminId действия.");
@@ -646,12 +660,20 @@ export async function performModerationAction(
   if (caseError) throw caseError;
 
   if (moderationCase.subject_type === "guide_profile" && moderationCase.guide_id) {
-    if (input.decision === "approve" || input.decision === "reject") {
+    if (
+      input.decision === "approve" ||
+      input.decision === "reject" ||
+      input.decision === "request_changes"
+    ) {
       const nextVerificationStatus = input.decision === "approve" ? "approved" : "rejected";
       const updatePayload: Record<string, unknown> = {
         verification_status: nextVerificationStatus,
         is_available: input.decision === "approve",
       };
+
+      if (input.decision === "reject" || input.decision === "request_changes") {
+        updatePayload.verification_notes = requestChangesNote;
+      }
 
       if (input.decision === "approve") {
         const { data: guideProfile, error: guideProfileError } = await adminClient
@@ -706,13 +728,42 @@ export async function performModerationAction(
 
   const recipient = await getNotificationRecipient(adminClient, moderationCase);
   if (recipient?.userId) {
+    const body =
+      input.decision === "request_changes"
+        ? `${recipient.body}\n\nКомментарий администратора: ${requestChangesNote}`
+        : input.note?.trim()
+          ? `${recipient.body}\n\nКомментарий администратора: ${input.note.trim()}`
+          : recipient.body;
+
     await createNotification({
       userId: recipient.userId,
       kind: "admin_alert" satisfies NotificationKindDb,
       title: recipient.title,
-      body: recipient.body,
+      body,
       href: recipient.href ?? undefined,
     });
+
+    if (recipient.email && recipient.href) {
+      try {
+        const { subject, html } = renderAdminAlertEmail({
+          title: recipient.title,
+          body,
+          url: `${getSiteUrl()}${recipient.href}`,
+        });
+        await sendNotificationEmail({
+          kind: "admin_alert",
+          entityId: (action as ModerationActionRow).id,
+          to: recipient.email,
+          subject,
+          html,
+        });
+      } catch (error) {
+        logError("moderation.notificationEmail", error, {
+          actionId: (action as ModerationActionRow).id,
+          moderationCaseId: moderationCase.id,
+        });
+      }
+    }
   }
 
   return action as ModerationActionRow;
