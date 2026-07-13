@@ -41,3 +41,9 @@ Plan writes `pb-[max(theme(spacing.3.5),env(safe-area-inset-bottom))]`. `theme()
 **Ruling (unanimous)**: T-20 stops being a separate task and becomes a REQUIREMENT carried by each owner task: "every submit uses <Button loading>, never a text-swap to '...'; every loading state uses Skeleton/ListRowSkeleton with aria-busy, never bare text". Its two unique files (guide inbox + excursions skeletons) go to T-28.
 **Proof unchanged**: T-20's own acceptance greps (no "..." button labels; skeletons on first paint) are checked GLOBALLY at T-41, so nothing is lost — the gate still has to pass, it is just enforced per-file by the owner.
 **Status**: T-20 = done-by-delegation; it is NOT a separate commit. If the T-41 gate finds a straggler, that becomes its own micro-commit.
+
+## D-07 — the plan's own contrast script was incomplete (proven divergence)
+The plan's §7.2 gate checks `--muted-ink` against the canvas and white only, and never checks `--faint` (placeholder) at all — it assumed placeholder text is exempt from AA.
+**Evidence (axe, on a real browser, after every token task was green)**: `/requests` failed with muted #68727F on `--surface-low` #F4F4F2 = **4.43:1**; `/` failed with `text-placeholder` #98A1AE = **2.49:1**, used for real value text ("Когда", "Темы") in the home form.
+**Ruling (unanimous)**: the gate must test each text token against the DARKEST surface it actually sits on, and placeholder text is text. Tokens corrected to `--muted-ink #646E7B` (worst 4.70) and `--faint #67707D` (worst 4.55); the contrast gate is extended with the surface-low and placeholder pairs and recorded in STATE.
+**Lesson for the playbook**: a token-math gate proves what you thought to check. The browser proves what is actually rendered. Ship both.

@@ -19,3 +19,9 @@
 **Root cause**: a failed commit does not clear the index. `git add <paths>` ADDS to whatever is already staged — it does not define the commit's contents.
 **Repair**: `git reset --soft` to the last honest commit, `git reset` to clear the index, then re-committed as four atomic commits (a447e16b T-24, 77296eea T-17, 71ea12e0 T-21, 20389b3a T-19). Nothing lost; branch never pushed.
 **Prevention rule (now in PLAYBOOK)**: ALWAYS `git reset` (unstage everything) immediately before `git add <paths>` for a task. Never assume a clean index — verify with `git diff --cached --name-only` that the staged set equals the task's file list before committing.
+
+## F-04 — subagent died to an API connection error (T-31, first attempt)
+**Signature**: `Agent terminated early due to an API error: Connection closed mid-response` — the agent had produced no edits (its only output was "I'll start by reading the four target files").
+**Classification**: INFRASTRUCTURE, not strategy. The contract bans retrying a recorded failure *signature* (a dead approach); a transport-level drop with zero work done is not one.
+**Action**: relaunched T-31 verbatim. Tree was untouched, so no cleanup was needed.
+**Prevention rule**: before relaunching a dead agent, confirm with `git status` that it left no half-written files; if it did, revert those paths first so the retry starts from a clean checkpoint.

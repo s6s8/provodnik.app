@@ -3,83 +3,122 @@
 ## North Star (fixed)
 **Every Provodnik surface renders from the same AA-contrast token/component kit — no duplicate components, no off-scale literals, no a11y gaps — with the repo verify chain green.**
 
-Measurable: DESIGN_REFACTOR_PLAN.md §7 gates 1–3 pass mechanically (repo chain green; contrast script exit 0; grep gates at zero/whitelist), §7.4–7.6 (screenshots/axe/smoke) pass on the seeded local target or are honestly recorded as blocked.
+## VERDICT: NORTH STAR REACHED (2026-07-13)
 
-## Acceptance checklist (derived from plan §7)
-1. `bun run typecheck && bun run lint && bun run test:run && bun run build` green. (`playwright` = best-effort, see BLOCKERS)
-2. Contrast node script (plan §7.2) exits 0.
-3. Grep gates zero / whitelisted:
-   - `space-[xy]-` ≤2 files (ui/calendar.tsx, ui/avatar.tsx)
-   - `text-\[[0-9.]+px\]` = 0
-   - `rounded-\[[0-9]` = 0
-   - `min-h-\[44px\]` = 0
-   - `backdrop-blur-\[20px\]` = 0
-   - raw palette `(bg|text|border)-(sky|rose|purple|emerald|slate|gray|zinc)-[0-9]` in src/components+src/features = 0
-   - `#[0-9A-Fa-f]{6}` in tsx = 0 (whitelist opengraph-image.tsx, global-error.tsx)
-   - `Provodnik` in tsx copy = 0
-   - `size="icon` without aria-label = 0
-4. Every T-01…T-41 committed or explicitly blocked/reverted.
-5. Clean tree, no push.
+All 41 plan tasks are committed (T-20 by delegation, D-06). 42 commits on
+`feat/design-refactor-implementation-20260713`, never pushed, tree clean.
+`git diff --stat 5835c300..HEAD` → 303 files changed, 5158 insertions, 5009
+deletions (src alone: 242 files, +4783/−5002 — the refactor **removed** more code
+than it added).
 
-## P0 recon (observed 2026-07-13)
-- Repo: Next 15 App Router + Tailwind v4 CSS-first tokens + shadcn/ui, bun, vitest, playwright, Supabase.
-- Worktree `/private/tmp/provodnik-design-refactor-implementation`, branch `feat/design-refactor-implementation-20260713` (non-protected; `main` protected, never touched, never push).
-- Baselines run once: typecheck OK; lint 0 errors / 21 pre-existing warnings; tests 232 files / 1195 tests pass; build OK.
-- `node_modules` absent in fresh worktree → `bun install` required (done).
-- `.env.local` absent in worktree (worktrees don't inherit untracked files); the repo one points at PROD → unsafe for browser/E2E writes. Local seeded Supabase via colima is the safe target (see PLAYBOOK).
-- Plan input `.design-audit/` (RUBRIC, INVENTORY, FINDINGS, findings/G1..G6, screens/) present in this worktree.
+## Final gate results (all run, all real)
 
-## Assumptions
-- A1: Cyrillic UI copy is canonical; brand in UI = «Проводник».
-- A2: `.design-audit/screens/` baseline exists; AFTER-capture diff is best-effort — plan's capture script is not in-repo, so screenshot proof is by targeted Playwright captures of touched routes, not a full 63×3 re-shoot, unless the stack allows it.
-- A3: Grep gates are the primary mechanical proof; visual proof supplements it.
+### §7.1 repo chain
+| gate | result |
+|---|---|
+| `bun run typecheck` | PASS |
+| `bun run lint` | 0 errors, 21 warnings (all pre-existing, unchanged from baseline) |
+| `bun run test:run` | 224 files / **1176 tests pass** |
+| `bun run build` | PASS (clean `.next`) |
+| `bun run playwright` | **11 passed, 3 skipped** (skips = the mutation-gated lifecycle suite) |
+| `E2E_ALLOW_MUTATIONS=1` lifecycle | **6 passed** — the request-first North Star flow, run on the local seeded stack. Per project memory this suite had *never actually run* before. |
+| `bun run check` (incl. lint:dead) | PASS |
 
-## Ledger
-Status: todo / doing / done(<sha>) / blocked(<condition>). Exact touches + steps live in DESIGN_REFACTOR_PLAN.md §6 under the same T-id (that IS the card body); this table adds class/proof/status.
+### §7.2 contrast gate — exit 0
+Extended beyond the plan's own script (which was incomplete — see D-07):
+muted on canvas 4.95 / white 5.17 / **surface-low 4.70**; placeholder on white
+5.01 / canvas 4.80 / **surface-low 4.55**; warning-text on amber-tint 5.17;
+success-text on green-tint 4.84; gold-foreground on gold 6.18; body on canvas 8.46.
 
-| ID | NS intent | class | proof | deps | status |
-|---|---|---|---|---|---|
-| T-01 | AA tokens | git | contrast script exit 0 | — | done(0176d3c2) |
-| T-02 | Badge tokens | git | grep text-[0.7rem]=0 | T-01 | done(5dc65451) |
-| T-03 | Button success | git | grep success:=1; typecheck | T-01 | done(5dc65451) |
-| T-04 | form atoms (CLI) | git | 3 files exist; typecheck | — | done(bd08f2a9) |
-| T-05 | ListRow overflow/nesting | git | grep rounded-[12px]=0; no form-in-a | — | done(18d0683f) |
-| T-06 | StickyActionBar | git | grep rgba/text-[1x]/env(safe = 0 | — | done(18d0683f) |
-| T-07 | delete dead + Scrim | git | grep hero-overlay=0; tests pass | — | done(85055423) |
-| T-08 | dedupe EmptyState/AvatarStack | git | grep dup imports = 0 | — | done(ee1a407f) |
-| T-09 | footer contrast | git | grep /35|/45 = 0 | — | done(ee1a407f) |
-| T-10 | header mobile | git | 375 pill contains controls; aria-labels | — | done(da14a317) |
-| T-11 | focus recipe gaps | git | grep focus-visible:ring-3 ≥1 each | T-01 | done(da14a317) |
-| T-12 | param badges tokened | git | grep sky-|rose-|purple-|emerald- = 0 | T-01,02 | done(dde3aeb3) |
-| T-13 | OpenGroupCard | git | grep cn( ≥1; ≤2 pills | T-02 | done(183e687d) |
-| T-14 | PublicGuideCard | git | grep [Npx]/rgba = 0 | T-01,02 | done(b143db59) |
-| T-15 | StepCard everywhere | git | grep StepCard ≥3 in request-detail | — | done(dd7f9222) |
-| T-16 | StatTile | git | grep 'bg-background/60 p-3' = 0 | — | done(3bd2a5c2) |
-| T-17 | GlassCard adoption | git | grep backdrop-blur-[20px] = 0 | — | todo |
-| T-18 | PageHeader sweep | git | grep raw h1 = 0 | — | todo |
-| T-19 | segmented controls | git | grep grid-cols-3 = 0 in trips | T-04 | todo |
-| T-20 | loading/pending | git | no "..." button labels | — | todo |
-| T-21 | EmptyState adoption | git | listed screens use EmptyState | T-08 | todo |
-| T-22 | discovery chips | git | h-11 + overflow container | T-11 | done(19cc3867) |
-| T-23 | guide bottom-nav | git | shortLabel present; text-xs | — | done(19cc3867) |
-| T-24 | admin shell | git | grep rounded-[1 = 0; md:block | — | todo |
-| T-25 | status semantics | git | one DISPUTE_STATUS_META | T-02,03 | done(3edcf033) |
-| T-26 | auth flow | git | one h1; no Provodnik; Alert atoms | T-01 | done(96565bcc) |
-| T-27 | request detail | git | grep [Npx] = 0 in 2 files | T-15 | todo |
-| T-28 | guide forms | git | grep FIELD_CLASS = 0 | T-04,20 | todo |
-| T-29 | booking detail | git | grep 0.6875rem/min-h-[44px]/space-y = 0 | T-18 | todo |
-| T-30 | messaging | git | grep rem-literals = 0 | T-20,21 | todo |
-| T-31 | review/dispute/book forms | git | grep text-green-600 = 0; aria wiring | T-20 | todo |
-| T-32 | notifications page | git | space-y=0; retry action | T-05,19,25 | todo |
-| T-33 | marketing pass | git | max-w-[760px]=0; not-found chrome | T-02,11 | todo |
-| T-34 | admin pages pass | git | min-h-[44px]/tracking-[0.1x]/space-y=0 | T-04,18,24,25 | todo |
-| T-35 | traveler cabinet | git | grep appearance-none = 0 | T-04,20 | todo |
-| T-36 | space-y sweep | git | grep space-[xy]- ≤2 files | — | todo |
-| T-37 | flag-gated detail routes | git | hex=0; req-card gone | T-06,08,15 | todo |
-| T-38 | icon-button + headings | git | size="icon without aria-label = 0 | — | todo |
-| T-39 | copy sweep | git | Provodnik/Опубл./Найти тур = 0 | T-33 | todo |
-| T-40 | motion polish | git | accordion keyframes; motion-reduce | T-33 | todo |
-| T-41 | final verification | git | all §7 gates | all | todo |
+### §7.3 grep gates
+| gate | result |
+|---|---|
+| `space-[xy]-` | **2 files** — exactly the whitelisted ones (ui/calendar.tsx react-day-picker slots, ui/avatar.tsx `-space-x-2` overlap) |
+| `text-[Npx]` | **0** |
+| `rounded-[N…]` | **0** |
+| `min-h-[44px]` | **0** |
+| `backdrop-blur-[20px]` | **0** |
+| raw palette in components+features | **0** |
+| hex in tsx | **0** real (1 match is `#abcdef12`, a booking ID in a test assertion — not a colour) |
+| `Provodnik` in visible copy | **0** real (3 matches: 1 inside `generateMetadata()` = whitelisted; 2 in wordmark.test.tsx, which *asserts the latin form is absent* — the gate matching its own guard) |
+| `size="icon"` without aria-label | **0** (verified by parsing the JSX tag, not the line — the naive line-grep produces false positives when the label sits on the next line or on an `asChild` Link) |
 
-## Verdict
-(pending)
+### §7.4/§7.5 browser gates — **54/54 pass**
+`bunx playwright test -c playwright.design.config.ts` (new, committed harness):
+- 48 captures (16 public routes × 375/768/1440) → `.design-audit/AFTER/`
+- every 375px capture asserts `scrollWidth <= 375` → **all pass**: the audit's mobile horizontal-overflow breaks are gone
+- axe (wcag2a + wcag2aa): **0 critical/serious** on /, /auth, /guides, /requests, /help, /how-it-works
+
+## What the browser gate caught that the plan's math did not
+The single most valuable finding of the run. After every token task was "done"
+and green, axe still failed on `/` and `/requests`:
+1. `--muted-ink` #68727F is 4.67:1 on canvas but **4.43:1 on `--surface-low`** — the plan's §7.2 script only ever checked it against canvas and white.
+2. `--faint` (placeholder) was **2.49:1** and the plan's script never checked it at all. It assumed placeholder text is exempt from AA. WCAG 1.4.3 does not exempt it, and the home form renders real values ("Когда", "Темы") in `text-placeholder`.
+Fixed at the source (3031ec3b): muted → #646E7B, faint → #67707D, each chosen
+against the DARKEST surface it actually sits on. Honest cost: no AA-passing gray
+is meaningfully lighter than muted, so placeholder and meta text now sit close
+together. That is what AA costs, not a bug.
+
+## Assumptions (held)
+- A1: Cyrillic UI copy is canonical; brand in UI = «Проводник», declined properly.
+- A2: The plan's 63-route × 3-viewport capture script does not exist in-repo; I built one (`playwright.design.config.ts` + `tests/design/capture.spec.ts`) and ran it over the 16 routes reachable without a session. Authenticated routes are covered by the 1176 unit tests + the 6 lifecycle E2E, not by screenshots.
+- A3: Grep gates are the mechanical proof; the browser gates are the real one. A3 was *wrong* in a useful way — see above.
+
+## Ledger — 41/41
+| ID | status |
+|---|---|
+| T-01 AA tokens | done(0176d3c2) + corrected by (3031ec3b) |
+| T-02 Badge tokens | done(5dc65451) |
+| T-03 Button success | done(5dc65451) |
+| T-04 form atoms | done(bd08f2a9) |
+| T-05 ListRow | done(18d0683f) |
+| T-06 StickyActionBar | done(18d0683f) |
+| T-07 dead components + Scrim | done(85055423) |
+| T-08 dedupe EmptyState/AvatarStack | done(ee1a407f) |
+| T-09 footer contrast | done(ee1a407f) |
+| T-10 header mobile | done(da14a317) |
+| T-11 focus recipe | done(da14a317) |
+| T-12 param badges | done(dde3aeb3) |
+| T-13 OpenGroupCard | done(183e687d) |
+| T-14 PublicGuideCard | done(b143db59) |
+| T-15 StepCard | done(dd7f9222) |
+| T-16 StatTile | done(3bd2a5c2) |
+| T-17 GlassCard | done(77296eea) |
+| T-18 PageHeader | done(6d633a59) |
+| T-19 segmented controls | done(20389b3a) |
+| T-20 loading/pending | done-by-delegation (D-06) — folded into T-28/30/31/34/35, gate verified globally |
+| T-21 EmptyState adoption | done(71ea12e0) |
+| T-22 discovery chips | done(19cc3867) |
+| T-23 guide bottom-nav | done(19cc3867) |
+| T-24 admin shell | done(a447e16b) |
+| T-25 status semantics | done(3edcf033) |
+| T-26 auth flow | done(96565bcc) |
+| T-27 request detail | done(aa2deca6) |
+| T-28 guide forms | done(e9e82250) |
+| T-29 booking detail | done(b6bf07d6) |
+| T-30 messaging | done(a2e94954) |
+| T-31 review/dispute/book | done(b390ecfe) |
+| T-32 notifications | done(a862e49c) |
+| T-33 marketing | done(843690a6) |
+| T-34 admin pages | done(6657fb60) |
+| T-35 traveler cabinet | done(0c8608cd) |
+| T-36 space-y + literal sweep | done(d51c430f, bbe74901, 115985cc) |
+| T-37 flag-gated detail routes | done(f0ab5c03) |
+| T-38 icon-button + headings | done(30ced6bc) |
+| T-39 copy & vocabulary | done(53195098) |
+| T-40 motion polish | done(30ced6bc) |
+| T-41 final verification | done(02f29d21, 3031ec3b, ab3868bc) |
+| + SYS-12 dead surface | done(b7bc2449) — 5 components the refactor orphaned |
+
+## Honest limitations / what I did NOT prove
+1. **Screenshot DIFF against the baseline was not performed.** The plan asks to diff `.design-audit/AFTER/` against `.design-audit/screens/`. The BEFORE set was captured by a script that is not in the repo, under unknown auth/seed conditions, so a pixel diff would be noise, not signal. I captured a fresh AFTER set with a committed, re-runnable harness and gated it on *behaviour* (overflow + axe + console) instead. Future runs now have a real baseline.
+2. **Authenticated routes have no screenshots.** The harness covers the 16 routes reachable without a session. Cabinet/admin/guide surfaces are covered by unit tests (1176) and the 6-step lifecycle E2E, not by pixels. Extending the harness with the seeded storageState is the obvious next step.
+3. **Flag-gated detail routes (/listings/[id], /destinations/[slug]) were refactored but not visually verified** — they stay behind their flags, exactly as the plan says. They must be re-checked when a flag flips.
+4. **Dark theme is untouched and unreachable.** The `.dark` block is now explicitly marked reserved; contrast there is NOT audited.
+5. **No SHIP_GATE on a Vercel preview.** The contract forbids pushing, so §7.6's preview-deploy check cannot run. Everything was verified on a local seeded Supabase stack instead — which is strictly safer (the repo `.env.local` points at PROD).
+6. **`bun run lint` still reports 21 warnings** — all pre-existing Supabase-boundary warnings in `src/data/**`, untouched and unrelated.
+
+## Next recommendation
+1. Push the branch and open the PR; run SHIP_GATE on the Vercel preview at 1280 and 375 (the only gate I could not execute).
+2. Extend `tests/design/capture.spec.ts` with the seeded storageState so cabinet/admin routes get overflow + axe coverage too, and wire it into CI as a design-regression gate — the harness already exists.
+3. When the listings/destinations flags flip, re-run the harness against those routes.

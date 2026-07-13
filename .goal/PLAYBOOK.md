@@ -42,3 +42,11 @@ Trap: any `qa-` guide slug 404s by design (slug guard).
 - **One concern per commit, including copy.** Renaming brand copy inside a structural task broke a test that pinned the string. Leave out-of-scope fixes to the task that owns them. (F-02)
 - The pre-commit hook typechecks + tests the WHOLE repo, so a commit is blocked by any other agent's in-flight file. When running agents in parallel, wait for the suite to go green (`until bun run test:run; do sleep 30; done`) before committing anything.
 - Parallel agents in one worktree works well (5 ran at once) IF: disjoint file lists, no git writes by agents, and the integrator stages by explicit path.
+
+## v4 (final — after T-41)
+- **The browser gate beats the token gate.** Every grep and every contrast-script pair was green while axe still found two real AA failures (muted on surface-low; placeholder text). A math gate only proves the pairs you thought of. Always finish with a real render + axe. (D-07)
+- **Check each text token against the DARKEST surface it sits on**, not just the canvas. `--surface-low` (#F4F4F2) is darker than the canvas and is where cards/toolbars put muted text.
+- **Placeholder text is text.** WCAG 1.4.3 does not exempt it; axe will flag it.
+- Naive line-greps produce false positives for a11y gates (`size="icon"` with the aria-label on the next line; a test that ASSERTS a banned string is absent; a booking id `#abcdef12` matching a hex-colour pattern). Parse the tag, and read every "failing" match before believing it.
+- Running the mutation-gated lifecycle E2E is safe and worth it ONCE a local seeded Supabase stack exists (`E2E_ALLOW_MUTATIONS=1`). It is the only end-to-end proof the request-first flow still works after a UI refactor.
+- Parallel subagents in ONE worktree scale well (6 at once) if: disjoint file lists, agents never run git write commands, and the integrator (a) waits for the suite to go green before committing and (b) `git reset`s before every `git add`.
