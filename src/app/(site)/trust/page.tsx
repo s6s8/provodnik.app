@@ -17,31 +17,30 @@ export default function TrustPage() {
   return (
     <InfoPageShell width="wide">
       <div className="space-y-10">
-        <div>
-          <InfoHero
-            eyebrow="Правила сервиса"
-            title="Доверие к бронированию — до оплаты, во время поездки и после неё"
-            className="mb-6"
-          />
-          <p className="max-w-[60ch] text-[15px] leading-[1.5] text-on-surface-muted">
-            Provodnik — маркетплейс экскурсий по России с бронированием по запросу.
-            Описанные ниже принципы определяют, как сервис защищает
-            договорённости между путешественником и гидом. Полные условия
-            использования — в{" "}
-            <Link href="/policies/terms" className="underline underline-offset-2">
-              пользовательском соглашении
-            </Link>
-            .
-          </p>
-        </div>
+        <InfoHero
+          eyebrow="Правила сервиса"
+          title="Доверие к бронированию — до оплаты, во время поездки и после неё"
+          className="mb-6"
+          subtitle={
+            <>
+              Provodnik — маркетплейс экскурсий по России с бронированием по запросу.
+              Описанные ниже принципы определяют, как сервис защищает договорённости
+              между путешественником и гидом. Полные условия использования — в{" "}
+              <Link href="/policies/terms" className="text-primary underline underline-offset-2">
+                пользовательском соглашении
+              </Link>
+              .
+            </>
+          }
+        />
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-base">Что видит путешественник</CardTitle>
+              <CardTitle aria-level={2} className="text-base">Что видит путешественник</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <ul className="grid gap-2">
+            <CardContent className="space-y-3 text-base text-ink-2">
+              <ul className="grid list-disc gap-2 pl-5">
                 <li>
                   До подтверждения брони вы видите программу по шагам: длительность,
                   точки маршрута, что включено в стоимость и где могут появиться
@@ -64,10 +63,10 @@ export default function TrustPage() {
 
           <Card>
             <CardHeader className="space-y-1">
-              <CardTitle className="text-base">Что получает гид</CardTitle>
+              <CardTitle aria-level={2} className="text-base">Что получает гид</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-muted-foreground">
-              <ul className="grid gap-2">
+            <CardContent className="space-y-3 text-base text-ink-2">
+              <ul className="grid list-disc gap-2 pl-5">
                 <li>
                   Заявки приходят с контекстом: даты, размер группы, бюджет и пожелания,
                   чтобы можно было быстро предложить реалистичный маршрут.
@@ -90,10 +89,10 @@ export default function TrustPage() {
 
         <Card>
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Границы ответственности</CardTitle>
+            <CardTitle aria-level={2} className="text-base">Границы ответственности</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-sm text-muted-foreground">
-            <ul className="grid gap-2">
+          <CardContent className="space-y-4 text-base text-ink-2">
+            <ul className="grid list-disc gap-2 pl-5">
               <li>
                 Provodnik не заменяет визу, страховку, соблюдение миграционных правил и
                 требований безопасности — за это всегда отвечает путешественник.

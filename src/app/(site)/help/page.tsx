@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { ChevronDown, Mail } from "lucide-react";
-import { Accordion } from "radix-ui";
+import { Mail } from "lucide-react";
 
-import { HelpArticle } from "@/components/help/HelpArticle";
-import { HelpSearch } from "@/components/help/HelpSearch";
+import { HelpSearch, type HelpCategoryGroup } from "@/components/help/HelpSearch";
 import { InfoHero, InfoPageShell } from "@/components/shared/info-shell";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { HelpArticleRow } from "@/lib/supabase/types";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Центр помощи",
@@ -136,7 +140,13 @@ export default async function HelpPage() {
   const enabledArticles = articles.filter((article) =>
     isCategoryEnabled(normalizeCategory(article.category)),
   );
-  const categories = orderedCategories(enabledArticles);
+  const groups: HelpCategoryGroup[] = orderedCategories(enabledArticles)
+    .map((category) => ({
+      id: category,
+      label: CATEGORY_LABELS[category] ?? category,
+      articles: articlesForCategory(enabledArticles, category),
+    }))
+    .filter((group) => group.articles.length > 0);
 
   return (
     <InfoPageShell width="wide">
@@ -145,61 +155,21 @@ export default async function HelpPage() {
         title="Центр помощи"
         subtitle="Ответы на частые вопросы о бронировании, гидах и аккаунте"
       />
-      <HelpSearch articles={enabledArticles} />
-      <div className="mt-8 space-y-12">
-          {categories.map((category) => {
-            const inCategory = articlesForCategory(enabledArticles, category);
-            if (inCategory.length === 0) return null;
-            return (
-              <section key={category}>
-                <h2 className="mb-4 text-section font-extrabold tracking-tight text-foreground">
-                  {CATEGORY_LABELS[category] ?? category}
-                </h2>
-                <Accordion.Root type="single" collapsible className="w-full">
-                  {inCategory.map((article) => (
-                    <Accordion.Item
-                      key={article.id}
-                      value={article.id}
-                      id={`article-${article.id}`}
-                      className="border-b border-border"
-                    >
-                      <Accordion.Header className="flex">
-                        <Accordion.Trigger
-                          className={cn(
-                            "flex min-h-11 flex-1 items-center justify-between gap-3 rounded-md py-4 text-left text-base font-medium text-foreground transition-all",
-                            "outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40",
-                            "hover:text-primary [&[data-state=open]>svg]:rotate-180",
-                          )}
-                        >
-                          {article.title}
-                          <ChevronDown
-                            className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200"
-                            aria-hidden
-                          />
-                        </Accordion.Trigger>
-                      </Accordion.Header>
-                      <Accordion.Content className="overflow-hidden text-sm">
-                        <div className="pb-4 pt-0">
-                          <HelpArticle body={article.body_md} />
-                        </div>
-                      </Accordion.Content>
-                    </Accordion.Item>
-                  ))}
-                </Accordion.Root>
-              </section>
-            );
-          })}
-      </div>
-      <div className="mt-16 flex flex-col items-center gap-3 rounded-card border border-border bg-card px-6 py-8 text-center">
-        <p className="text-base font-semibold text-foreground">Не нашли ответ?</p>
-        <p className="text-sm text-muted-foreground">Напишите нам — ответим в течение рабочего дня.</p>
-        <Button asChild>
-          <a href="mailto:support@provodnik.app">
-            <Mail aria-hidden />
-            Написать в поддержку
-          </a>
-        </Button>
-      </div>
+      <HelpSearch articles={enabledArticles} groups={groups} />
+      <Card className="mt-16 text-center">
+        <CardHeader>
+          <CardTitle aria-level={2}>Не нашли ответ?</CardTitle>
+          <CardDescription>Напишите нам — ответим в течение рабочего дня.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex justify-center">
+          <Button asChild>
+            <a href="mailto:support@provodnik.app">
+              <Mail aria-hidden />
+              Написать в поддержку
+            </a>
+          </Button>
+        </CardContent>
+      </Card>
     </InfoPageShell>
   );
 }

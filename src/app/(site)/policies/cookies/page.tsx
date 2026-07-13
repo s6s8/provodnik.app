@@ -51,13 +51,13 @@ export default function CookiesPage() {
 
       <nav
         aria-label="Разделы"
-        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-b border-border pb-4 mb-8"
       >
         {sections.map((s) => (
           <a
             key={s.id}
             href={`#${s.id}`}
-            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+            className="flex min-h-11 items-center py-3 text-sm text-primary hover:underline"
           >
             {s.label}
           </a>
@@ -68,9 +68,9 @@ export default function CookiesPage() {
         {cookieTypes.map((type) => (
           <Card key={type.name} id={type.id} className="border-border bg-card scroll-mt-24">
             <CardHeader className="space-y-1">
-              <CardTitle className="text-base">{type.name}</CardTitle>
+              <CardTitle aria-level={2} className="text-base">{type.name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm leading-[1.65] text-muted-foreground">
+            <CardContent className="space-y-2 text-base leading-[1.65] text-muted-foreground">
               <p>{type.desc}</p>
               <p>
                 <span className="font-medium text-foreground">Примеры: </span>
@@ -82,9 +82,9 @@ export default function CookiesPage() {
 
         <Card id="management" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Управление cookies</CardTitle>
+            <CardTitle aria-level={2} className="text-base">Управление cookies</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Вы можете ограничить или удалить cookies через настройки вашего
               браузера. Большинство браузеров позволяют блокировать cookies
@@ -99,7 +99,7 @@ export default function CookiesPage() {
               По вопросам, связанным с обработкой данных, пишите на{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>

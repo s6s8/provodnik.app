@@ -2,8 +2,9 @@
 
 import * as React from "react";
 
-import { Calendar, MapPin, Tag, Users } from "lucide-react";
+import { Calendar, Check, MapPin, RussianRuble, Tag, Users } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { THEMES } from "@/data/themes";
 import { cn } from "@/lib/utils";
 
@@ -39,7 +40,7 @@ function buildChips(f: ExtractedFields): Chip[] {
     },
     {
       key: "budget",
-      icon: "₽",
+      icon: <RussianRuble className="size-4" />,
       empty: "Бюджет",
       value: f.budgetPerPersonRub ? `${f.budgetPerPersonRub.toLocaleString("ru-RU")} ₽` : null,
     },
@@ -65,26 +66,18 @@ export function SlotChips({ fields, className }: { fields: ExtractedFields; clas
         {chips.map((chip) => {
           const isFilled = Boolean(chip.value);
           return (
-            <span
+            <Badge
               key={chip.key}
+              variant={isFilled ? "success" : "warning"}
               data-filled={isFilled}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-300",
-                isFilled
-                  ? "border-[var(--success)]/30 bg-[var(--success)]/10 text-[var(--success)]"
-                  : "border-dashed border-[var(--warning)]/40 bg-[var(--warning)]/5 text-[var(--warning)]",
-              )}
+              className={cn("gap-1.5 px-3 transition-all duration-300", !isFilled && "border-dashed")}
             >
-              <span aria-hidden="true" className="text-sm leading-none">
+              <span aria-hidden="true" className="flex items-center leading-none">
                 {chip.icon}
               </span>
               <span>{chip.value ?? chip.empty}</span>
-              {isFilled && (
-                <span aria-hidden="true" className="leading-none">
-                  ✓
-                </span>
-              )}
-            </span>
+              {isFilled ? <Check aria-hidden="true" /> : null}
+            </Badge>
           );
         })}
       </div>

@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 import { ArrowUp, Clock } from "lucide-react";
 
 import { createRequestAction } from "@/features/requests/create-request-actions";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { GlassCard } from "@/components/shared/glass-card";
 import { todayMoscowISODate } from "@/lib/dates";
-import { cn } from "@/lib/utils";
 import { HomepageAuthGate } from "@/features/homepage-classic/components/homepage-auth-gate";
 
 import {
@@ -114,7 +115,7 @@ export function HeroConversation() {
 
   return (
     <section
-      className="relative flex min-h-[calc(100svh-var(--nav-h))] flex-col items-center justify-center overflow-hidden px-[clamp(20px,4vw,48px)] py-12"
+      className="relative flex flex-col items-center justify-center overflow-hidden px-gutter py-12 md:max-h-[calc(100svh-var(--nav-h))]"
       aria-label="Создать запрос гида"
     >
       {/* Calm frosted background: a crisp, optimized photo softened by a light
@@ -144,20 +145,12 @@ export function HeroConversation() {
       </div>
 
       <div className="mx-auto flex w-full max-w-xl flex-col items-center">
-        <h1
-          className="animate-in fade-in-50 slide-in-from-bottom-2 mb-3 text-center font-display text-[clamp(2rem,6vw,3.25rem)] leading-[1.08] duration-700"
-          style={{
-            backgroundImage: "linear-gradient(135deg,var(--navy-500) 0%,var(--navy-600) 50%,var(--navy-700) 100%)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
+        <h1 className="animate-in fade-in-50 slide-in-from-bottom-2 mb-3 text-center font-display text-[clamp(2rem,6vw,3.25rem)] leading-[1.08] font-extrabold tracking-tight text-primary duration-700">
           Расскажите о поездке
         </h1>
 
         <p
-          className="animate-in fade-in-50 mb-7 flex min-h-[2.5rem] items-center justify-center text-center text-[15px] leading-snug text-muted-foreground duration-700"
+          className="animate-in fade-in-50 mb-7 flex min-h-10 items-center justify-center text-center text-base leading-snug text-muted-foreground duration-700"
           aria-live="polite"
         >
           {assistantMessage}
@@ -168,12 +161,7 @@ export function HeroConversation() {
           onSubmit={handleSend}
           className="animate-in fade-in-50 slide-in-from-bottom-3 w-full duration-700"
         >
-          <div
-            className={cn(
-              "flex items-center gap-2 rounded-2xl border border-white/90 bg-[rgba(255,255,255,0.82)] p-2 pl-4 shadow-panel backdrop-blur-xl backdrop-saturate-150 transition-[box-shadow,border-color]",
-              "focus-within:border-primary/60 focus-within:shadow-lift",
-            )}
-          >
+          <GlassCard className="flex items-center gap-2 p-2 pl-4 transition-[box-shadow,border-color] focus-within:border-primary/60 focus-within:shadow-lift">
             <input
               type="text"
               value={input}
@@ -182,28 +170,24 @@ export function HeroConversation() {
               autoFocus
               placeholder="Москва, завтра, вдвоём, 5000 ₽"
               aria-label="Опишите вашу поездку"
-              className="min-w-0 flex-1 bg-transparent text-[16px] text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
+              className="min-w-0 flex-1 bg-transparent text-base text-foreground placeholder:text-muted-foreground/70 focus:outline-none"
             />
             <Button
               type="submit"
               size="icon"
-              disabled={isParsing || !input.trim()}
+              loading={isParsing}
+              disabled={!input.trim()}
               aria-label="Отправить"
-              className="h-11 w-11 shrink-0 rounded-xl"
             >
-              {isParsing ? (
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
-              ) : (
-                <ArrowUp className="h-5 w-5" aria-hidden="true" />
-              )}
+              {isParsing ? null : <ArrowUp className="size-5" aria-hidden="true" />}
             </Button>
-          </div>
+          </GlassCard>
         </form>
 
         <p className="mt-3 text-center text-xs text-muted-foreground">
           Бесплатно · без регистрации · местный гид, а не турбюро
         </p>
-        <p className="mt-1.5 text-center text-[13px] text-on-surface-muted">
+        <p className="mt-1.5 text-center text-sm text-on-surface-muted">
           Гиды обычно отвечают в течение дня
         </p>
 
@@ -217,17 +201,12 @@ export function HeroConversation() {
 
         {/* Honest, deferred urgency — appears only once a date is set; the deadline is the traveler's own */}
         {fields.startDate && !complete && (
-          <p
-            className="animate-in fade-in-50 mt-6 flex items-center justify-center gap-2 rounded-xl px-3 py-2 text-center text-[13px] leading-snug duration-500"
-            style={{
-              color: "#8A6A12",
-              background: "rgba(224,161,38,0.12)",
-              border: "1px solid rgba(224,161,38,0.3)",
-            }}
-          >
-            <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-            На популярные даты гидов разбирают быстро — отправьте запрос, пока выбор большой.
-          </p>
+          <Alert variant="warning" className="animate-in fade-in-50 mt-6 duration-500">
+            <Clock aria-hidden="true" />
+            <AlertDescription className="text-warning-text">
+              На популярные даты гидов разбирают быстро — отправьте запрос, пока выбор большой.
+            </AlertDescription>
+          </Alert>
         )}
 
         {/* Confirm — mounts only when every required chip is green */}
@@ -240,11 +219,12 @@ export function HeroConversation() {
             )}
             <Button
               type="button"
+              size="lg"
               onClick={handleCreate}
-              disabled={isCreating}
-              className="h-14 w-full rounded-2xl text-base"
+              loading={isCreating}
+              className="w-full"
             >
-              {isCreating ? "Отправляем…" : "Подобрать гида"}
+              Подобрать гида
             </Button>
           </div>
         )}

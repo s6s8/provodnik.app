@@ -63,13 +63,13 @@ export default function TermsPage() {
 
       <nav
         aria-label="Разделы"
-        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-b border-border pb-4 mb-8"
       >
         {sections.map((s) => (
           <a
             key={s.id}
             href={`#${s.id}`}
-            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+            className="flex min-h-11 items-center py-3 text-sm text-primary hover:underline"
           >
             {s.label}
           </a>
@@ -79,9 +79,9 @@ export default function TermsPage() {
       <div className="space-y-6">
         <Card id="subject" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">1. Предмет соглашения</CardTitle>
+            <CardTitle aria-level={2} className="text-base">1. Предмет соглашения</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Provodnik предоставляет цифровую платформу, на которой
               путешественники могут публиковать запросы на поездки, находить
@@ -99,11 +99,11 @@ export default function TermsPage() {
 
         <Card id="travelers" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               2. Условия использования для путешественников
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {travelerConditions.map((item) => (
                 <li key={item}>{item}</li>
@@ -114,11 +114,11 @@ export default function TermsPage() {
 
         <Card id="guides" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               3. Условия использования для гидов
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {guideConditions.map((item) => (
                 <li key={item}>{item}</li>
@@ -129,9 +129,9 @@ export default function TermsPage() {
 
         <Card id="prohibited" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">4. Запрещённые действия</CardTitle>
+            <CardTitle aria-level={2} className="text-base">4. Запрещённые действия</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {prohibitedActions.map((item) => (
                 <li key={item}>{item}</li>
@@ -142,11 +142,11 @@ export default function TermsPage() {
 
         <Card id="liability" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               5. Ответственность платформы
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Provodnik является маркетплейсом и информационной платформой, а
               не туроператором, турагентом или перевозчиком. Мы не формируем
@@ -168,11 +168,11 @@ export default function TermsPage() {
 
         <Card id="disputes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               6. Споры и разрешение конфликтов
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {disputeSteps.map((item) => (
                 <li key={item}>{item}</li>
@@ -183,9 +183,9 @@ export default function TermsPage() {
 
         <Card id="changes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">7. Изменение условий</CardTitle>
+            <CardTitle aria-level={2} className="text-base">7. Изменение условий</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Мы вправе обновлять настоящее соглашение по мере развития сервиса,
               изменения законодательства или бизнес-процессов. Новая редакция
@@ -201,15 +201,15 @@ export default function TermsPage() {
 
         <Card id="contacts" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">8. Контакты</CardTitle>
+            <CardTitle aria-level={2} className="text-base">8. Контакты</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               По вопросам применения настоящего соглашения, споров, блокировок и
               правовых уведомлений пишите на{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>

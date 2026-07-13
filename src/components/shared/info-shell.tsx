@@ -32,7 +32,7 @@ export function InfoPageShell({ children, width = "prose", className }: InfoPage
 type InfoHeroProps = {
   eyebrow?: string;
   title: string;
-  subtitle?: string;
+  subtitle?: ReactNode;
   /** Primary/secondary CTAs rendered under the subtitle. */
   actions?: ReactNode;
   className?: string;
@@ -54,7 +54,7 @@ export function InfoHero({ eyebrow, title, subtitle, actions, className }: InfoH
         {title}
       </h1>
       {subtitle ? (
-        <p className="mt-3 max-w-[60ch] text-[15px] leading-[1.55] text-on-surface-muted">
+        <p className="mt-3 max-w-[60ch] text-base leading-[1.55] text-on-surface-muted">
           {subtitle}
         </p>
       ) : null}

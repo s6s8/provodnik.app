@@ -52,13 +52,13 @@ export default function PrivacyPage() {
 
       <nav
         aria-label="Разделы"
-        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-b border-border pb-4 mb-8"
       >
         {sections.map((s) => (
           <a
             key={s.id}
             href={`#${s.id}`}
-            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+            className="flex min-h-11 items-center py-3 text-sm text-primary hover:underline"
           >
             {s.label}
           </a>
@@ -68,11 +68,11 @@ export default function PrivacyPage() {
       <div className="space-y-6">
         <Card id="operator" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               Сведения об операторе персональных данных
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Оператором персональных данных в значении ст. 3 Федерального закона
               от 27.07.2006 № 152-ФЗ «О персональных данных» выступает команда
@@ -81,7 +81,7 @@ export default function PrivacyPage() {
               направления обращений субъектов данных:{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>
@@ -113,7 +113,7 @@ export default function PrivacyPage() {
               направлять на{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>
@@ -133,11 +133,11 @@ export default function PrivacyPage() {
 
         <Card id="collected" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               1. Какие данные мы собираем
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {collectedData.map((item) => (
                 <li key={item}>{item}</li>
@@ -148,11 +148,11 @@ export default function PrivacyPage() {
 
         <Card id="purposes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               2. Для чего мы используем данные
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {dataPurposes.map((item) => (
                 <li key={item}>{item}</li>
@@ -163,11 +163,11 @@ export default function PrivacyPage() {
 
         <Card id="third-parties" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               3. Передача данных третьим лицам
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Мы передаём данные только в объёме, необходимом для работы
               платформы и законных целей её обслуживания.
@@ -195,11 +195,11 @@ export default function PrivacyPage() {
 
         <Card id="rights" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               4. Права пользователей
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {userRights.map((item) => (
                 <li key={item}>{item}</li>
@@ -210,9 +210,9 @@ export default function PrivacyPage() {
 
         <Card id="cookies" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">5. Cookies</CardTitle>
+            <CardTitle aria-level={2} className="text-base">5. Cookies</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Мы используем cookie и аналогичные технологии для входа в
               учётную запись, сохранения пользовательских настроек, стабильной
@@ -228,17 +228,17 @@ export default function PrivacyPage() {
 
         <Card id="contacts" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               6. Контакты по вопросам данных
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Запросы на доступ, удаление, экспорт данных и вопросы по обработке
               персональной информации можно направить на{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>

@@ -14,9 +14,11 @@ const HERO_IMAGE = "/hero-valley.jpg";
 interface Props {
   destinations: DestinationOption[];
   preferredGuide?: { slug: string; name: string } | null;
+  /** True when the page below actually renders the #groups section. */
+  hasGroups?: boolean;
 }
 
-export function HomepageHeroFormClassic({ destinations, preferredGuide }: Props) {
+export function HomepageHeroFormClassic({ destinations, preferredGuide, hasGroups = false }: Props) {
   return (
     <section className="relative flex min-h-svh flex-col overflow-hidden bg-gradient-to-b from-brand-800 to-brand-950">
       <Image
@@ -39,10 +41,15 @@ export function HomepageHeroFormClassic({ destinations, preferredGuide }: Props)
         </div>
       </div>
 
-      <div className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1.5 text-xs font-semibold tracking-wider text-white drop-shadow-lg">
-        <span>Сборные группы</span>
-        <ArrowDown className="size-4 motion-safe:animate-bounce" aria-hidden="true" />
-      </div>
+      {hasGroups ? (
+        <a
+          href="#groups"
+          className="absolute bottom-6 left-1/2 z-[2] flex -translate-x-1/2 flex-col items-center gap-1.5 rounded-step px-3 py-2 text-xs font-semibold tracking-wider text-white drop-shadow-lg outline-none focus-visible:ring-3 focus-visible:ring-white/60"
+        >
+          <span>Сборные группы</span>
+          <ArrowDown className="size-4 motion-safe:animate-bounce" aria-hidden="true" />
+        </a>
+      ) : null}
     </section>
   );
 }

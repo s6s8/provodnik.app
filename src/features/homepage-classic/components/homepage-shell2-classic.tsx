@@ -32,10 +32,14 @@ export function HomePageShell2Classic({ destinations, requests, viewerId, prefer
 
   return (
     <>
-      <HomepageHeroFormClassic destinations={destinations} preferredGuide={preferredGuide} />
+      <HomepageHeroFormClassic
+        destinations={destinations}
+        preferredGuide={preferredGuide}
+        hasGroups={openGroups.length > 0}
+      />
 
       {openGroups.length > 0 && (
-        <section className={`${SECTION} pb-6 pt-14`} aria-label="Сборные группы">
+        <section id="groups" className={`${SECTION} scroll-mt-nav-h pb-6 pt-14`} aria-label="Сборные группы">
           <SectionHeading
             title="Сборные группы"
             action={{ label: "Все группы", href: "/requests" }}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { TriangleAlert } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -64,11 +65,12 @@ export default function OfferPage() {
         Проект. Обновляется до запуска приёма платежей.
       </p>
 
-      <Alert className="mt-6 border-border bg-card">
+      <Alert variant="warning" className="mt-6">
+        <TriangleAlert aria-hidden="true" />
         <AlertTitle className="text-sm font-semibold">
           Черновик — требуется финальная юридическая проверка
         </AlertTitle>
-        <AlertDescription className="text-sm leading-[1.6] text-muted-foreground">
+        <AlertDescription className="text-sm leading-[1.6] text-warning-text">
           Это предварительная редакция оферты. Она не является юридической
           консультацией и не заменяет проверку юристом. Итоговая редакция и
           обязывающие условия публикуются после согласования с профильным
@@ -78,13 +80,13 @@ export default function OfferPage() {
 
       <nav
         aria-label="Разделы"
-        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-b border-border pb-4 mb-8"
       >
         {sections.map((s) => (
           <a
             key={s.id}
             href={`#${s.id}`}
-            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+            className="flex min-h-11 items-center py-3 text-sm text-primary hover:underline"
           >
             {s.label}
           </a>
@@ -94,9 +96,9 @@ export default function OfferPage() {
       <div className="space-y-6">
         <Card id="role" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">1. Роль платформы</CardTitle>
+            <CardTitle aria-level={2} className="text-base">1. Роль платформы</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Provodnik — это маркетплейс и информационно-технический посредник.
               Платформа предоставляет цифровую среду, в которой путешественники
@@ -115,11 +117,11 @@ export default function OfferPage() {
 
         <Card id="contract" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               2. Прямой договор между гидом и путешественником
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               При подтверждении заказа договор возмездного оказания услуг
               заключается непосредственно между гидом (исполнителем) и
@@ -136,9 +138,9 @@ export default function OfferPage() {
 
         <Card id="guide" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">3. Ответственность гида</CardTitle>
+            <CardTitle aria-level={2} className="text-base">3. Ответственность гида</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {guideResponsibilities.map((item) => (
                 <li key={item}>{item}</li>
@@ -149,11 +151,11 @@ export default function OfferPage() {
 
         <Card id="traveler" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               4. Ответственность путешественника
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {travelerResponsibilities.map((item) => (
                 <li key={item}>{item}</li>
@@ -164,9 +166,9 @@ export default function OfferPage() {
 
         <Card id="payments" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">5. Платежи и возвраты</CardTitle>
+            <CardTitle aria-level={2} className="text-base">5. Платежи и возвраты</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {paymentTerms.map((item) => (
                 <li key={item}>{item}</li>
@@ -177,9 +179,9 @@ export default function OfferPage() {
 
         <Card id="disputes" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">6. Споры</CardTitle>
+            <CardTitle aria-level={2} className="text-base">6. Споры</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <ul className="space-y-3 list-disc pl-5">
               {disputeSteps.map((item) => (
                 <li key={item}>{item}</li>
@@ -190,11 +192,11 @@ export default function OfferPage() {
 
         <Card id="liability" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               7. Ограничение ответственности платформы
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Платформа как технический посредник не отвечает за качество,
               объём, безопасность и результат услуг, оказываемых гидом, а также
@@ -213,23 +215,23 @@ export default function OfferPage() {
 
         <Card id="data" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">
+            <CardTitle aria-level={2} className="text-base">
               8. Персональные данные и приватность
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Обработка персональных данных осуществляется в соответствии с{" "}
               <a
                 href="/policies/privacy"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 Политикой конфиденциальности
               </a>{" "}
               и{" "}
               <a
                 href="/policies/terms"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 Пользовательским соглашением
               </a>
@@ -241,9 +243,9 @@ export default function OfferPage() {
 
         <Card id="final" className="border-border bg-card scroll-mt-24">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-base">9. Статус документа</CardTitle>
+            <CardTitle aria-level={2} className="text-base">9. Статус документа</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Настоящий документ является проектом и носит информационный
               характер. Обязывающая редакция публичной оферты вступает в силу
@@ -251,7 +253,7 @@ export default function OfferPage() {
               По вопросам документа пишите на{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>
