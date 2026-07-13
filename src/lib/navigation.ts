@@ -45,7 +45,6 @@ export const ROUTES = {
   adminDashboard: { href: "/admin/dashboard",  label: "Обзор",        icon: BarChart3 },
   adminUsers:     { href: "/admin/users",      label: "Пользователи", shortLabel: "Люди", icon: Users },
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
-  adminListings:  { href: "/admin/listings",   label: "Листинги",     icon: ClipboardList },
   adminModeration:{ href: "/admin/moderation", label: "Модерация",    icon: ShieldCheck },
   adminPipeline:  { href: "/admin/pipeline",   label: "Заявки",       icon: Inbox },
   adminDisputes:  { href: "/admin/disputes",   label: "Споры",        icon: Flag },

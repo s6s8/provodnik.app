@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
+import { Button } from "@/components/ui/button";
 import { hasSupabaseAdminEnv } from "@/lib/env";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { getAdminNavCounts } from "@/lib/supabase/moderation";
@@ -26,8 +27,8 @@ function getInitials(email: string | null) {
 
 function AdminAccessDenied({ returnTo }: { returnTo: string | null | undefined }) {
   return (
-    <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-destructive/30 bg-destructive/10 p-6 shadow-card">
-      <div className="space-y-3">
+    <div className="mx-auto flex max-w-2xl flex-col gap-5 rounded-card border border-destructive/30 bg-destructive/10 p-6 shadow-card">
+      <div className="flex flex-col gap-3">
         <p className="text-sm font-semibold text-destructive">Админка недоступна</p>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Нужны права администратора
@@ -38,12 +39,11 @@ function AdminAccessDenied({ returnTo }: { returnTo: string | null | undefined }
         </p>
       </div>
 
-      <Link
-        href={returnTo ?? "/auth"}
-        className="mt-5 inline-flex rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
-      >
-        {returnTo ? "Вернуться в свой кабинет" : "Войти в аккаунт"}
-      </Link>
+      <Button asChild className="self-start">
+        <Link href={returnTo ?? "/auth"}>
+          {returnTo ? "Вернуться в свой кабинет" : "Войти в аккаунт"}
+        </Link>
+      </Button>
     </div>
   );
 }
@@ -70,14 +70,14 @@ export default async function AdminLayout({
 
   return (
     <div className="pb-24 md:pb-0">
-      <div className="grid w-full gap-8 lg:grid-cols-[240px_minmax(0,1fr)]">
-        <aside className="hidden lg:block">
-          <div className="bg-surface-high rounded-card shadow-card p-5 lg:sticky lg:top-24 self-start max-lg:static sticky top-28 space-y-5 p-6">
-            <div className="space-y-3">
+      <div className="grid w-full gap-8 md:grid-cols-[240px_minmax(0,1fr)]">
+        <aside className="hidden md:block">
+          <div className="flex flex-col gap-5 self-start rounded-card bg-surface-high p-6 shadow-card lg:sticky lg:top-24">
+            <div className="flex flex-col gap-3">
               <div className="flex size-14 items-center justify-center rounded-full bg-brand-light font-display text-2xl font-semibold text-brand">
                 {initials}
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <p className="font-medium text-ink">Панель администратора</p>
                 <p className="text-sm text-ink-3">{email}</p>
               </div>
