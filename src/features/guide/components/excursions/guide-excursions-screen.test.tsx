@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GuideTemplateRow } from "@/lib/supabase/types";
 
@@ -62,6 +62,24 @@ const baseTemplate: GuideTemplateRow = {
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-02T00:00:00Z",
 };
+
+// Radix Select (ui/Select) drives itself with pointer capture + scrollIntoView,
+// neither of which jsdom implements.
+beforeAll(() => {
+  Element.prototype.hasPointerCapture = vi.fn();
+  Element.prototype.releasePointerCapture = vi.fn();
+  Element.prototype.scrollIntoView = vi.fn();
+});
+
+/**
+ * Opens the category combobox and picks the option with the given label.
+ * jsdom does not implement PointerEvent buttons, so open it the keyboard way —
+ * which is the interaction the a11y refactor cares about anyway.
+ */
+function selectCategory(optionLabel: string) {
+  fireEvent.keyDown(screen.getByRole("combobox", { name: "Категория" }), { key: " " });
+  fireEvent.click(screen.getByRole("option", { name: optionLabel }));
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -179,9 +197,7 @@ describe("GuideExcursionsScreen", () => {
     fireEvent.change(screen.getByLabelText("Регион"), {
       target: { value: "Батуми" },
     });
-    fireEvent.change(screen.getByLabelText("Категория"), {
-      target: { value: "nature" },
-    });
+    selectCategory("Природа");
     fireEvent.click(screen.getByRole("button", { name: "Сохранить" }));
 
     expect(await screen.findByText("Новый маршрут")).toBeInTheDocument();
@@ -217,7 +233,9 @@ describe("GuideExcursionsScreen", () => {
     expect(screen.getByLabelText("Место сбора")).toHaveValue("Площадь Свободы");
     expect(screen.getByLabelText("Макс. участников")).toHaveValue(8);
     expect(screen.getByLabelText("Регион")).toHaveValue("Тбилиси, Грузия");
-    expect(screen.getByLabelText("Категория")).toHaveValue("history_culture");
+    expect(screen.getByRole("combobox", { name: "Категория" })).toHaveTextContent(
+      "История и культура",
+    );
     expect(screen.getByText("Выбрано: 1 фото")).toBeInTheDocument();
   });
 });

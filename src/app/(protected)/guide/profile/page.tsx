@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import type { ComponentProps } from "react";
 import { redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -36,7 +38,6 @@ import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { isGuideProfileConfirmed } from "@/lib/profile/guide-verification";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { GuideProfileRow, GuideVerificationStatusDb, ListingStatusDb } from "@/lib/supabase/types";
-import { cn } from "@/lib/utils";
 import { AvatarUploadBlock } from "@/app/(protected)/profile/_components/avatar-upload-block";
 
 export const metadata: Metadata = {
@@ -64,14 +65,13 @@ function getStorageAsset(relation: GuideVerificationDocumentRow["storage_assets"
   return Array.isArray(relation) ? relation[0] ?? null : relation;
 }
 
-function getStatusBadgeClass(status: GuideVerificationStatusDb) {
-  return cn(
-    "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold",
-    status === "approved" && "bg-success/10 text-success",
-    status === "submitted" && "bg-primary/10 text-primary",
-    status === "rejected" && "bg-destructive/10 text-destructive",
-    status === "draft" && "bg-muted text-muted-foreground",
-  );
+function statusBadgeVariant(
+  status: GuideVerificationStatusDb,
+): ComponentProps<typeof Badge>["variant"] {
+  if (status === "approved") return "success";
+  if (status === "submitted") return "warning";
+  if (status === "rejected") return "destructive";
+  return "secondary";
 }
 
 function verificationStatusLabel(status: GuideVerificationStatusDb): string {
@@ -333,7 +333,7 @@ export default async function GuideProfilePage() {
 
       <GuideProfileSectionBoundary id="about" title="О себе">
         {() => (
-          <Card className="border-border/70 bg-card/90">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl">О себе</CardTitle>
             </CardHeader>
@@ -354,7 +354,7 @@ export default async function GuideProfilePage() {
 
       <GuideProfileSectionBoundary id="legal" title="Юридические данные">
         {() => (
-          <Card className="border-border/70 bg-card/90">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl">Юридические данные</CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -371,7 +371,7 @@ export default async function GuideProfilePage() {
 
       <GuideProfileSectionBoundary id="license" title="Документ о квалификации">
         {() => (
-          <Card className="border-border/70 bg-card/90">
+          <Card>
             <CardHeader>
               <CardTitle className="text-xl">Документ о квалификации</CardTitle>
               <CardDescription>
@@ -393,13 +393,13 @@ export default async function GuideProfilePage() {
 
       <GuideProfileSectionBoundary id="verification" title="Верификация">
         {() => (
-          <Card className="border-border/70 bg-card/90">
+          <Card>
             <CardHeader>
               <div className="flex items-center gap-3">
                 <CardTitle className="text-xl">Верификация</CardTitle>
-                <span className={getStatusBadgeClass(verificationStatus)}>
+                <Badge variant={statusBadgeVariant(verificationStatus)}>
                   {verificationStatusLabel(verificationStatus)}
-                </span>
+                </Badge>
               </div>
               <p className="text-sm text-muted-foreground">
                 Загрузите обязательные документы для проверки аккаунта.
@@ -423,9 +423,9 @@ export default async function GuideProfilePage() {
                           className="flex items-center justify-between gap-3 rounded-lg border border-border/70 bg-background/60 px-4 py-3"
                         >
                           <span className="text-sm">{doc.fileName}</span>
-                          <span className={getStatusBadgeClass(doc.status)}>
+                          <Badge variant={statusBadgeVariant(doc.status)}>
                             {documentStatusLabel(doc.status)}
-                          </span>
+                          </Badge>
                         </li>
                       ))}
                     </ul>

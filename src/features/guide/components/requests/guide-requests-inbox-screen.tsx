@@ -11,11 +11,19 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -218,7 +226,11 @@ export function GuideRequestsInboxScreen() {
       <Card className="border-border/70 bg-card/90">
         <CardContent className="space-y-4 pt-6">
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Загрузка запросов…</p>
+            <div className="space-y-3" aria-busy="true" aria-label="Загрузка запросов">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ListRowSkeleton key={i} />
+              ))}
+            </div>
           ) : loadError ? (
             <Alert variant="destructive">
               <AlertDescription>{loadError}</AlertDescription>
@@ -260,30 +272,33 @@ export function GuideRequestsInboxScreen() {
                 {items.length > 0 ? (
                   <div className="flex flex-wrap items-center gap-3">
                     {uniqueCities.length > 1 ? (
-                      <select
-                        value={cityFilter}
-                        onChange={(e) => setCityFilter(e.target.value)}
-                        className="min-h-[44px] rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
-                        aria-label="Фильтр по городу"
-                      >
-                        <option value="all">Все направления</option>
-                        {uniqueCities.map((city) => (
-                          <option key={city} value={city}>
-                            {city}
-                          </option>
-                        ))}
-                      </select>
+                      <Select value={cityFilter} onValueChange={setCityFilter}>
+                        <SelectTrigger className="min-h-11" aria-label="Фильтр по городу">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Все направления</SelectItem>
+                          {uniqueCities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     ) : null}
-                    <select
+                    <Select
                       value={sortKey}
-                      onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
-                      className="min-h-[44px] rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
-                      aria-label="Сортировка"
+                      onValueChange={(next) => setSortKey(next as GuideRequestsSortKey)}
                     >
-                      <option value="newest">Новые сначала</option>
-                      <option value="date">По дате запроса</option>
-                      <option value="size">По размеру группы</option>
-                    </select>
+                      <SelectTrigger className="min-h-11" aria-label="Сортировка">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Новые сначала</SelectItem>
+                        <SelectItem value="date">По дате запроса</SelectItem>
+                        <SelectItem value="size">По размеру группы</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 ) : null}
 
@@ -367,7 +382,7 @@ export function GuideRequestsInboxScreen() {
                                 <Link href="/guide/profile#verification">Пройти верификацию</Link>
                               </Button>
                             )}
-                            <Button variant="ghost" asChild className="ml-auto min-h-[44px]">
+                            <Button variant="ghost" asChild className="ml-auto">
                               <Link
                                 href={`/requests/${item.id}`}
                                 aria-label={`Открыть полный запрос: ${item.destination}`}

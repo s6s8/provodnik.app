@@ -3,7 +3,11 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { LANGUAGES } from "@/data/languages";
 import { InterestChipGroup } from "@/features/shared/components/interest-chip-group";
 import {
@@ -62,20 +66,22 @@ export function GuideAboutForm({
   return (
     <form onSubmit={(e) => void handleSubmit(e)} className="max-w-xl">
       {isLocked && (
-        <p className="mb-6 rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
-          Профиль одобрен. Проверенные данные недоступны для редактирования — для изменений напишите администраторам. Текст «О себе» можно обновлять.
-        </p>
+        <Alert variant="warning" className="mb-6">
+          <AlertDescription>
+            Профиль одобрен. Проверенные данные недоступны для редактирования — для изменений напишите администраторам. Текст «О себе» можно обновлять.
+          </AlertDescription>
+        </Alert>
       )}
       {/* Bio */}
       <div className="space-y-2">
-        <textarea
+        <Textarea
           id="bio"
           name="bio"
           aria-label="О себе"
           defaultValue={initialBio}
           rows={6}
           placeholder="Расскажите о себе: опыт, специализация, что вас вдохновляет..."
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none resize-y"
+          className="resize-y"
         />
         <p className="text-xs text-muted-foreground">
           Пишите честно и тепло — путешественники выбирают гида, а не резюме. Текст увидят все посетители вашей публичной страницы.
@@ -85,32 +91,26 @@ export function GuideAboutForm({
       <fieldset disabled={isLocked} className="space-y-6 border-0 p-0 m-0">
       {/* Base city */}
       <div className="space-y-2">
-        <label htmlFor="base_city" className="text-sm font-medium text-foreground">
-          Базовый город
-        </label>
-        <input
+        <Label htmlFor="base_city">Базовый город</Label>
+        <Input
           id="base_city"
           name="base_city"
           type="text"
           value={baseCity}
           onChange={(e) => setBaseCity(e.target.value)}
           placeholder="Санкт-Петербург"
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
         />
       </div>
 
       {/* Regions */}
       <div className="space-y-2">
-        <label htmlFor="regions" className="text-sm font-medium text-foreground">
-          Регионы
-        </label>
-        <input
+        <Label htmlFor="regions">Регионы</Label>
+        <Input
           id="regions"
           type="text"
           value={regionsRaw}
           onChange={(e) => setRegionsRaw(e.target.value)}
           placeholder="Санкт-Петербург, Карелия"
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
         />
         <p className="text-xs text-muted-foreground">Через запятую — регионы, где вы проводите экскурсии.</p>
         {parsedRegions.map((region, index) => (
@@ -120,10 +120,8 @@ export function GuideAboutForm({
 
       {/* Years of experience */}
       <div className="space-y-2">
-        <label htmlFor="years_experience" className="text-sm font-medium text-foreground">
-          Лет опыта в роли гида
-        </label>
-        <input
+        <Label htmlFor="years_experience">Лет опыта в роли гида</Label>
+        <Input
           id="years_experience"
           name="years_experience"
           type="number"
@@ -131,7 +129,7 @@ export function GuideAboutForm({
           max={60}
           defaultValue={initialYearsExperience ?? ""}
           placeholder="Например: 5"
-          className="w-32 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary focus:outline-none"
+          className="w-32"
         />
       </div>
 
@@ -173,16 +171,13 @@ export function GuideAboutForm({
       </fieldset>
       <div className="mt-6 space-y-3">
         {status === "error" ? (
-          <p
-            role="alert"
-            className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive"
-          >
-            {errorMsg}
-          </p>
+          <Alert variant="destructive" role="alert">
+            <AlertDescription>{errorMsg}</AlertDescription>
+          </Alert>
         ) : null}
         <div className="flex items-center gap-3">
-          <Button type="submit" disabled={status === "saving"}>
-            {status === "saving" ? "Сохраняем…" : "Сохранить"}
+          <Button type="submit" loading={status === "saving"}>
+            Сохранить
           </Button>
           {status === "saved" ? (
             <p className="text-sm text-success">Сохранено</p>

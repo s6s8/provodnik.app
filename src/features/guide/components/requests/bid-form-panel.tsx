@@ -5,8 +5,9 @@ import Image from "next/image";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
-import { Lock, X } from "lucide-react";
+import { ArrowLeftRight, Lock, X } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +15,8 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -63,14 +66,12 @@ function getDefaultValidUntil(): string {
   return Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Moscow" }).format(d);
 }
 
-const FIELD_CLASS =
-  "min-h-[2.75rem] w-full rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary";
-
 function ProposedBadge() {
   return (
-    <span className="inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-      ↔️ предложено
-    </span>
+    <Badge variant="info">
+      <ArrowLeftRight className="size-3.5" aria-hidden="true" />
+      предложено
+    </Badge>
   );
 }
 
@@ -370,7 +371,7 @@ export function BidFormPanel({
                       type="button"
                       disabled={submitted}
                       onClick={() => setExcursionPickerOpen((prev) => !prev)}
-                      className="inline-flex min-h-[2.75rem] w-full items-center justify-center rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       Выбрать из моих экскурсий ↓
                     </button>
@@ -448,21 +449,15 @@ export function BidFormPanel({
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
               {dateShifted ? <ProposedBadge /> : null}
-              <span
-                className={
-                  request.dateFlexibility === "few_days"
-                    ? "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-100 text-emerald-700"
-                    : "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-rose-100 text-rose-700"
-                }
-              >
+              <Badge variant={request.dateFlexibility === "few_days" ? "success" : "destructive"}>
                 {request.dateFlexibility === "few_days" ? "Гибкие даты" : "Точная дата"}
-              </span>
+              </Badge>
             </div>
             <div className="relative">
-              <input
+              <Input
                 type="date"
                 aria-label="Дата"
-                className={`${FIELD_CLASS} pr-10`}
+                className="pr-10"
                 disabled={submitted || dateLocked}
                 {...register("excursion_date")}
               />
@@ -486,10 +481,10 @@ export function BidFormPanel({
               <div className="grid flex-1 gap-2">
                 <label className="text-sm font-medium text-foreground">Начало</label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="time"
                     aria-label="Время начала"
-                    className={`${FIELD_CLASS} pr-10`}
+                    className="pr-10"
                     disabled={submitted || timeLocked}
                     {...register("excursion_start_time")}
                   />
@@ -504,10 +499,10 @@ export function BidFormPanel({
               <div className="grid flex-1 gap-2">
                 <label className="text-sm font-medium text-foreground">Конец</label>
                 <div className="relative">
-                  <input
+                  <Input
                     type="time"
                     aria-label="Время окончания"
-                    className={`${FIELD_CLASS} pr-10`}
+                    className="pr-10"
                     disabled={submitted || timeLocked}
                     {...register("excursion_end_time")}
                   />
@@ -532,24 +527,17 @@ export function BidFormPanel({
                   ? "Сборная группа · Сколько человек готовы взять?"
                   : "Своя группа · Группа сформирована"}
               </span>
-              <span
-                className={
-                  request.mode === "assembly"
-                    ? "inline-flex items-center rounded-full bg-sky-100 px-2.5 py-0.5 text-xs font-medium text-sky-700"
-                    : "inline-flex items-center rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-700"
-                }
-              >
+              <Badge variant={request.mode === "assembly" ? "info" : "secondary"}>
                 {travelerCount} чел.
-              </span>
+              </Badge>
             </div>
             {request.mode === "assembly" ? (
-              <input
+              <Input
                 type="number"
                 inputMode="numeric"
                 min={1}
                 max={50}
                 aria-label="Сколько человек готовы взять"
-                className={FIELD_CLASS}
                 disabled={submitted}
                 {...register("headcount", { valueAsNumber: true })}
               />
@@ -561,14 +549,13 @@ export function BidFormPanel({
             <label className="text-sm font-medium text-foreground">Цена</label>
             <div className="flex items-center gap-2">
               <div className="flex-1">
-                <input
+                <Input
                   type="number"
                   inputMode="numeric"
                   min={1000}
                   max={budgetCeilingPerPerson ? budgetCeilingPerPerson * count : undefined}
                   placeholder="За группу, ₽"
                   aria-label="Цена за группу, ₽"
-                  className={FIELD_CLASS}
                   aria-invalid={Boolean(errors.price_total)}
                   disabled={submitted}
                   {...register("price_total", {
@@ -579,14 +566,13 @@ export function BidFormPanel({
                 <p className="mt-1 text-xs text-muted-foreground">За группу, ₽</p>
               </div>
               <div className="flex-1">
-                <input
+                <Input
                   type="number"
                   inputMode="numeric"
                   min={1}
                   max={budgetCeilingPerPerson ? budgetCeilingPerPerson : undefined}
                   placeholder="На человека, ₽"
                   aria-label="Цена на человека, ₽"
-                  className={FIELD_CLASS}
                   disabled={submitted}
                   {...register("price_per_person", {
                     valueAsNumber: true,
@@ -603,9 +589,9 @@ export function BidFormPanel({
 
           {/* Сообщение */}
           <div className="grid gap-2">
-            <textarea
+            <Textarea
               id="panel-message"
-              className="min-h-[7rem] w-full resize-y rounded-xl border border-border bg-surface-high px-3.5 py-2.5 text-sm text-foreground outline-none focus:border-primary"
+              className="min-h-28 resize-y"
               placeholder="Дополнительная информация об экскурсии, вопросы и условия"
               aria-invalid={Boolean(errors.message)}
               disabled={submitted}
@@ -619,10 +605,9 @@ export function BidFormPanel({
             <label htmlFor="panel-valid_until" className="text-sm font-medium text-foreground">
               Действительно до
             </label>
-            <input
+            <Input
               id="panel-valid_until"
               type="date"
-              className={FIELD_CLASS}
               aria-invalid={Boolean(errors.valid_until)}
               disabled={submitted}
               {...register("valid_until")}
@@ -638,20 +623,18 @@ export function BidFormPanel({
 
           <Button
             type="submit"
-            disabled={isSubmitting || submitted}
-            className={submitted ? "border border-success/30 bg-success/10 text-success w-full" : "w-full"}
+            variant={submitted ? "success" : "default"}
+            loading={isSubmitting}
+            disabled={submitted}
+            className="w-full"
           >
             {submitted
               ? isEdit
                 ? "Сохранено"
                 : "Отправлено"
-              : isSubmitting
-                ? isEdit
-                  ? "Сохраняем…"
-                  : "Отправляем…"
-                : isEdit
-                  ? "Сохранить изменения"
-                  : "Отправить предложение"}
+              : isEdit
+                ? "Сохранить изменения"
+                : "Отправить предложение"}
           </Button>
         </form>
       </DialogContent>

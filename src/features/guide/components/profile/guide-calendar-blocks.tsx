@@ -2,8 +2,10 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { CalendarDays } from "lucide-react";
 
 import { GlassCard } from "@/components/shared/glass-card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -125,25 +127,39 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">
           <Label htmlFor="block-date">{kind === "day" ? "Дата" : "С"}</Label>
-          <Input
-            id="block-date"
-            type="date"
-            min={today}
-            value={date}
-            onChange={(e) => handleStartDateChange(e.target.value)}
-          />
+          <div className="relative">
+            <CalendarDays
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              id="block-date"
+              type="date"
+              min={today}
+              value={date}
+              onChange={(e) => handleStartDateChange(e.target.value)}
+              className="native-picker-hidden pl-11"
+            />
+          </div>
         </div>
 
         {kind === "range" || kind === "window" ? (
           <div className="space-y-1.5">
             <Label htmlFor="block-end-date">По</Label>
-            <Input
-              id="block-end-date"
-              type="date"
-              min={date}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <div className="relative">
+              <CalendarDays
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                id="block-end-date"
+                type="date"
+                min={date}
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="native-picker-hidden pl-11"
+              />
+            </div>
           </div>
         ) : null}
 
@@ -184,12 +200,12 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
       </div>
 
       {message ? (
-        <p className={message.tone === "error" ? "text-sm text-destructive" : "text-sm text-amber-600"}>
-          {message.text}
-        </p>
+        <Alert variant={message.tone === "error" ? "destructive" : "warning"} role="alert">
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <Button type="button" disabled={pending} onClick={submit}>
+      <Button type="button" loading={pending} onClick={submit}>
         Закрыть период
       </Button>
 
