@@ -28,6 +28,28 @@ describe("ListRow", () => {
     );
   });
 
+  it("keeps actions outside the link when href and actions coexist", () => {
+    render(
+      <ListRow
+        href="/admin/bookings/abc"
+        title="Заявка"
+        actions={
+          <form>
+            <button type="submit">Подтвердить</button>
+          </form>
+        }
+      />,
+    );
+
+    const link = screen.getByRole("link", { name: "Заявка" });
+    expect(link).toHaveAttribute("href", "/admin/bookings/abc");
+    // The action button must not be a descendant of the anchor (invalid HTML,
+    // and the browser would swallow the click).
+    expect(link).not.toContainElement(
+      screen.getByRole("button", { name: "Подтвердить" }),
+    );
+  });
+
   it("does not bubble action clicks to the row", () => {
     const onRow = vi.fn();
     const onAction = vi.fn();

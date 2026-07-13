@@ -44,10 +44,13 @@ describe("StickyActionBar", () => {
     expect(screen.getByRole("button", { name: "Отклонить" })).toBeInTheDocument();
   });
 
-  it("applies the safe-area padding on the inner rail", () => {
+  it("applies the safe-area padding on the inner rail, with a padding floor", () => {
     const { container } = render(<StickyActionBar name="Иван" primary={<button>Принять</button>} />);
     const rail = container.querySelector(".max-w-page");
-    expect(rail?.className).toContain("pb-[env(safe-area-inset-bottom)]");
+    // T-06: safe-area still honoured, but max() keeps real padding on devices
+    // that report a 0px inset (where the bare env() left the bar flush).
+    expect(rail?.className).toContain("env(safe-area-inset-bottom)");
+    expect(rail?.className).toContain("max(0.875rem");
   });
 
   it("does not fire the primary action when confirm resolves false", async () => {
