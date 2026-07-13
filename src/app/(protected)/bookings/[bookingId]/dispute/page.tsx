@@ -1,3 +1,4 @@
+import { ArrowLeft } from "lucide-react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -77,7 +78,10 @@ export default async function TravelerBookingDisputePage({
   return (
     <div className="space-y-6">
       <Button asChild variant="ghost" className="-ml-3 px-3">
-        <Link href={`/bookings/${bookingId}`}>Вернуться к поездке</Link>
+        <Link href={`/bookings/${bookingId}`}>
+          <ArrowLeft className="size-4" />
+          Вернуться к поездке
+        </Link>
       </Button>
 
       <PageHeader

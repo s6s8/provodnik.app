@@ -36,38 +36,51 @@ export function DisputeForm({ bookingId, hasError, tripSummary, guideName }: Dis
         </Alert>
       )}
 
-      <div className="rounded-lg border border-border/70 bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+      <div className="rounded-lg border border-border/70 bg-muted/40 px-4 py-3 text-sm text-ink-2">
         <p>{tripSummary}</p>
         <p>Гид: {guideName}</p>
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="reason">Причина спора</Label>
+        <Label htmlFor="reason" className="text-foreground">
+          Причина спора <span className="text-destructive">*</span>
+        </Label>
+        <p id="reason-hint" className="text-sm text-muted-foreground">
+          Что пошло не так? Опишите факты и даты.
+        </p>
         <Textarea
           id="reason"
           name="reason"
           maxLength={2000}
-          placeholder="Что пошло не так?"
           disabled={pending}
+          aria-invalid={hasError}
+          aria-describedby={hasError ? "reason-error" : "reason-hint"}
         />
+        {hasError ? (
+          <p id="reason-error" role="alert" className="text-sm text-destructive">
+            Укажите причину спора.
+          </p>
+        ) : null}
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor="requestedOutcome">Желаемый исход</Label>
+        <Label htmlFor="requestedOutcome" className="text-foreground">
+          Желаемый исход (необязательно)
+        </Label>
+        <p id="requested-outcome-hint" className="text-sm text-muted-foreground">
+          Например: частичный возврат, перенос даты, дополнительная компенсация.
+        </p>
         <Textarea
           id="requestedOutcome"
           name="requestedOutcome"
           maxLength={2000}
-          placeholder="Например: частичный возврат, перенос даты, дополнительная компенсация"
           disabled={pending}
+          aria-describedby="requested-outcome-hint"
         />
       </div>
 
-      <Button type="submit" disabled={pending}>
-        {pending ? (
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground/40 border-t-primary-foreground" />
-        ) : null}
-        {pending ? "Отправка…" : "Отправить спор"}
+      <Button type="submit" loading={pending}>
+        Отправить спор
       </Button>
     </form>
   );

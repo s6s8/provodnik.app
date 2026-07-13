@@ -12,7 +12,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { pluralize } from "@/lib/utils";
+
+const TITLE_MAX = 100;
+const BODY_MAX = 2000;
 
 type BookingReviewDetails = {
   id: string;
@@ -33,6 +38,10 @@ export function TravelerBookingReviewScreen({
   errorMessage?: string | null;
 }) {
   const [rating, setRating] = React.useState<1 | 2 | 3 | 4 | 5>(5);
+  const [fieldErrors, setFieldErrors] = React.useState<{
+    title?: string;
+    body?: string;
+  }>({});
   const [isPending, startTransition] = useTransition();
 
   return (
@@ -65,7 +74,7 @@ export function TravelerBookingReviewScreen({
           </p>
         </CardHeader>
         <CardContent>
-          <div className="flex items-start gap-3 rounded-2xl border border-border/60 bg-background/70 p-4">
+          <div className="flex items-start gap-3 rounded-card border border-border/60 bg-background/70 p-4">
             <ProfileAvatar
               profile={{
                 full_name: booking.guideName,
@@ -104,6 +113,18 @@ export function TravelerBookingReviewScreen({
             onSubmit={(e) => {
               e.preventDefault();
               const fd = new FormData(e.currentTarget);
+              const title = String(fd.get("title") ?? "").trim();
+              const body = String(fd.get("body") ?? "").trim();
+              const nextErrors: { title?: string; body?: string } = {};
+              if (title.length > TITLE_MAX) {
+                nextErrors.title = `Не длиннее ${TITLE_MAX} символов`;
+              }
+              if (body.length > BODY_MAX) {
+                nextErrors.body = `Не длиннее ${BODY_MAX} символов`;
+              }
+              setFieldErrors(nextErrors);
+              if (nextErrors.title || nextErrors.body) return;
+
               startTransition(() => {
                 void action(fd);
               });
@@ -123,15 +144,15 @@ export function TravelerBookingReviewScreen({
                     type="button"
                     role="radio"
                     aria-checked={rating === value}
-                    aria-label={`${value} звезд`}
+                    aria-label={`${value} ${pluralize(value, "звезда", "звезды", "звёзд")}`}
                     onClick={() => setRating(value)}
-                    className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md transition-colors hover:bg-amber-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="flex size-11 items-center justify-center rounded-md transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <Star
                       className={
                         value <= rating
-                          ? "size-7 fill-amber-400 text-amber-400"
-                          : "size-7 text-muted-foreground/40"
+                          ? "size-7 fill-gold text-gold"
+                          : "size-7 text-muted-foreground"
                       }
                     />
                   </button>
@@ -140,32 +161,40 @@ export function TravelerBookingReviewScreen({
             </div>
 
             <div className="grid gap-4 border-t border-border/40 pt-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                Необязательно
-              </p>
-
               <div className="grid gap-2">
-                <label htmlFor="title" className="text-sm text-muted-foreground">
-                  Заголовок
-                </label>
+                <Label htmlFor="title" className="text-foreground">
+                  Заголовок (необязательно)
+                </Label>
                 <Input
                   id="title"
                   name="title"
-                  maxLength={100}
                   placeholder="Например: спокойный темп и хорошая организация"
+                  aria-invalid={Boolean(fieldErrors.title)}
+                  aria-describedby={fieldErrors.title ? "title-error" : undefined}
                 />
+                {fieldErrors.title ? (
+                  <p id="title-error" role="alert" className="text-sm text-destructive">
+                    {fieldErrors.title}
+                  </p>
+                ) : null}
               </div>
 
               <div className="grid gap-2">
-                <label htmlFor="body" className="text-sm text-muted-foreground">
-                  Отзыв
-                </label>
+                <Label htmlFor="body" className="text-foreground">
+                  Отзыв (необязательно)
+                </Label>
                 <Textarea
                   id="body"
                   name="body"
-                  maxLength={2000}
                   placeholder="Расскажите, что особенно понравилось и что можно улучшить."
+                  aria-invalid={Boolean(fieldErrors.body)}
+                  aria-describedby={fieldErrors.body ? "body-error" : undefined}
                 />
+                {fieldErrors.body ? (
+                  <p id="body-error" role="alert" className="text-sm text-destructive">
+                    {fieldErrors.body}
+                  </p>
+                ) : null}
               </div>
             </div>
 
@@ -173,8 +202,8 @@ export function TravelerBookingReviewScreen({
               <p className="text-xs text-muted-foreground">
                 Отзыв отправится только после проверки права на публикацию.
               </p>
-              <Button type="submit" disabled={isPending}>
-                {isPending ? "Отправляю..." : "Отправить отзыв"}
+              <Button type="submit" loading={isPending}>
+                Отправить отзыв
               </Button>
             </div>
           </form>

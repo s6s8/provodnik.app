@@ -1,3 +1,4 @@
+import { Star } from "lucide-react";
 import type { Metadata } from "next";
 
 import Image from "next/image";
@@ -5,6 +6,7 @@ import { notFound, redirect } from "next/navigation";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { MoneyBreakdown } from "@/components/trust/money-breakdown";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { kopecksToRub } from "@/data/money";
 import { BookingFormTabs } from "@/features/bookings/components/BookingFormTabs";
@@ -90,11 +92,7 @@ export default async function BookingPage({
           ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-sm text-muted-foreground">{listing.region}</span>
-            {fmtLabel ? (
-              <span className="inline-flex items-center rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-                {fmtLabel}
-              </span>
-            ) : null}
+            {fmtLabel ? <Badge variant="secondary">{fmtLabel}</Badge> : null}
             <span className="ml-auto text-base font-semibold text-on-surface">
               от {priceLabel}
             </span>
@@ -102,8 +100,9 @@ export default async function BookingPage({
           <div className="flex items-center gap-2 text-sm">
             <span className="font-medium text-on-surface">{guideName}</span>
             {showRating ? (
-              <span className="text-muted-foreground">
-                ★ {guidePublic?.average_rating} ({guidePublic?.review_count})
+              <span className="flex items-center gap-1 text-muted-foreground">
+                <Star className="size-4 fill-gold text-gold" />
+                {guidePublic?.average_rating} ({guidePublic?.review_count})
               </span>
             ) : null}
           </div>

@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import type { ListingRow } from "@/lib/supabase/types";
 
@@ -324,12 +325,12 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
           ) : null}
         </div>
 
-        <Button type="submit" className="w-full" disabled={isPending}>
-          {isPending ? "Отправка…" : "Отправить заявку"}
+        <Button type="submit" className="w-full" loading={isPending}>
+          Отправить заявку
         </Button>
 
         <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <ShieldCheck className="h-3.5 w-3.5 text-green-600 shrink-0" />
+          <ShieldCheck className="h-3.5 w-3.5 text-success shrink-0" />
           Заявка бесплатна · Гид отвечает в течение 24 ч
         </p>
       </form>
@@ -353,17 +354,19 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
               <Textarea
                 id="booking-question-notes"
                 rows={5}
+                aria-invalid={Boolean(questionForm.formState.errors.notes)}
+                aria-describedby={questionForm.formState.errors.notes ? "booking-question-notes-error" : undefined}
                 {...questionForm.register("notes")}
               />
               {questionForm.formState.errors.notes ? (
-                <p className="text-sm text-destructive">
+                <p id="booking-question-notes-error" role="alert" className="text-sm text-destructive">
                   {questionForm.formState.errors.notes.message}
                 </p>
               ) : null}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isPending}>
-              {isPending ? "Отправка…" : "Отправить вопрос"}
+            <Button type="submit" className="w-full" loading={isPending}>
+              Отправить вопрос
             </Button>
           </form>
         ) : null}
@@ -374,9 +377,7 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
 
 export function BookingFormTabs(props: BookingFormTabsProps) {
   return (
-    <Suspense
-      fallback={<p className="text-sm text-muted-foreground">Загрузка формы…</p>}
-    >
+    <Suspense fallback={<Skeleton className="h-64" />}>
       <BookingFormTabsInner {...props} />
     </Suspense>
   );
