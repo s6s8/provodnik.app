@@ -96,6 +96,20 @@ export const setRoleInputSchema = z.object({
 });
 export type SetRoleInput = z.infer<typeof setRoleInputSchema>;
 
+/**
+ * `profiles.full_name` is the private, legal-ish name — never the public one
+ * (that lives in `guide_profiles.display_name`). Admins fix typos here.
+ */
+export const updateFullNameInputSchema = z.object({
+  targetUserId: uuid,
+  fullName: z
+    .string()
+    .trim()
+    .min(1, "Укажите ФИО.")
+    .max(120, "ФИО слишком длинное (максимум 120 символов)."),
+});
+export type UpdateFullNameInput = z.infer<typeof updateFullNameInputSchema>;
+
 /** Typed-confirmation token the admin must enter to hard-delete a demo user. */
 export const HARD_DELETE_CONFIRM_TEXT = "УДАЛИТЬ";
 

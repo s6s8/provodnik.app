@@ -12,6 +12,7 @@ import {
   scrubAdminReason,
   setAccountStatusInputSchema,
   setRoleInputSchema,
+  updateFullNameInputSchema,
   type AccountStatus,
   type AdminActionResult,
   type BulkActionResult,
@@ -327,6 +328,45 @@ export async function setUserRoleAction(
     return ok("Роль обновлена.");
   } catch {
     return fail("Не удалось изменить роль. Попробуйте ещё раз.");
+  }
+}
+
+// --- Full name (private; the public name lives in guide_profiles.display_name) ---
+
+export async function updateFullNameAction(
+  _prev: AdminActionResult | null,
+  formData: FormData,
+): Promise<AdminActionResult> {
+  const parsed = updateFullNameInputSchema.safeParse({
+    targetUserId: formData.get("targetUserId"),
+    fullName: formData.get("fullName"),
+  });
+  if (!parsed.success) {
+    return fail(parsed.error.issues[0]?.message ?? "Некорректные данные.");
+  }
+
+  try {
+    const { adminId, adminClient } = await requireAdminSession();
+    const target = await getTargetForGuards(adminClient, parsed.data.targetUserId);
+    if (!target) return fail("Пользователь не найден.");
+
+    const { error } = await adminClient
+      .from("profiles")
+      .update({ full_name: parsed.data.fullName })
+      .eq("id", target.id);
+    if (error) return fail("Не удалось сохранить ФИО.");
+
+    await logAdminAudit({
+      actorId: adminId,
+      action: "profile.full_name_change",
+      targetId: target.id,
+      metadata: { from: target.fullName, to: parsed.data.fullName },
+    });
+
+    revalidateUsers(target.id);
+    return ok("ФИО обновлено.");
+  } catch {
+    return fail("Не удалось сохранить ФИО. Попробуйте ещё раз.");
   }
 }
 

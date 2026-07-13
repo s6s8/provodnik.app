@@ -121,12 +121,22 @@ describe("signUpAction — public signup roles", () => {
   it("registers role:guide with guide stamped on user, profile, and app_metadata", async () => {
     mockSuccessfulRegistration();
 
-    const result = await signUpAction({ ...baseInput, role: "guide", guideType: "individual_guide" });
+    const result = await signUpAction({
+      ...baseInput,
+      role: "guide",
+      guideType: "individual_guide",
+      displayName: "Анна",
+    });
 
     expect(result).toEqual({ ok: true, dashboardPath: "/guide/profile" });
     expect(createUserMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        user_metadata: { role: "guide", full_name: baseInput.fullName, guide_type: "individual_guide" },
+        user_metadata: {
+          role: "guide",
+          full_name: baseInput.fullName,
+          display_name: "Анна",
+          guide_type: "individual_guide",
+        },
       }),
     );
     expect(upsertMock).toHaveBeenCalledWith(
@@ -164,11 +174,31 @@ describe("signUpAction — public signup roles", () => {
   });
 
   it("rejects guide signup without a valid guide type", async () => {
-    const result = await signUpAction({ ...baseInput, role: "guide", guideType: "invalid" });
+    const result = await signUpAction({
+      ...baseInput,
+      role: "guide",
+      guideType: "invalid",
+      displayName: "Анна",
+    });
 
     expect(result).toEqual({ ok: false, error: "guide_type_required" });
     assertNoSupabaseSideEffects();
   });
+
+  it.each([undefined, "", "   "])(
+    "rejects guide signup without a public display name (%s)",
+    async (displayName) => {
+      const result = await signUpAction({
+        ...baseInput,
+        role: "guide",
+        guideType: "individual_guide",
+        displayName,
+      });
+
+      expect(result).toEqual({ ok: false, error: "display_name_required" });
+      assertNoSupabaseSideEffects();
+    },
+  );
 
   it("allows role:traveler — happy path proceeds through admin client", async () => {
     mockSuccessfulRegistration();
@@ -176,9 +206,15 @@ describe("signUpAction — public signup roles", () => {
     const result = await signUpAction({ ...baseInput, role: "traveler" });
 
     expect(result).toEqual({ ok: true, dashboardPath: "/trips" });
+    // Travelers don't fill a display name (they're publicly masked anyway):
+    // it defaults to the first word of the full name, never the email local-part.
     expect(createUserMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        user_metadata: { role: "traveler", full_name: baseInput.fullName },
+        user_metadata: {
+          role: "traveler",
+          full_name: baseInput.fullName,
+          display_name: "Анна",
+        },
       }),
     );
     expect(upsertMock).toHaveBeenCalledWith(
@@ -308,7 +344,12 @@ describe("signUpAction — failure rollback", () => {
     upsertMock.mockResolvedValue({ data: null, error: null });
     updateUserByIdMock.mockResolvedValue({ data: null, error: { message: "role failed" } });
 
-    const result = await signUpAction({ ...baseInput, role: "guide", guideType: "individual_guide" });
+    const result = await signUpAction({
+      ...baseInput,
+      role: "guide",
+      guideType: "individual_guide",
+      displayName: "Анна",
+    });
 
     expect(result).toEqual({ ok: false, error: "role_failed" });
     expect(deleteUserMock).toHaveBeenCalledWith("user-9");

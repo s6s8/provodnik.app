@@ -39,6 +39,7 @@ import {
   hardDeleteDemoUserAction,
   setAccountStatusAction,
   setUserRoleAction,
+  updateFullNameAction,
 } from "./actions";
 
 const ADMIN_ID = "11111111-1111-4111-8111-111111111111";
@@ -508,5 +509,54 @@ describe("guide verification actions from admin users", () => {
     expect(result.applied).toBe(0);
     expect(result.skipped).toBe(1);
     expect(mocks.ensureOpenModerationCase).not.toHaveBeenCalled();
+  });
+});
+
+describe("updateFullNameAction", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("writes profiles.full_name and audits the change", async () => {
+    const { client, profileUpdate, updateEq } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget());
+
+    const result = await updateFullNameAction(
+      null,
+      form({ targetUserId: TARGET_ID, fullName: "  Иван Сергеевич Петров  " }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(profileUpdate).toHaveBeenCalledWith({ full_name: "Иван Сергеевич Петров" });
+    expect(updateEq).toHaveBeenCalledWith("id", TARGET_ID);
+    expect(mocks.logAdminAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "profile.full_name_change", targetId: TARGET_ID }),
+    );
+  });
+
+  it("rejects a blank full name without touching the profile", async () => {
+    const { client, profileUpdate } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+
+    const result = await updateFullNameAction(
+      null,
+      form({ targetUserId: TARGET_ID, fullName: "   " }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(profileUpdate).not.toHaveBeenCalled();
+    expect(mocks.logAdminAudit).not.toHaveBeenCalled();
+  });
+
+  it("rejects a full name longer than 120 characters", async () => {
+    const { client, profileUpdate } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+
+    const result = await updateFullNameAction(
+      null,
+      form({ targetUserId: TARGET_ID, fullName: "а".repeat(121) }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(profileUpdate).not.toHaveBeenCalled();
   });
 });

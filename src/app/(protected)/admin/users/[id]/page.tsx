@@ -16,6 +16,7 @@ import {
 
 import { AccountStatusBadge, GuideStatusBadge, RoleBadge } from "../_components/user-badges";
 import {
+  FullNameControls,
   GuideVerificationControls,
   HardDeleteControl,
   RoleControls,
@@ -31,6 +32,7 @@ const AUDIT_LABELS: Record<string, string> = {
   "account_status.suspended": "Аккаунт заблокирован",
   "account_status.archived": "Аккаунт перемещён в архив",
   "role.change": "Смена роли",
+  "profile.full_name_change": "Изменено ФИО",
   "user.hard_delete": "Аккаунт удалён",
   "guide.approve": "Гид одобрен",
   "guide.reject": "Гид отклонён",
@@ -212,6 +214,13 @@ export default async function AdminUserDetailPage({
         </div>
 
         <div className="flex flex-col gap-6">
+          <Section
+            title="Личные данные"
+            description="ФИО видят только администраторы. Публично показывается имя из анкеты гида."
+          >
+            <FullNameControls userId={detail.id} fullName={detail.fullName} />
+          </Section>
+
           <Section
             title="Статус аккаунта"
             description="Блокировка и архивация не удаляют данные — пользователь просто теряет доступ к действиям."

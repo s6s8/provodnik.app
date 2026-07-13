@@ -31,7 +31,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
 
 type AuthFormMode = "sign-in" | "sign-up";
-type ErrorField = "full-name" | "phone" | "email" | "password";
+type ErrorField = "full-name" | "display-name" | "phone" | "email" | "password";
 
 const AUTH_ERROR_ID = "auth-form-error";
 
@@ -40,6 +40,7 @@ const SIGN_UP_ERROR_FIELDS: Record<string, ErrorField> = {
   already_registered: "email",
   phone_taken: "phone",
   phone_required: "phone",
+  display_name_required: "display-name",
   invalid_input: "email",
 };
 
@@ -74,6 +75,8 @@ function getFriendlyAuthError(code: string): string {
       return "Этот телефон уже привязан к другому аккаунту. Войдите в существующий аккаунт или укажите другой номер.";
     case "phone_required":
       return "Укажите телефон — он нужен для связи с путешественниками и проверки профиля.";
+    case "display_name_required":
+      return "Укажите, как к вам обращаться — это имя увидят путешественники.";
     case "guide_type_required":
       return "Выберите формат работы: индивидуальный гид, агентство или команда гидов.";
     case "invalid_input":
@@ -124,6 +127,7 @@ export function AuthEntryScreen({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
   const [guideType, setGuideType] = useState<GuideType>(DEFAULT_GUIDE_TYPE);
   const [showPassword, setShowPassword] = useState(false);
@@ -132,6 +136,7 @@ export function AuthEntryScreen({
   const [errorField, setErrorField] = useState<ErrorField | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const fullNameRef = useRef<HTMLInputElement>(null);
+  const displayNameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
@@ -146,6 +151,7 @@ export function AuthEntryScreen({
     React.RefObject<HTMLInputElement | null>
   > = {
     "full-name": fullNameRef,
+    "display-name": displayNameRef,
     phone: phoneRef,
     email: emailRef,
     password: passwordRef,
@@ -175,6 +181,7 @@ export function AuthEntryScreen({
 
     const trimmedEmail = email.trim();
     const trimmedFullName = fullName.trim();
+    const trimmedDisplayName = displayName.trim();
 
     if (!trimmedEmail) {
       fail("Введите email, чтобы продолжить.", "email");
@@ -185,7 +192,14 @@ export function AuthEntryScreen({
       return;
     }
     if (mode === "sign-up" && !trimmedFullName) {
-      fail("Укажите имя, которое нужно сохранить в профиле.", "full-name");
+      fail("Укажите ФИО полностью — его видят только вы и поддержка.", "full-name");
+      return;
+    }
+    if (mode === "sign-up" && role === "guide" && !trimmedDisplayName) {
+      fail(
+        "Укажите, как к вам обращаться — это имя увидят путешественники.",
+        "display-name",
+      );
       return;
     }
     if (mode === "sign-up" && role === "guide" && !phone.replace(/\D/g, "")) {
@@ -283,6 +297,7 @@ export function AuthEntryScreen({
         password,
         role,
         fullName: trimmedFullName,
+        displayName: trimmedDisplayName || undefined,
         phone: phone.trim() || undefined,
         guideType: role === "guide" ? guideType : undefined,
       });
@@ -359,7 +374,7 @@ export function AuthEntryScreen({
             <>
               <div className="grid gap-2.5">
                 <label htmlFor="full-name" className="text-sm font-medium text-foreground">
-                  Как к вам обращаться
+                  ФИО полностью
                 </label>
                 <div className="relative">
                   <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -368,7 +383,7 @@ export function AuthEntryScreen({
                     ref={fullNameRef}
                     type="text"
                     autoComplete="name"
-                    placeholder="Например, Анна Смирнова"
+                    placeholder="Например, Анна Сергеевна Смирнова"
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
                     aria-invalid={errorField === "full-name" || undefined}
@@ -378,7 +393,39 @@ export function AuthEntryScreen({
                     className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 shadow-none"
                   />
                 </div>
+                <p className="text-xs leading-5 text-muted-foreground">
+                  Нужно для проверки. Путешественникам не показывается.
+                </p>
               </div>
+              {/* Guides only: travelers are publicly masked as «Путешественник»,
+                  so their public name defaults to the first word of the ФИО. */}
+              {role === "guide" ? (
+                <div className="grid gap-2.5">
+                  <label htmlFor="display-name" className="text-sm font-medium text-foreground">
+                    Как к вам обращаться
+                  </label>
+                  <div className="relative">
+                    <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="display-name"
+                      ref={displayNameRef}
+                      type="text"
+                      autoComplete="nickname"
+                      placeholder="Например, Анна"
+                      value={displayName}
+                      onChange={(event) => setDisplayName(event.target.value)}
+                      aria-invalid={errorField === "display-name" || undefined}
+                      aria-describedby={
+                        errorField === "display-name" ? AUTH_ERROR_ID : undefined
+                      }
+                      className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 shadow-none"
+                    />
+                  </div>
+                  <p className="text-xs leading-5 text-muted-foreground">
+                    Только имя — его увидят путешественники в вашем профиле.
+                  </p>
+                </div>
+              ) : null}
               <div className="grid gap-2.5">
                 <label htmlFor="phone" className="text-sm font-medium text-foreground">
                   {role === "guide" ? "Телефон для проверки" : "Телефон (необязательно)"}
