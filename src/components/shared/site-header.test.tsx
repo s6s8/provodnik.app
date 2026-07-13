@@ -37,6 +37,56 @@ async function openAccountMenu() {
   return trigger;
 }
 
+// The PRIMARY nav must honour hiddenNavHrefs, not just the account menu.
+// Until /listings (item 7) every flag-gated href lived in the account menu, so
+// filtering only `accountItems` was accidentally sufficient. A flag-gated primary
+// entry rendered regardless of its flag and linked straight into a redirect.
+//
+// A unit test on filterNavItemsByHiddenHrefs() cannot catch this — the pure function
+// was always correct; the COMPONENT simply never called it for the primary nav. This
+// asserts the rendered DOM.
+describe("SiteHeader primary nav flag gating", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockPathname = "/";
+    mockUnreadCount = 0;
+    useUnreadCountMock.mockImplementation(() => ({
+      unreadCount: mockUnreadCount,
+      refetch: vi.fn(),
+    }));
+  });
+
+  it("shows the catalog entry when its flag is on", () => {
+    render(<SiteHeader isAuthenticated={false} role={null} hiddenNavHrefs={[]} />);
+
+    expect(screen.getByRole("link", { name: /Готовые экскурсии/ })).toBeInTheDocument();
+  });
+
+  it("hides the catalog entry when its flag is off", () => {
+    render(
+      <SiteHeader isAuthenticated={false} role={null} hiddenNavHrefs={["/listings"]} />,
+    );
+
+    expect(screen.queryByRole("link", { name: /Готовые экскурсии/ })).toBeNull();
+    // The rest of the nav survives.
+    expect(screen.getByRole("link", { name: /Запросы/ })).toBeInTheDocument();
+  });
+
+  it("hides it for an authenticated traveler too", () => {
+    render(
+      <SiteHeader
+        isAuthenticated
+        role="traveler"
+        email="t@example.com"
+        userId="user-1"
+        hiddenNavHrefs={["/listings"]}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: /Готовые экскурсии/ })).toBeNull();
+  });
+});
+
 describe("SiteHeader desktop account menu", () => {
   beforeEach(() => {
     vi.clearAllMocks();

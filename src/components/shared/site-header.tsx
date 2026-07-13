@@ -92,8 +92,14 @@ export function SiteHeader({
   const messagesLabel =
     unreadCount > 0 ? `Сообщения, непрочитанных: ${unreadCount}` : "Сообщения";
 
-  const primaryItems: readonly NavItem[] =
-    isAuthenticated && role ? primaryNavByRole[role] : publicPrimaryNav;
+  // The primary nav must respect NAV_FLAG_BY_HREF too. Until /listings was added it
+  // held only account-menu hrefs (/favorites, /referrals), so filtering `accountItems`
+  // alone happened to be enough — and a flag-gated PRIMARY entry would have rendered
+  // regardless of its flag, linking straight into a redirect.
+  const primaryItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
+    isAuthenticated && role ? primaryNavByRole[role] : publicPrimaryNav,
+    hiddenNavHrefs,
+  );
   const activeHref = resolveActiveHref(pathname, primaryItems);
 
   const accountItems: readonly NavItem[] = filterNavItemsByHiddenHrefs(
