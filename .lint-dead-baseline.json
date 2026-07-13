@@ -8,10 +8,8 @@
     "src/features/admin/types/disputes.ts",
     "src/features/guide/actions/completeOnboarding.ts",
     "src/features/guide/components/listings-management/listingManagementActions.ts",
-    "src/features/guide/types/guide-onboarding.ts",
     "src/features/profile/components/traveler-profile-for-guide.tsx",
     "src/features/requests/components/sent-screen-enrich.tsx",
-    "src/features/requests/components/steps/step-interests.tsx",
     "src/features/traveler/components/requests/cabinet-section.tsx",
     "src/features/traveler/components/trip-card/group-by-phase.ts"
   ]
