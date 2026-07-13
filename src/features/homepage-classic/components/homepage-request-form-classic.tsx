@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { useWatch, type UseFormRegisterReturn } from "react-hook-form";
+import { useController, useWatch, type UseFormRegisterReturn } from "react-hook-form";
+import { Command as CommandPrimitive } from "cmdk";
 import { ru } from "date-fns/locale";
 import {
   Calendar as CalendarIcon,
@@ -25,6 +26,7 @@ import { LanguageMultiSelect } from "@/components/shared/language-multi-select";
 import { ThemeMultiSelect } from "@/components/shared/theme-multi-select";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { CommandItem, CommandList } from "@/components/ui/command";
 import { FieldShell } from "@/components/ui/field-shell";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -182,6 +184,112 @@ export function DateField({
   );
 }
 
+/**
+ * Destination typeahead. The `<datalist>` it replaces filtered inconsistently
+ * across browsers and could not be styled; cmdk supplies the real combobox
+ * semantics (role, `aria-activedescendant`, arrow-key traversal, Enter to pick).
+ *
+ * The control is ASSISTIVE, never restrictive: the destination list is derived
+ * from guide-entered free text and is therefore always incomplete, so the field
+ * keeps accepting arbitrary input and submits it as typed.
+ *
+ * `asChild` keeps our own `id` on the input — cmdk hardcodes both `id` and
+ * `aria-expanded: true` (true for an always-open command palette, a lie here) —
+ * so the visible <Label htmlFor> still owns the field and the expanded state is
+ * announced correctly.
+ */
+function DestinationCombobox({
+  destinations,
+  value,
+  onChange,
+  onBlur,
+  inputRef,
+  invalid,
+  describedBy,
+}: {
+  destinations: DestinationOption[];
+  value: string;
+  onChange: (next: string) => void;
+  onBlur: () => void;
+  inputRef: React.Ref<HTMLInputElement>;
+  invalid: boolean;
+  describedBy?: string;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const query = value.trim().toLocaleLowerCase("ru");
+  const matches = query
+    ? destinations.filter((d) => d.name.toLocaleLowerCase("ru").includes(query))
+    : destinations;
+  const listOpen = open && matches.length > 0;
+
+  const choose = (name: string) => {
+    onChange(name);
+    setOpen(false);
+  };
+
+  return (
+    // Filtering is ours (same ru-lowercase substring rule as TagMultiSelect), because
+    // the match count decides whether the list opens at all.
+    <CommandPrimitive label="Направление" shouldFilter={false} className="relative">
+      <FieldShell>
+        <FieldIcon icon={MapPin} className="text-primary" />
+        <div className="min-w-0 flex-1">
+          <CommandPrimitive.Input
+            asChild
+            value={value}
+            onValueChange={(next) => {
+              onChange(next);
+              setOpen(true);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") setOpen(false);
+              else if (e.key === "ArrowDown" && !listOpen) setOpen(true);
+              // With the list closed nothing is highlighted, so cmdk has nothing to
+              // select — but its root swallows Enter unconditionally. Keep the event
+              // away from it so free text still submits the form on Enter.
+              else if (e.key === "Enter" && !listOpen) e.stopPropagation();
+            }}
+            onBlur={() => {
+              setOpen(false);
+              onBlur();
+            }}
+          >
+            <input
+              id="destination"
+              ref={inputRef}
+              className={cn(FIN, "text-lg")}
+              placeholder="Куда едете?"
+              // Restates the role cmdk applies at runtime — without it jsx-a11y reads a
+              // bare textbox and rejects aria-expanded. The rule then wants aria-controls,
+              // which cmdk injects itself (it points at the cmdk-generated list id).
+              // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
+              role="combobox"
+              aria-expanded={listOpen}
+              aria-invalid={invalid}
+              aria-describedby={describedBy}
+            />
+          </CommandPrimitive.Input>
+        </div>
+      </FieldShell>
+      {listOpen ? (
+        <div
+          // Hold focus in the input so a pointer-picked option is not lost to blur.
+          onMouseDown={(e) => e.preventDefault()}
+          className="absolute inset-x-0 top-full z-50 mt-1 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10"
+        >
+          <CommandList>
+            {matches.map((d) => (
+              <CommandItem key={d.name} value={d.name} onSelect={() => choose(d.name)}>
+                {d.name}
+              </CommandItem>
+            ))}
+          </CommandList>
+        </div>
+      ) : null}
+    </CommandPrimitive>
+  );
+}
+
 const errorId = (field: string) => `request-${field}-error`;
 
 export function HomepageRequestFormClassic({ destinations, preferredGuide }: Props) {
@@ -206,6 +314,12 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
     isLoading,
   } = useRequestForm({ preferredGuideSlug: attachedGuide?.slug ?? null });
   const startDate = useWatch({ control: form.control, name: "startDate" });
+  // cmdk's Input owns its own `onChange`, so `register()` cannot drive it —
+  // the combobox goes through a controller instead.
+  const { field: destinationField } = useController({
+    control: form.control,
+    name: "destination",
+  });
 
   return (
     <form
@@ -234,26 +348,15 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
       {/* Направление */}
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="destination">Направление</Label>
-        <FieldShell>
-          <FieldIcon icon={MapPin} className="text-primary" />
-          <div className="min-w-0 flex-1">
-            <input
-              id="destination"
-              className={cn(FIN, "text-lg")}
-              list="destination-options"
-              placeholder="Куда едете?"
-              autoComplete="off"
-              aria-invalid={Boolean(errors.destination)}
-              aria-describedby={errors.destination ? errorId("destination") : undefined}
-              {...register("destination")}
-            />
-            <datalist id="destination-options">
-              {destinations.map((d) => (
-                <option key={d.name} value={d.name} />
-              ))}
-            </datalist>
-          </div>
-        </FieldShell>
+        <DestinationCombobox
+          destinations={destinations}
+          value={destinationField.value ?? ""}
+          onChange={destinationField.onChange}
+          onBlur={destinationField.onBlur}
+          inputRef={destinationField.ref}
+          invalid={Boolean(errors.destination)}
+          describedBy={errors.destination ? errorId("destination") : undefined}
+        />
         <FieldError id={errorId("destination")} message={errors.destination?.message} />
       </div>
 
