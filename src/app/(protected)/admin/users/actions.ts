@@ -253,10 +253,15 @@ export async function setUserRoleAction(
 
   try {
     const { adminId, adminClient } = await requireAdminSession();
-    const target = await getTargetForGuards(adminClient, parsed.data.targetUserId);
+
+    // Both reads only need targetUserId, which is known upfront — no reason to
+    // pay for them serially (item 15: role save felt like it hung).
+    const [target, otherActiveAdminCount] = await Promise.all([
+      getTargetForGuards(adminClient, parsed.data.targetUserId),
+      countOtherActiveAdmins(adminClient, parsed.data.targetUserId),
+    ]);
     if (!target) return fail("Пользователь не найден.");
 
-    const otherActiveAdminCount = await countOtherActiveAdmins(adminClient, target.id);
     const guard = evaluateRoleChange({
       isSelf: target.id === adminId,
       currentRole: target.role,

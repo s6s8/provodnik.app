@@ -1173,13 +1173,29 @@ export async function getAdminDashboardStats(): Promise<AdminDashboardStats> {
   };
 }
 
+/**
+ * The two badge numbers the admin sidebar shows. Runs on EVERY admin navigation.
+ *
+ * Items 3/15: this used to delegate to getAdminDashboardStats, paying for 8 count
+ * queries (two of them unbounded full-table counts on `bookings`) and discarding
+ * 6 of the results. The dashboard page still calls getAdminDashboardStats — it
+ * legitimately renders all 8 numbers.
+ */
 export async function getAdminNavCounts() {
-  const stats = await getAdminDashboardStats();
+  const { adminClient } = await requireAdminSession();
 
-  return {
-    guides: stats.pendingGuideApplications,
-    listings: stats.pendingListingReviews,
-  };
+  const [guides, listings] = await Promise.all([
+    adminClient
+      .from("guide_profiles")
+      .select("user_id", { count: "exact", head: true })
+      .eq("verification_status", "submitted"),
+    adminClient
+      .from("listings")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending_review"),
+  ]);
+
+  return { guides: guides.count ?? 0, listings: listings.count ?? 0 };
 }
 
 export { requireAdminSession };
