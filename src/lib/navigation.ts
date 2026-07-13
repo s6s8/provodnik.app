@@ -5,7 +5,7 @@ import {
   Users, Compass, UserSearch, Map, Route, BadgeCheck, ShieldCheck,
   Briefcase, HelpCircle, LogIn, ClipboardList, Heart, MessageSquare,
   Bell, Gift, User, Inbox, BookCheck, Star, Calendar, Settings,
-  BarChart3, UserCheck, Flag, CalendarCheck, ScrollText,
+  BarChart3, UserCheck, Flag, CalendarCheck, ScrollText, TrendingUp,
 } from "lucide-react";
 
 export type NavItem = {
@@ -45,6 +45,7 @@ export const ROUTES = {
   guideProfile: { href: "/guide/profile",  label: "Профиль гида",    icon: User },
   guideSettings:{ href: "/guide/settings/contact-visibility", label: "Настройки", icon: Settings },
   adminDashboard: { href: "/admin/dashboard",  label: "Обзор",        icon: BarChart3 },
+  adminAnalytics: { href: "/admin/analytics",  label: "Аналитика",    icon: TrendingUp },
   adminUsers:     { href: "/admin/users",      label: "Пользователи", shortLabel: "Люди", icon: Users },
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
   adminModeration:{ href: "/admin/moderation", label: "Модерация",    icon: ShieldCheck },
@@ -90,7 +91,7 @@ export const guidePrimaryNav = [
 
 /** Admin workspace (drives the admin sidebar + mobile tabs). */
 export const adminPrimaryNav = [
-  ROUTES.adminDashboard, ROUTES.adminUsers, ROUTES.adminGuides,
+  ROUTES.adminDashboard, ROUTES.adminAnalytics, ROUTES.adminUsers, ROUTES.adminGuides,
   ROUTES.adminModeration, ROUTES.adminPipeline, ROUTES.adminDisputes,
   ROUTES.adminBookings, ROUTES.adminAudit,
 ] as const;

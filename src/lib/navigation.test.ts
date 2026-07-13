@@ -139,6 +139,7 @@ describe("role-based nav groups", () => {
   it("exposes the full admin workspace as the admin primary nav", () => {
     expect(adminPrimaryNav.map((item) => item.href)).toEqual([
       "/admin/dashboard",
+      "/admin/analytics",
       "/admin/users",
       "/admin/guides",
       "/admin/moderation",
