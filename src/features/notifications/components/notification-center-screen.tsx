@@ -340,9 +340,9 @@ function NotificationRow({
 }
 
 function getSeverityBadgeVariant(severity: NotificationSeverity) {
-  if (severity === "success") return "default";
-  if (severity === "warning") return "destructive";
-  return "secondary";
+  if (severity === "success") return "success";
+  if (severity === "warning") return "warning";
+  return "info";
 }
 
 function labelSeverity(severity: NotificationSeverity) {

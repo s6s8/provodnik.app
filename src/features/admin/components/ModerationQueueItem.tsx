@@ -131,8 +131,8 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
             <Button
               type="button"
               size="sm"
+              variant="success"
               disabled={busy}
-              className="border-success/30 bg-success/10 text-success hover:bg-success/20"
               onClick={() => void handleApprove()}
             >
               Одобрить

@@ -22,6 +22,14 @@ export const metadata = { title: "Бронирования" };
 
 const ALL_STATUSES = "all";
 
+// ponytail: kept local (the sibling detail page carries the same 3 rows); promote to
+// ./status-labels.ts if a third consumer shows up.
+const STATUS_VARIANTS = {
+  awaiting_guide_confirmation: "warning",
+  confirmed: "success",
+  cancelled: "destructive",
+} as const;
+
 export default async function BookingsPage({
   searchParams,
 }: {
@@ -144,7 +152,15 @@ export default async function BookingsPage({
                 }
                 badge={
                   <div className="flex flex-col items-end gap-1">
-                    <Badge>{statusLabel}</Badge>
+                    <Badge
+                      variant={
+                        STATUS_VARIANTS[
+                          booking.status as keyof typeof STATUS_VARIANTS
+                        ]
+                      }
+                    >
+                      {statusLabel}
+                    </Badge>
                     <span className="text-xs font-medium text-foreground">
                       {priceText}
                     </span>

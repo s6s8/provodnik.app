@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { AlertTriangle, MessageSquareText, ShieldAlert, Snowflake } from "lucide-react";
+import { MessageSquareText } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -23,22 +23,11 @@ import {
   resolveDisputeAction,
 } from "@/app/(protected)/admin/disputes/[caseId]/actions";
 
+import { DISPUTE_STATUS_META } from "./dispute-status-meta";
+
 function bookingStatusLabel(status: string | undefined): string {
   if (!status) return "—";
   return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
-}
-
-function statusBadge(status: DisputeDetail["status"]) {
-  switch (status) {
-    case "open":
-      return { label: "Открыт", variant: "default" as const, Icon: AlertTriangle };
-    case "under_review":
-      return { label: "В работе", variant: "secondary" as const, Icon: ShieldAlert };
-    case "resolved":
-      return { label: "Решён", variant: "secondary" as const, Icon: Snowflake };
-    case "closed":
-      return { label: "Закрыт", variant: "outline" as const, Icon: Snowflake };
-  }
 }
 
 export function DisputeCaseDetail({
@@ -48,7 +37,7 @@ export function DisputeCaseDetail({
   dispute: DisputeDetail;
   adminId: string;
 }) {
-  const badge = statusBadge(dispute.status);
+  const badge = DISPUTE_STATUS_META[dispute.status];
   const booking = dispute.booking;
   const isAssignedToMe = dispute.assignedAdminId === adminId;
 

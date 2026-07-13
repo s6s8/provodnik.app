@@ -15,6 +15,13 @@ import { STATUS_LABELS } from "../status-labels";
 
 export const metadata: Metadata = { title: "Бронирование" };
 
+// ponytail: mirrors the list page; promote to ../status-labels.ts on a third consumer.
+const STATUS_VARIANTS = {
+  awaiting_guide_confirmation: "warning",
+  confirmed: "success",
+  cancelled: "destructive",
+} as const;
+
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
@@ -80,7 +87,15 @@ export default async function AdminBookingDetailPage({
       <PageHeader
         eyebrow="Бронирование"
         title={`#${booking.id.slice(-8)}`}
-        actions={<Badge>{statusLabel}</Badge>}
+        actions={
+          <Badge
+            variant={
+              STATUS_VARIANTS[booking.status as keyof typeof STATUS_VARIANTS]
+            }
+          >
+            {statusLabel}
+          </Badge>
+        }
       />
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.9fr)]">

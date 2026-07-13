@@ -6,14 +6,7 @@ import { formatRussianDateTime } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { DisputeListItem } from "@/lib/supabase/disputes";
 
-type DisputeStatus = DisputeListItem["status"];
-
-const STATUS_META: Record<DisputeStatus, { label: string; variant: "default" | "secondary" | "destructive" | "ghost" }> = {
-  open: { label: "Открыт", variant: "destructive" },
-  under_review: { label: "В работе", variant: "default" },
-  resolved: { label: "Решён", variant: "secondary" },
-  closed: { label: "Закрыт", variant: "ghost" },
-};
+import { DISPUTE_STATUS_META, type DisputeStatus } from "./dispute-status-meta";
 
 const STATUS_ORDER: DisputeStatus[] = ["open", "under_review", "resolved", "closed"];
 
@@ -39,8 +32,8 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
           <Card key={status} size="sm">
             <CardContent className="space-y-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-muted-foreground">{STATUS_META[status].label}</span>
-                {status === "open" && counts.open > 0 ? <Badge variant="destructive">Ждёт</Badge> : null}
+                <span className="text-sm text-muted-foreground">{DISPUTE_STATUS_META[status].label}</span>
+                {status === "open" && counts.open > 0 ? <Badge variant="warning">Ждёт</Badge> : null}
               </div>
               <div className="text-2xl font-semibold text-foreground">{counts[status]}</div>
             </CardContent>
@@ -58,7 +51,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
       ) : (
         <div className="space-y-2">
           {disputes.map((item) => {
-            const meta = STATUS_META[item.status];
+            const meta = DISPUTE_STATUS_META[item.status];
             const booking = item.booking;
             const route = booking?.listingTitle ?? booking?.destination ?? "—";
             const travelerName = booking?.travelerName?.trim() || "Турист";

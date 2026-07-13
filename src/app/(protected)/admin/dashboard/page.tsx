@@ -77,7 +77,7 @@ export default async function AdminDashboardPage() {
                     </div>
                     <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{formatDelta(delta)}</span>
-                      {count > 0 ? <Badge variant="destructive">Ждёт</Badge> : null}
+                      {count > 0 ? <Badge variant="warning">Ждёт</Badge> : null}
                     </div>
                   </CardContent>
                 </Card>

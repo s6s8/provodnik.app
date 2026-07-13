@@ -1,5 +1,10 @@
 import { DisputeAdminResolve } from "@/features/disputes/components/dispute-admin-resolve";
 import { postDisputeMessage } from "@/features/disputes/dispute-message-actions";
+import {
+  DISPUTE_STATUS_META,
+  isDisputeStatus,
+  type BadgeVariant,
+} from "@/features/admin/components/disputes/dispute-status-meta";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,21 +28,12 @@ const STATUS_LABEL: Record<string, string> = {
   investigating: "Расследование",
 };
 
-function statusBadgeClass(status: string) {
-  switch (status) {
-    case "open":
-      return "border-warning/40 bg-warning/15 text-warning";
-    case "under_review":
-    case "investigating":
-      return "border-primary/40 bg-primary/15 text-primary";
-    case "resolved":
-    case "closed":
-      return "border-success/40 bg-success/15 text-success";
-    case "escalated":
-      return "border-destructive/40 bg-destructive/10 text-destructive";
-    default:
-      return "border-border/80 bg-muted/40 text-muted-foreground";
-  }
+function statusBadgeVariant(status: string): BadgeVariant {
+  if (isDisputeStatus(status)) return DISPUTE_STATUS_META[status].variant;
+  // Statuses outside the canonical union, still emitted by legacy rows.
+  if (status === "investigating") return "info";
+  if (status === "escalated") return "destructive";
+  return "outline";
 }
 
 const EVENT_LABELS: Record<string, string> = {
@@ -130,9 +126,7 @@ export async function DisputeThread({
         title={`Спор по бронированию · ${destination}`}
         actions={
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className={statusBadgeClass(status)}>
-              {statusLabel}
-            </Badge>
+            <Badge variant={statusBadgeVariant(status)}>{statusLabel}</Badge>
             {adminView && !resolvedLike ? (
               <DisputeAdminResolve disputeId={disputeId} />
             ) : null}

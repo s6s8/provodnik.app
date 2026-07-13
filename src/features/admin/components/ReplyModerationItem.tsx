@@ -95,9 +95,9 @@ export function ReplyModerationItem({ reply, onAction }: ReplyModerationItemProp
           <>
             <Button
               type="button"
+              variant="success"
               loading={busy}
               disabled={busy}
-              className="border-success/30 bg-success/10 text-success hover:bg-success/20"
               onClick={() => void handleApprove()}
             >
               <Check aria-hidden="true" />
