@@ -118,18 +118,8 @@ export default async function PublicGuideProfilePage({
   const listings = listingRecords.map((l) => ({
     slug: l.slug,
     title: l.title,
-    city: l.destinationName,
-    region: l.destinationRegion,
     coverImageUrl: l.imageUrl,
-    durationDays: Math.min(3, Math.max(1, l.durationDays)) as 1 | 2 | 3,
     priceFromRub: l.priceRub,
-    groupSizeMax: l.groupSize,
-    themes: [],
-    highlights: l.description ? [l.description] : [l.title],
-    itinerary: [{ title: l.title, description: l.description, durationHours: l.durationDays * 6 }],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    inclusions: l.inclusions as any[],
-    guideSlug: l.guideSlug,
   }));
 
   const reviews = reviewRecords.map((r) => ({

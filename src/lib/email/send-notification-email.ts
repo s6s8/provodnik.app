@@ -18,8 +18,7 @@ export async function sendNotificationEmail(args: {
   if (!args.to) return;
 
   const admin: NotificationEmailAdminClient = createSupabaseAdminClient();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const { error: reserveErr } = await (admin as any)
+  const { error: reserveErr } = await admin
     .from("notification_email_log")
     .insert({
       kind: args.kind,
@@ -57,8 +56,7 @@ export async function sendNotificationEmail(args: {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { error: markSentErr } = await (admin as any)
+    const { error: markSentErr } = await admin
       .from("notification_email_log")
       .update({ sent_at: new Date().toISOString() })
       .match({
