@@ -29,7 +29,7 @@ export const ROUTES = {
   forBusiness:  { href: "/for-business", label: "Для бизнеса",       icon: Briefcase },
   help:         { href: "/help",         label: "Помощь",            icon: HelpCircle },
   auth:         { href: "/auth",         label: "Войти",             icon: LogIn },
-  trips:        { href: "/trips",        label: "Мои поездки",       icon: ClipboardList },
+  trips:        { href: "/trips",        label: "Мои запросы",       icon: ClipboardList },
   favorites:    { href: "/favorites",    label: "Избранное",         icon: Heart },
   messages:     { href: "/messages",     label: "Сообщения",         icon: MessageSquare, activePrefixes: ["/messages"] },
   notifications:{ href: "/notifications",label: "Уведомления",       icon: Bell },

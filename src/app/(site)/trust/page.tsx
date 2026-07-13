@@ -23,7 +23,7 @@ export default function TrustPage() {
           className="mb-6"
           subtitle={
             <>
-              Provodnik — маркетплейс экскурсий по России с бронированием по запросу.
+              «Проводник» — маркетплейс экскурсий по России с бронированием по запросу.
               Описанные ниже принципы определяют, как сервис защищает договорённости
               между путешественником и гидом. Полные условия использования — в{" "}
               <Link href="/policies/terms" className="text-primary underline underline-offset-2">
@@ -94,7 +94,7 @@ export default function TrustPage() {
           <CardContent className="flex flex-col gap-4 text-base text-ink-2">
             <ul className="grid list-disc gap-2 pl-5">
               <li>
-                Provodnik не заменяет визу, страховку, соблюдение миграционных правил и
+                «Проводник» не заменяет визу, страховку, соблюдение миграционных правил и
                 требований безопасности — за это всегда отвечает путешественник.
               </li>
               <li>

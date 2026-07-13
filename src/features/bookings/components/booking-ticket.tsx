@@ -59,7 +59,7 @@ export function BookingTicket({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-background/60 mb-1">
-                  Provodnik · Ваша поездка
+                  «Проводник» · Ваша поездка
                 </p>
                 <h2 className="text-lg font-semibold leading-tight">{listingTitle}</h2>
               </div>

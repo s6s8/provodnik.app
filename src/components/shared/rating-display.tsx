@@ -9,14 +9,14 @@ type RatingDisplayProps = {
   className?: string;
 };
 
-/** Zero-review → "Новый гид" chip (+ optional verified), NEVER "★0/0.0". >0 → amber star + rating + count. */
+/** Zero-review → "Пока без отзывов" chip (+ optional verified), NEVER "★0/0.0". >0 → amber star + rating + count. */
 export function RatingDisplay({ rating, reviewCount, verified, className }: RatingDisplayProps) {
   const count = reviewCount ?? 0;
   if (count <= 0) {
     return (
       <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", className)}>
         <span className="inline-flex items-center rounded-full bg-surface-low px-2 py-0.5 text-on-surface-muted">
-          Новый гид
+          Пока без отзывов
         </span>
         {verified ? (
           <span className="inline-flex items-center gap-1 text-success">

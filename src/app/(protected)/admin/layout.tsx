@@ -34,7 +34,7 @@ function AdminAccessDenied({ returnTo }: { returnTo: string | null | undefined }
           Нужны права администратора
         </h1>
         <p className="text-sm leading-6 text-muted-foreground">
-          Этот раздел доступен только администраторам Provodnik. Войдите под
+          Этот раздел доступен только администраторам «Проводника». Войдите под
           админским аккаунтом или обратитесь к владельцу доступа.
         </p>
       </div>

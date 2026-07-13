@@ -142,7 +142,7 @@ describe("GuideExcursionsScreen", () => {
 
     expect(await screen.findByText("Старый город пешком")).toBeInTheDocument();
     expect(screen.getByText("Горы и водопады")).toBeInTheDocument();
-    expect(screen.getByText("Опубл.")).toBeInTheDocument();
+    expect(screen.getByText("Опубликована")).toBeInTheDocument();
     expect(screen.getByText("Черновик")).toBeInTheDocument();
   });
 

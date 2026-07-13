@@ -302,7 +302,7 @@ export function GuideExcursionsScreen() {
                     .join(" · ")}
                   badge={
                     <Badge variant={template.status === "published" ? "default" : "secondary"}>
-                      {template.status === "published" ? "Опубл." : "Черновик"}
+                      {template.status === "published" ? "Опубликована" : "Черновик"}
                     </Badge>
                   }
                   actions={

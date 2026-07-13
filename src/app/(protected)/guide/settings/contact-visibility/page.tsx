@@ -144,7 +144,7 @@ export default async function ContactVisibilitySettingsPage() {
 
         {!unlocked && (
           <Button asChild>
-            <Link href="/guide/listings">Перейти к объявлениям</Link>
+            <Link href="/guide/listings">Перейти к экскурсиям</Link>
           </Button>
         )}
       </section>

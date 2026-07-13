@@ -183,7 +183,7 @@ export function PublicGuidesGrid({
           <section className="mt-8 rounded-2xl border border-border/60 bg-muted/40 px-8 py-10 text-center">
             <h2 className="font-display text-2xl font-semibold">Вы гид?</h2>
             <p className="mt-2 mx-auto max-w-xl text-base text-muted-foreground">
-              Присоединяйтесь к Provodnik — показывайте свои маршруты путешественникам со всей России.
+              Присоединяйтесь к «Проводнику» — показывайте свои маршруты путешественникам со всей России.
             </p>
             <Button asChild className="mt-6">
               <Link href="/become-a-guide">Стать гидом</Link>
