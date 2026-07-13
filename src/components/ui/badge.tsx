@@ -5,7 +5,7 @@ import { Slot } from "radix-ui"
 import { cn } from "@/lib/utils"
 
 const badgeVariants = cva(
-  "group/badge inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full border border-transparent px-2.5 py-1 text-[0.7rem] font-semibold whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&>svg]:pointer-events-none [&>svg]:size-3.5!",
+  "group/badge inline-flex h-7 w-fit shrink-0 items-center justify-center gap-1.5 overflow-hidden rounded-full border border-transparent px-2.5 py-1 text-xs font-semibold whitespace-nowrap transition-all focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2 aria-invalid:border-destructive aria-invalid:ring-destructive/20 [&>svg]:pointer-events-none [&>svg]:size-3.5!",
   {
     variants: {
       variant: {
@@ -22,8 +22,8 @@ const badgeVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         eyebrow:
           "border-transparent bg-transparent px-0 text-primary font-bold text-xs uppercase tracking-[0.08em]",
-        success: "border-success/20 bg-green-tint text-success",
-        warning: "border-amber/20 bg-amber-tint text-amber",
+        success: "border-success/20 bg-green-tint text-success-text",
+        warning: "border-amber/20 bg-amber-tint text-warning-text",
         info: "border-primary/20 bg-primary-tint text-primary",
         overlay: "border-white/15 bg-overlay/65 text-white backdrop-blur-[2px]",
       },
