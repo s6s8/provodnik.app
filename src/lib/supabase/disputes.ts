@@ -9,9 +9,6 @@ import { requireAdminSession } from "@/lib/supabase/moderation";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BookingRow, Uuid } from "@/lib/supabase/types";
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const disputeStatusSchema = z.enum(["open", "under_review", "resolved", "closed"]);
-
 const openDisputeInputSchema = z.object({
   bookingId: z.string().uuid("Некорректный идентификатор бронирования."),
   openedBy: z.string().uuid("Некорректный идентификатор автора спора."),
@@ -32,7 +29,7 @@ const disputeResolutionInputSchema = z.object({
   resolutionSummary: z.string().trim().min(1, "Укажите итоговое решение.").max(4_000),
 });
 
-type DisputeStatus = z.infer<typeof disputeStatusSchema>;
+type DisputeStatus = "open" | "under_review" | "resolved" | "closed";
 
 type ProfileJoin = {
   id: Uuid;
