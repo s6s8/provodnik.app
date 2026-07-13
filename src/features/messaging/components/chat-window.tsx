@@ -5,6 +5,7 @@ import { MessageSquare } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
 import { messagesApi } from "@/lib/api/messages";
 import { queryKeys } from "@/lib/query-keys";
 import type { MessageWithSender } from "@/lib/supabase/conversations";
@@ -95,19 +96,13 @@ export function ChatWindow({
 
   if (!renderedMessages.length && isFetching) {
     return (
-      <div className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto">
-        {Array.from({ length: 4 }).map((_, index) => (
-          <div
-            key={index}
-            className={
-              index % 2 === 0 ? "flex justify-start" : "flex justify-end"
-            }
-          >
-            <div className="grid gap-2.5 max-w-[min(100%,38rem)] px-4 py-3.5 rounded-[1.5rem] bg-card border border-border shadow-sm">
-              <div className="w-64 h-20 rounded-[1rem] bg-muted relative overflow-hidden" />
-            </div>
-          </div>
-        ))}
+      <div
+        aria-busy="true"
+        className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto"
+      >
+        <ListRowSkeleton />
+        <ListRowSkeleton />
+        <ListRowSkeleton />
       </div>
     );
   }
