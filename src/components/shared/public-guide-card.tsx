@@ -61,7 +61,7 @@ export function PublicGuideCard({
     <Link
       href={`/guides/${slug}`}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-card border border-border bg-surface-lowest p-0 transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group relative flex flex-col overflow-hidden rounded-card border border-border bg-surface-lowest p-0 transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >

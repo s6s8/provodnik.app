@@ -126,6 +126,21 @@
   --shadow-glass: var(--glass-shadow);
   --shadow-editorial: 0 28px 80px rgba(33, 49, 63, 0.14);
   --shadow-lift: var(--shadow-lift);
+
+  /* Motion ---------------------------------------------------------------- */
+  /* Radix accordions (help, request-detail FAQ) animate to their measured
+     content height. Entrance is slightly slower than exit, per the 300ms cap. */
+  --animate-accordion-down: accordion-down 200ms ease-out;
+  --animate-accordion-up: accordion-up 150ms ease-in;
+
+  @keyframes accordion-down {
+    from { height: 0; }
+    to { height: var(--radix-accordion-content-height); }
+  }
+  @keyframes accordion-up {
+    from { height: var(--radix-accordion-content-height); }
+    to { height: 0; }
+  }
 }
 
 :root {
