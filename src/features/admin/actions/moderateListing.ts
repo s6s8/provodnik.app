@@ -1,6 +1,7 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { PUBLIC_LISTING_STATUS } from "@/lib/supabase/types";
 
 async function verifyAdmin(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>) {
   const {
@@ -30,7 +31,7 @@ export async function approveListing(listingId: string) {
 
   const { error } = await supabase
     .from("listings")
-    .update({ status: "active" })
+    .update({ status: PUBLIC_LISTING_STATUS })
     .eq("id", listingId)
     .eq("status", "pending_review");
   if (error) throw new Error("Не удалось одобрить объявление.");

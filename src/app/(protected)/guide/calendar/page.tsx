@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { kopecksToRub } from "@/data/money";
 import { MonthlyCalendar } from "@/features/guide/components/calendar/MonthlyCalendar";
 import { WeeklyCalendar } from "@/features/guide/components/calendar/WeeklyCalendar";
+import { PUBLIC_LISTING_STATUS } from "@/lib/supabase/types";
 import {
   DateRangePicker,
   type DateRangePreset,
@@ -108,7 +109,7 @@ export default async function GuideCalendarPage({
         .from("listings")
         .select("id, title, exp_type")
         .eq("guide_id", guideId)
-        .eq("status", "active"),
+        .eq("status", PUBLIC_LISTING_STATUS),
       supabase
         .from("guide_profiles")
         .select("verification_status")

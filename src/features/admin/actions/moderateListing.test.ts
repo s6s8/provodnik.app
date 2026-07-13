@@ -9,6 +9,7 @@ vi.mock('@/lib/supabase/server', () => ({
 }))
 
 import { approveListing } from '@/features/admin/actions/moderateListing'
+import { PUBLIC_LISTING_STATUS } from '@/lib/supabase/types'
 
 function makeSupabase(opts: {
   user?: { id: string; user_metadata?: Record<string, unknown>; app_metadata?: Record<string, unknown> } | null
@@ -60,6 +61,21 @@ describe('approveListing', () => {
     vi.clearAllMocks()
   })
 
+  // Item 14: the queue wrote `active` while every public reader (getActiveListings,
+  // sitemap, all listing_* RLS policies) gates on `published`. So a queue-approved
+  // excursion was approved AND publicly invisible, with nothing in the UI saying so.
+  // The status the queue writes must be the status the public catalog reads.
+  it('approves into the status the public catalog actually reads', async () => {
+    const { listingUpdate } = makeSupabase({
+      user: { id: 'admin-1', user_metadata: {}, app_metadata: { role: 'admin' } },
+    })
+
+    await approveListing('listing-1')
+
+    expect(listingUpdate).toHaveBeenCalledWith({ status: PUBLIC_LISTING_STATUS })
+    expect(listingUpdate).not.toHaveBeenCalledWith({ status: 'active' })
+  })
+
   it('succeeds when app_metadata role is admin', async () => {
     const { listingUpdate } = makeSupabase({
       user: { id: 'admin-1', user_metadata: {}, app_metadata: { role: 'admin' } },
@@ -67,7 +83,7 @@ describe('approveListing', () => {
 
     await expect(approveListing('listing-1')).resolves.toEqual({ success: true })
 
-    expect(listingUpdate).toHaveBeenCalledWith({ status: 'active' })
+    expect(listingUpdate).toHaveBeenCalledWith({ status: 'published' })
   })
 
   it('succeeds when profiles.role is admin and app_metadata is empty', async () => {
@@ -78,7 +94,7 @@ describe('approveListing', () => {
 
     await expect(approveListing('listing-1')).resolves.toEqual({ success: true })
 
-    expect(listingUpdate).toHaveBeenCalledWith({ status: 'active' })
+    expect(listingUpdate).toHaveBeenCalledWith({ status: 'published' })
   })
 
   it('rejects when only user_metadata role is admin', async () => {

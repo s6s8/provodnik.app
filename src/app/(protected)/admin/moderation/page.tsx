@@ -37,13 +37,13 @@ export default async function ModerationQueuePage() {
       <PageHeader
         eyebrow="Администрирование"
         title="Очередь модерации"
-        subtitle="Контент, ожидающий проверки перед публикацией: объявления гидов и ответы на отзывы."
+        subtitle="Контент, ожидающий проверки перед публикацией: экскурсии гидов и ответы на отзывы."
       />
 
       <Tabs defaultValue="listings">
         <TabsList>
           <TabsTrigger value="listings">
-            Объявления
+            Экскурсии
             <Badge variant="secondary">{listingRows.length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="replies">

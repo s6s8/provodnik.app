@@ -1,10 +1,13 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { PUBLIC_LISTING_STATUS } from "@/lib/supabase/types";
 
 export async function bulkSetStatus(
   listingIds: string[],
-  status: "active" | "archived",
+  // "published", never "active" (item 14): `active` is invisible to every public
+  // reader, so re-activating a listing through this path used to silently hide it.
+  status: typeof PUBLIC_LISTING_STATUS | "archived",
 ) {
   const supabase = await createSupabaseServerClient();
   const {
