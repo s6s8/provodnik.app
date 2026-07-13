@@ -26,3 +26,12 @@ Local Supabase (colima) + seeded QA users, per PLAYBOOK. Rationale: the repo `.e
 
 ## D-03 — `bun run playwright` in the verify chain
 The plan §7.1 lists it. Observed: the suite needs a dev server + seeded auth; without `QA_SEED_PASSWORD` the seeded suites *skip* rather than fail. Ruling: run it against the local seeded stack at T-41; report exactly what ran vs skipped. Never report a skip as a pass.
+
+## D-04 — AvatarStack merge direction reversed (plan divergence, proven)
+Plan T-08 says: port `size="compact"` into `ui/avatar-stack`, migrate `shared/avatar-stack`'s importers to it, delete the shared file.
+**Observed evidence**: `ui/avatar-stack` has **1** importer (`components/trust/contact-reveal.tsx`) and a thin API (`users[]`, size enum, hard-coded `size-[46px]/[34px]`). `shared/avatar-stack` has **3** importers (trip-panel, open-group-card, request-card-final) and the richer API actually in use (`members[]` with initials, `totalCount` overflow, px size/overlap).
+**Ruling (unanimous)**: keep `shared/avatar-stack`, migrate the single `ui/` importer to it, delete `ui/avatar-stack`. Same North Star outcome (one AvatarStack), strictly smaller diff and blast radius, more reversible. Following the plan literally would mean re-implementing the shared API inside `ui/` and rewriting 3 live call-sites.
+**Also corrected**: plan says `ui/empty-state` has "6 importers" — it has 1 (`destinations-grid`). Direction kept as planned (shared/empty-state wins).
+
+## D-05 — StickyActionBar safe-area padding
+Plan writes `pb-[max(theme(spacing.3.5),env(safe-area-inset-bottom))]`. `theme()` is Tailwind v3 syntax; this repo is v4 (CSS-first). Used `pb-[max(0.875rem,env(safe-area-inset-bottom))]` — same computed value (14px floor), valid in v4. The existing test that pinned the bare `env()` string was updated to assert both halves of the new guarantee, not deleted.

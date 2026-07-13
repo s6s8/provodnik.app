@@ -4,7 +4,7 @@ import { Copy, Lock, Phone, Send, TriangleAlert } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AvatarStack } from "@/components/ui/avatar-stack";
+import { AvatarStack } from "@/components/shared/avatar-stack";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -25,7 +25,17 @@ export function ContactReveal({ guide, contact, bookingStatus, contactError, cla
   return (
     <div className={cn("grid gap-3", className)}>
       <div className="flex items-center gap-3">
-        <AvatarStack users={[{ name: guide.name, avatarUrl: guide.avatarUrl }]} size="compact" />
+        <AvatarStack
+          members={[
+            {
+              id: guide.name,
+              displayName: guide.name,
+              initials: guide.name.charAt(0).toUpperCase(),
+              avatarUrl: guide.avatarUrl,
+            },
+          ]}
+          size={34}
+        />
         <span className="font-semibold text-on-surface">{guide.name}</span>
         {guide.verified ? <Badge variant="success">Проверен</Badge> : null}
       </div>
