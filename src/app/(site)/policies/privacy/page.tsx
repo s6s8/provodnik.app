@@ -65,14 +65,14 @@ export default function PrivacyPage() {
         ))}
       </nav>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <Card id="operator" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               Сведения об операторе персональных данных
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Оператором персональных данных в значении ст. 3 Федерального закона
               от 27.07.2006 № 152-ФЗ «О персональных данных» выступает команда
@@ -132,13 +132,13 @@ export default function PrivacyPage() {
         </Card>
 
         <Card id="collected" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               1. Какие данные мы собираем
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {collectedData.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -147,13 +147,13 @@ export default function PrivacyPage() {
         </Card>
 
         <Card id="purposes" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               2. Для чего мы используем данные
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {dataPurposes.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -162,17 +162,17 @@ export default function PrivacyPage() {
         </Card>
 
         <Card id="third-parties" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               3. Передача данных третьим лицам
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Мы передаём данные только в объёме, необходимом для работы
               платформы и законных целей её обслуживания.
             </p>
-            <ul className="space-y-3 list-disc pl-5">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               <li>
                 <span className="font-medium text-foreground">Supabase</span> —
                 используется для хранения данных профиля, истории бронирований,
@@ -194,13 +194,13 @@ export default function PrivacyPage() {
         </Card>
 
         <Card id="rights" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               4. Права пользователей
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {userRights.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -209,10 +209,10 @@ export default function PrivacyPage() {
         </Card>
 
         <Card id="cookies" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">5. Cookies</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Мы используем cookie и аналогичные технологии для входа в
               учётную запись, сохранения пользовательских настроек, стабильной
@@ -227,12 +227,12 @@ export default function PrivacyPage() {
         </Card>
 
         <Card id="contacts" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               6. Контакты по вопросам данных
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Запросы на доступ, удаление, экспорт данных и вопросы по обработке
               персональной информации можно направить на{" "}

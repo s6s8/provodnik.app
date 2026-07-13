@@ -76,7 +76,7 @@ export default async function TravelerBookingDisputePage({
     .join(" · ");
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Button asChild variant="ghost" className="-ml-3 px-3">
         <Link href={`/bookings/${bookingId}`}>
           <ArrowLeft className="size-4" />

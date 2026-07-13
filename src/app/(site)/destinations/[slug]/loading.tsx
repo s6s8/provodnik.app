@@ -3,10 +3,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
   return (
-    <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] space-y-8 py-8 lg:py-12">
+    <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] flex flex-col gap-8 py-8 lg:py-12">
       <GlassCard asChild>
         <section className="overflow-hidden p-5 sm:p-7">
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <Skeleton className="h-4 w-28" />
             <Skeleton className="h-12 w-3/4 max-w-[22rem]" />
             <Skeleton className="h-5 w-full max-w-[36rem]" />
@@ -28,9 +28,9 @@ export default function Loading() {
         ))}
       </section>
 
-      <section className="space-y-4">
+      <section className="flex flex-col gap-4">
         <div className="flex items-end justify-between gap-4">
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Skeleton className="h-4 w-24" />
             <Skeleton className="h-8 w-56" />
           </div>

@@ -100,7 +100,7 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             <ArrowLeft className="size-4" aria-hidden />
             Проводник
           </Link>
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <p className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
               Найдите проверенного гида для поездки
             </p>
@@ -109,13 +109,13 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
               до бронирования.
             </p>
           </div>
-          <ul className="space-y-4">
+          <ul className="flex flex-col gap-4">
             {trustPoints.map((point) => (
               <li key={point.title} className="flex items-start gap-3">
                 <span className="mt-0.5 inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/10">
                   <Check className="size-3.5 text-white" />
                 </span>
-                <span className="space-y-0.5">
+                <span className="flex flex-col gap-0.5">
                   <span className="block text-sm font-medium leading-6 text-white">
                     {point.title}
                   </span>

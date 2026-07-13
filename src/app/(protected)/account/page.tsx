@@ -120,7 +120,7 @@ export default async function PersonalSettingsPage() {
       travelerProfile.full_name?.trim() || displayNameFallback;
 
     return (
-      <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
+      <div className="mx-auto w-full max-w-3xl flex flex-col gap-6 py-8">
         <PageHeader
           eyebrow="Кабинет"
           title="Профиль путешественника"
@@ -182,7 +182,7 @@ export default async function PersonalSettingsPage() {
       resolveDisplayName("guide", { full_name: auth.email ?? null }),
     );
     return (
-      <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
+      <div className="mx-auto w-full max-w-3xl flex flex-col gap-6 py-8">
         <PageHeader
           eyebrow="Личные настройки"
           title="Профиль"

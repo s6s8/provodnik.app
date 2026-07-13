@@ -64,13 +64,13 @@ export default function CookiesPage() {
         ))}
       </nav>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {cookieTypes.map((type) => (
           <Card key={type.name} id={type.id} className="border-border bg-card scroll-mt-24">
-            <CardHeader className="space-y-1">
+            <CardHeader className="flex flex-col gap-1">
               <CardTitle aria-level={2} className="text-base">{type.name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-base leading-[1.65] text-muted-foreground">
+            <CardContent className="flex flex-col gap-2 text-base leading-[1.65] text-muted-foreground">
               <p>{type.desc}</p>
               <p>
                 <span className="font-medium text-foreground">Примеры: </span>
@@ -81,10 +81,10 @@ export default function CookiesPage() {
         ))}
 
         <Card id="management" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">Управление cookies</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Вы можете ограничить или удалить cookies через настройки вашего
               браузера. Большинство браузеров позволяют блокировать cookies

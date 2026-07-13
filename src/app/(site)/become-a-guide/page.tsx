@@ -59,7 +59,7 @@ export default function BecomeAGuidePage() {
       />
 
       <InfoSection title="Как стать гидом">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {STEPS.map((step, index) => (
             <StepCard key={step} step={index + 1}>
               {step}
@@ -93,7 +93,7 @@ export default function BecomeAGuidePage() {
             <CardTitle aria-level={2}>Кто может работать в Проводнике</CardTitle>
           </CardHeader>
           <CardContent>
-            <ul className="space-y-3">
+            <ul className="flex flex-col gap-3">
               {TRUST.map((item) => (
                 <li key={item} className="flex items-start gap-2 text-base text-ink-2">
                   <Check className="mt-1 size-4 shrink-0 text-primary" aria-hidden="true" />

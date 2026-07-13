@@ -31,7 +31,7 @@ export default async function ReferralsPage() {
 
   if (!hasSupabaseEnv()) {
     return (
-      <section className="space-y-4">
+      <section className="flex flex-col gap-4">
         <PageHeader
           eyebrow="Кабинет"
           title="Рефералы и бонусы"
@@ -116,7 +116,7 @@ export default async function ReferralsPage() {
               Для интеграторов и агрегаторов. Управляйте токеном доступа к Partner API.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="flex flex-col gap-6">
             <ApiTokenManager
               hasExistingToken={hasPartnerAccount}
               generatedAt={partnerAccountCreatedAt}

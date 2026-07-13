@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
       />
 
       <InfoSection title="Запрос гидам">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {REQUEST_STEPS.map((item) => (
             <StepCard key={item.step} step={item.step} icon={item.icon}>
               {item.text}
@@ -78,7 +78,7 @@ export default function HowItWorksPage() {
       </InfoSection>
 
       <InfoSection title="Готовые экскурсии" className="mb-0">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {CATALOG_STEPS.map((item) => (
             <StepCard key={item.step} step={item.step} icon={item.icon}>
               {item.text}

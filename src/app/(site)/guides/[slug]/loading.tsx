@@ -8,8 +8,8 @@ export default function Loading() {
         <div className="grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-8 lg:gap-14 items-start">
           <Skeleton className="aspect-[3/4] w-full rounded-card" />
 
-          <div className="space-y-6 pt-1">
-            <div className="space-y-3">
+          <div className="flex flex-col gap-6 pt-1">
+            <div className="flex flex-col gap-3">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-12 w-4/5 max-w-[28rem]" />
               <Skeleton className="h-5 w-full max-w-[38rem]" />
@@ -30,7 +30,7 @@ export default function Loading() {
               ))}
             </div>
 
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               <Skeleton className="h-4 w-32" />
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-11/12" />
@@ -41,9 +41,9 @@ export default function Loading() {
       </section>
 
       <section className="bg-surface-low">
-        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] space-y-6 py-8 lg:py-12">
+        <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] flex flex-col gap-6 py-8 lg:py-12">
           <div className="flex items-end justify-between gap-4">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Skeleton className="h-4 w-28" />
               <Skeleton className="h-8 w-56" />
             </div>

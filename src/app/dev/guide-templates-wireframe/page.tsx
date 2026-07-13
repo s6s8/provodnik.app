@@ -56,7 +56,7 @@ function WireframeSection({
   contentClassName?: string;
 }) {
   return (
-    <section aria-labelledby={id} className="space-y-4">
+    <section aria-labelledby={id} className="flex flex-col gap-4">
       <h2 id={id} className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
         {title}
       </h2>
@@ -74,7 +74,7 @@ function TemplateCard({
   return (
     <article className="rounded-card border border-border bg-card p-3 shadow-sm">
       <div className="aspect-video rounded-md bg-muted" />
-      <div className="mt-3 space-y-2">
+      <div className="mt-3 flex flex-col gap-2">
         <div>
           <h3 className="text-sm font-semibold text-foreground">{title}</h3>
           <p className="mt-1 text-xs text-muted-foreground">{duration}</p>
@@ -112,7 +112,7 @@ function GuideTemplateListScreen() {
             Здесь будут фото
           </p>
         </TabsContent>
-        <TabsContent value="templates" className="space-y-4">
+        <TabsContent value="templates" className="flex flex-col gap-4">
           <Button variant="outline" className="w-full">
             + Новый шаблон
           </Button>
@@ -142,42 +142,42 @@ function GuideTemplateFormScreen() {
         </Button>
       </div>
 
-      <div className="mt-5 space-y-4">
-        <div className="space-y-2">
+      <div className="mt-5 flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="route-title">
             Название маршрута <span className="text-destructive">*</span>
           </Label>
           <Input id="route-title" placeholder="Например: Тбилиси за один день" />
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label>Фото</Label>
-          <div className="flex min-h-[80px] items-center justify-center rounded-[1.2rem] border border-dashed border-border bg-muted px-4 text-center text-sm text-muted-foreground">
+          <div className="flex min-h-[80px] items-center justify-center rounded-card border border-dashed border-border bg-muted px-4 text-center text-sm text-muted-foreground">
             Выберите из портфолио или загрузите
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="route-description">Описание</Label>
           <Textarea id="route-description" placeholder="Что ждёт путешественника…" />
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="route-duration">Длительность</Label>
           <Input id="route-duration" placeholder="Например: 6 часов" />
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="route-price">Цена от</Label>
           <Input id="route-price" placeholder="Оставьте пустым — договоритесь на месте" />
         </div>
 
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="route-capacity">Вместимость</Label>
           <Input id="route-capacity" placeholder="Максимум человек" />
         </div>
 
-        <div className="flex items-center justify-between gap-4 rounded-[1.2rem] border border-border bg-card p-3">
+        <div className="flex items-center justify-between gap-4 rounded-card border border-border bg-card p-3">
           <span className="text-sm font-medium text-foreground">Показывать в каталоге</span>
           <div className="flex h-5 w-10 items-center justify-end rounded-full bg-primary p-0.5" aria-hidden="true">
             <div className="size-4 rounded-full bg-primary-foreground shadow-sm" />
@@ -195,7 +195,7 @@ function GuideTemplateFormScreen() {
 
 function TemplatePickerScreen() {
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <div className="rounded-card bg-surface-high p-4 shadow-card">
         <h3 className="text-lg font-semibold text-foreground">Ваш отклик</h3>
         <Textarea className="mt-4 bg-muted" placeholder="Опишите маршрут…" readOnly />
@@ -220,11 +220,11 @@ function TemplatePickerScreen() {
             <TabsTrigger value="templates">Шаблоны</TabsTrigger>
             <TabsTrigger value="photos">Фото</TabsTrigger>
           </TabsList>
-          <TabsContent value="templates" className="space-y-2">
+          <TabsContent value="templates" className="flex flex-col gap-2">
             {routeTemplates.map((template) => (
               <button
                 key={template.title}
-                className="flex w-full items-center gap-3 rounded-[1.2rem] border border-border bg-card p-2 text-left transition-colors hover:bg-muted"
+                className="flex w-full items-center gap-3 rounded-card border border-border bg-card p-2 text-left transition-colors hover:bg-muted"
                 type="button"
               >
                 <span className="size-14 shrink-0 rounded-md bg-muted" />
@@ -262,11 +262,11 @@ function BidResponseCard({ className = "" }: { className?: string }) {
 
 function TemplatePickerRows() {
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {routeTemplates.map((template) => (
         <button
           key={template.title}
-          className="flex w-full items-center gap-3 rounded-[1.2rem] border border-border bg-card p-2 text-left transition-colors hover:bg-muted"
+          className="flex w-full items-center gap-3 rounded-card border border-border bg-card p-2 text-left transition-colors hover:bg-muted"
           type="button"
         >
           <span className="size-14 shrink-0 rounded-md bg-muted" />
@@ -300,7 +300,7 @@ function TemplatePickerCard({ className = "" }: { className?: string }) {
 function PickerComparisonScreen() {
   return (
     <div className="grid gap-4 md:grid-cols-2">
-      <div className="space-y-3 rounded-card border border-border bg-card p-4">
+      <div className="flex flex-col gap-3 rounded-card border border-border bg-card p-4">
         <div>
           <h3 className="text-base font-semibold text-foreground">Вариант A — блок снизу</h3>
           <p className="mt-1 text-xs text-muted-foreground">Скролл вниз для выбора шаблона</p>
@@ -310,7 +310,7 @@ function PickerComparisonScreen() {
         <TemplatePickerCard />
       </div>
 
-      <div className="space-y-3 rounded-card border border-border bg-card p-4">
+      <div className="flex flex-col gap-3 rounded-card border border-border bg-card p-4">
         <div>
           <h3 className="text-base font-semibold text-foreground">Вариант B — правая панель</h3>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -341,10 +341,10 @@ function PickerComparisonScreen() {
 
 function PhotoPickerPreview() {
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <div className="grid grid-cols-3 gap-2">
         {portfolioPhotos.map((photo, index) => (
-          <div key={photo} className="space-y-1">
+          <div key={photo} className="flex flex-col gap-1">
             <div className="relative aspect-square w-full rounded-md bg-muted">
               {index < 2 ? (
                 <span className="absolute inset-1 flex items-center justify-center rounded-md bg-primary/80 text-primary-foreground">
@@ -375,7 +375,7 @@ export default function GuideTemplatesWireframePage() {
         </p>
       </div>
 
-      <div className="space-y-10">
+      <div className="flex flex-col gap-10">
         <WireframeSection id="screen-template-list" title="Экран 1: Список шаблонов">
           <GuideTemplateListScreen />
         </WireframeSection>

@@ -5,7 +5,7 @@ export default function MessagesLoading() {
   return (
     <section className="grid gap-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0 space-y-2">
+        <div className="min-w-0 flex flex-col gap-2">
           <Skeleton className="h-3 w-20 rounded-full" />
           <Skeleton className="h-8 w-48" />
         </div>

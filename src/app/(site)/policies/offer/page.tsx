@@ -93,12 +93,12 @@ export default function OfferPage() {
         ))}
       </nav>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <Card id="role" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">1. Роль платформы</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Provodnik — это маркетплейс и информационно-технический посредник.
               Платформа предоставляет цифровую среду, в которой путешественники
@@ -116,12 +116,12 @@ export default function OfferPage() {
         </Card>
 
         <Card id="contract" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               2. Прямой договор между гидом и путешественником
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               При подтверждении заказа договор возмездного оказания услуг
               заключается непосредственно между гидом (исполнителем) и
@@ -137,11 +137,11 @@ export default function OfferPage() {
         </Card>
 
         <Card id="guide" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">3. Ответственность гида</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {guideResponsibilities.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -150,13 +150,13 @@ export default function OfferPage() {
         </Card>
 
         <Card id="traveler" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               4. Ответственность путешественника
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {travelerResponsibilities.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -165,11 +165,11 @@ export default function OfferPage() {
         </Card>
 
         <Card id="payments" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">5. Платежи и возвраты</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {paymentTerms.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -178,11 +178,11 @@ export default function OfferPage() {
         </Card>
 
         <Card id="disputes" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">6. Споры</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {disputeSteps.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -191,12 +191,12 @@ export default function OfferPage() {
         </Card>
 
         <Card id="liability" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               7. Ограничение ответственности платформы
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Платформа как технический посредник не отвечает за качество,
               объём, безопасность и результат услуг, оказываемых гидом, а также
@@ -214,12 +214,12 @@ export default function OfferPage() {
         </Card>
 
         <Card id="data" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               8. Персональные данные и приватность
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Обработка персональных данных осуществляется в соответствии с{" "}
               <a
@@ -242,10 +242,10 @@ export default function OfferPage() {
         </Card>
 
         <Card id="final" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">9. Статус документа</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Настоящий документ является проектом и носит информационный
               характер. Обязывающая редакция публичной оферты вступает в силу

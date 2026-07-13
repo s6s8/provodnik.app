@@ -18,8 +18,8 @@ export default function SiteError({ error, reset }: SiteErrorProps) {
 
   return (
     <main className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] flex min-h-[70vh] items-center py-16">
-      <section className="rounded-card border border-border bg-card shadow-sm w-full max-w-2xl space-y-6 px-6 py-8 md:px-10 md:py-12">
-        <div className="space-y-3">
+      <section className="rounded-card border border-border bg-card shadow-sm w-full max-w-2xl flex flex-col gap-6 px-6 py-8 md:px-10 md:py-12">
+        <div className="flex flex-col gap-3">
           <p className="text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Сбой страницы</p>
           <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
             Страница временно недоступна

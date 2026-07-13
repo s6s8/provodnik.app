@@ -16,7 +16,7 @@ export function generateMetadata(): Metadata {
 export default function TrustPage() {
   return (
     <InfoPageShell width="wide">
-      <div className="space-y-10">
+      <div className="flex flex-col gap-10">
         <InfoHero
           eyebrow="Правила сервиса"
           title="Доверие к бронированию — до оплаты, во время поездки и после неё"
@@ -36,10 +36,10 @@ export default function TrustPage() {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <Card>
-            <CardHeader className="space-y-1">
+            <CardHeader className="flex flex-col gap-1">
               <CardTitle aria-level={2} className="text-base">Что видит путешественник</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-base text-ink-2">
+            <CardContent className="flex flex-col gap-3 text-base text-ink-2">
               <ul className="grid list-disc gap-2 pl-5">
                 <li>
                   До подтверждения брони вы видите программу по шагам: длительность,
@@ -62,10 +62,10 @@ export default function TrustPage() {
           </Card>
 
           <Card>
-            <CardHeader className="space-y-1">
+            <CardHeader className="flex flex-col gap-1">
               <CardTitle aria-level={2} className="text-base">Что получает гид</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-base text-ink-2">
+            <CardContent className="flex flex-col gap-3 text-base text-ink-2">
               <ul className="grid list-disc gap-2 pl-5">
                 <li>
                   Заявки приходят с контекстом: даты, размер группы, бюджет и пожелания,
@@ -88,10 +88,10 @@ export default function TrustPage() {
         </div>
 
         <Card>
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">Границы ответственности</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 text-base text-ink-2">
+          <CardContent className="flex flex-col gap-4 text-base text-ink-2">
             <ul className="grid list-disc gap-2 pl-5">
               <li>
                 Provodnik не заменяет визу, страховку, соблюдение миграционных правил и
@@ -112,7 +112,7 @@ export default function TrustPage() {
           </CardContent>
         </Card>
 
-        <div className="mt-10">
+        <div>
           <Button asChild size="lg">
             <Link href="/guides">Смотреть гидов</Link>
           </Button>

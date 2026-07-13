@@ -76,12 +76,12 @@ export default function TermsPage() {
         ))}
       </nav>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <Card id="subject" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">1. Предмет соглашения</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Provodnik предоставляет цифровую платформу, на которой
               путешественники могут публиковать запросы на поездки, находить
@@ -98,13 +98,13 @@ export default function TermsPage() {
         </Card>
 
         <Card id="travelers" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               2. Условия использования для путешественников
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {travelerConditions.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -113,13 +113,13 @@ export default function TermsPage() {
         </Card>
 
         <Card id="guides" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               3. Условия использования для гидов
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {guideConditions.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -128,11 +128,11 @@ export default function TermsPage() {
         </Card>
 
         <Card id="prohibited" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">4. Запрещённые действия</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {prohibitedActions.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -141,12 +141,12 @@ export default function TermsPage() {
         </Card>
 
         <Card id="liability" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               5. Ответственность платформы
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Provodnik является маркетплейсом и информационной платформой, а
               не туроператором, турагентом или перевозчиком. Мы не формируем
@@ -167,13 +167,13 @@ export default function TermsPage() {
         </Card>
 
         <Card id="disputes" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">
               6. Споры и разрешение конфликтов
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
-            <ul className="space-y-3 list-disc pl-5">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
+            <ul className="flex flex-col gap-3 list-disc pl-5">
               {disputeSteps.map((item) => (
                 <li key={item}>{item}</li>
               ))}
@@ -182,10 +182,10 @@ export default function TermsPage() {
         </Card>
 
         <Card id="changes" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">7. Изменение условий</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Мы вправе обновлять настоящее соглашение по мере развития сервиса,
               изменения законодательства или бизнес-процессов. Новая редакция
@@ -200,10 +200,10 @@ export default function TermsPage() {
         </Card>
 
         <Card id="contacts" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle aria-level={2} className="text-base">8. Контакты</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-base leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               По вопросам применения настоящего соглашения, споров, блокировок и
               правовых уведомлений пишите на{" "}

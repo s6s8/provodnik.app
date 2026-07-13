@@ -301,8 +301,8 @@ export default async function GuideProfilePage() {
     GUIDE_TYPES.find((t) => t.id === profile?.guide_type)?.label ?? null;
 
   return (
-    <div className="space-y-10">
-      <header className="space-y-2">
+    <div className="flex flex-col gap-10">
+      <header className="flex flex-col gap-2">
         <PageHeader
           eyebrow="Кабинет гида"
           title="Профиль гида"
@@ -322,7 +322,7 @@ export default async function GuideProfilePage() {
       />
 
       {verificationStatus === "approved" ? (
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <GuideAvailabilityToggle available={profile?.is_available ?? false} />
         </div>
       ) : null}
@@ -379,7 +379,7 @@ export default async function GuideProfilePage() {
               </CardDescription>
               <LicenseAddButton listings={listings} isLocked={isVerifiedDataLocked} />
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
               {isVerifiedDataLocked ? (
                 <p className="text-sm text-muted-foreground">
                   Профиль одобрен. Документы о квалификации недоступны для редактирования из обычного профиля.
@@ -411,12 +411,12 @@ export default async function GuideProfilePage() {
                   Профиль прошёл проверку. Путешественники видят, что вы подтвердили документы.
                 </p>
               ) : verificationStatus === "submitted" ? (
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   <p className="text-sm text-muted-foreground">
                     Документы отправлены. Проверка обычно занимает 1–2 рабочих дня.
                   </p>
                   {documents.length > 0 ? (
-                    <ul className="space-y-2">
+                    <ul className="flex flex-col gap-2">
                       {documents.map((doc) => (
                         <li
                           key={doc.documentType}
@@ -432,7 +432,7 @@ export default async function GuideProfilePage() {
                   ) : null}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {verificationStatus === "rejected" ? (
                     <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">
                       <strong className="block text-foreground">Нужны правки по анкете.</strong>
