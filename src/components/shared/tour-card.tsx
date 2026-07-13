@@ -57,7 +57,7 @@ export function TourCard({
           </span>
         </div>
 
-        <div className="mt-3.5 w-fit rounded-full border border-primary-foreground/20 bg-primary-foreground/20 px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-[20px]">
+        <div className="mt-3.5 w-fit rounded-full border border-primary-foreground/20 bg-primary-foreground/20 px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-xl">
           {price}
         </div>
       </div>

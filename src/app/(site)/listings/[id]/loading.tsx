@@ -1,3 +1,4 @@
+import { GlassCard } from "@/components/shared/glass-card";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Loading() {
@@ -25,16 +26,18 @@ export default function Loading() {
           </section>
         </div>
 
-        <aside className="rounded-[28px] border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]">
-          <div className="space-y-3">
-            <Skeleton className="h-8 w-40" />
-            <Skeleton className="h-4 w-24" />
-          </div>
-          <div className="mt-5 space-y-3">
-            <Skeleton className="h-10 w-full rounded-full" />
-            <Skeleton className="h-10 w-full rounded-full" />
-          </div>
-        </aside>
+        <GlassCard asChild>
+          <aside className="p-5">
+            <div className="space-y-3">
+              <Skeleton className="h-8 w-40" />
+              <Skeleton className="h-4 w-24" />
+            </div>
+            <div className="mt-5 space-y-3">
+              <Skeleton className="h-10 w-full rounded-full" />
+              <Skeleton className="h-10 w-full rounded-full" />
+            </div>
+          </aside>
+        </GlassCard>
       </div>
     </div>
   );

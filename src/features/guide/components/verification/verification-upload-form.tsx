@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, Clock3, ShieldCheck } from "lucide-react";
 
+import { GlassCard } from "@/components/shared/glass-card";
 import { Button } from "@/components/ui/button";
 import type { GuideVerificationStatusDb } from "@/lib/supabase/types";
 import type {
@@ -121,7 +122,7 @@ export function VerificationUploadForm({
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-3 rounded-glass border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]">
+      <GlassCard className="grid gap-3 p-5">
         <div className="flex items-start gap-3 text-sm text-muted-foreground">
           <ShieldCheck size={18} />
           <span>Загрузите документы в хорошем качестве и без обрезки.</span>
@@ -135,7 +136,7 @@ export function VerificationUploadForm({
             получать заявки.
           </span>
         </div>
-      </div>
+      </GlassCard>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {verificationSlots.map((slot) => (

@@ -9,6 +9,7 @@ import {
   Upload,
 } from "lucide-react";
 
+import { GlassCard } from "@/components/shared/glass-card";
 import { getStorageBucketConfig } from "@/lib/storage/buckets";
 import { uploadFileToSignedUrl } from "@/lib/storage/client-upload";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
@@ -253,85 +254,87 @@ export function DocumentUploadCard({
   const isInteractionDisabled = state.isUploading || isLocked;
 
   return (
-    <article className="grid min-h-full gap-4 rounded-glass border border-glass-border bg-glass p-5 shadow-glass backdrop-blur-[20px]">
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*,application/pdf"
-        className="sr-only"
-        onChange={handleFileChange}
-        disabled={isLocked}
-      />
-      <div className="flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
-        <div>
-          <h3 className="flex flex-wrap items-center gap-2 font-sans text-base font-semibold text-foreground">
-            {label}
-            {required ? (
-              <span className="inline-flex rounded-full bg-primary/12 px-2 py-[0.2rem] text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-primary">
-                Обязательно
-              </span>
-            ) : null}
-          </h3>
-          <p className="mt-1 text-[0.8125rem] text-muted-foreground">
-            JPG, PNG, WEBP или PDF до 10 МБ.
-          </p>
+    <GlassCard asChild>
+      <article className="grid min-h-full gap-4 p-5">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/*,application/pdf"
+          className="sr-only"
+          onChange={handleFileChange}
+          disabled={isLocked}
+        />
+        <div className="flex items-start justify-between gap-4 max-md:flex-col max-md:items-stretch">
+          <div>
+            <h3 className="flex flex-wrap items-center gap-2 font-sans text-base font-semibold text-foreground">
+              {label}
+              {required ? (
+                <span className="inline-flex rounded-full bg-primary/12 px-2 py-[0.2rem] text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-primary">
+                  Обязательно
+                </span>
+              ) : null}
+            </h3>
+            <p className="mt-1 text-[0.8125rem] text-muted-foreground">
+              JPG, PNG, WEBP или PDF до 10 МБ.
+            </p>
+          </div>
+          {state.uploaded ? (
+            <span className="inline-flex size-8 items-center justify-center rounded-full bg-success/12 text-success">
+              <CheckCircle2 size={18} />
+            </span>
+          ) : null}
         </div>
-        {state.uploaded ? (
-          <span className="inline-flex size-8 items-center justify-center rounded-full bg-success/12 text-success">
-            <CheckCircle2 size={18} />
+  
+        <button
+          type="button"
+          className="grid min-h-[13rem] w-full place-items-center gap-3 rounded-[calc(var(--card-radius)-2px)] border-2 border-dashed border-outline-variant bg-surface-high/[0.78] p-4 transition-[transform,border-color,background] duration-150 hover:-translate-y-0.5 hover:border-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
+          onClick={handleSelectFile}
+          disabled={isInteractionDisabled}
+        >
+          {hasImagePreview ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={state.previewUrl ?? ""}
+              alt={label}
+              className="h-44 w-full rounded-[calc(var(--card-radius)-6px)] object-cover"
+            />
+          ) : state.uploaded?.fileName?.toLowerCase().endsWith(".pdf") ? (
+            <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <FileText size={24} />
+            </span>
+          ) : (
+            <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+              {state.isUploading ? (
+                <LoaderCircle size={24} className="animate-spin" />
+              ) : (
+                <Upload size={24} />
+              )}
+            </span>
+          )}
+  
+          <span className="text-center text-sm text-muted-foreground">
+            {state.isUploading
+              ? `Загрузка: ${state.progress}%`
+              : isLocked
+                ? "Документы уже отправлены на проверку."
+                : state.uploaded
+                ? "Файл загружен. Нажмите, чтобы заменить."
+                : "Нажмите, чтобы выбрать файл"}
           </span>
-        ) : null}
-      </div>
-
-      <button
-        type="button"
-        className="grid min-h-[13rem] w-full place-items-center gap-3 rounded-[calc(var(--card-radius)-2px)] border-2 border-dashed border-outline-variant bg-surface-high/[0.78] p-4 transition-[transform,border-color,background] duration-150 hover:-translate-y-0.5 hover:border-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
-        onClick={handleSelectFile}
-        disabled={isInteractionDisabled}
-      >
-        {hasImagePreview ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={state.previewUrl ?? ""}
-            alt={label}
-            className="h-44 w-full rounded-[calc(var(--card-radius)-6px)] object-cover"
-          />
-        ) : state.uploaded?.fileName?.toLowerCase().endsWith(".pdf") ? (
-          <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <FileText size={24} />
-          </span>
-        ) : (
-          <span className="inline-flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-            {state.isUploading ? (
-              <LoaderCircle size={24} className="animate-spin" />
-            ) : (
-              <Upload size={24} />
-            )}
-          </span>
-        )}
-
-        <span className="text-center text-sm text-muted-foreground">
-          {state.isUploading
-            ? `Загрузка: ${state.progress}%`
-            : isLocked
-              ? "Документы уже отправлены на проверку."
-              : state.uploaded
-              ? "Файл загружен. Нажмите, чтобы заменить."
-              : "Нажмите, чтобы выбрать файл"}
-        </span>
-      </button>
-
-      <div className="grid gap-2">
-        <div className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
-          {state.uploaded ? <ImageIcon size={16} /> : <FileText size={16} />}
-          <span>{fileName ?? "Файл ещё не выбран"}</span>
+        </button>
+  
+        <div className="grid gap-2">
+          <div className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
+            {state.uploaded ? <ImageIcon size={16} /> : <FileText size={16} />}
+            <span>{fileName ?? "Файл ещё не выбран"}</span>
+          </div>
+          {state.error ? (
+            <p className="text-[0.8125rem] font-semibold text-destructive">
+              {state.error}
+            </p>
+          ) : null}
         </div>
-        {state.error ? (
-          <p className="text-[0.8125rem] font-semibold text-destructive">
-            {state.error}
-          </p>
-        ) : null}
-      </div>
-    </article>
+      </article>
+    </GlassCard>
   );
 }

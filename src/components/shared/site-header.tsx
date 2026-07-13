@@ -105,7 +105,7 @@ export function SiteHeader({
     <>
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
       <nav
-        className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-4 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between max-md:gap-3"
+        className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-4 py-2.5 shadow-glass backdrop-blur-xl max-md:grid-cols-[auto_auto] max-md:justify-between max-md:gap-3"
         aria-label="Основная навигация"
       >
         <Link href="/" prefetch={false} className="inline-flex min-h-11 items-center gap-2 font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">

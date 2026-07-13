@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
+import { GlassCard } from "@/components/shared/glass-card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -37,60 +38,62 @@ export function PublicGuideCard({
   const ratingLabel = hasRating ? guide.rating.toFixed(1) : "";
 
   return (
-    <Link
-      href={`/guides/${guide.slug}`}
+    <GlassCard
+      asChild
       className={cn(
-        "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass flex gap-4 rounded-[1.5rem] p-4 transition-all duration-300",
+        "flex gap-4 p-4 transition-all duration-300",
         "items-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50",
         "motion-safe:hover:-translate-y-0.5 motion-safe:hover:shadow-lg",
         className,
       )}
     >
-      <div className="relative size-14 shrink-0 overflow-hidden rounded-full border border-border/40 bg-muted">
-        <Image
-          src={guide.avatarUrl}
-          alt=""
-          fill
-          className="object-cover"
-          sizes="56px"
-        />
-      </div>
-
-      <div className="min-w-0 flex-1 space-y-2">
-        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-          <span className="text-base font-semibold text-foreground">
-            {guide.name}
-          </span>
-          {hasRating ? (
-            <span className="inline-flex items-center gap-1 text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
-              <Star className="size-3.5 fill-amber-400 text-amber-400" /> {ratingLabel}
+      <Link href={`/guides/${guide.slug}`}>
+        <div className="relative size-14 shrink-0 overflow-hidden rounded-full border border-border/40 bg-muted">
+          <Image
+            src={guide.avatarUrl}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="56px"
+          />
+        </div>
+  
+        <div className="min-w-0 flex-1 space-y-2">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <span className="text-base font-semibold text-foreground">
+              {guide.name}
             </span>
+            {hasRating ? (
+              <span className="inline-flex items-center gap-1 text-sm text-amber-500" aria-label={`Рейтинг ${ratingLabel}`}>
+                <Star className="size-3.5 fill-amber-400 text-amber-400" /> {ratingLabel}
+              </span>
+            ) : null}
+            {hasTours ? (
+              <span className="text-xs text-muted-foreground">
+                {guide.tourCount} {toursWord(guide.tourCount)}
+              </span>
+            ) : null}
+          </div>
+  
+          {guide.specialties.length > 0 ? (
+            <div className="flex flex-wrap gap-1.5">
+              {guide.specialties.map((s) => (
+                <Badge
+                  key={s}
+                  variant="outline"
+                  className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-normal normal-case"
+                >
+                  {s}
+                </Badge>
+              ))}
+            </div>
           ) : null}
-          {hasTours ? (
-            <span className="text-xs text-muted-foreground">
-              {guide.tourCount} {toursWord(guide.tourCount)}
-            </span>
+  
+          {guide.cities.length > 0 ? (
+            <p className="text-xs text-muted-foreground">{guide.cities.join(" · ")}</p>
           ) : null}
         </div>
-
-        {guide.specialties.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {guide.specialties.map((s) => (
-              <Badge
-                key={s}
-                variant="outline"
-                className="rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold tracking-normal normal-case"
-              >
-                {s}
-              </Badge>
-            ))}
-          </div>
-        ) : null}
-
-        {guide.cities.length > 0 ? (
-          <p className="text-xs text-muted-foreground">{guide.cities.join(" · ")}</p>
-        ) : null}
-      </div>
-    </Link>
+      </Link>
+    </GlassCard>
   );
 }

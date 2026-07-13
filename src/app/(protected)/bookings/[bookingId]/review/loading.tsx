@@ -1,3 +1,5 @@
+import { GlassCard } from "@/components/shared/glass-card";
+
 const ratingSlots = Array.from({ length: 5 });
 
 export default function Loading() {
@@ -11,7 +13,7 @@ export default function Loading() {
         <div className="h-5 w-full max-w-3xl rounded-full bg-muted/60 animate-pulse" />
       </div>
 
-      <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-6 p-6 md:p-8">
+      <GlassCard className="space-y-6 p-6 md:p-8">
         <div className="flex flex-wrap gap-2">
           <div className="h-7 w-28 rounded-full bg-muted/60 animate-pulse" />
           <div className="h-7 w-24 rounded-full bg-muted/60 animate-pulse" />
@@ -46,7 +48,7 @@ export default function Loading() {
             </div>
           </div>
         </div>
-      </div>
+      </GlassCard>
     </div>
   );
 }

@@ -14,6 +14,7 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { GlassCard } from "@/components/shared/glass-card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -313,7 +314,7 @@ export function AuthEntryScreen({
   const toggleAction = isSignUp ? "Войти" : "Создать профиль";
 
   return (
-    <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
+    <GlassCard className="w-[min(100%,30rem)] p-[clamp(1.75rem,4vw,2.5rem)]">
       <div className="space-y-3">
         <Badge variant="eyebrow" asChild>
           <Link href="/">Проводник</Link>
@@ -540,6 +541,6 @@ export function AuthEntryScreen({
           </button>
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 }
