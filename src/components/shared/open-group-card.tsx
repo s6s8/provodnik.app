@@ -3,11 +3,11 @@ import Link from "next/link";
 import { Calendar, CheckCircle2, Clock, MapPin, Users } from "lucide-react";
 
 import { AvatarStack, type AvatarStackMember } from "@/components/shared/avatar-stack";
-import { InterestTag } from "@/components/shared/interest-tag";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Scrim } from "@/components/ui/scrim";
 import { THEMES, type ThemeSlug } from "@/data/themes";
+import { cn } from "@/lib/utils";
 
 const THEME_BY_SLUG = new Map(THEMES.map((t) => [t.slug, t] as const));
 
@@ -59,8 +59,9 @@ export interface OpenGroupCardProps {
 /**
  * Open-group card (homepage "Открытые группы" + /requests marketplace).
  * Photo + region badge, status badge (Гид выбран / N откликов / Ждёт гида),
- * Сборная-группа badge, date/flex/time, interest tags, traveller avatar stack +
- * publish date, the group total budget, and a "Присоединиться" CTA.
+ * Сборная-группа badge, date/time, a plain meta line (flexible dates +
+ * interests), traveller avatar stack + publish date, the group total budget,
+ * and a "Присоединиться" CTA. Photo and title link to the card target.
  */
 export function OpenGroupCard({
   href,
@@ -85,11 +86,22 @@ export function OpenGroupCard({
   member,
   priority,
 }: OpenGroupCardProps) {
-  const themes = (interests ?? [])
+  const themeLabels = (interests ?? [])
     .map((slug) => THEME_BY_SLUG.get(slug as ThemeSlug))
     .filter((t): t is (typeof THEMES)[number] => Boolean(t))
-    .slice(0, 3);
+    .slice(0, 3)
+    .map((t) => t.label);
+  // Interests + date flexibility read as plain meta, not pills — only status and
+  // format stay as badges (no pill soup).
+  const meta = [datesFlexible ? "Гибкие даты" : null, ...themeLabels].filter(Boolean);
   const memberList = members ?? [];
+  const statusBadge =
+    status === "selected"
+      ? { variant: "success" as const, Icon: CheckCircle2, label: "Гид выбран" }
+      : offerCount > 0
+        ? { variant: "info" as const, Icon: null, label: pluralOffers(offerCount) }
+        : { variant: "warning" as const, Icon: Clock, label: "Ждёт гида" };
+  const StatusIcon = statusBadge.Icon;
   // Real photos are http(s)/local paths; gradient fallbacks are data/SVG URLs.
   // When there's no real photo, show a designed placeholder instead of a bare
   // dark gradient that reads as "still loading" (F-08).
@@ -97,11 +109,12 @@ export function OpenGroupCard({
 
   return (
     <div
-      className={`flex flex-col overflow-hidden rounded-card border border-border bg-card shadow-card${
-        unread ? " border-l-4 border-l-primary" : ""
-      }`}
+      className={cn(
+        "flex flex-col overflow-hidden rounded-card border border-border bg-card shadow-card",
+        unread && "border-l-4 border-l-primary",
+      )}
     >
-      <div className="relative h-36 bg-surface-low">
+      <Link href={href} className="relative block h-36 bg-surface-low">
         <Image
           src={imageUrl}
           alt={city}
@@ -123,28 +136,20 @@ export function OpenGroupCard({
             {region}
           </Badge>
         ) : null}
-      </div>
+      </Link>
 
       <div className="flex flex-1 flex-col px-4 pb-4 pt-3.5">
         <div className="flex items-start justify-between gap-2">
-          <div className="text-lg font-bold leading-tight tracking-tight text-foreground">
+          <Link
+            href={href}
+            className="text-lg font-bold leading-tight tracking-tight text-foreground hover:underline"
+          >
             {city}
-          </div>
-          {status === "selected" ? (
-            <Badge variant="success" className="shrink-0 gap-1">
-              <CheckCircle2 aria-hidden="true" />
-              Гид выбран
-            </Badge>
-          ) : offerCount > 0 ? (
-            <Badge variant="info" className="shrink-0">
-              {pluralOffers(offerCount)}
-            </Badge>
-          ) : (
-            <Badge variant="warning" className="shrink-0 gap-1">
-              <Clock aria-hidden="true" />
-              Ждёт гида
-            </Badge>
-          )}
+          </Link>
+          <Badge variant={statusBadge.variant} className="shrink-0 gap-1">
+            {StatusIcon ? <StatusIcon aria-hidden="true" /> : null}
+            {statusBadge.label}
+          </Badge>
         </div>
 
         <div className="mt-2 flex items-center gap-1.5">
@@ -164,7 +169,6 @@ export function OpenGroupCard({
               {date}
             </span>
           ) : null}
-          {datesFlexible ? <Badge variant="success">Гибкие даты</Badge> : null}
           {time ? (
             <span className="inline-flex items-center gap-1.5">
               <Clock className="size-3.5 text-muted-foreground" aria-hidden="true" />
@@ -173,14 +177,8 @@ export function OpenGroupCard({
           ) : null}
         </div>
 
-        {themes.length > 0 ? (
-          <div className="mt-2.5 flex flex-wrap gap-1.5">
-            {themes.map((theme) => (
-              <InterestTag key={theme.slug} icon={theme.Icon}>
-                {theme.label}
-              </InterestTag>
-            ))}
-          </div>
+        {meta.length > 0 ? (
+          <p className="mt-2.5 text-sm text-muted-foreground">{meta.join(" · ")}</p>
         ) : null}
 
         <div className="mt-auto flex items-end justify-between gap-2.5 pt-3.5">
@@ -210,7 +208,7 @@ export function OpenGroupCard({
             <Link href={href}>Вы в группе</Link>
           </Button>
         ) : (
-          <Button asChild className="mt-3 w-full">
+          <Button asChild variant="outline" className="mt-3 w-full">
             <Link href={joinHref ?? href}>{joinLabel}</Link>
           </Button>
         )}
