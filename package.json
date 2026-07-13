@@ -67,8 +67,19 @@
     "supabase": "^2.78.1",
     "tailwindcss": "^4",
     "typescript": "^5",
-    "vitest": "^4.1.2",
-    "shadcn": "^4.0.5"
+    "vitest": "^4.1.2"
+  },
+  "overrides": {
+    "ws": ">=8.20.1",
+    "@opentelemetry/core": ">=2.8.0",
+    "postcss": ">=8.5.10",
+    "flatted": ">=3.4.2",
+    "vite": ">=8.0.16",
+    "fast-uri": ">=3.1.2",
+    "js-yaml": ">=4.2.0",
+    "picomatch": ">=2.3.2",
+    "tar": ">=7.5.16",
+    "@babel/core": ">=7.29.6"
   },
   "ignoreScripts": [
     "sharp",
