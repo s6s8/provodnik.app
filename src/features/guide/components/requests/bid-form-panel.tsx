@@ -98,6 +98,10 @@ export function BidFormPanel({
   onSuccess,
 }: BidFormPanelProps) {
   const isEdit = !!editOffer;
+  const previouslyFocused = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+  }, []);
   const [open, setOpen] = React.useState(true);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
@@ -256,7 +260,13 @@ export function BidFormPanel({
     <Dialog open={open} onOpenChange={(o) => { if (!o) setOpen(false); }}>
       <DialogContent
         showCloseButton={false}
-        onCloseAutoFocus={() => onClose()}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          if (previouslyFocused.current?.isConnected) {
+            previouslyFocused.current.focus();
+          }
+          onClose();
+        }}
         className="flex h-full w-full max-w-[480px] translate-x-0 translate-y-0 flex-col gap-0 overflow-y-auto rounded-none bg-surface p-0 shadow-xl ring-0 top-0 bottom-0 left-auto right-0 sm:max-w-[480px] max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:h-[90dvh] max-md:max-w-full max-md:rounded-t-2xl data-open:zoom-in-100 data-closed:zoom-out-100"
       >
         <DialogTitle className="sr-only">Отправить предложение</DialogTitle>
