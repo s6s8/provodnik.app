@@ -1,0 +1,950 @@
+{
+ "interim": true,
+ "shots": [
+  {
+   "route": "/",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/ai",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/ai",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/ai",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/form",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/form",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/form",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth/forgot-password",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth/forgot-password",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth/forgot-password",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth/update-password",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth/update-password",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/auth/update-password",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guides",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guides",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guides",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guides/[slug]",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guides/[slug]",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guides/[slug]",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/listings",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/listings",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/listings",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/destinations",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/destinations",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/destinations",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/requests",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/requests",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/requests",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/requests/[requestId]",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/requests/[requestId]",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/requests/[requestId]",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/become-a-guide",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/become-a-guide",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/become-a-guide",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/for-business",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/for-business",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/for-business",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/help",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/help",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/help",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/how-it-works",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/how-it-works",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/how-it-works",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/trust",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/trust",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/trust",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/cookies",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/cookies",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/cookies",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/offer",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/offer",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/offer",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/privacy",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/privacy",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/privacy",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/terms",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/terms",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/policies/terms",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/not-found",
+   "vp": 375,
+   "status": 404,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/not-found",
+   "vp": 768,
+   "status": 404,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/not-found",
+   "vp": 1440,
+   "status": 404,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/dev/guide-templates-wireframe",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 1,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/dev/guide-templates-wireframe",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/dev/guide-templates-wireframe",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/dev/req-cards",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/dev/req-cards",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/dev/req-cards",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/account",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/account",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/account",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/account/notifications",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/favorites",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/favorites",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/favorites",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/notifications",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 58,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/notifications",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/notifications",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/referrals",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/referrals",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/referrals",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/trips",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/trips",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/trips",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/messages",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/messages",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/messages",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/bookings",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/bookings",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/bookings",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/bookings/[bookingId]",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/bookings/[bookingId]",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/bookings/[bookingId]",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/calendar",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/calendar",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/calendar",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/inbox",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/inbox",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/inbox",
+   "vp": 1440,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/listings",
+   "vp": 375,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  },
+  {
+   "route": "/guide/listings",
+   "vp": 768,
+   "status": 200,
+   "overflowPx": 0,
+   "consoleErrors": [
+    "<interim manifest — console errors land in final manifest at capture end>"
+   ]
+  }
+ ]
+}

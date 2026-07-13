@@ -1,0 +1,410 @@
+{
+  "phase": "admin-resume",
+  "shots": [
+    {
+      "route": "/account/notifications",
+      "url": "/account/notifications",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/account",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "traveler-retry"
+    },
+    {
+      "route": "/account/notifications",
+      "url": "/account/notifications",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/account",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "traveler-retry"
+    },
+    {
+      "route": "/account/notifications",
+      "url": "/account/notifications",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/account",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "traveler-retry"
+    },
+    {
+      "route": "/admin",
+      "url": "/admin",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/dashboard",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin",
+      "url": "/admin",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/dashboard",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin",
+      "url": "/admin",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/dashboard",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/audit",
+      "url": "/admin/audit",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/audit",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/audit",
+      "url": "/admin/audit",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/audit",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/audit",
+      "url": "/admin/audit",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/audit",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/bookings",
+      "url": "/admin/bookings",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/bookings",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/bookings",
+      "url": "/admin/bookings",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/bookings",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/bookings",
+      "url": "/admin/bookings",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/bookings",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/bookings/[id]",
+      "url": "/admin/bookings/cfd786bd-4c68-4246-b158-27016ed40bba",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/bookings/cfd786bd-4c68-4246-b158-27016ed40bba",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/bookings/[id]",
+      "url": "/admin/bookings/cfd786bd-4c68-4246-b158-27016ed40bba",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/bookings/cfd786bd-4c68-4246-b158-27016ed40bba",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/bookings/[id]",
+      "url": "/admin/bookings/cfd786bd-4c68-4246-b158-27016ed40bba",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/bookings/cfd786bd-4c68-4246-b158-27016ed40bba",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/dashboard",
+      "url": "/admin/dashboard",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/dashboard",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/dashboard",
+      "url": "/admin/dashboard",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/dashboard",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/dashboard",
+      "url": "/admin/dashboard",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/dashboard",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/disputes",
+      "url": "/admin/disputes",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/disputes",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/disputes",
+      "url": "/admin/disputes",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/disputes",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/disputes",
+      "url": "/admin/disputes",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/disputes",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/guides",
+      "url": "/admin/guides",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/guides",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/guides",
+      "url": "/admin/guides",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/guides",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/guides",
+      "url": "/admin/guides",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/guides",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/listings",
+      "url": "/admin/listings",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/moderation",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/listings",
+      "url": "/admin/listings",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/moderation",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/listings",
+      "url": "/admin/listings",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/moderation",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/moderation",
+      "url": "/admin/moderation",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/moderation",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/moderation",
+      "url": "/admin/moderation",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/moderation",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/moderation",
+      "url": "/admin/moderation",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/moderation",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/pipeline",
+      "url": "/admin/pipeline",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/pipeline",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/pipeline",
+      "url": "/admin/pipeline",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/pipeline",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/pipeline",
+      "url": "/admin/pipeline",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/pipeline",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/users",
+      "url": "/admin/users",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/users",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/users",
+      "url": "/admin/users",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/users",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/users",
+      "url": "/admin/users",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/users",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/users/[id]",
+      "url": "/admin/users/abce1e2b-2cce-4d3c-a792-2b0605ef0c24",
+      "vp": 375,
+      "status": 200,
+      "finalUrl": "/admin/users/abce1e2b-2cce-4d3c-a792-2b0605ef0c24",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/users/[id]",
+      "url": "/admin/users/abce1e2b-2cce-4d3c-a792-2b0605ef0c24",
+      "vp": 768,
+      "status": 200,
+      "finalUrl": "/admin/users/abce1e2b-2cce-4d3c-a792-2b0605ef0c24",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    },
+    {
+      "route": "/admin/users/[id]",
+      "url": "/admin/users/abce1e2b-2cce-4d3c-a792-2b0605ef0c24",
+      "vp": 1440,
+      "status": 200,
+      "finalUrl": "/admin/users/abce1e2b-2cce-4d3c-a792-2b0605ef0c24",
+      "overflowPx": 0,
+      "consoleErrors": [],
+      "tag": "admin"
+    }
+  ],
+  "errors": [],
+  "skipped": [
+    {
+      "route": "/admin/disputes/[caseId]",
+      "reason": "param not discoverable"
+    },
+    {
+      "route": "/admin/guides/[id]",
+      "reason": "param not discoverable"
+    }
+  ],
+  "params": {
+    "adminBookingId": "cfd786bd-4c68-4246-b158-27016ed40bba",
+    "adminUserId": "abce1e2b-2cce-4d3c-a792-2b0605ef0c24"
+  }
+}
