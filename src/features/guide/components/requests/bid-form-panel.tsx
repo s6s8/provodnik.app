@@ -8,6 +8,12 @@ import { z } from "zod";
 import { Lock, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
@@ -92,6 +98,11 @@ export function BidFormPanel({
   onSuccess,
 }: BidFormPanelProps) {
   const isEdit = !!editOffer;
+  const previouslyFocused = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    previouslyFocused.current = document.activeElement as HTMLElement | null;
+  }, []);
+  const [open, setOpen] = React.useState(true);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const submitInFlight = React.useRef(false);
@@ -246,19 +257,22 @@ export function BidFormPanel({
   );
 
   return (
-    <>
-      <div
-        className="fixed inset-0 z-[110] bg-foreground/40 backdrop-blur-[2px]"
-        onClick={onClose}
-        aria-hidden
-      />
-
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Отправить предложение"
-        className="fixed bottom-0 right-0 z-[120] flex h-full w-full max-w-[480px] flex-col overflow-y-auto bg-surface shadow-xl max-md:max-w-full max-md:h-[90dvh] max-md:rounded-t-2xl md:top-0 md:bottom-auto"
+    <Dialog open={open} onOpenChange={(o) => { if (!o) setOpen(false); }}>
+      <DialogContent
+        showCloseButton={false}
+        onCloseAutoFocus={(event) => {
+          event.preventDefault();
+          if (previouslyFocused.current?.isConnected) {
+            previouslyFocused.current.focus();
+          }
+          onClose();
+        }}
+        className="flex h-full w-full max-w-[480px] translate-x-0 translate-y-0 flex-col gap-0 overflow-y-auto rounded-none bg-surface p-0 shadow-xl ring-0 top-0 bottom-0 left-auto right-0 sm:max-w-[480px] max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:h-[90dvh] max-md:max-w-full max-md:rounded-t-2xl data-open:zoom-in-100 data-closed:zoom-out-100"
       >
+        <DialogTitle className="sr-only">Отправить предложение</DialogTitle>
+        <DialogDescription className="sr-only">
+          Форма отправки предложения гидом
+        </DialogDescription>
         <div className="flex items-center justify-between border-b border-border/60 px-6 py-4">
           <div>
             <h2 className="font-sans text-base font-semibold text-foreground">
@@ -270,7 +284,7 @@ export function BidFormPanel({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => setOpen(false)}
             aria-label="Закрыть панель"
             className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
@@ -640,7 +654,7 @@ export function BidFormPanel({
                   : "Отправить предложение"}
           </Button>
         </form>
-      </div>
-    </>
+      </DialogContent>
+    </Dialog>
   );
 }
