@@ -9,7 +9,6 @@ import { kopecksToRub, formatRubNumber } from "@/data/money";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
-import { COPY } from "@/lib/copy";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
@@ -215,7 +214,7 @@ export function GuideRequestsInboxScreen() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow={COPY.guide} title="Входящие запросы" />
+      <PageHeader eyebrow="Кабинет гида" title="Входящие запросы" />
       <Card className="border-border/70 bg-card/90">
         <CardContent className="space-y-4 pt-6">
           {isLoading ? (

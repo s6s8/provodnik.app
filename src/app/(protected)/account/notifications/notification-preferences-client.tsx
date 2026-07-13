@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { PageHeader } from "@/components/shared/page-header";
 import {
   NotificationPrefsMatrix,
   type NotificationPrefsMatrixProps,
@@ -58,22 +59,19 @@ export function NotificationPreferencesClient() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Настройки уведомлений
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Управляйте тем, какие уведомления и через какие каналы вы получаете.
-          </p>
-        </div>
-        <Link
-          href="/account"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          Личные настройки
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Кабинет"
+        title="Настройки уведомлений"
+        subtitle="Управляйте тем, какие уведомления и через какие каналы вы получаете."
+        actions={
+          <Link
+            href="/account"
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Личные настройки
+          </Link>
+        }
+      />
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Загрузка настроек…</p>

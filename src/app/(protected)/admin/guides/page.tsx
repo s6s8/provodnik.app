@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ListRow } from "@/components/shared/list-row";
+import { PageHeader } from "@/components/shared/page-header";
 import { formatRussianDateTime } from "@/lib/dates";
 import {
   ensureOpenModerationCase,
@@ -189,9 +190,8 @@ export default async function AdminGuidesPage({
   return (
     <div className="space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Проверка гидов
-        </h1>
+        <PageHeader eyebrow="Администрирование" title="Проверка гидов" />
+        {/* ponytail: subtitle stays a sibling <p> — it embeds an inline <Link>, and PageHeader's subtitle prop is a string. */}
         <p className="max-w-3xl text-sm text-muted-foreground">
           В основной очереди только анкеты со статусом «На проверке». Черновики
           и уже решённые заявки скрыты; для диагностики откройте «Черновики».

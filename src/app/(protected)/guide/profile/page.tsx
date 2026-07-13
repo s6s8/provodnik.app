@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/shared/page-header";
 import {
   Card,
   CardContent,
@@ -302,10 +303,11 @@ export default async function GuideProfilePage() {
   return (
     <div className="space-y-10">
       <header className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Профиль гида</h1>
-        <p className="text-sm text-muted-foreground">
-          Заполните разделы ниже — мы подскажем следующий шаг.
-        </p>
+        <PageHeader
+          eyebrow="Кабинет гида"
+          title="Профиль гида"
+          subtitle="Заполните разделы ниже — мы подскажем следующий шаг."
+        />
         {guideTypeLabel && (
           <p className="text-sm text-muted-foreground">
             Тип: <span className="font-medium text-foreground">{guideTypeLabel}</span>

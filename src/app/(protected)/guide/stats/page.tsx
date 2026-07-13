@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { PageHeader } from "@/components/shared/page-header";
 import { StatTile } from "@/components/shared/stat-tile";
-import { Badge } from "@/components/ui/badge";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -79,25 +79,21 @@ export default async function GuideStatsPage() {
     ];
   } catch {
     return (
-      <div className="space-y-4">
-        <Badge variant="outline">Кабинет гида</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Статистика</h1>
-        <p className="text-sm text-muted-foreground">
-          Раздел временно недоступен. Напишите в поддержку.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Кабинет гида"
+        title="Статистика"
+        subtitle="Раздел временно недоступен. Напишите в поддержку."
+      />
     );
   }
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2">
-        <Badge variant="outline">Кабинет гида</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">Статистика</h1>
-        <p className="text-sm text-muted-foreground">
-          Ключевые показатели по вашим экскурсиям, бронированиям и отзывам.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Кабинет гида"
+        title="Статистика"
+        subtitle="Ключевые показатели по вашим экскурсиям, бронированиям и отзывам."
+      />
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
           <StatTile

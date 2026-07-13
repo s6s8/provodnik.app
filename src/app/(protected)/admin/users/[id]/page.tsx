@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+import { PageHeader } from "@/components/shared/page-header";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { formatRussianDateTime } from "@/lib/dates";
 import { getAdminUserDetail } from "@/lib/supabase/admin-users";
@@ -92,21 +93,20 @@ export default async function AdminUserDetailPage({
         <ArrowLeft className="size-4" /> К списку пользователей
       </Link>
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
-            {detail.fullName?.trim() || "Без имени"}
-          </h1>
-          <p className="text-sm text-muted-foreground">{detail.email ?? detail.maskedEmail}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <RoleBadge role={detail.role} />
-          <AccountStatusBadge status={detail.accountStatus} />
-          {detail.isDemo ? (
-            <span className="text-xs text-muted-foreground">демо-аккаунт</span>
-          ) : null}
-        </div>
-      </div>
+      <PageHeader
+        eyebrow="Администрирование"
+        title={detail.fullName?.trim() || "Без имени"}
+        subtitle={detail.email ?? detail.maskedEmail}
+        actions={
+          <>
+            <RoleBadge role={detail.role} />
+            <AccountStatusBadge status={detail.accountStatus} />
+            {detail.isDemo ? (
+              <span className="text-xs text-muted-foreground">демо-аккаунт</span>
+            ) : null}
+          </>
+        }
+      />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="space-y-6">

@@ -753,10 +753,7 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
         </div>
 
         <div className="space-y-2">
-          <Badge variant="outline">Кабинет гида</Badge>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            {record.destination}
-          </h1>
+          <PageHeader eyebrow="Кабинет гида" title={record.destination} />
           <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="size-4 text-muted-foreground" />
