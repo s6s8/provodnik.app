@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListRow } from "@/components/shared/list-row";
+import { StatTile } from "@/components/shared/stat-tile";
 import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
 import { PageHeader } from "@/components/shared/page-header";
 import { getGuideBookings, type BookingRecord } from "@/data/supabase/queries";
@@ -177,36 +178,16 @@ export function GuideBookingsScreen() {
               </p>
             </CardHeader>
             <CardContent className="grid gap-3 sm:grid-cols-4">
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Все бронирования</p>
-                <p className="mt-1 text-base font-semibold text-foreground">
-                  {summary.totalCount}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Активные сейчас</p>
-                <p className="mt-1 text-base font-semibold text-foreground">
-                  {summary.activeCount}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Завершено</p>
-                <p className="mt-1 text-base font-semibold text-foreground">
-                  {summary.completedCount}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Отменено</p>
-                <p className="mt-1 text-base font-semibold text-foreground">
-                  {summary.cancelledCount}
-                </p>
-              </div>
-              <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                <p className="text-xs text-muted-foreground">Сумма по экскурсиям</p>
-                <p className="mt-1 text-base font-semibold text-foreground">
-                  {summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"}
-                </p>
-              </div>
+              <StatTile label="Все бронирования" value={summary.totalCount} />
+              <StatTile label="Активные сейчас" value={summary.activeCount} />
+              <StatTile label="Завершено" value={summary.completedCount} />
+              <StatTile label="Отменено" value={summary.cancelledCount} />
+              <StatTile
+                label="Сумма по экскурсиям"
+                value={
+                  summary.totalEarningsRub > 0 ? formatRub(summary.totalEarningsRub) : "—"
+                }
+              />
             </CardContent>
           </Card>
         </div>

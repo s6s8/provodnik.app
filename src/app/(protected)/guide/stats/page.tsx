@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
+import { StatTile } from "@/components/shared/stat-tile";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -100,15 +100,12 @@ export default async function GuideStatsPage() {
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label} size="sm">
-            <CardContent className="space-y-1">
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-              <p className="text-3xl font-semibold tracking-tight text-foreground">
-                {stat.value}
-              </p>
-              <p className="text-xs text-muted-foreground">{stat.helper}</p>
-            </CardContent>
-          </Card>
+          <StatTile
+            key={stat.label}
+            label={stat.label}
+            value={stat.value}
+            hint={stat.helper}
+          />
         ))}
       </div>
     </div>

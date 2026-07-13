@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { StatTile } from "@/components/shared/stat-tile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -262,27 +263,21 @@ export default async function GuideCalendarPage({
             <CardContent className="space-y-6">
               <DateRangePicker value={range} />
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  <p className="text-xs text-muted-foreground">Всего бронирований</p>
-                  <p className="mt-1 text-base font-semibold">{bookings.length}</p>
-                </div>
-                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  <p className="text-xs text-muted-foreground">Активных</p>
-                  <p className="mt-1 text-base font-semibold">{activeBookings.length}</p>
-                </div>
-                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  <p className="text-xs text-muted-foreground">Оборот (завершённые)</p>
-                  <p className="mt-1 text-base font-semibold">
-                    {totalRevenue > 0
+                <StatTile label="Всего бронирований" value={bookings.length} />
+                <StatTile label="Активных" value={activeBookings.length} />
+                <StatTile
+                  label="Оборот (завершённые)"
+                  value={
+                    totalRevenue > 0
                       ? new Intl.NumberFormat("ru-RU", {
                           style: "currency",
                           currency: "RUB",
                           currencyDisplay: "symbol",
                           maximumFractionDigits: 0,
                         }).format(totalRevenue)
-                      : "—"}
-                  </p>
-                </div>
+                      : "—"
+                  }
+                />
               </div>
               {chartData.length > 0 ? (
                 <StatsChart data={chartData} label="Бронирований в день" />
