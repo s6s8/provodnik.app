@@ -25,7 +25,7 @@ const STATUS_VARIANTS = {
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+      <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
         {label}
       </dt>
       <dd className="mt-1 text-sm text-foreground">{value}</dd>
@@ -83,7 +83,7 @@ export default async function AdminBookingDetailPage({
     : "—";
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Бронирование"
         title={`#${booking.id.slice(-8)}`}
@@ -101,7 +101,7 @@ export default async function AdminBookingDetailPage({
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.9fr)]">
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Детали</CardTitle>
+            <CardTitle>Детали</CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="grid gap-4 md:grid-cols-2">
@@ -142,17 +142,13 @@ export default async function AdminBookingDetailPage({
         </Card>
 
         {booking.status === "awaiting_guide_confirmation" ? (
-          <Card className="border-primary/40 shadow-md">
+          <Card className="border-primary/40 shadow-lift">
             <CardHeader>
-              <CardTitle className="text-lg">Действие</CardTitle>
+              <CardTitle>Действие</CardTitle>
             </CardHeader>
             <CardContent>
               <form action={confirmBookingAction.bind(null, booking.id)}>
-                <PendingSubmitButton
-                  size="default"
-                  className="min-h-[44px]"
-                  pendingLabel="Подтверждаем…"
-                >
+                <PendingSubmitButton size="default">
                   Подтвердить
                 </PendingSubmitButton>
               </form>

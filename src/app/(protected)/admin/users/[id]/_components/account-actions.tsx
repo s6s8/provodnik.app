@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -14,16 +15,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import {
   Select,
   SelectContent,
@@ -51,14 +45,14 @@ import {
 function ResultLine({ result }: { result: AdminActionResult | null }) {
   if (!result) return null;
   return (
-    <p
-      role="status"
-      className={`rounded-lg px-3 py-2 text-sm ${
-        result.ok ? "bg-green-tint text-success" : "bg-destructive/10 text-destructive"
-      }`}
+    <Alert
+      role={result.ok ? "status" : "alert"}
+      variant={result.ok ? "success" : "destructive"}
     >
-      {result.ok ? result.message : result.error}
-    </p>
+      <AlertDescription>
+        {result.ok ? result.message : result.error}
+      </AlertDescription>
+    </Alert>
   );
 }
 
@@ -96,25 +90,27 @@ function StatusActionDialog({
   useRefreshOnSuccess(state);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
         <Button variant={variant} size="sm">
           {label}
         </Button>
-      </DialogTrigger>
-      <DialogContent>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        {/* Submit stays a plain Button so native form validation on the reason runs
+            before the dialog closes — AlertDialogAction would close it regardless. */}
         <form action={action}>
           <input type="hidden" name="targetUserId" value={userId} />
           <input type="hidden" name="status" value={status} />
-          <DialogHeader>
-            <DialogTitle>{label}</DialogTitle>
-            <DialogDescription>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{label}</AlertDialogTitle>
+            <AlertDialogDescription>
               {requireReason
                 ? "Укажите причину — она попадёт в журнал аудита."
                 : "Подтвердите изменение статуса аккаунта."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-2 py-2">
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex flex-col gap-2 py-2">
             <Label htmlFor={`reason-${status}`}>
               Причина{requireReason ? " (обязательно)" : " (необязательно)"}
             </Label>
@@ -126,17 +122,15 @@ function StatusActionDialog({
             />
             <ResultLine result={state} />
           </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-              Отмена
-            </Button>
+          <AlertDialogFooter>
+            <AlertDialogCancel type="button">Отмена</AlertDialogCancel>
             <Button type="submit" variant={variant} disabled={pending} loading={pending}>
-              {pending ? "Сохраняем…" : "Подтвердить"}
+              Подтвердить
             </Button>
-          </DialogFooter>
+          </AlertDialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
@@ -197,14 +191,16 @@ export function RoleControls({
   useRefreshOnSuccess(state);
 
   return (
-    <form action={action} className="space-y-3">
+    <form action={action} className="flex flex-col gap-3">
       <input type="hidden" name="targetUserId" value={userId} />
       <input type="hidden" name="role" value={role} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Роль</Label>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="role-select" className="text-xs text-muted-foreground">
+            Роль
+          </Label>
           <Select value={role} onValueChange={(v) => setRole(v as AppRole)}>
-            <SelectTrigger className="w-56">
+            <SelectTrigger id="role-select" className="w-56">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -217,15 +213,20 @@ export function RoleControls({
           </Select>
         </div>
       </div>
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1">
         <Label htmlFor="role-reason" className="text-xs text-muted-foreground">
           Причина (обязательно)
         </Label>
         <Textarea id="role-reason" name="reason" required placeholder="Причина смены роли" />
       </div>
       <ResultLine result={state} />
-      <Button type="submit" disabled={pending || role === currentRole} loading={pending}>
-        {pending ? "Сохраняем…" : "Сменить роль"}
+      <Button
+        type="submit"
+        className="self-start"
+        disabled={pending || role === currentRole}
+        loading={pending}
+      >
+        Сменить роль
       </Button>
     </form>
   );
@@ -246,22 +247,37 @@ export function GuideVerificationControls({ guideId }: { guideId: string }) {
   useRefreshOnSuccess(rejectState);
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-wrap gap-2">
         <form action={approve}>
-          <Button type="submit" variant="default" size="sm" disabled={approvePending || rejectPending} loading={approvePending}>
-            {approvePending ? "Одобряем…" : "Одобрить анкету"}
+          <Button
+            type="submit"
+            variant="default"
+            size="sm"
+            disabled={approvePending || rejectPending}
+            loading={approvePending}
+          >
+            Одобрить анкету
           </Button>
         </form>
+
+        <Separator className="my-1" />
+
         <form action={reject} className="flex flex-1 flex-wrap items-end gap-2">
-          <div className="min-w-48 flex-1 space-y-1">
+          <div className="flex min-w-48 flex-1 flex-col gap-1">
             <Label htmlFor="reject-reason" className="text-xs text-muted-foreground">
               Причина отклонения (необязательно)
             </Label>
             <Textarea id="reject-reason" name="reason" rows={2} />
           </div>
-          <Button type="submit" variant="destructive" size="sm" disabled={approvePending || rejectPending} loading={rejectPending}>
-            {rejectPending ? "Отклоняем…" : "Отклонить"}
+          <Button
+            type="submit"
+            variant="destructive"
+            size="sm"
+            disabled={approvePending || rejectPending}
+            loading={rejectPending}
+          >
+            Отклонить
           </Button>
         </form>
       </div>
@@ -299,18 +315,18 @@ export function HardDeleteControl({ userId }: { userId: string }) {
               «{HARD_DELETE_CONFIRM_TEXT}» и укажите причину.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <div className="space-y-3 py-2">
-            <div className="space-y-1">
+          <div className="flex flex-col gap-3 py-2">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="confirmText">Подтверждение</Label>
-              <input
+              <Input
                 id="confirmText"
                 name="confirmText"
-                className="flex h-10 w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                required
                 placeholder={HARD_DELETE_CONFIRM_TEXT}
                 autoComplete="off"
               />
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <Label htmlFor="delete-reason">Причина (обязательно)</Label>
               <Textarea id="delete-reason" name="reason" required rows={2} />
             </div>
@@ -319,7 +335,7 @@ export function HardDeleteControl({ userId }: { userId: string }) {
           <AlertDialogFooter>
             <AlertDialogCancel type="button">Отмена</AlertDialogCancel>
             <Button type="submit" variant="destructive" disabled={pending} loading={pending}>
-              {pending ? "Удаляем…" : "Удалить навсегда"}
+              Удалить навсегда
             </Button>
           </AlertDialogFooter>
         </form>

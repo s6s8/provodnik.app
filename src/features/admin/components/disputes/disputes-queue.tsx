@@ -23,7 +23,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         eyebrow="Споры"
         title="Споры и возвраты"
@@ -33,7 +33,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
       <div className="grid gap-3 sm:grid-cols-4">
         {STATUS_ORDER.map((status) => (
           <Card key={status} size="sm">
-            <CardContent className="space-y-1">
+            <CardContent className="flex flex-col gap-1">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm text-muted-foreground">{DISPUTE_STATUS_META[status].label}</span>
                 {status === "open" && counts.open > 0 ? <Badge variant="warning">Ждёт</Badge> : null}
@@ -51,7 +51,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
           description="Новые обращения появятся здесь автоматически после открытия спора."
         />
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {disputes.map((item) => {
             const meta = DISPUTE_STATUS_META[item.status];
             const booking = item.booking;

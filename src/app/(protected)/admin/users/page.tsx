@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { adminUsersFilterSchema } from "@/data/admin-users";
 import { listAdminUsers } from "@/lib/supabase/admin-users";
 
@@ -44,7 +45,7 @@ export default async function AdminUsersPage({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         eyebrow="Администрирование"
         title="Пользователи"
@@ -52,18 +53,19 @@ export default async function AdminUsersPage({
       />
 
       {loadFailed || !page ? (
-        <div
+        <Alert
           role="alert"
-          className="rounded-card border border-destructive/30 bg-destructive/10 p-6 shadow-card"
+          variant="destructive"
+          className="border-destructive/30 p-6"
         >
-          <p className="text-sm font-semibold text-destructive">
+          <AlertTitle className="text-sm font-semibold">
             Список пользователей не загрузился
-          </p>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+          </AlertTitle>
+          <AlertDescription className="mt-2 max-w-2xl text-sm leading-6">
             Не удалось получить список аккаунтов. Обновите страницу; если проблема
             повторяется, проверьте доступ к базе данных.
-          </p>
-        </div>
+          </AlertDescription>
+        </Alert>
       ) : (
         <UsersConsole
           items={page.items}

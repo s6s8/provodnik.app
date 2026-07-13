@@ -1,11 +1,20 @@
 "use client";
 
-import { useActionState, useMemo, useState, useTransition } from "react";
+import { useActionState, useId, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, MoreHorizontal, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
+  MoreHorizontal,
+  Search,
+  SquareArrowOutUpRight,
+} from "lucide-react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -165,9 +174,9 @@ export function UsersConsole({
   }
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-5">
       {/* Filters */}
-      <div className="bg-surface-high rounded-card shadow-card space-y-4 p-4 sm:p-5">
+      <div className="bg-surface-high rounded-card shadow-card flex flex-col gap-4 p-4 sm:p-5">
         <form onSubmit={submitSearch} className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="relative flex-1">
             <Search className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
@@ -250,14 +259,9 @@ export function UsersConsole({
       ) : null}
 
       {bulkState ? (
-        <p
-          role="status"
-          className={`rounded-card px-4 py-2 text-sm ${
-            bulkState.ok ? "bg-green-tint text-success" : "bg-muted text-muted-foreground"
-          }`}
-        >
-          {bulkState.message}
-        </p>
+        <Alert variant={bulkState.ok ? "success" : "default"}>
+          <AlertDescription>{bulkState.message}</AlertDescription>
+        </Alert>
       ) : null}
 
       {/* Table */}
@@ -271,11 +275,9 @@ export function UsersConsole({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
-                  <input
-                    type="checkbox"
-                    className="size-4 cursor-pointer rounded border-border accent-brand"
+                  <Checkbox
                     checked={allOnPageSelected}
-                    onChange={toggleAll}
+                    onCheckedChange={toggleAll}
                     aria-label="Выбрать всех на странице"
                   />
                 </TableHead>
@@ -284,18 +286,16 @@ export function UsersConsole({
                 <TableHead>Статус</TableHead>
                 <TableHead className="hidden lg:table-cell">Гид</TableHead>
                 <TableHead className="hidden xl:table-cell">Создан</TableHead>
-                <TableHead className="hidden text-right sm:table-cell">Действия</TableHead>
+                <TableHead className="text-right">Действия</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {items.map((user) => (
                 <TableRow key={user.id} data-state={selected.has(user.id) ? "selected" : undefined}>
                   <TableCell>
-                    <input
-                      type="checkbox"
-                      className="size-4 cursor-pointer rounded border-border accent-brand"
+                    <Checkbox
                       checked={selected.has(user.id)}
-                      onChange={() => toggleOne(user.id)}
+                      onCheckedChange={() => toggleOne(user.id)}
                       aria-label={`Выбрать ${user.fullName ?? user.maskedEmail}`}
                     />
                   </TableCell>
@@ -311,7 +311,7 @@ export function UsersConsole({
                       <span className="mt-1 flex gap-1.5 sm:hidden">
                         <RoleBadge role={user.role} />
                         {user.isDemo ? (
-                          <span className="text-[0.7rem] text-muted-foreground">демо</span>
+                          <span className="text-xs text-muted-foreground">демо</span>
                         ) : null}
                       </span>
                     </div>
@@ -320,7 +320,7 @@ export function UsersConsole({
                     <div className="flex flex-col gap-1">
                       <RoleBadge role={user.role} />
                       {user.isDemo ? (
-                        <span className="text-[0.7rem] text-muted-foreground">демо-аккаунт</span>
+                        <span className="text-xs text-muted-foreground">демо-аккаунт</span>
                       ) : null}
                     </div>
                   </TableCell>
@@ -342,21 +342,32 @@ export function UsersConsole({
                       {formatRussianDateTime(user.createdAt)}
                     </span>
                   </TableCell>
-                  <TableCell className="hidden text-right sm:table-cell">
+                  {/* Icon-only so the actions column survives narrow viewports instead of being hidden. */}
+                  <TableCell className="text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <Button asChild size="sm" variant="outline">
-                        <Link href={`/admin/users/${user.id}`}>Открыть</Link>
+                      <Button asChild size="icon-sm" variant="outline">
+                        <Link
+                          href={`/admin/users/${user.id}`}
+                          aria-label={`Открыть карточку: ${user.fullName ?? user.maskedEmail}`}
+                        >
+                          <SquareArrowOutUpRight />
+                        </Link>
                       </Button>
                       {user.guide && user.guide.verificationStatus === "submitted" ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="icon" aria-label="Быстрые действия">
+                            <Button
+                              variant="outline"
+                              size="icon-sm"
+                              aria-label="Быстрые действия"
+                            >
                               <MoreHorizontal />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
                               disabled={rowPending}
+                              aria-busy={rowPending || undefined}
                               onSelect={() =>
                                 startRow(async () => {
                                   await approveGuideAction(user.id, null);
@@ -364,7 +375,10 @@ export function UsersConsole({
                                 })
                               }
                             >
-                              {rowPending ? "Одобряем…" : "Одобрить гида"}
+                              {rowPending ? (
+                                <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                              ) : null}
+                              Одобрить гида
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -423,7 +437,7 @@ export function UsersConsole({
               </DialogDescription>
             </DialogHeader>
             {pendingBulk && BULK_NEEDS_REASON[pendingBulk] ? (
-              <div className="space-y-2 py-2">
+              <div className="flex flex-col gap-2 py-2">
                 <Label htmlFor="bulk-reason">Причина (обязательно)</Label>
                 <Textarea
                   id="bulk-reason"
@@ -451,7 +465,7 @@ export function UsersConsole({
                 disabled={bulkPending}
                 loading={bulkPending}
               >
-                {bulkPending ? "Применяем…" : "Подтвердить"}
+                Подтвердить
               </Button>
             </DialogFooter>
           </form>
@@ -472,11 +486,14 @@ function FilterSelect({
   onChange: (value: string) => void;
   options: { value: string; label: string }[];
 }) {
+  const triggerId = useId();
   return (
-    <div className="space-y-1">
-      <Label className="text-xs text-muted-foreground">{label}</Label>
+    <div className="flex flex-col gap-1">
+      <Label htmlFor={triggerId} className="text-xs text-muted-foreground">
+        {label}
+      </Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger id={triggerId} className="w-full">
           <SelectValue placeholder="Все" />
         </SelectTrigger>
         <SelectContent>

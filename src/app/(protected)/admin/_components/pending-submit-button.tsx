@@ -2,20 +2,18 @@
 
 import * as React from "react";
 import { useFormStatus } from "react-dom";
+import { Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type PendingSubmitButtonProps = React.ComponentProps<typeof Button> & {
-  pendingLabel: React.ReactNode;
-};
-
+// T-20: the label stays constant while the form is pending — the spinner and
+// aria-busy carry the state, so the accessible name never changes mid-submit.
 export function PendingSubmitButton({
   children,
   disabled,
-  pendingLabel,
   ...props
-}: PendingSubmitButtonProps) {
+}: React.ComponentProps<typeof Button>) {
   const { pending } = useFormStatus();
 
   return (
@@ -24,9 +22,8 @@ export function PendingSubmitButton({
       type="submit"
       disabled={disabled || pending}
       loading={pending}
-      aria-live="polite"
     >
-      {pending ? pendingLabel : children}
+      {children}
     </Button>
   );
 }
@@ -34,11 +31,9 @@ export function PendingSubmitButton({
 export function PendingMenuSubmitButton({
   children,
   className,
-  pendingLabel,
 }: {
   children: React.ReactNode;
   className?: string;
-  pendingLabel: React.ReactNode;
 }) {
   const { pending } = useFormStatus();
 
@@ -47,10 +42,15 @@ export function PendingMenuSubmitButton({
       type="submit"
       disabled={pending}
       aria-busy={pending || undefined}
-      aria-live="polite"
-      className={cn("w-full cursor-pointer disabled:cursor-wait disabled:opacity-60", className)}
+      className={cn(
+        "flex w-full cursor-pointer items-center gap-2 disabled:cursor-wait disabled:opacity-60",
+        className,
+      )}
     >
-      {pending ? pendingLabel : children}
+      {pending ? (
+        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+      ) : null}
+      {children}
     </button>
   );
 }

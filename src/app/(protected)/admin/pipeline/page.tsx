@@ -149,7 +149,7 @@ export default async function AdminPipelinePage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Администрирование"
         title="Заявки и предложения"
@@ -186,7 +186,7 @@ export default async function AdminPipelinePage({
               description="Запросы путешественников появятся здесь по мере поступления."
             />
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {requestRows.map((row) => (
                 <ListRow
                   key={row.id}
@@ -237,7 +237,7 @@ export default async function AdminPipelinePage({
               description="Предложения гидов, ожидающие ответа путешественника, появятся здесь."
             />
           ) : (
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {offerRows.map((row) => (
                 <ListRow
                   key={row.id}

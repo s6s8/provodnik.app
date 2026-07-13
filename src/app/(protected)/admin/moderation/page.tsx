@@ -33,14 +33,14 @@ export default async function ModerationQueuePage() {
   const replyRows = replies ?? [];
 
   return (
-    <div className="container mx-auto py-8">
+    <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Администрирование"
         title="Очередь модерации"
         subtitle="Контент, ожидающий проверки перед публикацией: объявления гидов и ответы на отзывы."
       />
 
-      <Tabs defaultValue="listings" className="mt-8">
+      <Tabs defaultValue="listings">
         <TabsList>
           <TabsTrigger value="listings">
             Объявления

@@ -5,6 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 import { PageHeader } from "@/components/shared/page-header";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { cn } from "@/lib/utils";
 import { formatRussianDateTime } from "@/lib/dates";
 import { getAdminUserDetail } from "@/lib/supabase/admin-users";
 import {
@@ -42,15 +43,22 @@ function auditLabel(action: string) {
 function Section({
   title,
   description,
+  className,
   children,
 }: {
   title: string;
   description?: string;
+  className?: string;
   children: React.ReactNode;
 }) {
   return (
-    <section className="bg-surface-high rounded-card shadow-card space-y-4 p-5 sm:p-6">
-      <div className="space-y-1">
+    <section
+      className={cn(
+        "bg-surface-high rounded-card shadow-card flex flex-col gap-4 p-5 sm:p-6",
+        className,
+      )}
+    >
+      <div className="flex flex-col gap-1">
         <h2 className="text-lg font-semibold text-foreground">{title}</h2>
         {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
       </div>
@@ -85,7 +93,7 @@ export default async function AdminUserDetailPage({
   const canDelete = detail.isDemo && detail.role !== "admin" && !isSelf;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Link
         href="/admin/users"
         className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
@@ -109,7 +117,7 @@ export default async function AdminUserDetailPage({
       />
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <Section title="Аккаунт">
             <div className="divide-y divide-border/60">
               <InfoRow label="Роль" value={ROLE_LABELS[detail.role]} />
@@ -178,11 +186,11 @@ export default async function AdminUserDetailPage({
             {detail.audit.length === 0 ? (
               <p className="text-sm text-muted-foreground">Действий пока нет.</p>
             ) : (
-              <ol className="space-y-3">
+              <ol className="flex flex-col gap-3">
                 {detail.audit.map((entry) => (
                   <li key={entry.id} className="flex gap-3">
                     <span className="mt-1.5 size-2 shrink-0 rounded-full bg-brand" aria-hidden />
-                    <div className="min-w-0 space-y-0.5">
+                    <div className="flex min-w-0 flex-col gap-0.5">
                       <p className="text-sm font-medium text-foreground">
                         {auditLabel(entry.action)}
                       </p>
@@ -203,7 +211,7 @@ export default async function AdminUserDetailPage({
           </Section>
         </div>
 
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <Section
             title="Статус аккаунта"
             description="Блокировка и архивация не удаляют данные — пользователь просто теряет доступ к действиям."
@@ -241,6 +249,7 @@ export default async function AdminUserDetailPage({
             <Section
               title="Опасная зона"
               description="Безвозвратное удаление доступно только для демо-аккаунтов."
+              className="border border-destructive/30"
             >
               <HardDeleteControl userId={detail.id} />
             </Section>

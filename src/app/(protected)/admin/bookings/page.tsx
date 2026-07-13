@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -85,32 +86,27 @@ export default async function BookingsPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader eyebrow="Администрирование" title="Бронирования" />
 
-      <form method="get" className="flex flex-wrap items-center gap-3">
-        <Select name="status" defaultValue={activeStatus}>
-          <SelectTrigger
-            className="min-h-[44px] w-full sm:w-64"
-            aria-label="Фильтр по статусу"
-          >
-            <SelectValue placeholder="Все статусы" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL_STATUSES}>Все</SelectItem>
-            {Object.entries(STATUS_LABELS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Button
-          type="submit"
-          variant="outline"
-          size="default"
-          className="min-h-[44px]"
-        >
+      <form method="get" className="flex flex-wrap items-end gap-3">
+        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+          <Label htmlFor="bookings-status">Статус</Label>
+          <Select name="status" defaultValue={activeStatus}>
+            <SelectTrigger id="bookings-status" className="h-11 w-full">
+              <SelectValue placeholder="Все статусы" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL_STATUSES}>Все</SelectItem>
+              {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <Button type="submit" variant="outline" size="default">
           Применить
         </Button>
       </form>
@@ -121,7 +117,7 @@ export default async function BookingsPage({
           description="Новые бронирования появятся здесь после оформления."
         />
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {bookingRows.map((booking) => {
             const priceText = booking.subtotal_minor
               ? new Intl.NumberFormat("ru-RU", {
@@ -169,11 +165,7 @@ export default async function BookingsPage({
                 actions={
                   booking.status === "awaiting_guide_confirmation" ? (
                     <form action={confirmPaymentAction.bind(null, booking.id)}>
-                      <PendingSubmitButton
-                        size="default"
-                        className="min-h-[44px]"
-                        pendingLabel="Подтверждаем…"
-                      >
+                      <PendingSubmitButton size="default">
                         Подтвердить
                       </PendingSubmitButton>
                     </form>

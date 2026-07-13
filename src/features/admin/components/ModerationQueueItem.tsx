@@ -5,24 +5,30 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { MoreVertical } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ListRow } from "@/components/shared/list-row";
+import { cn } from "@/lib/utils";
 import {
   approveListing,
   rejectListing,
@@ -59,7 +65,7 @@ export function ModerationQueueList({
 }) {
   const router = useRouter();
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {listings.map((listing) => (
         <ModerationQueueItem
           key={listing.id}
@@ -114,7 +120,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="flex flex-col gap-1.5">
       <ListRow
         title={listing.title}
         subtitle={subtitle}
@@ -132,6 +138,7 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
               type="button"
               size="sm"
               variant="success"
+              loading={busy}
               disabled={busy}
               onClick={() => void handleApprove()}
             >
@@ -169,10 +176,12 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
       />
 
       {error && !rejectOpen ? (
-        <p className="px-1 text-sm text-destructive">{error}</p>
+        <Alert role="alert" variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <Dialog
+      <AlertDialog
         open={rejectOpen}
         onOpenChange={(open) => {
           setRejectOpen(open);
@@ -182,62 +191,75 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
           }
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Отклонить объявление</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Отклонить объявление</AlertDialogTitle>
+            <AlertDialogDescription>
               Укажите причину отклонения — выберите готовую или впишите свою.
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
           {maskedDescription ? (
             <p className="line-clamp-3 text-sm text-muted-foreground">{maskedDescription}</p>
           ) : null}
 
-          <div className="flex flex-wrap gap-2">
+          <ToggleGroup
+            type="single"
+            variant="outline"
+            size="sm"
+            value={reason}
+            onValueChange={(value) => {
+              if (value) setReason(value);
+            }}
+            aria-label="Готовые причины отклонения"
+            className="flex-wrap"
+          >
             {CANNED_REJECTION_REASONS.map((label) => (
-              <Button
+              <ToggleGroupItem
                 key={label}
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setReason(label)}
+                value={label}
+                className="data-[state=on]:border-primary data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
               >
                 {label}
-              </Button>
+              </ToggleGroupItem>
             ))}
+          </ToggleGroup>
+
+          <div className="flex flex-col gap-2">
+            <Label htmlFor={`reject-reason-${listing.id}`}>
+              Причина отклонения
+            </Label>
+            <Textarea
+              id={`reject-reason-${listing.id}`}
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Текст причины…"
+              rows={4}
+            />
           </div>
 
-          <Textarea
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            placeholder="Текст причины…"
-            aria-label="Причина отклонения"
-            rows={4}
-          />
+          {error ? (
+            <Alert role="alert" variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
 
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
-
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
               disabled={busy}
-              onClick={() => setRejectOpen(false)}
-            >
-              Отмена
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={busy}
-              onClick={() => void handleConfirmReject()}
+              className={cn(buttonVariants({ variant: "destructive" }))}
+              onClick={(event) => {
+                // Validation may keep the dialog open — Radix would close it by default.
+                event.preventDefault();
+                void handleConfirmReject();
+              }}
             >
               Подтвердить отклонение
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
