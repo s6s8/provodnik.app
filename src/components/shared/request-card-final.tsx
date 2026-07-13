@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Calendar, Check, Clock, Hand, Users } from "lucide-react";
 
 import { getTheme, type ThemeSlug } from "@/data/themes";
+import { pluralize } from "@/lib/utils";
 
 export type RequestCardFinalGroupType = "private" | "assembly";
 export type RequestCardFinalGuideState = "waiting" | "offers" | "found" | "expired";
@@ -64,12 +65,7 @@ function getThemeData(interests: readonly string[] | undefined): { slugs: ThemeS
 }
 
 function pluralOffers(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod100 >= 11 && mod100 <= 14) return `${n} откликов`;
-  if (mod10 === 1) return `${n} отклик`;
-  if (mod10 >= 2 && mod10 <= 4) return `${n} отклика`;
-  return `${n} откликов`;
+  return `${n} ${pluralize(n, "отклик", "отклика", "откликов")}`;
 }
 
 function GuideStatusBadge({ guideState, offerCount }: { guideState: RequestCardFinalGuideState; offerCount?: number }) {

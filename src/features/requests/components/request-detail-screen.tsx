@@ -857,12 +857,8 @@ function OwnerDetailBranch({
 
 function formatViewsLabel(count: number): string {
   if (count <= 0) return "Вы первый, кто открыл этот запрос";
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  let noun = "гидов";
-  if (mod10 === 1 && mod100 !== 11) noun = "гид";
-  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) noun = "гида";
-  const verb = noun === "гид" ? "посмотрел" : "посмотрели";
+  const noun = pluralize(count, "гид", "гида", "гидов");
+  const verb = pluralize(count, "посмотрел", "посмотрели", "посмотрели");
   return `${count} ${noun} ${verb} этот запрос`;
 }
 
@@ -873,12 +869,13 @@ function formatCompetingOffersLabel(count: number, hasOwnOffer: boolean): string
       ? "Вы пока единственный гид"
       : "Пока ни одного предложения";
   }
-  const mod10 = others % 10;
-  const mod100 = others % 100;
-  let noun = "гидов";
-  if (mod10 === 1 && mod100 !== 11) noun = "гид";
-  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) noun = "гида";
-  const verb = noun === "гид" ? "уже отправил предложение" : "уже отправили предложения";
+  const noun = pluralize(others, "гид", "гида", "гидов");
+  const verb = pluralize(
+    others,
+    "уже отправил предложение",
+    "уже отправили предложения",
+    "уже отправили предложения",
+  );
   return `${others} ${noun} ${verb}`;
 }
 
