@@ -35,3 +35,9 @@ Plan T-08 says: port `size="compact"` into `ui/avatar-stack`, migrate `shared/av
 
 ## D-05 — StickyActionBar safe-area padding
 Plan writes `pb-[max(theme(spacing.3.5),env(safe-area-inset-bottom))]`. `theme()` is Tailwind v3 syntax; this repo is v4 (CSS-first). Used `pb-[max(0.875rem,env(safe-area-inset-bottom))]` — same computed value (14px floor), valid in v4. The existing test that pinned the bare `env()` string was updated to assert both halves of the new guarantee, not deleted.
+
+## D-06 — T-20 (loading & pending normalization) is dissolved into its owner tasks
+**Problem**: T-20's file list is almost entirely files owned by other tasks — chat-window/chat-input (T-30), BookingFormTabs/dispute-form/review screen (T-31), ModerationQueueItem/pending-submit-button (T-34), notification-preferences-client (T-35), guide inbox/excursions (T-28). Running it as its own agent would collide with all of them in the same worktree (see F-01/F-03 for what collisions cost).
+**Ruling (unanimous)**: T-20 stops being a separate task and becomes a REQUIREMENT carried by each owner task: "every submit uses <Button loading>, never a text-swap to '...'; every loading state uses Skeleton/ListRowSkeleton with aria-busy, never bare text". Its two unique files (guide inbox + excursions skeletons) go to T-28.
+**Proof unchanged**: T-20's own acceptance greps (no "..." button labels; skeletons on first paint) are checked GLOBALLY at T-41, so nothing is lost — the gate still has to pass, it is just enforced per-file by the owner.
+**Status**: T-20 = done-by-delegation; it is NOT a separate commit. If the T-41 gate finds a straggler, that becomes its own micro-commit.
