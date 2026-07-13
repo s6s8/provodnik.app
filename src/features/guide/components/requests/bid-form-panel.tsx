@@ -98,6 +98,7 @@ export function BidFormPanel({
   onSuccess,
 }: BidFormPanelProps) {
   const isEdit = !!editOffer;
+  const [open, setOpen] = React.useState(true);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [submitted, setSubmitted] = React.useState(false);
   const submitInFlight = React.useRef(false);
@@ -252,9 +253,10 @@ export function BidFormPanel({
   );
 
   return (
-    <Dialog open onOpenChange={(o) => { if (!o) onClose(); }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) setOpen(false); }}>
       <DialogContent
         showCloseButton={false}
+        onCloseAutoFocus={() => onClose()}
         className="flex h-full w-full max-w-[480px] translate-x-0 translate-y-0 flex-col gap-0 overflow-y-auto rounded-none bg-surface p-0 shadow-xl ring-0 top-0 bottom-0 left-auto right-0 sm:max-w-[480px] max-md:top-auto max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:h-[90dvh] max-md:max-w-full max-md:rounded-t-2xl data-open:zoom-in-100 data-closed:zoom-out-100"
       >
         <DialogTitle className="sr-only">Отправить предложение</DialogTitle>
@@ -272,7 +274,7 @@ export function BidFormPanel({
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => setOpen(false)}
             aria-label="Закрыть панель"
             className="flex size-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
