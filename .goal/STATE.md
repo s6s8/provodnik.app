@@ -39,32 +39,32 @@ Status: todo / doing / done(<sha>) / blocked(<condition>). Exact touches + steps
 
 | ID | NS intent | class | proof | deps | status |
 |---|---|---|---|---|---|
-| T-01 | AA tokens | git | contrast script exit 0 | — | todo |
-| T-02 | Badge tokens | git | grep text-[0.7rem]=0 | T-01 | todo |
-| T-03 | Button success | git | grep success:=1; typecheck | T-01 | todo |
-| T-04 | form atoms (CLI) | git | 3 files exist; typecheck | — | todo |
-| T-05 | ListRow overflow/nesting | git | grep rounded-[12px]=0; no form-in-a | — | todo |
-| T-06 | StickyActionBar | git | grep rgba/text-[1x]/env(safe = 0 | — | todo |
-| T-07 | delete dead + Scrim | git | grep hero-overlay=0; tests pass | — | todo |
-| T-08 | dedupe EmptyState/AvatarStack | git | grep dup imports = 0 | — | todo |
-| T-09 | footer contrast | git | grep /35|/45 = 0 | — | todo |
-| T-10 | header mobile | git | 375 pill contains controls; aria-labels | — | todo |
-| T-11 | focus recipe gaps | git | grep focus-visible:ring-3 ≥1 each | T-01 | todo |
-| T-12 | param badges tokened | git | grep sky-|rose-|purple-|emerald- = 0 | T-01,02 | todo |
-| T-13 | OpenGroupCard | git | grep cn( ≥1; ≤2 pills | T-02 | todo |
-| T-14 | PublicGuideCard | git | grep [Npx]/rgba = 0 | T-01,02 | todo |
-| T-15 | StepCard everywhere | git | grep StepCard ≥3 in request-detail | — | todo |
-| T-16 | StatTile | git | grep 'bg-background/60 p-3' = 0 | — | todo |
+| T-01 | AA tokens | git | contrast script exit 0 | — | done(0176d3c2) |
+| T-02 | Badge tokens | git | grep text-[0.7rem]=0 | T-01 | done(5dc65451) |
+| T-03 | Button success | git | grep success:=1; typecheck | T-01 | done(5dc65451) |
+| T-04 | form atoms (CLI) | git | 3 files exist; typecheck | — | done(bd08f2a9) |
+| T-05 | ListRow overflow/nesting | git | grep rounded-[12px]=0; no form-in-a | — | done(18d0683f) |
+| T-06 | StickyActionBar | git | grep rgba/text-[1x]/env(safe = 0 | — | done(18d0683f) |
+| T-07 | delete dead + Scrim | git | grep hero-overlay=0; tests pass | — | done(85055423) |
+| T-08 | dedupe EmptyState/AvatarStack | git | grep dup imports = 0 | — | done(ee1a407f) |
+| T-09 | footer contrast | git | grep /35|/45 = 0 | — | done(ee1a407f) |
+| T-10 | header mobile | git | 375 pill contains controls; aria-labels | — | done(da14a317) |
+| T-11 | focus recipe gaps | git | grep focus-visible:ring-3 ≥1 each | T-01 | done(da14a317) |
+| T-12 | param badges tokened | git | grep sky-|rose-|purple-|emerald- = 0 | T-01,02 | done(dde3aeb3) |
+| T-13 | OpenGroupCard | git | grep cn( ≥1; ≤2 pills | T-02 | done(183e687d) |
+| T-14 | PublicGuideCard | git | grep [Npx]/rgba = 0 | T-01,02 | done(b143db59) |
+| T-15 | StepCard everywhere | git | grep StepCard ≥3 in request-detail | — | done(dd7f9222) |
+| T-16 | StatTile | git | grep 'bg-background/60 p-3' = 0 | — | done(3bd2a5c2) |
 | T-17 | GlassCard adoption | git | grep backdrop-blur-[20px] = 0 | — | todo |
 | T-18 | PageHeader sweep | git | grep raw h1 = 0 | — | todo |
 | T-19 | segmented controls | git | grep grid-cols-3 = 0 in trips | T-04 | todo |
 | T-20 | loading/pending | git | no "..." button labels | — | todo |
 | T-21 | EmptyState adoption | git | listed screens use EmptyState | T-08 | todo |
-| T-22 | discovery chips | git | h-11 + overflow container | T-11 | todo |
-| T-23 | guide bottom-nav | git | shortLabel present; text-xs | — | todo |
+| T-22 | discovery chips | git | h-11 + overflow container | T-11 | done(19cc3867) |
+| T-23 | guide bottom-nav | git | shortLabel present; text-xs | — | done(19cc3867) |
 | T-24 | admin shell | git | grep rounded-[1 = 0; md:block | — | todo |
-| T-25 | status semantics | git | one DISPUTE_STATUS_META | T-02,03 | todo |
-| T-26 | auth flow | git | one h1; no Provodnik; Alert atoms | T-01 | todo |
+| T-25 | status semantics | git | one DISPUTE_STATUS_META | T-02,03 | done(3edcf033) |
+| T-26 | auth flow | git | one h1; no Provodnik; Alert atoms | T-01 | done(96565bcc) |
 | T-27 | request detail | git | grep [Npx] = 0 in 2 files | T-15 | todo |
 | T-28 | guide forms | git | grep FIELD_CLASS = 0 | T-04,20 | todo |
 | T-29 | booking detail | git | grep 0.6875rem/min-h-[44px]/space-y = 0 | T-18 | todo |

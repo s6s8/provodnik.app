@@ -36,3 +36,9 @@ Trap: any `qa-` guide slug 404s by design (slug guard).
 - The pre-commit hook runs typecheck + lint-ratchet + the FULL vitest suite (~40s). So every commit is already gated — no need to run the chain manually before committing, only the task's own grep proof.
 - The lint ratchet compares against a baseline (0 errors / 21 warnings). New warnings fail the commit; the 21 existing ones are fine.
 - Subagents are reliable for single-file/short-file-list mechanical edits with an exact grep gate; give them the gate command and require literal output.
+
+## v3 (after F-02, F-03)
+- **`git reset` before every `git add`.** A hook-rejected commit leaves the index populated; the next `git add` inherits it and silently widens the commit. Verify with `git diff --cached --name-only` before committing. (F-03)
+- **One concern per commit, including copy.** Renaming brand copy inside a structural task broke a test that pinned the string. Leave out-of-scope fixes to the task that owns them. (F-02)
+- The pre-commit hook typechecks + tests the WHOLE repo, so a commit is blocked by any other agent's in-flight file. When running agents in parallel, wait for the suite to go green (`until bun run test:run; do sleep 30; done`) before committing anything.
+- Parallel agents in one worktree works well (5 ran at once) IF: disjoint file lists, no git writes by agents, and the integrator stages by explicit path.
