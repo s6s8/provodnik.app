@@ -43,7 +43,7 @@ export function ListHero({
           {title}
         </h1>
         {intro ? (
-          <p className="max-w-[560px] text-[15.5px] leading-[1.5] text-white/90">{intro}</p>
+          <p className="max-w-[560px] text-base leading-[1.5] text-white/90">{intro}</p>
         ) : null}
         {children ? <div className="w-full max-w-[680px]">{children}</div> : null}
       </div>

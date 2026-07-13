@@ -23,14 +23,14 @@ export function TariffsList({
 }) {
   if (tariffs.length === 0) {
     return (
-      <section className="space-y-2">
+      <section className="flex flex-col gap-2">
         <p className="text-2xl font-semibold">от {formatRub(priceFromMinor)} ₽</p>
       </section>
     );
   }
 
   return (
-    <section className="space-y-2">
+    <section className="flex flex-col gap-2">
       <h2 className="text-lg font-semibold tracking-tight">Тарифы</h2>
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">

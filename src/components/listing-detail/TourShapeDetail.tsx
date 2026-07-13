@@ -136,7 +136,7 @@ export function TourShapeDetail({
       </div>
 
       <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <div className="min-w-0 space-y-8">
+        <div className="min-w-0 flex flex-col gap-8">
           <Tabs defaultValue="description">
             <TabsList className="w-full">
               <TabsTrigger value="description" className="flex-1">Описание</TabsTrigger>
@@ -145,9 +145,9 @@ export function TourShapeDetail({
             </TabsList>
 
             {/* ─── Описание ─────────────────────────────────────────── */}
-            <TabsContent value="description" className="mt-6 space-y-6">
+            <TabsContent value="description" className="mt-6 flex flex-col gap-6">
               {description ? (
-                <section className="space-y-2">
+                <section className="flex flex-col gap-2">
                   <h2 className="text-lg font-semibold tracking-tight">Описание</h2>
                   <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">
                     {description}
@@ -156,7 +156,7 @@ export function TourShapeDetail({
               ) : null}
 
               {listing.included.length > 0 ? (
-                <section className="space-y-2">
+                <section className="flex flex-col gap-2">
                   <h2 className="text-lg font-semibold tracking-tight">Включено</h2>
                   <div className="flex flex-wrap gap-2">
                     {listing.included.map((item) => (
@@ -169,7 +169,7 @@ export function TourShapeDetail({
               ) : null}
 
               {listing.not_included.length > 0 ? (
-                <section className="space-y-2">
+                <section className="flex flex-col gap-2">
                   <h2 className="text-lg font-semibold tracking-tight">Не включено</h2>
                   <div className="flex flex-wrap gap-2">
                     {listing.not_included.map((item) => (
@@ -183,7 +183,7 @@ export function TourShapeDetail({
 
               {listing.accommodation &&
               Object.keys(listing.accommodation).length > 0 ? (
-                <section className="space-y-2">
+                <section className="flex flex-col gap-2">
                   <h2 className="text-lg font-semibold tracking-tight">Проживание</h2>
                   <p className="text-sm text-muted-foreground">
                     {JSON.stringify(listing.accommodation)}
@@ -195,11 +195,11 @@ export function TourShapeDetail({
             </TabsContent>
 
             {/* ─── Программа ────────────────────────────────────────── */}
-            <TabsContent value="program" className="mt-6 space-y-6">
+            <TabsContent value="program" className="mt-6 flex flex-col gap-6">
               <TourItineraryDisplay days={days} />
 
               {mealDays.length > 0 ? (
-                <section className="space-y-3">
+                <section className="flex flex-col gap-3">
                   <h2 className="text-lg font-semibold tracking-tight">Питание</h2>
                   <div className="overflow-x-auto rounded-lg border border-border">
                     <table className="w-full text-sm">
@@ -239,7 +239,7 @@ export function TourShapeDetail({
             </TabsContent>
 
             {/* ─── Даты и цены ──────────────────────────────────────── */}
-            <TabsContent value="dates" className="mt-6 space-y-6">
+            <TabsContent value="dates" className="mt-6 flex flex-col gap-6">
               <TourDeparturesList departures={departures} />
               <TariffsList
                 tariffs={tariffs}

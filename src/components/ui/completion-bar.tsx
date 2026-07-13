@@ -22,7 +22,7 @@ function CompletionBar({ completionPct, label, className }: CompletionBarProps) 
         />
       </div>
       {label ? (
-        <span className="text-[13.5px] font-semibold text-muted-foreground">
+        <span className="text-sm font-semibold text-muted-foreground">
           {label}
         </span>
       ) : null}

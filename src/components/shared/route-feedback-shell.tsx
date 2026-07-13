@@ -41,12 +41,12 @@ export function RouteFeedbackShell({
           <GlassCard className="relative overflow-hidden rounded-glass p-6 sm:p-8 lg:p-10">
             <div className="absolute inset-0 bg-gradient-to-br from-primary-foreground/30 to-transparent" />
 
-            <div className="relative space-y-5">
+            <div className="relative flex flex-col gap-5">
               <div className="flex flex-wrap items-center gap-2">
                 <Badge variant="eyebrow">{eyebrow}</Badge>
               </div>
 
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
                   {title}
                 </h1>
@@ -62,10 +62,10 @@ export function RouteFeedbackShell({
           </GlassCard>
 
           <GlassCard className="relative overflow-hidden rounded-glass p-6 sm:p-7">
-            <div className="relative space-y-5">
+            <div className="relative flex flex-col gap-5">
               <p className="text-sm font-semibold text-foreground">{asideTitle}</p>
 
-              <ul className="space-y-3">
+              <ul className="flex flex-col gap-3">
                 {asideItems.map((item) => (
                   <li
                     key={item}

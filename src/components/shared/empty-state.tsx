@@ -23,7 +23,7 @@ export function EmptyState({
             {icon}
           </span>
         ) : null}
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
           <p className="text-base font-semibold text-foreground">{title}</p>
           <p className="max-w-xs text-sm text-muted-foreground">
             {description}

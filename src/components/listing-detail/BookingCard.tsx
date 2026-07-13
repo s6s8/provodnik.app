@@ -36,7 +36,7 @@ export function BookingCard({
 }: BookingCardProps) {
   return (
     <Card className="bg-surface border border-line shadow-sm rounded-card">
-      <CardContent className="space-y-4 p-5">
+      <CardContent className="flex flex-col gap-4 p-5">
         <div>
           <p className="text-3xl font-semibold">{priceLabel}</p>
           {priceNote ? <p className="text-sm text-muted-foreground">{priceNote}</p> : null}
@@ -46,7 +46,7 @@ export function BookingCard({
         </div>
 
         {facts.length > 0 ? (
-          <ul className="space-y-1 text-sm text-muted-foreground">
+          <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
             {facts.map((fact) => (
               <li key={fact}>{fact}</li>
             ))}
@@ -54,7 +54,7 @@ export function BookingCard({
         ) : null}
 
         {notes.length > 0 ? (
-          <ul className="space-y-1.5 text-sm text-muted-foreground">
+          <ul className="flex flex-col gap-1.5 text-sm text-muted-foreground">
             {notes.map((note) => (
               <li key={note}>{note}</li>
             ))}

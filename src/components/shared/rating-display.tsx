@@ -14,7 +14,7 @@ export function RatingDisplay({ rating, reviewCount, verified, className }: Rati
   const count = reviewCount ?? 0;
   if (count <= 0) {
     return (
-      <span className={cn("inline-flex items-center gap-1.5 text-[12.5px] font-medium", className)}>
+      <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", className)}>
         <span className="inline-flex items-center rounded-full bg-surface-low px-2 py-0.5 text-on-surface-muted">
           Новый гид
         </span>
@@ -28,7 +28,7 @@ export function RatingDisplay({ rating, reviewCount, verified, className }: Rati
     );
   }
   return (
-    <span className={cn("inline-flex items-center gap-1 text-[12.5px] text-on-surface-muted", className)}>
+    <span className={cn("inline-flex items-center gap-1 text-xs text-on-surface-muted", className)}>
       <Star className="size-3.5 fill-current text-gold" />
       <span className="font-medium text-on-surface">{(rating ?? 0).toFixed(1)}</span>
       <span>

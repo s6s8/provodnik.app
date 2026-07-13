@@ -27,7 +27,7 @@ export function GuideBottomNav() {
               aria-label={label}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-0.5 min-h-[44px]",
+                "relative flex flex-col items-center justify-center gap-0.5 min-h-11",
                 isActive ? "text-primary font-bold" : "text-muted-foreground",
               )}
             >

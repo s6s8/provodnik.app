@@ -12,7 +12,7 @@ describe("DiscoverySearchInput", () => {
     expect(input).toHaveAttribute("placeholder", "Найти");
     // Identical baseline class on every discovery page.
     expect(input.className).toContain("h-12");
-    expect(input.className).toContain("rounded-[12px]");
+    expect(input.className).toContain("rounded-step");
     expect(input.className).toContain("bg-surface");
     expect(input.className).toContain("pl-11");
     expect(input.className).toContain("shadow-lg");

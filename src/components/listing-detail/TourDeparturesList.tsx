@@ -39,7 +39,7 @@ export function TourDeparturesList({
 }) {
   if (departures.length === 0) {
     return (
-      <section className="space-y-2">
+      <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold tracking-tight">Даты отправления</h2>
         <p className="text-sm text-muted-foreground">
           Нет доступных дат — запросите индивидуальный тур
@@ -49,7 +49,7 @@ export function TourDeparturesList({
   }
 
   return (
-    <section className="space-y-3">
+    <section className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold tracking-tight">Даты отправления</h2>
       <div className="grid gap-3 sm:grid-cols-2">
         {departures.map((dep) => {
@@ -62,7 +62,7 @@ export function TourDeparturesList({
               key={dep.id}
               className="bg-surface border border-line shadow-sm rounded-card"
             >
-              <CardContent className="space-y-3 p-4">
+              <CardContent className="flex flex-col gap-3 p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>
                     <p className="text-sm font-medium">

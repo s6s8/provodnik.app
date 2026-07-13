@@ -83,7 +83,7 @@ export function ImmersiveHero({
           {/* Title block — bottom-left on desktop */}
           <div className="min-w-0 md:max-w-[540px]">
             {breadcrumb && breadcrumb.length > 0 ? (
-              <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-white/80">
+              <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-white/80">
                 {breadcrumb.map((item, index) => (
                   <span key={`${item.label}-${index}`} className="flex items-center gap-2">
                     {index > 0 ? <ChevronRight className="size-3.5 opacity-50" /> : null}
@@ -108,7 +108,7 @@ export function ImmersiveHero({
               {title}
             </h1>
             {intro ? (
-              <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-white/90">{intro}</p>
+              <p className="max-w-[470px] text-base leading-[1.5] text-white/90">{intro}</p>
             ) : null}
           </div>
 

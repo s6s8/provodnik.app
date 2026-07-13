@@ -50,7 +50,7 @@ export function DiscoveryShell({ children, className }: DiscoveryShellProps) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-page space-y-8 px-[clamp(20px,4vw,48px)] pb-20 pt-10",
+        "mx-auto w-full max-w-page flex flex-col gap-8 px-[clamp(20px,4vw,48px)] pb-20 pt-10",
         className,
       )}
     >
@@ -142,7 +142,7 @@ export function DiscoveryToolbar({
 }: DiscoveryToolbarProps) {
   return (
     <section className={cn("bg-surface-low", className)}>
-      <div className="mx-auto w-full max-w-page space-y-3 px-[clamp(20px,4vw,48px)] py-5">
+      <div className="mx-auto w-full max-w-page flex flex-col gap-3 px-[clamp(20px,4vw,48px)] py-5">
         {facets}
         {count || actions ? (
           <div className="flex items-center justify-between gap-3">

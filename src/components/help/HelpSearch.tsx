@@ -125,7 +125,7 @@ export function HelpSearch({
         ) : null}
       </div>
 
-      <div className="mt-8 space-y-12">
+      <div className="mt-8 flex flex-col gap-12">
         {groups.map((group) => (
           <section key={group.id}>
             <h2 className="mb-4 text-section font-extrabold tracking-tight text-foreground">

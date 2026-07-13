@@ -16,7 +16,7 @@ export type ListingSlotRow = {
 export function AvailabilitySection({ slots }: { slots: ListingSlotRow[] }) {
   if (slots.length === 0) {
     return (
-      <section className="space-y-2">
+      <section className="flex flex-col gap-2">
         <h2 className="text-lg font-semibold tracking-tight">Доступность</h2>
         <p className="text-sm text-muted-foreground">Даты — по запросу</p>
       </section>
@@ -24,9 +24,9 @@ export function AvailabilitySection({ slots }: { slots: ListingSlotRow[] }) {
   }
 
   return (
-    <section className="space-y-3">
+    <section className="flex flex-col gap-3">
       <h2 className="text-lg font-semibold tracking-tight">Ближайшие даты</h2>
-      <ul className="space-y-2">
+      <ul className="flex flex-col gap-2">
         {slots.map((slot) => {
           const seatsLeft = slot.capacity != null ? slot.capacity - slot.seats_taken : null;
           return (

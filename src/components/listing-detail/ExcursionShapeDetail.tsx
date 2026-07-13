@@ -122,8 +122,8 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
       />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <div className="min-w-0 space-y-8">
-          <header className="space-y-3">
+        <div className="min-w-0 flex flex-col gap-8">
+          <header className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               {expLabel ? <Badge variant="outline">{expLabel}</Badge> : null}
               {formatLabel ? <Badge variant="secondary">{formatLabel}</Badge> : null}
@@ -137,27 +137,27 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
           </header>
 
           {description ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{description}</p>
             </section>
           ) : null}
 
           {idea ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Идея</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{idea}</p>
             </section>
           ) : null}
 
           {routeText ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Маршрут</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{routeText}</p>
             </section>
           ) : null}
 
           {theme ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Тема</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{theme}</p>
             </section>
@@ -174,14 +174,14 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
           <AvailabilitySection slots={slots} />
 
           {audience ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Для кого</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{audience}</p>
             </section>
           ) : null}
 
           {facts ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Интересные факты</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{facts}</p>
             </section>

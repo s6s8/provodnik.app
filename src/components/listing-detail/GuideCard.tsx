@@ -53,7 +53,7 @@ export function GuideCard({
           <AvatarImage src={guide.avatar_url ?? undefined} alt={guideName} className="object-cover" />
           <AvatarFallback className="rounded-btn">{initials(guideName)}</AvatarFallback>
         </Avatar>
-        <div className="min-w-0 flex-1 space-y-1">
+        <div className="min-w-0 flex-1 flex flex-col gap-1">
           <p className="flex items-center gap-1.5 text-lg font-bold leading-tight">
             {guideName}
             {isVerified ? <BadgeCheck className="size-4 text-success" /> : null}
