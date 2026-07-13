@@ -19,10 +19,10 @@ function Chip({ label, value, icon: Icon, className }: ChipProps) {
       )}
     >
       {Icon ? <Icon className="size-[18px] text-primary" /> : null}
-      <span className="text-[11px] font-bold uppercase tracking-[0.06em] text-muted-foreground">
+      <span className="text-xs font-bold uppercase tracking-[0.06em] text-muted-foreground">
         {label}
       </span>
-      <span className="text-[14.5px] font-semibold text-on-surface">{value}</span>
+      <span className="text-sm font-semibold text-on-surface">{value}</span>
     </div>
   )
 }

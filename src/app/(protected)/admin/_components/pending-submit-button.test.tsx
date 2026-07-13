@@ -13,28 +13,22 @@ vi.mock("react-dom", async (importOriginal) => ({
 import { PendingMenuSubmitButton, PendingSubmitButton } from "./pending-submit-button";
 
 describe("admin pending submit buttons", () => {
-  it("disables and relabels regular submit buttons while their form is pending", () => {
+  it("disables regular submit buttons while their form is pending, keeping the label constant", () => {
     useFormStatusMock.mockReturnValueOnce({ pending: true });
 
-    render(
-      <PendingSubmitButton pendingLabel="Сохраняем…">Сохранить</PendingSubmitButton>,
-    );
+    render(<PendingSubmitButton>Сохранить</PendingSubmitButton>);
 
-    const button = screen.getByRole("button", { name: /сохраняем/i });
+    const button = screen.getByRole("button", { name: /сохранить/i });
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute("aria-busy", "true");
   });
 
-  it("disables and relabels dropdown submit items while their form is pending", () => {
+  it("disables dropdown submit items while their form is pending, keeping the label constant", () => {
     useFormStatusMock.mockReturnValueOnce({ pending: true });
 
-    render(
-      <PendingMenuSubmitButton pendingLabel="Одобряем…">
-        Одобрить
-      </PendingMenuSubmitButton>,
-    );
+    render(<PendingMenuSubmitButton>Одобрить</PendingMenuSubmitButton>);
 
-    const button = screen.getByRole("button", { name: /одобряем/i });
+    const button = screen.getByRole("button", { name: /одобрить/i });
     expect(button).toBeDisabled();
     expect(button).toHaveAttribute("aria-busy", "true");
   });

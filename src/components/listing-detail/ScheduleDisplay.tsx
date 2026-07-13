@@ -31,9 +31,9 @@ export function ScheduleDisplay({ schedule }: { schedule: ListingScheduleRow[] }
   });
 
   return (
-    <section className="space-y-2">
+    <section className="flex flex-col gap-2">
       <h2 className="text-lg font-semibold tracking-tight">Расписание</h2>
-      <ul className="space-y-1 text-sm text-muted-foreground">
+      <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
         {sortedKeys.map((key) => {
           const rows = byDay.get(key) ?? [];
           const label = weekdayLabel(key === "null" ? null : Number(key));

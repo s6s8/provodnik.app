@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,12 +13,18 @@ import {
   LockKeyhole,
 } from "lucide-react";
 
+import { GlassCard } from "@/components/shared/glass-card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const hasEnv = hasSupabaseEnv();
+const UPDATE_ERROR_ID = "update-password-error";
+
+type ErrorField = "password" | "confirm-password";
 
 function getFriendlyAuthError(message: string) {
   const normalized = message.toLowerCase();
@@ -42,9 +48,23 @@ export function UpdatePasswordScreen() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<ErrorField | null>(null);
   const [success, setSuccess] = useState(false);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
+
+  function fail(message: string, field?: ErrorField) {
+    setError(message);
+    setErrorField(field ?? null);
+    if (field === "password") {
+      passwordRef.current?.focus();
+    } else if (field === "confirm-password") {
+      confirmPasswordRef.current?.focus();
+    }
+  }
 
   useEffect(() => {
     if (!success) {
@@ -63,14 +83,18 @@ export function UpdatePasswordScreen() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setErrorField(null);
 
     if (password.length < 6) {
-      setError("Пароль слишком короткий. Используйте не менее 6 символов.");
+      fail("Пароль слишком короткий. Используйте не менее 6 символов.", "password");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError("Пароли не совпадают. Проверьте ввод и попробуйте снова.");
+      fail(
+        "Пароли не совпадают. Проверьте ввод и попробуйте снова.",
+        "confirm-password",
+      );
       return;
     }
 
@@ -83,13 +107,13 @@ export function UpdatePasswordScreen() {
       });
 
       if (updateError) {
-        setError(getFriendlyAuthError(updateError.message));
+        fail(getFriendlyAuthError(updateError.message), "password");
         return;
       }
 
       setSuccess(true);
     } catch (submitError) {
-      setError(
+      fail(
         submitError instanceof Error
           ? getFriendlyAuthError(submitError.message)
           : "Не удалось изменить пароль. Попробуйте еще раз.",
@@ -100,8 +124,8 @@ export function UpdatePasswordScreen() {
   }
 
   return (
-    <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
-      <div className="space-y-3">
+    <GlassCard className="w-[min(100%,30rem)] p-[clamp(1.75rem,4vw,2.5rem)]">
+      <div className="flex flex-col gap-3">
         <Link
           href="/auth"
           className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
@@ -109,8 +133,11 @@ export function UpdatePasswordScreen() {
           <ArrowLeft className="size-4" />
           <span>Назад ко входу</span>
         </Link>
-        <div className="space-y-2">
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+        <Badge variant="eyebrow" asChild>
+          <Link href="/">Проводник</Link>
+        </Badge>
+        <div className="flex flex-col gap-2">
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Новый пароль
           </h1>
           <p className="max-w-sm text-sm leading-6 text-muted-foreground">
@@ -120,15 +147,15 @@ export function UpdatePasswordScreen() {
       </div>
 
       {!hasEnv ? (
-        <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
-          <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
-          <p>
+        <Alert variant="info" className="mt-8 rounded-xl">
+          <AlertCircle />
+          <AlertDescription>
             Обновление пароля временно недоступно. Напишите в поддержку.
-          </p>
-        </div>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
         <div className="grid gap-2.5">
           <label htmlFor="password" className="text-sm font-medium text-foreground">
             Новый пароль
@@ -137,17 +164,22 @@ export function UpdatePasswordScreen() {
             <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="password"
+              ref={passwordRef}
               type={showPassword ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Минимум 6 символов"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
-              className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
+              aria-invalid={errorField === "password" || undefined}
+              aria-describedby={
+                errorField === "password" ? UPDATE_ERROR_ID : undefined
+              }
+              className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none"
             />
             <button
               type="button"
               onClick={() => setShowPassword((current) => !current)}
-              className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
+              className="absolute right-1.5 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-xl text-muted-foreground outline-none transition-colors duration-200 hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
               aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
               aria-pressed={showPassword}
             >
@@ -171,38 +203,63 @@ export function UpdatePasswordScreen() {
             <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="confirm-password"
-              type="password"
+              ref={confirmPasswordRef}
+              type={showConfirmPassword ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Введите пароль еще раз"
               value={confirmPassword}
               onChange={(event) => setConfirmPassword(event.target.value)}
-              className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+              aria-invalid={errorField === "confirm-password" || undefined}
+              aria-describedby={
+                errorField === "confirm-password" ? UPDATE_ERROR_ID : undefined
+              }
+              className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none"
             />
+            <button
+              type="button"
+              onClick={() => setShowConfirmPassword((current) => !current)}
+              className="absolute right-1.5 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-xl text-muted-foreground outline-none transition-colors duration-200 hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
+              aria-label={
+                showConfirmPassword ? "Скрыть пароль" : "Показать пароль"
+              }
+              aria-pressed={showConfirmPassword}
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="size-4" />
+              ) : (
+                <Eye className="size-4" />
+              )}
+            </button>
           </div>
         </div>
 
         {error ? (
-          <div className="flex items-start gap-2 rounded-[1.4rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-            <AlertCircle className="mt-0.5 size-4 shrink-0" />
-            <p>{error}</p>
-          </div>
+          <Alert
+            id={UPDATE_ERROR_ID}
+            role="alert"
+            variant="destructive"
+            className="rounded-xl"
+          >
+            <AlertCircle />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : null}
 
         {success ? (
-          <div className="flex items-start gap-2 rounded-[1.4rem] border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-foreground">
-            <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
-            <p>Пароль изменён. Выполняем вход...</p>
-          </div>
+          <Alert variant="success" className="rounded-xl">
+            <CheckCircle2 />
+            <AlertDescription>Пароль изменён. Выполняем вход...</AlertDescription>
+          </Alert>
         ) : null}
 
         <Button
           type="submit"
-          className="h-12 w-full rounded-full"
+          className="h-12 w-full rounded-btn"
           disabled={isSubmitting || success || !hasEnv}
         >
           {isSubmitting ? "Сохранить пароль..." : "Сохранить пароль"}
         </Button>
       </form>
-    </div>
+    </GlassCard>
   );
 }

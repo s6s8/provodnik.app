@@ -24,7 +24,7 @@ function TabsList({
     <TabsPrimitive.List
       data-slot="tabs-list"
       className={cn(
-        "bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass inline-flex h-auto w-full flex-wrap items-center gap-2 p-1",
+        "bg-glass backdrop-blur-xl border border-glass-border shadow-glass rounded-glass inline-flex h-auto w-full flex-wrap items-center gap-2 p-1",
         className,
       )}
       {...props}
@@ -55,7 +55,7 @@ function TabsContent({
   return (
     <TabsPrimitive.Content
       data-slot="tabs-content"
-      className={cn("mt-5 outline-none", className)}
+      className={cn("mt-4 outline-none", className)}
       {...props}
     />
   )

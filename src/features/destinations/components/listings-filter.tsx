@@ -26,7 +26,7 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
   }, [listings, formatFilter]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Format filter */}
       <div className="flex gap-2">
         {(

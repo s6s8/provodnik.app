@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, Check, Hand, Users } from "lucide-react";
 
+import { type AvatarStackMember } from "@/components/shared/avatar-stack";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { type ReqCardMember } from "@/components/shared/req-card";
 import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export const metadata = {
@@ -22,7 +22,7 @@ type RequestCardSample = {
   guideState: "waiting" | "found";
   datesFlexible: boolean;
   interests: ThemeSlug[];
-  members: ReqCardMember[];
+  members: AvatarStackMember[];
   price: string;
 };
 
@@ -162,7 +162,7 @@ function ParticipantStack({
   members,
   participantCount,
 }: {
-  members: readonly ReqCardMember[];
+  members: readonly AvatarStackMember[];
   participantCount: number;
 }) {
   const visibleMembers = members.slice(0, participantCount === 1 ? 1 : 3);
@@ -269,7 +269,7 @@ function CountPrototypeSection({
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
         {countPrototypeSamples.map((sample) => (
-          <div key={sample.href} className="flex h-full flex-col space-y-2">
+          <div key={sample.href} className="flex h-full flex-col gap-2">
             <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{sample.scenario}</p>
             <RequestCardThemesTopPrototype {...sample} />
           </div>
@@ -291,7 +291,7 @@ export default function DevReqCardsPage() {
         </p>
       </div>
 
-      <div className="space-y-10">
+      <div className="flex flex-col gap-10">
         <CountPrototypeSection
           id="stack-badge-heading"
           heading="Счётчик в стеке"

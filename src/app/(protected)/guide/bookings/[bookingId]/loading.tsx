@@ -1,11 +1,13 @@
+import { GlassCard } from "@/components/shared/glass-card";
+
 const summarySlots = Array.from({ length: 4 });
 
 export default function Loading() {
   return (
-    <div className="space-y-8" role="status" aria-busy="true" aria-live="polite">
+    <div className="flex flex-col gap-8" role="status" aria-busy="true" aria-live="polite">
       <span className="sr-only">Загрузка бронирования гида</span>
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
         <div className="h-9 w-full max-w-2xl rounded-2xl bg-muted/70 animate-pulse" />
         <div className="flex flex-wrap gap-3">
@@ -14,8 +16,8 @@ export default function Loading() {
         </div>
       </div>
 
-      <div className="space-y-6">
-        <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
+      <div className="flex flex-col gap-6">
+        <GlassCard className="flex flex-col gap-4 p-6 md:p-8">
           <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
           <div className="h-8 w-full max-w-xl rounded-2xl bg-muted/70 animate-pulse" />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -27,10 +29,10 @@ export default function Loading() {
               </div>
             ))}
           </div>
-        </div>
+        </GlassCard>
 
         <div className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
+          <GlassCard className="flex flex-col gap-4 p-6 md:p-8">
             <div className="h-3 w-28 rounded-full bg-muted/70 animate-pulse" />
             <div className="h-24 rounded-2xl bg-muted/60 animate-pulse" />
             <div className="grid gap-3 sm:grid-cols-2">
@@ -41,25 +43,25 @@ export default function Loading() {
               <div className="h-10 w-full rounded-full bg-muted/70 animate-pulse sm:max-w-40" />
               <div className="h-10 w-full rounded-full bg-muted/60 animate-pulse sm:max-w-40" />
             </div>
-          </div>
+          </GlassCard>
 
-          <div className="space-y-4">
-            <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-4 p-6 md:p-8">
+          <div className="flex flex-col gap-4">
+            <GlassCard className="flex flex-col gap-4 p-6 md:p-8">
               <div className="h-3 w-24 rounded-full bg-muted/70 animate-pulse" />
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <div className="h-4 w-full rounded-full bg-muted/60 animate-pulse" />
                 <div className="h-4 w-5/6 rounded-full bg-muted/60 animate-pulse" />
                 <div className="h-4 w-2/3 rounded-full bg-muted/60 animate-pulse" />
               </div>
-            </div>
+            </GlassCard>
 
-            <div className="bg-glass backdrop-blur-[20px] border border-glass-border shadow-glass rounded-glass space-y-3 p-6 md:p-8">
+            <GlassCard className="flex flex-col gap-3 p-6 md:p-8">
               <div className="h-3 w-28 rounded-full bg-muted/70 animate-pulse" />
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <div className="h-16 rounded-2xl bg-muted/60 animate-pulse" />
                 <div className="h-16 rounded-2xl bg-muted/60 animate-pulse" />
               </div>
-            </div>
+            </GlassCard>
           </div>
         </div>
       </div>

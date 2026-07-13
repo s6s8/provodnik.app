@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { ArrowRight, Bell, Check, Circle } from "lucide-react";
+import { AlertCircle, ArrowRight, Bell, Check, Circle } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListRow } from "@/components/shared/list-row";
@@ -13,12 +13,17 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { NotificationRecord, NotificationSeverity } from "@/data/notifications/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { isUnreadNotification } from "./NotificationBell";
 
 type FeedFilter = "all" | "unread";
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 
 function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
   const kind = (row.kind as NotificationRecord["kind"]) ?? "admin_alert";
@@ -48,11 +53,14 @@ export function NotificationCenterScreen() {
   const [userId, setUserId] = React.useState<string | null>(null);
   const [loadError, setLoadError] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [reloadKey, setReloadKey] = React.useState(0);
 
   React.useEffect(() => {
     let ignore = false;
 
     async function load() {
+      setLoadError(false);
+      setLoading(true);
       try {
         const supabase = createSupabaseBrowserClient();
         const {
@@ -85,7 +93,7 @@ export function NotificationCenterScreen() {
 
     void load();
     return () => { ignore = true; };
-  }, []);
+  }, [reloadKey]);
 
   const markRead = React.useCallback(
     async (notificationId: string) => {
@@ -170,7 +178,7 @@ export function NotificationCenterScreen() {
   const grouped = React.useMemo(() => groupNotifications(visible), [visible]);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Центр уведомлений"
         title="Уведомления"
@@ -190,24 +198,23 @@ export function NotificationCenterScreen() {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant={filter === "all" ? "secondary" : "outline"}
-          onClick={() => setFilter("all")}
-        >
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={filter}
+        // Radix single-toggle emits "" on re-click; a feed filter is always set.
+        onValueChange={(next) => {
+          if (next) setFilter(next as FeedFilter);
+        }}
+        className="flex-wrap"
+      >
+        <ToggleGroupItem value="all" className={TOGGLE_ACTIVE_CLASS}>
           Все
           <Badge variant="outline" className="ml-2 bg-background">
             {notifications.length}
           </Badge>
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={filter === "unread" ? "secondary" : "outline"}
-          onClick={() => setFilter("unread")}
-        >
+        </ToggleGroupItem>
+        <ToggleGroupItem value="unread" className={TOGGLE_ACTIVE_CLASS}>
           Непрочитанные
           <Badge
             variant={unreadCount === 0 ? "outline" : "secondary"}
@@ -215,17 +222,27 @@ export function NotificationCenterScreen() {
           >
             {unreadCount}
           </Badge>
-        </Button>
-      </div>
+        </ToggleGroupItem>
+      </ToggleGroup>
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {loadError ? (
           <EmptyState
+            icon={<AlertCircle />}
             title="Не удалось загрузить"
-            description="Попробуйте обновить страницу."
+            description="Проверьте соединение и попробуйте ещё раз."
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setReloadKey((key) => key + 1)}
+              >
+                Попробовать снова
+              </Button>
+            }
           />
         ) : loading ? (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3" aria-busy="true">
             <ListRowSkeleton />
             <ListRowSkeleton />
             <ListRowSkeleton />
@@ -234,12 +251,12 @@ export function NotificationCenterScreen() {
           <EmptyState
             icon={<Bell />}
             title="Пока пусто"
-            description="Новые события появятся здесь"
+            description="Новые события появятся здесь."
           />
         ) : (
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6">
             {grouped.map((group) => (
-              <section key={group.key} className="space-y-3" aria-label={group.label}>
+              <section key={group.key} className="flex flex-col gap-3" aria-label={group.label}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-semibold text-foreground">{group.label}</p>
                   <Separator className="flex-1" />
@@ -269,11 +286,21 @@ function NotificationRow({
   onMarkUnread,
 }: {
   notification: NotificationRecord;
-  onMarkRead: (id: string) => void;
-  onMarkUnread: (id: string) => void;
+  onMarkRead: (id: string) => Promise<void>;
+  onMarkUnread: (id: string) => Promise<void>;
 }) {
   const isUnread = notification.readAt === null;
   const severityVariant = getSeverityBadgeVariant(notification.severity);
+  const [pending, setPending] = React.useState(false);
+
+  const toggleRead = async () => {
+    setPending(true);
+    try {
+      await (isUnread ? onMarkRead : onMarkUnread)(notification.id);
+    } finally {
+      setPending(false);
+    }
+  };
 
   return (
     <ListRow
@@ -285,7 +312,7 @@ function NotificationRow({
           </span>
         ) : (
           <span className="inline-flex items-center">
-            <Circle className="size-2.5 text-muted-foreground/50" />
+            <Circle className="size-2.5 text-muted-foreground" />
             <span className="sr-only">Прочитано</span>
           </span>
         )
@@ -309,23 +336,12 @@ function NotificationRow({
       }
       actions={
         <>
-          <Button
-            type="button"
-            size="sm"
-            variant={isUnread ? "secondary" : "outline"}
-            onClick={() => {
-              if (isUnread) onMarkRead(notification.id);
-              else onMarkUnread(notification.id);
-            }}
-          >
-            {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
-          </Button>
           {notification.href ? (
-            <Button asChild size="sm" variant="ghost">
+            <Button asChild size="sm" variant="outline">
               <Link
                 href={notification.href}
                 onClick={() => {
-                  if (isUnread) onMarkRead(notification.id);
+                  if (isUnread) void onMarkRead(notification.id);
                 }}
               >
                 Открыть событие
@@ -333,6 +349,15 @@ function NotificationRow({
               </Link>
             </Button>
           ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={pending}
+            onClick={() => void toggleRead()}
+          >
+            {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
+          </Button>
         </>
       }
     />
@@ -340,9 +365,9 @@ function NotificationRow({
 }
 
 function getSeverityBadgeVariant(severity: NotificationSeverity) {
-  if (severity === "success") return "default";
-  if (severity === "warning") return "destructive";
-  return "secondary";
+  if (severity === "success") return "success";
+  if (severity === "warning") return "warning";
+  return "info";
 }
 
 function labelSeverity(severity: NotificationSeverity) {

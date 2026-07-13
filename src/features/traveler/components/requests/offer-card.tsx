@@ -190,7 +190,7 @@ export function OfferCard({
   };
 
   return (
-    <div className={embedded ? "space-y-3" : "space-y-3 rounded-xl border p-4 bg-card"}>
+    <div className={embedded ? "flex flex-col gap-3" : "flex flex-col gap-3 rounded-xl border p-4 bg-card"}>
       {/* Guide header — hidden when embedded under a GuideOfferCard */}
       {embedded ? null : (
         <div className="flex items-center gap-3">
@@ -275,7 +275,7 @@ export function OfferCard({
 
       {/* Route collage */}
       {hasRoute ? (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-foreground">Маршрут</p>
           <div className="flex gap-2 overflow-x-auto pb-1">
             {routeStops.map((stop, idx) => (
@@ -294,7 +294,7 @@ export function OfferCard({
                   className="size-24 object-cover"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-foreground/50 px-1 py-0.5">
-                  <p className="truncate text-[10px] text-primary-foreground">{stop.locationName}</p>
+                  <p className="truncate text-xs text-primary-foreground">{stop.locationName}</p>
                 </div>
               </button>
             ))}
@@ -304,7 +304,7 @@ export function OfferCard({
 
       {/* Inclusions */}
       {Array.isArray(offer.inclusions) && offer.inclusions.length > 0 ? (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <p className="text-xs font-medium text-foreground">Что входит в цену</p>
           <div className="flex flex-wrap gap-1.5">
             {offer.inclusions.map((label, idx) => (

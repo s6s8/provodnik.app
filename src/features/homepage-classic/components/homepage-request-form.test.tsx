@@ -51,15 +51,16 @@ beforeAll(() => {
   Element.prototype.scrollIntoView = vi.fn();
 });
 
-describe("HomepageRequestFormClassic inset-label layout", () => {
-  it("renders the icon-only brief fields with the mode toggle, themes & languages selects", () => {
+describe("HomepageRequestFormClassic labelled layout", () => {
+  it("renders the visibly labelled brief fields with the mode toggle, themes & languages selects", () => {
     render(<HomepageRequestFormClassic destinations={[]} />);
 
-    // Fields have no visible labels — addressed by their accessible (aria) labels.
+    // Every control carries a visible <Label> (or, for the date popover trigger,
+    // an aria-label) — placeholders are examples, never the label.
     expect(screen.getByLabelText("Направление")).toBeInTheDocument();
     expect(screen.getByLabelText("Когда")).toBeInTheDocument();
     expect(screen.getByLabelText("Гостей")).toBeInTheDocument();
-    expect(screen.getByLabelText("Бюджет на человека")).toBeInTheDocument();
+    expect(screen.getByLabelText("Бюджет, ₽ на человека")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /сделать (закрытой|открытой)/i }),
     ).toBeInTheDocument();

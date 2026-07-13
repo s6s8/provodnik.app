@@ -34,7 +34,7 @@ export function TourItineraryDisplay({ days }: { days: ListingDayRow[] }) {
   }
 
   return (
-    <section className="space-y-3">
+    <section className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold tracking-tight">Программа</h2>
         <Button variant="ghost" size="sm" onClick={toggleAll}>
@@ -42,7 +42,7 @@ export function TourItineraryDisplay({ days }: { days: ListingDayRow[] }) {
         </Button>
       </div>
 
-      <ol className="space-y-2">
+      <ol className="flex flex-col gap-2">
         {days.map((day) => {
           const isOpen = openSet.has(day.day_number);
           const panelId = `tour-itinerary-day-${day.day_number}-panel`;

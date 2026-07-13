@@ -105,17 +105,17 @@ export function SiteHeader({
     <>
     <header className="fixed inset-x-0 top-0 z-[100] px-[clamp(20px,4vw,48px)] py-3.5" role="banner">
       <nav
-        className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-4 py-2.5 shadow-glass backdrop-blur-[20px] max-md:grid-cols-[auto_auto] max-md:justify-between"
+        className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-6 rounded-full border border-nav-glass-border bg-nav-glass-bg px-4 py-2.5 shadow-glass backdrop-blur-xl max-md:grid-cols-[auto_auto] max-md:justify-between max-md:gap-3"
         aria-label="Основная навигация"
       >
         <Link href="/" prefetch={false} className="inline-flex min-h-11 items-center gap-2 font-display text-[1.3125rem] font-semibold tracking-[0.02em] text-foreground">
-          <span className="inline-flex size-7 items-center justify-center rounded-[10px] bg-primary text-primary-foreground">
+          <span className="inline-flex size-7 items-center justify-center rounded-btn bg-primary text-primary-foreground">
             <MapPin className="size-4" />
           </span>
-          <span>«Проводник»</span>
+          <span className="max-[400px]:hidden">«Проводник»</span>
         </Link>
 
-        <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden" role="list">
+        <ul className="m-0 flex list-none items-center justify-self-center gap-8 p-0 max-md:hidden md:max-lg:gap-4" role="list">
           {primaryItems.map((item) => {
             const isActive = item.href === activeHref;
 
@@ -124,7 +124,7 @@ export function SiteHeader({
                 <Link
                   href={item.href}
                   className={cn(
-                    "relative text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
+                    "relative whitespace-nowrap text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
                     isActive && "text-primary",
                   )}
                   aria-current={isActive ? "page" : undefined}
@@ -144,7 +144,7 @@ export function SiteHeader({
                 <button
                   type="button"
                   aria-label={`Меню аккаунта: ${accountLabel}`}
-                  className="max-md:hidden rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-opacity hover:opacity-80"
+                  className="max-md:hidden inline-flex size-11 items-center justify-center rounded-full border border-glass-border bg-surface-high/70 outline-none transition-opacity hover:opacity-80 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
                 >
                   <ProfileAvatar
                     profile={{ full_name: fullName, avatar_url: avatarUrl }}
@@ -190,7 +190,7 @@ export function SiteHeader({
             <Link
               href="/messages"
               className={cn(
-                "relative inline-flex items-center justify-center size-10 rounded-full border border-glass-border bg-surface-high/72 text-foreground transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:text-primary",
+                "relative inline-flex size-11 items-center justify-center rounded-full border border-glass-border bg-surface-high/70 text-foreground outline-none transition-[background,color,border-color] duration-150 hover:border-primary/24 hover:text-primary focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40",
                 (pathname === "/messages" || pathname.startsWith("/messages/")) && "border-primary/24 text-primary",
               )}
               aria-label={messagesLabel}
@@ -226,13 +226,13 @@ export function SiteHeader({
             <button
               type="button"
               onClick={() => setDrawerOpen(true)}
-              aria-label="Личное меню"
+              aria-label="Профиль"
               aria-haspopup="dialog"
-              className="md:hidden w-11 h-11 rounded-full bg-primary/15 text-primary border-2 border-primary font-bold text-sm flex items-center justify-center"
+              className="md:hidden inline-flex size-11 items-center justify-center rounded-full border border-glass-border bg-surface-high/70 text-sm font-bold text-primary outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
             >
               <ProfileAvatar
                 profile={{ full_name: fullName, avatar_url: avatarUrl }}
-                size={44}
+                size={36}
                 className="shrink-0"
               />
             </button>
@@ -242,8 +242,8 @@ export function SiteHeader({
             <SheetTrigger asChild>
               <Button
                 variant="ghost"
-                size="icon-sm"
-                className="md:hidden min-h-11 min-w-11"
+                size="icon"
+                className="md:hidden size-11 rounded-full border border-glass-border bg-surface-high/70"
                 aria-label="Открыть меню"
               >
                 <Menu className="size-5" aria-hidden="true" />

@@ -37,10 +37,10 @@ export default function AdminError({ error, reset }: AdminErrorProps) {
   const copy = resolveAdminErrorMessage(error);
 
   return (
-    <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-destructive/30 bg-destructive/10 p-6 shadow-card">
+    <div className="mx-auto max-w-2xl rounded-card border border-destructive/30 bg-destructive/10 p-6 shadow-card">
       <div className="flex items-start gap-3">
         <AlertCircle className="mt-0.5 size-5 shrink-0 text-destructive" />
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-destructive">Ошибка админки</p>
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Действие не выполнено

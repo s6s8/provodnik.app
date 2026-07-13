@@ -38,15 +38,15 @@ export function RouteFeedbackShell({
 
       <div className="relative mx-auto flex w-full max-w-6xl flex-col gap-6">
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1.12fr)_minmax(260px,0.88fr)]">
-          <GlassCard className="relative overflow-hidden rounded-[2rem] p-6 sm:p-8 lg:p-10">
+          <GlassCard className="relative overflow-hidden rounded-glass p-6 sm:p-8 lg:p-10">
             <div className="absolute inset-0 bg-gradient-to-br from-primary-foreground/30 to-transparent" />
 
-            <div className="relative space-y-5">
+            <div className="relative flex flex-col gap-5">
               <div className="flex flex-wrap items-center gap-2">
-                <Badge variant="outline">{eyebrow}</Badge>
+                <Badge variant="eyebrow">{eyebrow}</Badge>
               </div>
 
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <h1 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
                   {title}
                 </h1>
@@ -61,18 +61,15 @@ export function RouteFeedbackShell({
             </div>
           </GlassCard>
 
-          <GlassCard className="relative overflow-hidden rounded-[2rem] p-6 sm:p-7">
-            <div className="relative space-y-5">
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-sm font-semibold text-foreground">{asideTitle}</p>
-                <span className="h-2.5 w-2.5 rounded-full bg-primary ring-4 ring-primary/15" />
-              </div>
+          <GlassCard className="relative overflow-hidden rounded-glass p-6 sm:p-7">
+            <div className="relative flex flex-col gap-5">
+              <p className="text-sm font-semibold text-foreground">{asideTitle}</p>
 
-              <ul className="space-y-3">
+              <ul className="flex flex-col gap-3">
                 {asideItems.map((item) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 rounded-[1.15rem] border border-border/60 bg-background/55 px-4 py-3 text-sm leading-6 text-muted-foreground"
+                    className="flex items-start gap-3 rounded-card border border-border/60 bg-background/55 px-4 py-3 text-sm leading-6 text-ink-2"
                   >
                     <span
                       aria-hidden="true"

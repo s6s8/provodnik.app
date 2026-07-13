@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
+import { PageHeader } from "@/components/shared/page-header";
+import { Skeleton } from "@/components/ui/skeleton";
+import { cn } from "@/lib/utils";
 import {
   NotificationPrefsMatrix,
   type NotificationPrefsMatrixProps,
@@ -57,39 +60,50 @@ export function NotificationPreferencesClient() {
   );
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold text-foreground">
-            Настройки уведомлений
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Управляйте тем, какие уведомления и через какие каналы вы получаете.
-          </p>
-        </div>
-        <Link
-          href="/account"
-          className="text-sm text-muted-foreground underline-offset-4 hover:underline"
-        >
-          Личные настройки
-        </Link>
-      </div>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        eyebrow="Кабинет"
+        title="Настройки уведомлений"
+        subtitle="Управляйте тем, какие уведомления и через какие каналы вы получаете."
+        actions={
+          <Link
+            href="/account"
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            Личные настройки
+          </Link>
+        }
+      />
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Загрузка настроек…</p>
+        <div
+          aria-busy="true"
+          aria-label="Загрузка настроек"
+          className="flex flex-col gap-3"
+        >
+          <Skeleton className="h-9 w-56" />
+          <Skeleton variant="card" />
+        </div>
       ) : (
         <NotificationPrefsMatrix prefs={prefs} onChange={handleChange} />
       )}
 
-      {saving && <p className="text-sm text-muted-foreground">Сохранение…</p>}
-      {!saving && saved && (
-        <p className="text-sm text-success">Настройки сохранены</p>
-      )}
-      {!saving && saveError && (
-        <p className="text-sm text-destructive">
-          Не удалось сохранить. Попробуйте ещё раз.
-        </p>
-      )}
+      <p
+        role="status"
+        aria-live="polite"
+        className={cn(
+          "text-sm",
+          saveError ? "text-destructive" : saved ? "text-success-text" : "text-muted-foreground",
+        )}
+      >
+        {saving
+          ? "Сохранение…"
+          : saveError
+            ? "Не удалось сохранить. Попробуйте ещё раз."
+            : saved
+              ? "Настройки сохранены"
+              : ""}
+      </p>
     </div>
   );
 }

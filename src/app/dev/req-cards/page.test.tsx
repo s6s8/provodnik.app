@@ -13,7 +13,7 @@ beforeAll(() => {
   globalThis.ResizeObserver = ResizeObserverMock;
 });
 
-describe("/dev/req-cards", () => {
+describe("dev request-cards preview page", () => {
   it("renders the single stack-badge participant-count bundle", () => {
     render(<DevReqCardsPage />);
 

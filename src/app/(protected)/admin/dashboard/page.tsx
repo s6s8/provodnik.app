@@ -40,15 +40,15 @@ export default async function AdminDashboardPage() {
   const stats = await getAdminDashboardStats();
 
   return (
-    <div className="space-y-10">
+    <div className="flex flex-col gap-10">
       <PageHeader
         eyebrow="Администрирование"
         title="Обзор"
         subtitle="Следите за очередью проверки, открытыми спорами и общей нагрузкой на админ-панель."
       />
 
-      <section className="space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-on-surface-muted">
           Требует действий
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
@@ -57,8 +57,12 @@ export default async function AdminDashboardPage() {
             const delta = stats.weeklyDelta[card.key];
             const { Icon } = card;
             return (
-              <Link key={card.key} href={card.href} className="group block">
-                <Card className="h-full py-6 transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-md">
+              <Link
+                key={card.key}
+                href={card.href}
+                className="group block rounded-lg outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
+                <Card className="h-full py-6 transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-lift">
                   <CardContent className="px-6">
                     <div className="flex items-start justify-between gap-4">
                       <div className="text-sm text-muted-foreground">
@@ -73,7 +77,7 @@ export default async function AdminDashboardPage() {
                     </div>
                     <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
                       <span>{formatDelta(delta)}</span>
-                      {count > 0 ? <Badge variant="destructive">Ждёт</Badge> : null}
+                      {count > 0 ? <Badge variant="warning">Ждёт</Badge> : null}
                     </div>
                   </CardContent>
                 </Card>
@@ -83,14 +87,17 @@ export default async function AdminDashboardPage() {
         </div>
       </section>
 
-      <section className="space-y-4">
-        <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
+      <section className="flex flex-col gap-4">
+        <h2 className="text-xs font-semibold uppercase tracking-wide text-on-surface-muted">
           Статистика
         </h2>
-        <Link href="/admin/bookings" className="group block sm:max-w-xs">
+        <Link
+          href="/admin/bookings"
+          className="group block rounded-lg outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 sm:max-w-xs"
+        >
           <Card
             size="sm"
-            className="h-full transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-md"
+            className="h-full transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-lift"
           >
             <CardContent>
               <div className="text-sm text-muted-foreground">

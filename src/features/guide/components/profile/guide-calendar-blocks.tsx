@@ -2,11 +2,14 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
+import { CalendarDays } from "lucide-react";
 
 import { GlassCard } from "@/components/shared/glass-card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   createAvailabilityBlockAction,
   deleteAvailabilityBlockAction,
@@ -29,6 +32,10 @@ const KINDS = [
 type Kind = (typeof KINDS)[number]["id"];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 
 function describeBlock(b: CalendarBlock): string {
   if (b.all_day) {
@@ -91,8 +98,8 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
   }
 
   return (
-    <GlassCard className="space-y-5 p-5">
-      <div className="space-y-1">
+    <GlassCard className="flex flex-col gap-5 p-5">
+      <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-primary">Закрытые периоды</p>
         <p className="text-sm text-muted-foreground">
           Отметьте даты и часы, когда вы недоступны. В эти периоды туристы не смогут забронировать
@@ -100,48 +107,65 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={kind}
+        // Radix single-toggle deselects on re-click; the kind is required, so ignore "".
+        onValueChange={(next) => {
+          if (next) setKind(next as Kind);
+        }}
+        className="w-full flex-wrap"
+      >
         {KINDS.map((k) => (
-          <Button
-            key={k.id}
-            type="button"
-            size="sm"
-            variant={kind === k.id ? "default" : "outline"}
-            onClick={() => setKind(k.id)}
-          >
+          <ToggleGroupItem key={k.id} value={k.id} className={TOGGLE_ACTIVE_CLASS}>
             {k.label}
-          </Button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor="block-date">{kind === "day" ? "Дата" : "С"}</Label>
-          <Input
-            id="block-date"
-            type="date"
-            min={today}
-            value={date}
-            onChange={(e) => handleStartDateChange(e.target.value)}
-          />
+          <div className="relative">
+            <CalendarDays
+              aria-hidden="true"
+              className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+            />
+            <Input
+              id="block-date"
+              type="date"
+              min={today}
+              value={date}
+              onChange={(e) => handleStartDateChange(e.target.value)}
+              className="native-picker-hidden pl-11"
+            />
+          </div>
         </div>
 
         {kind === "range" || kind === "window" ? (
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="block-end-date">По</Label>
-            <Input
-              id="block-end-date"
-              type="date"
-              min={date}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
+            <div className="relative">
+              <CalendarDays
+                aria-hidden="true"
+                className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <Input
+                id="block-end-date"
+                type="date"
+                min={date}
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="native-picker-hidden pl-11"
+              />
+            </div>
           </div>
         ) : null}
 
         {kind === "window" ? (
           <>
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="block-start-time">Время с</Label>
               <Input
                 id="block-start-time"
@@ -150,7 +174,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
                 onChange={(e) => setStartTime(e.target.value)}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="block-end-time">Время по</Label>
               <Input
                 id="block-end-time"
@@ -162,7 +186,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
           </>
         ) : null}
 
-        <div className="space-y-1.5 sm:col-span-2">
+        <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="block-reason">Причина (только для вас)</Label>
           <Input
             id="block-reason"
@@ -176,17 +200,17 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
       </div>
 
       {message ? (
-        <p className={message.tone === "error" ? "text-sm text-destructive" : "text-sm text-amber-600"}>
-          {message.text}
-        </p>
+        <Alert variant={message.tone === "error" ? "destructive" : "warning"} role="alert">
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <Button type="button" disabled={pending} onClick={submit}>
+      <Button type="button" loading={pending} onClick={submit}>
         Закрыть период
       </Button>
 
       {blocks.length > 0 ? (
-        <ul className="space-y-2 border-t border-border/60 pt-4">
+        <ul className="flex flex-col gap-2 border-t border-border/60 pt-4">
           {blocks.map((b) => (
             <li key={b.id} className="flex items-center justify-between gap-3">
               <span className="text-sm text-foreground">

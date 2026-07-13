@@ -1,19 +1,15 @@
+import { Flag } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { ListRow } from "@/components/shared/list-row";
 import { formatRussianDateTime } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { DisputeListItem } from "@/lib/supabase/disputes";
 
-type DisputeStatus = DisputeListItem["status"];
-
-const STATUS_META: Record<DisputeStatus, { label: string; variant: "default" | "secondary" | "destructive" | "ghost" }> = {
-  open: { label: "Открыт", variant: "destructive" },
-  under_review: { label: "В работе", variant: "default" },
-  resolved: { label: "Решён", variant: "secondary" },
-  closed: { label: "Закрыт", variant: "ghost" },
-};
+import { DISPUTE_STATUS_META, type DisputeStatus } from "./dispute-status-meta";
 
 const STATUS_ORDER: DisputeStatus[] = ["open", "under_review", "resolved", "closed"];
 
@@ -27,7 +23,7 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         eyebrow="Споры"
         title="Споры и возвраты"
@@ -37,10 +33,10 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
       <div className="grid gap-3 sm:grid-cols-4">
         {STATUS_ORDER.map((status) => (
           <Card key={status} size="sm">
-            <CardContent className="space-y-1">
+            <CardContent className="flex flex-col gap-1">
               <div className="flex items-center justify-between gap-2">
-                <span className="text-sm text-muted-foreground">{STATUS_META[status].label}</span>
-                {status === "open" && counts.open > 0 ? <Badge variant="destructive">Ждёт</Badge> : null}
+                <span className="text-sm text-muted-foreground">{DISPUTE_STATUS_META[status].label}</span>
+                {status === "open" && counts.open > 0 ? <Badge variant="warning">Ждёт</Badge> : null}
               </div>
               <div className="text-2xl font-semibold text-foreground">{counts[status]}</div>
             </CardContent>
@@ -49,16 +45,15 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
       </div>
 
       {disputes.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Споров нет</CardTitle>
-            <CardDescription>Новые обращения появятся здесь автоматически после открытия спора.</CardDescription>
-          </CardHeader>
-        </Card>
+        <EmptyState
+          icon={<Flag className="size-6" />}
+          title="Споров нет"
+          description="Новые обращения появятся здесь автоматически после открытия спора."
+        />
       ) : (
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           {disputes.map((item) => {
-            const meta = STATUS_META[item.status];
+            const meta = DISPUTE_STATUS_META[item.status];
             const booking = item.booking;
             const route = booking?.listingTitle ?? booking?.destination ?? "—";
             const travelerName = booking?.travelerName?.trim() || "Турист";

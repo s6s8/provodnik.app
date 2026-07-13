@@ -9,7 +9,7 @@ export type Inspiration = {
 
 export function EmptyCabinet({ inspirations }: { inspirations: Inspiration[] }) {
   return (
-    <div className="mx-auto max-w-3xl space-y-6 py-16 text-center">
+    <div className="mx-auto max-w-3xl flex flex-col gap-6 py-16 text-center">
       <h1 className="text-4xl font-semibold">Куда поедем?</h1>
       <p className="text-lg text-muted-foreground">
         Опишите поездку — местные гиды пришлют предложения

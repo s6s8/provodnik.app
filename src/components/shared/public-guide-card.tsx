@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, Star } from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { cn, pluralize } from "@/lib/utils";
 
 export type PublicGuideCardProps = {
@@ -60,11 +61,11 @@ export function PublicGuideCard({
     <Link
       href={`/guides/${slug}`}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-[16px] border border-border bg-surface-lowest p-0 transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-[0_20px_38px_-22px_rgba(20,28,40,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group relative flex flex-col overflow-hidden rounded-card border border-border bg-surface-lowest p-0 transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         className,
       )}
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-[12px]">
+      <div className="relative aspect-[4/3] overflow-hidden">
         {avatarUrl ? (
           <Image
             src={avatarUrl}
@@ -74,7 +75,7 @@ export function PublicGuideCard({
             className="object-cover object-[center_25%]"
           />
         ) : (
-          <div className="flex size-full items-center justify-center rounded-[12px] bg-surface-low">
+          <div className="flex size-full items-center justify-center bg-surface-low">
             <span className="flex size-16 items-center justify-center rounded-full bg-background text-xl font-semibold text-on-surface-muted">
               {initials}
             </span>
@@ -83,26 +84,24 @@ export function PublicGuideCard({
       </div>
 
       <div className="flex flex-1 flex-col px-4 py-4">
-        <div className="mb-1 flex flex-wrap items-center gap-x-[10px] gap-y-1">
-          <span className="text-[18px] font-bold tracking-[-0.02em] text-on-surface">{fullName}</span>
+        <div className="mb-1 flex flex-wrap items-center gap-x-2.5 gap-y-1">
+          <span className="text-lg font-bold tracking-[-0.02em] text-on-surface">{fullName}</span>
           {verified ? (
-            <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-success">
-              <BadgeCheck className="size-[14px]" strokeWidth={2.3} />
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-success-text">
+              <BadgeCheck className="size-3.5" strokeWidth={2.3} />
               Проверен
             </span>
           ) : null}
         </div>
 
-        {roleLine ? (
-          <div className="mb-3 text-[13.5px] text-on-surface-muted">{roleLine}</div>
-        ) : null}
+        {roleLine ? <div className="mb-3 text-sm text-on-surface-muted">{roleLine}</div> : null}
 
         {visibleSpecialties.length > 0 ? (
-          <div className="mb-[14px] flex flex-wrap gap-[7px]">
+          <div className="mb-3.5 flex flex-wrap gap-2">
             {visibleSpecialties.map((tag) => (
               <span
                 key={tag}
-                className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[5px] text-[12.5px] font-medium text-ink-2"
+                className="rounded-full bg-surface-low px-3 py-1 text-xs font-medium text-ink-2"
               >
                 {tag}
               </span>
@@ -110,12 +109,12 @@ export function PublicGuideCard({
           </div>
         ) : null}
 
-        <div className="mt-auto flex flex-wrap items-center gap-[9px] text-[13.5px] text-on-surface-muted">
+        <div className="mt-auto flex flex-wrap items-center gap-2 text-sm text-on-surface-muted">
           {showReviews ? (
             <>
               {showRating ? (
                 <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
-                  <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
+                  <Star className="size-4 fill-gold text-gold" />
                   {rating!.toLocaleString("ru-RU", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                 </span>
               ) : null}
@@ -125,9 +124,7 @@ export function PublicGuideCard({
               </span>
             </>
           ) : (
-            <span className="inline-flex items-center rounded-full bg-surface-low px-2.5 py-0.5 text-[12.5px] font-medium text-on-surface-muted">
-              Новый гид
-            </span>
+            <Badge variant="secondary">Пока без отзывов</Badge>
           )}
           {showTrips ? (
             <>

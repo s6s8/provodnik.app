@@ -32,10 +32,10 @@ describe("TripPanel", () => {
     expect(screen.getByText("Группа открыта")).toBeInTheDocument();
   });
 
-  it("renders the price slot with extrabold 25px styling", () => {
+  it("renders the price slot with extrabold display styling", () => {
     const { container } = render(<TripPanel dateLabel="12 июля" price="4 500 ₽" />);
 
-    const price = container.querySelector(".font-extrabold.text-\\[25px\\]");
+    const price = container.querySelector(".font-extrabold.text-2xl");
     expect(price).toBeInTheDocument();
     expect(price).toHaveTextContent("4 500 ₽");
   });

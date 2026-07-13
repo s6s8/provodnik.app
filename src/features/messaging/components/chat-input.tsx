@@ -49,6 +49,7 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
     <div className="grid gap-3 p-4 border-t border-border">
       <Textarea
         id="chat-message-body"
+        aria-label="Сообщение"
         className="min-h-[2.75rem] resize-none"
         placeholder="Напишите сообщение…"
         rows={1}
@@ -63,12 +64,12 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
       />
       <div className="flex items-center justify-between gap-3 flex-wrap">
         {error ? (
-          <p className="text-[0.8125rem] font-semibold text-destructive">{error}</p>
+          <p role="alert" className="text-sm font-semibold text-destructive">{error}</p>
         ) : (
           <span className="text-xs text-muted-foreground">Enter отправляет, Shift+Enter переносит строку.</span>
         )}
-        <Button type="button" disabled={isPending} onClick={handleSubmit}>
-          {isPending ? "Отправляем…" : "Отправить"}
+        <Button type="button" loading={isPending} onClick={handleSubmit}>
+          Отправить
         </Button>
       </div>
     </div>

@@ -112,7 +112,7 @@ export default async function AdminGuideDetailPage({
   };
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <ProfileAvatar
           profile={avatarProfile}
@@ -133,14 +133,14 @@ export default async function AdminGuideDetailPage({
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,0.9fr)]">
-        <section className="space-y-6">
+        <section className="flex flex-col gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Профиль</CardTitle>
+              <CardTitle>Профиль</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+              <div className="text-xs font-medium uppercase tracking-wide text-ink-2">
                 Описание
               </div>
               <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-foreground">
@@ -150,7 +150,7 @@ export default async function AdminGuideDetailPage({
 
             <dl className="grid gap-4 md:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Имя в профиле
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -158,7 +158,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Тип гида
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -169,7 +169,7 @@ export default async function AdminGuideDetailPage({
                 </p>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Базовый город
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -177,7 +177,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Стаж
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -185,7 +185,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Языки
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -195,7 +195,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Специализации
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -205,7 +205,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Регионы
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -215,7 +215,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Обновлено
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -228,12 +228,12 @@ export default async function AdminGuideDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Юридические данные</CardTitle>
+              <CardTitle>Юридические данные</CardTitle>
             </CardHeader>
             <CardContent>
             <dl className="grid gap-4 md:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Правовой статус
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -241,7 +241,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   ИНН
                 </dt>
                 <dd className="mt-1 text-sm text-foreground font-mono">
@@ -249,7 +249,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Страна документа
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -257,7 +257,7 @@ export default async function AdminGuideDetailPage({
                 </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                <dt className="text-xs font-medium uppercase tracking-wide text-ink-2">
                   Туроператор
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
@@ -276,7 +276,7 @@ export default async function AdminGuideDetailPage({
           {detail.profile.verification_notes ? (
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Заметки модератора</CardTitle>
+                <CardTitle>Заметки модератора</CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="whitespace-pre-wrap text-sm leading-6 text-foreground">
@@ -289,14 +289,14 @@ export default async function AdminGuideDetailPage({
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between gap-4">
-                <CardTitle className="text-lg">Документ о квалификации</CardTitle>
+                <CardTitle>Документ о квалификации</CardTitle>
                 <span className="text-sm text-muted-foreground">
                   {detail.licenses.length} шт.
                 </span>
               </div>
             </CardHeader>
             <CardContent>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {detail.licenses.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   Пока нет добавленных документов о квалификации.
@@ -306,10 +306,10 @@ export default async function AdminGuideDetailPage({
               {detail.licenses.map((license) => (
                 <div
                   key={license.id}
-                  className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4"
+                  className="rounded-card border border-border/70 bg-surface-low p-4"
                 >
                   <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <div className="font-medium text-foreground">
                         {license.licenseType}
                       </div>
@@ -377,14 +377,14 @@ export default async function AdminGuideDetailPage({
           <Card>
             <CardHeader>
               <div className="flex items-center justify-between gap-4">
-                <CardTitle className="text-lg">Документы</CardTitle>
+                <CardTitle>Документы</CardTitle>
                 <span className="text-sm text-muted-foreground">
                   {detail.documents.length} шт.
                 </span>
               </div>
             </CardHeader>
             <CardContent>
-            <div className="space-y-3">
+            <div className="flex flex-col gap-3">
               {detail.documents.length === 0 ? (
                 <div className="text-sm text-muted-foreground">
                   Документы еще не загружены.
@@ -394,7 +394,7 @@ export default async function AdminGuideDetailPage({
               {detail.documents.map((document) => (
                 <div
                   key={document.id}
-                  className="flex flex-col gap-3 rounded-[1.25rem] border border-border/70 bg-surface-low p-4 md:flex-row md:items-center md:justify-between"
+                  className="flex flex-col gap-3 rounded-card border border-border/70 bg-surface-low p-4 md:flex-row md:items-center md:justify-between"
                 >
                   <div>
                     <div className="font-medium text-foreground">
@@ -424,10 +424,10 @@ export default async function AdminGuideDetailPage({
           </Card>
         </section>
 
-        <aside className="space-y-6">
-          <Card className="border-primary/40 shadow-md">
+        <aside className="flex flex-col gap-6">
+          <Card className="border-primary/40 shadow-lift">
             <CardHeader>
-              <CardTitle className="text-lg">Решение</CardTitle>
+              <CardTitle>Решение</CardTitle>
               <CardDescription>
                 Зафиксируйте решение по анкете. Для отклонения и запроса
                 документов можно добавить комментарий.
@@ -440,7 +440,7 @@ export default async function AdminGuideDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Доступность</CardTitle>
+              <CardTitle>Доступность</CardTitle>
               <CardDescription>
                 Приём новых заявок. Гид управляет этим сам, админ может
                 переопределить. Не влияет на текущие бронирования и переписку.
@@ -456,12 +456,12 @@ export default async function AdminGuideDetailPage({
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">История модерации</CardTitle>
+              <CardTitle>История модерации</CardTitle>
             </CardHeader>
             <CardContent>
             {detail.moderation_case ? (
-              <div className="space-y-3">
-                <div className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4">
+              <div className="flex flex-col gap-3">
+                <div className="rounded-card border border-border/70 bg-surface-low p-4">
                   <div className="text-sm font-medium text-foreground">
                     Причина очереди
                   </div>
@@ -478,7 +478,7 @@ export default async function AdminGuideDetailPage({
                   detail.moderation_case.actions.map((action) => (
                     <div
                       key={action.id}
-                      className="rounded-[1.25rem] border border-border/70 bg-surface-low p-4"
+                      className="rounded-card border border-border/70 bg-surface-low p-4"
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="font-medium text-foreground">

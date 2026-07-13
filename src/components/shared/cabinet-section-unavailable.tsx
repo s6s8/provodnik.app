@@ -33,7 +33,7 @@ export function CabinetSectionUnavailable({ title, description }: CabinetSection
         <Button size="lg" asChild>
           <Link href="/trips">
             <Home className="size-4" />
-            В кабинет
+            К моим запросам
           </Link>
         </Button>
       }

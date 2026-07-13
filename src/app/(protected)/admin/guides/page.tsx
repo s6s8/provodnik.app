@@ -3,6 +3,7 @@ import Link from "next/link";
 import { revalidatePath } from "next/cache";
 import { MoreHorizontal } from "lucide-react";
 
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ListRow } from "@/components/shared/list-row";
+import { PageHeader } from "@/components/shared/page-header";
 import { formatRussianDateTime } from "@/lib/dates";
 import {
   ensureOpenModerationCase,
@@ -74,43 +77,59 @@ function resolveSearchValue(value: string | string[] | undefined) {
 function GuideQueueLoadError({ view }: { view: GuideReviewQueueView }) {
   const retryHref = view === "drafts" ? "/admin/guides?view=drafts" : "/admin/guides";
   return (
-    <div
+    <Alert
       role="alert"
-      className="rounded-[1.75rem] border border-destructive/30 bg-destructive/10 p-6 shadow-card"
+      variant="destructive"
+      className="border-destructive/30 p-6"
     >
-      <p className="text-sm font-semibold text-destructive">
+      <AlertTitle className="text-sm font-semibold">
         Заявки гидов не загрузились
-      </p>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-        Не удалось получить очередь анкет со статусом «На проверке». Заявка могла
-        прийти, но список сейчас недоступен. Обновите страницу или проверьте
-        черновики и журнал аудита.
-      </p>
-      <p className="mt-2 max-w-2xl text-xs leading-5 text-muted-foreground">
-        Если число рядом с «Гиды» в меню больше нуля, в системе есть заявки — но
-        таблица очереди сейчас не открылась.
-      </p>
-      <div className="mt-5 flex flex-wrap gap-2">
-        <Button asChild>
-          <Link href={retryHref}>Повторить загрузку</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/admin/guides?view=drafts">Открыть черновики</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/admin/audit">К аудиту</Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/admin/dashboard">К панели</Link>
-        </Button>
-      </div>
-    </div>
+      </AlertTitle>
+      <AlertDescription className="mt-2 max-w-2xl [&_p:not(:last-child)]:mb-2">
+        <p className="text-sm leading-6">
+          Не удалось получить очередь анкет со статусом «На проверке». Заявка могла
+          прийти, но список сейчас недоступен. Обновите страницу или проверьте
+          черновики и журнал аудита.
+        </p>
+        <p className="text-xs leading-5">
+          Если число рядом с «Гиды» в меню больше нуля, в системе есть заявки — но
+          таблица очереди сейчас не открылась.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Button asChild>
+            <Link href={retryHref}>Повторить загрузку</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/admin/guides?view=drafts">Открыть черновики</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/admin/audit">К аудиту</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/admin/dashboard">К панели</Link>
+          </Button>
+        </div>
+      </AlertDescription>
+    </Alert>
   );
 }
 
 function resolveQueueView(value: string | string[] | undefined): GuideReviewQueueView {
   return resolveSearchValue(value) === "drafts" ? "drafts" : "all";
 }
+
+const QUEUE_VIEWS: Array<{
+  value: GuideReviewQueueView;
+  href: string;
+  label: string;
+}> = [
+  { value: "all", href: "/admin/guides", label: "На проверке" },
+  { value: "drafts", href: "/admin/guides?view=drafts", label: "Черновики" },
+];
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 
 async function approveGuideAction(guideId: string) {
   "use server";
@@ -171,18 +190,12 @@ export default async function AdminGuidesPage({
     view === "drafts"
       ? "Нет черновиков анкет гидов."
       : "Нет заявок на проверке. Если гид только начал анкету, проверьте вкладку «Черновики».";
-  const filterBaseClass =
-    "rounded-full px-4 py-2 text-sm font-medium transition-colors";
-  const filterInactiveClass =
-    "border border-border/70 text-muted-foreground hover:bg-surface-low hover:text-foreground";
-  const filterActiveClass = "bg-primary text-primary-foreground shadow-sm";
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-2">
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Проверка гидов
-        </h1>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-2">
+        <PageHeader eyebrow="Администрирование" title="Проверка гидов" />
+        {/* ponytail: subtitle stays a sibling <p> — it embeds an inline <Link>, and PageHeader's subtitle prop is a string. */}
         <p className="max-w-3xl text-sm text-muted-foreground">
           В основной очереди только анкеты со статусом «На проверке». Черновики
           и уже решённые заявки скрыты; для диагностики откройте «Черновики».
@@ -197,35 +210,44 @@ export default async function AdminGuidesPage({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2" aria-label="Фильтр очереди гидов">
-        <Link
-          href="/admin/guides"
-          aria-current={view === "all" ? "page" : undefined}
-          className={`${filterBaseClass} ${
-            view === "all" ? filterActiveClass : filterInactiveClass
-          }`}
-        >
-          На проверке
-        </Link>
-        <Link
-          href="/admin/guides?view=drafts"
-          aria-current={view === "drafts" ? "page" : undefined}
-          className={`${filterBaseClass} ${
-            view === "drafts" ? filterActiveClass : filterInactiveClass
-          }`}
-        >
-          Черновики
-        </Link>
-      </div>
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={view}
+        aria-label="Фильтр очереди гидов"
+        className="flex-wrap"
+      >
+        {QUEUE_VIEWS.map((queueView) => (
+          <ToggleGroupItem
+            key={queueView.value}
+            value={queueView.value}
+            className={TOGGLE_ACTIVE_CLASS}
+            asChild
+            // These items are links (the view lives in the URL), so drop the
+            // radio/button semantics Radix stamps on single-type items. Roving
+            // focus and data-state styling stay.
+            role={undefined}
+            aria-checked={undefined}
+            type={undefined}
+          >
+            <Link
+              href={queueView.href}
+              aria-current={view === queueView.value ? "page" : undefined}
+            >
+              {queueView.label}
+            </Link>
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
       {guides === null ? (
         <GuideQueueLoadError view={view} />
       ) : guides.length === 0 ? (
-        <div className="rounded-[1.75rem] border border-border/70 bg-card p-8 text-center text-sm text-muted-foreground shadow-card">
+        <div className="rounded-card border border-border/70 bg-card p-8 text-center text-sm text-muted-foreground shadow-card">
           {emptyState}
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {guides.map((item) => {
             const displayName =
               resolveDisplayName("guide", { full_name: item.account?.full_name }) ||
@@ -292,10 +314,7 @@ export default async function AdminGuidesPage({
                             )}
                           >
                             <DropdownMenuItem asChild>
-                              <PendingMenuSubmitButton
-                                className="w-full cursor-pointer text-success focus:text-success"
-                                pendingLabel="Одобряем…"
-                              >
+                              <PendingMenuSubmitButton className="text-success focus:text-success">
                                 Одобрить
                               </PendingMenuSubmitButton>
                             </DropdownMenuItem>
@@ -307,7 +326,7 @@ export default async function AdminGuidesPage({
                             )}
                           >
                             <DropdownMenuItem asChild variant="destructive">
-                              <PendingMenuSubmitButton pendingLabel="Отклоняем…">
+                              <PendingMenuSubmitButton>
                                 Отклонить
                               </PendingMenuSubmitButton>
                             </DropdownMenuItem>

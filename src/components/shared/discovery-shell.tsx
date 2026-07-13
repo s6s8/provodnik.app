@@ -50,7 +50,7 @@ export function DiscoveryShell({ children, className }: DiscoveryShellProps) {
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-page space-y-8 px-[clamp(20px,4vw,48px)] pb-20 pt-10",
+        "mx-auto w-full max-w-page flex flex-col gap-8 px-[clamp(20px,4vw,48px)] pb-20 pt-10",
         className,
       )}
     >
@@ -142,7 +142,7 @@ export function DiscoveryToolbar({
 }: DiscoveryToolbarProps) {
   return (
     <section className={cn("bg-surface-low", className)}>
-      <div className="mx-auto w-full max-w-page space-y-3 px-[clamp(20px,4vw,48px)] py-5">
+      <div className="mx-auto w-full max-w-page flex flex-col gap-3 px-[clamp(20px,4vw,48px)] py-5">
         {facets}
         {count || actions ? (
           <div className="flex items-center justify-between gap-3">
@@ -175,6 +175,8 @@ export function DiscoveryFacetRail({ children, label, className }: DiscoveryFace
       aria-label={label}
       className={cn(
         "flex snap-x gap-2 overflow-x-auto pb-1 pr-6 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,#000_calc(100%-1.5rem),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        // From md up the rail has room to wrap: no clipped last pill, no fade.
+        "md:flex-wrap md:overflow-visible md:pr-0 md:[mask-image:none]",
         className,
       )}
     >
@@ -217,7 +219,8 @@ export function DiscoveryFacetChip({
       onClick={onClick}
       {...(pressed === undefined ? {} : { "aria-pressed": pressed })}
       className={cn(
-        "inline-flex h-10 shrink-0 cursor-pointer snap-start items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors",
+        "inline-flex h-11 shrink-0 cursor-pointer snap-start items-center gap-2 rounded-full border px-4 text-sm font-medium whitespace-nowrap transition-colors",
+        "outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40",
         active
           ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-surface text-on-surface hover:bg-surface-high",

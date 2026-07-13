@@ -10,7 +10,7 @@ type TripsErrorProps = {
 export default function TripsError({ reset }: TripsErrorProps) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center gap-5 px-4 py-16 text-center">
-      <div className="space-y-1.5">
+      <div className="flex flex-col gap-1.5">
         <h1 className="text-xl font-semibold text-foreground">
           Не удалось загрузить ваши запросы
         </h1>

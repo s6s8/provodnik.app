@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import * as React from "react";
 import Link from "next/link";
+import { Accordion } from "radix-ui";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -38,6 +39,7 @@ import { AcceptOfferButton } from "@/features/traveler/components/requests/accep
 import { BiddingGuidesTeaser } from "@/components/shared/bidding-guides-teaser";
 import { ImmersiveHero, type HeroBreadcrumbItem } from "@/components/shared/immersive-hero";
 import { RequestFactsPanel } from "@/components/shared/request-facts-panel";
+import { StepCard } from "@/components/shared/step-card";
 import { TripPanel } from "@/components/shared/trip-panel";
 import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-offer-card";
 import { StickyActionBar } from "@/components/shared/sticky-action-bar";
@@ -210,14 +212,11 @@ function JoinCta({
   joinState: PublicRequestJoinState;
   compact?: boolean;
 }) {
-  const className = cn(
-    "w-full cursor-pointer rounded-[14px] border-primary/60 bg-primary py-4 text-base font-semibold text-primary-foreground shadow-glass hover:bg-primary-hover",
-    compact && "py-3.5 text-sm",
-  );
+  const className = cn("w-full", compact && "h-11");
 
   if (joinState === "anon") {
     return (
-      <Button asChild className={className}>
+      <Button asChild size="lg" className={className}>
         <Link href={`/auth?next=${encodeURIComponent(`/requests/${requestId}`)}`}>
           <LogIn className="size-4" aria-hidden="true" />
           {compact ? "Присоединиться" : ctaLabel(joinState)}
@@ -232,7 +231,7 @@ function JoinCta({
 
   if (joinState === "member") {
     return (
-      <div className="flex min-h-12 items-center justify-center gap-2 rounded-[14px] bg-success/10 px-4 py-3 text-sm font-semibold text-success">
+      <div className="flex min-h-12 items-center justify-center gap-2 rounded-card bg-success/10 px-4 py-3 text-sm font-semibold text-success">
         <Check className="size-4" aria-hidden="true" />
         {ctaLabel(joinState)}
       </div>
@@ -240,14 +239,15 @@ function JoinCta({
   }
 
   return (
-    <div className="flex min-h-12 items-center justify-center rounded-[14px] bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground">
+    <div className="flex min-h-12 items-center justify-center rounded-card bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground">
       {ctaLabel(joinState)}
     </div>
   );
 }
 
 function AvatarGroupVisual({ children }: { children: ReactNode }) {
-  return <div className="flex -space-x-2.5">{children}</div>;
+  // ponytail: negative overlap can't be a gap; child-margin variant is the direct equivalent
+  return <div className="flex [&>*+*]:-ml-2.5">{children}</div>;
 }
 
 function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["members"] }) {
@@ -256,7 +256,7 @@ function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["mem
       {members.slice(0, 5).map((member, index) => (
         <Avatar
           key={member.id}
-          className="size-[42px] border-[2.5px] border-background shadow-sm"
+          className="size-11 border-2 border-background shadow-sm"
           title={member.displayName}
         >
           {member.avatarUrl ? <AvatarImage src={member.avatarUrl} alt={member.displayName} /> : null}
@@ -316,13 +316,13 @@ function PublicDetailBranch({
           timeLabel={viewModel.timeLabel}
           footer={
             <div className="flex flex-col gap-3">
-              <div className="font-display text-[26px] font-bold leading-none tracking-[-0.02em] text-on-surface">
+              <div className="font-display text-2xl font-bold leading-none tracking-[-0.02em] text-on-surface">
                 {price}
                 {viewModel.pricePerPersonRub ? (
-                  <span className="ml-1 text-[15px] font-medium text-on-surface-muted">/ с человека</span>
+                  <span className="ml-1 text-sm font-medium text-on-surface-muted">/ с человека</span>
                 ) : null}
               </div>
-              <p className="text-[13px] leading-[1.5] text-on-surface-muted">
+              <p className="text-sm leading-[1.5] text-on-surface-muted">
                 Добор открыт: в группе сейчас {viewModel.memberCount}{" "}
                 {pluralize(viewModel.memberCount, "человек", "человека", "человек")}. Финальную цену предложат гиды.
               </p>
@@ -337,11 +337,11 @@ function PublicDetailBranch({
       <div className="mx-auto w-full max-w-page px-5 pb-32 md:px-8">
         {/* О поездке — full brief for joined members (owner sees it via RequestFactsCard) */}
         {showTripDetails ? (
-          <section className="flex flex-col gap-4 pt-[54px]">
-            <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">
+          <section className="flex flex-col gap-4 pt-14">
+            <div className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
               О поездке
             </div>
-            <div className="space-y-4 rounded-[16px] border border-border bg-surface-lowest p-6">
+            <div className="flex flex-col gap-4 rounded-card border border-border bg-surface-lowest p-6">
               {themes.length > 0 ? (
                 <div className="flex flex-wrap gap-2">
                   {themes.map((slug) => (
@@ -352,7 +352,7 @@ function PublicDetailBranch({
                 </div>
               ) : null}
               {hasAbout ? (
-                <p className="max-w-[70ch] whitespace-pre-line text-[14.5px] leading-[1.6] text-on-surface">
+                <p className="max-w-[70ch] whitespace-pre-line text-sm leading-[1.6] text-on-surface">
                   {viewModel.notes}
                 </p>
               ) : null}
@@ -364,11 +364,11 @@ function PublicDetailBranch({
         {isMember ? <GroupThreadSection group={group} /> : null}
 
         {/* Кто едет — preserve member social proof */}
-        <section className="flex flex-col gap-4 pt-[54px]">
-          <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">Кто едет</div>
-          <div className="rounded-[16px] border border-border bg-surface-lowest p-6">
+        <section className="flex flex-col gap-4 pt-14">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Кто едет</div>
+          <div className="rounded-card border border-border bg-surface-lowest p-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <p className="text-[20px] font-semibold text-on-surface">
+              <p className="text-xl font-semibold text-on-surface">
                 В группе сейчас {viewModel.memberCount}{" "}
                 {pluralize(viewModel.memberCount, "человек", "человека", "человек")}
               </p>
@@ -386,44 +386,56 @@ function PublicDetailBranch({
         </section>
 
         {/* Social-proof teaser — renders nothing if no real bidders */}
-        <div className="pt-[54px]">
+        <div className="pt-14">
           <BiddingGuidesTeaser guides={biddingGuides} />
         </div>
 
         {/* Как это работает + off-platform reassurance */}
-        <section className="flex flex-col gap-4 pt-[54px]">
-          <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">Как это работает</div>
+        <section className="flex flex-col gap-4 pt-14">
+          <div className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">Как это работает</div>
           <div className="grid gap-3.5 sm:grid-cols-3">
             {["Присоединяешься к группе", "Гиды предлагают условия и цену", "Группа подтверждает бронь"].map((step, index) => (
-              <div key={step} className="rounded-[16px] border border-border bg-surface-lowest p-4">
-                <div className="mb-2.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{index + 1}</div>
-                <p className="text-sm leading-[1.45] text-on-surface">{step}</p>
-              </div>
+              <StepCard key={step} step={index + 1}>
+                {step}
+              </StepCard>
             ))}
           </div>
-          <p className="text-[13.5px] text-on-surface-muted">
+          <p className="text-sm text-on-surface-muted">
             Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
           </p>
         </section>
 
         {/* FAQ */}
-        <section className="pt-[54px]">
-          <div className="border-t border-border">
+        <section className="pt-14">
+          <Accordion.Root type="single" collapsible className="border-t border-border">
             {faqItems.map((item) => (
-              <details key={item.question} className="group border-b border-border">
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-left text-[0.97rem] font-medium text-on-surface marker:hidden">
-                  {item.question}
-                  <ChevronDown className="size-4 text-on-surface-muted transition-transform group-open:rotate-180" aria-hidden="true" />
-                </summary>
-                <p className="pb-4 text-sm leading-[1.6] text-on-surface-muted">{item.answer}</p>
-              </details>
+              <Accordion.Item
+                key={item.question}
+                value={item.question}
+                className="group border-b border-border"
+              >
+                <Accordion.Header className="flex">
+                  <Accordion.Trigger className="flex flex-1 items-center justify-between gap-4 rounded-md py-4 text-left text-base font-medium text-on-surface outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40">
+                    {item.question}
+                    <ChevronDown
+                      className="size-4 shrink-0 text-on-surface-muted transition-transform group-data-[state=open]:rotate-180"
+                      aria-hidden="true"
+                    />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                  <p className="pb-4 text-sm leading-[1.6] text-on-surface-muted">
+                    {item.answer}
+                  </p>
+                </Accordion.Content>
+              </Accordion.Item>
             ))}
-          </div>
+          </Accordion.Root>
         </section>
       </div>
 
       {/* Mobile sticky join bar — preserved */}
-      <div className="fixed inset-x-0 bottom-0 z-50 flex items-center gap-3 border-t border-border bg-surface-lowest px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-glass lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-surface-lowest px-5 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] shadow-glass lg:hidden">
         <div className="shrink-0 font-display text-lg font-bold text-on-surface">
           {price}
           {viewModel.pricePerPersonRub ? (
@@ -485,7 +497,7 @@ function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
     : formatRussianDate(request.startDate);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between gap-3">
         <Button asChild variant="ghost" className="-ml-3 px-3">
           <Link href="/trips">
@@ -496,10 +508,10 @@ function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
         <TravelerRequestStatusBadge status={record.status} />
       </div>
 
-      <div className="space-y-4 rounded-[16px] border border-border bg-card p-6 shadow-card">
+      <div className="flex flex-col gap-4 rounded-card border border-border bg-card p-6 shadow-card">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h3 className="text-[22px] font-bold tracking-[-0.02em] text-on-surface">
+            <h3 className="text-xl font-bold tracking-[-0.02em] text-on-surface">
               {request.destination}
             </h3>
             <p className="mt-1 text-xs text-on-surface-muted">{publishedAt}</p>
@@ -511,7 +523,7 @@ function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
           <Badge
             variant="outline"
             className={cn(
-              "rounded-full px-3 py-1 text-[13px] font-semibold normal-case tracking-normal",
+              "rounded-full px-3 py-1 text-sm font-semibold normal-case tracking-normal",
               isAssembly
                 ? "border-primary/20 bg-primary-tint text-primary"
                 : "border-border bg-surface-low text-muted-foreground",
@@ -539,7 +551,7 @@ function RequestFactsCard({ record }: { record: TravelerRequestRecord }) {
         ) : null}
 
         {request.notes ? (
-          <p className="max-w-[70ch] whitespace-pre-line text-[14.5px] leading-[1.6] text-ink-2">
+          <p className="max-w-[70ch] whitespace-pre-line text-sm leading-[1.6] text-ink-2">
             {request.notes}
           </p>
         ) : null}
@@ -730,7 +742,7 @@ function OwnerDetailBranch({
 
       <div className="mx-auto w-full max-w-page px-5 pb-32 md:px-8">
         {justCreated ? (
-          <div className="mt-6 rounded-[12px] border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
+          <div className="mt-6 rounded-step border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
             {createdMode === "assembly"
               ? "Открытая экскурсия опубликована — гиды увидят ваш запрос и смогут присоединиться."
               : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}
@@ -739,7 +751,7 @@ function OwnerDetailBranch({
 
         <MarkOffersRead requestId={requestId} hasOffers={ownerOffers.length > 0} />
 
-        <section className="pt-[54px]">
+        <section className="pt-14">
           <RequestFactsCard record={ownerRecord} />
         </section>
 
@@ -749,9 +761,9 @@ function OwnerDetailBranch({
         />
 
         {acceptedOffer ? (
-          <section className="flex flex-col gap-5 pt-[54px]">
+          <section className="flex flex-col gap-5 pt-14">
             <div className="flex items-center gap-3">
-              <h2 className="text-[30px] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">
+              <h2 className="text-[length:var(--text-section)] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">
                 Вы выбрали гида
               </h2>
               <span className="inline-flex items-center gap-1 rounded-full bg-success/12 px-2.5 py-1 text-xs font-semibold text-success">
@@ -770,13 +782,13 @@ function OwnerDetailBranch({
             ) : null}
           </section>
         ) : (
-          <section className="flex flex-col gap-6 pt-[54px]">
+          <section className="flex flex-col gap-6 pt-14">
             <div>
-              <div className="mb-[10px] text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">
+              <div className="mb-2.5 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
                 Ваши проводники
               </div>
               <div className="flex flex-wrap items-baseline justify-between gap-3">
-                <h2 className="text-[30px] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">
+                <h2 className="text-[length:var(--text-section)] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">
                   Кто покажет вам {viewModel.title}
                 </h2>
                 {pendingOffers.length > 0 ? (
@@ -788,18 +800,18 @@ function OwnerDetailBranch({
             </div>
 
             {pendingOffers.length === 0 ? (
-              <div className="rounded-[16px] border border-border bg-card p-6">
+              <div className="rounded-card border border-border bg-card p-6">
                 <p className="text-sm text-on-surface-muted">
                   Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
                 </p>
               </div>
             ) : (
               <>
-                <p className="text-[13px] text-on-surface-muted">
+                <p className="text-sm text-on-surface-muted">
                   Бронирование подтверждается через предоплату на платформе.
                   Финальные условия фиксируются в заявке и подтверждении.
                 </p>
-                <p className="text-[13px] text-on-surface-muted">
+                <p className="text-sm text-on-surface-muted">
                   После выбора гида откроются его контакты и чат.
                 </p>
                 <div className="flex flex-col gap-4">
@@ -917,13 +929,13 @@ function GuideDetailBranch({
       </ImmersiveHero>
 
       <div className="mx-auto w-full max-w-page px-5 pb-24 md:px-8">
-        <div className="flex items-center gap-2 pt-[54px]">
+        <div className="flex items-center gap-2 pt-14">
           <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/12 text-base font-bold text-primary" aria-hidden="true">
             {request.requesterInitials}
           </div>
           <div>
-            <p className="text-[15px] font-semibold text-on-surface">{request.requesterName}</p>
-            <p className="text-[13px] text-on-surface-muted">Запрос от {formatRussianDateTime(request.createdAt)}</p>
+            <p className="text-sm font-semibold text-on-surface">{request.requesterName}</p>
+            <p className="text-sm text-on-surface-muted">Запрос от {formatRussianDateTime(request.createdAt)}</p>
           </div>
         </div>
 
@@ -937,9 +949,9 @@ function GuideDetailBranch({
               </Link>
             </div>
           ) : validOfferId ? (
-            <div className="flex flex-col gap-4 rounded-[16px] border border-primary/25 bg-primary/5 p-5">
+            <div className="flex flex-col gap-4 rounded-card border border-primary/25 bg-primary/5 p-5">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-primary/70">Ваш отклик</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-primary/70">Ваш отклик</p>
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                   <Check className="size-3.5" aria-hidden="true" /> Предложение отправлено
                 </span>
@@ -952,7 +964,7 @@ function GuideDetailBranch({
                     {offerMeta.price_minor != null ? ` · ${Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)).toLocaleString("ru-RU")} ₽/чел.` : ""}
                   </p>
                   {offerMeta.message ? (
-                    <div className="rounded-[12px] border border-primary/15 bg-surface-lowest p-3">
+                    <div className="rounded-step border border-primary/15 bg-surface-lowest p-3">
                       <p className="mb-1 text-xs font-medium text-primary/60">Сообщение путешественнику</p>
                       <p className="whitespace-pre-line text-sm text-on-surface">{offerMeta.message}</p>
                     </div>
@@ -997,7 +1009,7 @@ function GuideDetailBranch({
                   variant="destructive"
                   dismissible
                   onDismiss={() => setWithdrawError(null)}
-                  className="text-[13px] leading-[1.5]"
+                  className="text-sm leading-[1.5]"
                 >
                   {withdrawError}
                 </Alert>

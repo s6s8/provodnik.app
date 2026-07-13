@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Star } from "lucide-react";
+import { BadgeCheck, Compass, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
+import { EmptyState } from "@/components/shared/empty-state";
 import { TourCard } from "@/components/shared/tour-card";
 import { NewGuideFrame } from "@/components/discovery/NewGuideFrame";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
@@ -78,6 +79,14 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
   const reviewCards: GuideReview[] = reviews && reviews.length > 0 ? reviews : [];
 
+  const requestCta = (
+    <Button asChild>
+      <Link href={`${ROUTES.newRequest.href}?guide=${guide.slug}`}>
+        Запросить этого гида
+      </Link>
+    </Button>
+  );
+
   return (
     <div>
       {/* Public guide detail uses a clean typographic hero. Do not render initials as
@@ -86,14 +95,14 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
       <section className="relative w-full overflow-hidden bg-surface-low">
         <div className="relative mx-auto flex min-h-[360px] max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-24 md:min-h-[460px] md:px-8">
           <div className="relative max-w-[640px]">
-            <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-on-surface-muted">
+            <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-on-surface-muted">
               <span>{guide.homeBase}</span>
             </div>
             <h1 className="mb-4 text-[clamp(2.75rem,8vw,68px)] font-bold leading-[0.98] tracking-[-0.04em] text-on-surface">
               {guide.displayName}
             </h1>
             {guide.headline ? (
-              <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-on-surface-muted">
+              <p className="max-w-[470px] text-base leading-[1.5] text-on-surface-muted">
                 {guide.headline}
               </p>
             ) : null}
@@ -115,14 +124,14 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               />
             ) : null}
             {isVerified ? (
-              <span className="mb-4 inline-flex items-center gap-1.5 self-center text-[13.5px] font-semibold text-success">
+              <span className="mb-4 inline-flex items-center gap-1.5 self-center text-sm font-semibold text-success">
                 <BadgeCheck className="size-4 text-success" strokeWidth={2.3} />
                 Проверен
               </span>
             ) : null}
 
             {hasStats ? (
-              <div className="flex flex-wrap items-center justify-center gap-[9px] self-center text-[13.5px] text-on-surface-muted">
+              <div className="flex flex-wrap items-center justify-center gap-[9px] self-center text-sm text-on-surface-muted">
                 {showRating ? (
                   <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
                     <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
@@ -183,7 +192,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                 {guide.languages.map((lang) => (
                   <span
                     key={lang}
-                    className="rounded-full border border-line bg-surface-low px-3 py-[5px] text-[12.5px] font-medium text-on-surface-muted"
+                    className="rounded-full border border-line bg-surface-low px-3 py-[5px] text-xs font-medium text-on-surface-muted"
                   >
                     {lang}
                   </span>
@@ -192,18 +201,14 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             ) : null}
 
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
-              <Button asChild>
-                <Link href={`${ROUTES.newRequest.href}?guide=${guide.slug}`}>
-                  Запросить этого гида
-                </Link>
-              </Button>
+              {requestCta}
               {guideHasListings ? (
                 <Button asChild variant="outline">
                   <a href="#excursions">Смотреть экскурсии</a>
                 </Button>
               ) : null}
             </div>
-            <p className="mt-3 text-[13px] text-on-surface-muted">
+            <p className="mt-3 text-sm text-on-surface-muted">
               Опишите поездку — гиды, включая этого, предложат программу и цену.
             </p>
           </div>
@@ -241,7 +246,12 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">У этого гида пока нет экскурсий.</p>
+            <EmptyState
+              icon={<Compass className="size-6" />}
+              title="У этого гида пока нет экскурсий"
+              description="Опишите поездку — гид предложит программу и цену под вас."
+              action={requestCta}
+            />
           )}
         </div>
       </section>
@@ -278,7 +288,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                 return (
                   <article
                     key={rev.id}
-                    className="rounded-[16px] border border-border bg-card p-5 shadow-card"
+                    className="rounded-card border border-border bg-card p-5 shadow-card"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex min-w-0 items-center gap-3">
@@ -286,23 +296,23 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
                           {reviewInitials}
                         </div>
                         <div className="min-w-0">
-                          <strong className="block truncate text-[15px] text-on-surface">
+                          <strong className="block truncate text-sm text-on-surface">
                             {reviewName}
                           </strong>
                           {reviewDate ? (
-                            <small className="block text-[12.5px] text-on-surface-muted">
+                            <small className="block text-xs text-on-surface-muted">
                               {reviewDate}
                             </small>
                           ) : null}
                         </div>
                       </div>
-                      <span className="inline-flex shrink-0 items-center gap-[5px] text-[13.5px] font-semibold text-on-surface">
+                      <span className="inline-flex shrink-0 items-center gap-[5px] text-sm font-semibold text-on-surface">
                         <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
                         {reviewRating.toFixed(1)}
                       </span>
                     </div>
                     {reviewTitle ? (
-                      <strong className="mt-4 block text-[15px] text-on-surface">
+                      <strong className="mt-4 block text-sm text-on-surface">
                         {reviewTitle}
                       </strong>
                     ) : null}
@@ -314,7 +324,12 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               })}
             </div>
           ) : (
-            <p className="text-muted-foreground">Отзывов пока нет.</p>
+            <EmptyState
+              icon={<Star className="size-6" />}
+              title="Отзывов пока нет"
+              description="Станьте первым путешественником, который оценит этого гида."
+              action={requestCta}
+            />
           )}
         </div>
       </section>

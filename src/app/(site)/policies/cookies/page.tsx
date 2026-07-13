@@ -7,7 +7,7 @@ export function generateMetadata(): Metadata {
   return {
     title: "Политика использования cookies",
     description:
-      "Как Provodnik использует файлы cookie и аналогичные технологии на своей платформе.",
+      "Как «Проводник» использует файлы cookie и аналогичные технологии на своей платформе.",
   };
 }
 
@@ -45,32 +45,32 @@ export default function CookiesPage() {
       <PageHeader
         eyebrow="Технические правила"
         title="Политика использования cookies"
-        subtitle="Provodnik использует файлы cookie и аналогичные технологии для обеспечения корректной работы сервиса, сохранения настроек и базовой аналитики. Ниже описано, какие именно cookies мы применяем и зачем."
+        subtitle="«Проводник» использует файлы cookie и аналогичные технологии для обеспечения корректной работы сервиса, сохранения настроек и базовой аналитики. Ниже описано, какие именно cookies мы применяем и зачем."
       />
       <p className="mt-1 text-xs text-on-surface-muted">Обновлено: 10 июня 2025 г.</p>
 
       <nav
         aria-label="Разделы"
-        className="mt-6 flex flex-wrap gap-x-4 gap-y-1 border-b border-border pb-4 mb-8"
+        className="mt-6 flex flex-wrap gap-x-4 gap-y-2 border-b border-border pb-4 mb-8"
       >
         {sections.map((s) => (
           <a
             key={s.id}
             href={`#${s.id}`}
-            className="py-3 min-h-[44px] flex items-center text-sm text-primary hover:underline"
+            className="flex min-h-11 items-center py-3 text-sm text-primary hover:underline"
           >
             {s.label}
           </a>
         ))}
       </nav>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {cookieTypes.map((type) => (
           <Card key={type.name} id={type.id} className="border-border bg-card scroll-mt-24">
-            <CardHeader className="space-y-1">
-              <CardTitle className="text-base">{type.name}</CardTitle>
+            <CardHeader className="flex flex-col gap-1">
+              <CardTitle aria-level={2} className="text-base">{type.name}</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm leading-[1.65] text-muted-foreground">
+            <CardContent className="flex flex-col gap-2 text-base leading-[1.65] text-muted-foreground">
               <p>{type.desc}</p>
               <p>
                 <span className="font-medium text-foreground">Примеры: </span>
@@ -81,10 +81,10 @@ export default function CookiesPage() {
         ))}
 
         <Card id="management" className="border-border bg-card scroll-mt-24">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-base">Управление cookies</CardTitle>
+          <CardHeader className="flex flex-col gap-1">
+            <CardTitle aria-level={2} className="text-base">Управление cookies</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3 text-sm leading-[1.65] text-muted-foreground">
+          <CardContent className="flex flex-col gap-3 text-base leading-[1.65] text-muted-foreground">
             <p>
               Вы можете ограничить или удалить cookies через настройки вашего
               браузера. Большинство браузеров позволяют блокировать cookies
@@ -99,7 +99,7 @@ export default function CookiesPage() {
               По вопросам, связанным с обработкой данных, пишите на{" "}
               <a
                 href="mailto:support@provodnik.app"
-                className="underline underline-offset-4"
+                className="text-primary underline underline-offset-4"
               >
                 support@provodnik.app
               </a>

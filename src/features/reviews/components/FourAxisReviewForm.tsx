@@ -95,12 +95,12 @@ export function FourAxisReviewForm({
 
   return (
     <Card className="border-border/70 bg-card/90">
-      <CardHeader className="space-y-1">
+      <CardHeader className="flex flex-col gap-1">
         <CardTitle className="text-base">
           Оцените поездку: «{listingTitle}»
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="flex flex-col gap-6">
         {success ? (
           <Alert className="border-success/30 bg-success/10">
             <CheckCircle2 className="text-success" aria-hidden />
@@ -119,7 +119,7 @@ export function FourAxisReviewForm({
         ) : null}
 
         {!success ? (
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6">
             <Controller
               name="overall"
               control={control}

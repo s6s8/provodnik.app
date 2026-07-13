@@ -3,14 +3,14 @@ import Link from "next/link";
 
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
 import { AvailabilitySection, type ListingSlotRow } from "@/components/listing-detail/AvailabilitySection";
+import { BookingCard } from "@/components/listing-detail/BookingCard";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { ScheduleDisplay } from "@/components/listing-detail/ScheduleDisplay";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
 import { ImmersiveHero } from "@/components/shared/immersive-hero";
-import { RatingDisplay } from "@/components/shared/rating-display";
+import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import type {
   GuideProfileRow,
@@ -85,45 +85,27 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
   const durationLabel = formatDuration(listing.duration_minutes);
 
   const coverUrl = listing.image_url ?? null;
+  const priceLabel = formatExcursionPriceFrom(listing.price_from_minor, listing.format);
 
   const bookingCard = (
-    <Card className="bg-surface border border-line shadow-sm rounded-card">
-      <CardContent className="space-y-4 p-5">
-        <div>
-          <p className="text-3xl font-semibold">
-            {formatExcursionPriceFrom(listing.price_from_minor, listing.format)}
-          </p>
-          {listing.review_count && listing.review_count > 0 ? (
-            <RatingDisplay
-              rating={listing.average_rating}
-              reviewCount={listing.review_count}
-              className="mt-1"
-            />
-          ) : null}
-        </div>
-        <ul className="space-y-1 text-sm text-muted-foreground">
-          {durationLabel ? <li>Длительность: {durationLabel}</li> : null}
-          {formatLabel ? <li>Формат: {formatLabel}</li> : null}
-          <li>Группа до {listing.max_group_size} чел.</li>
-        </ul>
-        <ul className="space-y-1.5 text-sm text-muted-foreground">
-          <li>Отправьте запрос — гид пришлёт предложение с ценой и деталями</li>
-          <li>Бронирование подтверждается предоплатой на платформе.</li>
-          <li>Контакты гида откроются после принятия предложения</li>
-        </ul>
-        {listing.instant_booking ? (
-          <Badge variant="secondary">Мгновенное бронирование</Badge>
-        ) : null}
-        <div className="flex flex-col gap-2">
-          <Button asChild className="w-full">
-            <Link href={`/listings/${listing.id}/book`}>Заказать</Link>
-          </Button>
-          <Button asChild variant="ghost" className="w-full text-sm">
-            <Link href={`/listings/${listing.id}/book?tab=question`}>Задать вопрос</Link>
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+    <BookingCard
+      listingId={listing.id}
+      priceLabel={priceLabel}
+      rating={listing.average_rating}
+      reviewCount={listing.review_count ?? 0}
+      primaryLabel="Заказать"
+      facts={[
+        ...(durationLabel ? [`Длительность: ${durationLabel}`] : []),
+        ...(formatLabel ? [`Формат: ${formatLabel}`] : []),
+        `Группа до ${listing.max_group_size} чел.`,
+      ]}
+      notes={[
+        "Отправьте запрос — гид пришлёт предложение с ценой и деталями",
+        "Бронирование подтверждается предоплатой на платформе.",
+        "Контакты гида откроются после принятия предложения",
+      ]}
+      instantBooking={Boolean(listing.instant_booking)}
+    />
   );
 
   return (
@@ -140,42 +122,42 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
       />
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start">
-        <div className="min-w-0 space-y-8">
-          <header className="space-y-3">
+        <div className="min-w-0 flex flex-col gap-8">
+          <header className="flex flex-col gap-3">
             <div className="flex flex-wrap items-center gap-2">
               {expLabel ? <Badge variant="outline">{expLabel}</Badge> : null}
               {formatLabel ? <Badge variant="secondary">{formatLabel}</Badge> : null}
               {durationLabel ? <Badge variant="outline">{durationLabel}</Badge> : null}
               {listing.review_count > 0 ? (
-                <span className="text-sm text-muted-foreground">
-                  <Star className="size-3.5 fill-amber-400 text-amber-400" /> {listing.average_rating.toFixed(1)} · {listing.review_count} {pluralize(listing.review_count, "отзыв", "отзыва", "отзывов")}
+                <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+                  <Star className="size-3.5 fill-gold text-gold" /> {listing.average_rating.toFixed(1)} · {listing.review_count} {pluralize(listing.review_count, "отзыв", "отзыва", "отзывов")}
                 </span>
               ) : null}
             </div>
           </header>
 
           {description ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{description}</p>
             </section>
           ) : null}
 
           {idea ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Идея</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{idea}</p>
             </section>
           ) : null}
 
           {routeText ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Маршрут</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{routeText}</p>
             </section>
           ) : null}
 
           {theme ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Тема</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{theme}</p>
             </section>
@@ -192,14 +174,14 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
           <AvailabilitySection slots={slots} />
 
           {audience ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Для кого</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{audience}</p>
             </section>
           ) : null}
 
           {facts ? (
-            <section className="space-y-2">
+            <section className="flex flex-col gap-2">
               <h2 className="text-lg font-semibold tracking-tight">Интересные факты</h2>
               <p className="whitespace-pre-wrap text-sm leading-7 text-muted-foreground">{facts}</p>
             </section>
@@ -215,18 +197,17 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
         </aside>
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-[110] border-t border-border bg-background/95 p-3 backdrop-blur-md md:hidden">
-        <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-[clamp(12px,3vw,24px)]">
-          <p className="text-lg font-semibold">
-            {formatExcursionPriceFrom(listing.price_from_minor, listing.format)}
-          </p>
+      <StickyActionBar
+        className="md:hidden"
+        avatarUrl={coverUrl}
+        name={listing.title}
+        metaLabel={priceLabel}
+        primary={
           <Button asChild className="shrink-0">
-            <Link href={`/listings/${listing.id}/book`}>
-              Заказать
-            </Link>
+            <Link href={`/listings/${listing.id}/book`}>Заказать</Link>
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <Separator className="my-8" />
       <TransferCrossSellWidget region={listing.region} currentListingId={listing.id} />

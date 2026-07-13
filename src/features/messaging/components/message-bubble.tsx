@@ -191,8 +191,8 @@ function UserBubble({
       <article
         className={
           isOwn
-            ? "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-primary/10 border border-primary/20 shadow-glass"
-            : "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-glass border border-glass-border shadow-glass"
+            ? "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-xl bg-primary/10 border border-primary/20 shadow-card"
+            : "grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-xl bg-glass border border-glass-border shadow-card"
         }
       >
         <div className="flex items-center gap-3">
@@ -205,15 +205,15 @@ function UserBubble({
             </Avatar>
           ) : null}
           <div className="grid gap-0.5">
-            <p className="text-[0.8125rem] font-semibold text-foreground">
+            <p className="text-sm font-semibold text-foreground">
               {isOwn ? "Вы" : senderName}
             </p>
-            <time className="text-xs text-muted-foreground" dateTime={timestamp}>
+            <time className="text-xs text-ink-2" dateTime={timestamp}>
               {formatRussianTime(timestamp)}
             </time>
           </div>
         </div>
-        <p className="whitespace-pre-wrap break-words text-[0.9375rem] leading-[1.65] text-foreground">
+        <p className="whitespace-pre-wrap break-words text-base leading-[1.65] text-foreground">
           {body}
         </p>
       </article>

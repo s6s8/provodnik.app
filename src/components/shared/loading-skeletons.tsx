@@ -6,7 +6,7 @@ export function CardGridSkeleton({ count = 6, className }: { count?: number; cla
   return (
     <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", className)}>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-[16px] border border-border">
+        <div key={i} className="overflow-hidden rounded-card border border-border">
           <Skeleton className="h-44 w-full" />
           <div className="flex flex-col gap-2 p-4">
             <Skeleton className="h-4 w-3/4" />
@@ -22,7 +22,7 @@ export function CardGridSkeleton({ count = 6, className }: { count?: number; cla
 export function DetailSkeleton({ className }: { className?: string }) {
   return (
     <div className={cn("flex flex-col gap-5", className)}>
-      <Skeleton className="h-64 w-full rounded-[16px]" />
+      <Skeleton className="h-64 w-full rounded-card" />
       <Skeleton className="h-7 w-1/2" />
       <Skeleton className="h-4 w-full" />
       <Skeleton className="h-4 w-5/6" />
@@ -33,7 +33,7 @@ export function DetailSkeleton({ className }: { className?: string }) {
 /** Single list-row skeleton. */
 export function ListRowSkeleton({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center gap-3 rounded-[12px] border border-border p-4", className)}>
+    <div className={cn("flex items-center gap-3 rounded-step border border-border p-4", className)}>
       <Skeleton className="size-12 shrink-0 rounded-full" />
       <div className="flex flex-1 flex-col gap-2">
         <Skeleton className="h-4 w-1/3" />

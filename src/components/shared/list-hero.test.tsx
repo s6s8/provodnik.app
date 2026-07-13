@@ -42,10 +42,10 @@ describe("ListHero", () => {
     expect(container.innerHTML).not.toContain("rgba(8,14,24");
   });
 
-  it("uses the canon hero-overlay scrim", () => {
+  it("uses the canon hero scrim", () => {
     const { container } = render(<ListHero imageUrl="/photo.jpg" title="Готовые экскурсии" />);
 
-    expect(container.querySelector(".hero-overlay")).not.toBeNull();
+    expect(container.querySelector(".scrim-hero")).not.toBeNull();
   });
 
   it("top-bleeds under the nav by cancelling the layout pt-nav-h", () => {

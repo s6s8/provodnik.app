@@ -54,7 +54,7 @@ export function ReviewCard({
 
   return (
     <Card className="border-border/70">
-      <CardHeader className="space-y-2 pb-2">
+      <CardHeader className="flex flex-col gap-2 pb-2">
         <div className="flex flex-wrap items-baseline justify-between gap-2">
           <div className="text-foreground">
             <StarRow n={review.rating} />
@@ -64,7 +64,7 @@ export function ReviewCard({
           </time>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {review.body ? (
           <p className="whitespace-pre-wrap text-sm text-foreground">{maskPii(review.body)}</p>
         ) : (
@@ -83,7 +83,7 @@ export function ReviewCard({
         {showInlinePublishedReply ? (
           <>
             <Separator />
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-foreground">Ответ гида:</p>
               <p className="whitespace-pre-wrap text-sm text-foreground">{maskPii(reply.body)}</p>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 
 import Link from "next/link";
 import {
@@ -14,6 +14,9 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { GlassCard } from "@/components/shared/glass-card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DEFAULT_GUIDE_TYPE, GUIDE_TYPES, type GuideType } from "@/features/auth/guide-type";
@@ -28,6 +31,31 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
 
 type AuthFormMode = "sign-in" | "sign-up";
+type ErrorField = "full-name" | "phone" | "email" | "password";
+
+const AUTH_ERROR_ID = "auth-form-error";
+
+// Which input a sign-up error code belongs to; unmapped codes are not field errors.
+const SIGN_UP_ERROR_FIELDS: Record<string, ErrorField> = {
+  already_registered: "email",
+  phone_taken: "phone",
+  phone_required: "phone",
+  invalid_input: "email",
+};
+
+function resolveSignInErrorField(message: string): ErrorField | undefined {
+  const normalized = message.toLowerCase();
+  if (normalized.includes("password")) {
+    return "password";
+  }
+  if (
+    normalized.includes("invalid login credentials") ||
+    normalized.includes("email")
+  ) {
+    return "email";
+  }
+  return undefined;
+}
 
 function getFriendlyAuthError(code: string): string {
   switch (code) {
@@ -101,16 +129,40 @@ export function AuthEntryScreen({
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<ErrorField | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const fullNameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
   const hydrated = useSyncExternalStore(
     () => () => undefined,
     () => true,
     () => false,
   );
 
+  const fieldRefs: Record<
+    ErrorField,
+    React.RefObject<HTMLInputElement | null>
+  > = {
+    "full-name": fullNameRef,
+    phone: phoneRef,
+    email: emailRef,
+    password: passwordRef,
+  };
+
+  function fail(message: string, field?: ErrorField) {
+    setError(message);
+    setErrorField(field ?? null);
+    if (field) {
+      fieldRefs[field].current?.focus();
+    }
+  }
+
   function handleModeChange(nextMode: AuthFormMode) {
     setMode(nextMode);
     setError(null);
+    setErrorField(null);
     setSuccess(null);
     setShowPassword(false);
   }
@@ -118,25 +170,29 @@ export function AuthEntryScreen({
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
+    setErrorField(null);
     setSuccess(null);
 
     const trimmedEmail = email.trim();
     const trimmedFullName = fullName.trim();
 
     if (!trimmedEmail) {
-      setError("Введите email, чтобы продолжить.");
+      fail("Введите email, чтобы продолжить.", "email");
       return;
     }
     if (!password) {
-      setError("Введите пароль, чтобы продолжить.");
+      fail("Введите пароль, чтобы продолжить.", "password");
       return;
     }
     if (mode === "sign-up" && !trimmedFullName) {
-      setError("Укажите имя, которое нужно сохранить в профиле.");
+      fail("Укажите имя, которое нужно сохранить в профиле.", "full-name");
       return;
     }
     if (mode === "sign-up" && role === "guide" && !phone.replace(/\D/g, "")) {
-      setError("Укажите телефон — он нужен для связи с путешественниками и проверки профиля.");
+      fail(
+        "Укажите телефон — он нужен для связи с путешественниками и проверки профиля.",
+        "phone",
+      );
       return;
     }
 
@@ -152,13 +208,16 @@ export function AuthEntryScreen({
           });
 
         if (signInError) {
-          setError(getFriendlyAuthError(signInError.message));
+          fail(
+            getFriendlyAuthError(signInError.message),
+            resolveSignInErrorField(signInError.message),
+          );
           return;
         }
 
         const signedInUser = signInData.user;
         if (!signedInUser) {
-          setError("Не удалось получить данные сессии. Попробуйте ещё раз.");
+          fail("Не удалось получить данные сессии. Попробуйте ещё раз.");
           return;
         }
 
@@ -183,14 +242,14 @@ export function AuthEntryScreen({
         });
 
         if (profileError && next && isAdminWorkspacePath(next) && userRole !== "admin") {
-          setError(
+          fail(
             "Не удалось проверить права администратора после входа. Попробуйте ещё раз или напишите в поддержку.",
           );
           return;
         }
 
         if (!userRole) {
-          setError(
+          fail(
             profileError
               ? "Не удалось загрузить профиль после входа. Попробуйте ещё раз или напишите в поддержку."
               : "Не удалось определить роль аккаунта. Выйдите и войдите снова или напишите в поддержку.",
@@ -199,7 +258,7 @@ export function AuthEntryScreen({
         }
 
         if (next && isAdminWorkspacePath(next) && userRole !== "admin") {
-          setError(
+          fail(
             "У этого аккаунта нет прав администратора. Войдите под админским email или обратитесь к владельцу доступа.",
           );
           return;
@@ -208,7 +267,7 @@ export function AuthEntryScreen({
         const destination = resolvePostAuthRedirectPath(userRole, next);
 
         if (!destination) {
-          setError(
+          fail(
             "Не удалось определить кабинет для входа. Напишите в поддержку.",
           );
           return;
@@ -229,7 +288,10 @@ export function AuthEntryScreen({
       });
 
       if (!result.ok) {
-        setError(getFriendlyAuthError(result.error));
+        fail(
+          getFriendlyAuthError(result.error),
+          SIGN_UP_ERROR_FIELDS[result.error],
+        );
         return;
       }
 
@@ -240,7 +302,7 @@ export function AuthEntryScreen({
         resolveSafeNextPath(role, next) ?? result.dashboardPath,
       );
     } catch {
-      setError("Не удалось выполнить авторизацию. Попробуйте еще раз.");
+      fail("Не удалось выполнить авторизацию. Попробуйте еще раз.");
     } finally {
       setIsSubmitting(false);
     }
@@ -252,54 +314,47 @@ export function AuthEntryScreen({
   const toggleAction = isSignUp ? "Войти" : "Создать профиль";
 
   return (
-    <div className="w-[min(100%,30rem)] rounded-glass border border-glass-border bg-glass p-[clamp(1.75rem,4vw,2.5rem)] shadow-glass backdrop-blur-[20px]">
-      <div>
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-3">
-            <Link
-              href="/"
-              className="inline-flex w-fit items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
-            >
-              Provodnik
-            </Link>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              {isSignUp ? "Создание профиля" : "Вход"}
-            </h1>
-          </div>
-        </div>
+    <GlassCard className="w-[min(100%,30rem)] p-[clamp(1.75rem,4vw,2.5rem)]">
+      <div className="flex flex-col gap-3">
+        <Badge variant="eyebrow" asChild>
+          <Link href="/">Проводник</Link>
+        </Badge>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+          {isSignUp ? "Создание профиля" : "Вход"}
+        </h1>
       </div>
 
       <div>
         {!hasSupabaseEnv() ? (
-          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-border/70 bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
-            <AlertCircle className="mt-0.5 size-4 shrink-0 text-primary" />
-            <p>
+          <Alert variant="info" className="mt-8 rounded-xl">
+            <AlertCircle />
+            <AlertDescription>
               Вход временно недоступен. Напишите в поддержку.
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
         ) : null}
 
         {errorCode === "missing-role" ? (
-          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-            <AlertCircle className="mt-0.5 size-4 shrink-0" />
-            <p>
+          <Alert variant="destructive" className="mt-8 rounded-xl">
+            <AlertCircle />
+            <AlertDescription>
               Не удалось определить роль аккаунта. Выйдите и войдите снова или
               напишите в поддержку.
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
         ) : null}
 
         {errorCode === "admin-access-denied" ? (
-          <div className="mt-8 flex items-start gap-3 rounded-[1.5rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm leading-6 text-destructive">
-            <AlertCircle className="mt-0.5 size-4 shrink-0" />
-            <p>
+          <Alert variant="destructive" className="mt-8 rounded-xl">
+            <AlertCircle />
+            <AlertDescription>
               Для входа в админку нужен аккаунт с ролью администратора. Войдите
               под админским email или сначала выйдите из текущего аккаунта.
-            </p>
-          </div>
+            </AlertDescription>
+          </Alert>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
           {isSignUp ? (
             <>
               <div className="grid gap-2.5">
@@ -310,12 +365,17 @@ export function AuthEntryScreen({
                   <UserRound className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="full-name"
+                    ref={fullNameRef}
                     type="text"
                     autoComplete="name"
                     placeholder="Например, Анна Смирнова"
                     value={fullName}
                     onChange={(event) => setFullName(event.target.value)}
-                    className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                    aria-invalid={errorField === "full-name" || undefined}
+                    aria-describedby={
+                      errorField === "full-name" ? AUTH_ERROR_ID : undefined
+                    }
+                    className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 shadow-none"
                   />
                 </div>
               </div>
@@ -327,12 +387,17 @@ export function AuthEntryScreen({
                   <Phone className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="phone"
+                    ref={phoneRef}
                     type="tel"
                     autoComplete="tel"
                     placeholder="+7 900 123-45-67"
                     value={phone}
                     onChange={(event) => setPhone(event.target.value)}
-                    className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                    aria-invalid={errorField === "phone" || undefined}
+                    aria-describedby={
+                      errorField === "phone" ? AUTH_ERROR_ID : undefined
+                    }
+                    className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 shadow-none"
                   />
                 </div>
                 {role === "guide" ? (
@@ -348,7 +413,7 @@ export function AuthEntryScreen({
                     {GUIDE_TYPES.map((type) => (
                       <label
                         key={type.id}
-                        className="flex cursor-pointer items-center gap-3 rounded-[1.2rem] border border-input bg-surface-high/[0.78] px-4 py-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                        className="flex cursor-pointer items-center gap-3 rounded-xl border border-input bg-surface-high/[0.78] px-4 py-3 text-sm transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                       >
                         <input
                           type="radio"
@@ -375,13 +440,17 @@ export function AuthEntryScreen({
               <Mail className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
+                ref={emailRef}
                 type="email"
                 autoComplete="email"
-                placeholder="you@example.com"
+                placeholder="ваш@email.ru"
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
-                aria-invalid={error ? true : undefined}
-                className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 shadow-none focus-visible:border-ring"
+                aria-invalid={errorField === "email" || undefined}
+                aria-describedby={
+                  errorField === "email" ? AUTH_ERROR_ID : undefined
+                }
+                className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 shadow-none"
               />
             </div>
           </div>
@@ -394,18 +463,22 @@ export function AuthEntryScreen({
               <LockKeyhole className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
+                ref={passwordRef}
                 type={showPassword ? "text" : "password"}
                 autoComplete={isSignUp ? "new-password" : "current-password"}
                 placeholder={isSignUp ? "Минимум 6 символов" : "Введите пароль"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                aria-invalid={error ? true : undefined}
-                className="min-h-[3.25rem] w-full rounded-[1.2rem] border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none focus-visible:border-ring"
+                aria-invalid={errorField === "password" || undefined}
+                aria-describedby={
+                  errorField === "password" ? AUTH_ERROR_ID : undefined
+                }
+                className="min-h-13 w-full rounded-xl border border-input bg-surface-high/[0.78] pl-11 pr-14 shadow-none"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
-                className="absolute right-4 top-1/2 inline-flex -translate-y-1/2 items-center text-muted-foreground transition-colors duration-200 hover:text-foreground"
+                className="absolute right-1.5 top-1/2 inline-flex size-11 -translate-y-1/2 items-center justify-center rounded-xl text-muted-foreground outline-none transition-colors duration-200 hover:text-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
                 aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                 aria-pressed={showPassword}
               >
@@ -430,26 +503,27 @@ export function AuthEntryScreen({
           ) : null}
 
           {error ? (
-            <div
+            <Alert
+              id={AUTH_ERROR_ID}
               role="alert"
-              aria-live="assertive"
-              className="flex items-start gap-2 rounded-[1.4rem] border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+              variant="destructive"
+              className="rounded-xl"
             >
-              <AlertCircle className="mt-0.5 size-4 shrink-0" />
-              <p>{error}</p>
-            </div>
+              <AlertCircle />
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           ) : null}
 
           {success ? (
-            <div className="flex items-start gap-2 rounded-[1.4rem] border border-primary/15 bg-primary/5 px-4 py-3 text-sm text-foreground">
-              <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-primary" />
-              <p>{success}</p>
-            </div>
+            <Alert variant="success" className="rounded-xl">
+              <CheckCircle2 />
+              <AlertDescription>{success}</AlertDescription>
+            </Alert>
           ) : null}
 
           <Button
             type="submit"
-            className="h-12 w-full rounded-full"
+            className="h-12 w-full rounded-btn"
             disabled={isSubmitting || !hasSupabaseEnv() || !hydrated}
           >
             {isSubmitting ? `${ctaLabel}...` : ctaLabel}
@@ -467,6 +541,6 @@ export function AuthEntryScreen({
           </button>
         </div>
       </div>
-    </div>
+    </GlassCard>
   );
 }

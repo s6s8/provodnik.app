@@ -76,12 +76,12 @@ export function TagMultiSelect({
         <button
           type="button"
           aria-label={ariaLabel}
-          className="flex h-[46px] w-full items-center gap-[11px] overflow-hidden rounded-[13px] border border-border bg-surface px-[13px] text-left transition-[border-color,box-shadow] focus:border-primary focus:shadow-[0_0_0_3px_rgba(26,86,164,0.12)] focus:outline-none"
+          className="flex h-[46px] w-full items-center gap-[11px] overflow-hidden rounded-step border border-border bg-surface px-[13px] text-left transition-[border-color,box-shadow] focus:border-primary focus:shadow-[0_0_0_3px_rgba(26,86,164,0.12)] focus:outline-none"
         >
           {leading}
           <span className="flex min-w-0 flex-1 items-center gap-1.5 overflow-hidden">
             {selected.length === 0 ? (
-              <span className="truncate text-[15px] font-semibold text-[#C2C9D3]">
+              <span className="truncate text-sm font-semibold text-placeholder">
                 {placeholder}
               </span>
             ) : (
@@ -89,14 +89,14 @@ export function TagMultiSelect({
                 {visible.map((o) => (
                   <span
                     key={o.value}
-                    className="inline-flex h-6 max-w-[110px] shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 text-[11px] font-semibold text-primary"
+                    className="inline-flex h-6 max-w-[110px] shrink-0 items-center gap-1 rounded-full bg-primary/10 px-2 text-xs font-semibold text-primary"
                   >
                     {o.icon}
                     <span className="truncate">{o.label}</span>
                   </span>
                 ))}
                 {overflow > 0 ? (
-                  <span className="inline-flex h-6 shrink-0 items-center rounded-full bg-primary/10 px-2 text-[11px] font-bold text-primary">
+                  <span className="inline-flex h-6 shrink-0 items-center rounded-full bg-primary/10 px-2 text-xs font-bold text-primary">
                     +{overflow}
                   </span>
                 ) : null}

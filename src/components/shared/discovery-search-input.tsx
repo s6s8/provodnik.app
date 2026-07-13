@@ -39,7 +39,7 @@ export function DiscoverySearchInput({
         id={id}
         type="search"
         className={cn(
-          "h-12 rounded-[12px] border-transparent bg-surface pl-11 text-on-surface shadow-lg",
+          "h-12 rounded-step border-transparent bg-surface pl-11 text-on-surface shadow-lg",
           className,
         )}
         {...props}

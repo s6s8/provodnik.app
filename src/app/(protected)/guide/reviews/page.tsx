@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { MessageSquare } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import { ReviewsList } from "@/features/reviews/components/ReviewsList";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type {
@@ -76,7 +78,7 @@ export default async function GuideReviewsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         eyebrow="Кабинет гида"
         title="Отзывы"
@@ -88,9 +90,14 @@ export default async function GuideReviewsPage() {
         </Alert>
       ) : items.length === 0 ? (
         <EmptyState
-          icon={<MessageSquare />}
+          icon={<MessageSquare className="size-6" />}
           title="Отзывов пока нет"
           description="Они появятся после первых завершённых поездок"
+          action={
+            <Button asChild variant="outline">
+              <Link href="/guide/bookings">К моим бронированиям</Link>
+            </Button>
+          }
         />
       ) : (
         <ReviewsList reviews={items} showReplyComposer />

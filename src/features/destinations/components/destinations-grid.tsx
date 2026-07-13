@@ -1,12 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { Compass } from "lucide-react";
+import { Compass, SearchX } from "lucide-react";
 
 import type { DestinationCategory, DestinationRecord } from "@/data/supabase/queries";
 import { DestinationCard } from "@/components/discovery/DestinationCard";
 import { DiscoveryGrid } from "@/components/shared/discovery-shell";
-import { EmptyState } from "@/components/ui/empty-state";
+import { EmptyState } from "@/components/shared/empty-state";
 
 /** Russian labels for the place-index categories shown on cards and facets. */
 export const DESTINATION_CATEGORY_LABELS: Record<DestinationCategory, string> = {
@@ -43,7 +43,7 @@ export function DestinationsGrid({
   if (destinations.length === 0) {
     return (
       <EmptyState
-        icon={Compass}
+        icon={<Compass className="size-7" />}
         title="Пока нет доступных направлений"
         description="Загляните позже — мы добавляем новые города и регионы."
       />
@@ -52,9 +52,11 @@ export function DestinationsGrid({
 
   if (filtered.length === 0) {
     return (
-      <p className="text-on-surface-muted">
-        Ничего не найдено. Попробуйте другой запрос.
-      </p>
+      <EmptyState
+        icon={<SearchX className="size-7" />}
+        title="Ничего не найдено"
+        description="Попробуйте другой запрос или снимите фильтр категории."
+      />
     );
   }
 

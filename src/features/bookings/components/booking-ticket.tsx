@@ -59,7 +59,7 @@ export function BookingTicket({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium uppercase tracking-[0.16em] text-background/60 mb-1">
-                  Provodnik · Ваша поездка
+                  «Проводник» · Ваша поездка
                 </p>
                 <h2 className="text-lg font-semibold leading-tight">{listingTitle}</h2>
               </div>
@@ -74,7 +74,7 @@ export function BookingTicket({
           </div>
 
           {/* Ticket body */}
-          <div className="px-6 py-5 space-y-4">
+          <div className="px-6 py-5 flex flex-col gap-4">
             {/* Booking ID */}
             <div className="rounded-lg bg-muted/50 px-4 py-3 text-center">
               <p className="text-xs text-muted-foreground mb-1">Номер поездки</p>
@@ -84,7 +84,7 @@ export function BookingTicket({
             </div>
 
             {/* Details grid */}
-            <dl className="space-y-2.5 text-sm">
+            <dl className="flex flex-col gap-2.5 text-sm">
               <div className="flex justify-between gap-4">
                 <dt className="text-muted-foreground">Гид</dt>
                 <dd className="font-medium text-foreground text-right">{guideName}</dd>

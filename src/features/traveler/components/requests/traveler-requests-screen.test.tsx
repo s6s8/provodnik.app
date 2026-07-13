@@ -97,7 +97,7 @@ describe('TravelerRequestsScreen — category tabs', () => {
       screen.getByRole('tab', { name: 'Мои группы' }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('tab', { name: 'Подтверждённые' }),
+      screen.getByRole('tab', { name: 'Подтверждено' }),
     ).toBeInTheDocument()
   })
 
@@ -127,14 +127,14 @@ describe('TravelerRequestsScreen — category tabs', () => {
 
     const categoryTabs = screen.getAllByRole('tab')
     expect(categoryTabs[0]?.textContent).toMatch('Активные')
-    expect(categoryTabs[1]?.textContent).toMatch('Подтверждённые')
+    expect(categoryTabs[1]?.textContent).toMatch('Подтверждено')
     expect(categoryTabs[2]?.textContent).toMatch('Мои группы')
 
     fireEvent.click(screen.getByRole('tab', { name: 'Мои группы (1)' }))
 
     expect(screen.getByText('Кострома')).toBeInTheDocument()
 
-    fireEvent.click(screen.getByRole('tab', { name: 'Подтверждённые (1)' }))
+    fireEvent.click(screen.getByRole('tab', { name: 'Подтверждено (1)' }))
 
     expect(screen.getByText('Москва')).toBeInTheDocument()
   })

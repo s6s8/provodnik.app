@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 
+import { Scrim } from "@/components/ui/scrim";
+
 interface TourCardProps {
   href: string;
   imageUrl: string;
@@ -35,10 +37,7 @@ export function TourCard({
       />
 
       {/* Gradient overlay */}
-      <div
-        className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-t from-foreground/80 to-foreground/10"
-        aria-hidden="true"
-      />
+      <Scrim className="z-[1]" />
 
       {/* Content */}
       <div className="relative z-[2] w-full p-6 text-primary-foreground">
@@ -50,14 +49,14 @@ export function TourCard({
             {rating !== undefined && rating > 0 ? (
               <>
                 ·
-                <Star className="size-3.5 fill-amber-400 text-amber-400" />
+                <Star className="size-3.5 fill-gold text-gold" />
                 {rating}
               </>
             ) : null}
           </span>
         </div>
 
-        <div className="mt-3.5 w-fit rounded-full border border-primary-foreground/20 bg-primary-foreground/20 px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-[20px]">
+        <div className="mt-3.5 w-fit rounded-full border border-primary-foreground/20 bg-primary-foreground/20 px-4 py-2 text-[0.8125rem] font-semibold backdrop-blur-xl">
           {price}
         </div>
       </div>

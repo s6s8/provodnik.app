@@ -1,23 +1,23 @@
-import Image from "next/image";
 import Link from "next/link";
 
 import { ArrowRight } from "lucide-react";
 
-import { ReqCard } from "@/components/shared/req-card";
+import { ImmersiveHero } from "@/components/shared/immersive-hero";
+import { OpenGroupCard } from "@/components/shared/open-group-card";
+import { PublicGuideCard } from "@/components/shared/public-guide-card";
 import { Button } from "@/components/ui/button";
 import { formatRubNumber } from "@/data/money";
 import type { DestinationSummary } from "@/data/destinations/types";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import type { GuideRecord, ListingRecord } from "@/data/supabase/queries";
-import { PublicGuideCard } from "@/features/guide/components/public/public-guide-card";
-import { brandGradient } from "@/lib/city-image";
+import { brandGradient, cityImage } from "@/lib/city-image";
 import { ROUTES } from "@/lib/navigation";
 import { pluralize } from "@/lib/utils";
 
 import { ListingsFilter } from "./listings-filter";
 
-function derivePrice(budgetPerPersonRub?: number): string {
-  if (!budgetPerPersonRub) return "По договорённости";
+function derivePrice(budgetPerPersonRub?: number): string | undefined {
+  if (!budgetPerPersonRub) return undefined;
   return `${formatRubNumber(budgetPerPersonRub)} ₽ / чел`;
 }
 
@@ -44,59 +44,37 @@ export function DestinationDetailScreen({
   const minPrice = listings.length
     ? Math.min(...listings.map((l) => l.priceRub))
     : null;
+  const showRegionCrumb = Boolean(
+    destination.region &&
+      destination.region.trim().toLowerCase() !== destination.name.trim().toLowerCase(),
+  );
 
   return (
     <div>
-      <section className="-mt-nav-h relative flex min-h-[520px] items-end overflow-hidden pb-14 [--on-surface:#fff] [--on-surface-muted:rgba(255,255,255,0.72)]">
-        <Image
-          src={heroImage}
-          alt={destination.name}
-          fill
-          priority
-          sizes="100vw"
-          className="z-0 object-cover"
-        />
-
-        <div
-          className="absolute inset-0 pointer-events-none bg-gradient-to-b from-foreground/10 via-foreground/40 to-foreground/60"
-          aria-hidden
-        />
-
-        <div className="relative z-[2] mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] pt-[calc(var(--nav-h)+48px)] pb-14 text-primary-foreground">
-          <div className="max-w-[720px]">
-            {destination.region &&
-            destination.region.trim().toLowerCase() !==
-              destination.name.trim().toLowerCase() ? (
-              <p className="mb-2 font-sans text-[0.6875rem] font-medium uppercase tracking-[0.18em] text-primary-foreground/70">
-                {destination.region}
-              </p>
-            ) : null}
-
-            <h1 className="font-display text-[clamp(3rem,6vw,4.5rem)] font-semibold leading-[1.02]">
-              {destination.name}
-            </h1>
-
-            {destination.description ? (
-              <p className="mt-4 max-w-[560px] text-base leading-[1.65] text-primary-foreground/80">
-                {destination.description}
-              </p>
-            ) : null}
-
-            <div className="mt-5 flex flex-wrap gap-2.5">
-              <Button asChild>
-                <Link href={`/guides?region=${encodeURIComponent(destination.region ?? "")}`}>Найти гида</Link>
-              </Button>
-              <Button
-                variant="outline"
-                asChild
-                className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
-              >
-                <a href="#tours">Смотреть маршруты</a>
-              </Button>
-            </div>
-          </div>
+      <ImmersiveHero
+        className="-mt-nav-h"
+        imageUrl={heroImage}
+        breadcrumb={[
+          { label: "Направления", href: "/destinations" },
+          ...(showRegionCrumb ? [{ label: destination.region! }] : []),
+          { label: destination.name, current: true },
+        ]}
+        title={destination.name}
+        intro={destination.description || undefined}
+      >
+        <div className="flex flex-wrap gap-2.5">
+          <Button asChild>
+            <Link href={`/guides?region=${encodeURIComponent(destination.region ?? "")}`}>Найти гида</Link>
+          </Button>
+          <Button
+            variant="outline"
+            asChild
+            className="border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
+          >
+            <a href="#tours">Смотреть маршруты</a>
+          </Button>
         </div>
-      </section>
+      </ImmersiveHero>
 
       <section className="bg-surface-low py-8">
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
@@ -134,7 +112,7 @@ export function DestinationDetailScreen({
           <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
             <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+                <p className="mb-2 font-sans text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                   Сборные группы
                 </p>
                 <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
@@ -150,31 +128,23 @@ export function DestinationDetailScreen({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {openRequests.slice(0, 3).map((request) => {
                 const location = request.destinationLabel.split(",")[0].trim();
-                const isOpenGroup = request.group.openToMoreMembers;
-                const fillPct = isOpenGroup
-                  ? null
-                  : Math.round(
-                      (request.group.sizeCurrent / request.group.sizeTarget) * 100,
-                    );
-                const spotsLabel = isOpenGroup
-                  ? `${request.group.sizeCurrent} ${pluralize(
-                      request.group.sizeCurrent,
-                      "человек",
-                      "человека",
-                      "человек",
-                    )}`
-                  : `${request.group.sizeCurrent} / ${request.group.sizeTarget} мест`;
                 return (
-                  <ReqCard
+                  <OpenGroupCard
                     key={request.id}
                     href={`/requests/${request.id}`}
-                    location={location}
-                    spotsLabel={spotsLabel}
-                    title={request.highlights[0] ?? request.destinationLabel}
+                    city={location}
+                    region={request.regionLabel}
+                    imageUrl={request.cityImageUrl || request.imageUrl || cityImage(location)}
+                    status={request.status === "matched" ? "selected" : "waiting"}
+                    minPeople={`от ${request.group.sizeTarget} чел.`}
                     date={request.dateRangeLabel}
-                    desc={request.highlights[1]}
-                    fillPct={fillPct}
+                    datesFlexible={request.datesFlexible}
+                    time={request.timeLabel}
+                    interests={request.interests}
                     members={request.members}
+                    participantCount={request.group.sizeCurrent}
+                    owner={request.isOwner}
+                    member={request.isMember}
                     price={derivePrice(request.budgetPerPersonRub)}
                   />
                 );
@@ -188,7 +158,7 @@ export function DestinationDetailScreen({
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+              <p className="mb-2 font-sans text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 Готовые экскурсии
               </p>
               <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
@@ -210,7 +180,7 @@ export function DestinationDetailScreen({
         <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
           <div className="mb-7 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+              <p className="mb-2 font-sans text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 Активные запросы
               </p>
               <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
@@ -257,7 +227,7 @@ export function DestinationDetailScreen({
         <section className="py-sec-pad" id="guides">
           <div className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)]">
             <div className="mb-7">
-              <p className="mb-2 font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">
+              <p className="mb-2 font-sans text-xs font-medium tracking-[0.18em] uppercase text-muted-foreground">
                 Местные гиды
               </p>
               <h2 className="font-display text-[clamp(1.875rem,3.5vw,2.375rem)] font-semibold leading-[1.1]">
@@ -270,16 +240,18 @@ export function DestinationDetailScreen({
                 {guides.map((guide) => (
                   <PublicGuideCard
                     key={guide.id}
-                    guide={{
-                      id: guide.id,
-                      slug: guide.slug,
-                      name: guide.fullName,
-                      avatarUrl: guide.avatarUrl ?? "",
-                      rating: guide.rating,
-                      tourCount: guide.reviewCount,
-                      specialties: [],
-                      cities: guide.destinations,
-                    }}
+                    slug={guide.slug}
+                    fullName={guide.fullName}
+                    initials={guide.initials}
+                    avatarUrl={guide.avatarUrl}
+                    rating={guide.rating}
+                    reviewCount={guide.reviewCount}
+                    verified={guide.verified}
+                    experienceYears={guide.experienceYears}
+                    specialties={guide.specialties}
+                    tripsCompleted={guide.tripsCompleted}
+                    recommendPct={guide.recommendPct}
+                    languages={guide.languages}
                   />
                 ))}
               </div>

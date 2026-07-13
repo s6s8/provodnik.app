@@ -141,20 +141,20 @@ function FlexPills({
         <span
           className={
             groupType === "assembly"
-              ? "rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700"
-              : "rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700"
+              ? "rounded-full bg-primary-tint px-2 py-0.5 text-xs font-medium text-primary"
+              : "rounded-full bg-gold-50 px-2 py-0.5 text-xs font-medium text-warning-text"
           }
         >
           {groupType === "assembly" ? "Сборная группа" : "Своя группа"}
         </span>
       ) : null}
       {openToJoin ? (
-        <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-medium text-sky-700">
+        <span className="rounded-full bg-primary-tint px-2 py-0.5 text-xs font-medium text-primary">
           + к группе
         </span>
       ) : null}
       {datesFlexible ? (
-        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700">
+        <span className="rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-success-text">
           ± даты
         </span>
       ) : null}
@@ -372,7 +372,7 @@ export function TripCard({
       href={resolveTripHref(phase, trip)}
       className={cn(cardClassName, hasUnread && "border-l-4 border-primary")}
     >
-      <article className="space-y-3">
+      <article className="flex flex-col gap-3">
         <TripCardContent phase={phase} trip={trip} />
       </article>
     </Link>

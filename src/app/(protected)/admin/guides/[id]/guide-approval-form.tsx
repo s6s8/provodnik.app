@@ -2,8 +2,10 @@
 
 import * as React from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 
 import { approveGuide, rejectGuide, requestChanges, type ActionState } from "./actions";
@@ -30,8 +32,8 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
     approveState.success ?? rejectState.success ?? changesState.success;
 
   return (
-    <form className="space-y-4">
-      <div className="space-y-2">
+    <form className="flex flex-col gap-4">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="guide-note">Комментарий для гида</Label>
         <Textarea
           id="guide-note"
@@ -42,18 +44,18 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
       </div>
 
       {error ? (
-        <div className="rounded-[1rem] border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-          {error}
-        </div>
+        <Alert role="alert" variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
       {success ? (
-        <div className="rounded-[1rem] border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
-          {success}
-        </div>
+        <Alert variant="success">
+          <AlertDescription>{success}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Button
           formAction={approveAction}
           type="submit"
@@ -62,7 +64,7 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
           disabled={anyPending}
           loading={approvePending}
         >
-          {approvePending ? "Одобряем…" : "Одобрить гида"}
+          Одобрить гида
         </Button>
         <Button
           formAction={changesAction}
@@ -72,8 +74,11 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
           disabled={anyPending}
           loading={changesPending}
         >
-          {changesPending ? "Запрашиваем…" : "Запросить изменения"}
+          Запросить изменения
         </Button>
+
+        <Separator className="my-1" />
+
         <Button
           formAction={rejectAction}
           type="submit"
@@ -82,7 +87,7 @@ export function GuideApprovalForm({ guideId }: { guideId: string }) {
           disabled={anyPending}
           loading={rejectPending}
         >
-          {rejectPending ? "Отклоняем…" : "Отклонить"}
+          Отклонить
         </Button>
       </div>
     </form>

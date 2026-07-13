@@ -294,10 +294,10 @@ function TravelerBookingDetailView({
     showTravelerPanel && booking.status === "completed" && !existingReview;
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {reviewStatus === "success" ? (
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-1">
+        <Card>
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle className="text-base">Отзыв отправлен</CardTitle>
             <p className="text-sm text-muted-foreground">
               Спасибо. Отзыв сохранён и появится в профиле гида.
@@ -307,8 +307,8 @@ function TravelerBookingDetailView({
       ) : null}
 
       {disputeStatus === "success" ? (
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-1">
+        <Card>
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle className="text-base">Спор открыт</CardTitle>
             <p className="text-sm text-muted-foreground">
               Мы передали его на рассмотрение и привязали к этой поездке.
@@ -318,10 +318,10 @@ function TravelerBookingDetailView({
       ) : null}
 
       <div className="py-12">
-        <div className="mx-auto flex max-w-[640px] flex-col gap-6 px-[var(--px)] lg:grid lg:max-w-[1080px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8">
+        <div className="mx-auto flex max-w-[640px] flex-col gap-6 px-gutter lg:grid lg:max-w-[1080px] lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-8">
           {/* left: trip content */}
           <div className="flex flex-col gap-6 lg:col-start-1 lg:min-w-0">
-            <header className="space-y-3">
+            <header className="flex flex-col gap-3">
               <BookingStatusBadge status={status} />
               <PageHeader title={resolvedListingTitle || "Бронирование"} actions={primaryCTA} />
             </header>
@@ -334,11 +334,11 @@ function TravelerBookingDetailView({
               </Alert>
             ) : null}
 
-            <Card className="border-border/70 bg-card/90">
+            <Card>
               <CardContent className="flex flex-col gap-2 p-5">
-                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Детали поездки</p>
+                <Badge variant="eyebrow">Детали поездки</Badge>
                 {showCardDestination ? (
-                  <p className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">{destination}</p>
+                  <p className="font-display text-xl font-semibold text-foreground leading-[1.2]">{destination}</p>
                 ) : null}
                 {dateRange ? (
                   <p className="font-sans text-sm text-muted-foreground">
@@ -367,9 +367,9 @@ function TravelerBookingDetailView({
             </Card>
 
             {(description || inclusions.length > 0 || offer?.title) ? (
-              <Card className="border-border/70 bg-card/90">
+              <Card>
                 <CardContent className="flex flex-col gap-3 p-5">
-                  <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Что вас ждёт</p>
+                  <Badge variant="eyebrow">Что вас ждёт</Badge>
                   {offer?.title ? (
                     <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
                   ) : null}
@@ -412,7 +412,8 @@ function TravelerBookingDetailView({
                   href="/trips"
                   className="font-sans text-sm font-medium text-primary no-underline inline-flex items-center gap-1 hover:underline"
                 >
-                  ← К моим поездкам
+                  <ArrowLeft className="size-4" />
+                  К моим поездкам
                 </Link>
               </>
             ) : null}
@@ -420,9 +421,9 @@ function TravelerBookingDetailView({
 
           {/* right: money + agreement + contact + actions (sticky on desktop) */}
           <aside className="flex flex-col gap-6 lg:col-start-2 lg:sticky lg:top-24">
-            <Card className="border-border/70 bg-card/90">
+            <Card>
               <CardContent className="flex flex-col gap-1.5 p-5">
-                <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground mb-1">Стоимость</p>
+                <Badge variant="eyebrow">Стоимость</Badge>
                 <MoneyBreakdown
                   pricePerPerson={pricePerPersonMinor / 100}
                   partySize={partySize}
@@ -435,11 +436,11 @@ function TravelerBookingDetailView({
             </Card>
 
             {paymentAgreement ? (
-              <Card className="border-border/70 bg-card/90">
+              <Card>
                 <CardContent className="flex flex-col gap-3 p-5">
-                  <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Договорённость об оплате</p>
+                  <Badge variant="eyebrow">Договорённость об оплате</Badge>
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="font-display text-[1.375rem] font-semibold text-foreground leading-[1.2]">
+                    <span className="font-display text-xl font-semibold text-foreground leading-[1.2]">
                       {formatRubFromMinor(paymentAgreement.agreedTotalMinor)}
                     </span>
                     {paymentAgreement.method === "in_person" ? (
@@ -465,9 +466,10 @@ function TravelerBookingDetailView({
                       ) : null}
                       <Button
                         type="button"
+                        size="lg"
                         onClick={handleConfirmAgreement}
                         disabled={isConfirmingAgreement}
-                        className="min-h-[44px] w-full sm:w-auto"
+                        className="w-full sm:w-auto"
                       >
                         {isConfirmingAgreement ? "Подтверждаю…" : "Подтвердить договорённость"}
                       </Button>
@@ -479,9 +481,9 @@ function TravelerBookingDetailView({
 
             {showTravelerPanel ? (
               <>
-                <Card className="border-border/70 bg-card/90">
+                <Card>
                   <CardContent className="flex flex-col gap-3.5 p-5">
-                    <p className="font-sans text-[0.6875rem] font-medium tracking-[0.18em] uppercase text-muted-foreground">Свяжитесь с гидом напрямую</p>
+                    <Badge variant="eyebrow">Свяжитесь с гидом напрямую</Badge>
                     <ContactReveal
                       guide={{
                         name: guideName,
@@ -512,7 +514,7 @@ function TravelerBookingDetailView({
 /** Route-level loading placeholder: header + two content cards. */
 export function BookingDetailSkeleton() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Skeleton variant="card" className="h-24" />
       <Skeleton variant="card" />
       <Skeleton variant="card" />
@@ -522,14 +524,14 @@ export function BookingDetailSkeleton() {
 
 function BookingLoadingCard() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Badge variant="outline">Кабинет гида</Badge>
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-2">
+      <Card>
+        <CardHeader className="flex flex-col gap-2">
           <Skeleton className="h-7 w-2/3" />
           <Skeleton className="h-4 w-1/2" />
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="flex flex-col gap-3">
           <Skeleton className="h-4 w-full" />
           <Skeleton className="h-4 w-5/6" />
           <Skeleton className="h-4 w-3/4" />
@@ -541,10 +543,10 @@ function BookingLoadingCard() {
 
 function BookingErrorCard({ onRetry }: { onRetry: () => void }) {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Badge variant="outline">Кабинет гида</Badge>
-      <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-2">
+      <Card>
+        <CardHeader className="flex flex-col gap-2">
           <CardTitle>Не удалось загрузить бронирование</CardTitle>
           <p className="text-sm text-muted-foreground">
             Данные не пришли. Попробуйте ещё раз.
@@ -706,10 +708,10 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
 
   if (!record) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <Badge variant="outline">Кабинет гида</Badge>
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-2">
+        <Card>
+          <CardHeader className="flex flex-col gap-2">
             <CardTitle>Бронирование не найдено</CardTitle>
             <p className="text-sm text-muted-foreground">
               По этому идентификатору нет данных на этом устройстве.
@@ -740,8 +742,8 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
     record.status === "confirmed" || record.status === "completed";
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-3">
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <Button asChild variant="ghost" className="-ml-3 px-3">
             <Link href="/guide/bookings">
@@ -752,11 +754,8 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           <GuideBookingStatusBadge status={statusTyped} />
         </div>
 
-        <div className="space-y-2">
-          <Badge variant="outline">Кабинет гида</Badge>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-            {record.destination}
-          </h1>
+        <div className="flex flex-col gap-2">
+          <PageHeader eyebrow="Кабинет гида" title={record.destination} />
           <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
             <span className="inline-flex items-center gap-2">
               <CalendarDays className="size-4 text-muted-foreground" />
@@ -780,16 +779,18 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
       ) : null}
 
       {actionResult ? (
-        <div className="rounded-lg border border-border/70 bg-background/60 p-3 text-sm text-muted-foreground">
-          Статус обновлён:{" "}
-          <span className="font-medium text-foreground">
-            {ACTION_LABEL_RU[actionResult.action] ?? actionResult.action}
-          </span>{" "}
-          →{" "}
-          <span className="font-medium text-foreground">
-            {formatStatusLabelForSummary(actionResult.nextStatus)}
-          </span>
-        </div>
+        <Alert variant="success" role="status">
+          <AlertDescription>
+            Статус обновлён:{" "}
+            <span className="font-medium">
+              {ACTION_LABEL_RU[actionResult.action] ?? actionResult.action}
+            </span>{" "}
+            →{" "}
+            <span className="font-medium">
+              {formatStatusLabelForSummary(actionResult.nextStatus)}
+            </span>
+          </AlertDescription>
+        </Alert>
       ) : null}
 
       {(canConfirm || canComplete || canCancel || canNoShow) && (
@@ -797,9 +798,10 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           {canConfirm ? (
             <Button
               type="button"
+              size="lg"
               disabled={isPending}
               onClick={handleConfirm}
-              className="min-h-[44px] w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <CheckCircle2 className="size-4" />
               {isPending ? "Подтверждаю…" : "Подтвердить"}
@@ -808,9 +810,10 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           {canComplete ? (
             <Button
               type="button"
+              size="lg"
               disabled={isPending}
               onClick={handleComplete}
-              className="min-h-[44px] w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <CheckCircle2 className="size-4" />
               {isPending ? "Завершаю…" : "Завершить"}
@@ -820,9 +823,10 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
             <Button
               type="button"
               variant="outline"
+              size="lg"
               disabled={isPending}
               onClick={handleCancel}
-              className="min-h-[44px] w-full sm:w-auto"
+              className="w-full sm:w-auto"
             >
               <XCircle className="size-4" />
               Отменить
@@ -831,10 +835,11 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
           {canNoShow ? (
             <Button
               type="button"
-              variant="ghost"
+              variant="destructive"
+              size="lg"
               disabled={isPending}
               onClick={handleNoShow}
-              className="min-h-[44px] w-full sm:w-auto text-destructive hover:text-destructive"
+              className="w-full sm:w-auto"
             >
               <ShieldAlert className="size-4" />
               Неявка
@@ -845,15 +850,15 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
       {confirmDialog}
 
       {contactRevealed ? (
-        <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-1">
+        <Card>
+          <CardHeader className="flex flex-col gap-1">
             <CardTitle>Свяжитесь с путешественником</CardTitle>
             <p className="text-sm text-muted-foreground">
               Контакт открыт после подтверждения бронирования.
             </p>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col gap-[0.3rem]">
+            <div className="flex flex-col gap-1">
               <p className="font-sans text-base font-semibold text-foreground">
                 {record.travelerName ?? "Путешественник"}
               </p>

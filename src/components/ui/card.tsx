@@ -30,7 +30,7 @@ function Card({
         padding === "sm" && "py-4 data-[size=sm]:py-4",
         isGlass
           ? cn(
-              "bg-glass backdrop-blur-[20px] rounded-glass *:[img:first-child]:rounded-t-glass *:[img:last-child]:rounded-b-glass",
+              "bg-glass backdrop-blur-xl rounded-glass *:[img:first-child]:rounded-t-glass *:[img:last-child]:rounded-b-glass",
               border && "border border-glass-border",
               shadow && "shadow-glass"
             )

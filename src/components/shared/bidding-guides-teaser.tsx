@@ -34,10 +34,10 @@ export function BiddingGuidesTeaser({ guides }: { guides: BiddingGuide[] }) {
 
   return (
     <section className="flex flex-col gap-3">
-      <div className="text-[11.5px] font-semibold uppercase tracking-[0.06em] text-on-surface-muted">
+      <div className="text-xs font-semibold uppercase tracking-[0.06em] text-on-surface-muted">
         ВАШИ ПРОВОДНИКИ
       </div>
-      <p className="text-[15px] font-medium text-on-surface">
+      <p className="text-sm font-medium text-on-surface">
         {n} {pluralize(n, "проверенный гид", "проверенных гида", "проверенных гидов")} уже
         предлагают программу
       </p>
@@ -48,7 +48,7 @@ export function BiddingGuidesTeaser({ guides }: { guides: BiddingGuide[] }) {
           return (
             <div
               key={guide.user_id}
-              className="flex items-center gap-3 rounded-[14px] border border-border bg-surface-lowest px-4 py-3"
+              className="flex items-center gap-3 rounded-card border border-border bg-surface-lowest px-4 py-3"
             >
               <Avatar className="size-10">
                 <AvatarImage src={guide.avatar_url ?? undefined} alt={displayName} />
@@ -58,14 +58,14 @@ export function BiddingGuidesTeaser({ guides }: { guides: BiddingGuide[] }) {
               </Avatar>
               <div className="flex flex-col gap-0.5">
                 <div className="flex items-center gap-2">
-                  <span className="text-[14px] font-semibold text-on-surface">{displayName}</span>
-                  <span className="inline-flex items-center gap-1 text-[12px] font-medium text-success">
+                  <span className="text-sm font-semibold text-on-surface">{displayName}</span>
+                  <span className="inline-flex items-center gap-1 text-xs font-medium text-success">
                     <BadgeCheck className="size-3.5" />
                     Проверен
                   </span>
                 </div>
                 {guide.average_rating != null || guide.review_count != null ? (
-                  <span className="inline-flex items-center gap-1 text-[12.5px] text-on-surface-muted">
+                  <span className="inline-flex items-center gap-1 text-xs text-on-surface-muted">
                     {guide.average_rating != null ? (
                       <>
                         <Star className="size-3.5 fill-current text-gold" />

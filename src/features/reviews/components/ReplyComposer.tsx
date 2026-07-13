@@ -104,7 +104,7 @@ export function ReplyComposer({ reviewId, existingReply }: ReplyComposerProps) {
 
   if (status === "pending_review") {
     return (
-      <div className="space-y-2 rounded-lg border border-border/70 bg-card/60 p-4 text-sm text-muted-foreground">
+      <div className="flex flex-col gap-2 rounded-lg border border-border/70 bg-card/60 p-4 text-sm text-muted-foreground">
         <p>Ответ на проверке у модератора</p>
       </div>
     );
@@ -112,7 +112,7 @@ export function ReplyComposer({ reviewId, existingReply }: ReplyComposerProps) {
 
   if (status === "published") {
     return (
-      <div className="space-y-3 rounded-lg border border-border/70 bg-card/60 p-4">
+      <div className="flex flex-col gap-3 rounded-lg border border-border/70 bg-card/60 p-4">
         <p className="text-sm font-medium text-foreground">Опубликованный ответ</p>
         <Separator />
         <p className="whitespace-pre-wrap text-sm text-foreground">{reply!.body}</p>
@@ -122,7 +122,7 @@ export function ReplyComposer({ reviewId, existingReply }: ReplyComposerProps) {
 
   // No reply yet or draft
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col gap-3">
       {error !== null && (
         <p className="text-sm text-destructive" role="alert">
           {error}

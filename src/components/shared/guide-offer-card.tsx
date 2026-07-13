@@ -110,28 +110,28 @@ export function GuideOfferCard({
       tabIndex={0}
       aria-pressed={selected}
       className={cn(
-        "group relative cursor-pointer rounded-[16px] border border-border p-[22px] shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-[0_20px_38px_-22px_rgba(20,28,40,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "group relative cursor-pointer rounded-card border border-border p-[22px] shadow-card transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-[0_20px_38px_-22px_rgba(20,28,40,.42)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         selected ? "bg-gradient-to-b from-surface to-primary-tint/30" : "bg-card",
         className,
       )}
     >
       {selected ? (
-        <div className="pointer-events-none absolute inset-0 rounded-[16px] border-2 border-primary shadow-[0_0_0_4px_rgba(26,86,164,.09)]" />
+        <div className="pointer-events-none absolute inset-0 rounded-card border-2 border-primary shadow-[0_0_0_4px_rgba(26,86,164,.09)]" />
       ) : null}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-[128px_minmax(0,1fr)]">
         {/* Portrait */}
         <div className="relative">
-          <Avatar className="h-[140px] w-full rounded-[12px] sm:h-full sm:min-h-[178px]">
+          <Avatar className="h-[140px] w-full rounded-step sm:h-full sm:min-h-[178px]">
             {guide.avatar_url ? (
               <AvatarImage src={guide.avatar_url} alt={name} className="object-cover" />
             ) : null}
-            <AvatarFallback className="rounded-[12px] bg-surface-low text-2xl font-semibold text-on-surface-muted">
+            <AvatarFallback className="rounded-step bg-surface-low text-2xl font-semibold text-on-surface-muted">
               {name.charAt(0).toUpperCase()}
             </AvatarFallback>
           </Avatar>
           {isLocal ? (
-            <span className="absolute bottom-2 left-2 inline-flex items-center gap-[5px] rounded-full bg-[rgba(8,14,24,.62)] px-[9px] py-1 text-[11px] font-semibold text-white backdrop-blur-[4px]">
+            <span className="absolute bottom-2 left-2 inline-flex items-center gap-[5px] rounded-full bg-[rgba(8,14,24,.62)] px-[9px] py-1 text-xs font-semibold text-white backdrop-blur-[4px]">
               <MapPin className="size-3" strokeWidth={1.8} />
               Местный житель
             </span>
@@ -141,25 +141,25 @@ export function GuideOfferCard({
         {/* Body */}
         <div className="flex min-w-0 flex-col">
           <div className="mb-1 flex flex-wrap items-center gap-x-[10px] gap-y-1">
-            <span className="text-[21px] font-bold leading-[1.15] tracking-[-0.02em] text-on-surface">
+            <span className="text-xl font-bold leading-[1.15] tracking-[-0.02em] text-on-surface">
               {name}
             </span>
             {guide.verified ? (
-              <span className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-success">
+              <span className="inline-flex items-center gap-1 text-xs font-semibold text-success">
                 <BadgeCheck className="size-[14px]" strokeWidth={2.3} />
                 {verifiedWord}
               </span>
             ) : null}
             {selected ? (
-              <span className="inline-flex h-[22px] items-center rounded-full bg-primary/10 px-[10px] text-[11.5px] font-semibold text-primary">
+              <span className="inline-flex h-[22px] items-center rounded-full bg-primary/10 px-[10px] text-xs font-semibold text-primary">
                 Ваш выбор
               </span>
             ) : null}
           </div>
           {roleLine ? (
-            <div className="mb-1 text-[13.5px] text-on-surface-muted">{roleLine}</div>
+            <div className="mb-1 text-sm text-on-surface-muted">{roleLine}</div>
           ) : null}
-          <div className="mb-3 flex flex-wrap items-center gap-x-[10px] gap-y-1 text-[13px] text-on-surface-muted">
+          <div className="mb-3 flex flex-wrap items-center gap-x-[10px] gap-y-1 text-xs text-on-surface-muted">
             {responseTimeLabel ? <span>{responseTimeLabel}</span> : null}
             {profileHref ? (
               <a
@@ -172,7 +172,7 @@ export function GuideOfferCard({
             ) : null}
           </div>
           {quote ? (
-            <p className="mb-[13px] max-w-[58ch] text-[15px] leading-[1.55] text-ink-2">{quote}</p>
+            <p className="mb-[13px] max-w-[58ch] text-sm leading-[1.55] text-ink-2">{quote}</p>
           ) : null}
           {guide.specialties.length > 0 ? (
             <div className="mb-[14px] flex flex-wrap gap-[7px]">
@@ -182,7 +182,7 @@ export function GuideOfferCard({
                   <span
                     key={tag}
                     className={cn(
-                      "inline-flex items-center gap-[5px] rounded-full px-3 py-[5px] text-[12.5px] font-medium",
+                      "inline-flex items-center gap-[5px] rounded-full px-3 py-[5px] text-xs font-medium",
                       matched ? "bg-primary-tint text-primary" : "bg-surface-low text-ink-2",
                     )}
                   >
@@ -194,12 +194,12 @@ export function GuideOfferCard({
             </div>
           ) : null}
           {isNewGuide ? (
-            <div className="mt-auto text-[13.5px] font-medium text-on-surface-muted">
+            <div className="mt-auto text-sm font-medium text-on-surface-muted">
               Новый гид — первые поездки
             </div>
           ) : null}
           {showStats ? (
-            <div className="mt-auto flex flex-wrap items-center gap-[9px] text-[13.5px] text-on-surface-muted">
+            <div className="mt-auto flex flex-wrap items-center gap-[9px] text-sm text-on-surface-muted">
               {showRating ? (
                 <span className="inline-flex items-center gap-[5px] font-semibold text-on-surface">
                   <Star className="size-[15px] fill-[var(--gold)] text-[var(--gold)]" />
@@ -241,7 +241,7 @@ export function GuideOfferCard({
         <button
           type="button"
           className={cn(
-            "inline-flex h-[46px] w-full max-w-sm items-center justify-center gap-[7px] rounded-[10px] text-[14.5px] font-semibold transition-colors",
+            "inline-flex h-[46px] w-full max-w-sm items-center justify-center gap-[7px] rounded-btn text-sm font-semibold transition-colors",
             selected
               ? "border border-success/30 bg-success/12 text-success"
               : "bg-primary text-white hover:bg-primary-hover",
@@ -257,7 +257,7 @@ export function GuideOfferCard({
           )}
         </button>
         {onSelect ? (
-          <div className="text-[12px] text-muted-foreground">
+          <div className="text-xs text-muted-foreground">
             после выбора откроются контакты и чат
           </div>
         ) : null}
@@ -268,7 +268,7 @@ export function GuideOfferCard({
               e.stopPropagation();
               onReject();
             }}
-            className="inline-flex h-9 w-full max-w-sm items-center justify-center rounded-[10px] text-[13.5px] font-medium text-on-surface-muted transition-colors hover:bg-surface-low"
+            className="inline-flex h-9 w-full max-w-sm items-center justify-center rounded-btn text-sm font-medium text-on-surface-muted transition-colors hover:bg-surface-low"
           >
             Не подходит
           </button>

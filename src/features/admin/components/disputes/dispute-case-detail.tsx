@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
-import { AlertTriangle, MessageSquareText, ShieldAlert, Snowflake } from "lucide-react";
+import { MessageSquareText } from "lucide-react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -23,22 +23,11 @@ import {
   resolveDisputeAction,
 } from "@/app/(protected)/admin/disputes/[caseId]/actions";
 
+import { DISPUTE_STATUS_META } from "./dispute-status-meta";
+
 function bookingStatusLabel(status: string | undefined): string {
   if (!status) return "—";
   return BOOKING_STATUS_LABELS[status as BookingStatus] ?? status;
-}
-
-function statusBadge(status: DisputeDetail["status"]) {
-  switch (status) {
-    case "open":
-      return { label: "Открыт", variant: "default" as const, Icon: AlertTriangle };
-    case "under_review":
-      return { label: "В работе", variant: "secondary" as const, Icon: ShieldAlert };
-    case "resolved":
-      return { label: "Решён", variant: "secondary" as const, Icon: Snowflake };
-    case "closed":
-      return { label: "Закрыт", variant: "outline" as const, Icon: Snowflake };
-  }
 }
 
 export function DisputeCaseDetail({
@@ -48,7 +37,7 @@ export function DisputeCaseDetail({
   dispute: DisputeDetail;
   adminId: string;
 }) {
-  const badge = statusBadge(dispute.status);
+  const badge = DISPUTE_STATUS_META[dispute.status];
   const booking = dispute.booking;
   const isAssignedToMe = dispute.assignedAdminId === adminId;
 
@@ -57,14 +46,14 @@ export function DisputeCaseDetail({
   const [resolveState, resolveAction, resolvePending] = useActionState(resolveDisputeAction, null);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader eyebrow="Спор" title="Разбор спора" />
 
       <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-3">
+        <CardHeader className="flex flex-col gap-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-            <div className="space-y-2">
-              <CardTitle className="text-lg">
+            <div className="flex flex-col gap-2">
+              <CardTitle>
                 {booking?.travelerName ?? "Путешественник"} vs {booking?.guideName ?? "Локальный гид"}
               </CardTitle>
               <CardDescription className="flex flex-wrap gap-x-2 gap-y-1">
@@ -97,15 +86,15 @@ export function DisputeCaseDetail({
           <Separator />
 
           <div className="grid gap-4 md:grid-cols-3">
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="text-sm font-medium text-foreground">Причина</p>
               <p className="text-sm text-muted-foreground">{dispute.reason}</p>
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="text-sm font-medium text-foreground">Запрошенный исход</p>
               <p className="text-sm text-muted-foreground">{dispute.requestedOutcome || "Не указан"}</p>
             </div>
-            <div className="space-y-1">
+            <div className="flex flex-col gap-1">
               <p className="text-sm font-medium text-foreground">Тайминг</p>
               <p className="text-sm text-muted-foreground">Создано {formatRussianDateTime(dispute.createdAt)}</p>
               <p className="text-sm text-muted-foreground">Обновлено {formatRussianDateTime(dispute.updatedAt)}</p>
@@ -116,22 +105,22 @@ export function DisputeCaseDetail({
 
       <div className="grid gap-4 lg:grid-cols-[1.4fr_0.9fr]">
         <Card className="border-border/70 bg-card/90">
-          <CardHeader className="space-y-2">
-            <CardTitle className="text-lg">Ход разбора</CardTitle>
+          <CardHeader className="flex flex-col gap-2">
+            <CardTitle>Ход разбора</CardTitle>
             <CardDescription>
               Заметки администраторов и служебные комментарии, добавленные к спору.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="flex flex-col gap-3">
             {dispute.notes.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border/70 bg-background/60 p-4 text-sm text-muted-foreground">
+              <div className="rounded-card border border-dashed border-border/70 bg-background/60 p-4 text-sm text-muted-foreground">
                 Пока нет заметок. Добавьте первый комментарий через форму справа.
               </div>
             ) : (
               dispute.notes.map((note) => (
-                <article key={note.id} className="rounded-2xl border border-border/60 bg-background/70 p-4">
+                <article key={note.id} className="rounded-card border border-border/60 bg-background/70 p-4">
                   <div className="flex flex-wrap items-start justify-between gap-2">
-                    <div className="space-y-1">
+                    <div className="flex flex-col gap-1">
                       <p className="text-sm font-medium text-foreground">{note.authorName}</p>
                       <p className="text-xs text-muted-foreground">{formatRussianDateTime(note.createdAt)}</p>
                     </div>
@@ -146,14 +135,14 @@ export function DisputeCaseDetail({
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div className="flex flex-col gap-4">
           <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-2">
-              <CardTitle className="text-lg">Действия</CardTitle>
+            <CardHeader className="flex flex-col gap-2">
+              <CardTitle>Действия</CardTitle>
               <CardDescription>Назначить спор на себя, добавить заметку или закрыть его решением.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <form action={assignAction} className="space-y-3">
+            <CardContent className="flex flex-col gap-3">
+              <form action={assignAction} className="flex flex-col gap-3">
                 <input type="hidden" name="case_id" value={dispute.id} />
                 <input type="hidden" name="admin_id" value={adminId} />
                 <Button
@@ -163,14 +152,10 @@ export function DisputeCaseDetail({
                   disabled={(isAssignedToMe && dispute.status !== "open") || assignPending}
                   loading={assignPending}
                 >
-                  {assignPending
-                    ? "Назначаем…"
-                    : isAssignedToMe
-                      ? "Уже назначен на вас"
-                      : "Назначить себе"}
+                  {isAssignedToMe ? "Уже назначен на вас" : "Назначить себе"}
                 </Button>
                 {assignState?.error ? (
-                  <Alert variant="destructive">
+                  <Alert role="alert" variant="destructive">
                     <AlertDescription>{assignState.error}</AlertDescription>
                   </Alert>
                 ) : null}
@@ -178,11 +163,11 @@ export function DisputeCaseDetail({
 
               <Separator />
 
-              <form action={noteAction} className="space-y-3">
+              <form action={noteAction} className="flex flex-col gap-3">
                 <input type="hidden" name="case_id" value={dispute.id} />
                 <input type="hidden" name="author_id" value={adminId} />
                 <input type="hidden" name="internal_only" value="true" />
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="note-input">Добавить заметку</Label>
                   <Textarea
                     id="note-input"
@@ -191,6 +176,8 @@ export function DisputeCaseDetail({
                     minLength={1}
                     maxLength={4000}
                     required
+                    aria-invalid={noteState?.error ? true : undefined}
+                    aria-describedby={noteState?.error ? "note-error" : undefined}
                   />
                 </div>
                 <Button
@@ -201,10 +188,10 @@ export function DisputeCaseDetail({
                   loading={notePending}
                 >
                   <MessageSquareText className="mr-1 size-4" />
-                  {notePending ? "Сохраняем…" : "Сохранить заметку"}
+                  Сохранить заметку
                 </Button>
                 {noteState?.error ? (
-                  <Alert variant="destructive">
+                  <Alert id="note-error" role="alert" variant="destructive">
                     <AlertDescription>{noteState.error}</AlertDescription>
                   </Alert>
                 ) : null}
@@ -212,10 +199,10 @@ export function DisputeCaseDetail({
 
               <Separator />
 
-              <form action={resolveAction} className="space-y-3">
+              <form action={resolveAction} className="flex flex-col gap-3">
                 <input type="hidden" name="case_id" value={dispute.id} />
                 <input type="hidden" name="admin_id" value={adminId} />
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="resolution-input">Итоговое решение</Label>
                   <Textarea
                     id="resolution-input"
@@ -224,6 +211,10 @@ export function DisputeCaseDetail({
                     minLength={1}
                     maxLength={4000}
                     required
+                    aria-invalid={resolveState?.error ? true : undefined}
+                    aria-describedby={
+                      resolveState?.error ? "resolution-error" : undefined
+                    }
                   />
                 </div>
                 <Button
@@ -232,10 +223,10 @@ export function DisputeCaseDetail({
                   disabled={dispute.status === "resolved" || resolvePending}
                   loading={resolvePending}
                 >
-                  {resolvePending ? "Закрываем…" : "Закрыть спор"}
+                  Закрыть спор
                 </Button>
                 {resolveState?.error ? (
-                  <Alert variant="destructive">
+                  <Alert id="resolution-error" role="alert" variant="destructive">
                     <AlertDescription>{resolveState.error}</AlertDescription>
                   </Alert>
                 ) : null}
@@ -244,10 +235,10 @@ export function DisputeCaseDetail({
           </Card>
 
           <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-2">
-              <CardTitle className="text-lg">Сводка</CardTitle>
+            <CardHeader className="flex flex-col gap-2">
+              <CardTitle>Сводка</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2 text-sm text-muted-foreground">
+            <CardContent className="flex flex-col gap-2 text-sm text-muted-foreground">
               <p>Путешественник: {booking?.travelerName ?? "—"}</p>
               <p>Гид: {booking?.guideName ?? "—"}</p>
               <p>Маршрут: {booking?.listingTitle ?? booking?.destination ?? "—"}</p>

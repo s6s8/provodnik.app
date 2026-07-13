@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Check } from "lucide-react";
+import { useState, useTransition } from "react";
 
 import { updateTravelerProfile } from "@/features/profile/account-settings-actions";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -30,7 +30,9 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>(profile.languages ?? []);
   const [birthYear, setBirthYear] = useState(profile.birth_year?.toString() ?? "");
   const [error, setError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [bioError, setBioError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
   function toggleLanguage(value: string, checked: boolean) {
     setSelectedLanguages((prev) =>
@@ -42,36 +44,51 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
     );
   }
 
-  async function onSubmit(formData: FormData) {
+  function onSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError(null);
+    setNameError(null);
     if (!name.trim()) {
-      setError("Укажите имя");
+      setNameError("Укажите имя");
       return;
     }
-    const result = await updateTravelerProfile(formData);
-    if (!result.ok) {
-      setError(result.error);
-    } else {
-      router.refresh();
-    }
+    const formData = new FormData(event.currentTarget);
+    startTransition(async () => {
+      const result = await updateTravelerProfile(formData);
+      if (!result.ok) {
+        setError(result.error);
+      } else {
+        router.refresh();
+      }
+    });
   }
 
   return (
     <Card className="max-w-3xl">
-      <CardContent className="pt-6">
-        <form action={onSubmit} className="space-y-6">
+      <CardHeader>
+        <CardTitle>О вас</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={onSubmit} className="flex flex-col gap-6">
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="name">Имя</Label>
               <Input
                 id="name"
                 name="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                aria-invalid={nameError ? true : undefined}
+                aria-describedby={nameError ? "name-error" : undefined}
               />
+              {nameError ? (
+                <p id="name-error" role="alert" className="text-sm text-destructive">
+                  {nameError}
+                </p>
+              ) : null}
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="homeCity">Родной город</Label>
               <Input
                 id="homeCity"
@@ -82,7 +99,7 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="flex flex-col gap-2">
             <Label htmlFor="bio">О себе</Label>
             <Textarea
               id="bio"
@@ -107,7 +124,7 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
 
           <fieldset
             aria-labelledby="languages-legend"
-            className="space-y-2"
+            className="flex flex-col gap-2"
           >
             <legend
               id="languages-legend"
@@ -125,24 +142,15 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
                     htmlFor={checkboxId}
                     className="flex min-h-11 cursor-pointer items-center gap-3 rounded-md border border-input bg-background px-3 py-2 font-normal"
                   >
-                    <span className="relative flex size-5 shrink-0 items-center justify-center">
-                      <input
-                        id={checkboxId}
-                        name="languages"
-                        type="checkbox"
-                        value={language.value}
-                        checked={checked}
-                        onChange={(event) =>
-                          toggleLanguage(language.value, event.target.checked)
-                        }
-                        className="peer size-5 cursor-pointer appearance-none rounded-[4px] border border-input bg-background outline-none checked:border-primary checked:bg-primary focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                      />
-                      <Check
-                        aria-hidden
-                        strokeWidth={3}
-                        className="pointer-events-none absolute size-3.5 text-primary-foreground opacity-0 peer-checked:opacity-100"
-                      />
-                    </span>
+                    <Checkbox
+                      id={checkboxId}
+                      name="languages"
+                      value={language.value}
+                      checked={checked}
+                      onCheckedChange={(next) =>
+                        toggleLanguage(language.value, next === true)
+                      }
+                    />
                     <span className="text-sm text-foreground">{language.label}</span>
                   </Label>
                 );
@@ -151,7 +159,7 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
           </fieldset>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="birthYear">Год рождения</Label>
               <Input
                 id="birthYear"
@@ -167,7 +175,9 @@ export function TravelerProfileForm({ profile }: { profile: TravelerProfile }) {
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-          <Button type="submit">Сохранить</Button>
+          <Button type="submit" loading={pending} className="self-start">
+            Сохранить
+          </Button>
         </form>
       </CardContent>
     </Card>

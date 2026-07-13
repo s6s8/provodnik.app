@@ -31,11 +31,12 @@ export default async function ReferralsPage() {
 
   if (!hasSupabaseEnv()) {
     return (
-      <section className="space-y-4">
-        <h1 className="text-xl font-semibold text-foreground">Рефералы и бонусы</h1>
-        <p className="text-sm text-muted-foreground">
-          Раздел станет доступен после подключения Supabase.
-        </p>
+      <section className="flex flex-col gap-4">
+        <PageHeader
+          eyebrow="Кабинет"
+          title="Рефералы и бонусы"
+          subtitle="Раздел станет доступен после подключения Supabase."
+        />
       </section>
     );
   }
@@ -101,6 +102,7 @@ export default async function ReferralsPage() {
   return (
     <section className="mx-auto grid max-w-3xl gap-8">
       <PageHeader
+        eyebrow="Кабинет"
         title="Приглашения и бонусы"
         subtitle="Приглашайте друзей — вы и друг получаете бонусные баллы."
       />
@@ -114,7 +116,7 @@ export default async function ReferralsPage() {
               Для интеграторов и агрегаторов. Управляйте токеном доступа к Partner API.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="flex flex-col gap-6">
             <ApiTokenManager
               hasExistingToken={hasPartnerAccount}
               generatedAt={partnerAccountCreatedAt}

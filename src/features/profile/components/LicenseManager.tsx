@@ -64,18 +64,18 @@ export function LicenseManager({ licenses, isLocked = false }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {deleteError ? (
         <Alert variant="destructive">
           <AlertDescription>{deleteError}</AlertDescription>
         </Alert>
       ) : null}
-      <ul className="space-y-4">
+      <ul className="flex flex-col gap-4">
         {licenses.map((lic) => (
         <li key={lic.id}>
           <Card className="border-border/80">
-            <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 space-y-0 pb-2">
-              <div className="space-y-1">
+            <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3 pb-2">
+              <div className="flex flex-col gap-1">
                 <CardTitle className="text-base font-semibold">{lic.licenseType}</CardTitle>
                 <p className="text-sm text-muted-foreground">
                   № {lic.licenseNumber} · {lic.issuedBy}

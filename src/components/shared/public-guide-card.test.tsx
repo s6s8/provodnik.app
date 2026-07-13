@@ -21,7 +21,7 @@ describe("PublicGuideCard", () => {
     expect(screen.getByText("Тамар Гелашвили")).toBeInTheDocument();
     expect(screen.getByText("4,8")).toBeInTheDocument();
     expect(screen.getByText(/12 отзывов/)).toBeInTheDocument();
-    expect(screen.queryByText("Новый гид")).not.toBeInTheDocument();
+    expect(screen.queryByText("Пока без отзывов")).not.toBeInTheDocument();
   });
 
   it("shows the new-but-vetted state instead of a zero rating", () => {
@@ -29,7 +29,7 @@ describe("PublicGuideCard", () => {
       <PublicGuideCard slug="oleg" fullName="Олег Иванов" initials="ОИ" rating={0} reviewCount={0} verified />,
     );
 
-    expect(screen.getByText("Новый гид")).toBeInTheDocument();
+    expect(screen.getByText("Пока без отзывов")).toBeInTheDocument();
     expect(container.textContent).not.toContain("★0");
     expect(container.textContent).not.toContain("0.0");
   });

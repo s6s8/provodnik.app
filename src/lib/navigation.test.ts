@@ -128,10 +128,12 @@ describe("role-based nav groups", () => {
       "/guides",
       "/trips",
     ]);
+    // T-39: the traveler cabinet holds REQUESTS, not trips — one vocabulary
+    // across nav, cabinet CTAs and empty states.
     expect(travelerPrimaryNav.map((item) => item.label)).toEqual([
       "Запросы",
       "Гиды",
-      "Мои поездки",
+      "Мои запросы",
     ]);
   });
 

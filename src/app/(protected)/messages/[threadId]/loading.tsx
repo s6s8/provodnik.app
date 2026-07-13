@@ -4,7 +4,7 @@ export default function ThreadLoading() {
   return (
     <section className="grid gap-6">
       <div className="flex items-end justify-between gap-4 flex-wrap">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <Skeleton className="h-4 w-24 rounded-full" />
           <Skeleton className="h-12 w-56 rounded-3xl" />
           <Skeleton className="h-5 w-full max-w-xl" />
@@ -12,7 +12,7 @@ export default function ThreadLoading() {
         <Skeleton className="h-11 w-28 rounded-full" />
       </div>
 
-      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm">
+      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-card border border-border bg-card shadow-sm">
         <div className="grid gap-3.5 p-4 max-h-[min(60vh,42rem)] max-md:max-h-none max-md:min-h-[50vh] overflow-y-auto">
           {Array.from({ length: 5 }).map((_, index) => (
             <div
@@ -21,7 +21,7 @@ export default function ThreadLoading() {
                 index % 2 === 0 ? "flex justify-start" : "flex justify-end"
               }
             >
-              <div className="grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-[1.5rem] bg-card border border-border shadow-sm">
+              <div className="grid gap-2.5 max-w-[min(100%,38rem)] max-md:max-w-full px-4 py-3.5 rounded-card bg-card border border-border shadow-sm">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-4 w-56" />
                 <Skeleton className="h-4 w-32" />
@@ -30,7 +30,7 @@ export default function ThreadLoading() {
           ))}
         </div>
         <div className="grid gap-3 p-4 border-t border-border">
-          <Skeleton className="h-11 w-full rounded-[1.4rem]" />
+          <Skeleton className="h-11 w-full rounded-card" />
         </div>
       </div>
     </section>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { PageHeader } from "@/components/shared/page-header";
+import { StatTile } from "@/components/shared/stat-tile";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -84,7 +85,7 @@ export default async function GuideCalendarPage({
 
   if (!user) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         <Card className="border-border/70 bg-card/90">
           <CardHeader>
             <CardTitle className="text-xl">Календарь</CardTitle>
@@ -195,7 +196,7 @@ export default async function GuideCalendarPage({
   const chartData = groupByDay(bookings);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader eyebrow="Кабинет гида" title="Календарь" />
 
       {loadFailed ? (
@@ -259,30 +260,24 @@ export default async function GuideCalendarPage({
                 Бронирования и оборот за выбранный период.
               </p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-6">
               <DateRangePicker value={range} />
               <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  <p className="text-xs text-muted-foreground">Всего бронирований</p>
-                  <p className="mt-1 text-base font-semibold">{bookings.length}</p>
-                </div>
-                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  <p className="text-xs text-muted-foreground">Активных</p>
-                  <p className="mt-1 text-base font-semibold">{activeBookings.length}</p>
-                </div>
-                <div className="rounded-lg border border-border/70 bg-background/60 p-3">
-                  <p className="text-xs text-muted-foreground">Оборот (завершённые)</p>
-                  <p className="mt-1 text-base font-semibold">
-                    {totalRevenue > 0
+                <StatTile label="Всего бронирований" value={bookings.length} />
+                <StatTile label="Активных" value={activeBookings.length} />
+                <StatTile
+                  label="Оборот (завершённые)"
+                  value={
+                    totalRevenue > 0
                       ? new Intl.NumberFormat("ru-RU", {
                           style: "currency",
                           currency: "RUB",
                           currencyDisplay: "symbol",
                           maximumFractionDigits: 0,
                         }).format(totalRevenue)
-                      : "—"}
-                  </p>
-                </div>
+                      : "—"
+                  }
+                />
               </div>
               {chartData.length > 0 ? (
                 <StatsChart data={chartData} label="Бронирований в день" />

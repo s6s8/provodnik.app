@@ -19,8 +19,20 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
+// HelpSearch now owns the category accordions, so the stub echoes the article
+// titles the page hands it — that is what proves the fallback FAQ reached it.
 vi.mock("@/components/help/HelpSearch", () => ({
-  HelpSearch: () => <div>HelpSearch</div>,
+  HelpSearch: ({
+    groups,
+  }: {
+    groups: { id: string; label: string; articles: { id: string; title: string }[] }[];
+  }) => (
+    <div>
+      {groups.flatMap((group) => group.articles).map((article) => (
+        <div key={article.id}>{article.title}</div>
+      ))}
+    </div>
+  ),
 }));
 
 vi.mock("@/components/help/HelpArticle", () => ({

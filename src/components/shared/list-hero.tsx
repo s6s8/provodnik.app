@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { Scrim } from "@/components/ui/scrim";
 import { cn } from "@/lib/utils";
 
 type ListHeroProps = {
@@ -35,14 +36,14 @@ export function ListHero({
         role="img"
         aria-label={title}
       />
-      <div className="hero-overlay absolute inset-0" />
+      <Scrim variant="hero" />
 
       <div className="relative z-[2] mx-auto flex min-h-[380px] w-full max-w-page flex-col justify-center gap-5 px-5 pt-nav-h md:min-h-[420px] md:px-8">
         <h1 className="text-[clamp(2rem,5vw,44px)] font-bold leading-[1.05] tracking-[-0.03em] text-white">
           {title}
         </h1>
         {intro ? (
-          <p className="max-w-[560px] text-[15.5px] leading-[1.5] text-white/90">{intro}</p>
+          <p className="max-w-[560px] text-base leading-[1.5] text-white/90">{intro}</p>
         ) : null}
         {children ? <div className="w-full max-w-[680px]">{children}</div> : null}
       </div>

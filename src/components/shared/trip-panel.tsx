@@ -59,7 +59,7 @@ export function TripPanel({
   return (
     <div
       className={cn(
-        "w-full overflow-hidden rounded-[16px] border border-border bg-glass shadow-glass backdrop-blur-[12px] md:w-[334px]",
+        "w-full overflow-hidden rounded-card border border-border bg-glass shadow-glass backdrop-blur-[12px] md:w-[334px]",
         className,
       )}
     >
@@ -70,20 +70,20 @@ export function TripPanel({
             <Tag color={enrollmentOpen ? "green" : "primary"}>{enrollmentLabel}</Tag>
           </div>
         ) : null}
-        <div className="mb-3 text-[11.5px] font-semibold uppercase tracking-[0.06em] text-primary">
+        <div className="mb-3 text-xs font-semibold uppercase tracking-[0.06em] text-primary">
           Детали поездки
         </div>
         <div className="flex flex-col gap-[11px]">
           <div className="flex items-center gap-[11px]">
             <CalendarDays className="size-[17px] shrink-0 text-primary" strokeWidth={1.7} />
-            <span className="text-[14.5px] font-medium text-on-surface">{dateLabel}</span>
+            <span className="text-sm font-medium text-on-surface">{dateLabel}</span>
           </div>
           {timeLabel ? (
             <div className="flex items-center gap-[11px]">
               <Clock className="size-[17px] shrink-0 text-primary" strokeWidth={1.7} />
-              <span className="text-[14.5px] font-medium text-on-surface">{timeLabel}</span>
+              <span className="text-sm font-medium text-on-surface">{timeLabel}</span>
               {durationLabel ? (
-                <span className="text-[13px] text-on-surface-muted">· {durationLabel}</span>
+                <span className="text-xs text-on-surface-muted">· {durationLabel}</span>
               ) : null}
             </div>
           ) : null}
@@ -95,7 +95,7 @@ export function TripPanel({
           <div className="h-px bg-border" />
           <div className="px-[22px] py-[18px]">
             <div className="mb-[9px] flex items-center justify-between">
-              <span className="flex items-center gap-[7px] text-[13.5px] font-semibold text-on-surface">
+              <span className="flex items-center gap-[7px] text-sm font-semibold text-on-surface">
                 <span
                   className={cn(
                     "size-[7px] rounded-full",
@@ -110,10 +110,10 @@ export function TripPanel({
                 {status?.label ?? (status?.open ? "Группа открыта" : "Группа закрыта")}
               </span>
               {remainingLabel ? (
-                <span className="text-[12.5px] text-on-surface-muted">{remainingLabel}</span>
+                <span className="text-xs text-on-surface-muted">{remainingLabel}</span>
               ) : null}
             </div>
-            <div className="mb-2 text-[13.5px] font-semibold text-ink-2">
+            <div className="mb-2 text-sm font-semibold text-ink-2">
               {seatsTaken ?? 0} / {seatsTotal} мест
             </div>
             <div className="h-1.5 overflow-hidden rounded-full bg-[rgba(20,28,40,.07)]">
@@ -123,7 +123,7 @@ export function TripPanel({
               <div className="mt-[13px] flex items-center gap-[10px]">
                 <AvatarStack members={members} size={26} overlap={9} totalCount={seatsTaken} />
                 {joinedLabel ? (
-                  <p className="text-[12.5px] text-on-surface-muted">{joinedLabel}</p>
+                  <p className="text-xs text-on-surface-muted">{joinedLabel}</p>
                 ) : null}
               </div>
             ) : null}
@@ -134,7 +134,7 @@ export function TripPanel({
       {price || footer ? (
         <div className="border-t border-border px-[22px] py-[18px]">
           {price ? (
-            <div className="mb-2 font-display font-extrabold leading-none tracking-[-0.02em] text-[25px] text-on-surface">
+            <div className="mb-2 font-display font-extrabold leading-none tracking-[-0.02em] text-2xl text-on-surface">
               {price}
             </div>
           ) : null}

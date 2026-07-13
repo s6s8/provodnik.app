@@ -18,6 +18,14 @@ describe("OpenGroupCard", () => {
     expect(screen.queryByRole("link", { name: "Присоединиться" })).not.toBeInTheDocument();
   });
 
+  it("links the card image and title to the request", () => {
+    render(<OpenGroupCard {...baseProps} />);
+
+    const links = screen.getAllByRole("link", { name: /Тбилиси/ });
+    expect(links).toHaveLength(2);
+    for (const link of links) expect(link).toHaveAttribute("href", "/requests/req-1");
+  });
+
   it("keeps owner state above member state", () => {
     render(<OpenGroupCard {...baseProps} owner member />);
 

@@ -36,7 +36,7 @@ export function CabinetSection({
   const headerClickable = phase === "completed";
 
   return (
-    <section className="space-y-3">
+    <section className="flex flex-col gap-3">
       <h2
         className={
           "text-sm font-semibold uppercase tracking-wide text-muted-foreground" +

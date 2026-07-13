@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SearchX } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -217,7 +219,7 @@ export default async function AdminAuditPage({
     } else if (caseRow?.subject_type === "listing" && caseRow.listing_id) {
       subjectHref = listingRow?.slug
         ? `/listings/${listingRow.slug}`
-        : "/admin/listings";
+        : "/admin/moderation";
       subjectText = listingRow?.title
         ? `Листинг «${listingRow.title}»`
         : `Листинг ${caseRow.listing_id.slice(0, 8)}…`;
@@ -250,7 +252,7 @@ export default async function AdminAuditPage({
         : `Листинг ${row.listing_id.slice(0, 8)}…`,
       subjectHref: listingRow?.slug
         ? `/listings/${listingRow.slug}`
-        : "/admin/listings",
+        : "/admin/moderation",
       note: row.reason,
     });
   }
@@ -288,72 +290,81 @@ export default async function AdminAuditPage({
   }
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader eyebrow="Администрирование" title="Журнал действий" />
 
       <form method="get" className="flex flex-wrap items-end gap-3">
-        <Select name="subject" defaultValue={activeSubject}>
-          <SelectTrigger
-            className="min-h-[44px] w-full sm:w-52"
-            aria-label="Фильтр по объекту"
-          >
-            <SelectValue placeholder="Все объекты" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Все</SelectItem>
-            {Object.entries(SUBJECT_FILTERS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select name="action" defaultValue={activeAction}>
-          <SelectTrigger
-            className="min-h-[44px] w-full sm:w-52"
-            aria-label="Фильтр по действию"
-          >
-            <SelectValue placeholder="Все действия" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value={ALL}>Все</SelectItem>
-            {Object.entries(ACTION_FILTERS).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          name="q"
-          type="search"
-          defaultValue={query}
-          placeholder="Поиск по заметке"
-          aria-label="Поиск по заметке"
-          className="min-h-[44px] w-full sm:w-64"
-        />
-        <Button type="submit" variant="outline" className="min-h-[44px]">
+        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+          <Label htmlFor="audit-subject">Объект</Label>
+          <Select name="subject" defaultValue={activeSubject}>
+            <SelectTrigger id="audit-subject" className="h-11 w-full">
+              <SelectValue placeholder="Все объекты" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Все</SelectItem>
+              {Object.entries(SUBJECT_FILTERS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex w-full flex-col gap-1.5 sm:w-52">
+          <Label htmlFor="audit-action">Действие</Label>
+          <Select name="action" defaultValue={activeAction}>
+            <SelectTrigger id="audit-action" className="h-11 w-full">
+              <SelectValue placeholder="Все действия" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Все</SelectItem>
+              {Object.entries(ACTION_FILTERS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>
+                  {label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="flex w-full flex-col gap-1.5 sm:w-64">
+          <Label htmlFor="audit-q">Поиск по заметке</Label>
+          <Input
+            id="audit-q"
+            name="q"
+            type="search"
+            defaultValue={query}
+            placeholder="Поиск по заметке"
+            className="h-11 w-full"
+          />
+        </div>
+        <Button type="submit" variant="outline">
           Применить
         </Button>
-        <Button asChild variant="ghost" className="min-h-[44px]">
+        <Button asChild variant="ghost">
           <Link href="/admin/audit">Сбросить</Link>
         </Button>
       </form>
 
       {entries.length === 0 ? (
         <EmptyState
+          icon={<SearchX className="size-6" />}
           title="Действий не найдено"
           description="Измените фильтры или сбросьте их, чтобы увидеть журнал."
+          action={
+            <Button asChild variant="outline">
+              <Link href="/admin/audit">Сбросить фильтры</Link>
+            </Button>
+          }
         />
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           {entries.map((entry) => {
             const inner = (
-              <div className="flex min-h-[44px] flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-4">
+              <div className="flex min-h-11 flex-col gap-2 p-4 sm:flex-row sm:items-start sm:gap-4">
                 <div className="shrink-0">
                   <Badge variant="secondary">{entry.actionLabel}</Badge>
                 </div>
-                <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex min-w-0 flex-1 flex-col gap-1">
                   <div className="text-sm font-medium text-foreground">
                     {entry.adminLabel}
                   </div>
@@ -397,7 +408,7 @@ export default async function AdminAuditPage({
       {hasPrev || hasNext ? (
         <div className="flex items-center justify-between gap-3">
           {hasPrev ? (
-            <Button asChild variant="outline" className="min-h-[44px]">
+            <Button asChild variant="outline">
               <Link href={pageHref(page - 1)}>Назад</Link>
             </Button>
           ) : (
@@ -405,7 +416,7 @@ export default async function AdminAuditPage({
           )}
           <span className="text-sm text-muted-foreground">Страница {page}</span>
           {hasNext ? (
-            <Button asChild variant="outline" className="min-h-[44px]">
+            <Button asChild variant="outline">
               <Link href={pageHref(page + 1)}>Дальше</Link>
             </Button>
           ) : (

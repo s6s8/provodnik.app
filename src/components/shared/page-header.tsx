@@ -18,9 +18,9 @@ export function PageHeader({ eyebrow, title, subtitle, actions, className }: Pag
         {eyebrow ? (
           <Badge variant="eyebrow" className="mb-2">{eyebrow}</Badge>
         ) : null}
-        <h1 className="text-[30px] font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">{title}</h1>
+        <h1 className="text-3xl font-bold leading-[1.1] tracking-[-0.03em] text-on-surface">{title}</h1>
         {subtitle ? (
-          <p className="mt-2 max-w-[60ch] text-[15px] leading-[1.5] text-on-surface-muted">{subtitle}</p>
+          <p className="mt-2 max-w-[60ch] text-sm leading-[1.5] text-on-surface-muted">{subtitle}</p>
         ) : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}

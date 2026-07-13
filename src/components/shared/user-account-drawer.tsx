@@ -77,7 +77,7 @@ export function UserAccountDrawer({
             <div className="min-w-0 flex flex-col gap-1">
               <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
               {role ? (
-                <span className="inline-flex w-fit items-center rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">
+                <span className="inline-flex w-fit items-center rounded-full bg-primary/15 px-2 py-0.5 text-xs font-medium text-primary">
                   {roleLabels[role]}
                 </span>
               ) : null}
@@ -96,7 +96,7 @@ export function UserAccountDrawer({
                 key={item.href}
                 href={item.href}
                 onClick={closeAndNavigate}
-                className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+                className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
               >
                 <Icon className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
                 {item.label}
@@ -107,7 +107,7 @@ export function UserAccountDrawer({
             <Link
               href={roleSwitch.href}
               onClick={closeAndNavigate}
-              className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
+              className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-foreground hover:bg-surface-high transition-colors"
             >
               <ArrowLeftRight className="size-[18px] shrink-0 text-muted-foreground" aria-hidden="true" />
               {roleSwitch.label}
@@ -119,7 +119,7 @@ export function UserAccountDrawer({
           <form action="/api/auth/signout" method="post">
             <button
               type="submit"
-              className="flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
+              className="flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors w-full text-left"
             >
               <LogOut className="size-[18px] shrink-0" aria-hidden="true" />
               Выйти из аккаунта

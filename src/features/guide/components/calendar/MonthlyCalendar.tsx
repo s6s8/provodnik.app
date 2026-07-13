@@ -103,7 +103,7 @@ export function MonthlyCalendar({
 
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {listings.length > 1 && (
         <select aria-label="Выберите предложение"
           value={selectedListingId}

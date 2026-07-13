@@ -92,7 +92,7 @@ export function OfferQaSheet({
           <SheetDescription>Задайте вопрос гиду</SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 space-y-3 overflow-y-auto py-4">
+        <div className="flex-1 flex flex-col gap-3 overflow-y-auto py-4">
           {thread?.at_limit ? (
             <p className="text-center text-xs text-muted-foreground">
               Достигнут лимит (8 сообщений). Примите предложение, чтобы

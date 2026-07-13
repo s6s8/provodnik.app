@@ -3,7 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SearchX } from "lucide-react";
 
+import { EmptyState } from "@/components/shared/empty-state";
 import {
   DiscoveryFacetChip,
   DiscoveryFacetRail,
@@ -50,6 +52,7 @@ export function PublicGuidesGrid({
   const router = useRouter();
   const [query, setQuery] = React.useState(initialQ ?? "");
   const showPartialMatchNotice = guides.length > 0 && guides.some((guide) => guide.isPartialMatch);
+  const hasFilters = activeSpecs.length > 0 || (initialQ ?? "").trim().length > 0;
 
   function pushGuides(active: string[], qValue: string) {
     router.push(`/guides${buildGuidesSearch(active, qValue)}`);
@@ -124,13 +127,31 @@ export function PublicGuidesGrid({
             </AlertDescription>
           </Alert>
         ) : guides.length === 0 ? (
-          <p className="text-on-surface-muted">
-            {activeSpecs.length === 0
-              ? "Пока нет доступных гидов. Скоро здесь появятся проводники — а пока опишите поездку в разделе «Запросы», и гиды откликнутся сами."
-              : "Ничего не найдено. Если вы выбрали темы — попробуйте их сбросить: часть гидов ещё не заполнила специализации в профиле и видна только при поиске по имени."}
-          </p>
+          hasFilters ? (
+            <EmptyState
+              icon={<SearchX className="size-6" />}
+              title="Ничего не найдено"
+              description="Часть гидов ещё не заполнила специализации и видна только при поиске по имени. Попробуйте сбросить фильтры."
+              action={
+                <Button asChild variant="outline">
+                  <Link href="/guides">Сбросить фильтры</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={<SearchX className="size-6" />}
+              title="Пока нет доступных гидов"
+              description="Опишите поездку — гиды откликнутся сами и предложат программу."
+              action={
+                <Button asChild>
+                  <Link href="/">Опубликовать запрос</Link>
+                </Button>
+              }
+            />
+          )
         ) : (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {showPartialMatchNotice && (
               <p className="rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-on-surface-muted">
                 Точных совпадений нет, показываем близкие
@@ -162,7 +183,7 @@ export function PublicGuidesGrid({
           <section className="mt-8 rounded-2xl border border-border/60 bg-muted/40 px-8 py-10 text-center">
             <h2 className="font-display text-2xl font-semibold">Вы гид?</h2>
             <p className="mt-2 mx-auto max-w-xl text-base text-muted-foreground">
-              Присоединяйтесь к Provodnik — показывайте свои маршруты путешественникам со всей России.
+              Присоединяйтесь к «Проводнику» — показывайте свои маршруты путешественникам со всей России.
             </p>
             <Button asChild className="mt-6">
               <Link href="/become-a-guide">Стать гидом</Link>

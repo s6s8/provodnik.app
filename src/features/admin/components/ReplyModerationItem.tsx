@@ -4,17 +4,21 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Check, X } from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ListRow } from "@/components/shared/list-row";
+import { cn } from "@/lib/utils";
 import {
   approveReply,
   rejectReply,
@@ -39,7 +43,7 @@ export function ReplyModerationList({
 }) {
   const router = useRouter();
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       {replies.map((reply) => (
         <ReplyModerationItem
           key={reply.id}
@@ -84,7 +88,7 @@ export function ReplyModerationItem({ reply, onAction }: ReplyModerationItemProp
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="flex flex-col gap-1.5">
       <ListRow
         title={maskPii(reply.body)}
         subtitle={
@@ -95,9 +99,9 @@ export function ReplyModerationItem({ reply, onAction }: ReplyModerationItemProp
           <>
             <Button
               type="button"
+              variant="success"
               loading={busy}
               disabled={busy}
-              className="border-success/30 bg-success/10 text-success hover:bg-success/20"
               onClick={() => void handleApprove()}
             >
               <Check aria-hidden="true" />
@@ -120,10 +124,12 @@ export function ReplyModerationItem({ reply, onAction }: ReplyModerationItemProp
       />
 
       {error && !rejectOpen ? (
-        <p className="px-1 text-sm text-destructive">{error}</p>
+        <Alert role="alert" variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
       ) : null}
 
-      <Dialog
+      <AlertDialog
         open={rejectOpen}
         onOpenChange={(open) => {
           setRejectOpen(open);
@@ -132,37 +138,36 @@ export function ReplyModerationItem({ reply, onAction }: ReplyModerationItemProp
           }
         }}
       >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Вернуть ответ гиду на доработку?</DialogTitle>
-            <DialogDescription>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Вернуть ответ гиду на доработку?</AlertDialogTitle>
+            <AlertDialogDescription>
               Ответ вернётся в черновики, гид сможет его изменить.
-            </DialogDescription>
-          </DialogHeader>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
 
-          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {error ? (
+            <Alert role="alert" variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
+          ) : null}
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={busy}>Отмена</AlertDialogCancel>
+            <AlertDialogAction
               disabled={busy}
-              onClick={() => setRejectOpen(false)}
-            >
-              Отмена
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              loading={busy}
-              disabled={busy}
-              onClick={() => void handleConfirmReject()}
+              className={cn(buttonVariants({ variant: "destructive" }))}
+              onClick={(event) => {
+                // A failed action must keep the dialog open with its error visible.
+                event.preventDefault();
+                void handleConfirmReject();
+              }}
             >
               Вернуть на доработку
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { useConfirm, type ConfirmOptions } from "@/components/shared/confirm-dialog";
 import { cn } from "@/lib/utils";
 
@@ -66,43 +67,35 @@ export function StickyActionBar({
   return (
     <div
       className={cn(
-        "fixed inset-x-0 bottom-0 z-[60] border-t border-border bg-[rgba(250,250,249,.96)] shadow-[0_-10px_30px_-24px_rgba(20,28,40,.5)] backdrop-blur-[10px]",
+        "fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 shadow-lift backdrop-blur-md",
         className,
       )}
     >
-      <div className="mx-auto flex max-w-page items-center gap-4 px-5 py-[14px] pb-[env(safe-area-inset-bottom)] md:px-8">
-        <Avatar className="size-[42px] shrink-0 rounded-[10px]">
+      <div className="mx-auto flex max-w-page items-center gap-4 px-5 py-3.5 pb-[max(0.875rem,env(safe-area-inset-bottom))] md:px-8">
+        <Avatar className="size-11 shrink-0 rounded-btn">
           {avatarUrl ? <AvatarImage src={avatarUrl} alt={name} className="object-cover" /> : null}
-          <AvatarFallback className="rounded-[10px] bg-surface-low font-semibold text-on-surface-muted">
+          <AvatarFallback className="rounded-btn bg-surface-low font-semibold text-on-surface-muted">
             {name.charAt(0).toUpperCase()}
           </AvatarFallback>
         </Avatar>
         <div className="min-w-0">
-          <div className="text-[15px] font-bold tracking-[-0.01em] text-on-surface">
+          <div className="text-base font-bold tracking-[-0.01em] text-on-surface">
             {name}
           </div>
           {metaLabel ? (
-            <div className="truncate text-[12.5px] text-on-surface-muted">{metaLabel}</div>
+            <div className="truncate text-xs text-on-surface-muted">{metaLabel}</div>
           ) : null}
         </div>
         <div className="ml-auto flex items-center gap-3">
           {onReject ? (
-            <button
-              type="button"
-              onClick={onReject}
-              className="inline-flex h-11 items-center rounded-[10px] px-[18px] text-[14px] font-medium text-on-surface-muted transition-colors hover:bg-surface-low"
-            >
+            <Button type="button" variant="ghost" onClick={onReject}>
               {rejectLabel}
-            </button>
+            </Button>
           ) : null}
           {onMessage ? (
-            <button
-              type="button"
-              onClick={onMessage}
-              className="inline-flex h-11 items-center rounded-[10px] border border-border px-[18px] text-[14px] font-semibold text-on-surface transition-colors hover:bg-surface-low"
-            >
+            <Button type="button" variant="outline" onClick={onMessage}>
               {messageLabel}
-            </button>
+            </Button>
           ) : null}
           <div onClickCapture={handlePrimaryCapture} className="contents">
             {primary}

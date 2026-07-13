@@ -22,8 +22,8 @@ export function GuideAvailabilityToggle({ available }: { available: boolean }) {
   }
 
   return (
-    <GlassCard className="space-y-3 p-5">
-      <div className="space-y-1">
+    <GlassCard className="flex flex-col gap-3 p-5">
+      <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-primary">Приём заявок</p>
         <p className="text-sm text-muted-foreground">
           {isAvailable

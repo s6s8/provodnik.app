@@ -6,7 +6,7 @@ export function StatsChart({ data, label }: { data: Point[]; label: string }) {
   const maxVal = Math.max(...data.map((d) => d.value), 1);
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <p className="text-sm font-medium text-muted-foreground">{label}</p>
       <div className="flex h-40 items-end gap-0.5">
         {data.map((d) => (

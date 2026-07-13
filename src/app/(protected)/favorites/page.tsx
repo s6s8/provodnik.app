@@ -59,7 +59,7 @@ export default async function FavoritesPage() {
   });
 
   return (
-    <div className="container space-y-6 py-8">
+    <div className="container flex flex-col gap-6 py-8">
       <PageHeader title="Избранное" />
       <FavoritesManager folders={normalized} />
     </div>

@@ -81,12 +81,14 @@ describe("GuideProfileScreen", () => {
     expect(getByText("Треккинг").parentElement?.className).toContain("justify-start");
   });
 
-  it("points the request CTA at /?guide=<slug>", () => {
-    const { getByText } = render(<GuideProfileScreen guide={makeGuide()} />);
+  it("points every request CTA at /?guide=<slug>", () => {
+    const { getAllByText } = render(<GuideProfileScreen guide={makeGuide()} />);
 
-    expect(getByText("Запросить этого гида").closest("a")).toHaveAttribute(
-      "href",
-      "/?guide=ivan-petrov",
-    );
+    // Hero CTA + the empty-state actions on the excursions and reviews sections.
+    const ctas = getAllByText("Запросить этого гида");
+    expect(ctas).toHaveLength(3);
+    for (const cta of ctas) {
+      expect(cta.closest("a")).toHaveAttribute("href", "/?guide=ivan-petrov");
+    }
   });
 });

@@ -74,7 +74,7 @@ describe("AdminLayout", () => {
     expect(screen.getByText("Админка недоступна")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Нужны права администратора" })).toBeInTheDocument();
     expect(
-      screen.getByText(/Этот раздел доступен только администраторам Provodnik/),
+      screen.getByText(/Этот раздел доступен только администраторам «Проводника»/),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Вернуться в свой кабинет" })).toHaveAttribute(
       "href",

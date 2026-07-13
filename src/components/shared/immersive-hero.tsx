@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { ChevronRight } from "lucide-react";
 
+import { Scrim } from "@/components/ui/scrim";
 import { cn } from "@/lib/utils";
 
 export type HeroBreadcrumbItem = {
@@ -75,14 +76,14 @@ export function ImmersiveHero({
             aria-label={title}
           />
         )}
-        <div className="hero-overlay absolute inset-0" />
+        <Scrim variant="hero" />
         {grain ? <div className="hero-grain pointer-events-none absolute inset-0 z-[1]" /> : null}
 
         <div className="relative z-[2] mx-auto flex min-h-[520px] max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-[calc(var(--nav-h)+16px)] sm:min-h-[632px] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-12 md:pt-0">
           {/* Title block — bottom-left on desktop */}
           <div className="min-w-0 md:max-w-[540px]">
             {breadcrumb && breadcrumb.length > 0 ? (
-              <div className="mb-4 flex flex-wrap items-center gap-2 text-[12.5px] font-medium text-white/80">
+              <div className="mb-4 flex flex-wrap items-center gap-2 text-xs font-medium text-white/80">
                 {breadcrumb.map((item, index) => (
                   <span key={`${item.label}-${index}`} className="flex items-center gap-2">
                     {index > 0 ? <ChevronRight className="size-3.5 opacity-50" /> : null}
@@ -107,7 +108,7 @@ export function ImmersiveHero({
               {title}
             </h1>
             {intro ? (
-              <p className="max-w-[470px] text-[16.5px] leading-[1.5] text-white/90">{intro}</p>
+              <p className="max-w-[470px] text-base leading-[1.5] text-white/90">{intro}</p>
             ) : null}
           </div>
 

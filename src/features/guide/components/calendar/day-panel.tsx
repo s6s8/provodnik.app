@@ -142,7 +142,7 @@ export function DayPanel({
         </div>
 
         {/* Slots list */}
-        <div className="flex-1 overflow-y-auto space-y-1 px-4 py-3">
+        <div className="flex-1 overflow-y-auto flex flex-col gap-1 px-4 py-3">
           {ALL_SLOTS.map((slot) => {
             const isBlocked = blockedByTime.has(slot.start);
             const isPending = pendingSlot === slot.start;

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
-import { Compass } from "lucide-react";
+import { Check, Compass } from "lucide-react";
 
 import {
   DiscoveryActiveFilters,
@@ -30,6 +30,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { THEMES } from "@/data/themes";
 import { brandGradient, cityImage } from "@/lib/city-image";
@@ -87,6 +88,10 @@ const WHEN_PRESETS = [
   { value: "flexible", label: "Гибкие даты" },
 ] as const;
 const REQUESTS_PAGE_SIZE = 9;
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 type WhenPreset = (typeof WHEN_PRESETS)[number]["value"];
 type ActiveDateRange = { from?: Date; to?: Date };
 
@@ -396,25 +401,30 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
                 <div className="flex flex-col gap-2">
                   <p className="text-sm font-medium text-foreground">Когда</p>
-                  {WHEN_PRESETS.map((option) => (
-                    <button
-                      key={option.value}
-                      type="button"
-                      aria-pressed={activeWhen === option.value}
-                      onClick={() => {
-                        setActiveWhen(option.value);
-                        setActiveDateRange(null);
-                      }}
-                      className={`flex cursor-pointer items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition-colors ${
-                        activeWhen === option.value
-                          ? "bg-primary text-primary-foreground"
-                          : "text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <span>{option.label}</span>
-                      {activeWhen === option.value && <span aria-hidden="true">✓</span>}
-                    </button>
-                  ))}
+                  <ToggleGroup
+                    type="single"
+                    value={activeWhen ?? ""}
+                    // Radix single-toggle emits "" on re-click; keep the preset selected.
+                    onValueChange={(next) => {
+                      if (!next) return;
+                      setActiveWhen(next as WhenPreset);
+                      setActiveDateRange(null);
+                    }}
+                    className="w-full flex-col items-stretch gap-1"
+                  >
+                    {WHEN_PRESETS.map((option) => (
+                      <ToggleGroupItem
+                        key={option.value}
+                        value={option.value}
+                        className={`h-auto w-full cursor-pointer justify-between px-3 py-2 text-left text-sm text-foreground ${TOGGLE_ACTIVE_CLASS}`}
+                      >
+                        <span>{option.label}</span>
+                        {activeWhen === option.value ? (
+                          <Check className="size-4" aria-hidden="true" />
+                        ) : null}
+                      </ToggleGroupItem>
+                    ))}
+                  </ToggleGroup>
                   <div className="my-1 h-px bg-border" />
                   <div className="px-1 text-sm font-medium text-foreground">Точные даты</div>
                   <Calendar

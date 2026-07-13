@@ -60,7 +60,7 @@ export function AdminSidebarNav({
   const pathname = usePathname() ?? "/admin/dashboard";
 
   return (
-    <nav className="space-y-2" aria-label="Admin workspace">
+    <nav className="flex flex-col gap-2" aria-label="Admin workspace">
       {adminPrimaryNav.map((item: NavItem) => {
         const countKey = countKeyByHref[item.href];
         return (
@@ -85,7 +85,7 @@ export function AdminMobileTabs({
 
   return (
     <nav
-      className="mt-6 grid grid-cols-4 gap-1 rounded-[1.5rem] border border-glass-border bg-nav-glass-bg p-1.5 shadow-glass backdrop-blur sm:grid-cols-7 md:hidden"
+      className="fixed inset-x-4 bottom-4 z-40 grid grid-cols-4 gap-1 rounded-card border border-glass-border bg-nav-glass-bg p-1.5 shadow-glass backdrop-blur sm:grid-cols-8 md:hidden"
       aria-label="Admin workspace mobile"
     >
       {adminPrimaryNav.map((item: NavItem) => {
@@ -100,7 +100,7 @@ export function AdminMobileTabs({
             href={item.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "flex min-w-0 flex-col items-center gap-1 rounded-[1rem] px-2 py-2 text-center text-[11px] font-medium transition-colors",
+              "flex min-w-0 flex-col items-center gap-1 rounded-lg px-2 py-2 text-center text-xs font-medium transition-colors",
               active
                 ? "bg-brand-light font-semibold text-brand"
                 : "text-ink-2",
@@ -109,7 +109,7 @@ export function AdminMobileTabs({
             <Icon className="size-4" strokeWidth={1.9} />
             <span className="truncate">{item.shortLabel ?? item.label}</span>
             {typeof count === "number" && count > 0 ? (
-              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-brand-light px-1.5 py-0.5 text-[10px] font-semibold text-brand">
+              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-brand-light px-1.5 py-0.5 text-xs font-semibold text-brand">
                 {count}
               </span>
             ) : null}

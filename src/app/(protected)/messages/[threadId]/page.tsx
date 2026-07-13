@@ -103,7 +103,7 @@ export default async function ThreadPage({
             size={34}
           />
           <div className="flex min-w-0 items-center gap-1.5">
-            <span className="truncate text-[15px] font-semibold text-on-surface">
+            <span className="truncate text-sm font-semibold text-on-surface">
               {participantTitle}
             </span>
             {isVerifiedGuide ? (
@@ -115,11 +115,11 @@ export default async function ThreadPage({
           <Link href="/messages">Все диалоги</Link>
         </Button>
       </div>
-      <p className="text-[15px] text-muted-foreground">
+      <p className="text-sm text-muted-foreground">
         История переписки по текущей поездке и связанным деталям.
       </p>
 
-      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-[1.25rem] border border-border bg-card shadow-sm">
+      <div className="grid min-h-[min(72vh,48rem)] max-md:min-h-auto overflow-hidden rounded-card border border-border bg-card shadow-sm">
         <ChatWindow
           threadId={threadId}
           currentUserId={user.id}

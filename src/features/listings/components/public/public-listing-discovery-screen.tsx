@@ -15,6 +15,7 @@ import {
   DiscoveryToolbar,
 } from "@/components/shared/discovery-shell";
 import { DiscoverySearchInput } from "@/components/shared/discovery-search-input";
+import { EmptyState } from "@/components/shared/empty-state";
 import { ListingCard } from "@/components/shared/listing-card";
 import { brandGradient } from "@/lib/city-image";
 import type { ListingRecord } from "@/data/supabase/queries";
@@ -150,32 +151,28 @@ export function PublicListingDiscoveryScreen({
             ))}
           </DiscoveryGrid>
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-[1.5rem] border border-border bg-surface-lowest px-6 py-16 text-center">
-            <span className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Compass className="size-6" strokeWidth={1.9} />
-            </span>
-            <h2 className="mt-5 text-[1.35rem] font-semibold text-on-surface">
-              Маршруты не найдены
-            </h2>
-            <p className="mt-2 max-w-[30rem] text-[0.95rem] leading-7 text-on-surface-muted">
-              Не нашли подходящую экскурсию? Опубликуйте запрос — гиды предложат маршрут под вас.
-            </p>
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild>
-                <Link href="/">Опубликовать запрос</Link>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  setSearch("");
-                  setActiveFilter("all");
-                }}
-              >
-                Сбросить
-              </Button>
-            </div>
-          </div>
+          <EmptyState
+            icon={<Compass className="size-6" />}
+            title="Маршруты не найдены"
+            description="Сбросьте фильтры или опубликуйте запрос — гиды предложат маршрут под вас."
+            action={
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setSearch("");
+                    setActiveFilter("all");
+                  }}
+                >
+                  Сбросить фильтры
+                </Button>
+                <Button asChild>
+                  <Link href="/">Опубликовать запрос</Link>
+                </Button>
+              </>
+            }
+          />
         )}
       </DiscoveryShell>
     </>

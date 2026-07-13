@@ -2,6 +2,7 @@
 
 import * as React from "react";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 
 import { setGuideAvailability, type ActionState } from "./actions";
@@ -21,24 +22,29 @@ export function GuideAvailabilityControl({
   );
 
   return (
-    <form className="space-y-2">
+    <form className="flex flex-col gap-2">
       <p className="text-sm text-muted-foreground">
         Текущий статус: {available ? "принимает заявки" : "приём приостановлен"}
       </p>
-      {state.error ? <p className="text-sm text-destructive">{state.error}</p> : null}
-      {state.success ? <p className="text-sm text-success">{state.success}</p> : null}
+      {state.error ? (
+        <Alert role="alert" variant="destructive">
+          <AlertDescription>{state.error}</AlertDescription>
+        </Alert>
+      ) : null}
+      {state.success ? (
+        <Alert variant="success">
+          <AlertDescription>{state.success}</AlertDescription>
+        </Alert>
+      ) : null}
       <Button
         formAction={action}
         type="submit"
         variant={available ? "outline" : "default"}
         disabled={pending}
         loading={pending}
+        className="self-start"
       >
-        {pending
-          ? "Сохраняем…"
-          : available
-            ? "Приостановить приём заявок"
-            : "Возобновить приём заявок"}
+        {available ? "Приостановить приём заявок" : "Возобновить приём заявок"}
       </Button>
     </form>
   );

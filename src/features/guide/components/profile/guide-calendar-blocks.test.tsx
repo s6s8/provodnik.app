@@ -60,7 +60,8 @@ describe("GuideCalendarBlocks", () => {
     createAvailabilityBlockAction.mockClear();
     render(<GuideCalendarBlocks blocks={[]} />);
 
-    fireEvent.click(screen.getByRole("button", { name: /Закрыть часы/i }));
+    // The kind picker is a single-select ToggleGroup: Radix exposes its items as radios.
+    fireEvent.click(screen.getByRole("radio", { name: /Закрыть часы/i }));
     fireEvent.change(screen.getByLabelText("С"), { target: { value: "2026-07-01" } });
     fireEvent.change(screen.getByLabelText("По"), { target: { value: "2026-07-20" } });
     fireEvent.change(screen.getByLabelText("Время с"), { target: { value: "15:00" } });

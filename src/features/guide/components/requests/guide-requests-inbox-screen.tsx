@@ -9,15 +9,23 @@ import { kopecksToRub, formatRubNumber } from "@/data/money";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
-import { COPY } from "@/lib/copy";
 
 import { EmptyState } from "@/components/shared/empty-state";
+import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { BidFormPanel } from "./bid-form-panel-lazy";
 import { GuideInboxCardHeader } from "./guide-inbox-card-header";
@@ -213,12 +221,16 @@ export function GuideRequestsInboxScreen() {
       : "У вас нет активных предложений.";
 
   return (
-    <div className="space-y-6">
-      <PageHeader eyebrow={COPY.guide} title="Входящие запросы" />
+    <div className="flex flex-col gap-6">
+      <PageHeader eyebrow="Кабинет гида" title="Входящие запросы" />
       <Card className="border-border/70 bg-card/90">
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="flex flex-col gap-4 pt-6">
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Загрузка запросов…</p>
+            <div className="flex flex-col gap-3" aria-busy="true" aria-label="Загрузка запросов">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <ListRowSkeleton key={i} />
+              ))}
+            </div>
           ) : loadError ? (
             <Alert variant="destructive">
               <AlertDescription>{loadError}</AlertDescription>
@@ -236,173 +248,164 @@ export function GuideRequestsInboxScreen() {
                   <AlertDescription>{peripheralWarning}</AlertDescription>
                 </Alert>
               ) : null}
-              <div
-                role="tablist"
-                aria-label="Фильтр запросов"
-                className="flex flex-wrap gap-2"
+              <Tabs
+                value={filter}
+                onValueChange={(next) => setFilter(next as GuideRequestsFilter)}
+                className="flex flex-col gap-4"
               >
-                {tabs.map((tab) => {
-                  const isSelected = filter === tab.key;
-                  return (
-                    <button
+                <TabsList aria-label="Фильтр запросов">
+                  {tabs.map((tab) => (
+                    <TabsTrigger
                       key={tab.key}
-                      type="button"
-                      role="tab"
-                      aria-selected={isSelected}
-                      onClick={() => setFilter(tab.key)}
-                      className={
-                        isSelected
-                          ? "inline-flex min-h-[44px] items-center gap-2 rounded-full border border-transparent bg-foreground px-4 py-2 text-sm font-medium text-background transition"
-                          : "inline-flex min-h-[44px] items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-medium text-foreground transition hover:bg-background"
-                      }
+                      value={tab.key}
+                      className="group gap-2"
                     >
                       <span>{tab.label}</span>
-                      <span
-                        className={
-                          isSelected
-                            ? "rounded-full bg-background/20 px-2 py-0.5 text-xs tabular-nums"
-                            : "rounded-full bg-muted/40 px-2 py-0.5 text-xs tabular-nums"
-                        }
-                      >
+                      <span className="rounded-full bg-muted/40 px-2 py-0.5 text-xs tabular-nums group-data-[state=active]:bg-primary-foreground/20">
                         {tab.count}
                       </span>
-                    </button>
-                  );
-                })}
-              </div>
-              {/* City filter + sort */}
-              {items.length > 0 ? (
-                <div className="flex flex-wrap items-center gap-3">
-                  {uniqueCities.length > 1 ? (
-                    <select
-                      value={cityFilter}
-                      onChange={(e) => setCityFilter(e.target.value)}
-                      className="min-h-[44px] rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
-                      aria-label="Фильтр по городу"
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+
+                {/* City filter + sort */}
+                {items.length > 0 ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {uniqueCities.length > 1 ? (
+                      <Select value={cityFilter} onValueChange={setCityFilter}>
+                        <SelectTrigger className="min-h-11" aria-label="Фильтр по городу">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Все направления</SelectItem>
+                          {uniqueCities.map((city) => (
+                            <SelectItem key={city} value={city}>
+                              {city}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    ) : null}
+                    <Select
+                      value={sortKey}
+                      onValueChange={(next) => setSortKey(next as GuideRequestsSortKey)}
                     >
-                      <option value="all">Все направления</option>
-                      {uniqueCities.map((city) => (
-                        <option key={city} value={city}>
-                          {city}
-                        </option>
-                      ))}
-                    </select>
-                  ) : null}
-                  <select
-                    value={sortKey}
-                    onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
-                    className="min-h-[44px] rounded-lg border border-border bg-surface-high px-3 py-1.5 text-sm text-foreground outline-none focus:border-primary"
-                    aria-label="Сортировка"
-                  >
-                    <option value="newest">Новые сначала</option>
-                    <option value="date">По дате запроса</option>
-                    <option value="size">По размеру группы</option>
-                  </select>
-                </div>
-              ) : null}
-
-              <div className="space-y-3">
-                {filteredItems.length === 0 ? (
-                  <p className="text-center text-sm text-muted-foreground">
-                    {emptyText}
-                  </p>
+                      <SelectTrigger className="min-h-11" aria-label="Сортировка">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Новые сначала</SelectItem>
+                        <SelectItem value="date">По дате запроса</SelectItem>
+                        <SelectItem value="size">По размеру группы</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 ) : null}
-                {filteredItems.map((item, index) => {
-                  const alreadyOffered = offeredIds.has(item.id);
-                  const matched = isMatchedRequest(item, specializations);
-                  const offerMeta = offerIdByRequestId.get(item.id);
-                  const offerId = offerMeta?.id;
-                  const offerStatus = offerMeta?.status ?? "pending";
-                  const isDeclinedOffer = offerStatus === "declined";
-                  const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
-                  const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
-                  return (
-                    <div key={item.id} className="space-y-3">
-                      <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
-                        {/* Card header */}
-                        <GuideInboxCardHeader item={item} matched={matched} />
 
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <Badge variant={item.mode === "assembly" ? "secondary" : "outline"}>
-                            {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
-                          </Badge>
-                          <Badge variant={hasFlexibleDates ? "default" : "outline"}>
-                            {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
-                          </Badge>
-                        </div>
+                {/* One panel: both filters render the same list, only the items differ. */}
+                <TabsContent value={filter} className="mt-0 flex flex-col gap-3">
+                  {filteredItems.length === 0 ? (
+                    <p className="text-center text-sm text-muted-foreground">
+                      {emptyText}
+                    </p>
+                  ) : null}
+                  {filteredItems.map((item, index) => {
+                    const alreadyOffered = offeredIds.has(item.id);
+                    const matched = isMatchedRequest(item, specializations);
+                    const offerMeta = offerIdByRequestId.get(item.id);
+                    const offerId = offerMeta?.id;
+                    const offerStatus = offerMeta?.status ?? "pending";
+                    const isDeclinedOffer = offerStatus === "declined";
+                    const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
+                    const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
+                    return (
+                      <div key={item.id} className="flex flex-col gap-3">
+                        <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
+                          {/* Card header */}
+                          <GuideInboxCardHeader item={item} matched={matched} />
 
-                        {/* Meta */}
-                        <div className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
-                          <p>
-                            <span className="font-medium text-foreground">
-                              Даты:
-                            </span>{" "}
-                            {item.dateLabel}
-                            {formatTimeRange(item.startTime, item.endTime) && (
-                              <>
-                                {" · "}
-                                <span className="font-medium text-foreground">Время:</span>{" "}
-                                {formatTimeRange(item.startTime, item.endTime)}
-                              </>
-                            )}
-                          </p>
-                          <p>
-                            <span className="font-medium text-foreground">
-                              Бюджет:
-                            </span>{" "}
-                            {item.budgetLabel} · {item.groupSize} чел.
-                          </p>
-                        </div>
-
-
-                        {/* Actions */}
-                        <div className="mt-4 flex flex-wrap items-center gap-3">
-                          {alreadyOffered ? (
-                            <div className="flex flex-col gap-2">
-                              <Badge variant={isDeclinedOffer ? "destructive" : "secondary"}>
-                                {isDeclinedOffer ? "Отклонено автором" : "Предложение отправлено"}
-                              </Badge>
-                              {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
-                                <p className="text-xs leading-relaxed text-muted-foreground">
-                                  Вы предложили:
-                                  {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
-                                  {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
-                                  {offerMeta.price_minor != null ? ` · ${formatRubNumber(Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)))} ₽/чел.` : ""}
-                                </p>
-                              ) : null}
-                            </div>
-                          ) : isApproved ? (
-                            <Button onClick={() => setPanelRequestId(item.id)}>
-                              Сделать предложение
-                            </Button>
-                          ) : (
-                            <Button variant="outline" asChild>
-                              <Link href="/guide/profile#verification">Пройти верификацию</Link>
-                            </Button>
-                          )}
-                          <Button variant="ghost" asChild className="ml-auto min-h-[44px]">
-                            <Link
-                              href={`/requests/${item.id}`}
-                              aria-label={`Открыть полный запрос: ${item.destination}`}
-                            >
-                              Подробнее
-                            </Link>
-                          </Button>
-                        </div>
-
-                        {/* Q&A panel — shown when guide has sent an offer */}
-                        {showQaPanel ? (
-                          <div className="mt-4 pt-4 border-t border-border/50">
-                              <GuideOfferQaPanel key={offerId} offerId={offerId} />
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            <Badge variant={item.mode === "assembly" ? "secondary" : "outline"}>
+                              {item.mode === "assembly" ? "Сборная группа" : "Своя группа"}
+                            </Badge>
+                            <Badge variant={hasFlexibleDates ? "default" : "outline"}>
+                              {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
+                            </Badge>
                           </div>
-                        ) : null}
-                      </div>
 
-                      {index < filteredItems.length - 1 ? <Separator /> : null}
-                    </div>
-                  );
-                })}
-              </div>
+                          {/* Meta */}
+                          <div className="mt-3 flex flex-col gap-1.5 text-xs leading-relaxed text-muted-foreground">
+                            <p>
+                              <span className="font-medium text-foreground">
+                                Даты:
+                              </span>{" "}
+                              {item.dateLabel}
+                              {formatTimeRange(item.startTime, item.endTime) && (
+                                <>
+                                  {" · "}
+                                  <span className="font-medium text-foreground">Время:</span>{" "}
+                                  {formatTimeRange(item.startTime, item.endTime)}
+                                </>
+                              )}
+                            </p>
+                            <p>
+                              <span className="font-medium text-foreground">
+                                Бюджет:
+                              </span>{" "}
+                              {item.budgetLabel} · {item.groupSize} чел.
+                            </p>
+                          </div>
+
+
+                          {/* Actions */}
+                          <div className="mt-4 flex flex-wrap items-center gap-3">
+                            {alreadyOffered ? (
+                              <div className="flex flex-col gap-2">
+                                <Badge variant={isDeclinedOffer ? "destructive" : "secondary"}>
+                                  {isDeclinedOffer ? "Отклонено автором" : "Предложение отправлено"}
+                                </Badge>
+                                {offerMeta && (offerMeta.starts_at != null || offerMeta.capacity != null || offerMeta.price_minor != null) ? (
+                                  <p className="text-xs leading-relaxed text-muted-foreground">
+                                    Вы предложили:
+                                    {offerMeta.starts_at ? ` ${new Date(offerMeta.starts_at).toLocaleDateString("ru-RU", { day: "numeric", month: "long" })}` : ""}
+                                    {offerMeta.capacity != null ? ` · ${offerMeta.capacity} чел.` : ""}
+                                    {offerMeta.price_minor != null ? ` · ${formatRubNumber(Math.round(kopecksToRub(offerMeta.price_minor) / (offerMeta.capacity ?? 1)))} ₽/чел.` : ""}
+                                  </p>
+                                ) : null}
+                              </div>
+                            ) : isApproved ? (
+                              <Button onClick={() => setPanelRequestId(item.id)}>
+                                Сделать предложение
+                              </Button>
+                            ) : (
+                              <Button variant="outline" asChild>
+                                <Link href="/guide/profile#verification">Пройти верификацию</Link>
+                              </Button>
+                            )}
+                            <Button variant="ghost" asChild className="ml-auto">
+                              <Link
+                                href={`/requests/${item.id}`}
+                                aria-label={`Открыть полный запрос: ${item.destination}`}
+                              >
+                                Подробнее
+                              </Link>
+                            </Button>
+                          </div>
+
+                          {/* Q&A panel — shown when guide has sent an offer */}
+                          {showQaPanel ? (
+                            <div className="mt-4 pt-4 border-t border-border/50">
+                                <GuideOfferQaPanel key={offerId} offerId={offerId} />
+                            </div>
+                          ) : null}
+                        </div>
+
+                        {index < filteredItems.length - 1 ? <Separator /> : null}
+                      </div>
+                    );
+                  })}
+                </TabsContent>
+              </Tabs>
             </>
           )}
         </CardContent>
