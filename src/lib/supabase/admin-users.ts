@@ -326,16 +326,39 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
 export async function getTargetForGuards(
   adminClient: AdminClient,
   userId: string,
-): Promise<{ id: string; email: string | null; role: AppRole; accountStatus: AccountStatus } | null> {
+): Promise<{
+  id: string;
+  email: string | null;
+  fullName: string | null;
+  phone: string | null;
+  role: AppRole;
+  accountStatus: AccountStatus;
+} | null> {
+  // full_name + phone ride along on the row the guards already fetch, so the
+  // guide-role phone gate and the display-name fallback cost no extra query.
   const { data, error } = await adminClient
     .from("profiles")
-    .select("id, email, role, account_status")
+    .select("id, email, full_name, phone, role, account_status")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  const row = data as { id: string; email: string | null; role: AppRole; account_status: AccountStatus };
-  return { id: row.id, email: row.email, role: row.role, accountStatus: row.account_status };
+  const row = data as {
+    id: string;
+    email: string | null;
+    full_name: string | null;
+    phone: string | null;
+    role: AppRole;
+    account_status: AccountStatus;
+  };
+  return {
+    id: row.id,
+    email: row.email,
+    fullName: row.full_name,
+    phone: row.phone,
+    role: row.role,
+    accountStatus: row.account_status,
+  };
 }
 
 /** Append an audit row via the service-role client (server-only boundary). */

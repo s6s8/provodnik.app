@@ -53,24 +53,74 @@ function ok(message: string): AdminActionResult {
 
 type AdminClient = Awaited<ReturnType<typeof requireAdminSession>>["adminClient"];
 
+/**
+ * Decide what a flip-to-guide may write to `guide_profiles`.
+ *
+ * The bug (item 13, msgs 544–593): this path used to upsert `display_name`,
+ * `verification_status` and `is_available` unconditionally, so every role flip
+ * overwrote an existing guide's public identity with their email local-part,
+ * reset them to `draft` and hid them from `/guides`. Admins could not see it —
+ * RLS shows them `profiles.full_name` while anonymous visitors read the
+ * clobbered `guide_profiles.display_name`. Re-approving never healed it.
+ *
+ * An existing profile is therefore never rewritten. A new one falls back to the
+ * full name and NEVER to the email local-part — that leak is the same bug.
+ */
+export function buildGuideRoleFlipWrite(
+  existing: { user_id: string; verification_status: string } | null,
+  input: { targetId: string; targetFullName: string | null },
+):
+  | { kind: "insert"; row: Record<string, unknown> }
+  | { kind: "restore-visibility" }
+  | { kind: "noop" } {
+  if (existing) {
+    // D-A1a: the demote branch below is what forced is_available=false, so
+    // re-promoting an approved guide undoes exactly that and nothing else.
+    // A guide who wants to stay hidden can re-toggle it themselves.
+    return existing.verification_status === "approved"
+      ? { kind: "restore-visibility" }
+      : { kind: "noop" };
+  }
+
+  return {
+    kind: "insert",
+    row: {
+      user_id: input.targetId,
+      display_name: input.targetFullName?.trim() || COPY.guide,
+      verification_status: "draft",
+      is_available: false,
+    },
+  };
+}
+
 async function syncRoleSideEffects(input: {
   adminClient: AdminClient;
   targetId: string;
-  targetEmail: string | null;
+  targetFullName: string | null;
   currentRole: string;
   nextRole: string;
 }) {
   if (input.nextRole === "guide") {
-    const fallbackName = input.targetEmail?.split("@")[0]?.trim() || COPY.guide;
-    const { error } = await input.adminClient.from("guide_profiles").upsert(
-      {
-        user_id: input.targetId,
-        display_name: fallbackName,
-        verification_status: "draft",
-        is_available: false,
-      },
-      { onConflict: "user_id" },
+    const { data: existing, error: readError } = await input.adminClient
+      .from("guide_profiles")
+      .select("user_id, verification_status")
+      .eq("user_id", input.targetId)
+      .maybeSingle();
+    if (readError) throw readError;
+
+    const write = buildGuideRoleFlipWrite(
+      existing as { user_id: string; verification_status: string } | null,
+      input,
     );
+    if (write.kind === "noop") return;
+
+    const { error } =
+      write.kind === "insert"
+        ? await input.adminClient.from("guide_profiles").insert(write.row)
+        : await input.adminClient
+            .from("guide_profiles")
+            .update({ is_available: true })
+            .eq("user_id", input.targetId);
     if (error) throw error;
     return;
   }
@@ -215,6 +265,15 @@ export async function setUserRoleAction(
     });
     if (!guard.ok) return fail(guard.reason);
 
+    // Item 18: signup requires a phone for guides (signUpAction.ts), but the
+    // role flip was the second, unguarded door into the guide role. Mirror the
+    // rule here. `phone` rides along on the guard row — no extra query.
+    if (parsed.data.role === "guide" && !target.phone?.replace(/\D/g, "")) {
+      return fail(
+        "У пользователя не указан телефон — роль «гид» требует телефон. Добавьте номер в профиль и повторите.",
+      );
+    }
+
     // ERR-096: role must be consistent across the JWT fast path (app_metadata)
     // AND the profiles fallback, or auth decisions disagree. Update Auth first;
     // if the profiles write then fails, revert Auth and fail honestly.
@@ -238,7 +297,7 @@ export async function setUserRoleAction(
       await syncRoleSideEffects({
         adminClient,
         targetId: target.id,
-        targetEmail: target.email,
+        targetFullName: target.fullName,
         currentRole: target.role,
         nextRole: parsed.data.role,
       });
