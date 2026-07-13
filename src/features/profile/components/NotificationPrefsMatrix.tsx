@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { Switch as SwitchPrimitive } from "radix-ui";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
 
 type RoleKey = "traveler" | "guide";
 
@@ -105,68 +105,39 @@ export function NotificationPrefsMatrix({
                   <td className="px-3 py-2 text-center">
                     {hasTelegram ? (
                       <div className="flex justify-center">
-                        <SwitchPrimitive.Root
+                        <Switch
                           checked={Boolean(telegramVal)}
                           onCheckedChange={(next) => onChange({ ...prefs, [telegramKey]: next })}
-                          className={cn(
-                            "group inline-flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-md outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
-                          )}
                           aria-label={`${event.label} — Telegram`}
-                        >
-                          <span
-                            className={cn(
-                              "inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all group-data-[state=checked]:bg-primary group-data-[state=unchecked]:bg-input",
-                            )}
-                          >
-                            <SwitchPrimitive.Thumb
-                              className={cn(
-                                "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
-                              )}
-                            />
-                          </span>
-                        </SwitchPrimitive.Root>
+                        />
                       </div>
                     ) : (
-                      <a
-                        href="https://t.me/provodnik_bot?start=link"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-primary underline"
-                      >
-                        Подключить
-                      </a>
+                      <Button size="sm" variant="outline" asChild>
+                        <a
+                          href="https://t.me/provodnik_bot?start=link"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Подключить
+                        </a>
+                      </Button>
                     )}
                   </td>
 
                   {/* Email */}
                   <td className="px-3 py-2 text-center">
                     <div className="flex justify-center">
-                      <SwitchPrimitive.Root
+                      <Switch
                         checked={Boolean(emailVal)}
                         onCheckedChange={(next) => onChange({ ...prefs, [emailKey]: next })}
-                        className={cn(
-                          "group inline-flex min-h-[44px] min-w-[44px] cursor-pointer items-center justify-center rounded-md outline-none transition-all focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50",
-                        )}
                         aria-label={`${event.label} — Email`}
-                      >
-                        <span
-                          className={cn(
-                            "inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all group-data-[state=checked]:bg-primary group-data-[state=unchecked]:bg-input",
-                          )}
-                        >
-                          <SwitchPrimitive.Thumb
-                            className={cn(
-                              "pointer-events-none block size-4 rounded-full bg-background ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0",
-                            )}
-                          />
-                        </span>
-                      </SwitchPrimitive.Root>
+                      />
                     </div>
                   </td>
 
                   {/* Push — always disabled */}
                   <td className="px-3 py-2 text-center">
-                    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[0.6875rem] text-muted-foreground">
+                    <span className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-xs text-ink-2">
                       Скоро
                     </span>
                   </td>

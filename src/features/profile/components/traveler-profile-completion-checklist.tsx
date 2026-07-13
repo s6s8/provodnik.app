@@ -34,7 +34,7 @@ export function TravelerProfileCompletionChecklist({ profile }: Props) {
               <p className="text-sm font-medium text-foreground">{item.label}</p>
               <p className="text-sm text-muted-foreground">
                 {item.complete
-                  ? "Заполнено"
+                  ? "Имя указано — гиды видят, к кому обращаются."
                   : "Добавьте имя, чтобы гиды понимали, к кому обращаются."}
               </p>
             </div>

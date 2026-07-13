@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/page-header";
 import { PersonalSettingsForm } from "@/features/profile/components/PersonalSettingsForm";
@@ -123,6 +122,7 @@ export default async function PersonalSettingsPage() {
     return (
       <div className="mx-auto w-full max-w-3xl space-y-6 py-8">
         <PageHeader
+          eyebrow="Кабинет"
           title="Профиль путешественника"
           subtitle="Эти данные видят гиды, когда отвечают на ваши запросы."
           actions={
@@ -199,17 +199,13 @@ export default async function PersonalSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <Badge variant="outline">Профиль</Badge>
-        <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-          Войдите в аккаунт
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Для просмотра настроек профиля необходимо войти.
-        </p>
-      </div>
-      <Button asChild>
+    <div className="flex flex-col gap-6">
+      <PageHeader
+        eyebrow="Кабинет"
+        title="Войдите в аккаунт"
+        subtitle="Для просмотра настроек профиля необходимо войти."
+      />
+      <Button asChild className="self-start">
         <Link href="/auth?next=/account">Войти</Link>
       </Button>
     </div>

@@ -19,7 +19,9 @@ describe("TravelerProfileCompletionChecklist", () => {
   it("shows the name item as complete when full_name is set", () => {
     render(<TravelerProfileCompletionChecklist profile={{ full_name: "Анна" }} />);
 
-    expect(screen.getByText("Заполнено")).toBeInTheDocument();
+    expect(
+      screen.getByText("Имя указано — гиды видят, к кому обращаются."),
+    ).toBeInTheDocument();
     expect(
       screen.queryByText(/чтобы гиды понимали, к кому обращаются/i),
     ).not.toBeInTheDocument();
