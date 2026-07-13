@@ -30,3 +30,9 @@ v1 (2026-07-13, P0 recon)
 4. `bun scripts/seed-test-users.mjs .env.local`
 5. `E2E_ALLOW_MUTATIONS=1 bun run playwright …`
 Trap: any `qa-` guide slug 404s by design (slug guard).
+
+## v2 (after F-01)
+- **NEVER `git add -A` while a background agent is running.** It sweeps their in-flight files into your commit. Stage by explicit path; verify `git status --short` shows only files you touched. (F-01)
+- The pre-commit hook runs typecheck + lint-ratchet + the FULL vitest suite (~40s). So every commit is already gated — no need to run the chain manually before committing, only the task's own grep proof.
+- The lint ratchet compares against a baseline (0 errors / 21 warnings). New warnings fail the commit; the 21 existing ones are fine.
+- Subagents are reliable for single-file/short-file-list mechanical edits with an exact grep gate; give them the gate command and require literal output.
