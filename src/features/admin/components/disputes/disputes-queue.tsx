@@ -1,5 +1,8 @@
+import { Flag } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/shared/empty-state";
 import { PageHeader } from "@/components/shared/page-header";
 import { ListRow } from "@/components/shared/list-row";
 import { formatRussianDateTime } from "@/lib/dates";
@@ -42,12 +45,11 @@ export function DisputesQueue({ disputes }: { disputes: DisputeListItem[] }) {
       </div>
 
       {disputes.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg">Споров нет</CardTitle>
-            <CardDescription>Новые обращения появятся здесь автоматически после открытия спора.</CardDescription>
-          </CardHeader>
-        </Card>
+        <EmptyState
+          icon={<Flag className="size-6" />}
+          title="Споров нет"
+          description="Новые обращения появятся здесь автоматически после открытия спора."
+        />
       ) : (
         <div className="space-y-2">
           {disputes.map((item) => {

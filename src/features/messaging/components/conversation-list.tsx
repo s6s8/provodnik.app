@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { MessageSquare } from "lucide-react";
+import { AlertCircle, MessageSquare } from "lucide-react";
 import Link from "next/link";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -49,7 +49,12 @@ export function ConversationList({
   error: serverError = false,
   viewerRole = null,
 }: ConversationListProps) {
-  const { data: threads = initialThreads, isError } = useQuery({
+  const {
+    data: threads = initialThreads,
+    isError,
+    isFetching,
+    refetch,
+  } = useQuery({
     queryKey: ["message-threads"],
     queryFn: fetchThreads,
     initialData: initialThreads,
@@ -59,8 +64,21 @@ export function ConversationList({
     if (serverError || isError) {
       return (
         <EmptyState
+          icon={<AlertCircle className="size-6" />}
           title="Не удалось загрузить"
-          description="Попробуйте обновить страницу."
+          description="Диалоги не загрузились. Попробуйте ещё раз."
+          action={
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isFetching}
+              onClick={() => {
+                void refetch();
+              }}
+            >
+              Обновить
+            </Button>
+          }
         />
       );
     }
@@ -68,7 +86,7 @@ export function ConversationList({
     const isGuide = viewerRole === "guide";
     return (
       <EmptyState
-        icon={<MessageSquare />}
+        icon={<MessageSquare className="size-6" />}
         title="Пока нет сообщений"
         description={
           isGuide
@@ -78,7 +96,7 @@ export function ConversationList({
         action={
           isGuide ? undefined : (
             <Button asChild>
-              <Link href="/listings">Найти тур</Link>
+              <Link href="/">Создать запрос</Link>
             </Button>
           )
         }

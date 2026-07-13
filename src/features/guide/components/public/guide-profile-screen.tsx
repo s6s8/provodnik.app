@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, Star } from "lucide-react";
+import { BadgeCheck, Compass, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
+import { EmptyState } from "@/components/shared/empty-state";
 import { TourCard } from "@/components/shared/tour-card";
 import { NewGuideFrame } from "@/components/discovery/NewGuideFrame";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
@@ -77,6 +78,14 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
   const guideHasListings = Boolean(listings && listings.length > 0);
 
   const reviewCards: GuideReview[] = reviews && reviews.length > 0 ? reviews : [];
+
+  const requestCta = (
+    <Button asChild>
+      <Link href={`${ROUTES.newRequest.href}?guide=${guide.slug}`}>
+        Запросить этого гида
+      </Link>
+    </Button>
+  );
 
   return (
     <div>
@@ -192,11 +201,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             ) : null}
 
             <div className="mt-8 flex flex-wrap items-center justify-start gap-3">
-              <Button asChild>
-                <Link href={`${ROUTES.newRequest.href}?guide=${guide.slug}`}>
-                  Запросить этого гида
-                </Link>
-              </Button>
+              {requestCta}
               {guideHasListings ? (
                 <Button asChild variant="outline">
                   <a href="#excursions">Смотреть экскурсии</a>
@@ -241,7 +246,12 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               ))}
             </div>
           ) : (
-            <p className="text-muted-foreground">У этого гида пока нет экскурсий.</p>
+            <EmptyState
+              icon={<Compass className="size-6" />}
+              title="У этого гида пока нет экскурсий"
+              description="Опишите поездку — гид предложит программу и цену под вас."
+              action={requestCta}
+            />
           )}
         </div>
       </section>
@@ -314,7 +324,12 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
               })}
             </div>
           ) : (
-            <p className="text-muted-foreground">Отзывов пока нет.</p>
+            <EmptyState
+              icon={<Star className="size-6" />}
+              title="Отзывов пока нет"
+              description="Станьте первым путешественником, который оценит этого гида."
+              action={requestCta}
+            />
           )}
         </div>
       </section>

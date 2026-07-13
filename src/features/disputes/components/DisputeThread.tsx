@@ -17,7 +17,8 @@ import { formatRussianDateTime } from "@/lib/dates";
 import { maskPii } from "@/lib/pii/mask";
 import { cn } from "@/lib/utils";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { CheckCircle2, Circle, Clock, MessageCircle } from "lucide-react";
+import { CheckCircle2, Circle, Clock, Flag, MessageCircle } from "lucide-react";
+import Link from "next/link";
 
 const STATUS_LABEL: Record<string, string> = {
   open: "Открыт",
@@ -84,7 +85,16 @@ export async function DisputeThread({
   if (disputeError) throw disputeError;
   if (!dispute) {
     return (
-      <p className="text-sm text-muted-foreground">Спор не найден.</p>
+      <EmptyState
+        icon={<Flag className="size-6" />}
+        title="Спор не найден"
+        description="Возможно, ссылка устарела или спор был закрыт."
+        action={
+          <Button asChild variant="outline">
+            <Link href="/trips">К моим поездкам</Link>
+          </Button>
+        }
+      />
     );
   }
 

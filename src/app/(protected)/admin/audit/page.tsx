@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { SearchX } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -342,8 +343,14 @@ export default async function AdminAuditPage({
 
       {entries.length === 0 ? (
         <EmptyState
+          icon={<SearchX className="size-6" />}
           title="Действий не найдено"
           description="Измените фильтры или сбросьте их, чтобы увидеть журнал."
+          action={
+            <Button asChild variant="outline">
+              <Link href="/admin/audit">Сбросить фильтры</Link>
+            </Button>
+          }
         />
       ) : (
         <div className="space-y-3">
