@@ -43,11 +43,13 @@ function StatusChip({
   return (
     <Link
       href={href}
+      aria-current={active ? "page" : undefined}
       className={cn(
-        "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+        "inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-medium transition-colors",
+        "outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40",
         active
           ? "border-primary bg-primary text-primary-foreground"
-          : "border-border bg-surface-low text-muted-foreground hover:bg-surface",
+          : "border-border bg-surface-low text-ink-2 hover:bg-surface",
       )}
     >
       {label}

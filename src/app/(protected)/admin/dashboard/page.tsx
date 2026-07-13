@@ -57,7 +57,11 @@ export default async function AdminDashboardPage() {
             const delta = stats.weeklyDelta[card.key];
             const { Icon } = card;
             return (
-              <Link key={card.key} href={card.href} className="group block">
+              <Link
+                key={card.key}
+                href={card.href}
+                className="group block rounded-lg outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40"
+              >
                 <Card className="h-full py-6 transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-md">
                   <CardContent className="px-6">
                     <div className="flex items-start justify-between gap-4">
@@ -87,7 +91,10 @@ export default async function AdminDashboardPage() {
         <h2 className="text-xs font-semibold uppercase tracking-[0.14em] text-on-surface-muted">
           Статистика
         </h2>
-        <Link href="/admin/bookings" className="group block sm:max-w-xs">
+        <Link
+          href="/admin/bookings"
+          className="group block rounded-lg outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40 sm:max-w-xs"
+        >
           <Card
             size="sm"
             className="h-full transition-all duration-150 hover:-translate-y-px hover:border-primary/40 hover:shadow-md"

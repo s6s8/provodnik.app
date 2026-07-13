@@ -166,7 +166,8 @@ export default async function HelpPage() {
                       <Accordion.Header className="flex">
                         <Accordion.Trigger
                           className={cn(
-                            "flex min-h-[44px] flex-1 items-center justify-between gap-3 py-4 text-left text-base font-medium text-foreground transition-all",
+                            "flex min-h-11 flex-1 items-center justify-between gap-3 rounded-md py-4 text-left text-base font-medium text-foreground transition-all",
+                            "outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/40",
                             "hover:text-primary [&[data-state=open]>svg]:rotate-180",
                           )}
                         >
