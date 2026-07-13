@@ -38,6 +38,7 @@ import { AcceptOfferButton } from "@/features/traveler/components/requests/accep
 import { BiddingGuidesTeaser } from "@/components/shared/bidding-guides-teaser";
 import { ImmersiveHero, type HeroBreadcrumbItem } from "@/components/shared/immersive-hero";
 import { RequestFactsPanel } from "@/components/shared/request-facts-panel";
+import { StepCard } from "@/components/shared/step-card";
 import { TripPanel } from "@/components/shared/trip-panel";
 import { GuideOfferCard, type GuideCardInfo } from "@/components/shared/guide-offer-card";
 import { StickyActionBar } from "@/components/shared/sticky-action-bar";
@@ -395,10 +396,9 @@ function PublicDetailBranch({
           <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">Как это работает</div>
           <div className="grid gap-3.5 sm:grid-cols-3">
             {["Присоединяешься к группе", "Гиды предлагают условия и цену", "Группа подтверждает бронь"].map((step, index) => (
-              <div key={step} className="rounded-[16px] border border-border bg-surface-lowest p-4">
-                <div className="mb-2.5 flex size-7 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">{index + 1}</div>
-                <p className="text-sm leading-[1.45] text-on-surface">{step}</p>
-              </div>
+              <StepCard key={step} step={index + 1}>
+                {step}
+              </StepCard>
             ))}
           </div>
           <p className="text-[13.5px] text-on-surface-muted">

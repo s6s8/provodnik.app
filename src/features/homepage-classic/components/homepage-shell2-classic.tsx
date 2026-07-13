@@ -1,6 +1,7 @@
 import { OpenGroupCard } from "@/components/shared/open-group-card";
 import { SectionHeading } from "@/components/shared/section-heading";
 import { SiteFooter } from "@/components/shared/site-footer";
+import { StepCard } from "@/components/shared/step-card";
 import { formatRubNumber } from "@/data/money";
 import type { DestinationOption, RequestRecord } from "@/data/supabase/queries";
 import { cityImage } from "@/lib/city-image";
@@ -83,15 +84,10 @@ export function HomePageShell2Classic({ destinations, requests, viewerId, prefer
           </div>
           <div className="grid gap-6 sm:grid-cols-3">
             {HOW_IT_WORKS.map((step, index) => (
-              <div key={step.title} className="flex flex-col items-center gap-2.5 text-center">
-                <span className="grid size-12 place-items-center rounded-step bg-primary/10 text-lg font-extrabold text-primary">
-                  {index + 1}
-                </span>
-                <div className="text-base font-bold text-foreground">{step.title}</div>
-                <p className="m-0 max-w-xs text-sm font-medium leading-relaxed text-muted-foreground">
-                  {step.body}
-                </p>
-              </div>
+              <StepCard key={step.title} step={index + 1}>
+                <span className="block font-bold">{step.title}</span>
+                <span className="block text-muted-foreground">{step.body}</span>
+              </StepCard>
             ))}
           </div>
         </div>
