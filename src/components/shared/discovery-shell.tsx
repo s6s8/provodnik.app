@@ -175,6 +175,8 @@ export function DiscoveryFacetRail({ children, label, className }: DiscoveryFace
       aria-label={label}
       className={cn(
         "flex snap-x gap-2 overflow-x-auto pb-1 pr-6 [-ms-overflow-style:none] [mask-image:linear-gradient(to_right,#000_calc(100%-1.5rem),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        // From md up the rail has room to wrap: no clipped last pill, no fade.
+        "md:flex-wrap md:overflow-visible md:pr-0 md:[mask-image:none]",
         className,
       )}
     >

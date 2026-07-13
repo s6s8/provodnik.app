@@ -46,7 +46,12 @@ export function GuideBottomNav() {
                 />
               </span>
 
-              <span className={cn("text-[11px]", isActive ? "font-bold" : "font-medium")}>
+              <span
+                className={cn(
+                  "whitespace-nowrap text-xs",
+                  isActive ? "font-bold" : "font-medium",
+                )}
+              >
                 {label}
               </span>
             </Link>

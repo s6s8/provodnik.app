@@ -37,7 +37,7 @@ export const ROUTES = {
   account:      { href: "/account",      label: "Профиль",           icon: User },
   guideInbox:   { href: "/guide/inbox",    label: "Запросы",         icon: Inbox },
   guideListings:{ href: "/guide/listings", label: "Экскурсии", shortLabel: "Экскурсии", icon: Compass },
-  guideBookings:{ href: "/guide/bookings", label: "Мои бронирования", icon: BookCheck },
+  guideBookings:{ href: "/guide/bookings", label: "Мои бронирования", shortLabel: "Брони", icon: BookCheck },
   guideReviews: { href: "/guide/reviews",  label: "Отзывы",          icon: Star },
   guideCalendar:{ href: "/guide/calendar", label: "Календарь",       icon: Calendar },
   guideProfile: { href: "/guide/profile",  label: "Профиль гида",    icon: User },
