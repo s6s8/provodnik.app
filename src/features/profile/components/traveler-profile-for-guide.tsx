@@ -15,7 +15,7 @@ export function TravelerProfileForGuide({
     profile.bio && !findContactInBio(profile.bio) ? profile.bio : null;
 
   return (
-    <article className="space-y-2">
+    <article className="flex flex-col gap-2">
       <header className="flex items-center gap-3">
         <ProfileAvatar profile={profile} size={64} />
         <h2 className="text-xl font-medium">{profile.full_name}</h2>

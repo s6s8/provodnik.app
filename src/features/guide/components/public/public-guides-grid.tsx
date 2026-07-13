@@ -151,7 +151,7 @@ export function PublicGuidesGrid({
             />
           )
         ) : (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             {showPartialMatchNotice && (
               <p className="rounded-xl border border-border/60 bg-muted/40 px-4 py-3 text-sm text-on-surface-muted">
                 Точных совпадений нет, показываем близкие

@@ -95,7 +95,7 @@ export function PersonalSettingsForm({
           Личные настройки
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-8 pt-6">
+      <CardContent className="flex flex-col gap-8 pt-6">
         {success ? (
           <Alert className="border-success/30 bg-success/10">
             <CheckCircle2 className="text-success" aria-hidden />
@@ -113,9 +113,9 @@ export function PersonalSettingsForm({
           </Alert>
         ) : null}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-8">
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="personal-locale">Язык интерфейса</Label>
               <Controller
                 name="locale"
@@ -144,7 +144,7 @@ export function PersonalSettingsForm({
               ) : null}
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="personal-currency">Валюта по умолчанию</Label>
               <Controller
                 name="preferredCurrency"
@@ -179,7 +179,7 @@ export function PersonalSettingsForm({
 
           <Separator />
 
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <div>
               <h2 className="text-base font-semibold text-foreground">
                 Уведомления

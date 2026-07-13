@@ -315,7 +315,7 @@ export function AuthEntryScreen({
 
   return (
     <GlassCard className="w-[min(100%,30rem)] p-[clamp(1.75rem,4vw,2.5rem)]">
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <Badge variant="eyebrow" asChild>
           <Link href="/">Проводник</Link>
         </Badge>
@@ -354,7 +354,7 @@ export function AuthEntryScreen({
           </Alert>
         ) : null}
 
-        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+        <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
           {isSignUp ? (
             <>
               <div className="grid gap-2.5">

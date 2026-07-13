@@ -103,7 +103,7 @@ export function WeeklyCalendar({
   }, [weekDays]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm font-medium text-foreground">{rangeLabel}</p>
         <div className="flex flex-wrap gap-2">
@@ -152,7 +152,7 @@ export function WeeklyCalendar({
                 </p>
                 <p className="text-lg font-semibold tabular-nums">{day.getDate()}</p>
               </div>
-              <ul className="space-y-2 text-xs text-muted-foreground">
+              <ul className="flex flex-col gap-2 text-xs text-muted-foreground">
                 {weeklySlots.map((s) => (
                   <li key={s.id} className="text-foreground">
                     <span className="font-medium">

@@ -70,12 +70,12 @@ export function GuideOfferQaPanel({ offerId }: Props) {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="flex flex-col gap-2">
       <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
         Вопросы путешественника
       </p>
 
-      <div className="space-y-2 max-h-48 overflow-y-auto">
+      <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
         {qa.messages.map((m) => (
           <div
             key={m.id}

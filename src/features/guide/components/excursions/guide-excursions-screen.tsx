@@ -277,7 +277,7 @@ export function GuideExcursionsScreen() {
 
         <TabsContent value="excursions">
           {loading ? (
-            <div className="space-y-2" aria-busy="true" aria-label="Загрузка экскурсий">
+            <div className="flex flex-col gap-2" aria-busy="true" aria-label="Загрузка экскурсий">
               {Array.from({ length: 3 }).map((_, i) => (
                 <ListRowSkeleton key={i} />
               ))}
@@ -291,7 +291,7 @@ export function GuideExcursionsScreen() {
               description="Добавьте первую экскурсию, чтобы откликаться на запросы путешественников."
             />
           ) : (
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
               {templates.map((template) => (
                 <ListRow
@@ -346,7 +346,7 @@ export function GuideExcursionsScreen() {
               Заполните маршрут, стоимость и фото, чтобы сохранить экскурсию в кабинете гида.
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-5 flex-1 min-h-0 space-y-4 overflow-y-auto px-4">
+          <div className="mt-5 flex-1 min-h-0 flex flex-col gap-4 overflow-y-auto px-4">
             <div>
               <Label htmlFor="tpl-title">
                 Название <span className="text-destructive">*</span>

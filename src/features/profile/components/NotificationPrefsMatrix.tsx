@@ -48,7 +48,7 @@ export function NotificationPrefsMatrix({
     <Tabs
       value={role}
       onValueChange={(next) => setRole(next as RoleKey)}
-      className="space-y-4"
+      className="flex flex-col gap-4"
     >
       {/* Role tabs */}
       <TabsList>

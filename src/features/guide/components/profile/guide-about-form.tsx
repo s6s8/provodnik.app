@@ -73,7 +73,7 @@ export function GuideAboutForm({
         </Alert>
       )}
       {/* Bio */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Textarea
           id="bio"
           name="bio"
@@ -88,9 +88,9 @@ export function GuideAboutForm({
         </p>
       </div>
 
-      <fieldset disabled={isLocked} className="space-y-6 border-0 p-0 m-0">
+      <fieldset disabled={isLocked} className="flex flex-col gap-6 border-0 p-0 m-0">
       {/* Base city */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="base_city">Базовый город</Label>
         <Input
           id="base_city"
@@ -103,7 +103,7 @@ export function GuideAboutForm({
       </div>
 
       {/* Regions */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="regions">Регионы</Label>
         <Input
           id="regions"
@@ -119,7 +119,7 @@ export function GuideAboutForm({
       </div>
 
       {/* Years of experience */}
-      <div className="space-y-2">
+      <div className="flex flex-col gap-2">
         <Label htmlFor="years_experience">Лет опыта в роли гида</Label>
         <Input
           id="years_experience"
@@ -134,7 +134,7 @@ export function GuideAboutForm({
       </div>
 
       {/* Languages */}
-      <fieldset className="space-y-2">
+      <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium text-foreground">Языки проведения экскурсий</legend>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
           {LANGUAGES.map((lang) => (
@@ -155,7 +155,7 @@ export function GuideAboutForm({
         </div>
       </fieldset>
 
-      <fieldset className="space-y-2">
+      <fieldset className="flex flex-col gap-2">
         <legend className="text-sm font-medium text-foreground">Темы экскурсий</legend>
         <p className="text-xs text-muted-foreground">
           Отметьте темы, по которым вы готовы вести экскурсии. Запросы по этим темам будут показаны в верху вашей ленты. Остальные запросы по-прежнему видны.
@@ -169,7 +169,7 @@ export function GuideAboutForm({
       </fieldset>
 
       </fieldset>
-      <div className="mt-6 space-y-3">
+      <div className="mt-6 flex flex-col gap-3">
         {status === "error" ? (
           <Alert variant="destructive" role="alert">
             <AlertDescription>{errorMsg}</AlertDescription>

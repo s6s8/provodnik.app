@@ -221,12 +221,12 @@ export function GuideRequestsInboxScreen() {
       : "У вас нет активных предложений.";
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader eyebrow="Кабинет гида" title="Входящие запросы" />
       <Card className="border-border/70 bg-card/90">
-        <CardContent className="space-y-4 pt-6">
+        <CardContent className="flex flex-col gap-4 pt-6">
           {isLoading ? (
-            <div className="space-y-3" aria-busy="true" aria-label="Загрузка запросов">
+            <div className="flex flex-col gap-3" aria-busy="true" aria-label="Загрузка запросов">
               {Array.from({ length: 3 }).map((_, i) => (
                 <ListRowSkeleton key={i} />
               ))}
@@ -251,7 +251,7 @@ export function GuideRequestsInboxScreen() {
               <Tabs
                 value={filter}
                 onValueChange={(next) => setFilter(next as GuideRequestsFilter)}
-                className="space-y-4"
+                className="flex flex-col gap-4"
               >
                 <TabsList aria-label="Фильтр запросов">
                   {tabs.map((tab) => (
@@ -303,7 +303,7 @@ export function GuideRequestsInboxScreen() {
                 ) : null}
 
                 {/* One panel: both filters render the same list, only the items differ. */}
-                <TabsContent value={filter} className="mt-0 space-y-3">
+                <TabsContent value={filter} className="mt-0 flex flex-col gap-3">
                   {filteredItems.length === 0 ? (
                     <p className="text-center text-sm text-muted-foreground">
                       {emptyText}
@@ -319,7 +319,7 @@ export function GuideRequestsInboxScreen() {
                     const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
                     const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
                     return (
-                      <div key={item.id} className="space-y-3">
+                      <div key={item.id} className="flex flex-col gap-3">
                         <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
                           {/* Card header */}
                           <GuideInboxCardHeader item={item} matched={matched} />
@@ -334,7 +334,7 @@ export function GuideRequestsInboxScreen() {
                           </div>
 
                           {/* Meta */}
-                          <div className="mt-3 space-y-1.5 text-xs leading-relaxed text-muted-foreground">
+                          <div className="mt-3 flex flex-col gap-1.5 text-xs leading-relaxed text-muted-foreground">
                             <p>
                               <span className="font-medium text-foreground">
                                 Даты:

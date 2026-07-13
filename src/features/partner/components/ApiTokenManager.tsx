@@ -73,7 +73,7 @@ export function ApiTokenManager({
       <CardHeader>
         <CardTitle className="text-base">API токен</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="flex flex-col gap-4">
         {hasExistingToken ? (
           <p className="text-sm text-muted-foreground">
             Токен настроен.
@@ -111,7 +111,7 @@ export function ApiTokenManager({
                 Сохраните токен — он показывается только один раз.
               </AlertDescription>
             </Alert>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="partner-api-token">Секретный токен</Label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input

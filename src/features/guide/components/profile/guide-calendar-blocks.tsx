@@ -98,8 +98,8 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
   }
 
   return (
-    <GlassCard className="space-y-5 p-5">
-      <div className="space-y-1">
+    <GlassCard className="flex flex-col gap-5 p-5">
+      <div className="flex flex-col gap-1">
         <p className="text-sm font-medium text-primary">Закрытые периоды</p>
         <p className="text-sm text-muted-foreground">
           Отметьте даты и часы, когда вы недоступны. В эти периоды туристы не смогут забронировать
@@ -125,7 +125,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
       </ToggleGroup>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
+        <div className="flex flex-col gap-1.5">
           <Label htmlFor="block-date">{kind === "day" ? "Дата" : "С"}</Label>
           <div className="relative">
             <CalendarDays
@@ -144,7 +144,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
         </div>
 
         {kind === "range" || kind === "window" ? (
-          <div className="space-y-1.5">
+          <div className="flex flex-col gap-1.5">
             <Label htmlFor="block-end-date">По</Label>
             <div className="relative">
               <CalendarDays
@@ -165,7 +165,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
 
         {kind === "window" ? (
           <>
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="block-start-time">Время с</Label>
               <Input
                 id="block-start-time"
@@ -174,7 +174,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
                 onChange={(e) => setStartTime(e.target.value)}
               />
             </div>
-            <div className="space-y-1.5">
+            <div className="flex flex-col gap-1.5">
               <Label htmlFor="block-end-time">Время по</Label>
               <Input
                 id="block-end-time"
@@ -186,7 +186,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
           </>
         ) : null}
 
-        <div className="space-y-1.5 sm:col-span-2">
+        <div className="flex flex-col gap-1.5 sm:col-span-2">
           <Label htmlFor="block-reason">Причина (только для вас)</Label>
           <Input
             id="block-reason"
@@ -210,7 +210,7 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
       </Button>
 
       {blocks.length > 0 ? (
-        <ul className="space-y-2 border-t border-border/60 pt-4">
+        <ul className="flex flex-col gap-2 border-t border-border/60 pt-4">
           {blocks.map((b) => (
             <li key={b.id} className="flex items-center justify-between gap-3">
               <span className="text-sm text-foreground">

@@ -41,26 +41,26 @@ export function ReviewsList({ reviews, showReplyComposer }: ReviewsListProps) {
   }, [reviews, bucket]);
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Tabs
         defaultValue="all"
         value={bucket}
         onValueChange={(value) => setBucket(value as Bucket)}
       >
         <TabsList>
-          <TabsTrigger value="all" className="min-h-[44px] gap-2">
+          <TabsTrigger value="all" className="min-h-11 gap-2">
             Все
             <Badge variant="secondary" className="tabular-nums">
               {counts.all}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="positive" className="min-h-[44px] gap-2">
+          <TabsTrigger value="positive" className="min-h-11 gap-2">
             Положительные
             <Badge variant="secondary" className="tabular-nums">
               {counts.positive}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="critical" className="min-h-[44px] gap-2">
+          <TabsTrigger value="critical" className="min-h-11 gap-2">
             Критические
             <Badge variant="secondary" className="tabular-nums">
               {counts.critical}
@@ -72,7 +72,7 @@ export function ReviewsList({ reviews, showReplyComposer }: ReviewsListProps) {
       {visible.length === 0 ? (
         <p className="text-sm text-muted-foreground">Нет отзывов в этой категории.</p>
       ) : (
-        <ul className="space-y-4">
+        <ul className="flex flex-col gap-4">
           {visible.map((item) => (
             <li key={item.id}>
               <ReviewCard

@@ -17,7 +17,7 @@ export function SupportSidebar({ bookingId }: SupportSidebarProps) {
   };
 
   return (
-    <aside className="rounded-xl border border-border/60 bg-surface-high px-5 py-4 space-y-3 text-sm">
+    <aside className="rounded-xl border border-border/60 bg-surface-high px-5 py-4 flex flex-col gap-3 text-sm">
       <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
         Поддержка
       </p>
@@ -35,7 +35,7 @@ export function SupportSidebar({ bookingId }: SupportSidebarProps) {
         </button>
       </div>
 
-      <div className="space-y-1.5">
+      <div className="flex flex-col gap-1.5">
         <a
           href="mailto:support@provodnik.app"
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"

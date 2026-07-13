@@ -246,7 +246,8 @@ function JoinCta({
 }
 
 function AvatarGroupVisual({ children }: { children: ReactNode }) {
-  return <div className="flex -space-x-2.5">{children}</div>;
+  // ponytail: negative overlap can't be a gap; child-margin variant is the direct equivalent
+  return <div className="flex [&>*+*]:-ml-2.5">{children}</div>;
 }
 
 function MemberAvatars({ members }: { members: PublicRequestDetailViewModel["members"] }) {

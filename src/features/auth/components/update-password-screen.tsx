@@ -125,7 +125,7 @@ export function UpdatePasswordScreen() {
 
   return (
     <GlassCard className="w-[min(100%,30rem)] p-[clamp(1.75rem,4vw,2.5rem)]">
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <Link
           href="/auth"
           className="inline-flex w-fit items-center gap-2 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
@@ -136,7 +136,7 @@ export function UpdatePasswordScreen() {
         <Badge variant="eyebrow" asChild>
           <Link href="/">Проводник</Link>
         </Badge>
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground">
             Новый пароль
           </h1>
@@ -155,7 +155,7 @@ export function UpdatePasswordScreen() {
         </Alert>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+      <form onSubmit={handleSubmit} className="mt-8 flex flex-col gap-5">
         <div className="grid gap-2.5">
           <label htmlFor="password" className="text-sm font-medium text-foreground">
             Новый пароль

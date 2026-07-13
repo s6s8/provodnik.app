@@ -101,7 +101,7 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
 
   return (
     <div className="flex flex-col gap-6 md:flex-row md:items-start">
-      <aside className="w-full shrink-0 space-y-3 md:max-w-xs">
+      <aside className="w-full shrink-0 flex flex-col gap-3 md:max-w-xs">
         <div className="flex items-center justify-between gap-2">
           <p className="text-sm font-medium text-muted-foreground">Папки</p>
           <Button size="sm" type="button" variant="outline" onClick={() => setCreateOpen(true)}>
@@ -121,7 +121,7 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
             }
           />
         ) : (
-          <ul className="space-y-1">
+          <ul className="flex flex-col gap-1">
             {folders.map((folder) => (
               <li key={folder.id} className="flex items-center gap-2">
                 <Button
@@ -151,7 +151,7 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
         )}
       </aside>
 
-      <section className="min-w-0 flex-1 space-y-4">
+      <section className="min-w-0 flex-1 flex flex-col gap-4">
         {!selected ? (
           <EmptyState
             icon={<Heart className="h-6 w-6" />}
@@ -227,7 +227,7 @@ export function FavoritesManager({ folders }: FavoritesManagerProps) {
           <DialogHeader>
             <DialogTitle>Новая папка</DialogTitle>
           </DialogHeader>
-          <div className="space-y-2 py-2">
+          <div className="flex flex-col gap-2 py-2">
             <Label htmlFor="favorites-folder-name">Название</Label>
             <Input
               id="favorites-folder-name"

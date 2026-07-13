@@ -71,15 +71,15 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-xl space-y-6">
+    <form onSubmit={handleSubmit} className="max-w-xl flex flex-col gap-6">
       {isLocked && (
         <p className="rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
           Профиль одобрен. Юридические данные недоступны для редактирования — для изменений напишите администраторам.
         </p>
       )}
-      <fieldset disabled={isLocked} className="space-y-5 border-0 p-0 m-0">
+      <fieldset disabled={isLocked} className="flex flex-col gap-5 border-0 p-0 m-0">
         {/* Legal status */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="legal-status">Правовой статус</Label>
           <Select value={legalStatus} onValueChange={setLegalStatus}>
             <SelectTrigger id="legal-status">
@@ -95,7 +95,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
         </div>
 
         {/* INN */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="inn">ИНН</Label>
           <Input
             id="inn"
@@ -107,7 +107,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
         </div>
 
         {/* Document country */}
-        <div className="space-y-2">
+        <div className="flex flex-col gap-2">
           <Label htmlFor="document-country">Страна документа</Label>
           <Select value={documentCountry} onValueChange={setDocumentCountry}>
             <SelectTrigger id="document-country">
@@ -137,7 +137,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
               onChange={(e) => setIsTourOperator(e.target.checked)}
               className="mt-0.5 h-4 w-4 rounded border-border accent-primary cursor-pointer"
             />
-            <span className="space-y-1">
+            <span className="flex flex-col gap-1">
               <span className="block text-sm font-medium text-foreground">
                 Я зарегистрирован как туроператор
               </span>
@@ -149,7 +149,7 @@ export function LegalInformationForm({ initialData, isLocked = false }: Props) {
 
           {/* Registry number — shown only when isTourOperator */}
           {isTourOperator && (
-            <div className="mt-4 space-y-2">
+            <div className="mt-4 flex flex-col gap-2">
               <Label htmlFor="registry-number">
                 Номер в реестре туроператоров
               </Label>

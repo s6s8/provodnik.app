@@ -294,7 +294,7 @@ export function BidFormPanel({
         </div>
 
         {/* Request context (readonly) */}
-        <div className="border-b border-border/60 bg-muted/30 px-6 py-4 space-y-3">
+        <div className="border-b border-border/60 bg-muted/30 px-6 py-4 flex flex-col gap-3">
           {request.interests.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {request.interests.map((interest) => (

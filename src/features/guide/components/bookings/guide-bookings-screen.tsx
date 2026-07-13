@@ -107,19 +107,19 @@ export function GuideBookingsScreen() {
   }, [bookings]);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader eyebrow="Кабинет гида" title="Мои бронирования" />
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         {loading ? (
-          <div className="space-y-3" aria-busy="true">
+          <div className="flex flex-col gap-3" aria-busy="true">
             <ListRowSkeleton />
             <ListRowSkeleton />
             <ListRowSkeleton />
           </div>
         ) : loadError ? (
           <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-1">
+            <CardHeader className="flex flex-col gap-1">
               <CardTitle className="flex items-center gap-2">
                 <AlertCircle className="size-5 text-destructive" />
                 {loadError}
@@ -166,12 +166,12 @@ export function GuideBookingsScreen() {
       </div>
 
       {!loading && (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
             Итоги
           </p>
           <Card className="border-border/70 bg-card/90">
-            <CardHeader className="space-y-1">
+            <CardHeader className="flex flex-col gap-1">
               <CardTitle>Итоги по бронированиям</CardTitle>
               <p className="text-sm text-muted-foreground">
                 Быстрый взгляд на загрузку, выполненные экскурсии и ориентировочный оборот.

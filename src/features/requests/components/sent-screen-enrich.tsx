@@ -65,7 +65,7 @@ export function SentScreenEnrich({ requestId }: Props) {
       </button>
 
       {open && (
-        <div className="mt-5 space-y-5">
+        <div className="mt-5 flex flex-col gap-5">
           <div>
             <p className="mb-2 text-sm font-medium text-foreground" id="budget-label">
               Бюджет на человека

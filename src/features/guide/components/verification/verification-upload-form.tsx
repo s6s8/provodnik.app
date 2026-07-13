@@ -156,7 +156,7 @@ export function VerificationUploadForm({
       </div>
 
       {submitError ? (
-        <div className="flex items-start gap-3 rounded-[1rem] bg-destructive/10 px-4 py-3.5 text-destructive">
+        <div className="flex items-start gap-3 rounded-card bg-destructive/10 px-4 py-3.5 text-destructive">
           <AlertCircle size={18} />
           <span>{submitError}</span>
         </div>

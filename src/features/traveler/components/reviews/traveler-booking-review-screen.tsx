@@ -45,7 +45,7 @@ export function TravelerBookingReviewScreen({
   const [isPending, startTransition] = useTransition();
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <Button asChild variant="ghost" className="-ml-3 px-3">
         <Link href={`/bookings/${booking.id}`}>
           <ArrowLeft className="size-4" />
@@ -67,7 +67,7 @@ export function TravelerBookingReviewScreen({
       ) : null}
 
       <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
+        <CardHeader className="flex flex-col gap-1">
           <CardTitle>Детали поездки</CardTitle>
           <p className="text-sm text-muted-foreground">
             {booking.destination} · {booking.dateLabel}
@@ -82,7 +82,7 @@ export function TravelerBookingReviewScreen({
               }}
               size={48}
             />
-            <div className="min-w-0 space-y-1">
+            <div className="min-w-0 flex flex-col gap-1">
               <div className="flex flex-wrap items-center gap-2">
                 <p className="text-sm font-medium text-foreground">{booking.guideName}</p>
                 {booking.guideVerified ? (
@@ -101,7 +101,7 @@ export function TravelerBookingReviewScreen({
       </Card>
 
       <Card className="border-border/70 bg-card/90">
-        <CardHeader className="space-y-1">
+        <CardHeader className="flex flex-col gap-1">
           <CardTitle>Оценка и отзыв</CardTitle>
           <p className="text-sm text-muted-foreground">
             Оцените поездку и оставьте короткий комментарий. Заголовок и текст

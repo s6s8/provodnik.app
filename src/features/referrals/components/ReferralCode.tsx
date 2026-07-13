@@ -101,14 +101,14 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
       <CardHeader>
         <CardTitle>Реферальная программа</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="flex flex-col gap-6">
         {!code ? (
           <Button type="button" disabled={pending} onClick={onGenerate}>
             Сгенерировать реферальный код
           </Button>
         ) : (
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="referral-code-display">Ваш код</Label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input
@@ -128,7 +128,7 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
                 </Button>
               </div>
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>Ссылка для приглашения</Label>
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <Input readOnly value={shareUrl} className="font-mono text-sm" />
@@ -151,7 +151,7 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
 
         <Separator />
 
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <Label htmlFor="referral-redeem-input">Ввести реферальный код</Label>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <Input

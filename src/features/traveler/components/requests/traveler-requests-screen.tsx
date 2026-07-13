@@ -259,7 +259,7 @@ export function TravelerRequestsScreen({
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-6">
+    <div className="mx-auto max-w-2xl flex flex-col gap-6 px-4 py-6">
       <PageHeader title="Мои запросы" />
       <RequestsCategoryTabs
         activeRequests={activeRequests}

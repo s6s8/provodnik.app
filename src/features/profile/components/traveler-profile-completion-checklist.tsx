@@ -11,9 +11,9 @@ export function TravelerProfileCompletionChecklist({ profile }: Props) {
   const checklist = getTravelerProfileSection2Checklist(profile);
 
   return (
-    <section className="space-y-4" aria-label={checklist.sectionTitle}>
+    <section className="flex flex-col gap-4" aria-label={checklist.sectionTitle}>
       <h2 className="text-lg font-semibold text-foreground">{checklist.sectionTitle}</h2>
-      <ul className="space-y-3">
+      <ul className="flex flex-col gap-3">
         {checklist.items.map((item) => (
           <li
             key={item.id}
@@ -30,7 +30,7 @@ export function TravelerProfileCompletionChecklist({ profile }: Props) {
                 className="mt-0.5 size-5 shrink-0 text-destructive"
               />
             )}
-            <div className="min-w-0 space-y-1">
+            <div className="min-w-0 flex flex-col gap-1">
               <p className="text-sm font-medium text-foreground">{item.label}</p>
               <p className="text-sm text-muted-foreground">
                 {item.complete

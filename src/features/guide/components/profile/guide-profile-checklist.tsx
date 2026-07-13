@@ -91,8 +91,8 @@ export function GuideProfileChecklist({
           Заполните шаги ниже, чтобы отправить профиль на проверку.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-5">
-        <ul className="space-y-2.5">
+      <CardContent className="flex flex-col gap-5">
+        <ul className="flex flex-col gap-2.5">
           {steps.map((step) => (
             <ChecklistRow key={step.id} step={step} />
           ))}

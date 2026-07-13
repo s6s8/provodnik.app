@@ -29,7 +29,7 @@ export function GuideQaReplyForm({ threadId, offerId, onReply }: Props) {
   }
 
   return (
-    <div className="space-y-2 pt-2 border-t">
+    <div className="flex flex-col gap-2 pt-2 border-t">
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
       <Textarea
         value={body}

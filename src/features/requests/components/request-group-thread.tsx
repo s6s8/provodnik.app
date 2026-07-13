@@ -62,10 +62,10 @@ export function RequestGroupThread({
 
   return (
     <section className="flex flex-col gap-4 pt-[54px]">
-      <div className="text-[11.5px] font-semibold uppercase tracking-[0.14em] text-primary">
+      <div className="text-xs font-semibold uppercase tracking-[0.14em] text-primary">
         Обсуждение группы
       </div>
-      <div className="rounded-[16px] border border-border bg-surface-lowest p-6">
+      <div className="rounded-card border border-border bg-surface-lowest p-6">
         {messages.length === 0 ? (
           <p className="text-sm text-on-surface-muted">
             Пока нет сообщений. Напишите первым — обсудите детали поездки с группой.
@@ -80,17 +80,17 @@ export function RequestGroupThread({
                     <span
                       className={
                         mine
-                          ? "text-[13px] font-semibold text-primary"
-                          : "text-[13px] font-semibold text-on-surface"
+                          ? "text-sm font-semibold text-primary"
+                          : "text-sm font-semibold text-on-surface"
                       }
                     >
                       {senderLabel(message.senderId, message.senderRole, currentUserId)}
                     </span>
-                    <span className="text-[11.5px] text-on-surface-muted">
+                    <span className="text-xs text-on-surface-muted">
                       {formatRussianDateTime(message.createdAt)}
                     </span>
                   </div>
-                  <p className="whitespace-pre-line text-[14.5px] leading-[1.6] text-on-surface">
+                  <p className="whitespace-pre-line text-sm leading-[1.6] text-on-surface">
                     {message.body}
                   </p>
                 </li>
@@ -108,7 +108,7 @@ export function RequestGroupThread({
             placeholder="Написать группе…"
             aria-label="Сообщение группе"
           />
-          {error ? <p className="text-[13px] text-destructive">{error}</p> : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
           <div className="flex justify-end">
             <Button type="submit" disabled={pending || body.trim().length === 0}>
               {pending ? "Отправка…" : "Отправить"}

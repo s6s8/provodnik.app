@@ -107,8 +107,8 @@ export function LicenseAddButton({ listings, isLocked = false }: Props) {
           <DialogHeader>
             <DialogTitle>Новый документ о квалификации</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div className="space-y-2">
+          <div className="flex flex-col gap-4 py-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="license-type">Тип документа</Label>
               <Input
                 id="license-type"
@@ -118,7 +118,7 @@ export function LicenseAddButton({ listings, isLocked = false }: Props) {
                 autoComplete="off"
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="license-number">Номер документа</Label>
               <Input
                 id="license-number"
@@ -128,7 +128,7 @@ export function LicenseAddButton({ listings, isLocked = false }: Props) {
                 autoComplete="off"
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="issued-by">Кем выдан</Label>
               <Input
                 id="issued-by"
@@ -138,7 +138,7 @@ export function LicenseAddButton({ listings, isLocked = false }: Props) {
                 autoComplete="off"
               />
             </div>
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="valid-until">Действует до (необязательно)</Label>
               <Input
                 id="valid-until"
@@ -163,14 +163,14 @@ export function LicenseAddButton({ listings, isLocked = false }: Props) {
               </Label>
             </div>
             {!applyAllListings ? (
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <p className="text-sm text-muted-foreground">Выберите предложения:</p>
                 {listings.length === 0 ? (
                   <p className="text-sm text-muted-foreground">
                     Нет активных предложений для привязки.
                   </p>
                 ) : (
-                  <ul className="max-h-48 space-y-2 overflow-y-auto rounded-md border border-border/80 p-3">
+                  <ul className="max-h-48 flex flex-col gap-2 overflow-y-auto rounded-md border border-border/80 p-3">
                     {listings.map((l) => (
                       <li key={l.id} className="flex items-start gap-2">
                         <input
