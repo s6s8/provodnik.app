@@ -284,7 +284,7 @@ export function DocumentUploadCard({
             </span>
           ) : null}
         </div>
-  
+
         <button
           type="button"
           className="grid min-h-[13rem] w-full place-items-center gap-3 rounded-[calc(var(--card-radius)-2px)] border-2 border-dashed border-outline-variant bg-surface-high/[0.78] p-4 transition-[transform,border-color,background] duration-150 hover:-translate-y-0.5 hover:border-primary disabled:cursor-not-allowed disabled:opacity-55 disabled:transform-none"
@@ -311,7 +311,7 @@ export function DocumentUploadCard({
               )}
             </span>
           )}
-  
+
           <span className="text-center text-sm text-muted-foreground">
             {state.isUploading
               ? `Загрузка: ${state.progress}%`
@@ -322,7 +322,7 @@ export function DocumentUploadCard({
                 : "Нажмите, чтобы выбрать файл"}
           </span>
         </button>
-  
+
         <div className="grid gap-2">
           <div className="flex items-center gap-2 text-[0.8125rem] text-muted-foreground">
             {state.uploaded ? <ImageIcon size={16} /> : <FileText size={16} />}
