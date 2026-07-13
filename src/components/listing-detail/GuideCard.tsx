@@ -40,21 +40,23 @@ export function GuideCard({
   const roleParts: string[] = [];
   if (guide.languages.length > 0) roleParts.push(guide.languages.join(", "));
   if (guide.years_experience && guide.years_experience > 0) {
-    roleParts.push(`${guide.years_experience} лет в туризме`);
+    roleParts.push(
+      `${guide.years_experience} ${pluralize(guide.years_experience, "год", "года", "лет")} в туризме`,
+    );
   }
   const roleLine = roleParts.join(" · ");
 
   return (
     <Card className="bg-surface border border-line shadow-sm rounded-card">
       <CardContent className="flex gap-4 p-4">
-        <Avatar className="size-[72px] shrink-0 rounded-[12px]">
+        <Avatar className="size-18 shrink-0 rounded-btn">
           <AvatarImage src={guide.avatar_url ?? undefined} alt={guideName} className="object-cover" />
-          <AvatarFallback className="rounded-[12px]">{initials(guideName)}</AvatarFallback>
+          <AvatarFallback className="rounded-btn">{initials(guideName)}</AvatarFallback>
         </Avatar>
         <div className="min-w-0 flex-1 space-y-1">
-          <p className="flex items-center gap-1.5 text-[18px] font-bold leading-tight">
+          <p className="flex items-center gap-1.5 text-lg font-bold leading-tight">
             {guideName}
-            {isVerified ? <BadgeCheck className="size-[15px] text-[#2F8F66]" /> : null}
+            {isVerified ? <BadgeCheck className="size-4 text-success" /> : null}
           </p>
           {roleLine ? (
             <p className="text-sm text-muted-foreground">{roleLine}</p>
@@ -67,7 +69,7 @@ export function GuideCard({
               {guide.specialties.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-full bg-[rgba(20,28,40,.05)] px-3 py-[4px] text-[12px] text-[#414B59]"
+                  className="rounded-full bg-surface-low px-3 py-1 text-xs text-ink-2"
                 >
                   {tag}
                 </span>
@@ -76,7 +78,7 @@ export function GuideCard({
           ) : null}
           {guide.review_count > 0 ? (
             <p className="flex items-center gap-1 text-sm text-muted-foreground">
-              <Star className="size-[13px] fill-[#D4872B] text-[#D4872B]" /> {guide.average_rating.toFixed(1)} · {guide.review_count} {pluralize(guide.review_count, "отзыв", "отзыва", "отзывов")}
+              <Star className="size-3.5 fill-gold text-gold" /> {guide.average_rating.toFixed(1)} · {guide.review_count} {pluralize(guide.review_count, "отзыв", "отзыва", "отзывов")}
             </p>
           ) : null}
           {guide.slug ? (

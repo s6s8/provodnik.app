@@ -7,7 +7,7 @@ export default function Loading() {
       <section className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-8 lg:py-12">
         <div className="grid gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <div className="space-y-6">
-            <Skeleton className="aspect-[16/9] w-full rounded-[2rem]" />
+            <Skeleton className="aspect-[16/9] w-full rounded-card" />
 
             <GlassCard className="p-6 space-y-4">
               <div className="flex items-center justify-between gap-4">

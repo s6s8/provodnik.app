@@ -6,7 +6,7 @@ export default function Loading() {
     <div>
       <section className="mx-auto w-full max-w-page px-[clamp(20px,4vw,48px)] py-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)] gap-8 lg:gap-14 items-start">
-          <Skeleton className="aspect-[3/4] w-full rounded-[1.75rem]" />
+          <Skeleton className="aspect-[3/4] w-full rounded-card" />
 
           <div className="space-y-6 pt-1">
             <div className="space-y-3">
@@ -52,7 +52,7 @@ export default function Loading() {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {Array.from({ length: 3 }).map((_, index) => (
               <GlassCard key={index} className="p-4">
-                <Skeleton className="aspect-[4/3] w-full rounded-[1.25rem]" />
+                <Skeleton className="aspect-[4/3] w-full rounded-card" />
                 <Skeleton className="mt-4 h-5 w-3/4" />
                 <Skeleton className="mt-2 h-4 w-full" />
                 <Skeleton className="mt-2 h-4 w-5/6" />

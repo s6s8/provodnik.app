@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Compass } from "lucide-react";
+import { Compass, SearchX } from "lucide-react";
 
 import type { DestinationCategory, DestinationRecord } from "@/data/supabase/queries";
 import { DestinationCard } from "@/components/discovery/DestinationCard";
@@ -52,9 +52,11 @@ export function DestinationsGrid({
 
   if (filtered.length === 0) {
     return (
-      <p className="text-on-surface-muted">
-        Ничего не найдено. Попробуйте другой запрос.
-      </p>
+      <EmptyState
+        icon={<SearchX className="size-7" />}
+        title="Ничего не найдено"
+        description="Попробуйте другой запрос или снимите фильтр категории."
+      />
     );
   }
 

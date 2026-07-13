@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Compass, Star, Users } from "lucide-react"
 
+import { Scrim } from "@/components/ui/scrim"
 import { Tag } from "@/components/ui/tag"
 import { cn, pluralize } from "@/lib/utils"
 
@@ -49,7 +50,7 @@ function DestinationCard({
         sizes="(max-width: 767px) 100vw, (max-width: 1023px) 50vw, 360px"
         className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-transparent" />
+      <Scrim />
 
       <div className="absolute inset-0 z-[1] flex flex-col justify-between p-5">
         <div className="flex items-start justify-between gap-2">

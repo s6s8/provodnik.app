@@ -3,12 +3,13 @@ import Link from "next/link";
 
 import { formatRubNumber } from "@/data/money";
 import { TransferCrossSellWidget } from "@/features/listings/components/TransferCrossSellWidget";
+import { BookingCard } from "@/components/listing-detail/BookingCard";
 import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
 import { TourDeparturesList } from "@/components/listing-detail/TourDeparturesList";
 import { TourItineraryDisplay } from "@/components/listing-detail/TourItineraryDisplay";
 import { ImmersiveHero } from "@/components/shared/immersive-hero";
-import { RatingDisplay } from "@/components/shared/rating-display";
+import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -93,26 +94,17 @@ export function TourShapeDetail({
     (a, b) => a - b,
   );
 
+  const priceLabel = `от ${formatRubMinor(listing.price_from_minor)} ₽`;
+
   const bookingCard = (
-    <div className="rounded-card border border-line bg-surface p-5 shadow-sm space-y-4">
-      <div>
-        <p className="text-3xl font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
-        <p className="text-sm text-muted-foreground">на человека</p>
-        {listing.review_count && listing.review_count > 0 ? (
-          <RatingDisplay
-            rating={listing.average_rating}
-            reviewCount={listing.review_count}
-            className="mt-1"
-          />
-        ) : null}
-      </div>
-      <Button asChild className="w-full">
-        <Link href={`/listings/${listing.id}/book`}>Заказать тур</Link>
-      </Button>
-      <Button asChild variant="outline" className="w-full">
-        <Link href={`/listings/${listing.id}/book?tab=question`}>Задать вопрос</Link>
-      </Button>
-    </div>
+    <BookingCard
+      listingId={listing.id}
+      priceLabel={priceLabel}
+      priceNote="на человека"
+      rating={listing.average_rating}
+      reviewCount={listing.review_count ?? 0}
+      primaryLabel="Заказать тур"
+    />
   );
 
   return (
@@ -137,8 +129,8 @@ export function TourShapeDetail({
           </Badge>
         ) : null}
         {listing.review_count > 0 ? (
-          <span className="text-sm text-muted-foreground">
-            <Star className="size-3.5 fill-amber-400 text-amber-400" /> {listing.average_rating.toFixed(1)} · {listing.review_count} {pluralize(listing.review_count, "отзыв", "отзыва", "отзывов")}
+          <span className="inline-flex items-center gap-1 text-sm text-muted-foreground">
+            <Star className="size-3.5 fill-gold text-gold" /> {listing.average_rating.toFixed(1)} · {listing.review_count} {pluralize(listing.review_count, "отзыв", "отзыва", "отзывов")}
           </span>
         ) : null}
       </div>
@@ -264,14 +256,17 @@ export function TourShapeDetail({
       </div>
 
       {/* Mobile sticky CTA */}
-      <div className="fixed inset-x-0 bottom-0 z-[110] border-t border-border bg-background/95 p-3 backdrop-blur-md md:hidden">
-        <div className="mx-auto flex max-w-page items-center justify-between gap-3 px-[clamp(12px,3vw,24px)]">
-          <p className="text-lg font-semibold">от {formatRubMinor(listing.price_from_minor)} ₽</p>
+      <StickyActionBar
+        className="md:hidden"
+        avatarUrl={coverUrl}
+        name={listing.title}
+        metaLabel={priceLabel}
+        primary={
           <Button asChild className="shrink-0">
             <Link href={`/listings/${listing.id}/book`}>Заказать</Link>
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <Separator className="my-8" />
       <TransferCrossSellWidget region={listing.region} currentListingId={listing.id} />

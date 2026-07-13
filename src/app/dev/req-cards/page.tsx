@@ -2,8 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Calendar, Check, Hand, Users } from "lucide-react";
 
+import { type AvatarStackMember } from "@/components/shared/avatar-stack";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { type ReqCardMember } from "@/components/shared/req-card";
 import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export const metadata = {
@@ -22,7 +22,7 @@ type RequestCardSample = {
   guideState: "waiting" | "found";
   datesFlexible: boolean;
   interests: ThemeSlug[];
-  members: ReqCardMember[];
+  members: AvatarStackMember[];
   price: string;
 };
 
@@ -162,7 +162,7 @@ function ParticipantStack({
   members,
   participantCount,
 }: {
-  members: readonly ReqCardMember[];
+  members: readonly AvatarStackMember[];
   participantCount: number;
 }) {
   const visibleMembers = members.slice(0, participantCount === 1 ? 1 : 3);
