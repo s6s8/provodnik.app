@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Calendar, Check, Clock, Hand, Users } from "lucide-react";
 
-import { AvatarStack } from "@/components/shared/avatar-stack";
 import { getTheme, type ThemeSlug } from "@/data/themes";
 
 export type RequestCardFinalGroupType = "private" | "assembly";
@@ -33,17 +32,17 @@ export type RequestCardFinalProps = {
 };
 
 const datesFlexibleBadgeClassName =
-  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-success-text";
 const exactDateBadgeClassName =
-  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-rose-100 px-2 py-0.5 text-xs font-medium text-rose-700";
+  "inline-flex shrink-0 items-center whitespace-nowrap rounded-full bg-primary-tint px-2 py-0.5 text-xs font-medium text-primary";
 const groupTypeBadgeBaseClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium";
-const groupTypeBadgePrivateClassName = `${groupTypeBadgeBaseClassName} bg-purple-100 text-purple-700`;
-const groupTypeBadgeAssemblyClassName = `${groupTypeBadgeBaseClassName} bg-sky-100 text-sky-700`;
+const groupTypeBadgePrivateClassName = `${groupTypeBadgeBaseClassName} bg-gold-50 text-warning-text`;
+const groupTypeBadgeAssemblyClassName = `${groupTypeBadgeBaseClassName} bg-primary-tint text-primary`;
 const waitingGuideBadgeClassName =
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-warning/10 px-2 py-0.5 text-xs font-medium text-warning";
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-amber-tint px-2 py-0.5 text-xs font-medium text-warning-text";
 const offersGuideBadgeClassName =
-  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700";
+  "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-primary-tint px-2 py-0.5 text-xs font-medium text-primary";
 const foundGuideBadgeClassName =
   "inline-flex items-center gap-1 whitespace-nowrap rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success";
 const expiredGuideBadgeClassName =
@@ -100,7 +99,7 @@ function GuideStatusBadge({ guideState, offerCount }: { guideState: RequestCardF
 
   return (
     <span className={waitingGuideBadgeClassName}>
-      Ждёт гида <Hand size={14} className="text-warning" />
+      Ждёт гида <Hand size={14} />
     </span>
   );
 }
@@ -113,13 +112,13 @@ function GroupTypeBadge({
   participantCount: number;
 }) {
   const className = groupType === "assembly" ? groupTypeBadgeAssemblyClassName : groupTypeBadgePrivateClassName;
-  const iconClassName = groupType === "assembly" ? "text-sky-700" : "text-purple-700";
   const label = groupType === "assembly" ? "Сборная группа" : "Своя группа";
 
   return (
     <div className="flex items-center gap-1.5">
       <span className={className}>
-        <Users size={14} className={iconClassName} />
+        {/* ponytail: icon inherits the badge's token text color via currentColor */}
+        <Users size={14} />
         {label}
       </span>
       <span className="text-xs font-medium text-ink-2">
@@ -207,9 +206,8 @@ export function RequestCardFinal({
         </div>
       </Link>
 
-      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-4">
+      <div className="mt-auto flex flex-wrap items-end justify-between gap-3 pt-4">
         <div className="flex flex-col gap-1">
-          <AvatarStack members={members} size={24} overlap={6} />
           {publishedAt ? (
             <span className="text-xs text-muted-foreground">Опубликован: {publishedAt}</span>
           ) : null}
