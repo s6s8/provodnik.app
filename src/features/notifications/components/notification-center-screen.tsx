@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
-import { ArrowRight, Bell, Check, Circle } from "lucide-react";
+import { AlertCircle, ArrowRight, Bell, Check, Circle } from "lucide-react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListRow } from "@/components/shared/list-row";
@@ -53,11 +53,14 @@ export function NotificationCenterScreen() {
   const [userId, setUserId] = React.useState<string | null>(null);
   const [loadError, setLoadError] = React.useState(false);
   const [loading, setLoading] = React.useState(true);
+  const [reloadKey, setReloadKey] = React.useState(0);
 
   React.useEffect(() => {
     let ignore = false;
 
     async function load() {
+      setLoadError(false);
+      setLoading(true);
       try {
         const supabase = createSupabaseBrowserClient();
         const {
@@ -90,7 +93,7 @@ export function NotificationCenterScreen() {
 
     void load();
     return () => { ignore = true; };
-  }, []);
+  }, [reloadKey]);
 
   const markRead = React.useCallback(
     async (notificationId: string) => {
@@ -175,7 +178,7 @@ export function NotificationCenterScreen() {
   const grouped = React.useMemo(() => groupNotifications(visible), [visible]);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col gap-8">
       <PageHeader
         eyebrow="Центр уведомлений"
         title="Уведомления"
@@ -222,14 +225,24 @@ export function NotificationCenterScreen() {
         </ToggleGroupItem>
       </ToggleGroup>
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         {loadError ? (
           <EmptyState
+            icon={<AlertCircle />}
             title="Не удалось загрузить"
-            description="Попробуйте обновить страницу."
+            description="Проверьте соединение и попробуйте ещё раз."
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setReloadKey((key) => key + 1)}
+              >
+                Попробовать снова
+              </Button>
+            }
           />
         ) : loading ? (
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3" aria-busy="true">
             <ListRowSkeleton />
             <ListRowSkeleton />
             <ListRowSkeleton />
@@ -238,12 +251,12 @@ export function NotificationCenterScreen() {
           <EmptyState
             icon={<Bell />}
             title="Пока пусто"
-            description="Новые события появятся здесь"
+            description="Новые события появятся здесь."
           />
         ) : (
-          <div className="space-y-6">
+          <div className="flex flex-col gap-6">
             {grouped.map((group) => (
-              <section key={group.key} className="space-y-3" aria-label={group.label}>
+              <section key={group.key} className="flex flex-col gap-3" aria-label={group.label}>
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-semibold text-foreground">{group.label}</p>
                   <Separator className="flex-1" />
@@ -273,11 +286,21 @@ function NotificationRow({
   onMarkUnread,
 }: {
   notification: NotificationRecord;
-  onMarkRead: (id: string) => void;
-  onMarkUnread: (id: string) => void;
+  onMarkRead: (id: string) => Promise<void>;
+  onMarkUnread: (id: string) => Promise<void>;
 }) {
   const isUnread = notification.readAt === null;
   const severityVariant = getSeverityBadgeVariant(notification.severity);
+  const [pending, setPending] = React.useState(false);
+
+  const toggleRead = async () => {
+    setPending(true);
+    try {
+      await (isUnread ? onMarkRead : onMarkUnread)(notification.id);
+    } finally {
+      setPending(false);
+    }
+  };
 
   return (
     <ListRow
@@ -289,7 +312,7 @@ function NotificationRow({
           </span>
         ) : (
           <span className="inline-flex items-center">
-            <Circle className="size-2.5 text-muted-foreground/50" />
+            <Circle className="size-2.5 text-muted-foreground" />
             <span className="sr-only">Прочитано</span>
           </span>
         )
@@ -313,23 +336,12 @@ function NotificationRow({
       }
       actions={
         <>
-          <Button
-            type="button"
-            size="sm"
-            variant={isUnread ? "secondary" : "outline"}
-            onClick={() => {
-              if (isUnread) onMarkRead(notification.id);
-              else onMarkUnread(notification.id);
-            }}
-          >
-            {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
-          </Button>
           {notification.href ? (
-            <Button asChild size="sm" variant="ghost">
+            <Button asChild size="sm" variant="outline">
               <Link
                 href={notification.href}
                 onClick={() => {
-                  if (isUnread) onMarkRead(notification.id);
+                  if (isUnread) void onMarkRead(notification.id);
                 }}
               >
                 Открыть событие
@@ -337,6 +349,15 @@ function NotificationRow({
               </Link>
             </Button>
           ) : null}
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            disabled={pending}
+            onClick={() => void toggleRead()}
+          >
+            {isUnread ? "Отметить прочитанным" : "Вернуть в непрочитанные"}
+          </Button>
         </>
       }
     />
