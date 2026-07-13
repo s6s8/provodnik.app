@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Switch as SwitchPrimitive } from "radix-ui";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 type RoleKey = "traveler" | "guide";
@@ -44,27 +45,22 @@ export function NotificationPrefsMatrix({
   const events = ROLE_EVENTS[role];
 
   return (
-    <div className="space-y-4">
+    <Tabs
+      value={role}
+      onValueChange={(next) => setRole(next as RoleKey)}
+      className="space-y-4"
+    >
       {/* Role tabs */}
-      <div className="flex gap-2 border-b border-border pb-3">
-        {(["traveler", "guide"] as const).map((r) => (
-          <button
-            key={r}
-            type="button"
-            onClick={() => setRole(r)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
-              role === r
-                ? "bg-foreground text-background"
-                : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            }`}
-          >
-            {r === "traveler" ? "Путешественник" : "Гид"}
-          </button>
-        ))}
-      </div>
+      <TabsList>
+        <TabsTrigger value="traveler">Путешественник</TabsTrigger>
+        <TabsTrigger value="guide">Гид</TabsTrigger>
+      </TabsList>
 
-      {/* Matrix table */}
-      <div className="relative max-w-full overflow-x-auto rounded-card border border-border">
+      {/* Matrix table — same shape for both roles, driven by `events` */}
+      <TabsContent
+        value={role}
+        className="relative mt-0 max-w-full overflow-x-auto rounded-card border border-border"
+      >
         <table className="w-full min-w-[520px] border-collapse text-sm">
           <thead>
             <tr className="border-b border-border bg-muted/40">
@@ -179,7 +175,7 @@ export function NotificationPrefsMatrix({
             })}
           </tbody>
         </table>
-      </div>
-    </div>
+      </TabsContent>
+    </Tabs>
   );
 }

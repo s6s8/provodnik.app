@@ -7,6 +7,7 @@ import { GlassCard } from "@/components/shared/glass-card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   createAvailabilityBlockAction,
   deleteAvailabilityBlockAction,
@@ -29,6 +30,10 @@ const KINDS = [
 type Kind = (typeof KINDS)[number]["id"];
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 
 function describeBlock(b: CalendarBlock): string {
   if (b.all_day) {
@@ -100,19 +105,22 @@ export function GuideCalendarBlocks({ blocks }: { blocks: CalendarBlock[] }) {
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={kind}
+        // Radix single-toggle deselects on re-click; the kind is required, so ignore "".
+        onValueChange={(next) => {
+          if (next) setKind(next as Kind);
+        }}
+        className="w-full flex-wrap"
+      >
         {KINDS.map((k) => (
-          <Button
-            key={k.id}
-            type="button"
-            size="sm"
-            variant={kind === k.id ? "default" : "outline"}
-            onClick={() => setKind(k.id)}
-          >
+          <ToggleGroupItem key={k.id} value={k.id} className={TOGGLE_ACTIVE_CLASS}>
             {k.label}
-          </Button>
+          </ToggleGroupItem>
         ))}
-      </div>
+      </ToggleGroup>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-1.5">

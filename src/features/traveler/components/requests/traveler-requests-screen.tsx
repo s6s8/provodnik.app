@@ -150,27 +150,30 @@ function RequestsCategoryTabs({
 
   return (
     <Tabs value={categoryTab} onValueChange={handleCategoryTabChange}>
-      <TabsList className="mb-4 grid w-full grid-cols-3">
-        <TabsTrigger value="active" onClick={() => setCategoryTab('active')}>
-          <span className="truncate">
-            Активные
-            {activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
-          </span>
+      <TabsList className="mb-4 flex w-full">
+        <TabsTrigger
+          value="active"
+          className="px-2 sm:px-4"
+          onClick={() => setCategoryTab('active')}
+        >
+          Активные
+          {activeRequests.length > 0 ? ` (${activeRequests.length})` : ''}
         </TabsTrigger>
         <TabsTrigger
           value="confirmed"
+          className="px-2 sm:px-4"
           onClick={() => setCategoryTab('confirmed')}
         >
-          <span className="truncate">
-            Подтверждённые
-            {confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
-          </span>
+          Подтверждено
+          {confirmedBookings.length > 0 ? ` (${confirmedBookings.length})` : ''}
         </TabsTrigger>
-        <TabsTrigger value="joined" onClick={() => setCategoryTab('joined')}>
-          <span className="truncate">
-            Мои группы
-            {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
-          </span>
+        <TabsTrigger
+          value="joined"
+          className="px-2 sm:px-4"
+          onClick={() => setCategoryTab('joined')}
+        >
+          Мои группы
+          {joinedGroups.length > 0 ? ` (${joinedGroups.length})` : ''}
         </TabsTrigger>
       </TabsList>
       <TabsContent value="active">

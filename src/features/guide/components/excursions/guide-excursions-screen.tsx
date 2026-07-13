@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
@@ -257,88 +258,78 @@ export function GuideExcursionsScreen() {
         }
       />
 
-      <div className="mb-6 mt-6 flex gap-1 rounded-xl bg-muted p-1">
-        <button
-          type="button"
-          onClick={() => setActiveTab("excursions")}
-          className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
-            activeTab === "excursions"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Экскурсии
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("photos")}
-          className={`flex-1 rounded-lg py-2 text-sm font-medium transition-colors ${
-            activeTab === "photos"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Фото
-        </button>
-      </div>
+      <Tabs
+        value={activeTab}
+        onValueChange={(next) => setActiveTab(next as "excursions" | "photos")}
+        className="mb-6 mt-6"
+      >
+        <TabsList>
+          <TabsTrigger value="excursions">Экскурсии</TabsTrigger>
+          <TabsTrigger value="photos">Фото</TabsTrigger>
+        </TabsList>
 
-      {activeTab === "photos" ? (
-        <GuidePortfolioScreen guideId={authenticatedGuideId ?? ""} />
-      ) : loading ? (
-        <div className="space-y-2" aria-busy="true" aria-label="Загрузка экскурсий">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-surface-high" />
-          ))}
-        </div>
-      ) : loadError ? (
-        <p className="text-sm text-destructive">{loadError}</p>
-      ) : templates.length === 0 ? (
-        <EmptyState
-          icon={<BookOpen />}
-          title="Экскурсий пока нет"
-          description="Добавьте первую экскурсию, чтобы откликаться на запросы путешественников."
-        />
-      ) : (
-        <div className="space-y-2">
-          {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
-          {templates.map((template) => (
-            <ListRow
-              key={template.id}
-              title={template.title}
-              subtitle={[template.duration_text, template.meeting_point]
-                .filter(Boolean)
-                .join(" · ")}
-              badge={
-                <Badge variant={template.status === "published" ? "default" : "secondary"}>
-                  {template.status === "published" ? "Опубл." : "Черновик"}
-                </Badge>
-              }
-              actions={
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Изменить"
-                    onClick={() => openEditSheet(template)}
-                  >
-                    <Pencil size={16} />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Удалить"
-                    disabled={deletingTemplateId === template.id}
-                    onClick={() => handleDeleteTemplate(template)}
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </>
-              }
-              onClick={() => openEditSheet(template)}
+        <TabsContent value="excursions">
+          {loading ? (
+            <div className="space-y-2" aria-busy="true" aria-label="Загрузка экскурсий">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-16 animate-pulse rounded-xl bg-surface-high" />
+              ))}
+            </div>
+          ) : loadError ? (
+            <p className="text-sm text-destructive">{loadError}</p>
+          ) : templates.length === 0 ? (
+            <EmptyState
+              icon={<BookOpen />}
+              title="Экскурсий пока нет"
+              description="Добавьте первую экскурсию, чтобы откликаться на запросы путешественников."
             />
-          ))}
-        </div>
-      )}
+          ) : (
+            <div className="space-y-2">
+              {deleteError && <p className="text-sm text-destructive">{deleteError}</p>}
+              {templates.map((template) => (
+                <ListRow
+                  key={template.id}
+                  title={template.title}
+                  subtitle={[template.duration_text, template.meeting_point]
+                    .filter(Boolean)
+                    .join(" · ")}
+                  badge={
+                    <Badge variant={template.status === "published" ? "default" : "secondary"}>
+                      {template.status === "published" ? "Опубл." : "Черновик"}
+                    </Badge>
+                  }
+                  actions={
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Изменить"
+                        onClick={() => openEditSheet(template)}
+                      >
+                        <Pencil size={16} />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label="Удалить"
+                        disabled={deletingTemplateId === template.id}
+                        onClick={() => handleDeleteTemplate(template)}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                    </>
+                  }
+                  onClick={() => openEditSheet(template)}
+                />
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="photos">
+          <GuidePortfolioScreen guideId={authenticatedGuideId ?? ""} />
+        </TabsContent>
+      </Tabs>
 
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-full max-w-md">

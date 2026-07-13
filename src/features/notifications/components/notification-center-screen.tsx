@@ -13,12 +13,17 @@ import { PageHeader } from "@/components/shared/page-header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { NotificationRecord, NotificationSeverity } from "@/data/notifications/types";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 import { isUnreadNotification } from "./NotificationBell";
 
 type FeedFilter = "all" | "unread";
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 
 function mapNotificationRow(row: Record<string, unknown>): NotificationRecord {
   const kind = (row.kind as NotificationRecord["kind"]) ?? "admin_alert";
@@ -190,24 +195,23 @@ export function NotificationCenterScreen() {
         }
       />
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          size="sm"
-          variant={filter === "all" ? "secondary" : "outline"}
-          onClick={() => setFilter("all")}
-        >
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={filter}
+        // Radix single-toggle emits "" on re-click; a feed filter is always set.
+        onValueChange={(next) => {
+          if (next) setFilter(next as FeedFilter);
+        }}
+        className="flex-wrap"
+      >
+        <ToggleGroupItem value="all" className={TOGGLE_ACTIVE_CLASS}>
           Все
           <Badge variant="outline" className="ml-2 bg-background">
             {notifications.length}
           </Badge>
-        </Button>
-        <Button
-          type="button"
-          size="sm"
-          variant={filter === "unread" ? "secondary" : "outline"}
-          onClick={() => setFilter("unread")}
-        >
+        </ToggleGroupItem>
+        <ToggleGroupItem value="unread" className={TOGGLE_ACTIVE_CLASS}>
           Непрочитанные
           <Badge
             variant={unreadCount === 0 ? "outline" : "secondary"}
@@ -215,8 +219,8 @@ export function NotificationCenterScreen() {
           >
             {unreadCount}
           </Badge>
-        </Button>
-      </div>
+        </ToggleGroupItem>
+      </ToggleGroup>
 
       <div className="space-y-3">
         {loadError ? (

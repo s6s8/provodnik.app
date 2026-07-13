@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { ListRow } from "@/components/shared/list-row";
 import { formatRussianDateTime } from "@/lib/dates";
 import {
@@ -112,6 +113,19 @@ function resolveQueueView(value: string | string[] | undefined): GuideReviewQueu
   return resolveSearchValue(value) === "drafts" ? "drafts" : "all";
 }
 
+const QUEUE_VIEWS: Array<{
+  value: GuideReviewQueueView;
+  href: string;
+  label: string;
+}> = [
+  { value: "all", href: "/admin/guides", label: "На проверке" },
+  { value: "drafts", href: "/admin/guides?view=drafts", label: "Черновики" },
+];
+
+// Selected option = primary fill; overrides the muted default of the toggle variant.
+const TOGGLE_ACTIVE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
+
 async function approveGuideAction(guideId: string) {
   "use server";
 
@@ -171,11 +185,6 @@ export default async function AdminGuidesPage({
     view === "drafts"
       ? "Нет черновиков анкет гидов."
       : "Нет заявок на проверке. Если гид только начал анкету, проверьте вкладку «Черновики».";
-  const filterBaseClass =
-    "rounded-full px-4 py-2 text-sm font-medium transition-colors";
-  const filterInactiveClass =
-    "border border-border/70 text-muted-foreground hover:bg-surface-low hover:text-foreground";
-  const filterActiveClass = "bg-primary text-primary-foreground shadow-sm";
 
   return (
     <div className="space-y-8">
@@ -197,26 +206,35 @@ export default async function AdminGuidesPage({
         </p>
       </div>
 
-      <div className="flex flex-wrap gap-2" aria-label="Фильтр очереди гидов">
-        <Link
-          href="/admin/guides"
-          aria-current={view === "all" ? "page" : undefined}
-          className={`${filterBaseClass} ${
-            view === "all" ? filterActiveClass : filterInactiveClass
-          }`}
-        >
-          На проверке
-        </Link>
-        <Link
-          href="/admin/guides?view=drafts"
-          aria-current={view === "drafts" ? "page" : undefined}
-          className={`${filterBaseClass} ${
-            view === "drafts" ? filterActiveClass : filterInactiveClass
-          }`}
-        >
-          Черновики
-        </Link>
-      </div>
+      <ToggleGroup
+        type="single"
+        variant="outline"
+        value={view}
+        aria-label="Фильтр очереди гидов"
+        className="flex-wrap"
+      >
+        {QUEUE_VIEWS.map((queueView) => (
+          <ToggleGroupItem
+            key={queueView.value}
+            value={queueView.value}
+            className={TOGGLE_ACTIVE_CLASS}
+            asChild
+            // These items are links (the view lives in the URL), so drop the
+            // radio/button semantics Radix stamps on single-type items. Roving
+            // focus and data-state styling stay.
+            role={undefined}
+            aria-checked={undefined}
+            type={undefined}
+          >
+            <Link
+              href={queueView.href}
+              aria-current={view === queueView.value ? "page" : undefined}
+            >
+              {queueView.label}
+            </Link>
+          </ToggleGroupItem>
+        ))}
+      </ToggleGroup>
 
       {guides === null ? (
         <GuideQueueLoadError view={view} />
