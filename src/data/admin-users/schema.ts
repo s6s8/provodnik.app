@@ -156,6 +156,10 @@ export const adminUsersFilterSchema = z.object({
   status: accountStatusSchema.optional(),
   guideStatus: z.enum(GUIDE_VERIFICATION_STATUSES).optional(),
   guideType: z.enum(GUIDE_TYPES).optional(),
+  // Guide geography. `regions` is free text typed by guides, so the region
+  // filter matches an exact array element; base city matches a substring.
+  region: z.string().trim().max(80).optional(),
+  baseCity: z.string().trim().max(80).optional(),
   demo: z.enum(["demo", "real"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
 });

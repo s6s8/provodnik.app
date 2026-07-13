@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  MapPin,
   MoreHorizontal,
   Search,
   SquareArrowOutUpRight,
@@ -77,6 +78,8 @@ type Filters = {
   status?: string;
   guideStatus?: string;
   guideType?: string;
+  region?: string;
+  baseCity?: string;
   demo?: string;
 };
 
@@ -100,12 +103,14 @@ export function UsersConsole({
   page,
   pageCount,
   filters,
+  regionOptions,
 }: {
   items: AdminUserListItem[];
   total: number;
   page: number;
   pageCount: number;
   filters: Filters;
+  regionOptions: string[];
 }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -113,6 +118,7 @@ export function UsersConsole({
 
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState(filters.q ?? "");
+  const [baseCity, setBaseCity] = useState(filters.baseCity ?? "");
   const [pendingBulk, setPendingBulk] = useState<BulkAction | null>(null);
   const [reason, setReason] = useState("");
   const [rowPending, startRow] = useTransition();
@@ -144,7 +150,10 @@ export function UsersConsole({
 
   function submitSearch(event: React.FormEvent) {
     event.preventDefault();
-    updateParam({ q: search.trim() || undefined });
+    updateParam({
+      q: search.trim() || undefined,
+      baseCity: baseCity.trim() || undefined,
+    });
   }
 
   function goToPage(next: number) {
@@ -193,12 +202,22 @@ export function UsersConsole({
               aria-label="Поиск пользователей"
             />
           </div>
+          <div className="relative flex-1">
+            <MapPin className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2" />
+            <Input
+              value={baseCity}
+              onChange={(e) => setBaseCity(e.target.value)}
+              placeholder="Базовый город"
+              className="pl-9"
+              aria-label="Фильтр по базовому городу гида"
+            />
+          </div>
           <Button type="submit" variant="outline">
             Найти
           </Button>
         </form>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           <FilterSelect
             label="Роль"
             value={filters.role ?? ALL}
@@ -228,6 +247,12 @@ export function UsersConsole({
             value={filters.guideType ?? ALL}
             onChange={(v) => updateParam({ guideType: v })}
             options={GUIDE_TYPES.map((value) => ({ value, label: GUIDE_TYPE_LABELS[value] }))}
+          />
+          <FilterSelect
+            label="Регион"
+            value={filters.region ?? ALL}
+            onChange={(v) => updateParam({ region: v })}
+            options={regionOptions.map((value) => ({ value, label: value }))}
           />
           <FilterSelect
             label="Демо"
