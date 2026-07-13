@@ -51,7 +51,7 @@ describe("ImmersiveHero", () => {
     const photo = screen.getByRole("img", { name: "Озеро Байкал" });
     expect(photo.tagName).toBe("IMG");
     expect(photo.getAttribute("src")).toContain("photo.jpg");
-    expect(container.querySelector(".hero-overlay")).toBeInTheDocument();
+    expect(container.querySelector(".scrim-hero")).toBeInTheDocument();
   });
 
   it("falls back to a CSS background variable for gradient data URLs", () => {
