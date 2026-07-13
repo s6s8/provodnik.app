@@ -11,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { HELP_FALLBACK_ARTICLES } from "@/data/help-articles";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { HelpArticleRow } from "@/lib/supabase/types";
@@ -43,59 +44,6 @@ function isCategoryEnabled(category: string): boolean {
 }
 
 const CATEGORY_ORDER: string[] = ALL_CATEGORIES.filter(isCategoryEnabled);
-
-const FALLBACK_ARTICLES: HelpArticleRow[] = [
-  {
-    id: "00000000-0000-4000-8000-000000000001",
-    slug: "kak-zabronirovat-ekskursiyu",
-    category: "for_travelers",
-    title: "Как забронировать экскурсию?",
-    body_md:
-      "Выберите экскурсию в каталоге, откройте карточку и нажмите кнопку бронирования. Следуйте шагам на экране.\n\nПри необходимости уточните детали у гида в переписке.",
-    position: 1,
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000002",
-    slug: "kak-otpravit-zayavku-gidu",
-    category: "booking",
-    title: "Как отправить заявку гиду?",
-    body_md: `У вас два пути.
-
-**Открытый запрос.** Перейдите в раздел «Запросы» и опишите поездку — даты, направление, пожелания. Ваш запрос увидят гиды по выбранному городу, и вы получите несколько предложений с маршрутом и ценой. Сравните и выберите подходящее.
-
-**Бронирование готовой экскурсии.** Если вы нашли подходящую экскурсию в каталоге, откройте её страницу и оформите бронирование. Гид подтвердит или уточнит детали.
-
-Отдельной формы «написать гиду напрямую» в продукте нет — оба пути проходят через платформу, чтобы вы были защищены при споре, а гид получил подтверждение брони.`,
-    position: 2,
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000003",
-    slug: "kogda-gid-dolzhen-otvetit",
-    category: "booking",
-    title: "Когда гид должен ответить?",
-    body_md:
-      "Сроки ответа зависят от загрузки гида и условий конкретного объявления. Если ответа нет дольше ожидаемого, проверьте статус заявки в личном кабинете.",
-    position: 3,
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000004",
-    slug: "kak-zaregistrirovatsya-kak-gid",
-    category: "for_guides",
-    title: "Как зарегистрироваться как гид?",
-    body_md:
-      "Создайте аккаунт и выберите роль гида в профиле. Заполните данные профиля и пройдите проверку согласно требованиям платформы.",
-    position: 4,
-  },
-  {
-    id: "00000000-0000-4000-8000-000000000005",
-    slug: "kak-sozdat-obyavlenie",
-    category: "for_guides",
-    title: "Как создать объявление?",
-    body_md:
-      "В кабинете гида откройте раздел объявлений и нажмите «Создать». Заполните описание, цену, длительность и медиа, затем отправьте на модерацию.",
-    position: 5,
-  },
-];
 
 function normalizeCategory(category: string | null): string {
   return category ?? "account";
@@ -134,7 +82,7 @@ export default async function HelpPage() {
   articles = (data ?? []) as HelpArticleRow[];
 
   if (articles.length === 0) {
-    articles = FALLBACK_ARTICLES;
+    articles = HELP_FALLBACK_ARTICLES;
   }
 
   const enabledArticles = articles.filter((article) =>
