@@ -62,7 +62,12 @@ import {
 import type { AdminUserListItem } from "@/lib/supabase/admin-users";
 
 import { approveGuideAction, bulkAction } from "../actions";
-import { AccountStatusBadge, GuideStatusBadge, RoleBadge } from "./user-badges";
+import {
+  AccountStatusBadge,
+  GuideStatusBadge,
+  MissingPhoneBadge,
+  RoleBadge,
+} from "./user-badges";
 
 const ALL = "__all__";
 
@@ -325,7 +330,14 @@ export function UsersConsole({
                     </div>
                   </TableCell>
                   <TableCell>
-                    <AccountStatusBadge status={user.accountStatus} />
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <AccountStatusBadge status={user.accountStatus} />
+                      {/* The list row exposes only the masked phone; maskPhone() returns "—" when there is none. */}
+                      <MissingPhoneBadge
+                        role={user.role}
+                        phone={user.maskedPhone === "—" ? null : user.maskedPhone}
+                      />
+                    </div>
                   </TableCell>
                   <TableCell className="hidden lg:table-cell">
                     {user.guide ? (
