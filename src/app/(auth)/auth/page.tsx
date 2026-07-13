@@ -83,10 +83,10 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
   ];
 
   return (
-    <section className="relative flex min-h-screen items-stretch justify-center bg-surface px-[clamp(20px,4vw,48px)] py-16">
+    <section className="relative flex min-h-dvh items-stretch justify-center bg-surface px-gutter py-16">
       <Link
         href="/"
-        className="absolute left-[clamp(20px,4vw,48px)] top-6 z-10 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+        className="absolute left-gutter top-6 z-10 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
       >
         <ArrowLeft className="size-4" aria-hidden />
         На главную
@@ -98,12 +98,12 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
             className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-white transition-colors hover:text-white/80"
           >
             <ArrowLeft className="size-4" aria-hidden />
-            Provodnik
+            Проводник
           </Link>
           <div className="space-y-4">
-            <h1 className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
+            <p className="text-[clamp(1.75rem,2.5vw,2.25rem)] font-semibold leading-tight text-white">
               Найдите проверенного гида для поездки
-            </h1>
+            </p>
             <p className="text-base leading-7 text-white/80">
               Создайте профиль, отправьте запрос и сравните предложения гидов
               до бронирования.
