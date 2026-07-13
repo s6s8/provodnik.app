@@ -19,7 +19,9 @@ export type NavItem = {
 
 export const ROUTES = {
   requests:     { href: "/requests",     label: "Запросы",           icon: Users },
-  listings:     { href: "/listings",     label: "Экскурсии",         icon: Compass },
+  // «Готовые» distinguishes the public catalog of ready-made excursions from the
+  // guide's own workspace tab, which is also «Экскурсии» (ROUTES.guideListings).
+  listings:     { href: "/listings",     label: "Готовые экскурсии", icon: Compass },
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
   newRequest:   { href: "/",             label: "Создать запрос",    icon: ClipboardList },
@@ -66,18 +68,19 @@ const adminBridge: NavItem = { ...ROUTES.adminDashboard, label: "Админка"
 /**
  * Anonymous / public marketplace discovery (max 5 items).
  *
- * The public «Экскурсии» (/listings) and «Направления» (/destinations) catalog
- * surfaces are hidden per the Wildberries review: they carry no nav entry and
- * their routes are inaccessible unless `FEATURE_PUBLIC_CATALOG` is re-enabled.
- * Discovery flows through requests + guides instead.
+ * «Готовые экскурсии» (/listings) is gated on `FEATURE_PUBLIC_CATALOG` via
+ * NAV_FLAG_BY_HREF: with the flag off the entry hides itself and the route
+ * redirects to /guides, so the flag is the single switch (item 7).
+ * «Направления» (/destinations) stays out of the nav — same flag guards the
+ * route, but it has no curated inventory yet.
  */
 export const publicPrimaryNav = [
-  ROUTES.requests, ROUTES.guides, ROUTES.howItWorks,
+  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.howItWorks,
 ] as const;
 
-/** Traveler: marketplace discovery + personal trips (catalog surfaces hidden). */
+/** Traveler: marketplace discovery + personal trips. */
 export const travelerPrimaryNav = [
-  ROUTES.requests, ROUTES.guides, ROUTES.trips,
+  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.trips,
 ] as const;
 
 /** Guide workspace (also drives the mobile bottom nav). */
@@ -168,6 +171,7 @@ export const footerNav = {
 export const NAV_FLAG_BY_HREF = {
   "/favorites": "FEATURE_TR_FAVORITES",
   "/referrals": "FEATURE_TR_REFERRALS",
+  "/listings": "FEATURE_PUBLIC_CATALOG",
 } as const satisfies Partial<Record<string, FlagName>>;
 
 /**
