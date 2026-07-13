@@ -34,13 +34,16 @@ vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import {
   approveGuideAction,
-  buildGuideRoleFlipWrite,
   bulkAction,
   hardDeleteDemoUserAction,
   setAccountStatusAction,
   setUserRoleAction,
   updateFullNameAction,
 } from "./actions";
+// Lives in @/data/admin-users, NOT in actions.ts: a "use server" module may only
+// export async functions, so a sync pure helper exported from there fails the BUILD
+// (not typecheck, not lint, not tests — only `next build` catches it).
+import { buildGuideRoleFlipWrite } from "@/data/admin-users";
 
 const ADMIN_ID = "11111111-1111-4111-8111-111111111111";
 const TARGET_ID = "22222222-2222-4222-8222-222222222222";

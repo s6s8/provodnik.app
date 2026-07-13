@@ -1,4 +1,5 @@
 import type { AppRole } from "@/lib/auth/types";
+import { COPY } from "@/lib/copy";
 import type { AccountStatus } from "./schema";
 
 /**
@@ -100,6 +101,47 @@ export function evaluateRoleChange(input: {
     };
   }
   return { ok: true };
+}
+
+/**
+ * Decide what a flip-to-guide may write to `guide_profiles`.
+ *
+ * The bug (item 13, msgs 544–593): the role-flip path used to upsert `display_name`,
+ * `verification_status` and `is_available` unconditionally, so every admin↔guide flip
+ * overwrote an existing guide's public identity with their email local-part, reset them
+ * to `draft` and hid them from `/guides`. Admins could not see it — RLS shows them
+ * `profiles.full_name` while anonymous visitors read the clobbered
+ * `guide_profiles.display_name`. Re-approving never healed it.
+ *
+ * An existing profile is therefore never rewritten. A new one falls back to the full
+ * name and NEVER to the email local-part — that leak is the same bug. The email is not
+ * a parameter here, so it cannot leak by construction.
+ */
+export function buildGuideRoleFlipWrite(
+  existing: { user_id: string; verification_status: string } | null,
+  input: { targetId: string; targetFullName: string | null },
+):
+  | { kind: "insert"; row: Record<string, unknown> }
+  | { kind: "restore-visibility" }
+  | { kind: "noop" } {
+  if (existing) {
+    // D-A1a: the demote path is what forced is_available=false, so re-promoting an
+    // approved guide undoes exactly that and nothing else. A guide who wants to stay
+    // hidden can re-toggle it themselves.
+    return existing.verification_status === "approved"
+      ? { kind: "restore-visibility" }
+      : { kind: "noop" };
+  }
+
+  return {
+    kind: "insert",
+    row: {
+      user_id: input.targetId,
+      display_name: input.targetFullName?.trim() || COPY.guide,
+      verification_status: "draft",
+      is_available: false,
+    },
+  };
 }
 
 const MASK = "•••";
