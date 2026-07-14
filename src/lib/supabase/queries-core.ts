@@ -573,8 +573,19 @@ export async function fetchMembersForRequests(
 }
 
 export function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknown> | null): GuideRecord {
+  // Item 13, the two-field name standard: `guide_profiles.display_name` is the PUBLIC
+  // name a traveler sees; `profiles.full_name` is the private, admin-only FIO
+  // (migration 20260714000000 says so in as many words). The precedence here used to
+  // be the other way round, so any surface that could actually READ `profiles` served
+  // the legal FIO to the public: the guide detail page resolves its guide through a
+  // SECURITY DEFINER RPC that returns `p.full_name`, and rendered «Гиляна Манджиева»
+  // as the page title where the standard says «Гиляна». The grid only looked right by
+  // accident — anon RLS hides `profiles`, so full_name came back NULL and the fallback
+  // did the work. An admin browsing the same grid saw the FIOs.
+  //
+  // full_name stays as the fallback for legacy rows that never set a display_name.
   const fullName = resolveDisplayName("guide", {
-    full_name: (profile?.full_name as string | null | undefined) ?? (gp.display_name as string | null | undefined),
+    full_name: (gp.display_name as string | null | undefined) ?? (profile?.full_name as string | null | undefined),
   });
   const regions = (gp.regions as string[]) ?? [];
   const baseCity = (gp.base_city as string | null) ?? null;
