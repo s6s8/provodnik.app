@@ -39,6 +39,10 @@ vi.mock("@/lib/email/templates/notification-emails", () => ({
     subject: "Бронирование отменено",
     html: bookingUrl,
   }),
+  renderNewRequestEmail: ({ destination, participants }: { destination: string; participants: number }) => ({
+    subject: `Новый запрос: ${destination}`,
+    html: `${destination}/${participants}`,
+  }),
 }));
 
 import { notifyBookingCancelled, notifyGuidesNewRequest } from "./triggers";
@@ -193,5 +197,95 @@ describe("notifyGuidesNewRequest", () => {
       "[notifyGuidesNewRequest] notification failures:",
       expect.any(AggregateError),
     );
+  });
+});
+
+// Item 8: a matching guide used to get an in-app bell and nothing else. If they were
+// not in the app, the request went unanswered.
+describe("notifyGuidesNewRequest email", () => {
+  const guideTwo = "44444444-4444-4444-8444-444444444444";
+
+  function mount(guidePrefs: Record<string, unknown>) {
+    const request = {
+      id: bookingId,
+      destination: "Элиста",
+      interests: ["mountains"],
+      participants_count: 2,
+    };
+    const candidates = [
+      { user_id: guideId, specialties: ["mountains"], max_group_size: 4 },
+      { user_id: guideTwo, specialties: ["mountains"], max_group_size: 4 },
+    ];
+    const data = {
+      emails: { [guideId]: "guide-one@example.test", [guideTwo]: "guide-two@example.test" },
+      travelerPrefs: {},
+      guidePrefs,
+    };
+
+    const requestQuery = {
+      select: vi.fn(() => requestQuery),
+      eq: vi.fn(() => requestQuery),
+      single: vi.fn(async () => ({ data: request, error: null })),
+    };
+    const guidesQuery = {
+      select: vi.fn(() => guidesQuery),
+      eq: vi.fn(() => guidesQuery),
+      ilike: vi.fn(() => guidesQuery),
+      or: vi.fn(async () => ({ data: candidates, error: null })),
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "traveler_requests") return requestQuery;
+        if (table === "guide_profiles") return guidesQuery;
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => createQuery(table, data)),
+    });
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    createNotification.mockResolvedValue(undefined);
+    sendNotificationEmail.mockResolvedValue(undefined);
+  });
+
+  it("emails every matching guide under a per-recipient idempotency key", async () => {
+    mount({});
+
+    await notifyGuidesNewRequest(bookingId);
+
+    expect(sendNotificationEmail).toHaveBeenCalledTimes(2);
+    // notification_email_log is PRIMARY KEY (kind, entity_id). A bare requestId here
+    // would let guide one's row take the key and guide two's mail would be dropped as
+    // "already sent" — silently, with no error and no log. The recipient MUST be in it.
+    const entityIds = sendNotificationEmail.mock.calls.map((c) => c[0].entityId);
+    expect(entityIds).toEqual([`${bookingId}:${guideId}`, `${bookingId}:${guideTwo}`]);
+    expect(new Set(entityIds).size).toBe(2);
+    expect(sendNotificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ kind: "new_request", to: "guide-one@example.test" }),
+    );
+  });
+
+  it("respects a guide who turned new-request email off", async () => {
+    mount({ [guideId]: { "guide.new_request.email": false } });
+
+    await notifyGuidesNewRequest(bookingId);
+
+    expect(sendNotificationEmail).toHaveBeenCalledOnce();
+    expect(sendNotificationEmail).toHaveBeenCalledWith(
+      expect.objectContaining({ to: "guide-two@example.test" }),
+    );
+  });
+
+  it("still delivers the in-app notification when the email throws", async () => {
+    mount({});
+    sendNotificationEmail.mockRejectedValue(new Error("resend is down"));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    await expect(notifyGuidesNewRequest(bookingId)).resolves.toBeUndefined();
+    expect(createNotification).toHaveBeenCalledTimes(2);
   });
 });

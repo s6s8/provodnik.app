@@ -1,5 +1,7 @@
 import "server-only";
 
+import { pluralize } from "@/lib/utils";
+
 type EmailTemplate = {
   subject: string;
   html: string;
@@ -79,6 +81,36 @@ export function renderBookingCancelledEmail(args: {
         <a href="${bookingUrl}"
            style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500;">
           Открыть бронирование
+        </a>
+      </div>
+    `,
+  };
+}
+
+/** Sent to every guide whose base city and specialties match a brand-new request. */
+export function renderNewRequestEmail(args: {
+  destination: string;
+  participants: number;
+  inboxUrl: string;
+}): EmailTemplate {
+  const destination = escapeHtml(args.destination);
+  const inboxUrl = escapeHtml(args.inboxUrl);
+  // Item 17: every Russian count-word goes through the shared util. A hand-rolled
+  // declension here would re-open exactly the bug that item is about.
+  const participants = `${args.participants} ${pluralize(args.participants, "человек", "человека", "человек")}`;
+
+  return {
+    subject: `Новый запрос: ${args.destination} — Provodnik`,
+    html: `
+      <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto; padding: 24px;">
+        <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 16px;">Новый запрос рядом с вами</h2>
+        <p style="color: #555; margin-bottom: 24px;">
+          Путешественник ищет гида: ${destination}, ${participants}.<br/>
+          Откликнитесь первым — предложения смотрят в порядке поступления.
+        </p>
+        <a href="${inboxUrl}"
+           style="display:inline-block;background:#000;color:#fff;text-decoration:none;padding:12px 24px;border-radius:9999px;font-size:14px;font-weight:500;">
+          Посмотреть запрос
         </a>
       </div>
     `,
