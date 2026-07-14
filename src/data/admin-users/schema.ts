@@ -96,6 +96,20 @@ export const setRoleInputSchema = z.object({
 });
 export type SetRoleInput = z.infer<typeof setRoleInputSchema>;
 
+/**
+ * `profiles.full_name` is the private, legal-ish name — never the public one
+ * (that lives in `guide_profiles.display_name`). Admins fix typos here.
+ */
+export const updateFullNameInputSchema = z.object({
+  targetUserId: uuid,
+  fullName: z
+    .string()
+    .trim()
+    .min(1, "Укажите ФИО.")
+    .max(120, "ФИО слишком длинное (максимум 120 символов)."),
+});
+export type UpdateFullNameInput = z.infer<typeof updateFullNameInputSchema>;
+
 /** Typed-confirmation token the admin must enter to hard-delete a demo user. */
 export const HARD_DELETE_CONFIRM_TEXT = "УДАЛИТЬ";
 
@@ -142,6 +156,10 @@ export const adminUsersFilterSchema = z.object({
   status: accountStatusSchema.optional(),
   guideStatus: z.enum(GUIDE_VERIFICATION_STATUSES).optional(),
   guideType: z.enum(GUIDE_TYPES).optional(),
+  // Guide geography. `regions` is free text typed by guides, so the region
+  // filter matches an exact array element; base city matches a substring.
+  region: z.string().trim().max(80).optional(),
+  baseCity: z.string().trim().max(80).optional(),
   demo: z.enum(["demo", "real"]).optional(),
   page: z.coerce.number().int().min(1).default(1),
 });

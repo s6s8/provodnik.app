@@ -4,6 +4,7 @@ import {
   applyGuideFilters,
   isQaGuideSlug,
   makeError,
+  mapGuideRow,
   type GuideRecord,
 } from "./queries-core";
 
@@ -57,5 +58,38 @@ describe("applyGuideFilters QA hiding (F-10)", () => {
     ];
     const result = applyGuideFilters(guides, { destination: "Казань" });
     expect(result.map((g) => g.slug)).toEqual(["real-guide"]);
+  });
+});
+
+// Item 13, the two-field name standard: guide_profiles.display_name is the PUBLIC name;
+// profiles.full_name is the private, admin-only FIO. Getting this precedence backwards
+// is not cosmetic — it published every guide's legal name on /guides/[slug], the request
+// page, the booking screen and the traveler's chat header.
+describe("mapGuideRow public name", () => {
+  const gp = {
+    user_id: "11111111-1111-4111-8111-111111111111",
+    slug: "gilyana-elista",
+    display_name: "Гиляна",
+    regions: ["Калмыкия"],
+    base_city: "Элиста",
+  };
+
+  it("prefers the public display name over the private full name", () => {
+    const record = mapGuideRow(gp, { full_name: "Гиляна Манджиева" });
+
+    expect(record.fullName).toBe("Гиляна");
+    expect(record.initials).toBe("Г");
+  });
+
+  it("falls back to the full name for a legacy guide with no display name", () => {
+    const record = mapGuideRow({ ...gp, display_name: null }, { full_name: "Баир Очиров" });
+
+    expect(record.fullName).toBe("Баир Очиров");
+  });
+
+  it("falls back to the role label when neither name exists", () => {
+    const record = mapGuideRow({ ...gp, display_name: null }, null);
+
+    expect(record.fullName).toBe("Локальный гид");
   });
 });

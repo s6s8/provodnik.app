@@ -16,6 +16,7 @@ import {
   renderNewOfferEmail,
   renderBookingCreatedEmail,
   renderBookingCancelledEmail,
+  renderNewRequestEmail,
 } from "@/lib/email/templates/notification-emails";
 
 const uuidSchema = z.string().uuid("Некорректный UUID.");
@@ -498,6 +499,40 @@ export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
       }),
     ),
   );
+
+  // Item 8: a matching guide used to learn about a new request ONLY from the in-app
+  // bell — so a guide who was not in the app at that moment learned nothing, and the
+  // request sat unanswered. Marketplace liquidity depends on this one email.
+  //
+  // entityId folds in the recipient. `notification_email_log` is keyed
+  // PRIMARY KEY (kind, entity_id), so a bare requestId would let the first guide's row
+  // swallow the key and every other guide's mail would be dropped as "already sent" —
+  // silently. Same shape as notifyBookingCancelled, the other multi-recipient path.
+  for (const guide of matchingGuides) {
+    try {
+      if (await guideEmailDisabled(guide.user_id, "new_request")) continue;
+      const to = await getUserEmail(guide.user_id);
+      if (!to) continue;
+      const { subject, html } = renderNewRequestEmail({
+        destination: request.destination,
+        participants: request.participants_count ?? 1,
+        inboxUrl: `${getSiteUrl()}/guide/inbox`,
+      });
+      await sendNotificationEmail({
+        kind: "new_request",
+        entityId: `${parsedRequestId}:${guide.user_id}`,
+        to,
+        subject,
+        html,
+      });
+    } catch (e) {
+      // An email must never fail the request that triggered it.
+      console.error(
+        "[notifyGuidesNewRequest] email skipped:",
+        e instanceof Error ? e.message : e,
+      );
+    }
+  }
 
   const failures = results.filter((result) => result.status === "rejected");
   if (failures.length > 0) {

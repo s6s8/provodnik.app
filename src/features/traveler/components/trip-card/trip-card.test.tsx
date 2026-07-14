@@ -108,6 +108,23 @@ describe("TripCard", () => {
     expect(screen.getByText("± даты")).toBeInTheDocument();
   });
 
+  it.each([
+    [1, "1 человек"],
+    [2, "2 человека"],
+    [5, "5 человек"],
+    [11, "11 человек"],
+    [21, "21 человек"],
+    [111, "111 человек"],
+  ])("declines the participant count for %i", (participantsCount, expected) => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{ ...baseTrip, participantsCount }}
+      />,
+    );
+    expect(screen.getByText(expected)).toBeInTheDocument();
+  });
+
   it("renders request facts and links a waiting_offers card to the request detail page", () => {
     render(
       <TripCard

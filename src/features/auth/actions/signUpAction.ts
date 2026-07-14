@@ -17,6 +17,10 @@ const SignUpSchema = z.object({
   // 6-char password isn't accepted by the form yet rejected by the server.
   password: z.string().min(6).max(128),
   fullName: z.string().trim().min(1).max(120),
+  // Public name, kept separate from the legal-ish `fullName`: only this one is
+  // ever shown to travelers. Guides must supply it (guarded below with a
+  // dedicated error code); travelers get a default.
+  displayName: z.string().trim().max(80).optional(),
   phone: z.string().trim().max(32).optional(),
   role: z.string(),
   guideType: z.string().optional(),
@@ -27,6 +31,7 @@ type SignUpInput = {
   password: string;
   role: string;
   fullName: string;
+  displayName?: string;
   phone?: string;
   guideType?: string;
 };
@@ -91,6 +96,16 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     return { ok: false, error: "guide_type_required" };
   }
 
+  // A guide's public identity must be a name they chose. Travelers are masked
+  // publicly, so their display name defaults to the first word of the full name
+  // — never the email local-part, which is exactly the leak this two-field split
+  // exists to prevent.
+  const displayName =
+    parsed.data.displayName || (isGuide ? "" : fullName.split(/\s+/)[0]!);
+  if (isGuide && !displayName) {
+    return { ok: false, error: "display_name_required" };
+  }
+
   // Throttle anonymous account creation by IP and by email (mirrors the
   // forgot-password limiter) so the endpoint can't be used to mass-squat emails
   // or spam the registry.
@@ -133,6 +148,7 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
     user_metadata: {
       role: safeRole,
       full_name: fullName,
+      display_name: displayName,
       ...(isGuide ? { guide_type: guideType } : {}),
     },
   });

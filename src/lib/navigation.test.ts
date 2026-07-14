@@ -32,6 +32,36 @@ describe("hiddenNavHrefsForFlags", () => {
   });
 });
 
+// Item 7: the public catalog existed but had no way in — no nav entry, and the
+// route redirected. The entry must appear when FEATURE_PUBLIC_CATALOG is on and
+// hide itself when it is off, so the flag is the single switch.
+describe("public catalog nav entry (item 7)", () => {
+  it("offers the catalog to anonymous visitors and travelers", () => {
+    for (const nav of [publicPrimaryNav, travelerPrimaryNav]) {
+      expect(nav.map((i) => i.href)).toContain("/listings");
+    }
+  });
+
+  it("is gated on FEATURE_PUBLIC_CATALOG", () => {
+    expect(NAV_FLAG_BY_HREF["/listings"]).toBe("FEATURE_PUBLIC_CATALOG");
+  });
+
+  it("disappears from the header when the flag is off", () => {
+    const hidden = hiddenNavHrefsForFlags((flag) => flag !== "FEATURE_PUBLIC_CATALOG");
+    expect(hidden).toContain("/listings");
+
+    const visible = filterNavItemsByHiddenHrefs(publicPrimaryNav, hidden);
+    expect(visible.map((i) => i.href)).not.toContain("/listings");
+    // …and the rest of the nav survives.
+    expect(visible.map((i) => i.href)).toContain("/requests");
+  });
+
+  it("is labelled distinctly from the guide's own «Экскурсии» workspace tab", () => {
+    const entry = publicPrimaryNav.find((i) => i.href === "/listings");
+    expect(entry?.label).toBe("Готовые экскурсии");
+  });
+});
+
 describe("filterNavItemsByHiddenHrefs", () => {
   it("removes gated traveler menu links when their flags are off", () => {
     const hidden = hiddenNavHrefsForFlags(() => false);
@@ -109,6 +139,7 @@ describe("role-based nav groups", () => {
   it("exposes the full admin workspace as the admin primary nav", () => {
     expect(adminPrimaryNav.map((item) => item.href)).toEqual([
       "/admin/dashboard",
+      "/admin/analytics",
       "/admin/users",
       "/admin/guides",
       "/admin/moderation",
@@ -120,11 +151,11 @@ describe("role-based nav groups", () => {
   });
 
   it("keeps the traveler primary nav focused on marketplace + trips", () => {
-    // The public catalog surfaces (/listings «Экскурсии», /destinations
-    // «Направления») are hidden per the Wildberries review, so discovery flows
-    // through requests + guides instead.
+    // Item 7 reverses the earlier "hide the catalog" call: /listings is back, now
+    // gated on FEATURE_PUBLIC_CATALOG (see "public catalog nav entry" above).
     expect(travelerPrimaryNav.map((item) => item.href)).toEqual([
       "/requests",
+      "/listings",
       "/guides",
       "/trips",
     ]);
@@ -132,33 +163,35 @@ describe("role-based nav groups", () => {
     // across nav, cabinet CTAs and empty states.
     expect(travelerPrimaryNav.map((item) => item.label)).toEqual([
       "Запросы",
+      "Готовые экскурсии",
       "Гиды",
       "Мои запросы",
     ]);
   });
 
-  it("hides the public catalog surfaces from every non-workspace nav", () => {
-    // Wildberries review: «Экскурсии» (/listings) and «Направления»
-    // (/destinations) must not surface in public/traveler/admin-header nav —
-    // no href and no label. Guide/admin *workspace* listing management keeps its
-    // own internal «Экскурсии»/«Листинги» labels and is intentionally excluded.
-    const HIDDEN_HREFS = ["/listings", "/destinations"];
-    const HIDDEN_LABELS = ["Экскурсии", "Направления"];
-
+  it("keeps /destinations out of every non-workspace nav", () => {
+    // Item 7 re-exposed /listings, but /destinations stays out: the same flag
+    // guards its route, and it has no curated inventory yet.
+    //
+    // The bare label «Экскурсии» must ALSO stay out of these navs — it is the
+    // guide's own workspace tab (ROUTES.guideListings). The public catalog is
+    // «Готовые экскурсии» precisely so the two never read as the same thing.
     for (const nav of [publicPrimaryNav, travelerPrimaryNav, adminHeaderNav]) {
       const hrefs = nav.map((item) => item.href);
       const labels = nav.map((item) => item.label);
-      for (const href of HIDDEN_HREFS) expect(hrefs).not.toContain(href);
-      for (const label of HIDDEN_LABELS) expect(labels).not.toContain(label);
+      expect(hrefs).not.toContain("/destinations");
+      expect(labels).not.toContain("Направления");
+      expect(labels).not.toContain("Экскурсии");
     }
 
-    // Footer legal/support/about groups must not link the hidden catalog either.
+    // The footer must not link /destinations either — it has no flag-aware
+    // filtering of its own, so an entry there would 404 whenever the flag is off.
     const footerHrefs = [
       ...footerNav.about,
       ...footerNav.support,
       ...footerNav.legal,
     ].map((item) => item.href);
-    for (const href of HIDDEN_HREFS) expect(footerHrefs).not.toContain(href);
+    expect(footerHrefs).not.toContain("/destinations");
   });
 
   it("uses the simplified guide workspace labels", () => {

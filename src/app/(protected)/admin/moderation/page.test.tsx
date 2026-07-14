@@ -96,7 +96,8 @@ describe("ModerationQueuePage", () => {
 
     expect(screen.getByTestId("moderation-queue")).toHaveTextContent("Ладога на каяке");
 
-    expect(screen.getByRole("tab", { name: /Объявления/ })).toHaveTextContent("1");
+    // Item 14: the tab is named for what it moderates — excursions, not "listings".
+    expect(screen.getByRole("tab", { name: /Экскурсии/ })).toHaveTextContent("1");
     expect(screen.getByRole("tab", { name: /Ответы на отзывы/ })).toHaveTextContent("1");
 
     expect(screen.queryByText(/действия в разработке/)).not.toBeInTheDocument();

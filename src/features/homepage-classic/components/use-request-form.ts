@@ -15,6 +15,67 @@ import {
 type FormValues = TravelerRequest;
 type FormInput = TravelerRequestInput;
 
+export const REQUEST_DRAFT_KEY = "provodnik:request-draft";
+
+/** What an anonymous visitor typed before the auth gate interrupted them. */
+export type RequestDraft = Partial<FormInput>;
+
+// ponytail: sessionStorage only. No drafts table until anonymous multi-device
+// resumption is actually asked for.
+function draftStorage(): Storage | null {
+  try {
+    // Absent during SSR; throws outright in Safari private mode / with storage disabled.
+    return typeof window === "undefined" ? null : window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+export function readRequestDraft(): RequestDraft | null {
+  try {
+    const raw = draftStorage()?.getItem(REQUEST_DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as RequestDraft) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Persist the form VALUES, not the FormData object — FormData does not survive
+ * a JSON round-trip (it serialises to `{}`).
+ */
+export function writeRequestDraft(values: RequestDraft): void {
+  try {
+    draftStorage()?.setItem(REQUEST_DRAFT_KEY, JSON.stringify(values));
+  } catch {
+    // Quota or disabled storage: the draft is a nicety, never a blocker.
+  }
+}
+
+export function clearRequestDraft(): void {
+  try {
+    draftStorage()?.removeItem(REQUEST_DRAFT_KEY);
+  } catch {
+    // See writeRequestDraft.
+  }
+}
+
+const DEFAULT_VALUES: FormInput = {
+  mode: "assembly",
+  interests: [] as TravelerRequest["interests"],
+  requestedLanguages: ["Русский"],
+  destination: "",
+  startDate: "",
+  dateFlexibility: "exact",
+  startTime: "10:00",
+  endTime: "12:00",
+  groupSize: 2,
+  groupSizeCurrent: 1,
+  allowGuideSuggestionsOutsideConstraints: true,
+  budgetPerPersonRub: 5000,
+  notes: "",
+};
+
 export function useRequestForm(options?: { preferredGuideSlug?: string | null }) {
   const preferredGuideSlug = options?.preferredGuideSlug ?? null;
   const router = useRouter();
@@ -22,23 +83,27 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  // Restore the draft an anonymous visitor left behind (reload mid-signup, tab
+  // navigation). Read post-mount only — reading sessionStorage during render would
+  // desync the SSR markup.
+  //
+  // It goes through `values`, NOT a `reset()` in an effect. `reset()` updated the form
+  // STATE but never wrote back into the registered uncontrolled inputs, so the visitor
+  // saw «2 гостей / 5 000 ₽» (the defaults) while the request that got submitted said
+  // 4 and 7 000 — shown one trip, sent another, no error anywhere. `values` is RHF's
+  // documented channel for data that arrives after mount and syncs both.
+  // `keepDirtyValues` preserves anything the visitor has already re-typed.
+  const [draft, setDraft] = React.useState<RequestDraft | null>(null);
+  React.useEffect(() => {
+    setDraft(readRequestDraft());
+  }, []);
+
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
-    defaultValues: {
-      mode: "assembly",
-      interests: [] as TravelerRequest["interests"],
-      requestedLanguages: ["Русский"],
-      destination: "",
-      startDate: "",
-      dateFlexibility: "exact",
-      startTime: "10:00",
-      endTime: "12:00",
-      groupSize: 2,
-      groupSizeCurrent: 1,
-      allowGuideSuggestionsOutsideConstraints: true,
-      budgetPerPersonRub: 5000,
-      notes: "",
-    },
+    defaultValues: DEFAULT_VALUES,
+    values: draft ? { ...DEFAULT_VALUES, ...draft } : undefined,
+    resetOptions: { keepDirtyValues: true },
     mode: "onTouched",
   });
 
@@ -63,7 +128,7 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
   const selectedInterests = interestsField.value ?? [];
 
-  async function submitWithFormData(fd: FormData) {
+  async function submitWithFormData(fd: FormData, values?: FormValues) {
     setIsLoading(true);
     setServerError(null);
     try {
@@ -73,9 +138,12 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
       // proxy.ts's cookie refresh and forces spurious re-logins (row #34).
       if (result?.code === "auth_required") {
         setPendingFormData(fd);
+        if (values) writeRequestDraft(values);
         setAuthGateOpen(true);
       } else if (result?.error) {
         setServerError(result.error);
+      } else {
+        clearRequestDraft();
       }
     } finally {
       setIsLoading(false);
@@ -109,7 +177,7 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
       fd.set("preferredGuideSlug", preferredGuideSlug);
     }
 
-    await submitWithFormData(fd);
+    await submitWithFormData(fd, values);
   };
 
   const handleAuthSuccess = async () => {

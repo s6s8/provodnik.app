@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatRubNumber } from "@/data/money";
 import { formatRussianDate } from "@/lib/dates";
 import { BADGE_CLASS } from "@/lib/styles";
-import { cn } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 import type { TripCardModel, TripPhase } from "./trip-card-types";
 
@@ -49,15 +49,7 @@ function formatPublishedAt(iso: string) {
 }
 
 function formatPeople(count: number) {
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  const noun =
-    mod10 === 1 && mod100 !== 11
-      ? "человек"
-      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
-        ? "человека"
-        : "человек";
-  return `${count} ${noun}`;
+  return `${count} ${pluralize(count, "человек", "человека", "человек")}`;
 }
 
 function formatTimeLabel(time: string) {
@@ -227,18 +219,9 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
 function OfferCount({ count }: { count?: number }) {
   if (!count || count <= 0) return null;
 
-  const mod10 = count % 10;
-  const mod100 = count % 100;
-  const noun =
-    mod10 === 1 && mod100 !== 11
-      ? "отклик"
-      : mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)
-        ? "отклика"
-        : "откликов";
-
   return (
     <Badge variant="secondary" className="text-xs font-semibold">
-      {count} {noun}
+      {count} {pluralize(count, "отклик", "отклика", "откликов")}
     </Badge>
   );
 }

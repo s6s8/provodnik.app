@@ -18,6 +18,8 @@ import {
   mapGuideRow,
   mapListingRow,
   mapRequestRow,
+  PUBLIC_REVIEW_VIEW,
+  REVIEW_AUTHOR_FALLBACK,
   titleToCategory,
 } from "./queries-core";
 import type {
@@ -764,10 +766,9 @@ export async function getListingReviews(client: SupabaseClient, listingSlug: str
     if (!listing) return { data: [], error: null };
 
     const { data, error } = await client
-      .from("reviews")
-      .select("*, profiles:traveler_id(full_name)")
+      .from(PUBLIC_REVIEW_VIEW)
+      .select("*")
       .eq("listing_id", listing.id)
-      .eq("status", "published")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -776,7 +777,7 @@ export async function getListingReviews(client: SupabaseClient, listingSlug: str
     return {
       data: data.map((r) => ({
         id: r.id,
-        authorName: (r.profiles as Record<string, unknown>)?.full_name as string ?? "Путешественник",
+        authorName: (r.author_name as string | null) ?? REVIEW_AUTHOR_FALLBACK,
         rating: r.rating,
         title: r.title ?? "Отзыв",
         body: r.body ?? "",
@@ -796,10 +797,9 @@ export async function getGuideReviews(client: SupabaseClient, guideSlug: string)
     if (!gp) return { data: [], error: null };
 
     const { data, error } = await client
-      .from("reviews")
-      .select("*, profiles:traveler_id(full_name)")
+      .from(PUBLIC_REVIEW_VIEW)
+      .select("*")
       .eq("guide_id", gp.user_id)
-      .eq("status", "published")
       .order("created_at", { ascending: false });
 
     if (error) throw error;
@@ -808,7 +808,7 @@ export async function getGuideReviews(client: SupabaseClient, guideSlug: string)
     return {
       data: data.map((r) => ({
         id: r.id,
-        authorName: (r.profiles as Record<string, unknown>)?.full_name as string ?? "Путешественник",
+        authorName: (r.author_name as string | null) ?? REVIEW_AUTHOR_FALLBACK,
         rating: r.rating,
         title: r.title ?? "Отзыв",
         body: r.body ?? "",

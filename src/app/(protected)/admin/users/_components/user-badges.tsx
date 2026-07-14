@@ -41,6 +41,22 @@ export function RoleBadge({ role }: { role: AppRole }) {
   );
 }
 
+/**
+ * Guides created before the signup phone gate (or through the old admin
+ * role-flip bypass) have no phone. They stay publicly visible; this flags them
+ * for admins. `phone` may be the masked variant — only emptiness matters.
+ */
+export function MissingPhoneBadge({
+  role,
+  phone,
+}: {
+  role: AppRole;
+  phone: string | null;
+}) {
+  if (role !== "guide" || phone?.trim()) return null;
+  return <Badge variant="destructive">нет телефона</Badge>;
+}
+
 export function GuideStatusBadge({
   status,
   guideType,

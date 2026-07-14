@@ -357,8 +357,11 @@ describe("AuthEntryScreen guide sign-up landing", () => {
   });
 
   async function submitGuideSignUp() {
+    fireEvent.change(screen.getByLabelText("ФИО полностью"), {
+      target: { value: "Иван Петрович Гид" },
+    });
     fireEvent.change(screen.getByLabelText("Как к вам обращаться"), {
-      target: { value: "Иван Гид" },
+      target: { value: "Иван" },
     });
     fireEvent.change(screen.getByLabelText("Телефон для проверки"), {
       target: { value: "+7 900 123-45-67" },
@@ -371,6 +374,60 @@ describe("AuthEntryScreen guide sign-up landing", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: "Создать профиль" }));
   }
+
+  it("asks a guide for the legal full name AND the public display name", async () => {
+    render(<AuthEntryScreen role="guide" />);
+
+    expect(screen.getByLabelText("ФИО полностью")).toBeInTheDocument();
+    expect(screen.getByLabelText("Как к вам обращаться")).toBeInTheDocument();
+    expect(screen.getByText(/только имя/i)).toBeInTheDocument();
+  });
+
+  it("sends both names to signUpAction so the public name is never the email", async () => {
+    const { signUpAction } = await import("@/features/auth/actions/signUpAction");
+    vi.mocked(signUpAction).mockResolvedValue({
+      ok: true,
+      dashboardPath: "/guide/profile",
+    });
+
+    render(<AuthEntryScreen role="guide" />);
+    await submitGuideSignUp();
+
+    await waitFor(() => {
+      expect(signUpAction).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fullName: "Иван Петрович Гид",
+          displayName: "Иван",
+        }),
+      );
+    });
+  });
+
+  it("blocks guide sign-up when the public display name is blank", async () => {
+    const { signUpAction } = await import("@/features/auth/actions/signUpAction");
+
+    render(<AuthEntryScreen role="guide" />);
+    fireEvent.change(screen.getByLabelText("ФИО полностью"), {
+      target: { value: "Иван Петрович Гид" },
+    });
+    fireEvent.change(screen.getByLabelText("Телефон для проверки"), {
+      target: { value: "+7 900 123-45-67" },
+    });
+    fireEvent.change(screen.getByLabelText("Email"), {
+      target: { value: "guide@example.test" },
+    });
+    fireEvent.change(screen.getByLabelText("Создайте пароль"), {
+      target: { value: "Guide1234!" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Создать профиль" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText(/Укажите, как к вам обращаться/i),
+      ).toBeInTheDocument();
+    });
+    expect(signUpAction).not.toHaveBeenCalled();
+  });
 
   it("sends a new guide to the verification anketa, not the guide dashboard", async () => {
     const { signUpAction } = await import("@/features/auth/actions/signUpAction");

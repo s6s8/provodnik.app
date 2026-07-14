@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { COPY } from "@/lib/copy";
+
 const mocks = vi.hoisted(() => ({
   requireAdminSession: vi.fn(),
   getTargetForGuards: vi.fn(),
@@ -36,7 +38,12 @@ import {
   hardDeleteDemoUserAction,
   setAccountStatusAction,
   setUserRoleAction,
+  updateFullNameAction,
 } from "./actions";
+// Lives in @/data/admin-users, NOT in actions.ts: a "use server" module may only
+// export async functions, so a sync pure helper exported from there fails the BUILD
+// (not typecheck, not lint, not tests — only `next build` catches it).
+import { buildGuideRoleFlipWrite } from "@/data/admin-users";
 
 const ADMIN_ID = "11111111-1111-4111-8111-111111111111";
 const TARGET_ID = "22222222-2222-4222-8222-222222222222";
@@ -47,8 +54,9 @@ function makeAdminClient() {
   const updateEq = vi.fn().mockResolvedValue({ error: null });
   const profileUpdate = vi.fn(() => ({ eq: updateEq }));
   const guideUpdateEq = vi.fn().mockResolvedValue({ error: null });
-  const guideUpdate = vi.fn(() => ({ eq: guideUpdateEq }));
+  const guideUpdate = vi.fn((_patch: Record<string, unknown>) => ({ eq: guideUpdateEq }));
   const guideUpsert = vi.fn().mockResolvedValue({ error: null });
+  const guideInsert = vi.fn().mockResolvedValue({ error: null });
   const guideMaybeSingle = vi.fn().mockResolvedValue({
     data: { user_id: TARGET_ID, verification_status: "submitted" },
     error: null,
@@ -57,7 +65,7 @@ function makeAdminClient() {
   const guideSelect = vi.fn(() => ({ eq: guideSelectEq }));
   const from = vi.fn((table: string) => {
     if (table === "guide_profiles") {
-      return { update: guideUpdate, upsert: guideUpsert, select: guideSelect };
+      return { update: guideUpdate, upsert: guideUpsert, insert: guideInsert, select: guideSelect };
     }
     return { update: profileUpdate };
   });
@@ -70,8 +78,22 @@ function makeAdminClient() {
     guideUpdate,
     guideUpdateEq,
     guideUpsert,
+    guideInsert,
     guideMaybeSingle,
     from,
+  };
+}
+
+/** A guide-eligible target: has a phone (the role gate requires one). */
+function guideEligibleTarget(over: Record<string, unknown> = {}) {
+  return {
+    id: TARGET_ID,
+    email: "demo@example.com",
+    fullName: "Иван Петров",
+    phone: "+7 999 123-45-67",
+    role: "traveler",
+    accountStatus: "active",
+    ...over,
   };
 }
 
@@ -231,14 +253,11 @@ describe("setUserRoleAction", () => {
   });
 
   it("creates an inactive draft guide profile when promoting a traveler to guide", async () => {
-    const { client, guideUpsert } = makeAdminClient();
+    const { client, guideInsert, guideMaybeSingle } = makeAdminClient();
+    // A traveler being promoted has no guide_profiles row yet.
+    guideMaybeSingle.mockResolvedValue({ data: null, error: null });
     mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
-    mocks.getTargetForGuards.mockResolvedValue({
-      id: TARGET_ID,
-      email: "demo@example.com",
-      role: "traveler",
-      accountStatus: "active",
-    });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget());
     mocks.countOtherActiveAdmins.mockResolvedValue(2);
 
     const result = await setUserRoleAction(
@@ -247,25 +266,22 @@ describe("setUserRoleAction", () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(guideUpsert).toHaveBeenCalledWith(
+    // insert, not upsert: an upsert is what clobbered existing guides (item 13).
+    expect(guideInsert).toHaveBeenCalledWith(
       expect.objectContaining({
         user_id: TARGET_ID,
         verification_status: "draft",
         is_available: false,
       }),
-      { onConflict: "user_id" },
     );
   });
 
   it("removes public availability when demoting a guide", async () => {
     const { client, guideUpdate, guideUpdateEq } = makeAdminClient();
     mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
-    mocks.getTargetForGuards.mockResolvedValue({
-      id: TARGET_ID,
-      email: "guide@example.com",
-      role: "guide",
-      accountStatus: "active",
-    });
+    mocks.getTargetForGuards.mockResolvedValue(
+      guideEligibleTarget({ role: "guide", email: "guide@example.com" }),
+    );
     mocks.countOtherActiveAdmins.mockResolvedValue(2);
 
     const result = await setUserRoleAction(
@@ -279,15 +295,12 @@ describe("setUserRoleAction", () => {
   });
 
   it("rolls back auth and profile role if guide side-effect sync fails", async () => {
-    const { client, guideUpsert, updateUserById, profileUpdate } = makeAdminClient();
-    guideUpsert.mockResolvedValueOnce({ error: { message: "boom" } });
+    const { client, guideInsert, guideMaybeSingle, updateUserById, profileUpdate } =
+      makeAdminClient();
+    guideMaybeSingle.mockResolvedValue({ data: null, error: null });
+    guideInsert.mockResolvedValueOnce({ error: { message: "boom" } });
     mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
-    mocks.getTargetForGuards.mockResolvedValue({
-      id: TARGET_ID,
-      email: "demo@example.com",
-      role: "traveler",
-      accountStatus: "active",
-    });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget());
     mocks.countOtherActiveAdmins.mockResolvedValue(2);
 
     const result = await setUserRoleAction(
@@ -300,6 +313,166 @@ describe("setUserRoleAction", () => {
       app_metadata: { role: "traveler" },
     });
     expect(profileUpdate).toHaveBeenLastCalledWith({ role: "traveler" });
+  });
+});
+
+// Items 13 + 18 (msgs 544–593): flipping a role admin↔guide overwrote the guide's
+// public identity (display_name → email local-part), reset verification to draft and
+// hid them from /guides. Admins could not see it: RLS shows them profiles.full_name
+// while anonymous visitors read the clobbered guide_profiles.display_name.
+describe("buildGuideRoleFlipWrite (role-flip identity guard)", () => {
+  it("never rewrites identity for an existing guide profile", () => {
+    const write = buildGuideRoleFlipWrite(
+      { user_id: TARGET_ID, verification_status: "approved" },
+      { targetId: TARGET_ID, targetFullName: "Иван Петров" },
+    );
+
+    expect(write.kind).not.toBe("insert");
+    expect(JSON.stringify(write)).not.toContain("display_name");
+    expect(JSON.stringify(write)).not.toContain("verification_status");
+  });
+
+  it("restores public visibility for an approved guide (undoes the demote hide)", () => {
+    expect(
+      buildGuideRoleFlipWrite(
+        { user_id: TARGET_ID, verification_status: "approved" },
+        { targetId: TARGET_ID, targetFullName: "Иван Петров" },
+      ),
+    ).toEqual({ kind: "restore-visibility" });
+  });
+
+  it("leaves a not-yet-approved guide untouched (never silently publishes)", () => {
+    expect(
+      buildGuideRoleFlipWrite(
+        { user_id: TARGET_ID, verification_status: "submitted" },
+        { targetId: TARGET_ID, targetFullName: "Иван Петров" },
+      ),
+    ).toEqual({ kind: "noop" });
+  });
+
+  it("creates a draft, hidden profile when the user has none", () => {
+    expect(
+      buildGuideRoleFlipWrite(null, { targetId: TARGET_ID, targetFullName: "Иван Петров" }),
+    ).toEqual({
+      kind: "insert",
+      row: {
+        user_id: TARGET_ID,
+        display_name: "Иван Петров",
+        verification_status: "draft",
+        is_available: false,
+      },
+    });
+  });
+
+  it("never falls back to the email local-part for a new profile (item 13 privacy)", () => {
+    const write = buildGuideRoleFlipWrite(null, { targetId: TARGET_ID, targetFullName: null });
+
+    // No full name → the generic role word, never anything derived from the email.
+    expect(write).toEqual({
+      kind: "insert",
+      row: {
+        user_id: TARGET_ID,
+        display_name: COPY.guide,
+        verification_status: "draft",
+        is_available: false,
+      },
+    });
+  });
+});
+
+describe("setUserRoleAction — identity preservation + phone gate", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("does not touch an existing guide profile's identity when re-promoting", async () => {
+    const { client, guideUpsert, guideInsert, guideUpdate } = makeAdminClient();
+    // Re-promoting a previously approved guide (the msgs 570–574 round trip).
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(
+      guideEligibleTarget({ role: "admin", email: "guide@example.com" }),
+    );
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "guide", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(true);
+    // The clobber: an upsert/insert carrying display_name + verification_status.
+    expect(guideUpsert).not.toHaveBeenCalled();
+    expect(guideInsert).not.toHaveBeenCalled();
+    // Only the visibility flag may move, and only for an approved guide.
+    for (const [patch] of guideUpdate.mock.calls) {
+      expect(Object.keys(patch)).toEqual(["is_available"]);
+    }
+  });
+
+  it("restores availability when re-promoting an approved guide", async () => {
+    const { client, guideUpdate, guideMaybeSingle } = makeAdminClient();
+    guideMaybeSingle.mockResolvedValue({
+      data: { user_id: TARGET_ID, verification_status: "approved" },
+      error: null,
+    });
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget({ role: "admin" }));
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "guide", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(guideUpdate).toHaveBeenCalledWith({ is_available: true });
+  });
+
+  it("rejects promoting a phoneless user to guide (item 18 — the live bypass)", async () => {
+    const { client, updateUserById, guideInsert } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget({ phone: null }));
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "guide", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(result.ok === false && result.error).toContain("телефон");
+    // Rejected before any write — no half-applied role.
+    expect(updateUserById).not.toHaveBeenCalled();
+    expect(guideInsert).not.toHaveBeenCalled();
+  });
+
+  it("rejects a phone that has no digits", async () => {
+    const { client, updateUserById } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget({ phone: "---" }));
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "guide", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(updateUserById).not.toHaveBeenCalled();
+  });
+
+  it("does not require a phone to demote a guide", async () => {
+    const { client } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(
+      guideEligibleTarget({ role: "guide", phone: null }),
+    );
+    mocks.countOtherActiveAdmins.mockResolvedValue(2);
+
+    const result = await setUserRoleAction(
+      null,
+      form({ targetUserId: TARGET_ID, role: "traveler", reason: "role test" }),
+    );
+
+    expect(result.ok).toBe(true);
   });
 });
 
@@ -339,5 +512,54 @@ describe("guide verification actions from admin users", () => {
     expect(result.applied).toBe(0);
     expect(result.skipped).toBe(1);
     expect(mocks.ensureOpenModerationCase).not.toHaveBeenCalled();
+  });
+});
+
+describe("updateFullNameAction", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("writes profiles.full_name and audits the change", async () => {
+    const { client, profileUpdate, updateEq } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+    mocks.getTargetForGuards.mockResolvedValue(guideEligibleTarget());
+
+    const result = await updateFullNameAction(
+      null,
+      form({ targetUserId: TARGET_ID, fullName: "  Иван Сергеевич Петров  " }),
+    );
+
+    expect(result.ok).toBe(true);
+    expect(profileUpdate).toHaveBeenCalledWith({ full_name: "Иван Сергеевич Петров" });
+    expect(updateEq).toHaveBeenCalledWith("id", TARGET_ID);
+    expect(mocks.logAdminAudit).toHaveBeenCalledWith(
+      expect.objectContaining({ action: "profile.full_name_change", targetId: TARGET_ID }),
+    );
+  });
+
+  it("rejects a blank full name without touching the profile", async () => {
+    const { client, profileUpdate } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+
+    const result = await updateFullNameAction(
+      null,
+      form({ targetUserId: TARGET_ID, fullName: "   " }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(profileUpdate).not.toHaveBeenCalled();
+    expect(mocks.logAdminAudit).not.toHaveBeenCalled();
+  });
+
+  it("rejects a full name longer than 120 characters", async () => {
+    const { client, profileUpdate } = makeAdminClient();
+    mocks.requireAdminSession.mockResolvedValue({ adminId: ADMIN_ID, adminClient: client });
+
+    const result = await updateFullNameAction(
+      null,
+      form({ targetUserId: TARGET_ID, fullName: "а".repeat(121) }),
+    );
+
+    expect(result.ok).toBe(false);
+    expect(profileUpdate).not.toHaveBeenCalled();
   });
 });

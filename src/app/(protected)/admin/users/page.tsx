@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/page-header";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { adminUsersFilterSchema } from "@/data/admin-users";
-import { listAdminUsers } from "@/lib/supabase/admin-users";
+import { listAdminUsers, listGuideRegionOptions } from "@/lib/supabase/admin-users";
 
 import { UsersConsole } from "./_components/users-console";
 
@@ -27,6 +27,8 @@ export default async function AdminUsersPage({
     status: first(resolved.status),
     guideStatus: first(resolved.guideStatus),
     guideType: first(resolved.guideType),
+    region: first(resolved.region),
+    baseCity: first(resolved.baseCity),
     demo: first(resolved.demo),
     page: first(resolved.page),
   });
@@ -36,9 +38,10 @@ export default async function AdminUsersPage({
     : adminUsersFilterSchema.parse({});
 
   let page = null as Awaited<ReturnType<typeof listAdminUsers>> | null;
+  let regionOptions: string[] = [];
   let loadFailed = false;
   try {
-    page = await listAdminUsers(filter);
+    [page, regionOptions] = await Promise.all([listAdminUsers(filter), listGuideRegionOptions()]);
   } catch (error) {
     console.error("[AdminUsersPage] user list load failed:", error);
     loadFailed = true;
@@ -72,12 +75,15 @@ export default async function AdminUsersPage({
           total={page.total}
           page={page.page}
           pageCount={page.pageCount}
+          regionOptions={regionOptions}
           filters={{
             q: filter.q,
             role: filter.role,
             status: filter.status,
             guideStatus: filter.guideStatus,
             guideType: filter.guideType,
+            region: filter.region,
+            baseCity: filter.baseCity,
             demo: filter.demo,
           }}
         />

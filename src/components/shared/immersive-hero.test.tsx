@@ -43,6 +43,25 @@ describe("ImmersiveHero", () => {
     expect(container.querySelector(".sm\\:min-h-\\[632px\\]")).toBeInTheDocument();
   });
 
+  it("shrinks the hero and the title in the compact variant", () => {
+    const { container } = render(
+      <ImmersiveHero imageUrl="/photo.jpg" title="Озеро Байкал" variant="compact" />,
+    );
+
+    // Both the photo frame and the content rail shrink together.
+    expect(container.querySelectorAll(".sm\\:min-h-\\[320px\\]")).toHaveLength(2);
+    expect(container.querySelector(".sm\\:min-h-\\[632px\\]")).not.toBeInTheDocument();
+    expect(container.querySelector("h1")).toHaveClass("text-[clamp(30px,4.5vw,44px)]");
+    expect(container.querySelector("h1")).not.toHaveClass("text-[clamp(46px,7vw,74px)]");
+  });
+
+  it("keeps the full-height sizing in the default variant", () => {
+    const { container } = render(<ImmersiveHero imageUrl="/photo.jpg" title="Озеро Байкал" />);
+
+    expect(container.querySelectorAll(".sm\\:min-h-\\[632px\\]")).toHaveLength(2);
+    expect(container.querySelector("h1")).toHaveClass("text-[clamp(46px,7vw,74px)]");
+  });
+
   it("renders real photos through next/image with priority", () => {
     const { container } = render(
       <ImmersiveHero imageUrl="/photo.jpg" title="Озеро Байкал" />,

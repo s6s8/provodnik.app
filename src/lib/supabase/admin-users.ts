@@ -149,10 +149,13 @@ export async function listAdminUsers(filter: AdminUsersFilter): Promise<AdminUse
   // When filtering by guide-specific fields, resolve the matching user ids from
   // guide_profiles first, then page the profiles query by that id set.
   let restrictIds: string[] | null = null;
-  if (filter.guideStatus || filter.guideType) {
+  const baseCityTerm = filter.baseCity ? safePostgrestSearchTerm(filter.baseCity) : null;
+  if (filter.guideStatus || filter.guideType || filter.region || baseCityTerm) {
     let gq = adminClient.from("guide_profiles").select("user_id");
     if (filter.guideStatus) gq = gq.eq("verification_status", filter.guideStatus);
     if (filter.guideType) gq = gq.eq("guide_type", filter.guideType);
+    if (filter.region) gq = gq.contains("regions", [filter.region]);
+    if (baseCityTerm) gq = gq.ilike("base_city", baseCityTerm);
     const { data, error } = await gq;
     if (error) throw error;
     restrictIds = ((data ?? []) as { user_id: string }[]).map((r) => r.user_id);
@@ -215,6 +218,27 @@ export async function listAdminUsers(filter: AdminUsersFilter): Promise<AdminUse
     pageSize,
     pageCount: Math.max(1, Math.ceil(total / pageSize)),
   };
+}
+
+/**
+ * Region options for the admin filter. `guide_profiles.regions` is free text
+ * (see GuideAboutForm), so there is no static list to offer — the distinct
+ * values actually stored are the only ones that can ever match.
+ * ponytail: full scan of one small table; move to an RPC/DISTINCT view if
+ * guide_profiles ever grows past a few thousand rows.
+ */
+export async function listGuideRegionOptions(): Promise<string[]> {
+  const { adminClient } = await requireAdminSession();
+  const { data, error } = await adminClient.from("guide_profiles").select("regions");
+  if (error) throw error;
+  const regions = new Set<string>();
+  for (const row of (data ?? []) as { regions: string[] | null }[]) {
+    for (const region of row.regions ?? []) {
+      const trimmed = region.trim();
+      if (trimmed) regions.add(trimmed);
+    }
+  }
+  return [...regions].sort((a, b) => a.localeCompare(b, "ru"));
 }
 
 async function getUserAuditTimeline(
@@ -326,16 +350,39 @@ export async function getAdminUserDetail(userId: string): Promise<AdminUserDetai
 export async function getTargetForGuards(
   adminClient: AdminClient,
   userId: string,
-): Promise<{ id: string; email: string | null; role: AppRole; accountStatus: AccountStatus } | null> {
+): Promise<{
+  id: string;
+  email: string | null;
+  fullName: string | null;
+  phone: string | null;
+  role: AppRole;
+  accountStatus: AccountStatus;
+} | null> {
+  // full_name + phone ride along on the row the guards already fetch, so the
+  // guide-role phone gate and the display-name fallback cost no extra query.
   const { data, error } = await adminClient
     .from("profiles")
-    .select("id, email, role, account_status")
+    .select("id, email, full_name, phone, role, account_status")
     .eq("id", userId)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  const row = data as { id: string; email: string | null; role: AppRole; account_status: AccountStatus };
-  return { id: row.id, email: row.email, role: row.role, accountStatus: row.account_status };
+  const row = data as {
+    id: string;
+    email: string | null;
+    full_name: string | null;
+    phone: string | null;
+    role: AppRole;
+    account_status: AccountStatus;
+  };
+  return {
+    id: row.id,
+    email: row.email,
+    fullName: row.full_name,
+    phone: row.phone,
+    role: row.role,
+    accountStatus: row.account_status,
+  };
 }
 
 /** Append an audit row via the service-role client (server-only boundary). */

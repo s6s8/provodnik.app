@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { BadgeCheck, Check, MapPin, Star } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { cn } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 export type GuideCardInfo = {
   full_name: string | null;
@@ -42,19 +42,11 @@ type GuideOfferCardProps = {
   className?: string;
 };
 
-function pluralRu(n: number, one: string, few: string, many: string): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod10 === 1 && mod100 !== 11) return one;
-  if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) return few;
-  return many;
-}
-
 function buildRoleLine(guide: GuideCardInfo): string {
   const parts: string[] = [];
   if (guide.languages.length > 0) parts.push(guide.languages.join(", "));
   if (guide.years_experience && guide.years_experience > 0) {
-    const word = pluralRu(guide.years_experience, "год", "года", "лет");
+    const word = pluralize(guide.years_experience, "год", "года", "лет");
     parts.push(`${guide.years_experience} ${word} в туризме`);
   }
   return parts.join(" · ");
@@ -210,7 +202,7 @@ export function GuideOfferCard({
                 <>
                   {showRating ? <Dot /> : null}
                   <span>
-                    {guide.review_count} {pluralRu(guide.review_count!, "отзыв", "отзыва", "отзывов")}
+                    {guide.review_count} {pluralize(guide.review_count!, "отзыв", "отзыва", "отзывов")}
                   </span>
                 </>
               ) : null}
@@ -218,7 +210,7 @@ export function GuideOfferCard({
                 <>
                   {showRating || showReviews ? <Dot /> : null}
                   <span>
-                    {guide.trips_completed} {pluralRu(guide.trips_completed!, "поездка", "поездки", "поездок")}
+                    {guide.trips_completed} {pluralize(guide.trips_completed!, "поездка", "поездки", "поездок")}
                   </span>
                 </>
               ) : null}

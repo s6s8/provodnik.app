@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import {
+  buildGuideRoleFlipWrite,
   bulkActionInputSchema,
   canHardDeleteUser,
   evaluateRoleChange,
@@ -12,11 +13,11 @@ import {
   scrubAdminReason,
   setAccountStatusInputSchema,
   setRoleInputSchema,
+  updateFullNameInputSchema,
   type AccountStatus,
   type AdminActionResult,
   type BulkActionResult,
 } from "@/data/admin-users";
-import { COPY } from "@/lib/copy";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   countOtherActiveAdmins,
@@ -56,21 +57,31 @@ type AdminClient = Awaited<ReturnType<typeof requireAdminSession>>["adminClient"
 async function syncRoleSideEffects(input: {
   adminClient: AdminClient;
   targetId: string;
-  targetEmail: string | null;
+  targetFullName: string | null;
   currentRole: string;
   nextRole: string;
 }) {
   if (input.nextRole === "guide") {
-    const fallbackName = input.targetEmail?.split("@")[0]?.trim() || COPY.guide;
-    const { error } = await input.adminClient.from("guide_profiles").upsert(
-      {
-        user_id: input.targetId,
-        display_name: fallbackName,
-        verification_status: "draft",
-        is_available: false,
-      },
-      { onConflict: "user_id" },
+    const { data: existing, error: readError } = await input.adminClient
+      .from("guide_profiles")
+      .select("user_id, verification_status")
+      .eq("user_id", input.targetId)
+      .maybeSingle();
+    if (readError) throw readError;
+
+    const write = buildGuideRoleFlipWrite(
+      existing as { user_id: string; verification_status: string } | null,
+      input,
     );
+    if (write.kind === "noop") return;
+
+    const { error } =
+      write.kind === "insert"
+        ? await input.adminClient.from("guide_profiles").insert(write.row)
+        : await input.adminClient
+            .from("guide_profiles")
+            .update({ is_available: true })
+            .eq("user_id", input.targetId);
     if (error) throw error;
     return;
   }
@@ -203,10 +214,15 @@ export async function setUserRoleAction(
 
   try {
     const { adminId, adminClient } = await requireAdminSession();
-    const target = await getTargetForGuards(adminClient, parsed.data.targetUserId);
+
+    // Both reads only need targetUserId, which is known upfront — no reason to
+    // pay for them serially (item 15: role save felt like it hung).
+    const [target, otherActiveAdminCount] = await Promise.all([
+      getTargetForGuards(adminClient, parsed.data.targetUserId),
+      countOtherActiveAdmins(adminClient, parsed.data.targetUserId),
+    ]);
     if (!target) return fail("Пользователь не найден.");
 
-    const otherActiveAdminCount = await countOtherActiveAdmins(adminClient, target.id);
     const guard = evaluateRoleChange({
       isSelf: target.id === adminId,
       currentRole: target.role,
@@ -214,6 +230,15 @@ export async function setUserRoleAction(
       otherActiveAdminCount,
     });
     if (!guard.ok) return fail(guard.reason);
+
+    // Item 18: signup requires a phone for guides (signUpAction.ts), but the
+    // role flip was the second, unguarded door into the guide role. Mirror the
+    // rule here. `phone` rides along on the guard row — no extra query.
+    if (parsed.data.role === "guide" && !target.phone?.replace(/\D/g, "")) {
+      return fail(
+        "У пользователя не указан телефон — роль «гид» требует телефон. Добавьте номер в профиль и повторите.",
+      );
+    }
 
     // ERR-096: role must be consistent across the JWT fast path (app_metadata)
     // AND the profiles fallback, or auth decisions disagree. Update Auth first;
@@ -238,7 +263,7 @@ export async function setUserRoleAction(
       await syncRoleSideEffects({
         adminClient,
         targetId: target.id,
-        targetEmail: target.email,
+        targetFullName: target.fullName,
         currentRole: target.role,
         nextRole: parsed.data.role,
       });
@@ -263,6 +288,45 @@ export async function setUserRoleAction(
     return ok("Роль обновлена.");
   } catch {
     return fail("Не удалось изменить роль. Попробуйте ещё раз.");
+  }
+}
+
+// --- Full name (private; the public name lives in guide_profiles.display_name) ---
+
+export async function updateFullNameAction(
+  _prev: AdminActionResult | null,
+  formData: FormData,
+): Promise<AdminActionResult> {
+  const parsed = updateFullNameInputSchema.safeParse({
+    targetUserId: formData.get("targetUserId"),
+    fullName: formData.get("fullName"),
+  });
+  if (!parsed.success) {
+    return fail(parsed.error.issues[0]?.message ?? "Некорректные данные.");
+  }
+
+  try {
+    const { adminId, adminClient } = await requireAdminSession();
+    const target = await getTargetForGuards(adminClient, parsed.data.targetUserId);
+    if (!target) return fail("Пользователь не найден.");
+
+    const { error } = await adminClient
+      .from("profiles")
+      .update({ full_name: parsed.data.fullName })
+      .eq("id", target.id);
+    if (error) return fail("Не удалось сохранить ФИО.");
+
+    await logAdminAudit({
+      actorId: adminId,
+      action: "profile.full_name_change",
+      targetId: target.id,
+      metadata: { from: target.fullName, to: parsed.data.fullName },
+    });
+
+    revalidateUsers(target.id);
+    return ok("ФИО обновлено.");
+  } catch {
+    return fail("Не удалось сохранить ФИО. Попробуйте ещё раз.");
   }
 }
 

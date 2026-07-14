@@ -3,10 +3,17 @@ import { SectionHeading } from "@/components/shared/section-heading";
 import { SiteFooter } from "@/components/shared/site-footer";
 import { StepCard } from "@/components/shared/step-card";
 import { formatRubNumber } from "@/data/money";
-import type { DestinationOption, RequestRecord } from "@/data/supabase/queries";
+import type {
+  DestinationOption,
+  GuideRecord,
+  ListingRecord,
+  RequestRecord,
+} from "@/data/supabase/queries";
 import { cityImage } from "@/lib/city-image";
+import type { HomepageReview } from "@/lib/supabase/homepage";
 
 import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
+import { HomepageInventoryClassic } from "./homepage-inventory-classic";
 
 interface Props {
   destinations: DestinationOption[];
@@ -14,6 +21,9 @@ interface Props {
   viewerId?: string | null;
   preferredGuide?: { slug: string; name: string } | null;
   joinedRequestIds?: Set<string>;
+  listings?: ListingRecord[];
+  guides?: GuideRecord[];
+  reviews?: HomepageReview[];
 }
 
 const HOW_IT_WORKS = [
@@ -27,7 +37,16 @@ const HOW_IT_WORKS = [
 
 const SECTION = "mx-auto w-full max-w-page px-gutter";
 
-export function HomePageShell2Classic({ destinations, requests, viewerId, preferredGuide, joinedRequestIds = new Set() }: Props) {
+export function HomePageShell2Classic({
+  destinations,
+  requests,
+  viewerId,
+  preferredGuide,
+  joinedRequestIds = new Set(),
+  listings = [],
+  guides = [],
+  reviews = [],
+}: Props) {
   const openGroups = requests.slice(0, 3);
 
   return (
@@ -96,6 +115,13 @@ export function HomePageShell2Classic({ destinations, requests, viewerId, prefer
           </div>
         </div>
       </section>
+
+      <HomepageInventoryClassic
+        listings={listings}
+        destinations={destinations}
+        guides={guides}
+        reviews={reviews}
+      />
 
       <SiteFooter />
     </>

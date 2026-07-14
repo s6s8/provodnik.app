@@ -20,10 +20,12 @@ import {
 import { GUIDE_TYPES } from "@/features/auth/guide-type";
 import { getTheme } from "@/data/themes";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
-import { getGuideReviewDetail } from "@/lib/supabase/moderation";
+import { listGuideListings } from "@/lib/supabase/admin-listings";
+import { getGuideReviewDetail, requireAdminSession } from "@/lib/supabase/moderation";
 
 import { GuideApprovalForm } from "./guide-approval-form";
 import { GuideAvailabilityControl } from "./guide-availability-control";
+import { GuideListingsPanel } from "./guide-listings-panel";
 
 export const metadata: Metadata = {
   title: "Верификация гида",
@@ -100,6 +102,9 @@ export default async function AdminGuideDetailPage({
   if (!detail) {
     notFound();
   }
+
+  const { adminClient } = await requireAdminSession();
+  const listings = await listGuideListings(adminClient, id);
 
   const displayName =
     resolveDisplayName("guide", { full_name: detail.account?.full_name }) ||
@@ -225,6 +230,8 @@ export default async function AdminGuideDetailPage({
             </dl>
             </CardContent>
           </Card>
+
+          <GuideListingsPanel listings={listings} />
 
           <Card>
             <CardHeader>

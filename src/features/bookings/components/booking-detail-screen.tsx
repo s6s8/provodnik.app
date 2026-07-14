@@ -38,6 +38,7 @@ import { COPY } from "@/lib/copy";
 import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import { pluralize } from "@/lib/utils";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
 import type { PaymentAgreement } from "@/lib/supabase/payment-agreements";
 import { confirmPaymentAgreementAction } from "@/features/bookings/payment-agreement-actions";
@@ -359,7 +360,7 @@ function TravelerBookingDetailView({
                 ) : null}
                 {partySize > 0 ? (
                   <p className="font-sans text-sm text-muted-foreground">
-                    {partySize} {partySize === 1 ? "человек" : partySize < 5 ? "человека" : "человек"}
+                    {partySize} {pluralize(partySize, "человек", "человека", "человек")}
                     {request?.open_to_join ? " · сборная группа" : ""}
                   </p>
                 ) : null}

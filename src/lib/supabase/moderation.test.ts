@@ -33,6 +33,7 @@ vi.mock("@/lib/env", async (importOriginal) => ({
 
 import {
   buildGuideApprovalUpdate,
+  getAdminNavCounts,
   getGuideReviewQueue,
   getPendingListingReviews,
   performModerationAction,
@@ -117,6 +118,70 @@ function makeQuery<T>(result: { data: T; error: Error | null }) {
     ) => Promise.resolve(result).then(resolve, reject),
   };
 }
+
+// Items 3, 15: the admin layout calls getAdminNavCounts on EVERY admin page
+// navigation. It used to delegate to getAdminDashboardStats, which runs 8 count
+// queries -- including two unbounded full-table counts on `bookings` -- and then
+// discarded 6 of the 8 results. The nav shows two numbers; it should cost two
+// queries.
+describe("getAdminNavCounts", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  function mockAdminSession() {
+    createSupabaseServerClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "admin-id" } }, error: null }) },
+      from: vi.fn(() =>
+        makeQuery({
+          data: {
+            id: "admin-id",
+            role: "admin",
+            account_status: "active",
+            full_name: "Admin",
+            email: "admin@example.com",
+            avatar_url: null,
+          },
+          error: null,
+        }),
+      ),
+    });
+  }
+
+  function countQuery(count: number) {
+    return {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      then: (resolve: (v: { count: number; error: null }) => unknown) =>
+        Promise.resolve({ count, error: null }).then(resolve),
+    };
+  }
+
+  it("counts pending guides and listings with exactly two queries and no full-table scans", async () => {
+    mockAdminSession();
+    const guideProfilesQuery = countQuery(3);
+    const listingsQuery = countQuery(5);
+    const from = vi.fn((table: string) => {
+      if (table === "guide_profiles") return guideProfilesQuery;
+      if (table === "listings") return listingsQuery;
+      // `bookings` and `disputes` are the discarded work. Touching them is the bug.
+      throw new Error(`getAdminNavCounts must not query ${table}`);
+    });
+    createSupabaseAdminClient.mockReturnValue({ from });
+
+    const counts = await getAdminNavCounts();
+
+    expect(counts).toEqual({ guides: 3, listings: 5 });
+    expect(from).toHaveBeenCalledTimes(2);
+    expect(guideProfilesQuery.eq).toHaveBeenCalledWith("verification_status", "submitted");
+    expect(listingsQuery.eq).toHaveBeenCalledWith("status", "pending_review");
+    // head:true -> count only, no rows shipped over the wire.
+    expect(guideProfilesQuery.select).toHaveBeenCalledWith(
+      "user_id",
+      expect.objectContaining({ count: "exact", head: true }),
+    );
+  });
+});
 
 describe("getGuideReviewQueue", () => {
   beforeEach(() => {

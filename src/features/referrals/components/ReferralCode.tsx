@@ -14,6 +14,7 @@ import {
   generateReferralCode,
   redeemReferralCode,
 } from "@/features/referrals/actions/referralActions";
+import { pluralize } from "@/lib/utils";
 
 const INVITE_BASE = "https://provodnik.app/invite";
 
@@ -144,7 +145,9 @@ export function ReferralCode({ code: initialCode, redemptionCount }: ReferralCod
               </div>
             </div>
             <p className="text-sm text-muted-foreground">
-              {redemptionCount} человек использовали ваш код
+              {redemptionCount}{" "}
+              {pluralize(redemptionCount, "человек", "человека", "человек")}{" "}
+              {pluralize(redemptionCount, "использовал", "использовали", "использовали")} ваш код
             </p>
           </div>
         )}

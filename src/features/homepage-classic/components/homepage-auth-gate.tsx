@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Eye, EyeOff } from "lucide-react";
 
@@ -12,13 +12,39 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { formatRub } from "@/data/money";
 import { signUpAction } from "@/features/auth/actions/signUpAction";
+import { formatRussianDateRange } from "@/lib/dates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+
+import { readRequestDraft, type RequestDraft } from "./use-request-form";
 
 interface HomepageAuthGateProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onAuthSuccess: () => void | Promise<void>;
+}
+
+/** Reminds the visitor what they were doing, so the auth form is not a bait-and-switch. */
+function recapRows(draft: RequestDraft | null): { label: string; value: string }[] {
+  if (!draft) return [];
+  const dates = draft.startDate
+    ? formatRussianDateRange(draft.startDate, draft.endDate || null) +
+      (draft.dateFlexibility === "few_days" ? " ± пара дней" : "")
+    : "";
+  const groupSize = draft.groupSize ?? draft.groupSizeCurrent;
+
+  return [
+    { label: "Направление", value: draft.destination ?? "" },
+    { label: "Когда", value: dates },
+    { label: "Гостей", value: groupSize ? String(groupSize) : "" },
+    {
+      label: "Бюджет",
+      value: draft.budgetPerPersonRub
+        ? `${formatRub(draft.budgetPerPersonRub)} на человека`
+        : "",
+    },
+  ].filter((row) => row.value !== "");
 }
 
 function getFriendlyAuthError(code: string): string {
@@ -56,6 +82,14 @@ export function HomepageAuthGate({
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // sessionStorage is client-only: read after mount, never during render.
+  const [draft, setDraft] = useState<RequestDraft | null>(null);
+
+  useEffect(() => {
+    setDraft(open ? readRequestDraft() : null);
+  }, [open]);
+
+  const recap = recapRows(draft);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -127,6 +161,24 @@ export function HomepageAuthGate({
             {mode === "sign-in" ? "Войти" : "Создать профиль"}
           </DialogTitle>
         </DialogHeader>
+
+        {recap.length > 0 ? (
+          <div className="rounded-md border bg-muted/40 p-3">
+            <p className="text-sm font-medium text-foreground">Ваша заявка</p>
+            <dl className="mt-2 grid gap-1 text-sm">
+              {recap.map((row) => (
+                <div key={row.label} className="flex items-baseline justify-between gap-3">
+                  <dt className="text-muted-foreground">{row.label}</dt>
+                  <dd className="text-right font-medium text-foreground">{row.value}</dd>
+                </div>
+              ))}
+            </dl>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Мы отправим её гидам сразу после входа.
+            </p>
+          </div>
+        ) : null}
+
         <form onSubmit={handleSubmit} className="grid gap-4 mt-2">
           {mode === "sign-up" ? (
             <>

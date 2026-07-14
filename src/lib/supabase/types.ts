@@ -53,8 +53,21 @@ export type ListingStatusDb =
   | "paused"
   | "rejected"
   | "pending_review"
+  /** @deprecated Legacy. Nothing writes it — see PUBLIC_LISTING_STATUS. Kept only
+   * because dropping a value from a Postgres enum is disruptive. */
   | "active"
   | "archived";
+
+/**
+ * The one status a listing must hold to be publicly visible.
+ *
+ * Item 14: the moderation queue wrote `active` while every public reader — the
+ * catalog (`getActiveListings`), the sitemap, and all `listing_*` RLS policies —
+ * gates on `published`. Approved excursions were therefore invisible, and nothing
+ * in the admin UI said so. Writer and reader now share this constant so the two
+ * literals cannot drift apart again.
+ */
+export const PUBLIC_LISTING_STATUS = "published" satisfies ListingStatusDb;
 
 export type GuideOfferRow = {
   id: Uuid;

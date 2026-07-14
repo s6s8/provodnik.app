@@ -3,11 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { AuthContext } from "@/lib/auth/types";
 
-const { readAuthContextFromServerMock, redirectMock } = vi.hoisted(() => ({
+const { readAuthContextFromServerMock, redirectMock, profileReadMock } = vi.hoisted(() => ({
   readAuthContextFromServerMock: vi.fn(),
   redirectMock: vi.fn((pathname: string) => {
     throw new Error(`NEXT_REDIRECT:${pathname}`);
   }),
+  profileReadMock: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -18,8 +19,22 @@ vi.mock("@/lib/auth/server-auth", () => ({
   readAuthContextFromServer: readAuthContextFromServerMock,
 }));
 
+vi.mock("@/lib/supabase/server", () => ({
+  createSupabaseServerClient: vi.fn(async () => ({
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({
+        eq: vi.fn(() => ({ maybeSingle: profileReadMock })),
+      })),
+    })),
+  })),
+}));
+
 vi.mock("@/components/shared/guide-bottom-nav", () => ({
   GuideBottomNav: () => <nav>Guide bottom nav</nav>,
+}));
+
+vi.mock("@/features/guide/components/phone-required-dialog", () => ({
+  PhoneRequiredDialog: () => <div>Добавьте телефон</div>,
 }));
 
 import GuideLayout from "./guide/layout";
@@ -47,6 +62,10 @@ describe("protected role layouts", () => {
     vi.clearAllMocks();
     redirectMock.mockImplementation((pathname: string) => {
       throw new Error(`NEXT_REDIRECT:${pathname}`);
+    });
+    profileReadMock.mockResolvedValue({
+      data: { phone: "+7 900 123-45-67" },
+      error: null,
     });
   });
 
@@ -131,6 +150,30 @@ describe("protected role layouts", () => {
     expect(screen.getByText("Guide workspace")).toBeInTheDocument();
     expect(screen.getByText("Guide bottom nav")).toBeInTheDocument();
     expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("blocks a phoneless guide with the phone prompt but still renders the workspace", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce(makeAuthContext({ role: "guide" }));
+    profileReadMock.mockResolvedValue({ data: { phone: null }, error: null });
+
+    const ui = await GuideLayout({
+      children: <div>Guide workspace</div>,
+    });
+    render(ui);
+
+    expect(screen.getByText("Добавьте телефон")).toBeInTheDocument();
+    expect(redirectMock).not.toHaveBeenCalled();
+  });
+
+  it("does not prompt a guide that already has a phone", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce(makeAuthContext({ role: "guide" }));
+
+    const ui = await GuideLayout({
+      children: <div>Guide workspace</div>,
+    });
+    render(ui);
+
+    expect(screen.queryByText("Добавьте телефон")).not.toBeInTheDocument();
   });
 
   it("renders the trips layout for traveler sessions", async () => {

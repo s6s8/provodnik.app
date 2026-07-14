@@ -40,6 +40,7 @@ import {
   rejectGuideAction,
   setAccountStatusAction,
   setUserRoleAction,
+  updateFullNameAction,
 } from "../../actions";
 
 function ResultLine({ result }: { result: AdminActionResult | null }) {
@@ -171,6 +172,52 @@ export function StatusControls({
         />
       ) : null}
     </div>
+  );
+}
+
+// --- Full name (private) ---------------------------------------------------
+
+export function FullNameControls({
+  userId,
+  fullName,
+}: {
+  userId: string;
+  fullName: string | null;
+}) {
+  const [value, setValue] = useState(fullName ?? "");
+  const [state, action, pending] = useActionState<AdminActionResult | null, FormData>(
+    async (_prev, formData) => updateFullNameAction(_prev, formData),
+    null,
+  );
+  useRefreshOnSuccess(state);
+
+  return (
+    <form action={action} className="flex flex-col gap-3">
+      <input type="hidden" name="targetUserId" value={userId} />
+      <div className="flex flex-col gap-1">
+        <Label htmlFor="full-name" className="text-xs text-muted-foreground">
+          ФИО полностью
+        </Label>
+        <Input
+          id="full-name"
+          name="fullName"
+          required
+          maxLength={120}
+          value={value}
+          onChange={(event) => setValue(event.target.value)}
+          placeholder="Иван Сергеевич Петров"
+        />
+      </div>
+      <ResultLine result={state} />
+      <Button
+        type="submit"
+        className="self-start"
+        disabled={pending || value.trim() === (fullName ?? "").trim()}
+        loading={pending}
+      >
+        Сохранить ФИО
+      </Button>
+    </form>
   );
 }
 

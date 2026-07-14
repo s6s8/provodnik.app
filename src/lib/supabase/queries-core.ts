@@ -152,6 +152,20 @@ export type ReviewRecord = {
   createdAt: string;
 };
 
+/**
+ * Anon-safe source for every PUBLIC review card (homepage block, guide page, listing
+ * page). Reading `reviews` with an embedded `profiles:traveler_id(full_name)` join
+ * cannot work for a logged-out visitor — `profiles_select` RLS is
+ * `auth.uid() = id OR is_admin()`, so the join resolves to NULL and every author
+ * silently renders as the fallback below. The view (20260716000000) exposes the
+ * sanitized author name and the demo flag instead; already-published rows only.
+ * Guide/admin-facing review screens keep reading the base table under their own auth.
+ */
+export const PUBLIC_REVIEW_VIEW = "v_public_reviews";
+
+/** Shown when an author genuinely has no name on file. Never a stand-in for RLS. */
+export const REVIEW_AUTHOR_FALLBACK = "Путешественник";
+
 export type ListingFilters = { destination?: string; duration?: string; priceRange?: string; format?: string };
 export type RequestFilters = { destination?: string; status?: string };
 export type GuideFilters = { destination?: string; specializations?: string[]; q?: string };
@@ -559,8 +573,19 @@ export async function fetchMembersForRequests(
 }
 
 export function mapGuideRow(gp: Record<string, unknown>, profile: Record<string, unknown> | null): GuideRecord {
+  // Item 13, the two-field name standard: `guide_profiles.display_name` is the PUBLIC
+  // name a traveler sees; `profiles.full_name` is the private, admin-only FIO
+  // (migration 20260714000000 says so in as many words). The precedence here used to
+  // be the other way round, so any surface that could actually READ `profiles` served
+  // the legal FIO to the public: the guide detail page resolves its guide through a
+  // SECURITY DEFINER RPC that returns `p.full_name`, and rendered «Гиляна Манджиева»
+  // as the page title where the standard says «Гиляна». The grid only looked right by
+  // accident — anon RLS hides `profiles`, so full_name came back NULL and the fallback
+  // did the work. An admin browsing the same grid saw the FIOs.
+  //
+  // full_name stays as the fallback for legacy rows that never set a display_name.
   const fullName = resolveDisplayName("guide", {
-    full_name: (profile?.full_name as string | null | undefined) ?? (gp.display_name as string | null | undefined),
+    full_name: (gp.display_name as string | null | undefined) ?? (profile?.full_name as string | null | undefined),
   });
   const regions = (gp.regions as string[]) ?? [];
   const baseCity = (gp.base_city as string | null) ?? null;

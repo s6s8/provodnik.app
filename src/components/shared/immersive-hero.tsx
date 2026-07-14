@@ -26,6 +26,11 @@ type ImmersiveHeroProps = {
   statusBadge?: ReactNode;
   /** Subtle film-grain overlay. Defaults to true. */
   grain?: boolean;
+  /**
+   * "compact" shortens the hero and its title so detail pages open on content
+   * instead of empty photo. "default" is the full-bleed homepage/landing size.
+   */
+  variant?: "default" | "compact";
   /** Bottom-right slot (the floating trip / booking panel). */
   children?: ReactNode;
   className?: string;
@@ -44,9 +49,14 @@ export function ImmersiveHero({
   intro,
   statusBadge,
   grain = true,
+  variant = "default",
   children,
   className,
 }: ImmersiveHeroProps) {
+  const isCompact = variant === "compact";
+  const minHeight = isCompact
+    ? "min-h-[280px] sm:min-h-[320px]"
+    : "min-h-[520px] sm:min-h-[632px]";
   // Real photos (http/local) load through next/image with priority so the hero
   // paints immediately on cold navigation instead of flashing the grey
   // placeholder while the browser fetches a CSS background-image. SVG-gradient
@@ -54,7 +64,7 @@ export function ImmersiveHero({
   const isPhoto = /^(https?:|\/)/.test(imageUrl);
   return (
     <section className={cn("relative w-full overflow-hidden", className)}>
-      <div className="relative min-h-[520px] sm:min-h-[632px]">
+      <div className={cn("relative", minHeight)}>
         {isPhoto ? (
           <Image
             src={imageUrl}
@@ -79,7 +89,12 @@ export function ImmersiveHero({
         <Scrim variant="hero" />
         {grain ? <div className="hero-grain pointer-events-none absolute inset-0 z-[1]" /> : null}
 
-        <div className="relative z-[2] mx-auto flex min-h-[520px] max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-[calc(var(--nav-h)+16px)] sm:min-h-[632px] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-12 md:pt-0">
+        <div
+          className={cn(
+            "relative z-[2] mx-auto flex max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-[calc(var(--nav-h)+16px)] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-12 md:pt-0",
+            minHeight,
+          )}
+        >
           {/* Title block — bottom-left on desktop */}
           <div className="min-w-0 md:max-w-[540px]">
             {breadcrumb && breadcrumb.length > 0 ? (
@@ -104,7 +119,12 @@ export function ImmersiveHero({
               </div>
             ) : null}
             {statusBadge ? <div className="mb-4">{statusBadge}</div> : null}
-            <h1 className="mb-4 text-[clamp(46px,7vw,74px)] font-extrabold leading-[0.96] tracking-[-0.035em] text-white">
+            <h1
+              className={cn(
+                "mb-4 font-extrabold leading-[0.96] tracking-[-0.035em] text-white",
+                isCompact ? "text-[clamp(30px,4.5vw,44px)]" : "text-[clamp(46px,7vw,74px)]",
+              )}
+            >
               {title}
             </h1>
             {intro ? (

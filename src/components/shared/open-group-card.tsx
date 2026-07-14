@@ -7,17 +7,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Scrim } from "@/components/ui/scrim";
 import { THEMES, type ThemeSlug } from "@/data/themes";
-import { cn } from "@/lib/utils";
+import { cn, pluralize } from "@/lib/utils";
 
 const THEME_BY_SLUG = new Map(THEMES.map((t) => [t.slug, t] as const));
 
 function pluralOffers(n: number): string {
-  const mod10 = n % 10;
-  const mod100 = n % 100;
-  if (mod100 >= 11 && mod100 <= 14) return `${n} откликов`;
-  if (mod10 === 1) return `${n} отклик`;
-  if (mod10 >= 2 && mod10 <= 4) return `${n} отклика`;
-  return `${n} откликов`;
+  return `${n} ${pluralize(n, "отклик", "отклика", "откликов")}`;
 }
 
 export interface OpenGroupCardProps {

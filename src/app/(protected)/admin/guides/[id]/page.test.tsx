@@ -1,11 +1,14 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { GuideReviewDetail } from "@/lib/supabase/moderation";
 
-const { getGuideReviewDetailMock } = vi.hoisted(() => ({
-  getGuideReviewDetailMock: vi.fn(),
-}));
+const { getGuideReviewDetailMock, requireAdminSessionMock, listGuideListingsMock } =
+  vi.hoisted(() => ({
+    getGuideReviewDetailMock: vi.fn(),
+    requireAdminSessionMock: vi.fn(),
+    listGuideListingsMock: vi.fn(),
+  }));
 
 vi.mock("next/navigation", () => ({
   notFound: vi.fn(),
@@ -13,6 +16,12 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/lib/supabase/moderation", () => ({
   getGuideReviewDetail: getGuideReviewDetailMock,
+  requireAdminSession: requireAdminSessionMock,
+}));
+
+vi.mock("@/lib/supabase/admin-listings", () => ({
+  GUIDE_LISTINGS_LIMIT: 50,
+  listGuideListings: listGuideListingsMock,
 }));
 
 vi.mock("./actions", () => ({
@@ -72,6 +81,41 @@ const guideDetail = {
 } as unknown as GuideReviewDetail;
 
 describe("AdminGuideDetailPage", () => {
+  beforeEach(() => {
+    requireAdminSessionMock.mockResolvedValue({ adminClient: {} });
+    listGuideListingsMock.mockResolvedValue([]);
+  });
+
+  it("shows the guide's listings in every status, drafts included", async () => {
+    getGuideReviewDetailMock.mockResolvedValueOnce(guideDetail);
+    listGuideListingsMock.mockResolvedValueOnce([
+      {
+        id: "l-draft",
+        title: "Невидимая экскурсия",
+        status: "draft",
+        created_at: "2026-05-03T10:00:00.000Z",
+      },
+      {
+        id: "l-published",
+        title: "Живая экскурсия",
+        status: "published",
+        created_at: "2026-05-02T10:00:00.000Z",
+      },
+    ]);
+
+    const ui = await AdminGuideDetailPage({
+      params: Promise.resolve({ id: "g1" }),
+    });
+    render(ui);
+
+    expect(listGuideListingsMock).toHaveBeenCalledWith({}, "g1");
+    expect(screen.getByText("Невидимая экскурсия")).toBeInTheDocument();
+    expect(screen.getByText("Черновик")).toBeInTheDocument();
+    expect(
+      screen.getByText("Всего: 2 · опубликовано: 1 · на модерации: 0 · черновики: 1"),
+    ).toBeInTheDocument();
+  });
+
   it("shows all profile fields the guide can fill", async () => {
     getGuideReviewDetailMock.mockResolvedValueOnce(guideDetail);
 

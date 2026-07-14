@@ -5,7 +5,7 @@ import {
   Users, Compass, UserSearch, Map, Route, BadgeCheck, ShieldCheck,
   Briefcase, HelpCircle, LogIn, ClipboardList, Heart, MessageSquare,
   Bell, Gift, User, Inbox, BookCheck, Star, Calendar, Settings,
-  BarChart3, UserCheck, Flag, CalendarCheck, ScrollText,
+  BarChart3, UserCheck, Flag, CalendarCheck, ScrollText, TrendingUp,
 } from "lucide-react";
 
 export type NavItem = {
@@ -19,7 +19,9 @@ export type NavItem = {
 
 export const ROUTES = {
   requests:     { href: "/requests",     label: "Запросы",           icon: Users },
-  listings:     { href: "/listings",     label: "Экскурсии",         icon: Compass },
+  // «Готовые» distinguishes the public catalog of ready-made excursions from the
+  // guide's own workspace tab, which is also «Экскурсии» (ROUTES.guideListings).
+  listings:     { href: "/listings",     label: "Готовые экскурсии", icon: Compass },
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
   newRequest:   { href: "/",             label: "Создать запрос",    icon: ClipboardList },
@@ -43,6 +45,7 @@ export const ROUTES = {
   guideProfile: { href: "/guide/profile",  label: "Профиль гида",    icon: User },
   guideSettings:{ href: "/guide/settings/contact-visibility", label: "Настройки", icon: Settings },
   adminDashboard: { href: "/admin/dashboard",  label: "Обзор",        icon: BarChart3 },
+  adminAnalytics: { href: "/admin/analytics",  label: "Аналитика",    icon: TrendingUp },
   adminUsers:     { href: "/admin/users",      label: "Пользователи", shortLabel: "Люди", icon: Users },
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
   adminModeration:{ href: "/admin/moderation", label: "Модерация",    icon: ShieldCheck },
@@ -66,18 +69,19 @@ const adminBridge: NavItem = { ...ROUTES.adminDashboard, label: "Админка"
 /**
  * Anonymous / public marketplace discovery (max 5 items).
  *
- * The public «Экскурсии» (/listings) and «Направления» (/destinations) catalog
- * surfaces are hidden per the Wildberries review: they carry no nav entry and
- * their routes are inaccessible unless `FEATURE_PUBLIC_CATALOG` is re-enabled.
- * Discovery flows through requests + guides instead.
+ * «Готовые экскурсии» (/listings) is gated on `FEATURE_PUBLIC_CATALOG` via
+ * NAV_FLAG_BY_HREF: with the flag off the entry hides itself and the route
+ * redirects to /guides, so the flag is the single switch (item 7).
+ * «Направления» (/destinations) stays out of the nav — same flag guards the
+ * route, but it has no curated inventory yet.
  */
 export const publicPrimaryNav = [
-  ROUTES.requests, ROUTES.guides, ROUTES.howItWorks,
+  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.howItWorks,
 ] as const;
 
-/** Traveler: marketplace discovery + personal trips (catalog surfaces hidden). */
+/** Traveler: marketplace discovery + personal trips. */
 export const travelerPrimaryNav = [
-  ROUTES.requests, ROUTES.guides, ROUTES.trips,
+  ROUTES.requests, ROUTES.listings, ROUTES.guides, ROUTES.trips,
 ] as const;
 
 /** Guide workspace (also drives the mobile bottom nav). */
@@ -87,7 +91,7 @@ export const guidePrimaryNav = [
 
 /** Admin workspace (drives the admin sidebar + mobile tabs). */
 export const adminPrimaryNav = [
-  ROUTES.adminDashboard, ROUTES.adminUsers, ROUTES.adminGuides,
+  ROUTES.adminDashboard, ROUTES.adminAnalytics, ROUTES.adminUsers, ROUTES.adminGuides,
   ROUTES.adminModeration, ROUTES.adminPipeline, ROUTES.adminDisputes,
   ROUTES.adminBookings, ROUTES.adminAudit,
 ] as const;
@@ -168,6 +172,7 @@ export const footerNav = {
 export const NAV_FLAG_BY_HREF = {
   "/favorites": "FEATURE_TR_FAVORITES",
   "/referrals": "FEATURE_TR_REFERRALS",
+  "/listings": "FEATURE_PUBLIC_CATALOG",
 } as const satisfies Partial<Record<string, FlagName>>;
 
 /**
