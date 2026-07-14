@@ -152,6 +152,20 @@ export type ReviewRecord = {
   createdAt: string;
 };
 
+/**
+ * Anon-safe source for every PUBLIC review card (homepage block, guide page, listing
+ * page). Reading `reviews` with an embedded `profiles:traveler_id(full_name)` join
+ * cannot work for a logged-out visitor — `profiles_select` RLS is
+ * `auth.uid() = id OR is_admin()`, so the join resolves to NULL and every author
+ * silently renders as the fallback below. The view (20260716000000) exposes the
+ * sanitized author name and the demo flag instead; already-published rows only.
+ * Guide/admin-facing review screens keep reading the base table under their own auth.
+ */
+export const PUBLIC_REVIEW_VIEW = "v_public_reviews";
+
+/** Shown when an author genuinely has no name on file. Never a stand-in for RLS. */
+export const REVIEW_AUTHOR_FALLBACK = "Путешественник";
+
 export type ListingFilters = { destination?: string; duration?: string; priceRange?: string; format?: string };
 export type RequestFilters = { destination?: string; status?: string };
 export type GuideFilters = { destination?: string; specializations?: string[]; q?: string };

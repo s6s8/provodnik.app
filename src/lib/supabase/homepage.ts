@@ -12,6 +12,8 @@ import {
   isQaGuideSlug,
   makeError,
   mapListingRow,
+  PUBLIC_REVIEW_VIEW,
+  REVIEW_AUTHOR_FALLBACK,
   type GuideRecord,
   type ListingRecord,
   type QueryResult,
@@ -132,30 +134,26 @@ async function homepageReviews(
   client: SupabaseClient,
   allowed: Map<string, PublicGuide>,
 ): Promise<HomepageReview[]> {
+  // PUBLIC_REVIEW_VIEW, not `reviews` + a profiles join: anon RLS blocks that join, so
+  // every card used to read «Путешественник». The view carries the sanitized author
+  // name and the demo flag, so no traveler_id ever reaches this layer.
   const { data, error } = await client
-    .from("reviews")
-    .select("id, rating, title, body, created_at, guide_id, traveler_id, profiles:traveler_id(full_name)")
-    .eq("status", "published")
+    .from(PUBLIC_REVIEW_VIEW)
+    .select("id, rating, title, body, created_at, guide_id, author_name, author_is_demo")
     .order("created_at", { ascending: false })
     .limit(REVIEW_SCAN);
   if (error) throw error;
 
   const rows = (data ?? []).filter((row) => allowed.has(row.guide_id as string));
-  const demoAuthors = await demoUserIds(
-    client,
-    rows.map((row) => row.traveler_id as string).filter(Boolean),
-  );
 
   const reviews: HomepageReview[] = [];
   for (const row of rows) {
-    if (demoAuthors.has(row.traveler_id as string)) continue;
+    if (row.author_is_demo) continue;
     const body = ((row.body as string | null) ?? "").trim();
     if (!body) continue;
 
     const guide = allowed.get(row.guide_id as string)!;
-    const authorName =
-      ((row.profiles as { full_name?: string | null } | null)?.full_name as string | undefined) ??
-      "Путешественник";
+    const authorName = (row.author_name as string | null) ?? REVIEW_AUTHOR_FALLBACK;
 
     reviews.push({
       id: row.id as string,

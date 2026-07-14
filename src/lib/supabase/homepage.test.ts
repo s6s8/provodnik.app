@@ -121,45 +121,47 @@ const fixtures: FixtureMap = {
     listingRow("l-2", QA, "QA маршрут"),
     listingRow("l-3", DEMO, "Демо маршрут"),
   ],
-  reviews: [
+  // The view already resolves the author (anon RLS blocks a profiles join) and
+  // pre-computes the demo flag, so no traveler_id reaches the app layer.
+  v_public_reviews: [
     {
       id: "r-1",
       guide_id: REAL,
-      traveler_id: TRAVELER,
       rating: 5,
       title: "Отлично",
       body: "Настоящий отзыв",
-      status: "published",
+      author_name: "Иван П.",
+      author_is_demo: false,
       created_at: "2026-07-01T00:00:00Z",
     },
     {
       id: "r-2",
       guide_id: QA,
-      traveler_id: TRAVELER,
       rating: 5,
       title: "QA",
       body: "Отзыв на QA-гида",
-      status: "published",
+      author_name: "Иван П.",
+      author_is_demo: false,
       created_at: "2026-07-02T00:00:00Z",
     },
     {
       id: "r-3",
       guide_id: DEMO,
-      traveler_id: TRAVELER,
       rating: 5,
       title: "Демо",
       body: "Отзыв на демо-гида",
-      status: "published",
+      author_name: "Иван П.",
+      author_is_demo: false,
       created_at: "2026-07-03T00:00:00Z",
     },
     {
       id: "r-4",
       guide_id: REAL,
-      traveler_id: DEMO_TRAVELER,
       rating: 5,
       title: "Демо-автор",
       body: "Отзыв от демо-путешественника",
-      status: "published",
+      author_name: "Сид С.",
+      author_is_demo: true,
       created_at: "2026-07-04T00:00:00Z",
     },
   ],
@@ -181,6 +183,21 @@ describe("getHomepageInventory", () => {
     expect(data?.guides.map((g) => g.slug)).toEqual(["anna-real"]);
     // r-2/r-3 belong to QA/demo guides; r-4 was written by a demo traveler.
     expect(data?.reviews.map((r) => r.id)).toEqual(["r-1"]);
+  });
+
+  it("names review authors from the anon-safe view, never a profiles join", async () => {
+    const client = createFakeClient(fixtures);
+
+    const { data } = await getHomepageInventory(client);
+
+    // The bug: `reviews` + `profiles:traveler_id(full_name)` is NULL for anon (RLS),
+    // so every card rendered «Путешественник». If this reads the base table again,
+    // the homepage silently loses its authors — with no error anywhere.
+    expect(client.calls).toContain("from:v_public_reviews");
+    expect(client.calls).not.toContain("from:reviews");
+    expect(client.calls.some((call) => call.includes("profiles:traveler_id"))).toBe(false);
+    expect(data?.reviews.map((r) => r.authorName)).toEqual(["Иван П."]);
+    expect(data?.reviews.map((r) => r.authorInitials)).toEqual(["ИП"]);
   });
 
   it("reads only published listings, never the legacy active status", async () => {
