@@ -60,6 +60,22 @@ export function clearRequestDraft(): void {
   }
 }
 
+const DEFAULT_VALUES: FormInput = {
+  mode: "assembly",
+  interests: [] as TravelerRequest["interests"],
+  requestedLanguages: ["Русский"],
+  destination: "",
+  startDate: "",
+  dateFlexibility: "exact",
+  startTime: "10:00",
+  endTime: "12:00",
+  groupSize: 2,
+  groupSizeCurrent: 1,
+  allowGuideSuggestionsOutsideConstraints: true,
+  budgetPerPersonRub: 5000,
+  notes: "",
+};
+
 export function useRequestForm(options?: { preferredGuideSlug?: string | null }) {
   const preferredGuideSlug = options?.preferredGuideSlug ?? null;
   const router = useRouter();
@@ -67,23 +83,27 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
+
+  // Restore the draft an anonymous visitor left behind (reload mid-signup, tab
+  // navigation). Read post-mount only — reading sessionStorage during render would
+  // desync the SSR markup.
+  //
+  // It goes through `values`, NOT a `reset()` in an effect. `reset()` updated the form
+  // STATE but never wrote back into the registered uncontrolled inputs, so the visitor
+  // saw «2 гостей / 5 000 ₽» (the defaults) while the request that got submitted said
+  // 4 and 7 000 — shown one trip, sent another, no error anywhere. `values` is RHF's
+  // documented channel for data that arrives after mount and syncs both.
+  // `keepDirtyValues` preserves anything the visitor has already re-typed.
+  const [draft, setDraft] = React.useState<RequestDraft | null>(null);
+  React.useEffect(() => {
+    setDraft(readRequestDraft());
+  }, []);
+
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
-    defaultValues: {
-      mode: "assembly",
-      interests: [] as TravelerRequest["interests"],
-      requestedLanguages: ["Русский"],
-      destination: "",
-      startDate: "",
-      dateFlexibility: "exact",
-      startTime: "10:00",
-      endTime: "12:00",
-      groupSize: 2,
-      groupSizeCurrent: 1,
-      allowGuideSuggestionsOutsideConstraints: true,
-      budgetPerPersonRub: 5000,
-      notes: "",
-    },
+    defaultValues: DEFAULT_VALUES,
+    values: draft ? { ...DEFAULT_VALUES, ...draft } : undefined,
+    resetOptions: { keepDirtyValues: true },
     mode: "onTouched",
   });
 
@@ -107,18 +127,6 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
   const watchedGroupSize = useWatch({ control, name: "groupSize" });
   const watchedBudgetPerPerson = useWatch({ control, name: "budgetPerPersonRub" });
   const selectedInterests = interestsField.value ?? [];
-
-  // Restore the draft an anonymous visitor left behind (reload mid-signup, tab
-  // navigation). Runs once, post-mount — reading storage during render would
-  // desync SSR markup — and never over a form the visitor already touched.
-  const rehydrated = React.useRef(false);
-  React.useEffect(() => {
-    if (rehydrated.current) return;
-    rehydrated.current = true;
-    const draft = readRequestDraft();
-    if (!draft || form.formState.isDirty) return;
-    form.reset({ ...form.getValues(), ...draft });
-  }, [form]);
 
   async function submitWithFormData(fd: FormData, values?: FormValues) {
     setIsLoading(true);

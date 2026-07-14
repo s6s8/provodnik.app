@@ -146,3 +146,50 @@ describe("HomepageRequestFormClassic destination typeahead", () => {
     expect(formData.get("destination")).toBe("Марс-Сити");
   });
 });
+
+// WB item 10: the anonymous draft must come back into the RENDERED FIELDS, not just
+// into react-hook-form's state. The hook-level test (homepage-request-form.test.tsx)
+// asserted `form.getValues()` and passed happily while the bug was live: `reset()` in
+// an effect updated the state but never wrote back to the registered uncontrolled
+// inputs. The visitor saw «2 гостей / 5 000 ₽» — the defaults — while the request that
+// actually got submitted carried 4 and 7 000. Shown one trip, sent another.
+// Anything that asserts state instead of the input cannot catch that; this does.
+describe("HomepageRequestFormClassic draft restore", () => {
+  const DRAFT = {
+    mode: "assembly",
+    interests: ["history_culture"],
+    requestedLanguages: ["Русский"],
+    destination: "Элиста",
+    startDate: "2026-08-02",
+    dateFlexibility: "exact",
+    startTime: "10:00",
+    endTime: "12:00",
+    groupSize: 4,
+    groupSizeCurrent: 1,
+    allowGuideSuggestionsOutsideConstraints: true,
+    budgetPerPersonRub: 7000,
+    notes: "",
+  };
+
+  beforeEach(() => window.sessionStorage.clear());
+
+  it("puts the stored draft back into the visible inputs", async () => {
+    window.sessionStorage.setItem("provodnik:request-draft", JSON.stringify(DRAFT));
+
+    render(<HomepageRequestFormClassic destinations={DESTINATIONS} />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Направление")).toHaveValue("Элиста"),
+    );
+    expect(screen.getByLabelText("Гостей")).toHaveValue("4");
+    expect(screen.getByLabelText("Бюджет, ₽ на человека")).toHaveValue("7000");
+  });
+
+  it("renders the defaults when there is no draft", async () => {
+    render(<HomepageRequestFormClassic destinations={DESTINATIONS} />);
+
+    await waitFor(() => expect(screen.getByLabelText("Гостей")).toHaveValue("2"));
+    expect(screen.getByLabelText("Направление")).toHaveValue("");
+    expect(screen.getByLabelText("Бюджет, ₽ на человека")).toHaveValue("5000");
+  });
+});
