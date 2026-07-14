@@ -360,8 +360,16 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
         <FieldError id={errorId("destination")} message={errors.destination?.message} />
       </div>
 
-      {/* Когда · Гостей */}
-      <div className="flex gap-2.5">
+      {/* Когда · Гостей — stacked at 375px, side by side from `sm` up.
+          These two do not fit on one line on a phone. As a plain `flex` row, `w-40` was
+          only a basis and the right column became the shock absorber: picking a date
+          grows the left column's content («Когда» → «2 августа» + the ≈ toggle), the
+          whole deficit landed on the right, and «Гостей» collapsed to ZERO width — on a
+          phone the traveler could no longer see or type the guest count after choosing
+          dates. Pinning it with `shrink-0` instead just moved the failure: the row then
+          overflowed the card. Stacking is the only thing that actually fits.
+          Same construct, same fix in the «Время · Бюджет» row below. */}
+      <div className="flex flex-col gap-2.5 sm:flex-row">
         <div className="flex flex-1 flex-col gap-1.5">
           <Label htmlFor="startDate">Когда</Label>
           <FieldShell>
@@ -400,7 +408,7 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
           <FieldError id={errorId("startDate")} message={errors.startDate?.message} />
         </div>
 
-        <div className="flex w-40 flex-col gap-1.5">
+        <div className="flex w-full flex-col gap-1.5 sm:w-40 sm:shrink-0">
           <Label htmlFor="groupSize">Гостей</Label>
           <FieldShell>
             <FieldIcon icon={Users} />
@@ -444,7 +452,7 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
       </div>
 
       {/* Время · Бюджет */}
-      <div className="flex gap-2.5">
+      <div className="flex flex-col gap-2.5 sm:flex-row">
         <div className="flex flex-1 flex-col gap-1.5">
           <Label htmlFor="startTime">Время</Label>
           <FieldShell>
@@ -467,7 +475,7 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
           </FieldShell>
         </div>
 
-        <div className="flex w-40 flex-col gap-1.5">
+        <div className="flex w-full flex-col gap-1.5 sm:w-40 sm:shrink-0">
           <Label htmlFor="budgetPerPersonRub">Бюджет, ₽ на человека</Label>
           <FieldShell>
             <FieldIcon icon={Wallet} />
