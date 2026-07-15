@@ -3,7 +3,7 @@
 **Branch:** `ops/package-1-5-7-20260715` (isolated worktree off `origin/main`). **Never pushed.**
 **Packet:** `docs/plans/package-1-5-7-opus-execution.md`. **Disciplines:** Superpowers (trace → smallest root-cause diff → evidence-before-claim), Ponytail full (reuse existing helpers, fix the shared root once, no speculative abstractions), Context7 (RHF + cmdk confirmation, below).
 
-Items 1–4 implemented; items 5 and 7 are verified no-change closures.
+Items 1–4 implemented; item 5 is a verified no-change closure; item 7 was corrected in the final remediation (see below). Item 3 was widened to published-listing regions and same-name disambiguation in the same final remediation.
 
 ---
 
@@ -29,9 +29,9 @@ Items 1–4 implemented; items 5 and 7 are verified no-change closures.
 
 ### 3. One destination field — city, region, guide directions
 - **Root cause:** the combobox source (`getActiveGuideDestinations`) reads only published-listing `city|region`; with 0 published listings it returns nothing, so the field had no suggestions.
-- **Change:** new `getDestinationSuggestions(client)` in `src/lib/supabase/queries.ts` unions published-listing cities/regions with the base city and regions guides declare on **approved** profiles (`guide_profiles.base_city` + `regions`, anon-readable under the `verification_status = 'approved'` RLS policy). Normalized to the existing `{name, region, guideCount}` shape and **deduped by normalized `name`** — the cmdk widget keys each `Command.Item` on `d.name`, so name-level dedupe is what guarantees the unique `value` cmdk requires (Context7). The combobox component (keyboard/ARIA/selection) is untouched.
+- **Change:** new `getDestinationSuggestions(client)` in `src/lib/supabase/queries.ts` unions published-listing cities/regions with the base city and regions guides declare on **approved** profiles (`guide_profiles.base_city` + `regions`, anon-readable under the `verification_status = 'approved'` RLS policy). Normalized to the existing `{name, region, guideCount}` shape and **deduped by normalized name+region** — casing/whitespace dupes still collapse while two places that share a name in different regions stay distinct. The combobox gives each option a unique cmdk `value` and shows the region as a muted suffix only for genuinely ambiguous names; keyboard/ARIA/selection/free-text are unchanged. *(Dedupe key, published-listing regions, and same-name disambiguation were completed in the final remediation below; the original commit added cities + guide places only and keyed on `name` alone.)*
 - **Guide-count safety:** kept SEPARATE from `getActiveGuideDestinations`. The homepage «Популярные направления» block keeps consuming the original listing-backed set (its counts stay accurate); only the form combobox receives the widened set. Wiring: `(home)/page.tsx` fetches both; `homepage-shell2-classic.tsx` feeds the combobox `searchDestinations ?? destinations` and the inventory block `destinations`.
-- **Tests:** `queries.test.ts` — suggestions cover a listing city (Сочи), a guide base city (Элиста), and guide directions/regions (Калмыкия, Астраханская область); dedupe collapses `Элиста`/`элиста` and repeated `Калмыкия` to one each with no colliding names; empty inputs return `[]` without throwing.
+- **Tests:** `queries.test.ts` — suggestions cover a listing city (Сочи), a guide base city (Элиста), and guide directions/regions (Калмыкия, Астраханская область); dedupe collapses `Элиста`/`элиста` and repeated `Калмыкия` to one each; a listing-only region («Краснодарский край») is suggested on its own; two «Никольское» in different regions stay as distinct options; empty inputs return `[]` without throwing.
 - **Browser proof — LIVE:** homepage payload now carries «Элиста» (guide base city), «Калмыкия» (region / guide direction), and «Сочи» as suggestions where the old listing-only source yielded none; combobox widget (`id="destination" role="combobox"`) present and unchanged.
 
 ### 4. Homepage section order
@@ -42,8 +42,8 @@ Items 1–4 implemented; items 5 and 7 are verified no-change closures.
 ### 5. «Готовые экскурсии» after «Запросы» — NO CHANGE
 - Header already reads «Запросы» → «Готовые экскурсии» in `src/lib/navigation.ts` (`publicPrimaryNav`, `travelerPrimaryNav`), asserted by `navigation.test.ts:165-166`. Item 5 is fully closed by item 4 (homepage content). No navigation edit made — a second edit would be pure churn.
 
-### 7. Footer logos — NO CHANGE
-- `src/components/shared/site-footer.tsx` has no logo/brandmark/partner-logo strip. The only icon-bearing element is a legitimate Telegram **support** link (`t.me/provodnik_help`, `<a target="_blank">`) — not a "logo," not a share action, not social auth. The requirement (bottom logos stay purely visual, no links/handlers/external nav/share/social-auth) is satisfied by absence: there is nothing to make non-interactive and nothing to add. No footer edit made.
+### 7. Footer icons — visual-only, non-interactive
+- The accepted package requires the footer's bottom icons to be visual-only and non-interactive (no external social navigation, share, social login/OAuth, or click handler). The original delivery left the «Мы в сети» Telegram glyph as a clickable `<a href="t.me/provodnik_help" target="_blank">` — external social navigation that violates the rule — and this report previously (wrongly) closed the item as "no change." **Corrected in the final remediation below:** the glyph is now a non-interactive `<span role="img" aria-label="Telegram">` (no href, target, rel, hover affordance, or handler), so it reads as a decorative brand mark with an accessible label and is not a fake interactive element. The Telegram **support** channel is unaffected — it remains a real link in the «Поддержка» nav (`src/lib/navigation.ts`), so no destination was lost and no URL invented.
 
 ---
 
@@ -77,7 +77,7 @@ Root-cause/reuse decisions: item 2 fixed once at the shared mapper + one shared 
 ## Context7 evidence
 
 - **React Hook Form** — `/react-hook-form/documentation` (`useform.mdx`). `values` "Overwrites `defaultValues` by default"; `resetOptions.keepDirtyValues: true` — "user-interacted input will be retained." Signature relied on: `useForm({ defaultValues, values, resetOptions })`. Confirms item 1: changing `DEFAULT_VALUES.budgetPerPersonRub` affects only a fresh form; drafted/typed budgets survive via the existing `values` + `keepDirtyValues` path.
-- **cmdk** — `/dip/cmdk` (`src/index.tsx`, README). `Command.Input` renders `role="combobox"`, `aria-autocomplete="list"`, `aria-controls`, `aria-activedescendant` at runtime; with `shouldFilter={false}` the parent owns filtering; each `Command.Item` "should provide a unique `value`." Confirms item 3: dedupe the data by normalized `name` (the widget's `value={d.name}`) and leave the widget's ARIA/keyboard alone.
+- **cmdk** — `/dip/cmdk` (`src/index.tsx`, README). `Command.Input` renders `role="combobox"`, `aria-autocomplete="list"`, `aria-controls`, `aria-activedescendant` at runtime; with `shouldFilter={false}` the parent owns filtering; each `Command.Item` "should provide a unique `value`." Confirms item 3: after the final remediation the widget's `value` is the composite `name · region` (unique even when two places share a name), while the accessible name stays the plain text and the ARIA/keyboard path is left alone.
 
 ---
 
@@ -121,6 +121,35 @@ A controller source review found the item-2 fix stopped at the no-tariff fallbac
 (This QA-report update lands in its own follow-up commit.)
 
 - **Remediation commit:** `49cec8a1` — never pushed.
+
+---
+
+## Final remediation (2026-07-15) — verified gaps before HTML delivery
+
+An independent review found two in-scope defects the original package left open. Both closed here per `docs/plans/package-1-5-7-final-remediation.md`, smallest root-cause diff, no new deps/schema/data/flags.
+
+**1. Destination suggestions — published-listing regions + same-name disambiguation.**
+- `getDestinationSuggestions` selected `listings.region` but only added the `city`, so a region that appears only on listings was never suggestible. It also keyed dedupe on `name` alone, collapsing two same-named places in different regions into one option.
+- **Change (`src/lib/supabase/queries.ts`):** each published listing now adds its `region` as a suggestion on its own; dedupe key is normalized name+region so casing/whitespace dupes still collapse but same-named-different-region places stay distinct. `getActiveGuideDestinations` (homepage «Популярные направления» counts) is untouched.
+- **Change (`homepage-request-form-classic.tsx`):** the combobox builds a unique cmdk `value` per option (`name · region`) and renders the region as a muted suffix only for names that are ambiguous within the current matches — single-region options still read as a bare name (so accessible names are unchanged). Keyboard, ARIA, selection, and free-text submit are all untouched.
+- **Regressions (`queries.test.ts`, +2):** a listing-only region («Краснодарский край») is suggested on its own; two «Никольское» in distinct regions surface as two distinct options with their own regions.
+
+**2. Footer icon — visual-only, non-interactive.**
+- The «Мы в сети» Telegram glyph was a clickable `<a href="t.me/provodnik_help" target="_blank">` — external social navigation the accepted package forbids for these bottom icons.
+- **Change (`src/components/shared/site-footer.tsx`):** replaced with a non-interactive `<span role="img" aria-label="Telegram">` — no href/target/rel, no hover affordance, no handler. Decorative brand mark with an accessible label, not a fake interactive element. The Telegram support link still lives in the «Поддержка» nav, so no channel was lost and no URL invented.
+
+- **Gates (all green):** `bun run typecheck` clean · `bun run lint` 0 errors (21 pre-existing warnings in untouched `src/data/**/supabase-client.ts`) · `bun run test:run` **1304 passed** (235 files) · `bun run build` succeeded · `git diff --check` clean.
+- **Diff — `git diff --stat` (src only):**
+
+```
+ src/components/shared/site-footer.tsx              | 19 ++++++-------
+ .../components/homepage-request-form-classic.tsx   | 31 ++++++++++++++++----
+ src/lib/supabase/queries.test.ts                   | 32 +++++++++++++++++++++
+ src/lib/supabase/queries.ts                        | 33 +++++++++++++---------
+ 4 files changed, 87 insertions(+), 28 deletions(-)
+```
+
+- **Commit:** `d488522b` (`fix(catalog): listing regions in destination search; footer icons non-interactive`) — never pushed.
 
 ---
 
