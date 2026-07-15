@@ -153,6 +153,33 @@ An independent review found two in-scope defects the original package left open.
 
 ---
 
+## Price-path completion (2026-07-15) — final shared-price gaps
+
+A controller final-source review found two remaining shared-price-path gaps (`docs/plans/package-1-5-7-price-path-completion.md`). Both closed here with the smallest root-cause diff — no deps/schema/data/flag changes.
+
+**1. TariffsList RUB row — tier-cap fallback to the listing-wide max.**
+- A `private` RUB row passed only `t.max_persons` to the shared formatter, so a tier with no max lost the «до N человек» cap entirely.
+- **Change (`src/components/listing-detail/TariffsList.tsx`):** the per-row RUB price now passes `t.max_persons ?? maxGroupSize` — the tier's own capacity is preserved when set, and a null tier falls back to the listing-wide `maxGroupSize`. Non-RUB rows and the Группа column are untouched.
+- **Regressions (`TariffsList.test.tsx`, +2):** a `private` tier with `max_persons: null` + `maxGroupSize={8}` prints «за группу до 8 человек»; a tier with its own `max_persons: 3` still prints «до 3 человек» despite `maxGroupSize={8}` (tier wins).
+
+**2. TourShapeDetail — bare no-tariff fallback, missing shared semantics.**
+- `TourShapeDetail` (the `/listings/[id]` tour route — dispatched from `src/app/(site)/listings/[id]/page.tsx` for `exp_type === "tour"`) invoked `TariffsList` without `format`/`maxGroupSize`, so its no-tariff fallback rendered a bare «от X ₽» and its RUB rows lost the group-scope wording.
+- **Change (`src/components/listing-detail/TourShapeDetail.tsx`):** passes `format={listing.format}` and `maxGroupSize={listing.max_group_size}` — the same real enum and overall capacity its sibling `ExcursionShapeDetail` already passes, so the tour route uses identical shared pricing semantics. No new prop or formatter; `ListingRow.max_group_size` is `number` and `format` is the real enum.
+
+- **Gates (all green):** `bun run typecheck` clean · `bun run lint` 0 errors (21 pre-existing warnings in untouched `src/data/**/supabase-client.ts`) · `bun run test:run` **1306 passed** (235 files) · `bun run build` "Compiled successfully" · `git diff --check` clean.
+- **Diff — `git diff --stat` (src only):**
+
+```
+ src/components/listing-detail/TariffsList.test.tsx | 14 ++++++++++++++
+ src/components/listing-detail/TariffsList.tsx      |  8 +++++---
+ src/components/listing-detail/TourShapeDetail.tsx  |  2 ++
+ 3 files changed, 21 insertions(+), 3 deletions(-)
+```
+
+- **Commit:** `0ff687ae` (`fix(listing-detail): tariff tier-cap fallback; tour route shares price semantics`) — never pushed. (This QA-report update lands in its own follow-up commit.)
+
+---
+
 ## Honest blockers
 
 1. **Item 2 card/detail visual QA** needs a seeded published listing; prod has none and must not be seeded.
