@@ -22,9 +22,9 @@ Items 1–4 implemented; items 5 and 7 are verified no-change closures.
 - **Wired on card, detail, tariff:**
   - Card (`listing-card.tsx`) calls the shared formatter with `rubToKopecks(listing.priceRub)` (money crosses only via `src/data/money.ts`, AP-012), real `format`, and `groupSize`; the format badge now resolves.
   - Detail (`ExcursionShapeDetail.tsx`) passes `listing.max_group_size` to the same formatter.
-  - Tariff (`TariffsList.tsx`) routes its no-tariff fallback through the shared formatter (given `format` + `maxGroupSize` from detail); per-row cells keep the currency-aware number rendering, and the Группа column already shows each tier's `max_persons` range.
+  - Tariff (`TariffsList.tsx`) routes both the no-tariff fallback **and every RUB per-row price cell** through the shared formatter — each row is scoped to that tier's own `max_persons`, so a `private` row now prints «от X ₽ за группу до N человек» and a `group`/`combo` row prints «за одного» instead of a bare number. Non-RUB rows keep the bare «‹amount› ‹code›» rendering (the shared formatter always emits ₽, so it is not applied there — no fabricated ruble label). The Группа column still shows each tier's `max_persons` range.
   - The discovery-catalog card path stays correct too: `format` is threaded through `PublicListing` (`format?: private|group|combo`) so `mapListing` feeds the card the real enum instead of a theme slug.
-- **Tests:** `excursion-price.test.ts` covers `private`+max → «за группу до 5 человек», `private` no-max → «за группу», `group`+max → «за одного» (cap ignored), `null` → bare, unknown string → bare. Card, detail, and tariff all call this one function, so their strings are identical by construction.
+- **Tests:** `excursion-price.test.ts` covers `private`+max → «за группу до 5 человек», `private` no-max → «за группу», `group`+max → «за одного» (cap ignored), `null` → bare, unknown string → bare. `TariffsList.test.tsx` (new) renders the table and proves a `private` RUB row prints «за группу до N человек» scoped to its own `max_persons`, `group`/`combo` rows print «за одного», a non-RUB (USD) row stays «150 USD» with no ₽ and no «за группу», and a null-currency row falls back to `defaultCurrency`. Card, detail, and tariff all call this one function, so their strings are identical by construction.
 - **Browser proof — BLOCKED (data), reported honestly (see Blockers).** No published listings on the reachable environment + `FEATURE_PUBLIC_CATALOG` off, so cards/detail do not render on real data.
 
 ### 3. One destination field — city, region, guide directions
@@ -99,6 +99,28 @@ Note: `src/data/public-listings/types.ts` is a pre-existing CRLF outlier (43 CRL
 
 - **GUI browser (1280/375, interactive console) — BLOCKED by environment.** Playwright's Chrome cannot launch in this background job (repeated `SIGTRAP` / `CVDisplayLinkCreateWithCGDisplay failed` — no display/GPU). Substituted with the running dev server (`:3100`, prod env, read-only — no form submitted, no data mutated): homepage HTTP 200, `/listings` redirect clean, dev log free of compile/runtime errors, and the SSR/payload assertions above (items 1, 3, 4). True 375px overflow/console checks could not be run without the GUI.
 - **Item 2 visual proof — BLOCKED by data.** The reachable environment has **0 published listings** and `FEATURE_PUBLIC_CATALOG` off, so cards and the excursion detail never render on real data. Seeding prod is forbidden; no local seeded Supabase exists in this worktree. Item 2 is proven by the formatter/parity unit tests instead. To close the visual gap, run against a seeded local Supabase (memory `project_local_seeded_e2e_target`) with ≥1 published `private`-format listing and confirm card + detail + tariff emit an identical «от X ₽ за группу до N человек».
+
+---
+
+## Remediation follow-up (2026-07-15) — tariff per-row wording
+
+A controller source review found the item-2 fix stopped at the no-tariff fallback: when tariff rows existed, `TariffsList` still printed a raw number + a separate group range, so a `private` tariff row omitted «за группу» and its tier cap. Closed here with the smallest safe change (`docs/plans/package-1-5-7-tariff-remediation.md`).
+
+- **Change:** in `TariffsList.tsx`, each RUB per-row price now routes through the same `formatExcursionPriceFrom(t.price_minor, format, t.max_persons)` used by card/detail — scoped to that row's own `max_persons`. Non-RUB rows keep «‹amount› ‹code›» untouched (the shared formatter always emits ₽; not applied there). No change to card/detail, queries, deps, schema/data, flags, or the Группа column.
+- **Tests:** `TariffsList.test.tsx` (new, 5 cases) — private RUB → «за группу до N человек» at the tier's max, group/combo RUB → «за одного», non-RUB USD → «150 USD» with no ₽/«за группу», null-currency → `defaultCurrency` fallback.
+- **Gates (all green):** `bun run typecheck` clean · `bun run lint` 0 errors (21 pre-existing warnings, unrelated `guide-templates` files) · `bun run test:run` **1302 passed** (235 files) · `bun run build` succeeded · `git diff --check` clean.
+- **Diff — remediation commit `49cec8a1`, `git show --stat`:**
+
+```
+ docs/plans/package-1-5-7-tariff-remediation.md     | 15 +++++++
+ src/components/listing-detail/TariffsList.test.tsx | 47 ++++++++++++++++++++++
+ src/components/listing-detail/TariffsList.tsx      | 11 +++--
+ 3 files changed, 70 insertions(+), 3 deletions(-)
+```
+
+(This QA-report update lands in its own follow-up commit.)
+
+- **Remediation commit:** `49cec8a1` — never pushed.
 
 ---
 
