@@ -245,6 +245,8 @@ export function TourShapeDetail({
                 tariffs={tariffs}
                 priceFromMinor={listing.price_from_minor}
                 defaultCurrency={listing.currency}
+                format={listing.format}
+                maxGroupSize={listing.max_group_size}
               />
             </TabsContent>
           </Tabs>

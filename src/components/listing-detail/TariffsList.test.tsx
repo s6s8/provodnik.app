@@ -44,4 +44,18 @@ describe("TariffsList rows", () => {
     render(<TariffsList tariffs={[tariff({ currency: null })]} priceFromMinor={0} defaultCurrency="RUB" format="private" />);
     expect(screen.getByText("от 12 000 ₽ за группу до 5 человек")).toBeInTheDocument();
   });
+
+  it("falls back to listing-wide maxGroupSize when a private tier has no max_persons", () => {
+    render(
+      <TariffsList tariffs={[tariff({ max_persons: null })]} priceFromMinor={0} defaultCurrency="RUB" format="private" maxGroupSize={8} />,
+    );
+    expect(screen.getByText("от 12 000 ₽ за группу до 8 человек")).toBeInTheDocument();
+  });
+
+  it("prefers the tier's own max_persons over the listing-wide maxGroupSize", () => {
+    render(
+      <TariffsList tariffs={[tariff({ max_persons: 3 })]} priceFromMinor={0} defaultCurrency="RUB" format="private" maxGroupSize={8} />,
+    );
+    expect(screen.getByText("от 12 000 ₽ за группу до 3 человек")).toBeInTheDocument();
+  });
 });

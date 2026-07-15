@@ -53,11 +53,13 @@ export function TariffsList({
             {tariffs.map((t) => {
               const cur = t.currency ?? defaultCurrency;
               // RUB rows share the card/detail wording (за группу до N / за одного),
-              // scoped to this tier's own max_persons. Other currencies keep the
-              // bare "<amount> <code>" — the shared formatter always emits ₽.
+              // scoped to this tier's own max_persons, falling back to the
+              // listing-wide maxGroupSize when a private tier has no max. Other
+              // currencies keep the bare "<amount> <code>" — the shared
+              // formatter always emits ₽.
               const price =
                 cur === "RUB"
-                  ? formatExcursionPriceFrom(t.price_minor, format, t.max_persons)
+                  ? formatExcursionPriceFrom(t.price_minor, format, t.max_persons ?? maxGroupSize)
                   : `${formatRub(t.price_minor)} ${cur}`;
               return (
                 <tr key={t.id} className="border-b border-border last:border-0">
