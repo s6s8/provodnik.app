@@ -85,7 +85,11 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
   const durationLabel = formatDuration(listing.duration_minutes);
 
   const coverUrl = listing.image_url ?? null;
-  const priceLabel = formatExcursionPriceFrom(listing.price_from_minor, listing.format);
+  const priceLabel = formatExcursionPriceFrom(
+    listing.price_from_minor,
+    listing.format,
+    listing.max_group_size,
+  );
 
   const bookingCard = (
     <BookingCard
@@ -167,6 +171,8 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
             tariffs={tariffs}
             priceFromMinor={listing.price_from_minor}
             defaultCurrency={listing.currency}
+            format={listing.format}
+            maxGroupSize={listing.max_group_size}
           />
 
           <ScheduleDisplay schedule={schedule} />

@@ -1,5 +1,7 @@
 import { formatRubNumber } from "@/data/money";
-import type { ListingTariffRow } from "@/lib/supabase/types";
+import type { ListingRow, ListingTariffRow } from "@/lib/supabase/types";
+
+import { formatExcursionPriceFrom } from "./excursion-price";
 
 function formatRub(minor: number): string {
   return formatRubNumber(Math.round(minor / 100));
@@ -16,15 +18,21 @@ export function TariffsList({
   tariffs,
   priceFromMinor,
   defaultCurrency,
+  format,
+  maxGroupSize,
 }: {
   tariffs: ListingTariffRow[];
   priceFromMinor: number;
   defaultCurrency: string;
+  format?: ListingRow["format"];
+  maxGroupSize?: number | null;
 }) {
   if (tariffs.length === 0) {
     return (
       <section className="flex flex-col gap-2">
-        <p className="text-2xl font-semibold">от {formatRub(priceFromMinor)} ₽</p>
+        <p className="text-2xl font-semibold">
+          {formatExcursionPriceFrom(priceFromMinor, format, maxGroupSize)}
+        </p>
       </section>
     );
   }

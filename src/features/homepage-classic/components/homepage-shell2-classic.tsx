@@ -17,6 +17,8 @@ import { HomepageInventoryClassic } from "./homepage-inventory-classic";
 
 interface Props {
   destinations: DestinationOption[];
+  /** Wider search vocabulary (city + region + guide directions) for the form combobox. */
+  searchDestinations?: DestinationOption[];
   requests: RequestRecord[];
   viewerId?: string | null;
   preferredGuide?: { slug: string; name: string } | null;
@@ -39,6 +41,7 @@ const SECTION = "mx-auto w-full max-w-page px-gutter";
 
 export function HomePageShell2Classic({
   destinations,
+  searchDestinations,
   requests,
   viewerId,
   preferredGuide,
@@ -52,7 +55,7 @@ export function HomePageShell2Classic({
   return (
     <>
       <HomepageHeroFormClassic
-        destinations={destinations}
+        destinations={searchDestinations ?? destinations}
         preferredGuide={preferredGuide}
         hasGroups={openGroups.length > 0}
       />

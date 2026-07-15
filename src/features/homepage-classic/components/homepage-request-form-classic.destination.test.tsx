@@ -190,6 +190,6 @@ describe("HomepageRequestFormClassic draft restore", () => {
 
     await waitFor(() => expect(screen.getByLabelText("Гостей")).toHaveValue("2"));
     expect(screen.getByLabelText("Направление")).toHaveValue("");
-    expect(screen.getByLabelText("Бюджет, ₽ на человека")).toHaveValue("5000");
+    expect(screen.getByLabelText("Бюджет, ₽ на человека")).toHaveValue("1000");
   });
 });

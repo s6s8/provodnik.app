@@ -15,6 +15,7 @@ import {
   formatRequestPreference,
   getActiveListings,
   getDestinationBySlug,
+  getDestinationSuggestions,
   getDestinations,
   getGuideBySlug,
   getGuideLocationPhotos,
@@ -188,6 +189,53 @@ describe("public Supabase query helpers", () => {
     expect(result.error).toBeNull();
     expect(createClientMock).not.toHaveBeenCalled();
     expect(client.calls.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getDestinationSuggestions", () => {
+  const fixtures: FixtureMap = {
+    listings: [
+      { city: "Сочи", region: "Юг", guide_id: "g-1" },
+      { city: "Сочи", region: "Юг", guide_id: "g-2" },
+    ],
+    guide_profiles: [
+      { base_city: "Элиста", regions: ["Калмыкия", "Астраханская область"] },
+      { base_city: "элиста", regions: ["Калмыкия"] }, // casing + region duplicate
+    ],
+  };
+
+  it("suggests cities, regions and guide directions from one merged, deduped set", async () => {
+    const client = createFakeClient(fixtures);
+
+    const { data, error } = await getDestinationSuggestions(client);
+
+    expect(error).toBeNull();
+    const names = (data ?? []).map((d) => d.name);
+    expect(names).toContain("Сочи"); // listing city
+    expect(names).toContain("Элиста"); // guide base city
+    expect(names).toContain("Калмыкия"); // guide direction / region
+    expect(names).toContain("Астраханская область");
+  });
+
+  it("deduplicates by normalized name so the combobox never gets a colliding option", async () => {
+    const client = createFakeClient(fixtures);
+
+    const { data } = await getDestinationSuggestions(client);
+    const names = (data ?? []).map((d) => d.name);
+
+    // «Элиста»/«элиста» collapse to one; «Калмыкия» appears once despite two guides.
+    expect(names.filter((n) => n.toLocaleLowerCase("ru") === "элиста")).toHaveLength(1);
+    expect(names.filter((n) => n === "Калмыкия")).toHaveLength(1);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("returns an empty set (no throw) when nothing matches", async () => {
+    const client = createFakeClient({ listings: [], guide_profiles: [] });
+
+    const { data, error } = await getDestinationSuggestions(client);
+
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
   });
 });
 

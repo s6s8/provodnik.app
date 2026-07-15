@@ -26,8 +26,11 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
     durationDays: Math.min(3, Math.max(1, listing.durationDays)) as PublicListing["durationDays"],
     priceFromRub: listing.priceRub,
     groupSizeMax: listing.groupSize,
+    format: (["private", "group", "combo"].includes(listing.format)
+      ? listing.format
+      : null) as PublicListing["format"],
     themes: (() => {
-      const slug = mapDbCategoryToThemeSlug(listing.format);
+      const slug = mapDbCategoryToThemeSlug(listing.category);
       return slug != null ? ([slug] as const) : [];
     })(),
     highlights: listing.description ? [listing.description] : [listing.title],

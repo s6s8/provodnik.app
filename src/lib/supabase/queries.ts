@@ -858,6 +858,70 @@ export async function getActiveGuideDestinations(
   }
 }
 
+/**
+ * Destination SUGGESTIONS for the request-form combobox — a search vocabulary,
+ * not a ranked catalog. Unions published-listing cities/regions with the base
+ * city and regions guides declare on their approved profiles, so the field
+ * still suggests places even before any excursion is published. Deduped by
+ * normalized `name` because the combobox keys each cmdk option on `name` alone
+ * (a duplicate name would collide the option value). Kept SEPARATE from
+ * getActiveGuideDestinations so the homepage «Популярные направления» block
+ * keeps its listing-backed guide counts.
+ */
+export async function getDestinationSuggestions(
+  client: SupabaseClient,
+): Promise<QueryResult<DestinationOption[]>> {
+  try {
+    const [listingRes, guideRes] = await Promise.all([
+      client
+        .from("listings")
+        .select("city, region, guide_id")
+        .eq("status", "published")
+        .not("city", "is", null),
+      client
+        .from("guide_profiles")
+        .select("base_city, regions")
+        .eq("verification_status", "approved"),
+    ]);
+
+    if (listingRes.error) throw listingRes.error;
+    if (guideRes.error) throw guideRes.error;
+
+    // Normalized name -> option. First writer wins the display casing/region;
+    // guideCount only tallies distinct guides on listing-backed rows (the
+    // combobox never renders the count, so guide-declared places stay at 0).
+    const byName = new Map<string, { name: string; region: string; guides: Set<string> }>();
+    const add = (name: unknown, region: unknown, guideId?: unknown) => {
+      const label = typeof name === "string" ? name.trim() : "";
+      if (!label) return;
+      const key = label.toLocaleLowerCase("ru");
+      const entry =
+        byName.get(key) ??
+        { name: label, region: typeof region === "string" ? region : "", guides: new Set<string>() };
+      if (typeof guideId === "string" && guideId) entry.guides.add(guideId);
+      byName.set(key, entry);
+    };
+
+    for (const row of listingRes.data ?? []) {
+      add(row.city, row.region, row.guide_id);
+    }
+    for (const row of guideRes.data ?? []) {
+      add(row.base_city, row.base_city);
+      for (const region of (row.regions as string[] | null) ?? []) {
+        add(region, region);
+      }
+    }
+
+    const result: DestinationOption[] = Array.from(byName.values())
+      .map(({ name, region, guides }) => ({ name, region, guideCount: guides.size }))
+      .sort((a, b) => b.guideCount - a.guideCount || a.name.localeCompare(b.name, "ru"));
+
+    return { data: result, error: null };
+  } catch (error) {
+    return { data: [], error: makeError(error) };
+  }
+}
+
 export async function getHomepageRequests(
   client: SupabaseClient,
 ): Promise<QueryResult<RequestRecord[]>> {
