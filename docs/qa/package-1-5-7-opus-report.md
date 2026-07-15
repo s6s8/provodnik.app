@@ -107,4 +107,4 @@ Note: `src/data/public-listings/types.ts` is a pre-existing CRLF outlier (43 CRL
 1. **Item 2 card/detail visual QA** needs a seeded published listing; prod has none and must not be seeded.
 2. **1280/375 GUI + live-console check** blocked by Chrome failing to launch in this background environment. Static + SSR + unit evidence provided in its place.
 
-No push. Commit hash recorded below once created.
+No push. Implementation commit: **`7aa99f0a`** (`feat(catalog): budget default, shared group price, destination search, homepage order`) — pre-commit hook re-ran typecheck + lint-ratchet (0 errors) + 1297 tests, all green.
