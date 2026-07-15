@@ -4,8 +4,9 @@ import { Star } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { formatRubNumber } from "@/data/money";
+import { rubToKopecks } from "@/data/money";
 import type { ListingRecord } from "@/data/supabase/queries";
+import { formatExcursionPriceFrom } from "@/components/listing-detail/excursion-price";
 import { pluralize } from "@/lib/utils";
 
 function getFormatLabel(format: string): string {
@@ -22,6 +23,11 @@ type ListingCardProps = {
 
 export function ListingCard({ listing, priority }: ListingCardProps) {
   const fmtLabel = getFormatLabel(listing.format);
+  const priceLabel = formatExcursionPriceFrom(
+    rubToKopecks(listing.priceRub),
+    listing.format,
+    listing.groupSize,
+  );
   const showRating = listing.rating > 0;
   const showReviews = listing.reviewCount > 0;
 
@@ -85,11 +91,8 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
           </div>
         ) : null}
 
-        <div className="mt-auto flex items-baseline gap-2 border-t border-border pt-3">
-          <span className="text-lg font-bold text-on-surface">
-            от {formatRubNumber(listing.priceRub)} ₽
-          </span>
-          <span className="text-sm text-on-surface-muted">с человека</span>
+        <div className="mt-auto border-t border-border pt-3">
+          <span className="text-base font-bold text-on-surface">{priceLabel}</span>
         </div>
       </div>
     </Link>

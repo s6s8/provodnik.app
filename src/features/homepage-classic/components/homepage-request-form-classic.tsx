@@ -222,6 +222,16 @@ function DestinationCombobox({
     : destinations;
   const listOpen = open && matches.length > 0;
 
+  // Names that occur in more than one region among the current matches — only
+  // these need the region shown to tell them apart.
+  const ambiguous = new Set<string>();
+  const seenNames = new Set<string>();
+  for (const d of matches) {
+    const k = d.name.toLocaleLowerCase("ru");
+    if (seenNames.has(k)) ambiguous.add(k);
+    seenNames.add(k);
+  }
+
   const choose = (name: string) => {
     onChange(name);
     setOpen(false);
@@ -278,11 +288,22 @@ function DestinationCombobox({
           className="absolute inset-x-0 top-full z-50 mt-1 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10"
         >
           <CommandList>
-            {matches.map((d) => (
-              <CommandItem key={d.name} value={d.name} onSelect={() => choose(d.name)}>
-                {d.name}
-              </CommandItem>
-            ))}
+            {matches.map((d) => {
+              // Unique cmdk value per (name, region): two places sharing a name in
+              // different regions must not collide. Value is not the accessible
+              // name (that comes from the text), so single-region options still
+              // read as a bare name. Selecting always stores the plain name.
+              const optionValue = d.region ? `${d.name} · ${d.region}` : d.name;
+              const showRegion = Boolean(d.region) && ambiguous.has(d.name.toLocaleLowerCase("ru"));
+              return (
+                <CommandItem key={optionValue} value={optionValue} onSelect={() => choose(d.name)}>
+                  {d.name}
+                  {showRegion ? (
+                    <span className="ml-1.5 text-muted-foreground">· {d.region}</span>
+                  ) : null}
+                </CommandItem>
+              );
+            })}
           </CommandList>
         </div>
       ) : null}

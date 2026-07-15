@@ -72,7 +72,7 @@ const DEFAULT_VALUES: FormInput = {
   groupSize: 2,
   groupSizeCurrent: 1,
   allowGuideSuggestionsOutsideConstraints: true,
-  budgetPerPersonRub: 5000,
+  budgetPerPersonRub: 1000,
   notes: "",
 };
 

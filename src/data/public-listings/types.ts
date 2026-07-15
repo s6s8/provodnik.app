@@ -30,6 +30,8 @@ export type PublicListing = {
   durationDays: number;
   priceFromRub: number;
   groupSizeMax: number;
+  /** Real booking format enum (private | group | combo); drives the price unit. */
+  format?: "private" | "group" | "combo" | null;
   themes: readonly PublicListingTheme[];
   highlights: readonly string[];
   itinerary: readonly PublicListingItineraryItem[];

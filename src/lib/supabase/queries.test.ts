@@ -15,6 +15,7 @@ import {
   formatRequestPreference,
   getActiveListings,
   getDestinationBySlug,
+  getDestinationSuggestions,
   getDestinations,
   getGuideBySlug,
   getGuideLocationPhotos,
@@ -188,6 +189,85 @@ describe("public Supabase query helpers", () => {
     expect(result.error).toBeNull();
     expect(createClientMock).not.toHaveBeenCalled();
     expect(client.calls.length).toBeGreaterThan(0);
+  });
+});
+
+describe("getDestinationSuggestions", () => {
+  const fixtures: FixtureMap = {
+    listings: [
+      { city: "Сочи", region: "Юг", guide_id: "g-1" },
+      { city: "Сочи", region: "Юг", guide_id: "g-2" },
+    ],
+    guide_profiles: [
+      { base_city: "Элиста", regions: ["Калмыкия", "Астраханская область"] },
+      { base_city: "элиста", regions: ["Калмыкия"] }, // casing + region duplicate
+    ],
+  };
+
+  it("suggests cities, regions and guide directions from one merged, deduped set", async () => {
+    const client = createFakeClient(fixtures);
+
+    const { data, error } = await getDestinationSuggestions(client);
+
+    expect(error).toBeNull();
+    const names = (data ?? []).map((d) => d.name);
+    expect(names).toContain("Сочи"); // listing city
+    expect(names).toContain("Элиста"); // guide base city
+    expect(names).toContain("Калмыкия"); // guide direction / region
+    expect(names).toContain("Астраханская область");
+  });
+
+  it("deduplicates by normalized name so the combobox never gets a colliding option", async () => {
+    const client = createFakeClient(fixtures);
+
+    const { data } = await getDestinationSuggestions(client);
+    const names = (data ?? []).map((d) => d.name);
+
+    // «Элиста»/«элиста» collapse to one; «Калмыкия» appears once despite two guides.
+    expect(names.filter((n) => n.toLocaleLowerCase("ru") === "элиста")).toHaveLength(1);
+    expect(names.filter((n) => n === "Калмыкия")).toHaveLength(1);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it("suggests a listing-only region on its own, not just its city", async () => {
+    const client = createFakeClient({
+      listings: [{ city: "Красная Поляна", region: "Краснодарский край", guide_id: "g-1" }],
+      guide_profiles: [],
+    });
+
+    const { data } = await getDestinationSuggestions(client);
+    const names = (data ?? []).map((d) => d.name);
+
+    expect(names).toContain("Красная Поляна"); // the listing city
+    expect(names).toContain("Краснодарский край"); // its region, suggestible alone
+  });
+
+  it("keeps same-named places in different regions as distinct options", async () => {
+    const client = createFakeClient({
+      listings: [
+        { city: "Никольское", region: "Астраханская область", guide_id: "g-1" },
+        { city: "Никольское", region: "Вологодская область", guide_id: "g-2" },
+      ],
+      guide_profiles: [],
+    });
+
+    const { data } = await getDestinationSuggestions(client);
+    const nikolskoye = (data ?? []).filter((d) => d.name === "Никольское");
+
+    expect(nikolskoye).toHaveLength(2);
+    expect(nikolskoye.map((d) => d.region).sort()).toEqual([
+      "Астраханская область",
+      "Вологодская область",
+    ]);
+  });
+
+  it("returns an empty set (no throw) when nothing matches", async () => {
+    const client = createFakeClient({ listings: [], guide_profiles: [] });
+
+    const { data, error } = await getDestinationSuggestions(client);
+
+    expect(error).toBeNull();
+    expect(data).toEqual([]);
   });
 });
 

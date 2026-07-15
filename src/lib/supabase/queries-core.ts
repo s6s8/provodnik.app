@@ -37,7 +37,10 @@ export type ListingRecord = {
   groupSize: number;
   difficulty: string;
   departure: string;
+  /** Real booking format enum from listings.format: private | group | combo (or ""). */
   format: string;
+  /** Catalog/theme category from listings.category (drives theme-slug mapping). */
+  category: string;
   description: string;
   inclusions: string[];
   exclusions: string[];
@@ -351,7 +354,8 @@ export function mapListingRow(row: Record<string, unknown>): ListingRecord {
     groupSize: (row.max_group_size as number) ?? 6,
     difficulty: ((row.category as string) ?? "").toLowerCase().includes("природ") ? "Средняя" : "Лёгкая",
     departure: (row.meeting_point as string) ?? city,
-    format: (row.category as string) ?? "Авторский маршрут",
+    format: (row.format as string | null) ?? "",
+    category: (row.category as string | null) ?? "",
     description: (row.route_summary as string) ?? "",
     inclusions: (row.inclusions as string[]) ?? [],
     exclusions: (row.exclusions as string[]) ?? [],

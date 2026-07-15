@@ -27,6 +27,7 @@ function listing(i: number): ListingRecord {
     difficulty: "Лёгкая",
     departure: "Барнаул",
     format: "group",
+    category: "История",
     description: "Описание",
     inclusions: [],
     exclusions: [],

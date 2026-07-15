@@ -60,39 +60,6 @@ export function HomepageInventoryClassic({ listings, destinations, guides, revie
         </section>
       )}
 
-      {showDestinations && (
-        <section className={`${SECTION} py-14`} aria-label="Популярные направления">
-          <SectionHeading title="Популярные направления" />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {destinations.slice(0, DESTINATION_CARDS).map((destination) => (
-              <Link
-                key={`${destination.name}-${destination.region}`}
-                href={`/guides?q=${encodeURIComponent(destination.name)}`}
-                className="group relative block aspect-[16/9] overflow-hidden rounded-card border border-border transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-              >
-                <Image
-                  src={cityImage(destination.name)}
-                  alt=""
-                  fill
-                  sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                />
-                <Scrim />
-                <div className="absolute inset-x-4 bottom-4 text-white">
-                  <span className="block text-lg font-bold tracking-[-0.02em]">
-                    {destination.name}
-                  </span>
-                  <span className="block text-sm text-white/80">
-                    {destination.guideCount}{" "}
-                    {pluralize(destination.guideCount, "гид", "гида", "гидов")}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
       {showGuides && (
         <section className={`${SECTION} py-14`} aria-label="Гиды">
           <SectionHeading
@@ -186,6 +153,39 @@ export function HomepageInventoryClassic({ listings, destinations, guides, revie
           ))}
         </div>
       </section>
+
+      {showDestinations && (
+        <section className={`${SECTION} py-14`} aria-label="Популярные направления">
+          <SectionHeading title="Популярные направления" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {destinations.slice(0, DESTINATION_CARDS).map((destination) => (
+              <Link
+                key={`${destination.name}-${destination.region}`}
+                href={`/guides?q=${encodeURIComponent(destination.name)}`}
+                className="group relative block aspect-[16/9] overflow-hidden rounded-card border border-border transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift motion-reduce:transition-none motion-reduce:hover:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <Image
+                  src={cityImage(destination.name)}
+                  alt=""
+                  fill
+                  sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                />
+                <Scrim />
+                <div className="absolute inset-x-4 bottom-4 text-white">
+                  <span className="block text-lg font-bold tracking-[-0.02em]">
+                    {destination.name}
+                  </span>
+                  <span className="block text-sm text-white/80">
+                    {destination.guideCount}{" "}
+                    {pluralize(destination.guideCount, "гид", "гида", "гидов")}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
     </>
   );
 }
