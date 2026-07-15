@@ -14,9 +14,10 @@ const TG_ICON = (
   </svg>
 );
 
-const socialLinks = [
-  { href: "https://t.me/provodnik_help", label: "Telegram", icon: TG_ICON },
-] as const;
+// Decorative brand glyphs only. The accepted package requires these bottom icons
+// to be visual-only and non-interactive (no external social navigation, share, or
+// click handler); the Telegram support channel lives in the «Поддержка» nav above.
+const socialIcons = [{ label: "Telegram", icon: TG_ICON }] as const;
 
 export function SiteFooter() {
   const hiddenHrefs = hiddenNavHrefsForFlags((flag) => flags[flag]);
@@ -93,17 +94,15 @@ export function SiteFooter() {
                 Мы в сети
               </p>
               <div className="mt-1.5 flex gap-2.5">
-                {socialLinks.map((social) => (
-                  <a
+                {socialIcons.map((social) => (
+                  <span
                     key={social.label}
-                    href={social.href}
+                    role="img"
                     aria-label={social.label}
-                    className="flex size-11 items-center justify-center rounded-full border border-primary-foreground/15 text-primary-foreground/55 transition-[border-color,color] duration-150 hover:border-primary-foreground/40 hover:text-primary-foreground"
-                    target="_blank"
-                    rel="noreferrer"
+                    className="flex size-11 items-center justify-center rounded-full border border-primary-foreground/15 text-primary-foreground/55"
                   >
                     {social.icon}
-                  </a>
+                  </span>
                 ))}
               </div>
             </div>

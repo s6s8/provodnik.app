@@ -863,10 +863,10 @@ export async function getActiveGuideDestinations(
  * not a ranked catalog. Unions published-listing cities/regions with the base
  * city and regions guides declare on their approved profiles, so the field
  * still suggests places even before any excursion is published. Deduped by
- * normalized `name` because the combobox keys each cmdk option on `name` alone
- * (a duplicate name would collide the option value). Kept SEPARATE from
- * getActiveGuideDestinations so the homepage «Популярные направления» block
- * keeps its listing-backed guide counts.
+ * normalized name+region so casing/whitespace dupes collapse while two places
+ * that share a name in different regions stay distinct (the combobox gives each
+ * a unique cmdk value). Kept SEPARATE from getActiveGuideDestinations so the
+ * homepage «Популярные направления» block keeps its listing-backed guide counts.
  */
 export async function getDestinationSuggestions(
   client: SupabaseClient,
@@ -887,23 +887,25 @@ export async function getDestinationSuggestions(
     if (listingRes.error) throw listingRes.error;
     if (guideRes.error) throw guideRes.error;
 
-    // Normalized name -> option. First writer wins the display casing/region;
+    // Keyed by normalized name+region. First writer wins the display casing;
     // guideCount only tallies distinct guides on listing-backed rows (the
     // combobox never renders the count, so guide-declared places stay at 0).
-    const byName = new Map<string, { name: string; region: string; guides: Set<string> }>();
+    const byKey = new Map<string, { name: string; region: string; guides: Set<string> }>();
+    const norm = (v: unknown) => (typeof v === "string" ? v.trim() : "");
     const add = (name: unknown, region: unknown, guideId?: unknown) => {
-      const label = typeof name === "string" ? name.trim() : "";
+      const label = norm(name);
       if (!label) return;
-      const key = label.toLocaleLowerCase("ru");
+      const regionLabel = norm(region);
+      const key = `${label.toLocaleLowerCase("ru")} ${regionLabel.toLocaleLowerCase("ru")}`;
       const entry =
-        byName.get(key) ??
-        { name: label, region: typeof region === "string" ? region : "", guides: new Set<string>() };
+        byKey.get(key) ?? { name: label, region: regionLabel, guides: new Set<string>() };
       if (typeof guideId === "string" && guideId) entry.guides.add(guideId);
-      byName.set(key, entry);
+      byKey.set(key, entry);
     };
 
     for (const row of listingRes.data ?? []) {
       add(row.city, row.region, row.guide_id);
+      add(row.region, row.region); // a listing-only region is suggestible on its own
     }
     for (const row of guideRes.data ?? []) {
       add(row.base_city, row.base_city);
@@ -912,9 +914,14 @@ export async function getDestinationSuggestions(
       }
     }
 
-    const result: DestinationOption[] = Array.from(byName.values())
+    const result: DestinationOption[] = Array.from(byKey.values())
       .map(({ name, region, guides }) => ({ name, region, guideCount: guides.size }))
-      .sort((a, b) => b.guideCount - a.guideCount || a.name.localeCompare(b.name, "ru"));
+      .sort(
+        (a, b) =>
+          b.guideCount - a.guideCount ||
+          a.name.localeCompare(b.name, "ru") ||
+          a.region.localeCompare(b.region, "ru"),
+      );
 
     return { data: result, error: null };
   } catch (error) {
