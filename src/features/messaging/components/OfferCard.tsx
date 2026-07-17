@@ -16,6 +16,7 @@ import {
 } from "@/features/messaging/actions/offerActions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { formatRubFromMinor, formatRubNumber } from "@/data/money";
 import {
   Card,
   CardContent,
@@ -154,7 +155,9 @@ export function OfferCard({
       </CardHeader>
       <CardContent className="grid gap-4 pt-4">
         <p className="text-3xl font-bold tracking-tight text-foreground">
-          {Math.round(priceMinor / 100)} {currency === "RUB" ? "₽" : currency}
+          {currency === "RUB"
+            ? formatRubFromMinor(priceMinor)
+            : `${formatRubNumber(Math.round(priceMinor / 100))} ${currency}`}
         </p>
         {description ? (
           <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">

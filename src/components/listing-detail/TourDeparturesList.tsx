@@ -10,8 +10,16 @@ function formatRub(minor: number): string {
   return formatRubNumber(Math.round(minor / 100));
 }
 
+// start_date/end_date are date-only (YYYY-MM-DD). `new Date("2026-07-20")` parses
+// as UTC midnight, so in a negative-offset browser it renders the previous day.
+// Anchor to local midnight (same pattern as WeeklyCalendar) to keep the calendar
+// day stable in every timezone.
+export function localDate(iso: string): Date {
+  return new Date(`${iso}T00:00:00`);
+}
+
 function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("ru-RU", {
+  return localDate(iso).toLocaleDateString("ru-RU", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -19,8 +27,8 @@ function formatDate(iso: string): string {
 }
 
 function diffDays(start: string, end: string): number {
-  const a = new Date(start).getTime();
-  const b = new Date(end).getTime();
+  const a = localDate(start).getTime();
+  const b = localDate(end).getTime();
   return Math.round((b - a) / (1000 * 60 * 60 * 24)) + 1;
 }
 
