@@ -947,7 +947,7 @@ export async function getHomepageRequests(
   client: SupabaseClient,
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
-    const { data: rows, error } = await client
+    const { data: rawRows, error } = await client
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
@@ -955,7 +955,26 @@ export async function getHomepageRequests(
       .limit(4);
 
     if (error) throw error;
-    if (!rows || rows.length === 0) return { data: [], error: null };
+
+    // Anonymous visitors cannot read the raw table (traveler_requests_select
+    // requires a session), and the homepage is mostly seen logged out — without
+    // this the «Сборные группы» block is empty for every guest. Same fallback as
+    // getOpenRequests / getOpenRequestsByDestination; the view is PII-masked.
+    let rows = rawRows;
+    let fromPublicView = false;
+    if (!rows || rows.length === 0) {
+      const { data: publicRows, error: publicError } = await client
+        .from("v_public_open_requests")
+        .select("*")
+        .eq("status", "open")
+        .order("created_at", { ascending: false })
+        .limit(4);
+      if (publicError) throw publicError;
+      rows = publicRows ?? [];
+      fromPublicView = true;
+    }
+
+    if (rows.length === 0) return { data: [], error: null };
 
     const ids = rows.map((r) => r.id as string);
 
@@ -976,12 +995,18 @@ export async function getHomepageRequests(
       rec.offerCount = countMap[rec.id] ?? 0;
       return rec;
     });
-    const membersMap = await fetchMembersForRequests(
-      client,
-      rows.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
-    );
-    for (const rec of records) {
-      rec.members = membersMap.get(rec.id) ?? [];
+    // The public view carries no traveler_id — by design, it is the sanitized
+    // projection — so there is no creator to resolve and no member avatars to
+    // show. Asking anyway sends `id=in.(undefined)` and PostgREST 400s the whole
+    // read, which is how the block came back empty rather than just avatar-less.
+    if (!fromPublicView) {
+      const membersMap = await fetchMembersForRequests(
+        client,
+        rows.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+      );
+      for (const rec of records) {
+        rec.members = membersMap.get(rec.id) ?? [];
+      }
     }
 
     const filtered = records.filter(isPublicOpenGroupRequest);

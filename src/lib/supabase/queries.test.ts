@@ -1066,6 +1066,36 @@ describe("anonymous public request access uses the sanitized view", () => {
     expect(result.data?.[0]?.members).toEqual([]);
   });
 
+  // The homepage «Сборные группы» block is the first thing a logged-out visitor
+  // is meant to see, and traveler_requests_select needs auth.uid() IS NOT NULL —
+  // so without this fallback the block renders for nobody who is not signed in.
+  // Its two siblings (getOpenRequests, getOpenRequestsByDestination) already do this.
+  it("getHomepageRequests falls back to v_public_open_requests for anonymous visitors", async () => {
+    const client = createFakeClient({
+      traveler_requests: [],
+      v_public_open_requests: [
+        {
+          id: "req-pub-home",
+          destination: "Элиста",
+          budget_minor: 100_000,
+          participants_count: 3,
+          status: "open",
+          created_at: "2026-06-03T00:00:00Z",
+          // The homepage block only shows assembly (open-to-join) groups.
+          open_to_join: true,
+          group_capacity: 6,
+        },
+      ],
+    });
+
+    const result = await getHomepageRequests(client);
+
+    expect(result.error).toBeNull();
+    expect(result.data).toHaveLength(1);
+    expect(result.data?.[0]?.id).toBe("req-pub-home");
+    expect(client.calls).toContain("from:v_public_open_requests");
+  });
+
   it("getRequestById falls back to v_public_open_requests when the raw row is RLS-hidden", async () => {
     const client = createFakeClient({
       traveler_requests: [],
