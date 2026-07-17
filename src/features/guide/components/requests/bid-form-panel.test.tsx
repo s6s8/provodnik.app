@@ -38,11 +38,11 @@ vi.mock("@/lib/supabase/client", () => ({
   }),
 }));
 
-vi.mock("@/data/guide-assets/supabase-client", () => ({
+vi.mock("@/lib/supabase/guide-assets", () => ({
   listGuideLocationPhotos: async () => guidePhotos.value,
 }));
 
-vi.mock("@/data/guide-templates/supabase-client", () => ({
+vi.mock("@/lib/supabase/guide-templates", () => ({
   listGuideTemplates: async () => guideTemplates.value,
 }));
 

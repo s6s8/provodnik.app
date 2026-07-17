@@ -1,18 +1,9 @@
 {
-  "generatedAt": "2026-07-03T01:21:04.057Z",
+  "generatedAt": "2026-07-17T21:40:31.531Z",
   "eslintVersion": "9.39.4",
   "totals": {
     "errors": 0,
-    "warnings": 21
+    "warnings": 0
   },
-  "byFile": {
-    "src/data/guide-assets/supabase-client.ts": {
-      "errors": 0,
-      "warnings": 12
-    },
-    "src/data/guide-templates/supabase-client.ts": {
-      "errors": 0,
-      "warnings": 9
-    }
-  }
+  "byFile": {}
 }

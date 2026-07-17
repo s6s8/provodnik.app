@@ -13,7 +13,7 @@ vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: createSupabaseBrowserClientMock,
 }));
 
-vi.mock("@/data/guide-assets/supabase-client", () => ({
+vi.mock("@/lib/supabase/guide-assets", () => ({
   deleteGuideLocationPhoto: vi.fn(),
   listGuideLocationPhotos: listGuideLocationPhotosMock,
   uploadPortfolioPhoto: vi.fn(),
