@@ -2,6 +2,9 @@
 
 import { redirect } from "next/navigation";
 
+import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
+import { notifyGuidesNewRequest } from "@/lib/notifications/triggers";
+import { createTravelerRequest } from "@/lib/supabase/requests";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { submitRequestSchema } from "./submitRequest.schema";
@@ -16,6 +19,17 @@ export async function submitRequest(formData: unknown) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("auth_expired");
 
+  // Same active-account gate as the canonical homepage path — a restricted account
+  // must not be able to create requests through the listing entry point either.
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("account_status")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile?.account_status && profile.account_status !== "active") {
+    throw new Error("account_restricted");
+  }
+
   const { data: listing, error: listingErr } = await supabase
     .from("listings")
     .select("id, status, price_from_minor, guide_id")
@@ -25,8 +39,6 @@ export async function submitRequest(formData: unknown) {
   if (listingErr || !listing) {
     throw new Error("listing_unavailable");
   }
-
-  // Verify the listing belongs to the specified guide
   if (listing.guide_id !== input.guideId) {
     throw new Error("listing_unavailable");
   }
@@ -38,29 +50,48 @@ export async function submitRequest(formData: unknown) {
   }
 
   const endsOn = input.endsOn && input.endsOn.trim() !== "" ? input.endsOn.trim() : undefined;
+  const format =
+    input.formatPreference === "group"
+      ? "group"
+      : input.formatPreference === "private"
+        ? "private"
+        : null;
 
-  const { data: request, error } = await supabase
-    .from("traveler_requests")
-    .insert({
-      traveler_id: user.id,
+  // Canonical creation service: destination sanitization, validation, and the
+  // correct lock defaults (date/time open so guides can propose — same as the
+  // homepage path). Maps the listing category to an interest; traveler_requests
+  // has no category column, so the old direct insert wrote a non-existent field.
+  const request = await createTravelerRequest(
+    {
       destination: input.destination,
       region: input.region,
-      category: input.category,
       interests: input.category ? [input.category] : [],
       starts_on: input.startsOn,
-      ends_on: endsOn ?? null,
+      ends_on: endsOn ?? input.startsOn,
+      budget_minor: null,
       participants_count: input.participantsCount,
-      format_preference: input.formatPreference ?? null,
+      format_preference: format,
       notes: input.notes ?? null,
       open_to_join: input.formatPreference === "group",
-      budget_minor: null,
-      currency: "RUB",
-      status: "open",
-    })
-    .select("id")
-    .single();
+      date_flexibility: "exact",
+      date_locked: false,
+      time_locked: false,
+    },
+    user.id,
+  );
 
-  if (error || !request) throw new Error("request_create_failed");
+  try {
+    await notifyGuidesNewRequest(request.id);
+  } catch {
+    // Notification delivery must not block request creation.
+  }
+  await logFunnelEvent({
+    event_type: "request_created",
+    scope: "request",
+    request_id: request.id,
+    actor_id: user.id,
+    summary: "Запрос создан со страницы экскурсии",
+  });
 
   redirect(`/requests/${request.id}`);
 }
