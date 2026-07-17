@@ -858,6 +858,11 @@ export async function getActiveGuideDestinations(
   }
 }
 
+/** Rows scanned per source before dedup — a bound, not a product limit. */
+const DESTINATION_SCAN = 2000;
+/** Distinct places handed to the client. See the .slice() note below. */
+const DESTINATION_SUGGESTIONS = 200;
+
 /**
  * Destination SUGGESTIONS for the request-form combobox — a search vocabulary,
  * not a ranked catalog. Unions published-listing cities/regions with the base
@@ -877,11 +882,13 @@ export async function getDestinationSuggestions(
         .from("listings")
         .select("city, region, guide_id")
         .eq("status", "published")
-        .not("city", "is", null),
+        .not("city", "is", null)
+        .limit(DESTINATION_SCAN),
       client
         .from("guide_profiles")
         .select("base_city, regions")
-        .eq("verification_status", "approved"),
+        .eq("verification_status", "approved")
+        .limit(DESTINATION_SCAN),
     ]);
 
     if (listingRes.error) throw listingRes.error;
@@ -896,7 +903,10 @@ export async function getDestinationSuggestions(
       const label = norm(name);
       if (!label) return;
       const regionLabel = norm(region);
-      const key = `${label.toLocaleLowerCase("ru")} ${regionLabel.toLocaleLowerCase("ru")}`;
+      // \u0000 separator: it cannot occur in a place name, so "a\u0000b" and
+      // "ab" can never collide. Written as an escape, not a literal NUL -- a raw
+      // one makes `file`/grep treat this whole module as binary and skip it.
+      const key = `${label.toLocaleLowerCase("ru")}\u0000${regionLabel.toLocaleLowerCase("ru")}`;
       const entry =
         byKey.get(key) ?? { name: label, region: regionLabel, guides: new Set<string>() };
       if (typeof guideId === "string" && guideId) entry.guides.add(guideId);
@@ -921,7 +931,11 @@ export async function getDestinationSuggestions(
           b.guideCount - a.guideCount ||
           a.name.localeCompare(b.name, "ru") ||
           a.region.localeCompare(b.region, "ru"),
-      );
+      )
+      // Every homepage render serializes this whole array into the client payload,
+      // and it grows with the roster. Best-covered places win; the field takes free
+      // text, so a place outside the shortlist is typed, never blocked.
+      .slice(0, DESTINATION_SUGGESTIONS);
 
     return { data: result, error: null };
   } catch (error) {

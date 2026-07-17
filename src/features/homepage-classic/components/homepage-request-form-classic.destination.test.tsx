@@ -147,6 +147,59 @@ describe("HomepageRequestFormClassic destination typeahead", () => {
   });
 });
 
+// The fixture above is 4 destinations, so nothing here tested scale. The real
+// vocabulary is every published listing's city+region plus every approved guide's
+// base city and regions — it grows with the roster, and the field rendered ALL of
+// it: no cap on the query, no cap on the rendered list. That is the reported freeze.
+describe("HomepageRequestFormClassic destination typeahead at scale", () => {
+  // Every entry matches "Ка", so nothing here is filtered out by the query.
+  const MANY = Array.from({ length: 2000 }, (_, i) => ({
+    name: `Кариж-${String(i).padStart(4, "0")}`,
+    region: `Регион-${i % 7}`,
+    guideCount: i % 5,
+  }));
+
+  it("caps the rendered suggestion list instead of mounting the whole vocabulary", () => {
+    render(<HomepageRequestFormClassic destinations={MANY} />);
+    const input = screen.getByLabelText("Направление");
+
+    fireEvent.change(input, { target: { value: "Ка" } });
+
+    const options = screen.getAllByRole("option");
+    expect(options.length).toBeGreaterThan(0);
+    expect(options.length).toBeLessThanOrEqual(8);
+  });
+
+  it("keeps the value and focus through sequential typing, then selects", () => {
+    render(<HomepageRequestFormClassic destinations={MANY} />);
+    const input = screen.getByLabelText("Направление") as HTMLInputElement;
+    input.focus();
+
+    // Type the way a person does: one character at a time, no second click.
+    for (const value of ["К", "Ка", "Кар", "Кари", "Кариж", "Кариж-0007"]) {
+      fireEvent.change(input, { target: { value } });
+      expect(input).toHaveValue(value);
+      expect(document.activeElement).toBe(input);
+    }
+
+    expect(screen.getAllByRole("option").length).toBeLessThanOrEqual(8);
+    fireEvent.click(screen.getByRole("option", { name: /Кариж-0007/ }));
+
+    expect(input).toHaveValue("Кариж-0007");
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("still accepts free text that matches nothing in a large vocabulary", () => {
+    render(<HomepageRequestFormClassic destinations={MANY} />);
+    const input = screen.getByLabelText("Направление");
+
+    fireEvent.change(input, { target: { value: "Марс-Сити" } });
+
+    expect(input).toHaveValue("Марс-Сити");
+    expect(screen.queryByRole("listbox")).toBeNull();
+  });
+});
+
 // WB item 10: the anonymous draft must come back into the RENDERED FIELDS, not just
 // into react-hook-form's state. The hook-level test (homepage-request-form.test.tsx)
 // asserted `form.getValues()` and passed happily while the bug was live: `reset()` in
