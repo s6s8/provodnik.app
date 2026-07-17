@@ -61,7 +61,9 @@ export function HomePageShell2Classic({
       />
 
       {openGroups.length > 0 && (
-        <section id="groups" className={`${SECTION} scroll-mt-nav-h pb-6 pt-14`} aria-label="Сборные группы">
+        // pt-10, not pt-14: this section is what the first screen has to reveal, and
+        // its own top padding is the last thing between the fold and its heading.
+        <section id="groups" className={`${SECTION} scroll-mt-nav-h pb-6 pt-10`} aria-label="Сборные группы">
           <SectionHeading
             title="Сборные группы"
             action={{ label: "Все группы", href: "/requests" }}
