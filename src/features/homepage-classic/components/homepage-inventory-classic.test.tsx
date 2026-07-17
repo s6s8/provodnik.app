@@ -7,6 +7,7 @@ import type { HomepageReview } from "@/lib/supabase/homepage";
 import {
   HOMEPAGE_MIN,
   HomepageInventoryClassic,
+  HomepageListingsClassic,
 } from "./homepage-inventory-classic";
 
 const IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E";
@@ -92,13 +93,18 @@ function renderInventory(overrides: {
   guides?: number;
   reviews?: number;
 }) {
+  // «Готовые экскурсии» is its own component now (the homepage renders it directly
+  // after «Сборные группы»), but it carries the same HOMEPAGE_MIN gate, so the
+  // table below still exercises all four blocks together.
   return render(
-    <HomepageInventoryClassic
-      listings={build(listing, overrides.listings ?? 0)}
-      destinations={build(destination, overrides.destinations ?? 0)}
-      guides={build(guide, overrides.guides ?? 0)}
-      reviews={build(review, overrides.reviews ?? 0)}
-    />,
+    <>
+      <HomepageListingsClassic listings={build(listing, overrides.listings ?? 0)} />
+      <HomepageInventoryClassic
+        destinations={build(destination, overrides.destinations ?? 0)}
+        guides={build(guide, overrides.guides ?? 0)}
+        reviews={build(review, overrides.reviews ?? 0)}
+      />
+    </>,
   );
 }
 

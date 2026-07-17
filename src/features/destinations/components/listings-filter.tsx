@@ -58,7 +58,7 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
           {filtered.map((listing) => (
             <TourCard
               key={listing.id}
-              href={`/listings/${listing.slug}`}
+              href={listing.detailHref ?? `/listings/${listing.slug}`}
               imageUrl={listing.imageUrl}
               title={listing.title}
               guide={listing.guideName}

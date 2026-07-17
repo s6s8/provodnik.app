@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { formatExcursionPriceFrom } from "@/components/listing-detail/excursion-price";
+import { rubToKopecks } from "@/data/money";
 import { getGuideBySlug, getListingsByGuide, getGuideReviews, getGuideLocationPhotos } from "@/data/supabase/queries";
 import { isQaGuideSlug } from "@/lib/supabase/queries-core";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
@@ -115,11 +117,15 @@ export default async function PublicGuideProfilePage({
     },
   };
 
+  // href and price are resolved here, from the record, so the screen never has to
+  // guess: a template-backed excursion has no /listings detail route, and its price
+  // needs the same per-person/per-group scope every other surface prints.
   const listings = listingRecords.map((l) => ({
     slug: l.slug,
+    href: l.detailHref ?? `/listings/${l.slug}`,
     title: l.title,
     coverImageUrl: l.imageUrl,
-    priceFromRub: l.priceRub,
+    price: formatExcursionPriceFrom(rubToKopecks(l.priceRub), l.format, l.groupSize),
   }));
 
   const reviews = reviewRecords.map((r) => ({

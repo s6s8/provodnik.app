@@ -4,6 +4,7 @@
 // This file holds the domain query functions.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { getPublishedTemplateListings } from "./guide-template-listings";
 import {
   applyGuideFilters,
   applyListingFilters,
@@ -151,10 +152,15 @@ export async function getActiveListings(
       .order("featured_rank", { ascending: true, nullsFirst: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
 
-    const rows = await attachGuideDisplayNames(client, data);
-    return { data: applyListingFilters(rows.map(mapListingRow), filters), error: null };
+    const rows = data && data.length > 0 ? await attachGuideDisplayNames(client, data) : [];
+    // Excursions published through the live guide UI land in `guide_templates`,
+    // which nothing writes into `listings` — so the catalog must read both or it
+    // shows only seed rows. See guide-template-listings.ts.
+    const templates = await getPublishedTemplateListings(client);
+    const records = [...rows.map(mapListingRow), ...templates];
+
+    return { data: applyListingFilters(records, filters), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -200,9 +206,12 @@ export async function getListingsByGuide(
   try {
     const { data, error } = await client.from("listings").select("*").eq("guide_id", guideId).eq("status", "published");
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
 
-    return { data: data.map(mapListingRow), error: null };
+    // Without the templates a guide's own profile showed «Готовые экскурсии» as
+    // empty even after they published one — the excursion existed, but only in
+    // the table no reader looked at.
+    const templates = await getPublishedTemplateListings(client, { guideId });
+    return { data: [...(data ?? []).map(mapListingRow), ...templates], error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }

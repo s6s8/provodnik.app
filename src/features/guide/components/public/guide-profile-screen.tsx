@@ -8,7 +8,6 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { TourCard } from "@/components/shared/tour-card";
 import { NewGuideFrame } from "@/components/discovery/NewGuideFrame";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
-import { formatRubNumber } from "@/data/money";
 import { formatRussianDate } from "@/lib/dates";
 import { ROUTES } from "@/lib/navigation";
 import { pluralize } from "@/lib/utils";
@@ -17,11 +16,13 @@ import { GuidePhotoGrid } from "./guide-photo-grid";
 interface GuideListing {
   slug?: string;
   id?: string;
+  /** Resolved by the caller; a template-backed excursion has no /listings route. */
+  href?: string;
   coverImageUrl?: string;
   imageUrl?: string;
   title?: string;
   rating?: number;
-  priceFromRub?: number;
+  /** Already formatted by the shared formatter — see the caller. */
   price?: string;
 }
 
@@ -64,14 +65,16 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
   const tourCards =
     listings && listings.length > 0
       ? listings.map((l: GuideListing) => ({
-          href: `/listings/${l.slug ?? l.id ?? ""}`,
+          // The caller resolves href and price: an excursion adapted from
+          // guide_templates has no /listings route, and the price scope
+          // («за одного» / «за группу до N человек») comes from the one shared
+          // formatter rather than a second copy of it here.
+          href: l.href ?? `/listings/${l.slug ?? l.id ?? ""}`,
           imageUrl: l.coverImageUrl ?? l.imageUrl ?? "",
           title: l.title ?? "",
           guide: guide.displayName,
           rating: l.rating ?? guide.reviewsSummary.averageRating,
-          price: l.priceFromRub
-            ? `от ${formatRubNumber(l.priceFromRub)} ₽`
-            : l.price ?? "",
+          price: l.price ?? "",
         }))
       : null;
 

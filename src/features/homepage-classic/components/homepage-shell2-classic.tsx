@@ -13,7 +13,7 @@ import { cityImage } from "@/lib/city-image";
 import type { HomepageReview } from "@/lib/supabase/homepage";
 
 import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
-import { HomepageInventoryClassic } from "./homepage-inventory-classic";
+import { HomepageInventoryClassic, HomepageListingsClassic } from "./homepage-inventory-classic";
 
 interface Props {
   destinations: DestinationOption[];
@@ -103,6 +103,10 @@ export function HomePageShell2Classic({
         </section>
       )}
 
+      {/* Directly after «Сборные группы»: the two ways to travel — join a group or
+          take a ready excursion — belong together, ahead of the explainer. */}
+      <HomepageListingsClassic listings={listings} />
+
       <section className="mt-8 border-y border-border bg-surface">
         <div className={`${SECTION} py-14`}>
           <div className="mb-9 text-center">
@@ -121,12 +125,7 @@ export function HomePageShell2Classic({
         </div>
       </section>
 
-      <HomepageInventoryClassic
-        listings={listings}
-        destinations={destinations}
-        guides={guides}
-        reviews={reviews}
-      />
+      <HomepageInventoryClassic destinations={destinations} guides={guides} reviews={reviews} />
 
       <SiteFooter />
     </>
