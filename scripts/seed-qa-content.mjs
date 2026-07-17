@@ -101,14 +101,20 @@ const TRAVELERS = [
 ];
 
 /** status mix is load-bearing: item 11 asks the admin to see drafts and moderation
- *  queue items for a specific guide, not just what is live. */
+ *  queue items for a specific guide, not just what is live.
+ *
+ *  `format` is load-bearing too: it is nullable with no default, and every public
+ *  price surface routes through formatExcursionPriceFrom, which can only say
+ *  «за одного» / «за группу до N человек» when it is set. Seeding it NULL rendered
+ *  a bare «от 4 500 ₽» everywhere — the exact ambiguity the price copy exists to
+ *  prevent. `group` = price per person; `private` = price for the whole group. */
 const LISTINGS = [
-  { guide: 0, slug: "step-i-hurul", title: "Степь и хурул: сердце Калмыкии", city: "Элиста", region: "Калмыкия", price: 450000, status: "published", rank: 1, duration: 300, group: 8, summary: "Золотая обитель, шахматный город и ночёвка в степи." },
-  { guide: 1, slug: "astrakhanskiy-kreml-i-lotosy", title: "Астраханский кремль и лотосовые поля", city: "Астрахань", region: "Астраханская область", price: 380000, status: "published", rank: 2, duration: 420, group: 6, summary: "Кремль, купеческие кварталы и выход к лотосам на закате." },
-  { guide: 3, slug: "sochi-gory-i-more", title: "Сочи: горы и море за один день", city: "Сочи", region: "Краснодарский край", price: 620000, status: "published", rank: 3, duration: 480, group: 4, summary: "Красная Поляна утром, галечный берег вечером." },
-  { guide: 2, slug: "gastrotur-kalmyckiy-chay", title: "Гастротур: калмыцкий чай и борцоги", city: "Элиста", region: "Калмыкия", price: 290000, status: "published", rank: 4, duration: 240, group: 10, summary: "Три домашние кухни, чай с молоком и солью, борцоги из печи." },
-  { guide: 2, slug: "zakat-na-manyche", title: "Закат на Маныче", city: "Элиста", region: "Калмыкия", price: 350000, status: "pending_review", rank: null, duration: 300, group: 6, summary: "Озеро Маныч-Гудило, тюльпановая степь, закат на воде." },
-  { guide: 2, slug: "buddiyskie-mesta-kalmykii", title: "Буддийские места Калмыкии", city: "Элиста", region: "Калмыкия", price: 400000, status: "draft", rank: null, duration: 360, group: 8, summary: "Хурулы, ступы и одинокий тополь." },
+  { guide: 0, slug: "step-i-hurul", title: "Степь и хурул: сердце Калмыкии", city: "Элиста", region: "Калмыкия", price: 450000, format: "group", status: "published", rank: 1, duration: 300, group: 8, summary: "Золотая обитель, шахматный город и ночёвка в степи." },
+  { guide: 1, slug: "astrakhanskiy-kreml-i-lotosy", title: "Астраханский кремль и лотосовые поля", city: "Астрахань", region: "Астраханская область", price: 380000, format: "group", status: "published", rank: 2, duration: 420, group: 6, summary: "Кремль, купеческие кварталы и выход к лотосам на закате." },
+  { guide: 3, slug: "sochi-gory-i-more", title: "Сочи: горы и море за один день", city: "Сочи", region: "Краснодарский край", price: 620000, format: "private", status: "published", rank: 3, duration: 480, group: 4, summary: "Красная Поляна утром, галечный берег вечером." },
+  { guide: 2, slug: "gastrotur-kalmyckiy-chay", title: "Гастротур: калмыцкий чай и борцоги", city: "Элиста", region: "Калмыкия", price: 290000, format: "group", status: "published", rank: 4, duration: 240, group: 10, summary: "Три домашние кухни, чай с молоком и солью, борцоги из печи." },
+  { guide: 2, slug: "zakat-na-manyche", title: "Закат на Маныче", city: "Элиста", region: "Калмыкия", price: 350000, format: "group", status: "pending_review", rank: null, duration: 300, group: 6, summary: "Озеро Маныч-Гудило, тюльпановая степь, закат на воде." },
+  { guide: 2, slug: "buddiyskie-mesta-kalmykii", title: "Буддийские места Калмыкии", city: "Элиста", region: "Калмыкия", price: 400000, format: "private", status: "draft", rank: null, duration: 360, group: 8, summary: "Хурулы, ступы и одинокий тополь." },
 ];
 
 const REVIEWS = [
@@ -195,9 +201,10 @@ for (const l of LISTINGS) {
         duration_minutes: l.duration,
         max_group_size: l.group,
         price_from_minor: l.price,
+        format: l.format,
         currency: "RUB",
-        private_available: true,
-        group_available: true,
+        private_available: l.format !== "group",
+        group_available: l.format !== "private",
         instant_book: false,
         inclusions: ["Сопровождение гида", "Входные билеты"],
         exclusions: ["Питание", "Трансфер"],
@@ -269,7 +276,9 @@ const { error: reqErr } = await supa.from("traveler_requests").insert({
   interests: ["Культура", "Гастрономия"],
   starts_on: in14,
   ends_on: in16,
-  budget_minor: 500000,
+  // ~1 000 ₽/чел: the homepage renders this as «1 000 ₽ / чел», and the old
+  // 5 000 ₽ read as an unrealistic asking price for a demo open group.
+  budget_minor: 100000,
   currency: "RUB",
   participants_count: 3,
   notes: "Хотим степь, хурул и калмыцкую кухню. Двое взрослых и подросток, темп спокойный.",

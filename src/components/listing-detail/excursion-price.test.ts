@@ -24,6 +24,20 @@ describe("formatExcursionPriceFrom", () => {
     expect(formatExcursionPriceFrom(1_200_000, "private")).toBe(`${base(1_200_000)} за группу`);
   });
 
+  // The cap is a real number from listings.max_group_size, so it hits the Russian
+  // genitive forms: «до 1 человека» / «до 21 человека», not «до 1 человек».
+  it.each([
+    [1, "до 1 человека"],
+    [2, "до 2 человек"],
+    [5, "до 5 человек"],
+    [11, "до 11 человек"],
+    [21, "до 21 человека"],
+  ])("declines the group cap correctly for %i", (cap, expected) => {
+    expect(formatExcursionPriceFrom(1_200_000, "private", cap)).toBe(
+      `${base(1_200_000)} за группу ${expected}`,
+    );
+  });
+
   it("ignores the group max for per-person (group) listings", () => {
     expect(formatExcursionPriceFrom(500_000, "group", 8)).toBe(`${base(500_000)} за одного`);
   });

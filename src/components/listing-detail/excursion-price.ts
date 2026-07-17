@@ -1,4 +1,5 @@
 import { formatRubNumber } from "@/data/money";
+import { pluralizePeopleGenitive } from "@/lib/utils";
 
 // "от X ₽" with a per-format scope suffix so the price is never ambiguous:
 //   private     → the price covers the whole (closed) group, up to N people
@@ -15,7 +16,10 @@ export function formatExcursionPriceFrom(
   const rub = formatRubNumber(Math.round(priceFromMinor / 100));
   const base = `от ${rub} ₽`;
   if (format === "private") {
-    const cap = maxGroupSize && maxGroupSize > 0 ? ` до ${maxGroupSize} человек` : "";
+    const cap =
+      maxGroupSize && maxGroupSize > 0
+        ? ` до ${maxGroupSize} ${pluralizePeopleGenitive(maxGroupSize)}`
+        : "";
     return `${base} за группу${cap}`;
   }
   if (format === "group" || format === "combo") return `${base} за одного`;

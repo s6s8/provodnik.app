@@ -2,8 +2,9 @@
 
 import * as React from "react";
 
+import { formatExcursionPriceFrom } from "@/components/listing-detail/excursion-price";
 import { TourCard } from "@/components/shared/tour-card";
-import { formatRubNumber } from "@/data/money";
+import { rubToKopecks } from "@/data/money";
 import type { ListingRecord } from "@/data/supabase/queries";
 
 type FormatFilter = "all" | "private" | "group";
@@ -62,7 +63,11 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
               title={listing.title}
               guide={listing.guideName}
               rating={listing.rating}
-              price={`от ${formatRubNumber(listing.priceRub)} ₽`}
+              price={formatExcursionPriceFrom(
+                rubToKopecks(listing.priceRub),
+                listing.format,
+                listing.groupSize,
+              )}
             />
           ))}
         </div>
