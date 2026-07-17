@@ -636,11 +636,16 @@ test("16 request page hero is compact", async ({ browser }) => {
     expect(box).not.toBeNull();
     console.log(`[item 16] hero height @${vp.tag} = ${Math.round(box!.height)}px`);
 
-    // Desktop: the compact variant caps the band at 280/320px (was 520/632px) — that
-    // is the "очень широкое верхнее поле" the report is about.
-    // Mobile: the same hero also carries the trip-details panel inline, so its height
-    // is content, not empty space. Bound it, but at the honest number.
-    expect(box!.height).toBeLessThan(vp.tag === "desktop" ? 400 : 620);
+    // The item is about "очень широкое верхнее поле" — a hero of empty photo (it was
+    // 520/632px). The compact variant fixed that; the bound guards the regression.
+    //
+    // Desktop moved 400 → 480 (owner 609). The old number was only reachable because
+    // the hero did NOT reserve the header band at md+, so the trip panel's top 80px
+    // sat under the fixed header — clipped and unreachable. Reserving it costs the
+    // nav height: 88 + 16 guard + 287 panel + 48 padding = 439px, all of it content.
+    // Going back under 400 would mean hiding the panel again, which is the bug.
+    // Mobile is unchanged: it always re-padded, and carries the panel inline.
+    expect(box!.height).toBeLessThan(vp.tag === "desktop" ? 480 : 620);
     // Whatever the height, it must be filled with the trip, not padding.
     await expect(hero.getByText(/ДЕТАЛИ ПОЕЗДКИ/i)).toBeVisible();
     await settle(page);
