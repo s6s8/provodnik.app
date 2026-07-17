@@ -227,7 +227,6 @@ export async function openOfferThreadAction(formData: FormData) {
 }
 
 const CANCELLABLE_STATUSES = ["open", "booked"] as const; // DB request_status vocab (open=active); NOT the UI status words
-const ACTIVE_BOOKING_STATUSES = ["awaiting_guide_confirmation", "confirmed"];
 
 export type CancelRequestActionState = { error: string | null };
 
@@ -258,22 +257,20 @@ export async function cancelRequestAction(
     return { error: "Запрос нельзя отменить в текущем статусе." };
   }
 
-  const { error: updateError } = await supabase
-    .from("traveler_requests")
-    .update({ status: "cancelled" })
-    .eq("id", requestId);
+  // One transactional authority: cancel the request AND its active bookings together,
+  // so a cancelled request can never keep a live booking (the old two-statement path
+  // could half-complete). Ownership/state are re-checked inside the RPC.
+  const { error: cancelError } = await supabase.rpc("cancel_traveler_request", {
+    p_request_id: requestId,
+  });
 
-  if (updateError) return { error: "Не удалось отменить запрос." };
-
-  if (requestRow.status === "booked") {
-    const { error: bookingUpdateError } = await supabase
-      .from("bookings")
-      .update({ status: "cancelled" })
-      .eq("request_id", requestId)
-      .eq("traveler_id", user.id)
-      .in("status", ACTIVE_BOOKING_STATUSES);
-
-    if (bookingUpdateError) return { error: "Не удалось отменить связанное бронирование." };
+  if (cancelError) {
+    const raw = cancelError.message ?? "";
+    if (raw.includes("unauthorized")) return { error: "Нет прав на отмену этого запроса." };
+    if (raw.includes("not_cancellable"))
+      return { error: "Запрос нельзя отменить в текущем статусе." };
+    if (raw.includes("request_not_found")) return { error: "Запрос не найден." };
+    return { error: "Не удалось отменить запрос." };
   }
 
   // Notify guides who submitted offers

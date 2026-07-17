@@ -86,6 +86,8 @@ function buildSupabaseMock(requestStatus: "booked" | "open") {
     throw new Error(`Unexpected table: ${table}`);
   });
 
+  const rpc = vi.fn().mockResolvedValue({ error: null });
+
   createSupabaseServerClient.mockResolvedValue({
     auth: {
       getUser: vi.fn().mockResolvedValue({
@@ -94,11 +96,13 @@ function buildSupabaseMock(requestStatus: "booked" | "open") {
       }),
     },
     from,
+    rpc,
   });
 
   return {
     bookingUpdateQuery,
     bookingsQuery,
+    rpc,
     requestId,
     travelerId,
   };
@@ -111,31 +115,26 @@ beforeEach(() => {
 });
 
 describe("cancelRequestAction", () => {
-  it("cancels active bookings scoped to the authenticated traveler when cancelling a booked request", async () => {
-    const { bookingUpdateQuery, bookingsQuery, requestId, travelerId } = buildSupabaseMock("booked");
+  it("cancels the request and its bookings atomically via the RPC", async () => {
+    const { rpc, bookingsQuery, requestId } = buildSupabaseMock("booked");
 
     await expect(cancelRequestAction({ error: null }, buildFormData(requestId))).rejects.toThrow(
       "NEXT_REDIRECT:/trips",
     );
 
-    expect(bookingsQuery.update).toHaveBeenCalledWith({ status: "cancelled" });
-    expect(bookingUpdateQuery.eq).toHaveBeenCalledWith("request_id", requestId);
-    expect(bookingUpdateQuery.eq).toHaveBeenCalledWith("traveler_id", travelerId);
-    expect(bookingUpdateQuery.in).toHaveBeenCalledWith("status", [
-      "awaiting_guide_confirmation",
-      "confirmed",
-    ]);
+    // The request + booking cancellation is one transactional RPC, not two writes.
+    expect(rpc).toHaveBeenCalledWith("cancel_traveler_request", { p_request_id: requestId });
+    expect(bookingsQuery.update).not.toHaveBeenCalled();
     expect(redirect).toHaveBeenCalledWith("/trips");
   });
 
-  it("does not update bookings when cancelling an open request", async () => {
-    const { bookingsQuery, requestId } = buildSupabaseMock("open");
+  it("surfaces a friendly error when the RPC rejects the cancel", async () => {
+    const { rpc, requestId } = buildSupabaseMock("open");
+    rpc.mockResolvedValueOnce({ error: { message: "not_cancellable" } });
 
-    await expect(cancelRequestAction({ error: null }, buildFormData(requestId))).rejects.toThrow(
-      "NEXT_REDIRECT:/trips",
-    );
+    const result = await cancelRequestAction({ error: null }, buildFormData(requestId));
 
-    expect(bookingsQuery.update).not.toHaveBeenCalled();
-    expect(redirect).toHaveBeenCalledWith("/trips");
+    expect(result.error).toBe("Запрос нельзя отменить в текущем статусе.");
+    expect(redirect).not.toHaveBeenCalled();
   });
 });
