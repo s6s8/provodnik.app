@@ -837,9 +837,6 @@ function OwnerDetailBranch({
             isOpen ? (
               <AcceptOfferButton
                 offerId={selectedItem.offer.id}
-                requestId={requestId}
-                guideId={selectedItem.offer.guide_id}
-                priceMinor={selectedItem.offer.price_minor}
                 guideName={guideName(selectedItem.guideInfo)}
                 perPersonLabel={perPersonLabel(selectedItem.offer)}
               />
