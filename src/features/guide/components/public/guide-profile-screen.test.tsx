@@ -1,5 +1,5 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { GuideProfileScreen } from "./guide-profile-screen";
 import type { PublicGuideProfile } from "@/data/public-guides/types";
@@ -90,5 +90,42 @@ describe("GuideProfileScreen", () => {
     for (const cta of ctas) {
       expect(cta.closest("a")).toHaveAttribute("href", "/?guide=ivan-petrov");
     }
+  });
+
+  // Every excursion adapted from guide_templates links to this same profile (it has
+  // no /listings detail route), so href is NOT unique within one guide's list. It
+  // was the React key, which made two published templates collide.
+  it("renders several template-backed excursions that share one href", () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    render(
+      <GuideProfileScreen
+        guide={makeGuide()}
+        listings={[
+          {
+            slug: "11111111-1111-1111-1111-111111111111",
+            href: "/guides/ivan-petrov",
+            title: "Тюльпановая степь",
+            coverImageUrl: "/hero-valley.jpg",
+            price: "от 1 200 ₽ за одного",
+          },
+          {
+            slug: "22222222-2222-2222-2222-222222222222",
+            href: "/guides/ivan-petrov",
+            title: "Чёрные земли",
+            coverImageUrl: "/hero-valley.jpg",
+            price: "от 2 500 ₽ за одного",
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Тюльпановая степь")).toBeInTheDocument();
+    expect(screen.getByText("Чёрные земли")).toBeInTheDocument();
+    // The price comes from the caller's shared formatter, with its scope intact.
+    expect(screen.getByText("от 1 200 ₽ за одного")).toBeInTheDocument();
+    expect(consoleError).not.toHaveBeenCalled();
+
+    consoleError.mockRestore();
   });
 });

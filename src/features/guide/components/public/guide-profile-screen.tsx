@@ -64,7 +64,10 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
 
   const tourCards =
     listings && listings.length > 0
-      ? listings.map((l: GuideListing) => ({
+      ? listings.map((l: GuideListing, index: number) => ({
+          // Not the href: every excursion adapted from guide_templates points at
+          // this same profile, so href is not unique within one guide's list.
+          key: l.slug ?? l.id ?? `excursion-${index}`,
           // The caller resolves href and price: an excursion adapted from
           // guide_templates has no /listings route, and the price scope
           // («за одного» / «за группу до N человек») comes from the one shared
@@ -238,7 +241,7 @@ export function GuideProfileScreen({ guide, listings, reviews, photos = [] }: Pr
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {tourCards.map((tour) => (
                 <TourCard
-                  key={tour.href}
+                  key={tour.key}
                   href={tour.href}
                   imageUrl={tour.imageUrl}
                   title={tour.title}
