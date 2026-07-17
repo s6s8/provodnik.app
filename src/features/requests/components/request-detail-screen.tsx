@@ -306,7 +306,7 @@ function PublicDetailBranch({
   return (
     <>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         variant="compact"
         imageUrl={viewModel.cityImageUrl}
         breadcrumb={buildRequestDetailBreadcrumb(viewModel.regionLabel, viewModel.title)}
@@ -712,7 +712,7 @@ function OwnerDetailBranch({
   return (
     <>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         variant="compact"
         imageUrl={viewModel.cityImageUrl}
         breadcrumb={breadcrumb}
@@ -904,7 +904,7 @@ function GuideDetailBranch({
   return (
     <>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         variant="compact"
         imageUrl={cityImage(request.destination)}
         breadcrumb={buildRequestDetailBreadcrumb(request.destination, request.destination)}

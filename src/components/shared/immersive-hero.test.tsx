@@ -80,4 +80,35 @@ describe("ImmersiveHero", () => {
     const photo = screen.getByRole("img", { name: "Озеро Байкал" });
     expect(photo).toHaveStyle({ "--hero-img": `url('${gradient}')` });
   });
+
+  // The two halves of the bleed contract used to live in different files: the page
+  // cancelled the layout's header padding with -mt-nav-h, while the hero reserved
+  // the header band only below md (md:pt-0). At md+ nothing reserved it, so a panel
+  // taller than the hero had its top painted over by the fixed header — and clipped
+  // by overflow-hidden, so it could not even be scrolled into view. One prop now
+  // owns both halves: you cannot cancel the padding without reserving the band.
+  describe("navBleed", () => {
+    it("reserves the header band at every width when the hero bleeds under the nav", () => {
+      const { container } = render(
+        <ImmersiveHero imageUrl="/photo.jpg" title="Элиста" navBleed />,
+      );
+
+      const section = container.querySelector("section");
+      expect(section).toHaveClass("-mt-nav-h");
+
+      const rail = container.querySelector('[class*="pt-[calc(var(--nav-h)"]');
+      expect(rail).not.toBeNull();
+      // The guard must survive at md+ — this is the actual regression.
+      expect(rail?.className).not.toContain("md:pt-0");
+    });
+
+    it("does not cancel the layout padding when the hero does not bleed", () => {
+      const { container } = render(<ImmersiveHero imageUrl="/photo.jpg" title="Элиста" />);
+
+      expect(container.querySelector("section")).not.toHaveClass("-mt-nav-h");
+      // Heroes that start below the header keep their existing md rail.
+      const rail = container.querySelector('[class*="pt-[calc(var(--nav-h)"]');
+      expect(rail?.className).toContain("md:pt-0");
+    });
+  });
 });
