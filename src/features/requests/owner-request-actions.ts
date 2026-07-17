@@ -6,7 +6,6 @@ import { revalidatePath } from "next/cache";
 
 import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
-import { createBooking } from "@/lib/supabase/bookings";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { markOffersReadForRequest } from "@/lib/supabase/offers";
@@ -21,134 +20,52 @@ const offerThreadSchema = z.object({
   offerId: z.string().uuid("Некорректный идентификатор предложения."),
 });
 
+/** Map an accept_offer RPC error to a traveler-facing message. */
+function acceptOfferErrorMessage(raw: string | undefined): string {
+  if (raw?.includes("offer_not_found")) return "Предложение уже не активно.";
+  if (raw?.includes("offer_expired")) return "Срок действия предложения истёк.";
+  if (raw?.includes("unauthorized")) return "Вы не являетесь владельцем этого запроса.";
+  if (raw?.toLowerCase().includes("account")) return "Ваш аккаунт неактивен — обратитесь в поддержку.";
+  return "Не удалось принять предложение. Попробуйте ещё раз.";
+}
+
 /**
- * Accept a guide offer:
- * 1. Verifies the current user owns the request.
- * 2. Inserts a booking row.
- * 3. Updates request status → 'booked'.
- * 4. Updates the accepted offer status → 'accepted'.
- * 5. Rejects all other pending offers on this request.
- * 6. Redirects to /bookings/[bookingId].
+ * Accept a guide offer through the single canonical authority.
+ *
+ * All state (guide, price, currency, start, sibling decline, request booked,
+ * booking + payment record, thread) is committed atomically inside the
+ * accept_offer RPC, which derives guide_id/price from the OFFER row server-side —
+ * never from the form. Parallel accepts serialize on the offer row, so exactly one
+ * wins. Only the notification and funnel event stay app-side (external effects).
  */
 export async function acceptOfferAction(
   _prev: AcceptOfferActionState,
   formData: FormData,
 ): Promise<AcceptOfferActionState> {
-  const offerId = formData.get("offer_id") as string | null;
-  const requestId = formData.get("request_id") as string | null;
-  const guideId = formData.get("guide_id") as string | null;
-  const priceMinorRaw = formData.get("price_minor") as string | null;
-
-  if (!offerId || !requestId || !guideId || !priceMinorRaw) {
-    return { error: "Недостаточно данных для принятия предложения." };
-  }
-
-  const priceMinor = parseInt(priceMinorRaw, 10);
-  if (Number.isNaN(priceMinor) || priceMinor < 0) {
-    return { error: "Некорректная цена предложения." };
+  const parsed = offerThreadSchema.safeParse({ offerId: formData.get("offer_id") });
+  if (!parsed.success) {
+    return { error: "Некорректный идентификатор предложения." };
   }
 
   const supabase = await createSupabaseServerClient();
-
-  // Verify auth
   const {
     data: { user },
     error: authError,
   } = await supabase.auth.getUser();
-
   if (authError || !user) {
     return { error: "Необходима авторизация." };
   }
 
-  // Verify request ownership
-  const { data: requestRow, error: reqError } = await supabase
-    .from("traveler_requests")
-    .select("id, traveler_id, status")
-    .eq("id", requestId)
-    .maybeSingle();
+  const { data: bookingId, error: rpcError } = await supabase.rpc("accept_offer", {
+    p_offer_id: parsed.data.offerId,
+  });
 
-  if (reqError || !requestRow) {
-    return { error: "Запрос не найден." };
+  if (rpcError || !bookingId) {
+    return { error: acceptOfferErrorMessage(rpcError?.message) };
   }
-
-  if (requestRow.traveler_id !== user.id) {
-    return { error: "Вы не являетесь владельцем этого запроса." };
-  }
-
-  if (requestRow.status !== "open") {
-    return { error: "Запрос уже не открыт для принятия предложений." };
-  }
-
-  // Verify offer belongs to this request
-  const { data: offerRow, error: offerError } = await supabase
-    .from("guide_offers")
-    .select("id, guide_id, request_id, price_minor, status, starts_at, ends_at, capacity, meeting_point")
-    .eq("id", offerId)
-    .maybeSingle();
-
-  if (offerError || !offerRow) {
-    return { error: "Предложение не найдено." };
-  }
-
-  if (offerRow.request_id !== requestId) {
-    return { error: "Предложение не относится к этому запросу." };
-  }
-
-  if (offerRow.status !== "pending") {
-    return { error: "Предложение уже не активно." };
-  }
-
-  // Create booking
-  let booking: { id: string };
-  try {
-    booking = await createBooking(
-      {
-        request_id: requestId,
-        offer_id: offerId,
-        guide_id: guideId,
-        subtotal_minor: priceMinor,
-        party_size: offerRow.capacity ?? undefined,
-        starts_at: offerRow.starts_at ?? null,
-        ends_at: offerRow.ends_at ?? null,
-        meeting_point: offerRow.meeting_point ?? null,
-      },
-      user.id,
-    );
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : "Ошибка создания бронирования.";
-    return { error: msg };
-  }
-
-  // Update request status → 'booked'
-  const { error: updateReqError } = await supabase
-    .from("traveler_requests")
-    .update({ status: "booked" })
-    .eq("id", requestId);
-
-  if (updateReqError) {
-    return { error: "Не удалось обновить статус запроса." };
-  }
-
-  // Update accepted offer status → 'accepted'
-  const { error: updateOfferError } = await supabase
-    .from("guide_offers")
-    .update({ status: "accepted" })
-    .eq("id", offerId);
-
-  if (updateOfferError) {
-    return { error: "Не удалось обновить статус предложения." };
-  }
-
-  // Reject all other pending offers on this request
-  await supabase
-    .from("guide_offers")
-    .update({ status: "declined" })
-    .eq("request_id", requestId)
-    .eq("status", "pending")
-    .neq("id", offerId);
 
   try {
-    await notifyBookingCreated(booking.id);
+    await notifyBookingCreated(bookingId as string);
   } catch {
     // Notification delivery must not block booking creation.
   }
@@ -156,12 +73,12 @@ export async function acceptOfferAction(
   await logFunnelEvent({
     event_type: "offer_accepted",
     scope: "booking",
-    booking_id: booking.id,
+    booking_id: bookingId as string,
     actor_id: user.id,
     summary: "Путешественник принял предложение",
   });
 
-  redirect(`/bookings/${booking.id}`);
+  redirect(`/bookings/${bookingId as string}`);
 }
 
 export type RejectOfferActionState = { error: string | null };
@@ -310,7 +227,6 @@ export async function openOfferThreadAction(formData: FormData) {
 }
 
 const CANCELLABLE_STATUSES = ["open", "booked"] as const; // DB request_status vocab (open=active); NOT the UI status words
-const ACTIVE_BOOKING_STATUSES = ["awaiting_guide_confirmation", "confirmed"];
 
 export type CancelRequestActionState = { error: string | null };
 
@@ -341,22 +257,20 @@ export async function cancelRequestAction(
     return { error: "Запрос нельзя отменить в текущем статусе." };
   }
 
-  const { error: updateError } = await supabase
-    .from("traveler_requests")
-    .update({ status: "cancelled" })
-    .eq("id", requestId);
+  // One transactional authority: cancel the request AND its active bookings together,
+  // so a cancelled request can never keep a live booking (the old two-statement path
+  // could half-complete). Ownership/state are re-checked inside the RPC.
+  const { error: cancelError } = await supabase.rpc("cancel_traveler_request", {
+    p_request_id: requestId,
+  });
 
-  if (updateError) return { error: "Не удалось отменить запрос." };
-
-  if (requestRow.status === "booked") {
-    const { error: bookingUpdateError } = await supabase
-      .from("bookings")
-      .update({ status: "cancelled" })
-      .eq("request_id", requestId)
-      .eq("traveler_id", user.id)
-      .in("status", ACTIVE_BOOKING_STATUSES);
-
-    if (bookingUpdateError) return { error: "Не удалось отменить связанное бронирование." };
+  if (cancelError) {
+    const raw = cancelError.message ?? "";
+    if (raw.includes("unauthorized")) return { error: "Нет прав на отмену этого запроса." };
+    if (raw.includes("not_cancellable"))
+      return { error: "Запрос нельзя отменить в текущем статусе." };
+    if (raw.includes("request_not_found")) return { error: "Запрос не найден." };
+    return { error: "Не удалось отменить запрос." };
   }
 
   // Notify guides who submitted offers

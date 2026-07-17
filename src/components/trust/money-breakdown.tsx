@@ -1,4 +1,5 @@
 import { formatRubNumber } from "@/data/money";
+import { COPY } from "@/lib/copy";
 
 type MoneyBreakdownProps = {
   pricePerPerson: number;
@@ -62,9 +63,7 @@ export function MoneyBreakdown({
         </div>
       ) : null}
 
-      <p className="text-xs text-muted-foreground">
-        Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
-      </p>
+      <p className="text-xs text-muted-foreground">{COPY.payment.bookingNote}</p>
     </div>
   );
 }

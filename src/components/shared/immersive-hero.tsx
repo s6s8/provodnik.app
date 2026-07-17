@@ -31,6 +31,14 @@ type ImmersiveHeroProps = {
    * instead of empty photo. "default" is the full-bleed homepage/landing size.
    */
   variant?: "default" | "compact";
+  /**
+   * The photo bleeds up under the transparent overlay header (cancelling the
+   * layout's `pt-nav-h`) AND the content rail reserves the header band at every
+   * width. Both halves together, deliberately: cancelling the padding without
+   * reserving the band puts the rail under a `z-[100]` header that paints over it,
+   * inside an `overflow-hidden` box that stops it being scrolled back into view.
+   */
+  navBleed?: boolean;
   /** Bottom-right slot (the floating trip / booking panel). */
   children?: ReactNode;
   className?: string;
@@ -50,6 +58,7 @@ export function ImmersiveHero({
   statusBadge,
   grain = true,
   variant = "default",
+  navBleed = false,
   children,
   className,
 }: ImmersiveHeroProps) {
@@ -63,7 +72,7 @@ export function ImmersiveHero({
   // data URLs (brandGradient fallback) keep the lightweight CSS background.
   const isPhoto = /^(https?:|\/)/.test(imageUrl);
   return (
-    <section className={cn("relative w-full overflow-hidden", className)}>
+    <section className={cn("relative w-full overflow-hidden", navBleed && "-mt-nav-h", className)}>
       <div className={cn("relative", minHeight)}>
         {isPhoto ? (
           <Image
@@ -91,7 +100,12 @@ export function ImmersiveHero({
 
         <div
           className={cn(
-            "relative z-[2] mx-auto flex max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-[calc(var(--nav-h)+16px)] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-12 md:pt-0",
+            "relative z-[2] mx-auto flex max-w-page flex-col justify-end gap-7 px-5 pb-10 pt-[calc(var(--nav-h)+16px)] md:flex-row md:items-end md:justify-between md:gap-8 md:px-8 md:pb-12",
+            // md:items-end bottom-aligns the rail, so a tall panel grows UPWARDS —
+            // into the header band. Only a bleeding hero may drop this guard's
+            // md override, and it never does; heroes that already sit below the
+            // header keep their original rail.
+            !navBleed && "md:pt-0",
             minHeight,
           )}
         >

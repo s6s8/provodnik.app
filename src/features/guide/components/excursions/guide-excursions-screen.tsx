@@ -34,13 +34,13 @@ import { PageHeader } from "@/components/shared/page-header";
 import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
 import { kopecksToRub } from "@/data/money";
 import { THEMES } from "@/data/themes";
-import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
+import { listGuideLocationPhotos } from "@/lib/supabase/guide-assets";
 import {
   createGuideTemplate,
   deleteGuideTemplate,
   listGuideTemplates,
   updateGuideTemplate,
-} from "@/data/guide-templates/supabase-client";
+} from "@/lib/supabase/guide-templates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
 import {

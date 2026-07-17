@@ -52,7 +52,7 @@ export function DestinationDetailScreen({
   return (
     <div>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         imageUrl={heroImage}
         breadcrumb={[
           { label: "Направления", href: "/destinations" },

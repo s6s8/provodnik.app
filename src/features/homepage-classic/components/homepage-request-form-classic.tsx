@@ -184,6 +184,9 @@ export function DateField({
   );
 }
 
+/** Suggestions rendered at once. Precedent: tag-multi-select, requests marketplace. */
+const MAX_SUGGESTIONS = 8;
+
 /**
  * Destination typeahead. The `<datalist>` it replaces filtered inconsistently
  * across browsers and could not be styled; cmdk supplies the real combobox
@@ -216,21 +219,33 @@ function DestinationCombobox({
   describedBy?: string;
 }) {
   const [open, setOpen] = React.useState(false);
-  const query = value.trim().toLocaleLowerCase("ru");
-  const matches = query
-    ? destinations.filter((d) => d.name.toLocaleLowerCase("ru").includes(query))
-    : destinations;
-  const listOpen = open && matches.length > 0;
+  // The typed value stays immediate (it drives the input); only the filtering
+  // work is deferred, so a keystroke never waits on the list to re-render.
+  const deferredValue = React.useDeferredValue(value);
+  const visible = React.useMemo(() => {
+    const query = deferredValue.trim().toLocaleLowerCase("ru");
+    const matched = query
+      ? destinations.filter((d) => d.name.toLocaleLowerCase("ru").includes(query))
+      : destinations;
+    // The vocabulary is every listing city/region plus every approved guide's
+    // places — unbounded by design. Render a shortlist; the field takes free
+    // text anyway, so a longer list buys nothing and costs a frame per keystroke.
+    return matched.slice(0, MAX_SUGGESTIONS);
+  }, [destinations, deferredValue]);
+  const listOpen = open && visible.length > 0;
 
-  // Names that occur in more than one region among the current matches — only
-  // these need the region shown to tell them apart.
-  const ambiguous = new Set<string>();
-  const seenNames = new Set<string>();
-  for (const d of matches) {
-    const k = d.name.toLocaleLowerCase("ru");
-    if (seenNames.has(k)) ambiguous.add(k);
-    seenNames.add(k);
-  }
+  // Names that occur in more than one region among the shown matches — only
+  // these need the region to tell them apart.
+  const ambiguous = React.useMemo(() => {
+    const dupes = new Set<string>();
+    const seenNames = new Set<string>();
+    for (const d of visible) {
+      const k = d.name.toLocaleLowerCase("ru");
+      if (seenNames.has(k)) dupes.add(k);
+      seenNames.add(k);
+    }
+    return dupes;
+  }, [visible]);
 
   const choose = (name: string) => {
     onChange(name);
@@ -281,32 +296,38 @@ function DestinationCombobox({
           </CommandPrimitive.Input>
         </div>
       </FieldShell>
-      {listOpen ? (
-        <div
-          // Hold focus in the input so a pointer-picked option is not lost to blur.
-          onMouseDown={(e) => e.preventDefault()}
-          className="absolute inset-x-0 top-full z-50 mt-1 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10"
-        >
-          <CommandList>
-            {matches.map((d) => {
-              // Unique cmdk value per (name, region): two places sharing a name in
-              // different regions must not collide. Value is not the accessible
-              // name (that comes from the text), so single-region options still
-              // read as a bare name. Selecting always stores the plain name.
-              const optionValue = d.region ? `${d.name} · ${d.region}` : d.name;
-              const showRegion = Boolean(d.region) && ambiguous.has(d.name.toLocaleLowerCase("ru"));
-              return (
-                <CommandItem key={optionValue} value={optionValue} onSelect={() => choose(d.name)}>
-                  {d.name}
-                  {showRegion ? (
-                    <span className="ml-1.5 text-muted-foreground">· {d.region}</span>
-                  ) : null}
-                </CommandItem>
-              );
-            })}
-          </CommandList>
-        </div>
-      ) : null}
+      {/*
+        Stays mounted and toggles `hidden` rather than mounting on open: mounting
+        cmdk's list steals focus out of the input, so a conditional render moved
+        focus on the keystroke that produced the first match — the reported "have
+        to click the field again to keep typing". `hidden` also drops the listbox
+        out of the accessibility tree, so nothing is announced while it is closed.
+      */}
+      <div
+        hidden={!listOpen}
+        // Hold focus in the input so a pointer-picked option is not lost to blur.
+        onMouseDown={(e) => e.preventDefault()}
+        className="absolute inset-x-0 top-full z-50 mt-1 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10"
+      >
+        <CommandList>
+          {visible.map((d) => {
+            // Unique cmdk value per (name, region): two places sharing a name in
+            // different regions must not collide. Value is not the accessible
+            // name (that comes from the text), so single-region options still
+            // read as a bare name. Selecting always stores the plain name.
+            const optionValue = d.region ? `${d.name} · ${d.region}` : d.name;
+            const showRegion = Boolean(d.region) && ambiguous.has(d.name.toLocaleLowerCase("ru"));
+            return (
+              <CommandItem key={optionValue} value={optionValue} onSelect={() => choose(d.name)}>
+                {d.name}
+                {showRegion ? (
+                  <span className="ml-1.5 text-muted-foreground">· {d.region}</span>
+                ) : null}
+              </CommandItem>
+            );
+          })}
+        </CommandList>
+      </div>
     </CommandPrimitive>
   );
 }

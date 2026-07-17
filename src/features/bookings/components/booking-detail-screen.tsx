@@ -329,9 +329,7 @@ function TravelerBookingDetailView({
 
             {showTravelerPanel ? (
               <Alert variant="info">
-                <AlertDescription>
-                  Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
-                </AlertDescription>
+                <AlertDescription>{COPY.payment.bookingNote}</AlertDescription>
               </Alert>
             ) : null}
 

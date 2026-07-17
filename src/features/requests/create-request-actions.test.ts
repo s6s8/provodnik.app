@@ -14,6 +14,14 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 vi.mock("@/lib/env", () => ({ hasSupabaseEnv: () => true }));
 
+const { createTravelerRequestMock } = vi.hoisted(() => ({
+  createTravelerRequestMock: vi.fn(),
+}));
+vi.mock("@/lib/supabase/requests", () => ({
+  createTravelerRequest: createTravelerRequestMock,
+}));
+vi.mock("@/lib/analytics/marketplace-events", () => ({ logFunnelEvent: vi.fn() }));
+
 import { buildRequestInsertPayload, createRequestAction } from "./create-request-actions";
 
 const baseInput: TravelerRequest = {
@@ -139,6 +147,38 @@ function validRequestFormData(): FormData {
   fd.set("budgetPerPersonRub", "5000");
   return fd;
 }
+
+describe("createRequestAction — flexibility is not silently locked (#owner609)", () => {
+  it("persists date_locked=false and time_locked=false when the form omits allowGuideSuggestions", async () => {
+    createTravelerRequestMock.mockClear();
+    createTravelerRequestMock.mockResolvedValue({ id: "req-1" });
+    // Active signed-in traveler; profile lookup returns active.
+    getUserMock.mockResolvedValue({ data: { user: { id: "trav-1" } }, error: null });
+    const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+    (createSupabaseServerClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      auth: { getUser: getUserMock },
+      from: () => ({
+        select: () => ({
+          eq: () => ({ maybeSingle: async () => ({ data: { account_status: "active" }, error: null }) }),
+        }),
+      }),
+    });
+
+    // validRequestFormData() never sets "allowGuideSuggestions" — the exact bug input.
+    // A successful create ends in redirect() (throws NEXT_REDIRECT); swallow it.
+    await createRequestAction({ error: null }, validRequestFormData()).catch((e) => {
+      if (!(e instanceof Error) || !e.message.includes("NEXT_REDIRECT")) throw e;
+    });
+
+    expect(createTravelerRequestMock).toHaveBeenCalledTimes(1);
+    const payload = createTravelerRequestMock.mock.calls[0][0] as {
+      date_locked: boolean;
+      time_locked: boolean;
+    };
+    expect(payload.date_locked).toBe(false);
+    expect(payload.time_locked).toBe(false);
+  });
+});
 
 describe("createRequestAction — auth gating (#34)", () => {
   it("returns code 'auth_required' when the server sees no signed-in user", async () => {

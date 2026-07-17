@@ -378,8 +378,8 @@ describe("RequestDetailScreen", () => {
     // Payment disclosure is above the list and not inside a guide card
     const alerts = container.querySelectorAll("[data-slot='alert']");
     expect(alerts).toHaveLength(0);
-    const prepayment = screen.getByText(/предоплату на платформе/);
-    expect(prepayment.closest("article")).toBeNull();
+    const paymentNote = screen.getByText(/Оплата напрямую гиду/);
+    expect(paymentNote.closest("article")).toBeNull();
 
     // Single contact-reveal note (not per-card)
     expect(screen.getAllByText(/После выбора гида откроются его контакты и чат\./)).toHaveLength(1);

@@ -60,7 +60,9 @@ export function clearRequestDraft(): void {
   }
 }
 
-const DEFAULT_VALUES: FormInput = {
+// Exported so the price/default matrix test binds to the real production default
+// (owner 609 audit) instead of a copy that could silently drift from it.
+export const DEFAULT_VALUES: FormInput = {
   mode: "assembly",
   interests: [] as TravelerRequest["interests"],
   requestedLanguages: ["Русский"],

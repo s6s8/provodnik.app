@@ -1,14 +1,14 @@
 "use server";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { PUBLIC_LISTING_STATUS } from "@/lib/supabase/types";
 
-export async function bulkSetStatus(
-  listingIds: string[],
-  // "published", never "active" (item 14): `active` is invisible to every public
-  // reader, so re-activating a listing through this path used to silently hide it.
-  status: typeof PUBLIC_LISTING_STATUS | "archived",
-) {
+// Statuses a guide may set on their own listing. Publishing and rejection are
+// administrative decisions, enforced at the DB boundary by
+// fn_enforce_listing_transition (owner 609). This union must never include
+// "published"/"rejected" — that was the self-publication path.
+type GuideSettableStatus = "draft" | "pending_review" | "archived";
+
+export async function bulkSetStatus(listingIds: string[], status: GuideSettableStatus) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },

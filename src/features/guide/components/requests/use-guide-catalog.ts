@@ -2,8 +2,8 @@
 
 import * as React from "react";
 
-import { listGuideLocationPhotos } from "@/data/guide-assets/supabase-client";
-import { listGuideTemplates } from "@/data/guide-templates/supabase-client";
+import { listGuideLocationPhotos } from "@/lib/supabase/guide-assets";
+import { listGuideTemplates } from "@/lib/supabase/guide-templates";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { GuideTemplateRow, Uuid } from "@/lib/supabase/types";
 

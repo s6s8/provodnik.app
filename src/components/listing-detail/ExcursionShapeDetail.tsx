@@ -8,6 +8,7 @@ import { GuideCard } from "@/components/listing-detail/GuideCard";
 import { ScheduleDisplay } from "@/components/listing-detail/ScheduleDisplay";
 import { TariffsList } from "@/components/listing-detail/TariffsList";
 import { ImmersiveHero } from "@/components/shared/immersive-hero";
+import { COPY } from "@/lib/copy";
 import { StickyActionBar } from "@/components/shared/sticky-action-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -105,7 +106,7 @@ export function ExcursionShapeDetail({ listing, schedule, slots, tariffs, guide 
       ]}
       notes={[
         "Отправьте запрос — гид пришлёт предложение с ценой и деталями",
-        "Бронирование подтверждается предоплатой на платформе.",
+        COPY.payment.bookingNoteShort,
         "Контакты гида откроются после принятия предложения",
       ]}
       instantBooking={Boolean(listing.instant_booking)}

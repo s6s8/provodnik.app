@@ -9,41 +9,25 @@ export async function acceptOffer(offerId: string) {
   } = await supabase.auth.getUser();
   if (!user) throw new Error("Unauthorized");
 
-  // Verify caller is the traveler who owns the request linked to this offer
-  const { data: offer } = await supabase
-    .from("guide_offers")
-    .select("id, request_id, guide_id, status, expires_at")
-    .eq("id", offerId)
-    .maybeSingle();
+  // Same single authority as the request-page accept: the RPC verifies ownership,
+  // rejects expired/non-pending offers, declines siblings, books the request and
+  // creates the booking + payment record atomically — instead of the old
+  // offer-only flip that left the request without a booking.
+  const { data: bookingId, error } = await supabase.rpc("accept_offer", {
+    p_offer_id: offerId,
+  });
 
-  if (!offer) throw new Error("Предложение не найдено.");
-  if (offer.status !== "pending") throw new Error("Предложение уже не в статусе ожидания.");
-  if (offer.expires_at && new Date(offer.expires_at) <= new Date()) {
-    throw new Error("Срок действия предложения истёк.");
+  if (error || !bookingId) {
+    const raw = error?.message ?? "";
+    if (raw.includes("offer_expired")) throw new Error("Срок действия предложения истёк.");
+    if (raw.includes("offer_not_found"))
+      throw new Error("Предложение уже не в статусе ожидания.");
+    if (raw.includes("unauthorized"))
+      throw new Error("Только автор запроса может принять предложение.");
+    throw new Error(raw || "Не удалось принять предложение.");
   }
 
-  const { data: request } = await supabase
-    .from("traveler_requests")
-    .select("traveler_id")
-    .eq("id", offer.request_id)
-    .maybeSingle();
-
-  if (!request) throw new Error("Запрос не найден.");
-  if (request.traveler_id !== user.id) {
-    throw new Error("Только автор запроса может принять предложение.");
-  }
-
-  const { data: updatedOffer, error } = await supabase
-    .from("guide_offers")
-    .update({ status: "accepted" })
-    .eq("id", offerId)
-    .eq("status", "pending")
-    .select("id")
-    .maybeSingle();
-
-  if (error) throw new Error(error.message);
-  if (!updatedOffer) throw new Error("Предложение уже не в статусе ожидания.");
-  return { success: true };
+  return { success: true, bookingId: bookingId as string };
 }
 
 export async function declineOffer(offerId: string) {

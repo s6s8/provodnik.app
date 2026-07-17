@@ -130,7 +130,12 @@ export async function createRequestAction(
 
   let requestId: string;
   try {
-    const allowGuideSuggestions = formData.get("allowGuideSuggestions") === "true";
+    // The form dropped the "allowGuideSuggestions" field (epic #14: always allowed),
+    // so formData.get(...) was always null → false → every request persisted
+    // date_locked=time_locked=true. Read the actual intent off the parsed input,
+    // which the schema forces to true. Date/time then stay open and guides can
+    // propose alternatives; date_flexibility conveys the traveler's soft preference.
+    const allowGuideSuggestions = input.allowGuideSuggestionsOutsideConstraints ?? true;
     const record = await createTravelerRequest(
       await buildRequestInsertPayload(input, { allowGuideSuggestions }),
       travelerId,

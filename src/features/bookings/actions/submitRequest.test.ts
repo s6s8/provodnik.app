@@ -1,41 +1,31 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createClient, mockInsert, mockListingSingle, mockRequestSingle } = vi.hoisted(() => {
-  const insert = vi.fn();
-  const listingSingle = vi.fn();
-  const requestSingle = vi.fn();
-  const client = vi.fn(async () => ({
-    auth: {
-      getUser: async () => ({ data: { user: { id: "traveler-1" } } }),
-    },
-    from: (table: string) => {
-      if (table === "listings") {
-        return {
-          select: () => ({
-            eq: () => ({
-              single: listingSingle,
-            }),
-          }),
-        };
-      }
-
-      if (table === "traveler_requests") {
-        return {
-          insert,
-        };
-      }
-
-      throw new Error(`Unexpected table: ${table}`);
-    },
-  }));
-
-  return {
-    createClient: client,
-    mockInsert: insert,
-    mockListingSingle: listingSingle,
-    mockRequestSingle: requestSingle,
-  };
-});
+// submitRequest now routes through the canonical createTravelerRequest service
+// (destination sanitization + validation + correct lock defaults) after the same
+// active-account gate as the homepage path, then notifies guides + logs the funnel.
+const { createClient, mockListingSingle, mockProfileSingle, createTravelerRequestMock } =
+  vi.hoisted(() => {
+    const listingSingle = vi.fn();
+    const profileSingle = vi.fn();
+    const client = vi.fn(async () => ({
+      auth: { getUser: async () => ({ data: { user: { id: "traveler-1" } } }) },
+      from: (table: string) => {
+        if (table === "listings") {
+          return { select: () => ({ eq: () => ({ single: listingSingle }) }) };
+        }
+        if (table === "profiles") {
+          return { select: () => ({ eq: () => ({ maybeSingle: profileSingle }) }) };
+        }
+        throw new Error(`Unexpected table: ${table}`);
+      },
+    }));
+    return {
+      createClient: client,
+      mockListingSingle: listingSingle,
+      mockProfileSingle: profileSingle,
+      createTravelerRequestMock: vi.fn(),
+    };
+  });
 
 const listingId = "550e8400-e29b-41d4-a716-446655440000";
 const guideId = "650e8400-e29b-41d4-a716-446655440000";
@@ -45,41 +35,27 @@ vi.mock("next/navigation", () => ({
     throw new Error(`NEXT_REDIRECT:${url}`);
   }),
 }));
-
-vi.mock("@/lib/supabase/server", () => ({
-  createSupabaseServerClient: createClient,
+vi.mock("@/lib/supabase/server", () => ({ createSupabaseServerClient: createClient }));
+vi.mock("@/lib/supabase/requests", () => ({
+  createTravelerRequest: createTravelerRequestMock,
 }));
+vi.mock("@/lib/notifications/triggers", () => ({ notifyGuidesNewRequest: vi.fn() }));
+vi.mock("@/lib/analytics/marketplace-events", () => ({ logFunnelEvent: vi.fn() }));
 
 import { submitRequest } from "./submitRequest";
 
 describe("submitRequest", () => {
   beforeEach(() => {
-    mockInsert.mockReset();
-    mockListingSingle.mockReset();
-    mockRequestSingle.mockReset();
-    createClient.mockClear();
-
+    vi.clearAllMocks();
     mockListingSingle.mockResolvedValue({
-      data: {
-        id: listingId,
-        guide_id: guideId,
-        status: "published",
-        price_from_minor: 100000,
-      },
+      data: { id: listingId, guide_id: guideId, status: "published", price_from_minor: 100000 },
       error: null,
     });
-    mockRequestSingle.mockResolvedValue({
-      data: { id: "request-1" },
-      error: null,
-    });
-    mockInsert.mockReturnValue({
-      select: () => ({
-        single: mockRequestSingle,
-      }),
-    });
+    mockProfileSingle.mockResolvedValue({ data: { account_status: "active" }, error: null });
+    createTravelerRequestMock.mockResolvedValue({ id: "request-1" });
   });
 
-  it("persists open-to-join and interests for group listing requests", async () => {
+  it("routes through the canonical service with open lock defaults + interest mapping", async () => {
     await expect(
       submitRequest({
         listingId,
@@ -94,19 +70,20 @@ describe("submitRequest", () => {
       }),
     ).rejects.toThrow("NEXT_REDIRECT:/requests/request-1");
 
-    expect(mockInsert).toHaveBeenCalledWith(
+    expect(createTravelerRequestMock).toHaveBeenCalledWith(
       expect.objectContaining({
         open_to_join: true,
         interests: ["history_culture"],
+        date_locked: false,
+        time_locked: false,
+        format_preference: "group",
       }),
+      "traveler-1",
     );
   });
 
-  it("throws a coded error when request creation fails", async () => {
-    mockRequestSingle.mockResolvedValueOnce({
-      data: null,
-      error: { message: "duplicate key value violates unique constraint" },
-    });
+  it("blocks a restricted account before creating anything", async () => {
+    mockProfileSingle.mockResolvedValueOnce({ data: { account_status: "suspended" }, error: null });
 
     await expect(
       submitRequest({
@@ -119,7 +96,9 @@ describe("submitRequest", () => {
         participantsCount: 2,
         mode: "order",
       }),
-    ).rejects.toThrow("request_create_failed");
+    ).rejects.toThrow("account_restricted");
+
+    expect(createTravelerRequestMock).not.toHaveBeenCalled();
   });
 
   it("rejects an invalid payload before creating the Supabase client", async () => {

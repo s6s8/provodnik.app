@@ -4,6 +4,7 @@
 // This file holds the domain query functions.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { getPublishedTemplateListings } from "./guide-template-listings";
 import {
   applyGuideFilters,
   applyListingFilters,
@@ -151,10 +152,15 @@ export async function getActiveListings(
       .order("featured_rank", { ascending: true, nullsFirst: false });
 
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
 
-    const rows = await attachGuideDisplayNames(client, data);
-    return { data: applyListingFilters(rows.map(mapListingRow), filters), error: null };
+    const rows = data && data.length > 0 ? await attachGuideDisplayNames(client, data) : [];
+    // Excursions published through the live guide UI land in `guide_templates`,
+    // which nothing writes into `listings` — so the catalog must read both or it
+    // shows only seed rows. See guide-template-listings.ts.
+    const templates = await getPublishedTemplateListings(client);
+    const records = [...rows.map(mapListingRow), ...templates];
+
+    return { data: applyListingFilters(records, filters), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -200,9 +206,12 @@ export async function getListingsByGuide(
   try {
     const { data, error } = await client.from("listings").select("*").eq("guide_id", guideId).eq("status", "published");
     if (error) throw error;
-    if (!data || data.length === 0) return { data: [], error: null };
 
-    return { data: data.map(mapListingRow), error: null };
+    // Without the templates a guide's own profile showed «Готовые экскурсии» as
+    // empty even after they published one — the excursion existed, but only in
+    // the table no reader looked at.
+    const templates = await getPublishedTemplateListings(client, { guideId });
+    return { data: [...(data ?? []).map(mapListingRow), ...templates], error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -858,6 +867,11 @@ export async function getActiveGuideDestinations(
   }
 }
 
+/** Rows scanned per source before dedup — a bound, not a product limit. */
+const DESTINATION_SCAN = 2000;
+/** Distinct places handed to the client. See the .slice() note below. */
+const DESTINATION_SUGGESTIONS = 200;
+
 /**
  * Destination SUGGESTIONS for the request-form combobox — a search vocabulary,
  * not a ranked catalog. Unions published-listing cities/regions with the base
@@ -877,11 +891,13 @@ export async function getDestinationSuggestions(
         .from("listings")
         .select("city, region, guide_id")
         .eq("status", "published")
-        .not("city", "is", null),
+        .not("city", "is", null)
+        .limit(DESTINATION_SCAN),
       client
         .from("guide_profiles")
         .select("base_city, regions")
-        .eq("verification_status", "approved"),
+        .eq("verification_status", "approved")
+        .limit(DESTINATION_SCAN),
     ]);
 
     if (listingRes.error) throw listingRes.error;
@@ -895,8 +911,16 @@ export async function getDestinationSuggestions(
     const add = (name: unknown, region: unknown, guideId?: unknown) => {
       const label = norm(name);
       if (!label) return;
-      const regionLabel = norm(region);
-      const key = `${label.toLocaleLowerCase("ru")} ${regionLabel.toLocaleLowerCase("ru")}`;
+      // A place is not its own region. Callers pass (base_city, base_city) and
+      // (region, region) because those rows carry no parent region — taken
+      // literally that rendered «Элиста · Элиста» next to «Элиста · Калмыкия».
+      const rawRegion = norm(region);
+      const regionLabel =
+        rawRegion.toLocaleLowerCase("ru") === label.toLocaleLowerCase("ru") ? "" : rawRegion;
+      // \u0000 separator: it cannot occur in a place name, so "a\u0000b" and
+      // "ab" can never collide. Written as an escape, not a literal NUL -- a raw
+      // one makes `file`/grep treat this whole module as binary and skip it.
+      const key = `${label.toLocaleLowerCase("ru")}\u0000${regionLabel.toLocaleLowerCase("ru")}`;
       const entry =
         byKey.get(key) ?? { name: label, region: regionLabel, guides: new Set<string>() };
       if (typeof guideId === "string" && guideId) entry.guides.add(guideId);
@@ -914,6 +938,25 @@ export async function getDestinationSuggestions(
       }
     }
 
+    // Same place, twice: a guide based in Элиста adds a region-less «Элиста» while
+    // their listing adds «Элиста · Калмыкия». Two options for one place, and the
+    // traveller has to pick. Fold the region-less one into its located sibling —
+    // two places that genuinely share a name in DIFFERENT regions both have one and
+    // are left alone (Ростов-на-Дону vs Ростов Великий).
+    const located = new Set<string>();
+    for (const entry of byKey.values()) {
+      if (entry.region) located.add(entry.name.toLocaleLowerCase("ru"));
+    }
+    for (const [key, entry] of byKey) {
+      if (entry.region || !located.has(entry.name.toLocaleLowerCase("ru"))) continue;
+      for (const sibling of byKey.values()) {
+        if (sibling.region && sibling.name.toLocaleLowerCase("ru") === entry.name.toLocaleLowerCase("ru")) {
+          for (const guide of entry.guides) sibling.guides.add(guide);
+        }
+      }
+      byKey.delete(key);
+    }
+
     const result: DestinationOption[] = Array.from(byKey.values())
       .map(({ name, region, guides }) => ({ name, region, guideCount: guides.size }))
       .sort(
@@ -921,7 +964,11 @@ export async function getDestinationSuggestions(
           b.guideCount - a.guideCount ||
           a.name.localeCompare(b.name, "ru") ||
           a.region.localeCompare(b.region, "ru"),
-      );
+      )
+      // Every homepage render serializes this whole array into the client payload,
+      // and it grows with the roster. Best-covered places win; the field takes free
+      // text, so a place outside the shortlist is typed, never blocked.
+      .slice(0, DESTINATION_SUGGESTIONS);
 
     return { data: result, error: null };
   } catch (error) {
@@ -933,7 +980,7 @@ export async function getHomepageRequests(
   client: SupabaseClient,
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
-    const { data: rows, error } = await client
+    const { data: rawRows, error } = await client
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
@@ -941,7 +988,26 @@ export async function getHomepageRequests(
       .limit(4);
 
     if (error) throw error;
-    if (!rows || rows.length === 0) return { data: [], error: null };
+
+    // Anonymous visitors cannot read the raw table (traveler_requests_select
+    // requires a session), and the homepage is mostly seen logged out — without
+    // this the «Сборные группы» block is empty for every guest. Same fallback as
+    // getOpenRequests / getOpenRequestsByDestination; the view is PII-masked.
+    let rows = rawRows;
+    let fromPublicView = false;
+    if (!rows || rows.length === 0) {
+      const { data: publicRows, error: publicError } = await client
+        .from("v_public_open_requests")
+        .select("*")
+        .eq("status", "open")
+        .order("created_at", { ascending: false })
+        .limit(4);
+      if (publicError) throw publicError;
+      rows = publicRows ?? [];
+      fromPublicView = true;
+    }
+
+    if (rows.length === 0) return { data: [], error: null };
 
     const ids = rows.map((r) => r.id as string);
 
@@ -962,12 +1028,18 @@ export async function getHomepageRequests(
       rec.offerCount = countMap[rec.id] ?? 0;
       return rec;
     });
-    const membersMap = await fetchMembersForRequests(
-      client,
-      rows.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
-    );
-    for (const rec of records) {
-      rec.members = membersMap.get(rec.id) ?? [];
+    // The public view carries no traveler_id — by design, it is the sanitized
+    // projection — so there is no creator to resolve and no member avatars to
+    // show. Asking anyway sends `id=in.(undefined)` and PostgREST 400s the whole
+    // read, which is how the block came back empty rather than just avatar-less.
+    if (!fromPublicView) {
+      const membersMap = await fetchMembersForRequests(
+        client,
+        rows.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+      );
+      for (const rec of records) {
+        rec.members = membersMap.get(rec.id) ?? [];
+      }
     }
 
     const filtered = records.filter(isPublicOpenGroupRequest);

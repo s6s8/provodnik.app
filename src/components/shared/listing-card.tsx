@@ -33,7 +33,9 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
 
   return (
     <Link
-      href={`/listings/${listing.slug}`}
+      // Templates adapted from guide_templates have no /listings detail route and
+      // carry their own href (their guide's profile). See ListingRecord.detailHref.
+      href={listing.detailHref ?? `/listings/${listing.slug}`}
       className="group relative block overflow-hidden rounded-card border border-border bg-card shadow-soft transition-[transform,box-shadow] duration-150 ease-out hover:-translate-y-[3px] hover:shadow-lift focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className="relative aspect-[16/10] w-full overflow-hidden">

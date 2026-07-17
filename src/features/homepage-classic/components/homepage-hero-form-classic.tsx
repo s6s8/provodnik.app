@@ -20,7 +20,13 @@ interface Props {
 
 export function HomepageHeroFormClassic({ destinations, preferredGuide, hasGroups = false }: Props) {
   return (
-    <section className="relative flex min-h-svh flex-col overflow-hidden bg-gradient-to-b from-brand-800 to-brand-950">
+    // Sized by its content, not by the viewport. `min-h-svh` was a FLOOR, not a
+    // cap: stacked with the padding below it made the first screen taller than the
+    // viewport on desktop, so nothing below ever peeked and the «Сборные группы»
+    // affordance (pinned to the section's bottom) sat under the fold — the one
+    // thing it exists to prevent. The floor here only keeps the hero from
+    // collapsing on very short viewports; the form sets the real height.
+    <section className="relative flex min-h-[34rem] flex-col overflow-hidden bg-gradient-to-b from-brand-800 to-brand-950">
       <Image
         src={HERO_IMAGE}
         alt=""
@@ -31,7 +37,14 @@ export function HomepageHeroFormClassic({ destinations, preferredGuide, hasGroup
       />
       <Scrim variant="hero" />
 
-      <div className="relative z-[2] flex flex-1 flex-col items-center justify-center px-gutter pb-24 pt-32 text-center">
+      {/*
+        Both paddings are the smallest their constraint allows — every pixel here
+        pushes the next section off screen. pt clears the header pill (which ends
+        at 80px; the home route's <main> has no pt-nav-h). pb reserves the band the
+        absolutely-positioned «Сборные группы» affordance occupies (54px tall at
+        bottom-6 = 78px); go below that and it rides up over the form card.
+      */}
+      <div className="relative z-[2] flex flex-1 flex-col items-center justify-center px-gutter pb-24 pt-24 text-center">
         <h1 className="mb-7 font-display text-display font-extrabold leading-none tracking-tighter text-white">
           Куда отправимся?
         </h1>

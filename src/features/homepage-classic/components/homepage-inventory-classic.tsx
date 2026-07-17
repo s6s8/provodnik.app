@@ -28,7 +28,6 @@ export const HOMEPAGE_MIN = {
 } as const;
 
 interface Props {
-  listings: ListingRecord[];
   destinations: DestinationOption[];
   guides: GuideRecord[];
   reviews: HomepageReview[];
@@ -37,29 +36,38 @@ interface Props {
 const SECTION = "mx-auto w-full max-w-page px-gutter";
 const DESTINATION_CARDS = 6;
 
-export function HomepageInventoryClassic({ listings, destinations, guides, reviews }: Props) {
-  const showListings = listings.length >= HOMEPAGE_MIN.listings;
+/**
+ * «Готовые экскурсии». Lives apart from the rest of the inventory because the
+ * homepage renders it directly after «Сборные группы» — the two ways to travel sit
+ * together, before «Как это работает» explains them. Same gate as every other
+ * block: below HOMEPAGE_MIN it renders nothing at all, never a placeholder.
+ */
+export function HomepageListingsClassic({ listings }: { listings: ListingRecord[] }) {
+  if (listings.length < HOMEPAGE_MIN.listings) return null;
+
+  return (
+    <section className={`${SECTION} py-14`} aria-label="Готовые экскурсии">
+      <SectionHeading
+        title="Готовые экскурсии"
+        subtitle="Авторские маршруты от проверенных гидов — можно забронировать сразу"
+        action={{ label: "Все экскурсии", href: "/listings" }}
+      />
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {listings.map((listing) => (
+          <ListingCard key={listing.id} listing={listing} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+export function HomepageInventoryClassic({ destinations, guides, reviews }: Props) {
   const showDestinations = destinations.length >= HOMEPAGE_MIN.destinations;
   const showGuides = guides.length >= HOMEPAGE_MIN.guides;
   const showReviews = reviews.length >= HOMEPAGE_MIN.reviews;
 
   return (
     <>
-      {showListings && (
-        <section className={`${SECTION} py-14`} aria-label="Готовые экскурсии">
-          <SectionHeading
-            title="Готовые экскурсии"
-            subtitle="Авторские маршруты от проверенных гидов — можно забронировать сразу"
-            action={{ label: "Все экскурсии", href: "/listings" }}
-          />
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((listing) => (
-              <ListingCard key={listing.id} listing={listing} />
-            ))}
-          </div>
-        </section>
-      )}
-
       {showGuides && (
         <section className={`${SECTION} py-14`} aria-label="Гиды">
           <SectionHeading

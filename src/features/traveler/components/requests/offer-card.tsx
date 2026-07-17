@@ -344,13 +344,7 @@ export function OfferCard({
         {canAccept ? (
           <>
             {embedded ? null : (
-              <AcceptOfferButton
-                offerId={offer.id}
-                requestId={requestId}
-                guideId={offer.guide_id}
-                priceMinor={offer.price_minor}
-                guideName={guideName}
-              />
+              <AcceptOfferButton offerId={offer.id} guideName={guideName} />
             )}
             <RejectOfferButton offerId={offer.id} requestId={requestId} />
           </>

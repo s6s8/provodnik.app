@@ -13,9 +13,6 @@ const initialState: AcceptOfferActionState = { error: null };
 
 interface AcceptOfferButtonProps {
   offerId: string;
-  requestId: string;
-  guideId: string;
-  priceMinor: number;
   guideName: string;
   /** Per-person price label shown in the confirm description, e.g. "3 200 ₽". */
   perPersonLabel?: string;
@@ -23,9 +20,6 @@ interface AcceptOfferButtonProps {
 
 export function AcceptOfferButton({
   offerId,
-  requestId,
-  guideId,
-  priceMinor,
   guideName,
   perPersonLabel,
 }: AcceptOfferButtonProps) {
@@ -55,10 +49,9 @@ export function AcceptOfferButton({
 
   return (
     <form onSubmit={handleSubmit}>
+      {/* Only the offer id is trusted; the server derives guide + price from the
+          offer row inside accept_offer, so guide_id/price_minor are no longer sent. */}
       <input type="hidden" name="offer_id" value={offerId} />
-      <input type="hidden" name="request_id" value={requestId} />
-      <input type="hidden" name="guide_id" value={guideId} />
-      <input type="hidden" name="price_minor" value={String(priceMinor)} />
       {state.error ? (
         <p className="mb-2 font-sans text-[0.8125rem] text-destructive">
           {state.error}

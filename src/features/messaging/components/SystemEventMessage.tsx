@@ -67,7 +67,7 @@ function formatChangedFields(fields: Record<string, string | number>): React.Rea
 const EVENT_LABELS: Record<SystemEventType, (p: SystemEventPayload) => React.ReactNode> =
   {
     offer_sent: (p) =>
-      `Гид отправил предложение${p.listing_title ? ` — «${p.listing_title}»` : ""}${p.amount_minor ? ` за ${p.amount_minor / 100} ${p.currency ?? "₽"}` : ""}`,
+      `Гид отправил предложение${p.listing_title ? ` — «${p.listing_title}»` : ""}${p.amount_minor ? ` за ${formatRubNumber(Math.round(p.amount_minor / 100))} ${p.currency ?? "₽"}` : ""}`,
     offer_accepted: () => "Путешественник принял предложение",
     offer_declined: () => "Путешественник отклонил предложение",
     booking_confirmed: () => "Бронирование подтверждено",

@@ -29,11 +29,11 @@ vi.mock("@/lib/supabase/client", () => ({
   createSupabaseBrowserClient: createSupabaseBrowserClientMock,
 }));
 
-vi.mock("@/data/guide-assets/supabase-client", () => ({
+vi.mock("@/lib/supabase/guide-assets", () => ({
   listGuideLocationPhotos: listGuideLocationPhotosMock,
 }));
 
-vi.mock("@/data/guide-templates/supabase-client", () => ({
+vi.mock("@/lib/supabase/guide-templates", () => ({
   createGuideTemplate: createGuideTemplateMock,
   deleteGuideTemplate: deleteGuideTemplateMock,
   listGuideTemplates: listGuideTemplatesMock,

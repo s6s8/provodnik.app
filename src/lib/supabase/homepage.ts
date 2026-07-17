@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { isDemoEmail } from "@/data/admin-users/guards";
 
+import { getPublishedTemplateListings } from "./guide-template-listings";
 import { getGuides } from "./queries";
 import {
   attachGuideDisplayNames,
@@ -114,10 +115,22 @@ async function homepageListings(
   if (error) throw error;
 
   const rows = (data ?? []).filter((row) => allowed.has(row.guide_id as string));
-  if (rows.length === 0) return [];
+  const named = rows.length > 0 ? await attachGuideDisplayNames(client, rows) : [];
+  const listings = named.map(mapListingRow);
 
-  const named = await attachGuideDisplayNames(client, rows);
-  return named.map(mapListingRow).slice(0, LISTING_CARDS);
+  // `listings` has no production writer — the excursions guides actually publish
+  // live in `guide_templates`. Without this the block is empty on any environment
+  // that was not seeded, however many excursions the guides have published.
+  //
+  // The adapter gates on approved + non-QA; this block's allow-list also drops demo
+  // accounts (by email, admin-only under RLS), so re-filter on it rather than trust
+  // the looser gate.
+  const allowedSlugs = new Set([...allowed.values()].map((guide) => guide.slug));
+  const templates = (await getPublishedTemplateListings(client)).filter((record) =>
+    allowedSlugs.has(record.guideSlug),
+  );
+
+  return [...listings, ...templates].slice(0, LISTING_CARDS);
 }
 
 async function homepageGuides(

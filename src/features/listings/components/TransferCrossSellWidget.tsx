@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
-import { kopecksToRub } from "@/data/money";
+import { formatRubFromMinor } from "@/data/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type Props = {
@@ -51,7 +51,7 @@ export async function TransferCrossSellWidget({ region, currentListingId }: Prop
                 </Badge>
               )}
               <p className="text-sm text-muted-foreground">
-                от {kopecksToRub(t.price_from_minor)} ₽
+                от {formatRubFromMinor(t.price_from_minor)}
               </p>
             </div>
           </a>

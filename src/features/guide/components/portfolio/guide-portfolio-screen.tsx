@@ -8,7 +8,7 @@ import {
   deleteGuideLocationPhoto,
   listGuideLocationPhotos,
   uploadPortfolioPhoto,
-} from "@/data/guide-assets/supabase-client";
+} from "@/lib/supabase/guide-assets";
 import type { GuideLocationPhotoRow, Uuid } from "@/lib/supabase/types";
 
 interface GuidePortfolioScreenProps {

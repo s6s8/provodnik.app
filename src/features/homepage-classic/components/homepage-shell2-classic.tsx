@@ -13,7 +13,7 @@ import { cityImage } from "@/lib/city-image";
 import type { HomepageReview } from "@/lib/supabase/homepage";
 
 import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
-import { HomepageInventoryClassic } from "./homepage-inventory-classic";
+import { HomepageInventoryClassic, HomepageListingsClassic } from "./homepage-inventory-classic";
 
 interface Props {
   destinations: DestinationOption[];
@@ -61,7 +61,9 @@ export function HomePageShell2Classic({
       />
 
       {openGroups.length > 0 && (
-        <section id="groups" className={`${SECTION} scroll-mt-nav-h pb-6 pt-14`} aria-label="Сборные группы">
+        // pt-10, not pt-14: this section is what the first screen has to reveal, and
+        // its own top padding is the last thing between the fold and its heading.
+        <section id="groups" className={`${SECTION} scroll-mt-nav-h pb-6 pt-10`} aria-label="Сборные группы">
           <SectionHeading
             title="Сборные группы"
             action={{ label: "Все группы", href: "/requests" }}
@@ -101,6 +103,10 @@ export function HomePageShell2Classic({
         </section>
       )}
 
+      {/* Directly after «Сборные группы»: the two ways to travel — join a group or
+          take a ready excursion — belong together, ahead of the explainer. */}
+      <HomepageListingsClassic listings={listings} />
+
       <section className="mt-8 border-y border-border bg-surface">
         <div className={`${SECTION} py-14`}>
           <div className="mb-9 text-center">
@@ -119,12 +125,7 @@ export function HomePageShell2Classic({
         </div>
       </section>
 
-      <HomepageInventoryClassic
-        listings={listings}
-        destinations={destinations}
-        guides={guides}
-        reviews={reviews}
-      />
+      <HomepageInventoryClassic destinations={destinations} guides={guides} reviews={reviews} />
 
       <SiteFooter />
     </>

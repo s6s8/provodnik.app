@@ -23,6 +23,7 @@ import { Chip } from "@/components/ui/chip";
 import { Tag } from "@/components/ui/tag";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { INTEREST_CHIPS } from "@/data/interests";
+import { COPY } from "@/lib/copy";
 import { formatRubNumber, kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
@@ -305,7 +306,7 @@ function PublicDetailBranch({
   return (
     <>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         variant="compact"
         imageUrl={viewModel.cityImageUrl}
         breadcrumb={buildRequestDetailBreadcrumb(viewModel.regionLabel, viewModel.title)}
@@ -401,9 +402,7 @@ function PublicDetailBranch({
               </StepCard>
             ))}
           </div>
-          <p className="text-sm text-on-surface-muted">
-            Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
-          </p>
+          <p className="text-sm text-on-surface-muted">{COPY.payment.bookingNote}</p>
         </section>
 
         {/* FAQ */}
@@ -713,7 +712,7 @@ function OwnerDetailBranch({
   return (
     <>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         variant="compact"
         imageUrl={viewModel.cityImageUrl}
         breadcrumb={breadcrumb}
@@ -809,10 +808,7 @@ function OwnerDetailBranch({
               </div>
             ) : (
               <>
-                <p className="text-sm text-on-surface-muted">
-                  Бронирование подтверждается через предоплату на платформе.
-                  Финальные условия фиксируются в заявке и подтверждении.
-                </p>
+                <p className="text-sm text-on-surface-muted">{COPY.payment.bookingNote}</p>
                 <p className="text-sm text-on-surface-muted">
                   После выбора гида откроются его контакты и чат.
                 </p>
@@ -841,9 +837,6 @@ function OwnerDetailBranch({
             isOpen ? (
               <AcceptOfferButton
                 offerId={selectedItem.offer.id}
-                requestId={requestId}
-                guideId={selectedItem.offer.guide_id}
-                priceMinor={selectedItem.offer.price_minor}
                 guideName={guideName(selectedItem.guideInfo)}
                 perPersonLabel={perPersonLabel(selectedItem.offer)}
               />
@@ -908,7 +901,7 @@ function GuideDetailBranch({
   return (
     <>
       <ImmersiveHero
-        className="-mt-nav-h"
+        navBleed
         variant="compact"
         imageUrl={cityImage(request.destination)}
         breadcrumb={buildRequestDetailBreadcrumb(request.destination, request.destination)}

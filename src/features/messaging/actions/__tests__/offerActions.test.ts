@@ -10,160 +10,63 @@ vi.mock('@/lib/supabase/server', () => ({
 
 import { acceptOffer } from '@/features/messaging/actions/offerActions'
 
-type SupabaseChain = {
-  from: ReturnType<typeof vi.fn>
-  select: ReturnType<typeof vi.fn>
-  selectEq: ReturnType<typeof vi.fn>
-  maybeSingle: ReturnType<typeof vi.fn>
-  update: ReturnType<typeof vi.fn>
-  updateEq: ReturnType<typeof vi.fn>
-  updateEq2: ReturnType<typeof vi.fn>
-  updateSelect: ReturnType<typeof vi.fn>
-  updateMaybeSingle: ReturnType<typeof vi.fn>
-}
-
+// acceptOffer now delegates to the atomic accept_offer RPC (single authority). It
+// no longer runs its own offer/request lookup or offer-only status flip — it just
+// authenticates, calls the RPC, and maps the RPC's errors to user messages.
 function makeSupabase(opts: {
-  user?: { id: string; email?: string } | null
-  offer?: Record<string, unknown> | null
-  request?: Record<string, unknown> | null
-  updateError?: string | null
-  updatedOffer?: { id: string } | null
-}): SupabaseChain {
-  const user = opts.user ?? null
-  const offer = opts.offer ?? null
-  const request = opts.request ?? null
-
-  const authGetUser = vi.fn().mockResolvedValue({
-    data: { user },
-    error: null,
+  user?: { id: string } | null
+  rpcData?: unknown
+  rpcError?: { message: string } | null
+}) {
+  const rpc = vi.fn().mockResolvedValue({
+    data: opts.rpcData ?? null,
+    error: opts.rpcError ?? null,
   })
-
-  const offerMaybeSingle = vi.fn().mockResolvedValue({
-    data: offer,
-    error: null,
-  })
-  const selectEq = vi.fn(() => ({ maybeSingle: offerMaybeSingle }))
-  const select = vi.fn(() => ({ eq: selectEq }))
-
-  const requestMaybeSingle = vi.fn().mockResolvedValue({
-    data: request,
-    error: null,
-  })
-  const requestSelectEq = vi.fn(() => ({ maybeSingle: requestMaybeSingle }))
-  const requestSelect = vi.fn(() => ({ eq: requestSelectEq }))
-
-  const updateMaybeSingle = vi.fn().mockResolvedValue({
-    data: opts.updateError ? null : (opts.updatedOffer ?? { id: 'offer-1' }),
-    error: opts.updateError ?? null,
-  })
-  const updateSelect = vi.fn(() => ({ maybeSingle: updateMaybeSingle }))
-  const updateEq2 = vi.fn(() => ({ select: updateSelect }))
-  const updateEq = vi.fn(() => ({ eq: updateEq2 }))
-  const update = vi.fn(() => ({ eq: updateEq }))
-
-  const fromFn = vi.fn((table: string) => {
-    if (table === 'guide_offers') {
-      return { select, update }
-    }
-    if (table === 'traveler_requests') {
-      return { select: requestSelect }
-    }
-    return { select, update }
-  })
-
   const supabase = {
-    auth: { getUser: authGetUser },
-    from: fromFn,
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: opts.user ?? null }, error: null }),
+    },
+    rpc,
   }
-
   createSupabaseServerClient.mockResolvedValue(supabase)
-
-  return {
-    from: fromFn,
-    select,
-    selectEq,
-    maybeSingle: offerMaybeSingle,
-    update,
-    updateEq,
-    updateEq2,
-    updateSelect,
-    updateMaybeSingle,
-  }
+  return { supabase, rpc }
 }
 
-describe('acceptOffer', () => {
+describe('acceptOffer (single authority via accept_offer RPC)', () => {
   beforeEach(() => {
     vi.clearAllMocks()
   })
 
   it('throws Unauthorized when no user session', async () => {
     makeSupabase({ user: null })
-
     await expect(acceptOffer('offer-1')).rejects.toThrow('Unauthorized')
   })
 
-  it('throws "Предложение не найдено." when offer does not exist', async () => {
-    makeSupabase({ user: { id: 'user-1' }, offer: null })
-
-    await expect(acceptOffer('offer-1')).rejects.toThrow('Предложение не найдено.')
+  it('calls accept_offer with only the offer id and returns the booking id', async () => {
+    const { rpc } = makeSupabase({ user: { id: 'trav-1' }, rpcData: 'booking-9' })
+    await expect(acceptOffer('offer-1')).resolves.toEqual({
+      success: true,
+      bookingId: 'booking-9',
+    })
+    expect(rpc).toHaveBeenCalledWith('accept_offer', { p_offer_id: 'offer-1' })
   })
 
-  it('throws "Предложение уже не в статусе ожидания." when offer.status is not pending', async () => {
-    makeSupabase({
-      user: { id: 'user-1' },
-      offer: { id: 'offer-1', request_id: 'req-1', guide_id: 'guide-1', status: 'accepted', expires_at: null },
-    })
-
-    await expect(acceptOffer('offer-1')).rejects.toThrow('Предложение уже не в статусе ожидания.')
-  })
-
-  it('throws "Срок действия предложения истёк." when offer.expires_at is in the past', async () => {
-    makeSupabase({
-      user: { id: 'user-1' },
-      offer: {
-        id: 'offer-1',
-        request_id: 'req-1',
-        guide_id: 'guide-1',
-        status: 'pending',
-        expires_at: '2020-01-01T00:00:00Z',
-      },
-    })
-
+  it('maps offer_expired to the expiry message', async () => {
+    makeSupabase({ user: { id: 'trav-1' }, rpcError: { message: 'offer_expired' } })
     await expect(acceptOffer('offer-1')).rejects.toThrow('Срок действия предложения истёк.')
   })
 
-  it('throws "Только автор запроса может принять предложение." when user.id !== request.traveler_id', async () => {
-    makeSupabase({
-      user: { id: 'wrong-user' },
-      offer: {
-        id: 'offer-1',
-        request_id: 'req-1',
-        guide_id: 'guide-1',
-        status: 'pending',
-        expires_at: null,
-      },
-      request: { traveler_id: 'traveler-1' },
-    })
-
+  it('maps offer_not_found to the not-pending message', async () => {
+    makeSupabase({ user: { id: 'trav-1' }, rpcError: { message: 'offer_not_found' } })
     await expect(acceptOffer('offer-1')).rejects.toThrow(
-      'Только автор запроса может принять предложение.',
+      'Предложение уже не в статусе ожидания.',
     )
   })
 
-  it('succeeds when all guards pass', async () => {
-    makeSupabase({
-      user: { id: 'traveler-1' },
-      offer: {
-        id: 'offer-1',
-        request_id: 'req-1',
-        guide_id: 'guide-1',
-        status: 'pending',
-        expires_at: null,
-      },
-      request: { traveler_id: 'traveler-1' },
-    })
-
-    const result = await acceptOffer('offer-1')
-    expect(result).toEqual({ success: true })
+  it('maps unauthorized to the ownership message', async () => {
+    makeSupabase({ user: { id: 'trav-1' }, rpcError: { message: 'unauthorized' } })
+    await expect(acceptOffer('offer-1')).rejects.toThrow(
+      'Только автор запроса может принять предложение.',
+    )
   })
 })

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { SharePageButton } from "@/components/shared/share-page-button";
 import { flags } from "@/lib/flags";
 import {
   filterNavItemsByHiddenHrefs,
@@ -93,7 +94,7 @@ export function SiteFooter() {
               <p className="mb-3.5 text-[0.6875rem] font-semibold uppercase tracking-[0.14em] text-primary-foreground/70">
                 Мы в сети
               </p>
-              <div className="mt-1.5 flex gap-2.5">
+              <div className="mt-1.5 flex flex-wrap items-center gap-2.5">
                 {socialIcons.map((social) => (
                   <span
                     key={social.label}
@@ -104,6 +105,9 @@ export function SiteFooter() {
                     {social.icon}
                   </span>
                 ))}
+                {/* Beside the decorative glyphs, never on them: they must stay
+                    non-interactive per the accepted package. */}
+                <SharePageButton className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary-foreground/15 px-4 text-[0.8125rem] text-primary-foreground/60 transition-colors hover:text-primary-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground/60" />
               </div>
             </div>
           </div>
