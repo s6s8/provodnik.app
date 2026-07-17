@@ -911,7 +911,12 @@ export async function getDestinationSuggestions(
     const add = (name: unknown, region: unknown, guideId?: unknown) => {
       const label = norm(name);
       if (!label) return;
-      const regionLabel = norm(region);
+      // A place is not its own region. Callers pass (base_city, base_city) and
+      // (region, region) because those rows carry no parent region — taken
+      // literally that rendered «Элиста · Элиста» next to «Элиста · Калмыкия».
+      const rawRegion = norm(region);
+      const regionLabel =
+        rawRegion.toLocaleLowerCase("ru") === label.toLocaleLowerCase("ru") ? "" : rawRegion;
       // \u0000 separator: it cannot occur in a place name, so "a\u0000b" and
       // "ab" can never collide. Written as an escape, not a literal NUL -- a raw
       // one makes `file`/grep treat this whole module as binary and skip it.
@@ -931,6 +936,25 @@ export async function getDestinationSuggestions(
       for (const region of (row.regions as string[] | null) ?? []) {
         add(region, region);
       }
+    }
+
+    // Same place, twice: a guide based in Элиста adds a region-less «Элиста» while
+    // their listing adds «Элиста · Калмыкия». Two options for one place, and the
+    // traveller has to pick. Fold the region-less one into its located sibling —
+    // two places that genuinely share a name in DIFFERENT regions both have one and
+    // are left alone (Ростов-на-Дону vs Ростов Великий).
+    const located = new Set<string>();
+    for (const entry of byKey.values()) {
+      if (entry.region) located.add(entry.name.toLocaleLowerCase("ru"));
+    }
+    for (const [key, entry] of byKey) {
+      if (entry.region || !located.has(entry.name.toLocaleLowerCase("ru"))) continue;
+      for (const sibling of byKey.values()) {
+        if (sibling.region && sibling.name.toLocaleLowerCase("ru") === entry.name.toLocaleLowerCase("ru")) {
+          for (const guide of entry.guides) sibling.guides.add(guide);
+        }
+      }
+      byKey.delete(key);
     }
 
     const result: DestinationOption[] = Array.from(byKey.values())

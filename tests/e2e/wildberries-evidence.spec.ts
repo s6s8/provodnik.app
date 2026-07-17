@@ -307,13 +307,22 @@ test("05 homepage shows inventory blocks under «Как это работает�
     ]) {
       await expect(page.getByRole("heading", { name: block, exact: true })).toBeVisible();
     }
-    // They sit AFTER «Как это работает», which is what the request says.
+    // Owner 609 reverses the earlier order: «Готовые экскурсии» now sits directly
+    // after «Сборные группы» — the two ways to travel together — and «Как это
+    // работает» explains them afterwards. The rest of the inventory stays below it.
     const order = await page.evaluate(() => {
       const heads = [...document.querySelectorAll("h2")].map((h) => (h.textContent ?? "").trim());
-      return { how: heads.indexOf("Как это работает"), listings: heads.indexOf("Готовые экскурсии") };
+      return {
+        groups: heads.indexOf("Сборные группы"),
+        listings: heads.indexOf("Готовые экскурсии"),
+        how: heads.indexOf("Как это работает"),
+        guides: heads.indexOf("Гиды"),
+      };
     });
-    expect(order.how).toBeGreaterThanOrEqual(0);
-    expect(order.listings).toBeGreaterThan(order.how);
+    expect(order.listings).toBeGreaterThanOrEqual(0);
+    expect(order.how).toBeGreaterThan(order.listings);
+    expect(order.guides).toBeGreaterThan(order.how);
+    if (order.groups >= 0) expect(order.listings).toBeGreaterThan(order.groups);
 
     const listings = page
       .locator("section", { has: page.getByRole("heading", { name: "Готовые экскурсии" }) })
