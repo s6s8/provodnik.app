@@ -23,6 +23,7 @@ import { Chip } from "@/components/ui/chip";
 import { Tag } from "@/components/ui/tag";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { INTEREST_CHIPS } from "@/data/interests";
+import { COPY } from "@/lib/copy";
 import { formatRubNumber, kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
 import type { TravelerRequestRecord } from "@/data/traveler-request/types";
@@ -401,9 +402,7 @@ function PublicDetailBranch({
               </StepCard>
             ))}
           </div>
-          <p className="text-sm text-on-surface-muted">
-            Бронирование подтверждается через предоплату на платформе. Финальные условия фиксируются в заявке и подтверждении.
-          </p>
+          <p className="text-sm text-on-surface-muted">{COPY.payment.bookingNote}</p>
         </section>
 
         {/* FAQ */}
@@ -809,10 +808,7 @@ function OwnerDetailBranch({
               </div>
             ) : (
               <>
-                <p className="text-sm text-on-surface-muted">
-                  Бронирование подтверждается через предоплату на платформе.
-                  Финальные условия фиксируются в заявке и подтверждении.
-                </p>
+                <p className="text-sm text-on-surface-muted">{COPY.payment.bookingNote}</p>
                 <p className="text-sm text-on-surface-muted">
                   После выбора гида откроются его контакты и чат.
                 </p>

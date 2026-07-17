@@ -25,9 +25,14 @@ describe("MoneyBreakdown", () => {
     expect(getByText("500 ₽")).not.toBeNull();
   });
 
-  it("renders the platform prepayment note", () => {
-    const { getByText } = render(<MoneyBreakdown pricePerPerson={4500} partySize={3} />);
+  // The product has no gateway and no platform prepayment: bookings seed a
+  // `payment_agreements` row with method 'in_person'. The note must say so.
+  it("renders the pay-the-guide-directly note", () => {
+    const { getByText, queryByText } = render(
+      <MoneyBreakdown pricePerPerson={4500} partySize={3} />,
+    );
 
-    expect(getByText(/предоплату на платформе/)).not.toBeNull();
+    expect(getByText(/Оплата напрямую гиду/)).not.toBeNull();
+    expect(queryByText(/предоплату на платформе/)).toBeNull();
   });
 });

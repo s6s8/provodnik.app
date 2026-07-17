@@ -306,7 +306,7 @@ describe("BookingDetailScreen", () => {
       />,
     );
 
-    expect(screen.getAllByText(/предоплату на платформе/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Оплата напрямую гиду/).length).toBeGreaterThan(0);
   });
 
   it("does not render raw checkmark or contact glyphs in the traveler view", () => {

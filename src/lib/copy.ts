@@ -73,13 +73,26 @@ export const COPY = {
       `Как прошла поездка с ${guideName}?`,
   },
 
+  // Payment reality. There is no gateway and no platform prepayment anywhere in
+  // the product: accepting an offer inserts a booking directly and seeds a
+  // `payment_agreements` row with method 'in_person' (src/lib/supabase/bookings.ts).
+  // Every payment-facing string must come from here so copy cannot drift back
+  // into promising a prepayment flow that does not exist.
+  payment: {
+    // Full sentence for panels/alerts that explain what happens after booking.
+    bookingNote:
+      'Оплата напрямую гиду — наличными или переводом. Финальные условия фиксируются в заявке и подтверждении.',
+    // Compact variant for bullet/fact lists.
+    bookingNoteShort: 'Оплата напрямую гиду — наличными или переводом',
+  },
+
   // Post-join confirmation panel
   postJoin: {
     title: 'Вы в группе',
     nextStepsHeading: 'Что дальше',
     step1: 'Гиды видят группу и присылают свои предложения.',
     step2: 'Когда хозяин группы принимает предложение, открывается контакт гида и точная точка встречи.',
-    step3: 'Бронирование подтверждается через предоплату на платформе; финальные условия фиксируются в заявке и подтверждении.',
+    step3: 'Оплата происходит напрямую гиду; финальные условия фиксируются в заявке и подтверждении.',
     ctaToMyRequests: 'Перейти к моим запросам',
   },
 
