@@ -331,9 +331,10 @@ export function AuthEntryScreen({
   return (
     <GlassCard className="w-[min(100%,30rem)] p-[clamp(1.75rem,4vw,2.5rem)]">
       <div className="flex flex-col gap-3">
-        <Badge variant="eyebrow" asChild>
-          <Link href="/">Проводник</Link>
-        </Badge>
+        {/* Decorative brand eyebrow — not a second home link. The sidebar
+            already exposes a "Проводник" link to /, so making this a link too
+            put two adjacent same-destination stops in the keyboard tab order. */}
+        <Badge variant="eyebrow">Проводник</Badge>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           {isSignUp ? "Создание профиля" : "Вход"}
         </h1>

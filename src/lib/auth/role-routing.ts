@@ -21,6 +21,11 @@ const TRAVELER_ROLE_PREFIXES = [
   LEGACY_TRAVELER_WORKSPACE_PREFIX,
 ] as const;
 
+// Personal-settings routes shared by every role: gate at the edge on
+// authentication only (any role), matching the 307 that /trips + /bookings give
+// unauthenticated visitors, instead of a page-only redirect that streams a 200.
+const AUTHENTICATED_ONLY_PREFIXES = ["/account"] as const;
+
 function isPathWithinTree(pathname: string, root: string): boolean {
   return pathname === root || pathname.startsWith(`${root}/`);
 }
@@ -41,6 +46,11 @@ export function getDashboardPathForRole(role: AppRole | null | undefined): strin
 
 export function getWorkspacePrefixForRole(role: AppRole | null | undefined): string | null {
   return role ? ROLE_WORKSPACE_PREFIXES[role] : null;
+}
+
+export function requiresAuthenticatedSession(pathname: string | null | undefined): boolean {
+  if (!pathname) return false;
+  return AUTHENTICATED_ONLY_PREFIXES.some((prefix) => isPathWithinTree(pathname, prefix));
 }
 
 export function getRequiredRoleForPathname(pathname: string | null | undefined): AppRole | null {

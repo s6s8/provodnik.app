@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   getDashboardPathForRole,
   getRequiredRoleForPathname,
+  requiresAuthenticatedSession,
   resolveCanonicalRole,
   roleHasAccess,
 } from "@/lib/auth/role-routing";
@@ -44,6 +45,12 @@ export async function proxy(request: NextRequest) {
 
   if (!hasSupabaseEnv()) {
     if (!requiredRole) {
+      if (
+        requiresAuthenticatedSession(request.nextUrl.pathname) &&
+        !getDemoRoleFromRequest(request)
+      ) {
+        return redirectToAuth(request);
+      }
       return NextResponse.next();
     }
 
@@ -70,6 +77,9 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   if (!requiredRole) {
+    if (!user && requiresAuthenticatedSession(request.nextUrl.pathname)) {
+      return applyCookies(redirectToAuth(request));
+    }
     return continueWithRefreshedSession(request, applyCookies);
   }
 
