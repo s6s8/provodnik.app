@@ -36,8 +36,8 @@ export function ContactVisibilityChip({
       </Badge>
       {!unlocked ? (
         <p className="text-ink-3 text-xs font-normal normal-case tracking-normal">
-          Рейтинг: {averageRating != null ? averageRating.toFixed(1) : "–"} / 4.0 ·
-          Ответы: {Math.round((responseRate ?? 0) * 100)}% / 60%
+          Рейтинг: {averageRating != null ? averageRating.toFixed(1).replace(".", ",") : "–"} из
+          5,0 · порог 4,0 · Ответы: {Math.round((responseRate ?? 0) * 100)}% · порог 60%
         </p>
       ) : null}
     </div>

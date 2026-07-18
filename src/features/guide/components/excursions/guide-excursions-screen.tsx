@@ -64,6 +64,9 @@ export function GuideExcursionsScreen() {
   >([]);
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
+  // Which field the current tplError belongs to, so the invalid input carries
+  // aria-invalid + aria-describedby pointing at the footer alert (id="tpl-error").
+  const [tplErrorField, setTplErrorField] = useState<string | null>(null);
   const [deletingTemplateId, setDeletingTemplateId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"excursions" | "photos">("excursions");
@@ -131,7 +134,7 @@ export function GuideExcursionsScreen() {
   function openCreateSheet() {
     setEditingTemplate(null);
     reset(defaultExcursionFormValues);
-    setTplError(null);
+    clearTplError();
     setSheetOpen(true);
   }
 
@@ -153,36 +156,43 @@ export function GuideExcursionsScreen() {
       region: template.region ?? "",
       category: template.category ?? "",
     });
-    setTplError(null);
+    clearTplError();
     setSheetOpen(true);
   }
 
+  // Point the alert at the first invalid field (title → price → max → photos), so
+  // that field can announce itself as invalid, not just the shared alert text.
+  function reportTplError(candidates: Array<[field: string, message: string | undefined]>) {
+    const hit = candidates.find(([, message]) => Boolean(message));
+    setTplErrorField(hit?.[0] ?? null);
+    setTplError(hit?.[1] ?? "Ошибка сохранения.");
+  }
+
+  function clearTplError() {
+    setTplErrorField(null);
+    setTplError(null);
+  }
+
   const handleTemplateValidationError: SubmitErrorHandler<ExcursionFormInput> = (errors) => {
-    setTplError(
-      errors.title?.message ??
-        errors.priceRub?.message ??
-        errors.maxParticipants?.message ??
-        errors.photoUrls?.message ??
-        "Ошибка сохранения.",
-    );
+    reportTplError([
+      ["title", errors.title?.message],
+      ["priceRub", errors.priceRub?.message],
+      ["maxParticipants", errors.maxParticipants?.message],
+      ["photoUrls", errors.photoUrls?.message],
+    ]);
   };
 
   function handleSaveTemplateClick() {
     const parsed = excursionFormSchema.safeParse(getValues());
     if (!parsed.success) {
-      const titleIssue = parsed.error.issues.find((issue) => issue.path[0] === "title");
-      const priceIssue = parsed.error.issues.find((issue) => issue.path[0] === "priceRub");
-      const maxParticipantsIssue = parsed.error.issues.find(
-        (issue) => issue.path[0] === "maxParticipants",
-      );
-      const photoUrlsIssue = parsed.error.issues.find((issue) => issue.path[0] === "photoUrls");
-      setTplError(
-        titleIssue?.message ??
-          priceIssue?.message ??
-          maxParticipantsIssue?.message ??
-          photoUrlsIssue?.message ??
-          "Ошибка сохранения.",
-      );
+      const messageFor = (field: string) =>
+        parsed.error.issues.find((issue) => issue.path[0] === field)?.message;
+      reportTplError([
+        ["title", messageFor("title")],
+        ["priceRub", messageFor("priceRub")],
+        ["maxParticipants", messageFor("maxParticipants")],
+        ["photoUrls", messageFor("photoUrls")],
+      ]);
       return;
     }
 
@@ -191,7 +201,7 @@ export function GuideExcursionsScreen() {
 
   async function handleSaveTemplate(values: ExcursionFormValues) {
     setTplSaving(true);
-    setTplError(null);
+    clearTplError();
     try {
       if (editingTemplate) {
         const updated = await updateGuideTemplate(editingTemplate.id, {
@@ -226,6 +236,8 @@ export function GuideExcursionsScreen() {
       }
       setSheetOpen(false);
     } catch (err) {
+      // A save-time failure is not tied to one field — clear any field flag.
+      setTplErrorField(null);
       setTplError(err instanceof Error ? err.message : "Ошибка сохранения.");
     } finally {
       setTplSaving(false);
@@ -357,6 +369,8 @@ export function GuideExcursionsScreen() {
                 maxLength={120}
                 placeholder="Например: Прогулка по центру Казани"
                 className="mt-1.5"
+                aria-invalid={tplErrorField === "title" || undefined}
+                aria-describedby={tplErrorField === "title" ? "tpl-error" : undefined}
                 {...register("title")}
               />
             </div>
@@ -390,6 +404,8 @@ export function GuideExcursionsScreen() {
                 step={1}
                 placeholder="Например: 5000"
                 className="mt-1.5"
+                aria-invalid={tplErrorField === "priceRub" || undefined}
+                aria-describedby={tplErrorField === "priceRub" ? "tpl-error" : undefined}
                 {...register("priceRub")}
               />
             </div>
@@ -413,6 +429,8 @@ export function GuideExcursionsScreen() {
                 max={500}
                 placeholder="10"
                 className="mt-1.5"
+                aria-invalid={tplErrorField === "maxParticipants" || undefined}
+                aria-describedby={tplErrorField === "maxParticipants" ? "tpl-error" : undefined}
                 {...register("maxParticipants")}
               />
             </div>
@@ -572,7 +590,7 @@ export function GuideExcursionsScreen() {
                 the bottom of the scrollable body and could be scrolled out of view,
                 making a rejected save look silent. */}
             {tplError && (
-              <p role="alert" className="mb-3 text-sm text-destructive">
+              <p id="tpl-error" role="alert" className="mb-3 text-sm text-destructive">
                 {tplError}
               </p>
             )}

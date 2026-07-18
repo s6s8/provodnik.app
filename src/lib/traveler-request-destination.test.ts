@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
+import {
+  isSupportedDestinationLabel,
+  sanitizeTravelerRequestDestinationLabel,
+} from "@/lib/traveler-request-destination";
 
 describe("sanitizeTravelerRequestDestinationLabel", () => {
   it("removes leaked attribute fragments from destination labels", () => {
@@ -25,5 +28,40 @@ describe("sanitizeTravelerRequestDestinationLabel", () => {
 
   it("falls back when the label is empty", () => {
     expect(sanitizeTravelerRequestDestinationLabel(" placeholder=Москва")).toBe("Маршрут");
+  });
+});
+
+describe("isSupportedDestinationLabel", () => {
+  it("accepts real place names, including unlisted and multi-word ones", () => {
+    for (const name of [
+      "Москва",
+      "Шанхай",
+      "Казань",
+      "Санкт-Петербург",
+      "Ростов-на-Дону",
+      "Нижний Новгород",
+      "Астраханский край",
+      "Марс-Сити",
+      "Paris",
+    ]) {
+      expect(isSupportedDestinationLabel(name), name).toBe(true);
+    }
+  });
+
+  it("rejects symbol/number garbage", () => {
+    for (const junk of [
+      "!!!###garbage_XYZ_ноль123",
+      "12345",
+      "<script>alert(1)</script>",
+      "___",
+      "a", // too short
+      "ЁЁЁЁЁЁ", // one distinct letter repeated
+    ]) {
+      expect(isSupportedDestinationLabel(junk), junk).toBe(false);
+    }
+  });
+
+  it("rejects overlong input past the 80-char bound", () => {
+    expect(isSupportedDestinationLabel("Ё".repeat(81))).toBe(false);
   });
 });

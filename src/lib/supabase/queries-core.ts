@@ -481,7 +481,12 @@ export function mapRequestRow(
     travelerId: (row.traveler_id as string | null) ?? null,
     destination: destinationLabel,
     destinationSlug: normalizeSlug(dest),
-    destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "Россия",
+    // Never fabricate a country. `region` is optional and, in practice, null for
+    // every open request (the request form does not capture it), so defaulting to
+    // "Россия" invented a country badge — and rendered "Шанхай / Россия" on the
+    // public card. Fall back to empty so the card shows the city alone, matching
+    // the detail page (which already drops the "Россия" fallback in its breadcrumb).
+    destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "",
     title: destinationLabel,
     dateLabel: (meta.dateRangeLabel as string | null) ?? formatRussianDateRange(
       (row.starts_on as string) ?? "",
