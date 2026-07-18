@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { after } from "next/server";
 
 import { rubToKopecks } from "@/data/money";
 import { travelerRequestSchema } from "@/data/traveler-request/schema";
@@ -147,19 +148,28 @@ export async function createRequestAction(
     return { error: `Не удалось сохранить запрос: ${message}` };
   }
 
-  try {
-    await notifyGuidesNewRequest(requestId);
-  } catch {
-    // notification errors are non-fatal — traveler redirect proceeds
-  }
-
-  await logFunnelEvent({
-    event_type: "request_created",
-    scope: "request",
-    request_id: requestId,
-    actor_id: travelerId,
-    summary: "Заявка создана",
-    payload: { mode: input.mode },
+  // Guide fan-out notifications (per-guide DB reads + Resend email) used to be
+  // awaited here, adding ~9-10s to the spinner before redirect. They are
+  // non-blocking side effects — run them after the response so the traveler
+  // reaches their new request immediately.
+  after(async () => {
+    try {
+      await notifyGuidesNewRequest(requestId);
+    } catch {
+      // notification errors are non-fatal
+    }
+    try {
+      await logFunnelEvent({
+        event_type: "request_created",
+        scope: "request",
+        request_id: requestId,
+        actor_id: travelerId,
+        summary: "Заявка создана",
+        payload: { mode: input.mode },
+      });
+    } catch {
+      // analytics logging is best-effort
+    }
   });
 
   redirect(`/requests/${requestId}?created=1&mode=${input.mode}`);

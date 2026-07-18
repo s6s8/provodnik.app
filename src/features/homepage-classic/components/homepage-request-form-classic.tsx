@@ -284,6 +284,9 @@ function DestinationCombobox({
               ref={inputRef}
               className={cn(FIN, "text-lg")}
               placeholder="Куда едете?"
+              // Cap input length at the schema's max so a destination label can
+              // never be pasted unbounded (matches the 80-char Zod/DB contract).
+              maxLength={80}
               // Restates the role cmdk applies at runtime — without it jsx-a11y reads a
               // bare textbox and rejects aria-expanded. The rule then wants aria-controls,
               // which cmdk injects itself (it points at the cmdk-generated list id).
@@ -387,8 +390,11 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
         </div>
       ) : null}
 
-      {/* Направление */}
-      <div className="flex flex-col gap-1.5">
+      {/* Направление — relative z-20 lifts this block (and its suggestion
+          popover) into a stacking context above the following «Когда» row, so a
+          suggestion is hit-testable instead of being intercepted by the date
+          label that follows it in DOM order. */}
+      <div className="relative z-20 flex flex-col gap-1.5">
         <Label htmlFor="destination">Направление</Label>
         <DestinationCombobox
           destinations={destinations}
@@ -526,6 +532,9 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
                 id="budgetPerPersonRub"
                 className={FIN}
                 inputMode="numeric"
+                // Hard cap keystrokes above the Zod ceiling (max 2 000 000 ₽ is
+                // 7 digits); server-side Zod stays the source of truth.
+                maxLength={9}
                 placeholder="например, 5000"
                 aria-invalid={Boolean(errors.budgetPerPersonRub)}
                 aria-describedby={

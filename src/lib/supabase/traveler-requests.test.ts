@@ -167,6 +167,28 @@ describe('getActiveRequests', () => {
     expect(summary.open_to_join).toBe(true)
     expect(summary.date_locked).toBe(false)
   })
+
+  it('filters the active bucket to status=open only — never expired (#active-tab)', async () => {
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'traveler_requests') return requestQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    await getActiveRequests('traveler-active-1')
+
+    // The status filter must be an equality on 'open', not an .in([...]) that
+    // re-admits 'expired' into the "Активные" tab (the reported bug).
+    expect(requestQuery.eq).toHaveBeenCalledWith('status', 'open')
+    const statusInCalls = requestQuery.in.mock.calls.filter((c) => c[0] === 'status')
+    expect(statusInCalls).toHaveLength(0)
+  })
 })
 
 describe('getConfirmedBookings', () => {

@@ -84,8 +84,9 @@ type RpcClient = {
 // ---------------------------------------------------------------------------
 
 /**
- * Fetch active (open/expired/cancelled) requests for a traveler with offer
- * counts and up to 3 guide avatars — no N+1 (one batch query for all offers).
+ * Fetch active (open) requests for a traveler with offer counts and up to 3
+ * guide avatars — no N+1 (one batch query for all offers). Expired requests are
+ * terminal and must not appear in — or be counted by — the "Активные" tab.
  */
 export const getActiveRequests = cache(async (travelerId: string): Promise<TravelerRequestSummary[]> => {
   const supabase = await createSupabaseServerClient()
@@ -94,7 +95,7 @@ export const getActiveRequests = cache(async (travelerId: string): Promise<Trave
     .from('traveler_requests')
     .select('id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked, date_flexibility')
     .eq('traveler_id', travelerId)
-    .in('status', ['open', 'expired'])
+    .eq('status', 'open')
     .order('created_at', { ascending: false })
 
   if (error) throw error

@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   getRequiredRoleForPathname,
+  requiresAuthenticatedSession,
   resolveCanonicalRole,
   roleHasAccess,
 } from "./role-routing";
@@ -64,6 +65,22 @@ describe("getRequiredRoleForPathname", () => {
   it("requires guide role for the guide profile editor", () => {
     expect(getRequiredRoleForPathname("/guide/profile")).toBe("guide");
     expect(getRequiredRoleForPathname("/guide/profile/about")).toBe("guide");
+  });
+});
+
+describe("requiresAuthenticatedSession — shared personal routes (#account-gating)", () => {
+  it("gates /account on authentication without pinning it to a single role", () => {
+    // /account is shared by every role, so it must NOT require a specific role
+    // (that would lock guides/admins out) but MUST require a session at the edge.
+    expect(getRequiredRoleForPathname("/account")).toBeNull();
+    expect(requiresAuthenticatedSession("/account")).toBe(true);
+    expect(requiresAuthenticatedSession("/account/notifications")).toBe(true);
+  });
+
+  it("does not force authentication on public routes", () => {
+    expect(requiresAuthenticatedSession("/")).toBe(false);
+    expect(requiresAuthenticatedSession("/requests")).toBe(false);
+    expect(requiresAuthenticatedSession(null)).toBe(false);
   });
 });
 

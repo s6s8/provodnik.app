@@ -22,6 +22,14 @@ vi.mock("@/lib/supabase/requests", () => ({
 }));
 vi.mock("@/lib/analytics/marketplace-events", () => ({ logFunnelEvent: vi.fn() }));
 
+// In production `after()` runs inside the Server Action's request scope; under
+// the unit runner there is no such scope, so run the callback inline instead.
+vi.mock("next/server", () => ({
+  after: (callback: () => unknown) => {
+    void callback();
+  },
+}));
+
 import { buildRequestInsertPayload, createRequestAction } from "./create-request-actions";
 
 const baseInput: TravelerRequest = {

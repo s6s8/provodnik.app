@@ -78,6 +78,9 @@ const nextConfig: NextConfig = {
       { source: "/traveler/bookings/:id/dispute", destination: "/bookings/:id/dispute", permanent: true },
       { source: "/traveler/bookings", destination: "/trips", permanent: true },
       { source: "/guide/settings", destination: "/guide/profile", permanent: true },
+      // Legacy alias: the guide account/profile lives at /guide/profile. Without
+      // this, /guide/account rendered a crashed error boundary (RSC throw) on 200.
+      { source: "/guide/account", destination: "/guide/profile", permanent: true },
       { source: "/profile/personal", destination: "/account", permanent: true },
       { source: "/profile/personal/notifications", destination: "/account/notifications", permanent: true },
       { source: "/policies/cancellation", destination: "/trust", permanent: false },

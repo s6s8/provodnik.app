@@ -28,7 +28,7 @@ vi.mock("@/features/guide/components/public/public-guides-grid", () => ({
   },
 }));
 
-import GuidesPage from "./page";
+import { GuidesContent } from "./page";
 
 describe("GuidesPage", () => {
   beforeEach(() => {
@@ -39,7 +39,7 @@ describe("GuidesPage", () => {
   it("delegates to PublicGuidesGrid with the fetched guides", async () => {
     getGuidesMock.mockResolvedValueOnce({ data: [{ id: "g1" }], error: null });
 
-    render(await GuidesPage({ searchParams: Promise.resolve({}) }));
+    render(await GuidesContent({ searchParams: Promise.resolve({}) }));
 
     expect(screen.getByTestId("public-guides-grid")).toBeInTheDocument();
     expect(gridPropsSpy).toHaveBeenCalledWith(
@@ -50,7 +50,7 @@ describe("GuidesPage", () => {
   it("forwards loadError when the query fails", async () => {
     getGuidesMock.mockResolvedValueOnce({ data: null, error: new Error("boom") });
 
-    render(await GuidesPage({ searchParams: Promise.resolve({}) }));
+    render(await GuidesContent({ searchParams: Promise.resolve({}) }));
 
     expect(gridPropsSpy).toHaveBeenCalledWith(
       expect.objectContaining({ loadError: true }),
@@ -61,13 +61,13 @@ describe("GuidesPage", () => {
     getGuidesMock.mockResolvedValue({ data: [], error: null });
 
     readAuthContextMock.mockResolvedValueOnce({ role: "guide" });
-    render(await GuidesPage({ searchParams: Promise.resolve({}) }));
+    render(await GuidesContent({ searchParams: Promise.resolve({}) }));
     expect(gridPropsSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({ showGuideCta: false }),
     );
 
     readAuthContextMock.mockResolvedValueOnce({ role: "traveler" });
-    render(await GuidesPage({ searchParams: Promise.resolve({}) }));
+    render(await GuidesContent({ searchParams: Promise.resolve({}) }));
     expect(gridPropsSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({ showGuideCta: true }),
     );

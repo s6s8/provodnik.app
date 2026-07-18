@@ -51,11 +51,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
+
+  // Mirror the page guards here so notFound() runs before the loading.tsx stream
+  // flushes a 200 shell — otherwise a missing/QA guide is a soft-404 (HTTP 200).
+  if (isQaGuideSlug(slug)) notFound();
+
   const { guideResult } = await getGuidePageData(slug);
 
-  if (!guideResult.data) {
-    return { title: "Гид не найден" };
-  }
+  if (!guideResult.data) notFound();
 
   return {
     title: guideResult.data.fullName,

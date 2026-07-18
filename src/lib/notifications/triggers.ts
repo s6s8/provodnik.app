@@ -508,31 +508,36 @@ export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
   // PRIMARY KEY (kind, entity_id), so a bare requestId would let the first guide's row
   // swallow the key and every other guide's mail would be dropped as "already sent" —
   // silently. Same shape as notifyBookingCancelled, the other multi-recipient path.
-  for (const guide of matchingGuides) {
-    try {
-      if (await guideEmailDisabled(guide.user_id, "new_request")) continue;
-      const to = await getUserEmail(guide.user_id);
-      if (!to) continue;
-      const { subject, html } = renderNewRequestEmail({
-        destination: request.destination,
-        participants: request.participants_count ?? 1,
-        inboxUrl: `${getSiteUrl()}/guide/inbox`,
-      });
-      await sendNotificationEmail({
-        kind: "new_request",
-        entityId: `${parsedRequestId}:${guide.user_id}`,
-        to,
-        subject,
-        html,
-      });
-    } catch (e) {
-      // An email must never fail the request that triggered it.
-      console.error(
-        "[notifyGuidesNewRequest] email skipped:",
-        e instanceof Error ? e.message : e,
-      );
-    }
-  }
+  // Fan out per-guide emails concurrently — each guide's send is independent, so
+  // a sequential loop only added latency (it ran on the request's critical path
+  // before this became an after()-scheduled side effect).
+  await Promise.allSettled(
+    matchingGuides.map(async (guide) => {
+      try {
+        if (await guideEmailDisabled(guide.user_id, "new_request")) return;
+        const to = await getUserEmail(guide.user_id);
+        if (!to) return;
+        const { subject, html } = renderNewRequestEmail({
+          destination: request.destination,
+          participants: request.participants_count ?? 1,
+          inboxUrl: `${getSiteUrl()}/guide/inbox`,
+        });
+        await sendNotificationEmail({
+          kind: "new_request",
+          entityId: `${parsedRequestId}:${guide.user_id}`,
+          to,
+          subject,
+          html,
+        });
+      } catch (e) {
+        // An email must never fail the request that triggered it.
+        console.error(
+          "[notifyGuidesNewRequest] email skipped:",
+          e instanceof Error ? e.message : e,
+        );
+      }
+    }),
+  );
 
   const failures = results.filter((result) => result.status === "rejected");
   if (failures.length > 0) {

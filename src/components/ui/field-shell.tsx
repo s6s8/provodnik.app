@@ -15,7 +15,7 @@ export function FieldShell({ children, className }: FieldShellProps) {
   return (
     <div
       className={cn(
-        "flex items-center gap-2.5 rounded-step border border-border bg-surface px-3 py-3 transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20",
+        "flex items-center gap-2.5 rounded-step border border-border bg-surface px-3 py-3 transition-[border-color,box-shadow] focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/50",
         className,
       )}
     >

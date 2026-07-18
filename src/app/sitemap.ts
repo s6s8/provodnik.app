@@ -75,7 +75,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .from("guide_profiles")
           .select("slug, updated_at")
           .eq("verification_status", "approved")
-          .not("slug", "is", null),
+          .not("slug", "is", null)
+          // Seed/QA guide accounts 404 on the public route (isQaGuideSlug); keep
+          // them out of the sitemap so it never advertises dead/QA URLs.
+          .not("slug", "ilike", "qa-%"),
         supabase
           .from("traveler_requests")
           .select("id, updated_at")
