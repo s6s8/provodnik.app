@@ -22,10 +22,15 @@ import { updateOwnPhoneAction } from "@/features/guide/actions/updateOwnPhone";
 export function PhoneRequiredDialog() {
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const [pending, startTransition] = useTransition();
 
+  // Close optimistically the moment the save succeeds. The action's
+  // revalidatePath("/guide","layout") then re-renders the layout and unmounts
+  // this dialog for good — but that round-trip takes a beat, and without a local
+  // close the guide would stare at an unchanged dialog after a successful save.
   return (
-    <Dialog open>
+    <Dialog open={!saved}>
       <DialogContent
         showCloseButton={false}
         onEscapeKeyDown={(event) => event.preventDefault()}
@@ -46,10 +51,10 @@ export function PhoneRequiredDialog() {
             startTransition(async () => {
               const result = await updateOwnPhoneAction(phone);
               if (result.ok) {
-                // The action already revalidatePath("/guide","layout"), which
-                // re-renders the layout and unmounts this dialog. A second
-                // router.refresh() here fired a duplicate RSC POST that aborted
-                // the first (net::ERR_ABORTED) — drop it.
+                // Local close + revalidatePath (in the action) is enough; the
+                // previous router.refresh() here fired a duplicate RSC POST that
+                // aborted the first (net::ERR_ABORTED).
+                setSaved(true);
                 return;
               }
               setError(result.error);
