@@ -6,12 +6,15 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const BASE = process.env.AUDIT_BASE || "https://provodnik.app";
-const PW = process.env.AUDIT_PW || "Provodnik-QA-2026!";
+// Authoritative QA credentials live in tests/e2e/fixtures.ts (SEED_USERS). The
+// old *@demo.provodnik.app demo accounts no longer authenticate on prod.
+// Never hard-code the password — read it from the environment.
+const PW = process.env.AUDIT_PW || process.env.QA_SEED_PASSWORD || "";
 const OUT = path.resolve("audit/screens");
 const ACCOUNTS = {
-  traveler: "traveler.anna@demo.provodnik.app",
-  guide: "guide.baatr@demo.provodnik.app",
-  admin: "admin.demo@demo.provodnik.app",
+  traveler: "qa-traveler@example.com",
+  guide: "qa-guide@example.com",
+  admin: "qa-admin@example.com",
 };
 const VIEWPORTS = [
   { tag: "desktop", width: 1440, height: 900 },
