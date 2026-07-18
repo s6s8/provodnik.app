@@ -201,6 +201,50 @@ Legend: **FIXED+VERIFIED** = code/data change + independent evidence; **NO-CHANG
 
 ---
 
-## Release receipt & production verification
+## Release receipt
 
-_(appended after commit + deploy — see below.)_
+- **Branch:** `ops/launch-remediation-20260718`, 6 coherent commits on baseline `8b4fd6dd` (SEO/404 · requests lifecycle · auth gating · UI/guide · docs · (site) dynamic-render fix), plus one follow-up commit (phone-dialog optimistic close).
+- **Integration:** PR **#295** (main audit) + PR **#296** (phone-dialog follow-up), both green on CI (`quality` = typecheck/lint/ratchet/test/build, `db-tests` = pgTAP, `Vercel` preview) and merged with normal merge commits — no force-push.
+- **`origin/main`:** `670a22d7` (merge of #296).
+- **Vercel prod (`provodnik.app`):** auto-deployed `670a22d7`; verified live (fast-close + all public routes).
+- **VPS (`vps.provodnik.app`, `/opt/provodnik`, systemd `provodnik.service`, Caddy):** `git pull --ff-only` → `bun install --frozen-lockfile` → `bun run build` → `systemctl restart provodnik.service`. Post-deploy: `git HEAD = 670a22d7` (= main = Vercel), `service = active`, `caddy = active`, listening on :3000.
+- **Commit parity:** VPS checkout `670a22d7` == `origin/main` `670a22d7` == Vercel production deploy.
+
+## Production verification (fresh contexts, 1440 + 375)
+
+Each row replayed against live production after deploy; browser evidence via headless Chrome-for-Testing (screenshots in the QA scratch dir), API/HTTP via curl + Supabase service-role reads.
+
+| # | Route/flow | provodnik.app (Vercel) | vps.provodnik.app (VPS) |
+|---|---|---|---|
+| 1 | `/requests/35321ef2` meta | `content="Подробности открытой группы…"` (fallback) | same |
+| 2 | `/requests` `>кал<` count | 0 | 0 |
+| 3 | `/guide/account` | `308 → /guide/profile` | `308 → /guide/profile` |
+| 4 | destination suggestion click | `clicked-ok`, fills "Волгоград" @1440+@375 | (shared build) |
+| 5 | 5 form fields focus ring | `oklab(primary/0.5) 0 0 0 2px` on all five | (shared build) |
+| 6 | phone gate sign-out | dialog shows "Выйти из аккаунта" | same |
+| 7 | `/requests/<bad>`, `/guides/<bad>`, qa-slug | `404` + `robots:noindex`, regular **and** Googlebot UA | `404` |
+| 8 | excursion invalid submit | `role="alert"` "Название обязательно." visible | (shared build) |
+| 9 | request-create action | Server Action `303` in **3.7s** (was ~9–10s); notify offloaded to `after()` | (shared build) |
+| 10 | `/trips` Активные | expired "Казань" absent, tab count 0, no "Истёк" | (shared build) |
+| 13 | phone save | 1 POST, 0 `ERR_ABORTED`, dialog closes <2.5s | 1 POST, 0 aborted, closes <2.5s |
+| 14 | rating meter | "0,0 / 5,0 · порог 4,0" | (shared build) |
+| 17 | `/account` unauth | `307 → /auth?next=/account` | `307 → /auth?next=/account` |
+| 18 | `sitemap.xml` | 0 `qa-` guide slugs; `0bab405f` absent | 0 `qa-` slugs |
+| 21 | `/auth` tab order | no duplicate "Проводник" home link | same |
+| 12 | admin login | 5/5 reached `/admin`, auth-200, 3–5s (no hang) | — |
+| 16 | empty login | `role="alert"` "Введите email, чтобы продолжить." | — |
+
+Real routes stayed healthy on both hosts (`/`, `/requests`, `/guides`, `/help`, real request detail → 200; list pages keep their streamed skeleton). No console/network failures introduced.
+
+## Final hygiene
+- Data repairs live and verified (кал depublished, ЙОУ notes cleared). Reversible receipts recorded above.
+- Both #9 timing probe requests (`989213e2`, `b7e0c11a`) created during verification were deleted via service key. Post-run sweep: **0 junk among 22 open requests**; no test data left by this session.
+- Independent code review (feature-dev:code-reviewer) run post-implementation: one Important finding (deleting `(site)/loading.tsx` dropped list-page skeletons) — **fixed** via in-page `<Suspense>` + `force-dynamic`; all other changes verified correct.
+
+## Terminal verdict: `verified`
+All 23 findings dispositioned: 16 fixed + independently production-verified; 4 verified no product change required (12, 16, 20, and closed-23); 1 not reproducible (22); plus data repairs and doc consolidation. Remaining open findings: **0**.
+
+### Proactive flags (out of scope, for a future pass)
+- Pre-existing `lint:gid` failure on baseline (`admin-listings.ts` `"Гид"` fallback) — not in the enforced chain, unrelated to any finding.
+- Pre-existing cancelled/expired QA-labeled traveler requests from earlier campaigns remain (non-public: excluded from sitemap/catalogue by `status`). Harmless; a future cleanup could purge them.
+- The request-detail page render (~4s after the create redirect) is the remaining slice of the perceived create latency once #9's notification offload landed — a separate rendering-performance concern, not part of this audit.
