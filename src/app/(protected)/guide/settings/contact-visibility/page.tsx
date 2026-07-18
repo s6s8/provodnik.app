@@ -61,7 +61,7 @@ export default async function ContactVisibilitySettingsPage() {
   const responseMet = (responseRate ?? 0) >= 0.6;
 
   const ratingLabel =
-    averageRating != null ? averageRating.toFixed(1) : "–";
+    averageRating != null ? averageRating.toFixed(1).replace(".", ",") : "–";
   const responsePct = Math.round((responseRate ?? 0) * 100);
 
   return (
@@ -117,7 +117,8 @@ export default async function ContactVisibilitySettingsPage() {
             <div className="min-w-0 flex flex-col gap-1">
               <p className="text-sm font-medium text-foreground">Рейтинг</p>
               <p className="text-sm text-ink-2">
-                {ratingLabel} / 4.0
+                {ratingLabel} / 5,0{" "}
+                <span className="text-muted-foreground">· порог 4,0</span>
               </p>
             </div>
           </li>

@@ -565,15 +565,25 @@ export function GuideExcursionsScreen() {
                 </button>
               </div>
             </div>
-            {tplError && <p className="text-xs text-destructive">{tplError}</p>}
           </div>
-          <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border px-4 pb-4 pt-4">
-            <Button type="button" variant="outline" onClick={() => setSheetOpen(false)}>
-              Отмена
-            </Button>
-            <Button type="button" loading={tplSaving} onClick={handleSaveTemplateClick}>
-              Сохранить
-            </Button>
+          <div className="mt-6 border-t border-border px-4 pb-4 pt-4">
+            {/* Kept in the sticky footer (next to Save), with role="alert", so an
+                invalid submit is always visible/announced — previously this sat at
+                the bottom of the scrollable body and could be scrolled out of view,
+                making a rejected save look silent. */}
+            {tplError && (
+              <p role="alert" className="mb-3 text-sm text-destructive">
+                {tplError}
+              </p>
+            )}
+            <div className="grid grid-cols-2 gap-3">
+              <Button type="button" variant="outline" onClick={() => setSheetOpen(false)}>
+                Отмена
+              </Button>
+              <Button type="button" loading={tplSaving} onClick={handleSaveTemplateClick}>
+                Сохранить
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +20,6 @@ import { updateOwnPhoneAction } from "@/features/guide/actions/updateOwnPhone";
  * until a reachable phone exists.
  */
 export function PhoneRequiredDialog() {
-  const router = useRouter();
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -48,7 +46,10 @@ export function PhoneRequiredDialog() {
             startTransition(async () => {
               const result = await updateOwnPhoneAction(phone);
               if (result.ok) {
-                router.refresh();
+                // The action already revalidatePath("/guide","layout"), which
+                // re-renders the layout and unmounts this dialog. A second
+                // router.refresh() here fired a duplicate RSC POST that aborted
+                // the first (net::ERR_ABORTED) — drop it.
                 return;
               }
               setError(result.error);
@@ -73,6 +74,13 @@ export function PhoneRequiredDialog() {
           ) : null}
           <Button type="submit" className="mt-2" disabled={pending || phone.trim() === ""}>
             {pending ? "Сохраняем…" : "Сохранить"}
+          </Button>
+        </form>
+        {/* Escape hatch: a guide who does not want to provide a phone on this
+            device must still be able to leave, rather than being trapped. */}
+        <form action="/api/auth/signout" method="post" className="mt-1">
+          <Button type="submit" variant="ghost" size="sm" className="w-full text-muted-foreground">
+            Выйти из аккаунта
           </Button>
         </form>
       </DialogContent>
