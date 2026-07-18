@@ -1,12 +1,32 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CardGridSkeleton } from "@/components/shared/loading-skeletons";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { cityImage } from "@/lib/city-image";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+
+// In-page skeleton replaces the removed (site)/loading.tsx boundary for this
+// list (the shared boundary was deleted so sibling *detail* routes can return a
+// real 404 — see the request/guide detail routes). A local Suspense keeps the
+// marketplace skeleton here without re-introducing a boundary over the details.
+function RequestsListSkeleton() {
+  return (
+    <div className="mx-auto w-full max-w-page flex flex-col gap-8 px-[clamp(20px,4vw,48px)] py-16">
+      <div className="flex flex-col gap-4">
+        <Skeleton className="h-48 w-full rounded-card" />
+        <Skeleton className="h-6 w-2/3" />
+        <Skeleton className="h-4 w-1/2" />
+      </div>
+      <CardGridSkeleton count={6} />
+    </div>
+  );
+}
 
 export function generateMetadata(): Metadata {
   return {
@@ -56,7 +76,15 @@ function mapToOpenRequestRecord(
   };
 }
 
-export default async function RequestsPage() {
+export default function RequestsPage() {
+  return (
+    <Suspense fallback={<RequestsListSkeleton />}>
+      <RequestsContent />
+    </Suspense>
+  );
+}
+
+export async function RequestsContent() {
   let initialData: OpenRequestRecord[] | null = null;
   let loadError = false;
 

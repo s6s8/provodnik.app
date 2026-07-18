@@ -53,28 +53,30 @@ export async function generateMetadata({
   const { requestId } = await params;
   const result = await getRequestDetail(requestId);
 
-  if (!result.data) {
-    return {
-      title: "Запрос не найден",
-      alternates: { canonical: `/requests/${requestId}` },
-    };
-  }
+  // notFound() thrown here (before the loading.tsx stream flushes the 200 shell)
+  // yields a real HTTP 404. Returning a plain title kept the status at 200 (soft-404).
+  if (!result.data) notFound();
 
   if (result.data.mode !== "assembly") {
     const viewerRole = await viewerRoleForRequest(requestId);
-    if (viewerRole !== "owner" && viewerRole !== "guide") {
-      return {
-        title: "Запрос не найден",
-        alternates: { canonical: `/requests/${requestId}` },
-      };
-    }
+    if (viewerRole !== "owner" && viewerRole !== "guide") notFound();
   }
 
   return {
     title: `${result.data.destination} — ${result.data.dateLabel}`,
-    description: result.data.description || "Подробности открытой группы путешественников.",
+    // Public metadata must mask contacts (same rule the body applies) and never
+    // echo unbounded free-text into an indexable <meta>; fall back when empty.
+    description: sanitizeMetaDescription(result.data.description),
     alternates: { canonical: `/requests/${requestId}` },
   };
+}
+
+const META_DESCRIPTION_FALLBACK = "Подробности открытой группы путешественников.";
+
+function sanitizeMetaDescription(raw: string | null | undefined): string {
+  const cleaned = maskPii(raw ?? "").replace(/\s+/g, " ").trim();
+  if (!cleaned) return META_DESCRIPTION_FALLBACK;
+  return cleaned.length > 160 ? `${cleaned.slice(0, 159).trimEnd()}…` : cleaned;
 }
 
 // PII-012: everyone except the owner sees the request free-text with contact

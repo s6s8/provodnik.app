@@ -22,7 +22,7 @@ vi.mock("@/features/requests/components/public-requests-marketplace-screen", () 
   ),
 }));
 
-import RequestsPage from "./page";
+import { RequestsContent } from "./page";
 
 function requestRecord(overrides: Partial<RequestRecord>): RequestRecord {
   return {
@@ -78,7 +78,7 @@ describe("RequestsPage", () => {
       ],
     });
 
-    const rendered = await RequestsPage();
+    const rendered = await RequestsContent();
 
     expect(getOpenRequests).toHaveBeenCalledWith(supabaseClient, undefined, ["open"]);
     expect(rendered.props.initialData).toHaveLength(1);
@@ -101,7 +101,7 @@ describe("RequestsPage", () => {
       ],
     });
 
-    const rendered = await RequestsPage();
+    const rendered = await RequestsContent();
 
     const byId = Object.fromEntries(
       (rendered.props.initialData as Array<{ id: string; isOwner?: boolean }>).map((r) => [r.id, r.isOwner]),
@@ -125,7 +125,7 @@ describe("RequestsPage", () => {
       ],
     });
 
-    const rendered = await RequestsPage();
+    const rendered = await RequestsContent();
 
     expect(supabaseClient.from).toHaveBeenCalledWith("open_request_members");
     expect(membershipQuery.eq).toHaveBeenCalledWith("traveler_id", "traveler-9");
@@ -142,7 +142,7 @@ describe("RequestsPage", () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getOpenRequests.mockResolvedValue({ data: [], error: null });
 
-    const rendered = await RequestsPage();
+    const rendered = await RequestsContent();
 
     expect(rendered.props.initialData).toBeNull();
   });
@@ -151,7 +151,7 @@ describe("RequestsPage", () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getOpenRequests.mockResolvedValue({ data: null, error: new Error("boom") });
 
-    render(await RequestsPage());
+    render(await RequestsContent());
 
     expect(
       screen.getByText("Не удалось загрузить запросы. Попробуйте обновить страницу."),
@@ -163,7 +163,7 @@ describe("RequestsPage", () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getOpenRequests.mockRejectedValue(new Error("database unavailable"));
 
-    render(await RequestsPage());
+    render(await RequestsContent());
 
     expect(
       screen.getByText("Не удалось загрузить запросы. Попробуйте обновить страницу."),
