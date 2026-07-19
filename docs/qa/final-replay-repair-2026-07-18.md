@@ -106,6 +106,60 @@ the card formatter.
   порог 4,0 · Ответы: 0% · порог 60%` — scale max and threshold are now explicit and use
   the Russian decimal comma (`ContactVisibilityChip.tsx`).
 
+### 7. Request notes («Пожелания») public exposure — High privacy → **FIXED + VERIFIED (live pre-fix repro) / live post-fix pending deploy**
+
+Surfaced by a fresh authenticated-traveler continuation: the free-text notes field —
+whose own placeholder invites *«ограничения по здоровью»* (health restrictions) — was
+readable by **anonymous** visitors on the public request detail page.
+
+- **Root cause (two leaks, traced):**
+  1. **Anon (DB boundary):** `v_public_open_requests` projected
+     `mask_public_contact_info(notes) AS notes` — only emails/phones masked, so
+     health/personal free-text survived to `anon`. The anon detail/listing path falls
+     back to this view (`getRequestById`/`getOpenRequests`).
+  2. **Any authenticated non-owner (app):** RLS `traveler_requests_select` allows
+     `auth.uid() IS NOT NULL AND status='open'`, so any logged-in user reads the raw
+     row (incl. `notes`); the detail page then rendered it as the hero intro to
+     non-members (`request-detail-screen.tsx:314`).
+- **Canonical policy (new):** `canSeeRequestNotes` — notes are visible ONLY to the
+  owner, an admin, or an **approved** guide. Never to anon, logged-in
+  non-participants, prospective joiners, joined members; never in SEO metadata or the
+  public marketplace. Public discovery keeps destination, dates, budget, group size,
+  themes. (Members excluded deliberately — smallest safe choice for an underspecified
+  case; the group discussion thread remains for coordination.)
+- **Fix at every layer:**
+  - **DB / anon boundary + retroactive remediation:** migration
+    `20260719000000_privatize_request_notes.sql` reprojects the view's `notes` as
+    `NULL::text`. Because a view is a live projection, this instantly stops serving
+    **every already-public** request's notes to anon — the safe remediation for
+    previously-public content. Safe with the current prod code (null notes → `""`).
+  - **App / authenticated boundary:** the detail page gates `viewModel.notes` and the
+    guide intro via `canSeeRequestNotes`; the marketplace mapper drops notes for
+    non-owners; `generateMetadata` no longer echoes free-text into indexable `<meta>`.
+- **Live pre-fix reproduction (prod `45f0b9ba`, self-cleaning):** created an open QA
+  request with a marked sensitive note, then read it with a no-session client —
+  `v_public_open_requests.notes` returned the full note verbatim, and the anonymous
+  detail page rendered the marker. Both = **leak confirmed live**. Row deleted.
+- **Regression:** `request-notes-visibility.test.ts` (owner/admin/approved-guide see;
+  public/unapproved-guide/member do not) and the detail-page test now asserts a public
+  viewer's `viewModel.notes` is `""` even when the record carries notes.
+- **Note on RLS-vs-app:** the anon leak is closed at the DB boundary (the view — the
+  true security boundary). Postgres RLS is row-level, so per-column privacy for
+  authenticated discovery is inherently app-layer; that path is gated in the read model
+  and never serializes notes to unauthorized viewers.
+- **Live post-fix replay:** pending the operator-gated deploy (the view migration lands
+  through the normal pipeline; no ad-hoc prod DDL was applied — no DB connection string
+  in scope and prod DDL is itself gated).
+
+### Expired-absent-from-Active proof gap → **RESOLVED**
+
+The judge left this BLOCKED (no expired fixture; the UI blocks past dates). Resolved two
+ways: (1) the existing unit test `traveler-requests.test.ts` asserts `getActiveRequests`
+filters `status='open'` and never `.in([...])` that could re-admit `expired`; (2) a live
+RLS proof with a **real** seeded expired record (`status='expired'`) confirmed it is
+absent from the `status='open'` Active filter, then deleted. Legitimate non-production
+fixture, fully cleaned.
+
 ### 6. Re-check changed behavior (1440 / 375) → **VERIFIED (local) / pending live**
 
 - Local: typecheck, lint, 1370 unit/integration tests, and production build all pass; the
@@ -121,7 +175,7 @@ the card formatter.
 ```
 bun run typecheck   → 0 errors
 bun run lint        → 0 errors
-bun run test:run    → 242 files, 1370 tests passed
+bun run test:run    → 243 files, 1374 tests passed (incl. privacy + expired-Active)
 bun run build       → Compiled successfully (exit 0)
 git diff --check    → clean
 ```
@@ -133,8 +187,14 @@ still passes); `photoUrls` errors surface via the alert without a field-level fl
 
 ## Remaining count & terminal verdict
 
-- Findings requiring code repair: **6/6 fixed + locally verified.**
-- Open items: **production deploy + live post-deploy replay** of blockers #1/#2 and the
-  changed surfaces at 1440/375 (release gate — never force; protected `origin/main`).
+- Findings requiring code repair: **7/7 fixed + locally verified** (original 6 + the High
+  notes-privacy leak); the expired-Active proof gap is resolved.
+- Open items: **production deploy + live post-deploy replay** — blockers #1/#2, the anon
+  notes-privacy state, and the changed surfaces at 1440/375 (release gate — never force;
+  protected `origin/main`; the view migration lands via the normal pipeline).
 
-**Terminal verdict (pre-deploy): `verified` locally; production release gated on operator go.**
+**Terminal verdict (pre-deploy): `blocked`** — all engineering `verified` locally (full
+chain green, independent review clean, live pre-fix reproductions for blocker #1 and the
+notes leak, authenticated + expired-Active lifecycles proven). Final release proof is
+gated on operator go for the production deploy (a bad push takes the live site down; the
+project's hard rules reserve it for explicit instruction).
