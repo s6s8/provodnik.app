@@ -84,6 +84,6 @@ describe("listAllListings", () => {
 
     // An orphaned excursion is exactly what an admin needs to SEE, not lose.
     expect(rows).toHaveLength(1);
-    expect(rows[0].guideName).toBe("Гид");
+    expect(rows[0].guideName).toBe("Локальный гид");
   });
 });

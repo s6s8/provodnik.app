@@ -1,5 +1,6 @@
 import "server-only";
 
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { ListingStatusDb, Uuid } from "@/lib/supabase/types";
 
@@ -97,11 +98,12 @@ export async function listAllListings(
       row.user_id as string,
       {
         slug: (row.slug as string | null) ?? null,
-        name: (row.display_name as string | null) ?? "Гид",
+        name: resolveDisplayName("guide", { full_name: row.display_name as string | null }),
       },
     ]),
   );
-  const guideOf = (id: string) => guides.get(id) ?? { slug: null, name: "Гид" };
+  const guideOf = (id: string) =>
+    guides.get(id) ?? { slug: null, name: resolveDisplayName("guide", {}) };
 
   const rows: AdminCatalogueRow[] = [
     ...(listingsRes.data ?? []).map((row) => {
