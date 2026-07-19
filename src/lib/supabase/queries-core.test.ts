@@ -61,6 +61,36 @@ describe("applyGuideFilters QA hiding (F-10)", () => {
   });
 });
 
+// Final live-QA repair (2026-07-19): an independent prod replay reported that an
+// approved+available guide with EMPTY regions/languages is silently absent from
+// public discovery. Source trace + a read-only prod query proved the real cause
+// was the guide's `qa-` seed slug, not the empty arrays: the only approved guide
+// with empty regions/languages was also the only one with a `qa-` slug, so the two
+// variables were confounded. The public gate (verification_status='approved' +
+// is_available=true + role='guide' + active account + non-`qa-` slug) never
+// requires non-empty regions/languages. These tests lock that invariant at the JS
+// boundary where an empty-array exclusion could realistically be re-introduced.
+describe("empty optional profile arrays keep an approved guide discoverable (final live-QA 2026-07-19)", () => {
+  it("applyGuideFilters keeps a non-QA guide whose regions are empty", () => {
+    const guides = [{ slug: "real-guide", destinations: [] } as unknown as GuideRecord];
+    expect(applyGuideFilters(guides).map((g) => g.slug)).toEqual(["real-guide"]);
+  });
+
+  it("mapGuideRow yields a valid discoverable record when regions AND languages are empty", () => {
+    const record = mapGuideRow(
+      { user_id: "u1", slug: "real-guide", display_name: "Гид", regions: [], languages: [] },
+      { full_name: "Гид ФИО" },
+    );
+    // The record is fully formed — nothing about empty arrays drops or breaks it.
+    expect(record.slug).toBe("real-guide");
+    expect(record.fullName).toBe("Гид");
+    expect(record.destinations).toEqual([]);
+    expect(record.languages).toEqual([]);
+    // A guide with no declared region still gets a sane home-base label.
+    expect(record.homeBase).toBe("Россия");
+  });
+});
+
 // Item 13, the two-field name standard: guide_profiles.display_name is the PUBLIC name;
 // profiles.full_name is the private, admin-only FIO. Getting this precedence backwards
 // is not cosmetic — it published every guide's legal name on /guides/[slug], the request
