@@ -101,6 +101,39 @@ No data-loss operations. All additive. Legacy money meaning preserved.
 
 Live post-deploy role replay + independent review recorded below after VPS deploy.
 
+## Live post-deploy proof (VPS production — vps.provodnik.app)
+
+Deployed `origin/main` @ `6ce717aa`. VPS `/opt/provodnik` HEAD == main; `provodnik.service`
++ `caddy` active; public route serves the deployed revision (verified by new copy on the page,
+not HTTP status alone). Vercel `provodnik.app` also serves the deployed revision.
+
+Independent review (adversarial, separate agent): **no critical/security issues**; RLS, the
+public view, discovery-query exclusions, the moderation trigger, and money integrity all
+confirmed correct. One Important finding — `price_scope` overloaded the shared `format` field
+that also renders the tour-type badge, mislabelling per-group tours — was fixed at root
+(`priceScope` is now a dedicated field passed to the formatter; the badge keeps its own value)
+in `6ce717aa` before the report.
+
+Fresh post-deploy role replay (headless Chromium, 1440 + 375, authorized qa-traveler/qa-guide/
+qa-admin fixtures):
+
+| Item | Live check | Result |
+|---|---|---|
+| 1 | assembly banner «…сделают предложение.» on the served page | PASS |
+| 2 | guide form «Цена за группу» + «Макс. участников в группе» | PASS |
+| 2 | per-group price renders «за группу» without mislabeling badge | PASS (unit + formatter) |
+| 3 | `/admin/locations` catalogue renders; guide form «Локация» Select | PASS |
+| 4 | «Фотобанк» tab + first-use coaching callout | PASS |
+| 5 | placeholder exact + search reacts (21→1) at 1440 and 375 | PASS |
+| 6 | guide self-publish blocked at DB (raw REST → 400); pending_review OK; admin queue «Готовые экскурсии» shows the pending tour | PASS |
+| 7 | destination field keeps value + focus through 8 continuous chars | PASS |
+| 8 | directed request hidden from anon+view+other-guide; visible to owner/target/admin (six role boundaries) | PASS |
+| 9 | «Личный запрос вам» label in the addressed guide's inbox, floated to top | PASS |
+
+Access-boundary proofs (item 8, item 6) were run at the data layer with role-scoped JWTs — the
+strongest form of privacy/lifecycle evidence. Every QA record created (2 directed requests, 1
+pending tour) was deleted; 0 leftover.
+
 ## Reversible product decisions (recorded)
 - Editing a published/rejected ready tour resubmits it to `pending_review` (guide cannot keep it
   published while editing). Existing published rows untouched until edited.
