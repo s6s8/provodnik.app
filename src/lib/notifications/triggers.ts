@@ -445,42 +445,58 @@ export async function notifyGuidesNewRequest(requestId: string): Promise<void> {
 
   const { data: request, error: requestError } = await supabase
     .from("traveler_requests")
-    .select("id, destination, interests, participants_count")
+    .select("id, destination, interests, participants_count, target_guide_id")
     .eq("id", parsedRequestId)
     .single();
 
   if (requestError) throw requestError;
-  if (!request.destination?.trim()) return;
 
-  let query = supabase
-    .from("guide_profiles")
-    .select("user_id, specialties, max_group_size")
-    .eq("is_available", true)
-    .eq("verification_status", "approved")
-    .ilike("base_city", request.destination.trim());
+  type GuideCandidate = {
+    user_id: string;
+    specialties: string[] | null;
+    max_group_size: number | null;
+  };
+  const directedGuideId =
+    (request as { target_guide_id?: string | null }).target_guide_id ?? null;
+  let matchingGuides: GuideCandidate[];
 
-  if (request.participants_count && request.participants_count > 0) {
-    query = query.or(
-      `max_group_size.is.null,max_group_size.gte.${request.participants_count}`,
-    );
-  }
+  if (directedGuideId) {
+    // Item 8: a request addressed to a specific guide is private — notify ONLY that
+    // guide, never the marketplace fan-out.
+    matchingGuides = [{ user_id: directedGuideId, specialties: null, max_group_size: null }];
+  } else {
+    if (!request.destination?.trim()) return;
 
-  const { data: candidates, error: guidesError } = await query;
-  if (guidesError) throw guidesError;
-  if (!candidates?.length) return;
+    let query = supabase
+      .from("guide_profiles")
+      .select("user_id, specialties, max_group_size")
+      .eq("is_available", true)
+      .eq("verification_status", "approved")
+      .ilike("base_city", request.destination.trim());
 
-  const requestInterests: string[] = Array.isArray(request.interests)
-    ? request.interests
-    : [];
+    if (request.participants_count && request.participants_count > 0) {
+      query = query.or(
+        `max_group_size.is.null,max_group_size.gte.${request.participants_count}`,
+      );
+    }
 
-  const matchingGuides = candidates.filter((guide) => {
-    const guideSpecialties: string[] = Array.isArray(guide.specialties)
-      ? guide.specialties
+    const { data: candidates, error: guidesError } = await query;
+    if (guidesError) throw guidesError;
+    if (!candidates?.length) return;
+
+    const requestInterests: string[] = Array.isArray(request.interests)
+      ? request.interests
       : [];
-    if (guideSpecialties.length === 0) return true;
-    if (requestInterests.length === 0) return true;
-    return guideSpecialties.some((s) => requestInterests.includes(s));
-  });
+
+    matchingGuides = candidates.filter((guide) => {
+      const guideSpecialties: string[] = Array.isArray(guide.specialties)
+        ? guide.specialties
+        : [];
+      if (guideSpecialties.length === 0) return true;
+      if (requestInterests.length === 0) return true;
+      return guideSpecialties.some((s) => requestInterests.includes(s));
+    });
+  }
 
   if (!matchingGuides.length) return;
 

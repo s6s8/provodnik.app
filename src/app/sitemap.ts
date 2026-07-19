@@ -83,6 +83,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           .from("traveler_requests")
           .select("id, updated_at")
           .eq("status", "open")
+          // Directed requests are private to the addressed guide — never in SEO (item 8).
+          .is("target_guide_id", null)
           // Only assembly/joinable requests are publicly viewable; match the
           // page's visibility rule so the sitemap has no dead URLs (PRD-020).
           .or("open_to_join.eq.true,format_preference.eq.group"),

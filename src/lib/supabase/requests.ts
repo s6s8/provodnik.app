@@ -133,7 +133,7 @@ export type TravelerRequest = TravelerRequestRow;
 // ---------------------------------------------------------------------------
 
 const SELECT_COLS =
-  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window, preferred_guide_slug";
+  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window, preferred_guide_slug, target_guide_id";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -150,10 +150,25 @@ export async function createTravelerRequest(
   const input = createRequestInputSchema.parse(data);
   const supabase = await createSupabaseServerClient();
 
+  // Resolve the display-only guide slug to a real FK server-side (item 8). When set,
+  // target_guide_id makes the request private to that guide; the slug is never trusted
+  // for privacy. An unresolvable slug leaves the request open (edge case — the CTA only
+  // ever passes real guide slugs).
+  let targetGuideId: string | null = null;
+  if (input.preferred_guide_slug) {
+    const { data: guide } = await supabase
+      .from("guide_profiles")
+      .select("user_id")
+      .eq("slug", input.preferred_guide_slug)
+      .maybeSingle();
+    targetGuideId = (guide?.user_id as string | undefined) ?? null;
+  }
+
   const { data: row, error } = await supabase
     .from("traveler_requests")
     .insert({
       traveler_id: travelerId,
+      target_guide_id: targetGuideId,
       destination: input.destination,
       region: input.region ?? null,
       interests: input.interests,
