@@ -745,7 +745,7 @@ function OwnerDetailBranch({
         {justCreated ? (
           <div className="mt-6 rounded-step border border-success/40 bg-success/10 px-4 py-3 text-sm text-success">
             {createdMode === "assembly"
-              ? "Открытая экскурсия опубликована — гиды увидят ваш запрос и смогут присоединиться."
+              ? "Открытая экскурсия опубликована — гиды увидят ваш запрос и сделают предложение."
               : "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время."}
           </div>
         ) : null}
