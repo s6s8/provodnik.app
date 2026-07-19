@@ -185,16 +185,38 @@ callsites): **no critical/important findings; ship-ready.** Minor, accepted note
 digit-bearing historical ЗАТО names (e.g. «Арзамас-16») are rejected (plain city name
 still passes); `photoUrls` errors surface via the alert without a field-level flag.
 
+## Release + live post-deploy proof
+
+Operator authorized the release. Integrated via **PR #298 → `origin/main` `d5ed1bde`**
+(protected merge, never force). The `notes`-privacy view migration was applied to prod as
+targeted SQL via the Supabase Management API query endpoint (idempotent `CREATE OR REPLACE
+VIEW`; **not** `db push`), and the migration ledger was repaired
+(`schema_migrations` version `20260719000000` recorded). Reversible: the prior view
+definition lives in migration `20260703000100`.
+
+Live production proof (headless Chromium against `provodnik.app`, post-deploy):
+
+| Check | Result |
+|---|---|
+| Blocker #1 — Shanghai card | `"Шанхай"`, **no «Россия»** (all cards; e.g. `"Элиста"`) |
+| Blocker #2 — garbage destination | rejected live: *«Укажите название места буквами, например «Казань» или «Шанхай».»* |
+| #3 — non-numeric budget | *«Укажите бюджет числом, например 5000.»*; no raw `NaN` |
+| #7 — anon notes (data layer) | `v_public_open_requests.notes` returns **`null`** (was full text) |
+| #7 — anon notes (rendered) | anonymous detail page **omits** the seeded sensitive note; page still loads |
+| Auth lifecycle | create → Active → cancel → absent → delete (self-cleaning) |
+| Expired absent from Active | real `expired` record excluded from the `status='open'` filter |
+| 1440 / 375 | zero console/page errors; `/requests` 375 horizontal overflow = 0px |
+
+All self-cleaning proofs left no data behind. No secret was printed.
+
 ## Remaining count & terminal verdict
 
-- Findings requiring code repair: **7/7 fixed + locally verified** (original 6 + the High
-  notes-privacy leak); the expired-Active proof gap is resolved.
-- Open items: **production deploy + live post-deploy replay** — blockers #1/#2, the anon
-  notes-privacy state, and the changed surfaces at 1440/375 (release gate — never force;
-  protected `origin/main`; the view migration lands via the normal pipeline).
+- Findings requiring code repair: **7/7 fixed, verified locally AND on production.**
+  Expired-Active proof gap resolved.
+- Open items: **none.**
 
-**Terminal verdict (pre-deploy): `blocked`** — all engineering `verified` locally (full
-chain green, independent review clean, live pre-fix reproductions for blocker #1 and the
-notes leak, authenticated + expired-Active lifecycles proven). Final release proof is
-gated on operator go for the production deploy (a bad push takes the live site down; the
-project's hard rules reserve it for explicit instruction).
+**Terminal verdict: `verified`.** All seven findings (two release blockers, budget,
+authenticated lifecycle, three a11y/copy residuals, and the High notes-privacy leak) are
+fixed, independently reviewed, and confirmed on live production `d5ed1bde`; the expired-
+Active gap is closed with a real fixture. Not claimed from HTTP status or prose alone —
+each rests on a live behavioral observation.
