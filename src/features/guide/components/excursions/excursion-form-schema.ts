@@ -2,7 +2,9 @@ import { z } from "zod";
 
 import { kopecksToRub, rubToKopecks } from "@/data/money";
 
-const templateStatusSchema = z.enum(["draft", "published"]);
+// A guide may only ever leave a ready tour as a draft or submit it for review.
+// Publishing/rejecting is admin-only (enforced again at the server helper and the DB).
+const templateStatusSchema = z.enum(["draft", "pending_review"]);
 
 const nullableTrimmedStringSchema = z.string().transform((value) => value.trim() || null);
 
@@ -65,11 +67,11 @@ export const excursionFormSchema = z
     category: nullableTrimmedStringSchema,
   })
   .superRefine((values, ctx) => {
-    if (values.status === "published" && values.photoUrls.length === 0) {
+    if (values.status === "pending_review" && values.photoUrls.length === 0) {
       ctx.addIssue({
         code: "custom",
         path: ["photoUrls"],
-        message: "Добавьте минимум одно фото для публикации.",
+        message: "Добавьте минимум одно фото перед отправкой на проверку.",
       });
     }
   });

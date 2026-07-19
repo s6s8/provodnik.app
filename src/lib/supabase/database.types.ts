@@ -1360,6 +1360,30 @@ export type Database = {
           },
         ]
       }
+      guide_location_catalog: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       guide_templates: {
         Row: {
           category: string | null
@@ -1372,7 +1396,9 @@ export type Database = {
           meeting_point: string | null
           photo_urls: string[]
           price_from_kopecks: number | null
+          price_scope: string
           region: string | null
+          rejection_reason: string | null
           status: string
           title: string
           updated_at: string
@@ -1388,7 +1414,9 @@ export type Database = {
           meeting_point?: string | null
           photo_urls?: string[]
           price_from_kopecks?: number | null
+          price_scope?: string
           region?: string | null
+          rejection_reason?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -1404,7 +1432,9 @@ export type Database = {
           meeting_point?: string | null
           photo_urls?: string[]
           price_from_kopecks?: number | null
+          price_scope?: string
           region?: string | null
+          rejection_reason?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -3544,6 +3574,7 @@ export type Database = {
           start_time: string | null
           starts_on: string
           status: Database["public"]["Enums"]["request_status"]
+          target_guide_id: string | null
           time_locked: boolean
           traveler_id: string
           updated_at: string
@@ -3575,6 +3606,7 @@ export type Database = {
           start_time?: string | null
           starts_on: string
           status?: Database["public"]["Enums"]["request_status"]
+          target_guide_id?: string | null
           time_locked?: boolean
           traveler_id: string
           updated_at?: string
@@ -3606,6 +3638,7 @@ export type Database = {
           start_time?: string | null
           starts_on?: string
           status?: Database["public"]["Enums"]["request_status"]
+          target_guide_id?: string | null
           time_locked?: boolean
           traveler_id?: string
           updated_at?: string

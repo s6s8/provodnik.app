@@ -9,6 +9,11 @@ import {
   listGuideLocationPhotos,
   uploadPortfolioPhoto,
 } from "@/lib/supabase/guide-assets";
+import {
+  listActiveLocations,
+  type LocationCatalogEntry,
+} from "@/lib/supabase/location-catalog";
+import { CoachCallout } from "@/features/guide/components/excursions/photobank-coach";
 import type { GuideLocationPhotoRow, Uuid } from "@/lib/supabase/types";
 
 interface GuidePortfolioScreenProps {
@@ -39,6 +44,7 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [locationName, setLocationName] = useState("");
+  const [locations, setLocations] = useState<LocationCatalogEntry[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [brokenIds, setBrokenIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -61,6 +67,13 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
         setPhotos(
           rows.map((r) => ({ ...r, publicUrl: buildPublicUrl(supabase, r.object_path) })),
         );
+
+        try {
+          const activeLocations = await listActiveLocations(supabase);
+          if (!cancelled) setLocations(activeLocations);
+        } catch {
+          if (!cancelled) setLocations([]);
+        }
       } catch (err) {
         if (cancelled) return;
         console.error("[portfolio] list failed", err);
@@ -165,19 +178,31 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
         </Link>
       </div>
 
-      <h1 className="text-xl font-semibold">Портфолио</h1>
+      <h1 className="text-xl font-semibold">Фотобанк</h1>
+
+      <div className="mt-4">
+        <CoachCallout storageKey="pb-coach-inside">
+          Фотобанк нужен для создания готовых экскурсий, а также для кастомизированных
+          откликов на запросы туристов.
+        </CoachCallout>
+      </div>
 
       <div className="mt-6">
         <div className="mb-8 rounded-xl border border-border bg-surface-high p-5">
           <p className="mb-3 text-sm font-medium">Добавить локацию</p>
-          <input
-            type="text"
-            placeholder="Название места"
+          <select
+            aria-label="Локация"
             value={locationName}
-            maxLength={80}
             onChange={(e) => setLocationName(e.target.value)}
             className="mb-3 w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-primary"
-          />
+          >
+            <option value="">Выберите локацию</option>
+            {locations.map((loc) => (
+              <option key={loc.id} value={loc.name}>
+                {loc.name}
+              </option>
+            ))}
+          </select>
           <label
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity ${
               disabled
@@ -197,7 +222,9 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
           </label>
           {!locationName.trim() && !uploading && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Введите название места, чтобы загрузить фото
+              {locations.length === 0
+                ? "Список локаций пока пуст — обратитесь к администратору."
+                : "Выберите локацию, чтобы загрузить фото"}
             </p>
           )}
           {reachedLimit && !uploading && (

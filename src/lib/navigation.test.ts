@@ -143,6 +143,7 @@ describe("role-based nav groups", () => {
       "/admin/users",
       "/admin/guides",
       "/admin/moderation",
+      "/admin/locations",
       "/admin/pipeline",
       "/admin/disputes",
       "/admin/bookings",

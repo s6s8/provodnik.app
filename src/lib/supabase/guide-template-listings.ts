@@ -57,10 +57,10 @@ function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord
     groupSize: row.max_participants ?? 0,
     difficulty: "",
     departure: row.meeting_point ?? region,
-    // The guide enters this price under «Цена от (₽) · за человека», so it is
-    // per-person — which is exactly what `group` means to formatExcursionPriceFrom
-    // («от X ₽ за одного»). Leaving it empty would print a scope-less «от X ₽».
-    format: "group",
+    // Price scope drives the public suffix through the shared formatter:
+    //   per_group  → format "private"  → «от X ₽ за группу до N человек» (item 2, new tours)
+    //   per_person → format "group"    → «от X ₽ за одного» (legacy amounts, unchanged)
+    format: row.price_scope === "per_group" ? "private" : "group",
     category: row.category ?? "",
     description: row.description ?? "",
     inclusions: [],

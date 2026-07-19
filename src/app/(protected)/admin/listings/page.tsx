@@ -17,8 +17,10 @@ const STATUS_LABEL: Record<AdminCatalogueRow["status"], string> = {
   paused: "На паузе",
   active: "Active (legacy)",
   archived: "В архиве",
-  template_published: "Опубликовано гидом",
+  template_published: "Опубликовано",
   template_draft: "Черновик гида",
+  template_pending: "На проверке",
+  template_rejected: "Отклонено",
 };
 
 const STATUS_VARIANT: Partial<
@@ -27,7 +29,9 @@ const STATUS_VARIANT: Partial<
   published: "default",
   template_published: "default",
   pending_review: "secondary",
+  template_pending: "secondary",
   rejected: "destructive",
+  template_rejected: "destructive",
 };
 
 const FILTERS = [
