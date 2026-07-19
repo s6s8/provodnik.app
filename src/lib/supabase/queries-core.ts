@@ -39,6 +39,8 @@ export type ListingRecord = {
   departure: string;
   /** Real booking format enum from listings.format: private | group | combo (or ""). */
   format: string;
+  /** Ready-tour price scope (guide_templates only); independent of the format badge. */
+  priceScope?: "per_person" | "per_group";
   /** Catalog/theme category from listings.category (drives theme-slug mapping). */
   category: string;
   description: string;

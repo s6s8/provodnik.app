@@ -15,11 +15,11 @@
 // It is a read path only: no schema, no bridge table, no duplicated content, and no
 // migration (guide_templates_select_published already exposes published rows to anon).
 //
-// Moderation: templates carry only draft|published — the guide self-publishes, and
-// there is no per-excursion review. So the gate here is the guide: approved
-// verification_status and a non-QA slug, the same allow-list the homepage already
-// applies to its other blocks. A template from an unapproved or seed guide is never
-// public.
+// Moderation: templates now pass admin review (draft → pending_review → published/rejected,
+// enforced by the guide_templates trigger), and this read path only ever returns published
+// rows. The extra gate here is the guide: approved verification_status and a non-QA slug,
+// the same allow-list the homepage already applies to its other blocks. A template from an
+// unapproved or seed guide is never public.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { kopecksToRub } from "@/data/money";
@@ -57,10 +57,11 @@ function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord
     groupSize: row.max_participants ?? 0,
     difficulty: "",
     departure: row.meeting_point ?? region,
-    // Price scope drives the public suffix through the shared formatter:
-    //   per_group  → format "private"  → «от X ₽ за группу до N человек» (item 2, new tours)
-    //   per_person → format "group"    → «от X ₽ за одного» (legacy amounts, unchanged)
-    format: row.price_scope === "per_group" ? "private" : "group",
+    // A template has no private/group tour type — keep the historical "group" badge and
+    // carry the price scope separately (item 2) so the price says «за группу»/«за одного»
+    // without mislabeling the tour-type badge on the card.
+    format: "group",
+    priceScope: (row.price_scope ?? "per_person") as "per_person" | "per_group",
     category: row.category ?? "",
     description: row.description ?? "",
     inclusions: [],

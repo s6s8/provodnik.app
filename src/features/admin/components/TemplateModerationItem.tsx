@@ -76,8 +76,9 @@ function TemplateModerationItem({
     template.price_from_kopecks != null
       ? formatExcursionPriceFrom(
           template.price_from_kopecks,
-          template.price_scope === "per_group" ? "private" : "group",
+          "group",
           template.max_participants,
+          template.price_scope,
         )
       : null;
   const subtitle = [template.region, priceLabel].filter(Boolean).join(" · ");

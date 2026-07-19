@@ -27,6 +27,7 @@ export function ListingCard({ listing, priority }: ListingCardProps) {
     rubToKopecks(listing.priceRub),
     listing.format,
     listing.groupSize,
+    listing.priceScope,
   );
   const showRating = listing.rating > 0;
   const showReviews = listing.reviewCount > 0;
