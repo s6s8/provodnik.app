@@ -8,7 +8,6 @@ import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { cityImage } from "@/lib/city-image";
-import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // In-page skeleton replaces the removed (site)/loading.tsx boundary for this
@@ -41,8 +40,10 @@ function mapToOpenRequestRecord(
   joinedRequestIds: Set<string>,
 ): OpenRequestRecord {
   const isOwner = request.travelerId != null && request.travelerId === viewerId;
-  // PII-012: mask contact details in the free-text for every non-owner viewer.
-  const maskedDescription = isOwner ? request.description : maskPii(request.description);
+  // The free-text «Пожелания» is private (health/PII). The public marketplace is a
+  // discovery surface — it never carries the notes for a non-owner (not even
+  // contact-masked). The owner still sees their own brief on their own card.
+  const maskedDescription = isOwner ? request.description : "";
   return {
     id: request.id,
     isOwner,

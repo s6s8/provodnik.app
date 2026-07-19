@@ -179,9 +179,38 @@ describe("RequestDetailPage", () => {
       memberCount: 4,
       organizerName: "Айгуль",
       themes: ["history_culture", "nature"],
-      notes: "Едем небольшой компанией.",
+      // Private «Пожелания» must NOT reach a public / prospective viewer, even one
+      // logged in and able to join. The free-text is withheld from the view model.
+      notes: "",
       joinState: "can-join",
     });
+  });
+
+  it("withholds the private notes from a public viewer even when the record has them", async () => {
+    const supabaseClient = {
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+      from: vi.fn(() => ({
+        select: vi.fn(() => ({
+          eq: vi.fn(() => ({
+            maybeSingle: vi.fn().mockResolvedValue({ data: { traveler_id: "owner" } }),
+          })),
+        })),
+      })),
+    };
+    createSupabaseServerClient.mockResolvedValue(supabaseClient);
+    getRequestById.mockResolvedValue({
+      data: requestRecord({ id: "assembly-request", description: "Аллергия на арахис." }),
+    });
+    hasSupabaseEnv.mockReturnValue(true);
+    isRequestMember.mockResolvedValue(false);
+    cityImage.mockReturnValue("https://images.unsplash.com/photo-city");
+
+    const rendered = await RequestDetailPage({
+      params: Promise.resolve({ requestId: "assembly-request" }),
+      searchParams: Promise.resolve({}),
+    });
+
+    expect(rendered.props.viewModel.notes).toBe("");
   });
 
   it("returns notFound for private requests", async () => {

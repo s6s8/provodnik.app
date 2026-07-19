@@ -14,6 +14,7 @@ import {
   type PublicRequestJoinState,
   RequestDetailScreen,
 } from "@/features/requests/components/request-detail-screen";
+import { canSeeRequestNotes } from "@/features/requests/request-notes-visibility";
 import { getRequestViewerContext, viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
 import { friendlyError } from "@/lib/errors";
@@ -64,19 +65,20 @@ export async function generateMetadata({
 
   return {
     title: `${result.data.destination} — ${result.data.dateLabel}`,
-    // Public metadata must mask contacts (same rule the body applies) and never
-    // echo unbounded free-text into an indexable <meta>; fall back when empty.
-    description: sanitizeMetaDescription(result.data.description),
+    // SEO metadata is public (search engines), so it must NEVER echo the private
+    // free-text notes — only non-sensitive discovery facts (destination + dates).
+    description: buildRequestMetaDescription(result.data),
     alternates: { canonical: `/requests/${requestId}` },
   };
 }
 
 const META_DESCRIPTION_FALLBACK = "Подробности открытой группы путешественников.";
 
-function sanitizeMetaDescription(raw: string | null | undefined): string {
-  const cleaned = maskPii(raw ?? "").replace(/\s+/g, " ").trim();
-  if (!cleaned) return META_DESCRIPTION_FALLBACK;
-  return cleaned.length > 160 ? `${cleaned.slice(0, 159).trimEnd()}…` : cleaned;
+function buildRequestMetaDescription(request: RequestRecord): string {
+  const dest = request.destination?.trim();
+  if (!dest) return META_DESCRIPTION_FALLBACK;
+  const when = request.dateLabel?.trim() ? `, ${request.dateLabel.trim()}` : "";
+  return `Открытая группа путешественников: ${dest}${when}. Присоединяйтесь или предложите свой маршрут.`;
 }
 
 // PII-012: everyone except the owner sees the request free-text with contact
@@ -113,11 +115,16 @@ function buildViewModel({
   currentUserId,
   isMember,
   ownerId,
+  includeNotes,
 }: {
   request: RequestRecord;
   currentUserId: string | null;
   isMember: boolean;
   ownerId: string | null;
+  // The free-text «Пожелания» is private (health/PII risk). Only authorized
+  // viewers get it in the model; everyone else gets an empty string so no render
+  // path (hero intro, member brief) can surface it. See canSeeRequestNotes.
+  includeNotes: boolean;
 }): PublicRequestDetailViewModel {
   const organizerFallback = request.requesterName || "Путешественник";
   const members =
@@ -144,7 +151,7 @@ function buildViewModel({
     members,
     organizerName: members[0]?.displayName ?? organizerFallback,
     themes: request.interests,
-    notes: request.description,
+    notes: includeNotes ? request.description : "",
     joinState: getJoinState({ request, currentUserId, isMember, ownerId }),
   };
 }
@@ -458,6 +465,7 @@ export default async function RequestDetailPage({
       currentUserId,
       isMember,
       ownerId,
+      includeNotes: true,
     });
 
     const ownerGroupThread = await getRequestGroupThread(requestId as Uuid);
@@ -483,11 +491,20 @@ export default async function RequestDetailPage({
 
   if (viewerRole === "guide") {
     const guideData = await getGuideDetailData(requestId, currentUserId);
+    // Only an APPROVED guide (one who can legitimately act on the request) sees the
+    // private notes; an unverified guide gets the request without the free-text.
+    const guideRequest = maskRequestContacts(result.data);
+    const guideRequestForView = canSeeRequestNotes({
+      viewerRole: "guide",
+      isApprovedGuide: guideData.isApproved,
+    })
+      ? guideRequest
+      : { ...guideRequest, description: "" };
 
     return (
       <RequestDetailScreen
         viewerRole="guide"
-        request={maskRequestContacts(result.data)}
+        request={guideRequestForView}
         isApproved={guideData.isApproved}
         existingOfferId={guideData.existingOfferId}
         offerMeta={guideData.offerMeta}
@@ -503,6 +520,11 @@ export default async function RequestDetailPage({
     currentUserId,
     isMember,
     ownerId,
+    // Admins keep moderation visibility; public / prospective / member viewers do
+    // not see the private free-text notes.
+    includeNotes: canSeeRequestNotes({
+      viewerRole: viewerRole === "admin" ? "admin" : "public",
+    }),
   });
 
   let biddingGuides: BiddingGuide[] = [];
