@@ -49,4 +49,17 @@ describe("formatExcursionPriceFrom", () => {
   it("omits the suffix for an unknown (non-enum) format string", () => {
     expect(formatExcursionPriceFrom(500_000, "history_culture", 6)).toBe(base(500_000));
   });
+
+  it("uses an explicit per_group price scope regardless of the format badge (item 2)", () => {
+    // A ready tour keeps its "group" tour-type badge but prices «за группу».
+    expect(formatExcursionPriceFrom(500_000, "group", 8, "per_group")).toBe(
+      `${base(500_000)} за группу до 8 человек`,
+    );
+  });
+
+  it("uses an explicit per_person price scope even when format is private", () => {
+    expect(formatExcursionPriceFrom(500_000, "private", 8, "per_person")).toBe(
+      `${base(500_000)} за одного`,
+    );
+  });
 });

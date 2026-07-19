@@ -75,9 +75,10 @@ describe("getPublishedTemplateListings", () => {
     expect(rec.id).toBe(TEMPLATE.id);
     expect(rec.title).toBe("Степь и хурул");
     expect(rec.priceRub).toBe(4500);
-    // A legacy row (no price_scope) is per-person → format "group" → «за одного».
+    // Tour-type badge stays "group"; a legacy row (no price_scope) is per-person.
     // Legacy meaning is never silently reinterpreted.
     expect(rec.format).toBe("group");
+    expect(rec.priceScope).toBe("per_person");
     expect(rec.groupSize).toBe(8);
     expect(rec.imageUrl).toBe("https://cdn.example/photo.jpg");
     expect(rec.destinationRegion).toBe("Калмыкия");
@@ -90,7 +91,7 @@ describe("getPublishedTemplateListings", () => {
     expect(rec.reviewCount).toBe(0);
   });
 
-  it("maps a per_group tour to the «за группу» format (item 2)", async () => {
+  it("carries per_group price scope without changing the tour-type badge (item 2)", async () => {
     const client = fakeClient({
       guide_templates: [{ ...TEMPLATE, price_scope: "per_group" }],
       guide_profiles: [APPROVED_GUIDE],
@@ -98,8 +99,9 @@ describe("getPublishedTemplateListings", () => {
 
     const [rec] = await getPublishedTemplateListings(client);
 
-    // "private" is what formatExcursionPriceFrom renders as «от X ₽ за группу до N человек».
-    expect(rec.format).toBe("private");
+    // Price scope drives «за группу»; the badge stays "group" (not mislabeled "private").
+    expect(rec.priceScope).toBe("per_group");
+    expect(rec.format).toBe("group");
     expect(rec.groupSize).toBe(8);
   });
 

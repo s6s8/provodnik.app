@@ -67,6 +67,7 @@ export function ListingsFilter({ listings }: ListingsFilterProps) {
                 rubToKopecks(listing.priceRub),
                 listing.format,
                 listing.groupSize,
+                listing.priceScope,
               )}
             />
           ))}

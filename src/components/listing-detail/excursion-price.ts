@@ -12,16 +12,23 @@ export function formatExcursionPriceFrom(
   priceFromMinor: number,
   format: string | null | undefined,
   maxGroupSize?: number | null,
+  // Ready tours (guide_templates) carry an explicit price scope that is independent of
+  // the tour-type `format` badge. When given it decides the suffix; otherwise fall back
+  // to the format convention (private → whole group, group/combo → per person).
+  priceScope?: "per_person" | "per_group" | null,
 ): string {
   const rub = formatRubNumber(Math.round(priceFromMinor / 100));
   const base = `от ${rub} ₽`;
-  if (format === "private") {
+  const perGroup = priceScope ? priceScope === "per_group" : format === "private";
+  if (perGroup) {
     const cap =
       maxGroupSize && maxGroupSize > 0
         ? ` до ${maxGroupSize} ${pluralizePeopleGenitive(maxGroupSize)}`
         : "";
     return `${base} за группу${cap}`;
   }
-  if (format === "group" || format === "combo") return `${base} за одного`;
+  if (priceScope === "per_person" || format === "group" || format === "combo") {
+    return `${base} за одного`;
+  }
   return base;
 }

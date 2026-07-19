@@ -128,7 +128,7 @@ export default async function PublicGuideProfilePage({
     href: l.detailHref ?? `/listings/${l.slug}`,
     title: l.title,
     coverImageUrl: l.imageUrl,
-    price: formatExcursionPriceFrom(rubToKopecks(l.priceRub), l.format, l.groupSize),
+    price: formatExcursionPriceFrom(rubToKopecks(l.priceRub), l.format, l.groupSize, l.priceScope),
   }));
 
   const reviews = reviewRecords.map((r) => ({
