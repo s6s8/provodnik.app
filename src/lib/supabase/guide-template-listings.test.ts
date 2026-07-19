@@ -105,6 +105,26 @@ describe("getPublishedTemplateListings", () => {
     expect(rec.groupSize).toBe(8);
   });
 
+  it("surfaces a per_group tour from an approved guide with empty regions/languages (final live-QA 2026-07-19)", async () => {
+    // The reported defect: an approved guide with empty regions/languages is
+    // silently absent from public listings. This path never reads regions/languages,
+    // so empty arrays cannot drop the tour — only guide approval and a non-QA slug
+    // gate it. Locked here alongside the per_group «за группу» scope so a future
+    // empty-array exclusion would fail this test.
+    const client = fakeClient({
+      guide_templates: [{ ...TEMPLATE, price_scope: "per_group" }],
+      guide_profiles: [{ ...APPROVED_GUIDE, regions: [], languages: [] }],
+    });
+
+    const [rec] = await getPublishedTemplateListings(client);
+
+    expect(rec).toBeDefined();
+    expect(rec.title).toBe("Степь и хурул");
+    expect(rec.priceScope).toBe("per_group");
+    expect(rec.format).toBe("group");
+    expect(rec.groupSize).toBe(8);
+  });
+
   it("drops templates whose guide is not approved", async () => {
     const client = fakeClient({
       guide_templates: [TEMPLATE],
