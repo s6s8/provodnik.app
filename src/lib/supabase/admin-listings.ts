@@ -42,8 +42,13 @@ export const ALL_LISTINGS_LIMIT = 100;
 export type AdminCatalogueRow = {
   id: Uuid;
   title: string;
-  /** `template` rows come from guide_templates and have no moderation state. */
-  status: ListingStatusDb | "template_published" | "template_draft";
+  /** `template_*` rows come from guide_templates (the live ready-tour path). */
+  status:
+    | ListingStatusDb
+    | "template_published"
+    | "template_draft"
+    | "template_pending"
+    | "template_rejected";
   region: string | null;
   guideId: Uuid;
   guideName: string;
@@ -118,9 +123,12 @@ export async function listAllListings(
       return {
         id: row.id as Uuid,
         title: row.title as string,
-        status: (row.status === "published"
-          ? "template_published"
-          : "template_draft") as AdminCatalogueRow["status"],
+        status: ({
+          published: "template_published",
+          pending_review: "template_pending",
+          rejected: "template_rejected",
+          draft: "template_draft",
+        }[row.status as string] ?? "template_draft") as AdminCatalogueRow["status"],
         region: (row.region as string | null) ?? null,
         guideId: row.guide_id as Uuid,
         guideName: guide.name,

@@ -54,6 +54,11 @@ export function GuideInboxCardHeader({
         </p>
       </div>
       <div className="flex shrink-0 flex-col items-end gap-1.5 pt-0.5">
+        {item.isDirectToViewer ? (
+          <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-primary px-2.5 py-1 text-xs font-semibold text-primary-foreground">
+            Личный запрос вам
+          </span>
+        ) : null}
         {item.interests.length > 0 ? (
           <span
             className={

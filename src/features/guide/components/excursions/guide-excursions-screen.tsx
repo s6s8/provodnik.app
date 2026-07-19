@@ -32,9 +32,14 @@ import { ListRow } from "@/components/shared/list-row";
 import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
 import { PageHeader } from "@/components/shared/page-header";
 import { GuidePortfolioScreen } from "@/features/guide/components/portfolio/guide-portfolio-screen";
+import { CoachCallout } from "@/features/guide/components/excursions/photobank-coach";
 import { kopecksToRub } from "@/data/money";
 import { THEMES } from "@/data/themes";
 import { listGuideLocationPhotos } from "@/lib/supabase/guide-assets";
+import {
+  listActiveLocations,
+  type LocationCatalogEntry,
+} from "@/lib/supabase/location-catalog";
 import {
   createGuideTemplate,
   deleteGuideTemplate,
@@ -50,6 +55,23 @@ import {
   type ExcursionFormValues,
 } from "./excursion-form-schema";
 
+const TEMPLATE_STATUS_LABEL: Record<GuideTemplateRow["status"], string> = {
+  draft: "Черновик",
+  pending_review: "На проверке",
+  published: "Опубликована",
+  rejected: "Отклонена",
+};
+
+const TEMPLATE_STATUS_VARIANT: Record<
+  GuideTemplateRow["status"],
+  "default" | "secondary" | "destructive"
+> = {
+  draft: "secondary",
+  pending_review: "secondary",
+  published: "default",
+  rejected: "destructive",
+};
+
 export function GuideExcursionsScreen() {
   const { confirm, ConfirmDialog } = useConfirm();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -62,6 +84,7 @@ export function GuideExcursionsScreen() {
   const [portfolioPhotos, setPortfolioPhotos] = useState<
     Array<{ id: string; location_name: string; photoUrl: string }>
   >([]);
+  const [locations, setLocations] = useState<LocationCatalogEntry[]>([]);
   const [tplSaving, setTplSaving] = useState(false);
   const [tplError, setTplError] = useState<string | null>(null);
   // Which field the current tplError belongs to, so the invalid input carries
@@ -112,6 +135,13 @@ export function GuideExcursionsScreen() {
           setPortfolioPhotos([]);
         }
 
+        try {
+          const activeLocations = await listActiveLocations(supabase);
+          if (!cancelled) setLocations(activeLocations);
+        } catch {
+          if (!cancelled) setLocations([]);
+        }
+
         const rows = await listGuideTemplates(guideId);
         if (cancelled) return;
         setTemplates(rows);
@@ -148,7 +178,9 @@ export function GuideExcursionsScreen() {
         template.price_from_kopecks != null
           ? String(kopecksToRub(template.price_from_kopecks))
           : "",
-      status: template.status,
+      // A guide can only ever hold draft or pending_review. Editing a published or
+      // rejected tour resubmits it for review — nothing goes public unreviewed.
+      status: template.status === "draft" ? "draft" : "pending_review",
       meetingPoint: template.meeting_point ?? "",
       maxParticipants:
         template.max_participants != null ? String(template.max_participants) : "",
@@ -284,10 +316,14 @@ export function GuideExcursionsScreen() {
       >
         <TabsList>
           <TabsTrigger value="excursions">Экскурсии</TabsTrigger>
-          <TabsTrigger value="photos">Фото</TabsTrigger>
+          <TabsTrigger value="photos">Фотобанк</TabsTrigger>
         </TabsList>
 
         <TabsContent value="excursions">
+          <CoachCallout storageKey="pb-coach-tab" show={!loading}>
+            Сначала перейдите во вкладку «Фотобанк» ⬆ и загрузите фотографии ваших
+            локаций в Фотобанк.
+          </CoachCallout>
           {loading ? (
             <div className="flex flex-col gap-2" aria-busy="true" aria-label="Загрузка экскурсий">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -309,12 +345,18 @@ export function GuideExcursionsScreen() {
                 <ListRow
                   key={template.id}
                   title={template.title}
-                  subtitle={[template.duration_text, template.meeting_point]
+                  subtitle={[
+                    template.duration_text,
+                    template.meeting_point,
+                    template.status === "rejected" && template.rejection_reason
+                      ? `Причина отклонения: ${template.rejection_reason}`
+                      : null,
+                  ]
                     .filter(Boolean)
                     .join(" · ")}
                   badge={
-                    <Badge variant={template.status === "published" ? "default" : "secondary"}>
-                      {template.status === "published" ? "Опубликована" : "Черновик"}
+                    <Badge variant={TEMPLATE_STATUS_VARIANT[template.status]}>
+                      {TEMPLATE_STATUS_LABEL[template.status]}
                     </Badge>
                   }
                   actions={
@@ -396,7 +438,7 @@ export function GuideExcursionsScreen() {
               />
             </div>
             <div>
-              <Label htmlFor="tpl-price">Цена от (₽) · за человека</Label>
+              <Label htmlFor="tpl-price">Цена за группу (₽)</Label>
               <Input
                 id="tpl-price"
                 type="number"
@@ -421,7 +463,7 @@ export function GuideExcursionsScreen() {
               />
             </div>
             <div>
-              <Label htmlFor="tpl-max-participants">Макс. участников</Label>
+              <Label htmlFor="tpl-max-participants">Макс. участников в группе</Label>
               <Input
                 id="tpl-max-participants"
                 type="number"
@@ -435,15 +477,42 @@ export function GuideExcursionsScreen() {
               />
             </div>
             <div>
-              <Label htmlFor="tpl-region">Регион</Label>
-              <Input
-                id="tpl-region"
-                type="text"
-                maxLength={100}
-                placeholder="Например: Казань, Татарстан"
-                className="mt-1.5"
-                {...register("region")}
+              <Label htmlFor="tpl-region">Локация</Label>
+              <Controller
+                control={control}
+                name="region"
+                render={({ field }) => {
+                  const value = field.value ?? "";
+                  const known = locations.some((loc) => loc.name === value);
+                  return (
+                    <Select value={value || undefined} onValueChange={field.onChange}>
+                      <SelectTrigger
+                        id="tpl-region"
+                        className="mt-1.5 h-12 w-full"
+                        onBlur={field.onBlur}
+                      >
+                        <SelectValue placeholder="Выберите локацию" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {/* Keep a legacy/retired stored value visible so an edit never loses it. */}
+                        {value && !known ? (
+                          <SelectItem value={value}>{value} (текущая)</SelectItem>
+                        ) : null}
+                        {locations.map((loc) => (
+                          <SelectItem key={loc.id} value={loc.name}>
+                            {loc.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }}
               />
+              {locations.length === 0 ? (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  Список локаций пока пуст — обратитесь к администратору.
+                </p>
+              ) : null}
             </div>
             <div>
               <Label htmlFor="tpl-category">Категория</Label>
@@ -477,10 +546,16 @@ export function GuideExcursionsScreen() {
               <Label>Фото маршрута</Label>
               {portfolioPhotos.length === 0 ? (
                 <p className="mt-1.5 text-xs text-muted-foreground">
-                  Добавьте фото во вкладке «Фото», затем вернитесь сюда и выберите нужные.
+                  Добавьте фото во вкладке «Фотобанк», затем вернитесь сюда и выберите нужные.
                 </p>
               ) : (
                 <>
+                  <div className="mt-1.5">
+                    <CoachCallout storageKey="pb-coach-order">
+                      При создании экскурсий вы можете выбирать фото из фотобанка в
+                      любой последовательности.
+                    </CoachCallout>
+                  </div>
                   <Button
                     type="button"
                     variant="outline"
@@ -572,16 +647,19 @@ export function GuideExcursionsScreen() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setValue("status", "published", { shouldValidate: true })}
+                  onClick={() => setValue("status", "pending_review", { shouldValidate: true })}
                   className={`rounded-lg border px-3 py-1.5 text-sm ${
-                    tplStatus === "published"
+                    tplStatus === "pending_review"
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border text-muted-foreground"
                   }`}
                 >
-                  Опубликовано
+                  Отправить на проверку
                 </button>
               </div>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Готовые экскурсии публикуются после проверки администратором.
+              </p>
             </div>
           </div>
           <div className="mt-6 border-t border-border px-4 pb-4 pt-4">

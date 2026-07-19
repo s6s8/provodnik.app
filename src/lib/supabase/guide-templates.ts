@@ -12,7 +12,7 @@ type CreateGuideTemplateInput = {
   meetingPoint?: string | null;
   maxParticipants?: number | null;
   photoUrls?: string[];
-  status?: "draft" | "published";
+  status?: "draft" | "pending_review";
   region?: string | null;
   category?: string | null;
 };
@@ -25,7 +25,7 @@ type UpdateGuideTemplateInput = {
   meetingPoint?: string | null;
   maxParticipants?: number | null;
   photoUrls?: string[];
-  status?: "draft" | "published";
+  status?: "draft" | "pending_review";
   region?: string | null;
   category?: string | null;
 };
@@ -92,6 +92,8 @@ export async function createGuideTemplate(
       duration_text: input.durationText ?? null,
       price_from_kopecks:
         input.priceFromRub == null ? null : rubToKopecks(input.priceFromRub),
+      // New ready tours are priced per group (item 2). Legacy rows keep per_person.
+      price_scope: "per_group",
       meeting_point: input.meetingPoint ?? null,
       max_participants: input.maxParticipants ?? null,
       photo_urls: input.photoUrls ?? [],

@@ -120,6 +120,16 @@ function getSearchText(request: OpenRequestRecord): string {
     .toLowerCase();
 }
 
+// Free-text search must match what the placeholder promises: город, регион, локация.
+// destinationLabel carries the city/location; regionLabel the region (may be empty).
+// Kept separate from getSearchText so category counting stays title/description-only.
+export function getQueryText(request: OpenRequestRecord): string {
+  return [request.destinationLabel, request.regionLabel, ...request.highlights]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+}
+
 function getCurrentMonthIndex(): number {
   const [, month] = todayMoscowISODate().split("-").map(Number);
   return Math.max(0, Math.min(11, (month ?? 1) - 1));
@@ -217,9 +227,8 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
     const normalizedQuery = query.trim().toLowerCase();
 
     return requests.filter((request) => {
-      const searchText = getSearchText(request);
       const requestMonths = deriveMonthsFromDateLabel(request.dateRangeLabel);
-      const matchesQuery = !normalizedQuery || searchText.includes(normalizedQuery);
+      const matchesQuery = !normalizedQuery || getQueryText(request).includes(normalizedQuery);
       const matchesCategory =
         activeCategories.length === 0 ||
         activeCategories.some((category) => requestMatchesCategory(request, category));
@@ -333,7 +342,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
           label="Поиск по запросам"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Ключевые слова: формат, детали, пожелания"
+          placeholder="Ключевые слова: город, регион, локация"
         />
       </DiscoveryHero>
 

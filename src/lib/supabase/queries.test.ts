@@ -92,6 +92,11 @@ class FakeQuery {
     return this;
   }
 
+  is(column?: string, value?: unknown) {
+    this.calls.push(`${this.table}.is:${column ?? ""}:${String(value)}`);
+    return this;
+  }
+
   ilike(column?: string, pattern?: string) {
     this.calls.push(`${this.table}.ilike:${column ?? ""}:${pattern ?? ""}`);
     return this;

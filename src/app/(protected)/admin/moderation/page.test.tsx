@@ -30,6 +30,15 @@ vi.mock("@/features/admin/components/ReplyModerationItem", () => ({
     </div>
   ),
 }));
+vi.mock("@/features/admin/components/TemplateModerationItem", () => ({
+  TemplateModerationList: ({ templates }: { templates: Array<{ title: string }> }) => (
+    <div data-testid="template-moderation-queue">
+      {templates.map((template) => (
+        <span key={template.title}>{template.title}</span>
+      ))}
+    </div>
+  ),
+}));
 vi.mock("@/lib/supabase/moderation", () => ({
   requireAdminSession,
 }));
@@ -74,10 +83,13 @@ describe("ModerationQueuePage", () => {
         submitted_at: "2026-06-02T10:00:00.000Z",
       },
     ]);
+    const templatesQuery = createQueryResult([]);
     const adminClient = {
-      from: vi.fn((table: string) =>
-        table === "listings" ? listingsQuery : repliesQuery,
-      ),
+      from: vi.fn((table: string) => {
+        if (table === "listings") return listingsQuery;
+        if (table === "guide_templates") return templatesQuery;
+        return repliesQuery;
+      }),
     };
     const serverClient = {
       from: vi.fn(() => createQueryResult([])),
@@ -91,13 +103,13 @@ describe("ModerationQueuePage", () => {
     expect(requireAdminSession).toHaveBeenCalledOnce();
     expect(createSupabaseServerClient).not.toHaveBeenCalled();
     expect(adminClient.from).toHaveBeenCalledWith("listings");
+    expect(adminClient.from).toHaveBeenCalledWith("guide_templates");
     expect(adminClient.from).toHaveBeenCalledWith("review_replies");
     expect(serverClient.from).not.toHaveBeenCalled();
 
-    expect(screen.getByTestId("moderation-queue")).toHaveTextContent("Ладога на каяке");
-
-    // Item 14: the tab is named for what it moderates — excursions, not "listings".
-    expect(screen.getByRole("tab", { name: /Экскурсии/ })).toHaveTextContent("1");
+    // Ready tours (guide_templates) get their own review tab; listings are «Объявления».
+    expect(screen.getByRole("tab", { name: /Готовые экскурсии/ })).toHaveTextContent("0");
+    expect(screen.getByRole("tab", { name: /Объявления/ })).toHaveTextContent("1");
     expect(screen.getByRole("tab", { name: /Ответы на отзывы/ })).toHaveTextContent("1");
 
     expect(screen.queryByText(/действия в разработке/)).not.toBeInTheDocument();

@@ -61,6 +61,29 @@ function isPublicOpenGroupRequest(rec: RequestRecord): boolean {
   return rec.capacity - rec.groupSize > 0 || rec.offerCount > 0;
 }
 
+/**
+ * Enforce direct-request privacy (items 8 & 9) at the app layer, on top of RLS.
+ * - Without a viewer guide id (public discovery / marketplace): drop every directed row.
+ * - With a viewer guide id (that guide's inbox): keep open rows and the rows addressed to
+ *   this guide, and stamp isDirectToViewer so the inbox can label «Личный запрос вам».
+ * A directed row addressed to another guide never reaches here (RLS), but is dropped anyway.
+ */
+export function applyDirectVisibility(
+  records: RequestRecord[],
+  viewerGuideId?: string,
+): RequestRecord[] {
+  const out: RequestRecord[] = [];
+  for (const rec of records) {
+    if (!rec.targetGuideId) {
+      out.push(rec);
+    } else if (viewerGuideId && rec.targetGuideId === viewerGuideId) {
+      out.push({ ...rec, isDirectToViewer: true });
+    }
+    // else: directed to someone else → excluded.
+  }
+  return out;
+}
+
 export async function getDestinations(client: SupabaseClient): Promise<QueryResult<DestinationRecord[]>> {
   try {
     const { data, error } = await client.from("destinations").select("*").order("listing_count", { ascending: false }).limit(12);
@@ -225,6 +248,7 @@ export async function getOpenRequests(
   client: SupabaseClient,
   filters?: RequestFilters,
   statuses: string[] = ["open"],
+  opts?: { viewerGuideId?: string },
 ): Promise<QueryResult<RequestRecord[]>> {
   try {
     const db = client;
@@ -237,20 +261,24 @@ export async function getOpenRequests(
     if (error) throw error;
 
     if (data && data.length > 0) {
-      const records = data.map((row) => mapRequestRow(row));
+      const visible = applyDirectVisibility(
+        data.map((row) => mapRequestRow(row)),
+        opts?.viewerGuideId,
+      );
       const membersMap = await fetchMembersForRequests(
         db,
-        data.map((row) => ({ id: row.id as string, creatorId: row.traveler_id as string })),
+        visible.map((rec) => ({ id: rec.id, creatorId: rec.travelerId ?? "" })),
       );
-      for (const rec of records) {
+      for (const rec of visible) {
         rec.members = membersMap.get(rec.id) ?? [];
       }
 
-      return { data: applyRequestFilters(records, filters), error: null };
+      return { data: applyRequestFilters(visible, filters), error: null };
     }
 
     // Anonymous visitors cannot read the raw table (RLS requires a session).
     // Fall back to the sanitized public view so logged-out discovery still works.
+    // The view already excludes directed requests, so no further filtering is needed.
     const { data: publicRows, error: publicError } = await db
       .from("v_public_open_requests")
       .select("*")
@@ -276,6 +304,8 @@ export async function getOpenRequestsByDestination(
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
+      // Directed requests are private to the addressed guide — never in public discovery.
+      .is("target_guide_id", null)
       .ilike("region", `%${region}%`)
       .order("created_at", { ascending: false })
       .limit(12);
@@ -984,6 +1014,8 @@ export async function getHomepageRequests(
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
+      // Directed requests never appear in the homepage «Сборные группы» block (item 8).
+      .is("target_guide_id", null)
       .order("created_at", { ascending: false })
       .limit(4);
 
@@ -1066,6 +1098,8 @@ export async function getSimilarRequests(
       .from("traveler_requests")
       .select("*")
       .eq("status", "open")
+      // Directed requests are private — never surfaced as "similar" public requests.
+      .is("target_guide_id", null)
       .neq("id", excludeId)
       .ilike("destination", `%${destinationSearchFromSlug(destinationSlug)}%`)
       .order("created_at", { ascending: false })

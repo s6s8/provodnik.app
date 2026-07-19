@@ -434,4 +434,54 @@ describe("RequestDetailScreen", () => {
     expect(screen.getByRole("button", { name: "Отозвать" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Сделать предложение" })).not.toBeInTheDocument();
   });
+
+  it("shows the exact open-request success banner and keeps the private banner distinct", () => {
+    const { rerender } = render(
+      <RequestDetailScreen
+        viewerRole="owner"
+        requestId="request-1"
+        ownerRecord={travelerRecord}
+        ownerRequestRow={travelerRequestRow}
+        viewModel={publicViewModel}
+        ownerOffers={[]}
+        onSendQa={async () => {}}
+        onGetOrCreateQaThread={async () => "thread-1"}
+        justCreated
+        createdMode="assembly"
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        "Открытая экскурсия опубликована — гиды увидят ваш запрос и сделают предложение.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/смогут присоединиться/),
+    ).not.toBeInTheDocument();
+
+    rerender(
+      <RequestDetailScreen
+        viewerRole="owner"
+        requestId="request-1"
+        ownerRecord={travelerRecord}
+        ownerRequestRow={travelerRequestRow}
+        viewModel={publicViewModel}
+        ownerOffers={[]}
+        onSendQa={async () => {}}
+        onGetOrCreateQaThread={async () => "thread-1"}
+        justCreated
+        createdMode="private"
+      />,
+    );
+
+    expect(
+      screen.getByText(
+        "Запрос отправлен — гиды получат уведомление и ответят в ближайшее время.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Открытая экскурсия опубликована/),
+    ).not.toBeInTheDocument();
+  });
 });

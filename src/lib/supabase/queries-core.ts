@@ -133,6 +133,10 @@ export type RequestRecord = {
   imageUrl: string;
   members: RequestMember[];
   dateFlexibility?: 'exact' | 'few_days';
+  /** Addressed guide (item 8). Present only on rows the viewer is allowed to see. */
+  targetGuideId?: string | null;
+  /** Trusted server flag: this directed request is addressed to the current guide (item 9). */
+  isDirectToViewer?: boolean;
 };
 
 export type BookingRecord = {
@@ -521,6 +525,7 @@ export function mapRequestRow(
     imageUrl,
     members: [],
     dateFlexibility: (row.date_flexibility as 'exact' | 'few_days') ?? 'exact',
+    targetGuideId: (row.target_guide_id as string | null) ?? null,
   };
 }
 

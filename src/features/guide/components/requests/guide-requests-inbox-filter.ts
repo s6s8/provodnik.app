@@ -48,17 +48,22 @@ export function filterInbox(
   // restrict inbox to requests whose first destination segment matches
   // (case-insensitive). If base_city is null, leave items untouched —
   // empty-state with profile-fill hint is rendered downstream.
+  // A request addressed directly to this guide (item 9) always belongs in their inbox,
+  // regardless of city or specialization scoping below.
   if (baseCity) {
     const norm = baseCity.trim().toLowerCase();
     filtered = filtered.filter(
-      (item) => item.destination.split(",")[0].trim().toLowerCase() === norm,
+      (item) =>
+        item.isDirectToViewer ||
+        item.destination.split(",")[0].trim().toLowerCase() === norm,
     );
   }
 
   // City filter (user-driven dropdown, separate from baseCity Phase A scope)
   if (cityFilter !== "all") {
     filtered = filtered.filter(
-      (item) => item.destination.split(",")[0].trim() === cityFilter,
+      (item) =>
+        item.isDirectToViewer || item.destination.split(",")[0].trim() === cityFilter,
     );
   }
 
@@ -74,12 +79,20 @@ export function filterInbox(
   }
 
   // Hard filter: show only requests whose topics match the guide's specializations.
-  // Guarded so guides with no specializations still see all open requests.
+  // Guarded so guides with no specializations still see all open requests. Directed
+  // requests (item 9) are exempt — they are addressed to this guide by name.
   if (specializations.length > 0) {
-    filtered = filtered.filter((item: RequestRecord) =>
-      isMatchedRequest(item, specializations),
+    filtered = filtered.filter(
+      (item: RequestRecord) =>
+        item.isDirectToViewer || isMatchedRequest(item, specializations),
     );
   }
+
+  // Item 9: personal requests visually prioritized — float above equally-new general
+  // requests while preserving the chosen sort order within each group (stable sort).
+  filtered = [...filtered].sort(
+    (a, b) => Number(Boolean(b.isDirectToViewer)) - Number(Boolean(a.isDirectToViewer)),
+  );
 
   return filtered;
 }

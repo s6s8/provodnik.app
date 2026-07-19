@@ -33,6 +33,13 @@ vi.mock("@/lib/supabase/guide-assets", () => ({
   listGuideLocationPhotos: listGuideLocationPhotosMock,
 }));
 
+vi.mock("@/lib/supabase/location-catalog", () => ({
+  listActiveLocations: vi.fn().mockResolvedValue([
+    { id: "loc-1", name: "Батуми", status: "active" },
+    { id: "loc-2", name: "Тбилиси, Грузия", status: "active" },
+  ]),
+}));
+
 vi.mock("@/lib/supabase/guide-templates", () => ({
   createGuideTemplate: createGuideTemplateMock,
   deleteGuideTemplate: deleteGuideTemplateMock,
@@ -53,10 +60,12 @@ const baseTemplate: GuideTemplateRow = {
   description: "Покажу дворики, смотровые и тихие улочки.",
   duration_text: "3 часа",
   price_from_kopecks: 450_000,
+  price_scope: "per_person",
   meeting_point: "Площадь Свободы",
   max_participants: 8,
   photo_urls: ["/photos/old-town.jpg"],
   status: "published",
+  rejection_reason: null,
   region: "Тбилиси, Грузия",
   category: "history_culture",
   created_at: "2026-01-01T00:00:00Z",
@@ -78,6 +87,11 @@ beforeAll(() => {
  */
 function selectCategory(optionLabel: string) {
   fireEvent.keyDown(screen.getByRole("combobox", { name: "Категория" }), { key: " " });
+  fireEvent.click(screen.getByRole("option", { name: optionLabel }));
+}
+
+function selectLocation(optionLabel: string) {
+  fireEvent.keyDown(screen.getByRole("combobox", { name: "Локация" }), { key: " " });
   fireEvent.click(screen.getByRole("option", { name: optionLabel }));
 }
 
@@ -153,7 +167,7 @@ describe("GuideExcursionsScreen", () => {
 
     expect(screen.getByText("Новая экскурсия")).toBeInTheDocument();
     expect(screen.getByLabelText(/Название/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Цена от/)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Цена за группу/)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Сохранить" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Отмена" })).toBeInTheDocument();
   });
@@ -162,7 +176,7 @@ describe("GuideExcursionsScreen", () => {
     render(<GuideExcursionsScreen />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
-    fireEvent.change(screen.getByLabelText(/Цена от/), {
+    fireEvent.change(screen.getByLabelText(/Цена за группу/), {
       target: { value: "1000" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Сохранить" }));
@@ -185,18 +199,16 @@ describe("GuideExcursionsScreen", () => {
     fireEvent.change(screen.getByLabelText("Длительность"), {
       target: { value: "2 часа" },
     });
-    fireEvent.change(screen.getByLabelText(/Цена от/), {
+    fireEvent.change(screen.getByLabelText(/Цена за группу/), {
       target: { value: "1250" },
     });
     fireEvent.change(screen.getByLabelText("Место сбора"), {
       target: { value: "У фонтана" },
     });
-    fireEvent.change(screen.getByLabelText("Макс. участников"), {
+    fireEvent.change(screen.getByLabelText("Макс. участников в группе"), {
       target: { value: "12" },
     });
-    fireEvent.change(screen.getByLabelText("Регион"), {
-      target: { value: "Батуми" },
-    });
+    selectLocation("Батуми");
     selectCategory("Природа");
     fireEvent.click(screen.getByRole("button", { name: "Сохранить" }));
 
@@ -229,10 +241,12 @@ describe("GuideExcursionsScreen", () => {
       "Покажу дворики, смотровые и тихие улочки.",
     );
     expect(screen.getByLabelText("Длительность")).toHaveValue("3 часа");
-    expect(screen.getByLabelText(/Цена от/)).toHaveValue(4500);
+    expect(screen.getByLabelText(/Цена за группу/)).toHaveValue(4500);
     expect(screen.getByLabelText("Место сбора")).toHaveValue("Площадь Свободы");
-    expect(screen.getByLabelText("Макс. участников")).toHaveValue(8);
-    expect(screen.getByLabelText("Регион")).toHaveValue("Тбилиси, Грузия");
+    expect(screen.getByLabelText("Макс. участников в группе")).toHaveValue(8);
+    expect(screen.getByRole("combobox", { name: "Локация" })).toHaveTextContent(
+      "Тбилиси, Грузия",
+    );
     expect(screen.getByRole("combobox", { name: "Категория" })).toHaveTextContent(
       "История и культура",
     );

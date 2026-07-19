@@ -5,7 +5,7 @@ import {
   Users, Compass, UserSearch, Map, Route, BadgeCheck, ShieldCheck,
   Briefcase, HelpCircle, LogIn, ClipboardList, Heart, MessageSquare,
   Bell, Gift, User, Inbox, BookCheck, Star, Calendar, Settings,
-  BarChart3, UserCheck, Flag, CalendarCheck, ScrollText, TrendingUp,
+  BarChart3, UserCheck, Flag, CalendarCheck, ScrollText, TrendingUp, MapPin,
 } from "lucide-react";
 
 export type NavItem = {
@@ -49,6 +49,7 @@ export const ROUTES = {
   adminUsers:     { href: "/admin/users",      label: "Пользователи", shortLabel: "Люди", icon: Users },
   adminGuides:    { href: "/admin/guides",     label: "Гиды",         icon: UserCheck },
   adminModeration:{ href: "/admin/moderation", label: "Модерация",    icon: ShieldCheck },
+  adminLocations: { href: "/admin/locations",  label: "Локации",      icon: MapPin },
   adminPipeline:  { href: "/admin/pipeline",   label: "Заявки",       icon: Inbox },
   adminDisputes:  { href: "/admin/disputes",   label: "Споры",        icon: Flag },
   adminBookings:  { href: "/admin/bookings",   label: "Бронирования", shortLabel: "Брони", icon: CalendarCheck },
@@ -92,7 +93,7 @@ export const guidePrimaryNav = [
 /** Admin workspace (drives the admin sidebar + mobile tabs). */
 export const adminPrimaryNav = [
   ROUTES.adminDashboard, ROUTES.adminAnalytics, ROUTES.adminUsers, ROUTES.adminGuides,
-  ROUTES.adminModeration, ROUTES.adminPipeline, ROUTES.adminDisputes,
+  ROUTES.adminModeration, ROUTES.adminLocations, ROUTES.adminPipeline, ROUTES.adminDisputes,
   ROUTES.adminBookings, ROUTES.adminAudit,
 ] as const;
 

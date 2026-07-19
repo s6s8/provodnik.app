@@ -190,6 +190,8 @@ export type TravelerRequestRow = {
   allow_guide_suggestions: boolean;
   group_capacity: number | null;
   preferred_guide_slug?: string | null;
+  /** When set, the request is addressed privately to this guide (item 8). */
+  target_guide_id?: string | null;
   start_time: string | null;
   end_time: string | null;
   date_flexibility: 'exact' | 'few_days';
@@ -641,13 +643,19 @@ export type GuideTemplateRow = {
   description: string | null;
   duration_text: string | null;
   price_from_kopecks: number | null;
+  /** per_person = legacy per-traveler amount; per_group = amount covers the whole group. */
+  price_scope: "per_person" | "per_group";
   meeting_point: string | null;
   max_participants: number | null;
   photo_urls: string[];
-  status: "draft" | "published";
+  status: GuideTemplateStatus;
+  rejection_reason: string | null;
   region: string | null;
   category: string | null;
   created_at: string;
   updated_at: string;
 };
+
+/** Ready-tour lifecycle: guides may only reach draft / pending_review; admins publish/reject. */
+export type GuideTemplateStatus = "draft" | "pending_review" | "published" | "rejected";
 
