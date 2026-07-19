@@ -115,8 +115,8 @@ select is_empty(
 
 select isnt_empty(
   $$ select 1 from public.v_public_open_requests
-       where id = '6b000000-0000-4000-8000-000000000001' and notes ilike '%контакт скрыт%' $$,
-  'masked notes carry the redaction marker'
+       where id = '6b000000-0000-4000-8000-000000000001' and notes is null $$,
+  'v_public_open_requests never exposes private notes'
 );
 
 -- Authenticated guides still read open requests from the raw table for bidding.

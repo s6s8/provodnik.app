@@ -78,12 +78,12 @@ describe("empty optional profile arrays keep an approved guide discoverable (fin
 
   it("mapGuideRow yields a valid discoverable record when regions AND languages are empty", () => {
     const record = mapGuideRow(
-      { user_id: "u1", slug: "real-guide", display_name: "Гид", regions: [], languages: [] },
-      { full_name: "Гид ФИО" },
+      { user_id: "u1", slug: "real-guide", display_name: "Аян", regions: [], languages: [] },
+      { full_name: "Аян ФИО" },
     );
     // The record is fully formed — nothing about empty arrays drops or breaks it.
     expect(record.slug).toBe("real-guide");
-    expect(record.fullName).toBe("Гид");
+    expect(record.fullName).toBe("Аян");
     expect(record.destinations).toEqual([]);
     expect(record.languages).toEqual([]);
     // A guide with no declared region still gets a sane home-base label.
