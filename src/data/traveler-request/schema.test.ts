@@ -46,6 +46,90 @@ describe("travelerRequestSchema", () => {
     );
   });
 
+  it("rejects garbage destination text with a clear Russian message", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
+      destination: "!!!###garbage_XYZ_ноль123",
+      startDate: "2026-05-10",
+      dateFlexibility: "exact",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      budgetPerPersonRub: 1500,
+      notes: "",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected garbage destination to fail");
+    expect(result.error.flatten().fieldErrors.destination).toContain(
+      "Укажите название места буквами, например «Казань» или «Шанхай».",
+    );
+  });
+
+  it("rejects an overlong destination past 80 characters", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
+      destination: "Ё".repeat(81),
+      startDate: "2026-05-10",
+      dateFlexibility: "exact",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      budgetPerPersonRub: 1500,
+      notes: "",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected overlong destination to fail");
+    expect(result.error.flatten().fieldErrors.destination).toContain("Не больше 80 символов.");
+  });
+
+  it("accepts unlisted but real non-local destinations (Shanghai, St. Petersburg)", () => {
+    for (const destination of ["Шанхай", "Санкт-Петербург", "Ростов-на-Дону"]) {
+      const parsed = travelerRequestSchema.parse({
+        mode: "private",
+        interests: ["history_culture"],
+        startTime: "10:00",
+        endTime: "18:00",
+        destination,
+        startDate: "2026-05-10",
+        dateFlexibility: "exact",
+        groupSize: 2,
+        allowGuideSuggestionsOutsideConstraints: true,
+        budgetPerPersonRub: 1500,
+        notes: "",
+      });
+      expect(parsed.destination).toBe(destination);
+    }
+  });
+
+  it("shows a Russian message (not raw NaN) for non-numeric budget input", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
+      startTime: "10:00",
+      endTime: "18:00",
+      destination: "Москва",
+      startDate: "2026-05-10",
+      dateFlexibility: "exact",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      // Number("abc") from valueAsNumber / server Number(...) coercion.
+      budgetPerPersonRub: Number.NaN,
+      notes: "",
+    });
+
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected NaN budget to fail");
+    const messages = result.error.flatten().fieldErrors.budgetPerPersonRub ?? [];
+    expect(messages).toContain("Укажите бюджет числом, например 5000.");
+    expect(messages.join(" ")).not.toMatch(/NaN/);
+  });
+
   it("defaults date flexibility and accepts an unset budget", () => {
     const parsed = travelerRequestSchema.parse({
       mode: "private",

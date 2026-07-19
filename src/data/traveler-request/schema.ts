@@ -1,7 +1,12 @@
 import { z } from "zod";
 
 import { THEMES, type ThemeSlug } from "@/data/themes";
-import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
+import {
+  DESTINATION_MAX_LENGTH,
+  DESTINATION_MIN_LENGTH,
+  isSupportedDestinationLabel,
+  sanitizeTravelerRequestDestinationLabel,
+} from "@/lib/traveler-request-destination";
 
 export const travelerRequestModes = ["assembly", "private"] as const;
 
@@ -24,8 +29,11 @@ export const travelerRequestSchema = z
       .pipe(
         z
           .string()
-          .min(2, "Укажите город или направление.")
-          .max(80, "Не больше 80 символов."),
+          .min(DESTINATION_MIN_LENGTH, "Укажите город или направление.")
+          .max(DESTINATION_MAX_LENGTH, "Не больше 80 символов.")
+          .refine(isSupportedDestinationLabel, {
+            message: "Укажите название места буквами, например «Казань» или «Шанхай».",
+          }),
       ),
     startDate: z.string().min(1, "Укажите дату начала."),
     endDate: z.string().optional().or(z.literal("")),
@@ -49,7 +57,11 @@ export const travelerRequestSchema = z
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
     openToJoin: z.boolean().optional(),
     budgetPerPersonRub: z
-      .number()
+      // `{ error }` supplies the invalid-type message (e.g. NaN from a non-numeric
+      // "abc" entry via valueAsNumber) — the raw "expected number, received NaN"
+      // leaked to Russian users otherwise. The per-check messages below still win
+      // for int/min/max.
+      .number({ error: "Укажите бюджет числом, например 5000." })
       .int("Укажите целое число.")
       .min(1_000, "Бюджет должен быть не меньше 1 000 ₽.")
       .max(2_000_000, "Бюджет выглядит слишком высоким.")

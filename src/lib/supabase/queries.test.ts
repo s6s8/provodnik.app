@@ -375,6 +375,24 @@ describe("PII-safe Supabase query mapping", () => {
     });
   });
 
+  it("never fabricates a country: a null region maps to an empty region, not «Россия»", () => {
+    const row: Record<string, unknown> = {
+      id: "request-shanghai",
+      destination: "Шанхай",
+      region: null,
+      budget_minor: null,
+      participants_count: 2,
+      status: "open",
+      created_at: "2026-06-03T00:00:00Z",
+      format_preference: "group",
+    };
+
+    const mapped = mapRequestRow(row);
+    expect(mapped.destination).toBe("Шанхай");
+    expect(mapped.destinationRegion).toBe("");
+    expect(mapped.destinationRegion).not.toBe("Россия");
+  });
+
   it("maps private format preference to private mode even when open_to_join is true", () => {
     const row: Record<string, unknown> = {
       id: "request-1",

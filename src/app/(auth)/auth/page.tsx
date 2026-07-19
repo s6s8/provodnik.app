@@ -93,8 +93,17 @@ export default async function AuthPage({ searchParams }: AuthPageProps) {
       </Link>
       <div className="mx-auto grid w-full max-w-5xl items-stretch gap-8 lg:grid-cols-2">
         <aside className="hidden flex-col justify-center gap-8 rounded-glass bg-gradient-to-br from-brand-900 to-brand-950 p-[clamp(2rem,4vw,3.5rem)] text-white shadow-glass lg:flex">
+          {/*
+            The "На главную" utility link above already provides an accessible,
+            focusable route to "/". This hero wordmark is the same destination, so
+            it is decorative here: aria-hidden + tabIndex=-1 keep it clickable by
+            mouse without adding a second, redundant keyboard/screen-reader tab stop
+            to "/" (both were focusable before — a duplicate home-destination stop).
+          */}
           <Link
             href="/"
+            aria-hidden
+            tabIndex={-1}
             className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-white transition-colors hover:text-white/80"
           >
             <ArrowLeft className="size-4" aria-hidden />
