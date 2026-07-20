@@ -36,10 +36,10 @@ values ('63000000-0000-4000-8000-000000000002','ao-guide-a','approved'),
 on conflict (user_id) do nothing;
 
 insert into public.traveler_requests (id, traveler_id, destination, region, status,
-        participants_count, starts_on, ends_on)
+        participants_count, starts_on, ends_on, date_flexibility)
 values ('63000000-0000-4000-8000-0000000000a1',
         '63000000-0000-4000-8000-000000000001','Элиста','Калмыкия','open',2,
-        (now() + interval '14 days')::date, (now() + interval '16 days')::date);
+        (now() + interval '14 days')::date, (now() + interval '16 days')::date, 'few_days');
 
 -- Two pending offers on the request: guide A @ 500000, guide B @ 900000.
 insert into public.guide_offers (id, request_id, guide_id, price_minor, currency, status)

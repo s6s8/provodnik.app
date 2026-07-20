@@ -21,7 +21,8 @@ values
 insert into public.profiles (id, role, email, full_name, account_status)
 values
   ('71000000-0000-4000-8000-000000000001', 'traveler', 'offer-date-traveler@example.test', 'Traveler', 'active'),
-  ('71000000-0000-4000-8000-000000000002', 'guide', 'offer-date-guide@example.test', 'Guide', 'active');
+  ('71000000-0000-4000-8000-000000000002', 'guide', 'offer-date-guide@example.test', 'Guide', 'active')
+on conflict (id) do update set role = excluded.role, account_status = excluded.account_status;
 
 insert into public.guide_profiles (user_id, slug, verification_status, is_available)
 values ('71000000-0000-4000-8000-000000000002', 'offer-date-guide', 'approved', true);
