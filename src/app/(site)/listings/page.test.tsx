@@ -1,11 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
+import type { ListingRecord } from "@/data/supabase/queries";
 
-const { redirectMock, flagsMock } = vi.hoisted(() => ({
+const { redirectMock, flagsMock, discoveryScreenMock } = vi.hoisted(() => ({
   redirectMock: vi.fn(() => {
     throw new Error("NEXT_REDIRECT");
   }),
   flagsMock: { FEATURE_PUBLIC_CATALOG: true },
+  discoveryScreenMock: vi.fn((_props: unknown) => null),
 }));
 
 vi.mock("next/navigation", () => ({ redirect: redirectMock }));
@@ -22,9 +24,7 @@ vi.mock("@/data/supabase/queries", () => ({
 }));
 
 vi.mock("@/features/listings/components/public/public-listing-discovery-screen", () => ({
-  PublicListingDiscoveryScreen: () => (
-    <section aria-label="discovery">PublicListingDiscoveryScreen</section>
-  ),
+  PublicListingDiscoveryScreen: discoveryScreenMock,
 }));
 
 import PublicListingsPage from "./page";
@@ -33,6 +33,7 @@ describe("PublicListingsPage", () => {
   beforeEach(() => {
     redirectMock.mockClear();
     getActiveListings.mockReset();
+    discoveryScreenMock.mockClear();
     flagsMock.FEATURE_PUBLIC_CATALOG = true;
   });
 
@@ -53,5 +54,42 @@ describe("PublicListingsPage", () => {
 
     expect(screen.getByText("Не удалось загрузить экскурсии. Попробуйте обновить страницу.")).toBeInTheDocument();
     expect(screen.queryByLabelText("discovery")).not.toBeInTheDocument();
+  });
+
+  it("passes a ready tour's per-group price scope to the public catalogue", async () => {
+    const listing: ListingRecord = {
+      id: "listing-1",
+      slug: "kazan-kremlin",
+      title: "Казанский кремль",
+      destinationSlug: "kazan",
+      destinationName: "Казань",
+      destinationRegion: "Татарстан",
+      imageUrl: "https://example.com/kazan.jpg",
+      priceRub: 5000,
+      durationDays: 1,
+      durationLabel: "1 дн.",
+      groupSize: 8,
+      difficulty: "Средняя",
+      departure: "Казань",
+      format: "group",
+      priceScope: "per_group",
+      category: "history_culture",
+      description: "Кремль",
+      inclusions: ["Работа гида"],
+      exclusions: [],
+      guideSlug: "guide-1",
+      guideName: "Иван",
+      guideHomeBase: "Казань",
+      rating: 4.8,
+      reviewCount: 12,
+      status: "active",
+    };
+    getActiveListings.mockResolvedValueOnce({ data: [listing], error: null });
+
+    render(await PublicListingsPage({ searchParams: Promise.resolve({}) }));
+
+    expect(discoveryScreenMock.mock.calls[0]?.[0]).toMatchObject({
+      listings: [expect.objectContaining({ priceScope: "per_group" })],
+    });
   });
 });

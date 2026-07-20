@@ -44,4 +44,14 @@ describe("PublicListingDiscoveryScreen", () => {
     // The tinted DiscoveryFilterBar strip uses bg-surface-low.
     expect(allPill.closest(".bg-surface-low")).not.toBeNull();
   });
+
+  it("renders a per-group ready-tour price", () => {
+    render(
+      <PublicListingDiscoveryScreen
+        listings={[makeListing(0, { priceScope: "per_group" })]}
+      />,
+    );
+
+    expect(screen.getByText("от 5 000 ₽ за группу до 8 человек")).toBeInTheDocument();
+  });
 });

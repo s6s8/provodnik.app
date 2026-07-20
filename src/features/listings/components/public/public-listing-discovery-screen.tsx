@@ -38,6 +38,7 @@ function mapListing(listing: PublicListing): ListingRecord {
     difficulty: "Средняя",
     departure: listing.city,
     format: listing.format ?? "",
+    priceScope: listing.priceScope,
     category: listing.themes[0] ?? "",
     description: listing.highlights.join(". "),
     inclusions: [...listing.inclusions],

@@ -29,6 +29,7 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
     format: (["private", "group", "combo"].includes(listing.format)
       ? listing.format
       : null) as PublicListing["format"],
+    priceScope: listing.priceScope,
     themes: (() => {
       const slug = mapDbCategoryToThemeSlug(listing.category);
       return slug != null ? ([slug] as const) : [];
