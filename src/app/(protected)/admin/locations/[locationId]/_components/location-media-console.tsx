@@ -276,7 +276,9 @@ function MediaCard({
     source: item.source ?? "",
     role: item.role,
   });
-  const uploading = item.status === "uploading";
+  // `cancelling` is an in-flight cancel that outlived its storage removal, so it locks the
+  // same controls as `uploading`: no bytes are settled behind either.
+  const uploading = item.status === "uploading" || item.status === "cancelling";
   const dirty =
     (item.altText ?? "") !== fields.altText ||
     (item.caption ?? "") !== fields.caption ||
@@ -302,9 +304,11 @@ function MediaCard({
           <Badge variant={item.status === "published" ? "default" : "secondary"}>
             {item.status === "published"
               ? "Опубликовано"
-              : uploading
-                ? "Загружается"
-                : "Черновик"}
+              : item.status === "cancelling"
+                ? "Отменяется"
+                : uploading
+                  ? "Загружается"
+                  : "Черновик"}
           </Badge>
           <Badge variant="secondary">{item.role === "cover" ? "Обложка" : "Галерея"}</Badge>
           {item.isPrimary ? <Badge>Главная</Badge> : null}

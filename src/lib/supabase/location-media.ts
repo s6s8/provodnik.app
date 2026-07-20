@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { Uuid } from "@/lib/supabase/types";
@@ -7,9 +9,19 @@ export const LOCATION_MEDIA_BUCKET = "location-media" as const;
 /** Long enough for an admin to work through a page of media, short enough to expire. */
 const LOCATION_MEDIA_URL_TTL_SECONDS = 60 * 60;
 
+/**
+ * Where public delivery copies live. Kept on its own prefix so the originals — which no
+ * public caller may ever read — are trivially distinguishable when auditing the bucket.
+ */
+const DELIVERY_PREFIX = "delivery";
+
 export type LocationMediaRole = "cover" | "gallery";
-/** `uploading` = row reserved before the signed upload URL was issued; never public. */
-export type LocationMediaStatus = "uploading" | "draft" | "published";
+/**
+ * `uploading` = row reserved before the signed upload URL was issued; never public.
+ * `cancelling` = the row a cancel has claimed by CAS out of `uploading`; its bytes are
+ * being removed, and it survives a removal failure so the object stays recoverable.
+ */
+export type LocationMediaStatus = "uploading" | "cancelling" | "draft" | "published";
 
 export type LocationMediaRecord = {
   id: Uuid;
@@ -204,19 +216,6 @@ export async function confirmLocationMediaUpload(
   if (!data) throw new Error("Загрузка не найдена или уже подтверждена.");
 }
 
-async function getMediaObject(
-  adminClient: SupabaseClient,
-  id: string,
-): Promise<{ bucket_id: string; object_path: string } | null> {
-  const { data, error } = await adminClient
-    .from("location_media")
-    .select("bucket_id, object_path")
-    .eq("id", id)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  return (data as { bucket_id: string; object_path: string } | null) ?? null;
-}
-
 /**
  * Removes the backing object, failing loudly. Supabase does not report removing a path
  * that holds no bytes as an error, so the "file never left the browser" case still
@@ -233,25 +232,139 @@ async function removeMediaObject(
 }
 
 /**
- * Cancels a reserved upload. As strict as a normal delete: an abandoned upload is the
- * common case and cleans up silently, but a real storage failure must not drop the only
- * row that knows the object exists.
+ * Cancels a reserved upload.
+ *
+ * The first statement is a compare-and-swap: `uploading -> cancelling` claims the row
+ * before a single byte is touched. Confirmation only ever transitions `uploading`, so
+ * exactly one of the two wins — previously cancel read the path, then removed the bytes,
+ * then deleted `WHERE status = 'uploading'`, and a confirm landing in that gap left a
+ * `draft` row pointing at an object cancel had already deleted.
+ *
+ * Losing the CAS is a no-op, not an error: the upload was confirmed (or already gone),
+ * and deleting a confirmed asset is what deleteLocationMedia is for. If removal fails the
+ * `cancelling` row stays, keeping the object path recoverable for a retry.
  */
 export async function cancelLocationMediaUpload(
   adminClient: SupabaseClient,
   id: string,
 ): Promise<void> {
-  const object = await getMediaObject(adminClient, id);
-  if (!object) return;
+  const { data, error } = await adminClient
+    .from("location_media")
+    .update({ status: "cancelling" })
+    .eq("id", id)
+    .eq("status", "uploading")
+    .select("bucket_id, object_path")
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!data) return;
 
-  await removeMediaObject(adminClient, object);
+  await removeMediaObject(adminClient, data as { bucket_id: string; object_path: string });
 
-  const { error } = await adminClient
+  const { error: rowError } = await adminClient
     .from("location_media")
     .delete()
     .eq("id", id)
-    .eq("status", "uploading");
+    .eq("status", "cancelling");
+  if (rowError) throw new Error(rowError.message);
+}
+
+type LocationMediaState = {
+  id: string;
+  location_id: string;
+  bucket_id: string;
+  object_path: string;
+  delivery_object_path: string | null;
+  status: LocationMediaStatus;
+};
+
+async function getMediaState(
+  adminClient: SupabaseClient,
+  id: string,
+): Promise<LocationMediaState | null> {
+  const { data, error } = await adminClient
+    .from("location_media")
+    .select("id, location_id, bucket_id, object_path, delivery_object_path, status")
+    .eq("id", id)
+    .maybeSingle();
   if (error) throw new Error(error.message);
+  return (data as LocationMediaState | null) ?? null;
+}
+
+function deliveryPathFor(objectPath: string): string {
+  const dot = objectPath.lastIndexOf(".");
+  const extension = dot === -1 ? "" : objectPath.slice(dot).toLowerCase();
+  return `${DELIVERY_PREFIX}/${randomUUID()}${extension}`;
+}
+
+/**
+ * Copies the original into a fresh delivery object — the only thing a public caller is
+ * ever entitled to sign. The copy is what makes publication revocable: deleting it kills
+ * every signed URL issued for it, while the original never leaves the admin-only side.
+ */
+async function createDeliveryObject(
+  adminClient: SupabaseClient,
+  row: Pick<LocationMediaState, "bucket_id" | "object_path">,
+): Promise<string> {
+  const deliveryPath = deliveryPathFor(row.object_path);
+  const { error } = await adminClient.storage
+    .from(row.bucket_id)
+    .copy(row.object_path, deliveryPath);
+  if (error) throw new Error(`Публичная копия не создана: ${error.message}`);
+  return deliveryPath;
+}
+
+/**
+ * Revokes a delivery copy: bytes first, then the row that claims them.
+ *
+ * A signed URL is a self-contained token — no policy edit and no TTL expiry recalls one
+ * already in a browser. Deleting the bytes it addresses is the revocation. Doing it
+ * before the row transition is what makes the guarantee hold: the copy is gone by the
+ * time the media stops being published, and a failure here throws, so the caller aborts
+ * with the publish state untouched.
+ */
+async function revokeDeliveryObject(
+  adminClient: SupabaseClient,
+  row: { id: string; bucket_id: string; delivery_object_path: string | null },
+): Promise<void> {
+  if (!row.delivery_object_path) return;
+
+  const { error } = await adminClient.storage
+    .from(row.bucket_id)
+    .remove([row.delivery_object_path]);
+  if (error) throw new Error(`Публичная копия не отозвана: ${error.message}`);
+
+  const { error: rowError } = await adminClient
+    .from("location_media")
+    .update({ delivery_object_path: null, is_primary: false })
+    .eq("id", row.id);
+  if (rowError) throw new Error(rowError.message);
+}
+
+/**
+ * Revokes the outgoing primary's copy before a new one takes its place.
+ *
+ * The database demotes siblings by trigger, which would otherwise strand a live delivery
+ * object on a row no longer flagged primary — a published cover that the console shows as
+ * demoted but the bucket still serves.
+ */
+async function revokePrimarySibling(
+  adminClient: SupabaseClient,
+  row: Pick<LocationMediaState, "id" | "location_id">,
+): Promise<void> {
+  const { data, error } = await adminClient
+    .from("location_media")
+    .select("id, bucket_id, delivery_object_path")
+    .eq("location_id", row.location_id)
+    .eq("is_primary", true)
+    .neq("id", row.id)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (data) {
+    await revokeDeliveryObject(
+      adminClient,
+      data as { id: string; bucket_id: string; delivery_object_path: string | null },
+    );
+  }
 }
 
 export async function updateLocationMedia(
@@ -277,31 +390,60 @@ export async function updateLocationMedia(
   // order. Add one here when the console grows drag-to-reorder.
   if (Object.keys(row).length === 0) return;
 
-  // An `uploading` row has no confirmed bytes behind it, so no edit — least of all
-  // publishing it — may apply until confirmLocationMediaUpload has moved it to draft.
+  // An `uploading`/`cancelling` row has no settled bytes behind it, so no edit — least of
+  // all publishing it — may apply until confirmLocationMediaUpload has moved it to draft.
+  const current = await getMediaState(adminClient, id);
+  if (!current || current.status === "uploading" || current.status === "cancelling") return;
+
+  const becomesPrimary = patch.isPrimary === true;
+  // The action layer normalises these into each other, but the storage side must not
+  // depend on that: any of the three ends public delivery and has to revoke first.
+  const losesPrimary =
+    patch.isPrimary === false || patch.status === "draft" || patch.role === "gallery";
+
+  if (becomesPrimary) {
+    // Rotate rather than reuse. The row's own previous copy and the outgoing primary's
+    // both die before the new one exists, so no URL minted for an earlier cover survives
+    // the swap. Either revoke throwing aborts the promotion untouched.
+    await revokeDeliveryObject(adminClient, { ...current, id });
+    await revokePrimarySibling(adminClient, current);
+    row.delivery_object_path = await createDeliveryObject(adminClient, current);
+  } else if (losesPrimary) {
+    await revokeDeliveryObject(adminClient, { ...current, id });
+    row.delivery_object_path = null;
+  }
+
   const { error } = await adminClient
     .from("location_media")
     .update(row)
     .eq("id", id)
-    .neq("status", "uploading");
-  if (error) throw new Error(error.message);
+    .in("status", ["draft", "published"]);
+  if (error) {
+    if (typeof row.delivery_object_path === "string") {
+      // The copy exists but no row claims it — an object nothing can later revoke.
+      await adminClient.storage.from(current.bucket_id).remove([row.delivery_object_path]);
+    }
+    throw new Error(error.message);
+  }
 }
 
 /**
- * Deletes the storage object first, then its row.
+ * Revokes the public delivery copy, deletes the original object, then the row.
  *
- * Order and strictness are both deliberate: dropping the row first and then failing to
- * remove the object leaves a file no query can find. Failing loudly instead keeps the
- * record — and therefore the object path — recoverable, so the admin can retry.
+ * Order and strictness are both deliberate. The delivery copy goes first so deletion can
+ * never leave a published cover the bucket still serves. Dropping the row before removing
+ * objects would leave files no query can find; failing loudly instead keeps the record —
+ * and therefore both paths — recoverable, so the admin can retry.
  */
 export async function deleteLocationMedia(
   adminClient: SupabaseClient,
   id: string,
 ): Promise<void> {
-  const object = await getMediaObject(adminClient, id);
-  if (!object) return;
+  const current = await getMediaState(adminClient, id);
+  if (!current) return;
 
-  await removeMediaObject(adminClient, object);
+  await revokeDeliveryObject(adminClient, current);
+  await removeMediaObject(adminClient, current);
 
   const { error } = await adminClient.from("location_media").delete().eq("id", id);
   if (error) throw new Error(error.message);
@@ -319,22 +461,28 @@ export async function getPublishedLocationCovers(
 ): Promise<Map<string, string>> {
   const { data, error } = await client
     .from("location_media")
-    .select("bucket_id, object_path, guide_location_catalog!inner(name)")
+    .select("bucket_id, delivery_object_path, guide_location_catalog!inner(name)")
     .eq("status", "published")
     .eq("role", "cover")
-    .eq("is_primary", true);
+    .eq("is_primary", true)
+    .not("delivery_object_path", "is", null);
   if (error) throw new Error(error.message);
 
   const rows = (data ?? []) as unknown as {
     bucket_id: string;
-    object_path: string;
+    delivery_object_path: string | null;
     guide_location_catalog: { name: string } | { name: string }[] | null;
   }[];
-  // Signing is what the object SELECT policy gates, so an unpublished or demoted row can
-  // never yield a URL even if it somehow reached this list.
+  // Only ever the delivery copy. Signing the original would hand out a token that
+  // outlives demotion — the copy is deleted as part of every unpublish, so its URLs die
+  // with it. The object SELECT policy admits the delivery path and nothing else.
   const signed = await signLocationMediaUrls(
     client,
-    rows.map((row) => ({ bucketId: row.bucket_id, objectPath: row.object_path })),
+    rows.flatMap((row) =>
+      row.delivery_object_path
+        ? [{ bucketId: row.bucket_id, objectPath: row.delivery_object_path }]
+        : [],
+    ),
   );
 
   const covers = new Map<string, string>();
@@ -342,8 +490,8 @@ export async function getPublishedLocationCovers(
     const relation = Array.isArray(row.guide_location_catalog)
       ? row.guide_location_catalog[0]
       : row.guide_location_catalog;
-    if (!relation?.name) continue;
-    const url = signed.get(signedKey(row.bucket_id, row.object_path));
+    if (!relation?.name || !row.delivery_object_path) continue;
+    const url = signed.get(signedKey(row.bucket_id, row.delivery_object_path));
     if (!url) continue;
     covers.set(relation.name.trim().toLocaleLowerCase("ru-RU"), url);
   }

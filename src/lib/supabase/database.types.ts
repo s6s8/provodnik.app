@@ -2667,6 +2667,7 @@ export type Database = {
           caption: string | null
           created_at: string
           created_by: string | null
+          delivery_object_path: string | null
           height: number | null
           id: string
           is_primary: boolean
@@ -2687,6 +2688,7 @@ export type Database = {
           caption?: string | null
           created_at?: string
           created_by?: string | null
+          delivery_object_path?: string | null
           height?: number | null
           id?: string
           is_primary?: boolean
@@ -2707,6 +2709,7 @@ export type Database = {
           caption?: string | null
           created_at?: string
           created_by?: string | null
+          delivery_object_path?: string | null
           height?: number | null
           id?: string
           is_primary?: boolean
