@@ -138,11 +138,11 @@ describe("BidFormPanel — mode line", () => {
 });
 
 describe("BidFormPanel — date/time locks", () => {
-  it("disables date and time fields when date_locked/time_locked are true", () => {
+  it("disables exact dates even when date_locked=false", () => {
     render(
       <BidFormPanel
         requestId="req-1"
-        request={{ ...baseRequest, date_locked: true, time_locked: true }}
+        request={{ ...baseRequest, dateFlexibility: "exact", date_locked: false, time_locked: true }}
         onClose={() => {}}
       />,
     );
@@ -165,6 +165,7 @@ describe("BidFormPanel — date/time locks", () => {
       screen.queryByText("Путешественник открыт к близким датам — предложите удобную вам дату"),
     ).toBeNull();
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Дата/)).toBeEnabled();
   });
 });
 

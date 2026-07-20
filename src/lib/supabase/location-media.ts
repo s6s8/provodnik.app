@@ -504,7 +504,7 @@ export function resolveLocationCover(
   destination: string | null | undefined,
 ): string | null {
   if (!destination) return null;
-  return covers.get(destination.trim().toLocaleLowerCase("ru-RU")) ?? null;
+  return covers.get(destination.split(",", 1)[0].trim().toLocaleLowerCase("ru-RU")) ?? null;
 }
 
 /** Never throws: a media outage must not take the public marketplace down. */

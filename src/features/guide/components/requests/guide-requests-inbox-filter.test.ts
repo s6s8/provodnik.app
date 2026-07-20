@@ -35,6 +35,7 @@ const base = {
   cityFilter: "all",
   filter: "new" as const,
   offeredIds: new Set<string>(),
+  requestTypeFilter: "all" as const,
   sortKey: "newest" as const,
   specializations: ["nature"],
 };
@@ -60,5 +61,28 @@ describe("filterInbox — direct requests (item 9)", () => {
   it("still excludes a general request that fails the city filter", () => {
     const items = [rec({ id: "away", destination: "Сочи", interests: ["nature"] })];
     expect(filterInbox(items, base)).toHaveLength(0);
+  });
+});
+
+describe("filterInbox — request type", () => {
+  const items = [
+    rec({ id: "assembly", destination: "Москва", interests: ["nature"], mode: "assembly" }),
+    rec({ id: "private", destination: "Москва", interests: ["nature"], mode: "private" }),
+    rec({ id: "direct", destination: "Сочи", interests: ["history_culture"], mode: "private", isDirectToViewer: true }),
+  ];
+
+  it.each([
+    ["assembly", ["assembly"]],
+    ["private", ["private"]],
+    ["direct", ["direct"]],
+  ] as const)("selects only %s requests", (requestTypeFilter, expected) => {
+    expect(filterInbox(items, { ...base, requestTypeFilter }).map((item) => item.id)).toEqual(expected);
+  });
+
+  it("composes request type with new and my offers tabs", () => {
+    const options = { ...base, requestTypeFilter: "private" as const, offeredIds: new Set(["private"]) };
+
+    expect(filterInbox(items, { ...options, filter: "new" }).map((item) => item.id)).toEqual([]);
+    expect(filterInbox(items, { ...options, filter: "my-offers" }).map((item) => item.id)).toEqual(["private"]);
   });
 });

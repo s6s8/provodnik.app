@@ -91,6 +91,33 @@ describe("LocationMediaConsole", () => {
     vi.mocked(uploadFileToSignedUrl).mockResolvedValue(undefined);
   });
 
+  it("renders the static cover guide without assertive alert semantics", () => {
+    renderConsole([]);
+
+    const guide = screen.getByText(/не общий баннер и не изображение главной страницы/);
+
+    expect(guide).toBeInTheDocument();
+    expect(guide.closest('[role="alert"]')).toBeNull();
+    expect(screen.getByText(/публичный список запросов и страницы отдельных запросов/)).toBeInTheDocument();
+    expect(screen.getByText(/Выберите «Обложка»\./)).toBeInTheDocument();
+    expect(screen.getByText("Загрузите JPG, PNG или WebP до 5 МБ.")).toBeInTheDocument();
+    expect(screen.getByText(/описание \(alt\) — рекомендуем/)).toBeInTheDocument();
+    expect(screen.getByText("Опубликуйте изображение.")).toBeInTheDocument();
+    expect(screen.getByText(/Нажмите «Сделать главной»\./)).toBeInTheDocument();
+    expect(screen.getByText(/16:9, 1600×900: это рекомендация/)).toBeInTheDocument();
+    expect(screen.getByText(/«Галерея» не заменяет фирменный городской градиент/)).toBeInTheDocument();
+  });
+
+  it("keeps upload failures as assertive alerts", () => {
+    renderConsole([]);
+
+    fireEvent.change(screen.getByLabelText("Файл изображения"), {
+      target: { files: [new File(["not-an-image"], "cover.pdf", { type: "application/pdf" })] },
+    });
+
+    expect(screen.getByText("Разрешены только JPG, PNG или WEBP.").closest('[role="alert"]')).not.toBeNull();
+  });
+
   it("warns that the branded gradient stays while no primary cover is published", () => {
     renderConsole([MEDIA]);
 

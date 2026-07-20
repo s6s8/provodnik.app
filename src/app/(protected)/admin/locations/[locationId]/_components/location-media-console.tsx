@@ -151,6 +151,28 @@ export function LocationMediaConsole({
 
   return (
     <div className="flex flex-col gap-6">
+      <section className="rounded-lg border bg-card px-2.5 py-2 text-left">
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>
+            Обложка локации — не общий баннер и не изображение главной страницы. Опубликованная
+            главная обложка меняет только публичный список запросов и страницы отдельных запросов
+            для этой локации; остальные поверхности сохраняют текущий вид.
+          </p>
+          <ol className="list-decimal space-y-1 pl-5">
+            <li>Выберите «Обложка».</li>
+            <li>Загрузите JPG, PNG или WebP до 5 МБ.</li>
+            <li>Добавьте понятное описание (alt) — рекомендуем; подпись и источник / права необязательны.</li>
+            <li>Опубликуйте изображение.</li>
+            <li>Нажмите «Сделать главной».</li>
+          </ol>
+          <p>
+            Рекомендуем горизонтальный формат 16:9, 1600×900: это рекомендация, не обязательное
+            требование. «Галерея» не заменяет фирменный городской градиент — это делает только
+            опубликованная главная «Обложка».
+          </p>
+        </div>
+      </section>
+
       <div className="rounded-card border border-border bg-surface-high p-5">
         <h2 className="text-base font-semibold text-foreground">Загрузить изображение</h2>
         <p className="mt-1 text-sm text-muted-foreground">

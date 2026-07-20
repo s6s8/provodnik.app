@@ -32,6 +32,8 @@ export type PublicListing = {
   groupSizeMax: number;
   /** Real booking format enum (private | group | combo); drives the price unit. */
   format?: "private" | "group" | "combo" | null;
+  /** Ready-tour price scope; overrides the format badge for price wording. */
+  priceScope?: "per_person" | "per_group";
   themes: readonly PublicListingTheme[];
   highlights: readonly string[];
   itinerary: readonly PublicListingItineraryItem[];

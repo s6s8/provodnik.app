@@ -180,9 +180,11 @@ describe("createRequestAction — flexibility is not silently locked (#owner609)
 
     expect(createTravelerRequestMock).toHaveBeenCalledTimes(1);
     const payload = createTravelerRequestMock.mock.calls[0][0] as {
+      date_flexibility: "exact" | "few_days";
       date_locked: boolean;
       time_locked: boolean;
     };
+    expect(payload.date_flexibility).toBe("exact");
     expect(payload.date_locked).toBe(false);
     expect(payload.time_locked).toBe(false);
   });

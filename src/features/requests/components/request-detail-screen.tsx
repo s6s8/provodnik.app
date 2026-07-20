@@ -898,8 +898,7 @@ function GuideDetailBranch({
   }, [existingOfferId]);
 
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
-  const hasFlexibleDates =
-    request.dateFlexibility === "few_days" || request.date_locked === false;
+  const hasFlexibleDates = request.dateFlexibility === "few_days";
 
   return (
     <>

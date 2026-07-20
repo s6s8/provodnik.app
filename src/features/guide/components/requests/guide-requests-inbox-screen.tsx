@@ -35,6 +35,7 @@ import {
   isMatchedRequest,
   type GuideRequestsFilter,
   type GuideRequestsSortKey,
+  type GuideRequestsTypeFilter,
 } from "./guide-requests-inbox-filter";
 import { GuideOfferQaPanel } from "./guide-offer-qa-panel";
 import type { OfferMeta } from "./offer-meta";
@@ -86,6 +87,7 @@ export function GuideRequestsInboxScreen() {
   const [filter, setFilter] = React.useState<GuideRequestsFilter>("new");
   const [didAutoSelect, setDidAutoSelect] = React.useState(false);
   const [cityFilter, setCityFilter] = React.useState<string>("all");
+  const [requestTypeFilter, setRequestTypeFilter] = React.useState<GuideRequestsTypeFilter>("all");
   const [sortKey, setSortKey] = React.useState<GuideRequestsSortKey>(
     "newest",
   );
@@ -176,10 +178,11 @@ export function GuideRequestsInboxScreen() {
         baseCity,
         cityFilter,
         offeredIds,
+        requestTypeFilter,
         sortKey,
         specializations,
       }),
-    [items, offeredIds, baseCity, cityFilter, sortKey, specializations],
+    [items, offeredIds, baseCity, cityFilter, requestTypeFilter, sortKey, specializations],
   );
 
   React.useEffect(() => {
@@ -201,10 +204,11 @@ export function GuideRequestsInboxScreen() {
       cityFilter,
       filter,
       offeredIds,
+      requestTypeFilter,
       sortKey,
       specializations,
     });
-  }, [filter, items, offeredIds, baseCity, cityFilter, sortKey, specializations]);
+  }, [filter, items, offeredIds, baseCity, cityFilter, requestTypeFilter, sortKey, specializations]);
 
   const panelRequest = panelRequestId
     ? items.find((i) => i.id === panelRequestId)
@@ -299,6 +303,20 @@ export function GuideRequestsInboxScreen() {
                         <SelectItem value="size">По размеру группы</SelectItem>
                       </SelectContent>
                     </Select>
+                    <Select
+                      value={requestTypeFilter}
+                      onValueChange={(next) => setRequestTypeFilter(next as GuideRequestsTypeFilter)}
+                    >
+                      <SelectTrigger className="min-h-11" aria-label="Фильтр по типу запроса">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Все типы</SelectItem>
+                        <SelectItem value="assembly">Сборная группа</SelectItem>
+                        <SelectItem value="private">Своя группа</SelectItem>
+                        <SelectItem value="direct">Запрос на ваше имя</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 ) : null}
 
@@ -317,7 +335,7 @@ export function GuideRequestsInboxScreen() {
                     const offerStatus = offerMeta?.status ?? "pending";
                     const isDeclinedOffer = offerStatus === "declined";
                     const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
-                    const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
+                    const hasFlexibleDates = item.dateFlexibility === "few_days";
                     return (
                       <div key={item.id} className="flex flex-col gap-3">
                         <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">

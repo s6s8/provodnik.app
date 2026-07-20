@@ -2,12 +2,14 @@ import type { RequestRecord } from "@/data/supabase/queries";
 
 export type GuideRequestsFilter = "new" | "my-offers" | "confirmed";
 export type GuideRequestsSortKey = "newest" | "date" | "size";
+export type GuideRequestsTypeFilter = "all" | "assembly" | "private" | "direct";
 
 interface FilterInboxOptions {
   baseCity: string | null;
   cityFilter: string;
   filter: GuideRequestsFilter;
   offeredIds: Set<string>;
+  requestTypeFilter: GuideRequestsTypeFilter;
   sortKey: GuideRequestsSortKey;
   specializations: string[];
 }
@@ -25,6 +27,7 @@ export function filterInbox(
     cityFilter,
     filter,
     offeredIds,
+    requestTypeFilter,
     sortKey,
     specializations,
   }: FilterInboxOptions,
@@ -85,6 +88,15 @@ export function filterInbox(
     filtered = filtered.filter(
       (item: RequestRecord) =>
         item.isDirectToViewer || isMatchedRequest(item, specializations),
+    );
+  }
+
+  // A directed request is its own category, regardless of the underlying mode.
+  if (requestTypeFilter !== "all") {
+    filtered = filtered.filter((item) =>
+      requestTypeFilter === "direct"
+        ? item.isDirectToViewer
+        : !item.isDirectToViewer && item.mode === requestTypeFilter,
     );
   }
 

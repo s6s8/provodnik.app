@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { mapRequestRow, type RequestRecord } from "@/data/supabase/queries";
@@ -68,6 +68,7 @@ describe("filterInbox", () => {
       cityFilter: "all",
       filter: "new",
       offeredIds: new Set(),
+      requestTypeFilter: "all",
       sortKey: "newest",
       specializations: [],
     });
@@ -86,6 +87,7 @@ describe("filterInbox", () => {
       cityFilter: "all",
       filter: "new",
       offeredIds: new Set(),
+      requestTypeFilter: "all",
       sortKey: "newest",
       specializations: [],
     });
@@ -99,6 +101,7 @@ describe("getInboxTabCounts", () => {
     baseCity: "Элиста",
     cityFilter: "all",
     offeredIds: new Set(["elista-b", "karelia-c"]),
+    requestTypeFilter: "all" as const,
     sortKey: "newest" as const,
     specializations: [] as string[],
   };
@@ -191,6 +194,38 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     });
   });
 
+  it("returns to all request types after selecting a type", async () => {
+    HTMLElement.prototype.scrollIntoView = vi.fn();
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [
+        request({ id: "assembly", title: "Сборный запрос", destination: "Элиста, центр" }),
+        request({ id: "private", title: "Приватный запрос", destination: "Элиста, центр", mode: "private" }),
+      ],
+      error: null,
+    });
+    render(<GuideRequestsInboxScreen />);
+
+    const trigger = await screen.findByLabelText("Фильтр по типу запроса");
+    fireEvent.click(trigger);
+    expect(await screen.findByRole("option", { name: "Все типы" })).toBeInTheDocument();
+    expect(await screen.findByRole("option", { name: "Сборная группа" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Своя группа" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Запрос на ваше имя" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("option", { name: "Сборная группа" }));
+    await waitFor(() => {
+      expect(screen.getAllByText("Сборная группа")).toHaveLength(2);
+      expect(screen.queryByText("Своя группа")).toBeNull();
+    });
+
+    fireEvent.click(trigger);
+    fireEvent.click(await screen.findByRole("option", { name: "Все типы" }));
+    await waitFor(() => {
+      expect(screen.getByText("Сборная группа")).toBeInTheDocument();
+      expect(screen.getByText("Своя группа")).toBeInTheDocument();
+    });
+  });
+
 
   it("renders request rows when offers metadata fails", async () => {
     createSupabaseBrowserClientMock.mockReturnValue({
@@ -235,6 +270,30 @@ describe("GuideRequestsInboxScreen meta layout", () => {
       screen.getByText("Запросы загружены, но часть данных по откликам временно недоступна."),
     ).toBeInTheDocument();
     expect(screen.queryByText("Не удалось загрузить запросы. Попробуйте обновить страницу.")).toBeNull();
+  });
+
+  it("shows an exact date when guides may suggest alternatives", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [request({ dateFlexibility: "exact", date_locked: false })],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("Точная дата")).toBeInTheDocument();
+    expect(screen.queryByText("Гибкие даты")).toBeNull();
+  });
+
+  it("shows flexible dates only for a few_days request", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [request({ dateFlexibility: "few_days", date_locked: true })],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("Гибкие даты")).toBeInTheDocument();
+    expect(screen.queryByText("Точная дата")).toBeNull();
   });
 
   it("keeps the request time inline with the date meta row", () => {
