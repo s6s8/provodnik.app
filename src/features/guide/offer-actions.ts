@@ -18,6 +18,7 @@ import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 export type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 
 export type LockEnforcementRequest = {
+  date_flexibility?: string | null;
   date_locked?: boolean | null;
   time_locked?: boolean | null;
   starts_on: string;
@@ -68,7 +69,7 @@ export async function checkOfferAgainstLocks(args: {
   const startsAt = toMoscowIsoParts(args.startsAt);
   const endsAt = toMoscowIsoParts(args.endsAt);
 
-  if (args.request.date_locked && startsAt?.date !== args.request.starts_on) {
+  if (args.request.date_flexibility !== "few_days" && startsAt?.date !== args.request.starts_on) {
     return { error: "Путешественник просит строго эту дату." };
   }
 
@@ -205,10 +206,7 @@ export async function submitOfferAction(
     const lockCheck = await checkOfferAgainstLocks({
       startsAt: parsed.data.starts_at ?? undefined,
       endsAt: parsed.data.ends_at ?? undefined,
-      request: {
-        ...requestRow,
-        date_locked: requestRow.date_flexibility === "few_days" ? false : requestRow.date_locked,
-      },
+      request: requestRow,
     });
 
     if ("error" in lockCheck) {
@@ -376,7 +374,7 @@ export async function editOfferAction(
     const lockCheck = await checkOfferAgainstLocks({
       startsAt: parsed.data.starts_at ?? undefined,
       endsAt: parsed.data.ends_at ?? undefined,
-      request: { ...requestRow, date_locked: requestRow.date_flexibility === "few_days" ? false : requestRow.date_locked },
+      request: requestRow,
     });
     if ("error" in lockCheck) return { error: lockCheck.error };
 

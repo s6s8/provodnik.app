@@ -27,6 +27,7 @@ import {
 } from "@/features/guide/offer-actions";
 
 const baseRequest = {
+  date_flexibility: "exact",
   date_locked: true,
   time_locked: true,
   starts_on: "2026-09-10",
@@ -64,11 +65,11 @@ describe("checkOfferAgainstLocks", () => {
     }
   });
 
-  it("accepts when both locks are off even if date and time differ", async () => {
+  it("accepts when few_days and time lock are off even if date and time differ", async () => {
     const result = await checkOfferAgainstLocks({
       startsAt: makeIso("2026-09-12", "15:00"),
       endsAt: makeIso("2026-09-12", "18:00"),
-      request: { ...baseRequest, date_locked: false, time_locked: false },
+      request: { ...baseRequest, date_flexibility: "few_days", time_locked: false },
     });
 
     expect("ok" in result && result.ok).toBe(true);
@@ -84,11 +85,21 @@ describe("checkOfferAgainstLocks", () => {
     expect("ok" in result && result.ok).toBe(true);
   });
 
-  it("accepts different date when date_locked=false regardless of date mismatch", async () => {
+  it("rejects a changed date for exact requests even when date_locked=false", async () => {
     const result = await checkOfferAgainstLocks({
       startsAt: makeIso("2026-09-15", "10:00"),
       endsAt: makeIso("2026-09-15", "13:00"),
       request: { ...baseRequest, date_locked: false },
+    });
+
+    expect("error" in result).toBe(true);
+  });
+
+  it("accepts a changed date for few_days requests even when date_locked=true", async () => {
+    const result = await checkOfferAgainstLocks({
+      startsAt: makeIso("2026-09-15", "10:00"),
+      endsAt: makeIso("2026-09-15", "13:00"),
+      request: { ...baseRequest, date_flexibility: "few_days" },
     });
 
     expect("ok" in result && result.ok).toBe(true);
@@ -96,6 +107,45 @@ describe("checkOfferAgainstLocks", () => {
 });
 
 describe("submitOfferAction", () => {
+  it("rejects a changed date for exact requests even when date_locked=false", async () => {
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }) }),
+    });
+    const guideSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: { verification_status: "approved", is_available: true } }) }),
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }) }),
+      }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { ...baseRequest, traveler_id: "trav-1", date_locked: false } }),
+      }),
+    });
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } } }) },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_profiles") return { select: guideSelect };
+        if (table === "guide_offers") return { select: offerSelect };
+        if (table === "traveler_requests") return { select: requestSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "предложение достаточной длины для валидации");
+    fd.set("valid_until", "2027-01-01");
+    fd.set("starts_at", makeIso("2026-09-11", "10:00"));
+    fd.set("ends_at", makeIso("2026-09-11", "13:00"));
+
+    await expect(submitOfferAction("11111111-1111-4111-8111-111111111111", fd)).resolves.toEqual({
+      error: "Путешественник просит строго эту дату.",
+    });
+  });
+
   it("rejects unverified guide profiles before submitting an offer", async () => {
     const guideMaybeSingle = vi.fn().mockResolvedValue({
       data: { verification_status: "draft" },
@@ -302,6 +352,41 @@ describe("withdrawOfferAction", () => {
 });
 
 describe("editOfferAction", () => {
+  it("rejects a changed date for exact requests even when date_locked=false", async () => {
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }) }),
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({
+        data: { id: "offer-1", guide_id: "guide-1", status: "pending", request_id: "req-1" },
+      }) }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { ...baseRequest, traveler_id: "trav-1", date_locked: false } }),
+      }),
+    });
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } } }) },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_offers") return { select: offerSelect };
+        if (table === "traveler_requests") return { select: requestSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "обновлённое предложение достаточной длины");
+    fd.set("valid_until", "2027-01-01");
+    fd.set("starts_at", makeIso("2026-09-11", "10:00"));
+    fd.set("ends_at", makeIso("2026-09-11", "13:00"));
+
+    await expect(editOfferAction("offer-1", "11111111-1111-4111-8111-111111111111", fd)).resolves.toEqual({
+      error: "Путешественник просит строго эту дату.",
+    });
+  });
+
   it("rejects when the offer is not pending", async () => {
     const offerMaybeSingle = vi.fn().mockResolvedValue({
       data: { id: "offer-1", guide_id: "guide-1", status: "accepted", request_id: "req-1" },
