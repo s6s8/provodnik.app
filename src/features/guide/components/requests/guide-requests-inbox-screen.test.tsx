@@ -237,6 +237,30 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     expect(screen.queryByText("Не удалось загрузить запросы. Попробуйте обновить страницу.")).toBeNull();
   });
 
+  it("shows an exact date when guides may suggest alternatives", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [request({ dateFlexibility: "exact", date_locked: false })],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("Точная дата")).toBeInTheDocument();
+    expect(screen.queryByText("Гибкие даты")).toBeNull();
+  });
+
+  it("shows flexible dates only for a few_days request", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [request({ dateFlexibility: "few_days", date_locked: true })],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("Гибкие даты")).toBeInTheDocument();
+    expect(screen.queryByText("Точная дата")).toBeNull();
+  });
+
   it("keeps the request time inline with the date meta row", () => {
     const source = readFileSync(
       join(

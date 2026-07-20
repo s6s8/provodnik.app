@@ -317,7 +317,7 @@ export function GuideRequestsInboxScreen() {
                     const offerStatus = offerMeta?.status ?? "pending";
                     const isDeclinedOffer = offerStatus === "declined";
                     const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
-                    const hasFlexibleDates = item.dateFlexibility === "few_days" || item.date_locked === false;
+                    const hasFlexibleDates = item.dateFlexibility === "few_days";
                     return (
                       <div key={item.id} className="flex flex-col gap-3">
                         <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
