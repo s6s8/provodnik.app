@@ -223,8 +223,18 @@ describe("getPublishedLocationCovers", () => {
 describe("resolveLocationCover", () => {
   const covers = new Map([["казань", "https://signed.test/kazan.jpg"]]);
 
+  it("matches a bare city", () => {
+    expect(resolveLocationCover(covers, "Казань")).toBe("https://signed.test/kazan.jpg");
+  });
+
   it("matches case- and whitespace-insensitively", () => {
     expect(resolveLocationCover(covers, "  КАЗАНЬ ")).toBe("https://signed.test/kazan.jpg");
+  });
+
+  it("matches a city with its comma-separated region label", () => {
+    expect(resolveLocationCover(covers, "Казань, Татарстан")).toBe(
+      "https://signed.test/kazan.jpg",
+    );
   });
 
   it("returns null for an uncovered destination so the branded gradient stays", () => {
