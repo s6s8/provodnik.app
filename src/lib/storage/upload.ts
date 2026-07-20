@@ -42,6 +42,9 @@ const bucketAssetKinds: Record<StorageBucketId, readonly StorageAssetKindDb[]> =
   "traveler-avatars": [],
   "guide-documents": ["guide-document"],
   "listing-media": ["listing-cover", "listing-gallery"],
+  // Location media keeps its editorial metadata on `location_media`, not `storage_assets`,
+  // so no asset kind routes here.
+  "location-media": [],
   "dispute-evidence": ["dispute-evidence"],
 };
 

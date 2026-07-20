@@ -92,7 +92,9 @@ export function LocationsConsole({ locations }: { locations: LocationCatalogEntr
           {locations.map((location) => (
             <ListRow
               key={location.id}
+              href={`/admin/locations/${location.id}`}
               title={location.name}
+              subtitle="Медиа локации"
               badge={
                 <Badge variant={location.status === "active" ? "default" : "secondary"}>
                   {location.status === "active" ? "Активна" : "В архиве"}

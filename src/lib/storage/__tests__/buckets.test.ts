@@ -15,6 +15,7 @@ describe('storage bucket configuration', () => {
       'traveler-avatars',
       'guide-documents',
       'listing-media',
+      'location-media',
       'dispute-evidence',
     ])
   })
@@ -22,6 +23,9 @@ describe('storage bucket configuration', () => {
   it('exposes the expected public/private bucket flags', () => {
     expect(isPublicStorageBucket('guide-avatars')).toBe(true)
     expect(isPublicStorageBucket('listing-media')).toBe(true)
+    // Private on purpose: a public bucket serves objects without consulting RLS, which
+    // would expose draft/uploading destination media to anyone holding a path.
+    expect(isPublicStorageBucket('location-media')).toBe(false)
     expect(isPublicStorageBucket('guide-documents')).toBe(false)
     expect(isPublicStorageBucket('dispute-evidence')).toBe(false)
   })
@@ -29,6 +33,7 @@ describe('storage bucket configuration', () => {
   it('enforces the documented file size limits', () => {
     expect(getStorageBucketConfig('guide-avatars').maxBytes).toBe(2 * 1024 * 1024)
     expect(getStorageBucketConfig('listing-media').maxBytes).toBe(5 * 1024 * 1024)
+    expect(getStorageBucketConfig('location-media').maxBytes).toBe(5 * 1024 * 1024)
     expect(getStorageBucketConfig('guide-documents').maxBytes).toBe(10 * 1024 * 1024)
     expect(getStorageBucketConfig('dispute-evidence').maxBytes).toBe(10 * 1024 * 1024)
   })
@@ -44,8 +49,14 @@ describe('storage bucket configuration', () => {
       'image/png',
       'image/webp',
     ])
+    expect(storageBucketConfig['location-media'].allowedMimeTypes).toEqual([
+      'image/jpeg',
+      'image/png',
+      'image/webp',
+    ])
     expect(storageBucketConfig['guide-avatars'].allowedMimeTypes).not.toContain('application/pdf')
     expect(storageBucketConfig['listing-media'].allowedMimeTypes).not.toContain('application/pdf')
+    expect(storageBucketConfig['location-media'].allowedMimeTypes).not.toContain('application/pdf')
   })
 
   it('allows PDFs only in private document/evidence buckets', () => {

@@ -26,6 +26,13 @@ export const storageBucketConfig = {
     maxBytes: 5 * 1024 * 1024,
     allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"] as const,
   },
+  // Private: object RLS is the publication boundary, and a public bucket bypasses it.
+  // Images are served as signed URLs — see src/lib/supabase/location-media.ts.
+  "location-media": {
+    isPublic: false,
+    maxBytes: 5 * 1024 * 1024,
+    allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"] as const,
+  },
   "dispute-evidence": {
     isPublic: false,
     maxBytes: 10 * 1024 * 1024,

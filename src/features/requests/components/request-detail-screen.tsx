@@ -142,6 +142,8 @@ type RequestDetailScreenProps =
   | {
       viewerRole: "guide";
       request: RequestRecord;
+      /** Published primary location cover; omitted keeps the branded gradient. */
+      cityImageUrl?: string;
       isApproved: boolean;
       existingOfferId: string | null;
       offerMeta?: OfferMeta | null;
@@ -874,6 +876,7 @@ function formatCompetingOffersLabel(count: number, hasOwnOffer: boolean): string
 
 function GuideDetailBranch({
   request,
+  cityImageUrl,
   isApproved,
   existingOfferId,
   offerMeta,
@@ -903,7 +906,7 @@ function GuideDetailBranch({
       <ImmersiveHero
         navBleed
         variant="compact"
-        imageUrl={cityImage(request.destination)}
+        imageUrl={cityImageUrl ?? cityImage(request.destination)}
         breadcrumb={buildRequestDetailBreadcrumb(request.destination, request.destination)}
         title={request.destination}
         intro={request.description || undefined}
