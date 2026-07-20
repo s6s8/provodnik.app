@@ -17,6 +17,10 @@ import {
 import { canSeeRequestNotes } from "@/features/requests/request-notes-visibility";
 import { getRequestViewerContext, viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
+import {
+  getPublishedLocationCoversSafe,
+  resolveLocationCover,
+} from "@/lib/supabase/location-media";
 import { friendlyError } from "@/lib/errors";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -116,6 +120,7 @@ function buildViewModel({
   isMember,
   ownerId,
   includeNotes,
+  coverUrl = null,
 }: {
   request: RequestRecord;
   currentUserId: string | null;
@@ -125,6 +130,8 @@ function buildViewModel({
   // viewers get it in the model; everyone else gets an empty string so no render
   // path (hero intro, member brief) can surface it. See canSeeRequestNotes.
   includeNotes: boolean;
+  /** Published primary location cover, or null to keep the branded gradient. */
+  coverUrl?: string | null;
 }): PublicRequestDetailViewModel {
   const organizerFallback = request.requesterName || "Путешественник";
   const members =
@@ -142,7 +149,7 @@ function buildViewModel({
   return {
     title: request.title,
     regionLabel: request.destinationRegion,
-    cityImageUrl: cityImage(request.destination),
+    cityImageUrl: coverUrl ?? cityImage(request.destination),
     dateLabel: request.dateLabel,
     timeLabel: getTimeLabel(request),
     datesFlexible: request.dateFlexibility === "few_days",
@@ -426,6 +433,20 @@ export default async function RequestDetailPage({
   currentUserId = viewerContext.userId;
   ownerId = result.data.travelerId ?? null;
 
+  // Published primary cover for this destination; null keeps the branded gradient.
+  let coverUrl: string | null = null;
+  if (hasSupabaseEnv()) {
+    try {
+      const coverClient = await createSupabaseServerClient();
+      coverUrl = resolveLocationCover(
+        await getPublishedLocationCoversSafe(coverClient),
+        result.data.destination,
+      );
+    } catch {
+      // Cover lookup is decorative — never block the request page on it.
+    }
+  }
+
   if (
     result.data.mode !== "assembly" &&
     viewerRole !== "owner" &&
@@ -466,6 +487,7 @@ export default async function RequestDetailPage({
       isMember,
       ownerId,
       includeNotes: true,
+      coverUrl,
     });
 
     const ownerGroupThread = await getRequestGroupThread(requestId as Uuid);
@@ -505,6 +527,7 @@ export default async function RequestDetailPage({
       <RequestDetailScreen
         viewerRole="guide"
         request={guideRequestForView}
+        cityImageUrl={coverUrl ?? undefined}
         isApproved={guideData.isApproved}
         existingOfferId={guideData.existingOfferId}
         offerMeta={guideData.offerMeta}
@@ -525,6 +548,7 @@ export default async function RequestDetailPage({
     includeNotes: canSeeRequestNotes({
       viewerRole: viewerRole === "admin" ? "admin" : "public",
     }),
+    coverUrl,
   });
 
   let biddingGuides: BiddingGuide[] = [];

@@ -2659,6 +2659,77 @@ export type Database = {
           },
         ]
       }
+      location_media: {
+        Row: {
+          alt_text: string | null
+          bucket_id: string
+          byte_size: number
+          caption: string | null
+          created_at: string
+          created_by: string | null
+          height: number | null
+          id: string
+          is_primary: boolean
+          location_id: string
+          mime_type: string
+          object_path: string
+          role: string
+          sort_order: number
+          source: string | null
+          status: string
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          bucket_id?: string
+          byte_size: number
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          location_id: string
+          mime_type: string
+          object_path: string
+          role?: string
+          sort_order?: number
+          source?: string | null
+          status?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          bucket_id?: string
+          byte_size?: number
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          location_id?: string
+          mime_type?: string
+          object_path?: string
+          role?: string
+          sort_order?: number
+          source?: string | null
+          status?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_media_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "guide_location_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moderation_actions: {
         Row: {
           admin_id: string

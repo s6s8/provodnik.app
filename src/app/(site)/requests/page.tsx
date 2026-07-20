@@ -8,6 +8,10 @@ import type { OpenRequestRecord } from "@/data/open-requests/types";
 import { getOpenRequests, type RequestRecord } from "@/data/supabase/queries";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { cityImage } from "@/lib/city-image";
+import {
+  getPublishedLocationCoversSafe,
+  resolveLocationCover,
+} from "@/lib/supabase/location-media";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // In-page skeleton replaces the removed (site)/loading.tsx boundary for this
@@ -38,6 +42,7 @@ function mapToOpenRequestRecord(
   request: RequestRecord,
   viewerId: string | null,
   joinedRequestIds: Set<string>,
+  covers: Map<string, string>,
 ): OpenRequestRecord {
   const isOwner = request.travelerId != null && request.travelerId === viewerId;
   // The free-text «Пожелания» is private (health/PII). The public marketplace is a
@@ -60,7 +65,8 @@ function mapToOpenRequestRecord(
     },
     destinationLabel: request.destination,
     imageUrl: request.imageUrl,
-    cityImageUrl: cityImage(request.destination),
+    cityImageUrl:
+      resolveLocationCover(covers, request.destination) ?? cityImage(request.destination),
     regionLabel: request.destinationRegion,
     dateRangeLabel: request.dateLabel,
     datesFlexible: request.dateFlexibility === "few_days",
@@ -116,8 +122,10 @@ export async function RequestsContent() {
           if (membership.request_id) joinedRequestIds.add(membership.request_id as string);
         }
       }
+      // Anon/user client: RLS plus the explicit status filter keep drafts out of public HTML.
+      const covers = await getPublishedLocationCoversSafe(supabase);
       initialData = assemblyRequests.map((request) =>
-        mapToOpenRequestRecord(request, viewerId, joinedRequestIds),
+        mapToOpenRequestRecord(request, viewerId, joinedRequestIds, covers),
       );
     }
   } catch {
