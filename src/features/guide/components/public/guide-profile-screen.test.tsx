@@ -92,10 +92,7 @@ describe("GuideProfileScreen", () => {
     }
   });
 
-  // Every excursion adapted from guide_templates links to this same profile (it has
-  // no /listings detail route), so href is NOT unique within one guide's list. It
-  // was the React key, which made two published templates collide.
-  it("renders several template-backed excursions that share one href", () => {
+  it("renders each template-backed excursion with its own detail route", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
 
     render(
@@ -104,14 +101,14 @@ describe("GuideProfileScreen", () => {
         listings={[
           {
             slug: "11111111-1111-1111-1111-111111111111",
-            href: "/guides/ivan-petrov",
+            href: "/excursions/11111111-1111-1111-1111-111111111111",
             title: "Тюльпановая степь",
             coverImageUrl: "/hero-valley.jpg",
             price: "от 1 200 ₽ за одного",
           },
           {
             slug: "22222222-2222-2222-2222-222222222222",
-            href: "/guides/ivan-petrov",
+            href: "/excursions/22222222-2222-2222-2222-222222222222",
             title: "Чёрные земли",
             coverImageUrl: "/hero-valley.jpg",
             price: "от 2 500 ₽ за одного",
@@ -122,6 +119,14 @@ describe("GuideProfileScreen", () => {
 
     expect(screen.getByText("Тюльпановая степь")).toBeInTheDocument();
     expect(screen.getByText("Чёрные земли")).toBeInTheDocument();
+    expect(screen.getByText("Тюльпановая степь").closest("a")).toHaveAttribute(
+      "href",
+      "/excursions/11111111-1111-1111-1111-111111111111",
+    );
+    expect(screen.getByText("Чёрные земли").closest("a")).toHaveAttribute(
+      "href",
+      "/excursions/22222222-2222-2222-2222-222222222222",
+    );
     // The price comes from the caller's shared formatter, with its scope intact.
     expect(screen.getByText("от 1 200 ₽ за одного")).toBeInTheDocument();
     expect(consoleError).not.toHaveBeenCalled();

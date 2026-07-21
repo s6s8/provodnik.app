@@ -37,14 +37,34 @@ const TEMPLATE_SCAN = 200;
 
 type TemplateGuide = { slug: string; displayName: string };
 
+export type PublicGuideTemplateDetail = {
+  id: string;
+  title: string;
+  description: string | null;
+  photoUrl: string;
+  priceFromKopecks: number | null;
+  priceScope: "per_person" | "per_group";
+  durationText: string | null;
+  meetingPoint: string | null;
+  maxParticipants: number | null;
+  region: string | null;
+  category: string | null;
+  guide: TemplateGuide;
+};
+
+/** Public namespace for ready excursions, which have no `listings` row or slug. */
+export function guideTemplateDetailHref(templateId: string): string {
+  return `/excursions/${templateId}`;
+}
+
 function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord {
   const region = row.region ?? "";
   return {
     id: row.id,
-    // No `listings` row, so no slug and no /listings/{slug} detail route. The id
-    // keeps React keys stable; detailHref is what the card actually links to.
+    // No `listings` row, so no /listings/{slug} detail route. The id keeps React
+    // keys stable and identifies the public ready-excursion detail route.
     slug: row.id,
-    detailHref: `/guides/${guide.slug}`,
+    detailHref: guideTemplateDetailHref(row.id),
     title: row.title,
     destinationSlug: normalizeSlug(region),
     destinationName: region,
@@ -125,5 +145,63 @@ export async function getPublishedTemplateListings(
     return records;
   } catch {
     return [];
+  }
+}
+
+/**
+ * Public detail data for one ready excursion. The template and its guide both
+ * pass the same visibility gates as the catalog cards, so a copied URL cannot
+ * reveal drafts, unapproved guides, or QA fixtures.
+ */
+export async function getPublishedTemplateDetail(
+  client: SupabaseClient,
+  templateId: string,
+): Promise<PublicGuideTemplateDetail | null> {
+  try {
+    const { data: templateRaw, error: templateError } = await client
+      .from("guide_templates")
+      .select("*")
+      .eq("id", templateId)
+      .eq("status", "published")
+      .maybeSingle();
+    if (templateError) throw templateError;
+    if (!templateRaw) return null;
+
+    const template = templateRaw as GuideTemplateRow;
+    // Keep the application boundary safe even if a mocked/stale client ignores
+    // the PostgREST status predicate.
+    if (template.status !== "published") return null;
+
+    const { data: guideRaw, error: guideError } = await client
+      .from("guide_profiles")
+      .select("user_id, slug, display_name, verification_status")
+      .eq("user_id", template.guide_id)
+      .maybeSingle();
+    if (guideError) throw guideError;
+
+    const slug = guideRaw?.slug as string | null | undefined;
+    if (guideRaw?.verification_status !== "approved" || !slug || isQaGuideSlug(slug)) {
+      return null;
+    }
+
+    return {
+      id: template.id,
+      title: template.title,
+      description: template.description,
+      photoUrl: template.photo_urls?.[0] ?? fallbackHeroImage,
+      priceFromKopecks: template.price_from_kopecks,
+      priceScope: template.price_scope === "per_group" ? "per_group" : "per_person",
+      durationText: template.duration_text,
+      meetingPoint: template.meeting_point,
+      maxParticipants: template.max_participants,
+      region: template.region,
+      category: template.category,
+      guide: {
+        slug,
+        displayName: (guideRaw?.display_name as string | null) ?? "Локальный гид",
+      },
+    };
+  } catch {
+    return null;
   }
 }

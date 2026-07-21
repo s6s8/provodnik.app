@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { getPublishedTemplateListings } from "./guide-template-listings";
+import {
+  getPublishedTemplateDetail,
+  getPublishedTemplateListings,
+} from "./guide-template-listings";
 
 type Row = Record<string, unknown>;
 
@@ -19,6 +22,8 @@ function fakeClient(fixtures: Record<string, Row[]>, errors: Record<string, Erro
           return chain();
         };
       }
+      q.maybeSingle = () =>
+        Promise.resolve({ data: fixtures[table]?.[0] ?? null, error: errors[table] ?? null });
       q.then = (resolve: (v: unknown) => void) =>
         resolve({ data: fixtures[table] ?? [], error: errors[table] ?? null });
       return q;
@@ -84,8 +89,8 @@ describe("getPublishedTemplateListings", () => {
     expect(rec.destinationRegion).toBe("Калмыкия");
     expect(rec.guideName).toBe("Баир Очиров");
     expect(rec.guideSlug).toBe("bair-ochirov");
-    // A template has no row in `listings`, so it has no detail route.
-    expect(rec.detailHref).toBe("/guides/bair-ochirov");
+    // A template has no row in `listings`, but it does have its own public detail route.
+    expect(rec.detailHref).toBe(`/excursions/${TEMPLATE.id}`);
     // Nothing fabricated: no reviews exist for a template.
     expect(rec.rating).toBe(0);
     expect(rec.reviewCount).toBe(0);
@@ -179,5 +184,47 @@ describe("getPublishedTemplateListings", () => {
     expect(rec.priceRub).toBe(0);
     expect(rec.imageUrl).toBeTruthy();
     expect(rec.groupSize).toBe(0);
+  });
+
+  it("resolves a public detail only for a published template from an approved non-QA guide", async () => {
+    const client = fakeClient({
+      guide_templates: [TEMPLATE],
+      guide_profiles: [APPROVED_GUIDE],
+    });
+
+    const detail = await getPublishedTemplateDetail(client, TEMPLATE.id as string);
+
+    expect(detail).toMatchObject({
+      id: TEMPLATE.id,
+      title: "Степь и хурул",
+      photoUrl: "https://cdn.example/photo.jpg",
+      priceFromKopecks: 450_000,
+      durationText: "5 часов",
+      meetingPoint: "Площадь Ленина",
+      maxParticipants: 8,
+      guide: { slug: "bair-ochirov", displayName: "Баир Очиров" },
+    });
+    expect(client.calls).toContain(`guide_templates.eq:id:${TEMPLATE.id}`);
+    expect(client.calls).toContain("guide_templates.eq:status:published");
+    expect(client.calls).toContain("guide_profiles.eq:user_id:guide-1");
+  });
+
+  it("does not resolve unpublished, unapproved, or QA template details", async () => {
+    const unpublished = fakeClient({
+      guide_templates: [{ ...TEMPLATE, status: "draft" }],
+      guide_profiles: [APPROVED_GUIDE],
+    });
+    const unapproved = fakeClient({
+      guide_templates: [TEMPLATE],
+      guide_profiles: [{ ...APPROVED_GUIDE, verification_status: "pending" }],
+    });
+    const qaGuide = fakeClient({
+      guide_templates: [TEMPLATE],
+      guide_profiles: [{ ...APPROVED_GUIDE, slug: "qa-guide" }],
+    });
+
+    await expect(getPublishedTemplateDetail(unpublished, TEMPLATE.id as string)).resolves.toBeNull();
+    await expect(getPublishedTemplateDetail(unapproved, TEMPLATE.id as string)).resolves.toBeNull();
+    await expect(getPublishedTemplateDetail(qaGuide, TEMPLATE.id as string)).resolves.toBeNull();
   });
 });

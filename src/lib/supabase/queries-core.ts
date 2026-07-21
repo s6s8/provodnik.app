@@ -55,9 +55,8 @@ export type ListingRecord = {
   status: "active" | "draft";
   /**
    * Where the card links. Defaults to `/listings/{slug}` — the `listings` detail
-   * route. Records adapted from `guide_templates` have no row in `listings` and
-   * therefore no detail route, so they point at their guide's public profile
-   * instead of a URL that would 404. See guide-template-listings.ts.
+   * route. Records adapted from `guide_templates` have no row in `listings`, so
+   * they use the ready-excursion public route. See guide-template-listings.ts.
    */
   detailHref?: string;
 };
