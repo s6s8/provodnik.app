@@ -87,7 +87,14 @@ export async function counterOffer(
     p_message: description.trim() || null,
   });
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    // Same vocabulary as accept_offer: an expired offer can no longer be countered,
+    // otherwise the replacement would inherit the dead expiry.
+    if (error.message.includes("offer_expired")) {
+      throw new Error("Срок действия предложения истёк.");
+    }
+    throw new Error(error.message);
+  }
 
   return { success: true };
 }

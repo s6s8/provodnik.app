@@ -9,6 +9,7 @@
 import { z } from "zod";
 
 import { rubToKopecks } from "@/data/money";
+import { isExpired, normalizeExpiryInput } from "@/lib/dates";
 import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -30,13 +31,20 @@ export const createOfferInputSchema = z.object({
     .trim()
     .min(10, "Message must be at least 10 characters.")
     .max(2_000, "Message must be under 2 000 characters."),
+  // Normalizes here, not at the callsites: submitOfferAction, editOfferAction and
+  // createGuideOffer all parse through this schema, so `valid_until` is already the
+  // stored ISO timestamp by the time it reaches a write. Re-parsing is idempotent.
   valid_until: z
     .string()
     .min(1, "Please provide an expiry date.")
-    .refine((v) => {
-      const d = new Date(v);
-      return !Number.isNaN(d.getTime()) && d > new Date();
-    }, "Expiry date must be in the future."),
+    .transform((value, ctx) => {
+      const iso = normalizeExpiryInput(value);
+      if (iso === null || isExpired(iso)) {
+        ctx.addIssue({ code: "custom", message: "Expiry date must be in the future." });
+        return z.NEVER;
+      }
+      return iso;
+    }),
   route_stops: z
     .array(
       z.object({
@@ -96,7 +104,7 @@ export async function createGuideOffer(
       guide_id: guideId,
       price_minor: rubToKopecks(input.price_total),
       message: input.message,
-      expires_at: new Date(input.valid_until).toISOString(),
+      expires_at: input.valid_until,
       currency: "RUB",
       capacity: input.capacity,
       inclusions: input.inclusions,

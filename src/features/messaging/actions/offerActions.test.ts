@@ -134,4 +134,15 @@ describe("offer actions", () => {
     });
     expect(supabase.from).not.toHaveBeenCalled();
   });
+
+  it("rejects counter-offer when the RPC reports the source offer expired", async () => {
+    makeRpcSupabase({
+      data: null,
+      error: { message: 'ошибка: offer_expired' },
+    });
+
+    await expect(counterOffer("offer-1", 12000, "New terms")).rejects.toThrow(
+      "Срок действия предложения истёк.",
+    );
+  });
 });

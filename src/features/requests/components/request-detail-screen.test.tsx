@@ -235,6 +235,43 @@ describe("RequestDetailScreen", () => {
     expect(screen.getByRole("button", { name: "Принять предложение" })).toBeInTheDocument();
   });
 
+  it("keeps an expired offer out of the owner comparison, so acceptance can never be opened", () => {
+    render(
+      <RequestDetailScreen
+        viewerRole="owner"
+        requestId="request-1"
+        ownerRecord={travelerRecord}
+        ownerRequestRow={travelerRequestRow}
+        viewModel={publicViewModel}
+        ownerOffers={[
+          {
+            offer: { ...offer, expires_at: "2026-01-02T00:00:00Z" },
+            guideInfo: {
+              guide_id: "guide-1",
+              slug: "anna-guide-1",
+              full_name: "Анна",
+              avatar_url: null,
+              rating: 4.8,
+              review_count: 12,
+              verified: true,
+              years_experience: 5,
+              trips_completed: 21,
+              recommend_pct: 94,
+              languages: ["Русский"],
+              specialties: ["Природа"],
+            },
+            qaThread: null as QaThread | null,
+          },
+        ]}
+        onSendQa={async () => {}}
+        onGetOrCreateQaThread={async () => "thread-1"}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Выбрать гида" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Принять предложение" })).not.toBeInTheDocument();
+  });
+
   it("renders the guide bid form control and not owner accept controls", () => {
     render(
       <RequestDetailScreen

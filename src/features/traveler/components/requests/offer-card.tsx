@@ -7,6 +7,7 @@ import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, Clock, Lock, Star,
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { kopecksToRub } from "@/data/money";
+import { isExpired } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn, pluralize } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
@@ -117,7 +118,10 @@ export function OfferCard({
   const guideName = resolveDisplayName("guide", { full_name: guideInfo?.full_name ?? null });
   const guideRating = guideInfo?.rating ?? null;
   const showGuideRating = guideRating != null && guideRating > 0;
-  const canAccept = requestStatus === "open" && offer.status === "pending";
+  // An elapsed expiry is as dead as a non-pending status: accept_offer raises
+  // 'offer_expired', so never offer the action.
+  const canAccept =
+    requestStatus === "open" && offer.status === "pending" && !isExpired(offer.expires_at);
 
   const offerCount = offer.capacity > 0 ? offer.capacity : (travelerCount ?? 1);
   const perPersonMinor = offerCount > 0 ? Math.round(offer.price_minor / offerCount) : offer.price_minor;

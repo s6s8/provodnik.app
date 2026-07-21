@@ -127,6 +127,22 @@ describe("OfferCard", () => {
     expect(screen.getByText("Принять предложение")).toBeInTheDocument();
   });
 
+  it('does NOT show "Принять предложение" when the offer expiry has elapsed', () => {
+    render(
+      <OfferCard
+        offer={{ ...baseOffer, expires_at: "2026-01-02T00:00:00Z" }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerOpenToJoin={false}
+      />,
+    );
+    expect(screen.queryByText("Принять предложение")).not.toBeInTheDocument();
+  });
+
   it('does NOT show "Принять предложение" when requestStatus is booked', () => {
     render(
       <OfferCard

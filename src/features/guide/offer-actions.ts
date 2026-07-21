@@ -387,7 +387,7 @@ export async function editOfferAction(
       .update({
         price_minor: rubToKopecks(parsed.data.price_total),
         message: parsed.data.message,
-        expires_at: new Date(parsed.data.valid_until).toISOString(),
+        expires_at: parsed.data.valid_until,
         capacity: parsed.data.capacity,
         inclusions: parsed.data.inclusions,
         route_stops: parsed.data.route_stops,

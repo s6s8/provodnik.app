@@ -78,6 +78,36 @@ export function todayMoscowISODate(): string {
 }
 
 /**
+ * Interpret a user-entered expiry value as an ISO timestamp.
+ *
+ * A date-only `YYYY-MM-DD` — what `<input type="date">` produces — means the END of
+ * that calendar day in Moscow: "действует до 25 июля" stays valid all of the 25th.
+ * `new Date("2026-07-25")` instead pins UTC midnight = 03:00 MSK, which killed the
+ * offer 21 hours early and made "today" unselectable. Moscow is a fixed UTC+3 (no
+ * DST since 2014), the same offset the rest of this codebase assumes.
+ *
+ * Anything else parseable passes through as its ISO form; unparseable → null.
+ */
+export function normalizeExpiryInput(value: string): string | null {
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  // `new Date("2026-02-30T…+03:00")` silently rolls over to 2 March; parseISODateParts rejects it.
+  if (dateOnly && !parseISODateParts(value)) return null;
+  const parsed = new Date(dateOnly ? `${value}T23:59:59.999+03:00` : value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
+/**
+ * True once an expiry timestamp is at or before now. Mirrors the `expires_at <= now()`
+ * gate in the accept_offer RPC so the UI stops short of a guaranteed RPC failure.
+ * A missing expiry never expires.
+ */
+export function isExpired(iso: string | null | undefined): boolean {
+  if (!iso) return false;
+  const time = new Date(iso).getTime();
+  return !Number.isNaN(time) && time <= Date.now();
+}
+
+/**
  * Format an ISO timestamp/date as a Russian "day month" string, pinned to Moscow TZ.
  * Pinning the timeZone keeps SSR (UTC) and client output identical — avoids hydration #418.
  */
