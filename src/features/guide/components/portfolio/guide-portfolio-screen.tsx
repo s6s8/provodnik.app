@@ -201,7 +201,8 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
             Локация
           </label>
           {/* Locations are the admin catalogue only — the DB refuses anything else. */}
-          <Select value={locationName || undefined} onValueChange={setLocationName}>
+          {/* "" keeps the Select controlled from first render; Radix shows the placeholder for "". */}
+          <Select value={locationName} onValueChange={setLocationName}>
             <SelectTrigger id="photo-location" className="mb-3 h-12 w-full">
               <SelectValue placeholder="Выберите локацию" />
             </SelectTrigger>

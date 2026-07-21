@@ -91,6 +91,9 @@ describe("GuidePortfolioScreen", () => {
       },
     });
 
+    // The Select must stay controlled from the first render — no undefined value.
+    const consoleWarn = vi.spyOn(console, "warn").mockImplementation(() => {});
+
     render(<GuidePortfolioScreen guideId="guide-from-prop" />);
 
     const location = await screen.findByRole("combobox", { name: "Локация" });
@@ -117,5 +120,12 @@ describe("GuidePortfolioScreen", () => {
         sortOrder: 0,
       });
     });
+
+    expect(
+      consoleWarn.mock.calls.filter(([first]) =>
+        String(first).includes("changing from uncontrolled to controlled"),
+      ),
+    ).toEqual([]);
+    consoleWarn.mockRestore();
   });
 });
