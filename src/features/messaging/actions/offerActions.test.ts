@@ -1,12 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClientMock } = vi.hoisted(() => ({
+const { createSupabaseServerClientMock, notifyBookingCreated } = vi.hoisted(() => ({
   createSupabaseServerClientMock: vi.fn(),
+  notifyBookingCreated: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: createSupabaseServerClientMock,
 }));
+
+vi.mock("@/lib/notifications/triggers", () => ({ notifyBookingCreated }));
 
 import { acceptOffer, counterOffer, declineOffer } from "./offerActions";
 
@@ -89,12 +92,23 @@ describe("offer actions", () => {
     expect(supabase.from).not.toHaveBeenCalled();
   });
 
+  // D21-10: this surface created the booking but told the guide nothing.
+  it("notifies the guide when the traveler accepts from the message thread", async () => {
+    makeRpcSupabase({ data: "booking-1", error: null });
+
+    await acceptOffer("offer-1");
+
+    expect(notifyBookingCreated).toHaveBeenCalledTimes(1);
+    expect(notifyBookingCreated).toHaveBeenCalledWith("booking-1");
+  });
+
   it("rejects accept when the RPC reports the offer is no longer pending", async () => {
     makeRpcSupabase({ data: null, error: { message: "offer_not_found" } });
 
     await expect(acceptOffer("offer-1")).rejects.toThrow(
       "Предложение уже не в статусе ожидания.",
     );
+    expect(notifyBookingCreated).not.toHaveBeenCalled();
   });
 
   it("rejects decline when the conditional update affects no rows", async () => {

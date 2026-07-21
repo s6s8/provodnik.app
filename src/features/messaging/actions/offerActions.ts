@@ -1,5 +1,6 @@
 "use server";
 
+import { acceptOfferForTraveler } from "@/lib/supabase/offers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function acceptOffer(offerId: string) {
@@ -12,13 +13,12 @@ export async function acceptOffer(offerId: string) {
   // Same single authority as the request-page accept: the RPC verifies ownership,
   // rejects expired/non-pending offers, declines siblings, books the request and
   // creates the booking + payment record atomically — instead of the old
-  // offer-only flip that left the request without a booking.
-  const { data: bookingId, error } = await supabase.rpc("accept_offer", {
-    p_offer_id: offerId,
-  });
+  // offer-only flip that left the request without a booking. The shared helper also
+  // fires the guide's booking notification, which this surface used to skip.
+  const { bookingId, error } = await acceptOfferForTraveler(offerId);
 
-  if (error || !bookingId) {
-    const raw = error?.message ?? "";
+  if (!bookingId) {
+    const raw = error ?? "";
     if (raw.includes("offer_expired")) throw new Error("Срок действия предложения истёк.");
     if (raw.includes("offer_not_found"))
       throw new Error("Предложение уже не в статусе ожидания.");
@@ -27,7 +27,7 @@ export async function acceptOffer(offerId: string) {
     throw new Error(raw || "Не удалось принять предложение.");
   }
 
-  return { success: true, bookingId: bookingId as string };
+  return { success: true, bookingId };
 }
 
 export async function declineOffer(offerId: string) {

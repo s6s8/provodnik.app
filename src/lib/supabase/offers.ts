@@ -9,6 +9,7 @@
 import { z } from "zod";
 
 import { rubToKopecks } from "@/data/money";
+import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideOfferRow, Uuid } from "@/lib/supabase/types";
@@ -167,6 +168,55 @@ export async function markOffersReadForRequest(requestId: Uuid): Promise<void> {
     .update({ traveler_read_at: new Date().toISOString() })
     .eq("request_id", requestId)
     .is("traveler_read_at", null);
+}
+
+/** `bookingId` is set only when the booking committed; `error` carries the raw RPC message. */
+export type AcceptOfferResult = {
+  bookingId: string | null;
+  error: string | null;
+};
+
+/**
+ * Accept an offer through the single `accept_offer` authority and tell the guide.
+ *
+ * The RPC commits guide, price, sibling declines, request status, booking and payment
+ * record in one transaction and derives every value from the offer row server-side.
+ * This wrapper adds the one app-side effect the DB can't do: the guide's booking
+ * notification. It lives here, next to the RPC call, because both accept surfaces
+ * (request page + message thread) go through it — the message thread used to call the
+ * RPC directly and notified nobody, so the guide never learned they had been booked.
+ *
+ * Idempotency comes from the RPC: it locks the offer `FOR UPDATE` and only a `pending`
+ * offer produces a booking, so repeat and parallel accepts fail above the notify call.
+ * One committed booking → exactly one notification.
+ *
+ * Callers map `error` (the raw RPC message) to their own user-facing copy.
+ */
+export async function acceptOfferForTraveler(
+  offerId: Uuid,
+): Promise<AcceptOfferResult> {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: bookingId, error } = await supabase.rpc("accept_offer", {
+    p_offer_id: offerId,
+  });
+
+  if (error || !bookingId) {
+    return { bookingId: null, error: error?.message ?? "offer_not_found" };
+  }
+
+  try {
+    await notifyBookingCreated(bookingId as string);
+  } catch (e) {
+    // The booking is already committed — a failed notification must not undo it,
+    // nor surface as an acceptance failure to the traveler.
+    console.error(
+      "[acceptOfferForTraveler] notification skipped:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+
+  return { bookingId: bookingId as string, error: null };
 }
 
 /**
