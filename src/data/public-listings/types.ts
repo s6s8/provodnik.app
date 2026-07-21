@@ -23,6 +23,8 @@ export type PublicListingItineraryItem = {
 
 export type PublicListing = {
   slug: string;
+  /** Optional non-listing detail route for records adapted from guide_templates. */
+  detailHref?: string;
   title: string;
   city: string;
   region: string;
