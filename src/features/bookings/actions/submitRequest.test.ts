@@ -82,6 +82,54 @@ describe("submitRequest", () => {
     );
   });
 
+  it("addresses the request privately to the listing's own guide", async () => {
+    await expect(
+      submitRequest({
+        listingId,
+        guideId,
+        destination: "Элиста",
+        region: "Калмыкия",
+        category: "history_culture",
+        startsOn: "2026-06-10",
+        participantsCount: 2,
+        mode: "order",
+      }),
+    ).rejects.toThrow("NEXT_REDIRECT:/requests/request-1");
+
+    // The target comes from the listing row, never from the client payload.
+    expect(createTravelerRequestMock).toHaveBeenCalledWith(
+      expect.objectContaining({ target_guide_id: guideId }),
+      "traveler-1",
+    );
+  });
+
+  it("fails closed when the listing does not belong to the claimed guide", async () => {
+    mockListingSingle.mockResolvedValueOnce({
+      data: {
+        id: listingId,
+        guide_id: "750e8400-e29b-41d4-a716-446655440000",
+        status: "published",
+        price_from_minor: 100000,
+      },
+      error: null,
+    });
+
+    await expect(
+      submitRequest({
+        listingId,
+        guideId,
+        destination: "Элиста",
+        region: "Калмыкия",
+        category: "history_culture",
+        startsOn: "2026-06-10",
+        participantsCount: 2,
+        mode: "order",
+      }),
+    ).rejects.toThrow("listing_unavailable");
+
+    expect(createTravelerRequestMock).not.toHaveBeenCalled();
+  });
+
   it("blocks a restricted account before creating anything", async () => {
     mockProfileSingle.mockResolvedValueOnce({ data: { account_status: "suspended" }, error: null });
 

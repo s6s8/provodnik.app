@@ -76,6 +76,9 @@ export const createRequestInputSchema = z
       .regex(/^\S+$/, "Некорректный идентификатор гида.")
       .nullable()
       .optional(),
+    // Server-trusted addressee: callers resolve it from a record they already
+    // verified (e.g. the listing's guide_id), never from raw client input.
+    target_guide_id: z.uuid().nullable().optional(),
     start_time: z
       .string()
       .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
@@ -154,18 +157,20 @@ export async function createTravelerRequest(
   const input = createRequestInputSchema.parse(data);
   const supabase = await createSupabaseServerClient();
 
-  // Resolve the display-only guide slug to a real FK server-side (item 8). When set,
-  // target_guide_id makes the request private to that guide; the slug is never trusted
-  // for privacy. An unresolvable slug leaves the request open (edge case — the CTA only
-  // ever passes real guide slugs).
-  let targetGuideId: string | null = null;
-  if (input.preferred_guide_slug) {
+  // target_guide_id is the privacy authority (item 8): when set, the request is visible
+  // only to owner, that guide, and admins. Callers either pass an id they resolved from a
+  // trusted record, or the display-only slug, which is resolved to a real FK here — the
+  // slug itself is never trusted for privacy. A named guide that cannot be resolved fails
+  // closed: better to reject than to silently persist a public fan-out request.
+  let targetGuideId: string | null = input.target_guide_id ?? null;
+  if (!targetGuideId && input.preferred_guide_slug) {
     const { data: guide } = await supabase
       .from("guide_profiles")
       .select("user_id")
       .eq("slug", input.preferred_guide_slug)
       .maybeSingle();
     targetGuideId = (guide?.user_id as string | undefined) ?? null;
+    if (!targetGuideId) throw new Error("target_guide_unresolved");
   }
 
   const { data: row, error } = await supabase

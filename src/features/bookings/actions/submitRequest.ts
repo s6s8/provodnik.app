@@ -63,6 +63,10 @@ export async function submitRequest(formData: unknown) {
   // has no category column, so the old direct insert wrote a non-existent field.
   const request = await createTravelerRequest(
     {
+      // D17-8: a request started from one guide's excursion belongs to that guide only.
+      // The addressee comes from the verified listing row (published + guide match above),
+      // never from the client payload, and makes the request private via target_guide_id.
+      target_guide_id: listing.guide_id,
       destination: input.destination,
       region: input.region,
       interests: input.category ? [input.category] : [],
