@@ -37,6 +37,14 @@ const DESTINATIONS = [
   { name: "Камчатка", region: "Дальний Восток", guideCount: 2 },
   { name: "Карелия", region: "Северо-Запад", guideCount: 1 },
   { name: "Сочи", region: "Юг", guideCount: 5 },
+  { name: "Элиста", region: "Калмыкия", guideCount: 2 },
+];
+
+const DEFERRED_DESTINATIONS = [
+  { name: "Элиста", region: "Калмыкия", guideCount: 2 },
+  { name: "Эхо", region: "Центр", guideCount: 1 },
+  { name: "Эльбрус", region: "Кавказ", guideCount: 3 },
+  { name: "Элион", region: "Север", guideCount: 1 },
 ];
 
 beforeAll(() => {
@@ -60,13 +68,7 @@ describe("HomepageRequestFormClassic destination typeahead", () => {
     expect(screen.queryByRole("listbox")).toBeNull();
     expect(input).toHaveAttribute("aria-expanded", "false");
 
-    // The component suppresses jsx-a11y/role-has-required-aria-props on the grounds
-    // that cmdk injects `aria-controls` at runtime (it points at cmdk's own generated
-    // list id, which is not knowable in JSX). That justification is only acceptable if
-    // it is TRUE — so assert the finished DOM really carries the attribute the linter
-    // could not see. If a refactor drops `asChild`, this fails instead of silently
-    // shipping a combobox that announces nothing to a screen reader.
-    expect(input).toHaveAttribute("aria-controls");
+    expect(input).toHaveAttribute("aria-controls", "destination-suggestions");
   });
 
   it("filters the suggestions while typing «Кав» and closes on Escape", () => {
@@ -187,6 +189,29 @@ describe("HomepageRequestFormClassic destination typeahead at scale", () => {
 
     expect(input).toHaveValue("Кариж-0007");
     expect(screen.queryByRole("listbox")).toBeNull();
+  });
+
+  it("does not focus out while deferred matches update for «Элиста»", async () => {
+    render(<HomepageRequestFormClassic destinations={DEFERRED_DESTINATIONS} />);
+    const input = screen.getByLabelText("Направление") as HTMLInputElement;
+    const focusout = vi.fn();
+    input.addEventListener("focusout", focusout);
+    input.focus();
+
+    for (const [value, count] of [
+      ["Э", 4],
+      ["Эл", 3],
+      ["Эли", 2],
+      ["Элиста", 1],
+    ] as const) {
+      fireEvent.input(input, { target: { value } });
+      // The decreasing count proves the deferred filtering commit completed.
+      await waitFor(() => expect(screen.getAllByRole("option")).toHaveLength(count));
+      expect(screen.getByRole("option", { name: "Элиста" })).toBeInTheDocument();
+      expect(input).toHaveValue(value);
+      expect(document.activeElement).toBe(input);
+      expect(focusout).not.toHaveBeenCalled();
+    }
   });
 
   it("still accepts free text that matches nothing in a large vocabulary", () => {
