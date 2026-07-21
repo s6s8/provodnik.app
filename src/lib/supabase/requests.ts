@@ -76,9 +76,9 @@ export const createRequestInputSchema = z
       .regex(/^\S+$/, "Некорректный идентификатор гида.")
       .nullable()
       .optional(),
-    // Server-trusted addressee: callers resolve it from a record they already
-    // verified (e.g. the listing's guide_id), never from raw client input.
-    target_guide_id: z.uuid().nullable().optional(),
+    // Derivation source for a directed request, not the addressee itself: the
+    // database resolves the listing to its guide. No caller ever supplies a guide id.
+    listing_id: z.uuid().nullable().optional(),
     start_time: z
       .string()
       .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
@@ -157,52 +157,62 @@ export async function createTravelerRequest(
   const input = createRequestInputSchema.parse(data);
   const supabase = await createSupabaseServerClient();
 
+  // Columns the caller controls. The authority fields — traveler_id, target_guide_id,
+  // status — are set by whichever write path runs below, never from this object.
+  const columns = {
+    destination: input.destination,
+    region: input.region ?? null,
+    interests: input.interests,
+    requested_languages: input.requested_languages ?? [],
+    starts_on: input.starts_on,
+    ends_on: input.ends_on,
+    budget_minor: input.budget_minor ?? null,
+    participants_count: input.participants_count,
+    format_preference: input.format_preference ?? null,
+    notes: input.notes?.trim() || null,
+    open_to_join: input.open_to_join,
+    // form-epic #14: omit allow_guide_suggestions from insert; rely on
+    // DB column default. Closes bug 7 deterministically (prod schema-cache miss).
+    // allow_guide_suggestions: input.allow_guide_suggestions,
+    group_capacity: input.group_capacity ?? null,
+    preferred_guide_slug: input.preferred_guide_slug ?? null,
+    start_time: input.start_time ?? null,
+    end_time: input.end_time ?? null,
+    date_flexibility: input.date_flexibility,
+    date_locked: input.date_locked ?? true,
+    time_locked: input.time_locked ?? true,
+    count_locked: input.count_locked ?? true,
+    budget_locked: input.budget_locked ?? true,
+    date_window: input.date_window ?? "week",
+  };
+
   // target_guide_id is the privacy authority (item 8): when set, the request is visible
-  // only to owner, that guide, and admins. Callers either pass an id they resolved from a
-  // trusted record, or the display-only slug, which is resolved to a real FK here — the
-  // slug itself is never trusted for privacy. A named guide that cannot be resolved fails
-  // closed: better to reject than to silently persist a public fan-out request.
-  let targetGuideId: string | null = input.target_guide_id ?? null;
-  if (!targetGuideId && input.preferred_guide_slug) {
-    const { data: guide } = await supabase
-      .from("guide_profiles")
-      .select("user_id")
-      .eq("slug", input.preferred_guide_slug)
-      .maybeSingle();
-    targetGuideId = (guide?.user_id as string | undefined) ?? null;
-    if (!targetGuideId) throw new Error("target_guide_unresolved");
+  // only to owner, that guide, and admins. This client speaks to PostgREST with the
+  // browser's own session, so it has no more authority here than the browser does —
+  // RLS rejects a non-null target on a direct insert. A directed request therefore goes
+  // through create_directed_traveler_request, which resolves the addressee itself from
+  // the published listing or the approved guide slug and fails closed if it cannot.
+  if (input.listing_id || input.preferred_guide_slug) {
+    const { data: row, error } = await supabase.rpc("create_directed_traveler_request", {
+      p_listing_id: input.listing_id ?? null,
+      // The RPC's parameters are these columns prefixed with p_ — one field list, so a
+      // column added above cannot silently go missing from the directed path.
+      ...Object.fromEntries(Object.entries(columns).map(([key, value]) => [`p_${key}`, value])),
+    });
+
+    if (error) throw error;
+    // Fail closed rather than hand a caller an undirected-looking null row.
+    if (!row) throw new Error("target_guide_unresolved");
+    return row as TravelerRequest;
   }
 
   const { data: row, error } = await supabase
     .from("traveler_requests")
     .insert({
       traveler_id: travelerId,
-      target_guide_id: targetGuideId,
-      destination: input.destination,
-      region: input.region ?? null,
-      interests: input.interests,
-      requested_languages: input.requested_languages ?? [],
-      starts_on: input.starts_on,
-      ends_on: input.ends_on,
-      budget_minor: input.budget_minor ?? null,
+      target_guide_id: null,
       currency: "RUB",
-      participants_count: input.participants_count,
-      format_preference: input.format_preference ?? null,
-      notes: input.notes?.trim() || null,
-      open_to_join: input.open_to_join,
-      // form-epic #14: omit allow_guide_suggestions from insert; rely on
-      // DB column default. Closes bug 7 deterministically (prod schema-cache miss).
-      // allow_guide_suggestions: input.allow_guide_suggestions,
-      group_capacity: input.group_capacity ?? null,
-      preferred_guide_slug: input.preferred_guide_slug ?? null,
-      start_time: input.start_time ?? null,
-      end_time: input.end_time ?? null,
-      date_flexibility: input.date_flexibility,
-      date_locked: input.date_locked ?? true,
-      time_locked: input.time_locked ?? true,
-      count_locked: input.count_locked ?? true,
-      budget_locked: input.budget_locked ?? true,
-      date_window: input.date_window ?? "week",
+      ...columns,
     })
     .select(SELECT_COLS)
     .single();

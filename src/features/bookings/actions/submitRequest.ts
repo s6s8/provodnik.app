@@ -64,9 +64,9 @@ export async function submitRequest(formData: unknown) {
   const request = await createTravelerRequest(
     {
       // D17-8: a request started from one guide's excursion belongs to that guide only.
-      // The addressee comes from the verified listing row (published + guide match above),
-      // never from the client payload, and makes the request private via target_guide_id.
-      target_guide_id: listing.guide_id,
+      // Pass the listing, not an addressee — the DB re-checks it is published and derives
+      // target_guide_id from it, so no id from here (or from the client) can be a target.
+      listing_id: listing.id,
       destination: input.destination,
       region: input.region,
       interests: input.category ? [input.category] : [],

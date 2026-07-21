@@ -1,31 +1,29 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Item 8 / D17-8: target_guide_id is the privacy authority for a directed request.
-// It must be resolvable from a server-trusted guide id (listing CTA) as well as from
-// the legacy display-only slug — and an unresolvable named guide must fail closed
-// instead of silently persisting a public fan-out request.
-const { createSupabaseServerClient, guideMaybeSingle, insertSingle, fromSpy, insertSpy } =
-  vi.hoisted(() => {
-    const guideMaybeSingle = vi.fn();
+// Item 8 / D17-8: target_guide_id is the privacy authority for a directed request, and
+// choosing it is the database's authority, not the caller's. This client writes with the
+// browser's own session, so RLS forbids a non-null target on a direct insert; a directed
+// request must go through create_directed_traveler_request, which derives the addressee
+// from a published listing or an approved guide slug and fails closed if it cannot.
+const { createSupabaseServerClient, insertSingle, rpcSpy, insertSpy } = vi.hoisted(
+  () => {
     const insertSingle = vi.fn();
     const insertSpy = vi.fn(() => ({ select: () => ({ single: insertSingle }) }));
+    const rpcSpy = vi.fn();
     const fromSpy = vi.fn((table: string) => {
-      if (table === "guide_profiles") {
-        return { select: () => ({ eq: () => ({ maybeSingle: guideMaybeSingle }) }) };
-      }
       if (table === "traveler_requests") {
         return { insert: insertSpy };
       }
       throw new Error(`Unexpected table: ${table}`);
     });
     return {
-      createSupabaseServerClient: vi.fn(async () => ({ from: fromSpy })),
-      guideMaybeSingle,
+      createSupabaseServerClient: vi.fn(async () => ({ from: fromSpy, rpc: rpcSpy })),
       insertSingle,
-      fromSpy,
+      rpcSpy,
       insertSpy,
     };
-  });
+  },
+);
 
 vi.mock("@/lib/supabase/server", () => ({ createSupabaseServerClient }));
 
@@ -33,6 +31,7 @@ import { createTravelerRequest } from "./requests";
 
 const travelerId = "11111111-1111-4111-8111-111111111111";
 const guideUserId = "22222222-2222-4222-8222-222222222222";
+const listingId = "33333333-3333-4333-8333-333333333333";
 
 const base = {
   destination: "Экскурсия по Элисте",
@@ -46,43 +45,64 @@ const base = {
 describe("createTravelerRequest — directed request target", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    guideMaybeSingle.mockResolvedValue({ data: null, error: null });
     insertSingle.mockResolvedValue({ data: { id: "request-1" }, error: null });
+    rpcSpy.mockResolvedValue({ data: { id: "request-1", target_guide_id: guideUserId }, error: null });
   });
 
-  it("persists a server-trusted target_guide_id without trusting a slug", async () => {
-    await createTravelerRequest({ ...base, target_guide_id: guideUserId }, travelerId);
+  it("derives a listing-started request's addressee in the database, not the client", async () => {
+    await createTravelerRequest({ ...base, listing_id: listingId }, travelerId);
 
-    expect(insertSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ target_guide_id: guideUserId, traveler_id: travelerId }),
+    expect(rpcSpy).toHaveBeenCalledWith(
+      "create_directed_traveler_request",
+      expect.objectContaining({ p_listing_id: listingId, p_destination: base.destination }),
     );
-    // No slug involved → no guide lookup needed.
-    expect(fromSpy).not.toHaveBeenCalledWith("guide_profiles");
-  });
-
-  it("fails closed when a named guide slug cannot be resolved (no public downgrade)", async () => {
-    await expect(
-      createTravelerRequest({ ...base, preferred_guide_slug: "ghost-guide" }, travelerId),
-    ).rejects.toThrow("target_guide_unresolved");
-
+    // The privileged column is never written by this client.
     expect(insertSpy).not.toHaveBeenCalled();
   });
 
-  it("still resolves the legacy slug to a real FK when the guide exists", async () => {
-    guideMaybeSingle.mockResolvedValue({ data: { user_id: guideUserId }, error: null });
-
+  it("routes a named guide slug through the same server-side resolution", async () => {
     await createTravelerRequest({ ...base, preferred_guide_slug: "real-guide" }, travelerId);
 
-    expect(insertSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ target_guide_id: guideUserId, preferred_guide_slug: "real-guide" }),
+    expect(rpcSpy).toHaveBeenCalledWith(
+      "create_directed_traveler_request",
+      expect.objectContaining({ p_preferred_guide_slug: "real-guide", p_listing_id: null }),
     );
+    expect(insertSpy).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when the database cannot resolve the named guide (no public downgrade)", async () => {
+    rpcSpy.mockResolvedValue({ data: null, error: { message: "target_guide_unresolved" } });
+
+    await expect(
+      createTravelerRequest({ ...base, preferred_guide_slug: "ghost-guide" }, travelerId),
+    ).rejects.toMatchObject({ message: "target_guide_unresolved" });
+
+    // No fallback: a directed request is never persisted as a public fan-out one.
+    expect(insertSpy).not.toHaveBeenCalled();
   });
 
   it("leaves an ordinary open request undirected", async () => {
     await createTravelerRequest(base, travelerId);
 
     expect(insertSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ target_guide_id: null, preferred_guide_slug: null }),
+      expect.objectContaining({
+        target_guide_id: null,
+        preferred_guide_slug: null,
+        traveler_id: travelerId,
+      }),
+    );
+    expect(rpcSpy).not.toHaveBeenCalled();
+  });
+
+  it("ignores a caller-supplied target_guide_id instead of writing it", async () => {
+    await createTravelerRequest(
+      { ...base, target_guide_id: guideUserId } as never,
+      travelerId,
+    );
+
+    expect(rpcSpy).not.toHaveBeenCalled();
+    expect(insertSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ target_guide_id: null }),
     );
   });
 });

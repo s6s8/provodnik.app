@@ -82,7 +82,7 @@ describe("submitRequest", () => {
     );
   });
 
-  it("addresses the request privately to the listing's own guide", async () => {
+  it("hands the verified listing to the service so the DB derives the addressee", async () => {
     await expect(
       submitRequest({
         listingId,
@@ -96,10 +96,15 @@ describe("submitRequest", () => {
       }),
     ).rejects.toThrow("NEXT_REDIRECT:/requests/request-1");
 
-    // The target comes from the listing row, never from the client payload.
+    // The listing is the derivation source; no guide id is ever passed as an addressee,
+    // so nothing this action sends can become target_guide_id on its own.
     expect(createTravelerRequestMock).toHaveBeenCalledWith(
-      expect.objectContaining({ target_guide_id: guideId }),
+      expect.objectContaining({ listing_id: listingId }),
       "traveler-1",
+    );
+    expect(createTravelerRequestMock).not.toHaveBeenCalledWith(
+      expect.objectContaining({ target_guide_id: expect.anything() }),
+      expect.anything(),
     );
   });
 
