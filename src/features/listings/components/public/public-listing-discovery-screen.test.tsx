@@ -54,4 +54,24 @@ describe("PublicListingDiscoveryScreen", () => {
 
     expect(screen.getByText("от 5 000 ₽ за группу до 8 человек")).toBeInTheDocument();
   });
+
+  it("uses template detail routes and keeps listing detail routes", () => {
+    render(
+      <PublicListingDiscoveryScreen
+        listings={[
+          makeListing(0),
+          makeListing(1, { detailHref: "/guides/adyk" }),
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /Экскурсия 0/ })).toHaveAttribute(
+      "href",
+      "/listings/listing-0",
+    );
+    expect(screen.getByRole("link", { name: /Экскурсия 1/ })).toHaveAttribute(
+      "href",
+      "/guides/adyk",
+    );
+  });
 });

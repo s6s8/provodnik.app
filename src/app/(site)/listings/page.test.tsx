@@ -56,10 +56,11 @@ describe("PublicListingsPage", () => {
     expect(screen.queryByLabelText("discovery")).not.toBeInTheDocument();
   });
 
-  it("passes a ready tour's per-group price scope to the public catalogue", async () => {
+  it("passes a ready tour's per-group price scope and template detail route to the public catalogue", async () => {
     const listing: ListingRecord = {
       id: "listing-1",
       slug: "kazan-kremlin",
+      detailHref: "/guides/adyk",
       title: "Казанский кремль",
       destinationSlug: "kazan",
       destinationName: "Казань",
@@ -89,7 +90,10 @@ describe("PublicListingsPage", () => {
     render(await PublicListingsPage({ searchParams: Promise.resolve({}) }));
 
     expect(discoveryScreenMock.mock.calls[0]?.[0]).toMatchObject({
-      listings: [expect.objectContaining({ priceScope: "per_group" })],
+      listings: [expect.objectContaining({
+        priceScope: "per_group",
+        detailHref: "/guides/adyk",
+      })],
     });
   });
 });

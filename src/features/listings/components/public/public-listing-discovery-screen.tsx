@@ -26,6 +26,7 @@ function mapListing(listing: PublicListing): ListingRecord {
   return {
     id: listing.slug,
     slug: listing.slug,
+    detailHref: listing.detailHref,
     title: listing.title,
     destinationSlug: listing.city.toLowerCase().replaceAll(" ", "-"),
     destinationName: listing.city,

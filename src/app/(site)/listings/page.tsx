@@ -19,6 +19,7 @@ export function generateMetadata(): Metadata {
 function mapToPublicListing(listing: ListingRecord): PublicListing {
   return {
     slug: listing.slug,
+    detailHref: listing.detailHref,
     title: listing.title,
     city: listing.destinationName,
     region: listing.destinationRegion,
