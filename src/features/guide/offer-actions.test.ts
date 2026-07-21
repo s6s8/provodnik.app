@@ -319,7 +319,13 @@ describe("withdrawOfferAction", () => {
 
     const update = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
-        eq: vi.fn().mockResolvedValue({ error: null }),
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: { id: "offer-1" }, error: null }),
+            }),
+          }),
+        }),
       }),
     });
 
@@ -348,6 +354,46 @@ describe("withdrawOfferAction", () => {
     expect(update).toHaveBeenCalledWith(
       expect.objectContaining({ status: "withdrawn" }),
     );
+  });
+
+  it("reports a conflict when the offer stopped being pending mid-flight", async () => {
+    // Traveler accepts between the status read and the write: the conditional
+    // update matches zero rows and must not report success.
+    const offerMaybeSingle = vi.fn().mockResolvedValue({
+      data: { id: "offer-1", guide_id: "guide-1", status: "pending", request_id: "req-1" },
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({ maybeSingle: offerMaybeSingle }),
+    });
+
+    const updateMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null });
+    const updateSelect = vi.fn().mockReturnValue({ maybeSingle: updateMaybeSingle });
+    const statusEq = vi.fn().mockReturnValue({ select: updateSelect });
+    const guideEq = vi.fn().mockReturnValue({ eq: statusEq });
+    const idEq = vi.fn().mockReturnValue({ eq: guideEq });
+    const update = vi.fn().mockReturnValue({ eq: idEq });
+
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } }, error: null }),
+      },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_offers") return { select: offerSelect, update };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+
+    const result = await withdrawOfferAction("offer-1", "req-1");
+
+    expect(statusEq).toHaveBeenCalledWith("status", "pending");
+    expect(result).toEqual({ error: "Можно отозвать только активное предложение." });
   });
 });
 

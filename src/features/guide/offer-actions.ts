@@ -278,13 +278,20 @@ export async function withdrawOfferAction(
     if (offer.guide_id !== guideId) return { error: "Это не ваше предложение." };
     if (offer.status !== "pending") return { error: "Можно отозвать только активное предложение." };
 
-    const { error } = await supabase
+    // The status read above is advisory only: the traveler can accept or decline
+    // before this write lands. The `status = pending` filter is the real
+    // authority, so exactly one transition wins and the loser reports the conflict.
+    const { data: withdrawnOffer, error } = await supabase
       .from("guide_offers")
       .update({ status: "withdrawn" })
       .eq("id", offerId)
-      .eq("guide_id", guideId);
+      .eq("guide_id", guideId)
+      .eq("status", "pending")
+      .select("id")
+      .maybeSingle();
 
     if (error) return { error: friendlyError(error, "Не удалось отозвать предложение.") };
+    if (!withdrawnOffer) return { error: "Можно отозвать только активное предложение." };
 
     revalidatePath(`/requests/${requestId}`);
     revalidatePath("/guide/inbox");

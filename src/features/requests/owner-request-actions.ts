@@ -164,13 +164,23 @@ export async function rejectOfferAction(
     return { error: "Предложение уже не активно." };
   }
 
-  const { error: updateError } = await supabase
+  // The status read above is advisory only: a parallel accept or guide withdraw
+  // can land before this write. The `status = pending` filter is the real
+  // authority, so exactly one transition wins and the loser reports the conflict.
+  const { data: declinedOffer, error: updateError } = await supabase
     .from("guide_offers")
     .update({ status: "declined" })
-    .eq("id", offerId);
+    .eq("id", offerId)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
 
   if (updateError) {
     return { error: "Не удалось отклонить предложение." };
+  }
+
+  if (!declinedOffer) {
+    return { error: "Предложение уже не активно." };
   }
 
   revalidatePath(`/requests/${requestId}`);
