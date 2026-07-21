@@ -196,10 +196,10 @@ const MAX_SUGGESTIONS = 8;
  * from guide-entered free text and is therefore always incomplete, so the field
  * keeps accepting arbitrary input and submits it as typed.
  *
- * `asChild` keeps our own `id` on the input — cmdk hardcodes both `id` and
- * `aria-expanded: true` (true for an always-open command palette, a lie here) —
- * so the visible <Label htmlFor> still owns the field and the expanded state is
- * announced correctly.
+ * The text field is deliberately native rather than `Command.Input`: cmdk moves
+ * focus to its list whenever its selected item changes, including when deferred
+ * suggestions commit. The root still handles arrow navigation and Enter through
+ * bubbling, but it no longer owns focus in the text field.
  */
 function DestinationCombobox({
   destinations,
@@ -219,6 +219,7 @@ function DestinationCombobox({
   describedBy?: string;
 }) {
   const [open, setOpen] = React.useState(false);
+  const [activeOption, setActiveOption] = React.useState<string>();
   // The typed value stays immediate (it drives the input); only the filtering
   // work is deferred, so a keystroke never waits on the list to re-render.
   const deferredValue = React.useDeferredValue(value);
@@ -255,15 +256,26 @@ function DestinationCombobox({
   return (
     // Filtering is ours (same ru-lowercase substring rule as TagMultiSelect), because
     // the match count decides whether the list opens at all.
-    <CommandPrimitive label="Направление" shouldFilter={false} className="relative">
+    <CommandPrimitive
+      label="Направление"
+      shouldFilter={false}
+      onValueChange={setActiveOption}
+      className="relative"
+    >
       <FieldShell>
         <FieldIcon icon={MapPin} className="text-primary" />
         <div className="min-w-0 flex-1">
-          <CommandPrimitive.Input
-            asChild
+          <input
+            id="destination"
+            ref={inputRef}
+            className={cn(FIN, "text-lg")}
+            placeholder="Куда едете?"
+            // Cap input length at the schema's max so a destination label can
+            // never be pasted unbounded (matches the 80-char Zod/DB contract).
+            maxLength={80}
             value={value}
-            onValueChange={(next) => {
-              onChange(next);
+            onChange={(e) => {
+              onChange(e.target.value);
               setOpen(true);
             }}
             onKeyDown={(e) => {
@@ -278,25 +290,14 @@ function DestinationCombobox({
               setOpen(false);
               onBlur();
             }}
-          >
-            <input
-              id="destination"
-              ref={inputRef}
-              className={cn(FIN, "text-lg")}
-              placeholder="Куда едете?"
-              // Cap input length at the schema's max so a destination label can
-              // never be pasted unbounded (matches the 80-char Zod/DB contract).
-              maxLength={80}
-              // Restates the role cmdk applies at runtime — without it jsx-a11y reads a
-              // bare textbox and rejects aria-expanded. The rule then wants aria-controls,
-              // which cmdk injects itself (it points at the cmdk-generated list id).
-              // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
-              role="combobox"
-              aria-expanded={listOpen}
-              aria-invalid={invalid}
-              aria-describedby={describedBy}
-            />
-          </CommandPrimitive.Input>
+            role="combobox"
+            aria-autocomplete="list"
+            aria-controls="destination-suggestions"
+            aria-activedescendant={activeOption ? `destination-option-${activeOption}` : undefined}
+            aria-expanded={listOpen}
+            aria-invalid={invalid}
+            aria-describedby={describedBy}
+          />
         </div>
       </FieldShell>
       {/*
@@ -312,7 +313,7 @@ function DestinationCombobox({
         onMouseDown={(e) => e.preventDefault()}
         className="absolute inset-x-0 top-full z-50 mt-1 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10"
       >
-        <CommandList>
+        <CommandList id="destination-suggestions">
           {visible.map((d) => {
             // Unique cmdk value per (name, region): two places sharing a name in
             // different regions must not collide. Value is not the accessible
@@ -321,7 +322,12 @@ function DestinationCombobox({
             const optionValue = d.region ? `${d.name} · ${d.region}` : d.name;
             const showRegion = Boolean(d.region) && ambiguous.has(d.name.toLocaleLowerCase("ru"));
             return (
-              <CommandItem key={optionValue} value={optionValue} onSelect={() => choose(d.name)}>
+              <CommandItem
+                key={optionValue}
+                id={`destination-option-${optionValue}`}
+                value={optionValue}
+                onSelect={() => choose(d.name)}
+              >
                 {d.name}
                 {showRegion ? (
                   <span className="ml-1.5 text-muted-foreground">· {d.region}</span>
