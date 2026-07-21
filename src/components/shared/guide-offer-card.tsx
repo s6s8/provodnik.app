@@ -42,14 +42,13 @@ type GuideOfferCardProps = {
   className?: string;
 };
 
+// ponytail: D21-7 — the guide-selected language is profile data, not offer-card
+// identity; the role line carries experience only. Language stays on the guide
+// profile screen, which does not use this presentation.
 function buildRoleLine(guide: GuideCardInfo): string {
-  const parts: string[] = [];
-  if (guide.languages.length > 0) parts.push(guide.languages.join(", "));
-  if (guide.years_experience && guide.years_experience > 0) {
-    const word = pluralize(guide.years_experience, "год", "года", "лет");
-    parts.push(`${guide.years_experience} ${word} в туризме`);
-  }
-  return parts.join(" · ");
+  if (!guide.years_experience || guide.years_experience <= 0) return "";
+  const word = pluralize(guide.years_experience, "год", "года", "лет");
+  return `${guide.years_experience} ${word} в туризме`;
 }
 
 function Dot() {

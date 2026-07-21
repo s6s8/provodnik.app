@@ -17,6 +17,10 @@ interface UseRealtimeMessagesOptions {
  * Merge a realtime INSERT payload into the cached thread messages.
  * Dedupes by id and masks the body — PII-012: realtime rows carry the raw DB
  * body, so contact details must be masked here to match the load paths.
+ *
+ * D21-8: the realtime row is the raw `messages` record with no sender join, so
+ * reuse the identity `getThreadMessages` already resolved for that sender in
+ * this thread. Unknown sender still falls back to null → «Участник».
  */
 export function mergeRealtimeMessage(
   current: MessageWithSender[],
@@ -26,13 +30,17 @@ export function mergeRealtimeMessage(
     return current;
   }
 
+  const known = message.sender_id
+    ? current.findLast((item) => item.sender_id === message.sender_id)
+    : undefined;
+
   return [
     ...current,
     {
       ...message,
       body: maskPii(message.body),
-      sender_profile: null,
-      sender_display_name: null,
+      sender_profile: known?.sender_profile ?? null,
+      sender_display_name: known?.sender_display_name ?? null,
     },
   ];
 }

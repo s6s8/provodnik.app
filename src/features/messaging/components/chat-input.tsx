@@ -46,7 +46,7 @@ export function ChatInput({ threadId, sendMessageAction }: ChatInputProps) {
   };
 
   return (
-    <div className="grid gap-3 p-4 border-t border-border">
+    <div className="grid gap-2 p-3 border-t border-border">
       <Textarea
         id="chat-message-body"
         aria-label="Сообщение"
