@@ -10,8 +10,8 @@ import {
 
 export const travelerRequestModes = ["assembly", "private"] as const;
 
-/** Authoritative ceiling for travelers on one request (D21-2). Mirrored by the
- * `traveler_requests_participants_count_max` DB check constraint. */
+/** Authoritative ceiling for travelers on one request (D21-2). Mirrored in the
+ * database by the `enforce_traveler_request_participants_max` trigger. */
 export const MAX_REQUEST_PARTICIPANTS = 50;
 export const MAX_REQUEST_PARTICIPANTS_MESSAGE = `Максимум ${MAX_REQUEST_PARTICIPANTS} путешественников.`;
 
