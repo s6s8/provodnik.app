@@ -3,12 +3,23 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   deleteGuideLocationPhoto,
   listGuideLocationPhotos,
   uploadPortfolioPhoto,
 } from "@/lib/supabase/guide-assets";
+import {
+  listActiveLocations,
+  type LocationCatalogEntry,
+} from "@/lib/supabase/location-catalog";
 import { CoachCallout } from "@/features/guide/components/excursions/photobank-coach";
 import type { GuideLocationPhotoRow, Uuid } from "@/lib/supabase/types";
 
@@ -40,6 +51,7 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
   const [uploading, setUploading] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [locationName, setLocationName] = useState("");
+  const [locations, setLocations] = useState<LocationCatalogEntry[]>([]);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [brokenIds, setBrokenIds] = useState<Set<string>>(new Set());
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -56,6 +68,13 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
 
         const guideId = user.id as Uuid;
         if (!cancelled) setAuthenticatedGuideId(guideId);
+
+        try {
+          const activeLocations = await listActiveLocations(supabase);
+          if (!cancelled) setLocations(activeLocations);
+        } catch {
+          if (!cancelled) setLocations([]);
+        }
 
         const rows = await listGuideLocationPhotos(guideId);
         if (cancelled) return;
@@ -181,15 +200,19 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
           <label htmlFor="photo-location" className="mb-1 block text-sm font-medium">
             Локация
           </label>
-          <input
-            id="photo-location"
-            type="text"
-            placeholder="Название места"
-            value={locationName}
-            maxLength={80}
-            onChange={(e) => setLocationName(e.target.value)}
-            className="mb-3 w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm outline-none focus:border-primary"
-          />
+          {/* Locations are the admin catalogue only — the DB refuses anything else. */}
+          <Select value={locationName || undefined} onValueChange={setLocationName}>
+            <SelectTrigger id="photo-location" className="mb-3 h-12 w-full">
+              <SelectValue placeholder="Выберите локацию" />
+            </SelectTrigger>
+            <SelectContent>
+              {locations.map((loc) => (
+                <SelectItem key={loc.id} value={loc.name}>
+                  {loc.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           <label
             className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity ${
               disabled
@@ -207,10 +230,17 @@ export function GuidePortfolioScreen({ guideId: _guideId }: GuidePortfolioScreen
             />
             {uploading ? "Загружается…" : "Выбрать фото"}
           </label>
-          {!locationName.trim() && !uploading && (
+          {locations.length === 0 ? (
             <p className="mt-2 text-xs text-muted-foreground">
-              Введите локацию, чтобы загрузить фото
+              Список локаций пока пуст — обратитесь к администратору.
             </p>
+          ) : (
+            !locationName.trim() &&
+            !uploading && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                Выберите локацию, чтобы загрузить фото
+              </p>
+            )
           )}
           {reachedLimit && !uploading && (
             <p className="mt-2 text-xs text-muted-foreground">
