@@ -60,7 +60,7 @@ describe("PublicListingsPage", () => {
     const listing: ListingRecord = {
       id: "listing-1",
       slug: "kazan-kremlin",
-      detailHref: "/guides/adyk",
+      detailHref: "/excursions/template-adyk",
       title: "Казанский кремль",
       destinationSlug: "kazan",
       destinationName: "Казань",
@@ -92,7 +92,7 @@ describe("PublicListingsPage", () => {
     expect(discoveryScreenMock.mock.calls[0]?.[0]).toMatchObject({
       listings: [expect.objectContaining({
         priceScope: "per_group",
-        detailHref: "/guides/adyk",
+        detailHref: "/excursions/template-adyk",
       })],
     });
   });
