@@ -11,6 +11,10 @@
 
 import { z } from "zod";
 
+import {
+  MAX_REQUEST_PARTICIPANTS,
+  MAX_REQUEST_PARTICIPANTS_MESSAGE,
+} from "@/data/traveler-request/schema";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { TravelerRequestRow, Uuid } from "@/lib/supabase/types";
 import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
@@ -47,7 +51,7 @@ export const createRequestInputSchema = z
       .number()
       .int("Используйте целое число.")
       .min(1, "Минимум 1 путешественник.")
-      .max(20, "Максимум 20 путешественников.")
+      .max(MAX_REQUEST_PARTICIPANTS, MAX_REQUEST_PARTICIPANTS_MESSAGE)
       .default(1),
     format_preference: z.enum(["private", "group"]).nullable().optional(),
     notes: z

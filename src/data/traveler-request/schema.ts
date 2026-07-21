@@ -10,6 +10,11 @@ import {
 
 export const travelerRequestModes = ["assembly", "private"] as const;
 
+/** Authoritative ceiling for travelers on one request (D21-2). Mirrored by the
+ * `traveler_requests_participants_count_max` DB check constraint. */
+export const MAX_REQUEST_PARTICIPANTS = 50;
+export const MAX_REQUEST_PARTICIPANTS_MESSAGE = `Максимум ${MAX_REQUEST_PARTICIPANTS} путешественников.`;
+
 const timeRegex = /^\d{2}:\d{2}$/;
 
 export const travelerRequestSchema = z
@@ -45,14 +50,14 @@ export const travelerRequestSchema = z
       .number()
       .int("Укажите целое число.")
       .min(1, "Минимум 1 путешественник.")
-      .max(20, "Максимум 20 путешественников.")
+      .max(MAX_REQUEST_PARTICIPANTS, MAX_REQUEST_PARTICIPANTS_MESSAGE)
       .optional(),
     // private mode counter
     groupSize: z
       .number()
       .int("Укажите целое число.")
       .min(1, "Минимум 1 путешественник.")
-      .max(20, "Максимум 20 путешественников.")
+      .max(MAX_REQUEST_PARTICIPANTS, MAX_REQUEST_PARTICIPANTS_MESSAGE)
       .optional(),
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
     openToJoin: z.boolean().optional(),
