@@ -94,6 +94,10 @@ describe("HomePageShell2Classic section order", () => {
     );
 
     expect(order()).toEqual(["Сборные группы", "Готовые экскурсии", "Как это работает"]);
+    expect(screen.getByRole("link", { name: /Готовые экскурсии/ })).toHaveAttribute(
+      "href",
+      "/listings",
+    );
   });
 
   it("keeps an empty marketplace honest: no groups, no excursions, no placeholders", () => {

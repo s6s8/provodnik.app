@@ -11,9 +11,11 @@ import type {
 } from "@/data/supabase/queries";
 import { cityImage } from "@/lib/city-image";
 import type { HomepageReview } from "@/lib/supabase/homepage";
+import { Compass } from "lucide-react";
 
 import { HomepageHeroFormClassic } from "./homepage-hero-form-classic";
 import { HomepageInventoryClassic, HomepageListingsClassic } from "./homepage-inventory-classic";
+import type { TemplateRequestPrefill } from "./template-request-prefill";
 
 interface Props {
   destinations: DestinationOption[];
@@ -22,6 +24,7 @@ interface Props {
   requests: RequestRecord[];
   viewerId?: string | null;
   preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
+  templatePrefill?: TemplateRequestPrefill | null;
   joinedRequestIds?: Set<string>;
   listings?: ListingRecord[];
   guides?: GuideRecord[];
@@ -45,6 +48,7 @@ export function HomePageShell2Classic({
   requests,
   viewerId,
   preferredGuide,
+  templatePrefill,
   joinedRequestIds = new Set(),
   listings = [],
   guides = [],
@@ -57,6 +61,7 @@ export function HomePageShell2Classic({
       <HomepageHeroFormClassic
         destinations={searchDestinations ?? destinations}
         preferredGuide={preferredGuide}
+        templatePrefill={templatePrefill}
         hasGroups={openGroups.length > 0}
       />
 
@@ -67,6 +72,11 @@ export function HomePageShell2Classic({
           <SectionHeading
             title="Сборные группы"
             action={{ label: "Все группы", href: "/requests" }}
+            secondaryAction={{
+              label: "Готовые экскурсии",
+              href: "/listings",
+              icon: Compass,
+            }}
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {openGroups.map((req, index) => {

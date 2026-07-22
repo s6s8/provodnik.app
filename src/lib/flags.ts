@@ -10,9 +10,9 @@ const flagsSchema = z.object({
   FEATURE_TR_PARTNER: envFlag,
   FEATURE_TR_REFERRALS: envFlag,
   FEATURE_TR_DISPUTES: envFlag,
-  // Public excursions/destinations catalog. Hidden per Wildberries review:
-  // /listings & /destinations are inaccessible (404) unless this is set to "1".
-  FEATURE_PUBLIC_CATALOG: envFlag,
+  // Public excursions/destinations catalog. Default on for the homepage entry
+  // point (#51); set to "0" only when the catalog must stay hidden.
+  FEATURE_PUBLIC_CATALOG: z.enum(["0", "1"]).catch("1"),
 });
 
 const env = (k: string): string | undefined =>
