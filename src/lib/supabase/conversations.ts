@@ -570,7 +570,6 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
     .filter((participant) => participant.user_id !== input.userId)
     .map((participant) => participant.user_id);
   const guideDisplayNames = await listGuideDisplayNames(otherParticipantIds);
-  const trustedProfileNames = await listTrustedProfileNames(otherParticipantIds);
 
   const summaries = participantRows
     .map((row) => {
@@ -585,8 +584,7 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
           (participant) =>
             participant.profile?.full_name?.trim() ||
             guideDisplayNames.get(participant.user_id) ||
-            trustedProfileNames.get(participant.user_id) ||
-            "Путешественник",
+            resolveDisplayName("traveler", {}, { context: "trusted" }),
         );
 
       return {

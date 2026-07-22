@@ -214,10 +214,6 @@ describe("getUserThreads", () => {
       data: [{ user_id: guideId, full_name: "Guide One" }],
       error: null,
     });
-    const trustedProfilesQuery = createQuery({
-      data: [{ id: travelerId, full_name: "Анна Смирнова", role: "traveler" }],
-      error: null,
-    });
     let threadParticipantQueryCount = 0;
     const from = vi.fn((table: string) => {
       if (table === "conversation_threads") return latestMessagesQuery;
@@ -231,12 +227,6 @@ describe("getUserThreads", () => {
       throw new Error(`Unexpected table: ${table}`);
     });
     createSupabaseServerClient.mockResolvedValue({ from });
-    createSupabaseAdminClient.mockReturnValue({
-      from: vi.fn((table: string) => {
-        if (table === "profiles") return trustedProfilesQuery;
-        throw new Error(`Unexpected admin table: ${table}`);
-      }),
-    });
 
     const summaries = await getUserThreads(userId);
 
@@ -271,7 +261,7 @@ describe("getUserThreads", () => {
     expect(newestSummary.participants[0]).not.toHaveProperty("profile");
 
     expect(requireThread(summaries, middleThreadId)).toMatchObject({
-      other_participant_names: ["Анна Смирнова"],
+      other_participant_names: ["Путешественник"],
       last_message_preview: "Already read note",
       last_message_created_at: "2026-06-10T11:30:00.000Z",
       unread: false,
