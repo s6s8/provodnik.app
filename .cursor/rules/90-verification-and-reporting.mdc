@@ -1,0 +1,35 @@
+---
+description: Risk-based acceptance matrix and evidence-only executor reporting contract
+alwaysApply: true
+---
+
+# Verification contract
+
+The task packet plus every applicable row below are the orchestrator-owned test selection. Before editing, map each acceptance item to an expected observation and runnable check. Execute the smallest focused proof first, but do not add, omit, weaken, or substitute a required gate; request context when a mandatory row is unsafe or unavailable.
+
+| Change | Minimum executor evidence |
+| --- | --- |
+| Rules/docs/config | Structural or parser check, scoped semantic check, and `git diff --check` |
+| Pure local TypeScript/helper | Focused Vitest, affected type/lint check, and caller assertions |
+| Action/service/shared flow | Focused authority tests plus success/auth/deny/no-op checks for each affected caller selected in the task matrix, then `bun run check`; full `bun run test:run` when the matrix marks shared risk |
+| SQL/RLS/RPC/trigger | Migrated disposable local DB, relevant pgTAP allow/deny cases through `bun run test:db`, direct-client parity, and regenerated types when applicable |
+| User-visible behavior | Focused component/route test plus browser replay at the correct route, role, state, and responsive viewport; inspect console and persistence |
+| Broad or release-risk change | Orchestrator-selected full chain from `bun run check`, `bun run test:run`, `bun run playwright`, and `bun run build` |
+
+- `bun run check` does not run unit, database, browser, or build tests. Do not present it as the full suite.
+- Run mutating browser or direct-client tests only in an explicitly disposable environment. Never enable them against an unknown, shared, or live backend.
+- Record the exact command/replay, exit status, test/assertion counts, and material output. A skipped, unavailable, empty, or zero-test run is not a pass.
+- Inspect the final diff and status for scope, secrets, lockfile drift, generated files, stale callers, and whitespace before reporting.
+
+## Final report
+
+Return these sections:
+
+1. `STATUS`: `DONE`, `BLOCKED`, or `NEEDS_CONTEXT`. `DONE` means every applicable acceptance-matrix row and task-specified check passed; only the orchestrator can accept it.
+2. `CHANGED FILES`: each file and why it changed.
+3. `RATIONALE AND TRACE`: root cause, chosen decision-ladder rung, callers/consumers checked, and authoritative boundary.
+4. `VERIFICATION`: acceptance matrix with exact results and failures/skips.
+5. `CONTEXT7`: trigger decision and required library/version/ID/signature evidence when used.
+6. `KNOWN RISKS`: unresolved conflicts, assumptions, and checks not run.
+
+Never invent output, infer runtime behavior from code alone, or treat agent prose as proof.

@@ -1,0 +1,16 @@
+---
+description: Supabase migration, RLS, RPC, trigger, rollback, and generated-type discipline
+globs: "supabase/migrations/**/*.sql,supabase/tests/**/*.sql,supabase/rollbacks/**/*.sql,src/lib/supabase/database.types.ts"
+alwaysApply: false
+---
+
+# Database changes
+
+- Read `supabase/README-migrations.md`. Never edit `20260702000000_current_schema_baseline.sql` for a new change; add one focused migration after the latest timestamp.
+- Search every migration definition of each affected table, function, policy, grant, and trigger. The latest chronological definition is the repository authority; trace its TypeScript callers and generated signature too.
+- Preserve existing data and make rollout behavior explicit. Avoid table rewrites and long locks; separate constraints/backfills when needed. Add a rollback when reversal is safe and in scope; otherwise document why the repair is forward-only and how it can be corrected forward.
+- Do not put demo/test/QA seed rows in production migrations unless they are required application data. If a task depends on unverified live drift, return it to the orchestrator; do not inspect or repair a shared database speculatively.
+- Every `SECURITY DEFINER` function fixes `search_path` and has explicit least-privilege grants. Caller-facing mutation/private RPCs authenticate and authorize internally, derive authority from `auth.uid()`/stored rows, and enforce active account, ownership, and state. Intentional public-read RPCs are read-only and enforce the exact sanitized projection plus publish/account/deletion gates. Trigger/helper/backend functions must have a documented trusted invocation boundary and accept no spoofable authority.
+- RLS policies and triggers must cover direct table access, not merely the application path. Exercise both allowed and denied actors plus forged identifiers and illegal transitions under the trust-boundary rule.
+- Run schema work only against the task's disposable local database. Never link, reset, migrate, seed, or inspect a shared/remote database.
+- After a schema/signature change, run `bun run types` against the migrated local schema and inspect the diff in `src/lib/supabase/database.types.ts`; never hand-edit generated types.

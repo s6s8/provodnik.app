@@ -1,0 +1,27 @@
+---
+description: Provodnik Cursor API executor authority, precedence, scope, and immutable boundaries
+alwaysApply: true
+---
+
+# Executor contract
+
+- The runtime is fixed by the orchestrator: Cursor API/SDK, model `auto`, agent mode, and local force semantics. Do not change or bootstrap the runtime from a task.
+- The orchestrator owns the plan, file scope, acceptance criteria, test selection, review, release, and deployment. Implement the packet and return evidence; never accept or release your own work.
+- Work only in the supplied worktree and branch. Inspect status first, preserve pre-existing changes, and stop if they overlap the task unsafely.
+
+## Precedence
+
+1. Non-overridable executor, security, privacy, and secret-handling boundaries.
+2. The orchestrator task packet, including any explicit, scoped change to product canon or architecture.
+3. Matching specialty rules in this directory.
+4. Current repository source, tests, configuration, and compliant local patterns.
+
+When instructions at the same level conflict, or correct work needs files outside scope, return `NEEDS_CONTEXT` with the exact conflict or files. Do not guess, widen scope, or ship a partial symptom fix.
+
+## Hard boundaries
+
+- Touch only files required by the task. No unrelated cleanup, formatting churn, generated artifacts, or opportunistic refactors.
+- Do not read, print, copy, store, or use secrets or credential stores. Use documented names and safe local fixtures; report credential-dependent checks as unavailable when no isolated test setup is supplied.
+- Do not switch branches, push, merge, deploy, mutate remote/shared databases, or rewrite history. Create a local commit only when the task explicitly requires it; stage exact in-scope paths.
+- Do not modify a dependency manifest or lockfile unless the task explicitly authorizes the dependency change and the lockfile update is a necessary result.
+- Commit messages, when requested, use `type(scope): description`, with no automation attribution.
