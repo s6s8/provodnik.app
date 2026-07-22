@@ -69,6 +69,9 @@ export type BookingWithDetails = BookingRow & {
     | "end_time"
     | "format_preference"
     | "open_to_join"
+    // A ready guide excursion has no `listings` row, so this snapshot is the only
+    // programme a booking made from one can show.
+    | "guide_template_snapshot"
   > & { traveler_id?: string | null }) | null;
   guide_offer: Pick<
     GuideOfferRow,
@@ -178,7 +181,7 @@ export async function getBooking(id: Uuid): Promise<BookingWithDetails | null> {
     booking.request_id
       ? supabase
           .from("traveler_requests")
-          .select("destination, starts_on, ends_on, participants_count, notes, interests, start_time, end_time, format_preference, open_to_join, traveler_id")
+          .select("destination, starts_on, ends_on, participants_count, notes, interests, start_time, end_time, format_preference, open_to_join, traveler_id, guide_template_snapshot")
           .eq("id", booking.request_id)
           .maybeSingle()
       : Promise.resolve({ data: null, error: null }),

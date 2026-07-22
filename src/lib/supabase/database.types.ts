@@ -3637,6 +3637,8 @@ export type Database = {
           expires_at: string | null
           format_preference: string | null
           group_capacity: number | null
+          guide_template_id: string | null
+          guide_template_snapshot: Json | null
           id: string
           interests: string[]
           notes: string | null
@@ -3669,6 +3671,8 @@ export type Database = {
           expires_at?: string | null
           format_preference?: string | null
           group_capacity?: number | null
+          guide_template_id?: string | null
+          guide_template_snapshot?: Json | null
           id?: string
           interests?: string[]
           notes?: string | null
@@ -3701,6 +3705,8 @@ export type Database = {
           expires_at?: string | null
           format_preference?: string | null
           group_capacity?: number | null
+          guide_template_id?: string | null
+          guide_template_snapshot?: Json | null
           id?: string
           interests?: string[]
           notes?: string | null
@@ -3718,6 +3724,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "traveler_requests_guide_template_id_fkey"
+            columns: ["guide_template_id"]
+            isOneToOne: false
+            referencedRelation: "guide_templates"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "traveler_requests_traveler_id_fkey"
             columns: ["traveler_id"]
@@ -4161,6 +4174,34 @@ export type Database = {
       counter_offer: {
         Args: { p_message: string; p_offer_id: string; p_price_minor: number }
         Returns: string
+      }
+      create_directed_traveler_request: {
+        Args: {
+          p_budget_locked?: boolean
+          p_budget_minor?: number
+          p_count_locked?: boolean
+          p_date_flexibility?: string
+          p_date_locked?: boolean
+          p_date_window?: string
+          p_destination: string
+          p_end_time?: string
+          p_ends_on: string
+          p_format_preference?: string
+          p_group_capacity?: number
+          p_guide_template_id?: string
+          p_interests?: string[]
+          p_listing_id?: string
+          p_notes?: string
+          p_open_to_join?: boolean
+          p_participants_count?: number
+          p_preferred_guide_slug?: string
+          p_region?: string
+          p_requested_languages?: string[]
+          p_start_time?: string
+          p_starts_on: string
+          p_time_locked?: boolean
+        }
+        Returns: Database["public"]["Tables"]["traveler_requests"]["Row"]
       }
       current_profile_role: {
         Args: never

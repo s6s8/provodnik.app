@@ -48,6 +48,7 @@ import { TravelerRequestStatusBadge } from "@/features/traveler/components/reque
 import { withdrawOfferAction } from "@/features/guide/offer-actions";
 import { rejectOfferAction } from "@/features/requests/owner-request-actions";
 import { cityImage } from "@/lib/city-image";
+import { isExpired } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { formatRussianDate, formatRussianDateTime, formatTimeRange } from "@/lib/dates";
 import type { QaThread } from "@/lib/supabase/qa-threads";
@@ -582,7 +583,12 @@ function OwnerDetailBranch({
 
   const acceptedOffers = ownerOffers.filter(({ offer }) => offer.status === "accepted");
   const declinedOffers = ownerOffers.filter(({ offer }) => offer.status === "declined");
-  const pendingOffers = ownerOffers.filter(({ offer }) => offer.status === "pending");
+  // Expired offers drop out of the comparison entirely: they can't be selected, so the
+  // sticky bar (the only accept surface here) can never open on one.
+  // ponytail: hidden like a withdrawn offer; add a dimmed «истёкшие» group if travelers ask for it.
+  const pendingOffers = ownerOffers.filter(
+    ({ offer }) => offer.status === "pending" && !isExpired(offer.expires_at),
+  );
   const acceptedOffer = acceptedOffers[0] ?? null;
 
   const isOpen = ownerRequestRow.status === "open";

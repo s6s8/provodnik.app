@@ -4,11 +4,10 @@ import { z } from "zod";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { getOrCreateThread } from "@/lib/supabase/conversations";
 import { buildAuthLoginRedirect } from "@/lib/auth/safe-redirect";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { markOffersReadForRequest } from "@/lib/supabase/offers";
+import { acceptOfferForTraveler, markOffersReadForRequest } from "@/lib/supabase/offers";
 import { createNotification } from "@/lib/notifications/create-notification";
 import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
 
@@ -36,7 +35,8 @@ function acceptOfferErrorMessage(raw: string | undefined): string {
  * booking + payment record, thread) is committed atomically inside the
  * accept_offer RPC, which derives guide_id/price from the OFFER row server-side —
  * never from the form. Parallel accepts serialize on the offer row, so exactly one
- * wins. Only the notification and funnel event stay app-side (external effects).
+ * wins. The guide's booking notification rides along in acceptOfferForTraveler, so
+ * every accept surface sends it; only the funnel event stays here.
  */
 export async function acceptOfferAction(
   _prev: AcceptOfferActionState,
@@ -56,29 +56,23 @@ export async function acceptOfferAction(
     return { error: "Необходима авторизация." };
   }
 
-  const { data: bookingId, error: rpcError } = await supabase.rpc("accept_offer", {
-    p_offer_id: parsed.data.offerId,
-  });
+  const { bookingId, error: acceptError } = await acceptOfferForTraveler(
+    parsed.data.offerId,
+  );
 
-  if (rpcError || !bookingId) {
-    return { error: acceptOfferErrorMessage(rpcError?.message) };
-  }
-
-  try {
-    await notifyBookingCreated(bookingId as string);
-  } catch {
-    // Notification delivery must not block booking creation.
+  if (!bookingId) {
+    return { error: acceptOfferErrorMessage(acceptError ?? undefined) };
   }
 
   await logFunnelEvent({
     event_type: "offer_accepted",
     scope: "booking",
-    booking_id: bookingId as string,
+    booking_id: bookingId,
     actor_id: user.id,
     summary: "Путешественник принял предложение",
   });
 
-  redirect(`/bookings/${bookingId as string}`);
+  redirect(`/bookings/${bookingId}`);
 }
 
 export type RejectOfferActionState = { error: string | null };
@@ -170,13 +164,23 @@ export async function rejectOfferAction(
     return { error: "Предложение уже не активно." };
   }
 
-  const { error: updateError } = await supabase
+  // The status read above is advisory only: a parallel accept or guide withdraw
+  // can land before this write. The `status = pending` filter is the real
+  // authority, so exactly one transition wins and the loser reports the conflict.
+  const { data: declinedOffer, error: updateError } = await supabase
     .from("guide_offers")
     .update({ status: "declined" })
-    .eq("id", offerId);
+    .eq("id", offerId)
+    .eq("status", "pending")
+    .select("id")
+    .maybeSingle();
 
   if (updateError) {
     return { error: "Не удалось отклонить предложение." };
+  }
+
+  if (!declinedOffer) {
+    return { error: "Предложение уже не активно." };
   }
 
   revalidatePath(`/requests/${requestId}`);

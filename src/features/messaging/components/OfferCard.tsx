@@ -17,6 +17,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatRubFromMinor, formatRubNumber } from "@/data/money";
+import { isExpired } from "@/lib/dates";
 import {
   Card,
   CardContent,
@@ -86,6 +87,8 @@ function formatValidUntil(iso: string) {
     year: "numeric",
     hour: "2-digit",
     minute: "2-digit",
+    // expires_at is stored as the end of a Moscow day; render it in the same TZ.
+    timeZone: "Europe/Moscow",
   });
 }
 
@@ -110,7 +113,8 @@ export function OfferCard({
     router.refresh();
   }, [queryClient, router]);
 
-  const showActions = status === "pending" && viewerRole === "traveler";
+  const showActions =
+    status === "pending" && viewerRole === "traveler" && !isExpired(validUntil);
 
   const handleAccept = () => {
     startTransition(() => {

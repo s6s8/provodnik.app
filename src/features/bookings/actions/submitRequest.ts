@@ -63,6 +63,10 @@ export async function submitRequest(formData: unknown) {
   // has no category column, so the old direct insert wrote a non-existent field.
   const request = await createTravelerRequest(
     {
+      // D17-8: a request started from one guide's excursion belongs to that guide only.
+      // Pass the listing, not an addressee — the DB re-checks it is published and derives
+      // target_guide_id from it, so no id from here (or from the client) can be a target.
+      listing_id: listing.id,
       destination: input.destination,
       region: input.region,
       interests: input.category ? [input.category] : [],

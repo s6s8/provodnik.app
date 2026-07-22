@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
 import type { RequestRecord } from "@/data/supabase/queries";
+import { isExpired, normalizeExpiryInput } from "@/lib/dates";
 import { submitOfferAction, editOfferAction } from "@/features/guide/offer-actions";
 import type { SubmitOfferResult } from "@/features/guide/offer-action-types";
 import type { GuideOfferRow, GuideTemplateRow } from "@/lib/supabase/types";
@@ -47,9 +48,11 @@ const offerFormSchema = z.object({
   valid_until: z
     .string()
     .min(1, "Укажите дату действия предложения.")
+    // Same end-of-Moscow-day reading as createOfferInputSchema — the server is the
+    // authority, this only keeps the inline error honest (today is a valid pick).
     .refine((v) => {
-      const d = new Date(v);
-      return !Number.isNaN(d.getTime()) && d > new Date();
+      const iso = normalizeExpiryInput(v);
+      return iso !== null && !isExpired(iso);
     }, "Дата должна быть в будущем."),
   excursion_date: z.string().optional(),
   excursion_start_time: z.string().optional(),

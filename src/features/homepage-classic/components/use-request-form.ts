@@ -78,8 +78,12 @@ export const DEFAULT_VALUES: FormInput = {
   notes: "",
 };
 
-export function useRequestForm(options?: { preferredGuideSlug?: string | null }) {
+export function useRequestForm(options?: {
+  preferredGuideSlug?: string | null;
+  preferredTemplateId?: string | null;
+}) {
   const preferredGuideSlug = options?.preferredGuideSlug ?? null;
+  const preferredTemplateId = options?.preferredTemplateId ?? null;
   const router = useRouter();
   const [authGateOpen, setAuthGateOpen] = React.useState(false);
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
@@ -177,6 +181,9 @@ export function useRequestForm(options?: { preferredGuideSlug?: string | null })
     fd.set("notes", values.notes ?? "");
     if (preferredGuideSlug) {
       fd.set("preferredGuideSlug", preferredGuideSlug);
+    }
+    if (preferredTemplateId) {
+      fd.set("guideTemplateId", preferredTemplateId);
     }
 
     await submitWithFormData(fd, values);

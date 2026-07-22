@@ -9,6 +9,8 @@
 import { z } from "zod";
 
 import { rubToKopecks } from "@/data/money";
+import { isExpired, normalizeExpiryInput } from "@/lib/dates";
+import { notifyBookingCreated } from "@/lib/notifications/triggers";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideOfferRow, Uuid } from "@/lib/supabase/types";
@@ -29,13 +31,20 @@ export const createOfferInputSchema = z.object({
     .trim()
     .min(10, "Message must be at least 10 characters.")
     .max(2_000, "Message must be under 2 000 characters."),
+  // Normalizes here, not at the callsites: submitOfferAction, editOfferAction and
+  // createGuideOffer all parse through this schema, so `valid_until` is already the
+  // stored ISO timestamp by the time it reaches a write. Re-parsing is idempotent.
   valid_until: z
     .string()
     .min(1, "Please provide an expiry date.")
-    .refine((v) => {
-      const d = new Date(v);
-      return !Number.isNaN(d.getTime()) && d > new Date();
-    }, "Expiry date must be in the future."),
+    .transform((value, ctx) => {
+      const iso = normalizeExpiryInput(value);
+      if (iso === null || isExpired(iso)) {
+        ctx.addIssue({ code: "custom", message: "Expiry date must be in the future." });
+        return z.NEVER;
+      }
+      return iso;
+    }),
   route_stops: z
     .array(
       z.object({
@@ -95,7 +104,7 @@ export async function createGuideOffer(
       guide_id: guideId,
       price_minor: rubToKopecks(input.price_total),
       message: input.message,
-      expires_at: new Date(input.valid_until).toISOString(),
+      expires_at: input.valid_until,
       currency: "RUB",
       capacity: input.capacity,
       inclusions: input.inclusions,
@@ -167,6 +176,55 @@ export async function markOffersReadForRequest(requestId: Uuid): Promise<void> {
     .update({ traveler_read_at: new Date().toISOString() })
     .eq("request_id", requestId)
     .is("traveler_read_at", null);
+}
+
+/** `bookingId` is set only when the booking committed; `error` carries the raw RPC message. */
+export type AcceptOfferResult = {
+  bookingId: string | null;
+  error: string | null;
+};
+
+/**
+ * Accept an offer through the single `accept_offer` authority and tell the guide.
+ *
+ * The RPC commits guide, price, sibling declines, request status, booking and payment
+ * record in one transaction and derives every value from the offer row server-side.
+ * This wrapper adds the one app-side effect the DB can't do: the guide's booking
+ * notification. It lives here, next to the RPC call, because both accept surfaces
+ * (request page + message thread) go through it — the message thread used to call the
+ * RPC directly and notified nobody, so the guide never learned they had been booked.
+ *
+ * Idempotency comes from the RPC: it locks the offer `FOR UPDATE` and only a `pending`
+ * offer produces a booking, so repeat and parallel accepts fail above the notify call.
+ * One committed booking → exactly one notification.
+ *
+ * Callers map `error` (the raw RPC message) to their own user-facing copy.
+ */
+export async function acceptOfferForTraveler(
+  offerId: Uuid,
+): Promise<AcceptOfferResult> {
+  const supabase = await createSupabaseServerClient();
+
+  const { data: bookingId, error } = await supabase.rpc("accept_offer", {
+    p_offer_id: offerId,
+  });
+
+  if (error || !bookingId) {
+    return { bookingId: null, error: error?.message ?? "offer_not_found" };
+  }
+
+  try {
+    await notifyBookingCreated(bookingId as string);
+  } catch (e) {
+    // The booking is already committed — a failed notification must not undo it,
+    // nor surface as an acceptance failure to the traveler.
+    console.error(
+      "[acceptOfferForTraveler] notification skipped:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+
+  return { bookingId: bookingId as string, error: null };
 }
 
 /**

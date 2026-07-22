@@ -64,6 +64,23 @@ describe("buildRequestInsertPayload", () => {
     expect(payload.time_locked).toBe(true);
   });
 
+  it("carries the ready excursion through to the service as a derivation source", async () => {
+    const payload = await buildRequestInsertPayload(
+      { ...baseInput, guideTemplateId: "44444444-4444-4444-8444-444444444444" },
+      { allowGuideSuggestions: true },
+    );
+
+    expect(payload.guide_template_id).toBe("44444444-4444-4444-8444-444444444444");
+    // The programme is never authored here — the database reads it off the template.
+    expect(payload).not.toHaveProperty("guide_template_snapshot");
+  });
+
+  it("leaves an ordinary request template-null", async () => {
+    const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
+
+    expect(payload.guide_template_id).toBeNull();
+  });
+
   it("does not include allow_guide_suggestions in the payload", async () => {
     const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
 

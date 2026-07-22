@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
+import { MAX_REQUEST_PARTICIPANTS } from "@/data/traveler-request/schema";
 import type { ListingRow } from "@/lib/supabase/types";
 
 const QuestionSchema = z.object({
@@ -30,13 +31,18 @@ const QuestionSchema = z.object({
 
 type QuestionFormValues = z.infer<typeof QuestionSchema>;
 
+function orderCap(maxGroupSize: number) {
+  // A listing may advertise a bigger group than one request may carry (D21-2).
+  return Math.min(Math.max(1, maxGroupSize), MAX_REQUEST_PARTICIPANTS);
+}
+
 function buildOrderSchema(maxGroupSize: number) {
-  const cap = Math.max(1, maxGroupSize);
+  const cap = orderCap(maxGroupSize);
   return z
     .object({
       starts_on: z.string().min(1, "Укажите дату"),
       ends_on: z.string().optional(),
-      participants_count: z.number().min(1).max(cap),
+      participants_count: z.number().min(1).max(cap, `Максимум ${cap} участников.`),
       format_preference: z.enum(["group", "private", "combo", "any"]).optional(),
       notes: z.string().max(2000).optional(),
     })
@@ -259,7 +265,7 @@ function BookingFormTabsInner({ listing, initialTab }: BookingFormTabsProps) {
             id="booking-participants"
             type="number"
             min={1}
-            max={listing.max_group_size}
+            max={orderCap(listing.max_group_size)}
             aria-invalid={Boolean(orderForm.formState.errors.participants_count)}
             aria-describedby={orderForm.formState.errors.participants_count ? "booking-participants-error" : undefined}
             {...orderForm.register("participants_count", { valueAsNumber: true })}

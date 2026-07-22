@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { COPY } from "@/lib/copy";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
 
 import { BookingDetailScreen, BookingDetailSkeleton } from "./booking-detail-screen";
@@ -149,7 +150,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
@@ -247,7 +248,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
@@ -269,7 +270,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={bookingNoSplit}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
@@ -285,7 +286,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
@@ -301,7 +302,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
@@ -315,7 +316,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
@@ -351,7 +352,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         paymentAgreement={{
           id: "agreement-1",
           bookingId: "booking-1",
@@ -378,7 +379,7 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         paymentAgreement={{
           id: "agreement-1",
           bookingId: "booking-1",
@@ -405,13 +406,139 @@ describe("BookingDetailScreen", () => {
         viewerRole="traveler"
         booking={booking}
         existingReview={null}
-        listingTitle="Городская прогулка"
+        listing={{ title: "Городская прогулка" }}
         paymentAgreement={null}
         openBookingThreadAction={async () => ({ threadId: "thread-1" })}
       />,
     );
 
     expect(screen.queryByText("Договорённость об оплате")).not.toBeInTheDocument();
+  });
+
+  it("hides «Что вас ждёт» for a custom-offer booking even when the offer has text", () => {
+    const customBooking = {
+      ...booking,
+      listing_id: null,
+    } as unknown as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={customBooking}
+        existingReview={null}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.queryByText("Что вас ждёт")).not.toBeInTheDocument();
+    expect(screen.queryByText("Покажу город и главные места.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Чай")).not.toBeInTheDocument();
+    // The traveler's own request note is never an excursion programme either.
+    expect(screen.queryByText("Прогулка по центру")).not.toBeInTheDocument();
+  });
+
+  it("keeps «Что вас ждёт» from the listing for a ready-excursion booking", () => {
+    const readyBooking = {
+      ...booking,
+      request_id: null,
+      offer_id: null,
+      traveler_request: null,
+      guide_offer: null,
+    } as unknown as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={readyBooking}
+        existingReview={null}
+        listing={{
+          title: "Казань за один день",
+          description: "Кремль, улица Баумана и панорама с Чаши.",
+          inclusions: ["Билеты в кремль"],
+          city: "Казань",
+        }}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.getByText("Что вас ждёт")).toBeInTheDocument();
+    expect(
+      screen.getByText("Кремль, улица Баумана и панорама с Чаши."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Билеты в кремль")).toBeInTheDocument();
+  });
+
+  it("shows the ready template's programme when the booking has no listing row", () => {
+    // A ready guide excursion has no `listings` row at all — the lineage runs
+    // booking → traveler_request → guide_template_snapshot, so listing_id is null
+    // and the snapshot is the only booking-truth about the itinerary.
+    const templateBooking = {
+      ...booking,
+      listing_id: null,
+      traveler_request: {
+        ...booking.traveler_request,
+        guide_template_snapshot: {
+          id: "44444444-4444-4444-8444-444444444444",
+          title: "Адык: степь и Калмыкия",
+          description: "Прогулка по степи и знакомство с Калмыкией.",
+          duration_text: "5 часов",
+          meeting_point: "Элиста, площадь Ленина",
+          max_participants: 8,
+          region: "Калмыкия",
+          price_scope: "per_group",
+          price_from_kopecks: 450_000,
+        },
+      },
+    } as unknown as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={templateBooking}
+        existingReview={null}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Адык: степь и Калмыкия" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Что вас ждёт")).toBeInTheDocument();
+    expect(
+      screen.getByText("Прогулка по степи и знакомство с Калмыкией."),
+    ).toBeInTheDocument();
+    // Still not the offer's or the traveler's own text.
+    expect(screen.queryByText("Покажу город и главные места.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Прогулка по центру")).not.toBeInTheDocument();
+  });
+
+  it("shows guide, city, date and time in «Детали поездки» for a ready-excursion booking", () => {
+    const readyBooking = {
+      ...booking,
+      request_id: null,
+      offer_id: null,
+      traveler_request: null,
+      guide_offer: null,
+    } as unknown as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={readyBooking}
+        existingReview={null}
+        listing={{ title: "Казань за один день", city: "Казань" }}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    const details = screen.getByText("Детали поездки").closest("div");
+    expect(details).not.toBeNull();
+    expect(details).toHaveTextContent("Казань");
+    expect(details).toHaveTextContent(COPY.guide);
+    expect(details).toHaveTextContent("Анна");
+    // starts_at is a timestamptz — the date must survive, not silently vanish.
+    expect(details?.textContent ?? "").toMatch(/10 июня/);
+    expect(details?.textContent ?? "").toMatch(/\d{2}:\d{2}/);
   });
 
   it("renders BookingDetailSkeleton placeholder blocks", () => {

@@ -16,6 +16,8 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient,
 }));
 
+vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+
 vi.mock("@/lib/notifications/create-notification", () => ({
   createNotification,
 }));
@@ -32,7 +34,7 @@ vi.mock("@/lib/supabase/bookings", () => ({
   createBooking: vi.fn(),
 }));
 
-import { cancelRequestAction } from "./owner-request-actions";
+import { cancelRequestAction, rejectOfferAction } from "./owner-request-actions";
 
 function buildFormData(requestId: string) {
   const formData = new FormData();
@@ -136,5 +138,87 @@ describe("cancelRequestAction", () => {
 
     expect(result.error).toBe("Запрос нельзя отменить в текущем статусе.");
     expect(redirect).not.toHaveBeenCalled();
+  });
+});
+
+describe("rejectOfferAction", () => {
+  function buildRejectSupabase(updateResult: {
+    data: { id: string } | null;
+    error: { message: string } | null;
+  }) {
+    const requestQuery = {
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { id: "request-1", traveler_id: "traveler-1", status: "open" },
+            error: null,
+          }),
+        }),
+      }),
+    };
+
+    const updateMaybeSingle = vi.fn().mockResolvedValue(updateResult);
+    const updateSelect = vi.fn().mockReturnValue({ maybeSingle: updateMaybeSingle });
+    const statusEq = vi.fn().mockReturnValue({ select: updateSelect });
+    const idEq = vi.fn().mockReturnValue({ eq: statusEq });
+    const update = vi.fn().mockReturnValue({ eq: idEq });
+
+    const offersQuery = {
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          maybeSingle: vi.fn().mockResolvedValue({
+            data: { id: "offer-1", request_id: "request-1", status: "pending" },
+            error: null,
+          }),
+        }),
+      }),
+      update,
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "traveler-1" } },
+          error: null,
+        }),
+      },
+      from: vi.fn((table: string) => {
+        if (table === "traveler_requests") return requestQuery;
+        if (table === "guide_offers") return offersQuery;
+        throw new Error(`Unexpected table: ${table}`);
+      }),
+    });
+
+    return { statusEq, updateSelect };
+  }
+
+  function buildRejectFormData() {
+    const formData = new FormData();
+    formData.set("offer_id", "offer-1");
+    formData.set("request_id", "request-1");
+    return formData;
+  }
+
+  it("declines only an offer that is still pending", async () => {
+    const { statusEq, updateSelect } = buildRejectSupabase({
+      data: { id: "offer-1" },
+      error: null,
+    });
+
+    const result = await rejectOfferAction({ error: null }, buildRejectFormData());
+
+    expect(result.error).toBeNull();
+    expect(statusEq).toHaveBeenCalledWith("status", "pending");
+    expect(updateSelect).toHaveBeenCalledWith("id");
+  });
+
+  it("reports a conflict when the offer stopped being pending mid-flight", async () => {
+    // Guide withdraws (or a parallel accept lands) between the status read and
+    // the write: the conditional update matches zero rows, so decline must fail.
+    buildRejectSupabase({ data: null, error: null });
+
+    const result = await rejectOfferAction({ error: null }, buildRejectFormData());
+
+    expect(result.error).toBe("Предложение уже не активно.");
   });
 });

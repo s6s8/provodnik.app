@@ -10,8 +10,32 @@ const MONTH_NAMES_RU = [
   "июля", "августа", "сентября", "октября", "ноября", "декабря",
 ];
 
+const MOSCOW_DATE_FORMAT = new Intl.DateTimeFormat("en-CA", {
+  timeZone: MOSCOW_TZ,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
+/**
+ * Reduce a value to a plain YYYY-MM-DD calendar day.
+ *
+ * Date-only inputs (traveler_requests.starts_on) carry no zone and pass through.
+ * Timestamps (bookings.starts_at, guide_offers.starts_at) are resolved to their
+ * Moscow calendar day, so the date can never contradict formatRussianTime,
+ * which prints the Moscow clock.
+ */
+function toCalendarDay(value: string): string | null {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return null;
+  return MOSCOW_DATE_FORMAT.format(parsed);
+}
+
 function parseISODateParts(value: string): { month: number; day: number } | null {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  const calendarDay = toCalendarDay(value);
+  if (!calendarDay) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(calendarDay);
   if (!match) return null;
 
   const year = Number(match[1]);
@@ -31,22 +55,22 @@ function parseISODateParts(value: string): { month: number; day: number } | null
 }
 
 /**
- * Format one or two ISO date strings (YYYY-MM-DD) as Russian-locale ranges.
+ * Format one or two ISO dates (YYYY-MM-DD) or timestamps as Russian-locale ranges.
+ * Timestamps are read as their Moscow calendar day.
  * Examples:
  *   formatRussianDateRange("2026-05-15")            → "15 мая"
  *   formatRussianDateRange("2026-05-15", "2026-05-20") → "15 – 20 мая"
  *   formatRussianDateRange("2026-05-15", "2026-06-03") → "15 мая – 3 июня"
+ *   formatRussianDateRange("2026-05-15T07:00:00Z", "2026-05-15T11:00:00Z") → "15 мая"
  */
 export function formatRussianDateRange(startsOn: string, endsOn?: string | null): string {
   if (!startsOn) return "";
   const start = parseISODateParts(startsOn);
   if (!start) return "";
   const startMonth = MONTH_NAMES_RU[start.month - 1] ?? "";
-  if (!endsOn || endsOn === startsOn) {
-    return `${start.day} ${startMonth}`;
-  }
-  const end = parseISODateParts(endsOn);
-  if (!end) {
+  const end = endsOn ? parseISODateParts(endsOn) : null;
+  // Same calendar day (a one-day tour with start/end timestamps) reads as one date.
+  if (!end || (end.month === start.month && end.day === start.day)) {
     return `${start.day} ${startMonth}`;
   }
   const endMonth = MONTH_NAMES_RU[end.month - 1] ?? "";
@@ -75,6 +99,36 @@ export function formatTimeRange(startTime?: string | null, endTime?: string | nu
  */
 export function todayMoscowISODate(): string {
   return Intl.DateTimeFormat("en-CA", { timeZone: MOSCOW_TZ }).format(new Date());
+}
+
+/**
+ * Interpret a user-entered expiry value as an ISO timestamp.
+ *
+ * A date-only `YYYY-MM-DD` — what `<input type="date">` produces — means the END of
+ * that calendar day in Moscow: "действует до 25 июля" stays valid all of the 25th.
+ * `new Date("2026-07-25")` instead pins UTC midnight = 03:00 MSK, which killed the
+ * offer 21 hours early and made "today" unselectable. Moscow is a fixed UTC+3 (no
+ * DST since 2014), the same offset the rest of this codebase assumes.
+ *
+ * Anything else parseable passes through as its ISO form; unparseable → null.
+ */
+export function normalizeExpiryInput(value: string): string | null {
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  // `new Date("2026-02-30T…+03:00")` silently rolls over to 2 March; parseISODateParts rejects it.
+  if (dateOnly && !parseISODateParts(value)) return null;
+  const parsed = new Date(dateOnly ? `${value}T23:59:59.999+03:00` : value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString();
+}
+
+/**
+ * True once an expiry timestamp is at or before now. Mirrors the `expires_at <= now()`
+ * gate in the accept_offer RPC so the UI stops short of a guaranteed RPC failure.
+ * A missing expiry never expires.
+ */
+export function isExpired(iso: string | null | undefined): boolean {
+  if (!iso) return false;
+  const time = new Date(iso).getTime();
+  return !Number.isNaN(time) && time <= Date.now();
 }
 
 /**

@@ -55,12 +55,23 @@ type OpenBookingThreadAction = (
   bookingId: string,
 ) => Promise<{ threadId?: string; error?: string }>;
 
+/**
+ * The listing a ready/fixed excursion booking was made against. Absent for
+ * request-first bookings, which carry no excursion programme at all.
+ */
+export type BookingListing = {
+  title?: string | null;
+  description?: string | null;
+  inclusions?: string[] | null;
+  city?: string | null;
+};
+
 type BookingDetailScreenProps =
   | {
       viewerRole: "traveler";
       booking: BookingWithDetails;
       existingReview: unknown | null;
-      listingTitle?: string;
+      listing?: BookingListing | null;
       paymentAgreement?: PaymentAgreement | null;
       reviewStatus?: string;
       disputeStatus?: string;
@@ -74,7 +85,7 @@ type BookingDetailScreenProps =
   | {
       viewerRole: "admin";
       booking: BookingWithDetails;
-      listingTitle?: string;
+      listing?: BookingListing | null;
       paymentAgreement?: PaymentAgreement | null;
     };
 
@@ -96,7 +107,7 @@ export function BookingDetailScreen(props: BookingDetailScreenProps) {
     <TravelerBookingDetailView
       booking={props.booking}
       existingReview={props.viewerRole === "traveler" ? props.existingReview : null}
-      listingTitle={props.listingTitle}
+      listing={props.listing ?? null}
       paymentAgreement={props.paymentAgreement ?? null}
       reviewStatus={props.viewerRole === "traveler" ? props.reviewStatus : undefined}
       disputeStatus={props.viewerRole === "traveler" ? props.disputeStatus : undefined}
@@ -112,7 +123,7 @@ export function BookingDetailScreen(props: BookingDetailScreenProps) {
 function TravelerBookingDetailView({
   booking,
   existingReview,
-  listingTitle,
+  listing,
   paymentAgreement,
   reviewStatus,
   disputeStatus,
@@ -122,7 +133,7 @@ function TravelerBookingDetailView({
 }: {
   booking: BookingWithDetails;
   existingReview: unknown | null;
-  listingTitle?: string;
+  listing?: BookingListing | null;
   paymentAgreement?: PaymentAgreement | null;
   reviewStatus?: string;
   disputeStatus?: string;
@@ -174,8 +185,22 @@ function TravelerBookingDetailView({
 
   const request = booking.traveler_request;
   const offer = booking.guide_offer;
-  const hasRealDestination = Boolean(request?.destination?.trim());
-  const destination = request?.destination?.trim() || "Маршрут";
+  // A ready guide excursion lives in `guide_templates`, which has no `listings` row, so
+  // accept_offer leaves listing_id NULL exactly as it does for a custom request. The
+  // snapshot frozen onto the request at creation is what tells the two apart — and it is
+  // server-written booking truth, unlike offer text.
+  const templateSnapshot = request?.guide_template_snapshot ?? null;
+  const listingTitle =
+    listing?.title?.trim() || templateSnapshot?.title?.trim() || undefined;
+  // City: the traveler's own request destination, else the listing's city, else the
+  // excursion's own region.
+  const city =
+    request?.destination?.trim() ||
+    listing?.city?.trim() ||
+    templateSnapshot?.region?.trim() ||
+    "";
+  const hasRealDestination = Boolean(city);
+  const destination = city || "Маршрут";
   const bookingStartDate = booking.starts_at ?? offer?.starts_at ?? null;
   const bookingEndDate = booking.ends_at ?? offer?.ends_at ?? null;
   const dateRange = bookingStartDate
@@ -193,14 +218,20 @@ function TravelerBookingDetailView({
     : request?.start_time
       ? request.start_time.slice(0, 5)
       : "";
-  const meetingPlace = booking.meeting_point ?? null;
+  const meetingPlace = booking.meeting_point ?? templateSnapshot?.meeting_point ?? null;
 
   const priceMinor = offer?.price_minor ?? booking.subtotal_minor ?? 0;
   const partySize = booking.party_size ?? offer?.capacity ?? request?.participants_count ?? 1;
   const pricePerPersonMinor = partySize > 1 ? Math.round(priceMinor / partySize) : priceMinor;
 
-  const inclusions: string[] = offer?.inclusions ?? [];
-  const description = offer?.message || request?.notes || null;
+  // «Что вас ждёт» describes a fixed excursion programme: a legacy listing has one, and
+  // so does a ready guide template through its snapshot. A custom offer's
+  // message/title/inclusions are a bid on one traveler's request, and request.notes is the
+  // traveler's own text — neither is a programme, so a request-first booking shows none.
+  const inclusions: string[] = booking.listing_id ? (listing?.inclusions ?? []) : [];
+  const description = booking.listing_id
+    ? listing?.description?.trim() || null
+    : templateSnapshot?.description?.trim() || null;
 
   const interests: string[] = request?.interests ?? [];
   const themeLabels = interests
@@ -344,6 +375,14 @@ function TravelerBookingDetailView({
                     {dateRange}{meetingTime ? ` · ${meetingTime}` : ""}
                   </p>
                 ) : null}
+                {/* Only when a real name resolved — resolveDisplayName's "Локальный
+                    гид" fallback is a placeholder, not a booking fact. Price stays in
+                    «Стоимость» (MoneyBreakdown) so it is stated once, not twice. */}
+                {guideProfileData?.full_name ? (
+                  <p className="font-sans text-sm text-muted-foreground">
+                    <span className="font-medium text-foreground">{COPY.guide}:</span> {guideName}
+                  </p>
+                ) : null}
                 {meetingPlace ? (
                   <p className="font-sans text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
@@ -365,13 +404,10 @@ function TravelerBookingDetailView({
               </CardContent>
             </Card>
 
-            {(description || inclusions.length > 0 || offer?.title) ? (
+            {(description || inclusions.length > 0) ? (
               <Card>
                 <CardContent className="flex flex-col gap-3 p-5">
                   <Badge variant="eyebrow">Что вас ждёт</Badge>
-                  {offer?.title ? (
-                    <p className="font-sans text-base font-semibold text-foreground">{offer.title}</p>
-                  ) : null}
                   {description ? (
                     <p className="font-sans text-sm text-foreground leading-[1.6] whitespace-pre-line">{description}</p>
                   ) : null}

@@ -34,6 +34,12 @@ describe("GuideOfferCard", () => {
     expect(screen.getByText("Отвечает в течение часа")).toBeInTheDocument();
   });
 
+  it("keeps the experience in the role line but never the guide language (D21-7)", () => {
+    renderCard();
+    expect(screen.getByText("7 лет в туризме")).toBeInTheDocument();
+    expect(screen.queryByText(/Русский|Английский/)).not.toBeInTheDocument();
+  });
+
   it("renders profileHref as a link with «Профиль →»", () => {
     renderCard({ profileHref: "/guides/ivan" });
     const link = screen.getByRole("link", { name: /Профиль/ });

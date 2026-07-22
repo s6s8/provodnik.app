@@ -40,7 +40,7 @@ import { useRequestForm } from "./use-request-form";
 interface Props {
   destinations: DestinationOption[];
   /** Guide preselected via "Запросить этого гида" on the guide's public page. */
-  preferredGuide?: { slug: string; name: string } | null;
+  preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
 }
 
 const FIN_BASE =
@@ -363,7 +363,12 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
     handleAuthSuccess,
     serverError,
     isLoading,
-  } = useRequestForm({ preferredGuideSlug: attachedGuide?.slug ?? null });
+  } = useRequestForm({
+    preferredGuideSlug: attachedGuide?.slug ?? null,
+    // Detaching the guide detaches the excursion with it — the request must not keep
+    // claiming a template whose guide the traveler just removed.
+    preferredTemplateId: attachedGuide?.templateId ?? null,
+  });
   const startDate = useWatch({ control: form.control, name: "startDate" });
   // cmdk's Input owns its own `onChange`, so `register()` cannot drive it —
   // the combobox goes through a controller instead.

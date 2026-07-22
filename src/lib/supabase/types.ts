@@ -172,6 +172,23 @@ export type MarketplaceEventRow = {
   created_at: string;
 };
 
+/**
+ * The booking-truth subset of a `guide_templates` row, copied into a traveler request when
+ * it is created from a published ready excursion. Field names mirror the template columns
+ * because the database builds this object (jsonb_build_object) — keep them in step.
+ */
+export type GuideTemplateSnapshot = {
+  id: Uuid;
+  title: string;
+  description: string | null;
+  duration_text: string | null;
+  meeting_point: string | null;
+  max_participants: number | null;
+  region: string | null;
+  price_scope: "per_person" | "per_group";
+  price_from_kopecks: number | null;
+};
+
 export type TravelerRequestRow = {
   id: Uuid;
   traveler_id: Uuid;
@@ -192,6 +209,13 @@ export type TravelerRequestRow = {
   preferred_guide_slug?: string | null;
   /** When set, the request is addressed privately to this guide (item 8). */
   target_guide_id?: string | null;
+  /** Live link to the ready excursion this request started from. Nulled if it is deleted. */
+  guide_template_id?: string | null;
+  /**
+   * Booking truth for that excursion, frozen at creation — the booking renders this, not
+   * the live template. Written only by create_directed_traveler_request.
+   */
+  guide_template_snapshot?: GuideTemplateSnapshot | null;
   start_time: string | null;
   end_time: string | null;
   date_flexibility: 'exact' | 'few_days';

@@ -48,4 +48,33 @@ describe("mergeRealtimeMessage (PRD-003)", () => {
     expect(added.sender_profile).toBeNull();
     expect(added.sender_display_name).toBeNull();
   });
+
+  it("reuses the sender identity already loaded for that sender (D21-8)", () => {
+    const loaded: MessageWithSender = {
+      ...makeRow({ id: "m1", sender_id: "user-1" }),
+      sender_profile: { full_name: "Анна Смирнова", avatar_url: "https://cdn/a.jpg" },
+      sender_display_name: "Анна Смирнова",
+    };
+
+    const [, added] = mergeRealtimeMessage([loaded], makeRow({ id: "m2", sender_id: "user-1" }));
+
+    expect(added.sender_display_name).toBe("Анна Смирнова");
+    expect(added.sender_profile).toEqual({
+      full_name: "Анна Смирнова",
+      avatar_url: "https://cdn/a.jpg",
+    });
+  });
+
+  it("keeps the safe fallback when the sender has no known identity (D21-8)", () => {
+    const loaded: MessageWithSender = {
+      ...makeRow({ id: "m1", sender_id: "user-1" }),
+      sender_profile: null,
+      sender_display_name: "Анна Смирнова",
+    };
+
+    const [, added] = mergeRealtimeMessage([loaded], makeRow({ id: "m2", sender_id: "user-2" }));
+
+    expect(added.sender_display_name).toBeNull();
+    expect(added.sender_profile).toBeNull();
+  });
 });

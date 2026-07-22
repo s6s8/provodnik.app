@@ -484,8 +484,10 @@ export function GuideExcursionsScreen() {
                 render={({ field }) => {
                   const value = field.value ?? "";
                   const known = locations.some((loc) => loc.name === value);
+                  // "" (not undefined) keeps Radix controlled for its whole
+                  // lifetime; Radix still shows the placeholder for "".
                   return (
-                    <Select value={value || undefined} onValueChange={field.onChange}>
+                    <Select value={value} onValueChange={field.onChange}>
                       <SelectTrigger
                         id="tpl-region"
                         className="mt-1.5 h-12 w-full"
@@ -520,10 +522,7 @@ export function GuideExcursionsScreen() {
                 control={control}
                 name="category"
                 render={({ field }) => (
-                  <Select
-                    value={field.value || undefined}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value ?? ""} onValueChange={field.onChange}>
                     <SelectTrigger
                       id="tpl-category"
                       className="mt-1.5 h-12 w-full"

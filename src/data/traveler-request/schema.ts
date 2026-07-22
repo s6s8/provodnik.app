@@ -10,6 +10,11 @@ import {
 
 export const travelerRequestModes = ["assembly", "private"] as const;
 
+/** Authoritative ceiling for travelers on one request (D21-2). Mirrored in the
+ * database by the `enforce_traveler_request_participants_max` trigger. */
+export const MAX_REQUEST_PARTICIPANTS = 50;
+export const MAX_REQUEST_PARTICIPANTS_MESSAGE = `Максимум ${MAX_REQUEST_PARTICIPANTS} путешественников.`;
+
 const timeRegex = /^\d{2}:\d{2}$/;
 
 export const travelerRequestSchema = z
@@ -45,14 +50,14 @@ export const travelerRequestSchema = z
       .number()
       .int("Укажите целое число.")
       .min(1, "Минимум 1 путешественник.")
-      .max(20, "Максимум 20 путешественников.")
+      .max(MAX_REQUEST_PARTICIPANTS, MAX_REQUEST_PARTICIPANTS_MESSAGE)
       .optional(),
     // private mode counter
     groupSize: z
       .number()
       .int("Укажите целое число.")
       .min(1, "Минимум 1 путешественник.")
-      .max(20, "Максимум 20 путешественников.")
+      .max(MAX_REQUEST_PARTICIPANTS, MAX_REQUEST_PARTICIPANTS_MESSAGE)
       .optional(),
     allowGuideSuggestionsOutsideConstraints: z.boolean(),
     openToJoin: z.boolean().optional(),
@@ -80,6 +85,9 @@ export const travelerRequestSchema = z
       .max(120)
       .regex(/^\S+$/, "Некорректный идентификатор гида.")
       .optional(),
+    // Ready excursion the request started from («Отправить запрос гиду» on /excursions/:id).
+    // A derivation source only — the database re-reads the template and owns the snapshot.
+    guideTemplateId: z.uuid("Некорректная экскурсия.").optional(),
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.startDate);
