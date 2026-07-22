@@ -83,10 +83,13 @@ export function HomePageShell2Classic({
                   minPeople={`от ${req.capacity ?? req.groupSize} чел.`}
                   date={req.dateLabel}
                   datesFlexible={req.dateFlexibility === "few_days"}
+                  timeFlexible={req.dateFlexibility === "few_days"}
                   time={
-                    req.startTime
-                      ? `${req.startTime}${req.endTime ? `–${req.endTime}` : ""}`
-                      : undefined
+                    req.dateFlexibility === "few_days"
+                      ? undefined
+                      : req.startTime
+                        ? `${req.startTime}${req.endTime ? `–${req.endTime}` : ""}`
+                        : undefined
                   }
                   interests={req.interests}
                   offerCount={req.offerCount}

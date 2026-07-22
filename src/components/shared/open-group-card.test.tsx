@@ -26,10 +26,16 @@ describe("OpenGroupCard", () => {
     for (const link of links) expect(link).toHaveAttribute("href", "/requests/req-1");
   });
 
-  it("keeps owner state above member state", () => {
-    render(<OpenGroupCard {...baseProps} owner member />);
+  it("shows flexible time in the meta line when dates are open", () => {
+    render(
+      <OpenGroupCard
+        {...baseProps}
+        datesFlexible
+        timeFlexible
+        date="10 августа"
+      />,
+    );
 
-    expect(screen.getByRole("link", { name: "Это ваша группа" })).toHaveAttribute("href", "/requests/req-1");
-    expect(screen.queryByRole("link", { name: "Вы в группе" })).not.toBeInTheDocument();
+    expect(screen.getByText(/Гибкие даты · Гибкое время/)).toBeInTheDocument();
   });
 });

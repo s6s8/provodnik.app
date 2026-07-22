@@ -23,6 +23,7 @@ describe("RequestCardFinal", () => {
         groupType="assembly"
         guideState="found"
         datesFlexible
+        timeFlexible
         interests={["food", "history_culture", "unknown-interest"]}
         members={[
           { id: "tamar", displayName: "Тамар", initials: "Т" },
@@ -37,6 +38,7 @@ describe("RequestCardFinal", () => {
     expect(screen.getByText("Гид найден").closest("span")).toHaveClass("bg-success/10", "text-success");
     expect(screen.getByText("Сборная группа").closest("span")).toHaveClass("bg-primary-tint", "text-primary");
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
+    expect(screen.getByText("Гибкое время")).toBeInTheDocument();
     expect(screen.getByText("5 июля, 11:30")).toBeInTheDocument();
     expect(screen.queryByText(/2\s*\/\s*\d+/)).not.toBeInTheDocument();
     expect(screen.getByText(/·\s*от\s*2\s*чел\./)).toBeInTheDocument();

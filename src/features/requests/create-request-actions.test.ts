@@ -50,6 +50,18 @@ const baseInput: TravelerRequest = {
 };
 
 describe("buildRequestInsertPayload", () => {
+  it("writes time_locked=false and null times when dateFlexibility is few_days", async () => {
+    const payload = await buildRequestInsertPayload(
+      { ...baseInput, dateFlexibility: "few_days", startTime: "", endTime: "" },
+      { allowGuideSuggestions: false },
+    );
+
+    expect(payload.date_flexibility).toBe("few_days");
+    expect(payload.time_locked).toBe(false);
+    expect(payload.start_time).toBeNull();
+    expect(payload.end_time).toBeNull();
+  });
+
   it("writes date_locked=false, time_locked=false when allowGuideSuggestions=true", async () => {
     const payload = await buildRequestInsertPayload(baseInput, { allowGuideSuggestions: true });
 

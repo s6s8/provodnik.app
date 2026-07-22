@@ -27,6 +27,8 @@ export async function buildRequestInsertPayload(
 ): Promise<CreateRequestInput> {
   const isAss = input.mode === "assembly";
 
+  const datesFlexible = input.dateFlexibility === "few_days";
+
   return {
     destination: input.destination,
     interests: input.interests,
@@ -34,15 +36,15 @@ export async function buildRequestInsertPayload(
     starts_on: input.startDate,
     ends_on: input.endDate || input.startDate,
     date_flexibility: input.dateFlexibility ?? "exact",
-    start_time: input.startTime || null,
-    end_time: input.endTime || null,
+    start_time: datesFlexible ? null : input.startTime || null,
+    end_time: datesFlexible ? null : input.endTime || null,
     budget_minor: rubToKopecks(input.budgetPerPersonRub),
     participants_count: isAss ? (input.groupSizeCurrent ?? 1) : (input.groupSize ?? 1),
     format_preference: isAss ? "group" : "private",
     notes: input.notes || null,
     open_to_join: isAss,
-    date_locked: !opts.allowGuideSuggestions,
-    time_locked: !opts.allowGuideSuggestions,
+    date_locked: datesFlexible ? false : !opts.allowGuideSuggestions,
+    time_locked: datesFlexible ? false : !opts.allowGuideSuggestions,
     region: null,
     preferred_guide_slug: input.preferredGuideSlug || null,
     guide_template_id: input.guideTemplateId || null,

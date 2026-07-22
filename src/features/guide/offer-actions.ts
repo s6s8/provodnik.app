@@ -74,6 +74,7 @@ export async function checkOfferAgainstLocks(args: {
   }
 
   if (
+    args.request.date_flexibility !== "few_days" &&
     args.request.time_locked &&
     (startsAt?.time !== args.request.start_time?.slice(0, 5) ||
       endsAt?.time !== args.request.end_time?.slice(0, 5))

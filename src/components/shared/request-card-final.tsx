@@ -23,6 +23,8 @@ export type RequestCardFinalProps = {
   guideState: RequestCardFinalGuideState;
   offerCount?: number;
   datesFlexible?: boolean;
+  /** When true, the traveler left time open (paired with flexible dates). */
+  timeFlexible?: boolean;
   interests?: readonly string[];
   members?: readonly RequestCardFinalMember[];
   participantCount?: number;
@@ -151,6 +153,7 @@ export function RequestCardFinal({
   guideState,
   offerCount,
   datesFlexible = false,
+  timeFlexible = false,
   interests,
   members = [],
   participantCount,
@@ -184,7 +187,9 @@ export function RequestCardFinal({
           <span className={datesFlexible ? datesFlexibleBadgeClassName : exactDateBadgeClassName}>
             {datesFlexible ? "Гибкие даты" : "Точная дата"}
           </span>
-          {time ? (
+          {timeFlexible ? (
+            <span className={datesFlexibleBadgeClassName}>Гибкое время</span>
+          ) : time ? (
             <span className="inline-flex min-w-0 items-center gap-1">
               <Clock size={14} className="shrink-0 text-ink-2" aria-hidden="true" />
               <span className="min-w-0 truncate text-xs font-medium text-ink-2">{time}</span>

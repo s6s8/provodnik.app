@@ -65,6 +65,16 @@ describe("checkOfferAgainstLocks", () => {
     }
   });
 
+  it("accepts when few_days even if time_locked=true and offer time differs", async () => {
+    const result = await checkOfferAgainstLocks({
+      startsAt: makeIso("2026-09-12", "15:00"),
+      endsAt: makeIso("2026-09-12", "18:00"),
+      request: { ...baseRequest, date_flexibility: "few_days", time_locked: true },
+    });
+
+    expect("ok" in result && result.ok).toBe(true);
+  });
+
   it("accepts when few_days and time lock are off even if date and time differ", async () => {
     const result = await checkOfferAgainstLocks({
       startsAt: makeIso("2026-09-12", "15:00"),
