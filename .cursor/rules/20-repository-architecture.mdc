@@ -1,7 +1,6 @@
 ---
 description: Apply for module placement, layering, shared helpers, data flow, uploads, environment, or repository-tooling changes; not presentation-only work
-globs:
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Repository architecture

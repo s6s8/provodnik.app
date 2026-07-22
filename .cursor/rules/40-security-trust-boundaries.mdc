@@ -1,7 +1,6 @@
 ---
 description: Apply for auth, role, ownership, state, price-authority, publishing, RLS, RPC, trigger, or privileged-client changes; owns enforcement while rule 30 owns product semantics and rule 50 owns SQL mechanics
-globs:
-alwaysApply: false
+alwaysApply: true
 ---
 
 # Trust-boundary rules
