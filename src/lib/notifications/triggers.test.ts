@@ -45,7 +45,7 @@ vi.mock("@/lib/email/templates/notification-emails", () => ({
   }),
 }));
 
-import { notifyBookingCancelled, notifyGuidesNewRequest } from "./triggers";
+import { notifyBookingCancelled, notifyGuidesNewRequest, notifyNewOffer } from "./triggers";
 
 const bookingId = "11111111-1111-4111-8111-111111111111";
 const travelerId = "22222222-2222-4222-8222-222222222222";
@@ -287,5 +287,137 @@ describe("notifyGuidesNewRequest email", () => {
 
     await expect(notifyGuidesNewRequest(bookingId)).resolves.toBeUndefined();
     expect(createNotification).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("notifyNewOffer", () => {
+  const requestId = "82000000-0000-4000-8000-000000000001";
+  const offerId = "83000000-0000-4000-8000-000000000001";
+  const travelerId = "22222222-2222-4222-8222-222222222222";
+  const guideId = "33333333-3333-4333-8333-333333333333";
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    createNotification.mockResolvedValue({ created: true, row: { id: "notif-1" } });
+    sendNotificationEmail.mockResolvedValue(undefined);
+  });
+
+  it("links to the booking when the offer already became a trip", async () => {
+    const bookingId = "84000000-0000-4000-8000-000000000001";
+    const requestQuery = {
+      select: vi.fn(() => requestQuery),
+      eq: vi.fn(() => requestQuery),
+      single: vi.fn(async () => ({
+        data: {
+          id: requestId,
+          traveler_id: travelerId,
+          destination: "Казань",
+          starts_on: "2026-09-10",
+          participants_count: 2,
+        },
+        error: null,
+      })),
+    };
+    const offerQuery = {
+      select: vi.fn(() => offerQuery),
+      eq: vi.fn(() => offerQuery),
+      single: vi.fn(async () => ({
+        data: { id: offerId, guide_id: guideId, request_id: requestId },
+        error: null,
+      })),
+    };
+    const bookingQuery = {
+      select: vi.fn(() => bookingQuery),
+      eq: vi.fn(() => bookingQuery),
+      maybeSingle: vi.fn(async () => ({ data: { id: bookingId }, error: null })),
+    };
+    const profileQuery = {
+      select: vi.fn(() => profileQuery),
+      eq: vi.fn(() => profileQuery),
+      maybeSingle: vi.fn(async () => ({ data: { full_name: "Гид Дмитрий" }, error: null })),
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "traveler_requests") return requestQuery;
+        if (table === "guide_offers") return offerQuery;
+        if (table === "bookings") return bookingQuery;
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected admin table ${table}`);
+      }),
+    });
+
+    await notifyNewOffer(requestId, offerId);
+
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        href: `/bookings/${bookingId}`,
+        entityType: "offer",
+        entityId: offerId,
+      }),
+    );
+  });
+
+  it("skips the email when the inbox row already exists for this offer", async () => {
+    createNotification.mockResolvedValueOnce({ created: false, row: { id: "notif-1" } });
+
+    const requestQuery = {
+      select: vi.fn(() => requestQuery),
+      eq: vi.fn(() => requestQuery),
+      single: vi.fn(async () => ({
+        data: {
+          id: requestId,
+          traveler_id: travelerId,
+          destination: "Казань",
+          starts_on: "2026-09-10",
+          participants_count: 2,
+        },
+        error: null,
+      })),
+    };
+    const offerQuery = {
+      select: vi.fn(() => offerQuery),
+      eq: vi.fn(() => offerQuery),
+      single: vi.fn(async () => ({
+        data: { id: offerId, guide_id: guideId, request_id: requestId },
+        error: null,
+      })),
+    };
+    const bookingQuery = {
+      select: vi.fn(() => bookingQuery),
+      eq: vi.fn(() => bookingQuery),
+      maybeSingle: vi.fn(async () => ({ data: null, error: null })),
+    };
+    const profileQuery = {
+      select: vi.fn(() => profileQuery),
+      eq: vi.fn(() => profileQuery),
+      maybeSingle: vi.fn(async () => ({ data: { full_name: "Гид Дмитрий" }, error: null })),
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "traveler_requests") return requestQuery;
+        if (table === "guide_offers") return offerQuery;
+        if (table === "bookings") return bookingQuery;
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected admin table ${table}`);
+      }),
+    });
+
+    await notifyNewOffer(requestId, offerId);
+
+    expect(sendNotificationEmail).not.toHaveBeenCalled();
   });
 });

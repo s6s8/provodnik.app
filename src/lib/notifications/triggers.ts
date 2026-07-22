@@ -148,8 +148,27 @@ async function createNotificationForUser(data: {
   body?: string;
   href?: string;
   payload?: Record<string, unknown>;
+  entityType?: string;
+  entityId?: string;
 }) {
   return createNotification(data);
+}
+
+async function resolveNewOfferHref(requestId: string, offerId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data: booking, error } = await supabase
+    .from("bookings")
+    .select("id")
+    .eq("offer_id", offerId)
+    .maybeSingle();
+
+  if (error) {
+    captureNotificationLookupError(error);
+  } else if (booking?.id) {
+    return `/bookings/${booking.id}`;
+  }
+
+  return `/requests/${requestId}?offer=${offerId}`;
 }
 
 export async function notifyNewOffer(
@@ -181,13 +200,16 @@ export async function notifyNewOffer(
   }
 
   const guideName = await getGuideDisplayName(offerRow.guide_id);
+  const href = await resolveNewOfferHref(requestRow.id, parsedOfferId);
 
-  await createNotificationForUser({
+  const { created } = await createNotificationForUser({
     userId: requestRow.traveler_id,
     kind: "new_offer",
     title: `Новое предложение от ${guideName}`,
     body: `${requestRow.destination} · ${formatShortDate(requestRow.starts_on)} · ${requestRow.participants_count} чел.`,
-    href: `/requests/${requestRow.id}`,
+    href,
+    entityType: "offer",
+    entityId: parsedOfferId,
     payload: {
       actor_id: offerRow.guide_id,
       actor_name: guideName,
@@ -198,13 +220,15 @@ export async function notifyNewOffer(
     },
   });
 
+  if (!created) return;
+
   try {
     if (!(await travelerEmailDisabled(requestRow.traveler_id, "new_offer"))) {
       const to = await getUserEmail(requestRow.traveler_id);
       if (to) {
         const { subject, html } = renderNewOfferEmail({
           guideName,
-          requestUrl: `${getSiteUrl()}/requests/${requestRow.id}`,
+          requestUrl: `${getSiteUrl()}${href}`,
         });
         await sendNotificationEmail({
           kind: "new_offer",
