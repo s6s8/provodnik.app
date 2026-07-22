@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
+import { COPY } from "@/lib/copy";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
 
 import { BookingDetailScreen, BookingDetailSkeleton } from "./booking-detail-screen";
@@ -533,7 +534,7 @@ describe("BookingDetailScreen", () => {
     const details = screen.getByText("Детали поездки").closest("div");
     expect(details).not.toBeNull();
     expect(details).toHaveTextContent("Казань");
-    expect(details).toHaveTextContent("Гид");
+    expect(details).toHaveTextContent(COPY.guide);
     expect(details).toHaveTextContent("Анна");
     // starts_at is a timestamptz — the date must survive, not silently vanish.
     expect(details?.textContent ?? "").toMatch(/10 июня/);
