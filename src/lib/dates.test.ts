@@ -11,6 +11,22 @@ describe("formatRussianDateRange", () => {
   it("ignores an invalid end date instead of formatting NaN", () => {
     expect(formatRussianDateRange("2026-05-15", "2026-13-40")).toBe("15 мая");
   });
+
+  it("formats timestamps (bookings.starts_at) on their Moscow calendar day", () => {
+    expect(formatRussianDateRange("2026-06-10T10:00:00.000Z")).toBe("10 июня");
+    // Same day start/end must not render as "10 – 10 июня".
+    expect(
+      formatRussianDateRange("2026-06-10T10:00:00.000Z", "2026-06-10T12:00:00.000Z"),
+    ).toBe("10 июня");
+    // 22:00Z is already 11 June in Moscow, where formatRussianTime prints 01:00.
+    expect(formatRussianDateRange("2026-06-10T22:00:00.000Z")).toBe("11 июня");
+  });
+
+  it("still spans multi-day timestamp ranges", () => {
+    expect(
+      formatRussianDateRange("2026-05-15T06:00:00.000Z", "2026-06-03T06:00:00.000Z"),
+    ).toBe("15 мая – 3 июня");
+  });
 });
 
 describe("normalizeExpiryInput", () => {

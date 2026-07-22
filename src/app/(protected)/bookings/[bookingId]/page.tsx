@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { BookingDetailScreen } from "@/features/bookings/components/booking-detail-screen";
+import {
+  BookingDetailScreen,
+  type BookingListing,
+} from "@/features/bookings/components/booking-detail-screen";
 import { openBookingThreadAction } from "@/features/bookings/booking-actions";
 import { viewerRoleForBooking } from "@/lib/auth/viewer-role-for-booking";
 import { getBooking } from "@/lib/supabase/bookings";
@@ -52,16 +55,16 @@ export default async function BookingDetailPage({
   );
 
   const supabase = await createSupabaseServerClient();
-  let listingTitle: string | undefined;
+  // Only a listing-backed (ready/fixed) booking has an excursion programme —
+  // title, city and the "what awaits you" content all come from that row.
+  let listing: BookingListing | null = null;
   if (booking.listing_id) {
     const { data: listingRow } = await supabase
       .from("listings")
-      .select("title")
+      .select("title, description, inclusions, city")
       .eq("id", booking.listing_id)
       .maybeSingle();
-    if (listingRow?.title) {
-      listingTitle = listingRow.title;
-    }
+    listing = listingRow ?? null;
   }
 
   if (role === "admin") {
@@ -69,7 +72,7 @@ export default async function BookingDetailPage({
       <BookingDetailScreen
         viewerRole="admin"
         booking={booking}
-        listingTitle={listingTitle}
+        listing={listing}
         paymentAgreement={paymentAgreement}
       />
     );
@@ -87,7 +90,7 @@ export default async function BookingDetailPage({
       booking={booking}
       canMessageGuide={booking.traveler_request?.traveler_id === booking.traveler_id}
       existingReview={existingReview}
-      listingTitle={listingTitle}
+      listing={listing}
       paymentAgreement={paymentAgreement}
       reviewStatus={reviewStatus}
       disputeStatus={disputeStatus}
