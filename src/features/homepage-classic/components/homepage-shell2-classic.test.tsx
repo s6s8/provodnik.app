@@ -121,4 +121,34 @@ describe("HomePageShell2Classic section order", () => {
 
     expect(order()).toEqual(["Готовые экскурсии", "Как это работает"]);
   });
+
+  it("hides the ready-excursions secondary action when the public catalog is disabled", () => {
+    render(
+      <HomePageShell2Classic
+        destinations={[]}
+        requests={[request(0)]}
+        listings={[]}
+        publicCatalogEnabled={false}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: /Готовые экскурсии/ })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /Все группы/ })).toHaveAttribute("href", "/requests");
+  });
+
+  it("shows the ready-excursions secondary action when the public catalog is enabled", () => {
+    render(
+      <HomePageShell2Classic
+        destinations={[]}
+        requests={[request(0)]}
+        listings={[]}
+        publicCatalogEnabled={true}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /Готовые экскурсии/ })).toHaveAttribute(
+      "href",
+      "/listings",
+    );
+  });
 });

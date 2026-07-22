@@ -29,6 +29,8 @@ interface Props {
   listings?: ListingRecord[];
   guides?: GuideRecord[];
   reviews?: HomepageReview[];
+  /** Mirrors FEATURE_PUBLIC_CATALOG — gates links into /listings. */
+  publicCatalogEnabled?: boolean;
 }
 
 const HOW_IT_WORKS = [
@@ -53,6 +55,7 @@ export function HomePageShell2Classic({
   listings = [],
   guides = [],
   reviews = [],
+  publicCatalogEnabled = true,
 }: Props) {
   const openGroups = requests.slice(0, 3);
 
@@ -72,11 +75,15 @@ export function HomePageShell2Classic({
           <SectionHeading
             title="Сборные группы"
             action={{ label: "Все группы", href: "/requests" }}
-            secondaryAction={{
-              label: "Готовые экскурсии",
-              href: "/listings",
-              icon: Compass,
-            }}
+            secondaryAction={
+              publicCatalogEnabled
+                ? {
+                    label: "Готовые экскурсии",
+                    href: "/listings",
+                    icon: Compass,
+                  }
+                : undefined
+            }
           />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {openGroups.map((req, index) => {

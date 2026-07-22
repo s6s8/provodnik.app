@@ -96,6 +96,7 @@ export default async function HomePage({
           listings={flags.FEATURE_PUBLIC_CATALOG ? inventory.listings : []}
           guides={inventory.guides}
           reviews={inventory.reviews}
+          publicCatalogEnabled={flags.FEATURE_PUBLIC_CATALOG}
         />
       </main>
     </>
