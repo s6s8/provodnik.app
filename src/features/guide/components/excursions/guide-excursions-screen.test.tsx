@@ -227,6 +227,22 @@ describe("GuideExcursionsScreen", () => {
     });
   });
 
+  it("keeps the location and category selects controlled while filling the form", async () => {
+    // Radix warns via console.warn when a Select flips uncontrolled → controlled,
+    // which is what passing `undefined` for an empty value used to do.
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    render(<GuideExcursionsScreen />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
+    selectLocation("Батуми");
+    selectCategory("Природа");
+
+    expect(warn).not.toHaveBeenCalledWith(
+      expect.stringContaining("changing from uncontrolled to controlled"),
+    );
+    warn.mockRestore();
+  });
+
   it("prefills the edit form with the selected excursion values", async () => {
     guideTemplates.value = [baseTemplate];
 
