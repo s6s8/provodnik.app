@@ -22,7 +22,7 @@
 -- into RESTRICT and, worse, making the surviving booking's programme deletable by the guide.
 -- Snapshot-without-id is exactly the state a deleted template must leave behind.
 --
--- Who may write them is the same question 20260722000000 answered for target_guide_id, and
+-- Who may write them is the same question 20260722000300 answered for target_guide_id, and
 -- the same answer: not the client. createSupabaseServerClient speaks to PostgREST with the
 -- browser's own session, so a caller-supplied snapshot is caller-authored text — it could
 -- claim any programme, price scope or participant cap on a real booking. So:
@@ -34,7 +34,7 @@
 --   * the freeze trigger (widened here from target_guide_id) blocks the PATCH-afterwards
 --     bypass, while still allowing the FK's own SET NULL.
 --
--- Rollback: drop the columns and the constraint, restore the 20260722000000 versions of the
+-- Rollback: drop the columns and the constraint, restore the 20260722000300 versions of the
 -- policy, the function (without p_guide_template_id) and the trigger.
 --
 -- PROD: do NOT `supabase db push` (the prod migration ledger is truncated — landmine).
