@@ -2,10 +2,6 @@ import { z } from "zod";
 
 import { kopecksToRub, rubToKopecks } from "@/data/money";
 
-// A guide may only ever leave a ready tour as a draft or submit it for review.
-// Publishing/rejecting is admin-only (enforced again at the server helper and the DB).
-const templateStatusSchema = z.enum(["draft", "pending_review"]);
-
 const nullableTrimmedStringSchema = z.string().transform((value) => value.trim() || null);
 
 const priceFromRubSchema = z.string().transform((value, ctx) => {
@@ -59,15 +55,15 @@ export const excursionFormSchema = z
     description: nullableTrimmedStringSchema,
     duration: nullableTrimmedStringSchema,
     priceRub: priceFromRubSchema,
-    status: templateStatusSchema,
     meetingPoint: nullableTrimmedStringSchema,
     maxParticipants: maxParticipantsSchema,
     photoUrls: z.array(z.string()),
     region: nullableTrimmedStringSchema,
     category: nullableTrimmedStringSchema,
   })
+  .strict()
   .superRefine((values, ctx) => {
-    if (values.status === "pending_review" && values.photoUrls.length === 0) {
+    if (values.photoUrls.length === 0) {
       ctx.addIssue({
         code: "custom",
         path: ["photoUrls"],
@@ -81,7 +77,6 @@ export const defaultExcursionFormValues: ExcursionFormInput = {
   description: "",
   duration: "",
   priceRub: "",
-  status: "draft",
   meetingPoint: "",
   maxParticipants: "",
   photoUrls: [],

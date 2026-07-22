@@ -102,7 +102,6 @@ export function GuideExcursionsScreen() {
     resolver: zodResolver(excursionFormSchema, undefined, { mode: "sync" }),
     defaultValues: defaultExcursionFormValues,
   });
-  const tplStatus = useWatch({ control, name: "status" });
   const tplPhotos = useWatch({ control, name: "photoUrls" }) ?? [];
 
   useEffect(() => {
@@ -178,9 +177,6 @@ export function GuideExcursionsScreen() {
         template.price_from_kopecks != null
           ? String(kopecksToRub(template.price_from_kopecks))
           : "",
-      // A guide can only ever hold draft or pending_review. Editing a published or
-      // rejected tour resubmits it for review — nothing goes public unreviewed.
-      status: template.status === "draft" ? "draft" : "pending_review",
       meetingPoint: template.meeting_point ?? "",
       maxParticipants:
         template.max_participants != null ? String(template.max_participants) : "",
@@ -244,7 +240,8 @@ export function GuideExcursionsScreen() {
           meetingPoint: values.meetingPoint,
           maxParticipants: values.maxParticipants,
           photoUrls: values.photoUrls,
-          status: values.status,
+          status:
+            editingTemplate.status === "draft" ? "draft" : "pending_review",
           region: values.region,
           category: values.category,
         });
@@ -260,7 +257,6 @@ export function GuideExcursionsScreen() {
           meetingPoint: values.meetingPoint,
           maxParticipants: values.maxParticipants,
           photoUrls: values.photoUrls,
-          status: values.status,
           region: values.region,
           category: values.category,
         });
@@ -630,36 +626,10 @@ export function GuideExcursionsScreen() {
                 </p>
               )}
             </div>
-            <div>
-              <Label>Статус</Label>
-              <div className="mt-1.5 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setValue("status", "draft", { shouldValidate: true })}
-                  className={`rounded-lg border px-3 py-1.5 text-sm ${
-                    tplStatus === "draft"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground"
-                  }`}
-                >
-                  Черновик
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setValue("status", "pending_review", { shouldValidate: true })}
-                  className={`rounded-lg border px-3 py-1.5 text-sm ${
-                    tplStatus === "pending_review"
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground"
-                  }`}
-                >
-                  Отправить на проверку
-                </button>
-              </div>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Готовые экскурсии публикуются после проверки администратором.
-              </p>
-            </div>
+            <p className="text-xs text-muted-foreground">
+              Новая экскурсия отправляется на проверку и публикуется после одобрения
+              администратором.
+            </p>
           </div>
           <div className="mt-6 border-t border-border px-4 pb-4 pt-4">
             {/* Kept in the sticky footer (next to Save), with role="alert", so an
