@@ -1,5 +1,5 @@
 ---
-description: Supabase migration, RLS, RPC, trigger, rollback, and generated-type discipline
+description: Auto-attach for Supabase migrations, rollbacks, pgTAP, and generated database types; rule 40 owns cross-layer trust parity
 globs: "supabase/migrations/**/*.sql,supabase/tests/**/*.sql,supabase/rollbacks/**/*.sql,src/lib/supabase/database.types.ts"
 alwaysApply: false
 ---

@@ -1,6 +1,6 @@
 ---
-description: Provodnik UI composition, Tailwind token, accessibility, and browser-replay rules
-globs: "src/**/*.tsx,src/app/globals.css"
+description: Auto-attach for rendered TSX, Tailwind globals, and browser-test UI work; rule 30 owns product wording and canon changes
+globs: "src/**/*.tsx,src/app/globals.css,tests/**/*.ts,playwright.config.ts,postcss.config.mjs,components.json"
 alwaysApply: false
 ---
 

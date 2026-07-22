@@ -1,6 +1,6 @@
 ---
-description: Russian product language, canonical Provodnik terminology, pricing, and public/private model boundaries
-globs: "src/**/*.ts,src/**/*.tsx,supabase/**/*.sql,tests/**/*.ts"
+description: Apply for Russian product copy or request, group, listing, capacity, pricing, and public/private canon changes; owns semantics while rule 40 owns enforcement
+globs:
 alwaysApply: false
 ---
 
