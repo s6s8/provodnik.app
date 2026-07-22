@@ -167,6 +167,19 @@ describe("BidFormPanel — date/time locks", () => {
     expect(screen.getByText("Гибкие даты")).toBeInTheDocument();
     expect(screen.getByLabelText(/Дата/)).toBeEnabled();
   });
+
+  it("shows the гибкое время badge when dates are flexible", () => {
+    render(
+      <BidFormPanel
+        requestId="req-1"
+        request={{ ...baseRequest, dateFlexibility: "few_days", date_locked: false }}
+        onClose={() => {}}
+      />,
+    );
+
+    expect(screen.getByText("Гибкое время")).toBeInTheDocument();
+    expect(screen.getByLabelText(/Время начала/)).toBeEnabled();
+  });
 });
 
 describe("BidFormPanel — request context", () => {

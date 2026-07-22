@@ -86,6 +86,8 @@ export type PublicRequestDetailViewModel = {
   dateLabel: string;
   timeLabel?: string;
   datesFlexible: boolean;
+  /** When true, the traveler left time open (paired with flexible dates). */
+  timeFlexible: boolean;
   pricePerPersonRub: number | null;
   memberCount: number;
   members: Array<{ id: string; displayName: string; initials: string; avatarUrl?: string }>;
@@ -318,7 +320,8 @@ function PublicDetailBranch({
       >
         <TripPanel
           dateLabel={viewModel.dateLabel}
-          timeLabel={viewModel.timeLabel}
+          timeLabel={viewModel.timeFlexible ? undefined : viewModel.timeLabel}
+          timeFlexible={viewModel.timeFlexible}
           footer={
             <div className="flex flex-col gap-3">
               <div className="font-display text-2xl font-bold leading-none tracking-[-0.02em] text-on-surface">
@@ -729,7 +732,8 @@ function OwnerDetailBranch({
       >
         <TripPanel
           dateLabel={viewModel.dateLabel}
-          timeLabel={viewModel.timeLabel}
+          timeLabel={viewModel.timeFlexible ? undefined : viewModel.timeLabel}
+          timeFlexible={viewModel.timeFlexible}
           enrollmentLabel={enrollmentLabel}
           enrollmentOpen={enrollmentOpen}
           status={{ open: isOpen, label: isOpen ? "Группа открыта" : "Группа закрыта" }}
@@ -919,7 +923,12 @@ function GuideDetailBranch({
         <RequestFactsPanel
           dateLabel={request.dateLabel}
           flexible={hasFlexibleDates}
-          timeLabel={formatTimeRange(request.startTime, request.endTime) || undefined}
+          timeLabel={
+            hasFlexibleDates
+              ? undefined
+              : formatTimeRange(request.startTime, request.endTime) || undefined
+          }
+          timeFlexible={hasFlexibleDates}
           groupLabel={`${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`}
           budgetLabel={request.budgetLabel}
           formatLabel={request.mode === "assembly" ? "Сборная группа" : "Своя группа"}

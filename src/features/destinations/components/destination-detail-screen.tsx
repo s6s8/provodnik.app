@@ -139,6 +139,7 @@ export function DestinationDetailScreen({
                     minPeople={`от ${request.group.sizeTarget} чел.`}
                     date={request.dateRangeLabel}
                     datesFlexible={request.datesFlexible}
+                    timeFlexible={request.timeFlexible}
                     time={request.timeLabel}
                     interests={request.interests}
                     members={request.members}

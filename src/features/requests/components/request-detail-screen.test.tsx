@@ -87,6 +87,7 @@ const publicViewModel: PublicRequestDetailViewModel = {
   dateLabel: "25 июня",
   timeLabel: "14:00",
   datesFlexible: true,
+  timeFlexible: true,
   pricePerPersonRub: 3000,
   memberCount: 4,
   members: [

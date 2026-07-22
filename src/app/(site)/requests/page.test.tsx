@@ -147,6 +147,31 @@ describe("RequestsPage", () => {
     expect(rendered.props.initialData).toBeNull();
   });
 
+  it("maps few_days requests with flexible time and no fixed time label", async () => {
+    createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
+    getOpenRequests.mockResolvedValue({
+      data: [
+        requestRecord({
+          id: "flex-request",
+          dateFlexibility: "few_days",
+          startTime: "10:00",
+          endTime: "12:00",
+        }),
+      ],
+    });
+
+    const rendered = await RequestsContent();
+    const record = rendered.props.initialData[0] as {
+      datesFlexible?: boolean;
+      timeFlexible?: boolean;
+      timeLabel?: string;
+    };
+
+    expect(record.datesFlexible).toBe(true);
+    expect(record.timeFlexible).toBe(true);
+    expect(record.timeLabel).toBeUndefined();
+  });
+
   it("renders the error Alert when the query returns an error", async () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getOpenRequests.mockResolvedValue({ data: null, error: new Error("boom") });

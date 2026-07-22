@@ -481,6 +481,9 @@ export function BidFormPanel({
                 <ProposedBadge />
               </div>
             ) : null}
+            {request.dateFlexibility === "few_days" ? (
+              <Badge variant="success">Гибкое время</Badge>
+            ) : null}
             <div className="flex items-center gap-2">
               <div className="grid flex-1 gap-2">
                 <label className="text-sm font-medium text-foreground">Начало</label>

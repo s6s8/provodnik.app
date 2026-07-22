@@ -296,6 +296,18 @@ describe("GuideRequestsInboxScreen meta layout", () => {
     expect(screen.queryByText("Точная дата")).toBeNull();
   });
 
+  it("shows flexible time for a few_days request", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [request({ dateFlexibility: "few_days", date_locked: true, startTime: "10:00" })],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("Гибкое время")).toBeInTheDocument();
+    expect(screen.queryByText("10:00")).toBeNull();
+  });
+
   it("keeps the request time inline with the date meta row", () => {
     const source = readFileSync(
       join(

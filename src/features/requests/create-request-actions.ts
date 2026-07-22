@@ -21,6 +21,24 @@ export type CreateRequestState = {
   code?: "auth_required";
 };
 
+const DIRECTED_GUIDE_UNRESOLVED_MESSAGE =
+  "Гид не найден — откройте страницу гида заново и повторите запрос.";
+
+function mapCreateTravelerRequestError(err: unknown): string {
+  const message =
+    typeof err === "object" && err !== null && "message" in err
+      ? String((err as { message: unknown }).message)
+      : err instanceof Error
+        ? err.message
+        : "";
+
+  if (message.includes("target_guide_unresolved")) {
+    return DIRECTED_GUIDE_UNRESOLVED_MESSAGE;
+  }
+
+  return message || "Неизвестная ошибка при сохранении.";
+}
+
 export async function buildRequestInsertPayload(
   input: TravelerRequest,
   opts: { allowGuideSuggestions: boolean },
@@ -147,8 +165,7 @@ export async function createRequestAction(
     );
     requestId = record.id;
   } catch (err) {
-    const pg = err as { message?: string; code?: string };
-    const message = pg?.message ?? "Неизвестная ошибка при сохранении.";
+    const message = mapCreateTravelerRequestError(err);
     return { error: `Не удалось сохранить запрос: ${message}` };
   }
 

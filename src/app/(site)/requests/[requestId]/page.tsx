@@ -92,6 +92,7 @@ function maskRequestContacts(request: RequestRecord): RequestRecord {
 }
 
 function getTimeLabel(request: RequestRecord): string | undefined {
+  if (request.dateFlexibility === "few_days") return undefined;
   if (!request.startTime) return undefined;
   return request.endTime ? `${request.startTime}–${request.endTime}` : request.startTime;
 }
@@ -153,6 +154,7 @@ function buildViewModel({
     dateLabel: request.dateLabel,
     timeLabel: getTimeLabel(request),
     datesFlexible: request.dateFlexibility === "few_days",
+    timeFlexible: request.dateFlexibility === "few_days",
     pricePerPersonRub: request.budgetRub > 0 ? request.budgetRub : null,
     memberCount: Math.max(request.groupSize, members.length),
     members,

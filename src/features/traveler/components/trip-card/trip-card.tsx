@@ -119,13 +119,15 @@ function shouldShowMeetingPoint(phase: TripPhase, startsOn: string): boolean {
 function FlexPills({
   openToJoin,
   datesFlexible,
+  timeFlexible,
   groupType,
 }: {
   openToJoin?: boolean;
   datesFlexible?: boolean;
+  timeFlexible?: boolean;
   groupType?: "assembly" | "private";
 }) {
-  if (!openToJoin && !datesFlexible && !groupType) return null;
+  if (!openToJoin && !datesFlexible && !timeFlexible && !groupType) return null;
 
   return (
     <div className="flex flex-wrap gap-1.5">
@@ -150,6 +152,11 @@ function FlexPills({
           ± даты
         </span>
       ) : null}
+      {timeFlexible ? (
+        <span className="rounded-full bg-green-tint px-2 py-0.5 text-xs font-medium text-success-text">
+          Гибкое время
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -157,7 +164,7 @@ function FlexPills({
 function RequestMetaRow({ trip }: { trip: TripCardModel }) {
   const publishedAt = trip.createdAt ? formatPublishedAt(trip.createdAt) : null;
 
-  if (!trip.openToJoin && !trip.datesFlexible && !trip.groupType && !publishedAt) {
+  if (!trip.openToJoin && !trip.datesFlexible && !trip.timeFlexible && !trip.groupType && !publishedAt) {
     return null;
   }
 
@@ -166,6 +173,7 @@ function RequestMetaRow({ trip }: { trip: TripCardModel }) {
       <FlexPills
         openToJoin={trip.openToJoin}
         datesFlexible={trip.datesFlexible}
+        timeFlexible={trip.timeFlexible}
         groupType={trip.groupType}
       />
       {publishedAt ? (
@@ -188,7 +196,12 @@ function RequestFacts({ trip }: { trip: TripCardModel }) {
         <CalendarDays className="size-3.5" />
         {formatDateRange(trip.startsOn, trip.endsOn)}
       </Badge>
-      {trip.startTime ? (
+      {trip.timeFlexible ? (
+        <Badge variant="outline" className={BADGE_CLASS}>
+          <Clock className="size-3.5" />
+          Гибкое время
+        </Badge>
+      ) : trip.startTime ? (
         <Badge variant="outline" className={BADGE_CLASS}>
           <Clock className="size-3.5" />
           {formatTimeLabel(trip.startTime)}
@@ -253,6 +266,7 @@ function TripCardContent({
         <FlexPills
           openToJoin={trip.openToJoin}
           datesFlexible={trip.datesFlexible}
+          timeFlexible={trip.timeFlexible}
           groupType={trip.groupType}
         />
       )}

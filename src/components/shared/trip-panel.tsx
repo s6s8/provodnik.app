@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils";
 type TripPanelProps = {
   dateLabel: string;
   timeLabel?: string;
+  /** When true, show «Гибкое время» instead of a fixed clock range. */
+  timeFlexible?: boolean;
   /** e.g. "≈ 8 часов" — shown muted next to the time. */
   durationLabel?: string;
   /** Enrollment pill near the panel top, e.g. "Набор открыт". */
@@ -37,6 +39,7 @@ type TripPanelProps = {
 export function TripPanel({
   dateLabel,
   timeLabel,
+  timeFlexible = false,
   durationLabel,
   enrollmentLabel,
   enrollmentOpen,
@@ -78,7 +81,12 @@ export function TripPanel({
             <CalendarDays className="size-[17px] shrink-0 text-primary" strokeWidth={1.7} />
             <span className="text-sm font-medium text-on-surface">{dateLabel}</span>
           </div>
-          {timeLabel ? (
+          {timeFlexible ? (
+            <div className="flex items-center gap-[11px]">
+              <Clock className="size-[17px] shrink-0 text-primary" strokeWidth={1.7} />
+              <span className="text-sm font-medium text-on-surface">Гибкое время</span>
+            </div>
+          ) : timeLabel ? (
             <div className="flex items-center gap-[11px]">
               <Clock className="size-[17px] shrink-0 text-primary" strokeWidth={1.7} />
               <span className="text-sm font-medium text-on-surface">{timeLabel}</span>

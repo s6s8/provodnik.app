@@ -27,6 +27,8 @@ export type TripCardModel = {
   openToJoin?: boolean;
   /** traveler selected flexible dates — render «± даты» pill */
   datesFlexible?: boolean;
+  /** traveler left time open (paired with flexible dates) */
+  timeFlexible?: boolean;
   /** group format: 'assembly' = сборная группа, 'private' = своя группа */
   groupType?: "assembly" | "private";
   guideName: string | null;

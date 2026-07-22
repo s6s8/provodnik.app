@@ -8,6 +8,8 @@ type RequestFactsPanelProps = {
   dateLabel: string;
   flexible: boolean;
   timeLabel?: string;
+  /** When true, show «Гибкое время» instead of a fixed clock range. */
+  timeFlexible?: boolean;
   groupLabel: string;
   budgetLabel: string;
   formatLabel?: string;
@@ -25,6 +27,7 @@ export function RequestFactsPanel({
   dateLabel,
   flexible,
   timeLabel,
+  timeFlexible = false,
   groupLabel,
   budgetLabel,
   formatLabel,
@@ -52,7 +55,12 @@ export function RequestFactsPanel({
               {flexible ? "· гибкие даты" : "· точная дата"}
             </span>
           </div>
-          {timeLabel ? (
+          {timeFlexible ? (
+            <div className="flex items-center gap-3">
+              <Clock className="size-4 shrink-0 text-primary" strokeWidth={1.7} />
+              <span className="text-sm font-medium text-on-surface">Гибкое время</span>
+            </div>
+          ) : timeLabel ? (
             <div className="flex items-center gap-3">
               <Clock className="size-4 shrink-0 text-primary" strokeWidth={1.7} />
               <span className="text-sm font-medium text-on-surface">{timeLabel}</span>
