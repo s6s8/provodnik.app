@@ -11,6 +11,8 @@ import { formatRussianDateTime } from "@/lib/dates";
 import { requireAdminSession } from "@/lib/supabase/moderation";
 import { cn } from "@/lib/utils";
 
+import { RequestModerationControls } from "./_components/request-moderation-controls";
+
 export const metadata: Metadata = { title: "Заявки и предложения" };
 
 // #44: Bookings holds only confirmed rows (created at accept_offer). The
@@ -83,7 +85,7 @@ export default async function AdminPipelinePage({
   const requestsQuery = adminClient
     .from("traveler_requests")
     .select(
-      "id, traveler_id, destination, region, status, participants_count, budget_minor, currency, starts_on, open_to_join, created_at",
+      "id, traveler_id, destination, region, status, participants_count, budget_minor, currency, starts_on, open_to_join, created_at, admin_blocked_at, deleted_at",
     )
     .order("created_at", { ascending: false })
     .limit(100);
@@ -215,13 +217,29 @@ export default async function AdminPipelinePage({
                     </>
                   }
                   badge={
-                    <div className="flex flex-col items-end gap-1">
-                      <Badge variant="secondary">
-                        {REQUEST_STATUS_LABEL[row.status] ?? row.status}
-                      </Badge>
-                      <span className="text-xs font-medium text-foreground">
-                        {formatMinor(row.budget_minor, row.currency)}
-                      </span>
+                    <div className="flex flex-col items-end gap-2">
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant="secondary">
+                          {REQUEST_STATUS_LABEL[row.status] ?? row.status}
+                        </Badge>
+                        {row.admin_blocked_at ? (
+                          <Badge variant="outline">Заблокирован</Badge>
+                        ) : null}
+                        {row.deleted_at ? (
+                          <Badge variant="destructive">Удалён</Badge>
+                        ) : null}
+                        <span className="text-xs font-medium text-foreground">
+                          {formatMinor(row.budget_minor, row.currency)}
+                        </span>
+                      </div>
+                      <RequestModerationControls
+                        state={{
+                          requestId: row.id,
+                          status: row.status,
+                          isBlocked: Boolean(row.admin_blocked_at),
+                          isDeleted: Boolean(row.deleted_at),
+                        }}
+                      />
                     </div>
                   }
                 />

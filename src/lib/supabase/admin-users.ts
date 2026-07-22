@@ -390,13 +390,14 @@ export async function logAdminAudit(input: {
   actorId: string;
   action: string;
   targetId: string;
+  targetType?: string;
   metadata?: Record<string, unknown>;
 }): Promise<void> {
   const adminClient = createSupabaseAdminClient();
   const { error } = await adminClient.from("admin_audit_log").insert({
     actor_id: input.actorId,
     action: input.action,
-    target_type: "user",
+    target_type: input.targetType ?? "user",
     target_id: input.targetId,
     metadata: input.metadata ?? {},
   });

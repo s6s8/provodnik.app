@@ -227,6 +227,12 @@ export type TravelerRequestRow = {
   status: RequestStatus;
   created_at: string;
   updated_at: string;
+  admin_blocked_at?: string | null;
+  admin_blocked_by?: Uuid | null;
+  admin_block_reason?: string | null;
+  deleted_at?: string | null;
+  deleted_by?: Uuid | null;
+  admin_delete_reason?: string | null;
 };
 
 export type OpenRequestMemberRow = {

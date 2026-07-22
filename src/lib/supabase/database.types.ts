@@ -7,11 +7,6 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.4"
-  }
   graphql_public: {
     Tables: {
       [_ in never]: never
@@ -39,39 +34,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      _bak_guide_specializations_20260701: {
-        Row: {
-          specializations: string[] | null
-          user_id: string | null
-        }
-        Insert: {
-          specializations?: string[] | null
-          user_id?: string | null
-        }
-        Update: {
-          specializations?: string[] | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      _bak_profiles_phone_20260701: {
-        Row: {
-          backed_up_at: string | null
-          id: string | null
-          phone: string | null
-        }
-        Insert: {
-          backed_up_at?: string | null
-          id?: string | null
-          phone?: string | null
-        }
-        Update: {
-          backed_up_at?: string | null
-          id?: string | null
-          phone?: string | null
-        }
-        Relationships: []
-      }
       admin_audit_log: {
         Row: {
           action: string
@@ -1052,6 +1014,30 @@ export type Database = {
           },
         ]
       }
+      guide_location_catalog: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          status?: string
+        }
+        Relationships: []
+      }
       guide_location_photos: {
         Row: {
           created_at: string
@@ -1217,24 +1203,6 @@ export type Database = {
           },
         ]
       }
-      guide_offers_message_backup_20260612: {
-        Row: {
-          backed_up_at: string
-          offer_id: string
-          old_message: string
-        }
-        Insert: {
-          backed_up_at?: string
-          offer_id: string
-          old_message: string
-        }
-        Update: {
-          backed_up_at?: string
-          offer_id?: string
-          old_message?: string
-        }
-        Relationships: []
-      }
       guide_profiles: {
         Row: {
           attestation_status: string | null
@@ -1359,30 +1327,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      guide_location_catalog: {
-        Row: {
-          created_at: string
-          created_by: string | null
-          id: string
-          name: string
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name: string
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          created_by?: string | null
-          id?: string
-          name?: string
-          status?: string
-        }
-        Relationships: []
       }
       guide_templates: {
         Row: {
@@ -2536,6 +2480,80 @@ export type Database = {
           },
         ]
       }
+      location_media: {
+        Row: {
+          alt_text: string | null
+          bucket_id: string
+          byte_size: number
+          caption: string | null
+          created_at: string
+          created_by: string | null
+          delivery_object_path: string | null
+          height: number | null
+          id: string
+          is_primary: boolean
+          location_id: string
+          mime_type: string
+          object_path: string
+          role: string
+          sort_order: number
+          source: string | null
+          status: string
+          updated_at: string
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          bucket_id?: string
+          byte_size: number
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_object_path?: string | null
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          location_id: string
+          mime_type: string
+          object_path: string
+          role?: string
+          sort_order?: number
+          source?: string | null
+          status?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          bucket_id?: string
+          byte_size?: number
+          caption?: string | null
+          created_at?: string
+          created_by?: string | null
+          delivery_object_path?: string | null
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          location_id?: string
+          mime_type?: string
+          object_path?: string
+          role?: string
+          sort_order?: number
+          source?: string | null
+          status?: string
+          updated_at?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "location_media_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "guide_location_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       marketplace_events: {
         Row: {
           actor_id: string | null
@@ -2655,80 +2673,6 @@ export type Database = {
             columns: ["thread_id"]
             isOneToOne: false
             referencedRelation: "conversation_threads"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      location_media: {
-        Row: {
-          alt_text: string | null
-          bucket_id: string
-          byte_size: number
-          caption: string | null
-          created_at: string
-          created_by: string | null
-          delivery_object_path: string | null
-          height: number | null
-          id: string
-          is_primary: boolean
-          location_id: string
-          mime_type: string
-          object_path: string
-          role: string
-          sort_order: number
-          source: string | null
-          status: string
-          updated_at: string
-          width: number | null
-        }
-        Insert: {
-          alt_text?: string | null
-          bucket_id?: string
-          byte_size: number
-          caption?: string | null
-          created_at?: string
-          created_by?: string | null
-          delivery_object_path?: string | null
-          height?: number | null
-          id?: string
-          is_primary?: boolean
-          location_id: string
-          mime_type: string
-          object_path: string
-          role?: string
-          sort_order?: number
-          source?: string | null
-          status?: string
-          updated_at?: string
-          width?: number | null
-        }
-        Update: {
-          alt_text?: string | null
-          bucket_id?: string
-          byte_size?: number
-          caption?: string | null
-          created_at?: string
-          created_by?: string | null
-          delivery_object_path?: string | null
-          height?: number | null
-          id?: string
-          is_primary?: boolean
-          location_id?: string
-          mime_type?: string
-          object_path?: string
-          role?: string
-          sort_order?: number
-          source?: string | null
-          status?: string
-          updated_at?: string
-          width?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "location_media_location_id_fkey"
-            columns: ["location_id"]
-            isOneToOne: false
-            referencedRelation: "guide_location_catalog"
             referencedColumns: ["id"]
           },
         ]
@@ -2880,6 +2824,13 @@ export type Database = {
             columns: ["review_id"]
             isOneToOne: false
             referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moderation_cases_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "v_public_reviews"
             referencedColumns: ["id"]
           },
         ]
@@ -3344,6 +3295,24 @@ export type Database = {
           },
         ]
       }
+      repair_20260713_listing_status_preimage: {
+        Row: {
+          captured_at: string | null
+          id: string | null
+          status: Database["public"]["Enums"]["listing_status"] | null
+        }
+        Insert: {
+          captured_at?: string | null
+          id?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+        }
+        Update: {
+          captured_at?: string | null
+          id?: string | null
+          status?: Database["public"]["Enums"]["listing_status"] | null
+        }
+        Relationships: []
+      }
       request_views: {
         Row: {
           guide_id: string
@@ -3393,15 +3362,7 @@ export type Database = {
           review_id?: string
           score?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "review_ratings_breakdown_review_id_fkey"
-            columns: ["review_id"]
-            isOneToOne: false
-            referencedRelation: "reviews"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       review_replies: {
         Row: {
@@ -3431,15 +3392,7 @@ export type Database = {
           status?: string | null
           submitted_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "review_replies_review_id_fkey"
-            columns: ["review_id"]
-            isOneToOne: false
-            referencedRelation: "reviews"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       reviews: {
         Row: {
@@ -3622,6 +3575,10 @@ export type Database = {
       }
       traveler_requests: {
         Row: {
+          admin_block_reason: string | null
+          admin_blocked_at: string | null
+          admin_blocked_by: string | null
+          admin_delete_reason: string | null
           allow_guide_suggestions: boolean
           budget_locked: boolean
           budget_minor: number | null
@@ -3631,6 +3588,8 @@ export type Database = {
           date_flexibility: string
           date_locked: boolean
           date_window: string
+          deleted_at: string | null
+          deleted_by: string | null
           destination: string
           end_time: string | null
           ends_on: string | null
@@ -3656,6 +3615,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          admin_block_reason?: string | null
+          admin_blocked_at?: string | null
+          admin_blocked_by?: string | null
+          admin_delete_reason?: string | null
           allow_guide_suggestions?: boolean
           budget_locked?: boolean
           budget_minor?: number | null
@@ -3665,6 +3628,8 @@ export type Database = {
           date_flexibility?: string
           date_locked?: boolean
           date_window?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           destination: string
           end_time?: string | null
           ends_on?: string | null
@@ -3690,6 +3655,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          admin_block_reason?: string | null
+          admin_blocked_at?: string | null
+          admin_blocked_by?: string | null
+          admin_delete_reason?: string | null
           allow_guide_suggestions?: boolean
           budget_locked?: boolean
           budget_minor?: number | null
@@ -3699,6 +3668,8 @@ export type Database = {
           date_flexibility?: string
           date_locked?: boolean
           date_window?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
           destination?: string
           end_time?: string | null
           ends_on?: string | null
@@ -3725,11 +3696,60 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "traveler_requests_admin_blocked_by_fkey"
+            columns: ["admin_blocked_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "traveler_requests_deleted_by_fkey"
+            columns: ["deleted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "traveler_requests_guide_template_id_fkey"
             columns: ["guide_template_id"]
             isOneToOne: false
             referencedRelation: "guide_templates"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "traveler_requests_target_guide_id_fkey"
+            columns: ["target_guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "traveler_requests_target_guide_id_fkey"
+            columns: ["target_guide_id"]
+            isOneToOne: false
+            referencedRelation: "guide_search_result_row"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "traveler_requests_target_guide_id_fkey"
+            columns: ["target_guide_id"]
+            isOneToOne: false
+            referencedRelation: "public_guide_stats"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "traveler_requests_target_guide_id_fkey"
+            columns: ["target_guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_dashboard_kpi"
+            referencedColumns: ["guide_id"]
+          },
+          {
+            foreignKeyName: "traveler_requests_target_guide_id_fkey"
+            columns: ["target_guide_id"]
+            isOneToOne: false
+            referencedRelation: "v_guide_public_profile"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "traveler_requests_traveler_id_fkey"
@@ -4123,15 +4143,84 @@ export type Database = {
         }
         Relationships: []
       }
+      v_public_reviews: {
+        Row: {
+          author_is_demo: boolean | null
+          author_name: string | null
+          body: string | null
+          created_at: string | null
+          guide_id: string | null
+          id: string | null
+          listing_id: string | null
+          rating: number | null
+          title: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_guide_id_fkey"
+            columns: ["guide_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "public_listing_stats"
+            referencedColumns: ["listing_id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_card"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_excursion"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "v_listing_detail_tour"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       accept_offer: { Args: { p_offer_id: string }; Returns: string }
+      admin_block_traveler_request: {
+        Args: { p_reason?: string; p_request_id: string }
+        Returns: undefined
+      }
+      admin_delete_traveler_request: {
+        Args: { p_reason?: string; p_request_id: string }
+        Returns: undefined
+      }
       admin_set_account_status: {
         Args: {
           p_reason?: string
           p_status: Database["public"]["Enums"]["account_status"]
           p_target_user_id: string
         }
+        Returns: undefined
+      }
+      admin_unblock_traveler_request: {
+        Args: { p_request_id: string }
         Returns: undefined
       }
       assert_active_account: { Args: never; Returns: undefined }
@@ -4165,6 +4254,10 @@ export type Database = {
           target_user_id?: string
         }
         Returns: boolean
+      }
+      cancel_traveler_request: {
+        Args: { p_request_id: string }
+        Returns: undefined
       }
       clean_text_array: { Args: { input_array: string[] }; Returns: string[] }
       count_competing_offers: {
@@ -4201,7 +4294,52 @@ export type Database = {
           p_starts_on: string
           p_time_locked?: boolean
         }
-        Returns: Database["public"]["Tables"]["traveler_requests"]["Row"]
+        Returns: {
+          admin_block_reason: string | null
+          admin_blocked_at: string | null
+          admin_blocked_by: string | null
+          admin_delete_reason: string | null
+          allow_guide_suggestions: boolean
+          budget_locked: boolean
+          budget_minor: number | null
+          count_locked: boolean
+          created_at: string
+          currency: string
+          date_flexibility: string
+          date_locked: boolean
+          date_window: string
+          deleted_at: string | null
+          deleted_by: string | null
+          destination: string
+          end_time: string | null
+          ends_on: string | null
+          expires_at: string | null
+          format_preference: string | null
+          group_capacity: number | null
+          guide_template_id: string | null
+          guide_template_snapshot: Json | null
+          id: string
+          interests: string[]
+          notes: string | null
+          open_to_join: boolean
+          participants_count: number
+          preferred_guide_slug: string | null
+          region: string | null
+          requested_languages: string[]
+          start_time: string | null
+          starts_on: string
+          status: Database["public"]["Enums"]["request_status"]
+          target_guide_id: string | null
+          time_locked: boolean
+          traveler_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "traveler_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       current_profile_role: {
         Args: never
@@ -4217,10 +4355,6 @@ export type Database = {
           p_payload: Json
           p_user_id: string
         }
-        Returns: undefined
-      }
-      fn_refresh_contact_visibility: {
-        Args: { p_guide_id: string }
         Returns: undefined
       }
       fn_refresh_guide_rating: {
@@ -4325,6 +4459,10 @@ export type Database = {
         Returns: string
       }
       record_request_view: { Args: { p_request_id: string }; Returns: number }
+      request_is_discoverable: {
+        Args: { p_request_id: string }
+        Returns: boolean
+      }
       search_guides: {
         Args: {
           p_has_listings?: boolean
@@ -4574,6 +4712,101 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      iceberg_namespaces: {
+        Row: {
+          bucket_name: string
+          catalog_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          bucket_name: string
+          catalog_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          bucket_name?: string
+          catalog_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iceberg_namespaces_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "buckets_analytics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      iceberg_tables: {
+        Row: {
+          bucket_name: string
+          catalog_id: string
+          created_at: string
+          id: string
+          location: string
+          name: string
+          namespace_id: string
+          remote_table_id: string | null
+          shard_id: string | null
+          shard_key: string | null
+          updated_at: string
+        }
+        Insert: {
+          bucket_name: string
+          catalog_id: string
+          created_at?: string
+          id?: string
+          location: string
+          name: string
+          namespace_id: string
+          remote_table_id?: string | null
+          shard_id?: string | null
+          shard_key?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bucket_name?: string
+          catalog_id?: string
+          created_at?: string
+          id?: string
+          location?: string
+          name?: string
+          namespace_id?: string
+          remote_table_id?: string | null
+          shard_id?: string | null
+          shard_key?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "iceberg_tables_catalog_id_fkey"
+            columns: ["catalog_id"]
+            isOneToOne: false
+            referencedRelation: "buckets_analytics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "iceberg_tables_namespace_id_fkey"
+            columns: ["namespace_id"]
+            isOneToOne: false
+            referencedRelation: "iceberg_namespaces"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       migrations: {
         Row: {
