@@ -70,9 +70,13 @@ function mapToOpenRequestRecord(
     regionLabel: request.destinationRegion,
     dateRangeLabel: request.dateLabel,
     datesFlexible: request.dateFlexibility === "few_days",
-    timeLabel: request.startTime
-      ? `${request.startTime}${request.endTime ? `–${request.endTime}` : ""}`
-      : undefined,
+    timeFlexible: request.dateFlexibility === "few_days",
+    timeLabel:
+      request.dateFlexibility === "few_days"
+        ? undefined
+        : request.startTime
+          ? `${request.startTime}${request.endTime ? `–${request.endTime}` : ""}`
+          : undefined,
     budgetPerPersonRub: request.budgetRub,
     highlights: [request.title, maskedDescription].filter(Boolean) as string[],
     interests: request.interests,

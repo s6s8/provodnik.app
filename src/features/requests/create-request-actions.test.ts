@@ -49,6 +49,30 @@ const baseInput: TravelerRequest = {
   notes: "",
 };
 
+describe("createRequestAction — directed guide unresolved (#39)", () => {
+  it("returns the Russian validation failure when the named guide cannot be resolved", async () => {
+    createTravelerRequestMock.mockRejectedValueOnce({ message: "target_guide_unresolved" });
+    getUserMock.mockResolvedValue({ data: { user: { id: "trav-1" } }, error: null });
+    const { createSupabaseServerClient } = await import("@/lib/supabase/server");
+    (createSupabaseServerClient as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      auth: { getUser: getUserMock },
+      from: () => ({
+        select: () => ({
+          eq: () => ({ maybeSingle: async () => ({ data: { account_status: "active" }, error: null }) }),
+        }),
+      }),
+    });
+
+    const fd = validRequestFormData();
+    fd.set("preferredGuideSlug", "ghost-guide");
+
+    const result = await createRequestAction({ error: null }, fd);
+
+    expect(result.error).toContain("Гид не найден");
+    expect(createTravelerRequestMock).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("buildRequestInsertPayload", () => {
   it("writes time_locked=false and null times when dateFlexibility is few_days", async () => {
     const payload = await buildRequestInsertPayload(

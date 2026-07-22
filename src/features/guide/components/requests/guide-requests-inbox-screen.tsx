@@ -349,6 +349,9 @@ export function GuideRequestsInboxScreen() {
                             <Badge variant={hasFlexibleDates ? "default" : "outline"}>
                               {hasFlexibleDates ? "Гибкие даты" : "Точная дата"}
                             </Badge>
+                            {hasFlexibleDates ? (
+                              <Badge variant="default">Гибкое время</Badge>
+                            ) : null}
                           </div>
 
                           {/* Meta */}
@@ -358,13 +361,19 @@ export function GuideRequestsInboxScreen() {
                                 Даты:
                               </span>{" "}
                               {item.dateLabel}
-                              {formatTimeRange(item.startTime, item.endTime) && (
+                              {hasFlexibleDates ? (
+                                <>
+                                  {" · "}
+                                  <span className="font-medium text-foreground">Время:</span>{" "}
+                                  гибкое
+                                </>
+                              ) : formatTimeRange(item.startTime, item.endTime) ? (
                                 <>
                                   {" · "}
                                   <span className="font-medium text-foreground">Время:</span>{" "}
                                   {formatTimeRange(item.startTime, item.endTime)}
                                 </>
-                              )}
+                              ) : null}
                             </p>
                             <p>
                               <span className="font-medium text-foreground">

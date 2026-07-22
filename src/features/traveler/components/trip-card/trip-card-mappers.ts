@@ -47,6 +47,8 @@ export function mapRequestToTrip(
     openToJoin: request.open_to_join ?? false,
     datesFlexible:
       request.date_flexibility != null && request.date_flexibility !== "exact",
+    timeFlexible:
+      request.date_flexibility != null && request.date_flexibility !== "exact",
     groupType: request.mode,
     guideName: null,
     guideAvatarUrl: null,

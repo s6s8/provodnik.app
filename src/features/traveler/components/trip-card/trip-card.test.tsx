@@ -108,6 +108,51 @@ describe("TripCard", () => {
     expect(screen.getByText("± даты")).toBeInTheDocument();
   });
 
+  it("hides a fixed start time when flexible time is enabled on request-backed cards", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{
+          id: "r-flex",
+          destination: "Москва",
+          startsOn: "2026-07-01",
+          startTime: "10:00:00",
+          isOwnRequest: true,
+          guideName: null,
+          guideAvatarUrl: null,
+          organizerName: null,
+          datesFlexible: true,
+          timeFlexible: true,
+        }}
+      />,
+    );
+
+    expect(screen.getAllByText("Гибкое время").length).toBeGreaterThan(0);
+    expect(screen.queryByText("10:00")).not.toBeInTheDocument();
+  });
+
+  it("shows a fixed start time on request-backed cards when time is not flexible", () => {
+    render(
+      <TripCard
+        phase="waiting_offers"
+        trip={{
+          id: "r-fixed-time",
+          destination: "Москва",
+          startsOn: "2026-07-01",
+          startTime: "10:00:00",
+          isOwnRequest: true,
+          guideName: null,
+          guideAvatarUrl: null,
+          organizerName: null,
+          timeFlexible: false,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("10:00")).toBeInTheDocument();
+    expect(screen.queryByText("Гибкое время")).not.toBeInTheDocument();
+  });
+
   it.each([
     [1, "1 человек"],
     [2, "2 человека"],

@@ -33,6 +33,8 @@ export type OpenRequestRecord = {
   dateRangeLabel: string;
   timeLabel?: string;
   datesFlexible?: boolean;
+  /** When true, the traveler left time open (paired with flexible dates). */
+  timeFlexible?: boolean;
   budgetPerPersonRub?: number;
   priceScenarios?: Array<{ groupSize: number; pricePerPersonRub: number }>;
   highlights: string[];
