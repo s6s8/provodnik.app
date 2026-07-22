@@ -16,7 +16,7 @@ const DETAIL: PublicGuideTemplateDetail = {
   maxParticipants: 4,
   region: "Казань",
   category: "history_culture",
-  guide: { slug: "guide-1", displayName: "Гид" },
+  guide: { slug: "guide-1", displayName: "Алексей К." },
 };
 
 describe("buildTemplateRequestPrefill", () => {
