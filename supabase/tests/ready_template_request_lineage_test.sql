@@ -11,7 +11,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(13);
+select plan(15);
 
 insert into auth.users (
   id,
@@ -258,8 +258,10 @@ select is(
   'a refused PATCH changes neither the link nor the snapshot'
 );
 
--- 11. A template the traveler cannot *see* is not a template that is gone. The guard reads
---     guide_templates past RLS on purpose; without that, unpublishing would reopen the hole.
+-- 11. A template the traveler cannot *see* is not a template that is gone. The guard keys
+--     on trigger depth, not on reading guide_templates, so RLS visibility cannot move it —
+--     an existence probe here would have needed SECURITY DEFINER and a guide flipping the
+--     template back to draft would have reopened the hole.
 reset role;
 update public.guide_templates set status = 'draft'
  where id = '7e000000-0000-4000-8000-0000000000aa';
@@ -303,14 +305,44 @@ select is(
 
 -- 13. Deleting the template unlinks it but leaves the booked truth behind — which is why
 --     the pairing constraint is one-directional rather than a strict paired-null, and the
---     one null-ward change the freeze trigger still has to allow.
+--     one null-ward change the freeze trigger still has to allow. The delete runs as the
+--     *guide's own* session, not as postgres: the FK's SET NULL has to survive an ordinary
+--     `authenticated` caller, which is exactly the case the depth guard has to let through.
+create temporary table lineage_before on commit drop as
+select guide_template_snapshot as snap
+  from public.traveler_requests
+ where destination = 'Template Directed Request';
+
+set local role authenticated;
+select set_config('request.jwt.claim.sub', '7d000000-0000-4000-8000-000000000002', true);
 delete from public.guide_templates where id = '7e000000-0000-4000-8000-0000000000aa';
+reset role;
 
 select ok(
-  (select guide_template_id is null and guide_template_snapshot is not null
+  (select guide_template_id is null
      from public.traveler_requests
     where destination = 'Template Directed Request'),
-  'deleting the template nulls the link and keeps the snapshot'
+  'a guide deleting their template nulls the request''s link'
+);
+
+-- 14. …and the snapshot that survives is the exact one that was there a statement ago —
+--     "not null" would pass on a snapshot the cascade had quietly rewritten.
+select is(
+  (select guide_template_snapshot
+     from public.traveler_requests
+    where destination = 'Template Directed Request'),
+  (select snap from lineage_before),
+  'the surviving snapshot is byte-identical to the pre-delete one'
+);
+
+-- 15. The guard earns none of this with privilege: it reads no table, so it must not be
+--     SECURITY DEFINER. A regression here is a silent RLS bypass on every request update.
+select is(
+  (select prosecdef from pg_proc p
+     join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public' and p.proname = 'fn_freeze_request_lineage'),
+  false,
+  'fn_freeze_request_lineage runs as the invoker, not as its owner'
 );
 
 select * from finish();
