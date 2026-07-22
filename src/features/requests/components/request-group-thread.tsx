@@ -5,26 +5,8 @@ import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { COPY } from "@/lib/copy";
 import { formatRussianDateTime } from "@/lib/dates";
 import type { GroupMessage } from "@/lib/supabase/request-thread";
-import type { MessageSenderRole } from "@/lib/supabase/types";
-
-function senderLabel(
-  senderId: string | null,
-  senderRole: MessageSenderRole,
-  currentUserId: string,
-): string {
-  if (senderId && senderId === currentUserId) return "Вы";
-  switch (senderRole) {
-    case "guide":
-      return COPY.guide;
-    case "admin":
-      return "Администратор";
-    default:
-      return "Участник";
-  }
-}
 
 /**
  * #42 — Open-group shared discussion. One thread per request; the owner and
@@ -84,7 +66,9 @@ export function RequestGroupThread({
                           : "text-sm font-semibold text-on-surface"
                       }
                     >
-                      {senderLabel(message.senderId, message.senderRole, currentUserId)}
+                      {message.senderId === currentUserId
+                        ? "Вы"
+                        : message.senderDisplayName}
                     </span>
                     <span className="text-xs text-on-surface-muted">
                       {formatRussianDateTime(message.createdAt)}

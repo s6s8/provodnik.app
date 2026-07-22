@@ -12,17 +12,25 @@ import type { MessageWithSender } from "@/lib/supabase/conversations";
 import type { MessageRow } from "@/lib/supabase/types";
 
 import { mergeRealtimeMessage, useRealtimeMessages } from "@/features/messaging/hooks/use-realtime-messages";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 
 import { MessageBubble } from "./message-bubble";
 
 type MarkReadAction = (threadId: string) => Promise<void>;
 
 function formatSenderName(message: MessageWithSender) {
-  return (
+  const resolved =
     message.sender_profile?.full_name?.trim() ||
-    message.sender_display_name?.trim() ||
-    "Участник"
-  );
+    message.sender_display_name?.trim();
+  if (resolved) return resolved;
+  if (message.sender_role === "guide") {
+    return resolveDisplayName("guide", {});
+  }
+  if (message.sender_role === "traveler") {
+    return resolveDisplayName("traveler", {}, { context: "trusted" });
+  }
+  if (message.sender_role === "admin") return "Администратор";
+  return "Система";
 }
 
 interface ChatWindowProps {
