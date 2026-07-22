@@ -1,0 +1,23 @@
+---
+description: Apply for auth, role, ownership, state, price-authority, publishing, RLS, RPC, trigger, or privileged-client changes; owns enforcement while rule 30 owns product semantics and rule 50 owns SQL mechanics
+alwaysApply: true
+---
+
+# Trust-boundary rules
+
+- Treat the browser and every action/RPC argument as attacker-controlled. Validate shape. For protected mutations and private reads, authenticate through the established server guard (ultimately `auth.getUser()` for user sessions) and re-check role, active account, ownership, relationships, and legal state. Intentional public reads instead enforce a minimal public projection and all eligibility gates.
+- App checks provide good errors; RLS, constrained RPCs, and triggers remain the security authority. Derive identity, ownership, role, current state, relationships, and the accepted offer's guide/price from `auth.uid()` and locked stored rows. Caller-proposed values such as a new offer price are data, not authority: validate them, authorize the actor, and enforce the transition.
+- Prefer the RLS-enforced server client. Admin/service-role use must be server-only, narrow, and justified: an authorized admin operation or an explicitly tested bootstrap, background, notification, or public-projection flow that cannot use RLS. Minimize fields and effects; never import it into client code or use it to mask a missing policy on a user mutation.
+- Put multi-row state changes behind one transactional authority. Use locks or conditional predicates for concurrent transitions, make retries safe, and assert the returned row/count: a zero-row update/delete is not success.
+- Preserve registration through the established server action, logout through `/api/auth/signout`, public-name/private-name separation, and active-account enforcement unless the task explicitly changes that flow end to end. `profiles.role` is canonical for ordinary roles; never trust `user_metadata.role`. Suspension must keep Auth ban state and `profiles.account_status` consistent, and caller-facing write RPCs enforce `assert_active_account()`.
+
+## Mandatory parity evidence
+
+For any change to auth, roles, ownership, account state, pricing authority, publishing/moderation, RLS, RPCs, or triggers:
+
+1. State the invariant and identify the database authority plus every caller.
+2. Add focused allow and deny assertions at the service/action and database layers as applicable.
+3. In a disposable isolated local Supabase environment, use a publishable client and a real client-held test session to call the exact table mutation or RPC. Prove one authorized mutation succeeds and one unauthorized/forged-role/wrong-owner/illegal-state attempt fails, then assert persisted or unchanged state.
+4. pgTAP with authenticated JWT claims is required DB evidence for SQL changes, but does not replace the direct client replay. Never use a service-role credential for the parity test.
+
+If the isolated direct-client check cannot run safely, report it as a required check not run and do not claim the security change accepted.

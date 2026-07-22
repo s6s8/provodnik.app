@@ -1,0 +1,17 @@
+---
+description: Apply for module placement, layering, shared helpers, data flow, uploads, environment, or repository-tooling changes; not presentation-only work
+alwaysApply: true
+---
+
+# Repository architecture
+
+- Stack and commands come from `package.json`: Next.js 16, React 19, TypeScript, Tailwind CSS 4, Supabase, TanStack Query, Zod, React Hook Form, Vitest, Playwright, and Bun. Use `bun`, never another package manager.
+- `docs/architecture/feature-structure.md` plus `eslint.config.mjs` are the current layering authority: `app -> features -> {lib, data, components}`. This supersedes older text that places network services in `src/data`.
+- All new Supabase I/O belongs in `src/lib/supabase/<domain>.ts`. `src/data` holds static constants, types, schemas, and pure helpers. Migrate a grandfathered I/O module only when it is touched, necessary, and in scope.
+- New feature actions use the `ActionResult` pattern in `src/lib/actions/create-action.ts`. New tests are colocated; existing `__tests__` directories are grandfathered.
+- TanStack keys come from `src/lib/query-keys.ts`; client calls to internal routes go through typed modules in `src/lib/api`.
+- Keep server-only values out of client modules. Move shared types/constants into a dependency-free client-safe module rather than importing through a server file.
+- Use `src/data/money.ts` for RUB/kopeck conversion, `src/lib/dates.ts` for Moscow-visible calendar/time behavior, `src/lib/errors.ts` for safe errors, and `src/lib/profile/resolve-display-name.ts` for names. Do not duplicate these concerns.
+- For uploads, authenticate and mint a signed URL server-side, then upload directly from the browser using the established storage helpers.
+- Do not invent environment fallbacks. Missing backend configuration may disable a backend flow, but must not be hidden with fake clients or data.
+- Do not introduce `console.log`, `TODO`, `: any`, a new test framework, or a second implementation of an existing contract.

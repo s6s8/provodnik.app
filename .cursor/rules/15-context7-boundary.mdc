@@ -1,0 +1,12 @@
+---
+description: Use Context7 exactly when an edit changes an external library or API contract
+alwaysApply: true
+---
+
+# Context7 boundary
+
+- Trigger Context7 only when the edit changes an external dependency version, import, API call, option, configuration contract, or introduces library syntax not already verified by a compliant local pattern.
+- Do not trigger it for pure local logic, copy, refactors, established Tailwind token composition, or pure SQL. For those, research repository source and callers; for SQL, research the latest migration, policies, grants, RPCs, triggers, generated types, and direct database tests.
+- Before an external API edit: read the installed version from `package.json`/lockfile, call `resolve-library-id`, then call `query-docs` for the exact symbol, option, and version-sensitive behavior. Compare the documented signature with the installed version before writing code.
+- If Context7 is unavailable, the version is unsupported, or the exact signature is unresolved, do not guess. Keep the verified existing API unchanged or return `NEEDS_CONTEXT`.
+- Report the library, installed version, resolved Context7 ID, docs query, documented version/signature, and resulting implementation decision. If not triggered, say that no external API contract changed.

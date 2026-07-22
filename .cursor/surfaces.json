@@ -1,5 +1,5 @@
 {
-  "_doc": "concept -> the files that render or define it. The blast-radius gate warns when a change touches SOME but not ALL files of a concept (a half-updated surface). Extend freely as new shared concepts emerge. Keys are human labels; values must be file arrays.",
+  "_doc": "Advisory concept-to-surface starting map. It never replaces whole-repository caller and consumer tracing; extend it only when a scoped durable mapping is verified.",
   "request group/date badges (Сборная/Своя · гибкие/точные даты)": [
     "src/features/guide/components/requests/guide-requests-inbox-screen.tsx",
     "src/features/requests/components/request-detail-screen.tsx",

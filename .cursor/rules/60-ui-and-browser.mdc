@@ -1,0 +1,15 @@
+---
+description: Auto-attach for rendered TSX, Tailwind globals, and browser-test UI work; rule 30 owns product wording and canon changes
+globs: "src/**/*.tsx,src/app/globals.css,tests/**/*.ts,playwright.config.ts,postcss.config.mjs,components.json"
+alwaysApply: false
+---
+
+# UI implementation
+
+- Reuse the nearest compliant page, shared component, and `src/components/ui` primitive before writing markup. Keep primitives stable unless the task explicitly changes shared foundation.
+- `src/app/globals.css` is the Tailwind 4 token authority; no `tailwind.config.ts` exists. Use semantic utilities from `@theme`, not raw CSS variables, arbitrary colors/radii/shadows, or copied hex values.
+- Do not add custom component classes, `<style>` blocks, or inline layout styles. Add or change global tokens/resets only when the task explicitly changes the design system.
+- Preserve semantic HTML, keyboard/focus behavior, labels, error associations, contrast, reduced motion, loading/empty/error states, and responsive behavior. Use Lucide icons rather than emoji controls.
+- Keep server rendering by default and isolate only the interaction that needs a client boundary. Do not fetch SSR data in `useEffect`.
+- Use `.cursor/skills/ui-ux-pro-max/SKILL.md` only for an explicitly design-led task that needs a new visual direction. Local fixes, copy, wiring, and established layouts follow repository patterns without design-system generation.
+- User-visible evidence requires a live browser replay at the affected route and role. Check 1280px and 375px when responsive, exercise the changed interaction, save/reload when state persists, and inspect console errors.

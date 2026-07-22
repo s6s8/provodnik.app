@@ -1,0 +1,25 @@
+---
+description: Mandatory repository research, decision ladder, caller tracing, and shared-root-cause discipline
+alwaysApply: true
+---
+
+# Investigate before editing
+
+- Read each relevant file completely enough to understand its invariants; do not implement from a prompt excerpt or one nearby example.
+- Before changing a function, action, route, service, shared component, query, RPC, policy, or trigger, trace the whole flow: user entry point -> every caller/re-export -> server boundary -> data service -> database authority -> side effects, cache/revalidation, notifications, and rendered consumers. Enumerate the callers and existing tests.
+- Search the repository for the symbol, table/column, status value, error code, and operation. Find duplicate writers and alternate surfaces, then identify the single source of truth.
+- If `.cursor/surfaces.json` maps the touched concept, use it as an advisory starting list and check each entry. Repository search remains authoritative because the map is intentionally incomplete.
+- Before editing, classify the changed contracts and apply the matching semantic rule: 20 for architecture and data flow, 30 for product wording and canon, and 40 for trust boundaries. Auto-attached path rules 50 and 60 provide database or UI mechanics; they do not replace a semantic rule when its trigger is present.
+- Fix the lowest shared root cause that is in scope. Keep callers thin and consistent; do not patch only the first visible symptom or create a second authority. If the root cause is out of scope, stop before editing.
+- After editing, repeat the searches for stale callers, old terms, divergent shapes, and orphaned code. Verify every affected consumer or state why it is unchanged.
+
+## Mandatory Ponytail decision ladder
+
+Choose the first adequate rung:
+
+1. Reuse or extend compliant existing local code.
+2. Use a native platform capability.
+3. Use an already-installed dependency through its verified API.
+4. Write the smallest necessary new local code.
+
+Do not add a dependency, abstraction, fallback, feature flag, or compatibility layer unless the task or a traced in-scope contract requires it.

@@ -1,0 +1,15 @@
+---
+description: Apply for Russian product copy or request, group, listing, capacity, pricing, and public/private canon changes; owns semantics while rule 40 owns enforcement
+alwaysApply: true
+---
+
+# Product language and canon
+
+- All new or changed user-facing copy, validation, errors, email text, metadata, and accessibility labels stay Russian. Technical identifiers, database enums, and URLs remain unchanged unless explicitly scoped.
+- Canonical wording is: `Проводник`, `путешественник`, `гид`, `запрос`, `предложение`, `Сборная группа`, `Своя группа`, `Готовые экскурсии`, and `аттестат`.
+- Do not introduce user-facing `клиент`, `турист`, `поставщик`, `исполнитель`, `Открытая группа`, `Готовые туры`, `Биржа`, `marketplace`, `exchange`, or `лицензия`. Use `запрос` or `бронирование` instead of `поездка` when naming a product object; do not distort natural or legal prose.
+- The three models remain distinct. Creation currently maps `assembly` to `format_preference = group` and `open_to_join = true`, but these are separate fields, not aliases. The resulting joinable request is a `Сборная группа`; a closed request is a `Своя группа`; a guide-published fixed listing is a `Готовая экскурсия`.
+- `participants_count` is actual current people, not a minimum or target. A `Сборная группа` has no public seat-count, occupancy, fill-percentage, or required-fill semantics. `group_capacity` is a legacy/read-compatible optional request field that the primary creation path does not write; do not newly write or display it as public capacity without an explicit canon change. Guide-offer capacity and listing/template `max_participants` are separate.
+- A request budget is per person and stored in minor units; a guide offer is the authoritative offered price. Do not invent totals, rates, savings, commissions, or price tables.
+- Public request catalog/detail exposes only eligible joinable assembly/group requests. Private or directed requests remain excluded/not-found, and current status, moderation, deletion, and target-guide gates remain intact. Public guide/listing surfaces keep approved/published, account-state, deletion, and QA-fixture gates. Free-text request notes and private profile fields never become public by projection accident.
+- Use the explicit canon here, the latest dated decisions, current migrations/source, and tests together. `.claude/sot/KODEX.md` is append-only and contains historical conflicts around capacity, price scope, and commission; never resolve those conflicts by guesswork or display a rate without an explicit task and one current authority.
