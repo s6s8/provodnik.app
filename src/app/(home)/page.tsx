@@ -16,16 +16,16 @@ export const metadata: Metadata = {
 export default async function HomePage({
   searchParams,
 }: {
-  searchParams: Promise<{ guide?: string }>;
+  searchParams: Promise<{ guide?: string; template?: string }>;
 }) {
   let destinations: DestinationOption[] = [];
   let searchDestinations: DestinationOption[] = [];
   let requests: RequestRecord[] = [];
   let viewerId: string | null = null;
-  let preferredGuide: { slug: string; name: string } | null = null;
+  let preferredGuide: { slug: string; name: string; templateId: string | null } | null = null;
   let inventory: HomepageInventory = { listings: [], guides: [], reviews: [] };
   const joinedRequestIds = new Set<string>();
-  const { guide: guideParam } = await searchParams;
+  const { guide: guideParam, template: templateParam } = await searchParams;
   try {
     const supabase = await createSupabaseServerClient();
     const [destResult, searchDestResult, reqResult, userResult, guideResult, inventoryResult] = await Promise.all([
@@ -42,7 +42,14 @@ export default async function HomePage({
     viewerId = userResult.data.user?.id ?? null;
     inventory = inventoryResult.data ?? inventory;
     if (guideResult?.data) {
-      preferredGuide = { slug: guideResult.data.slug, name: guideResult.data.fullName };
+      // The template id is carried, not verified: the request RPC re-reads the template,
+      // checks it is published and owned by this guide, and refuses otherwise. Verifying
+      // here too would only duplicate a check that has to live at the boundary anyway.
+      preferredGuide = {
+        slug: guideResult.data.slug,
+        name: guideResult.data.fullName,
+        templateId: templateParam ?? null,
+      };
     }
     if (viewerId && requests.length > 0) {
       const { data: memberships } = await supabase

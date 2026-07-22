@@ -45,6 +45,7 @@ export async function buildRequestInsertPayload(
     time_locked: !opts.allowGuideSuggestions,
     region: null,
     preferred_guide_slug: input.preferredGuideSlug || null,
+    guide_template_id: input.guideTemplateId || null,
   };
 }
 
@@ -78,6 +79,7 @@ export async function createRequestAction(
     budgetPerPersonRub: Number(formData.get("budgetPerPersonRub") ?? 0),
     notes: (formData.get("notes") as string) ?? "",
     preferredGuideSlug: (formData.get("preferredGuideSlug") as string) || undefined,
+    guideTemplateId: (formData.get("guideTemplateId") as string) || undefined,
   };
 
   const result = travelerRequestSchema.safeParse(raw);

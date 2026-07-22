@@ -467,6 +467,50 @@ describe("BookingDetailScreen", () => {
     expect(screen.getByText("Билеты в кремль")).toBeInTheDocument();
   });
 
+  it("shows the ready template's programme when the booking has no listing row", () => {
+    // A ready guide excursion has no `listings` row at all — the lineage runs
+    // booking → traveler_request → guide_template_snapshot, so listing_id is null
+    // and the snapshot is the only booking-truth about the itinerary.
+    const templateBooking = {
+      ...booking,
+      listing_id: null,
+      traveler_request: {
+        ...booking.traveler_request,
+        guide_template_snapshot: {
+          id: "44444444-4444-4444-8444-444444444444",
+          title: "Адык: степь и Калмыкия",
+          description: "Прогулка по степи и знакомство с Калмыкией.",
+          duration_text: "5 часов",
+          meeting_point: "Элиста, площадь Ленина",
+          max_participants: 8,
+          region: "Калмыкия",
+          price_scope: "per_group",
+          price_from_kopecks: 450_000,
+        },
+      },
+    } as unknown as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={templateBooking}
+        existingReview={null}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(
+      screen.getByRole("heading", { level: 1, name: "Адык: степь и Калмыкия" }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Что вас ждёт")).toBeInTheDocument();
+    expect(
+      screen.getByText("Прогулка по степи и знакомство с Калмыкией."),
+    ).toBeInTheDocument();
+    // Still not the offer's or the traveler's own text.
+    expect(screen.queryByText("Покажу город и главные места.")).not.toBeInTheDocument();
+    expect(screen.queryByText("Прогулка по центру")).not.toBeInTheDocument();
+  });
+
   it("shows guide, city, date and time in «Детали поездки» for a ready-excursion booking", () => {
     const readyBooking = {
       ...booking,

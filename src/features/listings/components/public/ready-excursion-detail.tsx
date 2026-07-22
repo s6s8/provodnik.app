@@ -18,7 +18,10 @@ export function ReadyExcursionDetail({ detail }: { detail: PublicGuideTemplateDe
           detail.maxParticipants,
           detail.priceScope,
         );
-  const requestHref = `/?guide=${encodeURIComponent(detail.guide.slug)}`;
+  // Carry the template, not just its guide: the request pipeline resolves the addressee
+  // and freezes the itinerary snapshot from this id, so the booking it eventually becomes
+  // still shows *this* excursion's programme. The slug stays for the "Запрос гиду: …" chip.
+  const requestHref = `/?guide=${encodeURIComponent(detail.guide.slug)}&template=${encodeURIComponent(detail.id)}`;
 
   return (
     <div className="pb-28 md:pb-12">

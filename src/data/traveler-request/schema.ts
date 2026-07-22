@@ -85,6 +85,9 @@ export const travelerRequestSchema = z
       .max(120)
       .regex(/^\S+$/, "Некорректный идентификатор гида.")
       .optional(),
+    // Ready excursion the request started from («Отправить запрос гиду» on /excursions/:id).
+    // A derivation source only — the database re-reads the template and owns the snapshot.
+    guideTemplateId: z.uuid("Некорректная экскурсия.").optional(),
   })
   .superRefine((value, ctx) => {
     const start = new Date(value.startDate);

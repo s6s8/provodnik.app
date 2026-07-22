@@ -13,7 +13,7 @@ const HERO_IMAGE = "/hero-valley.jpg";
 
 interface Props {
   destinations: DestinationOption[];
-  preferredGuide?: { slug: string; name: string } | null;
+  preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
   /** True when the page below actually renders the #groups section. */
   hasGroups?: boolean;
 }

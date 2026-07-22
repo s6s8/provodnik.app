@@ -33,9 +33,12 @@ describe("ReadyExcursionDetail", () => {
     expect(screen.getByText("Элиста, площадь Ленина")).toBeInTheDocument();
     expect(screen.getByText("до 8 человек")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Адык" })).toHaveAttribute("href", "/guides/adyk");
+    // The template id travels with the slug: the request pipeline resolves the
+    // addressee and the itinerary snapshot from the template itself, so the booking
+    // that eventually comes out of this CTA still knows which excursion it is.
     expect(screen.getByRole("link", { name: "Отправить запрос гиду" })).toHaveAttribute(
       "href",
-      "/?guide=adyk",
+      "/?guide=adyk&template=11111111-1111-1111-1111-111111111111",
     );
   });
 });

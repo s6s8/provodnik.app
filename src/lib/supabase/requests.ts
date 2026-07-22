@@ -79,6 +79,10 @@ export const createRequestInputSchema = z
     // Derivation source for a directed request, not the addressee itself: the
     // database resolves the listing to its guide. No caller ever supplies a guide id.
     listing_id: z.uuid().nullable().optional(),
+    // Same contract for a ready excursion: the id of the template the traveler started
+    // from. The database resolves it to its owner and copies the itinerary snapshot out of
+    // it — no snapshot is accepted from here, because a caller could author any programme.
+    guide_template_id: z.uuid().nullable().optional(),
     start_time: z
       .string()
       .regex(/^\d{2}:\d{2}$/, "Формат времени: ЧЧ:ММ")
@@ -140,7 +144,7 @@ export type TravelerRequest = TravelerRequestRow;
 // ---------------------------------------------------------------------------
 
 const SELECT_COLS =
-  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window, preferred_guide_slug, target_guide_id";
+  "id, traveler_id, destination, region, interests, requested_languages, starts_on, ends_on, start_time, end_time, budget_minor, currency, participants_count, format_preference, notes, open_to_join, allow_guide_suggestions, group_capacity, status, created_at, updated_at, date_locked, time_locked, count_locked, budget_locked, date_window, preferred_guide_slug, target_guide_id, guide_template_id, guide_template_snapshot";
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -191,10 +195,13 @@ export async function createTravelerRequest(
   // browser's own session, so it has no more authority here than the browser does —
   // RLS rejects a non-null target on a direct insert. A directed request therefore goes
   // through create_directed_traveler_request, which resolves the addressee itself from
-  // the published listing or the approved guide slug and fails closed if it cannot.
-  if (input.listing_id || input.preferred_guide_slug) {
+  // the published template, the published listing or the approved guide slug and fails
+  // closed if it cannot. It also writes guide_template_snapshot from the template it read
+  // — the booking's programme is never text this process could have made up.
+  if (input.guide_template_id || input.listing_id || input.preferred_guide_slug) {
     const { data: row, error } = await supabase.rpc("create_directed_traveler_request", {
       p_listing_id: input.listing_id ?? null,
+      p_guide_template_id: input.guide_template_id ?? null,
       // The RPC's parameters are these columns prefixed with p_ — one field list, so a
       // column added above cannot silently go missing from the directed path.
       ...Object.fromEntries(Object.entries(columns).map(([key, value]) => [`p_${key}`, value])),

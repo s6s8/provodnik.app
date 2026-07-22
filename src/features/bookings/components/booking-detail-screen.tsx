@@ -185,13 +185,20 @@ function TravelerBookingDetailView({
 
   const request = booking.traveler_request;
   const offer = booking.guide_offer;
-  // A ready/fixed excursion is exactly a booking made against a listing.
-  // Request-first bookings are created by accept_offer with listing_id NULL, so
-  // this is the authoritative discriminator — offer text is not.
-  const isReadyExcursion = Boolean(booking.listing_id);
-  const listingTitle = listing?.title?.trim() || undefined;
-  // City: the traveler's own request destination, else the listing's city.
-  const city = request?.destination?.trim() || listing?.city?.trim() || "";
+  // A ready guide excursion lives in `guide_templates`, which has no `listings` row, so
+  // accept_offer leaves listing_id NULL exactly as it does for a custom request. The
+  // snapshot frozen onto the request at creation is what tells the two apart — and it is
+  // server-written booking truth, unlike offer text.
+  const templateSnapshot = request?.guide_template_snapshot ?? null;
+  const listingTitle =
+    listing?.title?.trim() || templateSnapshot?.title?.trim() || undefined;
+  // City: the traveler's own request destination, else the listing's city, else the
+  // excursion's own region.
+  const city =
+    request?.destination?.trim() ||
+    listing?.city?.trim() ||
+    templateSnapshot?.region?.trim() ||
+    "";
   const hasRealDestination = Boolean(city);
   const destination = city || "Маршрут";
   const bookingStartDate = booking.starts_at ?? offer?.starts_at ?? null;
@@ -211,17 +218,20 @@ function TravelerBookingDetailView({
     : request?.start_time
       ? request.start_time.slice(0, 5)
       : "";
-  const meetingPlace = booking.meeting_point ?? null;
+  const meetingPlace = booking.meeting_point ?? templateSnapshot?.meeting_point ?? null;
 
   const priceMinor = offer?.price_minor ?? booking.subtotal_minor ?? 0;
   const partySize = booking.party_size ?? offer?.capacity ?? request?.participants_count ?? 1;
   const pricePerPersonMinor = partySize > 1 ? Math.round(priceMinor / partySize) : priceMinor;
 
-  // «Что вас ждёт» describes a fixed excursion programme, which only a listing
-  // has. A custom offer's message/title/inclusions are a bid on one traveler's
-  // request, and request.notes is the traveler's own text — neither is a programme.
-  const inclusions: string[] = isReadyExcursion ? (listing?.inclusions ?? []) : [];
-  const description = isReadyExcursion ? listing?.description?.trim() || null : null;
+  // «Что вас ждёт» describes a fixed excursion programme: a legacy listing has one, and
+  // so does a ready guide template through its snapshot. A custom offer's
+  // message/title/inclusions are a bid on one traveler's request, and request.notes is the
+  // traveler's own text — neither is a programme, so a request-first booking shows none.
+  const inclusions: string[] = booking.listing_id ? (listing?.inclusions ?? []) : [];
+  const description = booking.listing_id
+    ? listing?.description?.trim() || null
+    : templateSnapshot?.description?.trim() || null;
 
   const interests: string[] = request?.interests ?? [];
   const themeLabels = interests

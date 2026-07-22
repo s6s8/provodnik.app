@@ -21,7 +21,7 @@ interface Props {
   searchDestinations?: DestinationOption[];
   requests: RequestRecord[];
   viewerId?: string | null;
-  preferredGuide?: { slug: string; name: string } | null;
+  preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
   joinedRequestIds?: Set<string>;
   listings?: ListingRecord[];
   guides?: GuideRecord[];

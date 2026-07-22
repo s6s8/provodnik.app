@@ -32,6 +32,7 @@ import { createTravelerRequest } from "./requests";
 const travelerId = "11111111-1111-4111-8111-111111111111";
 const guideUserId = "22222222-2222-4222-8222-222222222222";
 const listingId = "33333333-3333-4333-8333-333333333333";
+const templateId = "44444444-4444-4444-8444-444444444444";
 
 const base = {
   destination: "Экскурсия по Элисте",
@@ -103,6 +104,58 @@ describe("createTravelerRequest — directed request target", () => {
     expect(rpcSpy).not.toHaveBeenCalled();
     expect(insertSpy).toHaveBeenCalledWith(
       expect.objectContaining({ target_guide_id: null }),
+    );
+  });
+
+  it("routes a ready-template request through the RPC so the DB owns target and snapshot", async () => {
+    await createTravelerRequest(
+      { ...base, guide_template_id: templateId, preferred_guide_slug: "real-guide" },
+      travelerId,
+    );
+
+    expect(rpcSpy).toHaveBeenCalledWith(
+      "create_directed_traveler_request",
+      expect.objectContaining({
+        p_guide_template_id: templateId,
+        p_preferred_guide_slug: "real-guide",
+      }),
+    );
+    expect(insertSpy).not.toHaveBeenCalled();
+  });
+
+  it("never sends a snapshot: the itinerary truth is read from the template server-side", async () => {
+    await createTravelerRequest(
+      {
+        ...base,
+        guide_template_id: templateId,
+        guide_template_snapshot: { title: "Своя программа" },
+      } as never,
+      travelerId,
+    );
+
+    expect(rpcSpy).toHaveBeenCalledWith(
+      "create_directed_traveler_request",
+      expect.not.objectContaining({ p_guide_template_snapshot: expect.anything() }),
+    );
+  });
+
+  it("fails closed when the database rejects the template (unpublished or mismatched guide)", async () => {
+    rpcSpy.mockResolvedValue({ data: null, error: { message: "template_unavailable" } });
+
+    await expect(
+      createTravelerRequest({ ...base, guide_template_id: templateId }, travelerId),
+    ).rejects.toMatchObject({ message: "template_unavailable" });
+
+    // No request at all — never a template-less fallback that loses the excursion.
+    expect(insertSpy).not.toHaveBeenCalled();
+  });
+
+  it("leaves a guide-only directed request template-null", async () => {
+    await createTravelerRequest({ ...base, preferred_guide_slug: "real-guide" }, travelerId);
+
+    expect(rpcSpy).toHaveBeenCalledWith(
+      "create_directed_traveler_request",
+      expect.objectContaining({ p_guide_template_id: null }),
     );
   });
 });
