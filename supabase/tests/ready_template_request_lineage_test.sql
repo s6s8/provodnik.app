@@ -262,9 +262,17 @@ select is(
 --     on trigger depth, not on reading guide_templates, so RLS visibility cannot move it —
 --     an existence probe here would have needed SECURITY DEFINER and a guide flipping the
 --     template back to draft would have reopened the hole.
+--     Hiding and restoring the template is scaffolding, not the thing under test, so it
+--     runs in the same trusted context the seed above used: `reset role` drops the role
+--     but NOT request.jwt.claim.sub, and tg_enforce_guide_template_moderation
+--     (20260719000200) only yields to auth.uid() IS NULL or an admin. Left set, the
+--     restore below is refused as an un-moderated publish — the guard doing its job on a
+--     caller this test never meant to be.
 reset role;
+select set_config('request.jwt.claim.sub', '', true);
 update public.guide_templates set status = 'draft'
  where id = '7e000000-0000-4000-8000-0000000000aa';
+select set_config('request.jwt.claim.sub', '7d000000-0000-4000-8000-000000000001', true);
 set local role authenticated;
 
 select throws_ok(
@@ -276,8 +284,10 @@ select throws_ok(
 );
 
 reset role;
+select set_config('request.jwt.claim.sub', '', true);
 update public.guide_templates set status = 'published'
  where id = '7e000000-0000-4000-8000-0000000000aa';
+select set_config('request.jwt.claim.sub', '7d000000-0000-4000-8000-000000000001', true);
 set local role authenticated;
 
 -- 12. The acceptance lineage: a booking carrying only request_id still names its excursion.
