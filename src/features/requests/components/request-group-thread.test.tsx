@@ -1,7 +1,6 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { COPY } from "@/lib/copy";
 import { RequestGroupThread } from "./request-group-thread";
 import type { GroupMessage } from "@/lib/supabase/request-thread";
 
@@ -17,6 +16,7 @@ const messages: GroupMessage[] = [
     body: "Всем привет, я организатор.",
     senderId: "owner-1",
     senderRole: "traveler",
+    senderDisplayName: "Ирина Петрова",
     createdAt: "2026-07-01T10:00:00.000Z",
   },
   {
@@ -24,6 +24,7 @@ const messages: GroupMessage[] = [
     body: "Готов показать маршрут.",
     senderId: "guide-1",
     senderRole: "guide",
+    senderDisplayName: "Дмитрий К.",
     createdAt: "2026-07-01T11:00:00.000Z",
   },
 ];
@@ -37,11 +38,11 @@ describe("RequestGroupThread", () => {
       <RequestGroupThread messages={messages} currentUserId="owner-1" onSend={onSend} />,
     );
 
-    // Both messages render; the current user's message is labelled «Вы», the guide «Гид».
+    // Both messages render; the current user's message is labelled «Вы», the guide by name.
     expect(screen.getByText("Всем привет, я организатор.")).toBeInTheDocument();
     expect(screen.getByText("Готов показать маршрут.")).toBeInTheDocument();
     expect(screen.getByText("Вы")).toBeInTheDocument();
-    expect(screen.getByText(COPY.guide)).toBeInTheDocument();
+    expect(screen.getByText("Дмитрий К.")).toBeInTheDocument();
 
     // Composer is disabled until there is text, then posts the trimmed body.
     const submit = screen.getByRole("button", { name: "Отправить" });

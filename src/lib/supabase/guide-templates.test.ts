@@ -25,6 +25,27 @@ vi.mock("@/lib/supabase/client", () => ({
   })),
 }));
 
+describe("guide template creation status", () => {
+  it("creates every new ready tour in pending_review", async () => {
+    await createGuideTemplate({ title: "Тур", priceFromRub: 4500 });
+
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "pending_review" }),
+    );
+  });
+
+  it("never inserts draft on create", async () => {
+    insert.mockClear();
+    await createGuideTemplate({ title: "Черновик", priceFromRub: 3000 });
+    await createGuideTemplate({ title: "Тур 2", priceFromRub: 4500 });
+
+    for (const [payload] of insert.mock.calls) {
+      expect(payload).toMatchObject({ status: "pending_review" });
+      expect(payload.status).not.toBe("draft");
+    }
+  });
+});
+
 describe("guide template price scope", () => {
   it("creates every ready tour with per-group pricing", async () => {
     await createGuideTemplate({ title: "Тур", priceFromRub: 4500 });

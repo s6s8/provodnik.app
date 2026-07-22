@@ -8,7 +8,9 @@
  * component.
  */
 
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { MessageSenderRole, Uuid } from "@/lib/supabase/types";
 
 export type GroupMessage = {
@@ -16,25 +18,55 @@ export type GroupMessage = {
   body: string;
   senderId: string | null;
   senderRole: MessageSenderRole;
+  senderDisplayName: string;
   createdAt: string;
 };
 
 const MESSAGE_SELECT = "id, body, sender_id, sender_role, created_at";
 
-function mapMessage(row: {
-  id: string;
-  body: string;
-  sender_id: string | null;
-  sender_role: string;
-  created_at: string;
-}): GroupMessage {
+function mapMessage(
+  row: {
+    id: string;
+    body: string;
+    sender_id: string | null;
+    sender_role: string;
+    created_at: string;
+  },
+  senderDisplayName: string,
+): GroupMessage {
   return {
     id: row.id,
     body: row.body,
     senderId: row.sender_id,
     senderRole: row.sender_role as MessageSenderRole,
+    senderDisplayName,
     createdAt: row.created_at,
   };
+}
+
+async function listSenderDisplayNames(
+  senderIds: string[],
+): Promise<Map<string, string>> {
+  const uniqueIds = [...new Set(senderIds.filter(Boolean))];
+  const result = new Map<string, string>();
+  if (!uniqueIds.length) return result;
+
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, full_name, role")
+    .in("id", uniqueIds);
+  if (error) throw error;
+
+  for (const row of data ?? []) {
+    const role = row.role === "guide" ? "guide" : "traveler";
+    result.set(
+      row.id,
+      resolveDisplayName(role, { full_name: row.full_name }, { context: "trusted" }),
+    );
+  }
+
+  return result;
 }
 
 /**
@@ -85,7 +117,23 @@ export async function listRequestThreadMessages(
     .eq("thread_id", threadId)
     .order("created_at", { ascending: true })
     .limit(200);
-  return (data ?? []).map(mapMessage);
+  const rows = data ?? [];
+  const senderNames = await listSenderDisplayNames(
+    rows.map((row) => row.sender_id as string | null).filter(Boolean) as string[],
+  );
+  return rows.map((row) =>
+    mapMessage(
+      row,
+      row.sender_id
+        ? senderNames.get(row.sender_id) ??
+            resolveDisplayName(
+              row.sender_role === "guide" ? "guide" : "traveler",
+              {},
+              { context: "trusted" },
+            )
+        : resolveDisplayName("traveler", {}, { context: "trusted" }),
+    ),
+  );
 }
 
 /**
@@ -131,5 +179,14 @@ export async function postRequestThreadMessage(input: {
     .select(MESSAGE_SELECT)
     .single();
   if (error) throw error;
-  return mapMessage(data);
+  const senderNames = await listSenderDisplayNames([input.senderId]);
+  return mapMessage(
+    data,
+    senderNames.get(input.senderId) ??
+      resolveDisplayName(
+        input.senderRole === "guide" ? "guide" : "traveler",
+        {},
+        { context: "trusted" },
+      ),
+  );
 }

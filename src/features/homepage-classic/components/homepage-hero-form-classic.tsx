@@ -5,6 +5,7 @@ import { Scrim } from "@/components/ui/scrim";
 import type { DestinationOption } from "@/data/supabase/queries";
 
 import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
+import type { TemplateRequestPrefill } from "./template-request-prefill";
 
 // Served from /public (version-controlled) instead of a Supabase Storage object
 // that returned HTTP 400 because it was never uploaded. Swap for a branded
@@ -14,11 +15,17 @@ const HERO_IMAGE = "/hero-valley.jpg";
 interface Props {
   destinations: DestinationOption[];
   preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
+  templatePrefill?: TemplateRequestPrefill | null;
   /** True when the page below actually renders the #groups section. */
   hasGroups?: boolean;
 }
 
-export function HomepageHeroFormClassic({ destinations, preferredGuide, hasGroups = false }: Props) {
+export function HomepageHeroFormClassic({
+  destinations,
+  preferredGuide,
+  templatePrefill,
+  hasGroups = false,
+}: Props) {
   return (
     // Sized by its content, not by the viewport. `min-h-svh` was a FLOOR, not a
     // cap: stacked with the padding below it made the first screen taller than the
@@ -50,7 +57,11 @@ export function HomepageHeroFormClassic({ destinations, preferredGuide, hasGroup
         </h1>
 
         <div className="w-full max-w-lg rounded-hero bg-surface p-5 text-left shadow-lift">
-          <HomepageRequestFormClassic destinations={destinations} preferredGuide={preferredGuide} />
+          <HomepageRequestFormClassic
+            destinations={destinations}
+            preferredGuide={preferredGuide}
+            templatePrefill={templatePrefill}
+          />
         </div>
       </div>
 

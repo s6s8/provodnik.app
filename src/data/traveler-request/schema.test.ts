@@ -207,12 +207,25 @@ describe("travelerRequestSchema", () => {
     );
   });
 
-  it("treats an omitted endDate as valid (optional)", () => {
+  it("accepts few_days requests without fixed times", () => {
     const result = travelerRequestSchema.safeParse({
       mode: "private",
       interests: ["history_culture"],
-      startTime: "10:00",
-      endTime: "18:00",
+      destination: "Москва",
+      startDate: "2026-08-01",
+      dateFlexibility: "few_days",
+      groupSize: 2,
+      allowGuideSuggestionsOutsideConstraints: true,
+      notes: "",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
+  it("still requires times for exact-date requests", () => {
+    const result = travelerRequestSchema.safeParse({
+      mode: "private",
+      interests: ["history_culture"],
       destination: "Москва",
       startDate: "2026-08-01",
       dateFlexibility: "exact",
@@ -221,6 +234,10 @@ describe("travelerRequestSchema", () => {
       notes: "",
     });
 
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    if (result.success) throw new Error("Expected exact-date request without times to fail");
+    expect(result.error.flatten().fieldErrors.startTime).toContain(
+      "Укажите время начала (ЧЧ:ММ).",
+    );
   });
 });

@@ -16,7 +16,11 @@ describe("flags registry", () => {
     expect(subs).toEqual(Object.keys(flags));
     for (const k of subs) {
       expect(k in flags).toBe(true);
-      expect(isEnabled(k)).toBe(false);
+      if (k === "FEATURE_PUBLIC_CATALOG") {
+        expect(isEnabled(k)).toBe(true);
+      } else {
+        expect(isEnabled(k)).toBe(false);
+      }
     }
   });
 

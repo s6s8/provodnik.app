@@ -36,11 +36,13 @@ import { todayMoscowISODate } from "@/lib/dates";
 import type { DestinationOption } from "@/data/supabase/queries";
 import { HomepageAuthGate } from "./homepage-auth-gate";
 import { useRequestForm } from "./use-request-form";
+import type { TemplateRequestPrefill } from "./template-request-prefill";
 
 interface Props {
   destinations: DestinationOption[];
   /** Guide preselected via "Запросить этого гида" on the guide's public page. */
   preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
+  templatePrefill?: TemplateRequestPrefill | null;
 }
 
 const FIN_BASE =
@@ -343,7 +345,11 @@ function DestinationCombobox({
 
 const errorId = (field: string) => `request-${field}-error`;
 
-export function HomepageRequestFormClassic({ destinations, preferredGuide }: Props) {
+export function HomepageRequestFormClassic({
+  destinations,
+  preferredGuide,
+  templatePrefill,
+}: Props) {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [guideAttached, setGuideAttached] = React.useState(true);
   const attachedGuide = guideAttached ? preferredGuide ?? null : null;
@@ -368,8 +374,10 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
     // Detaching the guide detaches the excursion with it — the request must not keep
     // claiming a template whose guide the traveler just removed.
     preferredTemplateId: attachedGuide?.templateId ?? null,
+    templatePrefill,
   });
   const startDate = useWatch({ control: form.control, name: "startDate" });
+  const timeFlexible = dateFlexibility !== "exact";
   // cmdk's Input owns its own `onChange`, so `register()` cannot drive it —
   // the combobox goes through a controller instead.
   const { field: destinationField } = useController({
@@ -449,9 +457,18 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
               type="button"
               onClick={() => {
                 const current = form.getValues("dateFlexibility");
-                form.setValue("dateFlexibility", current === "exact" ? "few_days" : "exact", {
+                const next = current === "exact" ? "few_days" : "exact";
+                form.setValue("dateFlexibility", next, {
                   shouldDirty: true,
+                  shouldValidate: true,
                 });
+                if (next === "few_days") {
+                  form.setValue("startTime", "", { shouldDirty: true, shouldValidate: true });
+                  form.setValue("endTime", "", { shouldDirty: true, shouldValidate: true });
+                } else {
+                  form.setValue("startTime", "10:00", { shouldDirty: true, shouldValidate: true });
+                  form.setValue("endTime", "12:00", { shouldDirty: true, shouldValidate: true });
+                }
               }}
               aria-label="Гибкие даты (±2–3 дня)"
               aria-pressed={dateFlexibility !== "exact"}
@@ -513,25 +530,40 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
       {/* Время · Бюджет */}
       <div className="flex flex-col gap-2.5 sm:flex-row">
         <div className="flex flex-1 flex-col gap-1.5">
-          <Label htmlFor="startTime">Время</Label>
+          <Label htmlFor={timeFlexible ? "time-flexible" : "startTime"}>Время</Label>
           <FieldShell>
             <FieldIcon icon={Clock} />
             <div className="min-w-0 flex-1">
-              <span className="flex items-center gap-1.5">
-                <TimeField
-                  id="startTime"
-                  registration={register("startTime")}
-                  ariaLabel="Время начала"
-                />
-                <span className="font-bold text-muted-foreground">–</span>
-                <TimeField
-                  id="endTime"
-                  registration={register("endTime")}
-                  ariaLabel="Время окончания"
-                />
-              </span>
+              {timeFlexible ? (
+                <span
+                  id="time-flexible"
+                  className="block py-2 text-sm font-medium text-muted-foreground"
+                >
+                  Гибкое время
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5">
+                  <TimeField
+                    id="startTime"
+                    registration={register("startTime")}
+                    ariaLabel="Время начала"
+                  />
+                  <span className="font-bold text-muted-foreground">–</span>
+                  <TimeField
+                    id="endTime"
+                    registration={register("endTime")}
+                    ariaLabel="Время окончания"
+                  />
+                </span>
+              )}
             </div>
           </FieldShell>
+          {!timeFlexible ? (
+            <>
+              <FieldError id={errorId("startTime")} message={errors.startTime?.message} />
+              <FieldError id={errorId("endTime")} message={errors.endTime?.message} />
+            </>
+          ) : null}
         </div>
 
         <div className="flex w-full flex-col gap-1.5 sm:w-40 sm:shrink-0">

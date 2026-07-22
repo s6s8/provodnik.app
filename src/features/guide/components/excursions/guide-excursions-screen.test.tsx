@@ -124,8 +124,8 @@ beforeEach(() => {
     price_from_kopecks: 125_000,
     meeting_point: "У фонтана",
     max_participants: 12,
-    photo_urls: [],
-    status: "draft",
+    photo_urls: ["/photos/batumi.jpg"],
+    status: "pending_review",
     region: "Батуми",
     category: "nature",
   });
@@ -186,7 +186,11 @@ describe("GuideExcursionsScreen", () => {
     expect(updateGuideTemplateMock).not.toHaveBeenCalled();
   });
 
-  it("saves a new excursion with the payload built from the form", async () => {
+  it("saves a new excursion for review by default", async () => {
+    guidePhotos.value = [
+      { id: "photo-1", location_name: "Батуми", object_path: "batumi.jpg" },
+    ];
+
     render(<GuideExcursionsScreen />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
@@ -210,6 +214,9 @@ describe("GuideExcursionsScreen", () => {
     });
     selectLocation("Батуми");
     selectCategory("Природа");
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать фото маршрута" }));
+    fireEvent.click(screen.getByRole("button", { name: "Батуми" }));
+    fireEvent.click(screen.getByRole("button", { name: "Готово" }));
     fireEvent.click(screen.getByRole("button", { name: "Сохранить" }));
 
     expect(await screen.findByText("Новый маршрут")).toBeInTheDocument();
@@ -220,11 +227,22 @@ describe("GuideExcursionsScreen", () => {
       priceFromRub: 1250,
       meetingPoint: "У фонтана",
       maxParticipants: 12,
-      photoUrls: [],
-      status: "draft",
+      photoUrls: ["/photos/batumi.jpg"],
       region: "Батуми",
       category: "nature",
     });
+  });
+
+  it("does not expose a draft bypass in the create form", async () => {
+    render(<GuideExcursionsScreen />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
+
+    expect(screen.queryByRole("button", { name: "Черновик" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Отправить на проверку" })).not.toBeInTheDocument();
+    expect(
+      screen.getByText(/отправляется на проверку и публикуется после одобрения/i),
+    ).toBeInTheDocument();
   });
 
   it("keeps the location and category selects controlled while filling the form", async () => {

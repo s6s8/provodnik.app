@@ -1,11 +1,16 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClient } = vi.hoisted(() => ({
+const { createSupabaseServerClient, createSupabaseAdminClient } = vi.hoisted(() => ({
   createSupabaseServerClient: vi.fn(),
+  createSupabaseAdminClient: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient,
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createSupabaseAdminClient,
 }));
 
 import { getThreadMessages, getUserThreads } from "./conversations";
@@ -256,7 +261,7 @@ describe("getUserThreads", () => {
     expect(newestSummary.participants[0]).not.toHaveProperty("profile");
 
     expect(requireThread(summaries, middleThreadId)).toMatchObject({
-      other_participant_names: ["Участник"],
+      other_participant_names: ["Путешественник"],
       last_message_preview: "Already read note",
       last_message_created_at: "2026-06-10T11:30:00.000Z",
       unread: false,
@@ -310,6 +315,9 @@ describe("getThreadMessages", () => {
       throw new Error(`Unexpected table: ${table}`);
     });
     createSupabaseServerClient.mockResolvedValue({ from });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn(() => createQuery({ data: [], error: null })),
+    });
 
     const messages = await getThreadMessages(threadId);
 
@@ -318,5 +326,46 @@ describe("getThreadMessages", () => {
       "Гид Дмитрий",
     ]);
     expect(from).toHaveBeenCalledWith("v_guide_public_profile");
+  });
+
+  it("resolves a traveler sender name from trusted profiles when RLS hides full_name", async () => {
+    const threadId = "10000000-0000-4000-8000-000000000099";
+    const travelerId = "00000000-0000-4000-8000-0000000000bb";
+
+    const messageRows = [
+      {
+        id: "msg-1",
+        thread_id: threadId,
+        sender_id: travelerId,
+        sender_role: "traveler",
+        body: "Здравствуйте!",
+        metadata: {},
+        created_at: "2026-06-10T08:00:00.000Z",
+        sender_profile: { full_name: null, avatar_url: null },
+      },
+    ];
+
+    const messagesQuery = createQuery({ data: messageRows, error: null });
+    const publicGuideProfilesQuery = createQuery({ data: [], error: null });
+    const trustedProfilesQuery = createQuery({
+      data: [{ id: travelerId, full_name: "Анна Смирнова", role: "traveler" }],
+      error: null,
+    });
+    const from = vi.fn((table: string) => {
+      if (table === "messages") return messagesQuery;
+      if (table === "v_guide_public_profile") return publicGuideProfilesQuery;
+      throw new Error(`Unexpected table: ${table}`);
+    });
+    createSupabaseServerClient.mockResolvedValue({ from });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return trustedProfilesQuery;
+        throw new Error(`Unexpected admin table: ${table}`);
+      }),
+    });
+
+    const messages = await getThreadMessages(threadId);
+
+    expect(messages[0]?.sender_display_name).toBe("Анна Смирнова");
   });
 });

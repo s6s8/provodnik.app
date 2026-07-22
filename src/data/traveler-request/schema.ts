@@ -43,8 +43,8 @@ export const travelerRequestSchema = z
     startDate: z.string().min(1, "Укажите дату начала."),
     endDate: z.string().optional().or(z.literal("")),
     dateFlexibility: z.enum(["exact", "few_days"]).default("exact"),
-    startTime: z.string().regex(timeRegex, "Укажите время начала (ЧЧ:ММ)."),
-    endTime: z.string().regex(timeRegex, "Укажите время окончания (ЧЧ:ММ)."),
+    startTime: z.string().optional().or(z.literal("")),
+    endTime: z.string().optional().or(z.literal("")),
     // assembly mode counters
     groupSizeCurrent: z
       .number()
@@ -114,6 +114,23 @@ export const travelerRequestSchema = z
           code: "custom",
           path: ["groupSize"],
           message: "Укажите количество участников.",
+        });
+      }
+    }
+
+    if (value.dateFlexibility === "exact") {
+      if (!value.startTime?.trim() || !timeRegex.test(value.startTime)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["startTime"],
+          message: "Укажите время начала (ЧЧ:ММ).",
+        });
+      }
+      if (!value.endTime?.trim() || !timeRegex.test(value.endTime)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["endTime"],
+          message: "Укажите время окончания (ЧЧ:ММ).",
         });
       }
     }

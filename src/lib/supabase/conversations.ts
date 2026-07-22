@@ -12,6 +12,7 @@
 import { z } from "zod";
 
 import { maskPii } from "@/lib/pii/mask";
+import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { Database } from "@/lib/supabase/database.types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -295,6 +296,31 @@ async function listParticipantsWithProfiles(
   return grouped;
 }
 
+async function listTrustedProfileNames(userIds: Uuid[]): Promise<Map<Uuid, string>> {
+  const result = new Map<Uuid, string>();
+  const uniqueIds = [...new Set(userIds)];
+  if (!uniqueIds.length) return result;
+
+  const admin = createSupabaseAdminClient();
+  const { data, error } = await admin
+    .from("profiles")
+    .select("id, full_name, role")
+    .in("id", uniqueIds);
+
+  if (error) throw error;
+
+  for (const row of data ?? []) {
+    const id = row.id as Uuid;
+    const role = row.role === "guide" ? "guide" : "traveler";
+    result.set(
+      id,
+      resolveDisplayName(role, { full_name: row.full_name }, { context: "trusted" }),
+    );
+  }
+
+  return result;
+}
+
 async function listGuideDisplayNames(
   userIds: Uuid[],
 ): Promise<Map<Uuid, string>> {
@@ -470,7 +496,14 @@ export async function getThreadMessages(
     .filter((row) => row.sender_role === "guide")
     .map((row) => (row.sender_id as Uuid | null) ?? null)
     .filter((value): value is Uuid => Boolean(value));
-  const guideDisplayNames = await listGuideDisplayNames(guideSenderIds);
+  const travelerSenderIds = rows
+    .filter((row) => row.sender_role === "traveler")
+    .map((row) => (row.sender_id as Uuid | null) ?? null)
+    .filter((value): value is Uuid => Boolean(value));
+  const [guideDisplayNames, trustedProfileNames] = await Promise.all([
+    listGuideDisplayNames(guideSenderIds),
+    listTrustedProfileNames(travelerSenderIds),
+  ]);
 
   return rows.map((row) => {
     const senderProfile = normalizeRelation<SenderProfile>(row.sender_profile);
@@ -480,6 +513,10 @@ export async function getThreadMessages(
     const guideName =
       senderRole === "guide" && senderId
         ? guideDisplayNames.get(senderId) ?? null
+        : null;
+    const travelerName =
+      senderRole === "traveler" && senderId
+        ? trustedProfileNames.get(senderId) ?? null
         : null;
 
     return {
@@ -491,7 +528,7 @@ export async function getThreadMessages(
       metadata: row.metadata ?? {},
       created_at: row.created_at as string,
       sender_profile: senderProfile,
-      sender_display_name: fullName ?? guideName,
+      sender_display_name: fullName ?? guideName ?? travelerName,
     };
   });
 }
@@ -547,7 +584,7 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
           (participant) =>
             participant.profile?.full_name?.trim() ||
             guideDisplayNames.get(participant.user_id) ||
-            "Участник",
+            resolveDisplayName("traveler", {}, { context: "trusted" }),
         );
 
       return {

@@ -28,6 +28,8 @@ export interface OpenGroupCardProps {
   minPeople?: string;
   date?: string;
   datesFlexible?: boolean;
+  /** When true, time is open (paired with flexible dates). */
+  timeFlexible?: boolean;
   /** e.g. "10:00–18:00" */
   time?: string;
   /** theme slugs — resolved to icon + label */
@@ -68,6 +70,7 @@ export function OpenGroupCard({
   minPeople,
   date,
   datesFlexible,
+  timeFlexible,
   time,
   interests,
   members,
@@ -88,7 +91,11 @@ export function OpenGroupCard({
     .map((t) => t.label);
   // Interests + date flexibility read as plain meta, not pills — only status and
   // format stay as badges (no pill soup).
-  const meta = [datesFlexible ? "Гибкие даты" : null, ...themeLabels].filter(Boolean);
+  const meta = [
+    datesFlexible ? "Гибкие даты" : null,
+    timeFlexible ? "Гибкое время" : null,
+    ...themeLabels,
+  ].filter(Boolean);
   const memberList = members ?? [];
   const statusBadge =
     status === "selected"
@@ -164,7 +171,7 @@ export function OpenGroupCard({
               {date}
             </span>
           ) : null}
-          {time ? (
+          {time && !timeFlexible ? (
             <span className="inline-flex items-center gap-1.5">
               <Clock className="size-3.5 text-muted-foreground" aria-hidden="true" />
               {time}

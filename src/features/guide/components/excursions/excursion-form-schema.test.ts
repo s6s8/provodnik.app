@@ -2,13 +2,11 @@ import { describe, expect, it } from "vitest";
 
 import { excursionFormSchema } from "./excursion-form-schema";
 
-// Item 6: a guide may only ever produce draft or pending_review — never publish directly.
 const valid = {
   title: "Прогулка по центру",
   description: "",
   duration: "",
   priceRub: "5000",
-  status: "pending_review" as const,
   meetingPoint: "",
   maxParticipants: "8",
   photoUrls: ["https://cdn/x.jpg"],
@@ -17,16 +15,17 @@ const valid = {
 };
 
 describe("excursionFormSchema — moderation lifecycle", () => {
-  it("accepts a draft", () => {
-    expect(excursionFormSchema.safeParse({ ...valid, status: "draft", photoUrls: [] }).success).toBe(true);
-  });
-
-  it("accepts a submit-for-review with a photo", () => {
+  it("accepts a submit-for-review payload with a photo", () => {
     expect(excursionFormSchema.safeParse(valid).success).toBe(true);
   });
 
   it("rejects a guide setting status directly to published", () => {
     const result = excursionFormSchema.safeParse({ ...valid, status: "published" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects a guide setting status directly to draft", () => {
+    const result = excursionFormSchema.safeParse({ ...valid, status: "draft", photoUrls: [] });
     expect(result.success).toBe(false);
   });
 

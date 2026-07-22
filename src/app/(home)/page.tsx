@@ -3,8 +3,13 @@ import type { Metadata } from "next";
 import { getActiveGuideDestinations, getDestinationSuggestions, getGuideBySlug, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
 import { HomePageShell2Classic } from "@/features/homepage-classic/components/homepage-shell2-classic";
+import {
+  buildTemplateRequestPrefill,
+  type TemplateRequestPrefill,
+} from "@/features/homepage-classic/components/template-request-prefill";
 import { flags } from "@/lib/flags";
 import { getHomepageInventory, type HomepageInventory } from "@/lib/supabase/homepage";
+import { getPublishedTemplateDetail } from "@/lib/supabase/guide-template-listings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -23,6 +28,7 @@ export default async function HomePage({
   let requests: RequestRecord[] = [];
   let viewerId: string | null = null;
   let preferredGuide: { slug: string; name: string; templateId: string | null } | null = null;
+  let templatePrefill: TemplateRequestPrefill | null = null;
   let inventory: HomepageInventory = { listings: [], guides: [], reviews: [] };
   const joinedRequestIds = new Set<string>();
   const { guide: guideParam, template: templateParam } = await searchParams;
@@ -51,6 +57,12 @@ export default async function HomePage({
         templateId: templateParam ?? null,
       };
     }
+    if (templateParam) {
+      const templateDetail = await getPublishedTemplateDetail(supabase, templateParam);
+      if (templateDetail) {
+        templatePrefill = buildTemplateRequestPrefill(templateDetail);
+      }
+    }
     if (viewerId && requests.length > 0) {
       const { data: memberships } = await supabase
         .from("open_request_members")
@@ -77,12 +89,14 @@ export default async function HomePage({
           requests={requests}
           viewerId={viewerId}
           preferredGuide={preferredGuide}
+          templatePrefill={templatePrefill}
           joinedRequestIds={joinedRequestIds}
           // The excursions block links into /listings, which redirects to /guides
           // while FEATURE_PUBLIC_CATALOG is off — no catalog, no block.
           listings={flags.FEATURE_PUBLIC_CATALOG ? inventory.listings : []}
           guides={inventory.guides}
           reviews={inventory.reviews}
+          publicCatalogEnabled={flags.FEATURE_PUBLIC_CATALOG}
         />
       </main>
     </>

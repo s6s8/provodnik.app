@@ -78,16 +78,22 @@ function formatPrice(budgetMinor: number | null): string {
 
 function mapRequestToCard(request: TravelerRequestSummary): RequestCardFinalProps {
   const members: RequestCardFinalMember[] = []
+  const datesFlexible = request.date_flexibility != null && request.date_flexibility !== 'exact'
 
   return {
     href: `/requests/${request.id}`,
     location: request.destination,
     date: formatRussianDateRange(request.starts_on, request.ends_on),
-    time: request.start_time ? `${request.start_time.slice(0, 5)}${request.end_time ? `–${request.end_time.slice(0, 5)}` : ''}` : undefined,
+    time: datesFlexible
+      ? undefined
+      : request.start_time
+        ? `${request.start_time.slice(0, 5)}${request.end_time ? `–${request.end_time.slice(0, 5)}` : ''}`
+        : undefined,
     groupType: request.mode,
     guideState: request.status === 'expired' ? 'expired' : request.status === 'booked' ? 'found' : request.offer_count > 0 ? 'offers' : 'waiting',
     offerCount: request.offer_count > 0 ? request.offer_count : undefined,
-    datesFlexible: request.date_flexibility != null && request.date_flexibility !== 'exact',
+    datesFlexible,
+    timeFlexible: datesFlexible,
     interests: request.interests,
     members,
     participantCount: request.participants_count,

@@ -1,11 +1,18 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { createSupabaseServerClient } = vi.hoisted(() => ({
+const { createSupabaseServerClient, createSupabaseAdminClient } = vi.hoisted(() => ({
   createSupabaseServerClient: vi.fn(),
+  createSupabaseAdminClient: vi.fn(() => {
+    throw new Error('getUserThreads must not require the admin client')
+  }),
 }))
 
 vi.mock('@/lib/supabase/server', () => ({
   createSupabaseServerClient,
+}))
+
+vi.mock('@/lib/supabase/admin', () => ({
+  createSupabaseAdminClient,
 }))
 
 import { getUserThreads, sendMessage } from '@/lib/supabase/conversations'
@@ -223,5 +230,6 @@ describe('getUserThreads', () => {
       1,
       { referencedTable: 'latest_message' },
     )
+    expect(createSupabaseAdminClient).not.toHaveBeenCalled()
   })
 })

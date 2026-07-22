@@ -12,7 +12,6 @@ type CreateGuideTemplateInput = {
   meetingPoint?: string | null;
   maxParticipants?: number | null;
   photoUrls?: string[];
-  status?: "draft" | "pending_review";
   region?: string | null;
   category?: string | null;
 };
@@ -97,7 +96,7 @@ export async function createGuideTemplate(
       meeting_point: input.meetingPoint ?? null,
       max_participants: input.maxParticipants ?? null,
       photo_urls: input.photoUrls ?? [],
-      status: input.status ?? "draft",
+      status: "pending_review",
       region: input.region ?? null,
       category: input.category ?? null,
     })
