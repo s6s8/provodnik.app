@@ -81,9 +81,11 @@ export const DEFAULT_VALUES: FormInput = {
 export function useRequestForm(options?: {
   preferredGuideSlug?: string | null;
   preferredTemplateId?: string | null;
+  templatePrefill?: Partial<FormInput> | null;
 }) {
   const preferredGuideSlug = options?.preferredGuideSlug ?? null;
   const preferredTemplateId = options?.preferredTemplateId ?? null;
+  const templatePrefill = options?.templatePrefill ?? null;
   const router = useRouter();
   const [authGateOpen, setAuthGateOpen] = React.useState(false);
   const [pendingFormData, setPendingFormData] = React.useState<FormData | null>(null);
@@ -108,7 +110,11 @@ export function useRequestForm(options?: {
   const form = useForm<FormInput, unknown, FormValues>({
     resolver: zodResolver(travelerRequestSchema),
     defaultValues: DEFAULT_VALUES,
-    values: draft ? { ...DEFAULT_VALUES, ...draft } : undefined,
+    values: draft
+      ? { ...DEFAULT_VALUES, ...templatePrefill, ...draft }
+      : templatePrefill
+        ? { ...DEFAULT_VALUES, ...templatePrefill }
+        : undefined,
     resetOptions: { keepDirtyValues: true },
     mode: "onTouched",
   });

@@ -36,11 +36,13 @@ import { todayMoscowISODate } from "@/lib/dates";
 import type { DestinationOption } from "@/data/supabase/queries";
 import { HomepageAuthGate } from "./homepage-auth-gate";
 import { useRequestForm } from "./use-request-form";
+import type { TemplateRequestPrefill } from "./template-request-prefill";
 
 interface Props {
   destinations: DestinationOption[];
   /** Guide preselected via "Запросить этого гида" on the guide's public page. */
   preferredGuide?: { slug: string; name: string; templateId?: string | null } | null;
+  templatePrefill?: TemplateRequestPrefill | null;
 }
 
 const FIN_BASE =
@@ -343,7 +345,11 @@ function DestinationCombobox({
 
 const errorId = (field: string) => `request-${field}-error`;
 
-export function HomepageRequestFormClassic({ destinations, preferredGuide }: Props) {
+export function HomepageRequestFormClassic({
+  destinations,
+  preferredGuide,
+  templatePrefill,
+}: Props) {
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [guideAttached, setGuideAttached] = React.useState(true);
   const attachedGuide = guideAttached ? preferredGuide ?? null : null;
@@ -368,6 +374,7 @@ export function HomepageRequestFormClassic({ destinations, preferredGuide }: Pro
     // Detaching the guide detaches the excursion with it — the request must not keep
     // claiming a template whose guide the traveler just removed.
     preferredTemplateId: attachedGuide?.templateId ?? null,
+    templatePrefill,
   });
   const startDate = useWatch({ control: form.control, name: "startDate" });
   const timeFlexible = dateFlexibility !== "exact";

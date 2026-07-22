@@ -91,6 +91,24 @@ describe("HomepageRequestFormClassic labelled layout", () => {
     // Submit sits directly in the form flow, not inside a fixed sticky bar.
     expect(submit.parentElement).toBe(form);
   });
+
+  it("prefills location, notes, and budget from a selected ready excursion", () => {
+    render(
+      <HomepageRequestFormClassic
+        destinations={[]}
+        templatePrefill={{
+          destination: "Казань",
+          notes: "Прогулка по старому городу.",
+          budgetPerPersonRub: 3000,
+        }}
+      />,
+    );
+
+    expect(screen.getByLabelText("Направление")).toHaveValue("Казань");
+    fireEvent.click(screen.getByRole("button", { name: "Детали" }));
+    expect(screen.getByLabelText("Пожелания")).toHaveValue("Прогулка по старому городу.");
+    expect(screen.getByLabelText("Бюджет, ₽ на человека")).toHaveValue("3000");
+  });
 });
 
 const draftValues: TravelerRequest = {
