@@ -11,7 +11,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(10);
+select plan(13);
 
 insert into auth.users (
   id,
@@ -238,7 +238,47 @@ select throws_ok(
   'traveler cannot PATCH a programme onto their own request'
 );
 
--- 9. The acceptance lineage: a booking carrying only request_id still names its excursion.
+-- 9. …and the same door from the other side: clearing the link is an edit too. A guard that
+--     only rejected a non-null new value let the owner PATCH the id to NULL and walk the
+--     request away from the excursion it came from.
+select throws_ok(
+  $$update public.traveler_requests
+       set guide_template_id = null
+     where destination = 'Template Directed Request'$$,
+  'guide_template_id_not_editable',
+  'traveler cannot PATCH their request off its template'
+);
+
+-- 10. The blocked PATCH leaves the booked truth exactly where it was.
+select is(
+  (select guide_template_id::text || '|' || (guide_template_snapshot ->> 'title')
+     from public.traveler_requests
+    where destination = 'Template Directed Request'),
+  '7e000000-0000-4000-8000-0000000000aa|Адык: степь и Калмыкия',
+  'a refused PATCH changes neither the link nor the snapshot'
+);
+
+-- 11. A template the traveler cannot *see* is not a template that is gone. The guard reads
+--     guide_templates past RLS on purpose; without that, unpublishing would reopen the hole.
+reset role;
+update public.guide_templates set status = 'draft'
+ where id = '7e000000-0000-4000-8000-0000000000aa';
+set local role authenticated;
+
+select throws_ok(
+  $$update public.traveler_requests
+       set guide_template_id = null
+     where destination = 'Template Directed Request'$$,
+  'guide_template_id_not_editable',
+  'an RLS-invisible template still counts as present'
+);
+
+reset role;
+update public.guide_templates set status = 'published'
+ where id = '7e000000-0000-4000-8000-0000000000aa';
+set local role authenticated;
+
+-- 12. The acceptance lineage: a booking carrying only request_id still names its excursion.
 --    accept_offer inserts request-first bookings with listing_id NULL, so this join is the
 --    only thing standing between the traveler and a booking page with no programme.
 reset role;
@@ -261,8 +301,9 @@ select is(
   'a listing-less booking still resolves its excursion programme through the request'
 );
 
--- 10. Deleting the template unlinks it but leaves the booked truth behind — which is why
---     the pairing constraint is one-directional rather than a strict paired-null.
+-- 13. Deleting the template unlinks it but leaves the booked truth behind — which is why
+--     the pairing constraint is one-directional rather than a strict paired-null, and the
+--     one null-ward change the freeze trigger still has to allow.
 delete from public.guide_templates where id = '7e000000-0000-4000-8000-0000000000aa';
 
 select ok(
