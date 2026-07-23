@@ -7,7 +7,8 @@ import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { PublicListingDiscoveryScreen, isThemeSlug } from "@/features/listings/components/public/public-listing-discovery-screen";
+import { isThemeSlug } from "@/data/themes";
+import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
 
 export function generateMetadata(): Metadata {
   return {

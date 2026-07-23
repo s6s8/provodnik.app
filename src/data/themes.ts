@@ -43,3 +43,7 @@ export const THEMES = [
 export function getTheme(slug: string): Theme | undefined {
   return THEMES.find((t) => t.slug === slug);
 }
+
+export function isThemeSlug(value: string | null | undefined): value is ThemeSlug {
+  return THEMES.some((theme) => theme.slug === value);
+}
