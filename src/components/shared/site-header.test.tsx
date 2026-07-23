@@ -3,11 +3,33 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let mockPathname = "/trips";
 let mockUnreadCount = 0;
-const { useUnreadCountMock } = vi.hoisted(() => ({
+const { useUnreadCountMock, linkPrefetchByHref } = vi.hoisted(() => ({
   useUnreadCountMock: vi.fn(() => ({
     unreadCount: 0,
     refetch: vi.fn(),
   })),
+  linkPrefetchByHref: [] as Array<{ href: string; prefetch?: boolean | null }>,
+}));
+
+vi.mock("next/link", () => ({
+  default: ({
+    href,
+    prefetch,
+    children,
+    ...rest
+  }: {
+    href: string;
+    prefetch?: boolean | null;
+    children: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
+    linkPrefetchByHref.push({ href, prefetch });
+    return (
+      <a href={href} data-prefetch={prefetch === undefined ? "default" : String(prefetch)} {...rest}>
+        {children}
+      </a>
+    );
+  },
 }));
 
 vi.mock("next/navigation", () => ({
@@ -45,9 +67,31 @@ async function openAccountMenu() {
 // A unit test on filterNavItemsByHiddenHrefs() cannot catch this — the pure function
 // was always correct; the COMPONENT simply never called it for the primary nav. This
 // asserts the rendered DOM.
+describe("SiteHeader primary nav prefetch", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    linkPrefetchByHref.length = 0;
+    mockPathname = "/";
+    mockUnreadCount = 0;
+    useUnreadCountMock.mockImplementation(() => ({
+      unreadCount: mockUnreadCount,
+      refetch: vi.fn(),
+    }));
+  });
+
+  it("eagerly prefetches the public desktop /guides nav link", () => {
+    render(<SiteHeader isAuthenticated={false} role={null} hiddenNavHrefs={[]} />);
+
+    const guidesLink = linkPrefetchByHref.find((entry) => entry.href === "/guides");
+    expect(guidesLink).toBeDefined();
+    expect(guidesLink?.prefetch).toBe(true);
+  });
+});
+
 describe("SiteHeader primary nav flag gating", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    linkPrefetchByHref.length = 0;
     mockPathname = "/";
     mockUnreadCount = 0;
     useUnreadCountMock.mockImplementation(() => ({
@@ -90,6 +134,7 @@ describe("SiteHeader primary nav flag gating", () => {
 describe("SiteHeader desktop account menu", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    linkPrefetchByHref.length = 0;
     mockPathname = "/trips";
     mockUnreadCount = 0;
     useUnreadCountMock.mockImplementation(() => ({

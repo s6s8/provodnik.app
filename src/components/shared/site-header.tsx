@@ -129,6 +129,7 @@ export function SiteHeader({
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  prefetch={true}
                   className={cn(
                     "relative whitespace-nowrap text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
                     isActive && "text-primary",
