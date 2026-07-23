@@ -39,6 +39,7 @@ export function ThemeMultiSelect({
       emptyLabel="Тема не найдена"
       leading={leading}
       maxVisibleChips={1}
+      selectAllLabel="Выделить все"
     />
   );
 }
