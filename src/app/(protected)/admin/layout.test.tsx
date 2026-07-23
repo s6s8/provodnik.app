@@ -99,6 +99,27 @@ describe("AdminLayout", () => {
     expect(screen.queryByText("Админка недоступна")).not.toBeInTheDocument();
     expect(getAdminNavCountsMock).toHaveBeenCalledOnce();
     expect(redirectMock).not.toHaveBeenCalled();
+    expect(
+      screen.getAllByRole("link", { name: "Модерация, 1 на проверке" }),
+    ).toHaveLength(2);
+  });
+
+  it("hides the moderation badge when the pending excursion count is zero", async () => {
+    readAuthContextFromServerMock.mockResolvedValueOnce(makeAuthContext({ role: "admin" }));
+    getAdminNavCountsMock.mockResolvedValueOnce({ guides: 0, listings: 0 });
+
+    const ui = await AdminLayout({
+      children: <div data-testid="admin-child">Очередь проверки</div>,
+    });
+    render(ui);
+
+    const moderationLinks = screen
+      .getAllByRole("link")
+      .filter((link) => link.getAttribute("href") === "/admin/moderation");
+    expect(moderationLinks).toHaveLength(2);
+    for (const link of moderationLinks) {
+      expect(link).not.toHaveAttribute("aria-label");
+    }
   });
 
   it("renders admin shell without service-role env (nav counts stay zero)", async () => {

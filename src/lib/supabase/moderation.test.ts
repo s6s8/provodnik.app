@@ -181,6 +181,44 @@ describe("getAdminNavCounts", () => {
       expect.objectContaining({ count: "exact", head: true }),
     );
   });
+
+  it("returns zero counts when moderation queues are empty", async () => {
+    mockAdminSession();
+    const from = vi.fn((table: string) => {
+      if (table === "guide_profiles" || table === "listings") return countQuery(0);
+      throw new Error(`getAdminNavCounts must not query ${table}`);
+    });
+    createSupabaseAdminClient.mockReturnValue({ from });
+
+    await expect(getAdminNavCounts()).resolves.toEqual({ guides: 0, listings: 0 });
+  });
+
+  it("rejects non-admin callers", async () => {
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "traveler-id" } },
+          error: null,
+        }),
+      },
+      from: vi.fn(() =>
+        makeQuery({
+          data: {
+            id: "traveler-id",
+            role: "traveler",
+            account_status: "active",
+            full_name: "Traveler",
+            email: "traveler@example.com",
+            avatar_url: null,
+          },
+          error: null,
+        }),
+      ),
+    });
+
+    await expect(getAdminNavCounts()).rejects.toThrow("Доступ только для администраторов.");
+    expect(createSupabaseAdminClient).not.toHaveBeenCalled();
+  });
 });
 
 describe("getGuideReviewQueue", () => {
