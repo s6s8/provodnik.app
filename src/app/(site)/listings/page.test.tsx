@@ -58,6 +58,20 @@ describe("PublicListingsPage", () => {
     expect(screen.queryByLabelText("discovery")).not.toBeInTheDocument();
   });
 
+  it("ignores an invalid theme query param and defaults to all", async () => {
+    getActiveListings.mockResolvedValueOnce({ data: [], error: null });
+
+    render(
+      await PublicListingsPage({
+        searchParams: Promise.resolve({ theme: "not-a-real-theme" }),
+      }),
+    );
+
+    expect(discoveryScreenMock.mock.calls[0]?.[0]).toMatchObject({
+      initialTheme: "all",
+    });
+  });
+
   it("passes search and theme query params into the discovery screen", async () => {
     getActiveListings.mockResolvedValueOnce({ data: [], error: null });
 

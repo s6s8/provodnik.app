@@ -62,6 +62,21 @@ describe("PublicListingDiscoveryScreen", () => {
     expect(screen.getByText("от 5 000 ₽ за группу до 8 человек")).toBeInTheDocument();
   });
 
+  it("hydrates the active theme filter from the initialTheme prop", () => {
+    render(
+      <PublicListingDiscoveryScreen
+        listings={[
+          makeListing(0, { themes: ["history_culture"], title: "История" }),
+          makeListing(1, { themes: ["food"], title: "Еда" }),
+        ]}
+        initialTheme="food"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /Еда/ })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /История/ })).not.toBeInTheDocument();
+  });
+
   it("syncs search and theme filters into the URL", () => {
     render(
       <PublicListingDiscoveryScreen

@@ -534,6 +534,39 @@ describe("editOfferAction", () => {
     expect(result).toEqual({ error: "Можно редактировать только активное предложение." });
   });
 
+  it("reports not found when the offer does not exist", async () => {
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: null }),
+      }),
+    });
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } }, error: null }),
+      },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_offers") return { select: offerSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "обновлённое предложение достаточной длины");
+    fd.set("valid_until", "2027-01-01");
+
+    const result = await editOfferAction("missing-offer", "req-1", fd);
+
+    expect(result).toEqual({ error: "Предложение не найдено." });
+  });
+
   it("rejects editing an offer owned by another guide", async () => {
     const offerMaybeSingle = vi.fn().mockResolvedValue({
       data: { id: "offer-1", guide_id: "other-guide", status: "pending", request_id: "req-1" },
