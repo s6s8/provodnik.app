@@ -1,11 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClientMock } = vi.hoisted(() => ({
+const { createSupabaseServerClientMock, notifyNewOfferMock } = vi.hoisted(() => ({
   createSupabaseServerClientMock: vi.fn(),
+  notifyNewOfferMock: vi.fn(),
 }));
 
 vi.mock("@/lib/notifications/triggers", () => ({
-  notifyNewOffer: vi.fn(),
+  notifyNewOffer: notifyNewOfferMock,
 }));
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -402,6 +403,227 @@ describe("submitOfferAction", () => {
       "2026-09-10T07:00:00.000Z",
       "2026-09-10T10:00:00.000Z",
     );
+  });
+
+  it("notifies the traveler once after a successful offer commit", async () => {
+    notifyNewOfferMock.mockClear();
+    const requestId = "11111111-1111-4111-8111-111111111111";
+    const offerId = "22222222-2222-4222-8222-222222222222";
+    const insertSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: offerId,
+        request_id: requestId,
+        guide_id: "guide-1",
+        status: "pending",
+      },
+      error: null,
+    });
+    const insertSelect = vi.fn().mockReturnValue({ single: insertSingle });
+    const insert = vi.fn().mockReturnValue({ select: insertSelect });
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+    const guideSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { verification_status: "approved", is_available: true },
+        }),
+      }),
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }),
+          }),
+        }),
+      }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            status: "open",
+            traveler_id: "trav-1",
+            date_locked: false,
+            time_locked: false,
+            starts_on: "2026-09-10",
+            start_time: "10:00:00",
+            end_time: "13:00:00",
+            date_flexibility: "exact",
+            destination: "Казань",
+            region: "Татарстан",
+          },
+        }),
+      }),
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } } }) },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_profiles") return { select: guideSelect };
+        if (table === "guide_offers") return { select: offerSelect, insert };
+        if (table === "traveler_requests") return { select: requestSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "предложение достаточной длины для валидации");
+    fd.set("valid_until", "2027-01-01");
+    fd.set("starts_at", makeIso("2026-09-10", "10:00"));
+    fd.set("ends_at", makeIso("2026-09-10", "13:00"));
+
+    await expect(submitOfferAction(requestId, fd)).resolves.toEqual({ ok: true });
+    expect(notifyNewOfferMock).toHaveBeenCalledTimes(1);
+    expect(notifyNewOfferMock).toHaveBeenCalledWith(requestId, offerId);
+  });
+
+  it("does not notify again on duplicate submit retries", async () => {
+    notifyNewOfferMock.mockClear();
+    const existingOffer = {
+      id: "offer-existing",
+      price_minor: 500_000,
+      currency: "RUB",
+      message: "Уже отправленное предложение достаточной длины.",
+      status: "pending",
+      expires_at: "2027-01-01T00:00:00.000Z",
+    };
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+    const guideSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { verification_status: "approved", is_available: true },
+        }),
+      }),
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: existingOffer }),
+            }),
+          }),
+        }),
+      }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            traveler_id: "trav-1",
+            destination: "Казань",
+            region: "Татарстан",
+            starts_on: "2026-09-10",
+            start_time: "10:00:00",
+            end_time: "13:00:00",
+            date_flexibility: "exact",
+          },
+        }),
+      }),
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } } }) },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_profiles") return { select: guideSelect };
+        if (table === "guide_offers") return { select: offerSelect };
+        if (table === "traveler_requests") return { select: requestSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+
+    await expect(submitOfferAction("request-1", new FormData())).resolves.toEqual({
+      ok: true,
+      alreadyOffered: true,
+    });
+    expect(notifyNewOfferMock).not.toHaveBeenCalled();
+  });
+
+  it("keeps the committed offer when notification delivery fails", async () => {
+    notifyNewOfferMock.mockRejectedValueOnce(new Error("notification backend down"));
+    const requestId = "11111111-1111-4111-8111-111111111111";
+    const insertSingle = vi.fn().mockResolvedValue({
+      data: {
+        id: "offer-1",
+        request_id: requestId,
+        guide_id: "guide-1",
+        status: "pending",
+      },
+      error: null,
+    });
+    const insert = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({ single: insertSingle }),
+    });
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+    const guideSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { verification_status: "approved", is_available: true },
+        }),
+      }),
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }),
+          }),
+        }),
+      }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            status: "open",
+            traveler_id: "trav-1",
+            date_locked: false,
+            time_locked: false,
+            starts_on: "2026-09-10",
+            start_time: "10:00:00",
+            end_time: "13:00:00",
+            date_flexibility: "exact",
+            destination: "Казань",
+            region: "Татарстан",
+          },
+        }),
+      }),
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } } }) },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_profiles") return { select: guideSelect };
+        if (table === "guide_offers") return { select: offerSelect, insert };
+        if (table === "traveler_requests") return { select: requestSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+
+    const fd = new FormData();
+    fd.set("price_total", "5000");
+    fd.set("message", "предложение достаточной длины для валидации");
+    fd.set("valid_until", "2027-01-01");
+    fd.set("starts_at", makeIso("2026-09-10", "10:00"));
+    fd.set("ends_at", makeIso("2026-09-10", "13:00"));
+
+    await expect(submitOfferAction(requestId, fd)).resolves.toEqual({ ok: true });
   });
 });
 

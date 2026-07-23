@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createNotification, createSupabaseServerClient, redirect } = vi.hoisted(() => ({
+const { createNotification, createSupabaseServerClient, redirect, acceptOfferForTraveler } = vi.hoisted(() => ({
   createNotification: vi.fn(),
   createSupabaseServerClient: vi.fn(),
   redirect: vi.fn((url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);
   }),
+  acceptOfferForTraveler: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
@@ -26,6 +27,15 @@ vi.mock("@/lib/notifications/triggers", () => ({
   notifyBookingCreated: vi.fn(),
 }));
 
+vi.mock("@/lib/supabase/offers", () => ({
+  acceptOfferForTraveler,
+  markOffersReadForRequest: vi.fn(),
+}));
+
+vi.mock("@/lib/analytics/marketplace-events", () => ({
+  logFunnelEvent: vi.fn(),
+}));
+
 vi.mock("@/lib/supabase/conversations", () => ({
   getOrCreateThread: vi.fn(),
 }));
@@ -34,7 +44,7 @@ vi.mock("@/lib/supabase/bookings", () => ({
   createBooking: vi.fn(),
 }));
 
-import { cancelRequestAction, rejectOfferAction } from "./owner-request-actions";
+import { acceptOfferAction, cancelRequestAction, rejectOfferAction } from "./owner-request-actions";
 
 function buildFormData(requestId: string) {
   const formData = new FormData();
@@ -113,7 +123,74 @@ function buildSupabaseMock(requestStatus: "booked" | "open") {
 beforeEach(() => {
   createNotification.mockReset();
   createSupabaseServerClient.mockReset();
+  acceptOfferForTraveler.mockReset();
   redirect.mockClear();
+});
+
+describe("acceptOfferAction", () => {
+  const offerId = "11111111-1111-4111-8111-111111111111";
+
+  function buildAcceptFormData() {
+    const formData = new FormData();
+    formData.set("offer_id", offerId);
+    return formData;
+  }
+
+  it("redirects to the booking after a successful accept", async () => {
+    acceptOfferForTraveler.mockResolvedValue({ bookingId: "booking-1", error: null });
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "traveler-1" } },
+          error: null,
+        }),
+      },
+    });
+
+    await expect(
+      acceptOfferAction({ error: null }, buildAcceptFormData()),
+    ).rejects.toThrow("NEXT_REDIRECT:/bookings/booking-1");
+
+    expect(acceptOfferForTraveler).toHaveBeenCalledTimes(1);
+    expect(acceptOfferForTraveler).toHaveBeenCalledWith(offerId);
+    expect(redirect).toHaveBeenCalledWith("/bookings/booking-1");
+  });
+
+  it("returns a denial when acceptance fails before any booking commits", async () => {
+    acceptOfferForTraveler.mockResolvedValue({
+      bookingId: null,
+      error: "offer_not_found",
+    });
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "traveler-1" } },
+          error: null,
+        }),
+      },
+    });
+
+    const result = await acceptOfferAction({ error: null }, buildAcceptFormData());
+
+    expect(result.error).toBe("Предложение уже не активно.");
+    expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("still redirects when notification delivery failed inside the shared helper", async () => {
+    acceptOfferForTraveler.mockResolvedValue({ bookingId: "booking-1", error: null });
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: "traveler-1" } },
+          error: null,
+        }),
+      },
+    });
+
+    await expect(
+      acceptOfferAction({ error: null }, buildAcceptFormData()),
+    ).rejects.toThrow("NEXT_REDIRECT:/bookings/booking-1");
+  });
 });
 
 describe("cancelRequestAction", () => {

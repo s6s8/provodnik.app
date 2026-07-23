@@ -45,7 +45,7 @@ vi.mock("@/lib/email/templates/notification-emails", () => ({
   }),
 }));
 
-import { notifyBookingCancelled, notifyGuidesNewRequest, notifyNewOffer } from "./triggers";
+import { notifyBookingCancelled, notifyBookingCreated, notifyGuidesNewRequest, notifyNewOffer } from "./triggers";
 
 const bookingId = "11111111-1111-4111-8111-111111111111";
 const travelerId = "22222222-2222-4222-8222-222222222222";
@@ -417,6 +417,100 @@ describe("notifyNewOffer", () => {
     });
 
     await notifyNewOffer(requestId, offerId);
+
+    expect(sendNotificationEmail).not.toHaveBeenCalled();
+  });
+});
+
+describe("notifyBookingCreated", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    createNotification.mockResolvedValue({ created: true, row: { id: "notif-1" } });
+    sendNotificationEmail.mockResolvedValue(undefined);
+  });
+
+  it("stores entity_id so duplicate accepts cannot spam the guide inbox", async () => {
+    const bookingQuery = {
+      select: vi.fn(() => bookingQuery),
+      eq: vi.fn(() => bookingQuery),
+      single: vi.fn(async () => ({
+        data: { id: bookingId, traveler_id: travelerId, guide_id: guideId },
+        error: null,
+      })),
+    };
+    const profileQuery = {
+      select: vi.fn(() => profileQuery),
+      eq: vi.fn(() => profileQuery),
+      maybeSingle: vi.fn(async () => ({ data: { full_name: "Путешественник" }, error: null })),
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "bookings") return bookingQuery;
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return profileQuery;
+        if (table === "guide_profiles") {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({
+                maybeSingle: vi.fn(async () => ({ data: { notification_prefs: {} }, error: null })),
+              })),
+            })),
+          };
+        }
+        throw new Error(`unexpected admin table ${table}`);
+      }),
+    });
+
+    await notifyBookingCreated(bookingId);
+
+    expect(createNotification).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userId: guideId,
+        kind: "booking_created",
+        entityType: "booking",
+        entityId: bookingId,
+      }),
+    );
+  });
+
+  it("skips the email when the inbox row already exists for this booking", async () => {
+    createNotification.mockResolvedValueOnce({ created: false, row: { id: "notif-1" } });
+
+    const bookingQuery = {
+      select: vi.fn(() => bookingQuery),
+      eq: vi.fn(() => bookingQuery),
+      single: vi.fn(async () => ({
+        data: { id: bookingId, traveler_id: travelerId, guide_id: guideId },
+        error: null,
+      })),
+    };
+    const profileQuery = {
+      select: vi.fn(() => profileQuery),
+      eq: vi.fn(() => profileQuery),
+      maybeSingle: vi.fn(async () => ({ data: { full_name: "Путешественник" }, error: null })),
+    };
+
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn((table: string) => {
+        if (table === "bookings") return bookingQuery;
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+    createSupabaseAdminClient.mockReturnValue({
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return profileQuery;
+        throw new Error(`unexpected admin table ${table}`);
+      }),
+    });
+
+    await notifyBookingCreated(bookingId);
 
     expect(sendNotificationEmail).not.toHaveBeenCalled();
   });
