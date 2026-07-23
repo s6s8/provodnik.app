@@ -46,6 +46,8 @@ export type ListingRecord = {
   departure: string;
   /** Real booking format enum from listings.format: private | group | combo (or ""). */
   format: string;
+  /** listings.exp_type — drives launch gating; absent on guide_templates cards. */
+  expType?: string | null;
   /** Ready-tour price scope (guide_templates only); independent of the format badge. */
   priceScope?: "per_person" | "per_group";
   /** Catalog/theme category from listings.category (drives theme-slug mapping). */
@@ -391,6 +393,7 @@ export function mapListingRow(row: Record<string, unknown>): ListingRecord {
     difficulty: ((row.category as string) ?? "").toLowerCase().includes("природ") ? "Средняя" : "Лёгкая",
     departure: (row.meeting_point as string) ?? city,
     format: (row.format as string | null) ?? "",
+    expType: (row.exp_type as string | null) ?? null,
     category: (row.category as string | null) ?? "",
     description: (row.route_summary as string) ?? "",
     inclusions: (row.inclusions as string[]) ?? [],

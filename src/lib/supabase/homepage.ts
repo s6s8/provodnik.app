@@ -4,6 +4,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { isDemoEmail } from "@/data/admin-users/guards";
+import {
+  filterLaunchVisibleListingRows,
+  filterLaunchVisibleListings,
+  isReadyExcursionLaunchVisible,
+} from "@/lib/listing-launch-visibility";
 
 import { getPublishedTemplateListings } from "./guide-template-listings";
 import { getGuides } from "./queries";
@@ -115,7 +120,8 @@ async function homepageListings(
   if (error) throw error;
 
   const rows = (data ?? []).filter((row) => allowed.has(row.guide_id as string));
-  const named = rows.length > 0 ? await attachGuideDisplayNames(client, rows) : [];
+  const visibleRows = filterLaunchVisibleListingRows(rows);
+  const named = visibleRows.length > 0 ? await attachGuideDisplayNames(client, visibleRows) : [];
   const listings = named.map(mapListingRow);
 
   // `listings` has no production writer — the excursions guides actually publish
@@ -126,11 +132,13 @@ async function homepageListings(
   // accounts (by email, admin-only under RLS), so re-filter on it rather than trust
   // the looser gate.
   const allowedSlugs = new Set([...allowed.values()].map((guide) => guide.slug));
-  const templates = (await getPublishedTemplateListings(client)).filter((record) =>
-    allowedSlugs.has(record.guideSlug),
-  );
+  const templates = isReadyExcursionLaunchVisible()
+    ? (await getPublishedTemplateListings(client)).filter((record) =>
+        allowedSlugs.has(record.guideSlug),
+      )
+    : [];
 
-  return [...listings, ...templates].slice(0, LISTING_CARDS);
+  return filterLaunchVisibleListings([...listings, ...templates]).slice(0, LISTING_CARDS);
 }
 
 async function homepageGuides(
