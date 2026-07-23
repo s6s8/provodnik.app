@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import type { ListingRecord } from "@/data/supabase/queries";
@@ -25,8 +28,6 @@ vi.mock("@/data/supabase/queries", () => ({
 
 vi.mock("@/features/listings/components/public/public-listing-discovery-screen", () => ({
   PublicListingDiscoveryScreen: discoveryScreenMock,
-  isThemeSlug: (value: string | null | undefined) =>
-    value === "history_culture" || value === "food" || value === "nature",
 }));
 
 import PublicListingsPage from "./page";
@@ -56,6 +57,30 @@ describe("PublicListingsPage", () => {
 
     expect(screen.getByText("Не удалось загрузить экскурсии. Попробуйте обновить страницу.")).toBeInTheDocument();
     expect(screen.queryByLabelText("discovery")).not.toBeInTheDocument();
+  });
+
+  it("does not import theme validation from the client discovery screen", () => {
+    const source = readFileSync(join(process.cwd(), "src/app/(site)/listings/page.tsx"), "utf8");
+
+    expect(source).toContain('import { isThemeSlug } from "@/data/themes"');
+    expect(source).not.toContain(
+      'isThemeSlug } from "@/features/listings/components/public/public-listing-discovery-screen"',
+    );
+  });
+
+  it("renders with FEATURE_PUBLIC_CATALOG and a theme query using server-safe theme validation", async () => {
+    flagsMock.FEATURE_PUBLIC_CATALOG = true;
+    getActiveListings.mockResolvedValueOnce({ data: [], error: null });
+
+    render(
+      await PublicListingsPage({
+        searchParams: Promise.resolve({ theme: "art" }),
+      }),
+    );
+
+    expect(discoveryScreenMock.mock.calls[0]?.[0]).toMatchObject({
+      initialTheme: "art",
+    });
   });
 
   it("ignores an invalid theme query param and defaults to all", async () => {

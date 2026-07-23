@@ -60,10 +60,6 @@ function mapListing(listing: PublicListing): ListingRecord {
   };
 }
 
-export function isThemeSlug(value: string | null | undefined): value is ThemeSlug {
-  return THEMES.some((theme) => theme.slug === value);
-}
-
 export function PublicListingDiscoveryScreen({
   listings,
   initialSearch = "",
