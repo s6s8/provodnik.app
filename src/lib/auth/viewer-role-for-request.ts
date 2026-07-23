@@ -31,7 +31,7 @@ export const getRequestViewerContext = cache(async (
     const [requestResult, profileResult, guideProfileResult] = await Promise.all([
       supabase
         .from("traveler_requests")
-        .select("traveler_id")
+        .select("traveler_id, target_guide_id")
         .eq("id", requestId)
         .maybeSingle(),
       supabase
@@ -46,9 +46,11 @@ export const getRequestViewerContext = cache(async (
         .maybeSingle(),
     ]);
 
-    const travelerId =
-      (requestResult.data as { traveler_id: string | null } | null)?.traveler_id ??
-      null;
+    const requestRow = requestResult.data as {
+      traveler_id: string | null;
+      target_guide_id: string | null;
+    } | null;
+    const travelerId = requestRow?.traveler_id ?? null;
     if (travelerId === user.id) return { role: "owner", userId: user.id, authReadFailed: false };
 
     const profileRole =
@@ -66,7 +68,11 @@ export const getRequestViewerContext = cache(async (
       (guideProfileResult.data as { verification_status: string | null } | null)
         ?.verification_status ?? null;
     if (verificationStatus === "approved") {
-      return { role: "guide", userId: user.id, authReadFailed: false };
+      const targetGuideId = requestRow?.target_guide_id ?? null;
+      if (!targetGuideId || targetGuideId === user.id) {
+        return { role: "guide", userId: user.id, authReadFailed: false };
+      }
+      return { role: "public", userId: user.id, authReadFailed: false };
     }
 
     return { role: "public", userId: user.id, authReadFailed: false };

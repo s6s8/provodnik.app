@@ -19,6 +19,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { kopecksToRub } from "@/data/money";
+import {
+  isFlexibleDateFlexibility,
+  isOfferDateLocked,
+  isOfferTimeLocked,
+} from "@/data/request-date-flexibility";
 import type { RequestRecord } from "@/data/supabase/queries";
 import { isExpired, normalizeExpiryInput } from "@/lib/dates";
 import { submitOfferAction, editOfferAction } from "@/features/guide/offer-actions";
@@ -120,9 +125,11 @@ export function BidFormPanel({
 
   const travelerDate = request.startsOn ? request.startsOn.slice(0, 10) : "";
   const travelerCount = request.groupSize > 0 ? request.groupSize : 1;
-  const dateLocked = request.dateFlexibility !== "few_days";
-  const timeLocked =
-    request.dateFlexibility === "few_days" ? false : (request.time_locked ?? true);
+  const dateLocked = isOfferDateLocked({ date_flexibility: request.dateFlexibility });
+  const timeLocked = isOfferTimeLocked({
+    date_flexibility: request.dateFlexibility,
+    time_locked: request.time_locked,
+  });
 
   const {
     register,
@@ -453,8 +460,8 @@ export function BidFormPanel({
           <div className="grid gap-2">
             <div className="flex items-center gap-2">
               {dateShifted ? <ProposedBadge /> : null}
-              <Badge variant={request.dateFlexibility === "few_days" ? "success" : "destructive"}>
-                {request.dateFlexibility === "few_days" ? "Гибкие даты" : "Точная дата"}
+              <Badge variant={isFlexibleDateFlexibility(request.dateFlexibility) ? "success" : "destructive"}>
+                {isFlexibleDateFlexibility(request.dateFlexibility) ? "Гибкие даты" : "Точная дата"}
               </Badge>
             </div>
             <div className="relative">
@@ -481,7 +488,7 @@ export function BidFormPanel({
                 <ProposedBadge />
               </div>
             ) : null}
-            {request.dateFlexibility === "few_days" ? (
+            {isFlexibleDateFlexibility(request.dateFlexibility) ? (
               <Badge variant="success">Гибкое время</Badge>
             ) : null}
             <div className="flex items-center gap-2">

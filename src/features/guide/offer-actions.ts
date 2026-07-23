@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { rubToKopecks } from "@/data/money";
+import { isFlexibleDateFlexibility } from "@/data/request-date-flexibility";
 import { actionFailure } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ensureOfferConversation } from "@/lib/supabase/offer-conversation";
@@ -68,12 +69,12 @@ export async function checkOfferAgainstLocks(args: {
   const startsAt = toMoscowIsoParts(args.startsAt);
   const endsAt = toMoscowIsoParts(args.endsAt);
 
-  if (args.request.date_flexibility !== "few_days" && startsAt?.date !== args.request.starts_on) {
+  if (!isFlexibleDateFlexibility(args.request.date_flexibility) && startsAt?.date !== args.request.starts_on) {
     return { error: "Путешественник просит строго эту дату." };
   }
 
   if (
-    args.request.date_flexibility !== "few_days" &&
+    !isFlexibleDateFlexibility(args.request.date_flexibility) &&
     args.request.time_locked &&
     (startsAt?.time !== args.request.start_time?.slice(0, 5) ||
       endsAt?.time !== args.request.end_time?.slice(0, 5))

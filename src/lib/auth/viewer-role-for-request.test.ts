@@ -32,19 +32,23 @@ function makeQueryResult(data: unknown) {
 function makeSupabaseClient({
   userId,
   travelerId,
+  targetGuideId = null,
   profileRole,
   appMetadataRole,
   guideVerificationStatus,
 }: {
   userId: string | null;
   travelerId: string | null;
+  targetGuideId?: string | null;
   profileRole: string | null;
   appMetadataRole: string | null;
   guideVerificationStatus: string | null;
 }) {
   const queries: Record<TableName, ReturnType<typeof makeQueryResult>> = {
     traveler_requests: makeQueryResult(
-      travelerId ? { traveler_id: travelerId } : null,
+      travelerId || targetGuideId
+        ? { traveler_id: travelerId, target_guide_id: targetGuideId }
+        : null,
     ),
     profiles: makeQueryResult(
       profileRole ? { role: profileRole } : null,
@@ -105,6 +109,34 @@ describe("viewerRoleForRequest", () => {
     createSupabaseServerClientMock.mockResolvedValue(supabase);
 
     await expect(viewerRoleForRequest("request-1")).resolves.toBe("guide");
+  });
+
+  it("returns guide when the request is addressed to the current guide", async () => {
+    const supabase = makeSupabaseClient({
+      userId: "user-guide",
+      travelerId: "user-owner",
+      targetGuideId: "user-guide",
+      profileRole: "guide",
+      appMetadataRole: "guide",
+      guideVerificationStatus: "approved",
+    });
+    createSupabaseServerClientMock.mockResolvedValue(supabase);
+
+    await expect(viewerRoleForRequest("request-1")).resolves.toBe("guide");
+  });
+
+  it("returns public for an approved guide when the request is addressed to someone else", async () => {
+    const supabase = makeSupabaseClient({
+      userId: "user-guide",
+      travelerId: "user-owner",
+      targetGuideId: "other-guide",
+      profileRole: "guide",
+      appMetadataRole: "guide",
+      guideVerificationStatus: "approved",
+    });
+    createSupabaseServerClientMock.mockResolvedValue(supabase);
+
+    await expect(viewerRoleForRequest("request-1")).resolves.toBe("public");
   });
 
   it("returns admin when the existing admin role check matches", async () => {

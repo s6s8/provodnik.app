@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Tag } from "@/components/ui/tag";
 import { useConfirm } from "@/components/shared/confirm-dialog";
+import { resolveGuideRequestFlexibilityPresentation } from "@/data/request-date-flexibility";
 import { INTEREST_CHIPS } from "@/data/interests";
 import { COPY } from "@/lib/copy";
 import { formatRubNumber, kopecksToRub } from "@/data/money";
@@ -50,7 +51,7 @@ import { rejectOfferAction } from "@/features/requests/owner-request-actions";
 import { cityImage } from "@/lib/city-image";
 import { isExpired } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
-import { formatRussianDate, formatRussianDateTime, formatTimeRange } from "@/lib/dates";
+import { formatRussianDate, formatRussianDateTime } from "@/lib/dates";
 import type { QaThread } from "@/lib/supabase/qa-threads";
 import type { GroupMessage } from "@/lib/supabase/request-thread";
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
@@ -932,8 +933,12 @@ function GuideDetailBranch({
   }, [existingOfferId]);
 
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
-  const hasFlexibleDates = request.dateFlexibility === "few_days";
-  const hasFlexibleTime = hasFlexibleDates || request.time_locked === false;
+  const flexibility = resolveGuideRequestFlexibilityPresentation({
+    dateFlexibility: request.dateFlexibility,
+    startTime: request.startTime,
+    endTime: request.endTime,
+    time_locked: request.time_locked,
+  });
 
   return (
     <>
@@ -947,13 +952,9 @@ function GuideDetailBranch({
       >
         <RequestFactsPanel
           dateLabel={request.dateLabel}
-          flexible={hasFlexibleDates}
-          timeLabel={
-            hasFlexibleTime
-              ? undefined
-              : formatTimeRange(request.startTime, request.endTime) || undefined
-          }
-          timeFlexible={hasFlexibleTime}
+          flexible={flexibility.datesFlexible}
+          timeLabel={flexibility.timeLabel}
+          timeFlexible={flexibility.timeFlexible}
           groupLabel={`${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`}
           budgetLabel={request.budgetLabel}
           formatLabel={request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
