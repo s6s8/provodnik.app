@@ -153,6 +153,8 @@ export type BookingRecord = {
   title: string;
   destination: string;
   dateLabel: string;
+  timeLabel?: string;
+  partySize?: number;
   priceRub: number;
   guideName?: string;
   travelerName?: string;

@@ -2,6 +2,7 @@
 
 import { revealTravelerName, revealTravelerPhone, type BookingRecord } from "@/data/supabase/queries";
 import { transitionBooking, type BookingStatus } from "@/lib/bookings/state-machine";
+import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { friendlyError } from "@/lib/errors";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -122,7 +123,7 @@ export async function getGuideBookingDetailAction(
   const { data: booking, error: bookingError } = await supabase
     .from("bookings")
     .select(
-      "id, traveler_id, guide_id, request_id, meeting_point, starts_at, ends_at, subtotal_minor, status, traveler_request:traveler_requests!bookings_request_id_fkey(destination)",
+      "id, traveler_id, guide_id, request_id, meeting_point, starts_at, ends_at, subtotal_minor, party_size, status, traveler_request:traveler_requests!bookings_request_id_fkey(destination)",
     )
     .eq("id", bookingId)
     .maybeSingle();
@@ -160,7 +161,9 @@ export async function getGuideBookingDetailAction(
       id: booking.id,
       title: requestDestination ?? booking.meeting_point ?? "Маршрут",
       destination: requestDestination ?? booking.meeting_point ?? "Маршрут",
-      dateLabel: formatDateLabel(booking.starts_at ?? "", booking.ends_at),
+      dateLabel: formatBookingDateLabel(booking.starts_at, booking.ends_at),
+      timeLabel: formatBookingTimeLabel(booking.starts_at, booking.ends_at),
+      partySize: booking.party_size ?? undefined,
       priceRub: Math.round((booking.subtotal_minor ?? 0) / 100),
       travelerName,
       travelerPhone,
@@ -169,12 +172,17 @@ export async function getGuideBookingDetailAction(
   };
 }
 
-function formatDateLabel(start: string, end?: string | null) {
+function formatBookingDateLabel(start: string | null, end?: string | null): string {
   if (!start) return "Дата уточняется";
-  const date = new Date(start);
-  const fmt = new Intl.DateTimeFormat("ru-RU", { day: "numeric", month: "long", year: "numeric" });
-  if (!end) return fmt.format(date);
-  const endDate = new Date(end);
-  if (Number.isNaN(endDate.getTime()) || endDate.toDateString() === date.toDateString()) return fmt.format(date);
-  return `${fmt.format(date)} — ${fmt.format(endDate)}`;
+  const label = formatRussianDateRange(start, end);
+  return label || "Дата уточняется";
+}
+
+function formatBookingTimeLabel(start: string | null, end?: string | null): string | undefined {
+  if (!start) return undefined;
+  const startTime = formatRussianTime(start);
+  if (!end) return startTime;
+  const endTime = formatRussianTime(end);
+  if (!endTime || endTime === startTime) return startTime;
+  return `${startTime} – ${endTime}`;
 }

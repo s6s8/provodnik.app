@@ -174,6 +174,33 @@ describe("BookingDetailScreen", () => {
     ).not.toBeNull();
   });
 
+  it("shows trip facts before the guide confirms a pending booking", async () => {
+    getGuideBookingDetailAction.mockResolvedValue({
+      ok: true,
+      booking: {
+        id: "booking-1",
+        title: "Площадь Ленина",
+        destination: "Площадь Ленина",
+        dateLabel: "10 июня",
+        timeLabel: "13:00 – 15:00",
+        partySize: 4,
+        priceRub: 6000,
+        travelerName: undefined,
+        travelerPhone: null,
+        status: "awaiting_guide_confirmation",
+      },
+    });
+
+    render(<BookingDetailScreen viewerRole="guide" bookingId="booking-1" />);
+
+    expect(await screen.findByRole("button", { name: "Подтвердить" })).toBeInTheDocument();
+    expect(screen.getByText("10 июня")).toBeInTheDocument();
+    expect(screen.getByText("13:00 – 15:00")).toBeInTheDocument();
+    expect(screen.getByText("4 чел.")).toBeInTheDocument();
+    expect(screen.getByText(/Выплата:/)).toBeInTheDocument();
+    expect(screen.queryByText("Свяжитесь с путешественником")).not.toBeInTheDocument();
+  });
+
   it("renders guide controls and revealed traveler contact on a confirmed booking", async () => {
     getGuideBookingDetailAction.mockResolvedValue({
       ok: true,

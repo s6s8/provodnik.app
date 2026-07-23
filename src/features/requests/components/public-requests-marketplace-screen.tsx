@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -36,6 +37,12 @@ import { getRequestDiscoverySearchText } from "@/data/public-discovery-search";
 import { THEMES } from "@/data/themes";
 import { brandGradient, cityImage } from "@/lib/city-image";
 import { todayMoscowISODate } from "@/lib/dates";
+import {
+  buildRequestsMarketplacePath,
+  type RequestsMarketplaceFilterState,
+  themeLabelFromSlug,
+  themeSlugFromLabel,
+} from "@/lib/discovery-requests-filters";
 import { formatRubNumber } from "@/data/money";
 
 type CategoryFilter = (typeof THEMES)[number]["label"];
@@ -100,7 +107,34 @@ type Props = {
   initialData: OpenRequestRecord[] | null;
   initialHasMore?: boolean;
   initialOffset?: number;
+  initialFilters?: RequestsMarketplaceFilterState;
 };
+
+function parseDateRangeFromIso(
+  from: string | null,
+  to: string | null,
+): ActiveDateRange | null {
+  if (!from) return null;
+  const fromDate = new Date(`${from}T12:00:00`);
+  if (Number.isNaN(fromDate.getTime())) return null;
+  if (!to) return { from: fromDate };
+  const toDate = new Date(`${to}T12:00:00`);
+  if (Number.isNaN(toDate.getTime())) return { from: fromDate };
+  return { from: fromDate, to: toDate };
+}
+
+function isoDateFromDate(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function categoriesFromThemeSlugs(slugs: RequestsMarketplaceFilterState["themeSlugs"]): CategoryFilter[] {
+  return slugs
+    .map((slug) => themeLabelFromSlug(slug))
+    .filter((label): label is CategoryFilter => CATEGORY_FILTERS.includes(label as CategoryFilter));
+}
 
 function deriveCityFromDestination(label: string): string {
   return label.split(",")[0].trim();
@@ -183,13 +217,20 @@ export function PublicRequestsMarketplaceScreen({
   initialData,
   initialHasMore = false,
   initialOffset = 0,
+  initialFilters,
 }: Props) {
-  const [query, setQuery] = useState("");
-  const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
-  const [activeCity, setActiveCity] = useState<string | null>(null);
-  const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(null);
-  const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(null);
-  const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
+  const router = useRouter();
+  const [query, setQuery] = useState(initialFilters?.q ?? "");
+  const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>(
+    () => categoriesFromThemeSlugs(initialFilters?.themeSlugs ?? []),
+  );
+  const [activeCity, setActiveCity] = useState<string | null>(initialFilters?.city ?? null);
+  const [activeWhen, setActiveWhen] = useState<WhenPreset | null>(
+    (initialFilters?.when as WhenPreset | null) ?? null,
+  );
+  const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(() =>
+    parseDateRangeFromIso(initialFilters?.from ?? null, initialFilters?.to ?? null),
+  );
   const [visibleCount, setVisibleCount] = useState(REQUESTS_PAGE_SIZE);
   const [requests, setRequests] = useState<OpenRequestRecord[]>(initialData ?? []);
   const [serverHasMore, setServerHasMore] = useState(initialHasMore);
@@ -212,23 +253,38 @@ export function PublicRequestsMarketplaceScreen({
     return Array.from(set).sort((a, b) => a.localeCompare(b, "ru"));
   }, [requests]);
 
-  useEffect(() => {
-    if (hasLoadedStoredCity || cityOptions.length === 0) return;
+  const syncUrl = useCallback(
+    (
+      next: {
+        q?: string;
+        city?: string | null;
+        when?: WhenPreset | null;
+        dateRange?: ActiveDateRange | null;
+        categories?: CategoryFilter[];
+      } = {},
+    ) => {
+      const nextQuery = next.q ?? query;
+      const nextCity = next.city !== undefined ? next.city : activeCity;
+      const nextWhen = next.when !== undefined ? next.when : activeWhen;
+      const nextDateRange = next.dateRange !== undefined ? next.dateRange : activeDateRange;
+      const nextCategories = next.categories ?? activeCategories;
 
-    const timer = window.setTimeout(() => {
-      try {
-        const savedCity = window.localStorage.getItem("requests-city");
-        if (savedCity && cityOptions.includes(savedCity)) {
-          setActiveCity(savedCity);
-        }
-      } catch {
-        // Best effort only: storage can be unavailable in private or restricted contexts.
-      } finally {
-        setHasLoadedStoredCity(true);
-      }
-    }, 0);
-    return () => window.clearTimeout(timer);
-  }, [cityOptions, hasLoadedStoredCity]);
+      router.replace(
+        buildRequestsMarketplacePath({
+          q: nextQuery,
+          city: nextCity,
+          when: nextWhen,
+          from: nextDateRange?.from ? isoDateFromDate(nextDateRange.from) : null,
+          to: nextDateRange?.to ? isoDateFromDate(nextDateRange.to) : null,
+          themeSlugs: nextCategories
+            .map((label) => themeSlugFromLabel(label))
+            .filter((slug): slug is NonNullable<typeof slug> => slug != null),
+        }),
+        { scroll: false },
+      );
+    },
+    [activeCategories, activeCity, activeDateRange, activeWhen, query, router],
+  );
 
   const categoryCounts = useMemo(() => {
     const counts = {} as Record<CategoryFilter, number>;
@@ -347,35 +403,29 @@ export function PublicRequestsMarketplaceScreen({
 
   function selectCity(city: string): void {
     setActiveCity(city);
-    try {
-      window.localStorage.setItem("requests-city", city);
-    } catch {
-      // Best effort only: the selected city still works for the current session.
-    }
+    syncUrl({ city });
   }
 
   function clearCity(): void {
     setActiveCity(null);
-    try {
-      window.localStorage.removeItem("requests-city");
-    } catch {
-      // Best effort only: no UI fallback needed if storage removal fails.
-    }
+    syncUrl({ city: null });
   }
 
   function toggleCategory(category: CategoryFilter): void {
-    setActiveCategories((current) =>
-      current.includes(category)
+    setActiveCategories((current) => {
+      const next = current.includes(category)
         ? current.filter((item) => item !== category)
-        : [...current, category]
-    );
+        : [...current, category];
+      syncUrl({ categories: next });
+      return next;
+    });
   }
 
   function resetDropdownFilters(): void {
-    clearCity();
+    setActiveCity(null);
     setActiveWhen(null);
     setActiveDateRange(null);
-    setActiveCategories([]);
+    syncUrl({ city: null, when: null, dateRange: null });
   }
 
   return (
@@ -385,7 +435,11 @@ export function PublicRequestsMarketplaceScreen({
           id="requests-search"
           label="Поиск по запросам"
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
+          onChange={(event) => {
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
+            syncUrl({ q: nextQuery });
+          }}
           placeholder="Ключевые слова: город, регион, локация"
         />
       </DiscoveryHero>
@@ -396,7 +450,10 @@ export function PublicRequestsMarketplaceScreen({
             <DiscoveryFacetChip
               active={activeCategories.length === 0}
               count={requests.length}
-              onClick={() => setActiveCategories([])}
+              onClick={() => {
+                setActiveCategories([]);
+                syncUrl({ categories: [] });
+              }}
             >
               Все
             </DiscoveryFacetChip>
@@ -460,8 +517,10 @@ export function PublicRequestsMarketplaceScreen({
                     // Radix single-toggle emits "" on re-click; keep the preset selected.
                     onValueChange={(next) => {
                       if (!next) return;
-                      setActiveWhen(next as WhenPreset);
+                      const when = next as WhenPreset;
+                      setActiveWhen(when);
                       setActiveDateRange(null);
+                      syncUrl({ when, dateRange: null });
                     }}
                     className="w-full flex-col items-stretch gap-1"
                   >
@@ -489,8 +548,10 @@ export function PublicRequestsMarketplaceScreen({
                         : undefined
                     }
                     onSelect={(range) => {
-                      setActiveDateRange(range?.from ? { from: range.from, to: range.to } : null);
+                      const dateRange = range?.from ? { from: range.from, to: range.to } : null;
+                      setActiveDateRange(dateRange);
                       setActiveWhen(null);
+                      syncUrl({ dateRange, when: null });
                     }}
                   />
                   <p className="px-1 text-xs leading-[1.5] text-muted-foreground">
