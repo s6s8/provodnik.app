@@ -1,6 +1,6 @@
 "use server";
 
-import { friendlyError } from "@/lib/errors";
+import { actionFailure, friendlyError } from "@/lib/errors";
 import { acceptOfferForTraveler } from "@/lib/supabase/offers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -68,7 +68,7 @@ export async function declineOffer(offerId: string) {
 
   if (error) {
     console.error("[declineOffer] guide_offers update failed", error);
-    throw new Error(friendlyError(error, "Не удалось отклонить предложение."));
+    throw new Error(actionFailure(error, "Не удалось отклонить предложение.", "declineOffer"));
   }
   if (!updatedOffer) throw new Error("Предложение уже не в статусе ожидания.");
   return { success: true };
@@ -97,7 +97,9 @@ export async function counterOffer(
     if (error.message.includes("offer_expired")) {
       throw new Error("Срок действия предложения истёк.");
     }
-    throw new Error(friendlyError(error, "Не удалось отправить встречное предложение."));
+    throw new Error(
+      actionFailure(error, "Не удалось отправить встречное предложение.", "counterOffer"),
+    );
   }
 
   return { success: true };

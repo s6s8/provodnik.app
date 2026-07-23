@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import { friendlyError } from "./errors";
+import { actionFailure, friendlyError } from "./errors";
 
 describe("friendlyError", () => {
   it("surfaces the first Zod issue message", () => {
@@ -24,5 +24,16 @@ describe("friendlyError", () => {
 
   it("falls back for non-Error values", () => {
     expect(friendlyError({ message: "raw" }, "fallback")).toBe("fallback");
+  });
+});
+
+describe("actionFailure", () => {
+  it("returns a friendly message and hides raw Postgres errors", () => {
+    const pgError = Object.assign(new Error('duplicate key value violates unique constraint "x"'), {
+      code: "23505",
+    });
+    expect(actionFailure(pgError, "Не удалось сохранить.", "test-action")).toBe(
+      "Не удалось сохранить.",
+    );
   });
 });

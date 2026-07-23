@@ -235,16 +235,25 @@ export async function hasGuideOffered(
   guideId: Uuid,
   requestId: Uuid,
 ): Promise<boolean> {
+  const offer = await findGuideOfferOnRequest(guideId, requestId);
+  return offer !== null;
+}
+
+export async function findGuideOfferOnRequest(
+  guideId: Uuid,
+  requestId: Uuid,
+): Promise<GuideOffer | null> {
   const supabase = await createSupabaseServerClient();
 
   const { data, error } = await supabase
     .from("guide_offers")
-    .select("id")
+    .select("*")
     .eq("guide_id", guideId)
     .eq("request_id", requestId)
+    .order("created_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
   if (error) throw error;
-  return data !== null;
+  return (data as GuideOffer | null) ?? null;
 }

@@ -3,6 +3,7 @@
 import { z } from "zod";
 
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
+import { actionFailure } from "@/lib/errors";
 import {
   markThreadRead,
   sendMessage,
@@ -111,10 +112,7 @@ export async function sendMessageAction(
   } catch (error) {
     return {
       success: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Не удалось отправить сообщение.",
+      error: actionFailure(error, "Не удалось отправить сообщение.", "sendMessageAction"),
     };
   }
 }

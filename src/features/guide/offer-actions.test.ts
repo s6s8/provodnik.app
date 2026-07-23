@@ -19,6 +19,13 @@ const { isGuideIntervalBlocked } = vi.hoisted(() => ({
 }));
 vi.mock("@/lib/supabase/guide-availability-blocks", () => ({ isGuideIntervalBlocked }));
 
+const { ensureOfferConversationMock } = vi.hoisted(() => ({
+  ensureOfferConversationMock: vi.fn(async () => ({ threadId: "thread-1", created: true })),
+}));
+vi.mock("@/lib/supabase/offer-conversation", () => ({
+  ensureOfferConversation: ensureOfferConversationMock,
+}));
+
 import {
   checkOfferAgainstLocks,
   submitOfferAction,
@@ -127,7 +134,11 @@ describe("submitOfferAction", () => {
     });
     const offerSelect = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
-        eq: vi.fn().mockReturnValue({ limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }) }),
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }),
+          }),
+        }),
       }),
     });
     const requestSelect = vi.fn().mockReturnValue({
@@ -248,6 +259,77 @@ describe("submitOfferAction", () => {
     expect(guideSelect).toHaveBeenCalledWith("verification_status, is_available");
   });
 
+  it("ensures the offer conversation on duplicate submit retries", async () => {
+    ensureOfferConversationMock.mockClear();
+    const existingOffer = {
+      id: "offer-existing",
+      price_minor: 500_000,
+      currency: "RUB",
+      message: "Уже отправленное предложение достаточной длины.",
+      status: "pending",
+      expires_at: "2027-01-01T00:00:00.000Z",
+    };
+    const profileSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
+      }),
+    });
+    const guideSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: { verification_status: "approved", is_available: true },
+        }),
+      }),
+    });
+    const offerSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: existingOffer }),
+            }),
+          }),
+        }),
+      }),
+    });
+    const requestSelect = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        maybeSingle: vi.fn().mockResolvedValue({
+          data: {
+            traveler_id: "trav-1",
+            destination: "Казань",
+            region: "Татарстан",
+            starts_on: "2026-09-10",
+            start_time: "10:00:00",
+            end_time: "13:00:00",
+            date_flexibility: "exact",
+          },
+        }),
+      }),
+    });
+
+    createSupabaseServerClientMock.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "guide-1" } } }) },
+      from: vi.fn((table: string) => {
+        if (table === "profiles") return { select: profileSelect };
+        if (table === "guide_profiles") return { select: guideSelect };
+        if (table === "guide_offers") return { select: offerSelect };
+        if (table === "traveler_requests") return { select: requestSelect };
+        throw new Error(`unexpected table ${table}`);
+      }),
+    });
+
+    const result = await submitOfferAction("request-1", new FormData());
+
+    expect(result).toEqual({ ok: true, alreadyOffered: true });
+    expect(ensureOfferConversationMock).toHaveBeenCalledWith({
+      offer: existingOffer,
+      guideId: "guide-1",
+      travelerId: "trav-1",
+      request: expect.objectContaining({ destination: "Казань" }),
+    });
+  });
+
   it("rejects an offer whose interval overlaps the guide's own calendar block", async () => {
     isGuideIntervalBlocked.mockResolvedValueOnce(true);
 
@@ -262,11 +344,13 @@ describe("submitOfferAction", () => {
         maybeSingle: vi.fn().mockResolvedValue({ data: { account_status: "active" } }),
       }),
     });
-    // hasGuideOffered: select("id").eq().eq().limit().maybeSingle() → not offered yet.
+    // findGuideOfferOnRequest: select("*").eq().eq().order().limit().maybeSingle() → not offered yet.
     const offerSelect = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         eq: vi.fn().mockReturnValue({
-          limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }),
+          order: vi.fn().mockReturnValue({
+            limit: vi.fn().mockReturnValue({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) }),
+          }),
         }),
       }),
     });

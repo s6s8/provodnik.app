@@ -123,20 +123,22 @@ describe('approveListing', () => {
       profile: { role: 'traveler' },
     })
 
-    await expect(approveListing('listing-1')).rejects.toThrow('Forbidden')
+    const result = await approveListing('listing-1')
 
+    expect(result).toEqual({ success: false, error: 'Недостаточно прав.' })
     expect(listingUpdate).not.toHaveBeenCalled()
   })
 
-  it('throws Unauthorized when no user', async () => {
+  it('returns unauthorized when no user', async () => {
     const { listingUpdate } = makeSupabase({ user: null })
 
-    await expect(approveListing('listing-1')).rejects.toThrow('Unauthorized')
+    const result = await approveListing('listing-1')
 
+    expect(result).toEqual({ success: false, error: 'Требуется вход.' })
     expect(listingUpdate).not.toHaveBeenCalled()
   })
 
-  it('throws when the listing was already handled', async () => {
+  it('reports already processed when the listing was already handled', async () => {
     const listingUpdateMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null })
     const listingUpdateSelect = vi.fn(() => ({ maybeSingle: listingUpdateMaybeSingle }))
     const listingUpdateEqStatus = vi.fn(() => ({ select: listingUpdateSelect }))
@@ -163,7 +165,13 @@ describe('approveListing', () => {
       }),
     })
 
-    await expect(approveListing('listing-1')).rejects.toThrow('Объявление уже обработано.')
+    const result = await approveListing('listing-1')
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Объявление уже обработано.',
+      alreadyProcessed: true,
+    })
   })
 })
 
@@ -196,7 +204,10 @@ describe('rejectListing', () => {
       user: { id: 'admin-1', user_metadata: {}, app_metadata: { role: 'admin' } },
     })
 
-    await expect(rejectListing('listing-1', '   ')).rejects.toThrow(/причин/i)
+    await expect(rejectListing('listing-1', '   ')).resolves.toEqual({
+      success: false,
+      error: 'Укажите причину отклонения.',
+    })
 
     expect(listingUpdate).not.toHaveBeenCalled()
   })
@@ -207,8 +218,9 @@ describe('rejectListing', () => {
       profile: { role: 'traveler' },
     })
 
-    await expect(rejectListing('listing-1', 'причина')).rejects.toThrow('Forbidden')
+    const result = await rejectListing('listing-1', 'причина')
 
+    expect(result).toEqual({ success: false, error: 'Недостаточно прав.' })
     expect(listingUpdate).not.toHaveBeenCalled()
   })
 })

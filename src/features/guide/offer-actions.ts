@@ -2,13 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { rubToKopecks } from "@/data/money";
-import { friendlyError } from "@/lib/errors";
+import { actionFailure } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { notifyNewOffer } from "@/lib/notifications/triggers";
-import { getOrCreateThread } from "@/lib/supabase/conversations";
+import { ensureOfferConversation } from "@/lib/supabase/offer-conversation";
 import {
   createGuideOffer,
-  hasGuideOffered,
+  findGuideOfferOnRequest,
   createOfferInputSchema,
 } from "@/lib/supabase/offers";
 import { isGuideIntervalBlocked } from "@/lib/supabase/guide-availability-blocks";
@@ -134,9 +134,30 @@ export async function submitOfferAction(
       };
     }
 
-    // Duplicate guard
-    const alreadyOffered = await hasGuideOffered(guideId, requestId);
-    if (alreadyOffered) {
+    // Duplicate guard — still ensure the offer conversation exists on retries.
+    const existingOffer = await findGuideOfferOnRequest(guideId, requestId);
+    if (existingOffer) {
+      const { data: existingRequest } = await supabaseAuth
+        .from("traveler_requests")
+        .select(
+          "traveler_id, destination, region, starts_on, start_time, end_time, date_flexibility",
+        )
+        .eq("id", requestId)
+        .maybeSingle();
+
+      if (existingRequest?.traveler_id && existingRequest.traveler_id !== guideId) {
+        try {
+          await ensureOfferConversation({
+            offer: existingOffer,
+            guideId,
+            travelerId: existingRequest.traveler_id,
+            request: existingRequest,
+          });
+        } catch (conversationError) {
+          console.error("[submitOfferAction] offer conversation ensure failed", conversationError);
+        }
+      }
+
       return { ok: true, alreadyOffered: true };
     }
 
@@ -196,7 +217,9 @@ export async function submitOfferAction(
 
     const { data: requestRow } = await supabaseAuth
       .from("traveler_requests")
-      .select("traveler_id, status, date_locked, time_locked, starts_on, start_time, end_time, date_flexibility")
+      .select(
+        "traveler_id, status, date_locked, time_locked, starts_on, start_time, end_time, date_flexibility, destination, region",
+      )
       .eq("id", requestId)
       .maybeSingle();
 
@@ -240,13 +263,15 @@ export async function submitOfferAction(
 
     try {
       if (requestRow?.traveler_id && requestRow.traveler_id !== guideId) {
-        await getOrCreateThread("offer", offer.id, guideId, [
-          requestRow.traveler_id as string,
-        ]);
+        await ensureOfferConversation({
+          offer,
+          guideId,
+          travelerId: requestRow.traveler_id,
+          request: requestRow,
+        });
       }
-    } catch {
-      // Thread creation is best-effort; offer already exists and traveler can
-      // still accept it to auto-create a thread later.
+    } catch (conversationError) {
+      console.error("[submitOfferAction] offer conversation ensure failed", conversationError);
     }
   } catch (err) {
     if (
@@ -255,7 +280,9 @@ export async function submitOfferAction(
     ) {
       throw err;
     }
-    return { error: friendlyError(err, "Не удалось отправить предложение.") };
+    return {
+      error: actionFailure(err, "Не удалось отправить предложение.", "submitOfferAction"),
+    };
   }
 
   return { ok: true };
@@ -291,14 +318,18 @@ export async function withdrawOfferAction(
       .select("id")
       .maybeSingle();
 
-    if (error) return { error: friendlyError(error, "Не удалось отозвать предложение.") };
+    if (error) {
+      return {
+        error: actionFailure(error, "Не удалось отозвать предложение.", "withdrawOfferAction"),
+      };
+    }
     if (!withdrawnOffer) return { error: "Можно отозвать только активное предложение." };
 
     revalidatePath(`/requests/${requestId}`);
     revalidatePath("/guide/inbox");
     return { ok: true };
   } catch (err) {
-    return { error: friendlyError(err, "Не удалось отозвать предложение.") };
+    return { error: actionFailure(err, "Не удалось отозвать предложение.", "withdrawOfferAction") };
   }
 }
 
@@ -408,7 +439,11 @@ export async function editOfferAction(
       .eq("status", "pending")
       .select("id")
       .maybeSingle();
-    if (error) return { error: friendlyError(error, "Не удалось обновить предложение.") };
+    if (error) {
+      return {
+        error: actionFailure(error, "Не удалось обновить предложение.", "editOfferAction"),
+      };
+    }
     if (!updatedOffer) return { error: "Можно редактировать только активное предложение." };
 
     revalidatePath(`/requests/${requestId}`);
@@ -416,6 +451,6 @@ export async function editOfferAction(
     return { ok: true };
   } catch (err) {
     if (err instanceof Error && err.message.startsWith("NEXT_")) throw err;
-    return { error: friendlyError(err, "Не удалось обновить предложение.") };
+    return { error: actionFailure(err, "Не удалось обновить предложение.", "editOfferAction") };
   }
 }

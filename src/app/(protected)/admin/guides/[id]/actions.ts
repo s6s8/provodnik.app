@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
+import { actionFailure } from "@/lib/errors";
 import { setGuideAvailabilityByAdmin } from "@/lib/supabase/availability";
 import {
   ensureOpenModerationCase,
@@ -36,7 +37,9 @@ export async function approveGuide(
     revalidatePath("/destinations");
     return { error: null, success: "Гид одобрен" };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при одобрении" };
+    return {
+      error: actionFailure(err, "Не удалось одобрить гида.", "approveGuide"),
+    };
   }
 }
 
@@ -63,7 +66,9 @@ export async function rejectGuide(
     revalidatePath(`/admin/guides/${guideId}`);
     return { error: null, success: "Гид отклонён" };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при отклонении" };
+    return {
+      error: actionFailure(err, "Не удалось отклонить гида.", "rejectGuide"),
+    };
   }
 }
 
@@ -110,6 +115,8 @@ export async function requestChanges(
     revalidatePath(`/admin/guides/${guideId}`);
     return { error: null, success: "Запрошены правки" };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Неизвестная ошибка при запросе изменений" };
+    return {
+      error: actionFailure(err, "Не удалось запросить правки.", "requestChanges"),
+    };
   }
 }

@@ -90,10 +90,14 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
     setError(null);
     setBusy(true);
     try {
-      await approveListing(listing.id);
+      const result = await approveListing(listing.id);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
       onAction();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось одобрить");
+    } catch {
+      setError("Не удалось одобрить");
     } finally {
       setBusy(false);
     }
@@ -108,12 +112,16 @@ export function ModerationQueueItem({ listing, onAction }: ModerationQueueItemPr
     setError(null);
     setBusy(true);
     try {
-      await rejectListing(listing.id, trimmed);
+      const result = await rejectListing(listing.id, trimmed);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
       setRejectOpen(false);
       setReason("");
       onAction();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось отклонить");
+    } catch {
+      setError("Не удалось отклонить");
     } finally {
       setBusy(false);
     }
