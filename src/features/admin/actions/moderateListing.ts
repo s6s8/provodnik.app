@@ -1,34 +1,39 @@
 "use server";
 
+import { actionFailure } from "@/lib/errors";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { PUBLIC_LISTING_STATUS } from "@/lib/supabase/types";
+
+import type { ModerationListingResult } from "./moderateListing-types";
+
+export type { ModerationListingResult } from "./moderateListing-types";
 
 async function verifyAdmin(supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>) {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("Unauthorized");
+  if (!user) {
+    return { ok: false as const, error: "Требуется вход." };
+  }
 
-  // JWT fast path
-  if (user.app_metadata?.role === "admin") return true;
+  if (user.app_metadata?.role === "admin") return { ok: true as const };
 
-  // Profile fallback (AP-038 / ERR-096): users created via seed scripts or admin tooling
-  // may have profiles.role = 'admin' but no JWT claim.
   const { data: profile } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role === "admin") return true;
+  if (profile?.role === "admin") return { ok: true as const };
 
-  throw new Error("Forbidden");
+  return { ok: false as const, error: "Недостаточно прав." };
 }
 
-export async function approveListing(listingId: string) {
+export async function approveListing(listingId: string): Promise<ModerationListingResult> {
   const supabase = await createSupabaseServerClient();
-  await verifyAdmin(supabase);
+  const adminCheck = await verifyAdmin(supabase);
+  if (!adminCheck.ok) return { success: false, error: adminCheck.error };
 
   const { data: updatedListing, error } = await supabase
     .from("listings")
@@ -37,19 +42,33 @@ export async function approveListing(listingId: string) {
     .eq("status", "pending_review")
     .select("id")
     .maybeSingle();
-  if (error) throw new Error("Не удалось одобрить объявление.");
-  if (!updatedListing) throw new Error("Объявление уже обработано.");
+
+  if (error) {
+    return {
+      success: false,
+      error: actionFailure(error, "Не удалось одобрить объявление.", "approveListing"),
+    };
+  }
+  if (!updatedListing) {
+    return {
+      success: false,
+      error: "Объявление уже обработано.",
+      alreadyProcessed: true,
+    };
+  }
   return { success: true };
 }
 
-export async function rejectListing(listingId: string, reason: string) {
+export async function rejectListing(
+  listingId: string,
+  reason: string,
+): Promise<ModerationListingResult> {
   const supabase = await createSupabaseServerClient();
-  await verifyAdmin(supabase);
+  const adminCheck = await verifyAdmin(supabase);
+  if (!adminCheck.ok) return { success: false, error: adminCheck.error };
 
-  // The UI already validates this; enforce it here too, since dropping the reason
-  // is exactly the bug being fixed and a server action is callable directly.
   const trimmed = reason.trim();
-  if (!trimmed) throw new Error("Укажите причину отклонения.");
+  if (!trimmed) return { success: false, error: "Укажите причину отклонения." };
 
   const { data: updatedListing, error } = await supabase
     .from("listings")
@@ -58,21 +77,21 @@ export async function rejectListing(listingId: string, reason: string) {
     .eq("status", "pending_review")
     .select("id")
     .maybeSingle();
-  if (error) throw new Error("Не удалось отклонить объявление.");
-  if (!updatedListing) throw new Error("Объявление уже обработано.");
 
-  // The reason used to stop here: the argument was named `_reason` and never
-  // written, so the guide was told their excursion was rejected but never why.
-  //
-  // It goes on the moderation event, not on the listing: `listings.rejection_reason`
-  // does not exist (types.ts declares a column the schema never had). The
-  // tg_log_listing_moderation trigger has already written this transition's row —
-  // with reason NULL, since a trigger cannot know it — and the guide may read those
-  // rows for their own listing under moderation_events_select. Attach it there.
-  //
-  // Service-role: the table has INSERT and SELECT policies and no UPDATE policy, so
-  // this write is impossible under RLS. Admin is verified above, and this is the
-  // same service-role-after-admin-check pattern admin-listings.ts uses.
+  if (error) {
+    return {
+      success: false,
+      error: actionFailure(error, "Не удалось отклонить объявление.", "rejectListing"),
+    };
+  }
+  if (!updatedListing) {
+    return {
+      success: false,
+      error: "Объявление уже обработано.",
+      alreadyProcessed: true,
+    };
+  }
+
   const admin = createSupabaseAdminClient();
   const { error: reasonError } = await admin
     .from("listing_moderation_events")
@@ -81,8 +100,6 @@ export async function rejectListing(listingId: string, reason: string) {
     .eq("to_status", "rejected")
     .is("reason", null);
 
-  // The listing IS rejected at this point. Losing the reason is bad, undoing the
-  // moderator's decision because of it would be worse.
   if (reasonError) {
     console.error("[rejectListing] reason not recorded", { listingId, error: reasonError });
   }

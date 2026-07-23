@@ -51,12 +51,14 @@ function makeSupabase(opts: {
 }
 
 function makeAdminClient() {
-  const templateUpdateEqStatus = vi.fn().mockResolvedValue({ error: null });
+  const templateUpdateMaybeSingle = vi.fn().mockResolvedValue({ data: { id: "template-1" }, error: null });
+  const templateUpdateSelect = vi.fn(() => ({ maybeSingle: templateUpdateMaybeSingle }));
+  const templateUpdateEqStatus = vi.fn(() => ({ select: templateUpdateSelect }));
   const templateUpdateEqId = vi.fn(() => ({ eq: templateUpdateEqStatus }));
   const templateUpdate = vi.fn(() => ({ eq: templateUpdateEqId }));
   const from = vi.fn(() => ({ update: templateUpdate }));
 
-  return { from, templateUpdate };
+  return { from, templateUpdate, templateUpdateMaybeSingle };
 }
 
 describe("approveGuideTemplate", () => {
@@ -91,6 +93,22 @@ describe("approveGuideTemplate", () => {
     expect(templateUpdate).toHaveBeenCalledWith({
       status: "published",
       rejection_reason: null,
+    });
+  });
+
+  it("reports already processed when zero rows are updated", async () => {
+    makeSupabase({
+      user: { id: "admin-1", app_metadata: { role: "admin" } },
+      profile: { role: "admin", account_status: "active" },
+    });
+    const { from, templateUpdateMaybeSingle } = makeAdminClient();
+    templateUpdateMaybeSingle.mockResolvedValueOnce({ data: null, error: null });
+    createSupabaseAdminClient.mockReturnValue({ from });
+
+    await expect(approveGuideTemplate("template-1")).resolves.toEqual({
+      success: false,
+      error: "Экскурсия уже обработана.",
+      alreadyProcessed: true,
     });
   });
 });
@@ -138,7 +156,10 @@ describe("rejectGuideTemplate", () => {
       profile: { role: "admin", account_status: "active" },
     });
 
-    await expect(rejectGuideTemplate("template-1", "   ")).rejects.toThrow(/причин/i);
+    await expect(rejectGuideTemplate("template-1", "   ")).resolves.toEqual({
+      success: false,
+      error: "Укажите причину отклонения.",
+    });
 
     expect(createSupabaseAdminClient).not.toHaveBeenCalled();
   });

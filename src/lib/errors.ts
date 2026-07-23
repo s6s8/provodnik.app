@@ -8,6 +8,21 @@ import { z } from "zod";
  * behind the caller's friendly Russian fallback so DB internals never leak to
  * the UI (PRD-027).
  */
+/**
+ * Log a failure for operators and return a user-safe message for action boundaries.
+ * Technical Postgres/Supabase details stay in the log, never in the returned string.
+ */
+export function actionFailure(
+  error: unknown,
+  fallback: string,
+  logContext?: string,
+): string {
+  if (logContext) {
+    console.error(`[${logContext}]`, error);
+  }
+  return friendlyError(error, fallback);
+}
+
 export function friendlyError(error: unknown, fallback: string): string {
   if (error instanceof z.ZodError) {
     return error.issues[0]?.message ?? fallback;

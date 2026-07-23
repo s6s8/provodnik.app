@@ -87,10 +87,14 @@ function TemplateModerationItem({
     setError(null);
     setBusy(true);
     try {
-      await approveGuideTemplate(template.id);
+      const result = await approveGuideTemplate(template.id);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
       onAction();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось одобрить");
+    } catch {
+      setError("Не удалось одобрить");
     } finally {
       setBusy(false);
     }
@@ -105,12 +109,16 @@ function TemplateModerationItem({
     setError(null);
     setBusy(true);
     try {
-      await rejectGuideTemplate(template.id, trimmed);
+      const result = await rejectGuideTemplate(template.id, trimmed);
+      if (!result.success) {
+        setError(result.error);
+        return;
+      }
       setRejectOpen(false);
       setReason("");
       onAction();
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Не удалось отклонить");
+    } catch {
+      setError("Не удалось отклонить");
     } finally {
       setBusy(false);
     }

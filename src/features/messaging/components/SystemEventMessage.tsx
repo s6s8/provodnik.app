@@ -81,9 +81,19 @@ const EVENT_LABELS: Record<SystemEventType, (p: SystemEventPayload) => React.Rea
     request_created: () => "Путешественник создал запрос",
     bid_submitted: (p) => (
       <>
-        {`Гид${p.guide_name ? ` ${p.guide_name}` : ""} отправил предложение`}
-        {p.price ? <> — <strong>Цена:</strong> {formatRubNumber(p.price)} ₽</> : null}
-        {p.date ? <>, <strong>Дата:</strong> {p.date}</> : null}
+        {`Гид${p.guide_name ? ` ${p.guide_name}` : ""} откликнулся на запрос`}
+        {p.listing_title ? <> «{p.listing_title}»</> : null}
+        {p.price ? (
+          <>
+            {" "}
+            — <strong>Цена:</strong> {formatRubNumber(p.price)} ₽
+          </>
+        ) : null}
+        {p.date ? (
+          <>
+            , <strong>Дата:</strong> {p.date}
+          </>
+        ) : null}
       </>
     ),
     guide_amended: (p) => (
