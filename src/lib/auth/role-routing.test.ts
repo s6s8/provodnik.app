@@ -66,6 +66,19 @@ describe("getRequiredRoleForPathname", () => {
     expect(getRequiredRoleForPathname("/guide/profile")).toBe("guide");
     expect(getRequiredRoleForPathname("/guide/profile/about")).toBe("guide");
   });
+
+  it("does not require authentication for explicit public guide routes", () => {
+    expect(getRequiredRoleForPathname("/guides")).toBeNull();
+    expect(getRequiredRoleForPathname("/guides/amina-steppe")).toBeNull();
+    expect(
+      getRequiredRoleForPathname("/guide/12345678-1234-4123-8123-123456789abc"),
+    ).toBeNull();
+  });
+
+  it("keeps the guide workspace behind the guide role", () => {
+    expect(getRequiredRoleForPathname("/guide/inbox")).toBe("guide");
+    expect(getRequiredRoleForPathname("/guide/not-a-uuid")).toBe("guide");
+  });
 });
 
 describe("requiresAuthenticatedSession — shared personal routes (#account-gating)", () => {

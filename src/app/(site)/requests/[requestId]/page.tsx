@@ -16,6 +16,7 @@ import {
   RequestDetailScreen,
 } from "@/features/requests/components/request-detail-screen";
 import { canSeeRequestNotes } from "@/features/requests/request-notes-visibility";
+import { canViewRequestDetail } from "@/lib/auth/request-detail-access";
 import { getRequestViewerContext, viewerRoleForRequest } from "@/lib/auth/viewer-role-for-request";
 import { cityImage } from "@/lib/city-image";
 import {
@@ -452,11 +453,7 @@ export default async function RequestDetailPage({
     }
   }
 
-  if (
-    result.data.mode !== "assembly" &&
-    viewerRole !== "owner" &&
-    viewerRole !== "guide"
-  ) {
+  if (!canViewRequestDetail(result.data, viewerRole)) {
     notFound();
   }
 
