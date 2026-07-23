@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { ReadyExcursionDetail } from "@/features/listings/components/public/ready-excursion-detail";
+import { flags } from "@/lib/flags";
 import { getPublishedTemplateDetail } from "@/lib/supabase/guide-template-listings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -32,6 +33,8 @@ export default async function ReadyExcursionPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  if (!flags.FEATURE_PUBLIC_CATALOG) notFound();
+
   const { id } = await params;
   const detail = await getReadyExcursion(id);
   if (!detail) notFound();

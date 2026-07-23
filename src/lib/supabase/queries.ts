@@ -4,6 +4,11 @@
 // This file holds the domain query functions.
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import {
+  filterLaunchVisibleListingRows,
+  filterLaunchVisibleListings,
+  isReadyExcursionLaunchVisible,
+} from "@/lib/listing-launch-visibility";
 import { getPublishedTemplateListings } from "./guide-template-listings";
 import {
   applyGuideFilters,
@@ -178,11 +183,17 @@ export async function getActiveListings(
     if (error) throw error;
 
     const rows = data && data.length > 0 ? await attachGuideDisplayNames(client, data) : [];
+    const visibleRows = filterLaunchVisibleListingRows(rows);
     // Excursions published through the live guide UI land in `guide_templates`,
     // which nothing writes into `listings` — so the catalog must read both or it
     // shows only seed rows. See guide-template-listings.ts.
-    const templates = await getPublishedTemplateListings(client);
-    const records = [...rows.map(mapListingRow), ...templates];
+    const templates = isReadyExcursionLaunchVisible()
+      ? await getPublishedTemplateListings(client)
+      : [];
+    const records = filterLaunchVisibleListings([
+      ...visibleRows.map(mapListingRow),
+      ...templates,
+    ]);
 
     return { data: applyListingFilters(records, filters), error: null };
   } catch (error) {
@@ -217,7 +228,12 @@ export async function getListingsByDestination(
     if (!data || data.length === 0) return { data: [], error: null };
 
     const rows = await attachGuideDisplayNames(client, data);
-    return { data: rows.map(mapListingRow), error: null };
+    return {
+      data: filterLaunchVisibleListings(
+        filterLaunchVisibleListingRows(rows).map(mapListingRow),
+      ),
+      error: null,
+    };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }
@@ -234,8 +250,16 @@ export async function getListingsByGuide(
     // Without the templates a guide's own profile showed «Готовые экскурсии» as
     // empty even after they published one — the excursion existed, but only in
     // the table no reader looked at.
-    const templates = await getPublishedTemplateListings(client, { guideId });
-    return { data: [...(data ?? []).map(mapListingRow), ...templates], error: null };
+    const templates = isReadyExcursionLaunchVisible()
+      ? await getPublishedTemplateListings(client, { guideId })
+      : [];
+    return {
+      data: filterLaunchVisibleListings([
+        ...filterLaunchVisibleListingRows(data ?? []).map(mapListingRow),
+        ...templates,
+      ]),
+      error: null,
+    };
   } catch (error) {
     return { data: [], error: makeError(error) };
   }

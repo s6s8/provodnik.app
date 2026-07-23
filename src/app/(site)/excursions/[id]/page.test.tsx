@@ -1,7 +1,7 @@
 import { render } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { createSupabaseServerClient, getPublishedTemplateDetail, notFound, detailScreen } = vi.hoisted(
+const { createSupabaseServerClient, getPublishedTemplateDetail, notFound, detailScreen, flagsMock } = vi.hoisted(
   () => ({
     createSupabaseServerClient: vi.fn(),
     getPublishedTemplateDetail: vi.fn(),
@@ -9,10 +9,15 @@ const { createSupabaseServerClient, getPublishedTemplateDetail, notFound, detail
       throw new Error("NEXT_NOT_FOUND");
     }),
     detailScreen: vi.fn((_props: unknown) => null),
+    flagsMock: {
+      FEATURE_PUBLIC_CATALOG: true,
+    },
   }),
 );
 
 vi.mock("next/navigation", () => ({ notFound }));
+
+vi.mock("@/lib/flags", () => ({ flags: flagsMock }));
 
 vi.mock("@/lib/supabase/server", () => ({ createSupabaseServerClient }));
 
@@ -44,6 +49,7 @@ const DETAIL = {
 describe("ReadyExcursionPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    flagsMock.FEATURE_PUBLIC_CATALOG = true;
   });
 
   it("renders the published template's dedicated detail page", async () => {
@@ -66,5 +72,16 @@ describe("ReadyExcursionPage", () => {
     ).rejects.toThrow("NEXT_NOT_FOUND");
 
     expect(notFound).toHaveBeenCalled();
+  });
+
+  it("returns not found when the public catalog launch flag is off", async () => {
+    flagsMock.FEATURE_PUBLIC_CATALOG = false;
+
+    await expect(
+      ReadyExcursionPage({ params: Promise.resolve({ id: DETAIL.id }) }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(notFound).toHaveBeenCalled();
+    expect(getPublishedTemplateDetail).not.toHaveBeenCalled();
   });
 });
