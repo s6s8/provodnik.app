@@ -23,6 +23,7 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
     title: listing.title,
     city: listing.destinationName,
     region: listing.destinationRegion,
+    locationLabels: listing.locationLabels ?? [],
     coverImageUrl: listing.imageUrl,
     durationDays: Math.min(3, Math.max(1, listing.durationDays)) as PublicListing["durationDays"],
     priceFromRub: listing.priceRub,

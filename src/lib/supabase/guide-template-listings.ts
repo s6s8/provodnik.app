@@ -23,6 +23,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { kopecksToRub } from "@/data/money";
+import { uniqueNamedLocations } from "@/data/public-discovery-search";
 
 import {
   fallbackHeroImage,
@@ -59,6 +60,7 @@ export function guideTemplateDetailHref(templateId: string): string {
 
 function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord {
   const region = row.region ?? "";
+  const meetingPoint = row.meeting_point?.trim() ?? "";
   return {
     id: row.id,
     // No `listings` row, so no /listings/{slug} detail route. The id keeps React
@@ -69,6 +71,12 @@ function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord
     destinationSlug: normalizeSlug(region),
     destinationName: region,
     destinationRegion: region,
+    locationLabels: uniqueNamedLocations([
+      meetingPoint &&
+      meetingPoint.toLocaleLowerCase("ru") !== region.toLocaleLowerCase("ru")
+        ? meetingPoint
+        : null,
+    ]),
     imageUrl: row.photo_urls?.[0] ?? fallbackHeroImage,
     priceRub: row.price_from_kopecks == null ? 0 : kopecksToRub(row.price_from_kopecks),
     // A template has no duration_minutes — only the guide's free text ("5 часов").

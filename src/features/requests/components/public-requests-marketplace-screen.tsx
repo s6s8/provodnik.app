@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/command";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { getRequestDiscoverySearchText } from "@/data/public-discovery-search";
 import { THEMES } from "@/data/themes";
 import { brandGradient, cityImage } from "@/lib/city-image";
 import { todayMoscowISODate } from "@/lib/dates";
@@ -123,13 +124,15 @@ function getSearchText(request: OpenRequestRecord): string {
 }
 
 // Free-text search must match what the placeholder promises: город, регион, локация.
-// destinationLabel carries the city/location; regionLabel the region (may be empty).
-// Kept separate from getSearchText so category counting stays title/description-only.
+// destinationLabel carries the city; regionLabel the region (may be empty).
+// locationLabels carry named places on the public card projection.
 export function getQueryText(request: OpenRequestRecord): string {
-  return [request.destinationLabel, request.regionLabel, ...request.highlights]
-    .filter(Boolean)
-    .join(" ")
-    .toLowerCase();
+  return getRequestDiscoverySearchText({
+    destinationLabel: request.destinationLabel,
+    regionLabel: request.regionLabel ?? "",
+    highlights: request.highlights,
+    locationLabels: request.locationLabels ?? [],
+  });
 }
 
 function getCurrentMonthIndex(): number {

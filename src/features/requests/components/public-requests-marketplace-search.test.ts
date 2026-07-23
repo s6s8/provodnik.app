@@ -33,6 +33,31 @@ describe("getQueryText", () => {
     expect(text).toContain("татарстан");
   });
 
+  it("matches by a named location (locationLabels)", () => {
+    const text = getQueryText(
+      makeRecord({
+        destinationLabel: "Казань",
+        regionLabel: "Татарстан",
+        locationLabels: ["Свияжск"],
+      }),
+    );
+    expect(text).toContain("свияжск");
+    expect(text).toContain("казань");
+    expect(text).toContain("татарстан");
+  });
+
+  it("does not index private notes outside the public projection", () => {
+    const text = getQueryText(
+      makeRecord({
+        highlights: ["Экскурсия по кремлю"],
+        locationLabels: ["Свияжск"],
+        notes: "Секретные пожелания",
+      }),
+    );
+    expect(text).not.toContain("секрет");
+    expect(text).toContain("свияжск");
+  });
+
   it("keeps highlights searchable (location/details)", () => {
     const text = getQueryText(makeRecord({ highlights: ["Свияжск остров"] }));
     expect(text).toContain("свияжск");

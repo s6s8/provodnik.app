@@ -5,6 +5,10 @@ import { THEMES, type ThemeSlug } from "@/data/themes";
 import { brandGradient } from "@/lib/city-image";
 import { formatRussianDateRange } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import {
+  namedLocationsFromDestination,
+  uniqueNamedLocations,
+} from "@/data/public-discovery-search";
 import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
@@ -32,6 +36,7 @@ export type ListingRecord = {
   destinationSlug: string;
   destinationName: string;
   destinationRegion: string;
+  locationLabels?: string[];
   imageUrl: string;
   priceRub: number;
   durationDays: number;
@@ -111,6 +116,7 @@ export type RequestRecord = {
   destination: string;
   destinationSlug: string;
   destinationRegion: string;
+  locationLabels?: string[];
   title: string;
   dateLabel: string;
   startsOn?: string | null;
@@ -354,6 +360,7 @@ export function mapListingRow(row: Record<string, unknown>): ListingRecord {
   const days = Math.max(1, Math.round(durationMin / 480));
   const city = (row.city as string) ?? "";
   const region = (row.region as string) ?? "";
+  const meetingPoint = ((row.meeting_point as string | null) ?? "").trim();
   const imageUrl =
     (row.image_url as string | null) ??
     parseImageFromJson(row.description as string | null | undefined);
@@ -367,6 +374,13 @@ export function mapListingRow(row: Record<string, unknown>): ListingRecord {
     destinationSlug: normalizeSlug(city || region),
     destinationName: city || region,
     destinationRegion: region,
+    locationLabels: uniqueNamedLocations([
+      meetingPoint &&
+      meetingPoint.toLocaleLowerCase("ru") !== city.toLocaleLowerCase("ru") &&
+      meetingPoint.toLocaleLowerCase("ru") !== region.toLocaleLowerCase("ru")
+        ? meetingPoint
+        : null,
+    ]),
     imageUrl,
     priceRub: Math.round(priceMinor / 100),
     durationDays: days,
@@ -500,6 +514,7 @@ export function mapRequestRow(
     // public card. Fall back to empty so the card shows the city alone, matching
     // the detail page (which already drops the "Россия" fallback in its breadcrumb).
     destinationRegion: (meta.regionLabel as string) ?? (row.region as string) ?? "",
+    locationLabels: namedLocationsFromDestination(destinationLabel),
     title: destinationLabel,
     dateLabel: (meta.dateRangeLabel as string | null) ?? formatRussianDateRange(
       (row.starts_on as string) ?? "",

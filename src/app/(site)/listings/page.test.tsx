@@ -96,6 +96,7 @@ describe("PublicListingsPage", () => {
       destinationSlug: "kazan",
       destinationName: "Казань",
       destinationRegion: "Татарстан",
+      locationLabels: [],
       imageUrl: "https://example.com/kazan.jpg",
       priceRub: 5000,
       durationDays: 1,

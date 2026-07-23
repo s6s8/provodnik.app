@@ -30,6 +30,8 @@ export type OpenRequestRecord = {
   imageUrl?: string;
   cityImageUrl?: string;
   regionLabel?: string;
+  /** Public named places beyond city/region on the open-request card. */
+  locationLabels?: readonly string[];
   dateRangeLabel: string;
   timeLabel?: string;
   datesFlexible?: boolean;
