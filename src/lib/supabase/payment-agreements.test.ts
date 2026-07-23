@@ -67,10 +67,6 @@ describe("getPaymentAgreementForBooking", () => {
 
 describe("confirmPaymentAgreement", () => {
   function buildClient(userId: string | null, booking: unknown) {
-    const updateQuery = {
-      update: vi.fn().mockReturnThis(),
-      eq: vi.fn().mockResolvedValue({ error: null }),
-    };
     const bookingQuery = {
       select: vi.fn().mockReturnThis(),
       eq: vi.fn().mockReturnThis(),
@@ -78,22 +74,23 @@ describe("confirmPaymentAgreement", () => {
     };
     const from = vi.fn((table: string) => {
       if (table === "bookings") return bookingQuery;
-      if (table === "payment_agreements") return updateQuery;
       throw new Error(`Unexpected table: ${table}`);
     });
+    const rpc = vi.fn().mockResolvedValue({ error: null });
     const client = {
       from,
+      rpc,
       auth: {
         getUser: vi
           .fn()
           .mockResolvedValue({ data: { user: userId ? { id: userId } : null } }),
       },
     };
-    return { client, updateQuery };
+    return { client, rpc };
   }
 
   it("stamps traveler_confirmed_at when the caller is the traveler", async () => {
-    const { client, updateQuery } = buildClient("traveler-1", {
+    const { client, rpc } = buildClient("traveler-1", {
       id: "booking-1",
       traveler_id: "traveler-1",
       guide_id: "guide-1",
@@ -103,14 +100,13 @@ describe("confirmPaymentAgreement", () => {
     const result = await confirmPaymentAgreement("booking-1");
 
     expect(result).toEqual({ ok: true });
-    expect(updateQuery.update).toHaveBeenCalledWith(
-      expect.objectContaining({ traveler_confirmed_at: expect.any(String) }),
-    );
-    expect(updateQuery.eq).toHaveBeenCalledWith("booking_id", "booking-1");
+    expect(rpc).toHaveBeenCalledWith("confirm_payment_agreement", {
+      p_booking_id: "booking-1",
+    });
   });
 
   it("stamps guide_confirmed_at when the caller is the guide", async () => {
-    const { client, updateQuery } = buildClient("guide-1", {
+    const { client, rpc } = buildClient("guide-1", {
       id: "booking-1",
       traveler_id: "traveler-1",
       guide_id: "guide-1",
@@ -120,13 +116,13 @@ describe("confirmPaymentAgreement", () => {
     const result = await confirmPaymentAgreement("booking-1");
 
     expect(result).toEqual({ ok: true });
-    expect(updateQuery.update).toHaveBeenCalledWith(
-      expect.objectContaining({ guide_confirmed_at: expect.any(String) }),
-    );
+    expect(rpc).toHaveBeenCalledWith("confirm_payment_agreement", {
+      p_booking_id: "booking-1",
+    });
   });
 
   it("returns an access error when the caller is neither party", async () => {
-    const { client, updateQuery } = buildClient("stranger-1", {
+    const { client, rpc } = buildClient("stranger-1", {
       id: "booking-1",
       traveler_id: "traveler-1",
       guide_id: "guide-1",
@@ -136,6 +132,6 @@ describe("confirmPaymentAgreement", () => {
     const result = await confirmPaymentAgreement("booking-1");
 
     expect(result).toEqual({ ok: false, error: "Нет доступа" });
-    expect(updateQuery.update).not.toHaveBeenCalled();
+    expect(rpc).not.toHaveBeenCalled();
   });
 });

@@ -4255,11 +4255,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      cancel_booking_as_traveler: {
+        Args: { p_booking_id: string }
+        Returns: undefined
+      }
       cancel_traveler_request: {
         Args: { p_request_id: string }
         Returns: undefined
       }
       clean_text_array: { Args: { input_array: string[] }; Returns: string[] }
+      confirm_payment_agreement: {
+        Args: { p_booking_id: string }
+        Returns: undefined
+      }
       count_competing_offers: {
         Args: { p_request_id: string }
         Returns: number
@@ -4429,7 +4437,18 @@ export type Database = {
         Args: { p_guide_id: string; p_request_id: string }
         Returns: boolean
       }
+      is_active_listing_owner: {
+        Args: { p_listing_id: string }
+        Returns: boolean
+      }
       is_admin: { Args: never; Returns: boolean }
+      is_booking_transition_allowed: {
+        Args: {
+          p_from: Database["public"]["Enums"]["booking_status"]
+          p_to: Database["public"]["Enums"]["booking_status"]
+        }
+        Returns: boolean
+      }
       is_guide: { Args: never; Returns: boolean }
       is_thread_participant: { Args: { p_thread_id: string }; Returns: boolean }
       mask_public_contact_info: { Args: { p_text: string }; Returns: string }
@@ -4540,6 +4559,13 @@ export type Database = {
           p_route: number
         }
         Returns: string
+      }
+      transition_booking: {
+        Args: {
+          p_booking_id: string
+          p_to_status: Database["public"]["Enums"]["booking_status"]
+        }
+        Returns: Database["public"]["Enums"]["booking_status"]
       }
       user_has_role: {
         Args: {
@@ -5365,3 +5391,4 @@ export const Constants = {
     },
   },
 } as const
+

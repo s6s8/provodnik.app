@@ -24,11 +24,7 @@ type SupabaseChain = {
   profileSelect: ReturnType<typeof vi.fn>
   profileEq: ReturnType<typeof vi.fn>
   profileSingle: ReturnType<typeof vi.fn>
-  update: ReturnType<typeof vi.fn>
-  updateEq: ReturnType<typeof vi.fn>
-  updateEq2: ReturnType<typeof vi.fn>
-  updateSelect: ReturnType<typeof vi.fn>
-  single: ReturnType<typeof vi.fn>
+  rpc: ReturnType<typeof vi.fn>
 }
 
 function createBookingSupabase(
@@ -63,14 +59,10 @@ function createBookingSupabase(
   const profileEq = vi.fn(() => ({ maybeSingle: profileSingle }))
   const profileSelect = vi.fn(() => ({ eq: profileEq }))
 
-  const single = vi.fn().mockResolvedValue({
-    data: { id: 'booking-1', status: toStatus },
+  const rpc = vi.fn().mockResolvedValue({
+    data: toStatus,
     error: null,
   })
-  const updateSelect = vi.fn(() => ({ single }))
-  const updateEq2 = vi.fn(() => ({ select: updateSelect }))
-  const updateEq = vi.fn(() => ({ eq: updateEq2 }))
-  const update = vi.fn(() => ({ eq: updateEq }))
 
   const from = vi.fn((table: string) =>
     table === 'profiles'
@@ -79,7 +71,6 @@ function createBookingSupabase(
         }
       : {
           select,
-          update,
         },
   )
 
@@ -92,11 +83,7 @@ function createBookingSupabase(
     profileSelect,
     profileEq,
     profileSingle,
-    update,
-    updateEq,
-    updateEq2,
-    updateSelect,
-    single,
+    rpc,
   }
 }
 
@@ -183,6 +170,7 @@ describe('transitionBooking', () => {
         getUser: supabase.authGetUser,
       },
       from: supabase.from,
+      rpc: supabase.rpc,
     })
 
     await expect(transitionBooking('booking-1', to, 'user-1')).resolves.toEqual({
@@ -190,9 +178,10 @@ describe('transitionBooking', () => {
       status: to,
     })
 
-    expect(supabase.update).toHaveBeenCalledWith({ status: to })
-    expect(supabase.updateEq).toHaveBeenCalledWith('id', 'booking-1')
-    expect(supabase.updateSelect).toHaveBeenCalledWith('id, status')
+    expect(supabase.rpc).toHaveBeenCalledWith('transition_booking', {
+      p_booking_id: 'booking-1',
+      p_to_status: to,
+    })
   })
 
   it.each(invalidTransitions)('throws for an invalid transition from %s to %s', async (from, to) => {
@@ -202,13 +191,14 @@ describe('transitionBooking', () => {
         getUser: supabase.authGetUser,
       },
       from: supabase.from,
+      rpc: supabase.rpc,
     })
 
     await expect(transitionBooking('booking-1', to, 'user-1')).rejects.toThrow(
       `Invalid booking transition: ${from} → ${to}`,
     )
 
-    expect(supabase.update).not.toHaveBeenCalled()
+    expect(supabase.rpc).not.toHaveBeenCalled()
   })
 
   it('rejects a caller who does not own the booking', async () => {
@@ -221,12 +211,13 @@ describe('transitionBooking', () => {
         getUser: supabase.authGetUser,
       },
       from: supabase.from,
+      rpc: supabase.rpc,
     })
 
     await expect(transitionBooking('booking-1', 'completed', 'traveler-2')).rejects.toThrow(
       'Нет доступа к изменению статуса бронирования.',
     )
 
-    expect(supabase.update).not.toHaveBeenCalled()
+    expect(supabase.rpc).not.toHaveBeenCalled()
   })
 })
