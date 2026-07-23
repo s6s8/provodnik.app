@@ -37,6 +37,8 @@ type TagMultiSelectProps = {
   leading?: ReactNode;
   /** How many chips to show before collapsing the rest into "+N". */
   maxVisibleChips?: number;
+  /** When set, shows a footer action that selects every option value. */
+  selectAllLabel?: string;
 };
 
 /**
@@ -55,6 +57,7 @@ export function TagMultiSelect({
   emptyLabel = "Ничего не найдено",
   leading,
   maxVisibleChips = 2,
+  selectAllLabel,
 }: TagMultiSelectProps): JSX.Element {
   const [open, setOpen] = useState(false);
 
@@ -141,13 +144,24 @@ export function TagMultiSelect({
             </CommandGroup>
           </CommandList>
           <div className="flex items-center justify-between border-t border-border px-3 py-2 text-xs text-muted-foreground">
-            <button
-              type="button"
-              className="cursor-pointer text-primary hover:underline"
-              onClick={() => onChange([])}
-            >
-              Очистить
-            </button>
+            <div className="flex items-center gap-3">
+              {selectAllLabel ? (
+                <button
+                  type="button"
+                  className="cursor-pointer text-primary hover:underline"
+                  onClick={() => onChange(options.map((o) => o.value))}
+                >
+                  {selectAllLabel}
+                </button>
+              ) : null}
+              <button
+                type="button"
+                className="cursor-pointer text-primary hover:underline"
+                onClick={() => onChange([])}
+              >
+                Очистить
+              </button>
+            </div>
             <span>Выбрано: {value.length}</span>
           </div>
         </Command>
