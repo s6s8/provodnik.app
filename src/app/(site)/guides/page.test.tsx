@@ -1,14 +1,14 @@
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getGuidesMock, readAuthContextMock, gridPropsSpy } = vi.hoisted(() => ({
-  getGuidesMock: vi.fn(),
+const { getGuidesPagedMock, readAuthContextMock, gridPropsSpy } = vi.hoisted(() => ({
+  getGuidesPagedMock: vi.fn(),
   readAuthContextMock: vi.fn(),
   gridPropsSpy: vi.fn(),
 }));
 
 vi.mock("@/data/supabase/queries", () => ({
-  getGuides: getGuidesMock,
+  getGuidesPaged: getGuidesPagedMock,
 }));
 
 vi.mock("@/lib/auth/server-auth", () => ({
@@ -19,8 +19,6 @@ vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn().mockResolvedValue({}),
 }));
 
-// The discovery shell (hero + error/empty/grid + "Вы гид?" CTA) now lives in
-// PublicGuidesGrid so the hero is full-bleed; the page just fetches and delegates.
 vi.mock("@/features/guide/components/public/public-guides-grid", () => ({
   PublicGuidesGrid: (props: Record<string, unknown>) => {
     gridPropsSpy(props);
@@ -37,18 +35,27 @@ describe("GuidesPage", () => {
   });
 
   it("delegates to PublicGuidesGrid with the fetched guides", async () => {
-    getGuidesMock.mockResolvedValueOnce({ data: [{ id: "g1" }], error: null });
+    getGuidesPagedMock.mockResolvedValueOnce({
+      data: [{ id: "g1" }],
+      error: null,
+      hasMore: true,
+    });
 
     render(await GuidesContent({ searchParams: Promise.resolve({}) }));
 
     expect(screen.getByTestId("public-guides-grid")).toBeInTheDocument();
     expect(gridPropsSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ guides: [{ id: "g1" }], loadError: false }),
+      expect.objectContaining({
+        guides: [{ id: "g1" }],
+        loadError: false,
+        hasMore: true,
+        page: 1,
+      }),
     );
   });
 
   it("forwards loadError when the query fails", async () => {
-    getGuidesMock.mockResolvedValueOnce({ data: null, error: new Error("boom") });
+    getGuidesPagedMock.mockResolvedValueOnce({ data: null, error: new Error("boom"), hasMore: false });
 
     render(await GuidesContent({ searchParams: Promise.resolve({}) }));
 
@@ -58,7 +65,7 @@ describe("GuidesPage", () => {
   });
 
   it("hides the guide CTA for guides and shows it for everyone else", async () => {
-    getGuidesMock.mockResolvedValue({ data: [], error: null });
+    getGuidesPagedMock.mockResolvedValue({ data: [], error: null, hasMore: false });
 
     readAuthContextMock.mockResolvedValueOnce({ role: "guide" });
     render(await GuidesContent({ searchParams: Promise.resolve({}) }));

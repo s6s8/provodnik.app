@@ -4,8 +4,9 @@ import { Suspense } from "react";
 import { CardGridSkeleton } from "@/components/shared/loading-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicGuidesGrid } from "@/features/guide/components/public/public-guides-grid";
-import { getGuides, type GuideRecord } from "@/data/supabase/queries";
+import { getGuidesPaged, type GuideRecord } from "@/data/supabase/queries";
 import { INTEREST_CHIPS } from "@/data/interests";
+import { catalogPageOffset, parseCatalogPage, PUBLIC_CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -34,7 +35,7 @@ export function generateMetadata(): Metadata {
 export default function GuidesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ spec?: string; q?: string }>;
+  searchParams: Promise<{ spec?: string; q?: string; page?: string }>;
 }) {
   return (
     <Suspense fallback={<GuidesListSkeleton />}>
@@ -46,9 +47,10 @@ export default function GuidesPage({
 export async function GuidesContent({
   searchParams,
 }: {
-  searchParams: Promise<{ spec?: string; q?: string }>;
+  searchParams: Promise<{ spec?: string; q?: string; page?: string }>;
 }) {
   const sp = await searchParams;
+  const page = parseCatalogPage(sp.page);
   const validSpecs = new Set<string>(INTEREST_CHIPS.map((c) => c.id));
   const activeSpecs = (sp?.spec ?? "")
     .split(",")
@@ -60,17 +62,23 @@ export async function GuidesContent({
   const cappedForFilter = rawQ ? rawQ.slice(0, 80) : undefined;
 
   let guides: GuideRecord[] = [];
+  let hasMore = false;
   let loadError = false;
 
   const auth = await readAuthContextFromServer();
   try {
     const supabase = await createSupabaseServerClient();
-    const result = await getGuides(supabase, {
+    const result = await getGuidesPaged(supabase, {
       specializations: activeSpecs,
       ...(cappedForFilter ? { q: cappedForFilter } : {}),
+      limit: PUBLIC_CATALOG_PAGE_SIZE,
+      offset: catalogPageOffset(page),
     });
     if (result.error) loadError = true;
-    else guides = result.data ?? [];
+    else {
+      guides = result.data ?? [];
+      hasMore = result.hasMore;
+    }
   } catch {
     loadError = true;
   }
@@ -82,6 +90,8 @@ export async function GuidesContent({
       initialQ={sp.q?.trim() ?? ""}
       loadError={loadError}
       showGuideCta={auth.role !== "guide"}
+      page={page}
+      hasMore={hasMore}
     />
   );
 }

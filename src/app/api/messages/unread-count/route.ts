@@ -1,71 +1,42 @@
 import { NextResponse } from "next/server";
 
-import { hasSupabaseEnv } from "@/lib/env";
-import { rateLimit } from "@/lib/rate-limit";
 import { getUnreadCount } from "@/lib/supabase/conversations";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  authenticateMessagesRequest,
+  messagesRateLimitResponse,
+  messagesUnauthorizedResponse,
+  withRateLimitHeaders,
+} from "@/app/api/messages/_shared";
 
-function getClientIdentifier(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
-  const ip = forwardedFor?.split(",")[0]?.trim() || realIp || "unknown";
+export async function GET() {
+  const auth = await authenticateMessagesRequest();
 
-  return `api:messages:${ip}`;
-}
-
-function withRateLimitHeaders(remaining: number) {
-  return {
-    "X-RateLimit-Remaining": String(remaining),
-  };
-}
-
-export async function GET(request: Request) {
-  const result = await rateLimit(getClientIdentifier(request), 30, 60);
-
-  if (!result.success) {
-    return NextResponse.json(
-      { error: "Слишком много запросов. Попробуйте через минуту." },
-      {
-        status: 429,
-        headers: withRateLimitHeaders(result.remaining),
-      },
-    );
+  if (auth.kind === "limited") {
+    return messagesRateLimitResponse(auth.remaining);
   }
 
-  if (!hasSupabaseEnv()) {
+  if (auth.kind === "unauthorized") {
+    return messagesUnauthorizedResponse(auth.remaining);
+  }
+
+  if (auth.kind === "disabled") {
     return NextResponse.json(
       { unreadCount: 0, userId: null },
       {
-        headers: withRateLimitHeaders(result.remaining),
+        headers: withRateLimitHeaders(auth.remaining),
       },
     );
   }
 
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    return NextResponse.json(
-      { error: "Требуется авторизация." },
-      {
-        status: 401,
-        headers: withRateLimitHeaders(result.remaining),
-      },
-    );
-  }
-
-  const unreadCount = await getUnreadCount(user.id);
+  const unreadCount = await getUnreadCount(auth.userId);
 
   return NextResponse.json(
     {
       unreadCount,
-      userId: user.id,
+      userId: auth.userId,
     },
     {
-      headers: withRateLimitHeaders(result.remaining),
+      headers: withRateLimitHeaders(auth.remaining),
     },
   );
 }

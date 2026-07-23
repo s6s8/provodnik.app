@@ -818,7 +818,7 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(result.data?.[0]?.fullName).toBe("Иван Гид");
     expect(result.data?.[0]?.listingCount).toBe(0);
     expect(client.calls).toContain(
-      'rpc:search_guides:{"q":"Иван","p_specializations":null,"p_has_listings":false}',
+      'rpc:search_guides:{"q":"Иван","p_specializations":null,"p_has_listings":false,"p_limit":null,"p_offset":0}',
     );
   });
 });

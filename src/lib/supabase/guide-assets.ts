@@ -335,16 +335,15 @@ export async function updateGuideLocationPhotoOrders(
   updates: { id: Uuid; sort_order: number }[],
 ): Promise<void> {
   const supabase = getSupabaseClient();
+  const { error } = await supabase.rpc("reorder_guide_location_photos", {
+    p_photo_orders: updates.map((entry) => ({
+      id: entry.id,
+      sort_order: entry.sort_order,
+    })),
+  });
 
-  for (const u of updates) {
-    const { error } = await supabase
-      .from("guide_location_photos")
-      .update({ sort_order: u.sort_order })
-      .eq("id", u.id);
-
-    if (error) {
-      throw error;
-    }
+  if (error) {
+    throw error;
   }
 }
 

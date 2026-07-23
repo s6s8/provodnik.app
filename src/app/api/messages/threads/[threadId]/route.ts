@@ -1,49 +1,37 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { hasSupabaseEnv } from "@/lib/env";
 import { maskMessageBodies } from "@/lib/pii/mask";
-import { rateLimit } from "@/lib/rate-limit";
 import { getThreadMessages } from "@/lib/supabase/conversations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  authenticateMessagesRequest,
+  messagesRateLimitResponse,
+  messagesUnauthorizedResponse,
+  withRateLimitHeaders,
+} from "@/app/api/messages/_shared";
 
 const paramsSchema = z.object({
   threadId: z.string().uuid("Некорректный идентификатор диалога."),
 });
 
-function getClientIdentifier(request: Request) {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
-  const ip = forwardedFor?.split(",")[0]?.trim() || realIp || "unknown";
-
-  return `api:messages:${ip}`;
-}
-
-function withRateLimitHeaders(remaining: number) {
-  return {
-    "X-RateLimit-Remaining": String(remaining),
-  };
-}
-
 export async function GET(
-  request: Request,
+  _request: Request,
   context: { params: Promise<{ threadId: string }> },
 ) {
-  const result = await rateLimit(getClientIdentifier(request), 30, 60);
+  const auth = await authenticateMessagesRequest();
 
-  if (!result.success) {
-    return NextResponse.json(
-      { error: "Слишком много запросов. Попробуйте через минуту." },
-      {
-        status: 429,
-        headers: withRateLimitHeaders(result.remaining),
-      },
-    );
+  if (auth.kind === "limited") {
+    return messagesRateLimitResponse(auth.remaining);
   }
 
-  if (!hasSupabaseEnv()) {
+  if (auth.kind === "unauthorized") {
+    return messagesUnauthorizedResponse(auth.remaining);
+  }
+
+  if (auth.kind === "disabled") {
     return NextResponse.json([], {
-      headers: withRateLimitHeaders(result.remaining),
+      headers: withRateLimitHeaders(auth.remaining),
     });
   }
 
@@ -53,32 +41,17 @@ export async function GET(
       { error: params.error.issues[0]?.message ?? "Некорректный запрос." },
       {
         status: 400,
-        headers: withRateLimitHeaders(result.remaining),
+        headers: withRateLimitHeaders(auth.remaining),
       },
     );
   }
 
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
-
-  if (error || !user) {
-    return NextResponse.json(
-      { error: "Требуется авторизация." },
-      {
-        status: 401,
-        headers: withRateLimitHeaders(result.remaining),
-      },
-    );
-  }
-
   const { data: participant, error: participantError } = await supabase
     .from("thread_participants")
     .select("thread_id")
     .eq("thread_id", params.data.threadId)
-    .eq("user_id", user.id)
+    .eq("user_id", auth.userId)
     .maybeSingle();
 
   if (participantError || !participant) {
@@ -86,13 +59,13 @@ export async function GET(
       { error: "Диалог не найден." },
       {
         status: 404,
-        headers: withRateLimitHeaders(result.remaining),
+        headers: withRateLimitHeaders(auth.remaining),
       },
     );
   }
 
   const messages = maskMessageBodies(await getThreadMessages(params.data.threadId));
   return NextResponse.json(messages, {
-    headers: withRateLimitHeaders(result.remaining),
+    headers: withRateLimitHeaders(auth.remaining),
   });
 }
