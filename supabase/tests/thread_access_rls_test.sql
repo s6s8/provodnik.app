@@ -301,29 +301,23 @@ values (
 on conflict (id) do update set
   body = excluded.body;
 
+select set_config('request.jwt.claim.sub', '48000000-0000-4000-8000-000000000003', true);
 select is(
-  public.can_access_request_thread(
-    '49000000-0000-4000-8000-000000000001',
-    '48000000-0000-4000-8000-000000000003'
-  ),
+  public.can_access_request_thread('49000000-0000-4000-8000-000000000001'),
   false,
   'can_access_request_thread denies an unrelated guide'
 );
 
+select set_config('request.jwt.claim.sub', '48000000-0000-4000-8000-000000000002', true);
 select is(
-  public.can_access_request_thread(
-    '49000000-0000-4000-8000-000000000001',
-    '48000000-0000-4000-8000-000000000002'
-  ),
+  public.can_access_request_thread('49000000-0000-4000-8000-000000000001'),
   true,
   'can_access_request_thread allows a guide with an offer on the request'
 );
 
+select set_config('request.jwt.claim.sub', '48000000-0000-4000-8000-000000000004', true);
 select is(
-  public.can_access_request_thread(
-    '49000000-0000-4000-8000-000000000001',
-    '48000000-0000-4000-8000-000000000004'
-  ),
+  public.can_access_request_thread('49000000-0000-4000-8000-000000000001'),
   true,
   'can_access_request_thread allows a guide eligible via request_views'
 );
