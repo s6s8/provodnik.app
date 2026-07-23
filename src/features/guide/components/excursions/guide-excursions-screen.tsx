@@ -26,6 +26,7 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useConfirm } from "@/components/shared/confirm-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListRow } from "@/components/shared/list-row";
@@ -71,6 +72,9 @@ const TEMPLATE_STATUS_VARIANT: Record<
   published: "default",
   rejected: "destructive",
 };
+
+const PRICE_SCOPE_TOGGLE_CLASS =
+  "data-[state=on]:bg-primary data-[state=on]:text-primary-foreground";
 
 export function GuideExcursionsScreen() {
   const { confirm, ConfirmDialog } = useConfirm();
@@ -173,6 +177,7 @@ export function GuideExcursionsScreen() {
       title: template.title,
       description: template.description ?? "",
       duration: template.duration_text ?? "",
+      priceScope: template.price_scope === "per_person" ? "per_person" : "per_group",
       priceRub:
         template.price_from_kopecks != null
           ? String(kopecksToRub(template.price_from_kopecks))
@@ -237,6 +242,7 @@ export function GuideExcursionsScreen() {
           description: values.description,
           durationText: values.duration,
           priceFromRub: values.priceRub,
+          priceScope: values.priceScope,
           meetingPoint: values.meetingPoint,
           maxParticipants: values.maxParticipants,
           photoUrls: values.photoUrls,
@@ -254,6 +260,7 @@ export function GuideExcursionsScreen() {
           description: values.description,
           durationText: values.duration,
           priceFromRub: values.priceRub,
+          priceScope: values.priceScope,
           meetingPoint: values.meetingPoint,
           maxParticipants: values.maxParticipants,
           photoUrls: values.photoUrls,
@@ -434,7 +441,38 @@ export function GuideExcursionsScreen() {
               />
             </div>
             <div>
-              <Label htmlFor="tpl-price">Цена за группу (₽)</Label>
+              <Label id="tpl-price-label">Цена</Label>
+              <Controller
+                control={control}
+                name="priceScope"
+                render={({ field }) => (
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    value={field.value}
+                    onValueChange={(next) => {
+                      if (next) field.onChange(next);
+                    }}
+                    aria-labelledby="tpl-price-label"
+                    className="mt-1.5 w-full"
+                  >
+                    <ToggleGroupItem
+                      value="per_group"
+                      aria-label="за группу"
+                      className={`flex-1 ${PRICE_SCOPE_TOGGLE_CLASS}`}
+                    >
+                      за группу
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="per_person"
+                      aria-label="за человека"
+                      className={`flex-1 ${PRICE_SCOPE_TOGGLE_CLASS}`}
+                    >
+                      за человека
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                )}
+              />
               <Input
                 id="tpl-price"
                 type="number"
@@ -442,6 +480,7 @@ export function GuideExcursionsScreen() {
                 step={1}
                 placeholder="Например: 5000"
                 className="mt-1.5"
+                aria-label="Цена, ₽"
                 aria-invalid={tplErrorField === "priceRub" || undefined}
                 aria-describedby={tplErrorField === "priceRub" ? "tpl-error" : undefined}
                 {...register("priceRub")}

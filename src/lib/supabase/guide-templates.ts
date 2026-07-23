@@ -9,6 +9,7 @@ type CreateGuideTemplateInput = {
   description?: string | null;
   durationText?: string | null;
   priceFromRub?: number | null;
+  priceScope?: "per_person" | "per_group";
   meetingPoint?: string | null;
   maxParticipants?: number | null;
   photoUrls?: string[];
@@ -21,6 +22,7 @@ type UpdateGuideTemplateInput = {
   description?: string | null;
   durationText?: string | null;
   priceFromRub?: number | null;
+  priceScope?: "per_person" | "per_group";
   meetingPoint?: string | null;
   maxParticipants?: number | null;
   photoUrls?: string[];
@@ -91,8 +93,7 @@ export async function createGuideTemplate(
       duration_text: input.durationText ?? null,
       price_from_kopecks:
         input.priceFromRub == null ? null : rubToKopecks(input.priceFromRub),
-      // New ready tours are priced per group (item 2). Legacy rows keep per_person.
-      price_scope: "per_group",
+      price_scope: input.priceScope ?? "per_group",
       meeting_point: input.meetingPoint ?? null,
       max_participants: input.maxParticipants ?? null,
       photo_urls: input.photoUrls ?? [],
@@ -126,6 +127,7 @@ export async function updateGuideTemplate(
     update.price_from_kopecks =
       input.priceFromRub == null ? null : rubToKopecks(input.priceFromRub);
   }
+  if ("priceScope" in input) update.price_scope = input.priceScope ?? "per_group";
   if ("meetingPoint" in input) update.meeting_point = input.meetingPoint ?? null;
   if ("maxParticipants" in input) update.max_participants = input.maxParticipants ?? null;
   if ("photoUrls" in input) update.photo_urls = input.photoUrls ?? [];

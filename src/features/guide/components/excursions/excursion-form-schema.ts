@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { kopecksToRub, rubToKopecks } from "@/data/money";
+import { guideListingPricingModes } from "@/data/guide-listing/schema";
 
 const nullableTrimmedStringSchema = z.string().transform((value) => value.trim() || null);
 
@@ -54,6 +55,7 @@ export const excursionFormSchema = z
     }),
     description: nullableTrimmedStringSchema,
     duration: nullableTrimmedStringSchema,
+    priceScope: z.enum(guideListingPricingModes),
     priceRub: priceFromRubSchema,
     meetingPoint: nullableTrimmedStringSchema,
     maxParticipants: maxParticipantsSchema,
@@ -76,6 +78,7 @@ export const defaultExcursionFormValues: ExcursionFormInput = {
   title: "",
   description: "",
   duration: "",
+  priceScope: "per_group",
   priceRub: "",
   meetingPoint: "",
   maxParticipants: "",

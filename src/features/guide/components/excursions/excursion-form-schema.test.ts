@@ -6,6 +6,7 @@ const valid = {
   title: "Прогулка по центру",
   description: "",
   duration: "",
+  priceScope: "per_group" as const,
   priceRub: "5000",
   meetingPoint: "",
   maxParticipants: "8",
@@ -31,6 +32,29 @@ describe("excursionFormSchema — moderation lifecycle", () => {
 
   it("requires a photo before submitting for review", () => {
     const result = excursionFormSchema.safeParse({ ...valid, photoUrls: [] });
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("excursionFormSchema — price scope", () => {
+  it("accepts per-group pricing", () => {
+    const result = excursionFormSchema.safeParse({ ...valid, priceScope: "per_group" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.priceScope).toBe("per_group");
+    }
+  });
+
+  it("accepts per-person pricing", () => {
+    const result = excursionFormSchema.safeParse({ ...valid, priceScope: "per_person" });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.priceScope).toBe("per_person");
+    }
+  });
+
+  it("rejects an unknown price scope", () => {
+    const result = excursionFormSchema.safeParse({ ...valid, priceScope: "per_trip" });
     expect(result.success).toBe(false);
   });
 });
