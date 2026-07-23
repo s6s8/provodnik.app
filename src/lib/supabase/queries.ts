@@ -535,24 +535,25 @@ export async function getGuidesPaged(
     const hasMore = !unlimited && searchRows.length > pageLimit;
     const rows = (hasMore ? searchRows.slice(0, pageLimit) : searchRows) as Record<string, unknown>[];
     const guideIds = rows.map((row) => row.user_id as string);
-    const profileMap = await fetchProfilesByUserIds(client, guideIds);
 
-    const { data: listingRows } = await client
-      .from("listings")
-      .select("guide_id")
-      .eq("status", "published")
-      .in("guide_id", guideIds);
+    const [profileMap, { data: listingRows }, { data: statRows }] = await Promise.all([
+      fetchProfilesByUserIds(client, guideIds),
+      client
+        .from("listings")
+        .select("guide_id")
+        .eq("status", "published")
+        .in("guide_id", guideIds),
+      client
+        .from("v_guide_public_profile")
+        .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages, response_rate")
+        .in("user_id", guideIds),
+    ]);
 
     const countMap: Record<string, number> = {};
     for (const row of listingRows ?? []) {
       const gid = row.guide_id as string;
       countMap[gid] = (countMap[gid] ?? 0) + 1;
     }
-
-    const { data: statRows } = await client
-      .from("v_guide_public_profile")
-      .select("user_id, avatar_url, average_rating, review_count, trips_completed, recommend_pct, specialties, languages, response_rate")
-      .in("user_id", guideIds);
 
     const ratingMap = new Map<
       string,

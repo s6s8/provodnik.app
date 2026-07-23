@@ -146,6 +146,68 @@ function createFakeClient(fixtures: FixtureMap = {}, errors: ErrorMap = {}): Fak
   return client as unknown as FakeClient;
 }
 
+type ParallelReadTrackingClient = FakeClient & {
+  startedReads: string[];
+  releaseAll: () => void;
+};
+
+function createParallelReadTrackingClient(fixtures: FixtureMap = {}): ParallelReadTrackingClient {
+  const calls: string[] = [];
+  const startedReads: string[] = [];
+  const releaseByTable = new Map<string, Array<() => void>>();
+
+  const deferTableResult = (table: string) =>
+    new Promise<{ data: unknown[]; error: null; count: null }>((resolve) => {
+      const queue = releaseByTable.get(table) ?? [];
+      queue.push(() => resolve({ data: fixtures[table] ?? [], error: null, count: null }));
+      releaseByTable.set(table, queue);
+    });
+
+  class DeferredFakeQuery {
+    constructor(private readonly table: string) {}
+
+    select() {
+      return this;
+    }
+
+    eq() {
+      return this;
+    }
+
+    in() {
+      return this;
+    }
+
+    then<TResult1 = unknown, TResult2 = never>(
+      onfulfilled?: ((value: { data: unknown[]; error: null; count: null }) => TResult1 | PromiseLike<TResult1>) | null,
+      onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+    ) {
+      startedReads.push(this.table);
+      return deferTableResult(this.table).then(onfulfilled, onrejected);
+    }
+  }
+
+  return {
+    calls,
+    startedReads,
+    releaseAll() {
+      for (const table of ["profiles", "listings", "v_guide_public_profile"]) {
+        for (const release of releaseByTable.get(table) ?? []) {
+          release();
+        }
+      }
+    },
+    from(table: string) {
+      calls.push(`from:${table}`);
+      return new DeferredFakeQuery(table);
+    },
+    rpc(name: string, args?: unknown) {
+      calls.push(`rpc:${name}:${JSON.stringify(args ?? {})}`);
+      return Promise.resolve({ data: fixtures[`rpc:${name}`] ?? [], error: null });
+    },
+  } as unknown as ParallelReadTrackingClient;
+}
+
 describe("public Supabase query helpers", () => {
   beforeEach(() => {
     createClientMock.mockClear();
@@ -820,6 +882,44 @@ describe("guide stats layering (no fabricated zeros)", () => {
     expect(client.calls).toContain(
       'rpc:search_guides:{"q":"Иван","p_specializations":null,"p_has_listings":false,"p_limit":null,"p_offset":0}',
     );
+  });
+
+  it("starts profiles, listings, and public stats reads in parallel after search_guides", async () => {
+    const client = createParallelReadTrackingClient({
+      "rpc:search_guides": [
+        {
+          user_id: "guide-1",
+          slug: "guide-1",
+          display_name: "Иван Гид",
+          regions: ["Москва"],
+          verification_status: "approved",
+        },
+      ],
+      profiles: [{ id: "guide-1", full_name: "Иван Гид" }],
+      listings: [{ guide_id: "guide-1" }],
+      v_guide_public_profile: [
+        { user_id: "guide-1", average_rating: 4.5, review_count: 3, trips_completed: 2 },
+      ],
+    });
+
+    const resultPromise = getGuides(client, { q: "Иван" });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(client.startedReads).toEqual(
+      expect.arrayContaining(["profiles", "listings", "v_guide_public_profile"]),
+    );
+    expect(client.startedReads).toHaveLength(3);
+
+    client.releaseAll();
+
+    const result = await resultPromise;
+
+    expect(result.error).toBeNull();
+    expect(result.data?.[0]?.listingCount).toBe(1);
+    expect(result.data?.[0]?.rating).toBe(4.5);
+    expect(result.data?.[0]?.reviewCount).toBe(3);
   });
 });
 
