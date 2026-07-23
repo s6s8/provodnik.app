@@ -6,7 +6,11 @@ import { useRouter } from "next/navigation";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { uploadAvatarAction } from "@/app/(protected)/profile/avatar-action";
+import { uploadFileToSignedUrl } from "@/lib/storage/client-upload";
+import {
+  confirmAvatarUploadAction,
+  requestAvatarUploadUrlAction,
+} from "@/app/(protected)/profile/avatar-action";
 
 const MAX_BYTES = 2 * 1024 * 1024;
 const MIME_ALLOWED = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -54,12 +58,27 @@ export function AvatarUploadBlock({ avatarUrl, displayName }: AvatarUploadBlockP
       return;
     }
 
-    const formData = new FormData();
-    formData.append("avatar", file);
-
     startTransition(async () => {
       try {
-        const result = await uploadAvatarAction(formData);
+        const uploadUrl = await requestAvatarUploadUrlAction({
+          mimeType: file.type,
+          byteSize: file.size,
+        });
+        if (!uploadUrl.ok) {
+          setError(uploadUrl.message);
+          return;
+        }
+
+        await uploadFileToSignedUrl({
+          signedUrl: uploadUrl.signedUrl,
+          file,
+        });
+
+        const result = await confirmAvatarUploadAction({
+          objectPath: uploadUrl.objectPath,
+          mimeType: file.type,
+          byteSize: file.size,
+        });
         if (result.ok) {
           setSuccess(result.message);
           router.refresh();

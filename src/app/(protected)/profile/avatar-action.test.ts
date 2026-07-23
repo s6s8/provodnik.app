@@ -7,8 +7,15 @@ vi.mock("@/lib/auth/server-auth", () => ({
   readAuthContextFromServer: () => readAuthContextFromServer(),
 }));
 
-// Row #39: the profiles UPDATE must use .select() so a 0-row update surfaces
-// as a failure instead of a silent "success" that never persists the avatar.
+const getPresignedUploadUrl = vi.fn();
+const getPublicUrl = vi.fn();
+vi.mock("@/lib/storage/upload", () => ({
+  assertMimeTypeAllowed: vi.fn(),
+  assertByteSizeAllowed: vi.fn(),
+  getPresignedUploadUrl: (...args: unknown[]) => getPresignedUploadUrl(...args),
+  getPublicUrl: (...args: unknown[]) => getPublicUrl(...args),
+}));
+
 let updateResult: { data: unknown; error: unknown };
 const createSupabaseServerClient = vi.fn();
 vi.mock("@/lib/supabase/server", () => ({
@@ -17,12 +24,6 @@ vi.mock("@/lib/supabase/server", () => ({
 
 function fakeClient() {
   return {
-    storage: {
-      from: () => ({
-        upload: vi.fn(async () => ({ error: null })),
-        getPublicUrl: () => ({ data: { publicUrl: "https://cdn.test/a.png" } }),
-      }),
-    },
     from: () => ({
       update: () => ({
         eq: () => ({
@@ -33,13 +34,7 @@ function fakeClient() {
   };
 }
 
-function avatarFormData(): FormData {
-  const fd = new FormData();
-  fd.set("avatar", new File([new Uint8Array([1, 2, 3])], "a.png", { type: "image/png" }));
-  return fd;
-}
-
-describe("uploadAvatarAction — 0-row update guard (#39)", () => {
+describe("avatar upload actions", () => {
   beforeEach(() => {
     readAuthContextFromServer.mockResolvedValue({
       isAuthenticated: true,
@@ -47,13 +42,45 @@ describe("uploadAvatarAction — 0-row update guard (#39)", () => {
       role: "traveler",
     });
     createSupabaseServerClient.mockResolvedValue(fakeClient());
+    getPresignedUploadUrl.mockResolvedValue({
+      signedUrl: "https://cdn.test/upload",
+      path: "user-1/avatar.png",
+      token: "token",
+    });
+    getPublicUrl.mockReturnValue("https://cdn.test/a.png");
+  });
+
+  it("returns a presigned upload URL without sending file bytes through the server action", async () => {
+    const { requestAvatarUploadUrlAction } = await import("./avatar-action");
+
+    const result = await requestAvatarUploadUrlAction({
+      mimeType: "image/png",
+      byteSize: 1024,
+    });
+
+    expect(result).toEqual({
+      ok: true,
+      signedUrl: "https://cdn.test/upload",
+      objectPath: "user-1/avatar.png",
+      token: "token",
+    });
+    expect(getPresignedUploadUrl).toHaveBeenCalledWith(
+      "traveler-avatars",
+      "avatar.png",
+      "image/png",
+      "user-1",
+    );
   });
 
   it("returns { ok: false } when the profiles update affects 0 rows", async () => {
     updateResult = { data: [], error: null };
-    const { uploadAvatarAction } = await import("./avatar-action");
+    const { confirmAvatarUploadAction } = await import("./avatar-action");
 
-    const result = await uploadAvatarAction(avatarFormData());
+    const result = await confirmAvatarUploadAction({
+      objectPath: "user-1/avatar.png",
+      mimeType: "image/png",
+      byteSize: 1024,
+    });
 
     expect(result.ok).toBe(false);
     expect(result.message).toBe(AVATAR_MESSAGES.GENERIC_ERROR);
@@ -61,10 +88,28 @@ describe("uploadAvatarAction — 0-row update guard (#39)", () => {
 
   it("returns { ok: true } when the update affects the owner row", async () => {
     updateResult = { data: [{ id: "user-1" }], error: null };
-    const { uploadAvatarAction } = await import("./avatar-action");
+    const { confirmAvatarUploadAction } = await import("./avatar-action");
 
-    const result = await uploadAvatarAction(avatarFormData());
+    const result = await confirmAvatarUploadAction({
+      objectPath: "user-1/avatar.png",
+      mimeType: "image/png",
+      byteSize: 1024,
+    });
 
     expect(result.ok).toBe(true);
+    expect(getPublicUrl).toHaveBeenCalledWith("traveler-avatars", "user-1/avatar.png");
+  });
+
+  it("rejects object paths outside the authenticated user folder", async () => {
+    const { confirmAvatarUploadAction } = await import("./avatar-action");
+
+    const result = await confirmAvatarUploadAction({
+      objectPath: "other-user/avatar.png",
+      mimeType: "image/png",
+      byteSize: 1024,
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.message).toBe(AVATAR_MESSAGES.GENERIC_ERROR);
   });
 });

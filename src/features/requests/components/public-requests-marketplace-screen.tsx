@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import { Check, Compass } from "lucide-react";
@@ -97,6 +97,8 @@ type ActiveDateRange = { from?: Date; to?: Date };
 
 type Props = {
   initialData: OpenRequestRecord[] | null;
+  initialHasMore?: boolean;
+  initialOffset?: number;
 };
 
 function deriveCityFromDestination(label: string): string {
@@ -174,7 +176,11 @@ function formatDateRangeLabel(range: ActiveDateRange): string {
   return `${format(range.from, "d MMMM", { locale: ru })} – ${format(range.to, "d MMMM", { locale: ru })}`;
 }
 
-export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
+export function PublicRequestsMarketplaceScreen({
+  initialData,
+  initialHasMore = false,
+  initialOffset = 0,
+}: Props) {
   const [query, setQuery] = useState("");
   const [activeCategories, setActiveCategories] = useState<CategoryFilter[]>([]);
   const [activeCity, setActiveCity] = useState<string | null>(null);
@@ -182,9 +188,17 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
   const [activeDateRange, setActiveDateRange] = useState<ActiveDateRange | null>(null);
   const [hasLoadedStoredCity, setHasLoadedStoredCity] = useState(false);
   const [visibleCount, setVisibleCount] = useState(REQUESTS_PAGE_SIZE);
+  const [requests, setRequests] = useState<OpenRequestRecord[]>(initialData ?? []);
+  const [serverHasMore, setServerHasMore] = useState(initialHasMore);
+  const [serverOffset, setServerOffset] = useState(initialOffset);
+  const [loadingMore, setLoadingMore] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
-  const requests = useMemo(() => initialData ?? [], [initialData]);
+  useEffect(() => {
+    setRequests(initialData ?? []);
+    setServerHasMore(initialHasMore);
+    setServerOffset(initialOffset);
+  }, [initialData, initialHasMore, initialOffset]);
 
   const cityOptions = useMemo(() => {
     const set = new Set<string>();
@@ -256,9 +270,36 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
   const visibleRequests = useMemo(
     () => filteredRequests.slice(0, visibleCount),
-    [filteredRequests, visibleCount]
+    [filteredRequests, visibleCount],
   );
-  const hasMoreRequests = visibleCount < filteredRequests.length;
+  const hasMoreRequests =
+    visibleCount < filteredRequests.length || (visibleCount >= filteredRequests.length && serverHasMore);
+
+  const loadMoreRequests = useCallback(async () => {
+    if (visibleCount < filteredRequests.length) {
+      setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length));
+      return;
+    }
+
+    if (!serverHasMore || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const response = await fetch(`/api/public/open-requests?offset=${serverOffset}`);
+      if (!response.ok) return;
+      const payload = (await response.json()) as {
+        items?: OpenRequestRecord[];
+        hasMore?: boolean;
+      };
+      const nextItems = payload.items ?? [];
+      setRequests((current) => [...current, ...nextItems]);
+      setServerOffset((current) => current + nextItems.length);
+      setServerHasMore(Boolean(payload.hasMore));
+      setVisibleCount((current) => current + REQUESTS_PAGE_SIZE);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [filteredRequests.length, loadingMore, serverHasMore, serverOffset, visibleCount]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => setVisibleCount(REQUESTS_PAGE_SIZE), 0);
@@ -272,7 +313,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry?.isIntersecting) {
-          setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length));
+          void loadMoreRequests();
         }
       },
       { rootMargin: "480px 0px" }
@@ -280,7 +321,7 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
 
     observer.observe(loadMoreNode);
     return () => observer.disconnect();
-  }, [filteredRequests.length, hasMoreRequests]);
+  }, [filteredRequests.length, hasMoreRequests, loadMoreRequests]);
 
   const advancedFilterCount =
     (activeCity != null ? 1 : 0) + (activeWhen != null || activeDateRange != null ? 1 : 0);
@@ -514,11 +555,12 @@ export function PublicRequestsMarketplaceScreen({ initialData }: Props) {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() =>
-                      setVisibleCount((current) => Math.min(current + REQUESTS_PAGE_SIZE, filteredRequests.length))
-                    }
+                    disabled={loadingMore}
+                    onClick={() => {
+                      void loadMoreRequests();
+                    }}
                   >
-                    Показать ещё
+                    {loadingMore ? "Загрузка…" : "Показать ещё"}
                   </Button>
                 </div>
               ) : null}

@@ -23,7 +23,7 @@ import { INTEREST_CHIPS } from "@/data/interests";
 import type { GuideRecord } from "@/data/supabase/queries";
 import { brandGradient } from "@/lib/city-image";
 
-function buildGuidesSearch(activeSpecs: string[], q: string): string {
+function buildGuidesSearch(activeSpecs: string[], q: string, page?: number): string {
   const params = new URLSearchParams();
   if (activeSpecs.length > 0) {
     params.set("spec", activeSpecs.join(","));
@@ -31,6 +31,9 @@ function buildGuidesSearch(activeSpecs: string[], q: string): string {
   const trimmed = q.trim();
   if (trimmed.length > 0) {
     params.set("q", trimmed);
+  }
+  if (page && page > 1) {
+    params.set("page", String(page));
   }
   const qs = params.toString();
   return qs.length > 0 ? `?${qs}` : "";
@@ -42,12 +45,16 @@ export function PublicGuidesGrid({
   initialQ,
   loadError = false,
   showGuideCta = false,
+  page = 1,
+  hasMore = false,
 }: {
   guides: GuideRecord[];
   activeSpecs: string[];
   initialQ?: string;
   loadError?: boolean;
   showGuideCta?: boolean;
+  page?: number;
+  hasMore?: boolean;
 }) {
   const router = useRouter();
   const [query, setQuery] = React.useState(initialQ ?? "");
@@ -176,6 +183,24 @@ export function PublicGuidesGrid({
                 />
               ))}
             </DiscoveryGrid>
+            {hasMore ? (
+              <div className="flex justify-center pt-8">
+                <Button asChild variant="outline">
+                  <Link href={`/guides${buildGuidesSearch(activeSpecs, query, page + 1)}`}>
+                    Показать ещё
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
+            {page > 1 ? (
+              <div className="flex justify-center">
+                <Button asChild variant="ghost">
+                  <Link href={`/guides${buildGuidesSearch(activeSpecs, query, page - 1)}`}>
+                    Назад
+                  </Link>
+                </Button>
+              </div>
+            ) : null}
           </div>
         )}
 

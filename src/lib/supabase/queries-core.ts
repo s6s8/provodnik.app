@@ -8,6 +8,8 @@ import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { sanitizeTravelerRequestDestinationLabel } from "@/lib/traveler-request-destination";
 
 export type QueryResult<T> = { data: T | null; error: Error | null };
+
+export type PagedQueryResult<T> = QueryResult<T> & { hasMore: boolean };
 export type DestinationCategory = "city" | "nature" | "culture";
 
 export type DestinationRecord = {
@@ -183,7 +185,13 @@ export const REVIEW_AUTHOR_FALLBACK = "Путешественник";
 
 export type ListingFilters = { destination?: string; duration?: string; priceRange?: string; format?: string };
 export type RequestFilters = { destination?: string; status?: string };
-export type GuideFilters = { destination?: string; specializations?: string[]; q?: string };
+export type GuideFilters = {
+  destination?: string;
+  specializations?: string[];
+  q?: string;
+  limit?: number;
+  offset?: number;
+};
 
 export type DestinationOption = {
   name: string;
