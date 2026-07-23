@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { getActiveGuideDestinations, getGuideBySlug, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
@@ -78,6 +79,15 @@ export default async function HomePage({
 
   return (
     <>
+      <Link
+        href="/guides"
+        prefetch
+        aria-hidden
+        tabIndex={-1}
+        className="sr-only"
+      >
+        Гиды
+      </Link>
       <SiteHeaderServer />
       <main>
         <HomePageShell2Classic
