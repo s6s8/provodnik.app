@@ -4,7 +4,7 @@ import { ArrowDown } from "lucide-react";
 import { Scrim } from "@/components/ui/scrim";
 import type { DestinationOption } from "@/data/supabase/queries";
 
-import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
+import { HomepageRequestFormClassic } from "./homepage-request-form-classic-lazy";
 import type { TemplateRequestPrefill } from "./template-request-prefill";
 
 // Served from /public (version-controlled) instead of a Supabase Storage object

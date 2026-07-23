@@ -30,7 +30,14 @@ vi.mock("@/lib/env", () => ({ hasSupabaseEnv: () => true }));
 
 vi.mock("./homepage-auth-gate", () => ({ HomepageAuthGate: () => null }));
 
+vi.mock("../actions/destination-suggestions-action", () => ({
+  fetchDestinationSuggestionsAction: vi.fn(),
+}));
+
+import { fetchDestinationSuggestionsAction } from "../actions/destination-suggestions-action";
 import { HomepageRequestFormClassic } from "./homepage-request-form-classic";
+
+const fetchDestinationSuggestionsActionMock = vi.mocked(fetchDestinationSuggestionsAction);
 
 const DESTINATIONS = [
   { name: "Кавказ", region: "Юг", guideCount: 3 },
@@ -54,6 +61,8 @@ beforeAll(() => {
 beforeEach(() => {
   mockCreateRequest.mockReset();
   mockCreateRequest.mockResolvedValue({ error: null });
+  fetchDestinationSuggestionsActionMock.mockReset();
+  fetchDestinationSuggestionsActionMock.mockResolvedValue({ ok: true, data: [] });
 });
 
 // WB C3: the destination field is an assistive combobox (cmdk), not a <datalist>.
@@ -69,6 +78,25 @@ describe("HomepageRequestFormClassic destination typeahead", () => {
     expect(input).toHaveAttribute("aria-expanded", "false");
 
     expect(input).toHaveAttribute("aria-controls", "destination-suggestions");
+  });
+
+  it("loads the full suggestion vocabulary on first focus", async () => {
+    const expanded = [
+      ...DESTINATIONS.slice(0, 2),
+      { name: "Каспийск", region: "Дагестан", guideCount: 1 },
+    ];
+    fetchDestinationSuggestionsActionMock.mockResolvedValue({ ok: true, data: expanded });
+
+    render(<HomepageRequestFormClassic destinations={DESTINATIONS.slice(0, 2)} />);
+    const input = screen.getByLabelText("Направление");
+
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: "Кас" } });
+
+    await waitFor(() => expect(fetchDestinationSuggestionsActionMock).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: /Каспийск/ })).toBeInTheDocument(),
+    );
   });
 
   it("filters the suggestions while typing «Кав» and closes on Escape", () => {

@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { todayMoscowISODate } from "@/lib/dates";
 import type { DestinationOption } from "@/data/supabase/queries";
 import { HomepageAuthGate } from "./homepage-auth-gate";
+import { fetchDestinationSuggestionsAction } from "../actions/destination-suggestions-action";
 import { useRequestForm } from "./use-request-form";
 import type { TemplateRequestPrefill } from "./template-request-prefill";
 
@@ -208,6 +209,7 @@ function DestinationCombobox({
   value,
   onChange,
   onBlur,
+  onFocus,
   inputRef,
   invalid,
   describedBy,
@@ -216,6 +218,7 @@ function DestinationCombobox({
   value: string;
   onChange: (next: string) => void;
   onBlur: () => void;
+  onFocus?: () => void;
   inputRef: React.Ref<HTMLInputElement>;
   invalid: boolean;
   describedBy?: string;
@@ -288,6 +291,10 @@ function DestinationCombobox({
               // away from it so free text still submits the form on Enter.
               else if (e.key === "Enter" && !listOpen) e.stopPropagation();
             }}
+            onFocus={() => {
+              onFocus?.();
+              setOpen(true);
+            }}
             onBlur={() => {
               setOpen(false);
               onBlur();
@@ -353,6 +360,21 @@ export function HomepageRequestFormClassic({
   const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [guideAttached, setGuideAttached] = React.useState(true);
   const attachedGuide = guideAttached ? preferredGuide ?? null : null;
+  const [destinationOptions, setDestinationOptions] = React.useState(destinations);
+  const suggestionsRequest = React.useRef<Promise<void> | null>(null);
+
+  const ensureDestinationSuggestions = React.useCallback(() => {
+    if (suggestionsRequest.current) return;
+    suggestionsRequest.current = (async () => {
+      const result = await fetchDestinationSuggestionsAction();
+      if (result.ok && result.data.length > 0) setDestinationOptions(result.data);
+    })();
+  }, []);
+
+  React.useEffect(() => {
+    setDestinationOptions(destinations);
+  }, [destinations]);
+
   const {
     form,
     register,
@@ -416,10 +438,11 @@ export function HomepageRequestFormClassic({
       <div className="relative z-20 flex flex-col gap-1.5">
         <Label htmlFor="destination">Направление</Label>
         <DestinationCombobox
-          destinations={destinations}
+          destinations={destinationOptions}
           value={destinationField.value ?? ""}
           onChange={destinationField.onChange}
           onBlur={destinationField.onBlur}
+          onFocus={ensureDestinationSuggestions}
           inputRef={destinationField.ref}
           invalid={Boolean(errors.destination)}
           describedBy={errors.destination ? errorId("destination") : undefined}

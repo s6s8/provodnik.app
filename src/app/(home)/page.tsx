@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { getActiveGuideDestinations, getDestinationSuggestions, getGuideBySlug, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
+import { getActiveGuideDestinations, getGuideBySlug, getHomepageRequests, type DestinationOption, type RequestRecord } from "@/data/supabase/queries";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
 import { HomePageShell2Classic } from "@/features/homepage-classic/components/homepage-shell2-classic";
 import {
@@ -24,7 +24,6 @@ export default async function HomePage({
   searchParams: Promise<{ guide?: string; template?: string }>;
 }) {
   let destinations: DestinationOption[] = [];
-  let searchDestinations: DestinationOption[] = [];
   let requests: RequestRecord[] = [];
   let viewerId: string | null = null;
   let preferredGuide: { slug: string; name: string; templateId: string | null } | null = null;
@@ -34,16 +33,14 @@ export default async function HomePage({
   const { guide: guideParam, template: templateParam } = await searchParams;
   try {
     const supabase = await createSupabaseServerClient();
-    const [destResult, searchDestResult, reqResult, userResult, guideResult, inventoryResult] = await Promise.all([
+    const [destResult, reqResult, userResult, guideResult, inventoryResult] = await Promise.all([
       getActiveGuideDestinations(supabase),
-      getDestinationSuggestions(supabase),
       getHomepageRequests(supabase),
       supabase.auth.getUser().catch(() => ({ data: { user: null } })),
       guideParam ? getGuideBySlug(supabase, guideParam) : Promise.resolve(null),
       getHomepageInventory(supabase),
     ]);
     destinations = destResult.data ?? [];
-    searchDestinations = searchDestResult.data ?? [];
     requests = reqResult.data ?? [];
     viewerId = userResult.data.user?.id ?? null;
     inventory = inventoryResult.data ?? inventory;
@@ -85,7 +82,6 @@ export default async function HomePage({
       <main>
         <HomePageShell2Classic
           destinations={destinations}
-          searchDestinations={searchDestinations}
           requests={requests}
           viewerId={viewerId}
           preferredGuide={preferredGuide}
