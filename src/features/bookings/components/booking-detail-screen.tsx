@@ -37,7 +37,7 @@ import { FourAxisReviewForm } from "@/features/reviews/components/FourAxisReview
 import type { GuideBookingStatus } from "@/data/guide-booking/types";
 import type { BookingStatus } from "@/lib/bookings/state-machine";
 import { COPY } from "@/lib/copy";
-import { formatRussianDateRange, formatRussianTime } from "@/lib/dates";
+import { formatDurationMinutes, formatRussianDateRange, formatRussianTime } from "@/lib/dates";
 import { flags } from "@/lib/flags";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { pluralize } from "@/lib/utils";
@@ -221,6 +221,13 @@ function TravelerBookingDetailView({
       ? request.start_time.slice(0, 5)
       : "";
   const meetingPlace = booking.meeting_point ?? templateSnapshot?.meeting_point ?? null;
+  const durationMinutes =
+    bookingStartDate && bookingEndDate
+      ? (new Date(bookingEndDate).getTime() - new Date(bookingStartDate).getTime()) / 60_000
+      : 0;
+  const duration = Number.isFinite(durationMinutes)
+    ? formatDurationMinutes(Math.round(durationMinutes))
+    : "";
 
   const priceMinor = offer?.price_minor ?? booking.subtotal_minor ?? 0;
   const partySize = booking.party_size ?? offer?.capacity ?? request?.participants_count ?? 1;
@@ -270,6 +277,11 @@ function TravelerBookingDetailView({
       guideName={guideName}
       guidePhone={guidePhone}
       dateRange={dateRange}
+      meetingTime={meetingTime}
+      duration={duration}
+      participantCount={partySize}
+      meetingPoint={meetingPlace}
+      totalMinor={priceMinor}
     />
   ) : null;
 

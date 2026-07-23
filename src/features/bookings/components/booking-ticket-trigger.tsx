@@ -10,8 +10,11 @@ interface BookingTicketTriggerProps {
   guideName: string;
   guidePhone?: string | null;
   dateRange: string;
+  meetingTime?: string;
+  duration?: string;
   participantCount?: number;
   meetingPoint?: string | null;
+  totalMinor?: number;
   orgDetails?: string | null;
 }
 

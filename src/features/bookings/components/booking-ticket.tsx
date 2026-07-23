@@ -4,6 +4,7 @@ import * as React from "react";
 import { X, Printer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { formatRubFromMinor } from "@/data/money";
 
 interface BookingTicketProps {
   bookingId: string;
@@ -11,8 +12,11 @@ interface BookingTicketProps {
   guideName: string;
   guidePhone?: string | null;
   dateRange: string;
+  meetingTime?: string;
+  duration?: string;
   participantCount?: number;
   meetingPoint?: string | null;
+  totalMinor?: number;
   orgDetails?: string | null;
   onClose: () => void;
 }
@@ -23,8 +27,11 @@ export function BookingTicket({
   guideName,
   guidePhone,
   dateRange,
+  meetingTime,
+  duration,
   participantCount,
   meetingPoint,
+  totalMinor,
   orgDetails,
   onClose,
 }: BookingTicketProps) {
@@ -97,10 +104,31 @@ export function BookingTicket({
                 </div>
               ) : null}
 
+              {meetingTime ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">Время встречи</dt>
+                  <dd className="font-medium text-foreground text-right">{meetingTime}</dd>
+                </div>
+              ) : null}
+
+              {duration ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">Длительность</dt>
+                  <dd className="font-medium text-foreground text-right">{duration}</dd>
+                </div>
+              ) : null}
+
               {participantCount != null ? (
                 <div className="flex justify-between gap-4">
                   <dt className="text-muted-foreground">Участников</dt>
                   <dd className="font-medium text-foreground">{participantCount}</dd>
+                </div>
+              ) : null}
+
+              {totalMinor != null ? (
+                <div className="flex justify-between gap-4">
+                  <dt className="text-muted-foreground">Итого</dt>
+                  <dd className="font-medium text-foreground">{formatRubFromMinor(totalMinor)}</dd>
                 </div>
               ) : null}
 
