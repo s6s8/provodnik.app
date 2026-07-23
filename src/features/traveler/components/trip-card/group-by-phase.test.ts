@@ -38,6 +38,7 @@ const baseBooking: ConfirmedBookingSummary = {
   guide_name: "Демо Гид",
   guide_avatar_url: "/avatars/guide.jpg",
   booking_thread_id: null,
+  status: "confirmed",
 };
 
 describe("groupTripsByPhase", () => {
@@ -150,5 +151,168 @@ describe("groupTripsByPhase", () => {
 
     expect(grouped.upcoming[0]?.id).toBe("missing-date-booking");
     expect(grouped.completed).toEqual([]);
+  });
+
+  it("places pending requests in waiting_offers and awaiting_decision", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [
+        {
+          ...baseRequest,
+          id: "pending-offers",
+          destination: "Тула",
+          offer_count: 0,
+        },
+        {
+          ...baseRequest,
+          id: "pending-decision",
+          destination: "Казань",
+          offer_count: 1,
+        },
+      ],
+      confirmedBookings: [],
+    });
+
+    expect(grouped.waiting_offers[0]?.id).toBe("pending-offers");
+    expect(grouped.awaiting_decision[0]?.id).toBe("pending-decision");
+  });
+
+  it("places active confirmed bookings in today and upcoming", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [],
+      confirmedBookings: [
+        {
+          ...baseBooking,
+          booking_id: "active-today",
+          destination: "Сочи",
+          starts_on: "2026-05-28",
+          status: "confirmed",
+        },
+        {
+          ...baseBooking,
+          booking_id: "active-upcoming",
+          destination: "Суздаль",
+          starts_on: "2026-06-10",
+          status: "awaiting_guide_confirmation",
+        },
+      ],
+    });
+
+    expect(grouped.today[0]?.id).toBe("active-today");
+    expect(grouped.upcoming[0]?.id).toBe("active-upcoming");
+  });
+
+  it("places cancelled and completed bookings in completed regardless of date", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [],
+      confirmedBookings: [
+        {
+          ...baseBooking,
+          booking_id: "cancelled-booking",
+          destination: "Отменённая",
+          starts_on: "2026-06-08",
+          status: "cancelled",
+        },
+        {
+          ...baseBooking,
+          booking_id: "completed-status-booking",
+          destination: "Завершённая",
+          starts_on: "2026-06-10",
+          status: "completed",
+        },
+      ],
+    });
+
+    expect(grouped.upcoming).toEqual([]);
+    expect(grouped.completed.map((trip) => trip.id)).toEqual([
+      "completed-status-booking",
+      "cancelled-booking",
+    ]);
+  });
+
+  it("places terminal own requests in completed", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [],
+      confirmedBookings: [],
+      terminalRequests: [
+        {
+          ...baseRequest,
+          id: "cancelled-request",
+          destination: "Отменённый запрос",
+          status: "cancelled",
+          starts_on: "2026-05-10",
+        },
+        {
+          ...baseRequest,
+          id: "expired-request",
+          destination: "Истёкший запрос",
+          status: "expired",
+          starts_on: "2026-05-20",
+        },
+      ],
+    });
+
+    expect(grouped.completed.map((trip) => trip.id)).toEqual([
+      "expired-request",
+      "cancelled-request",
+    ]);
+  });
+
+  it("sorts completed trips most-recent first", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [],
+      confirmedBookings: [
+        {
+          ...baseBooking,
+          booking_id: "older-completed",
+          starts_on: "2026-05-10",
+        },
+        {
+          ...baseBooking,
+          booking_id: "newer-completed",
+          starts_on: "2026-05-20",
+        },
+      ],
+    });
+
+    expect(grouped.completed.map((trip) => trip.id)).toEqual([
+      "newer-completed",
+      "older-completed",
+    ]);
+  });
+
+  it("does not duplicate a joined group when a booking exists for the same request", () => {
+    const grouped = groupTripsByPhase({
+      activeRequests: [],
+      confirmedBookings: [
+        {
+          ...baseBooking,
+          booking_id: "booking-for-group",
+          request_id: "joined-group-1",
+          destination: "Кострома",
+          starts_on: "2026-06-10",
+        },
+      ],
+      joinedGroups: [
+        {
+          id: "joined-group-1",
+          destination: "Кострома",
+          region: "Золотое кольцо",
+          starts_on: "2026-06-10",
+          start_time: "11:00",
+          ends_on: null,
+          budget_minor: 1800000,
+          participants_count: 3,
+          group_max: 6,
+          status: "booked",
+          joined_at: "2026-05-28T11:00:00.000Z",
+          owner_id: "traveler-owner-1",
+          owner_name: "Мария К.",
+          owner_avatar_url: "/avatars/maria.jpg",
+        },
+      ],
+    });
+
+    expect(grouped.upcoming).toHaveLength(1);
+    expect(grouped.upcoming[0]?.id).toBe("booking-for-group");
   });
 });

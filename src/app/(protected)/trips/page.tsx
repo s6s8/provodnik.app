@@ -9,6 +9,7 @@ import {
   getActiveRequests,
   getConfirmedBookings,
   getJoinedRequests,
+  getTerminalRequests,
 } from "@/lib/supabase/traveler-requests";
 
 export const metadata: Metadata = {
@@ -25,11 +26,12 @@ export default async function TripsPage() {
   } = await supabase.auth.getUser();
   if (!user) redirect("/auth?next=/trips");
 
-  const [activeRequests, confirmedBookings, joinedGroups, destinations] =
+  const [activeRequests, confirmedBookings, joinedGroups, terminalRequests, destinations] =
     await Promise.all([
       getActiveRequests(user.id),
       getConfirmedBookings(user.id),
       getJoinedRequests(user.id),
+      getTerminalRequests(user.id),
       getDestinations(supabase),
     ]);
   const inspirations = pinElistaInspirations(destinations.data ?? []);
@@ -39,6 +41,7 @@ export default async function TripsPage() {
       activeRequests={activeRequests}
       confirmedBookings={confirmedBookings}
       joinedGroups={joinedGroups}
+      terminalRequests={terminalRequests}
       inspirations={inspirations}
     />
   );

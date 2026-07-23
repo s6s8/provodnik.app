@@ -18,6 +18,7 @@ interface Props {
   activeRequests: TravelerRequestSummary[]
   confirmedBookings: ConfirmedBookingSummary[]
   joinedGroups?: JoinedGroupSummary[]
+  terminalRequests?: TravelerRequestSummary[]
   inspirations?: Inspiration[]
 }
 
@@ -33,12 +34,14 @@ export function TravelerRequestsScreen({
   activeRequests,
   confirmedBookings,
   joinedGroups = [],
+  terminalRequests = [],
   inspirations = [],
 }: Props) {
   const hasTrips =
     activeRequests.length > 0 ||
     confirmedBookings.length > 0 ||
-    joinedGroups.length > 0
+    joinedGroups.length > 0 ||
+    terminalRequests.length > 0
 
   if (!hasTrips) {
     return <EmptyCabinet inspirations={inspirations} />
@@ -48,6 +51,7 @@ export function TravelerRequestsScreen({
     activeRequests,
     confirmedBookings,
     joinedGroups,
+    terminalRequests,
   })
 
   return (
