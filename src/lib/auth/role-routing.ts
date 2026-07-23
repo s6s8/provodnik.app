@@ -1,4 +1,5 @@
 import { hasAdminRole } from "@/lib/auth/admin-access";
+import { isPublicGuideRoute } from "@/lib/auth/public-guide-routes";
 import type { AppRole } from "@/lib/auth/types";
 
 export const ROLE_DASHBOARD_PATHS = {
@@ -30,12 +31,6 @@ function isPathWithinTree(pathname: string, root: string): boolean {
   return pathname === root || pathname.startsWith(`${root}/`);
 }
 
-// The public legacy guide-profile redirect lives at `(site)/guide/[id]` where
-// [id] is a user UUID. That single shape must stay reachable by guests and
-// travelers; every other path under /guide is the guide workspace and keeps the
-// guide-role guard (secure default).
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-
 export function isAppRole(value: string | null | undefined): value is AppRole {
   return value === "traveler" || value === "guide" || value === "admin";
 }
@@ -65,10 +60,7 @@ export function getRequiredRoleForPathname(pathname: string | null | undefined):
   }
 
   if (isPathWithinTree(pathname, ROLE_WORKSPACE_PREFIXES.guide)) {
-    // Free only the public legacy `/guide/{uuid}` profile redirect (PRD-026);
-    // the guide workspace keeps its guard.
-    const firstSegment = pathname.slice(ROLE_WORKSPACE_PREFIXES.guide.length + 1).split("/")[0];
-    if (pathname !== ROLE_WORKSPACE_PREFIXES.guide && UUID_RE.test(firstSegment)) {
+    if (isPublicGuideRoute(pathname)) {
       return null;
     }
     return "guide";
