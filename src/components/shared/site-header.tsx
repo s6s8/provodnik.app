@@ -129,6 +129,7 @@ export function SiteHeader({
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  prefetch={item.href === "/guides" ? true : undefined}
                   className={cn(
                     "relative whitespace-nowrap text-sm font-medium text-muted-foreground transition-colors hover:text-primary",
                     isActive && "text-primary",
@@ -273,6 +274,7 @@ export function SiteHeader({
                     <SheetClose asChild key={item.href}>
                       <Link
                         href={item.href}
+                        prefetch={item.href === "/guides" ? true : undefined}
                         className={cn(
                           "w-full rounded-md px-3 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-surface-high hover:text-primary",
                           isActive && "bg-surface-high text-primary",
