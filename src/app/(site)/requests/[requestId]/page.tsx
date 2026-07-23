@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { cache } from "react";
 
 import { mapTravelerRequestRow } from "@/data/traveler-request/map";
+import { resolveRequestFlexibilityPresentation } from "@/data/request-date-flexibility";
 import { getRequestById, type RequestRecord } from "@/data/supabase/queries";
 import type { OfferMeta } from "@/features/guide/components/requests/offer-meta";
 import {
@@ -91,12 +92,6 @@ function maskRequestContacts(request: RequestRecord): RequestRecord {
   return { ...request, description: maskPii(request.description) };
 }
 
-function getTimeLabel(request: RequestRecord): string | undefined {
-  if (request.dateFlexibility === "few_days") return undefined;
-  if (!request.startTime) return undefined;
-  return request.endTime ? `${request.startTime}–${request.endTime}` : request.startTime;
-}
-
 function getJoinState({
   request,
   currentUserId,
@@ -147,14 +142,20 @@ function buildViewModel({
           },
         ];
 
+  const flexibility = resolveRequestFlexibilityPresentation({
+    dateFlexibility: request.dateFlexibility,
+    startTime: request.startTime,
+    endTime: request.endTime,
+  });
+
   return {
     title: request.title,
     regionLabel: request.destinationRegion,
     cityImageUrl: coverUrl ?? cityImage(request.destination),
     dateLabel: request.dateLabel,
-    timeLabel: getTimeLabel(request),
-    datesFlexible: request.dateFlexibility === "few_days",
-    timeFlexible: request.dateFlexibility === "few_days",
+    timeLabel: flexibility.timeLabel,
+    datesFlexible: flexibility.datesFlexible,
+    timeFlexible: flexibility.timeFlexible,
     pricePerPersonRub: request.budgetRub > 0 ? request.budgetRub : null,
     memberCount: Math.max(request.groupSize, members.length),
     members,

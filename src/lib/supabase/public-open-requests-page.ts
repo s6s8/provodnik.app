@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import type { OpenRequestRecord } from "@/data/open-requests/types";
+import { resolveRequestFlexibilityPresentation } from "@/data/request-date-flexibility";
 import { PUBLIC_CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
 import { cityImage } from "@/lib/city-image";
 import {
@@ -20,6 +21,11 @@ export function mapToOpenRequestRecord(
 ): OpenRequestRecord {
   const isOwner = request.travelerId != null && request.travelerId === viewerId;
   const maskedDescription = isOwner ? request.description : "";
+  const flexibility = resolveRequestFlexibilityPresentation({
+    dateFlexibility: request.dateFlexibility,
+    startTime: request.startTime,
+    endTime: request.endTime,
+  });
   return {
     id: request.id,
     isOwner,
@@ -41,14 +47,9 @@ export function mapToOpenRequestRecord(
     regionLabel: request.destinationRegion,
     locationLabels: request.locationLabels,
     dateRangeLabel: request.dateLabel,
-    datesFlexible: request.dateFlexibility === "few_days",
-    timeFlexible: request.dateFlexibility === "few_days",
-    timeLabel:
-      request.dateFlexibility === "few_days"
-        ? undefined
-        : request.startTime
-          ? `${request.startTime}${request.endTime ? `–${request.endTime}` : ""}`
-          : undefined,
+    datesFlexible: flexibility.datesFlexible,
+    timeFlexible: flexibility.timeFlexible,
+    timeLabel: flexibility.timeLabel,
     budgetPerPersonRub: request.budgetRub,
     highlights: [request.title, maskedDescription].filter(Boolean) as string[],
     interests: request.interests,

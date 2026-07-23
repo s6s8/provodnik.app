@@ -4,6 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { Inbox } from "lucide-react";
 
+import { isFlexibleDateFlexibility } from "@/data/request-date-flexibility";
 import { type RequestRecord } from "@/data/supabase/queries";
 import { kopecksToRub, formatRubNumber } from "@/data/money";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
@@ -335,7 +336,7 @@ export function GuideRequestsInboxScreen() {
                     const offerStatus = offerMeta?.status ?? "pending";
                     const isDeclinedOffer = offerStatus === "declined";
                     const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
-                    const hasFlexibleDates = item.dateFlexibility === "few_days";
+                    const hasFlexibleDates = isFlexibleDateFlexibility(item.dateFlexibility);
                     return (
                       <div key={item.id} className="flex flex-col gap-3">
                         <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">

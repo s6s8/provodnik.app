@@ -1,3 +1,4 @@
+import { resolveRequestFlexibilityPresentation } from "@/data/request-date-flexibility";
 import type {
   ConfirmedBookingSummary,
   TravelerRequestSummary,
@@ -22,6 +23,11 @@ export function mapRequestToPhase(
 export function mapRequestToTrip(
   request: TravelerRequestSummary,
 ): TripCardModel {
+  const flexibility = resolveRequestFlexibilityPresentation({
+    dateFlexibility: request.date_flexibility,
+    startTime: request.start_time ? request.start_time.slice(0, 5) : null,
+    endTime: request.end_time ? request.end_time.slice(0, 5) : null,
+  });
   const trip: TripCardModel & {
     interests: string[];
     mode: TravelerRequestSummary["mode"];
@@ -45,10 +51,8 @@ export function mapRequestToTrip(
     groupMax: request.group_max,
     isOwnRequest: true,
     openToJoin: request.open_to_join ?? false,
-    datesFlexible:
-      request.date_flexibility != null && request.date_flexibility !== "exact",
-    timeFlexible:
-      request.date_flexibility != null && request.date_flexibility !== "exact",
+    datesFlexible: flexibility.datesFlexible,
+    timeFlexible: flexibility.timeFlexible,
     groupType: request.mode,
     guideName: null,
     guideAvatarUrl: null,
