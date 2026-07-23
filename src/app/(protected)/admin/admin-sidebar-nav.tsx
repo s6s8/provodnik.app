@@ -18,6 +18,14 @@ const countKeyByHref: Record<string, keyof AdminNavCounts> = {
   "/admin/moderation": "listings",
 };
 
+function navLinkAriaLabel(label: string, count?: number) {
+  if (typeof count === "number" && count > 0) {
+    return `${label}, ${count} на проверке`;
+  }
+
+  return undefined;
+}
+
 function NavLink({
   item,
   count,
@@ -33,6 +41,7 @@ function NavLink({
     <Link
       href={item.href}
       aria-current={active ? "page" : undefined}
+      aria-label={navLinkAriaLabel(item.label, count)}
       className={cn(
         "flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-colors",
         active
@@ -99,6 +108,7 @@ export function AdminMobileTabs({
             key={item.href}
             href={item.href}
             aria-current={active ? "page" : undefined}
+            aria-label={navLinkAriaLabel(item.shortLabel ?? item.label, count)}
             className={cn(
               "flex min-w-0 flex-col items-center gap-1 rounded-lg px-2 py-2 text-center text-xs font-medium transition-colors",
               active
