@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 
-import { getMessagesRateLimitKey, getTrustedClientIp } from "./request-client";
+import { getMessagesRateLimitKey, getTrustedClientIp, getTrustedClientIpFromHeaders } from "./request-client";
 
 describe("getTrustedClientIp", () => {
   it("ignores spoofed x-forwarded-for on a direct connection", () => {
@@ -36,6 +36,17 @@ describe("getTrustedClientIp", () => {
     });
 
     expect(getTrustedClientIp(request)).toBe("198.51.100.22");
+  });
+});
+
+describe("getTrustedClientIpFromHeaders", () => {
+  it("ignores spoofed x-forwarded-for when proxy metadata is absent", () => {
+    const headers = new Headers({
+      "x-forwarded-for": "203.0.113.50",
+      "x-real-ip": "198.51.100.10",
+    });
+
+    expect(getTrustedClientIpFromHeaders(headers)).toBe("direct");
   });
 });
 

@@ -29,6 +29,10 @@ export function getTrustedClientIp(request: Request | NextRequest): string {
   return hops[hops.length - 1] ?? "proxied-unknown";
 }
 
+export function getTrustedClientIpFromHeaders(headerList: Headers): string {
+  return getTrustedClientIp(new Request("http://internal.local", { headers: headerList }));
+}
+
 export function getMessagesRateLimitKey(userId: string): string {
   return `api:messages:user:${userId}`;
 }

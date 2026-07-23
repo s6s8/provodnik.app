@@ -4,6 +4,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { getResendClient } from "@/lib/email/resend-client";
 import { getSiteUrl } from "@/lib/env";
 import { rateLimit } from "@/lib/rate-limit";
+import { getTrustedClientIpFromHeaders } from "@/lib/request-client";
 import { headers } from "next/headers";
 
 export type ForgotPasswordResult =
@@ -27,10 +28,7 @@ export async function sendPasswordResetEmail(
   }
 
   const h = await headers();
-  const ip =
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    h.get("x-real-ip") ??
-    "unknown";
+  const ip = getTrustedClientIpFromHeaders(h);
   const rlIp = await rateLimit(`forgot-password:ip:${ip}`, 10, 3600);
   if (!rlIp.success) {
     return { ok: true };

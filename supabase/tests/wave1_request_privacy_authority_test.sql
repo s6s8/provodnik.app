@@ -50,22 +50,23 @@ on conflict (user_id) do update set verification_status = 'approved', is_availab
 
 insert into public.traveler_requests (
   id, traveler_id, destination, region, interests, starts_on, ends_on, budget_minor,
-  currency, participants_count, format_preference, notes, open_to_join, status, target_guide_id
+  currency, participants_count, format_preference, notes, open_to_join, status, target_guide_id,
+  date_flexibility
 )
 values
   ('7b000000-0000-4000-8000-000000000001', '7a000000-0000-4000-8000-000000000001',
    'Directed Private', 'Test', array['culture'], current_date + 20, current_date + 21,
    100000, 'RUB', 2, 'Private', 'Directed notes', false, 'open',
-   '7a000000-0000-4000-8000-000000000002'),
+   '7a000000-0000-4000-8000-000000000002', 'few_days'),
   ('7b000000-0000-4000-8000-000000000002', '7a000000-0000-4000-8000-000000000001',
    'Public Assembly', 'Test', array['culture'], current_date + 20, current_date + 21,
-   100000, 'RUB', 2, 'group', 'Public notes', true, 'open', null),
+   100000, 'RUB', 2, 'group', 'Public notes', true, 'open', null, 'few_days'),
   ('7b000000-0000-4000-8000-000000000003', '7a000000-0000-4000-8000-000000000001',
    'Booked Request', 'Test', array['culture'], current_date + 20, current_date + 21,
-   100000, 'RUB', 2, 'Private', 'Booked notes', false, 'booked', null),
+   100000, 'RUB', 2, 'Private', 'Booked notes', false, 'booked', null, 'few_days'),
   ('7b000000-0000-4000-8000-000000000004', '7a000000-0000-4000-8000-000000000001',
    'Expired Request', 'Test', array['culture'], current_date - 2, current_date - 1,
-   100000, 'RUB', 2, 'Private', 'Expired notes', false, 'open', null)
+   100000, 'RUB', 2, 'Private', 'Expired notes', false, 'open', null, 'few_days')
 on conflict (id) do update set status = excluded.status, target_guide_id = excluded.target_guide_id;
 
 insert into public.guide_offers (
