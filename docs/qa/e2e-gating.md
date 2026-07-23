@@ -22,6 +22,18 @@ E2E_ALLOW_MUTATIONS=1 bun run playwright
 
 Never run mutation suites against an unknown, shared, or production backend.
 
+## Database lifecycle regression (no credentials)
+
+The request → offer → booking authority chain is replayed deterministically against a disposable local Postgres stack via pgTAP — no QA passwords, no browser, no production URL:
+
+```bash
+supabase db start
+bun run db:reset
+bun run test:lifecycle
+```
+
+`bun run test:db` includes `supabase/tests/request_offer_booking_lifecycle_test.sql` with the full pgTAP suite.
+
 ## Suite matrix
 
 | Spec | Runs by default | Requires |
