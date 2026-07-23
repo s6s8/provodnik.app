@@ -6,6 +6,7 @@ import { CardGridSkeleton } from "@/components/shared/loading-skeletons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PublicRequestsMarketplaceScreen } from "@/features/requests/components/public-requests-marketplace-screen";
 import { PUBLIC_CATALOG_PAGE_SIZE } from "@/lib/catalog-pagination";
+import { parseRequestsMarketplaceFilters } from "@/lib/discovery-requests-filters";
 import { loadPublicOpenRequestsPage } from "@/lib/supabase/public-open-requests-page";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -29,15 +30,29 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function RequestsPage() {
+export default function RequestsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   return (
     <Suspense fallback={<RequestsListSkeleton />}>
-      <RequestsContent />
+      <RequestsContent searchParams={searchParams} />
     </Suspense>
   );
 }
 
-export async function RequestsContent() {
+export async function RequestsContent({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const sp = await searchParams;
+  const urlParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === "string") urlParams.set(key, value);
+  }
+  const initialFilters = parseRequestsMarketplaceFilters(urlParams);
   let initialData = null;
   let hasMore = false;
   let loadError = false;
@@ -76,6 +91,7 @@ export async function RequestsContent() {
       initialData={initialData}
       initialHasMore={hasMore}
       initialOffset={initialData?.length ?? 0}
+      initialFilters={initialFilters}
     />
   );
 }

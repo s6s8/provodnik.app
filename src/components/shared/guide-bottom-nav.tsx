@@ -24,10 +24,10 @@ export function GuideBottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              aria-label={label}
+              aria-label={item.label}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex flex-col items-center justify-center gap-0.5 min-h-11",
+                "relative flex flex-col items-center justify-center gap-0.5 min-h-11 px-1",
                 isActive ? "text-primary font-bold" : "text-muted-foreground",
               )}
             >
@@ -48,7 +48,7 @@ export function GuideBottomNav() {
 
               <span
                 className={cn(
-                  "whitespace-nowrap text-xs",
+                  "max-w-full truncate text-xs",
                   isActive ? "font-bold" : "font-medium",
                 )}
               >

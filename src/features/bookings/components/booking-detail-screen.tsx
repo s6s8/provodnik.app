@@ -8,7 +8,9 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
+  Clock,
   ShieldAlert,
+  Users,
   Wallet,
   XCircle,
 } from "lucide-react";
@@ -791,13 +793,25 @@ function GuideBookingDetailView({ bookingId }: { bookingId: string }) {
 
         <div className="flex flex-col gap-2">
           <PageHeader eyebrow="Кабинет гида" title={record.destination} />
-          <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:items-center sm:gap-4">
+          <div className="flex flex-col gap-2 text-sm text-muted-foreground sm:flex-row sm:flex-wrap sm:items-center sm:gap-4">
             <span className="inline-flex items-center gap-2">
-              <CalendarDays className="size-4 text-muted-foreground" />
+              <CalendarDays className="size-4 text-muted-foreground" aria-hidden="true" />
               {record.dateLabel}
             </span>
+            {record.timeLabel ? (
+              <span className="inline-flex items-center gap-2">
+                <Clock className="size-4 text-muted-foreground" aria-hidden="true" />
+                {record.timeLabel}
+              </span>
+            ) : null}
+            {record.partySize != null ? (
+              <span className="inline-flex items-center gap-2">
+                <Users className="size-4 text-muted-foreground" aria-hidden="true" />
+                {record.partySize} чел.
+              </span>
+            ) : null}
             <span className="inline-flex items-center gap-2">
-              <Wallet className="size-4 text-muted-foreground" />
+              <Wallet className="size-4 text-muted-foreground" aria-hidden="true" />
               Выплата: {formatRubFromMinor(rubToKopecks(record.priceRub))}
             </span>
           </div>

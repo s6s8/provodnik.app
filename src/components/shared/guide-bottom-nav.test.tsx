@@ -8,16 +8,26 @@ vi.mock("next/navigation", () => ({
 import { GuideBottomNav } from "./guide-bottom-nav";
 
 describe("GuideBottomNav", () => {
-  it("renders the four guide tabs, using short labels where defined", () => {
+  it("renders the four guide tabs with full accessible names and 44px tap targets", () => {
     render(<GuideBottomNav />);
-    expect(screen.getByRole("link", { name: "Запросы" })).toBeDefined();
-    // T-23: bottom nav shows the shortLabel ("Брони"), so the label stays on one
-    // line at 375px. The accessible name matches what is rendered.
-    expect(screen.getByRole("link", { name: "Брони" })).toHaveAttribute("href", "/guide/bookings");
-    expect(screen.getByRole("link", { name: "Экскурсии" })).toBeDefined();
+    expect(screen.getByRole("link", { name: "Запросы" })).toHaveAttribute("href", "/guide/inbox");
+    expect(screen.getByRole("link", { name: "Мои бронирования" })).toHaveAttribute(
+      "href",
+      "/guide/bookings",
+    );
+    expect(screen.getByRole("link", { name: "Экскурсии" })).toHaveAttribute("href", "/guide/listings");
     expect(screen.getByRole("link", { name: "Отзывы" })).toHaveAttribute("href", "/guide/reviews");
 
-    const labels = screen.getAllByRole("link").map((link) => link.textContent?.trim());
-    expect(labels).toEqual(["Запросы", "Брони", "Экскурсии", "Отзывы"]);
+    const links = screen.getAllByRole("link");
+    expect(links.map((link) => link.textContent?.trim())).toEqual([
+      "Запросы",
+      "Брони",
+      "Экскурсии",
+      "Отзывы",
+    ]);
+
+    for (const link of links) {
+      expect(link.className).toMatch(/min-h-11/);
+    }
   });
 });

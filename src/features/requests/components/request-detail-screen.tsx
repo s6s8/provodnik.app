@@ -933,6 +933,7 @@ function GuideDetailBranch({
 
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
   const hasFlexibleDates = request.dateFlexibility === "few_days";
+  const hasFlexibleTime = hasFlexibleDates || request.time_locked === false;
 
   return (
     <>
@@ -948,11 +949,11 @@ function GuideDetailBranch({
           dateLabel={request.dateLabel}
           flexible={hasFlexibleDates}
           timeLabel={
-            hasFlexibleDates
+            hasFlexibleTime
               ? undefined
               : formatTimeRange(request.startTime, request.endTime) || undefined
           }
-          timeFlexible={hasFlexibleDates}
+          timeFlexible={hasFlexibleTime}
           groupLabel={`${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`}
           budgetLabel={request.budgetLabel}
           formatLabel={request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
