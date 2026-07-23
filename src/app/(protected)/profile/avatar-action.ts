@@ -1,11 +1,11 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
+import { z } from "zod";
 
 import { readAuthContextFromServer } from "@/lib/auth/server-auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { StorageBucketId } from "@/lib/storage/buckets";
-import { assertMimeTypeAllowed } from "@/lib/storage/upload";
+import { assertByteSizeAllowed, assertMimeTypeAllowed, getPresignedUploadUrl, getPublicUrl } from "@/lib/storage/upload";
 import {
   AVATAR_MESSAGES,
   AdminRoleNotAllowedError,
@@ -17,81 +17,132 @@ const AVATAR_MIME_ERROR = AVATAR_MESSAGES.MIME_ERROR;
 const AVATAR_SUCCESS = AVATAR_MESSAGES.SUCCESS;
 const AVATAR_GENERIC_ERROR = AVATAR_MESSAGES.GENERIC_ERROR;
 
-function getAvatarFile(formData: FormData) {
-  const file = formData.get("avatar");
-  if (!(file instanceof File)) {
-    throw new Error("Avatar file is required. Use FormData key \"avatar\".");
-  }
+const avatarUploadRequestSchema = z.object({
+  mimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+  byteSize: z.number().int().positive().max(2_097_152),
+});
 
-  return file;
-}
+const avatarUploadConfirmSchema = z.object({
+  objectPath: z.string().trim().min(1).max(512),
+  mimeType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+  byteSize: z.number().int().positive().max(2_097_152),
+});
 
-function getAvatarExtension(mimeType: string) {
-  switch (mimeType) {
-    case "image/jpeg":
-      return "jpg";
-    case "image/png":
-      return "png";
-    case "image/webp":
-      return "webp";
-    default:
-      throw new Error("Unsupported avatar MIME type.");
-  }
-}
+export type AvatarUploadUrlResult =
+  | { ok: true; signedUrl: string; objectPath: string; token: string }
+  | { ok: false; message: typeof AVATAR_SIZE_ERROR | typeof AVATAR_MIME_ERROR | typeof AVATAR_GENERIC_ERROR };
 
 function getAvatarBucket(role: "guide" | "traveler"): StorageBucketId {
   return role === "guide" ? "guide-avatars" : "traveler-avatars";
 }
 
-export async function uploadAvatarAction(formData: FormData): Promise<AvatarUploadResult> {
+async function readAvatarActor() {
+  const auth = await readAuthContextFromServer();
+
+  if (auth.role === "admin") {
+    throw new AdminRoleNotAllowedError();
+  }
+
+  if (
+    !auth.isAuthenticated ||
+    !auth.userId ||
+    (auth.role !== "guide" && auth.role !== "traveler")
+  ) {
+    throw new Error("Avatar upload requires an authenticated guide or traveler.");
+  }
+
+  return {
+    userId: auth.userId,
+    role: auth.role,
+    bucket: getAvatarBucket(auth.role),
+  };
+}
+
+function avatarFileName(mimeType: string) {
+  switch (mimeType) {
+    case "image/jpeg":
+      return "avatar.jpg";
+    case "image/png":
+      return "avatar.png";
+    case "image/webp":
+      return "avatar.webp";
+    default:
+      return "avatar.bin";
+  }
+}
+
+export async function requestAvatarUploadUrlAction(input: {
+  mimeType: string;
+  byteSize: number;
+}): Promise<AvatarUploadUrlResult> {
   try {
-    const auth = await readAuthContextFromServer();
-
-    if (auth.role === "admin") {
-      throw new AdminRoleNotAllowedError();
+    const actor = await readAvatarActor();
+    const parsed = avatarUploadRequestSchema.safeParse(input);
+    if (!parsed.success) {
+      if (input.byteSize > 2_097_152) {
+        return { ok: false, message: AVATAR_SIZE_ERROR };
+      }
+      return { ok: false, message: AVATAR_MIME_ERROR };
     }
-
-    if (
-      !auth.isAuthenticated ||
-      !auth.userId ||
-      (auth.role !== "guide" && auth.role !== "traveler")
-    ) {
-      throw new Error("Avatar upload requires an authenticated guide or traveler.");
-    }
-
-    const file = getAvatarFile(formData);
-
-    if (file.size > 2_097_152) {
-      return { ok: false, message: AVATAR_SIZE_ERROR };
-    }
-
-    const bucket = getAvatarBucket(auth.role);
 
     try {
-      assertMimeTypeAllowed(bucket, file.type);
+      assertMimeTypeAllowed(actor.bucket, parsed.data.mimeType);
+      assertByteSizeAllowed(actor.bucket, parsed.data.byteSize);
+    } catch {
+      return { ok: false, message: parsed.data.byteSize > 2_097_152 ? AVATAR_SIZE_ERROR : AVATAR_MIME_ERROR };
+    }
+
+    const upload = await getPresignedUploadUrl(
+      actor.bucket,
+      avatarFileName(parsed.data.mimeType),
+      parsed.data.mimeType,
+      actor.userId,
+    );
+
+    return {
+      ok: true,
+      signedUrl: upload.signedUrl,
+      objectPath: upload.path,
+      token: upload.token,
+    };
+  } catch (error) {
+    if (error instanceof AdminRoleNotAllowedError) {
+      throw error;
+    }
+
+    return { ok: false, message: AVATAR_GENERIC_ERROR };
+  }
+}
+
+export async function confirmAvatarUploadAction(input: {
+  objectPath: string;
+  mimeType: string;
+  byteSize: number;
+}): Promise<AvatarUploadResult> {
+  try {
+    const actor = await readAvatarActor();
+    const parsed = avatarUploadConfirmSchema.safeParse(input);
+    if (!parsed.success) {
+      return { ok: false, message: AVATAR_MIME_ERROR };
+    }
+
+    if (!parsed.data.objectPath.startsWith(`${actor.userId}/`)) {
+      return { ok: false, message: AVATAR_GENERIC_ERROR };
+    }
+
+    try {
+      assertMimeTypeAllowed(actor.bucket, parsed.data.mimeType);
+      assertByteSizeAllowed(actor.bucket, parsed.data.byteSize);
     } catch {
       return { ok: false, message: AVATAR_MIME_ERROR };
     }
 
-    const path = `${auth.userId}/${randomUUID()}.${getAvatarExtension(file.type)}`;
+    const avatarUrl = getPublicUrl(actor.bucket, parsed.data.objectPath);
     const supabase = await createSupabaseServerClient();
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(path, file, { contentType: file.type, upsert: false });
-
-    if (uploadError) {
-      throw uploadError;
-    }
-
-    const { data } = supabase.storage.from(bucket).getPublicUrl(path);
-    // .select() forces PostgREST to return the affected rows: without it a
-    // 0-row UPDATE (RLS block, or auth user with no profiles row) resolves
-    // error:null and the upload would report success while the avatar never
-    // persists — the silent failure behind row #39.
     const { data: updated, error: profileError } = await supabase
       .from("profiles")
-      .update({ avatar_url: data.publicUrl })
-      .eq("id", auth.userId)
+      .update({ avatar_url: avatarUrl })
+      .eq("id", actor.userId)
       .select("id");
 
     if (profileError) {
@@ -99,7 +150,7 @@ export async function uploadAvatarAction(formData: FormData): Promise<AvatarUplo
     }
 
     if (!updated || updated.length === 0) {
-      throw new Error(`Avatar update affected 0 rows for user ${auth.userId}`);
+      throw new Error(`Avatar update affected 0 rows for user ${actor.userId}`);
     }
 
     return { ok: true, message: AVATAR_SUCCESS };

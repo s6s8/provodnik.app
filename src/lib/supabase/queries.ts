@@ -35,6 +35,7 @@ import type {
   ListingRecord,
   PlatformStats,
   QueryResult,
+  PagedQueryResult,
   RequestFilters,
   RequestRecord,
   ReviewRecord,
@@ -276,9 +277,6 @@ export async function getOpenRequests(
       return { data: applyRequestFilters(visible, filters), error: null };
     }
 
-    // Anonymous visitors cannot read the raw table (RLS requires a session).
-    // Fall back to the sanitized public view so logged-out discovery still works.
-    // The view already excludes directed requests, so no further filtering is needed.
     const { data: publicRows, error: publicError } = await db
       .from("v_public_open_requests")
       .select("*")
@@ -291,6 +289,75 @@ export async function getOpenRequests(
     return { data: applyRequestFilters(records, filters), error: null };
   } catch (error) {
     return { data: [], error: makeError(error) };
+  }
+}
+
+export async function getOpenRequestsPaged(
+  client: SupabaseClient,
+  page: { limit: number; offset: number },
+  statuses: string[] = ["open"],
+): Promise<PagedQueryResult<RequestRecord[]>> {
+  try {
+    const db = client;
+    const fetchLimit = page.limit + 1;
+    const rangeEnd = page.offset + fetchLimit - 1;
+
+    const applyRange = <T extends { range: (from: number, to: number) => T }>(query: T) =>
+      query.range(page.offset, rangeEnd);
+
+    const { data, error } = await applyRange(
+      db
+        .from("traveler_requests")
+        .select("*")
+        .in("status", statuses)
+        .or("open_to_join.eq.true,format_preference.eq.group")
+        .order("created_at", { ascending: false }),
+    );
+
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      const visible = applyDirectVisibility(data.map((row) => mapRequestRow(row)));
+      const membersMap = await fetchMembersForRequests(
+        db,
+        visible.map((rec) => ({ id: rec.id, creatorId: rec.travelerId ?? "" })),
+      );
+      for (const rec of visible) {
+        rec.members = membersMap.get(rec.id) ?? [];
+      }
+
+      const filtered = visible.filter((rec) => rec.mode === "assembly");
+      const hasMore = filtered.length > page.limit;
+      return {
+        data: filtered.slice(0, page.limit),
+        error: null,
+        hasMore,
+      };
+    }
+
+    const { data: publicRows, error: publicError } = await applyRange(
+      db
+        .from("v_public_open_requests")
+        .select("*")
+        .in("status", statuses)
+        .or("open_to_join.eq.true,format_preference.eq.group")
+        .order("created_at", { ascending: false }),
+    );
+
+    if (publicError) throw publicError;
+
+    const records = (publicRows ?? [])
+      .map((row) => mapRequestRow(row))
+      .filter((rec) => rec.mode === "assembly");
+    const hasMore = records.length > page.limit;
+
+    return {
+      data: records.slice(0, page.limit),
+      error: null,
+      hasMore,
+    };
+  } catch (error) {
+    return { data: [], error: makeError(error), hasMore: false };
   }
 }
 
@@ -433,21 +500,40 @@ export async function getGuides(
   client: SupabaseClient,
   filters?: GuideFilters,
 ): Promise<QueryResult<GuideRecord[]>> {
+  const page = await getGuidesPaged(client, filters);
+  return {
+    data: page.data,
+    error: page.error,
+  };
+}
+
+export async function getGuidesPaged(
+  client: SupabaseClient,
+  filters?: GuideFilters,
+): Promise<PagedQueryResult<GuideRecord[]>> {
   try {
-    // Public guide discovery must include approved/available guides even before
-    // they publish their first route. Listing counts are layered below.
+    const unlimited = filters?.limit == null;
+    const pageLimit = filters?.limit ?? 0;
+    const pageOffset = filters?.offset ?? 0;
+    const fetchLimit = unlimited ? null : pageLimit + 1;
+
     const { data: searchRows, error } = await client.rpc("search_guides", {
       q: filters?.q ?? "",
       p_specializations: (filters?.specializations && filters.specializations.length > 0)
         ? filters.specializations
         : null,
       p_has_listings: false,
+      p_limit: fetchLimit,
+      p_offset: pageOffset,
     });
 
     if (error) throw error;
-    if (!searchRows || searchRows.length === 0) return { data: [], error: null };
+    if (!searchRows || searchRows.length === 0) {
+      return { data: [], error: null, hasMore: false };
+    }
 
-    const rows = searchRows as Record<string, unknown>[];
+    const hasMore = !unlimited && searchRows.length > pageLimit;
+    const rows = (hasMore ? searchRows.slice(0, pageLimit) : searchRows) as Record<string, unknown>[];
     const guideIds = rows.map((row) => row.user_id as string);
     const profileMap = await fetchProfilesByUserIds(client, guideIds);
 
@@ -517,9 +603,10 @@ export async function getGuides(
         filters,
       ),
       error: null,
+      hasMore,
     };
   } catch (error) {
-    return { data: [], error: makeError(error) };
+    return { data: [], error: makeError(error), hasMore: false };
   }
 }
 

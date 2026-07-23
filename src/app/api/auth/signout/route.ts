@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { isSameOriginPost } from "@/lib/auth/verify-request-origin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getSiteUrl, hasSupabaseEnv } from "@/lib/env";
 
@@ -32,6 +33,10 @@ function resolveHomeUrl(request: NextRequest): URL {
 }
 
 export async function POST(request: NextRequest) {
+  if (!isSameOriginPost(request)) {
+    return new NextResponse(null, { status: 403 });
+  }
+
   if (hasSupabaseEnv()) {
     try {
       const supabase = await createSupabaseServerClient();

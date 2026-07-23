@@ -30,9 +30,26 @@ describe("/api/auth/signout", () => {
     expect(route).not.toHaveProperty("GET");
   });
 
+  it("rejects cross-site POST logout attempts", async () => {
+    const request = new NextRequest("https://example.test/api/auth/signout", {
+      method: "POST",
+      headers: {
+        origin: "https://evil.example",
+      },
+    });
+
+    const response = await route.POST(request);
+
+    expect(response.status).toBe(403);
+    expect(signOut).not.toHaveBeenCalled();
+  });
+
   it("signs out with POST and redirects home", async () => {
     const request = new NextRequest("https://example.test/api/auth/signout", {
       method: "POST",
+      headers: {
+        origin: "https://example.test",
+      },
     });
 
     const response = await route.POST(request);
@@ -47,6 +64,7 @@ describe("/api/auth/signout", () => {
     const request = new NextRequest("http://localhost:3000/api/auth/signout", {
       method: "POST",
       headers: {
+        origin: "https://vps.provodnik.app",
         "x-forwarded-host": "vps.provodnik.app",
         "x-forwarded-proto": "https",
       },
@@ -64,6 +82,9 @@ describe("/api/auth/signout", () => {
 
     const request = new NextRequest("http://localhost:3000/api/auth/signout", {
       method: "POST",
+      headers: {
+        origin: "http://localhost:3000",
+      },
     });
 
     const response = await route.POST(request);
