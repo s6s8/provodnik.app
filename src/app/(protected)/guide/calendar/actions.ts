@@ -1,5 +1,6 @@
 "use server";
 
+import { friendlyError } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type BlockSlotResult = { ok: true; id: string } | { ok: false; error: string };
@@ -32,7 +33,10 @@ export async function blockSlotAction(
     .select("id")
     .maybeSingle();
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[blockSlotAction] listing_schedule_extras insert failed", error);
+    return { ok: false, error: friendlyError(error, "Не удалось заблокировать слот") };
+  }
   if (!data) return { ok: false, error: "Не удалось создать запись" };
   return { ok: true, id: data.id };
 }
@@ -50,7 +54,10 @@ export async function unblockSlotAction(extraId: string): Promise<UnblockSlotRes
     .delete()
     .eq("id", extraId);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[unblockSlotAction] listing_schedule_extras delete failed", error);
+    return { ok: false, error: friendlyError(error, "Не удалось разблокировать слот") };
+  }
   return { ok: true };
 }
 
@@ -101,6 +108,9 @@ export async function blockDayAction(
     onConflict: "listing_id,date,time_start",
   });
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[blockDayAction] listing_schedule_extras upsert failed", error);
+    return { ok: false, error: friendlyError(error, "Не удалось заблокировать день") };
+  }
   return { ok: true, count: slots.length };
 }

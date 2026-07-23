@@ -1,6 +1,10 @@
+"use client";
+
 import { BadgeCheck, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
 import { pluralize } from "@/lib/utils";
@@ -25,7 +29,41 @@ function initialsFromName(fullName: string | null): string {
  * Visitor social-proof row: read-only mini cards for the verified guides already
  * bidding on the request. Renders nothing when no one has bid (zero fabrication).
  */
-export function BiddingGuidesTeaser({ guides }: { guides: BiddingGuide[] }) {
+export function BiddingGuidesTeaser({
+  guides,
+  loadError = false,
+}: {
+  guides: BiddingGuide[];
+  loadError?: boolean;
+}) {
+  const router = useRouter();
+
+  if (loadError) {
+    return (
+      <section className="flex flex-col gap-3">
+        <div className="text-xs font-semibold uppercase tracking-[0.06em] text-on-surface-muted">
+          ВАШИ ПРОВОДНИКИ
+        </div>
+        <div className="rounded-card border border-border bg-surface-lowest p-6">
+          <p className="text-sm font-medium text-on-surface">
+            Не удалось загрузить отклики гидов
+          </p>
+          <p className="mt-1 text-sm text-on-surface-muted">
+            Список проверенных гидов временно недоступен. Попробуйте обновить страницу.
+          </p>
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-4"
+            onClick={() => router.refresh()}
+          >
+            Обновить
+          </Button>
+        </div>
+      </section>
+    );
+  }
+
   if (guides.length === 0) {
     return null;
   }

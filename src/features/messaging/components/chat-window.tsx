@@ -1,11 +1,12 @@
 "use client";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageSquare } from "lucide-react";
+import { AlertCircle, MessageSquare } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
+import { Button } from "@/components/ui/button";
 import { messagesApi } from "@/lib/api/messages";
 import { queryKeys } from "@/lib/query-keys";
 import type { MessageWithSender } from "@/lib/supabase/conversations";
@@ -38,6 +39,7 @@ interface ChatWindowProps {
   currentUserId: string;
   initialMessages: MessageWithSender[];
   markReadAction: MarkReadAction;
+  loadError?: boolean;
 }
 
 export function ChatWindow({
@@ -45,11 +47,17 @@ export function ChatWindow({
   currentUserId,
   initialMessages,
   markReadAction,
+  loadError: serverError = false,
 }: ChatWindowProps) {
   const queryClient = useQueryClient();
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: messages = initialMessages, isFetching } = useQuery({
+  const {
+    data: messages = initialMessages,
+    isFetching,
+    isError,
+    refetch,
+  } = useQuery({
     queryKey: queryKeys.messages.threadMessages(threadId),
     queryFn: () => messagesApi.threadMessages(threadId),
     initialData: initialMessages,
@@ -116,6 +124,30 @@ export function ChatWindow({
   }
 
   if (!renderedMessages.length && !isFetching) {
+    if (serverError || isError) {
+      return (
+        <div className="flex items-center justify-center p-8">
+          <EmptyState
+            icon={<AlertCircle className="size-6" />}
+            title="Не удалось загрузить"
+            description="Сообщения не загрузились. Попробуйте ещё раз."
+            action={
+              <Button
+                type="button"
+                variant="outline"
+                disabled={isFetching}
+                onClick={() => {
+                  void refetch();
+                }}
+              >
+                Обновить
+              </Button>
+            }
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="flex items-center justify-center p-8">
         <EmptyState

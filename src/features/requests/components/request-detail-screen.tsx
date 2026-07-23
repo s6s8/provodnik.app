@@ -119,7 +119,7 @@ type OwnerOfferItem = {
 /** #42 — group discussion thread payload + composer action, shared by owner/member. */
 export type RequestGroupThreadProps = {
   currentUserId: string;
-  groupThread: { messages: GroupMessage[] };
+  groupThread: { messages: GroupMessage[]; loadError?: boolean };
   onSendGroupMessage: (body: string) => Promise<{ error: string | null }>;
 };
 
@@ -129,6 +129,7 @@ type RequestDetailScreenProps =
       requestId: string;
       viewModel: PublicRequestDetailViewModel;
       biddingGuides?: BiddingGuide[];
+      biddingGuidesLoadError?: boolean;
     } & Partial<RequestGroupThreadProps>)
   | ({
       viewerRole: "owner";
@@ -136,6 +137,7 @@ type RequestDetailScreenProps =
       ownerRecord: TravelerRequestRecord;
       ownerRequestRow: TravelerRequestRow;
       ownerOffers: OwnerOfferItem[];
+      offersLoadError?: boolean;
       viewModel: PublicRequestDetailViewModel;
       justCreated?: boolean;
       createdMode?: string | null;
@@ -159,6 +161,7 @@ type RequestDetailScreenProps =
       requestId?: string;
       viewModel?: PublicRequestDetailViewModel;
       biddingGuides?: BiddingGuide[];
+      biddingGuidesLoadError?: boolean;
     } & Partial<RequestGroupThreadProps>);
 
 const INTEREST_LABEL_BY_ID: Record<string, string> = Object.fromEntries(
@@ -285,6 +288,7 @@ function GroupThreadSection({ group }: { group?: Partial<RequestGroupThreadProps
       messages={group.groupThread.messages}
       currentUserId={group.currentUserId}
       onSend={group.onSendGroupMessage}
+      loadError={group.groupThread.loadError}
     />
   );
 }
@@ -293,11 +297,13 @@ function PublicDetailBranch({
   requestId,
   viewModel,
   biddingGuides,
+  biddingGuidesLoadError = false,
   group,
 }: {
   requestId: string;
   viewModel: PublicRequestDetailViewModel;
   biddingGuides: BiddingGuide[];
+  biddingGuidesLoadError?: boolean;
   group?: Partial<RequestGroupThreadProps>;
 }) {
   const price = formatPublicPrice(viewModel.pricePerPersonRub);
@@ -395,7 +401,7 @@ function PublicDetailBranch({
 
         {/* Social-proof teaser — renders nothing if no real bidders */}
         <div className="pt-14">
-          <BiddingGuidesTeaser guides={biddingGuides} />
+          <BiddingGuidesTeaser guides={biddingGuides} loadError={biddingGuidesLoadError} />
         </div>
 
         {/* Как это работает + off-platform reassurance */}
@@ -571,6 +577,7 @@ function OwnerDetailBranch({
   ownerRecord,
   ownerRequestRow,
   ownerOffers,
+  offersLoadError = false,
   viewModel,
   justCreated,
   createdMode,
@@ -812,7 +819,24 @@ function OwnerDetailBranch({
               </div>
             </div>
 
-            {pendingOffers.length === 0 ? (
+            {offersLoadError ? (
+              <div className="rounded-card border border-border bg-card p-6">
+                <p className="text-sm font-medium text-on-surface">
+                  Не удалось загрузить отклики
+                </p>
+                <p className="mt-1 text-sm text-on-surface-muted">
+                  Список предложений временно недоступен. Попробуйте обновить страницу.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="mt-4"
+                  onClick={() => router.refresh()}
+                >
+                  Обновить
+                </Button>
+              </div>
+            ) : pendingOffers.length === 0 ? (
               <div className="rounded-card border border-border bg-card p-6">
                 <p className="text-sm text-on-surface-muted">
                   Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.
@@ -1058,6 +1082,7 @@ export function RequestDetailScreen(props: RequestDetailScreenProps) {
           requestId={props.requestId}
           viewModel={props.viewModel}
           biddingGuides={props.biddingGuides ?? []}
+          biddingGuidesLoadError={props.biddingGuidesLoadError}
           group={{
             currentUserId: props.currentUserId,
             groupThread: props.groupThread,
@@ -1076,6 +1101,7 @@ export function RequestDetailScreen(props: RequestDetailScreenProps) {
             requestId={props.requestId}
             viewModel={props.viewModel}
             biddingGuides={props.biddingGuides ?? []}
+            biddingGuidesLoadError={props.biddingGuidesLoadError}
           />
         );
       }

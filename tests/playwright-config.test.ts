@@ -26,7 +26,7 @@ describe("playwright config", () => {
     expect(config.use?.baseURL).toBe("http://localhost:3000");
   });
 
-  it("boots the dev server when E2E_BASE_URL is not set", async () => {
+  it("boots a production server when E2E_BASE_URL is not set", async () => {
     vi.stubEnv("E2E_BASE_URL", undefined);
     const config = await loadPlaywrightConfig();
 
@@ -35,7 +35,9 @@ describe("playwright config", () => {
       ? config.webServer[0]
       : config.webServer;
     expect(ws).toBeDefined();
-    expect(ws!.command).toMatch(/dev/);
+    expect(ws!.command).toMatch(/bun run dev/);
+    expect(ws!.command).toMatch(/--webpack/);
+    expect(ws!.command).toMatch(/PORT=3000/);
     expect(ws!.url).toBe("http://localhost:3000");
     expect(ws!.reuseExistingServer).toBe(true);
   });
@@ -50,6 +52,15 @@ describe("playwright config", () => {
 });
 
 describe("e2e fixtures", () => {
+  it("documents the protected lifecycle mutation gate", async () => {
+    const gatingDoc = await import("node:fs/promises").then((fs) =>
+      fs.readFile("docs/qa/e2e-gating.md", "utf8"),
+    );
+
+    expect(gatingDoc).toContain("E2E_ALLOW_MUTATIONS=1");
+    expect(gatingDoc).toContain("tripster-v1/lifecycle.spec.ts");
+  });
+
   it("uses seeded QA accounts and QA_SEED_PASSWORD", async () => {
     vi.stubEnv("QA_SEED_PASSWORD", "QaSeed123!");
     const { E2E_READY, SEED_USERS } = await loadFixtures();

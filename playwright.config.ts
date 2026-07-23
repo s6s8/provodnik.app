@@ -27,10 +27,12 @@ export default defineConfig({
     ? {}
     : {
         webServer: {
-          command: "bun run dev",
+          // Webpack dev avoids Turbopack font-module resolution failures during
+          // browser-test boot in worktrees and clean environments (#63).
+          command: "PORT=3000 bun run dev -- --webpack",
           url: "http://localhost:3000",
-          reuseExistingServer: true,
-          timeout: 120 * 1000,
+          reuseExistingServer: !process.env.CI,
+          timeout: 180 * 1000,
         },
       }),
   projects: [

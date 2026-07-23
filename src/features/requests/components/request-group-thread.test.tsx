@@ -76,4 +76,21 @@ describe("RequestGroupThread", () => {
     await waitFor(() => expect(screen.getByText("Аккаунт ограничен.")).toBeInTheDocument());
     expect(refresh).not.toHaveBeenCalled();
   });
+
+  it("shows a load error separately from an empty thread", () => {
+    const onSend = vi.fn();
+    render(
+      <RequestGroupThread
+        messages={[]}
+        currentUserId="u1"
+        onSend={onSend}
+        loadError
+      />,
+    );
+
+    expect(screen.getByText("Не удалось загрузить обсуждение")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Обновить" })).toBeInTheDocument();
+    expect(screen.queryByText(/Пока нет сообщений/)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Сообщение группе")).not.toBeInTheDocument();
+  });
 });

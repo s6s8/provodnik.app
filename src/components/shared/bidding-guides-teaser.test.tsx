@@ -1,9 +1,15 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
 
 import { BiddingGuidesTeaser } from "./bidding-guides-teaser";
+
+const { refresh } = vi.hoisted(() => ({ refresh: vi.fn() }));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ refresh }),
+}));
 
 const guides: BiddingGuide[] = [
   {
@@ -48,5 +54,20 @@ describe("BiddingGuidesTeaser", () => {
     const { container } = render(<BiddingGuidesTeaser guides={[]} />);
 
     expect(container.firstChild).toBeNull();
+  });
+
+  it("shows a load error separately from an empty teaser", () => {
+    render(<BiddingGuidesTeaser guides={[]} loadError />);
+
+    expect(screen.getByText("Не удалось загрузить отклики гидов")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Обновить" })).toBeInTheDocument();
+    expect(screen.queryByText(/проверенных гида/)).not.toBeInTheDocument();
+  });
+
+  it("refreshes when the load error retry is clicked", () => {
+    render(<BiddingGuidesTeaser guides={[]} loadError />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Обновить" }));
+    expect(refresh).toHaveBeenCalledOnce();
   });
 });

@@ -220,6 +220,7 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
   const requestRow = data as TravelerRequestRow;
 
   let offers: GuideOfferRow[] = [];
+  let offersLoadError = false;
   const guideInfoMap = new Map<
     string,
     {
@@ -299,11 +300,12 @@ async function getOwnerDetailData(requestId: string, currentUserId: string | nul
       }
     }
   } catch {
-    // Non-fatal — render owner page without offers.
+    offersLoadError = true;
   }
 
   return {
     requestRow,
+    offersLoadError,
     ownerOffers: offers.map((offer) => ({
       offer,
       guideInfo: guideInfoMap.get(offer.guide_id) ?? null,
@@ -501,6 +503,7 @@ export default async function RequestDetailPage({
         ownerRecord={mapTravelerRequestRow(ownerData.requestRow)}
         ownerRequestRow={ownerData.requestRow}
         ownerOffers={ownerData.ownerOffers}
+        offersLoadError={ownerData.offersLoadError}
         viewModel={ownerViewModel}
         justCreated={justCreated}
         createdMode={createdMode}
@@ -554,12 +557,15 @@ export default async function RequestDetailPage({
   });
 
   let biddingGuides: BiddingGuide[] = [];
+  let biddingGuidesLoadError = false;
   if (hasSupabaseEnv()) {
     try {
       const sb = await createSupabaseServerClient();
-      biddingGuides = await getBiddingGuidesForRequest(sb, requestId);
+      const biddingResult = await getBiddingGuidesForRequest(sb, requestId);
+      biddingGuides = biddingResult.guides;
+      biddingGuidesLoadError = biddingResult.loadError;
     } catch {
-      // non-fatal — teaser simply renders nothing
+      biddingGuidesLoadError = true;
     }
   }
 
@@ -574,6 +580,7 @@ export default async function RequestDetailPage({
       requestId={requestId}
       viewModel={viewModel}
       biddingGuides={biddingGuides}
+      biddingGuidesLoadError={biddingGuidesLoadError}
       currentUserId={currentUserId ?? undefined}
       groupThread={memberGroupThread}
       onSendGroupMessage={postGroupMessage.bind(null, requestId)}

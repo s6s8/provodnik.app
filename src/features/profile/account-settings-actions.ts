@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import { findContactInBio } from "@/features/profile/validation/anti-contact";
 import { writeDemoTravelerProfileToCookies } from "@/lib/demo-traveler-profile";
+import { friendlyError } from "@/lib/errors";
 import { hasSupabaseEnv } from "@/lib/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -58,7 +59,10 @@ export async function updateTravelerProfile(
     })
     .eq("id", user.id);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[updateTravelerProfile] profiles update failed", error);
+    return { ok: false, error: friendlyError(error, "Не удалось сохранить профиль") };
+  }
   revalidatePath("/account");
   return { ok: true };
 }

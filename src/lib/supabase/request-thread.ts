@@ -141,12 +141,12 @@ export async function listRequestThreadMessages(
  * Read-only load of the group thread's messages for a page render. Does NOT
  * create the thread (avoids a write on GET); the thread is created lazily on the
  * first post via postRequestGroupMessage. Returns an empty list when no thread or
- * messages exist yet, or on a transient/permission error, so callers degrade
- * gracefully. RLS still governs what the viewer may read.
+ * messages exist yet. Transient/permission failures surface `loadError` so the
+ * UI can distinguish a failed load from a genuinely empty thread.
  */
 export async function getRequestGroupThread(
   requestId: Uuid,
-): Promise<{ messages: GroupMessage[] }> {
+): Promise<{ messages: GroupMessage[]; loadError?: boolean }> {
   try {
     const supabase = await createSupabaseServerClient();
     const { data: thread } = await supabase
@@ -158,7 +158,7 @@ export async function getRequestGroupThread(
     if (!thread?.id) return { messages: [] };
     return { messages: await listRequestThreadMessages(thread.id as string) };
   } catch {
-    return { messages: [] };
+    return { messages: [], loadError: true };
   }
 }
 

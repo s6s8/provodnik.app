@@ -2,6 +2,7 @@
 
 import { revealTravelerName, revealTravelerPhone, type BookingRecord } from "@/data/supabase/queries";
 import { transitionBooking, type BookingStatus } from "@/lib/bookings/state-machine";
+import { friendlyError } from "@/lib/errors";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { logFunnelEvent } from "@/lib/analytics/marketplace-events";
@@ -34,7 +35,10 @@ async function assertGuideOwns(
     .eq("id", bookingId)
     .maybeSingle();
 
-  if (fetchError) return { ok: false, error: fetchError.message };
+  if (fetchError) {
+    console.error("[assertGuideOwns] bookings fetch failed", fetchError);
+    return { ok: false, error: friendlyError(fetchError, "Не удалось загрузить бронирование") };
+  }
   if (!booking) return { ok: false, error: "Бронирование не найдено" };
   if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
 
@@ -52,8 +56,8 @@ async function transitionAction(
     const updated = await transitionBooking(bookingId, to, auth.userId);
     return { ok: true, status: updated.status };
   } catch (error) {
-    const message = error instanceof Error ? error.message : errorMessage;
-    return { ok: false, error: message };
+    console.error(`[transitionAction] ${to} failed`, error);
+    return { ok: false, error: friendlyError(error, errorMessage) };
   }
 }
 
@@ -73,9 +77,8 @@ export async function confirmBookingAction(
     });
     return { ok: true, status: updated.status };
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Не удалось подтвердить бронирование";
-    return { ok: false, error: message };
+    console.error("[confirmBookingAction] transition failed", error);
+    return { ok: false, error: friendlyError(error, "Не удалось подтвердить бронирование") };
   }
 }
 
@@ -124,7 +127,10 @@ export async function getGuideBookingDetailAction(
     .eq("id", bookingId)
     .maybeSingle();
 
-  if (bookingError) return { ok: false, error: bookingError.message };
+  if (bookingError) {
+    console.error("[getGuideBookingDetailAction] bookings fetch failed", bookingError);
+    return { ok: false, error: friendlyError(bookingError, "Не удалось загрузить бронирование") };
+  }
   if (!booking) return { ok: false, error: "Бронирование не найдено" };
   if (booking.guide_id !== user.id) return { ok: false, error: "Нет доступа" };
 

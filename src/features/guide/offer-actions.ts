@@ -255,11 +255,7 @@ export async function submitOfferAction(
     ) {
       throw err;
     }
-    const msg =
-      typeof (err as { message?: unknown }).message === "string"
-        ? (err as { message: string }).message
-        : "Не удалось отправить предложение.";
-    return { error: msg };
+    return { error: friendlyError(err, "Не удалось отправить предложение.") };
   }
 
   return { ok: true };
