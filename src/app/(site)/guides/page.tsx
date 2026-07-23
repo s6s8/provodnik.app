@@ -65,7 +65,7 @@ export async function GuidesContent({
   let hasMore = false;
   let loadError = false;
 
-  const auth = await readAuthContextFromServer();
+  const authPromise = readAuthContextFromServer();
   try {
     const supabase = await createSupabaseServerClient();
     const result = await getGuidesPaged(supabase, {
@@ -82,6 +82,7 @@ export async function GuidesContent({
   } catch {
     loadError = true;
   }
+  const auth = await authPromise;
 
   return (
     <PublicGuidesGrid

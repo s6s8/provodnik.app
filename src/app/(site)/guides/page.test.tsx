@@ -64,6 +64,50 @@ describe("GuidesPage", () => {
     );
   });
 
+  it("starts catalogue loading before auth context resolves", async () => {
+    let resolveAuth!: (value: { role: string }) => void;
+    const authDeferred = new Promise<{ role: string }>((resolve) => {
+      resolveAuth = resolve;
+    });
+    readAuthContextMock.mockReturnValue(authDeferred);
+
+    let resolveCatalogue!: (value: {
+      data: { id: string }[];
+      error: null;
+      hasMore: boolean;
+    }) => void;
+    const catalogueDeferred = new Promise<{
+      data: { id: string }[];
+      error: null;
+      hasMore: boolean;
+    }>((resolve) => {
+      resolveCatalogue = resolve;
+    });
+    getGuidesPagedMock.mockReturnValue(catalogueDeferred);
+
+    const contentPromise = GuidesContent({ searchParams: Promise.resolve({}) });
+
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(readAuthContextMock).toHaveBeenCalled();
+    expect(getGuidesPagedMock).toHaveBeenCalled();
+
+    resolveCatalogue({ data: [{ id: "g1" }], error: null, hasMore: false });
+    await Promise.resolve();
+
+    resolveAuth({ role: "traveler" });
+
+    render(await contentPromise);
+
+    expect(gridPropsSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        guides: [{ id: "g1" }],
+        showGuideCta: true,
+      }),
+    );
+  });
+
   it("hides the guide CTA for guides and shows it for everyone else", async () => {
     getGuidesPagedMock.mockResolvedValue({ data: [], error: null, hasMore: false });
 
