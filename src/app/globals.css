@@ -27,6 +27,11 @@
   --spacing-nav-h:  var(--nav-h);
   --spacing-sec-pad: var(--sec-pad);
 
+  /* Stacking — ERR-094 tier; keep sheet/dialog above fixed header (#77). */
+  --z-100: 100;
+  --z-110: 110;
+  --z-120: 120;
+
   /* Colors — semantic roles (the only color utilities components may use) -- */
   --color-success: var(--success);
   --color-warning: var(--warning);

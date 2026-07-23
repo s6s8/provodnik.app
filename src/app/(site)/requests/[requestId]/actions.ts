@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import { friendlyError } from "@/lib/errors";
 import { createNotification } from "@/lib/notifications/create-notification";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { joinRequest } from "@/lib/supabase/request-members";
@@ -71,8 +72,7 @@ export async function joinRequestAction(
 
     console.error("[joinRequestAction] failed to join request:", error);
     return {
-      error:
-        error instanceof Error ? error.message : "Не удалось присоединиться.",
+      error: friendlyError(error, "Не удалось присоединиться."),
     };
   }
 }

@@ -11,6 +11,7 @@ import { ChatInput } from "@/features/messaging/components/chat-input";
 import { ChatWindow } from "@/features/messaging/components/chat-window";
 import { hasSupabaseEnv } from "@/lib/env";
 import { maskMessageBodies } from "@/lib/pii/mask";
+import type { MessageWithSender, UserThreadSummary } from "@/lib/supabase/conversations";
 import { getThreadMessages, getUserThreads, markThreadRead } from "@/lib/supabase/conversations";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -49,8 +50,9 @@ export default async function ThreadPage({
     redirect(`/auth?next=/messages/${threadId}`);
   }
 
-  let threads;
-  let initialMessages;
+  let threads: UserThreadSummary[] = [];
+  let initialMessages: MessageWithSender[] = [];
+  let loadError = false;
 
   try {
     [threads, initialMessages] = await Promise.all([
@@ -58,24 +60,26 @@ export default async function ThreadPage({
       getThreadMessages(threadId),
     ]);
   } catch {
-    notFound();
+    loadError = true;
   }
 
   const currentThread = threads.find((thread) => thread.id === threadId);
 
-  if (!currentThread) {
+  if (!loadError && !currentThread) {
     notFound();
   }
 
-  await markThreadRead(threadId, user.id);
+  if (!loadError && currentThread) {
+    await markThreadRead(threadId, user.id);
+  }
 
   const displayMessages = maskMessageBodies(initialMessages);
 
   const participantTitle =
-    currentThread.other_participant_names.join(", ") || "Диалог";
+    currentThread?.other_participant_names.join(", ") || "Диалог";
 
   const otherParticipantId =
-    currentThread.participants.find((participant) => participant.user_id !== user.id)?.user_id ??
+    currentThread?.participants.find((participant) => participant.user_id !== user.id)?.user_id ??
     null;
 
   let guidePublic: { avatar_url: string | null; full_name: string | null } | null = null;
@@ -125,8 +129,11 @@ export default async function ThreadPage({
           currentUserId={user.id}
           initialMessages={displayMessages}
           markReadAction={markReadAction}
+          loadError={loadError}
         />
-        <ChatInput threadId={threadId} sendMessageAction={sendMessageAction} />
+        {!loadError ? (
+          <ChatInput threadId={threadId} sendMessageAction={sendMessageAction} />
+        ) : null}
       </div>
     </section>
   );

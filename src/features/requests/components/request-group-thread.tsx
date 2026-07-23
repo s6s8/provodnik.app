@@ -16,10 +16,12 @@ export function RequestGroupThread({
   messages,
   currentUserId,
   onSend,
+  loadError = false,
 }: {
   messages: GroupMessage[];
   currentUserId: string;
   onSend: (body: string) => Promise<{ error: string | null }>;
+  loadError?: boolean;
 }) {
   const router = useRouter();
   const [body, setBody] = React.useState("");
@@ -48,7 +50,21 @@ export function RequestGroupThread({
         Обсуждение группы
       </div>
       <div className="rounded-card border border-border bg-surface-lowest p-6">
-        {messages.length === 0 ? (
+        {loadError ? (
+          <div className="flex flex-col gap-3">
+            <p className="text-sm font-medium text-on-surface">
+              Не удалось загрузить обсуждение
+            </p>
+            <p className="text-sm text-on-surface-muted">
+              Сообщения группы временно недоступны. Попробуйте обновить страницу.
+            </p>
+            <div className="flex justify-end">
+              <Button type="button" variant="outline" onClick={() => router.refresh()}>
+                Обновить
+              </Button>
+            </div>
+          </div>
+        ) : messages.length === 0 ? (
           <p className="text-sm text-on-surface-muted">
             Пока нет сообщений. Напишите первым — обсудите детали поездки с группой.
           </p>
@@ -83,6 +99,7 @@ export function RequestGroupThread({
           </ul>
         )}
 
+        {!loadError ? (
         <form onSubmit={handleSubmit} className="mt-5 flex flex-col gap-3">
           <Textarea
             value={body}
@@ -99,6 +116,7 @@ export function RequestGroupThread({
             </Button>
           </div>
         </form>
+        ) : null}
       </div>
     </section>
   );

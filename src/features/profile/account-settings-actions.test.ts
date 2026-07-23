@@ -110,4 +110,22 @@ describe("updateTravelerProfile", () => {
       expect(result.error).toMatch(/Укажите имя/);
     }
   });
+
+  it("hides raw database errors from the user", async () => {
+    mockEq.mockResolvedValue({
+      error: Object.assign(new Error('duplicate key value violates unique constraint "profiles_pkey"'), {
+        code: "23505",
+      }),
+    });
+
+    const fd = new FormData();
+    fd.set("name", "Анна");
+    const result = await updateTravelerProfile(fd);
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.error).toBe("Не удалось сохранить профиль");
+      expect(result.error).not.toMatch(/constraint/i);
+    }
+  });
 });

@@ -31,6 +31,18 @@ test("mobile menu opens without missing dialog description warning", async ({ pa
   await expect(page.getByRole("dialog")).toBeVisible();
   await expect(page.getByText("Навигация по разделам Проводника.")).toBeAttached();
   expect(warnings.join("\n")).not.toContain("Missing `Description`");
+
+  const [headerZ, dialogZ] = await page.evaluate(() => {
+    const headerEl = document.querySelector('header[role="banner"]');
+    const dialogEl = document.querySelector('[role="dialog"]');
+    if (!headerEl || !dialogEl) return [0, 0];
+    return [
+      Number(window.getComputedStyle(headerEl).zIndex),
+      Number(window.getComputedStyle(dialogEl).zIndex),
+    ];
+  });
+  expect(headerZ).toBeGreaterThan(0);
+  expect(dialogZ).toBeGreaterThan(headerZ);
 });
 
 test("guest request-first form shows Russian validation", async ({ page }) => {

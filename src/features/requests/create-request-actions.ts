@@ -6,6 +6,7 @@ import { after } from "next/server";
 import { rubToKopecks } from "@/data/money";
 import { travelerRequestSchema } from "@/data/traveler-request/schema";
 import type { TravelerRequest } from "@/data/traveler-request/schema";
+import { friendlyError } from "@/lib/errors";
 import { createTravelerRequest, type CreateRequestInput } from "@/lib/supabase/requests";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { hasSupabaseEnv } from "@/lib/env";
@@ -36,7 +37,7 @@ function mapCreateTravelerRequestError(err: unknown): string {
     return DIRECTED_GUIDE_UNRESOLVED_MESSAGE;
   }
 
-  return message || "Неизвестная ошибка при сохранении.";
+  return friendlyError(err, "Не удалось сохранить запрос.");
 }
 
 export async function buildRequestInsertPayload(
@@ -165,8 +166,7 @@ export async function createRequestAction(
     );
     requestId = record.id;
   } catch (err) {
-    const message = mapCreateTravelerRequestError(err);
-    return { error: `Не удалось сохранить запрос: ${message}` };
+    return { error: mapCreateTravelerRequestError(err) };
   }
 
   // Guide fan-out notifications (per-guide DB reads + Resend email) used to be

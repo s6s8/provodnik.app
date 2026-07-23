@@ -9,21 +9,28 @@ export type BiddingGuide = {
   slug: string | null;
 };
 
+export type BiddingGuidesResult = {
+  guides: BiddingGuide[];
+  loadError: boolean;
+};
+
 /**
  * Privacy-scoped social proof for the public visitor view. Returns the approved
  * guides with a live bid on an OPEN request (the RPC enforces the open_to_join
- * gate). Never throws — returns [] on any error so it can never block the page.
+ * gate). Never throws — failures surface `loadError` so the teaser can warn
+ * without blocking the page.
  */
 export async function getBiddingGuidesForRequest(
   supabase: SupabaseClient,
   requestId: string,
-): Promise<BiddingGuide[]> {
+): Promise<BiddingGuidesResult> {
   try {
-    const { data } = await supabase.rpc("get_bidding_guides_for_request", {
+    const { data, error } = await supabase.rpc("get_bidding_guides_for_request", {
       p_request_id: requestId,
     });
-    return (data ?? []) as BiddingGuide[];
+    if (error) return { guides: [], loadError: true };
+    return { guides: (data ?? []) as BiddingGuide[], loadError: false };
   } catch {
-    return [];
+    return { guides: [], loadError: true };
   }
 }

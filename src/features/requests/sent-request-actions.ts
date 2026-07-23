@@ -1,6 +1,7 @@
 "use server";
 
 import { rubToKopecks } from "@/data/money";
+import { friendlyError } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export async function updateRequestDetailsAction(
@@ -31,6 +32,9 @@ export async function updateRequestDetailsAction(
     .update(patch)
     .eq("id", requestId);
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    console.error("[updateRequestDetailsAction] traveler_requests update failed", error);
+    return { ok: false, error: friendlyError(error, "Не удалось обновить запрос") };
+  }
   return { ok: true };
 }

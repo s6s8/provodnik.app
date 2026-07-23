@@ -1,5 +1,6 @@
 "use server";
 
+import { friendlyError } from "@/lib/errors";
 import { acceptOfferForTraveler } from "@/lib/supabase/offers";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -24,7 +25,7 @@ export async function acceptOffer(offerId: string) {
       throw new Error("Предложение уже не в статусе ожидания.");
     if (raw.includes("unauthorized"))
       throw new Error("Только автор запроса может принять предложение.");
-    throw new Error(raw || "Не удалось принять предложение.");
+    throw new Error(friendlyError(raw, "Не удалось принять предложение."));
   }
 
   return { success: true, bookingId };
@@ -65,7 +66,10 @@ export async function declineOffer(offerId: string) {
     .select("id")
     .maybeSingle();
 
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("[declineOffer] guide_offers update failed", error);
+    throw new Error(friendlyError(error, "Не удалось отклонить предложение."));
+  }
   if (!updatedOffer) throw new Error("Предложение уже не в статусе ожидания.");
   return { success: true };
 }
@@ -93,7 +97,7 @@ export async function counterOffer(
     if (error.message.includes("offer_expired")) {
       throw new Error("Срок действия предложения истёк.");
     }
-    throw new Error(error.message);
+    throw new Error(friendlyError(error, "Не удалось отправить встречное предложение."));
   }
 
   return { success: true };

@@ -374,6 +374,45 @@ describe("RequestDetailScreen", () => {
     expect(screen.queryByText("О поездке")).not.toBeInTheDocument();
   });
 
+  it("shows an offers load error separately from a genuine empty list", () => {
+    render(
+      <RequestDetailScreen
+        viewerRole="owner"
+        requestId="request-1"
+        ownerRecord={travelerRecord}
+        ownerRequestRow={travelerRequestRow}
+        viewModel={publicViewModel}
+        ownerOffers={[]}
+        offersLoadError
+        onSendQa={async () => {}}
+        onGetOrCreateQaThread={async () => "thread-1"}
+      />,
+    );
+
+    expect(screen.getByText("Не удалось загрузить отклики")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Обновить" })).toBeInTheDocument();
+    expect(
+      screen.queryByText(
+        "Пока нет предложений. Гиды увидят ваш запрос и ответят в ближайшее время.",
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows a bidding guides load error on the public request page", () => {
+    render(
+      <RequestDetailScreen
+        viewerRole="public"
+        requestId="request-1"
+        viewModel={{ ...publicViewModel, joinState: "can-join" }}
+        biddingGuides={[]}
+        biddingGuidesLoadError
+      />,
+    );
+
+    expect(screen.getByText("Не удалось загрузить отклики гидов")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Обновить" })).toBeInTheDocument();
+  });
+
   it("renders the canon RequestFactsCard above the offer list with no rainbow badges", () => {
     const { container } = render(
       <RequestDetailScreen
