@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { resolveDisplayName } from "./resolve-display-name";
+import { resolveDisplayName, resolveInboxParticipantName, resolveMessageSenderDisplayName } from "./resolve-display-name";
 
 describe("resolveDisplayName", () => {
   it("returns the name when present and trimmed", () => {
@@ -47,6 +47,45 @@ describe("resolveDisplayName", () => {
         { context: "inbox-card" },
       ),
     ).toBe("Путешественник");
+  });
+
+  it("masks travelers in inbox lists even when a profile name is present", () => {
+    expect(
+      resolveInboxParticipantName({
+        isGuide: false,
+        profileFullName: "Мария Секретная",
+      }),
+    ).toBe("Путешественник");
+  });
+
+  it("prefers the public guide name in inbox lists", () => {
+    expect(
+      resolveInboxParticipantName({
+        isGuide: true,
+        publicGuideName: "Гид Дмитрий",
+        profileFullName: "Дмитрий Иванов",
+      }),
+    ).toBe("Гид Дмитрий");
+  });
+
+  it("reveals traveler names in trusted message threads", () => {
+    expect(
+      resolveMessageSenderDisplayName({
+        senderRole: "traveler",
+        trustedParticipantName: "Анна Смирнова",
+        profileFullName: null,
+      }),
+    ).toBe("Анна Смирнова");
+  });
+
+  it("uses the public guide profile for guide senders in message threads", () => {
+    expect(
+      resolveMessageSenderDisplayName({
+        senderRole: "guide",
+        publicGuideName: "Гид Дмитрий",
+        profileFullName: null,
+      }),
+    ).toBe("Гид Дмитрий");
   });
 
   it("never returns literal «Гид»", () => {

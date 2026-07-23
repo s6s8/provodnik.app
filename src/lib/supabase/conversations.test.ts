@@ -267,11 +267,81 @@ describe("getUserThreads", () => {
       unread: false,
     });
     expect(requireThread(summaries, oldestThreadId)).toMatchObject({
-      other_participant_names: ["Admin"],
+      other_participant_names: ["Путешественник"],
       last_message_preview: "My own message",
       last_message_created_at: "2026-06-10T10:30:00.000Z",
       unread: false,
     });
+  });
+
+  it("masks a traveler participant name in the inbox even when profile full_name is visible", async () => {
+    const userId = "00000000-0000-4000-8000-000000000001";
+    const travelerId = "00000000-0000-4000-8000-000000000003";
+    const threadId = "10000000-0000-4000-8000-000000000099";
+    const thread = {
+      id: threadId,
+      subject_type: "request",
+      request_id: "20000000-0000-4000-8000-000000000099",
+      offer_id: null,
+      booking_id: null,
+      dispute_id: null,
+      created_by: userId,
+      created_at: "2026-06-10T08:00:00.000Z",
+      updated_at: "2026-06-10T12:00:00.000Z",
+    };
+
+    const userParticipantsQuery = createQuery({
+      data: [
+        {
+          thread_id: threadId,
+          user_id: userId,
+          joined_at: "2026-06-10T08:05:00.000Z",
+          last_read_at: null,
+          thread,
+        },
+      ],
+      error: null,
+    });
+    const latestMessagesQuery = createQuery({ data: [], error: null });
+    const participantProfilesQuery = createQuery({
+      data: [
+        {
+          thread_id: threadId,
+          user_id: userId,
+          joined_at: "2026-06-10T08:05:00.000Z",
+          last_read_at: null,
+          profile: { id: userId, full_name: "Current User" },
+        },
+        {
+          thread_id: threadId,
+          user_id: travelerId,
+          joined_at: "2026-06-10T08:10:00.000Z",
+          last_read_at: null,
+          profile: { id: travelerId, full_name: "Мария Секретная" },
+        },
+      ],
+      error: null,
+    });
+    const publicGuideProfilesQuery = createQuery({ data: [], error: null });
+    let threadParticipantQueryCount = 0;
+    const from = vi.fn((table: string) => {
+      if (table === "conversation_threads") return latestMessagesQuery;
+      if (table === "v_guide_public_profile") return publicGuideProfilesQuery;
+      if (table === "thread_participants") {
+        threadParticipantQueryCount += 1;
+        return threadParticipantQueryCount === 1
+          ? userParticipantsQuery
+          : participantProfilesQuery;
+      }
+      throw new Error(`Unexpected table: ${table}`);
+    });
+    createSupabaseServerClient.mockResolvedValue({ from });
+
+    const summaries = await getUserThreads(userId);
+
+    expect(requireThread(summaries, threadId).other_participant_names).toEqual([
+      "Путешественник",
+    ]);
   });
 });
 

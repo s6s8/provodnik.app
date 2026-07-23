@@ -7,7 +7,10 @@
 
 import { cache } from 'react'
 
+import { toMoscowCalendarDay } from '@/lib/dates'
+import { resolveDisplayName } from '@/lib/profile/resolve-display-name'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import type { GuideTemplateSnapshot } from '@/lib/supabase/types'
 
 // ---------------------------------------------------------------------------
 // Public types
@@ -41,6 +44,9 @@ export interface ConfirmedBookingSummary {
   request_id: string
   destination: string
   starts_on: string
+  ends_on?: string | null
+  start_time?: string | null
+  participants_count?: number | null
   price_minor: number
   currency: string
   guide_id: string
@@ -77,6 +83,60 @@ type DisplayProfileRpcRow = {
 
 type RpcClient = {
   rpc: (fn: string) => Promise<{ data: DisplayProfileRpcRow[] | null; error: unknown }>
+}
+
+type RequestBookingFacts = {
+  destination: string
+  starts_on: string
+  ends_on: string | null
+  start_time: string | null
+  participants_count: number | null
+  guide_template_snapshot: GuideTemplateSnapshot | null
+}
+
+function parseGuideTemplateSnapshot(value: unknown): GuideTemplateSnapshot | null {
+  if (!value || typeof value !== 'object') return null
+  const row = value as Record<string, unknown>
+  const title = typeof row.title === 'string' ? row.title.trim() : ''
+  if (!title) return null
+
+  return {
+    id: String(row.id ?? ''),
+    title,
+    description: typeof row.description === 'string' ? row.description : null,
+    duration_text: typeof row.duration_text === 'string' ? row.duration_text : null,
+    meeting_point: typeof row.meeting_point === 'string' ? row.meeting_point : null,
+    max_participants:
+      typeof row.max_participants === 'number' ? row.max_participants : null,
+    region: typeof row.region === 'string' ? row.region : null,
+    price_scope: row.price_scope === 'per_group' ? 'per_group' : 'per_person',
+    price_from_kopecks:
+      typeof row.price_from_kopecks === 'number' ? row.price_from_kopecks : null,
+  }
+}
+
+function resolveConfirmedTripDestination(
+  snapshot: GuideTemplateSnapshot | null,
+  requestDestination: string | null | undefined,
+): string {
+  const snapshotTitle = snapshot?.title?.trim()
+  if (snapshotTitle) return snapshotTitle
+
+  const destination = requestDestination?.trim()
+  if (destination) return destination
+
+  return 'Поездка'
+}
+
+function resolveConfirmedTripStartsOn(
+  bookingStartsAt: string | null | undefined,
+  requestStartsOn: string | null | undefined,
+): string {
+  if (bookingStartsAt) {
+    return toMoscowCalendarDay(bookingStartsAt) ?? ''
+  }
+
+  return requestStartsOn ?? ''
 }
 
 // ---------------------------------------------------------------------------
@@ -182,7 +242,7 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
 
   const { data: bookings, error } = await supabase
     .from('bookings')
-    .select('id, offer_id, request_id, subtotal_minor, currency, guide_id, created_at')
+    .select('id, offer_id, request_id, subtotal_minor, currency, guide_id, created_at, starts_at')
     .eq('traveler_id', travelerId)
     .in('status', ['pending', 'awaiting_guide_confirmation', 'confirmed'])
     .order('created_at', { ascending: true })
@@ -198,7 +258,9 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
     requestIds.length > 0
       ? supabase
           .from('traveler_requests')
-          .select('id, destination, starts_on')
+          .select(
+            'id, destination, starts_on, ends_on, start_time, participants_count, guide_template_snapshot',
+          )
           .in('id', requestIds)
       : Promise.resolve({ data: [], error: null }),
     guideIds.length > 0
@@ -216,9 +278,17 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
   if (profilesRes.error) throw profilesRes.error
   if (threadsRes.error) throw threadsRes.error
 
-  const requestMap = new Map<string, { destination: string; starts_on: string }>()
+  const requestMap = new Map<string, RequestBookingFacts>()
   for (const r of requestsRes.data ?? []) {
-    requestMap.set(r.id, { destination: r.destination, starts_on: r.starts_on })
+    const snapshot = parseGuideTemplateSnapshot(r.guide_template_snapshot)
+    requestMap.set(r.id, {
+      destination: r.destination,
+      starts_on: r.starts_on,
+      ends_on: r.ends_on ?? null,
+      start_time: r.start_time ?? null,
+      participants_count: r.participants_count ?? null,
+      guide_template_snapshot: snapshot,
+    })
   }
 
   const profileMap = new Map<string, { full_name: string | null; avatar_url: string | null }>()
@@ -234,18 +304,20 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
   return bookings.map((b) => {
     const req = b.request_id ? requestMap.get(b.request_id) : null
     const profile = profileMap.get(b.guide_id) ?? { full_name: null, avatar_url: null }
+    const snapshot = req?.guide_template_snapshot ?? null
+
     return {
       booking_id: b.id,
       request_id: b.request_id ?? b.id,
-      // Never a lone em-dash: the card now shows guide/date/price, so a
-      // title-only fallback stays a readable card even when the request row
-      // is gone/unreadable (request_id is always set on offer-created bookings).
-      destination: req?.destination ?? 'Поездка',
-      starts_on: req?.starts_on ?? '',
+      destination: resolveConfirmedTripDestination(snapshot, req?.destination),
+      starts_on: resolveConfirmedTripStartsOn(b.starts_at, req?.starts_on),
+      ends_on: req?.ends_on ?? null,
+      start_time: req?.start_time ?? null,
+      participants_count: req?.participants_count ?? null,
       price_minor: b.subtotal_minor ?? 0,
       currency: b.currency ?? 'RUB',
       guide_id: b.guide_id ?? '',
-      guide_name: profile.full_name,
+      guide_name: resolveDisplayName('guide', { full_name: profile.full_name }),
       guide_avatar_url: profile.avatar_url,
       booking_thread_id: threadMap.get(b.id) ?? null,
     }
