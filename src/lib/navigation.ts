@@ -21,7 +21,7 @@ export const ROUTES = {
   requests:     { href: "/requests",     label: "Запросы",           icon: Users },
   // «Готовые» distinguishes the public catalog of ready-made excursions from the
   // guide's own workspace tab, which is also «Экскурсии» (ROUTES.guideListings).
-  listings:     { href: "/listings",     label: "Готовые экскурсии", icon: Compass },
+  listings:     { href: "/listings",     label: "Готовые экскурсии", shortLabel: "Готовые", icon: Compass },
   guides:       { href: "/guides",       label: "Гиды",              icon: UserSearch },
   destinations: { href: "/destinations", label: "Направления",       icon: Map },
   newRequest:   { href: "/",             label: "Создать запрос",    icon: ClipboardList },
@@ -31,7 +31,7 @@ export const ROUTES = {
   forBusiness:  { href: "/for-business", label: "Для бизнеса",       icon: Briefcase },
   help:         { href: "/help",         label: "Помощь",            icon: HelpCircle },
   auth:         { href: "/auth",         label: "Войти",             icon: LogIn },
-  trips:        { href: "/trips",        label: "Мои запросы",       icon: ClipboardList },
+  trips:        { href: "/trips",        label: "Мои запросы",       shortLabel: "Поездки", icon: ClipboardList },
   favorites:    { href: "/favorites",    label: "Избранное",         icon: Heart },
   messages:     { href: "/messages",     label: "Сообщения",         icon: MessageSquare, activePrefixes: ["/messages"] },
   notifications:{ href: "/notifications",label: "Уведомления",       icon: Bell },
@@ -148,6 +148,7 @@ export const roleSwitchByRole = {
 
 // --- Mobile bottom navigation (workspace roles only). ----------------------
 export const mobileBottomNavByRole = {
+  traveler: travelerPrimaryNav,
   guide: guidePrimaryNav,
   admin: adminPrimaryNav,
 } as const;

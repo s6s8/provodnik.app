@@ -1,5 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+
+const replaceMock = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: replaceMock }),
+  useSearchParams: () => new URLSearchParams("q=kazan"),
+}));
 
 import { PublicListingDiscoveryScreen } from "./public-listing-discovery-screen";
 import type { PublicListing } from "@/data/public-listings/types";
@@ -53,6 +60,33 @@ describe("PublicListingDiscoveryScreen", () => {
     );
 
     expect(screen.getByText("от 5 000 ₽ за группу до 8 человек")).toBeInTheDocument();
+  });
+
+  it("syncs search and theme filters into the URL", () => {
+    render(
+      <PublicListingDiscoveryScreen
+        listings={[
+          makeListing(0, { themes: ["history_culture"] }),
+          makeListing(1, { themes: ["food"] }),
+        ]}
+        initialSearch="kazan"
+      />,
+    );
+
+    fireEvent.change(screen.getByRole("searchbox", { name: "Поиск по экскурсиям" }), {
+      target: { value: "кремль" },
+    });
+
+    expect(replaceMock).toHaveBeenCalledWith("/listings?q=%D0%BA%D1%80%D0%B5%D0%BC%D0%BB%D1%8C", {
+      scroll: false,
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /История и культура/ }));
+
+    expect(replaceMock).toHaveBeenLastCalledWith(
+      "/listings?q=%D0%BA%D1%80%D0%B5%D0%BC%D0%BB%D1%8C&theme=history_culture",
+      { scroll: false },
+    );
   });
 
   it("uses ready-excursion detail routes and keeps listing detail routes", () => {

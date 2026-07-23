@@ -210,6 +210,30 @@ describe("OfferCard", () => {
     expect(screen.getByText("Гид предложил другие условия")).toBeInTheDocument();
   });
 
+  it("treats offer and traveler dates as the same Moscow calendar day, not UTC slice", () => {
+    render(
+      <OfferCard
+        offer={{
+          ...baseOffer,
+          starts_at: "2026-06-23T22:00:00.000Z",
+        }}
+        guideInfo={guideInfo}
+        qaThread={null}
+        requestId="req-1"
+        requestStatus="open"
+        onSendQa={onSendQa}
+        onGetOrCreateQaThread={onGetOrCreateQaThread}
+        travelerDateLocked={true}
+        travelerStartsOn="2026-06-24"
+        travelerOpenToJoin={false}
+        travelerCount={1}
+        travelerBudgetPerPersonRub={5000}
+      />,
+    );
+
+    expect(screen.queryByText("Гид предложил другие условия")).not.toBeInTheDocument();
+  });
+
   it("does not warn when locked traveler conditions match the guide offer", () => {
     render(
       <OfferCard

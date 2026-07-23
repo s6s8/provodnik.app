@@ -7,7 +7,7 @@ import { BadgeCheck, CalendarDays, ChevronLeft, ChevronRight, Clock, Lock, Star,
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { kopecksToRub } from "@/data/money";
-import { isExpired } from "@/lib/dates";
+import { formatRussianDate, isExpired, toMoscowCalendarDay } from "@/lib/dates";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
 import { cn, pluralize } from "@/lib/utils";
 import type { GuideOfferRow } from "@/lib/supabase/types";
@@ -75,9 +75,9 @@ function formatRub(rub: number, currency: string): string {
 
 function formatDateRu(iso: string | null | undefined): string {
   if (!iso) return "—";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
+  const calendarDay = toMoscowCalendarDay(iso);
+  if (!calendarDay) return iso;
+  return formatRussianDate(iso);
 }
 
 function formatOfferDate(iso: string): string {
@@ -128,7 +128,7 @@ export function OfferCard({
   const priceGroupLabel = formatPrice(offer.price_minor, offer.currency);
   const priceLabel = `${priceGroupLabel} за группу · ${formatPrice(perPersonMinor, offer.currency)} на чел.`;
 
-  const offerDateIso = offer.starts_at ? offer.starts_at.slice(0, 10) : null;
+  const offerDateIso = offer.starts_at ? toMoscowCalendarDay(offer.starts_at) : null;
   const dateBadgeLabel = formatDateRu(offer.starts_at);
   const timeBadgeLabel = offer.starts_at && offer.ends_at
     ? `${formatTime(offer.starts_at)} – ${formatTime(offer.ends_at)}`
@@ -138,7 +138,8 @@ export function OfferCard({
   const countBadgeLabel = `${offerCount} чел.`;
 
   const dateDeviates =
-    offerDateIso != null && (travelerStartsOn == null || offerDateIso !== travelerStartsOn.slice(0, 10));
+    offerDateIso != null &&
+    (travelerStartsOn == null || offerDateIso !== toMoscowCalendarDay(travelerStartsOn));
   const timeDeviates =
     (travelerStartTime != null && offer.starts_at != null && formatTime(offer.starts_at) !== normalizeTime(travelerStartTime)) ||
     (travelerEndTime != null && offer.ends_at != null && formatTime(offer.ends_at) !== normalizeTime(travelerEndTime));

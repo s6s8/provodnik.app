@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import { SiteFooter } from "@/components/shared/site-footer";
 import { SiteHeaderServer } from "@/components/shared/site-header-server";
+import { TravelerBottomNavServer } from "@/components/shared/traveler-bottom-nav-server";
 
 // Every (site) route renders per-request data (auth-aware header, live Supabase
 // content). Previously the shared loading.tsx boundary kept the group dynamic;
@@ -20,7 +21,8 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         Перейти к содержимому
       </a>
       <SiteHeaderServer />
-      <main id="main-content" className="pt-nav-h">{children}</main>
+      <main id="main-content" className="pt-nav-h pb-[calc(64px+env(safe-area-inset-bottom)+12px)] md:pb-0">{children}</main>
+      <TravelerBottomNavServer />
       <SiteFooter />
     </div>
   );

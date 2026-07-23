@@ -1,7 +1,9 @@
 import type {
   ConfirmedBookingSummary,
+  JoinedGroupSummary,
   TravelerRequestSummary,
 } from "@/lib/supabase/traveler-requests";
+import { todayMoscowISODate } from "@/lib/dates";
 
 import {
   mapBookingToTrip,
@@ -13,6 +15,7 @@ import type { TripCardModel, TripPhase } from "./trip-card-types";
 type GroupTripsByPhaseInput = {
   activeRequests: TravelerRequestSummary[];
   confirmedBookings: ConfirmedBookingSummary[];
+  joinedGroups?: JoinedGroupSummary[];
 };
 
 function emptyGroups(): Record<TripPhase, TripCardModel[]> {
@@ -25,18 +28,9 @@ function emptyGroups(): Record<TripPhase, TripCardModel[]> {
   };
 }
 
-function todayDateKey(): string {
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
 function bookingPhase(startsOn: string): TripPhase {
   const startsOnDate = startsOn.slice(0, 10);
-  const today = todayDateKey();
+  const today = todayMoscowISODate();
 
   if (!startsOnDate) return "upcoming";
   if (startsOnDate === today) return "today";
@@ -44,9 +38,36 @@ function bookingPhase(startsOn: string): TripPhase {
   return "completed";
 }
 
+function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
+  return {
+    id: group.id,
+    kind: "request",
+    destination: group.destination,
+    startsOn: group.starts_on,
+    endsOn: group.ends_on,
+    startTime: group.start_time,
+    participantsCount: group.participants_count,
+    budget:
+      group.budget_minor == null
+        ? null
+        : { amount: group.budget_minor, currency: "RUB" },
+    isOwnRequest: false,
+    guideName: null,
+    guideAvatarUrl: null,
+    organizerName: group.owner_name,
+    openToJoin: true,
+    groupType: "assembly",
+  };
+}
+
+function sortByStartsOn(trips: TripCardModel[]): TripCardModel[] {
+  return [...trips].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+}
+
 export function groupTripsByPhase({
   activeRequests,
   confirmedBookings,
+  joinedGroups = [],
 }: GroupTripsByPhaseInput): Record<TripPhase, TripCardModel[]> {
   const groups = emptyGroups();
 
@@ -56,6 +77,14 @@ export function groupTripsByPhase({
 
   for (const booking of confirmedBookings) {
     groups[bookingPhase(booking.starts_on)].push(mapBookingToTrip(booking));
+  }
+
+  for (const group of joinedGroups) {
+    groups[bookingPhase(group.starts_on)].push(mapJoinedGroupToTrip(group));
+  }
+
+  for (const phase of Object.keys(groups) as TripPhase[]) {
+    groups[phase] = sortByStartsOn(groups[phase]);
   }
 
   return groups;

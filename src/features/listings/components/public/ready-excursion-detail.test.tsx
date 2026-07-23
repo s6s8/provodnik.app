@@ -30,7 +30,8 @@ describe("ReadyExcursionDetail", () => {
     expect(screen.getByText("от 4 500 ₽ за группу до 8 человек")).toBeInTheDocument();
     expect(screen.getByText("5 часов")).toBeInTheDocument();
     expect(screen.getByText("Прогулка по степи и знакомство с Калмыкией.")).toBeInTheDocument();
-    expect(screen.getByText("Элиста, площадь Ленина")).toBeInTheDocument();
+    expect(screen.queryByText("Элиста, площадь Ленина")).not.toBeInTheDocument();
+    expect(screen.queryByText("Место встречи")).not.toBeInTheDocument();
     expect(screen.getByText("до 8 человек")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Адык" })).toHaveAttribute("href", "/guides/adyk");
     // The template id travels with the slug: the request pipeline resolves the

@@ -134,6 +134,7 @@ describe("role-based nav groups", () => {
   it("drives the guide mobile bottom nav from the guide primary nav", () => {
     expect(mobileBottomNavByRole.guide).toBe(guidePrimaryNav);
     expect(mobileBottomNavByRole.admin).toBe(adminPrimaryNav);
+    expect(mobileBottomNavByRole.traveler).toBe(travelerPrimaryNav);
   });
 
   it("exposes the full admin workspace as the admin primary nav", () => {

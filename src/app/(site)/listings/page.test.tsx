@@ -25,6 +25,8 @@ vi.mock("@/data/supabase/queries", () => ({
 
 vi.mock("@/features/listings/components/public/public-listing-discovery-screen", () => ({
   PublicListingDiscoveryScreen: discoveryScreenMock,
+  isThemeSlug: (value: string | null | undefined) =>
+    value === "history_culture" || value === "food" || value === "nature",
 }));
 
 import PublicListingsPage from "./page";
@@ -54,6 +56,21 @@ describe("PublicListingsPage", () => {
 
     expect(screen.getByText("Не удалось загрузить экскурсии. Попробуйте обновить страницу.")).toBeInTheDocument();
     expect(screen.queryByLabelText("discovery")).not.toBeInTheDocument();
+  });
+
+  it("passes search and theme query params into the discovery screen", async () => {
+    getActiveListings.mockResolvedValueOnce({ data: [], error: null });
+
+    render(
+      await PublicListingsPage({
+        searchParams: Promise.resolve({ q: "  казань  ", theme: "history_culture" }),
+      }),
+    );
+
+    expect(discoveryScreenMock.mock.calls[0]?.[0]).toMatchObject({
+      initialSearch: "казань",
+      initialTheme: "history_culture",
+    });
   });
 
   it("passes a ready tour's per-group price scope and template detail route to the public catalogue", async () => {

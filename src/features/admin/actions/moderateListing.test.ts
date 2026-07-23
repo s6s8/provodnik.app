@@ -35,7 +35,9 @@ function makeSupabase(opts: {
   const profileSelectEq = vi.fn(() => ({ maybeSingle: profileMaybeSingle }))
   const profileSelect = vi.fn(() => ({ eq: profileSelectEq }))
 
-  const listingUpdateEqStatus = vi.fn().mockResolvedValue({ error: null })
+  const listingUpdateMaybeSingle = vi.fn().mockResolvedValue({ data: { id: 'listing-1' }, error: null })
+  const listingUpdateSelect = vi.fn(() => ({ maybeSingle: listingUpdateMaybeSingle }))
+  const listingUpdateEqStatus = vi.fn(() => ({ select: listingUpdateSelect }))
   const listingUpdateEqId = vi.fn(() => ({ eq: listingUpdateEqStatus }))
   const listingUpdate = vi.fn(() => ({ eq: listingUpdateEqId }))
 
@@ -132,6 +134,36 @@ describe('approveListing', () => {
     await expect(approveListing('listing-1')).rejects.toThrow('Unauthorized')
 
     expect(listingUpdate).not.toHaveBeenCalled()
+  })
+
+  it('throws when the listing was already handled', async () => {
+    const listingUpdateMaybeSingle = vi.fn().mockResolvedValue({ data: null, error: null })
+    const listingUpdateSelect = vi.fn(() => ({ maybeSingle: listingUpdateMaybeSingle }))
+    const listingUpdateEqStatus = vi.fn(() => ({ select: listingUpdateSelect }))
+    const listingUpdateEqId = vi.fn(() => ({ eq: listingUpdateEqStatus }))
+    const listingUpdate = vi.fn(() => ({ eq: listingUpdateEqId }))
+
+    createSupabaseServerClient.mockResolvedValue({
+      auth: {
+        getUser: vi.fn().mockResolvedValue({
+          data: { user: { id: 'admin-1', app_metadata: { role: 'admin' } } },
+          error: null,
+        }),
+      },
+      from: vi.fn((table: string) => {
+        if (table === 'profiles') {
+          return {
+            select: vi.fn(() => ({
+              eq: vi.fn(() => ({ maybeSingle: vi.fn().mockResolvedValue({ data: null }) })),
+            })),
+          }
+        }
+        if (table === 'listings') return { update: listingUpdate }
+        throw new Error(`unexpected table ${table}`)
+      }),
+    })
+
+    await expect(approveListing('listing-1')).rejects.toThrow('Объявление уже обработано.')
   })
 })
 

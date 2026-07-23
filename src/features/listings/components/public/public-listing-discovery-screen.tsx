@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Compass } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -54,15 +55,37 @@ function mapListing(listing: PublicListing): ListingRecord {
   };
 }
 
+export function isThemeSlug(value: string | null | undefined): value is ThemeSlug {
+  return THEMES.some((theme) => theme.slug === value);
+}
+
 export function PublicListingDiscoveryScreen({
   listings,
   initialSearch = "",
+  initialTheme = "all",
 }: {
   listings: readonly PublicListing[];
   initialSearch?: string;
+  initialTheme?: "all" | ThemeSlug;
 }) {
-  const [activeFilter, setActiveFilter] = useState<"all" | ThemeSlug>("all");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [activeFilter, setActiveFilter] = useState<"all" | ThemeSlug>(initialTheme);
   const [search, setSearch] = useState(initialSearch);
+
+  const syncUrl = (nextSearch: string, nextTheme: "all" | ThemeSlug) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const trimmed = nextSearch.trim();
+
+    if (trimmed) params.set("q", trimmed);
+    else params.delete("q");
+
+    if (nextTheme === "all") params.delete("theme");
+    else params.set("theme", nextTheme);
+
+    const query = params.toString();
+    router.replace(query ? `/listings?${query}` : "/listings", { scroll: false });
+  };
 
   const themeCounts = useMemo(() => {
     const counts = {} as Record<ThemeSlug, number>;
@@ -105,7 +128,11 @@ export function PublicListingDiscoveryScreen({
       >
         <DiscoverySearchInput
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={(event) => {
+            const nextSearch = event.target.value;
+            setSearch(nextSearch);
+            syncUrl(nextSearch, activeFilter);
+          }}
           placeholder="Поиск по названию, описанию или направлению…"
           aria-label="Поиск по экскурсиям"
         />
@@ -117,7 +144,10 @@ export function PublicListingDiscoveryScreen({
             <DiscoveryFacetChip
               active={activeFilter === "all"}
               count={listings.length}
-              onClick={() => setActiveFilter("all")}
+              onClick={() => {
+                setActiveFilter("all");
+                syncUrl(search, "all");
+              }}
             >
               Все
             </DiscoveryFacetChip>
@@ -127,7 +157,10 @@ export function PublicListingDiscoveryScreen({
                 icon={Icon}
                 active={activeFilter === slug}
                 count={themeCounts[slug]}
-                onClick={() => setActiveFilter(slug)}
+                onClick={() => {
+                  setActiveFilter(slug);
+                  syncUrl(search, slug);
+                }}
               >
                 {label}
               </DiscoveryFacetChip>
@@ -166,6 +199,7 @@ export function PublicListingDiscoveryScreen({
                   onClick={() => {
                     setSearch("");
                     setActiveFilter("all");
+                    syncUrl("", "all");
                   }}
                 >
                   Сбросить фильтры

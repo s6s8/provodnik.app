@@ -85,15 +85,6 @@ export function ReadyExcursionDetail({ detail }: { detail: PublicGuideTemplateDe
                   </div>
                 </div>
               ) : null}
-              {detail.meetingPoint ? (
-                <div className="flex gap-3 rounded-card border border-line bg-surface p-4">
-                  <MapPin className="mt-0.5 size-5 shrink-0 text-primary" aria-hidden="true" />
-                  <div>
-                    <dt className="text-xs text-muted-foreground">Место встречи</dt>
-                    <dd className="mt-0.5 text-sm font-medium">{detail.meetingPoint}</dd>
-                  </div>
-                </div>
-              ) : null}
             </dl>
           </section>
 

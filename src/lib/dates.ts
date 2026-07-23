@@ -25,7 +25,7 @@ const MOSCOW_DATE_FORMAT = new Intl.DateTimeFormat("en-CA", {
  * Moscow calendar day, so the date can never contradict formatRussianTime,
  * which prints the Moscow clock.
  */
-function toCalendarDay(value: string): string | null {
+export function toMoscowCalendarDay(value: string): string | null {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const parsed = new Date(value);
   if (Number.isNaN(parsed.getTime())) return null;
@@ -33,7 +33,7 @@ function toCalendarDay(value: string): string | null {
 }
 
 function parseISODateParts(value: string): { month: number; day: number } | null {
-  const calendarDay = toCalendarDay(value);
+  const calendarDay = toMoscowCalendarDay(value);
   if (!calendarDay) return null;
   const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(calendarDay);
   if (!match) return null;

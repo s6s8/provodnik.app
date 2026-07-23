@@ -30,12 +30,15 @@ export async function approveListing(listingId: string) {
   const supabase = await createSupabaseServerClient();
   await verifyAdmin(supabase);
 
-  const { error } = await supabase
+  const { data: updatedListing, error } = await supabase
     .from("listings")
     .update({ status: PUBLIC_LISTING_STATUS })
     .eq("id", listingId)
-    .eq("status", "pending_review");
+    .eq("status", "pending_review")
+    .select("id")
+    .maybeSingle();
   if (error) throw new Error("Не удалось одобрить объявление.");
+  if (!updatedListing) throw new Error("Объявление уже обработано.");
   return { success: true };
 }
 
@@ -48,12 +51,15 @@ export async function rejectListing(listingId: string, reason: string) {
   const trimmed = reason.trim();
   if (!trimmed) throw new Error("Укажите причину отклонения.");
 
-  const { error } = await supabase
+  const { data: updatedListing, error } = await supabase
     .from("listings")
     .update({ status: "rejected" })
     .eq("id", listingId)
-    .eq("status", "pending_review");
+    .eq("status", "pending_review")
+    .select("id")
+    .maybeSingle();
   if (error) throw new Error("Не удалось отклонить объявление.");
+  if (!updatedListing) throw new Error("Объявление уже обработано.");
 
   // The reason used to stop here: the argument was named `_reason` and never
   // written, so the guide was told their excursion was rejected but never why.
