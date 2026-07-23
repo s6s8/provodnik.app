@@ -6,7 +6,8 @@ import type { BookingWithDetails } from "@/lib/supabase/bookings";
 
 import { BookingDetailScreen, BookingDetailSkeleton } from "./booking-detail-screen";
 
-const { getGuideBookingDetailAction, refresh, push } = vi.hoisted(() => ({
+const { bookingTicketTrigger, getGuideBookingDetailAction, refresh, push } = vi.hoisted(() => ({
+  bookingTicketTrigger: vi.fn(),
   getGuideBookingDetailAction: vi.fn(),
   refresh: vi.fn(),
   push: vi.fn(),
@@ -43,7 +44,10 @@ vi.mock("@/features/bookings/components/support-sidebar", () => ({
 }));
 
 vi.mock("@/features/bookings/components/booking-ticket-trigger", () => ({
-  BookingTicketTrigger: () => <button type="button">Билет поездки</button>,
+  BookingTicketTrigger: (props: unknown) => {
+    bookingTicketTrigger(props);
+    return <button type="button">Билет поездки</button>;
+  },
 }));
 
 vi.mock("@/app/(protected)/guide/bookings/[bookingId]/actions", () => ({
@@ -144,6 +148,29 @@ const booking = {
 } satisfies BookingWithDetails;
 
 describe("BookingDetailScreen", () => {
+  it("passes confirmed trip facts to the booking ticket", () => {
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={booking}
+        existingReview={null}
+        listing={{ title: "Городская прогулка" }}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(bookingTicketTrigger).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        dateRange: "10 июня",
+        meetingTime: "13:00",
+        duration: "2 ч",
+        participantCount: 2,
+        meetingPoint: "Площадь Ленина",
+        totalMinor: 600000,
+      }),
+    );
+  });
+
   it("renders traveler review, dispute, payment/contact blocks without guide controls", () => {
     const { container } = render(
       <BookingDetailScreen
