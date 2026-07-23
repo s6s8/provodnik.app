@@ -26,12 +26,19 @@ export async function cancelBookingAsTravelerAction(bookingId: string) {
     return { error: "Это бронирование нельзя отменить." };
   }
 
-  const { error } = await supabase
-    .from("bookings")
-    .update({ status: "cancelled" })
-    .eq("id", parsed.data);
+  const { error } = await supabase.rpc("cancel_booking_as_traveler", {
+    p_booking_id: parsed.data,
+  });
 
-  if (error) return { error: "Не удалось отменить." };
+  if (error) {
+    if (error.message.includes("concurrent_completion")) {
+      return { error: "Это бронирование нельзя отменить." };
+    }
+    if (error.message.includes("not_cancellable")) {
+      return { error: "Это бронирование нельзя отменить." };
+    }
+    return { error: "Не удалось отменить." };
+  }
   return { success: true };
 }
 

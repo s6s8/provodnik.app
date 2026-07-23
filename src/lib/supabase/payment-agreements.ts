@@ -92,21 +92,13 @@ export async function confirmPaymentAgreement(
     .maybeSingle();
   if (bookingError) return { ok: false, error: bookingError.message };
   if (!booking) return { ok: false, error: "Нет доступа" };
-
-  let patch: { traveler_confirmed_at: string } | { guide_confirmed_at: string };
-  const now = new Date().toISOString();
-  if (user.id === booking.traveler_id) {
-    patch = { traveler_confirmed_at: now };
-  } else if (user.id === booking.guide_id) {
-    patch = { guide_confirmed_at: now };
-  } else {
+  if (user.id !== booking.traveler_id && user.id !== booking.guide_id) {
     return { ok: false, error: "Нет доступа" };
   }
 
-  const { error: updateError } = await supabase
-    .from("payment_agreements")
-    .update(patch)
-    .eq("booking_id", bookingId);
+  const { error: updateError } = await supabase.rpc("confirm_payment_agreement", {
+    p_booking_id: bookingId,
+  });
   if (updateError) return { ok: false, error: updateError.message };
 
   return { ok: true };

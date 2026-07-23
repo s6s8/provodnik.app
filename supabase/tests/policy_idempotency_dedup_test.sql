@@ -136,14 +136,13 @@ select ok(
 select ok(
   (
     select with_check is not null
-       and with_check like '%traveler_id%'
-       and with_check like '%guide_id%'
+       and with_check like '%is_admin%'
       from pg_policies
      where schemaname = 'public'
        and tablename = 'bookings'
        and policyname = 'bookings_update'
   ),
-  'bookings_update has an explicit participant WITH CHECK'
+  'bookings_update is admin-only; parties use transition_booking'
 );
 
 select ok(

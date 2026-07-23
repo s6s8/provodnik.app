@@ -99,14 +99,15 @@ export async function transitionBooking(
   }
 
   const { data: updated, error: updateError } = await supabase
-    .from("bookings")
-    .update({ status: to })
-    .eq("id", bookingId)
-    .eq("status", from)
-    .select("id, status")
-    .single();
+    .rpc("transition_booking", {
+      p_booking_id: bookingId,
+      p_to_status: to,
+    });
 
   if (updateError) throw updateError;
+  if (!updated) {
+    throw new Error("Не удалось изменить статус бронирования.");
+  }
 
-  return { id: updated.id as string, status: updated.status as BookingStatus };
+  return { id: bookingId, status: updated as BookingStatus };
 }
