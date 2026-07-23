@@ -74,8 +74,8 @@ insert into public.guide_offers (
 values
   ('7c000000-0000-4000-8000-000000000001', '7b000000-0000-4000-8000-000000000002',
    '7a000000-0000-4000-8000-000000000003', 100000, 'RUB', 'pending',
-   timezone('utc', now()) + interval '20 days',
-   timezone('utc', now()) + interval '20 days' + interval '3 hours',
+   ((current_date + 20)::date + time '10:00') at time zone 'Europe/Moscow',
+   ((current_date + 20)::date + time '14:00') at time zone 'Europe/Moscow',
    timezone('utc', now()) + interval '7 days')
 on conflict (id) do update set status = excluded.status;
 
@@ -128,8 +128,9 @@ select set_config('request.jwt.claim.sub', '7a000000-0000-4000-8000-000000000003
 select throws_ok(
   $$ insert into public.guide_offers (request_id, guide_id, price_minor, currency, status, starts_at, ends_at, expires_at)
      values ('7b000000-0000-4000-8000-000000000001', '7a000000-0000-4000-8000-000000000003',
-             100000, 'RUB', 'pending', timezone('utc', now()) + interval '20 days',
-             timezone('utc', now()) + interval '20 days' + interval '3 hours',
+             100000, 'RUB', 'pending',
+             ((current_date + 20)::date + time '10:00') at time zone 'Europe/Moscow',
+             ((current_date + 20)::date + time '14:00') at time zone 'Europe/Moscow',
              timezone('utc', now()) + interval '7 days') $$,
   'new row violates row-level security policy for table "guide_offers"',
   'unrelated guide cannot insert an offer on a directed request'
@@ -141,8 +142,8 @@ select lives_ok(
   $$ insert into public.guide_offers (id, request_id, guide_id, price_minor, currency, status, starts_at, ends_at, expires_at)
      values ('7c000000-0000-4000-8000-000000000002', '7b000000-0000-4000-8000-000000000001',
              '7a000000-0000-4000-8000-000000000002', 100000, 'RUB', 'pending',
-             timezone('utc', now()) + interval '20 days',
-             timezone('utc', now()) + interval '20 days' + interval '3 hours',
+             ((current_date + 20)::date + time '10:00') at time zone 'Europe/Moscow',
+             ((current_date + 20)::date + time '14:00') at time zone 'Europe/Moscow',
              timezone('utc', now()) + interval '7 days') $$,
   'addressed guide can insert an offer on their directed request'
 );
@@ -203,8 +204,9 @@ select set_config('request.jwt.claim.sub', '7a000000-0000-4000-8000-000000000003
 select throws_ok(
   $$ insert into public.guide_offers (request_id, guide_id, price_minor, currency, status, starts_at, ends_at, expires_at)
      values ('7b000000-0000-4000-8000-000000000003', '7a000000-0000-4000-8000-000000000003',
-             100000, 'RUB', 'pending', timezone('utc', now()) + interval '20 days',
-             timezone('utc', now()) + interval '20 days' + interval '3 hours',
+             100000, 'RUB', 'pending',
+             ((current_date + 20)::date + time '10:00') at time zone 'Europe/Moscow',
+             ((current_date + 20)::date + time '14:00') at time zone 'Europe/Moscow',
              timezone('utc', now()) + interval '7 days') $$,
   'new row violates row-level security policy for table "guide_offers"',
   'guide cannot insert an offer on a booked request'
@@ -241,8 +243,8 @@ insert into public.guide_offers (
 values (
   '7c000000-0000-4000-8000-000000000003', '7b000000-0000-4000-8000-000000000003',
   '7a000000-0000-4000-8000-000000000003', 100000, 'RUB', 'pending',
-  timezone('utc', now()) + interval '20 days',
-  timezone('utc', now()) + interval '20 days' + interval '3 hours',
+  ((current_date + 20)::date + time '10:00') at time zone 'Europe/Moscow',
+  ((current_date + 20)::date + time '14:00') at time zone 'Europe/Moscow',
   timezone('utc', now()) + interval '7 days'
 )
 on conflict (id) do update set status = 'pending';

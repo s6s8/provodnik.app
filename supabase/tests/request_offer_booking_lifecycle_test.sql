@@ -65,8 +65,8 @@ select lives_ok(
        '76000000-0000-4000-8000-0000000000a1',
        '76000000-0000-4000-8000-000000000002',
        500000, 'RUB', 'pending',
-       timezone('utc', now()) + interval '14 days',
-       timezone('utc', now()) + interval '14 days' + interval '3 hours',
+       ((current_date + 14)::date + time '10:00') at time zone 'Europe/Moscow',
+       ((current_date + 14)::date + time '14:00') at time zone 'Europe/Moscow',
        timezone('utc', now()) + interval '7 days'
      ) $$,
   'guide can insert a pending offer via RLS'
