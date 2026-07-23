@@ -26,6 +26,7 @@
     "playwright": "playwright test",
     "playwright:e2e": "playwright test tests/e2e/tripster-v1/",
     "test:db": "bash scripts/run-pgtap.sh",
+    "test:lifecycle": "bash scripts/run-pgtap.sh supabase/tests/request_offer_booking_lifecycle_test.sql",
     "postinstall": "sh scripts/install-hooks.sh"
   },
   "dependencies": {

@@ -14,10 +14,10 @@
 # failed/planned" diagnostic, a plan/ok-count mismatch, or zero discovered files.
 #
 # Prereq: a migrated local stack is already running (`supabase db start`).
-# Usage:   bash scripts/run-pgtap.sh [tests_dir]
+# Usage:   bash scripts/run-pgtap.sh [tests_dir_or_file.sql]
 set -uo pipefail
 
-TESTS_DIR="${1:-supabase/tests}"
+TARGET="${1:-supabase/tests}"
 
 DB=$(docker ps --format '{{.Names}}' | grep -E '^supabase_db_' | head -1)
 if [ -z "${DB}" ]; then
@@ -32,9 +32,16 @@ docker exec -i "${DB}" psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
     echo "ERROR: could not ensure pgtap extension" >&2; exit 1; }
 
 shopt -s nullglob
-files=("${TESTS_DIR}"/*.sql)
+if [ -f "${TARGET}" ]; then
+  files=("${TARGET}")
+elif [ -d "${TARGET}" ]; then
+  files=("${TARGET}"/*.sql)
+else
+  echo "ERROR: pgTAP target not found: ${TARGET}" >&2
+  exit 1
+fi
 if [ "${#files[@]}" -eq 0 ]; then
-  echo "ERROR: no pgTAP files found in ${TESTS_DIR}" >&2
+  echo "ERROR: no pgTAP files found in ${TARGET}" >&2
   exit 1
 fi
 
