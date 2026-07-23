@@ -27,6 +27,7 @@ import {
 } from "@/features/guide/offer-actions";
 
 const baseRequest = {
+  status: "open" as const,
   date_flexibility: "exact",
   date_locked: true,
   time_locked: true,
@@ -273,6 +274,7 @@ describe("submitOfferAction", () => {
       eq: vi.fn().mockReturnValue({
         maybeSingle: vi.fn().mockResolvedValue({
           data: {
+            status: "open",
             traveler_id: "trav-1",
             date_locked: false,
             time_locked: false,

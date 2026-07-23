@@ -196,12 +196,16 @@ export async function submitOfferAction(
 
     const { data: requestRow } = await supabaseAuth
       .from("traveler_requests")
-      .select("traveler_id, date_locked, time_locked, starts_on, start_time, end_time, date_flexibility")
+      .select("traveler_id, status, date_locked, time_locked, starts_on, start_time, end_time, date_flexibility")
       .eq("id", requestId)
       .maybeSingle();
 
     if (!requestRow) {
       return { error: "Заявка не найдена." };
+    }
+
+    if (requestRow.status !== "open") {
+      return { error: "Заявка больше не принимает предложения." };
     }
 
     const lockCheck = await checkOfferAgainstLocks({

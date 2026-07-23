@@ -8,6 +8,7 @@
  * component.
  */
 
+import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
@@ -36,7 +37,7 @@ function mapMessage(
 ): GroupMessage {
   return {
     id: row.id,
-    body: row.body,
+    body: maskPii(row.body),
     senderId: row.sender_id,
     senderRole: row.sender_role as MessageSenderRole,
     senderDisplayName,
