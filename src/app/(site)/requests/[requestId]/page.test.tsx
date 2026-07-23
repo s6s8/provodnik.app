@@ -229,6 +229,67 @@ describe("RequestDetailPage", () => {
     expect(notFound).toHaveBeenCalled();
   });
 
+  it("returns notFound when an unrelated guide opens a directed request", async () => {
+    createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
+    getRequestById.mockResolvedValue({
+      data: requestRecord({
+        id: "directed-request",
+        mode: "private",
+        targetGuideId: "addressed-guide",
+      }),
+    });
+    hasSupabaseEnv.mockReturnValue(false);
+    getRequestViewerContext.mockResolvedValueOnce({
+      role: "public",
+      userId: "outsider-guide",
+      authReadFailed: false,
+    });
+
+    await expect(
+      RequestDetailPage({
+        params: Promise.resolve({ requestId: "directed-request" }),
+        searchParams: Promise.resolve({}),
+      }),
+    ).rejects.toThrow("NEXT_NOT_FOUND");
+
+    expect(notFound).toHaveBeenCalled();
+  });
+
+  it("lets the addressed guide open a directed request in the guide journey", async () => {
+    const chain = {
+      select: vi.fn(() => chain),
+      eq: vi.fn(() => chain),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null }),
+    };
+    createSupabaseServerClient.mockResolvedValue({
+      auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: "addressed-guide" } } }) },
+      from: vi.fn(() => chain),
+      rpc: vi.fn().mockResolvedValue({ data: 0 }),
+    });
+    getRequestById.mockResolvedValue({
+      data: requestRecord({
+        id: "directed-request",
+        mode: "private",
+        targetGuideId: "addressed-guide",
+        isDirectToViewer: true,
+      }),
+    });
+    hasSupabaseEnv.mockReturnValue(true);
+    getRequestViewerContext.mockResolvedValueOnce({
+      role: "guide",
+      userId: "addressed-guide",
+      authReadFailed: false,
+    });
+
+    const rendered = await RequestDetailPage({
+      params: Promise.resolve({ requestId: "directed-request" }),
+      searchParams: Promise.resolve({}),
+    });
+
+    expect(rendered.props.viewerRole).toBe("guide");
+    expect(rendered.props.request?.targetGuideId).toBe("addressed-guide");
+  });
+
   it("redirects a guide to their inbox instead of a public 404 for a missing request", async () => {
     createSupabaseServerClient.mockResolvedValue({ from: vi.fn() });
     getRequestById.mockResolvedValue({ data: null });

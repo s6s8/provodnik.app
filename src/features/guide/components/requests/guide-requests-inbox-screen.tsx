@@ -10,6 +10,10 @@ import { kopecksToRub, formatRubNumber } from "@/data/money";
 import { loadGuideInboxRequests } from "@/app/(protected)/guide/inbox/actions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatTimeRange } from "@/lib/dates";
+import {
+  canSeeRequestParticipantCount,
+  formatGuideInboxBudgetLine,
+} from "@/lib/supabase/request-participant-visibility";
 
 import { EmptyState } from "@/components/shared/empty-state";
 import { ListRowSkeleton } from "@/components/shared/loading-skeletons";
@@ -337,6 +341,11 @@ export function GuideRequestsInboxScreen() {
                     const isDeclinedOffer = offerStatus === "declined";
                     const showQaPanel = alreadyOffered && !!offerId && !isDeclinedOffer;
                     const hasFlexibleDates = isFlexibleDateFlexibility(item.dateFlexibility);
+                    const canSeeParticipants = canSeeRequestParticipantCount(item, {
+                      kind: "guide",
+                      hasSubmittedOffer: alreadyOffered,
+                      isAddressedGuide: item.isDirectToViewer === true,
+                    });
                     return (
                       <div key={item.id} className="flex flex-col gap-3">
                         <div className="rounded-xl border border-border/70 bg-background/60 p-4 transition hover:border-primary/40">
@@ -380,7 +389,7 @@ export function GuideRequestsInboxScreen() {
                               <span className="font-medium text-foreground">
                                 Бюджет:
                               </span>{" "}
-                              {item.budgetLabel} · {item.groupSize} чел.
+                              {formatGuideInboxBudgetLine(item, canSeeParticipants)}
                             </p>
                           </div>
 

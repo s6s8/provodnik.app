@@ -59,19 +59,18 @@ const APPROVED_GUIDE: Row = {
 describe("getPublishedTemplateListings", () => {
   it("reads only published templates", async () => {
     const client = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [APPROVED_GUIDE],
     });
 
     await getPublishedTemplateListings(client);
 
-    expect(client.calls).toContain("from:guide_templates");
-    expect(client.calls).toContain("guide_templates.eq:status:published");
+    expect(client.calls).toContain("from:v_public_published_guide_templates");
   });
 
   it("maps a template onto the card contract without inventing anything", async () => {
     const client = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [APPROVED_GUIDE],
     });
 
@@ -87,6 +86,8 @@ describe("getPublishedTemplateListings", () => {
     expect(rec.groupSize).toBe(8);
     expect(rec.imageUrl).toBe("https://cdn.example/photo.jpg");
     expect(rec.destinationRegion).toBe("Калмыкия");
+    expect(rec.departure).toBe("Калмыкия");
+    expect(rec.locationLabels).toEqual(["Калмыкия"]);
     expect(rec.guideName).toBe("Баир Очиров");
     expect(rec.guideSlug).toBe("bair-ochirov");
     // A template has no row in `listings`, but it does have its own public detail route.
@@ -98,7 +99,7 @@ describe("getPublishedTemplateListings", () => {
 
   it("carries per_group price scope without changing the tour-type badge (item 2)", async () => {
     const client = fakeClient({
-      guide_templates: [{ ...TEMPLATE, price_scope: "per_group" }],
+      v_public_published_guide_templates: [{ ...TEMPLATE, price_scope: "per_group" }],
       guide_profiles: [APPROVED_GUIDE],
     });
 
@@ -117,7 +118,7 @@ describe("getPublishedTemplateListings", () => {
     // gate it. Locked here alongside the per_group «за группу» scope so a future
     // empty-array exclusion would fail this test.
     const client = fakeClient({
-      guide_templates: [{ ...TEMPLATE, price_scope: "per_group" }],
+      v_public_published_guide_templates: [{ ...TEMPLATE, price_scope: "per_group" }],
       guide_profiles: [{ ...APPROVED_GUIDE, regions: [], languages: [] }],
     });
 
@@ -132,7 +133,7 @@ describe("getPublishedTemplateListings", () => {
 
   it("drops templates whose guide is not approved", async () => {
     const client = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [{ ...APPROVED_GUIDE, verification_status: "pending" }],
     });
 
@@ -141,7 +142,7 @@ describe("getPublishedTemplateListings", () => {
 
   it("drops templates from QA seed guides", async () => {
     const client = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [{ ...APPROVED_GUIDE, slug: "qa-guide" }],
     });
 
@@ -149,31 +150,31 @@ describe("getPublishedTemplateListings", () => {
   });
 
   it("drops templates whose guide has no profile row", async () => {
-    const client = fakeClient({ guide_templates: [TEMPLATE], guide_profiles: [] });
+    const client = fakeClient({ v_public_published_guide_templates: [TEMPLATE], guide_profiles: [] });
 
     expect(await getPublishedTemplateListings(client)).toEqual([]);
   });
 
   it("never throws — an empty block beats a broken page", async () => {
-    const client = fakeClient({}, { guide_templates: new Error("boom") });
+    const client = fakeClient({}, { v_public_published_guide_templates: new Error("boom") });
 
     expect(await getPublishedTemplateListings(client)).toEqual([]);
   });
 
   it("scopes to one guide when asked", async () => {
     const client = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [APPROVED_GUIDE],
     });
 
     await getPublishedTemplateListings(client, { guideId: "guide-1" });
 
-    expect(client.calls).toContain("guide_templates.eq:guide_id:guide-1");
+    expect(client.calls).toContain("v_public_published_guide_templates.eq:guide_id:guide-1");
   });
 
   it("survives a template with no photo, price or cap", async () => {
     const client = fakeClient({
-      guide_templates: [
+      v_public_published_guide_templates: [
         { ...TEMPLATE, photo_urls: [], price_from_kopecks: null, max_participants: null },
       ],
       guide_profiles: [APPROVED_GUIDE],
@@ -188,7 +189,7 @@ describe("getPublishedTemplateListings", () => {
 
   it("resolves a public detail only for a published template from an approved non-QA guide", async () => {
     const client = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [APPROVED_GUIDE],
     });
 
@@ -200,26 +201,25 @@ describe("getPublishedTemplateListings", () => {
       photoUrl: "https://cdn.example/photo.jpg",
       priceFromKopecks: 450_000,
       durationText: "5 часов",
-      meetingPoint: "Площадь Ленина",
+      meetingPoint: null,
       maxParticipants: 8,
       guide: { slug: "bair-ochirov", displayName: "Баир Очиров" },
     });
-    expect(client.calls).toContain(`guide_templates.eq:id:${TEMPLATE.id}`);
-    expect(client.calls).toContain("guide_templates.eq:status:published");
+    expect(client.calls).toContain(`v_public_published_guide_templates.eq:id:${TEMPLATE.id}`);
     expect(client.calls).toContain("guide_profiles.eq:user_id:guide-1");
   });
 
   it("does not resolve unpublished, unapproved, or QA template details", async () => {
     const unpublished = fakeClient({
-      guide_templates: [{ ...TEMPLATE, status: "draft" }],
+      v_public_published_guide_templates: [{ ...TEMPLATE, status: "draft" }],
       guide_profiles: [APPROVED_GUIDE],
     });
     const unapproved = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [{ ...APPROVED_GUIDE, verification_status: "pending" }],
     });
     const qaGuide = fakeClient({
-      guide_templates: [TEMPLATE],
+      v_public_published_guide_templates: [TEMPLATE],
       guide_profiles: [{ ...APPROVED_GUIDE, slug: "qa-guide" }],
     });
 
