@@ -11,6 +11,13 @@ import { expect, test } from "@playwright/test";
  * After fix (production build, same path): ~131ms average.
  * Dev-mode timing stays noisy because /guides compiles on demand; set E2E_BASE_URL
  * to a production server for the strict budget.
+ *
+ * External verification — homepage open group card latency (not automated here):
+ * Requires a disposable local Supabase with joinable assembly requests on / so
+ * «Сборные группы» cards with «Присоединиться» render. Replay: goto / (commit),
+ * wait 400ms, click the first «Присоединиться» card, measure click→/requests/*
+ * route. Budget: 450ms with E2E_BASE_URL (production build), 2000ms in dev.
+ * No linked seed ships this fixture in CI; run manually after `bun run db:reset`.
  */
 const isProductionOracle = Boolean(process.env.E2E_BASE_URL);
 const NAV_CLICK_BUDGET_MS = isProductionOracle ? 450 : 2_000;
@@ -56,29 +63,5 @@ test.describe("homepage first-interaction latency", () => {
 
     await expect(loading.or(form)).toBeVisible({ timeout: 10_000 });
     await expect(form).toBeVisible({ timeout: 10_000 });
-  });
-});
-
-// Needs disposable seeded open requests on / so «Сборные группы» cards render.
-// No linked Supabase seed in this worktree — do not claim card latency is measured.
-test.describe.skip("homepage open group card latency", () => {
-  test("card click navigates within budget during hydration", async ({ page }) => {
-    await page.goto("/", { waitUntil: "commit" });
-    await page.waitForTimeout(CLICK_DELAY_MS);
-
-    const card = page.getByRole("link", { name: /Присоединиться/i }).first();
-    await expect(card).toBeVisible();
-
-    const startedAt = Date.now();
-    await Promise.all([
-      page.waitForURL(/\/requests\//, { timeout: 10_000 }),
-      card.click(),
-    ]);
-    const cardClickToRouteMs = Date.now() - startedAt;
-
-    expect(
-      cardClickToRouteMs,
-      `card click→route ${cardClickToRouteMs}ms at ${CLICK_DELAY_MS}ms after commit`,
-    ).toBeLessThan(NAV_CLICK_BUDGET_MS);
   });
 });
