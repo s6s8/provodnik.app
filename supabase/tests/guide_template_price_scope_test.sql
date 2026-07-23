@@ -6,7 +6,7 @@ begin;
 create extension if not exists pgtap with schema extensions;
 set search_path = public, extensions;
 
-select plan(7);
+select plan(8);
 
 -- Actor: one approved guide who owns every template below.
 insert into auth.users (id, instance_id, aud, role, email, encrypted_password,
