@@ -20,9 +20,7 @@ import { MessageBubble } from "./message-bubble";
 type MarkReadAction = (threadId: string) => Promise<void>;
 
 function formatSenderName(message: MessageWithSender) {
-  const resolved =
-    message.sender_profile?.full_name?.trim() ||
-    message.sender_display_name?.trim();
+  const resolved = message.sender_display_name?.trim();
   if (resolved) return resolved;
   if (message.sender_role === "guide") {
     return resolveDisplayName("guide", {});

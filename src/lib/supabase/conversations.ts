@@ -12,7 +12,11 @@
 import { z } from "zod";
 
 import { maskPii } from "@/lib/pii/mask";
-import { resolveDisplayName } from "@/lib/profile/resolve-display-name";
+import {
+  resolveDisplayName,
+  resolveInboxParticipantName,
+  resolveMessageSenderDisplayName,
+} from "@/lib/profile/resolve-display-name";
 import type { Database } from "@/lib/supabase/database.types";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -509,15 +513,6 @@ export async function getThreadMessages(
     const senderProfile = normalizeRelation<SenderProfile>(row.sender_profile);
     const senderId = (row.sender_id as Uuid | null) ?? null;
     const senderRole = row.sender_role as MessageSenderRole;
-    const fullName = senderProfile?.full_name?.trim() || null;
-    const guideName =
-      senderRole === "guide" && senderId
-        ? guideDisplayNames.get(senderId) ?? null
-        : null;
-    const travelerName =
-      senderRole === "traveler" && senderId
-        ? trustedProfileNames.get(senderId) ?? null
-        : null;
 
     return {
       id: row.id as Uuid,
@@ -528,7 +523,18 @@ export async function getThreadMessages(
       metadata: row.metadata ?? {},
       created_at: row.created_at as string,
       sender_profile: senderProfile,
-      sender_display_name: fullName ?? guideName ?? travelerName,
+      sender_display_name: resolveMessageSenderDisplayName({
+        senderRole,
+        publicGuideName:
+          senderRole === "guide" && senderId
+            ? guideDisplayNames.get(senderId) ?? null
+            : null,
+        trustedParticipantName:
+          senderRole === "traveler" && senderId
+            ? trustedProfileNames.get(senderId) ?? null
+            : null,
+        profileFullName: senderProfile?.full_name,
+      }),
     };
   });
 }
@@ -580,11 +586,12 @@ export async function getUserThreads(userId: string): Promise<UserThreadSummary[
 
       const otherParticipantNames = participants
         .filter((participant) => participant.user_id !== input.userId)
-        .map(
-          (participant) =>
-            participant.profile?.full_name?.trim() ||
-            guideDisplayNames.get(participant.user_id) ||
-            resolveDisplayName("traveler", {}, { context: "trusted" }),
+        .map((participant) =>
+          resolveInboxParticipantName({
+            isGuide: guideDisplayNames.has(participant.user_id),
+            publicGuideName: guideDisplayNames.get(participant.user_id),
+            profileFullName: participant.profile?.full_name,
+          }),
         );
 
       return {

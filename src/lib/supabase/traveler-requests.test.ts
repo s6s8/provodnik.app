@@ -213,7 +213,15 @@ describe('getConfirmedBookings', () => {
     const requestsQuery = {
       select: vi.fn().mockReturnThis(),
       in: vi.fn().mockResolvedValue({
-        data: [{ id: 'request-1', destination: 'Элиста', starts_on: '2026-07-01' }],
+        data: [{
+          id: 'request-1',
+          destination: 'Элиста',
+          starts_on: '2026-07-01',
+          ends_on: null,
+          start_time: null,
+          participants_count: null,
+          guide_template_snapshot: null,
+        }],
         error: null,
       }),
     }
@@ -246,6 +254,9 @@ describe('getConfirmedBookings', () => {
       request_id: 'request-1',
       destination: 'Элиста',
       starts_on: '2026-07-01',
+      ends_on: null,
+      start_time: null,
+      participants_count: null,
       price_minor: 150000,
       currency: 'RUB',
       guide_id: 'guide-1',
@@ -253,6 +264,184 @@ describe('getConfirmedBookings', () => {
       guide_avatar_url: null,
       booking_thread_id: 'thread-1',
     })
+  })
+
+  it('prefers booking.starts_at over the request date for confirmed trip facts', async () => {
+    const bookingsQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'booking-3',
+          offer_id: 'offer-3',
+          request_id: 'request-3',
+          subtotal_minor: 150000,
+          currency: 'RUB',
+          guide_id: 'guide-1',
+          created_at: '2026-06-08T10:00:00Z',
+          starts_at: '2026-07-15T09:00:00.000Z',
+        }],
+        error: null,
+      }),
+    }
+    const requestsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'request-3',
+          destination: 'Элиста',
+          starts_on: '2026-07-01',
+          ends_on: '2026-07-01',
+          start_time: '10:00',
+          participants_count: 2,
+          guide_template_snapshot: null,
+        }],
+        error: null,
+      }),
+    }
+    const threadsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingsQuery
+      if (table === 'traveler_requests') return requestsQuery
+      if (table === 'conversation_threads') return threadsQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    const rpc = vi.fn().mockResolvedValue({
+      data: [{ booking_id: 'booking-3', guide_id: 'guide-1', full_name: 'Иван', avatar_url: null }],
+      error: null,
+    })
+
+    createSupabaseServerClient.mockResolvedValue({ from, rpc })
+
+    const [booking] = await getConfirmedBookings('traveler-confirmed-3')
+
+    expect(booking.starts_on).toBe('2026-07-15')
+    expect(booking.start_time).toBe('10:00')
+    expect(booking.participants_count).toBe(2)
+  })
+
+  it('uses the frozen template snapshot title for a ready-excursion booking', async () => {
+    const bookingsQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'booking-4',
+          offer_id: 'offer-4',
+          request_id: 'request-4',
+          subtotal_minor: 450000,
+          currency: 'RUB',
+          guide_id: 'guide-1',
+          created_at: '2026-06-08T10:00:00Z',
+          starts_at: null,
+        }],
+        error: null,
+      }),
+    }
+    const requestsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'request-4',
+          destination: 'Элиста',
+          starts_on: '2026-07-01',
+          ends_on: '2026-07-01',
+          start_time: null,
+          participants_count: 2,
+          guide_template_snapshot: {
+            id: '44444444-4444-4444-8444-444444444444',
+            title: 'Адык: степь и Калмыкия',
+            description: 'Прогулка по степи',
+            duration_text: '5 часов',
+            meeting_point: 'Элиста',
+            max_participants: 8,
+            region: 'Калмыкия',
+            price_scope: 'per_group',
+            price_from_kopecks: 450000,
+          },
+        }],
+        error: null,
+      }),
+    }
+    const threadsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingsQuery
+      if (table === 'traveler_requests') return requestsQuery
+      if (table === 'conversation_threads') return threadsQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    const rpc = vi.fn().mockResolvedValue({
+      data: [{ booking_id: 'booking-4', guide_id: 'guide-1', full_name: null, avatar_url: null }],
+      error: null,
+    })
+
+    createSupabaseServerClient.mockResolvedValue({ from, rpc })
+
+    const [booking] = await getConfirmedBookings('traveler-confirmed-4')
+
+    expect(booking.destination).toBe('Адык: степь и Калмыкия')
+    expect(booking.guide_name).toBe('Локальный гид')
+  })
+
+  it('ignores a forged template snapshot without a title and falls back to the request destination', async () => {
+    const bookingsQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'booking-5',
+          offer_id: 'offer-5',
+          request_id: 'request-5',
+          subtotal_minor: 150000,
+          currency: 'RUB',
+          guide_id: 'guide-1',
+          created_at: '2026-06-08T10:00:00Z',
+          starts_at: null,
+        }],
+        error: null,
+      }),
+    }
+    const requestsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'request-5',
+          destination: 'Элиста',
+          starts_on: '2026-07-01',
+          ends_on: null,
+          start_time: null,
+          participants_count: 1,
+          guide_template_snapshot: { title: '   ' },
+        }],
+        error: null,
+      }),
+    }
+    const threadsQuery = {
+      select: vi.fn().mockReturnThis(),
+      in: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'bookings') return bookingsQuery
+      if (table === 'traveler_requests') return requestsQuery
+      if (table === 'conversation_threads') return threadsQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    const rpc = vi.fn().mockResolvedValue({ data: [], error: null })
+
+    createSupabaseServerClient.mockResolvedValue({ from, rpc })
+
+    const [booking] = await getConfirmedBookings('traveler-confirmed-5')
+
+    expect(booking.destination).toBe('Элиста')
   })
 
   it('falls back to a readable title (never a lone em-dash) when the request row is missing', async () => {
