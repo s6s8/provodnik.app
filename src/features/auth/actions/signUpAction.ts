@@ -7,6 +7,7 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getDashboardPathForRole } from "@/lib/auth/role-routing";
 import { rateLimit } from "@/lib/rate-limit";
+import { getTrustedClientIpFromHeaders } from "@/lib/request-client";
 import { isGuideType } from "@/features/auth/guide-type";
 
 // Bounds untrusted signup input server-side (the action can be called directly,
@@ -110,10 +111,7 @@ export async function signUpAction(input: SignUpInput): Promise<SignUpResult> {
   // forgot-password limiter) so the endpoint can't be used to mass-squat emails
   // or spam the registry.
   const h = await headers();
-  const ip =
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    h.get("x-real-ip") ??
-    "unknown";
+  const ip = getTrustedClientIpFromHeaders(h);
   const ipLimit = await rateLimit(`signup:ip:${ip}`, 10, 3600);
   if (!ipLimit.success) {
     return { ok: false, error: "rate_limited" };

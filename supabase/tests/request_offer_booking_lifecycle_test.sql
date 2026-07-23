@@ -44,13 +44,14 @@ select set_config('request.jwt.claim.role', 'authenticated', true);
 select set_config('request.jwt.claim.sub', '76000000-0000-4000-8000-000000000001', true);
 select lives_ok(
   $$ insert into public.traveler_requests (
-       id, traveler_id, destination, region, starts_on, ends_on, participants_count, status
+       id, traveler_id, destination, region, starts_on, ends_on, participants_count, status,
+       date_flexibility
      ) values (
        '76000000-0000-4000-8000-0000000000a1',
        '76000000-0000-4000-8000-000000000001',
        'Элиста', 'Калмыкия',
        current_date + 14, current_date + 16,
-       2, 'open'
+       2, 'open', 'few_days'
      ) $$,
   'traveler can insert an open request via RLS'
 );

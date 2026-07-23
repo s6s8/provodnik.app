@@ -9,6 +9,7 @@ import {
   sanitizeExtraction,
 } from "@/features/homepage/lib/extraction";
 import { extractFields } from "@/features/homepage/lib/openrouter";
+import { getTrustedClientIp } from "@/lib/request-client";
 import { checkGlobalBudget, rateLimit } from "@/lib/rate-limit";
 
 const bodySchema = z.object({
@@ -18,10 +19,7 @@ const bodySchema = z.object({
 });
 
 function getClientIdentifier(request: Request): string {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  const realIp = request.headers.get("x-real-ip");
-  const ip = forwardedFor?.split(",")[0]?.trim() || realIp || "unknown";
-  return `api:requests:parse:${ip}`;
+  return `api:requests:parse:${getTrustedClientIp(request)}`;
 }
 
 export async function POST(request: Request) {
