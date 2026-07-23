@@ -66,12 +66,14 @@ export function DiscoveryFilterSheet({
       <div className="md:hidden">
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>{trigger}</SheetTrigger>
-          <SheetContent side="bottom" className="max-h-[85vh] rounded-t-card p-0">
-            <SheetHeader>
+          <SheetContent side="bottom" className="flex max-h-[85vh] flex-col rounded-t-card p-0">
+            <SheetHeader className="shrink-0">
               <SheetTitle>{title}</SheetTitle>
               <SheetDescription>{description}</SheetDescription>
             </SheetHeader>
-            <div className="overflow-y-auto px-4 pb-4">{children(() => setIsSheetOpen(false))}</div>
+            <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+              {children(() => setIsSheetOpen(false))}
+            </div>
           </SheetContent>
         </Sheet>
       </div>
