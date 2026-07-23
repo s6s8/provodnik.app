@@ -17,6 +17,7 @@ function makeListing(i: number, overrides: Partial<PublicListing> = {}): PublicL
     title: `Экскурсия ${i}`,
     city: "Казань",
     region: "Татарстан",
+    locationLabels: [],
     durationDays: 1,
     priceFromRub: 5000,
     groupSizeMax: 8,
@@ -102,6 +103,36 @@ describe("PublicListingDiscoveryScreen", () => {
       "/listings?q=%D0%BA%D1%80%D0%B5%D0%BC%D0%BB%D1%8C&theme=history_culture",
       { scroll: false },
     );
+  });
+
+  it("filters listings by a named location label", () => {
+    render(
+      <PublicListingDiscoveryScreen
+        listings={[
+          makeListing(0, { locationLabels: ["Свияжск"] }),
+          makeListing(1, { title: "Море", city: "Сочи", region: "Краснодарский край" }),
+        ]}
+        initialSearch="свияжск"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /Экскурсия 0/ })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Экскурсия 1/ })).not.toBeInTheDocument();
+  });
+
+  it("keeps city and region search working", () => {
+    render(
+      <PublicListingDiscoveryScreen
+        listings={[
+          makeListing(0),
+          makeListing(1, { city: "Сочи", region: "Краснодарский край", title: "Море" }),
+        ]}
+        initialSearch="татарстан"
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /Экскурсия 0/ })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: /Море/ })).not.toBeInTheDocument();
   });
 
   it("uses ready-excursion detail routes and keeps listing detail routes", () => {

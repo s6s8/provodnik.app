@@ -28,6 +28,8 @@ export type PublicListing = {
   title: string;
   city: string;
   region: string;
+  /** Public named places (meeting point, catalogue POI) beyond city/region. */
+  locationLabels: readonly string[];
   coverImageUrl?: string;
   durationDays: number;
   priceFromRub: number;

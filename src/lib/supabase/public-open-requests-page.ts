@@ -39,6 +39,7 @@ export function mapToOpenRequestRecord(
     cityImageUrl:
       resolveLocationCover(covers, request.destination) ?? cityImage(request.destination),
     regionLabel: request.destinationRegion,
+    locationLabels: request.locationLabels,
     dateRangeLabel: request.dateLabel,
     datesFlexible: request.dateFlexibility === "few_days",
     timeFlexible: request.dateFlexibility === "few_days",

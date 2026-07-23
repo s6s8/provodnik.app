@@ -21,6 +21,10 @@ import { ListingCard } from "@/components/shared/listing-card";
 import { brandGradient } from "@/lib/city-image";
 import type { ListingRecord } from "@/data/supabase/queries";
 import type { PublicListing } from "@/data/public-listings/types";
+import {
+  getListingDiscoverySearchText,
+  matchesDiscoveryQuery,
+} from "@/data/public-discovery-search";
 import { THEMES, type ThemeSlug } from "@/data/themes";
 
 function mapListing(listing: PublicListing): ListingRecord {
@@ -32,6 +36,7 @@ function mapListing(listing: PublicListing): ListingRecord {
     destinationSlug: listing.city.toLowerCase().replaceAll(" ", "-"),
     destinationName: listing.city,
     destinationRegion: listing.region,
+    locationLabels: [...listing.locationLabels],
     imageUrl: listing.coverImageUrl ?? brandGradient(listing.title ?? "listing"),
     priceRub: listing.priceFromRub,
     durationDays: listing.durationDays,
@@ -106,17 +111,9 @@ export function PublicListingDiscoveryScreen({
     const query = search.trim().toLowerCase();
     if (!query) return themeFiltered;
 
-    return themeFiltered.filter((listing) => {
-      const haystack = [
-        listing.title,
-        listing.highlights.join(" "),
-        listing.city,
-        listing.region,
-      ]
-        .join(" ")
-        .toLowerCase();
-      return haystack.includes(query);
-    });
+    return themeFiltered.filter((listing) =>
+      matchesDiscoveryQuery(getListingDiscoverySearchText(listing), query),
+    );
   }, [activeFilter, listings, search]);
 
   return (
