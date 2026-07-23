@@ -10,7 +10,7 @@ import { z } from "zod";
 
 import { rubToKopecks } from "@/data/money";
 import { isExpired, normalizeExpiryInput } from "@/lib/dates";
-import { notifyBookingCreated } from "@/lib/notifications/triggers";
+import { notifyBookingCreated, notifyNewOffer } from "@/lib/notifications/triggers";
 import { maskPii } from "@/lib/pii/mask";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { GuideOfferRow, Uuid } from "@/lib/supabase/types";
@@ -118,7 +118,20 @@ export async function createGuideOffer(
     .single();
 
   if (error) throw error;
-  return data as GuideOffer;
+  const offer = data as GuideOffer;
+
+  try {
+    await notifyNewOffer(input.request_id, offer.id);
+  } catch (e) {
+    // The offer is already committed — a failed notification must not undo it,
+    // nor surface as a submission failure to the guide.
+    console.error(
+      "[createGuideOffer] notification skipped:",
+      e instanceof Error ? e.message : e,
+    );
+  }
+
+  return offer;
 }
 
 // ---------------------------------------------------------------------------

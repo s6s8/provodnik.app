@@ -4,7 +4,6 @@ import { revalidatePath } from "next/cache";
 import { rubToKopecks } from "@/data/money";
 import { actionFailure } from "@/lib/errors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { notifyNewOffer } from "@/lib/notifications/triggers";
 import { ensureOfferConversation } from "@/lib/supabase/offer-conversation";
 import {
   createGuideOffer,
@@ -254,12 +253,6 @@ export async function submitOfferAction(
       actor_id: guideId,
       summary: "Гид отправил предложение",
     });
-
-    try {
-      await notifyNewOffer(requestId, offer.id);
-    } catch {
-      // Notification delivery must not block offer creation.
-    }
 
     try {
       if (requestRow?.traveler_id && requestRow.traveler_id !== guideId) {

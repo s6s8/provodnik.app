@@ -258,17 +258,21 @@ export async function notifyBookingCreated(bookingId: string): Promise<void> {
 
   const travelerName = await getTravelerDisplayName(bookingRow.traveler_id);
 
-  await createNotificationForUser({
+  const { created } = await createNotificationForUser({
     userId: bookingRow.guide_id,
     kind: "booking_created",
     title: `Новое бронирование от ${travelerName}`,
     href: `/guide/bookings/${bookingRow.id}`,
+    entityType: "booking",
+    entityId: parsedBookingId,
     payload: {
       actor_id: bookingRow.traveler_id,
       actor_name: travelerName,
       booking_id: parsedBookingId,
     },
   });
+
+  if (!created) return;
 
   try {
     if (!(await guideEmailDisabled(bookingRow.guide_id, "booking_status"))) {

@@ -1,15 +1,20 @@
 import { afterEach, beforeEach, describe, it, expect, vi } from 'vitest'
 
-const { createSupabaseServerClient, notifyBookingCreated } = vi.hoisted(() => ({
+const { createSupabaseServerClient, notifyBookingCreated, notifyNewOffer } = vi.hoisted(() => ({
   createSupabaseServerClient: vi.fn(),
   notifyBookingCreated: vi.fn(),
+  notifyNewOffer: vi.fn(),
 }))
 
 vi.mock('@/lib/supabase/server', () => ({ createSupabaseServerClient }))
-vi.mock('@/lib/notifications/triggers', () => ({ notifyBookingCreated }))
+vi.mock('@/lib/notifications/triggers', () => ({ notifyBookingCreated, notifyNewOffer }))
 
 import { maskPii } from '@/lib/pii/mask'
-import { acceptOfferForTraveler, createOfferInputSchema } from '@/lib/supabase/offers'
+import {
+  acceptOfferForTraveler,
+  createGuideOffer,
+  createOfferInputSchema,
+} from '@/lib/supabase/offers'
 
 describe('maskPii contract', () => {
   it('masks a Russian phone number with +7', () => {
@@ -121,6 +126,70 @@ describe('acceptOfferForTraveler', () => {
     await expect(acceptOfferForTraveler('offer-1')).resolves.toEqual({
       bookingId: 'booking-1',
       error: null,
+    })
+
+    consoleError.mockRestore()
+  })
+})
+
+// #46: the traveler learns about a new offer from the committed insert, not from
+// whichever screen submitted it. createGuideOffer owns the post-commit notify so
+// every submission path gets it exactly once.
+describe('createGuideOffer', () => {
+  const requestId = '00000000-0000-4000-8000-000000000001'
+  const offerId = '00000000-0000-4000-8000-000000000002'
+  const guideId = '00000000-0000-4000-8000-000000000003'
+  const validInput = {
+    request_id: requestId,
+    price_total: 5000,
+    message: 'Покажу город и расскажу историю.',
+    valid_until: '2027-01-01',
+    route_stops: [],
+    inclusions: [],
+    capacity: 2,
+  }
+
+  function makeInsertSupabase() {
+    const single = vi.fn().mockResolvedValue({
+      data: { id: offerId, request_id: requestId, guide_id: guideId, status: 'pending' },
+      error: null,
+    })
+    const select = vi.fn().mockReturnValue({ single })
+    const insert = vi.fn().mockReturnValue({ select })
+    createSupabaseServerClient.mockResolvedValue({
+      from: vi.fn(() => ({ insert })),
+    })
+    return { insert }
+  }
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2026-07-20T09:00:00Z'))
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
+  it('notifies the traveler exactly once after the offer commits', async () => {
+    makeInsertSupabase()
+
+    await expect(createGuideOffer(validInput, guideId)).resolves.toMatchObject({
+      id: offerId,
+    })
+
+    expect(notifyNewOffer).toHaveBeenCalledTimes(1)
+    expect(notifyNewOffer).toHaveBeenCalledWith(requestId, offerId)
+  })
+
+  it('keeps the committed offer when notification delivery fails', async () => {
+    makeInsertSupabase()
+    notifyNewOffer.mockRejectedValueOnce(new Error('notification backend down'))
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+
+    await expect(createGuideOffer(validInput, guideId)).resolves.toMatchObject({
+      id: offerId,
     })
 
     consoleError.mockRestore()
