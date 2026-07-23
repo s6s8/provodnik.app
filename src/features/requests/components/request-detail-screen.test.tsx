@@ -291,6 +291,22 @@ describe("RequestDetailScreen", () => {
     expect(screen.queryByRole("button", { name: "Принять предложение" })).not.toBeInTheDocument();
   });
 
+  it("withholds closed-request participant count from a guide who has not responded yet", () => {
+    render(
+      <RequestDetailScreen
+        viewerRole="guide"
+        request={{ ...guideRequest, mode: "private", groupSize: 5 }}
+        isApproved
+        existingOfferId={null}
+        competingOffers={0}
+        viewsCount={0}
+      />,
+    );
+
+    expect(screen.getByText("Группа сформирована")).toBeInTheDocument();
+    expect(screen.queryByText("5 человек")).not.toBeInTheDocument();
+  });
+
   it("renders the public login CTA and neither owner offers nor guide bid form", () => {
     render(
       <RequestDetailScreen

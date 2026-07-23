@@ -425,4 +425,23 @@ describe("GuideInboxCardHeader", () => {
     expect(screen.getByText("Москва, Санкт-Петербург…")).toBeInTheDocument();
     expect(screen.queryByText(/placeholder|autocomplete/i)).toBeNull();
   });
+
+  it("withholds closed-request participant count until the guide has responded", async () => {
+    loadGuideInboxRequestsMock.mockResolvedValue({
+      data: [
+        request({
+          id: "closed-private",
+          mode: "private",
+          groupSize: 5,
+          budgetLabel: "3 000 ₽ / чел.",
+        }),
+      ],
+      error: null,
+    });
+
+    render(<GuideRequestsInboxScreen />);
+
+    expect(await screen.findByText("3 000 ₽ / чел.")).toBeInTheDocument();
+    expect(screen.queryByText(/3 000 ₽ \/ чел\. · 5 чел\./)).toBeNull();
+  });
 });

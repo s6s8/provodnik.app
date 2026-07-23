@@ -221,6 +221,11 @@ function TravelerBookingDetailView({
       ? request.start_time.slice(0, 5)
       : "";
   const meetingPlace = booking.meeting_point ?? templateSnapshot?.meeting_point ?? null;
+  const canRevealMeetingPoint =
+    booking.status === "confirmed" ||
+    booking.status === "completed" ||
+    booking.status === "disputed";
+  const meetingPlaceForDisplay = canRevealMeetingPoint ? meetingPlace : null;
   const durationMinutes =
     bookingStartDate && bookingEndDate
       ? (new Date(bookingEndDate).getTime() - new Date(bookingStartDate).getTime()) / 60_000
@@ -280,7 +285,7 @@ function TravelerBookingDetailView({
       meetingTime={meetingTime}
       duration={duration}
       participantCount={partySize}
-      meetingPoint={meetingPlace}
+      meetingPoint={meetingPlaceForDisplay}
       totalMinor={priceMinor}
     />
   ) : null;
@@ -397,9 +402,9 @@ function TravelerBookingDetailView({
                     <span className="font-medium text-foreground">{COPY.guide}:</span> {guideName}
                   </p>
                 ) : null}
-                {meetingPlace ? (
+                {meetingPlaceForDisplay ? (
                   <p className="font-sans text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Место встречи:</span> {meetingPlace}
+                    <span className="font-medium text-foreground">Место встречи:</span> {meetingPlaceForDisplay}
                   </p>
                 ) : null}
                 {themeLabels.length > 0 ? (

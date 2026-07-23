@@ -57,6 +57,9 @@ import type { GroupMessage } from "@/lib/supabase/request-thread";
 import type { BiddingGuide } from "@/lib/supabase/requests-public";
 import type { GuideOfferRow, TravelerRequestRow } from "@/lib/supabase/types";
 import { cn, pluralize } from "@/lib/utils";
+import {
+  canSeeRequestParticipantCount,
+} from "@/lib/supabase/request-participant-visibility";
 
 export type PublicRequestJoinState = "anon" | "can-join" | "member" | "owner" | "closed";
 
@@ -933,6 +936,11 @@ function GuideDetailBranch({
   }, [existingOfferId]);
 
   const validOfferId = offerId && UUID_RE.test(offerId) ? offerId : null;
+  const canSeeParticipants = canSeeRequestParticipantCount(request, {
+    kind: "guide",
+    hasSubmittedOffer: validOfferId !== null,
+    isAddressedGuide: Boolean(request.targetGuideId),
+  });
   const flexibility = resolveGuideRequestFlexibilityPresentation({
     dateFlexibility: request.dateFlexibility,
     startTime: request.startTime,
@@ -955,7 +963,13 @@ function GuideDetailBranch({
           flexible={flexibility.datesFlexible}
           timeLabel={flexibility.timeLabel}
           timeFlexible={flexibility.timeFlexible}
-          groupLabel={`${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`}
+          groupLabel={
+            request.mode === "assembly"
+              ? `${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`
+              : canSeeParticipants
+                ? `${request.groupSize} ${pluralize(request.groupSize, "человек", "человека", "человек")}`
+                : "Группа сформирована"
+          }
           budgetLabel={request.budgetLabel}
           formatLabel={request.mode === "assembly" ? "Сборная группа" : "Своя группа"}
           interests={request.interests.map((s) => INTEREST_LABEL_BY_ID[s] ?? s)}

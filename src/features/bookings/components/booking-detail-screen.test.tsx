@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { COPY } from "@/lib/copy";
 import type { BookingWithDetails } from "@/lib/supabase/bookings";
@@ -148,6 +148,10 @@ const booking = {
 } satisfies BookingWithDetails;
 
 describe("BookingDetailScreen", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("passes confirmed trip facts to the booking ticket", () => {
     render(
       <BookingDetailScreen
@@ -169,6 +173,26 @@ describe("BookingDetailScreen", () => {
         totalMinor: 600000,
       }),
     );
+  });
+
+  it("withholds the meeting point until the booking is confirmed", () => {
+    const pendingBooking = {
+      ...booking,
+      status: "awaiting_guide_confirmation",
+    } as BookingWithDetails;
+
+    render(
+      <BookingDetailScreen
+        viewerRole="traveler"
+        booking={pendingBooking}
+        existingReview={null}
+        openBookingThreadAction={async () => ({ threadId: "thread-1" })}
+      />,
+    );
+
+    expect(screen.queryByText("Место встречи:")).not.toBeInTheDocument();
+    expect(screen.queryByText("Площадь Ленина")).not.toBeInTheDocument();
+    expect(bookingTicketTrigger).not.toHaveBeenCalled();
   });
 
   it("renders traveler review, dispute, payment/contact blocks without guide controls", () => {

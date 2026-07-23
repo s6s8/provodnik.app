@@ -36,6 +36,9 @@ import type { GuideTemplateRow } from "./types";
 /** Rows scanned before the approved-guide filter. A bound, not a product limit. */
 const TEMPLATE_SCAN = 200;
 
+/** Public catalog/detail reads use the sanitized projection without meeting_point (#58). */
+const PUBLIC_PUBLISHED_TEMPLATE_SOURCE = "v_public_published_guide_templates";
+
 type TemplateGuide = { slug: string; displayName: string };
 
 export type PublicGuideTemplateDetail = {
@@ -60,7 +63,6 @@ export function guideTemplateDetailHref(templateId: string): string {
 
 function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord {
   const region = row.region ?? "";
-  const meetingPoint = row.meeting_point?.trim() ?? "";
   return {
     id: row.id,
     // No `listings` row, so no /listings/{slug} detail route. The id keeps React
@@ -71,12 +73,7 @@ function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord
     destinationSlug: normalizeSlug(region),
     destinationName: region,
     destinationRegion: region,
-    locationLabels: uniqueNamedLocations([
-      meetingPoint &&
-      meetingPoint.toLocaleLowerCase("ru") !== region.toLocaleLowerCase("ru")
-        ? meetingPoint
-        : null,
-    ]),
+    locationLabels: uniqueNamedLocations([region || null]),
     imageUrl: row.photo_urls?.[0] ?? fallbackHeroImage,
     priceRub: row.price_from_kopecks == null ? 0 : kopecksToRub(row.price_from_kopecks),
     // A template has no duration_minutes — only the guide's free text ("5 часов").
@@ -84,7 +81,7 @@ function mapTemplate(row: GuideTemplateRow, guide: TemplateGuide): ListingRecord
     durationLabel: row.duration_text ?? "",
     groupSize: row.max_participants ?? 0,
     difficulty: "",
-    departure: row.meeting_point ?? region,
+    departure: region,
     // A template has no private/group tour type — keep the historical "group" badge and
     // carry the price scope separately (item 2) so the price says «за группу»/«за одного»
     // without mislabeling the tour-type badge on the card.
@@ -115,9 +112,8 @@ export async function getPublishedTemplateListings(
 ): Promise<ListingRecord[]> {
   try {
     let query = client
-      .from("guide_templates")
+      .from(PUBLIC_PUBLISHED_TEMPLATE_SOURCE)
       .select("*")
-      .eq("status", "published")
       .order("created_at", { ascending: false })
       .limit(TEMPLATE_SCAN);
     if (opts?.guideId) query = query.eq("guide_id", opts.guideId);
@@ -167,10 +163,9 @@ export async function getPublishedTemplateDetail(
 ): Promise<PublicGuideTemplateDetail | null> {
   try {
     const { data: templateRaw, error: templateError } = await client
-      .from("guide_templates")
+      .from(PUBLIC_PUBLISHED_TEMPLATE_SOURCE)
       .select("*")
       .eq("id", templateId)
-      .eq("status", "published")
       .maybeSingle();
     if (templateError) throw templateError;
     if (!templateRaw) return null;
@@ -200,7 +195,7 @@ export async function getPublishedTemplateDetail(
       priceFromKopecks: template.price_from_kopecks,
       priceScope: template.price_scope === "per_group" ? "per_group" : "per_person",
       durationText: template.duration_text,
-      meetingPoint: template.meeting_point,
+      meetingPoint: null,
       maxParticipants: template.max_participants,
       region: template.region,
       category: template.category,
