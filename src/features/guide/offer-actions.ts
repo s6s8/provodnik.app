@@ -394,7 +394,7 @@ export async function editOfferAction(
       return { error: CALENDAR_BLOCKED_ERROR };
     }
 
-    const { error } = await supabase
+    const { data: updatedOffer, error } = await supabase
       .from("guide_offers")
       .update({
         price_minor: rubToKopecks(parsed.data.price_total),
@@ -408,8 +408,12 @@ export async function editOfferAction(
         ends_at: parsed.data.ends_at ?? null,
       })
       .eq("id", offerId)
-      .eq("guide_id", guideId);
+      .eq("guide_id", guideId)
+      .eq("status", "pending")
+      .select("id")
+      .maybeSingle();
     if (error) return { error: friendlyError(error, "Не удалось обновить предложение.") };
+    if (!updatedOffer) return { error: "Можно редактировать только активное предложение." };
 
     revalidatePath(`/requests/${requestId}`);
     revalidatePath("/guide/inbox");

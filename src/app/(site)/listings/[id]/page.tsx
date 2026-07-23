@@ -57,6 +57,7 @@ export default async function ListingDetailPage({
   const id = listing.id;
 
   if (listing.exp_type === "transfer") notFound();
+  if (listing.exp_type === "tour" && !flags.FEATURE_TR_TOURS) notFound();
 
   const [photosRes, scheduleRes, slotsRes, tariffsRes, guideRes] = await Promise.all([
     supabase.from("listing_photos").select("*").eq("listing_id", id).order("position"),
@@ -128,7 +129,6 @@ export default async function ListingDetailPage({
         />
       );
     }
-    // Flag off — fall through to excursion template below
   }
 
 

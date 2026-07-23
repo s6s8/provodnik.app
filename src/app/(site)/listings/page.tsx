@@ -7,7 +7,7 @@ import { getActiveListings, type ListingRecord } from "@/data/supabase/queries";
 import { flags } from "@/lib/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { PublicListingDiscoveryScreen } from "@/features/listings/components/public/public-listing-discovery-screen";
+import { PublicListingDiscoveryScreen, isThemeSlug } from "@/features/listings/components/public/public-listing-discovery-screen";
 
 export function generateMetadata(): Metadata {
   return {
@@ -55,7 +55,7 @@ function mapToPublicListing(listing: ListingRecord): PublicListing {
 export default async function PublicListingsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; theme?: string }>;
 }) {
   // Public excursions catalog is hidden (Wildberries review) unless re-approved.
   // Redirect to the live guide catalog instead of serving a soft-404 (HTTP 200 + 404 UI).
@@ -75,6 +75,7 @@ export default async function PublicListingsPage({
 
   const params = await searchParams;
   const initialSearch = (params.q ?? "").trim();
+  const initialTheme = isThemeSlug(params.theme) ? params.theme : "all";
 
   return (
     <section className="pb-20">
@@ -87,7 +88,11 @@ export default async function PublicListingsPage({
           </Alert>
         </div>
       ) : (
-        <PublicListingDiscoveryScreen listings={listings} initialSearch={initialSearch} />
+        <PublicListingDiscoveryScreen
+          listings={listings}
+          initialSearch={initialSearch}
+          initialTheme={initialTheme}
+        />
       )}
     </section>
   );
