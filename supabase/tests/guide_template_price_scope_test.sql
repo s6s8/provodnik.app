@@ -1,7 +1,6 @@
--- D17-2: a new ready tour is priced per group at the data boundary.
--- Proves tg_enforce_guide_template_price_scope rejects a direct authenticated write that
--- would create (or revert) a per-person ready tour, while leaving legacy per_person rows
--- readable, editable and untouched.
+-- Task #94: guides may author per-group or per-person ready tours at the data boundary.
+-- Proves both scopes persist on authenticated create/update while legacy per_person rows
+-- and the per_group default for omitted scope stay intact.
 begin;
 
 create extension if not exists pgtap with schema extensions;
@@ -28,8 +27,7 @@ insert into public.guide_profiles (user_id, slug, verification_status)
 values ('71000000-0000-4000-8000-000000000001','scope-guide','approved')
 on conflict (user_id) do update set verification_status = excluded.verification_status;
 
--- A legacy per_person tour, seeded by the trusted backend (no JWT) exactly as the
--- 20260719000100 backfill left it.
+-- A legacy per_person tour, seeded by the trusted backend (no JWT).
 insert into public.guide_templates (id, guide_id, title, price_from_kopecks, price_scope, status)
 values ('71000000-0000-4000-8000-0000000000aa',
         '71000000-0000-4000-8000-000000000001','Legacy tour',500000,'per_person','draft');
@@ -39,16 +37,19 @@ set local role authenticated;
 select set_config('request.jwt.claim.role','authenticated', true);
 select set_config('request.jwt.claim.sub','71000000-0000-4000-8000-000000000001', true);
 
--- 1. Direct write asking for per-person money is REJECTED, not silently normalised.
-select throws_ok(
+-- 1. Direct write asking for per-person money is accepted.
+select lives_ok(
   $$insert into public.guide_templates (id, guide_id, title, price_from_kopecks, price_scope)
     values ('71000000-0000-4000-8000-0000000000b1',
             '71000000-0000-4000-8000-000000000001','Direct per person',400000,'per_person')$$,
-  '23514',
-  null,
-  'authenticated insert with price_scope=per_person is rejected');
+  'authenticated insert with price_scope=per_person is accepted');
 
--- 2. Omitting price_scope no longer yields a per-person tour: the default is per_group.
+select is(
+  (select price_scope from public.guide_templates where id='71000000-0000-4000-8000-0000000000b1'),
+  'per_person',
+  'a new per_person ready tour persists its scope');
+
+-- 2. Omitting price_scope still defaults to per_group.
 select lives_ok(
   $$insert into public.guide_templates (id, guide_id, title, price_from_kopecks)
     values ('71000000-0000-4000-8000-0000000000b2',
@@ -60,13 +61,11 @@ select is(
   'per_group',
   'a new ready tour defaults to per_group');
 
--- 3. A per_group tour cannot be flipped back to per-person money.
-select throws_ok(
+-- 3. A per_group tour may be switched to per-person money.
+select lives_ok(
   $$update public.guide_templates set price_scope='per_person'
       where id='71000000-0000-4000-8000-0000000000b2'$$,
-  '23514',
-  null,
-  'per_group tour cannot be reverted to per_person');
+  'per_group tour may be updated to per_person');
 
 -- 4. Legacy rows are not reinterpreted and stay editable.
 select is(

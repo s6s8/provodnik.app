@@ -47,7 +47,7 @@ describe("guide template creation status", () => {
 });
 
 describe("guide template price scope", () => {
-  it("creates every ready tour with per-group pricing", async () => {
+  it("creates a ready tour with per-group pricing by default", async () => {
     await createGuideTemplate({ title: "Тур", priceFromRub: 4500 });
 
     expect(insert).toHaveBeenCalledWith(
@@ -55,7 +55,33 @@ describe("guide template price scope", () => {
     );
   });
 
-  it("never rewrites the price scope of an existing tour", async () => {
+  it("persists an explicit per-person price scope on create", async () => {
+    insert.mockClear();
+    await createGuideTemplate({
+      title: "Тур",
+      priceFromRub: 1200,
+      priceScope: "per_person",
+    });
+
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({ price_scope: "per_person", price_from_kopecks: 120000 }),
+    );
+  });
+
+  it("updates price scope when the guide changes it", async () => {
+    await updateGuideTemplate("tpl-1", {
+      title: "Тур 2",
+      priceFromRub: 5000,
+      priceScope: "per_person",
+    });
+
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ price_scope: "per_person" }),
+    );
+  });
+
+  it("does not touch price scope when it is omitted on update", async () => {
+    update.mockClear();
     await updateGuideTemplate("tpl-1", { title: "Тур 2", priceFromRub: 5000 });
 
     expect(update).toHaveBeenCalledWith(

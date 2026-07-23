@@ -85,6 +85,10 @@ beforeAll(() => {
  * jsdom does not implement PointerEvent buttons, so open it the keyboard way —
  * which is the interaction the a11y refactor cares about anyway.
  */
+function selectPriceScope(optionLabel: string) {
+  fireEvent.click(screen.getByRole("radio", { name: optionLabel }));
+}
+
 function selectCategory(optionLabel: string) {
   fireEvent.keyDown(screen.getByRole("combobox", { name: "Категория" }), { key: " " });
   fireEvent.click(screen.getByRole("option", { name: optionLabel }));
@@ -167,16 +171,28 @@ describe("GuideExcursionsScreen", () => {
 
     expect(screen.getByText("Новая экскурсия")).toBeInTheDocument();
     expect(screen.getByLabelText(/Название/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Цена за группу/)).toBeInTheDocument();
+    expect(screen.getByText("Цена")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "за группу" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "за человека" })).toBeInTheDocument();
+    expect(screen.getByLabelText("Цена, ₽")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Сохранить" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Отмена" })).toBeInTheDocument();
+  });
+
+  it("defaults new excursions to per-group pricing", async () => {
+    render(<GuideExcursionsScreen />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
+
+    expect(screen.getByRole("radio", { name: "за группу" })).toHaveAttribute("data-state", "on");
+    expect(screen.getByRole("radio", { name: "за человека" })).toHaveAttribute("data-state", "off");
   });
 
   it("shows the current title validation error and does not save without a title", async () => {
     render(<GuideExcursionsScreen />);
 
     fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
-    fireEvent.change(screen.getByLabelText(/Цена за группу/), {
+    fireEvent.change(screen.getByLabelText("Цена, ₽"), {
       target: { value: "1000" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Сохранить" }));
@@ -203,7 +219,7 @@ describe("GuideExcursionsScreen", () => {
     fireEvent.change(screen.getByLabelText("Длительность"), {
       target: { value: "2 часа" },
     });
-    fireEvent.change(screen.getByLabelText(/Цена за группу/), {
+    fireEvent.change(screen.getByLabelText("Цена, ₽"), {
       target: { value: "1250" },
     });
     fireEvent.change(screen.getByLabelText("Место сбора"), {
@@ -224,6 +240,7 @@ describe("GuideExcursionsScreen", () => {
       title: "Новый маршрут",
       description: "Описание маршрута",
       durationText: "2 часа",
+      priceScope: "per_group",
       priceFromRub: 1250,
       meetingPoint: "У фонтана",
       maxParticipants: 12,
@@ -231,6 +248,44 @@ describe("GuideExcursionsScreen", () => {
       region: "Батуми",
       category: "nature",
     });
+  });
+
+  it("saves per-person pricing when the guide selects за человека", async () => {
+    guidePhotos.value = [
+      { id: "photo-1", location_name: "Батуми", object_path: "batumi.jpg" },
+    ];
+    createGuideTemplateMock.mockResolvedValue({
+      ...baseTemplate,
+      id: "created-template",
+      title: "Индивидуальный маршрут",
+      price_scope: "per_person",
+      price_from_kopecks: 150_000,
+      status: "pending_review",
+    });
+
+    render(<GuideExcursionsScreen />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Добавить экскурсию" }));
+    fireEvent.change(screen.getByLabelText(/Название/), {
+      target: { value: "Индивидуальный маршрут" },
+    });
+    selectPriceScope("за человека");
+    fireEvent.change(screen.getByLabelText("Цена, ₽"), {
+      target: { value: "1500" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Выбрать фото маршрута" }));
+    fireEvent.click(screen.getByRole("button", { name: "Батуми" }));
+    fireEvent.click(screen.getByRole("button", { name: "Готово" }));
+    fireEvent.click(screen.getByRole("button", { name: "Сохранить" }));
+
+    expect(await screen.findByText("Индивидуальный маршрут")).toBeInTheDocument();
+    expect(createGuideTemplateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "Индивидуальный маршрут",
+        priceScope: "per_person",
+        priceFromRub: 1500,
+      }),
+    );
   });
 
   it("does not expose a draft bypass in the create form", async () => {
@@ -275,7 +330,9 @@ describe("GuideExcursionsScreen", () => {
       "Покажу дворики, смотровые и тихие улочки.",
     );
     expect(screen.getByLabelText("Длительность")).toHaveValue("3 часа");
-    expect(screen.getByLabelText(/Цена за группу/)).toHaveValue(4500);
+    expect(screen.getByLabelText("Цена, ₽")).toHaveValue(4500);
+    expect(screen.getByRole("radio", { name: "за человека" })).toHaveAttribute("data-state", "on");
+    expect(screen.getByRole("radio", { name: "за группу" })).toHaveAttribute("data-state", "off");
     expect(screen.getByLabelText("Место сбора")).toHaveValue("Площадь Свободы");
     expect(screen.getByLabelText("Макс. участников в группе")).toHaveValue(8);
     expect(screen.getByRole("combobox", { name: "Локация" })).toHaveTextContent(
