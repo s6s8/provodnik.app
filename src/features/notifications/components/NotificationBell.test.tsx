@@ -43,18 +43,27 @@ vi.mock("@/lib/env", () => ({
   hasSupabaseEnv: () => true,
 }));
 
-import { NotificationBell } from "./NotificationBell";
+import { NotificationBell, isUnreadNotification } from "./NotificationBell";
 
 const unreadNotification = {
   id: "notification-1",
   user_id: "user-123",
   event_type: "new_offer",
+  kind: "new_offer",
   payload: null,
   channel: "inbox",
   status: "sent",
   created_at: "2026-05-31T06:00:00.000Z",
   read_at: null,
 };
+
+function makeUnreadOfferNotification(id: string) {
+  return {
+    ...unreadNotification,
+    id,
+    title: `Новое предложение от гида ${id}`,
+  };
+}
 
 async function renderNotificationBell(userId = "user-123") {
   const view = render(<NotificationBell userId={userId} />);
@@ -221,5 +230,54 @@ describe("NotificationBell", () => {
       expect(screen.queryByText("Новое предложение от гида")).not.toBeInTheDocument();
     });
     expect(screen.getByText("Нет новых уведомлений")).toBeInTheDocument();
+  });
+
+  it.each([
+    { ids: ["notification-1"], expected: "1" },
+    { ids: ["notification-1", "notification-2"], expected: "2" },
+    {
+      ids: ["notification-1", "notification-2", "notification-3"],
+      expected: "3",
+    },
+  ])(
+    "shows a destructive badge count of $expected for distinct unread new_offer rows",
+    async ({ ids, expected }) => {
+      mockLimit.mockResolvedValueOnce({
+        data: ids.map((id) => makeUnreadOfferNotification(id)),
+        error: null,
+      });
+
+      await renderNotificationBell();
+
+      const badge = document.querySelector(".bg-destructive");
+      expect(badge).not.toBeNull();
+      expect(badge).toHaveTextContent(expected);
+    },
+  );
+
+  it("does not increase the badge when the same notification id is inserted twice over realtime", async () => {
+    await renderNotificationBell();
+    const changeHandler = (mockOn as Mock).mock.calls[0][2] as (payload: {
+      new: typeof unreadNotification & { title: string };
+    }) => void;
+
+    const row = {
+      ...makeUnreadOfferNotification("notification-dup"),
+      title: "Новое предложение от гида",
+    };
+
+    await act(async () => {
+      changeHandler({ new: row });
+      changeHandler({ new: row });
+    });
+
+    const badge = document.querySelector(".bg-destructive");
+    expect(badge).toHaveTextContent("1");
+  });
+});
+
+describe("isUnreadNotification", () => {
+  it("treats sent inbox rows with null read_at as unread", () => {
+    expect(isUnreadNotification({ status: "sent", read_at: null })).toBe(true);
   });
 });

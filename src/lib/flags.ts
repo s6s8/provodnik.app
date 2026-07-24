@@ -4,7 +4,9 @@ const envFlag = z.enum(["0", "1"]).catch("0");
 
 const flagsSchema = z.object({
   FEATURE_TR_TOURS: envFlag,
-  FEATURE_TR_NOTIFICATIONS: envFlag,
+  // Traveler notification center (bell + /account/notifications). Default on in production;
+  // set FEATURE_TR_NOTIFICATIONS=0 only when the surface must stay hidden.
+  FEATURE_TR_NOTIFICATIONS: z.enum(["0", "1"]).catch("1"),
   FEATURE_TR_PAYMENT: envFlag,
   FEATURE_TR_FAVORITES: envFlag,
   FEATURE_TR_PARTNER: envFlag,
