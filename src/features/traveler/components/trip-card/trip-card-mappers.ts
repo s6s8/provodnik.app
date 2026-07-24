@@ -76,6 +76,7 @@ export function mapBookingToTrip(
 
   return {
     id: booking.booking_id,
+    kind: "booking",
     destination: booking.destination,
     startsOn: booking.starts_on,
     endsOn: bookingWithItinerary.ends_on,

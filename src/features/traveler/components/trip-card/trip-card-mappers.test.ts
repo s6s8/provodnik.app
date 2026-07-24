@@ -42,6 +42,7 @@ const baseBooking: ConfirmedBookingSummary = {
   guide_name: "Демо Гид",
   guide_avatar_url: "/avatars/guide.jpg",
   booking_thread_id: null,
+  status: "confirmed",
 };
 
 describe("trip card mappers", () => {
@@ -115,6 +116,7 @@ describe("trip card mappers", () => {
 
     expect(trip).toMatchObject({
       id: "booking-1",
+      kind: "booking",
       destination: "Москва",
       startsOn: "2026-07-20",
       endsOn: "2026-07-21",

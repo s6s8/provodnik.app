@@ -39,6 +39,13 @@ export interface TravelerRequestSummary {
   date_flexibility?: string
 }
 
+export type CabinetBookingStatus =
+  | 'pending'
+  | 'awaiting_guide_confirmation'
+  | 'confirmed'
+  | 'completed'
+  | 'cancelled'
+
 export interface ConfirmedBookingSummary {
   booking_id: string
   request_id: string
@@ -53,6 +60,7 @@ export interface ConfirmedBookingSummary {
   guide_name: string | null
   guide_avatar_url: string | null
   booking_thread_id: string | null
+  status: CabinetBookingStatus
 }
 
 export interface JoinedGroupSummary {
@@ -242,9 +250,15 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
 
   const { data: bookings, error } = await supabase
     .from('bookings')
-    .select('id, offer_id, request_id, subtotal_minor, currency, guide_id, created_at, starts_at')
+    .select('id, offer_id, request_id, subtotal_minor, currency, guide_id, created_at, starts_at, status')
     .eq('traveler_id', travelerId)
-    .in('status', ['pending', 'awaiting_guide_confirmation', 'confirmed'])
+    .in('status', [
+      'pending',
+      'awaiting_guide_confirmation',
+      'confirmed',
+      'completed',
+      'cancelled',
+    ])
     .order('created_at', { ascending: true })
 
   if (error) throw error
@@ -320,6 +334,62 @@ export const getConfirmedBookings = cache(async (travelerId: string): Promise<Co
       guide_name: resolveDisplayName('guide', { full_name: profile.full_name }),
       guide_avatar_url: profile.avatar_url,
       booking_thread_id: threadMap.get(b.id) ?? null,
+      status: b.status as CabinetBookingStatus,
+    }
+  })
+})
+
+/**
+ * Fetch terminal (cancelled/expired) own requests for the cabinet history feed.
+ * Open and booked requests are excluded — they surface through active requests or
+ * confirmed bookings instead.
+ */
+export const getTerminalRequests = cache(async (travelerId: string): Promise<TravelerRequestSummary[]> => {
+  const supabase = await createSupabaseServerClient()
+
+  const { data: requests, error } = await supabase
+    .from('traveler_requests')
+    .select('id, destination, region, interests, starts_on, ends_on, start_time, end_time, budget_minor, participants_count, status, created_at, format_preference, group_capacity, open_to_join, date_locked, date_flexibility')
+    .eq('traveler_id', travelerId)
+    .in('status', ['cancelled', 'expired'])
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+  if (!requests || requests.length === 0) return []
+
+  type RequestRow = (typeof requests)[number] & {
+    start_time: string | null
+    end_time: string | null
+    format_preference: string | null
+    group_capacity: number | null
+    open_to_join: boolean
+    date_locked: boolean
+    date_flexibility: string | null
+  }
+
+  return (requests as RequestRow[]).map((r) => {
+    const interests = (r.interests as string[] | null) ?? []
+    return {
+      id: r.id,
+      destination: r.destination,
+      region: r.region,
+      interests,
+      starts_on: r.starts_on,
+      start_time: r.start_time,
+      end_time: r.end_time,
+      ends_on: r.ends_on,
+      budget_minor: r.budget_minor,
+      participants_count: r.participants_count,
+      status: r.status as TravelerRequestSummary['status'],
+      created_at: r.created_at,
+      open_to_join: r.open_to_join,
+      date_locked: r.date_locked,
+      date_flexibility: r.date_flexibility ?? 'exact',
+      offer_count: 0,
+      unread_offer_count: 0,
+      guide_avatars: [],
+      mode: (r.format_preference === 'group' ? 'assembly' : 'private') as 'assembly' | 'private',
+      group_max: r.group_capacity,
     }
   })
 })
@@ -348,6 +418,7 @@ export const getJoinedRequests = cache(async (travelerId: string): Promise<Joine
     .select('id, traveler_id, destination, region, starts_on, start_time, ends_on, budget_minor, participants_count, group_capacity, status')
     .in('id', requestIds)
     .neq('traveler_id', travelerId)
+    .in('status', ['open', 'booked'])
 
   if (reqError) throw reqError
   if (!requests || requests.length === 0) return []

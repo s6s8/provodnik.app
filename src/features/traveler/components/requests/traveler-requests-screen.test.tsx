@@ -40,6 +40,7 @@ const baseBooking: ConfirmedBookingSummary = {
   guide_name: 'Демо Гид',
   guide_avatar_url: '/avatars/guide.jpg',
   booking_thread_id: null,
+  status: 'confirmed',
 }
 
 const baseJoinedGroup: JoinedGroupSummary = {
@@ -142,5 +143,69 @@ describe('TravelerRequestsScreen — lifecycle feed', () => {
     expect(screen.queryByText('У вас ещё нет запросов')).toBeNull()
     expect(screen.queryByText('Подтверждённых поездок пока нет')).toBeNull()
     expect(screen.queryByText('Вы пока не присоединились ни к одной группе')).toBeNull()
+  })
+
+  it('renders only pending phases for an active request without offers', () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[baseRequest]}
+        confirmedBookings={[]}
+      />,
+    )
+
+    expect(screen.getByText('В ожидании откликов · 1')).toBeInTheDocument()
+    expect(screen.getByText('Элиста')).toBeInTheDocument()
+    expect(screen.queryByText('Скоро ·')).toBeNull()
+    expect(screen.queryByText('Завершённые ·')).toBeNull()
+  })
+
+  it('renders confirmed bookings in active date phases', () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[]}
+        confirmedBookings={[
+          {
+            ...baseBooking,
+            booking_id: 'confirmed-upcoming',
+            destination: 'Суздаль',
+            starts_on: '2026-06-10',
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getByText('Скоро · 1')).toBeInTheDocument()
+    expect(screen.getByText('Суздаль')).toBeInTheDocument()
+    expect(screen.queryByRole('tablist')).toBeNull()
+  })
+
+  it('renders terminal history in the collapsed completed section', () => {
+    render(
+      <TravelerRequestsScreen
+        activeRequests={[]}
+        confirmedBookings={[
+          {
+            ...baseBooking,
+            booking_id: 'completed-booking',
+            destination: 'Прошлая поездка',
+            starts_on: '2026-05-10',
+            status: 'completed',
+          },
+        ]}
+        terminalRequests={[
+          {
+            ...baseRequest,
+            id: 'cancelled-request',
+            destination: 'Отменённый запрос',
+            status: 'cancelled',
+            starts_on: '2026-05-05',
+          },
+        ]}
+      />,
+    )
+
+    expect(screen.getByText('Завершённые · 2')).toBeInTheDocument()
+    expect(screen.queryByText('Прошлая поездка')).toBeNull()
+    expect(screen.queryByText('Отменённый запрос')).toBeNull()
   })
 })

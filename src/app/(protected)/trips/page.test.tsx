@@ -7,6 +7,7 @@ const {
   getActiveRequestsMock,
   getConfirmedBookingsMock,
   getJoinedRequestsMock,
+  getTerminalRequestsMock,
   pinElistaInspirationsMock,
   redirectMock,
 } = vi.hoisted(() => ({
@@ -15,6 +16,7 @@ const {
   getActiveRequestsMock: vi.fn(),
   getConfirmedBookingsMock: vi.fn(),
   getJoinedRequestsMock: vi.fn(),
+  getTerminalRequestsMock: vi.fn(),
   pinElistaInspirationsMock: vi.fn(),
   redirectMock: vi.fn((url: string) => {
     throw new Error(`NEXT_REDIRECT:${url}`);
@@ -37,6 +39,7 @@ vi.mock("@/lib/supabase/traveler-requests", () => ({
   getActiveRequests: getActiveRequestsMock,
   getConfirmedBookings: getConfirmedBookingsMock,
   getJoinedRequests: getJoinedRequestsMock,
+  getTerminalRequests: getTerminalRequestsMock,
 }));
 
 vi.mock("@/features/traveler/components/empty-cabinet/pin-elista", () => ({
@@ -85,6 +88,7 @@ describe("TripsPage", () => {
     getActiveRequestsMock.mockReset();
     getConfirmedBookingsMock.mockReset();
     getJoinedRequestsMock.mockReset();
+    getTerminalRequestsMock.mockReset();
     pinElistaInspirationsMock.mockReset();
     redirectMock.mockClear();
   });
@@ -116,6 +120,7 @@ describe("TripsPage", () => {
     getActiveRequestsMock.mockResolvedValueOnce([{ destination: "Элиста" }]);
     getConfirmedBookingsMock.mockResolvedValueOnce([{ destination: "Москва" }]);
     getJoinedRequestsMock.mockResolvedValueOnce([{ destination: "Кострома" }]);
+    getTerminalRequestsMock.mockResolvedValueOnce([{ destination: "Казань" }]);
     getDestinationsMock.mockResolvedValueOnce({ data: [{ title: "Элиста" }] });
     pinElistaInspirationsMock.mockReturnValueOnce([{ title: "Калмыкия" }]);
 
@@ -125,6 +130,7 @@ describe("TripsPage", () => {
     expect(getActiveRequestsMock).toHaveBeenCalledWith("traveler-1");
     expect(getConfirmedBookingsMock).toHaveBeenCalledWith("traveler-1");
     expect(getJoinedRequestsMock).toHaveBeenCalledWith("traveler-1");
+    expect(getTerminalRequestsMock).toHaveBeenCalledWith("traveler-1");
     expect(getDestinationsMock).toHaveBeenCalledWith(supabase);
     expect(pinElistaInspirationsMock).toHaveBeenCalledWith([{ title: "Элиста" }]);
     expect(

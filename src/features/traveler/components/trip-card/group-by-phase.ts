@@ -16,6 +16,7 @@ type GroupTripsByPhaseInput = {
   activeRequests: TravelerRequestSummary[];
   confirmedBookings: ConfirmedBookingSummary[];
   joinedGroups?: JoinedGroupSummary[];
+  terminalRequests?: TravelerRequestSummary[];
 };
 
 function emptyGroups(): Record<TripPhase, TripCardModel[]> {
@@ -36,6 +37,14 @@ function bookingPhase(startsOn: string): TripPhase {
   if (startsOnDate === today) return "today";
   if (startsOnDate > today) return "upcoming";
   return "completed";
+}
+
+function resolveBookingPhase(booking: ConfirmedBookingSummary): TripPhase {
+  if (booking.status === "completed" || booking.status === "cancelled") {
+    return "completed";
+  }
+
+  return bookingPhase(booking.starts_on);
 }
 
 function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
@@ -60,31 +69,51 @@ function mapJoinedGroupToTrip(group: JoinedGroupSummary): TripCardModel {
   };
 }
 
-function sortByStartsOn(trips: TripCardModel[]): TripCardModel[] {
-  return [...trips].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+function sortPhaseTrips(
+  phase: TripPhase,
+  trips: TripCardModel[],
+): TripCardModel[] {
+  const sorted = [...trips].sort((a, b) => a.startsOn.localeCompare(b.startsOn));
+
+  if (phase === "completed") {
+    return sorted.reverse();
+  }
+
+  return sorted;
 }
 
 export function groupTripsByPhase({
   activeRequests,
   confirmedBookings,
   joinedGroups = [],
+  terminalRequests = [],
 }: GroupTripsByPhaseInput): Record<TripPhase, TripCardModel[]> {
   const groups = emptyGroups();
+  const bookedRequestIds = new Set(
+    confirmedBookings
+      .map((booking) => booking.request_id)
+      .filter((requestId): requestId is string => Boolean(requestId)),
+  );
 
   for (const request of activeRequests) {
     groups[mapRequestToPhase(request)].push(mapRequestToTrip(request));
   }
 
   for (const booking of confirmedBookings) {
-    groups[bookingPhase(booking.starts_on)].push(mapBookingToTrip(booking));
+    groups[resolveBookingPhase(booking)].push(mapBookingToTrip(booking));
   }
 
   for (const group of joinedGroups) {
+    if (bookedRequestIds.has(group.id)) continue;
     groups[bookingPhase(group.starts_on)].push(mapJoinedGroupToTrip(group));
   }
 
+  for (const request of terminalRequests) {
+    groups.completed.push(mapRequestToTrip(request));
+  }
+
   for (const phase of Object.keys(groups) as TripPhase[]) {
-    groups[phase] = sortByStartsOn(groups[phase]);
+    groups[phase] = sortPhaseTrips(phase, groups[phase]);
   }
 
   return groups;

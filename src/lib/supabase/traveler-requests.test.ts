@@ -8,7 +8,7 @@ vi.mock('@/lib/supabase/server', () => ({
   createSupabaseServerClient,
 }))
 
-import { getActiveRequests, getConfirmedBookings } from './traveler-requests'
+import { getActiveRequests, getConfirmedBookings, getTerminalRequests } from './traveler-requests'
 import type { TravelerRequestSummary, ConfirmedBookingSummary } from './traveler-requests'
 
 beforeEach(() => {
@@ -62,6 +62,7 @@ describe('ConfirmedBookingSummary type', () => {
       booking_id: 'uuid0', request_id: 'uuid1', destination: 'Астрахань', starts_on: '2026-07-10',
       price_minor: 15000, currency: 'RUB', guide_id: 'uuid2',
       guide_name: 'Иван', guide_avatar_url: null, booking_thread_id: null,
+      status: 'confirmed',
     }
     expect(booking.price_minor).toBeGreaterThan(0)
   })
@@ -206,6 +207,7 @@ describe('getConfirmedBookings', () => {
           currency: 'RUB',
           guide_id: 'guide-1',
           created_at: '2026-06-08T10:00:00Z',
+          status: 'confirmed',
         }],
         error: null,
       }),
@@ -247,7 +249,13 @@ describe('getConfirmedBookings', () => {
 
     const [booking] = await getConfirmedBookings('traveler-confirmed-1')
 
-    expect(bookingsQuery.in).toHaveBeenCalledWith('status', ['pending', 'awaiting_guide_confirmation', 'confirmed'])
+    expect(bookingsQuery.in).toHaveBeenCalledWith('status', [
+      'pending',
+      'awaiting_guide_confirmation',
+      'confirmed',
+      'completed',
+      'cancelled',
+    ])
     expect(bookingsQuery.in).not.toHaveBeenCalledWith('status', expect.arrayContaining(['draft']))
     expect(booking).toEqual({
       booking_id: 'booking-1',
@@ -263,6 +271,7 @@ describe('getConfirmedBookings', () => {
       guide_name: 'Иван',
       guide_avatar_url: null,
       booking_thread_id: 'thread-1',
+      status: 'confirmed',
     })
   })
 
@@ -280,6 +289,7 @@ describe('getConfirmedBookings', () => {
           currency: 'RUB',
           guide_id: 'guide-1',
           created_at: '2026-06-08T10:00:00Z',
+          status: 'confirmed',
           starts_at: '2026-07-15T09:00:00.000Z',
         }],
         error: null,
@@ -338,6 +348,7 @@ describe('getConfirmedBookings', () => {
           currency: 'RUB',
           guide_id: 'guide-1',
           created_at: '2026-06-08T10:00:00Z',
+          status: 'confirmed',
           starts_at: null,
         }],
         error: null,
@@ -405,6 +416,7 @@ describe('getConfirmedBookings', () => {
           currency: 'RUB',
           guide_id: 'guide-1',
           created_at: '2026-06-08T10:00:00Z',
+          status: 'confirmed',
           starts_at: null,
         }],
         error: null,
@@ -458,6 +470,7 @@ describe('getConfirmedBookings', () => {
           currency: 'RUB',
           guide_id: 'guide-1',
           created_at: '2026-06-08T10:00:00Z',
+          status: 'confirmed',
         }],
         error: null,
       }),
@@ -484,5 +497,69 @@ describe('getConfirmedBookings', () => {
 
     expect(booking.destination).toBe('Поездка')
     expect(booking.destination).not.toBe('—')
+  })
+})
+
+describe('getTerminalRequests', () => {
+  it('filters the history bucket to cancelled and expired only', async () => {
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({ data: [], error: null }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'traveler_requests') return requestQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    await getTerminalRequests('traveler-terminal-1')
+
+    expect(requestQuery.in).toHaveBeenCalledWith('status', ['cancelled', 'expired'])
+  })
+
+  it('returns terminal own requests for the completed feed', async () => {
+    const requestQuery = {
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      in: vi.fn().mockReturnThis(),
+      order: vi.fn().mockResolvedValue({
+        data: [{
+          id: 'request-cancelled',
+          destination: 'Казань',
+          region: null,
+          interests: ['history_culture'],
+          starts_on: '2026-05-01',
+          ends_on: null,
+          start_time: null,
+          end_time: null,
+          budget_minor: null,
+          participants_count: 2,
+          status: 'cancelled',
+          created_at: '2026-04-21T00:00:00Z',
+          format_preference: 'private',
+          group_capacity: null,
+          open_to_join: false,
+          date_locked: true,
+          date_flexibility: 'exact',
+        }],
+        error: null,
+      }),
+    }
+    const from = vi.fn((table: string) => {
+      if (table === 'traveler_requests') return requestQuery
+      throw new Error(`Unexpected table: ${table}`)
+    })
+    createSupabaseServerClient.mockResolvedValue({ from })
+
+    const [summary] = await getTerminalRequests('traveler-terminal-2')
+
+    expect(summary).toMatchObject({
+      id: 'request-cancelled',
+      destination: 'Казань',
+      status: 'cancelled',
+      offer_count: 0,
+    })
   })
 })
