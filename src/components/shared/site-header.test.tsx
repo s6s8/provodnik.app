@@ -3,12 +3,17 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 let mockPathname = "/trips";
 let mockUnreadCount = 0;
-const { useUnreadCountMock, linkPrefetchByHref } = vi.hoisted(() => ({
+const { useUnreadCountMock, linkPrefetchByHref, notificationBellMock } = vi.hoisted(() => ({
   useUnreadCountMock: vi.fn(() => ({
     unreadCount: 0,
     refetch: vi.fn(),
   })),
   linkPrefetchByHref: [] as Array<{ href: string; prefetch?: boolean | null }>,
+  notificationBellMock: vi.fn(({ userId }: { userId: string }) => (
+    <button type="button" aria-label="Уведомления" data-user-id={userId}>
+      Bell
+    </button>
+  )),
 }));
 
 vi.mock("next/link", () => ({
@@ -38,6 +43,10 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("@/features/messaging/hooks/use-unread-count", () => ({
   useUnreadCount: useUnreadCountMock,
+}));
+
+vi.mock("@/features/notifications/components/NotificationBell", () => ({
+  NotificationBell: notificationBellMock,
 }));
 
 import { SiteHeader } from "./site-header";
@@ -346,5 +355,56 @@ describe("SiteHeader mobile menu", () => {
     expect(
       screen.getByText("Навигация по разделам Проводника."),
     ).toBeInTheDocument();
+  });
+});
+
+describe("SiteHeader traveler notification bell", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    notificationBellMock.mockClear();
+    mockPathname = "/trips";
+    useUnreadCountMock.mockImplementation(() => ({
+      unreadCount: 0,
+      refetch: vi.fn(),
+    }));
+  });
+
+  it("renders NotificationBell for authenticated travelers when notifications are enabled", () => {
+    render(
+      <SiteHeader
+        isAuthenticated
+        role="traveler"
+        email="traveler@example.com"
+        userId="traveler-user-1"
+        notificationsEnabled
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "Уведомления" })).toBeInTheDocument();
+    expect(notificationBellMock.mock.calls[0]?.[0]).toMatchObject({
+      userId: "traveler-user-1",
+    });
+  });
+
+  it("does not render NotificationBell when notifications are disabled", () => {
+    render(
+      <SiteHeader
+        isAuthenticated
+        role="traveler"
+        email="traveler@example.com"
+        userId="traveler-user-1"
+        notificationsEnabled={false}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "Уведомления" })).toBeNull();
+    expect(notificationBellMock).not.toHaveBeenCalled();
+  });
+
+  it("does not render NotificationBell for guests even when notifications are enabled", () => {
+    render(<SiteHeader isAuthenticated={false} notificationsEnabled />);
+
+    expect(screen.queryByRole("button", { name: "Уведомления" })).toBeNull();
+    expect(notificationBellMock).not.toHaveBeenCalled();
   });
 });
