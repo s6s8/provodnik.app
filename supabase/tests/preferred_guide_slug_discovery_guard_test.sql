@@ -114,10 +114,12 @@ select set_config('request.jwt.claim.sub', '6d200000-0000-4000-8000-000000000001
 
 select lives_ok(
   $$insert into public.traveler_requests
-      (id, traveler_id, destination, starts_on, ends_on, participants_count)
+      (id, traveler_id, destination, starts_on, ends_on, participants_count,
+       format_preference, open_to_join)
     values ('6f200000-0000-4000-8000-000000000001',
             '6d200000-0000-4000-8000-000000000001',
-            'Discovery Ordinary Open Request', date '2026-09-01', date '2026-09-02', 2)$$,
+            'Discovery Ordinary Open Request', date '2026-09-01', date '2026-09-02', 2,
+            'group', true)$$,
   'traveler can still directly insert an undirected open request'
 );
 

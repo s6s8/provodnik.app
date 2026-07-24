@@ -109,10 +109,10 @@ select set_config('request.jwt.claim.role','anon', true);
 select set_config('request.jwt.claim.sub','', true);
 
 select is(
-  (select count(*)::int from public.guide_templates
-      where id='72000000-0000-4000-8000-0000000000aa' and status='published'),
+  (select count(*)::int from public.v_public_published_guide_templates
+      where id='72000000-0000-4000-8000-0000000000aa'),
   1,
-  'anon can see published templates');
+  'anon can see published templates through the public projection');
 
 -- 8. Guide cannot persist a new tour as draft even with an explicit draft status.
 set local role authenticated;
