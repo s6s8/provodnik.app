@@ -23,7 +23,6 @@ export function isMatchedRequest(req: { interests: string[] }, specs: string[]):
 export function filterInbox(
   items: RequestRecord[],
   {
-    baseCity,
     cityFilter,
     filter,
     offeredIds,
@@ -47,22 +46,10 @@ export function filterInbox(
     return [];
   }
 
-  // form-epic #8: baseCity filter (Phase A). If guide's base_city is set,
-  // restrict inbox to requests whose first destination segment matches
-  // (case-insensitive). If base_city is null, leave items untouched —
-  // empty-state with profile-fill hint is rendered downstream.
-  // A request addressed directly to this guide (item 9) always belongs in their inbox,
-  // regardless of city or specialization scoping below.
-  if (baseCity) {
-    const norm = baseCity.trim().toLowerCase();
-    filtered = filtered.filter(
-      (item) =>
-        item.isDirectToViewer ||
-        item.destination.split(",")[0].trim().toLowerCase() === norm,
-    );
-  }
+  // Guide base_city is not an inbox gate (RLS and specialization handle eligibility).
+  // User-driven city filter below.
 
-  // City filter (user-driven dropdown, separate from baseCity Phase A scope)
+  // City filter (user-driven dropdown)
   if (cityFilter !== "all") {
     filtered = filtered.filter(
       (item) =>

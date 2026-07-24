@@ -57,10 +57,10 @@ function request(overrides: Partial<RequestRecord>): RequestRecord {
 }
 
 describe("filterInbox", () => {
-  it("restricts visible requests to the guide base city", () => {
+  it("keeps specialization-matching requests visible outside the guide base city", () => {
     const items = [
-      request({ id: "elista", destination: "Элиста, центр" }),
-      request({ id: "karelia", destination: "Карелия, Рускеала" }),
+      request({ id: "elista", destination: "Элиста, центр", interests: ["nature"] }),
+      request({ id: "karelia", destination: "Карелия, Рускеала", interests: ["nature"] }),
     ];
 
     const filtered = filterInbox(items, {
@@ -70,13 +70,13 @@ describe("filterInbox", () => {
       offeredIds: new Set(),
       requestTypeFilter: "all",
       sortKey: "newest",
-      specializations: [],
+      specializations: ["nature"],
     });
 
-    expect(filtered.map((item) => item.id)).toEqual(["elista"]);
+    expect(filtered.map((item) => item.id).sort()).toEqual(["elista", "karelia"]);
   });
 
-  it("renders no requests when none match the guide base city", () => {
+  it("does not exclude requests solely because they are outside base city when specializations are unset", () => {
     const items = [
       request({ id: "elista", destination: "Элиста, центр" }),
       request({ id: "karelia", destination: "Карелия, Рускеала" }),
@@ -92,7 +92,7 @@ describe("filterInbox", () => {
       specializations: [],
     });
 
-    expect(filtered).toEqual([]);
+    expect(filtered.map((item) => item.id).sort()).toEqual(["elista", "karelia"]);
   });
 });
 
@@ -106,7 +106,7 @@ describe("getInboxTabCounts", () => {
     specializations: [] as string[],
   };
 
-  it("counts «Новые» only for unanswered requests in the guide base city", () => {
+  it("counts «Новые» for unanswered requests outside base city when they remain in inbox scope", () => {
     const items = [
       request({ id: "elista-a", destination: "Элиста, центр" }),
       request({ id: "elista-b", destination: "Элиста, музеи" }),
@@ -121,7 +121,7 @@ describe("getInboxTabCounts", () => {
     ).toBe(newCount);
   });
 
-  it("counts «Мои предложения» only for offers in the guide base city", () => {
+  it("counts «Мои предложения» for offers outside the guide base city", () => {
     const items = [
       request({ id: "elista-a", destination: "Элиста, центр" }),
       request({ id: "elista-b", destination: "Элиста, музеи" }),
@@ -130,10 +130,32 @@ describe("getInboxTabCounts", () => {
 
     const { myOffersCount } = getInboxTabCounts(items, scopeOptions);
 
-    expect(myOffersCount).toBe(1);
+    expect(myOffersCount).toBe(2);
     expect(
       filterInbox(items, { ...scopeOptions, filter: "my-offers" }).length,
     ).toBe(myOffersCount);
+  });
+
+  it("aligns «Новые» count with visible specialization-matching items outside base city", () => {
+    const items = [
+      request({ id: "elista-a", destination: "Элиста, центр", interests: ["nature"] }),
+      request({ id: "karelia-new", destination: "Карелия, Рускеала", interests: ["nature"] }),
+      request({ id: "elista-b", destination: "Элиста, музеи", interests: ["nature"] }),
+    ];
+    const options = {
+      ...scopeOptions,
+      offeredIds: new Set(["elista-b"]),
+      specializations: ["nature"],
+    };
+
+    const { newCount } = getInboxTabCounts(items, options);
+
+    expect(newCount).toBe(2);
+    expect(filterInbox(items, { ...options, filter: "new" }).map((item) => item.id).sort()).toEqual([
+      "elista-a",
+      "karelia-new",
+    ]);
+    expect(filterInbox(items, { ...options, filter: "new" }).length).toBe(newCount);
   });
 });
 

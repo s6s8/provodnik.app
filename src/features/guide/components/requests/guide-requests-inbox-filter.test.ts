@@ -60,7 +60,7 @@ describe("filterInbox — direct requests (item 9)", () => {
 
   it("still excludes a general request that fails the city filter", () => {
     const items = [rec({ id: "away", destination: "Сочи", interests: ["nature"] })];
-    expect(filterInbox(items, base)).toHaveLength(0);
+    expect(filterInbox(items, { ...base, cityFilter: "Москва" })).toHaveLength(0);
   });
 });
 
