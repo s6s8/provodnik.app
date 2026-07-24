@@ -76,16 +76,16 @@ export function GuideBookingsScreen() {
     let totalEarningsRub = 0;
 
     for (const booking of bookings) {
-      totalEarningsRub += booking.priceRub;
-
       if (
         booking.status === "awaiting_confirmation" ||
         booking.status === "confirmed" ||
         booking.status === "in_progress"
       ) {
         activeCount += 1;
+        totalEarningsRub += booking.priceRub;
       } else if (booking.status === "completed") {
         completedCount += 1;
+        totalEarningsRub += booking.priceRub;
       } else if (booking.status === "cancelled" || booking.status === "no_show") {
         cancelledCount += 1;
       }

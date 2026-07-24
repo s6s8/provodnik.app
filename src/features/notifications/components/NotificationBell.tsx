@@ -17,13 +17,6 @@ import { NotificationItem } from "./NotificationItem";
 
 /** In-app delivery channel in DB (`notifications.channel` CHECK). */
 const IN_APP_NOTIFICATION_CHANNEL = "inbox" as const;
-const ACTION_KINDS = new Set([
-  "new_offer",
-  "offer_expiring",
-  "booking_created",
-  "review_requested",
-  "dispute_opened",
-]);
 
 export function isUnreadNotification(notification: { status: string | null; read_at: string | null }) {
   return notification.status !== "read" || notification.read_at === null;
@@ -120,17 +113,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
   }, [userId]);
 
   const count = notifications.length;
-  const actionCount = notifications.filter((n) =>
-    ACTION_KINDS.has(n.kind ?? n.event_type ?? ""),
-  ).length;
-  const badgeLabel =
-    actionCount > 9
-      ? "9+"
-      : actionCount > 0
-        ? String(actionCount)
-        : count > 9
-          ? "9+"
-          : String(count);
+  const badgeLabel = count > 9 ? "9+" : String(count);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
